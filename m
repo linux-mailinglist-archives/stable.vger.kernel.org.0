@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A9FD45121D
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:27:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 052D8451471
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238362AbhKOTaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:30:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42220 "EHLO mail.kernel.org"
+        id S1349270AbhKOUGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:06:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244420AbhKOTOI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:14:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78B9E634BD;
-        Mon, 15 Nov 2021 18:20:56 +0000 (UTC)
+        id S1344395AbhKOTYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BA91633C7;
+        Mon, 15 Nov 2021 18:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000457;
-        bh=c0KkYw5m2GnhK6f4p1Irl6Y7YtsGGev/YrfXKLF7UBQ=;
+        s=korg; t=1637002618;
+        bh=YAKaLTPikJsCCuULzo9JyndrZlFgnL3K/JDPcwPvmaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vc1asPVJ50d2vTgUvi/t9Bc0xwpE1o995Dx3aaOhCKg18ZB6RAHJ7CEs/FIWuNNWv
-         /7P/zLHxaN2qbJenOR0orO4rxkc5V8oGZ5FoGBveLzv885rANFgoR1KiYCOHGkz6Z7
-         G51kOT7CRty9+A4eidoxYWUDu24E9hnG6DVVP5F8=
+        b=ZVvNLZ9J9mhPkxr4RexGogsz2m2rHU7LMCr6aXwi1t+Mhu0+3XsTiQXsNx5FU5x/u
+         JdmWt2ykHeGvziOBAzly4fNkR2ONpFZJI0HQar5b18JAi8i+sfPHeCmLUpf1QExeST
+         JNilSe0e3Kak6gkoD/0bmiXhCGHcdl1sj2Gb0rdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 639/849] phy: qcom-qusb2: Fix a memory leak on probe
-Date:   Mon, 15 Nov 2021 18:02:02 +0100
-Message-Id: <20211115165441.889626580@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 628/917] RDMA/mlx4: Return missed an error if device doesnt support steering
+Date:   Mon, 15 Nov 2021 18:02:03 +0100
+Message-Id: <20211115165450.093050324@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,92 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit bf7ffcd0069d30e2e7ba2b827f08c89f471cd1f3 ]
+[ Upstream commit f4e56ec4452f48b8292dcf0e1c4bdac83506fb8b ]
 
-On success nvmem_cell_read() returns a pointer to a dynamically allocated
-buffer, and therefore it shall be freed after usage.
+The error flow fixed in this patch is not possible because all kernel
+users of create QP interface check that device supports steering before
+set IB_QP_CREATE_NETIF_QP flag.
 
-The issue is reported by kmemleak:
-
-  # cat /sys/kernel/debug/kmemleak
-  unreferenced object 0xffff3b3803e4b280 (size 128):
-    comm "kworker/u16:1", pid 107, jiffies 4294892861 (age 94.120s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    backtrace:
-      [<000000007739afdc>] __kmalloc+0x27c/0x41c
-      [<0000000071c0fbf8>] nvmem_cell_read+0x40/0xe0
-      [<00000000e803ef1f>] qusb2_phy_init+0x258/0x5bc
-      [<00000000fc81fcfa>] phy_init+0x70/0x110
-      [<00000000e3d48a57>] dwc3_core_soft_reset+0x4c/0x234
-      [<0000000027d1dbd4>] dwc3_core_init+0x68/0x990
-      [<000000001965faf9>] dwc3_probe+0x4f4/0x730
-      [<000000002f7617ca>] platform_probe+0x74/0xf0
-      [<00000000a2576cac>] really_probe+0xc4/0x470
-      [<00000000bc77f2c5>] __driver_probe_device+0x11c/0x190
-      [<00000000130db71f>] driver_probe_device+0x48/0x110
-      [<0000000019f36c2b>] __device_attach_driver+0xa4/0x140
-      [<00000000e5812ff7>]  bus_for_each_drv+0x84/0xe0
-      [<00000000f4bac574>] __device_attach+0xe4/0x1c0
-      [<00000000d3beb631>] device_initial_probe+0x20/0x30
-      [<000000008019b9db>] bus_probe_device+0xa4/0xb0
-
-Fixes: ca04d9d3e1b1 ("phy: qcom-qusb2: New driver for QUSB2 PHY on Qcom chips")
-Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20210922233548.2150244-1-vladimir.zapolskiy@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: c1c98501121e ("IB/mlx4: Add support for steerable IB UD QPs")
+Link: https://lore.kernel.org/r/91c61f6e60eb0240f8bbc321fda7a1d2986dd03c.1634023677.git.leonro@nvidia.com
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-qusb2.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/infiniband/hw/mlx4/qp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qusb2.c b/drivers/phy/qualcomm/phy-qcom-qusb2.c
-index 3c1d3b71c825b..f1d97fbd13318 100644
---- a/drivers/phy/qualcomm/phy-qcom-qusb2.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qusb2.c
-@@ -561,7 +561,7 @@ static void qusb2_phy_set_tune2_param(struct qusb2_phy *qphy)
- {
- 	struct device *dev = &qphy->phy->dev;
- 	const struct qusb2_phy_cfg *cfg = qphy->cfg;
--	u8 *val;
-+	u8 *val, hstx_trim;
+diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
+index 8662f462e2a5f..3a1a4ac9dd33d 100644
+--- a/drivers/infiniband/hw/mlx4/qp.c
++++ b/drivers/infiniband/hw/mlx4/qp.c
+@@ -1099,8 +1099,10 @@ static int create_qp_common(struct ib_pd *pd, struct ib_qp_init_attr *init_attr,
+ 			if (dev->steering_support ==
+ 			    MLX4_STEERING_MODE_DEVICE_MANAGED)
+ 				qp->flags |= MLX4_IB_QP_NETIF;
+-			else
++			else {
++				err = -EINVAL;
+ 				goto err;
++			}
+ 		}
  
- 	/* efuse register is optional */
- 	if (!qphy->cell)
-@@ -575,7 +575,13 @@ static void qusb2_phy_set_tune2_param(struct qusb2_phy *qphy)
- 	 * set while configuring the phy.
- 	 */
- 	val = nvmem_cell_read(qphy->cell, NULL);
--	if (IS_ERR(val) || !val[0]) {
-+	if (IS_ERR(val)) {
-+		dev_dbg(dev, "failed to read a valid hs-tx trim value\n");
-+		return;
-+	}
-+	hstx_trim = val[0];
-+	kfree(val);
-+	if (!hstx_trim) {
- 		dev_dbg(dev, "failed to read a valid hs-tx trim value\n");
- 		return;
- 	}
-@@ -583,12 +589,10 @@ static void qusb2_phy_set_tune2_param(struct qusb2_phy *qphy)
- 	/* Fused TUNE1/2 value is the higher nibble only */
- 	if (cfg->update_tune1_with_efuse)
- 		qusb2_write_mask(qphy->base, cfg->regs[QUSB2PHY_PORT_TUNE1],
--				 val[0] << HSTX_TRIM_SHIFT,
--				 HSTX_TRIM_MASK);
-+				 hstx_trim << HSTX_TRIM_SHIFT, HSTX_TRIM_MASK);
- 	else
- 		qusb2_write_mask(qphy->base, cfg->regs[QUSB2PHY_PORT_TUNE2],
--				 val[0] << HSTX_TRIM_SHIFT,
--				 HSTX_TRIM_MASK);
-+				 hstx_trim << HSTX_TRIM_SHIFT, HSTX_TRIM_MASK);
- }
- 
- static int qusb2_phy_set_mode(struct phy *phy,
+ 		err = set_kernel_sq_size(dev, &init_attr->cap, qp_type, qp);
 -- 
 2.33.0
 
