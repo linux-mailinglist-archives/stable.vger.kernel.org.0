@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BF2745273C
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:17:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77467452423
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244282AbhKPCUU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:20:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57864 "EHLO mail.kernel.org"
+        id S1347125AbhKPBgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:36:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237961AbhKORjx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:39:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FB89632E3;
-        Mon, 15 Nov 2021 17:26:35 +0000 (UTC)
+        id S238291AbhKOSkq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:40:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A9CD632EF;
+        Mon, 15 Nov 2021 18:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997196;
-        bh=TjenZcRn8UZcpPnaYPODH0Mc6K8LNJeiIvDmNPqaf+8=;
+        s=korg; t=1636999454;
+        bh=lkcLUPp/PhhoF4tmdW3kgfpn58FriiTE5lQOeueI/bA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1PxuMnOWH7lQfuuX1lR0QJRjnPxw2YBhW/zv0/e8GfJAp9EdUs59fTqRr24BpjBQu
-         Z+yhUJBWx3FKpWs7G6G5+A2baxRCH3XThr33kxv2bPf/NFh2hoSxrIzbVNEVewE8HA
-         V2kLsfvc+YavCd/d+Sl4PSHJ0LN2XA/l8KYrz5ok=
+        b=wm7Pnx0aATfEglwnEsFigCts9qDoKZpoOyFRYOQGjBFSInfPhDRSA6RhJTsWZN5l3
+         Gry6dnbPteq8dqx2HdbSM4FX8NfeTccm9cT3YjgJ9Jkvk67R+tPdkp8WJGfNAZr48p
+         axTIpsk0wBOxOEIVdmAogWFFF+0mf+B42z4K7Hh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 059/575] hyperv/vmbus: include linux/bitops.h
-Date:   Mon, 15 Nov 2021 17:56:24 +0100
-Message-Id: <20211115165345.686892873@linuxfoundation.org>
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 302/849] PM: hibernate: Get block device exclusively in swsusp_check()
+Date:   Mon, 15 Nov 2021 17:56:25 +0100
+Message-Id: <20211115165430.466907401@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 8017c99680fa65e1e8d999df1583de476a187830 ]
+[ Upstream commit 39fbef4b0f77f9c89c8f014749ca533643a37c9f ]
 
-On arm64 randconfig builds, hyperv sometimes fails with this
-error:
+The following kernel crash can be triggered:
 
-In file included from drivers/hv/hv_trace.c:3:
-In file included from drivers/hv/hyperv_vmbus.h:16:
-In file included from arch/arm64/include/asm/sync_bitops.h:5:
-arch/arm64/include/asm/bitops.h:11:2: error: only <linux/bitops.h> can be included directly
-In file included from include/asm-generic/bitops/hweight.h:5:
-include/asm-generic/bitops/arch_hweight.h:9:9: error: implicit declaration of function '__sw_hweight32' [-Werror,-Wimplicit-function-declaration]
-include/asm-generic/bitops/atomic.h:17:7: error: implicit declaration of function 'BIT_WORD' [-Werror,-Wimplicit-function-declaration]
+[   89.266592] ------------[ cut here ]------------
+[   89.267427] kernel BUG at fs/buffer.c:3020!
+[   89.268264] invalid opcode: 0000 [#1] SMP KASAN PTI
+[   89.269116] CPU: 7 PID: 1750 Comm: kmmpd-loop0 Not tainted 5.10.0-862.14.0.6.x86_64-08610-gc932cda3cef4-dirty #20
+[   89.273169] RIP: 0010:submit_bh_wbc.isra.0+0x538/0x6d0
+[   89.277157] RSP: 0018:ffff888105ddfd08 EFLAGS: 00010246
+[   89.278093] RAX: 0000000000000005 RBX: ffff888124231498 RCX: ffffffffb2772612
+[   89.279332] RDX: 1ffff11024846293 RSI: 0000000000000008 RDI: ffff888124231498
+[   89.280591] RBP: ffff8881248cc000 R08: 0000000000000001 R09: ffffed1024846294
+[   89.281851] R10: ffff88812423149f R11: ffffed1024846293 R12: 0000000000003800
+[   89.283095] R13: 0000000000000001 R14: 0000000000000000 R15: ffff8881161f7000
+[   89.284342] FS:  0000000000000000(0000) GS:ffff88839b5c0000(0000) knlGS:0000000000000000
+[   89.285711] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   89.286701] CR2: 00007f166ebc01a0 CR3: 0000000435c0e000 CR4: 00000000000006e0
+[   89.287919] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   89.289138] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   89.290368] Call Trace:
+[   89.290842]  write_mmp_block+0x2ca/0x510
+[   89.292218]  kmmpd+0x433/0x9a0
+[   89.294902]  kthread+0x2dd/0x3e0
+[   89.296268]  ret_from_fork+0x22/0x30
+[   89.296906] Modules linked in:
 
-Include the correct header first.
+by running the following commands:
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211018131929.2260087-1-arnd@kernel.org
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+ 1. mkfs.ext4 -O mmp  /dev/sda -b 1024
+ 2. mount /dev/sda /home/test
+ 3. echo "/dev/sda" > /sys/power/resume
+
+That happens because swsusp_check() calls set_blocksize() on the
+target partition which confuses the file system:
+
+       Thread1                       Thread2
+mount /dev/sda /home/test
+get s_mmp_bh  --> has mapped flag
+start kmmpd thread
+				echo "/dev/sda" > /sys/power/resume
+				  resume_store
+				    software_resume
+				      swsusp_check
+				        set_blocksize
+					  truncate_inode_pages_range
+					    truncate_cleanup_page
+					      block_invalidatepage
+					        discard_buffer --> clean mapped flag
+write_mmp_block
+  submit_bh
+    submit_bh_wbc
+      BUG_ON(!buffer_mapped(bh))
+
+To address this issue, modify swsusp_check() to open the target block
+device with exclusive access.
+
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/hyperv_vmbus.h | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/power/swap.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
-index 40e2b9f91163c..7845fa5de79e9 100644
---- a/drivers/hv/hyperv_vmbus.h
-+++ b/drivers/hv/hyperv_vmbus.h
-@@ -13,6 +13,7 @@
- #define _HYPERV_VMBUS_H
+diff --git a/kernel/power/swap.c b/kernel/power/swap.c
+index 3cb89baebc796..0aabc94125d6b 100644
+--- a/kernel/power/swap.c
++++ b/kernel/power/swap.c
+@@ -1521,9 +1521,10 @@ end:
+ int swsusp_check(void)
+ {
+ 	int error;
++	void *holder;
  
- #include <linux/list.h>
-+#include <linux/bitops.h>
- #include <asm/sync_bitops.h>
- #include <asm/hyperv-tlfs.h>
- #include <linux/atomic.h>
+ 	hib_resume_bdev = blkdev_get_by_dev(swsusp_resume_device,
+-					    FMODE_READ, NULL);
++					    FMODE_READ | FMODE_EXCL, &holder);
+ 	if (!IS_ERR(hib_resume_bdev)) {
+ 		set_blocksize(hib_resume_bdev, PAGE_SIZE);
+ 		clear_page(swsusp_header);
+@@ -1545,7 +1546,7 @@ int swsusp_check(void)
+ 
+ put:
+ 		if (error)
+-			blkdev_put(hib_resume_bdev, FMODE_READ);
++			blkdev_put(hib_resume_bdev, FMODE_READ | FMODE_EXCL);
+ 		else
+ 			pr_debug("Image signature found, resuming\n");
+ 	} else {
 -- 
 2.33.0
 
