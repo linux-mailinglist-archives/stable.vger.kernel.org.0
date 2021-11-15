@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0E4A450C9F
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:38:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F19450CA2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:38:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238536AbhKORlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:41:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57852 "EHLO mail.kernel.org"
+        id S238542AbhKORlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:41:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237962AbhKORiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237968AbhKORiE (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 12:38:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFD43632DF;
-        Mon, 15 Nov 2021 17:25:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD948632DC;
+        Mon, 15 Nov 2021 17:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997128;
-        bh=BbYYdb3dVcIH/aoZW75OBYR10LWsYZETPQAD+cSH3y8=;
+        s=korg; t=1636997131;
+        bh=DfmFMax0EKZNGYfv0ughNR7qspCQmQMZI0Wshws9coM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HvpKZavZf85S8WT/ykztnjCB62eX3YjpsM70DTT7cXgsKCRocF3fC9lpCgYVcH8BZ
-         sH8/6kzkTBMzBKSzfcrybNyqAPGMVZdvAr7mZiJKKh+uni8NS7KoOuGXAlfprnNCv/
-         95upksZW4MX7jT1R3FqQLakjwnkMQKLs1L8ZgD14=
+        b=EeeSlSoiXLYYp+76CtlXiDR0aYpd/1NPL/4NG6Jb+h0xm3zmpA/DppS1pF0e3LlbR
+         s5dxrzaRZyXKZou+3wMSxYgKssXE00BFvSaLdqsn6Snxho7UJLaZ4d5EtAMoG0gkwd
+         7xylTCfOIp86IsHqSxlGXj0EZbO/wKb8/mbHxwR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 034/575] ALSA: ua101: fix division by zero at probe
-Date:   Mon, 15 Nov 2021 17:55:59 +0100
-Message-Id: <20211115165344.816793153@linuxfoundation.org>
+Subject: [PATCH 5.10 035/575] ALSA: 6fire: fix control and bulk message timeouts
+Date:   Mon, 15 Nov 2021 17:56:00 +0100
+Message-Id: <20211115165344.848586464@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -41,46 +41,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 55f261b73a7e1cb254577c3536cef8f415de220a upstream.
+commit 9b371c6cc37f954360989eec41c2ddc5a6b83917 upstream.
 
-Add the missing endpoint max-packet sanity check to probe() to avoid
-division by zero in alloc_stream_buffers() in case a malicious device
-has broken descriptors (or when doing descriptor fuzz testing).
+USB control and bulk message timeouts are specified in milliseconds and
+should specifically not vary with CONFIG_HZ.
 
-Note that USB core will reject URBs submitted for endpoints with zero
-wMaxPacketSize but that drivers doing packet-size calculations still
-need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
-endpoint descriptors with maxpacket=0")).
-
-Fixes: 63978ab3e3e9 ("sound: add Edirol UA-101 support")
-Cc: stable@vger.kernel.org      # 2.6.34
+Fixes: c6d43ba816d1 ("ALSA: usb/6fire - Driver for TerraTec DMX 6Fire USB")
+Cc: stable@vger.kernel.org      # 2.6.39
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211026095401.26522-1-johan@kernel.org
+Link: https://lore.kernel.org/r/20211025121142.6531-2-johan@kernel.org
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/misc/ua101.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/usb/6fire/comm.c     |    2 +-
+ sound/usb/6fire/firmware.c |    6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/sound/usb/misc/ua101.c
-+++ b/sound/usb/misc/ua101.c
-@@ -1001,7 +1001,7 @@ static int detect_usb_format(struct ua10
- 		fmt_playback->bSubframeSize * ua->playback.channels;
+--- a/sound/usb/6fire/comm.c
++++ b/sound/usb/6fire/comm.c
+@@ -95,7 +95,7 @@ static int usb6fire_comm_send_buffer(u8
+ 	int actual_len;
  
- 	epd = &ua->intf[INTF_CAPTURE]->altsetting[1].endpoint[0].desc;
--	if (!usb_endpoint_is_isoc_in(epd)) {
-+	if (!usb_endpoint_is_isoc_in(epd) || usb_endpoint_maxp(epd) == 0) {
- 		dev_err(&ua->dev->dev, "invalid capture endpoint\n");
- 		return -ENXIO;
- 	}
-@@ -1009,7 +1009,7 @@ static int detect_usb_format(struct ua10
- 	ua->capture.max_packet_bytes = usb_endpoint_maxp(epd);
+ 	ret = usb_interrupt_msg(dev, usb_sndintpipe(dev, COMM_EP),
+-			buffer, buffer[1] + 2, &actual_len, HZ);
++			buffer, buffer[1] + 2, &actual_len, 1000);
+ 	if (ret < 0)
+ 		return ret;
+ 	else if (actual_len != buffer[1] + 2)
+--- a/sound/usb/6fire/firmware.c
++++ b/sound/usb/6fire/firmware.c
+@@ -160,7 +160,7 @@ static int usb6fire_fw_ezusb_write(struc
+ {
+ 	return usb_control_msg_send(device, 0, type,
+ 				    USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-				    value, 0, data, len, HZ, GFP_KERNEL);
++				    value, 0, data, len, 1000, GFP_KERNEL);
+ }
  
- 	epd = &ua->intf[INTF_PLAYBACK]->altsetting[1].endpoint[0].desc;
--	if (!usb_endpoint_is_isoc_out(epd)) {
-+	if (!usb_endpoint_is_isoc_out(epd) || usb_endpoint_maxp(epd) == 0) {
- 		dev_err(&ua->dev->dev, "invalid playback endpoint\n");
- 		return -ENXIO;
- 	}
+ static int usb6fire_fw_ezusb_read(struct usb_device *device,
+@@ -168,7 +168,7 @@ static int usb6fire_fw_ezusb_read(struct
+ {
+ 	return usb_control_msg_recv(device, 0, type,
+ 				    USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-				    value, 0, data, len, HZ, GFP_KERNEL);
++				    value, 0, data, len, 1000, GFP_KERNEL);
+ }
+ 
+ static int usb6fire_fw_fpga_write(struct usb_device *device,
+@@ -178,7 +178,7 @@ static int usb6fire_fw_fpga_write(struct
+ 	int ret;
+ 
+ 	ret = usb_bulk_msg(device, usb_sndbulkpipe(device, FPGA_EP), data, len,
+-			&actual_len, HZ);
++			&actual_len, 1000);
+ 	if (ret < 0)
+ 		return ret;
+ 	else if (actual_len != len)
 
 
