@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80165450D2E
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:49:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EF8A450D38
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:50:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239020AbhKORwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:52:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35662 "EHLO mail.kernel.org"
+        id S238970AbhKORxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:53:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238926AbhKORul (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:50:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C710A632AE;
-        Mon, 15 Nov 2021 17:31:19 +0000 (UTC)
+        id S238936AbhKORur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:50:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23E5660296;
+        Mon, 15 Nov 2021 17:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997480;
-        bh=9zaGkbzG33G9/jCc0uSKhcFLFeZIb49t5hfma//Osj4=;
+        s=korg; t=1636997485;
+        bh=odmSdevAFY5g9HT/JAMOlYz3PtCpVziVvFLpahWTVxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LhSsP2o6dYYDCnOHCgfZvVD5fEQFR5Pkcullikt+FvCdNqdjJUBW3JoVfLNeP/uSA
-         BoMNkRO8l5J+fEFRquP7cw+uJvDrLo90vs6A4tzFHG0vFvfLzSbb4+QPr6awc8KC46
-         yD+PqxOXRe8StHMGqIUj8yG9H3UexkwUyay/RXgk=
+        b=aG8Ycsn93D0T2RWtNCJthRkW1ZmaRvpWR0ywPg656J7ifPFcA6BRsHB9HDXEoxIU5
+         QHZHhuTZ2DlKOlYvng7bU11q61JBZnN7k9d55qJv32EtkVJ9oiozTgpkTCsCpq1xQ8
+         /4wspARNMq9cHTvwJQ8fvSyOsFuznd/dQC/Cn9Pg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Ser <contact@emersion.fr>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Simon Ser <contact@emersion.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 164/575] drm: panel-orientation-quirks: Update the Lenovo Ideapad D330 quirk (v2)
-Date:   Mon, 15 Nov 2021 17:58:09 +0100
-Message-Id: <20211115165349.385942704@linuxfoundation.org>
+Subject: [PATCH 5.10 165/575] drm: panel-orientation-quirks: Add quirk for KD Kurio Smart C15200 2-in-1
+Date:   Mon, 15 Nov 2021 17:58:10 +0100
+Message-Id: <20211115165349.423004883@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -42,54 +42,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 820a2ab23d5eab4ccfb82581eda8ad4acf18458f ]
+[ Upstream commit a53f1dd3ab9fec715c6c2e8e01bf4d3c07eef8e5 ]
 
-2 improvements to the Lenovo Ideapad D330 panel-orientation quirks:
+The KD Kurio Smart C15200 2-in-1 uses  a panel which has been mounted 90
+degrees rotated. Add a quirk for this.
 
-1. Some versions of the Lenovo Ideapad D330 have a DMI_PRODUCT_NAME of
-"81H3" and others have "81MD". Testing has shown that the "81MD" also has
-a 90 degree mounted panel. Drop the DMI_PRODUCT_NAME from the existing
-quirk so that the existing quirk matches both variants.
-
-2. Some of the Lenovo Ideapad D330 models have a HD (800x1280) screen
-instead of a FHD (1200x1920) screen (both are mounted right-side-up) add
-a second Lenovo Ideapad D330 quirk for the HD version.
-
-Changes in v2:
-- Add a new quirk for Lenovo Ideapad D330 models with a HD screen instead
-  of a FHD screen
-
-Link: https://github.com/systemd/systemd/pull/18884
-Acked-by: Simon Ser <contact@emersion.fr>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210530110428.12994-2-hdegoede@redhat.com
+Acked-by: Simon Ser <contact@emersion.fr>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210530110428.12994-3-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index e1b2ce4921ae7..5d0942e3985b2 100644
+index 5d0942e3985b2..cf4db2cdebbbd 100644
 --- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
 +++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -223,10 +223,15 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo MIIX 320-10ICR"),
+@@ -205,6 +205,13 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_BOARD_NAME, "TW891"),
  		},
- 		.driver_data = (void *)&lcd800x1280_rightside_up,
--	}, {	/* Lenovo Ideapad D330 */
-+	}, {	/* Lenovo Ideapad D330-10IGM (HD) */
+ 		.driver_data = (void *)&itworks_tw891,
++	}, {	/* KD Kurio Smart C15200 2-in-1 */
 +		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGM"),
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "KD Interactive"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Kurio Smart"),
++		  DMI_EXACT_MATCH(DMI_BOARD_NAME, "KDM960BCP"),
 +		},
 +		.driver_data = (void *)&lcd800x1280_rightside_up,
-+	}, {	/* Lenovo Ideapad D330-10IGM (FHD) */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
--		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "81H3"),
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGM"),
- 		},
- 		.driver_data = (void *)&lcd1200x1920_rightside_up,
+ 	}, {	/*
+ 		 * Lenovo Ideapad Miix 310 laptop, only some production batches
+ 		 * have a portrait screen, the resolution checks makes the quirk
 -- 
 2.33.0
 
