@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77496450E52
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22EC7450BF9
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:30:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237987AbhKOSO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:14:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48394 "EHLO mail.kernel.org"
+        id S231726AbhKORcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:32:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240287AbhKOSHa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0165B6339B;
-        Mon, 15 Nov 2021 17:44:23 +0000 (UTC)
+        id S237888AbhKORan (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:30:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 876C0632A6;
+        Mon, 15 Nov 2021 17:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998264;
-        bh=l192d7uiPDmOygLE1ZTTALz/cbKkMFAV6jYQQ1aqX4A=;
+        s=korg; t=1636996829;
+        bh=JzZbuh0/yBajRrgHi591iU4sASsev/E7iUpeVlTiWew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wXmHiRCi17Z0DNBtpMQ4F9ISvj/n+k10d3zajzY+iJAmXxQEUvPzGx66j0po3odt+
-         3Mzq9v9gmF1lzCAvCnuFdOB+wnNnKgKlYdevFOsmc+fJHS+lvpnkTXHBbwKg7wMUXc
-         D0AXa8mT6jwddorvzIZOvFxjHV2nJ7IZXxYsBjWM=
+        b=EuQex/uiyNAyH0sUUzmEU04M0bhusRPXEY4cof4ae3xMhg0x3uO0dfGTnKv2W4Eo0
+         7AA7cSZj79onJb2TPh1xqZQsouHfjvXGD+Jh3w7eUfyenDecPSJY1NlIg6yQG7PEg8
+         YztTAxm2hmGT1aSQeorFkaE0Rnu4BZQ1AzOHFUbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 447/575] usb: dwc2: drd: fix dwc2_force_mode call in dwc2_ovr_init
-Date:   Mon, 15 Nov 2021 18:02:52 +0100
-Message-Id: <20211115165359.211916772@linuxfoundation.org>
+Subject: [PATCH 5.4 249/355] net: amd-xgbe: Toggle PLL settings during rate change
+Date:   Mon, 15 Nov 2021 18:02:53 +0100
+Message-Id: <20211115165321.788147726@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +42,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 
-[ Upstream commit b2cab2a24fb5d13ce1d384ecfb6de827fa08a048 ]
+[ Upstream commit daf182d360e509a494db18666799f4e85d83dda0 ]
 
-Instead of forcing the role to Device, check the dr_mode configuration.
-If the core is Host only, force the mode to Host, this to avoid the
-dwc2_force_mode warning:
-WARNING: CPU: 1 PID: 21 at drivers/usb/dwc2/core.c:615 dwc2_drd_init+0x104/0x17c
+For each rate change command submission, the FW has to do a phy
+power off sequence internally. For this to happen correctly, the
+PLL re-initialization control setting has to be turned off before
+sending mailbox commands and re-enabled once the command submission
+is complete.
 
-When forcing mode to Host, dwc2_force_mode may sleep the time the host
-role is applied. To avoid sleeping while atomic context, move the call
-to dwc2_force_mode after spin_unlock_irqrestore. It is safe, as
-interrupts are not yet unmasked here.
+Without the PLL control setting, the link up takes longer time in a
+fixed phy configuration.
 
-Fixes: 17f934024e84 ("usb: dwc2: override PHY input signals with usb role switch support")
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211005095305.66397-2-amelie.delaunay@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 47f164deab22 ("amd-xgbe: Add PCI device support")
+Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/drd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-common.h |  8 ++++++++
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 20 +++++++++++++++++++-
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/drd.c b/drivers/usb/dwc2/drd.c
-index 2d4176f5788eb..80eae88d76dda 100644
---- a/drivers/usb/dwc2/drd.c
-+++ b/drivers/usb/dwc2/drd.c
-@@ -25,9 +25,9 @@ static void dwc2_ovr_init(struct dwc2_hsotg *hsotg)
- 	gotgctl &= ~(GOTGCTL_BVALOVAL | GOTGCTL_AVALOVAL | GOTGCTL_VBVALOVAL);
- 	dwc2_writel(hsotg, gotgctl, GOTGCTL);
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-common.h b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
+index b2cd3bdba9f89..533b8519ec352 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-common.h
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
+@@ -1331,6 +1331,10 @@
+ #define MDIO_VEND2_PMA_CDR_CONTROL	0x8056
+ #endif
  
--	dwc2_force_mode(hsotg, false);
--
- 	spin_unlock_irqrestore(&hsotg->lock, flags);
++#ifndef MDIO_VEND2_PMA_MISC_CTRL0
++#define MDIO_VEND2_PMA_MISC_CTRL0	0x8090
++#endif
 +
-+	dwc2_force_mode(hsotg, (hsotg->dr_mode == USB_DR_MODE_HOST));
+ #ifndef MDIO_CTRL1_SPEED1G
+ #define MDIO_CTRL1_SPEED1G		(MDIO_CTRL1_SPEED10G & ~BMCR_SPEED100)
+ #endif
+@@ -1389,6 +1393,10 @@
+ #define XGBE_PMA_RX_RST_0_RESET_ON	0x10
+ #define XGBE_PMA_RX_RST_0_RESET_OFF	0x00
+ 
++#define XGBE_PMA_PLL_CTRL_MASK		BIT(15)
++#define XGBE_PMA_PLL_CTRL_ENABLE	BIT(15)
++#define XGBE_PMA_PLL_CTRL_DISABLE	0x0000
++
+ /* Bit setting and getting macros
+  *  The get macro will extract the current bit field value from within
+  *  the variable
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index d6f6afb67bcc6..0b325ae875b52 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -1972,12 +1972,26 @@ static void xgbe_phy_rx_reset(struct xgbe_prv_data *pdata)
+ 	}
  }
  
- static int dwc2_ovr_avalid(struct dwc2_hsotg *hsotg, bool valid)
++static void xgbe_phy_pll_ctrl(struct xgbe_prv_data *pdata, bool enable)
++{
++	XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_VEND2_PMA_MISC_CTRL0,
++			 XGBE_PMA_PLL_CTRL_MASK,
++			 enable ? XGBE_PMA_PLL_CTRL_ENABLE
++				: XGBE_PMA_PLL_CTRL_DISABLE);
++
++	/* Wait for command to complete */
++	usleep_range(100, 200);
++}
++
+ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 					unsigned int cmd, unsigned int sub_cmd)
+ {
+ 	unsigned int s0 = 0;
+ 	unsigned int wait;
+ 
++	/* Disable PLL re-initialization during FW command processing */
++	xgbe_phy_pll_ctrl(pdata, false);
++
+ 	/* Log if a previous command did not complete */
+ 	if (XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS)) {
+ 		netif_dbg(pdata, link, pdata->netdev,
+@@ -1998,7 +2012,7 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 	wait = XGBE_RATECHANGE_COUNT;
+ 	while (wait--) {
+ 		if (!XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS))
+-			return;
++			goto reenable_pll;
+ 
+ 		usleep_range(1000, 2000);
+ 	}
+@@ -2008,6 +2022,10 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 
+ 	/* Reset on error */
+ 	xgbe_phy_rx_reset(pdata);
++
++reenable_pll:
++	/* Enable PLL re-initialization */
++	xgbe_phy_pll_ctrl(pdata, true);
+ }
+ 
+ static void xgbe_phy_rrc(struct xgbe_prv_data *pdata)
 -- 
 2.33.0
 
