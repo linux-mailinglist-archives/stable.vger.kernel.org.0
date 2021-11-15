@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9F5E450ED6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8EC6450ED2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238075AbhKOSUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:20:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55790 "EHLO mail.kernel.org"
+        id S239183AbhKOSUL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:20:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240667AbhKOSQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240672AbhKOSQR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:16:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D87360296;
-        Mon, 15 Nov 2021 17:49:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1658E61265;
+        Mon, 15 Nov 2021 17:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998596;
-        bh=Yo6T0HmG8a4MTeLKQSYbbIo+YmDuXIyL06Yfb6G+iJE=;
+        s=korg; t=1636998598;
+        bh=R1G+KhMPmff6SoiMCMK10btS47U4aOdIQZSwJmnrsjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=17/gYT1VeInH4gfEVvxhUhm0vwCKRBykHy0uaZSh0zqVZEkZwx8MRV2rCKVxXKrpF
-         UqiqnEnFh51U5KcSVmre07ltTtib+TpVd/2W9z7onGIexSBjzK2IPZdvuCSxYaEASJ
-         0QUQ8V9s+N9U98VKeAIF5PMmaUtU1rK8KX9dwkig=
+        b=06kqQe8uCnYxxMhML7JOHkBGXTB3k9YqWRL1xOo6fSn05/1RA0Uazb3Fixjq3jiZa
+         zY4qcsxARpjdV3NrGWSdm5uzES3LB4wOtdXvhLoeGVpuZNW2WHbHmyAeXpGwtGKkAU
+         1b7xiIpV+5RZUPlJn9upcHXK83GqUtw/KynRb+18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.10 565/575] mtd: rawnand: gpio: Keep the driver compatible with on-die ECC engines
-Date:   Mon, 15 Nov 2021 18:04:50 +0100
-Message-Id: <20211115165403.240988185@linuxfoundation.org>
+Subject: [PATCH 5.10 566/575] mtd: rawnand: pasemi: Keep the driver compatible with on-die ECC engines
+Date:   Mon, 15 Nov 2021 18:04:51 +0100
+Message-Id: <20211115165403.274319926@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit b5b5b4dc6fcd8194b9dd38c8acdc5ab71adf44f8 upstream.
+commit f16b7d2a5e810fcf4b15d096246d0d445da9cc88 upstream.
 
 Following the introduction of the generic ECC engine infrastructure, it
 was necessary to reorganize the code and move the ECC configuration in
@@ -67,20 +67,20 @@ nand_scan(). During the initialization step, the core will consider this
 entry as the default engine for this driver. This value may of course
 be overloaded by the user if the usual DT properties are provided.
 
-Fixes: f6341f6448e0 ("mtd: rawnand: gpio: Move the ECC initialization to ->attach_chip()")
+Fixes: 8fc6f1f042b2 ("mtd: rawnand: pasemi: Move the ECC initialization to ->attach_chip()")
 Cc: stable@vger.kernel.org
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210928222258.199726-4-miquel.raynal@bootlin.com
+Link: https://lore.kernel.org/linux-mtd/20210928222258.199726-7-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/gpio.c |   12 +++++++++---
+ drivers/mtd/nand/raw/pasemi_nand.c |   12 +++++++++---
  1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/mtd/nand/raw/gpio.c
-+++ b/drivers/mtd/nand/raw/gpio.c
-@@ -163,9 +163,8 @@ static int gpio_nand_exec_op(struct nand
+--- a/drivers/mtd/nand/raw/pasemi_nand.c
++++ b/drivers/mtd/nand/raw/pasemi_nand.c
+@@ -76,9 +76,8 @@ static int pasemi_device_ready(struct na
  
- static int gpio_nand_attach_chip(struct nand_chip *chip)
+ static int pasemi_attach_chip(struct nand_chip *chip)
  {
 -	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 -
@@ -90,9 +90,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
  
  	return 0;
-@@ -365,6 +364,13 @@ static int gpio_nand_probe(struct platfo
- 	if (gpiomtd->nwp && !IS_ERR(gpiomtd->nwp))
- 		gpiod_direction_output(gpiomtd->nwp, 1);
+@@ -155,6 +154,13 @@ static int pasemi_nand_probe(struct plat
+ 	/* Enable the following for a flash based bad block table */
+ 	chip->bbt_options = NAND_BBT_USE_FLASH;
  
 +	/*
 +	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
@@ -101,8 +101,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	 */
 +	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 +
- 	ret = nand_scan(chip, 1);
- 	if (ret)
- 		goto err_wp;
+ 	/* Scan to find existence of the device */
+ 	err = nand_scan(chip, 1);
+ 	if (err)
 
 
