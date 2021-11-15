@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EA99450AB5
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8060B45113B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:00:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232307AbhKOROG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:14:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44210 "EHLO mail.kernel.org"
+        id S243267AbhKOTCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:02:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232943AbhKORMU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:12:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3B3661B5E;
-        Mon, 15 Nov 2021 17:09:24 +0000 (UTC)
+        id S243375AbhKOS5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:57:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E3516348C;
+        Mon, 15 Nov 2021 18:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996165;
-        bh=GcK3QEe29dZ0grg8TvG4JCo0CAInj5LVuB70AjzLdTY=;
+        s=korg; t=1636999947;
+        bh=dO4Em7Otl80EnctTdADWwVVQuJMq6UvPT5Gx1yuNDcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hdtq/D3dW9JV4R7oIr+WQXVh868YtaAhXkZBxcsCVmdkP6iydDyaHigFADw4k7aQR
-         RUvloR7iOzyk0BD3sK5W9d617XaZDd0Y4TSzaP+TKdc8YMtoaXXGJhDiCtWsCHmAfr
-         n5LMVosY4uwLGpraiZ8J+hFsL6ZJ5NApiJ9WlTWE=
+        b=pg5JkR089e+86QxjC/qHYiJm+JSwcRW/otTLp/Ns9NmU4TH+je+eitoOAbCIgghSy
+         RS2BHAfT3GGkxq28bktNwiIyExdWWJNwSBOnQ6qYvJW8NvGWiY0mgLvBf67YOqJE0u
+         jkvSIMG40PQMYRFNHRSDUTBc3RIOhSpNzxMv8lTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erik Ekman <erik@kryo.se>,
-        Martin Habets <habetsm.xilinx@gmail.com>,
+        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        Tim Gardner <tim.gardner@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 040/355] sfc: Dont use netif_info before net_device setup
+Subject: [PATCH 5.14 481/849] net: enetc: unmap DMA in enetc_send_cmd()
 Date:   Mon, 15 Nov 2021 17:59:24 +0100
-Message-Id: <20211115165314.848831622@linuxfoundation.org>
+Message-Id: <20211115165436.550986319@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,64 +42,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Ekman <erik@kryo.se>
+From: Tim Gardner <tim.gardner@canonical.com>
 
-[ Upstream commit bf6abf345dfa77786aca554bc58c64bd428ecb1d ]
+[ Upstream commit cd4bc63de774eee95e9bac26a565cd80e0fca421 ]
 
-Use pci_info instead to avoid unnamed/uninitialized noise:
+Coverity complains of a possible dereference of a null return value.
 
-[197088.688729] sfc 0000:01:00.0: Solarflare NIC detected
-[197088.690333] sfc 0000:01:00.0: Part Number : SFN5122F
-[197088.729061] sfc 0000:01:00.0 (unnamed net_device) (uninitialized): no SR-IOV VFs probed
-[197088.729071] sfc 0000:01:00.0 (unnamed net_device) (uninitialized): no PTP support
+   	5. returned_null: kzalloc returns NULL. [show details]
+   	6. var_assigned: Assigning: si_data = NULL return value from kzalloc.
+488        si_data = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
+489        cbd.length = cpu_to_le16(data_size);
+490
+491        dma = dma_map_single(&priv->si->pdev->dev, si_data,
+492                             data_size, DMA_FROM_DEVICE);
 
-Inspired by fa44821a4ddd ("sfc: don't use netif_info et al before
-net_device is registered") from Heiner Kallweit.
+While this kzalloc() is unlikely to fail, I did notice that the function
+returned without unmapping si_data.
 
-Signed-off-by: Erik Ekman <erik@kryo.se>
-Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
+Fix this by refactoring the error paths and checking for kzalloc()
+failure.
+
+Fixes: 888ae5a3952ba ("net: enetc: add tc flower psfp offload driver")
+Cc: Claudiu Manoil <claudiu.manoil@nxp.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org (open list)
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+Acked-by: Claudiu Manoil <claudiu.manoil@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ptp.c         | 4 ++--
- drivers/net/ethernet/sfc/siena_sriov.c | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ .../net/ethernet/freescale/enetc/enetc_qos.c   | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ptp.c b/drivers/net/ethernet/sfc/ptp.c
-index 59b4f16896a81..1fa1b71dbfa11 100644
---- a/drivers/net/ethernet/sfc/ptp.c
-+++ b/drivers/net/ethernet/sfc/ptp.c
-@@ -648,7 +648,7 @@ static int efx_ptp_get_attributes(struct efx_nic *efx)
- 	} else if (rc == -EINVAL) {
- 		fmt = MC_CMD_PTP_OUT_GET_ATTRIBUTES_SECONDS_NANOSECONDS;
- 	} else if (rc == -EPERM) {
--		netif_info(efx, probe, efx->net_dev, "no PTP support\n");
-+		pci_info(efx->pci_dev, "no PTP support\n");
- 		return rc;
- 	} else {
- 		efx_mcdi_display_error(efx, MC_CMD_PTP, sizeof(inbuf),
-@@ -824,7 +824,7 @@ static int efx_ptp_disable(struct efx_nic *efx)
- 	 * should only have been called during probe.
- 	 */
- 	if (rc == -ENOSYS || rc == -EPERM)
--		netif_info(efx, probe, efx->net_dev, "no PTP support\n");
-+		pci_info(efx->pci_dev, "no PTP support\n");
- 	else if (rc)
- 		efx_mcdi_display_error(efx, MC_CMD_PTP,
- 				       MC_CMD_PTP_IN_DISABLE_LEN,
-diff --git a/drivers/net/ethernet/sfc/siena_sriov.c b/drivers/net/ethernet/sfc/siena_sriov.c
-index dfbdf05dcf794..68f092881d137 100644
---- a/drivers/net/ethernet/sfc/siena_sriov.c
-+++ b/drivers/net/ethernet/sfc/siena_sriov.c
-@@ -1056,7 +1056,7 @@ void efx_siena_sriov_probe(struct efx_nic *efx)
- 		return;
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc_qos.c b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+index 4577226d3c6ad..0536d2c76fbc4 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc_qos.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+@@ -486,14 +486,16 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
  
- 	if (efx_siena_sriov_cmd(efx, false, &efx->vi_scale, &count)) {
--		netif_info(efx, probe, efx->net_dev, "no SR-IOV VFs probed\n");
-+		pci_info(efx->pci_dev, "no SR-IOV VFs probed\n");
- 		return;
+ 	data_size = sizeof(struct streamid_data);
+ 	si_data = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
++	if (!si_data)
++		return -ENOMEM;
+ 	cbd.length = cpu_to_le16(data_size);
+ 
+ 	dma = dma_map_single(&priv->si->pdev->dev, si_data,
+ 			     data_size, DMA_FROM_DEVICE);
+ 	if (dma_mapping_error(&priv->si->pdev->dev, dma)) {
+ 		netdev_err(priv->si->ndev, "DMA mapping failed!\n");
+-		kfree(si_data);
+-		return -ENOMEM;
++		err = -ENOMEM;
++		goto out;
  	}
- 	if (count > 0 && count > max_vfs)
+ 
+ 	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma));
+@@ -512,12 +514,10 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
+ 
+ 	err = enetc_send_cmd(priv->si, &cbd);
+ 	if (err)
+-		return -EINVAL;
++		goto out;
+ 
+-	if (!enable) {
+-		kfree(si_data);
+-		return 0;
+-	}
++	if (!enable)
++		goto out;
+ 
+ 	/* Enable the entry overwrite again incase space flushed by hardware */
+ 	memset(&cbd, 0, sizeof(cbd));
+@@ -560,6 +560,10 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
+ 	}
+ 
+ 	err = enetc_send_cmd(priv->si, &cbd);
++out:
++	if (!dma_mapping_error(&priv->si->pdev->dev, dma))
++		dma_unmap_single(&priv->si->pdev->dev, dma, data_size, DMA_FROM_DEVICE);
++
+ 	kfree(si_data);
+ 
+ 	return err;
 -- 
 2.33.0
 
