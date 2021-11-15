@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 645C9450B21
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:17:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D0ED450E13
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232327AbhKORUA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:20:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46236 "EHLO mail.kernel.org"
+        id S240589AbhKOSKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:10:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237131AbhKORR2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:17:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C75563238;
-        Mon, 15 Nov 2021 17:13:18 +0000 (UTC)
+        id S239940AbhKOSFF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CC0C632ED;
+        Mon, 15 Nov 2021 17:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996399;
-        bh=AlNY1KDY+3Z4FOFEcpeF7Bga+azl9Y2sftpCI89T+Y8=;
+        s=korg; t=1636998020;
+        bh=+Ieg6c3hIgJ0lyTICqOdCMQN83KQ3PflYloijUHZXqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVOYeVAnIIHORrS+Uuc2MdFcmqPbfKFP9ZvpY0xH5THD+5jcPo0pP8T+OvrITsALg
-         crJvH76Ur6QE5cuH6XXEaHiC9VGvTMJKQ1EOgmtELg9axHBJqq9Xdf+pdO3uzXJG8D
-         pycisSPplz+7kDtVw8YyA5JcmHV4HUbfjtGbPpLQ=
+        b=XcKhfeo++hf6qyGKb/RSeWjuyRwilJ8D77ciVwHC0kNtQ4a22kexrWCR1EHGUC8z0
+         rCkFYD1Lf2wLC4dRUB27a6/YwC91JvO6Y30l+eHBYl+RxvsJaRLn3yowfTCKmcjxV+
+         8GQHIYzGVoX2XSQmbBHBR/EtBJa76wRkBe9nE1dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Wang <yun.wang@linux.alibaba.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Abhinav Kumar <abhinavk@codeaurora.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 125/355] x86: Increase exception stack sizes
-Date:   Mon, 15 Nov 2021 18:00:49 +0100
-Message-Id: <20211115165317.858370194@linuxfoundation.org>
+Subject: [PATCH 5.10 325/575] drm/msm: potential error pointer dereference in init()
+Date:   Mon, 15 Nov 2021 18:00:50 +0100
+Message-Id: <20211115165355.045616927@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 7fae4c24a2b84a66c7be399727aca11e7a888462 ]
+[ Upstream commit b6816441a14bbe356ba8590de79cfea2de6a085c ]
 
-It turns out that a single page of stack is trivial to overflow with
-all the tracing gunk enabled. Raise the exception stacks to 2 pages,
-which is still half the interrupt stacks, which are at 4 pages.
+The msm_iommu_new() returns error pointers on failure so check for that
+to avoid an Oops.
 
-Reported-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/YUIO9Ye98S5Eb68w@hirez.programming.kicks-ass.net
+Fixes: ccac7ce373c1 ("drm/msm: Refactor address space initialization")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Abhinav Kumar <abhinavk@codeaurora.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20211004103806.GD25015@kili
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/page_64_types.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/x86/include/asm/page_64_types.h b/arch/x86/include/asm/page_64_types.h
-index 288b065955b72..9d0b479452720 100644
---- a/arch/x86/include/asm/page_64_types.h
-+++ b/arch/x86/include/asm/page_64_types.h
-@@ -15,7 +15,7 @@
- #define THREAD_SIZE_ORDER	(2 + KASAN_STACK_ORDER)
- #define THREAD_SIZE  (PAGE_SIZE << THREAD_SIZE_ORDER)
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+index c8217f4858a15..b4a2e8eb35dd2 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+@@ -846,6 +846,10 @@ static int _dpu_kms_mmu_init(struct dpu_kms *dpu_kms)
+ 		return 0;
  
--#define EXCEPTION_STACK_ORDER (0 + KASAN_STACK_ORDER)
-+#define EXCEPTION_STACK_ORDER (1 + KASAN_STACK_ORDER)
- #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
+ 	mmu = msm_iommu_new(dpu_kms->dev->dev, domain);
++	if (IS_ERR(mmu)) {
++		iommu_domain_free(domain);
++		return PTR_ERR(mmu);
++	}
+ 	aspace = msm_gem_address_space_create(mmu, "dpu1",
+ 		0x1000, 0x100000000 - 0x1000);
  
- #define IRQ_STACK_ORDER (2 + KASAN_STACK_ORDER)
 -- 
 2.33.0
 
