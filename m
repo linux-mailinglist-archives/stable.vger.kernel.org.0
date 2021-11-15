@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3F8F451EBC
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12856451E6C
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355273AbhKPAhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:37:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S1355133AbhKPAgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:36:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344927AbhKOTZo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344932AbhKOTZo (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 338CB636F1;
-        Mon, 15 Nov 2021 19:06:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A24A636F6;
+        Mon, 15 Nov 2021 19:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003212;
-        bh=8NInpRxBQamurNtjFAu+O8CuNybOvIgZbgsCXWujwow=;
+        s=korg; t=1637003218;
+        bh=mdJrWoohCu+eHCYDtn0pr+fXSS1u75FEgDZMS5nA2Qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lxU9qPGJWNBi50tfHJ8A2B/vzHAEuvuIdXocSvFHZADRC+kwa9jAhsGeiAmld15Cb
-         XKlpoUPJ2iBcguhFBHKQs8ReDzuKvxDEaTt37sDetI7t7DJJQ7P8fiwdE74BxBrLfU
-         wN8Be21pUhvB5cLCqZkFrYiSrS1FPonYTrMgYjUU=
+        b=OG4ia+wp/5OHfFan+BmmwRNGp8jg0+TbtRM5BTEe78uePGLxXAlLi/JJWcHGiqYC3
+         ZT3FNqmjEwiVpFxNC9aw7//Pc2nPmExkUI4LGguTN4gkmFd+q+yU0zU9xRFZGJqr4h
+         p6EJIvSn9pZRNMXvIUeUmifF94+SbTWP7KViPROk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.15 853/917] MIPS: Fix assembly error from MIPSr2 code used within MIPS_ISA_ARCH_LEVEL
-Date:   Mon, 15 Nov 2021 18:05:48 +0100
-Message-Id: <20211115165457.952635392@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Johansson <josef@oderland.se>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bjorn Helgaas <helgaas@kernel.org>
+Subject: [PATCH 5.15 855/917] PCI/MSI: Move non-mask check back into low level accessors
+Date:   Mon, 15 Nov 2021 18:05:50 +0100
+Message-Id: <20211115165458.019187971@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,80 +40,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit a923a2676e60683aee46aa4b93c30aff240ac20d upstream.
+commit 9c8e9c9681a0f3f1ae90a90230d059c7a1dece5a upstream.
 
-Fix assembly errors like:
+The recent rework of PCI/MSI[X] masking moved the non-mask checks from the
+low level accessors into the higher level mask/unmask functions.
 
-{standard input}: Assembler messages:
-{standard input}:287: Error: opcode not supported on this processor: mips3 (mips3) `dins $10,$7,32,32'
-{standard input}:680: Error: opcode not supported on this processor: mips3 (mips3) `dins $10,$7,32,32'
-{standard input}:1274: Error: opcode not supported on this processor: mips3 (mips3) `dins $12,$9,32,32'
-{standard input}:2175: Error: opcode not supported on this processor: mips3 (mips3) `dins $10,$7,32,32'
-make[1]: *** [scripts/Makefile.build:277: mm/highmem.o] Error 1
+This missed the fact that these accessors can be invoked from other places
+as well. The missing checks break XEN-PV which sets pci_msi_ignore_mask and
+also violates the virtual MSIX and the msi_attrib.maskbit protections.
 
-with code produced from `__cmpxchg64' for MIPS64r2 CPU configurations
-using CONFIG_32BIT and CONFIG_PHYS_ADDR_T_64BIT.
+Instead of sprinkling checks all over the place, lift them back into the
+low level accessor functions. To avoid checking three different conditions
+combine them into one property of msi_desc::msi_attrib.
 
-This is due to MIPS_ISA_ARCH_LEVEL downgrading the assembly architecture
-to `r4000' i.e. MIPS III for MIPS64r2 configurations, while there is a
-block of code containing a DINS MIPS64r2 instruction conditionalized on
-MIPS_ISA_REV >= 2 within the scope of the downgrade.
+[ josef: Fixed the missed conversion in the core code ]
 
-The assembly architecture override code pattern has been put there for
-LL/SC instructions, so that code compiles for configurations that select
-a processor to build for that does not support these instructions while
-still providing run-time support for processors that do, dynamically
-switched by non-constant `cpu_has_llsc'.  It went in with linux-mips.org
-commit aac8aa7717a2 ("Enable a suitable ISA for the assembler around
-ll/sc so that code builds even for processors that don't support the
-instructions. Plus minor formatting fixes.") back in 2005.
-
-Fix the problem by wrapping these instructions along with the adjacent
-SYNC instructions only, following the practice established with commit
-cfd54de3b0e4 ("MIPS: Avoid move psuedo-instruction whilst using
-MIPS_ISA_LEVEL") and commit 378ed6f0e3c5 ("MIPS: Avoid using .set mips0
-to restore ISA").  Strictly speaking the SYNC instructions do not have
-to be wrapped as they are only used as a Loongson3 erratum workaround,
-so they will be enabled in the assembler by default, but do this so as
-to keep code consistent with other places.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: c7e2d71dda7a ("MIPS: Fix set_pte() for Netlogic XLR using cmpxchg64()")
-Cc: stable@vger.kernel.org # v5.1+
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: fcacdfbef5a1 ("PCI/MSI: Provide a new set of mask and unmask functions")
+Reported-by: Josef Johansson <josef@oderland.se>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Josef Johansson <josef@oderland.se>
+Cc: Bjorn Helgaas <helgaas@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/asm/cmpxchg.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/pci/msi.c   |   26 ++++++++++++++------------
+ include/linux/msi.h |    2 +-
+ kernel/irq/msi.c    |    4 ++--
+ 3 files changed, 17 insertions(+), 15 deletions(-)
 
---- a/arch/mips/include/asm/cmpxchg.h
-+++ b/arch/mips/include/asm/cmpxchg.h
-@@ -249,6 +249,7 @@ static inline unsigned long __cmpxchg64(
- 	/* Load 64 bits from ptr */
- 	"	" __SYNC(full, loongson3_war) "		\n"
- 	"1:	lld	%L0, %3		# __cmpxchg64	\n"
-+	"	.set	pop				\n"
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -148,6 +148,9 @@ static noinline void pci_msi_update_mask
+ 	raw_spinlock_t *lock = &desc->dev->msi_lock;
+ 	unsigned long flags;
+ 
++	if (!desc->msi_attrib.can_mask)
++		return;
++
+ 	raw_spin_lock_irqsave(lock, flags);
+ 	desc->msi_mask &= ~clear;
+ 	desc->msi_mask |= set;
+@@ -181,7 +184,8 @@ static void pci_msix_write_vector_ctrl(s
+ {
+ 	void __iomem *desc_addr = pci_msix_desc_addr(desc);
+ 
+-	writel(ctrl, desc_addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
++	if (desc->msi_attrib.can_mask)
++		writel(ctrl, desc_addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
+ }
+ 
+ static inline void pci_msix_mask(struct msi_desc *desc)
+@@ -200,23 +204,17 @@ static inline void pci_msix_unmask(struc
+ 
+ static void __pci_msi_mask_desc(struct msi_desc *desc, u32 mask)
+ {
+-	if (pci_msi_ignore_mask || desc->msi_attrib.is_virtual)
+-		return;
+-
+ 	if (desc->msi_attrib.is_msix)
+ 		pci_msix_mask(desc);
+-	else if (desc->msi_attrib.maskbit)
++	else
+ 		pci_msi_mask(desc, mask);
+ }
+ 
+ static void __pci_msi_unmask_desc(struct msi_desc *desc, u32 mask)
+ {
+-	if (pci_msi_ignore_mask || desc->msi_attrib.is_virtual)
+-		return;
+-
+ 	if (desc->msi_attrib.is_msix)
+ 		pci_msix_unmask(desc);
+-	else if (desc->msi_attrib.maskbit)
++	else
+ 		pci_msi_unmask(desc, mask);
+ }
+ 
+@@ -484,7 +482,8 @@ msi_setup_entry(struct pci_dev *dev, int
+ 	entry->msi_attrib.is_64		= !!(control & PCI_MSI_FLAGS_64BIT);
+ 	entry->msi_attrib.is_virtual    = 0;
+ 	entry->msi_attrib.entry_nr	= 0;
+-	entry->msi_attrib.maskbit	= !!(control & PCI_MSI_FLAGS_MASKBIT);
++	entry->msi_attrib.can_mask	= !pci_msi_ignore_mask &&
++					  !!(control & PCI_MSI_FLAGS_MASKBIT);
+ 	entry->msi_attrib.default_irq	= dev->irq;	/* Save IOAPIC IRQ */
+ 	entry->msi_attrib.multi_cap	= (control & PCI_MSI_FLAGS_QMASK) >> 1;
+ 	entry->msi_attrib.multiple	= ilog2(__roundup_pow_of_two(nvec));
+@@ -495,7 +494,7 @@ msi_setup_entry(struct pci_dev *dev, int
+ 		entry->mask_pos = dev->msi_cap + PCI_MSI_MASK_32;
+ 
+ 	/* Save the initial mask status */
+-	if (entry->msi_attrib.maskbit)
++	if (entry->msi_attrib.can_mask)
+ 		pci_read_config_dword(dev, entry->mask_pos, &entry->msi_mask);
+ 
+ out:
+@@ -638,10 +637,13 @@ static int msix_setup_entries(struct pci
+ 		entry->msi_attrib.is_virtual =
+ 			entry->msi_attrib.entry_nr >= vec_count;
+ 
++		entry->msi_attrib.can_mask	= !pci_msi_ignore_mask &&
++						  !entry->msi_attrib.is_virtual;
++
+ 		entry->msi_attrib.default_irq	= dev->irq;
+ 		entry->mask_base		= base;
+ 
+-		if (!entry->msi_attrib.is_virtual) {
++		if (entry->msi_attrib.can_mask) {
+ 			addr = pci_msix_desc_addr(entry);
+ 			entry->msix_ctrl = readl(addr + PCI_MSIX_ENTRY_VECTOR_CTRL);
+ 		}
+--- a/include/linux/msi.h
++++ b/include/linux/msi.h
+@@ -148,7 +148,7 @@ struct msi_desc {
+ 				u8	is_msix		: 1;
+ 				u8	multiple	: 3;
+ 				u8	multi_cap	: 3;
+-				u8	maskbit		: 1;
++				u8	can_mask	: 1;
+ 				u8	is_64		: 1;
+ 				u8	is_virtual	: 1;
+ 				u16	entry_nr;
+--- a/kernel/irq/msi.c
++++ b/kernel/irq/msi.c
+@@ -529,10 +529,10 @@ static bool msi_check_reservation_mode(s
+ 
  	/*
- 	 * Split the 64 bit value we loaded into the 2 registers that hold the
- 	 * ret variable.
-@@ -276,12 +277,14 @@ static inline unsigned long __cmpxchg64(
- 	"	or	%L1, %L1, $at			\n"
- 	"	.set	at				\n"
- #  endif
-+	"	.set	push				\n"
-+	"	.set	" MIPS_ISA_ARCH_LEVEL "		\n"
- 	/* Attempt to store new at ptr */
- 	"	scd	%L1, %2				\n"
- 	/* If we failed, loop! */
- 	"\t" __SC_BEQZ "%L1, 1b				\n"
--	"	.set	pop				\n"
- 	"2:	" __SYNC(full, loongson3_war) "		\n"
-+	"	.set	pop				\n"
- 	: "=&r"(ret),
- 	  "=&r"(tmp),
- 	  "=" GCC_OFF_SMALL_ASM() (*(unsigned long long *)ptr)
+ 	 * Checking the first MSI descriptor is sufficient. MSIX supports
+-	 * masking and MSI does so when the maskbit is set.
++	 * masking and MSI does so when the can_mask attribute is set.
+ 	 */
+ 	desc = first_msi_entry(dev);
+-	return desc->msi_attrib.is_msix || desc->msi_attrib.maskbit;
++	return desc->msi_attrib.is_msix || desc->msi_attrib.can_mask;
+ }
+ 
+ int __msi_domain_alloc_irqs(struct irq_domain *domain, struct device *dev,
 
 
