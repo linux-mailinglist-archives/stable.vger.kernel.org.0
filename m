@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2112450C8D
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:37:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9469450C8A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237943AbhKORjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:39:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47376 "EHLO mail.kernel.org"
+        id S236675AbhKORjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:39:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238229AbhKORfN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238273AbhKORfN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 12:35:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89F6360C4A;
-        Mon, 15 Nov 2021 17:23:49 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37D9B60E0C;
+        Mon, 15 Nov 2021 17:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997030;
-        bh=G3DdGBAkQmHvWOxngKD3k38mY/FTETAuwwwHmu91kzk=;
+        s=korg; t=1636997032;
+        bh=fF0/bSdgt83uDRIEUWePQzMO9jej4LJFY6K8cRSonv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MIFaeQf94ejPr52GvNYz1L2GHxBwEYdjPTMn71vt+rG2kyxvlSZKv6HvYYu3FDrO9
-         pP88j6Uj1+ZDnqKD0SEuNV9Xb3I94A7l6GLSvlvuzDKb136pOlezAe6D2qKSPJh+qs
-         tXY+w+wVzplz2JiD2E34lO/bbxrZHberjxqUgD9E=
+        b=e9V5Itpcv5keJmP9SuxK1szCWx75jzF89089VpcWjfxZ6ESwDK1y4rlPN2ZcXdcAG
+         NWCADWwKRXu1zvVpZJAOiEAoCbt8Xha8dabko6QY/gil/LJMlk4TcfsLhlFsvdfoL7
+         S7yirKWZmTPuOVThPKMrjD/xefXoQnZDATT8Jk3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.4 349/355] video: backlight: Drop maximum brightness override for brightness zero
-Date:   Mon, 15 Nov 2021 18:04:33 +0100
-Message-Id: <20211115165325.041070657@linuxfoundation.org>
+        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 350/355] s390/cio: check the subchannel validity for dev_busid
+Date:   Mon, 15 Nov 2021 18:04:34 +0100
+Message-Id: <20211115165325.073002938@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -41,46 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-commit 33a5471f8da976bf271a1ebbd6b9d163cb0cb6aa upstream.
+commit a4751f157c194431fae9e9c493f456df8272b871 upstream.
 
-The note in c2adda27d202f ("video: backlight: Add of_find_backlight helper
-in backlight.c") says that gpio-backlight uses brightness as power state.
-This has been fixed since in ec665b756e6f7 ("backlight: gpio-backlight:
-Correct initial power state handling") and other backlight drivers do not
-require this workaround. Drop the workaround.
+Check the validity of subchanel before reading other fields in
+the schib.
 
-This fixes the case where e.g. pwm-backlight can perfectly well be set to
-brightness 0 on boot in DT, which without this patch leads to the display
-brightness to be max instead of off.
-
-Fixes: c2adda27d202f ("video: backlight: Add of_find_backlight helper in backlight.c")
-Cc: <stable@vger.kernel.org> # 5.4+
-Cc: <stable@vger.kernel.org> # 4.19.x: ec665b756e6f7: backlight: gpio-backlight: Correct initial power state handling
-Signed-off-by: Marek Vasut <marex@denx.de>
-Acked-by: Noralf Trønnes <noralf@tronnes.org>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: d3683c055212 ("s390/cio: add dev_busid sysfs entry for each subchannel")
+CC: <stable@vger.kernel.org>
+Reported-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Link: https://lore.kernel.org/r/20211105154451.847288-1-vneethv@linux.ibm.com
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/backlight/backlight.c |    6 ------
- 1 file changed, 6 deletions(-)
+ drivers/s390/cio/css.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/video/backlight/backlight.c
-+++ b/drivers/video/backlight/backlight.c
-@@ -630,12 +630,6 @@ struct backlight_device *of_find_backlig
- 			of_node_put(np);
- 			if (!bd)
- 				return ERR_PTR(-EPROBE_DEFER);
--			/*
--			 * Note: gpio_backlight uses brightness as
--			 * power state during probe
--			 */
--			if (!bd->props.brightness)
--				bd->props.brightness = bd->props.max_brightness;
- 		}
- 	}
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -433,8 +433,8 @@ static ssize_t dev_busid_show(struct dev
+ 	struct subchannel *sch = to_subchannel(dev);
+ 	struct pmcw *pmcw = &sch->schib.pmcw;
  
+-	if ((pmcw->st == SUBCHANNEL_TYPE_IO ||
+-	     pmcw->st == SUBCHANNEL_TYPE_MSG) && pmcw->dnv)
++	if ((pmcw->st == SUBCHANNEL_TYPE_IO && pmcw->dnv) ||
++	    (pmcw->st == SUBCHANNEL_TYPE_MSG && pmcw->w))
+ 		return sysfs_emit(buf, "0.%x.%04x\n", sch->schid.ssid,
+ 				  pmcw->dev);
+ 	else
 
 
