@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C72224513E2
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6FAD4513E0
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348691AbhKOT7K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:59:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S1348286AbhKOT6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:58:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344107AbhKOTXX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344109AbhKOTXX (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:23:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 234D563629;
-        Mon, 15 Nov 2021 18:52:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA7276362A;
+        Mon, 15 Nov 2021 18:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002322;
-        bh=9XPeT6qZ5vpU1N0TdMKx++5I47YaQ2OzvEuKU7q2wbg=;
+        s=korg; t=1637002325;
+        bh=dO4Em7Otl80EnctTdADWwVVQuJMq6UvPT5Gx1yuNDcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WyP6Fyps6jm8Bc56lCrQZ0kmuSB1HDD37UM2mB0fuutSf3cn68bFyGtuYWacEzeas
-         JhbpVd+A9oEpEPbhpRKhcCjzWA/WOQuczXY5RMCiNM0R1Lh74M8scuUl72X9q2eSAC
-         mJXasA1ccrmXuvpFsd3s4MQY2u8stNftpxXjIYx0=
+        b=ofqafePvhSJqa7dcSPlaNBqAsI9MQk8WUiUMPaguv/SR+O5BEH6xZ5PPgHZJvD76B
+         ry2O3cmFQZArGmFjoEmkhDzXIlcMb5LmqvG/nh7VnBmgur/0I4wSWIPaPTVGQgcAV3
+         DjDj9efydgK4xsemMEgviMOiNljR6rqfINfoJWxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        Tim Gardner <tim.gardner@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 488/917] iwlwifi: pnvm: read EFI data only if long enough
-Date:   Mon, 15 Nov 2021 17:59:43 +0100
-Message-Id: <20211115165445.336527053@linuxfoundation.org>
+Subject: [PATCH 5.15 489/917] net: enetc: unmap DMA in enetc_send_cmd()
+Date:   Mon, 15 Nov 2021 17:59:44 +0100
+Message-Id: <20211115165445.367210100@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,44 +42,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Tim Gardner <tim.gardner@canonical.com>
 
-[ Upstream commit e864a77f51d0d8113b49cf7d030bc9dc911c8176 ]
+[ Upstream commit cd4bc63de774eee95e9bac26a565cd80e0fca421 ]
 
-If the data we get from EFI is not even long enough for
-the package struct we expect then ignore it entirely.
+Coverity complains of a possible dereference of a null return value.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Fixes: a1a6a4cf49ec ("iwlwifi: pnvm: implement reading PNVM from UEFI")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20211016114029.33feba783518.I54a5cf33975d0330792b3d208b225d479e168f32@changeid
+   	5. returned_null: kzalloc returns NULL. [show details]
+   	6. var_assigned: Assigning: si_data = NULL return value from kzalloc.
+488        si_data = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
+489        cbd.length = cpu_to_le16(data_size);
+490
+491        dma = dma_map_single(&priv->si->pdev->dev, si_data,
+492                             data_size, DMA_FROM_DEVICE);
+
+While this kzalloc() is unlikely to fail, I did notice that the function
+returned without unmapping si_data.
+
+Fix this by refactoring the error paths and checking for kzalloc()
+failure.
+
+Fixes: 888ae5a3952ba ("net: enetc: add tc flower psfp offload driver")
+Cc: Claudiu Manoil <claudiu.manoil@nxp.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org (open list)
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+Acked-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/pnvm.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ .../net/ethernet/freescale/enetc/enetc_qos.c   | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
-index 9b0eee53488ab..069fcbc46d2ba 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
-@@ -284,9 +284,13 @@ int iwl_pnvm_load(struct iwl_trans *trans,
- 	/* First attempt to get the PNVM from BIOS */
- 	package = iwl_uefi_get_pnvm(trans, &len);
- 	if (!IS_ERR_OR_NULL(package)) {
--		/* we need only the data */
--		len -= sizeof(*package);
--		data = kmemdup(package->data, len, GFP_KERNEL);
-+		if (len >= sizeof(*package)) {
-+			/* we need only the data */
-+			len -= sizeof(*package);
-+			data = kmemdup(package->data, len, GFP_KERNEL);
-+		} else {
-+			data = NULL;
-+		}
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc_qos.c b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+index 4577226d3c6ad..0536d2c76fbc4 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc_qos.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+@@ -486,14 +486,16 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
  
- 		/* free package regardless of whether kmemdup succeeded */
- 		kfree(package);
+ 	data_size = sizeof(struct streamid_data);
+ 	si_data = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
++	if (!si_data)
++		return -ENOMEM;
+ 	cbd.length = cpu_to_le16(data_size);
+ 
+ 	dma = dma_map_single(&priv->si->pdev->dev, si_data,
+ 			     data_size, DMA_FROM_DEVICE);
+ 	if (dma_mapping_error(&priv->si->pdev->dev, dma)) {
+ 		netdev_err(priv->si->ndev, "DMA mapping failed!\n");
+-		kfree(si_data);
+-		return -ENOMEM;
++		err = -ENOMEM;
++		goto out;
+ 	}
+ 
+ 	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma));
+@@ -512,12 +514,10 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
+ 
+ 	err = enetc_send_cmd(priv->si, &cbd);
+ 	if (err)
+-		return -EINVAL;
++		goto out;
+ 
+-	if (!enable) {
+-		kfree(si_data);
+-		return 0;
+-	}
++	if (!enable)
++		goto out;
+ 
+ 	/* Enable the entry overwrite again incase space flushed by hardware */
+ 	memset(&cbd, 0, sizeof(cbd));
+@@ -560,6 +560,10 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
+ 	}
+ 
+ 	err = enetc_send_cmd(priv->si, &cbd);
++out:
++	if (!dma_mapping_error(&priv->si->pdev->dev, dma))
++		dma_unmap_single(&priv->si->pdev->dev, dma, data_size, DMA_FROM_DEVICE);
++
+ 	kfree(si_data);
+ 
+ 	return err;
 -- 
 2.33.0
 
