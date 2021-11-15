@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90CEF451485
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04BFA451298
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348352AbhKOUJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:09:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
+        id S1346962AbhKOTh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:37:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344698AbhKOTZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CB6B636B1;
-        Mon, 15 Nov 2021 19:02:23 +0000 (UTC)
+        id S244901AbhKOTSL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 024326342C;
+        Mon, 15 Nov 2021 18:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002944;
-        bh=B/Wxskf8W9UHbvX02Sp4vwyE7u0dNaDrWzcLkVUVRdQ=;
+        s=korg; t=1637000720;
+        bh=YXG8FlXnmCiMIWi6EEdqpqFNEupLxdNoSVRYiwAWTv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t6tuJwqucW3uI+CBPHdZeWd6SjfaOlEKODoVtlnqmDWC8e3NoNxmGanWVqyo+6j5J
-         xe8doOsdT/TblyyG69TZith0jjcRinzn9V/ctQFKEnz22ziglGp2/1s6M3KhOEInSm
-         XbMnhzVmCSnDuI31Y51qlb4Z1c+0vBLl4zhXLPeY=
+        b=DgtTrbHVDxBzaO1bZW1FH9saa8HVVVfn1PQWEezy7tfGNVRTu2lYRNt5oaGJ1VwSP
+         55uh7AlWHneziDYSojyg+V1STdwCIPpCPRwtSs6gXNtFZl4sJBJ/7W5XLlSV13HPS5
+         abpRa+0OXBZ2UGuVMQ7UZvlJSrnX9Y9qKgK5NkUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Jussi Maki <joamaki@gmail.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 754/917] scsi: qla2xxx: edif: Fix EDIF bsg
+Subject: [PATCH 5.14 766/849] bpf, sockmap: sk_skb data_end access incorrect when src_reg = dst_reg
 Date:   Mon, 15 Nov 2021 18:04:09 +0100
-Message-Id: <20211115165454.478282175@linuxfoundation.org>
+Message-Id: <20211115165446.176460427@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,160 +42,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Jussi Maki <joamaki@gmail.com>
 
-[ Upstream commit 9fd26c633e8ab5a291c0241533efff161bbe5570 ]
+[ Upstream commit b2c4618162ec615a15883a804cce7e27afecfa58 ]
 
-Various EDIF bsgs did not properly fill out the reply_payload_rcv_len
-field. This causes app to parse empty data in the return payload.
+The current conversion of skb->data_end reads like this:
 
-Link: https://lore.kernel.org/r/20211026115412.27691-13-njavali@marvell.com
-Fixes: 7ebb336e45ef ("scsi: qla2xxx: edif: Add start + stop bsgs")
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  ; data_end = (void*)(long)skb->data_end;
+   559: (79) r1 = *(u64 *)(r2 +200)   ; r1  = skb->data
+   560: (61) r11 = *(u32 *)(r2 +112)  ; r11 = skb->len
+   561: (0f) r1 += r11
+   562: (61) r11 = *(u32 *)(r2 +116)
+   563: (1f) r1 -= r11
+
+But similar to the case in 84f44df664e9 ("bpf: sock_ops sk access may stomp
+registers when dst_reg = src_reg"), the code will read an incorrect skb->len
+when src == dst. In this case we end up generating this xlated code:
+
+  ; data_end = (void*)(long)skb->data_end;
+   559: (79) r1 = *(u64 *)(r1 +200)   ; r1  = skb->data
+   560: (61) r11 = *(u32 *)(r1 +112)  ; r11 = (skb->data)->len
+   561: (0f) r1 += r11
+   562: (61) r11 = *(u32 *)(r1 +116)
+   563: (1f) r1 -= r11
+
+... where line 560 is the reading 4B of (skb->data + 112) instead of the
+intended skb->len Here the skb pointer in r1 gets set to skb->data and the
+later deref for skb->len ends up following skb->data instead of skb.
+
+This fixes the issue similarly to the patch mentioned above by creating an
+additional temporary variable and using to store the register when dst_reg =
+src_reg. We name the variable bpf_temp_reg and place it in the cb context for
+sk_skb. Then we restore from the temp to ensure nothing is lost.
+
+Fixes: 16137b09a66f2 ("bpf: Compute data_end dynamically with JIT code")
+Signed-off-by: Jussi Maki <joamaki@gmail.com>
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/20211103204736.248403-6-john.fastabend@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_edif.c | 49 ++++++++++++++++-----------------
- 1 file changed, 23 insertions(+), 26 deletions(-)
+ include/net/strparser.h |  4 ++++
+ net/core/filter.c       | 36 ++++++++++++++++++++++++++++++------
+ 2 files changed, 34 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_edif.c b/drivers/scsi/qla2xxx/qla_edif.c
-index 98235df803aef..9240e788b011d 100644
---- a/drivers/scsi/qla2xxx/qla_edif.c
-+++ b/drivers/scsi/qla2xxx/qla_edif.c
-@@ -544,14 +544,14 @@ qla_edif_app_start(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 	appreply.edif_enode_active = vha->pur_cinfo.enode_flags;
- 	appreply.edif_edb_active = vha->e_dbell.db_flags;
+diff --git a/include/net/strparser.h b/include/net/strparser.h
+index bec1439bd3be6..732b7097d78e4 100644
+--- a/include/net/strparser.h
++++ b/include/net/strparser.h
+@@ -66,6 +66,10 @@ struct sk_skb_cb {
+ #define SK_SKB_CB_PRIV_LEN 20
+ 	unsigned char data[SK_SKB_CB_PRIV_LEN];
+ 	struct _strp_msg strp;
++	/* temp_reg is a temporary register used for bpf_convert_data_end_access
++	 * when dst_reg == src_reg.
++	 */
++	u64 temp_reg;
+ };
  
--	bsg_job->reply_len = sizeof(struct fc_bsg_reply) +
--	    sizeof(struct app_start_reply);
-+	bsg_job->reply_len = sizeof(struct fc_bsg_reply);
- 
- 	SET_DID_STATUS(bsg_reply->result, DID_OK);
- 
--	sg_copy_from_buffer(bsg_job->reply_payload.sg_list,
--	    bsg_job->reply_payload.sg_cnt, &appreply,
--	    sizeof(struct app_start_reply));
-+	bsg_reply->reply_payload_rcv_len = sg_copy_from_buffer(bsg_job->reply_payload.sg_list,
-+							       bsg_job->reply_payload.sg_cnt,
-+							       &appreply,
-+							       sizeof(struct app_start_reply));
- 
- 	ql_dbg(ql_dbg_edif, vha, 0x911d,
- 	    "%s app start completed with 0x%x\n",
-@@ -748,9 +748,10 @@ qla_edif_app_authok(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 
- errstate_exit:
- 	bsg_job->reply_len = sizeof(struct fc_bsg_reply);
--	sg_copy_from_buffer(bsg_job->reply_payload.sg_list,
--	    bsg_job->reply_payload.sg_cnt, &appplogireply,
--	    sizeof(struct app_plogi_reply));
-+	bsg_reply->reply_payload_rcv_len = sg_copy_from_buffer(bsg_job->reply_payload.sg_list,
-+							       bsg_job->reply_payload.sg_cnt,
-+							       &appplogireply,
-+							       sizeof(struct app_plogi_reply));
- 
- 	return rval;
- }
-@@ -833,7 +834,7 @@ static int
- qla_edif_app_getfcinfo(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
+ static inline struct strp_msg *strp_msg(struct sk_buff *skb)
+diff --git a/net/core/filter.c b/net/core/filter.c
+index e0b0ff681e68d..58ec74f012930 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -9655,22 +9655,46 @@ static u32 sock_ops_convert_ctx_access(enum bpf_access_type type,
+ static struct bpf_insn *bpf_convert_data_end_access(const struct bpf_insn *si,
+ 						    struct bpf_insn *insn)
  {
- 	int32_t			rval = 0;
--	int32_t			num_cnt;
-+	int32_t			pcnt = 0;
- 	struct fc_bsg_reply	*bsg_reply = bsg_job->reply;
- 	struct app_pinfo_req	app_req;
- 	struct app_pinfo_reply	*app_reply;
-@@ -845,16 +846,14 @@ qla_edif_app_getfcinfo(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 	    bsg_job->request_payload.sg_cnt, &app_req,
- 	    sizeof(struct app_pinfo_req));
- 
--	num_cnt = app_req.num_ports;	/* num of ports alloc'd by app */
--
- 	app_reply = kzalloc((sizeof(struct app_pinfo_reply) +
--	    sizeof(struct app_pinfo) * num_cnt), GFP_KERNEL);
-+	    sizeof(struct app_pinfo) * app_req.num_ports), GFP_KERNEL);
+-	/* si->dst_reg = skb->data */
++	int reg;
++	int temp_reg_off = offsetof(struct sk_buff, cb) +
++			   offsetof(struct sk_skb_cb, temp_reg);
 +
- 	if (!app_reply) {
- 		SET_DID_STATUS(bsg_reply->result, DID_ERROR);
- 		rval = -1;
- 	} else {
- 		struct fc_port	*fcport = NULL, *tf;
--		uint32_t	pcnt = 0;
++	if (si->src_reg == si->dst_reg) {
++		/* We need an extra register, choose and save a register. */
++		reg = BPF_REG_9;
++		if (si->src_reg == reg || si->dst_reg == reg)
++			reg--;
++		if (si->src_reg == reg || si->dst_reg == reg)
++			reg--;
++		*insn++ = BPF_STX_MEM(BPF_DW, si->src_reg, reg, temp_reg_off);
++	} else {
++		reg = si->dst_reg;
++	}
++
++	/* reg = skb->data */
+ 	*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, data),
+-			      si->dst_reg, si->src_reg,
++			      reg, si->src_reg,
+ 			      offsetof(struct sk_buff, data));
+ 	/* AX = skb->len */
+ 	*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, len),
+ 			      BPF_REG_AX, si->src_reg,
+ 			      offsetof(struct sk_buff, len));
+-	/* si->dst_reg = skb->data + skb->len */
+-	*insn++ = BPF_ALU64_REG(BPF_ADD, si->dst_reg, BPF_REG_AX);
++	/* reg = skb->data + skb->len */
++	*insn++ = BPF_ALU64_REG(BPF_ADD, reg, BPF_REG_AX);
+ 	/* AX = skb->data_len */
+ 	*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, data_len),
+ 			      BPF_REG_AX, si->src_reg,
+ 			      offsetof(struct sk_buff, data_len));
+-	/* si->dst_reg = skb->data + skb->len - skb->data_len */
+-	*insn++ = BPF_ALU64_REG(BPF_SUB, si->dst_reg, BPF_REG_AX);
++
++	/* reg = skb->data + skb->len - skb->data_len */
++	*insn++ = BPF_ALU64_REG(BPF_SUB, reg, BPF_REG_AX);
++
++	if (si->src_reg == si->dst_reg) {
++		/* Restore the saved register */
++		*insn++ = BPF_MOV64_REG(BPF_REG_AX, si->src_reg);
++		*insn++ = BPF_MOV64_REG(si->dst_reg, reg);
++		*insn++ = BPF_LDX_MEM(BPF_DW, reg, BPF_REG_AX, temp_reg_off);
++	}
  
- 		list_for_each_entry_safe(fcport, tf, &vha->vp_fcports, list) {
- 			if (!(fcport->flags & FCF_FCSP_DEVICE))
-@@ -923,9 +922,11 @@ qla_edif_app_getfcinfo(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 		SET_DID_STATUS(bsg_reply->result, DID_OK);
- 	}
- 
--	sg_copy_from_buffer(bsg_job->reply_payload.sg_list,
--	    bsg_job->reply_payload.sg_cnt, app_reply,
--	    sizeof(struct app_pinfo_reply) + sizeof(struct app_pinfo) * num_cnt);
-+	bsg_job->reply_len = sizeof(struct fc_bsg_reply);
-+	bsg_reply->reply_payload_rcv_len = sg_copy_from_buffer(bsg_job->reply_payload.sg_list,
-+							       bsg_job->reply_payload.sg_cnt,
-+							       app_reply,
-+							       sizeof(struct app_pinfo_reply) + sizeof(struct app_pinfo) * pcnt);
- 
- 	kfree(app_reply);
- 
-@@ -942,10 +943,11 @@ qla_edif_app_getstats(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- {
- 	int32_t			rval = 0;
- 	struct fc_bsg_reply	*bsg_reply = bsg_job->reply;
--	uint32_t ret_size, size;
-+	uint32_t size;
- 
- 	struct app_sinfo_req	app_req;
- 	struct app_stats_reply	*app_reply;
-+	uint32_t pcnt = 0;
- 
- 	sg_copy_to_buffer(bsg_job->request_payload.sg_list,
- 	    bsg_job->request_payload.sg_cnt, &app_req,
-@@ -961,18 +963,12 @@ qla_edif_app_getstats(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 	size = sizeof(struct app_stats_reply) +
- 	    (sizeof(struct app_sinfo) * app_req.num_ports);
- 
--	if (size > bsg_job->reply_payload.payload_len)
--		ret_size = bsg_job->reply_payload.payload_len;
--	else
--		ret_size = size;
--
- 	app_reply = kzalloc(size, GFP_KERNEL);
- 	if (!app_reply) {
- 		SET_DID_STATUS(bsg_reply->result, DID_ERROR);
- 		rval = -1;
- 	} else {
- 		struct fc_port	*fcport = NULL, *tf;
--		uint32_t	pcnt = 0;
- 
- 		list_for_each_entry_safe(fcport, tf, &vha->vp_fcports, list) {
- 			if (fcport->edif.enable) {
-@@ -996,9 +992,11 @@ qla_edif_app_getstats(scsi_qla_host_t *vha, struct bsg_job *bsg_job)
- 		SET_DID_STATUS(bsg_reply->result, DID_OK);
- 	}
- 
-+	bsg_job->reply_len = sizeof(struct fc_bsg_reply);
- 	bsg_reply->reply_payload_rcv_len =
- 	    sg_copy_from_buffer(bsg_job->reply_payload.sg_list,
--	       bsg_job->reply_payload.sg_cnt, app_reply, ret_size);
-+	       bsg_job->reply_payload.sg_cnt, app_reply,
-+	       sizeof(struct app_stats_reply) + (sizeof(struct app_sinfo) * pcnt));
- 
- 	kfree(app_reply);
- 
-@@ -1072,8 +1070,7 @@ qla_edif_app_mgmt(struct bsg_job *bsg_job)
- 		    __func__,
- 		    bsg_request->rqst_data.h_vendor.vendor_cmd[1]);
- 		rval = EXT_STATUS_INVALID_PARAM;
--		bsg_job->reply_len = sizeof(struct fc_bsg_reply);
--		SET_DID_STATUS(bsg_reply->result, DID_ERROR);
-+		done = false;
- 		break;
- 	}
- 
+ 	return insn;
+ }
 -- 
 2.33.0
 
