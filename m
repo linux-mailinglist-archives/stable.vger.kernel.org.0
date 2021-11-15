@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B86014511A6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:10:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 836D1451434
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239747AbhKOTMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:12:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39110 "EHLO mail.kernel.org"
+        id S242330AbhKOUC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:02:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244128AbhKOTKZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:10:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F906633F5;
-        Mon, 15 Nov 2021 18:18:39 +0000 (UTC)
+        id S1344313AbhKOTYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CDA4633CB;
+        Mon, 15 Nov 2021 18:55:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000320;
-        bh=2tx8THRSRrbuqceFMjrGJWX0CpBqc6Ory7Tl0ZKBAyg=;
+        s=korg; t=1637002538;
+        bh=AlDYZYESXTj9g84izod3EgH2s/APmTwHtMQWSyBmrBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CX1y6OM2b0OOaXfzn3GJ34JdBP33XWKUK8tLxqwd7+SRpIgP1oe3U4Ld1QI9zSOsh
-         1JYwcRyXGLoxZKM4vq+QNfjnhLtBKRYvrtTETZwSnNMwOsRb9neACD7YRc1VdogGDY
-         DTw4qFMa+5MMnRuODiC0lL8vZub8uqzGMXHNGUA4=
+        b=WBldGANWWMnKSrGQLn7lcWym+Lgb3IxXIqfHcQeV5TwJ70384HQAP6ZsxfHxTpPp2
+         QK1eYinZ4DGzbprYKg16tuUx0ftfeYC9wcuP/YFwIS4USH4CfBINpClpQ2AsXqNoTQ
+         POqVxhqrn193Gr+zOVkf8NkXAFjNJsaihz80KULE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 618/849] soc: qcom: rpmhpd: Make power_on actually enable the domain
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 606/917] soundwire: debugfs: use controller id and link_id for debugfs
 Date:   Mon, 15 Nov 2021 18:01:41 +0100
-Message-Id: <20211115165441.156035877@linuxfoundation.org>
+Message-Id: <20211115165449.328460667@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,100 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit e3e56c050ab6e3f1bd811f0787f50709017543e4 ]
+[ Upstream commit 75eac387a2539aa6c6bbee3affa23435f2096396 ]
 
-The general expectation is that powering on a power-domain should make
-the power domain deliver some power, and if a specific performance state
-is needed further requests has to be made.
+link_id can be zero and if we have multiple controller instances
+in a system like Qualcomm debugfs will end-up with duplicate namespace
+resulting in incorrect debugfs entries.
 
-But in contrast with other power-domain implementations (e.g. rpmpd) the
-RPMh does not have an interface to enable the power, so the driver has
-to vote for a particular corner (performance level) in rpmh_power_on().
+Using bus-id and link-id combination should give a unique debugfs directory
+entry and should fix below warning too.
+"debugfs: Directory 'master-0' with parent 'soundwire' already present!"
 
-But the corner is never initialized, so a typical request to simply
-enable the power domain would not actually turn on the hardware. Further
-more, when no more clients vote for a performance state (i.e. the
-aggregated vote is 0) the power domain would be turned off.
-
-Fix both of these issues by always voting for a corner with non-zero
-value, when the power domain is enabled.
-
-The tracking of the lowest non-zero corner is performed to handle the
-corner case if there's ever a domain with a non-zero lowest corner, in
-which case both rpmh_power_on() and rpmh_rpmhpd_set_performance_state()
-would be allowed to use this lowest corner.
-
-Fixes: 279b7e8a62cc ("soc: qcom: rpmhpd: Add RPMh power domain driver")
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20211005033732.2284447-1-bjorn.andersson@linaro.org
+Fixes: bf03473d5bcc ("soundwire: add debugfs support")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210907105332.1257-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/rpmhpd.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/soundwire/debugfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/rpmhpd.c b/drivers/soc/qcom/rpmhpd.c
-index fa209b479ab35..a46735cec3f0f 100644
---- a/drivers/soc/qcom/rpmhpd.c
-+++ b/drivers/soc/qcom/rpmhpd.c
-@@ -30,6 +30,7 @@
-  * @active_only:	True if it represents an Active only peer
-  * @corner:		current corner
-  * @active_corner:	current active corner
-+ * @enable_corner:	lowest non-zero corner
-  * @level:		An array of level (vlvl) to corner (hlvl) mappings
-  *			derived from cmd-db
-  * @level_count:	Number of levels supported by the power domain. max
-@@ -47,6 +48,7 @@ struct rpmhpd {
- 	const bool	active_only;
- 	unsigned int	corner;
- 	unsigned int	active_corner;
-+	unsigned int	enable_corner;
- 	u32		level[RPMH_ARC_MAX_LEVELS];
- 	size_t		level_count;
- 	bool		enabled;
-@@ -385,13 +387,13 @@ static int rpmhpd_aggregate_corner(struct rpmhpd *pd, unsigned int corner)
- static int rpmhpd_power_on(struct generic_pm_domain *domain)
- {
- 	struct rpmhpd *pd = domain_to_rpmhpd(domain);
--	int ret = 0;
-+	unsigned int corner;
-+	int ret;
+diff --git a/drivers/soundwire/debugfs.c b/drivers/soundwire/debugfs.c
+index b6cad0d59b7b9..49900cd207bc7 100644
+--- a/drivers/soundwire/debugfs.c
++++ b/drivers/soundwire/debugfs.c
+@@ -19,7 +19,7 @@ void sdw_bus_debugfs_init(struct sdw_bus *bus)
+ 		return;
  
- 	mutex_lock(&rpmhpd_lock);
+ 	/* create the debugfs master-N */
+-	snprintf(name, sizeof(name), "master-%d", bus->link_id);
++	snprintf(name, sizeof(name), "master-%d-%d", bus->id, bus->link_id);
+ 	bus->debugfs = debugfs_create_dir(name, sdw_debugfs_root);
+ }
  
--	if (pd->corner)
--		ret = rpmhpd_aggregate_corner(pd, pd->corner);
--
-+	corner = max(pd->corner, pd->enable_corner);
-+	ret = rpmhpd_aggregate_corner(pd, corner);
- 	if (!ret)
- 		pd->enabled = true;
- 
-@@ -436,6 +438,10 @@ static int rpmhpd_set_performance_state(struct generic_pm_domain *domain,
- 		i--;
- 
- 	if (pd->enabled) {
-+		/* Ensure that the domain isn't turn off */
-+		if (i < pd->enable_corner)
-+			i = pd->enable_corner;
-+
- 		ret = rpmhpd_aggregate_corner(pd, i);
- 		if (ret)
- 			goto out;
-@@ -472,6 +478,10 @@ static int rpmhpd_update_level_mapping(struct rpmhpd *rpmhpd)
- 	for (i = 0; i < rpmhpd->level_count; i++) {
- 		rpmhpd->level[i] = buf[i];
- 
-+		/* Remember the first corner with non-zero level */
-+		if (!rpmhpd->level[rpmhpd->enable_corner] && rpmhpd->level[i])
-+			rpmhpd->enable_corner = i;
-+
- 		/*
- 		 * The AUX data may be zero padded.  These 0 valued entries at
- 		 * the end of the map must be ignored.
 -- 
 2.33.0
 
