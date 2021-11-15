@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B9334511C4
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:12:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B7F245146A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243726AbhKOTOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:14:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42638 "EHLO mail.kernel.org"
+        id S1349224AbhKOUFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:05:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243671AbhKOTLj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:11:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AFEE6124B;
-        Mon, 15 Nov 2021 18:19:14 +0000 (UTC)
+        id S1344354AbhKOTYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACB236366B;
+        Mon, 15 Nov 2021 18:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000355;
-        bh=NPjVtk2A5GC7J3ix5FErXWBcijlXCXs0M3kZHT/2Gsc=;
+        s=korg; t=1637002575;
+        bh=+7Yw0/uD2q8RPOwNfAd3r3Ux8OqWoYp+JSP1sPITtDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tvI8c5Ukcvp4RM95k969F0DXUyssrhK3lbryZ6Cfz2Ncndb1MRdqlWVeMqTt3fimY
-         WS4aFY8t8X2CpUYPSYVmtsoSaXGv+yE0Z4rrd4X18Qs5MhRVqUebTNuhV84Dbv6CPA
-         Gpmhm6uwdi48i+75ef38WtUoWCiJLztXa2Us1BWA=
+        b=CgUP5Q5vQ1oxDzKl7G8cDecKwLw6y/9t9Woqu8c1B9attSs5xXSps9U2K1yzXjeWr
+         XVumK1gJdPU683ACwYhvqyIfTeoT2qA/h1ToStsP5MG9ZTFsBdcMggUa4uDIEmaAJo
+         Jaw88Bw7SmHarHUlodcaxeaWqfpglVzkjN+Fafag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 630/849] powerpc/booke: Disable STRICT_KERNEL_RWX, DEBUG_PAGEALLOC and KFENCE
-Date:   Mon, 15 Nov 2021 18:01:53 +0100
-Message-Id: <20211115165441.585983313@linuxfoundation.org>
+Subject: [PATCH 5.15 619/917] powerpc/mem: Fix arch/powerpc/mm/mem.c:53:12: error: no previous prototype for create_section_mapping
+Date:   Mon, 15 Nov 2021 18:01:54 +0100
+Message-Id: <20211115165449.787812878@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +43,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 68b44f94d6370e2c6c790fedd28e637fa9964a93 ]
+[ Upstream commit 7eff9bc00ddf1e2281dff575884b7f676c85b006 ]
 
-fsl_booke and 44x are not able to map kernel linear memory with
-pages, so they can't support DEBUG_PAGEALLOC and KFENCE, and
-STRICT_KERNEL_RWX is also a problem for now.
+Commit 8e11d62e2e87 ("powerpc/mem: Add back missing header to fix 'no
+previous prototype' error") was supposed to fix the problem, but in
+the meantime commit a927bd6ba952 ("mm: fix phys_to_target_node() and*
+memory_add_physaddr_to_nid() exports") moved create_section_mapping()
+prototype from asm/sparsemem.h to asm/mmzone.h
 
-Enable those only on book3s (both 32 and 64 except KFENCE), 8xx and 40x.
-
-Fixes: 88df6e90fa97 ("[POWERPC] DEBUG_PAGEALLOC for 32-bit")
-Fixes: 95902e6c8864 ("powerpc/mm: Implement STRICT_KERNEL_RWX on PPC32")
-Fixes: 90cbac0e995d ("powerpc: Enable KFENCE for PPC32")
+Fixes: 8e11d62e2e87 ("powerpc/mem: Add back missing header to fix 'no previous prototype' error")
+Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/d1ad9fdd9b27da3fdfa16510bb542ed51fa6e134.1634292136.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/025754fde3d027904ae9d0191f395890bec93369.1631541649.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Kconfig | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/mm/mem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 663766fbf5055..d4d274bb07ffa 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -141,7 +141,7 @@ config PPC
- 	select ARCH_HAS_PTE_SPECIAL
- 	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE && PPC_BOOK3S_64
- 	select ARCH_HAS_SET_MEMORY
--	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !HIBERNATION)
-+	select ARCH_HAS_STRICT_KERNEL_RWX	if (PPC_BOOK3S || PPC_8xx || 40x) && !HIBERNATION
- 	select ARCH_HAS_STRICT_MODULE_RWX	if ARCH_HAS_STRICT_KERNEL_RWX && !PPC_BOOK3S_32
- 	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAS_UACCESS_FLUSHCACHE
-@@ -153,7 +153,7 @@ config PPC
- 	select ARCH_OPTIONAL_KERNEL_RWX		if ARCH_HAS_STRICT_KERNEL_RWX
- 	select ARCH_STACKWALK
- 	select ARCH_SUPPORTS_ATOMIC_RMW
--	select ARCH_SUPPORTS_DEBUG_PAGEALLOC	if PPC32 || PPC_BOOK3S_64
-+	select ARCH_SUPPORTS_DEBUG_PAGEALLOC	if PPC_BOOK3S || PPC_8xx || 40x
- 	select ARCH_USE_BUILTIN_BSWAP
- 	select ARCH_USE_CMPXCHG_LOCKREF		if PPC64
- 	select ARCH_USE_MEMTEST
-@@ -194,7 +194,7 @@ config PPC
- 	select HAVE_ARCH_JUMP_LABEL_RELATIVE
- 	select HAVE_ARCH_KASAN			if PPC32 && PPC_PAGE_SHIFT <= 14
- 	select HAVE_ARCH_KASAN_VMALLOC		if PPC32 && PPC_PAGE_SHIFT <= 14
--	select HAVE_ARCH_KFENCE			if PPC32
-+	select HAVE_ARCH_KFENCE			if PPC_BOOK3S_32 || PPC_8xx || 40x
- 	select HAVE_ARCH_KGDB
- 	select HAVE_ARCH_MMAP_RND_BITS
- 	select HAVE_ARCH_MMAP_RND_COMPAT_BITS	if COMPAT
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index c3c4e31462eca..05b9c3f31456c 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -20,8 +20,8 @@
+ #include <asm/machdep.h>
+ #include <asm/rtas.h>
+ #include <asm/kasan.h>
+-#include <asm/sparsemem.h>
+ #include <asm/svm.h>
++#include <asm/mmzone.h>
+ 
+ #include <mm/mmu_decl.h>
+ 
 -- 
 2.33.0
 
