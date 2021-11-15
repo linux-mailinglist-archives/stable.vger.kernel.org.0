@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06C4E45147C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 616E045128E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344884AbhKOUIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:08:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
+        id S1346832AbhKOTgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:36:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344619AbhKOTZH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 966C1636A1;
-        Mon, 15 Nov 2021 19:01:06 +0000 (UTC)
+        id S244822AbhKOTRh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:17:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F1F563424;
+        Mon, 15 Nov 2021 18:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002867;
-        bh=I8+lQ5Z1q2APXXHJT9NnaBLx4LcYgZQhXPDpEFdAGRA=;
+        s=korg; t=1637000653;
+        bh=r+C2PG7f6c6qNCUTfCibo+oL0MlT9iChHKRs1/e7DhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cs1I69RLItfRCmnHrk86Sjf/jwWhEYxitHBgnfZeFVPk23oQIUXRVHNgeeKfOv9mP
-         vz40F5nQK3FmLg8ksB3v2s3f3eym0KTGktccrg8HK/aIctDQADyn8+14Zcj1X7laoR
-         GF/zbGlpnimJA82/zfp1KnfTC0Ees3Rnwyyaz1m8=
+        b=FuD+amVVnKXgX8s50eWfEs2NcSBlV+evpKUgBxFujL++rDPV7L78By0A4MKYjfXIE
+         4WJKi5h0fWuAKhdNQtWSugBMy7Vj60FsQnRSTX+eabrfkiUnv+iy+FhmgP8fJdHBAZ
+         yQz1hZKZ9XKea+yO2MEYLaaeT+zLwK0M0Pg3AHQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jim Quinlan <james.quinlan@broadcom.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.helllstrom@linux.intel.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 725/917] remoteproc: Fix a memory leak in an error handling path in rproc_handle_vdev()
-Date:   Mon, 15 Nov 2021 18:03:40 +0100
-Message-Id: <20211115165453.500155753@linuxfoundation.org>
+Subject: [PATCH 5.14 739/849] drm/ttm: remove ttm_bo_vm_insert_huge()
+Date:   Mon, 15 Nov 2021 18:03:42 +0100
+Message-Id: <20211115165445.247071645@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +43,359 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 0374a4ea7269645c46c3eb288526ea072fa19e79 ]
+[ Upstream commit 0d979509539ed1df883a30d442177ca7be609565 ]
 
-If 'copy_dma_range_map() fails, the memory allocated for 'rvdev' will leak.
-Move the 'copy_dma_range_map()' call after the device registration so
-that 'rproc_rvdev_release()' can be called to free some resources.
+The huge page functionality in TTM does not work safely because PUD and
+PMD entries do not have a special bit.
 
-Also, branch to the error handling path if 'copy_dma_range_map()' instead
-of a direct return to avoid some other leaks.
+get_user_pages_fast() considers any page that passed pmd_huge() as
+usable:
 
-Fixes: e0d072782c73 ("dma-mapping: introduce DMA range map, supplanting dma_pfn_offset")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Jim Quinlan <james.quinlan@broadcom.com>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/e6d0dad6620da4fdf847faa903f79b735d35f262.1630755377.git.christophe.jaillet@wanadoo.fr
+	if (unlikely(pmd_trans_huge(pmd) || pmd_huge(pmd) ||
+		     pmd_devmap(pmd))) {
+
+And vmf_insert_pfn_pmd_prot() unconditionally sets
+
+	entry = pmd_mkhuge(pfn_t_pmd(pfn, prot));
+
+eg on x86 the page will be _PAGE_PRESENT | PAGE_PSE.
+
+As such gup_huge_pmd() will try to deref a struct page:
+
+	head = try_grab_compound_head(pmd_page(orig), refs, flags);
+
+and thus crash.
+
+Thomas further notices that the drivers are not expecting the struct page
+to be used by anything - in particular the refcount incr above will cause
+them to malfunction.
+
+Thus everything about this is not able to fully work correctly considering
+GUP_fast. Delete it entirely. It can return someday along with a proper
+PMD/PUD_SPECIAL bit in the page table itself to gate GUP_fast.
+
+Fixes: 314b6580adc5 ("drm/ttm, drm/vmwgfx: Support huge TTM pagefaults")
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Thomas Hellström <thomas.helllstrom@linux.intel.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+[danvet: Update subject per Thomas' &Christian's review]
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/0-v2-a44694790652+4ac-ttm_pmd_jgg@nvidia.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/remoteproc_core.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c    |  2 +-
+ drivers/gpu/drm/nouveau/nouveau_gem.c      |  2 +-
+ drivers/gpu/drm/radeon/radeon_gem.c        |  2 +-
+ drivers/gpu/drm/ttm/ttm_bo_vm.c            | 94 +---------------------
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.h        |  4 -
+ drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c | 72 +----------------
+ drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c   |  3 -
+ include/drm/ttm/ttm_bo_api.h               |  3 +-
+ 8 files changed, 7 insertions(+), 175 deletions(-)
 
-diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-index 502b6604b757b..775df165eb450 100644
---- a/drivers/remoteproc/remoteproc_core.c
-+++ b/drivers/remoteproc/remoteproc_core.c
-@@ -556,9 +556,6 @@ static int rproc_handle_vdev(struct rproc *rproc, void *ptr,
- 	/* Initialise vdev subdevice */
- 	snprintf(name, sizeof(name), "vdev%dbuffer", rvdev->index);
- 	rvdev->dev.parent = &rproc->dev;
--	ret = copy_dma_range_map(&rvdev->dev, rproc->dev.parent);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
+index 9a67746c10edd..b14ff19231b91 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
+@@ -61,7 +61,7 @@ static vm_fault_t amdgpu_gem_fault(struct vm_fault *vmf)
+ 		}
+ 
+ 		 ret = ttm_bo_vm_fault_reserved(vmf, vmf->vma->vm_page_prot,
+-						TTM_BO_VM_NUM_PREFAULT, 1);
++						TTM_BO_VM_NUM_PREFAULT);
+ 
+ 		 drm_dev_exit(idx);
+ 	} else {
+diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.c b/drivers/gpu/drm/nouveau/nouveau_gem.c
+index 8c2ecc2827232..c89d5964148fd 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_gem.c
++++ b/drivers/gpu/drm/nouveau/nouveau_gem.c
+@@ -56,7 +56,7 @@ static vm_fault_t nouveau_ttm_fault(struct vm_fault *vmf)
+ 
+ 	nouveau_bo_del_io_reserve_lru(bo);
+ 	prot = vm_get_page_prot(vma->vm_flags);
+-	ret = ttm_bo_vm_fault_reserved(vmf, prot, TTM_BO_VM_NUM_PREFAULT, 1);
++	ret = ttm_bo_vm_fault_reserved(vmf, prot, TTM_BO_VM_NUM_PREFAULT);
+ 	nouveau_bo_add_io_reserve_lru(bo);
+ 	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
+ 		return ret;
+diff --git a/drivers/gpu/drm/radeon/radeon_gem.c b/drivers/gpu/drm/radeon/radeon_gem.c
+index 458f92a708879..a36a4f2c76b09 100644
+--- a/drivers/gpu/drm/radeon/radeon_gem.c
++++ b/drivers/gpu/drm/radeon/radeon_gem.c
+@@ -61,7 +61,7 @@ static vm_fault_t radeon_gem_fault(struct vm_fault *vmf)
+ 		goto unlock_resv;
+ 
+ 	ret = ttm_bo_vm_fault_reserved(vmf, vmf->vma->vm_page_prot,
+-				       TTM_BO_VM_NUM_PREFAULT, 1);
++				       TTM_BO_VM_NUM_PREFAULT);
+ 	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
+ 		goto unlock_mclk;
+ 
+diff --git a/drivers/gpu/drm/ttm/ttm_bo_vm.c b/drivers/gpu/drm/ttm/ttm_bo_vm.c
+index 5b9b7fd01a692..4a655ab23c89d 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo_vm.c
++++ b/drivers/gpu/drm/ttm/ttm_bo_vm.c
+@@ -171,89 +171,6 @@ vm_fault_t ttm_bo_vm_reserve(struct ttm_buffer_object *bo,
+ }
+ EXPORT_SYMBOL(ttm_bo_vm_reserve);
+ 
+-#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+-/**
+- * ttm_bo_vm_insert_huge - Insert a pfn for PUD or PMD faults
+- * @vmf: Fault data
+- * @bo: The buffer object
+- * @page_offset: Page offset from bo start
+- * @fault_page_size: The size of the fault in pages.
+- * @pgprot: The page protections.
+- * Does additional checking whether it's possible to insert a PUD or PMD
+- * pfn and performs the insertion.
+- *
+- * Return: VM_FAULT_NOPAGE on successful insertion, VM_FAULT_FALLBACK if
+- * a huge fault was not possible, or on insertion error.
+- */
+-static vm_fault_t ttm_bo_vm_insert_huge(struct vm_fault *vmf,
+-					struct ttm_buffer_object *bo,
+-					pgoff_t page_offset,
+-					pgoff_t fault_page_size,
+-					pgprot_t pgprot)
+-{
+-	pgoff_t i;
+-	vm_fault_t ret;
+-	unsigned long pfn;
+-	pfn_t pfnt;
+-	struct ttm_tt *ttm = bo->ttm;
+-	bool write = vmf->flags & FAULT_FLAG_WRITE;
+-
+-	/* Fault should not cross bo boundary. */
+-	page_offset &= ~(fault_page_size - 1);
+-	if (page_offset + fault_page_size > bo->resource->num_pages)
+-		goto out_fallback;
+-
+-	if (bo->resource->bus.is_iomem)
+-		pfn = ttm_bo_io_mem_pfn(bo, page_offset);
+-	else
+-		pfn = page_to_pfn(ttm->pages[page_offset]);
+-
+-	/* pfn must be fault_page_size aligned. */
+-	if ((pfn & (fault_page_size - 1)) != 0)
+-		goto out_fallback;
+-
+-	/* Check that memory is contiguous. */
+-	if (!bo->resource->bus.is_iomem) {
+-		for (i = 1; i < fault_page_size; ++i) {
+-			if (page_to_pfn(ttm->pages[page_offset + i]) != pfn + i)
+-				goto out_fallback;
+-		}
+-	} else if (bo->bdev->funcs->io_mem_pfn) {
+-		for (i = 1; i < fault_page_size; ++i) {
+-			if (ttm_bo_io_mem_pfn(bo, page_offset + i) != pfn + i)
+-				goto out_fallback;
+-		}
+-	}
+-
+-	pfnt = __pfn_to_pfn_t(pfn, PFN_DEV);
+-	if (fault_page_size == (HPAGE_PMD_SIZE >> PAGE_SHIFT))
+-		ret = vmf_insert_pfn_pmd_prot(vmf, pfnt, pgprot, write);
+-#ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
+-	else if (fault_page_size == (HPAGE_PUD_SIZE >> PAGE_SHIFT))
+-		ret = vmf_insert_pfn_pud_prot(vmf, pfnt, pgprot, write);
+-#endif
+-	else
+-		WARN_ON_ONCE(ret = VM_FAULT_FALLBACK);
+-
+-	if (ret != VM_FAULT_NOPAGE)
+-		goto out_fallback;
+-
+-	return VM_FAULT_NOPAGE;
+-out_fallback:
+-	count_vm_event(THP_FAULT_FALLBACK);
+-	return VM_FAULT_FALLBACK;
+-}
+-#else
+-static vm_fault_t ttm_bo_vm_insert_huge(struct vm_fault *vmf,
+-					struct ttm_buffer_object *bo,
+-					pgoff_t page_offset,
+-					pgoff_t fault_page_size,
+-					pgprot_t pgprot)
+-{
+-	return VM_FAULT_FALLBACK;
+-}
+-#endif
+-
+ /**
+  * ttm_bo_vm_fault_reserved - TTM fault helper
+  * @vmf: The struct vm_fault given as argument to the fault callback
+@@ -261,7 +178,6 @@ static vm_fault_t ttm_bo_vm_insert_huge(struct vm_fault *vmf,
+  * @num_prefault: Maximum number of prefault pages. The caller may want to
+  * specify this based on madvice settings and the size of the GPU object
+  * backed by the memory.
+- * @fault_page_size: The size of the fault in pages.
+  *
+  * This function inserts one or more page table entries pointing to the
+  * memory backing the buffer object, and then returns a return code
+@@ -275,8 +191,7 @@ static vm_fault_t ttm_bo_vm_insert_huge(struct vm_fault *vmf,
+  */
+ vm_fault_t ttm_bo_vm_fault_reserved(struct vm_fault *vmf,
+ 				    pgprot_t prot,
+-				    pgoff_t num_prefault,
+-				    pgoff_t fault_page_size)
++				    pgoff_t num_prefault)
+ {
+ 	struct vm_area_struct *vma = vmf->vma;
+ 	struct ttm_buffer_object *bo = vma->vm_private_data;
+@@ -327,11 +242,6 @@ vm_fault_t ttm_bo_vm_fault_reserved(struct vm_fault *vmf,
+ 		prot = pgprot_decrypted(prot);
+ 	}
+ 
+-	/* We don't prefault on huge faults. Yet. */
+-	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) && fault_page_size != 1)
+-		return ttm_bo_vm_insert_huge(vmf, bo, page_offset,
+-					     fault_page_size, prot);
+-
+ 	/*
+ 	 * Speculatively prefault a number of pages. Only error on
+ 	 * first page.
+@@ -429,7 +339,7 @@ vm_fault_t ttm_bo_vm_fault(struct vm_fault *vmf)
+ 
+ 	prot = vma->vm_page_prot;
+ 	if (drm_dev_enter(ddev, &idx)) {
+-		ret = ttm_bo_vm_fault_reserved(vmf, prot, TTM_BO_VM_NUM_PREFAULT, 1);
++		ret = ttm_bo_vm_fault_reserved(vmf, prot, TTM_BO_VM_NUM_PREFAULT);
+ 		drm_dev_exit(idx);
+ 	} else {
+ 		ret = ttm_bo_vm_dummy_page(vmf, prot);
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
+index 5652d982b1ce6..c87d74f0afc52 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
+@@ -1526,10 +1526,6 @@ void vmw_bo_dirty_unmap(struct vmw_buffer_object *vbo,
+ 			pgoff_t start, pgoff_t end);
+ vm_fault_t vmw_bo_vm_fault(struct vm_fault *vmf);
+ vm_fault_t vmw_bo_vm_mkwrite(struct vm_fault *vmf);
+-#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+-vm_fault_t vmw_bo_vm_huge_fault(struct vm_fault *vmf,
+-				enum page_entry_size pe_size);
+-#endif
+ 
+ /* Transparent hugepage support - vmwgfx_thp.c */
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c b/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
+index e5a9a5cbd01a7..922317d1acc8a 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
+@@ -477,7 +477,7 @@ vm_fault_t vmw_bo_vm_fault(struct vm_fault *vmf)
+ 	else
+ 		prot = vm_get_page_prot(vma->vm_flags);
+ 
+-	ret = ttm_bo_vm_fault_reserved(vmf, prot, num_prefault, 1);
++	ret = ttm_bo_vm_fault_reserved(vmf, prot, num_prefault);
+ 	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
+ 		return ret;
+ 
+@@ -486,73 +486,3 @@ out_unlock:
+ 
+ 	return ret;
+ }
+-
+-#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+-vm_fault_t vmw_bo_vm_huge_fault(struct vm_fault *vmf,
+-				enum page_entry_size pe_size)
+-{
+-	struct vm_area_struct *vma = vmf->vma;
+-	struct ttm_buffer_object *bo = (struct ttm_buffer_object *)
+-	    vma->vm_private_data;
+-	struct vmw_buffer_object *vbo =
+-		container_of(bo, struct vmw_buffer_object, base);
+-	pgprot_t prot;
+-	vm_fault_t ret;
+-	pgoff_t fault_page_size;
+-	bool write = vmf->flags & FAULT_FLAG_WRITE;
+-
+-	switch (pe_size) {
+-	case PE_SIZE_PMD:
+-		fault_page_size = HPAGE_PMD_SIZE >> PAGE_SHIFT;
+-		break;
+-#ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
+-	case PE_SIZE_PUD:
+-		fault_page_size = HPAGE_PUD_SIZE >> PAGE_SHIFT;
+-		break;
+-#endif
+-	default:
+-		WARN_ON_ONCE(1);
+-		return VM_FAULT_FALLBACK;
+-	}
+-
+-	/* Always do write dirty-tracking and COW on PTE level. */
+-	if (write && (READ_ONCE(vbo->dirty) || is_cow_mapping(vma->vm_flags)))
+-		return VM_FAULT_FALLBACK;
+-
+-	ret = ttm_bo_vm_reserve(bo, vmf);
 -	if (ret)
 -		return ret;
- 	rvdev->dev.release = rproc_rvdev_release;
- 	dev_set_name(&rvdev->dev, "%s#%s", dev_name(rvdev->dev.parent), name);
- 	dev_set_drvdata(&rvdev->dev, rvdev);
-@@ -568,6 +565,11 @@ static int rproc_handle_vdev(struct rproc *rproc, void *ptr,
- 		put_device(&rvdev->dev);
- 		return ret;
- 	}
-+
-+	ret = copy_dma_range_map(&rvdev->dev, rproc->dev.parent);
-+	if (ret)
-+		goto free_rvdev;
-+
- 	/* Make device dma capable by inheriting from parent's capabilities */
- 	set_dma_ops(&rvdev->dev, get_dma_ops(rproc->dev.parent));
+-
+-	if (vbo->dirty) {
+-		pgoff_t allowed_prefault;
+-		unsigned long page_offset;
+-
+-		page_offset = vmf->pgoff -
+-			drm_vma_node_start(&bo->base.vma_node);
+-		if (page_offset >= bo->resource->num_pages ||
+-		    vmw_resources_clean(vbo, page_offset,
+-					page_offset + PAGE_SIZE,
+-					&allowed_prefault)) {
+-			ret = VM_FAULT_SIGBUS;
+-			goto out_unlock;
+-		}
+-
+-		/*
+-		 * Write protect, so we get a new fault on write, and can
+-		 * split.
+-		 */
+-		prot = vm_get_page_prot(vma->vm_flags & ~VM_SHARED);
+-	} else {
+-		prot = vm_get_page_prot(vma->vm_flags);
+-	}
+-
+-	ret = ttm_bo_vm_fault_reserved(vmf, prot, 1, fault_page_size);
+-	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
+-		return ret;
+-
+-out_unlock:
+-	dma_resv_unlock(bo->base.resv);
+-
+-	return ret;
+-}
+-#endif
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c b/drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c
+index e6b1f98ec99f0..0a4c340252ec4 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_ttm_glue.c
+@@ -61,9 +61,6 @@ int vmw_mmap(struct file *filp, struct vm_area_struct *vma)
+ 		.fault = vmw_bo_vm_fault,
+ 		.open = ttm_bo_vm_open,
+ 		.close = ttm_bo_vm_close,
+-#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+-		.huge_fault = vmw_bo_vm_huge_fault,
+-#endif
+ 	};
+ 	struct drm_file *file_priv = filp->private_data;
+ 	struct vmw_private *dev_priv = vmw_priv(file_priv->minor->dev);
+diff --git a/include/drm/ttm/ttm_bo_api.h b/include/drm/ttm/ttm_bo_api.h
+index f681bbdbc6982..36f7eb9d06639 100644
+--- a/include/drm/ttm/ttm_bo_api.h
++++ b/include/drm/ttm/ttm_bo_api.h
+@@ -594,8 +594,7 @@ vm_fault_t ttm_bo_vm_reserve(struct ttm_buffer_object *bo,
+ 
+ vm_fault_t ttm_bo_vm_fault_reserved(struct vm_fault *vmf,
+ 				    pgprot_t prot,
+-				    pgoff_t num_prefault,
+-				    pgoff_t fault_page_size);
++				    pgoff_t num_prefault);
+ 
+ vm_fault_t ttm_bo_vm_fault(struct vm_fault *vmf);
  
 -- 
 2.33.0
