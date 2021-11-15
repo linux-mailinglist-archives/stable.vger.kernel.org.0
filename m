@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A8FC452427
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11FC3452431
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345400AbhKPBgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:36:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47448 "EHLO mail.kernel.org"
+        id S242280AbhKPBg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:36:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242376AbhKOSkw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:40:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C94486328E;
-        Mon, 15 Nov 2021 18:04:29 +0000 (UTC)
+        id S242406AbhKOSkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:40:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D09DB6328A;
+        Mon, 15 Nov 2021 18:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999470;
-        bh=H3thTnK/MFBB+dIccKA26jpZBplTZmUJ1jTe86/LVx8=;
+        s=korg; t=1636999473;
+        bh=Cr8B8isSFRb4J0oXym/9nxcyjQSPGC0jaG9I4UELHww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGwnn4aistI/TSsrxRB/g4uVZL0LSkQ1EbxxGr6XEPKUj7Av27RjL1wqf3yCwW0hd
-         W2N9eA8iI2DcFs1ysSim/G+DXrg9jwqpm4ZXsstC+GrlAz1pjd9qop4fWytXR33D/Z
-         nb5K+feFpVfpRl2it6jmEsTB+1mBMGZCY2CU371I=
+        b=mAqXMRyzOGWlkx9zufFRDiflIjtVTexFI/avd9sZqfd7mqaYOtPkvkUFnycCohu87
+         OQDaYP4yJ06z3JKVh+UY8jNIaGpnrxEGo8W4/80ymD2nM2uVE+/ODWV1cJytaFNEcp
+         COPXX2eT366DH7zbf2ZO1nzzAeapDWya4aVFKdCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
-        Antonio Quartulli <a@unstable.cc>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 308/849] gre/sit: Dont generate link-local addr if addr_gen_mode is IN6_ADDR_GEN_MODE_NONE
-Date:   Mon, 15 Nov 2021 17:56:31 +0100
-Message-Id: <20211115165430.669164733@linuxfoundation.org>
+Subject: [PATCH 5.14 309/849] net: dsa: lantiq_gswip: serialize access to the PCE table
+Date:   Mon, 15 Nov 2021 17:56:32 +0100
+Message-Id: <20211115165430.700038680@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,41 +42,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Suryaputra <ssuryaextr@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 61e18ce7348bfefb5688a8bcd4b4d6b37c0f9b2a ]
+[ Upstream commit 49753a75b9a32de4c0393bb8d1e51ea223fda8e4 ]
 
-When addr_gen_mode is set to IN6_ADDR_GEN_MODE_NONE, the link-local addr
-should not be generated. But it isn't the case for GRE (as well as GRE6)
-and SIT tunnels. Make it so that tunnels consider the addr_gen_mode,
-especially for IN6_ADDR_GEN_MODE_NONE.
+Looking at the code, the GSWIP switch appears to hold bridging service
+structures (VLANs, FDBs, forwarding rules) in PCE table entries.
+Hardware access to the PCE table is non-atomic, and is comprised of
+several register reads and writes.
 
-Do this in add_v4_addrs() to cover both GRE and SIT only if the addr
-scope is link.
+These accesses are currently serialized by the rtnl_lock, but DSA is
+changing its driver API and that lock will no longer be held when
+calling ->port_fdb_add() and ->port_fdb_del().
 
-Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
-Acked-by: Antonio Quartulli <a@unstable.cc>
-Link: https://lore.kernel.org/r/20211020200618.467342-1-ssuryaextr@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+So this driver needs to serialize the access to the PCE table using its
+own locking scheme. This patch adds that.
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrconf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/dsa/lantiq_gswip.c | 28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 3bf685fe64b96..eb745213561c7 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -3100,6 +3100,9 @@ static void sit_add_v4_addrs(struct inet6_dev *idev)
- 	memcpy(&addr.s6_addr32[3], idev->dev->dev_addr, 4);
+diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
+index 1b9b7569c371b..b6e7f2cda1da4 100644
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -276,6 +276,7 @@ struct gswip_priv {
+ 	int num_gphy_fw;
+ 	struct gswip_gphy_fw *gphy_fw;
+ 	u32 port_vlan_filter;
++	struct mutex pce_table_lock;
+ };
  
- 	if (idev->dev->flags&IFF_POINTOPOINT) {
-+		if (idev->cnf.addr_gen_mode == IN6_ADDR_GEN_MODE_NONE)
-+			return;
+ struct gswip_pce_table_entry {
+@@ -523,10 +524,14 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
+ 	u16 addr_mode = tbl->key_mode ? GSWIP_PCE_TBL_CTRL_OPMOD_KSRD :
+ 					GSWIP_PCE_TBL_CTRL_OPMOD_ADRD;
+ 
++	mutex_lock(&priv->pce_table_lock);
 +
- 		addr.s6_addr32[0] = htonl(0xfe800000);
- 		scope = IFA_LINK;
- 		plen = 64;
+ 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
+ 				     GSWIP_PCE_TBL_CTRL_BAS);
+-	if (err)
++	if (err) {
++		mutex_unlock(&priv->pce_table_lock);
+ 		return err;
++	}
+ 
+ 	gswip_switch_w(priv, tbl->index, GSWIP_PCE_TBL_ADDR);
+ 	gswip_switch_mask(priv, GSWIP_PCE_TBL_CTRL_ADDR_MASK |
+@@ -536,8 +541,10 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
+ 
+ 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
+ 				     GSWIP_PCE_TBL_CTRL_BAS);
+-	if (err)
++	if (err) {
++		mutex_unlock(&priv->pce_table_lock);
+ 		return err;
++	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(tbl->key); i++)
+ 		tbl->key[i] = gswip_switch_r(priv, GSWIP_PCE_TBL_KEY(i));
+@@ -553,6 +560,8 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
+ 	tbl->valid = !!(crtl & GSWIP_PCE_TBL_CTRL_VLD);
+ 	tbl->gmap = (crtl & GSWIP_PCE_TBL_CTRL_GMAP_MASK) >> 7;
+ 
++	mutex_unlock(&priv->pce_table_lock);
++
+ 	return 0;
+ }
+ 
+@@ -565,10 +574,14 @@ static int gswip_pce_table_entry_write(struct gswip_priv *priv,
+ 	u16 addr_mode = tbl->key_mode ? GSWIP_PCE_TBL_CTRL_OPMOD_KSWR :
+ 					GSWIP_PCE_TBL_CTRL_OPMOD_ADWR;
+ 
++	mutex_lock(&priv->pce_table_lock);
++
+ 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
+ 				     GSWIP_PCE_TBL_CTRL_BAS);
+-	if (err)
++	if (err) {
++		mutex_unlock(&priv->pce_table_lock);
+ 		return err;
++	}
+ 
+ 	gswip_switch_w(priv, tbl->index, GSWIP_PCE_TBL_ADDR);
+ 	gswip_switch_mask(priv, GSWIP_PCE_TBL_CTRL_ADDR_MASK |
+@@ -600,8 +613,12 @@ static int gswip_pce_table_entry_write(struct gswip_priv *priv,
+ 	crtl |= GSWIP_PCE_TBL_CTRL_BAS;
+ 	gswip_switch_w(priv, crtl, GSWIP_PCE_TBL_CTRL);
+ 
+-	return gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
+-				      GSWIP_PCE_TBL_CTRL_BAS);
++	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
++				     GSWIP_PCE_TBL_CTRL_BAS);
++
++	mutex_unlock(&priv->pce_table_lock);
++
++	return err;
+ }
+ 
+ /* Add the LAN port into a bridge with the CPU port by
+@@ -2106,6 +2123,7 @@ static int gswip_probe(struct platform_device *pdev)
+ 	priv->ds->priv = priv;
+ 	priv->ds->ops = priv->hw_info->ops;
+ 	priv->dev = dev;
++	mutex_init(&priv->pce_table_lock);
+ 	version = gswip_switch_r(priv, GSWIP_VERSION);
+ 
+ 	np = dev->of_node;
 -- 
 2.33.0
 
