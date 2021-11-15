@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 378AE45237C
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94FD745267C
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:03:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353050AbhKPB0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:26:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35148 "EHLO mail.kernel.org"
+        id S1354138AbhKPCFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:05:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243320AbhKOTCt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:02:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE18F63367;
-        Mon, 15 Nov 2021 18:15:02 +0000 (UTC)
+        id S239576AbhKOSDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:03:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 609A861BD2;
+        Mon, 15 Nov 2021 17:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000103;
-        bh=zsq7psJ6ZX4x+Di67qG5RxX79HBFRTNYuxpHp2EnpUc=;
+        s=korg; t=1636997846;
+        bh=pcFGBk1NZoyJbiR+77OqWVIhSdIvRGzwm1xU59Yl90Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9bWtIQYlpCNzxH0jO0uNPoPfYIw9bZoCZytxbSssTOQ+MpRAGm5a29VOPtrz0cUt
-         rXidcPPazAQSjS66Ice+7kr8m7A5jT6wUAls8Y539+BlZmdt/1SFeUsZhjiSVeUF5W
-         xnyw1J+oSWPmIu37bIizs2SEYQoLihRCYbGiojFI=
+        b=MiEawgJ5Kis+pQN76wFUXjzSSHoKz+K6CJh4q58/xzEKjTPVw6PM88qqvQoYwmHQy
+         VxgPNiJXRxDLdPKwWkC8DrlX5LT3yXiCVZwZ6TPB+IC94TRx2ejTfNjhC9DR4ojGiv
+         UxNiN+XdiL3AQqSxRPYqQFs82FZaB5Kwc0kP/alE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Kees Cook <keescook@chromium.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 539/849] crypto: pcrypt - Delay write to padata->info
+Subject: [PATCH 5.10 297/575] media: tm6000: Avoid card name truncation
 Date:   Mon, 15 Nov 2021 18:00:22 +0100
-Message-Id: <20211115165438.499842488@linuxfoundation.org>
+Message-Id: <20211115165354.048679109@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,83 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 68b6dea802cea0dbdd8bd7ccc60716b5a32a5d8a ]
+[ Upstream commit 42bb98e420d454fef3614b70ea11cc59068395f6 ]
 
-These three events can race when pcrypt is used multiple times in a
-template ("pcrypt(pcrypt(...))"):
+The "card" string only holds 31 characters (and the terminating NUL).
+In order to avoid truncation, use a shorter card description instead of
+the current result, "Trident TVMaster TM5600/6000/60".
 
-  1.  [taskA] The caller makes the crypto request via crypto_aead_encrypt()
-  2.  [kworkerB] padata serializes the inner pcrypt request
-  3.  [kworkerC] padata serializes the outer pcrypt request
-
-3 might finish before the call to crypto_aead_encrypt() returns in 1,
-resulting in two possible issues.
-
-First, a use-after-free of the crypto request's memory when, for
-example, taskA writes to the outer pcrypt request's padata->info in
-pcrypt_aead_enc() after kworkerC completes the request.
-
-Second, the outer pcrypt request overwrites the inner pcrypt request's
-return code with -EINPROGRESS, making a successful request appear to
-fail.  For instance, kworkerB writes the outer pcrypt request's
-padata->info in pcrypt_aead_done() and then taskA overwrites it
-in pcrypt_aead_enc().
-
-Avoid both situations by delaying the write of padata->info until after
-the inner crypto request's return code is checked.  This prevents the
-use-after-free by not touching the crypto request's memory after the
-next-inner crypto request is made, and stops padata->info from being
-overwritten.
-
-Fixes: 5068c7a883d16 ("crypto: pcrypt - Add pcrypt crypto parallelization wrapper")
-Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Suggested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: e28f49b0b2a8 ("V4L/DVB: tm6000: fix some info messages")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/pcrypt.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/media/usb/tm6000/tm6000-video.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
-index d569c7ed6c800..9d10b846ccf73 100644
---- a/crypto/pcrypt.c
-+++ b/crypto/pcrypt.c
-@@ -78,12 +78,14 @@ static void pcrypt_aead_enc(struct padata_priv *padata)
- {
- 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
- 	struct aead_request *req = pcrypt_request_ctx(preq);
-+	int ret;
+diff --git a/drivers/media/usb/tm6000/tm6000-video.c b/drivers/media/usb/tm6000/tm6000-video.c
+index 2df736c029d6e..01071e6cd7574 100644
+--- a/drivers/media/usb/tm6000/tm6000-video.c
++++ b/drivers/media/usb/tm6000/tm6000-video.c
+@@ -854,8 +854,7 @@ static int vidioc_querycap(struct file *file, void  *priv,
+ 	struct tm6000_core *dev = ((struct tm6000_fh *)priv)->dev;
  
--	padata->info = crypto_aead_encrypt(req);
-+	ret = crypto_aead_encrypt(req);
- 
--	if (padata->info == -EINPROGRESS)
-+	if (ret == -EINPROGRESS)
- 		return;
- 
-+	padata->info = ret;
- 	padata_do_serial(padata);
- }
- 
-@@ -123,12 +125,14 @@ static void pcrypt_aead_dec(struct padata_priv *padata)
- {
- 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
- 	struct aead_request *req = pcrypt_request_ctx(preq);
-+	int ret;
- 
--	padata->info = crypto_aead_decrypt(req);
-+	ret = crypto_aead_decrypt(req);
- 
--	if (padata->info == -EINPROGRESS)
-+	if (ret == -EINPROGRESS)
- 		return;
- 
-+	padata->info = ret;
- 	padata_do_serial(padata);
- }
- 
+ 	strscpy(cap->driver, "tm6000", sizeof(cap->driver));
+-	strscpy(cap->card, "Trident TVMaster TM5600/6000/6010",
+-		sizeof(cap->card));
++	strscpy(cap->card, "Trident TM5600/6000/6010", sizeof(cap->card));
+ 	usb_make_path(dev->udev, cap->bus_info, sizeof(cap->bus_info));
+ 	cap->capabilities = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_READWRITE |
+ 			    V4L2_CAP_DEVICE_CAPS;
 -- 
 2.33.0
 
