@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6DB452735
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:17:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C6DF452414
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237133AbhKPCUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:20:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50930 "EHLO mail.kernel.org"
+        id S1355664AbhKPBf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:35:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238413AbhKORiO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:38:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15442611AF;
-        Mon, 15 Nov 2021 17:25:50 +0000 (UTC)
+        id S242565AbhKOSiq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:38:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E96B7632E2;
+        Mon, 15 Nov 2021 18:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997150;
-        bh=j3xRPbqgnoDOzDG61OKYkXTEmxwbmQWNWybf1ke2lAk=;
+        s=korg; t=1636999404;
+        bh=LuA1Ioty0p7m4NLfqNvuURt4xangfK27QVOJTs23rKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QF3jPqmzbfDK6pbsNDdmnq8KNFIxwxcKzs9+Nx2gUYUx0xkWInivJ8ikvrZu2X+SH
-         BgbZS/c9pim3CtUCXacG+2KBhX8rB0fdhsFl/0H46jbGDnEiqyfp9gppe8Rmqftz+n
-         HfBqLx3Xq8RLozIX4l33BLppAi0A+3TOOs1vkBTs=
+        b=rX2rm9Gzwg488Iv16TDfbjQhOKjNjNaYCefWbTSt/ct207LB7bYwYWo3ivDAc09PT
+         1Tfl7+cRDB7z/nyyJ1wsHtoslreqRTzsxO3aVScZeA8P3b6geRSqRlQ07NC445OeuB
+         zrN4AZzbnweRLgt8I5TQZj4VluqDby2TQ8lSN0cA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
+        stable@vger.kernel.org, linux-ia64@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 010/575] ocfs2: fix data corruption on truncate
+        Tony Luck <tony.luck@intel.com>,
+        Chris Down <chris@chrisdown.name>,
+        Paul Gortmaker <paul.gortmaker@windriver.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 252/849] ia64: dont do IA64_CMPXCHG_DEBUG without CONFIG_PRINTK
 Date:   Mon, 15 Nov 2021 17:55:35 +0100
-Message-Id: <20211115165343.964444414@linuxfoundation.org>
+Message-Id: <20211115165428.750621614@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,91 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 839b63860eb3835da165642923120d305925561d upstream.
+[ Upstream commit c15b5fc054c3d6c97e953617605235c5cb8ce979 ]
 
-Patch series "ocfs2: Truncate data corruption fix".
+When CONFIG_PRINTK is not set, the CMPXCHG_BUGCHECK() macro calls
+_printk(), but _printk() is a static inline function, not available
+as an extern.
+Since the purpose of the macro is to print the BUGCHECK info,
+make this config option depend on PRINTK.
 
-As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
-corruption after conversion from inline format") didn't fix all the data
-corruption issues the customer started observing after 6dbf7bb55598
-("fs: Don't invalidate page buffers in block_write_full_page()") This
-time I have tracked them down to two bugs in ocfs2 truncation code.
+Fixes multiple occurrences of this build error:
 
-One bug (truncating page cache before clearing tail cluster and setting
-i_size) could cause data corruption even before 6dbf7bb55598, but before
-that commit it needed a race with page fault, after 6dbf7bb55598 it
-started to be pretty deterministic.
+../include/linux/printk.h:208:5: error: static declaration of '_printk' follows non-static declaration
+  208 | int _printk(const char *s, ...)
+      |     ^~~~~~~
+In file included from ../arch/ia64/include/asm/cmpxchg.h:5,
+../arch/ia64/include/uapi/asm/cmpxchg.h:146:28: note: previous declaration of '_printk' with type 'int(const char *, ...)'
+  146 |                 extern int _printk(const char *fmt, ...);
 
-Another bug (zeroing pages beyond old i_size) used to be harmless
-inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598
-in combination with the first bug it resulted in deterministic data
-corruption.
-
-Although fixing only the first problem is needed to stop data
-corruption, I've fixed both issues to make the code more robust.
-
-This patch (of 2):
-
-ocfs2_truncate_file() did unmap invalidate page cache pages before
-zeroing partial tail cluster and setting i_size.  Thus some pages could
-be left (and likely have left if the cluster zeroing happened) in the
-page cache beyond i_size after truncate finished letting user possibly
-see stale data once the file was extended again.  Also the tail cluster
-zeroing was not guaranteed to finish before truncate finished causing
-possible stale data exposure.  The problem started to be particularly
-easy to hit after commit 6dbf7bb55598 "fs: Don't invalidate page buffers
-in block_write_full_page()" stopped invalidation of pages beyond i_size
-from page writeback path.
-
-Fix these problems by unmapping and invalidating pages in the page cache
-after the i_size is reduced and tail cluster is zeroed out.
-
-Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
-Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
-Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-ia64@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Chris Down <chris@chrisdown.name>
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/file.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/ia64/Kconfig.debug | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -478,10 +478,11 @@ int ocfs2_truncate_file(struct inode *in
- 	 * greater than page size, so we have to truncate them
- 	 * anyway.
- 	 */
--	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
--	truncate_inode_pages(inode->i_mapping, new_i_size);
+diff --git a/arch/ia64/Kconfig.debug b/arch/ia64/Kconfig.debug
+index 40ca23bd228d6..2ce008e2d1644 100644
+--- a/arch/ia64/Kconfig.debug
++++ b/arch/ia64/Kconfig.debug
+@@ -39,7 +39,7 @@ config DISABLE_VHPT
  
- 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
-+		unmap_mapping_range(inode->i_mapping,
-+				    new_i_size + PAGE_SIZE - 1, 0, 1);
-+		truncate_inode_pages(inode->i_mapping, new_i_size);
- 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
- 					       i_size_read(inode), 1);
- 		if (status)
-@@ -500,6 +501,9 @@ int ocfs2_truncate_file(struct inode *in
- 		goto bail_unlock_sem;
- 	}
- 
-+	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
-+	truncate_inode_pages(inode->i_mapping, new_i_size);
-+
- 	status = ocfs2_commit_truncate(osb, inode, di_bh);
- 	if (status < 0) {
- 		mlog_errno(status);
+ config IA64_DEBUG_CMPXCHG
+ 	bool "Turn on compare-and-exchange bug checking (slow!)"
+-	depends on DEBUG_KERNEL
++	depends on DEBUG_KERNEL && PRINTK
+ 	help
+ 	  Selecting this option turns on bug checking for the IA-64
+ 	  compare-and-exchange instructions.  This is slow!  Itaniums
+-- 
+2.33.0
+
 
 
