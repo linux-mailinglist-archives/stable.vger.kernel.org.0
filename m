@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96AAB45270C
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:12:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFD5945244B
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:34:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238928AbhKPCOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:14:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34892 "EHLO mail.kernel.org"
+        id S1357098AbhKPBhK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:37:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238846AbhKORrs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:47:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C9466329F;
-        Mon, 15 Nov 2021 17:30:02 +0000 (UTC)
+        id S242885AbhKOSrU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:47:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 924C063394;
+        Mon, 15 Nov 2021 18:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997402;
-        bh=3UtydLdEJfmraCHWQm0ERCQAxWACsBN7HaPESruk6fA=;
+        s=korg; t=1636999659;
+        bh=FJgi0X6NyIL0I6Kq38gj1W8prcVyVQSF2ax9B3/W0Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZG+aGINf0Kd3do/dnm6NTbZsJ/oCUzGTXhY5jROnayffwUZ9ZE78onwFKELLNkuP1
-         dGPm7V7tFdgYvcJeiUxFPAE5laAq3443SKbn/0uQywUXoWg0l39Xfzt4Jp/f8Ck+I4
-         AJYmyMOEpILuo24CQh6havjFfi0NMcFm1P2GTke8=
+        b=PhiIWVqiOdWmpSkVMjV2h6r4iNE00WT7yJk9N/05sSnQ/v7PuBHEsr/zj07XciQ5n
+         fwcw2idcVoNDitEoUQIglETLIWm9bo+Su4CQLyf3/J2yz68WGQ38efacscUiLy+xz0
+         EPt2lN0JRem+yMLX6TzsHFsopyVP3EVq9PfM28Dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ace149a75a9a0a399ac7@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 135/575] ALSA: mixer: fix deadlock in snd_mixer_oss_set_volume
+        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 377/849] libbpf: Fix skel_internal.h to set errno on loader retval < 0
 Date:   Mon, 15 Nov 2021 17:57:40 +0100
-Message-Id: <20211115165348.372003656@linuxfoundation.org>
+Message-Id: <20211115165432.990583527@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-commit 3ab7992018455ac63c33e9b3eaa7264e293e40f4 upstream.
+[ Upstream commit e68ac0082787f4e8ee6ae5b19076ec7709ce715b ]
 
-In commit 411cef6adfb3 ("ALSA: mixer: oss: Fix racy access to slots")
-added mutex protection in snd_mixer_oss_set_volume(). Second
-mutex_lock() in same function looks like typo, fix it.
+When the loader indicates an internal error (result of a checked bpf
+system call), it returns the result in attr.test.retval. However, tests
+that rely on ASSERT_OK_PTR on NULL (returned from light skeleton) may
+miss that NULL denotes an error if errno is set to 0. This would result
+in skel pointer being NULL, while ASSERT_OK_PTR returning 1, leading to
+a SEGV on dereference of skel, because libbpf_get_error relies on the
+assumption that errno is always set in case of error for ptr == NULL.
 
-Reported-by: syzbot+ace149a75a9a0a399ac7@syzkaller.appspotmail.com
-Fixes: 411cef6adfb3 ("ALSA: mixer: oss: Fix racy access to slots")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20211024140315.16704-1-paskripkin@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In particular, this was observed for the ksyms_module test. When
+executed using `./test_progs -t ksyms`, prior tests manipulated errno
+and the test didn't crash when it failed at ksyms_module load, while
+using `./test_progs -t ksyms_module` crashed due to errno being
+untouched.
+
+Fixes: 67234743736a (libbpf: Generate loader program out of BPF ELF file.)
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210927145941.1383001-11-memxor@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/oss/mixer_oss.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/skel_internal.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/sound/core/oss/mixer_oss.c
-+++ b/sound/core/oss/mixer_oss.c
-@@ -313,7 +313,7 @@ static int snd_mixer_oss_set_volume(stru
- 	pslot->volume[1] = right;
- 	result = (left & 0xff) | ((right & 0xff) << 8);
-  unlock:
--	mutex_lock(&mixer->reg_mutex);
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
+diff --git a/tools/lib/bpf/skel_internal.h b/tools/lib/bpf/skel_internal.h
+index b22b50c1b173e..9cf66702fa8dd 100644
+--- a/tools/lib/bpf/skel_internal.h
++++ b/tools/lib/bpf/skel_internal.h
+@@ -105,10 +105,12 @@ static inline int bpf_load_and_run(struct bpf_load_and_run_opts *opts)
+ 	err = skel_sys_bpf(BPF_PROG_RUN, &attr, sizeof(attr));
+ 	if (err < 0 || (int)attr.test.retval < 0) {
+ 		opts->errstr = "failed to execute loader prog";
+-		if (err < 0)
++		if (err < 0) {
+ 			err = -errno;
+-		else
++		} else {
+ 			err = (int)attr.test.retval;
++			errno = -err;
++		}
+ 		goto out;
+ 	}
+ 	err = 0;
+-- 
+2.33.0
+
 
 
