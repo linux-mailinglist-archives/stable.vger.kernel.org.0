@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68F66450746
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 15:40:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 078C4450745
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 15:40:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236219AbhKOOnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 09:43:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48142 "EHLO mail.kernel.org"
+        id S236771AbhKOOm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 09:42:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236767AbhKOOmi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 09:42:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 034A461BFA;
-        Mon, 15 Nov 2021 14:39:41 +0000 (UTC)
+        id S236219AbhKOOmm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 09:42:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C9166320D;
+        Mon, 15 Nov 2021 14:39:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636987182;
-        bh=uidnuo+rIuEcf07jixTLUIV6UrVgo4h1PX6E6zhs9FE=;
+        s=korg; t=1636987185;
+        bh=CqJTxr0Ynuh3PChSbnaqimqbQ05Pn7FkbMjFz6wkfgo=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ch3BSaOi1/ncomPyNAWtJfD3ln04rG/1B7Ut+PpsR05Umgv+eVq60yQaenj3NajRt
-         U1+0/i47c08bQ1s6hq2kZNgG9jJM3dXGkUnyWwD1DBrIH8r0b/YmyAVvry7q9MZBKM
-         VCC8XdEQGgmoQIQt9FAFhoo9A6lgvHah35r2HUYI=
-Subject: FAILED: patch "[PATCH] PM: sleep: Avoid calling put_device() under dpm_list_mtx" failed to apply to 5.10-stable tree
+        b=KL5ZHNIoAL6szCN7Fg6fOzQGN3PItCncZFycumfbykQgWPFsGj1wiD67tdcwR8GwF
+         Pn1vM94dY14AUNpgRRn/0gDY1L8RLedrbSdp+0++sEuvbzLaLm2MwDTqe5qpKfZkAT
+         uT0LbVEZSCi1Gk3QeZpwdSeoaABMuEQrcO05fpdo=
+Subject: FAILED: patch "[PATCH] PM: sleep: Avoid calling put_device() under dpm_list_mtx" failed to apply to 5.4-stable tree
 To:     rafael.j.wysocki@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Nov 2021 15:39:40 +0100
-Message-ID: <163698718021086@kroah.com>
+Date:   Mon, 15 Nov 2021 15:39:43 +0100
+Message-ID: <163698718316352@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
