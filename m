@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF0F4514D3
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1EAC451476
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346104AbhKOUNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:13:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S1349301AbhKOUGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:06:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345091AbhKOT0T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:26:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 313006124B;
-        Mon, 15 Nov 2021 19:10:12 +0000 (UTC)
+        id S1344415AbhKOTYk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B3D963487;
+        Mon, 15 Nov 2021 18:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003412;
-        bh=SEH46agP6ZMS85HjcoMU4AlhgQX8KdSJvWw7MBgZVyI=;
+        s=korg; t=1637002643;
+        bh=HY49olzyPNqCdwCu8ATKCYOu/MZkJTlc5ImAGco7tFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UWx7dXbq5muyN/hlq91Gx+FwoycbGZxfg/4T2AfL1krY65gnfRzzkkDRSOcHwjnYG
-         vBd7MVS5YYEqInjhyHdrjDMsutgiQsq35pC53Lr2Ej//ZbEj1ItEgGso7u5CWNcemM
-         igDRfyTV+Z4IZIVvp6xU5t373HQvrlPB/ITPpzpA=
+        b=JCdKeXgry5mAu7ypO53QysVTs4yEdAAgqnF4aTtJIyMbTfidg1DXOqLfh1i0p2kaQ
+         hQ2JdA8l5F0ARZHaj/T8Tfbk3qnWumJQowZMgwnADgINFX3RlaHxGmw3WMGwXsNNrq
+         4ZO11fW0P88NdxXv2Ku+ofENmaDGg9sEbvkbXlJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Alexandru Ardelean <ardeleanalex@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 213/355] crypto: qat - detect PFVF collision after ACK
-Date:   Mon, 15 Nov 2021 18:02:17 +0100
-Message-Id: <20211115165320.655792348@linuxfoundation.org>
+Subject: [PATCH 5.15 645/917] iio: buffer: Fix double-free in iio_buffers_alloc_sysfs_and_mask()
+Date:   Mon, 15 Nov 2021 18:02:20 +0100
+Message-Id: <20211115165450.725630884@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9b768e8a3909ac1ab39ed44a3933716da7761a6f ]
+[ Upstream commit 09776d9374e635b1580b3736c19b95b788fbaa85 ]
 
-Detect a PFVF collision between the local and the remote function by
-checking if the message on the PFVF CSR has been overwritten.
-This is done after the remote function confirms that the message has
-been received, by clearing the interrupt bit, or the maximum number of
-attempts (ADF_IOV_MSG_ACK_MAX_RETRY) to check the CSR has been exceeded.
+When __iio_buffer_alloc_sysfs_and_mask() failed, 'unwind_idx' should be
+set to 'i - 1' to prevent double-free when cleanup resources.
 
-Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Co-developed-by: Marco Chiappero <marco.chiappero@intel.com>
-Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+BUG: KASAN: double-free or invalid-free in __iio_buffer_free_sysfs_and_mask+0x32/0xb0 [industrialio]
+Call Trace:
+ kfree+0x117/0x4c0
+ __iio_buffer_free_sysfs_and_mask+0x32/0xb0 [industrialio]
+ iio_buffers_alloc_sysfs_and_mask+0x60d/0x1570 [industrialio]
+ __iio_device_register+0x483/0x1a30 [industrialio]
+ ina2xx_probe+0x625/0x980 [ina2xx_adc]
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: ee708e6baacd ("iio: buffer: introduce support for attaching more IIO buffers")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20211013094923.2473-2-andriy.shevchenko@linux.intel.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/iio/industrialio-buffer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-index c64481160b711..72fd2bbbe704e 100644
---- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-+++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-@@ -195,6 +195,13 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
- 		val = ADF_CSR_RD(pmisc_bar_addr, pf2vf_offset);
- 	} while ((val & int_bit) && (count++ < ADF_IOV_MSG_ACK_MAX_RETRY));
- 
-+	if (val != msg) {
-+		dev_dbg(&GET_DEV(accel_dev),
-+			"Collision - PFVF CSR overwritten by remote function\n");
-+		ret = -EIO;
-+		goto out;
-+	}
-+
- 	if (val & int_bit) {
- 		dev_dbg(&GET_DEV(accel_dev), "ACK not received from remote\n");
- 		val &= ~int_bit;
+diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
+index 7f4e3ceaafec6..2f98ba70e3d78 100644
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -1624,7 +1624,7 @@ int iio_buffers_alloc_sysfs_and_mask(struct iio_dev *indio_dev)
+ 		buffer = iio_dev_opaque->attached_buffers[i];
+ 		ret = __iio_buffer_alloc_sysfs_and_mask(buffer, indio_dev, i);
+ 		if (ret) {
+-			unwind_idx = i;
++			unwind_idx = i - 1;
+ 			goto error_unwind_sysfs_and_mask;
+ 		}
+ 	}
 -- 
 2.33.0
 
