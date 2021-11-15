@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A808A450AC6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3459450DCA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236407AbhKOROk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:14:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50326 "EHLO mail.kernel.org"
+        id S239556AbhKOSHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:07:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236728AbhKORND (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:13:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4702961C15;
-        Mon, 15 Nov 2021 17:10:07 +0000 (UTC)
+        id S239554AbhKOSBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:01:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B833610CA;
+        Mon, 15 Nov 2021 17:37:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996207;
-        bh=bjZkxvjvyGh6iemq/lJDpSd7qA9FMvOg4aq8y7HDrHs=;
+        s=korg; t=1636997820;
+        bh=+tMZrWAU6WgtK2gvUHEnNXA3MMLzpioVtqizpD77yso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ot5LaBU1iEz2GWAr7+j7fPEoZrsXIo0tK6ElDDBR9vEL5Oau3Y04QlVrScoZRtKJd
-         BZlVDlvCXfhXeFWuPKzIXSuaNN2sHjm4ub9+EPTfJ1+unt9W43/LitwAPpE0r9e76n
-         W2l6P57AZ8Z2g95Du5oWMzl6aSlPztQAhNOBkzUk=
+        b=RyMNbWILrOyporYn7JjX4ks7LwaJerBOgD1K4BtPTO4xbpZ85KLF0CvJ3X273qAy1
+         B0xEk1xPbOr9UDnblW+6Udu84fkTgA2YJzqdC/y8knQws0BNeN7G/apsbg37JmRdS4
+         nzXqWT0bHEPV5v9BLCO9Jucy4naowtGBSznw21h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Engel <amit.engel@dell.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 055/355] nvmet-tcp: fix header digest verification
-Date:   Mon, 15 Nov 2021 17:59:39 +0100
-Message-Id: <20211115165315.323417909@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 255/575] parisc: fix warning in flush_tlb_all
+Date:   Mon, 15 Nov 2021 17:59:40 +0100
+Message-Id: <20211115165352.599765652@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Engel <amit.engel@dell.com>
+From: Sven Schnelle <svens@stackframe.org>
 
-[ Upstream commit 86aeda32b887cdaeb0f4b7bfc9971e36377181c7 ]
+[ Upstream commit 1030d681319b43869e0d5b568b9d0226652d1a6f ]
 
-Pass the correct length to nvmet_tcp_verify_hdgst, which is the pdu
-header length.  This fixes a wrong behaviour where header digest
-verification passes although the digest is wrong.
+I've got the following splat after enabling preemption:
 
-Signed-off-by: Amit Engel <amit.engel@dell.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[    3.724721] BUG: using __this_cpu_add() in preemptible [00000000] code: swapper/0/1
+[    3.734630] caller is __this_cpu_preempt_check+0x38/0x50
+[    3.740635] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc4-64bit+ #324
+[    3.744605] Hardware name: 9000/785/C8000
+[    3.744605] Backtrace:
+[    3.744605]  [<00000000401d9d58>] show_stack+0x74/0xb0
+[    3.744605]  [<0000000040c27bd4>] dump_stack_lvl+0x10c/0x188
+[    3.744605]  [<0000000040c27c84>] dump_stack+0x34/0x48
+[    3.744605]  [<0000000040c33438>] check_preemption_disabled+0x178/0x1b0
+[    3.744605]  [<0000000040c334f8>] __this_cpu_preempt_check+0x38/0x50
+[    3.744605]  [<00000000401d632c>] flush_tlb_all+0x58/0x2e0
+[    3.744605]  [<00000000401075c0>] 0x401075c0
+[    3.744605]  [<000000004010b8fc>] 0x4010b8fc
+[    3.744605]  [<00000000401080fc>] 0x401080fc
+[    3.744605]  [<00000000401d5224>] do_one_initcall+0x128/0x378
+[    3.744605]  [<0000000040102de8>] 0x40102de8
+[    3.744605]  [<0000000040c33864>] kernel_init+0x60/0x3a8
+[    3.744605]  [<00000000401d1020>] ret_from_kernel_thread+0x20/0x28
+[    3.744605]
+
+Fix this by moving the __inc_irq_stat() into the locked section.
+
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/tcp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/parisc/mm/init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index 1328ee373e596..6b3d1ba7db7ee 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -1020,7 +1020,7 @@ recv:
- 	}
+diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
+index 3ec633b11b542..8f10cc6ee0fce 100644
+--- a/arch/parisc/mm/init.c
++++ b/arch/parisc/mm/init.c
+@@ -844,9 +844,9 @@ void flush_tlb_all(void)
+ {
+ 	int do_recycle;
  
- 	if (queue->hdr_digest &&
--	    nvmet_tcp_verify_hdgst(queue, &queue->pdu, queue->offset)) {
-+	    nvmet_tcp_verify_hdgst(queue, &queue->pdu, hdr->hlen)) {
- 		nvmet_tcp_fatal_error(queue); /* fatal */
- 		return -EPROTO;
- 	}
+-	__inc_irq_stat(irq_tlb_count);
+ 	do_recycle = 0;
+ 	spin_lock(&sid_lock);
++	__inc_irq_stat(irq_tlb_count);
+ 	if (dirty_space_ids > RECYCLE_THRESHOLD) {
+ 	    BUG_ON(recycle_inuse);  /* FIXME: Use a semaphore/wait queue here */
+ 	    get_dirty_sids(&recycle_ndirty,recycle_dirty_array);
+@@ -865,8 +865,8 @@ void flush_tlb_all(void)
+ #else
+ void flush_tlb_all(void)
+ {
+-	__inc_irq_stat(irq_tlb_count);
+ 	spin_lock(&sid_lock);
++	__inc_irq_stat(irq_tlb_count);
+ 	flush_tlb_all_local(NULL);
+ 	recycle_sids();
+ 	spin_unlock(&sid_lock);
 -- 
 2.33.0
 
