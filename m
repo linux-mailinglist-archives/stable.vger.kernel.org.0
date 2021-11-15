@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D849450D61
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:54:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DB194510DF
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:53:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239324AbhKOR4v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:56:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40772 "EHLO mail.kernel.org"
+        id S242686AbhKOSz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:55:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239154AbhKORyo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:54:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B478D632AD;
-        Mon, 15 Nov 2021 17:33:32 +0000 (UTC)
+        id S243241AbhKOSxo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:53:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3239C633C5;
+        Mon, 15 Nov 2021 18:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997613;
-        bh=DddDNs9JomrnzsILPma6S7pZ2ahl2dOz1P588eIjD4o=;
+        s=korg; t=1636999867;
+        bh=CZR8n49eweZd+DJCKiQsgB+iVDajs6LrgcId3WBiims=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rOpdF756k7DT9eU6Xs1MV49xYP89q3vbeNiO6iefs01xJ1sxdvmSvwgsGahCr5VEm
-         wGnE5OrNyGt97WhnMTkIQTZrgNPDyWCDGe5mlI8qPD/x3e6HBZmhUzoGho8QJoTiZD
-         hegLNopNUjIqaZ+PawCR47ObuMJjpG+1N7EGl6d4=
+        b=bTSWKfg0ewbN9qjh4XW8N6uaRUc4ay2Hzu18TM2Dxh8n07/k5ECcY4S/L1b+FMTZs
+         JnmHOqQv1yanD/4fuTXkxE+LnQ4CmthdzCzH5ekageZVc/PJfxY6asR+2qwBaXQJ1j
+         lfq/+Xp4T59lF6gnEPc5EsxmJJCb695gDDuGTTLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 210/575] tracefs: Have tracefs directories not set OTH permission bits by default
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 452/849] mt76: mt7615: fix endianness warning in mt7615_mac_write_txwi
 Date:   Mon, 15 Nov 2021 17:58:55 +0100
-Message-Id: <20211115165350.976783364@linuxfoundation.org>
+Message-Id: <20211115165435.581682272@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 49d67e445742bbcb03106b735b2ab39f6e5c56bc ]
+[ Upstream commit d81bfb41e30c42531536c5d2baa4d275a8309715 ]
 
-The tracefs file system is by default mounted such that only root user can
-access it. But there are legitimate reasons to create a group and allow
-those added to the group to have access to tracing. By changing the
-permissions of the tracefs mount point to allow access, it will allow
-group access to the tracefs directory.
+Fix the following sparse warning in mt7615_mac_write_txwi routine:
+drivers/net/wireless/mediatek/mt76/mt7615/mac.c:758:17:
+	warning: incorrect type in assignment
+	expected restricted __le32 [usertype]
+	got unsigned long
 
-There should not be any real reason to allow all access to the tracefs
-directory as it contains sensitive information. Have the default
-permission of directories being created not have any OTH (other) bits set,
-such that an admin that wants to give permission to a group has to first
-disable all OTH bits in the file system.
-
-Link: https://lkml.kernel.org/r/20210818153038.664127804@goodmis.org
-
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 04b8e65922f63 ("mt76: add mac80211 driver for MT7615 PCIe-based chipsets")
+Fixes: d4bf77bd74930 ("mt76: mt7615: introduce mt7663u support to mt7615_write_txwi")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/tracefs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/mac.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
-index 0ee8c6dfb0364..bf58ae6f984fe 100644
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -430,7 +430,8 @@ static struct dentry *__create_dir(const char *name, struct dentry *parent,
- 	if (unlikely(!inode))
- 		return failed_creating(dentry);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+index a83e48c07a71e..5455231f51881 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+@@ -755,12 +755,15 @@ int mt7615_mac_write_txwi(struct mt7615_dev *dev, __le32 *txwi,
+ 	if (info->flags & IEEE80211_TX_CTL_NO_ACK)
+ 		txwi[3] |= cpu_to_le32(MT_TXD3_NO_ACK);
  
--	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO;
-+	/* Do not set bits for OTH */
-+	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
- 	inode->i_op = ops;
- 	inode->i_fop = &simple_dir_operations;
+-	txwi[7] = FIELD_PREP(MT_TXD7_TYPE, fc_type) |
+-		  FIELD_PREP(MT_TXD7_SUB_TYPE, fc_stype) |
+-		  FIELD_PREP(MT_TXD7_SPE_IDX, 0x18);
+-	if (!is_mmio)
+-		txwi[8] = FIELD_PREP(MT_TXD8_L_TYPE, fc_type) |
+-			  FIELD_PREP(MT_TXD8_L_SUB_TYPE, fc_stype);
++	val = FIELD_PREP(MT_TXD7_TYPE, fc_type) |
++	      FIELD_PREP(MT_TXD7_SUB_TYPE, fc_stype) |
++	      FIELD_PREP(MT_TXD7_SPE_IDX, 0x18);
++	txwi[7] = cpu_to_le32(val);
++	if (!is_mmio) {
++		val = FIELD_PREP(MT_TXD8_L_TYPE, fc_type) |
++		      FIELD_PREP(MT_TXD8_L_SUB_TYPE, fc_stype);
++		txwi[8] = cpu_to_le32(val);
++	}
  
+ 	return 0;
+ }
 -- 
 2.33.0
 
