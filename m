@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E4C3452786
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:23:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBAD452671
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243009AbhKPC0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:26:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47398 "EHLO mail.kernel.org"
+        id S245033AbhKPCFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:05:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237409AbhKORVC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:21:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B60663272;
-        Mon, 15 Nov 2021 17:15:37 +0000 (UTC)
+        id S239789AbhKOSEr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:04:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57C1D61ACE;
+        Mon, 15 Nov 2021 17:39:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996538;
-        bh=SJCeg+ceJ5loPiJYCQQ9sna2PGT7CQ760HDRBYPiSqQ=;
+        s=korg; t=1636997946;
+        bh=g/kD0yaHE67se5xJVaKmCsSuiO3uaW1InzpfNVj8b0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cZQWX1l1A7TYfHPyYqR8VDcagIhQa+C/lKDiCtYexUoGU5JqYm+V6hreoc54ML5qw
-         SQ5EQ285I5Nfi5HvtiZxeZmHpyE8PxojgJC1kTsN/BxBXPfGBBbBEwzbfuq46CyfeP
-         2BD1msj9DxIWDERwaNiiZiRzfreOrVnI4zefIVwQ=
+        b=bXfnEygFyJtAeivRJjYBVMF0Gt1V0bbG5lUMqRd8JoNt/jOQ+SjIw3FiN5SxbF7nF
+         hFELUa4OsTRusllCfSRFPL7Nkfy7r1ggHUa09xU0dUNEL2ZHtnNtBdX1yyYLXRCQYV
+         Jkm8EwoCFtAXWcd/J+2LDQcjIzOlSqcUEyiZhT84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 134/355] media: uvcvideo: Set unique vdev name based in type
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 333/575] mt76: mt76x02: fix endianness warnings in mt76x02_mac.c
 Date:   Mon, 15 Nov 2021 18:00:58 +0100
-Message-Id: <20211115165318.139000269@linuxfoundation.org>
+Message-Id: <20211115165355.311759678@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit e3f60e7e1a2b451f538f9926763432249bcf39c4 ]
+[ Upstream commit c33edef520213feccebc22c9474c685b9fb60611 ]
 
-All the entities must have a unique name. We can have a descriptive and
-unique name by appending the function and the entity->id.
+Fix the following sparse warning in mt76x02_mac_write_txwi and
+mt76x02_mac_tx_rate_val routines:
+drivers/net/wireless/mediatek/mt76/mt76x02_mac.c:237:19:
+	warning: restricted __le16 degrades to intege
+	warning: cast from restricted __le16
+drivers/net/wireless/mediatek/mt76/mt76x02_mac.c:383:28:
+	warning: incorrect type in assignment (different base types)
+	expected restricted __le16 [usertype] rate
+	got unsigned long
 
-This is even resilent to multi chain devices.
-
-Fixes v4l2-compliance:
-Media Controller ioctls:
-                fail: v4l2-test-media.cpp(205): v2_entity_names_set.find(key) != v2_entity_names_set.end()
-        test MEDIA_IOC_G_TOPOLOGY: FAIL
-                fail: v4l2-test-media.cpp(394): num_data_links != num_links
-	test MEDIA_IOC_ENUM_ENTITIES/LINKS: FAIL
-
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: db9f11d3433f7 ("mt76: store wcid tx rate info in one u32 reduce locking")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_driver.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt76x02_mac.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index 40ca1d4e03483..378cfc46fc195 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -1972,6 +1972,7 @@ int uvc_register_video_device(struct uvc_device *dev,
- 			      const struct v4l2_file_operations *fops,
- 			      const struct v4l2_ioctl_ops *ioctl_ops)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c b/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c
+index da6d3f51f6d47..677082d8659a6 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c
+@@ -176,7 +176,7 @@ void mt76x02_mac_wcid_set_drop(struct mt76x02_dev *dev, u8 idx, bool drop)
+ 		mt76_wr(dev, MT_WCID_DROP(idx), (val & ~bit) | (bit * drop));
+ }
+ 
+-static __le16
++static u16
+ mt76x02_mac_tx_rate_val(struct mt76x02_dev *dev,
+ 			const struct ieee80211_tx_rate *rate, u8 *nss_val)
  {
-+	const char *name;
- 	int ret;
+@@ -222,14 +222,14 @@ mt76x02_mac_tx_rate_val(struct mt76x02_dev *dev,
+ 		rateval |= MT_RXWI_RATE_SGI;
  
- 	/* Initialize the video buffers queue. */
-@@ -2000,16 +2001,20 @@ int uvc_register_video_device(struct uvc_device *dev,
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
- 	default:
- 		vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
-+		name = "Video Capture";
- 		break;
- 	case V4L2_BUF_TYPE_VIDEO_OUTPUT:
- 		vdev->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
-+		name = "Video Output";
- 		break;
- 	case V4L2_BUF_TYPE_META_CAPTURE:
- 		vdev->device_caps = V4L2_CAP_META_CAPTURE | V4L2_CAP_STREAMING;
-+		name = "Metadata";
- 		break;
+ 	*nss_val = nss;
+-	return cpu_to_le16(rateval);
++	return rateval;
+ }
+ 
+ void mt76x02_mac_wcid_set_rate(struct mt76x02_dev *dev, struct mt76_wcid *wcid,
+ 			       const struct ieee80211_tx_rate *rate)
+ {
+ 	s8 max_txpwr_adj = mt76x02_tx_get_max_txpwr_adj(dev, rate);
+-	__le16 rateval;
++	u16 rateval;
+ 	u32 tx_info;
+ 	s8 nss;
+ 
+@@ -342,7 +342,7 @@ void mt76x02_mac_write_txwi(struct mt76x02_dev *dev, struct mt76x02_txwi *txwi,
+ 	struct ieee80211_key_conf *key = info->control.hw_key;
+ 	u32 wcid_tx_info;
+ 	u16 rate_ht_mask = FIELD_PREP(MT_RXWI_RATE_PHY, BIT(1) | BIT(2));
+-	u16 txwi_flags = 0;
++	u16 txwi_flags = 0, rateval;
+ 	u8 nss;
+ 	s8 txpwr_adj, max_txpwr_adj;
+ 	u8 ccmp_pn[8], nstreams = dev->chainmask & 0xf;
+@@ -380,14 +380,15 @@ void mt76x02_mac_write_txwi(struct mt76x02_dev *dev, struct mt76x02_txwi *txwi,
+ 
+ 	if (wcid && (rate->idx < 0 || !rate->count)) {
+ 		wcid_tx_info = wcid->tx_info;
+-		txwi->rate = FIELD_GET(MT_WCID_TX_INFO_RATE, wcid_tx_info);
++		rateval = FIELD_GET(MT_WCID_TX_INFO_RATE, wcid_tx_info);
+ 		max_txpwr_adj = FIELD_GET(MT_WCID_TX_INFO_TXPWR_ADJ,
+ 					  wcid_tx_info);
+ 		nss = FIELD_GET(MT_WCID_TX_INFO_NSS, wcid_tx_info);
+ 	} else {
+-		txwi->rate = mt76x02_mac_tx_rate_val(dev, rate, &nss);
++		rateval = mt76x02_mac_tx_rate_val(dev, rate, &nss);
+ 		max_txpwr_adj = mt76x02_tx_get_max_txpwr_adj(dev, rate);
  	}
++	txwi->rate = cpu_to_le16(rateval);
  
--	strscpy(vdev->name, dev->name, sizeof(vdev->name));
-+	snprintf(vdev->name, sizeof(vdev->name), "%s %u", name,
-+		 stream->header.bTerminalLink);
- 
- 	/*
- 	 * Set the driver data before calling video_register_device, otherwise
+ 	txpwr_adj = mt76x02_tx_get_txpwr_adj(dev, dev->txpower_conf,
+ 					     max_txpwr_adj);
 -- 
 2.33.0
 
