@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E764F450BF6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:30:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BAFD450C38
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237439AbhKORcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:32:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45794 "EHLO mail.kernel.org"
+        id S237485AbhKORfs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:35:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237451AbhKORah (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237442AbhKORah (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 12:30:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C7D263296;
-        Mon, 15 Nov 2021 17:19:43 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7F0763295;
+        Mon, 15 Nov 2021 17:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996784;
-        bh=F0+Zb4KxsOJHT0DIgWzdi/fAc8CXnSmGh8O6Vv6jp8Y=;
+        s=korg; t=1636996787;
+        bh=JsG7KAlV10Tetq+qdSDwoIweQErMEDPD+EXSSRF2lZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kb7WedV4/H2+tfR3xWUK9MxafkG2jEs9Nvs8NsoDZSpeE/ocoPdOImlolTqDupcNc
-         yYPr8H0qsNKy0RA4emo0py87rDPZXenH8jyUhEuHYOcQdf3R1OGGAp6nZKtLaxgrco
-         ZqgmxuOC044PZcgL22j1vQhIk7OUyQySObFMNyrY=
+        b=a3dEQYFu2qzVcGpXAVDhXOx+g9FEZa74rOfXIloO2wtq98ylemN6pIJNRrEIFqWFL
+         AtIE4CYQZabn6YWt99WW5XSZ7IFUp5FiWI6Pgvjwfp/bJi6piEcrA4XPC4aPVJRiOJ
+         +7wK0mJSlQT9RdrJxzMoyXi1vqi7bfdv2o8HGrnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 266/355] JFS: fix memleak in jfs_mount
-Date:   Mon, 15 Nov 2021 18:03:10 +0100
-Message-Id: <20211115165322.345621150@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 267/355] ALSA: hda: Reduce udelay() at SKL+ position reporting
+Date:   Mon, 15 Nov 2021 18:03:11 +0100
+Message-Id: <20211115165322.378259866@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -40,156 +40,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c48a14dca2cb57527dde6b960adbe69953935f10 ]
+[ Upstream commit 46243b85b0ec5d2cee7545e5ce18c015ce91957e ]
 
-In jfs_mount, when diMount(ipaimap2) fails, it goes to errout35. However,
-the following code does not free ipaimap2 allocated by diReadSpecial.
+The position reporting on Intel Skylake and later chips via
+azx_get_pos_skl() contains a udelay(20) call for the capture streams.
+A call for this alone doesn't sound too harmful.  However, as the
+pointer PCM ops is one of the hottest path in the PCM operations --
+especially for the timer-scheduled operations like PulseAudio -- such
+a delay hogs CPU usage significantly in the total performance.
 
-Fix this by refactoring the error handling code of jfs_mount. To be
-specific, modify the lable name and free ipaimap2 when the above error
-ocurrs.
+The code there was taken from the original code in ASoC SST Skylake
+driver blindly.  The udelay() is a workaround for the case where the
+reported position is behind the period boundary at the timing
+triggered from interrupts; applications often expect that the full
+data is available for the whole period when returned (and also that's
+the definition of the ALSA PCM period).
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+OTOH, HD-audio (legacy) driver has already some workarounds for the
+delayed position reporting due to its relatively large FIFO, such as
+the BDL position adjustment and the delayed period-elapsed call in the
+work.  That said, the udelay() is almost superfluous for HD-audio
+driver unlike SST, and we can drop the udelay().
+
+Though, the current code doesn't guarantee the full period readiness
+as mentioned in the above, but rather it checks the wallclock and
+detects the unexpected jump.  That's one missing piece, and the drop
+of udelay() needs a bit more sanity checks for the delayed handling.
+
+This patch implements those: the drop of udelay() call in
+azx_get_pos_skl() and the more proper check of hwptr in
+azx_position_ok().  The latter change is applied only for the case
+where the stream is running in the normal mode without
+no_period_wakeup flag.  When no_period_wakeup is set, it essentially
+ignores the period handling and rather concentrates only on the
+current position; which implies that we don't need to care about the
+period boundary at all.
+
+Fixes: f87e7f25893d ("ALSA: hda - Improved position reporting on SKL+")
+Reported-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210929072934.6809-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_mount.c | 51 ++++++++++++++++++++--------------------------
- 1 file changed, 22 insertions(+), 29 deletions(-)
+ sound/pci/hda/hda_intel.c | 28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
-diff --git a/fs/jfs/jfs_mount.c b/fs/jfs/jfs_mount.c
-index 616de103dccc5..d41733540df91 100644
---- a/fs/jfs/jfs_mount.c
-+++ b/fs/jfs/jfs_mount.c
-@@ -80,14 +80,14 @@ int jfs_mount(struct super_block *sb)
- 	 * (initialize mount inode from the superblock)
- 	 */
- 	if ((rc = chkSuper(sb))) {
--		goto errout20;
-+		goto out;
- 	}
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index ebb1ee69dd0c3..95d472d433e70 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -671,13 +671,17 @@ static int azx_position_check(struct azx *chip, struct azx_dev *azx_dev)
+  * the update-IRQ timing.  The IRQ is issued before actually the
+  * data is processed.  So, we need to process it afterwords in a
+  * workqueue.
++ *
++ * Returns 1 if OK to proceed, 0 for delay handling, -1 for skipping update
+  */
+ static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev)
+ {
+ 	struct snd_pcm_substream *substream = azx_dev->core.substream;
++	struct snd_pcm_runtime *runtime = substream->runtime;
+ 	int stream = substream->stream;
+ 	u32 wallclk;
+ 	unsigned int pos;
++	snd_pcm_uframes_t hwptr, target;
  
- 	ipaimap = diReadSpecial(sb, AGGREGATE_I, 0);
- 	if (ipaimap == NULL) {
- 		jfs_err("jfs_mount: Failed to read AGGREGATE_I");
- 		rc = -EIO;
--		goto errout20;
-+		goto out;
- 	}
- 	sbi->ipaimap = ipaimap;
+ 	wallclk = azx_readl(chip, WALLCLK) - azx_dev->core.start_wallclk;
+ 	if (wallclk < (azx_dev->core.period_wallclk * 2) / 3)
+@@ -714,6 +718,24 @@ static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev)
+ 		/* NG - it's below the first next period boundary */
+ 		return chip->bdl_pos_adj ? 0 : -1;
+ 	azx_dev->core.start_wallclk += wallclk;
++
++	if (azx_dev->core.no_period_wakeup)
++		return 1; /* OK, no need to check period boundary */
++
++	if (runtime->hw_ptr_base != runtime->hw_ptr_interrupt)
++		return 1; /* OK, already in hwptr updating process */
++
++	/* check whether the period gets really elapsed */
++	pos = bytes_to_frames(runtime, pos);
++	hwptr = runtime->hw_ptr_base + pos;
++	if (hwptr < runtime->status->hw_ptr)
++		hwptr += runtime->buffer_size;
++	target = runtime->hw_ptr_interrupt + runtime->period_size;
++	if (hwptr < target) {
++		/* too early wakeup, process it later */
++		return chip->bdl_pos_adj ? 0 : -1;
++	}
++
+ 	return 1; /* OK, it's fine */
+ }
  
-@@ -98,7 +98,7 @@ int jfs_mount(struct super_block *sb)
- 	 */
- 	if ((rc = diMount(ipaimap))) {
- 		jfs_err("jfs_mount: diMount(ipaimap) failed w/rc = %d", rc);
--		goto errout21;
-+		goto err_ipaimap;
- 	}
+@@ -907,11 +929,7 @@ static unsigned int azx_get_pos_skl(struct azx *chip, struct azx_dev *azx_dev)
+ 	if (azx_dev->core.substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+ 		return azx_skl_get_dpib_pos(chip, azx_dev);
  
- 	/*
-@@ -107,7 +107,7 @@ int jfs_mount(struct super_block *sb)
- 	ipbmap = diReadSpecial(sb, BMAP_I, 0);
- 	if (ipbmap == NULL) {
- 		rc = -EIO;
--		goto errout22;
-+		goto err_umount_ipaimap;
- 	}
- 
- 	jfs_info("jfs_mount: ipbmap:0x%p", ipbmap);
-@@ -119,7 +119,7 @@ int jfs_mount(struct super_block *sb)
- 	 */
- 	if ((rc = dbMount(ipbmap))) {
- 		jfs_err("jfs_mount: dbMount failed w/rc = %d", rc);
--		goto errout22;
-+		goto err_ipbmap;
- 	}
- 
- 	/*
-@@ -138,7 +138,7 @@ int jfs_mount(struct super_block *sb)
- 		if (!ipaimap2) {
- 			jfs_err("jfs_mount: Failed to read AGGREGATE_I");
- 			rc = -EIO;
--			goto errout35;
-+			goto err_umount_ipbmap;
- 		}
- 		sbi->ipaimap2 = ipaimap2;
- 
-@@ -150,7 +150,7 @@ int jfs_mount(struct super_block *sb)
- 		if ((rc = diMount(ipaimap2))) {
- 			jfs_err("jfs_mount: diMount(ipaimap2) failed, rc = %d",
- 				rc);
--			goto errout35;
-+			goto err_ipaimap2;
- 		}
- 	} else
- 		/* Secondary aggregate inode table is not valid */
-@@ -167,7 +167,7 @@ int jfs_mount(struct super_block *sb)
- 		jfs_err("jfs_mount: Failed to read FILESYSTEM_I");
- 		/* open fileset secondary inode allocation map */
- 		rc = -EIO;
--		goto errout40;
-+		goto err_umount_ipaimap2;
- 	}
- 	jfs_info("jfs_mount: ipimap:0x%p", ipimap);
- 
-@@ -177,41 +177,34 @@ int jfs_mount(struct super_block *sb)
- 	/* initialize fileset inode allocation map */
- 	if ((rc = diMount(ipimap))) {
- 		jfs_err("jfs_mount: diMount failed w/rc = %d", rc);
--		goto errout41;
-+		goto err_ipimap;
- 	}
- 
--	goto out;
-+	return rc;
- 
- 	/*
- 	 *	unwind on error
- 	 */
--      errout41:		/* close fileset inode allocation map inode */
-+err_ipimap:
-+	/* close fileset inode allocation map inode */
- 	diFreeSpecial(ipimap);
--
--      errout40:		/* fileset closed */
--
-+err_umount_ipaimap2:
- 	/* close secondary aggregate inode allocation map */
--	if (ipaimap2) {
-+	if (ipaimap2)
- 		diUnmount(ipaimap2, 1);
-+err_ipaimap2:
-+	/* close aggregate inodes */
-+	if (ipaimap2)
- 		diFreeSpecial(ipaimap2);
--	}
--
--      errout35:
--
--	/* close aggregate block allocation map */
-+err_umount_ipbmap:	/* close aggregate block allocation map */
- 	dbUnmount(ipbmap, 1);
-+err_ipbmap:		/* close aggregate inodes */
- 	diFreeSpecial(ipbmap);
--
--      errout22:		/* close aggregate inode allocation map */
--
-+err_umount_ipaimap:	/* close aggregate inode allocation map */
- 	diUnmount(ipaimap, 1);
--
--      errout21:		/* close aggregate inodes */
-+err_ipaimap:		/* close aggregate inodes */
- 	diFreeSpecial(ipaimap);
--      errout20:		/* aggregate closed */
--
--      out:
--
-+out:
- 	if (rc)
- 		jfs_err("Mount JFS Failure: %d", rc);
- 
+-	/* For capture, we need to read posbuf, but it requires a delay
+-	 * for the possible boundary overlap; the read of DPIB fetches the
+-	 * actual posbuf
+-	 */
+-	udelay(20);
++	/* read of DPIB fetches the actual posbuf */
+ 	azx_skl_get_dpib_pos(chip, azx_dev);
+ 	return azx_get_pos_posbuf(chip, azx_dev);
+ }
 -- 
 2.33.0
 
