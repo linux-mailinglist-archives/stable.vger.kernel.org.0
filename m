@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BA23450AD1
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:12:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F8645110C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:57:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231967AbhKORO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:14:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59810 "EHLO mail.kernel.org"
+        id S237949AbhKOTA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:00:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236870AbhKORNz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:13:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB71F61B73;
-        Mon, 15 Nov 2021 17:10:34 +0000 (UTC)
+        id S243325AbhKOS4b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:56:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96D21633CF;
+        Mon, 15 Nov 2021 18:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996235;
-        bh=Ko5D5mV1DDGZ+ZCRNSmh6+HpGcoSQ6mZgJejfpXHfCM=;
+        s=korg; t=1636999924;
+        bh=p+JnmMFi7WIdppKC+S1L3Kmen7abJPfHWXn7TwXkfh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cfq3iunW3CEqhYhCJQYoNLgoLpgr78hBw93TV70gzC7jVNJPHQVGoXBfzxltUebjz
-         gC2hk6X8ZrsbtnlHrKLlO4mIvdNlCfUQzTu6tivV6hsVzRIYO7ESr5+AW1sW6Gk5gV
-         2QX3AqB2gXvk0ltsRu6T7vVn2sCJQ80ZwX7qlPiA=
+        b=Nzca5Ra9kAmb+S79ikorO28MPurKmxw3SEK701V6voULeX7kRwo2F70Lfeg9tlpDj
+         WEEGllZyZbj6523Lk3ES3+eCdfFiCuMmvGy5LsmDtTFIkPV0ZRXJHVHuRtgvdMHC+T
+         mVGDpCY3EQNS0NsnlWqY6/JE5sHh72OHlybAqsSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Subject: [PATCH 5.4 033/355] x86/sme: Use #define USE_EARLY_PGTABLE_L5 in mem_encrypt_identity.c
+        stable@vger.kernel.org, Shayne Chen <shayne.chen@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 474/849] mt76: mt7915: fix sta_rec_wtbl tag len
 Date:   Mon, 15 Nov 2021 17:59:17 +0100
-Message-Id: <20211115165314.618636869@linuxfoundation.org>
+Message-Id: <20211115165436.315226288@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Shayne Chen <shayne.chen@mediatek.com>
 
-commit e7d445ab26db833d6640d4c9a08bee176777cc82 upstream.
+[ Upstream commit afa0370f3a3a64af6d368da0bedd72ab2a026cd0 ]
 
-When runtime support for converting between 4-level and 5-level pagetables
-was added to the kernel, the SME code that built pagetables was updated
-to use the pagetable functions, e.g. p4d_offset(), etc., in order to
-simplify the code. However, the use of the pagetable functions in early
-boot code requires the use of the USE_EARLY_PGTABLE_L5 #define in order to
-ensure that the proper definition of pgtable_l5_enabled() is used.
+Fix tag len error for sta_rec_wtbl, which causes fw parsing error for
+the tags placed behind it.
 
-Without the #define, pgtable_l5_enabled() is #defined as
-cpu_feature_enabled(X86_FEATURE_LA57). In early boot, the CPU features
-have not yet been discovered and populated, so pgtable_l5_enabled() will
-return false even when 5-level paging is enabled. This causes the SME code
-to always build 4-level pagetables to perform the in-place encryption.
-If 5-level paging is enabled, switching to the SME pagetables results in
-a page-fault that kills the boot.
-
-Adding the #define results in pgtable_l5_enabled() using the
-__pgtable_l5_enabled variable set in early boot and the SME code building
-pagetables for the proper paging level.
-
-Fixes: aad983913d77 ("x86/mm/encrypt: Simplify sme_populate_pgd() and sme_populate_pgd_large()")
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: <stable@vger.kernel.org> # 4.18.x
-Link: https://lkml.kernel.org/r/2cb8329655f5c753905812d951e212022a480475.1634318656.git.thomas.lendacky@amd.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e57b7901469f ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
+Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/mem_encrypt_identity.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -27,6 +27,15 @@
- #undef CONFIG_PARAVIRT_XXL
- #undef CONFIG_PARAVIRT_SPINLOCKS
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+index 85c9c08ee2a82..6dfe3716a63a5 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+@@ -757,7 +757,7 @@ mt7915_mcu_alloc_wtbl_req(struct mt7915_dev *dev, struct mt7915_sta *msta,
+ 	}
  
-+/*
-+ * This code runs before CPU feature bits are set. By default, the
-+ * pgtable_l5_enabled() function uses bit X86_FEATURE_LA57 to determine if
-+ * 5-level paging is active, so that won't work here. USE_EARLY_PGTABLE_L5
-+ * is provided to handle this situation and, instead, use a variable that
-+ * has been set by the early boot code.
-+ */
-+#define USE_EARLY_PGTABLE_L5
-+
- #include <linux/kernel.h>
- #include <linux/mm.h>
- #include <linux/mem_encrypt.h>
+ 	if (sta_hdr)
+-		sta_hdr->len = cpu_to_le16(sizeof(hdr));
++		le16_add_cpu(&sta_hdr->len, sizeof(hdr));
+ 
+ 	return skb_put_data(nskb, &hdr, sizeof(hdr));
+ }
+-- 
+2.33.0
+
 
 
