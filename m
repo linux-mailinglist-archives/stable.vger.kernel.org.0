@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D58E450C08
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:31:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA891450E8D
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:13:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232536AbhKOReQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:34:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
+        id S240876AbhKOSQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:16:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237708AbhKORcb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:32:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BB43632A4;
-        Mon, 15 Nov 2021 17:20:36 +0000 (UTC)
+        id S239397AbhKOSIf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:08:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE11F633AF;
+        Mon, 15 Nov 2021 17:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996836;
-        bh=nV0pbrdkHPY5eKY+aHXvF0B3I4WxIca4P2TKnrr5/HY=;
+        s=korg; t=1636998374;
+        bh=t3hcQGx1IuJ/hGgsUv2Dp3jFxWB8zNDGYv7ENhMxHNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j2OIqq0GgIE+bLSBmazi9ISTXlWdywrj2Jf9ylKfLFPhWPdIhG9lclLgP4pJ+xe+j
-         SRewUM58LMNAcbP5llKxH2/ADL+iKAcmHqh+NX7VWLGAP9Hk/OOxHlQdLfs8cZA9nm
-         hNrDIWEqxFOucSPPbzccRRa6ocZVhI3/GGBdFEQA=
+        b=nQr4EnJJ7rGf9n4dOR5CCuH4zAbULe6UMRHk7+o2DPeiwFHU9zeNZ0dIzZAy+7vMW
+         S7pTzJ+u+hSKrgyssHE5R9qG5sQDncwmynYv/cAqEF5iNXKPUCXzA1ncYKUIT1Awbj
+         K2d9mdpQg6g6UPya0O2CNDzxQhNAUNyDz8UV3s5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bixuan Cui <cuibixuan@linux.alibaba.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Olga Kornievskaia <aglo@umich.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 286/355] powerpc/44x/fsp2: add missing of_node_put
-Date:   Mon, 15 Nov 2021 18:03:30 +0100
-Message-Id: <20211115165322.978451015@linuxfoundation.org>
+Subject: [PATCH 5.10 486/575] NFS: Fix an Oops in pnfs_mark_request_commit()
+Date:   Mon, 15 Nov 2021 18:03:31 +0100
+Message-Id: <20211115165400.513346889@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@linux.alibaba.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 290fe8aa69ef5c51c778c0bb33f8ef0181c769f5 ]
+[ Upstream commit f0caea8882a7412a2ad4d8274f0280cdf849c9e2 ]
 
-Early exits from for_each_compatible_node() should decrement the
-node reference counter.  Reported by Coccinelle:
+Olga reports seeing the following Oops when doing O_DIRECT writes to a
+pNFS flexfiles server:
 
-./arch/powerpc/platforms/44x/fsp2.c:206:1-25: WARNING: Function
-"for_each_compatible_node" should have of_node_put() before return
-around line 218.
+Oops: 0000 [#1] SMP PTI
+CPU: 1 PID: 234186 Comm: kworker/u8:1 Not tainted 5.15.0-rc4+ #4
+Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.13.0-2.module+el8.3.0+7353+9de0a3cc 04/01/2014
+Workqueue: nfsiod rpc_async_release [sunrpc]
+RIP: 0010:nfs_mark_request_commit+0x12/0x30 [nfs]
+Code: ff ff be 03 00 00 00 e8 ac 34 83 eb e9 29 ff ff
+ff e8 22 bc d7 eb 66 90 0f 1f 44 00 00 48 85 f6 74 16 48 8b 42 10 48
+8b 40 18 <48> 8b 40 18 48 85 c0 74 05 e9 70 fc 15 ec 48 89 d6 e9 68 ed
+ff ff
+RSP: 0018:ffffa82f0159fe00 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: ffff8f3393141880 RCX: 0000000000000000
+RDX: ffffa82f0159fe08 RSI: ffff8f3381252500 RDI: ffff8f3393141880
+RBP: ffff8f33ac317c00 R08: 0000000000000000 R09: ffff8f3487724cb0
+R10: 0000000000000008 R11: 0000000000000001 R12: 0000000000000001
+R13: ffff8f3485bccee0 R14: ffff8f33ac317c10 R15: ffff8f33ac317cd8
+FS:  0000000000000000(0000) GS:ffff8f34fbc80000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000018 CR3: 0000000122120006 CR4: 0000000000770ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ nfs_direct_write_completion+0x13b/0x250 [nfs]
+ rpc_free_task+0x39/0x60 [sunrpc]
+ rpc_async_release+0x29/0x40 [sunrpc]
+ process_one_work+0x1ce/0x370
+ worker_thread+0x30/0x380
+ ? process_one_work+0x370/0x370
+ kthread+0x11a/0x140
+ ? set_kthread_struct+0x40/0x40
+ ret_from_fork+0x22/0x30
 
-Fixes: 7813043e1bbc ("powerpc/44x/fsp2: Add irq error handlers")
-Signed-off-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1635406102-88719-1-git-send-email-cuibixuan@linux.alibaba.com
+Reported-by: Olga Kornievskaia <aglo@umich.edu>
+Fixes: 9c455a8c1e14 ("NFS/pNFS: Clean up pNFS commit operations")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/44x/fsp2.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfs/pnfs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/44x/fsp2.c b/arch/powerpc/platforms/44x/fsp2.c
-index b299e43f5ef94..823397c802def 100644
---- a/arch/powerpc/platforms/44x/fsp2.c
-+++ b/arch/powerpc/platforms/44x/fsp2.c
-@@ -208,6 +208,7 @@ static void node_irq_request(const char *compat, irq_handler_t errirq_handler)
- 		if (irq == NO_IRQ) {
- 			pr_err("device tree node %pOFn is missing a interrupt",
- 			      np);
-+			of_node_put(np);
- 			return;
- 		}
+diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
+index 132a345e93731..0212fe32e63aa 100644
+--- a/fs/nfs/pnfs.h
++++ b/fs/nfs/pnfs.h
+@@ -515,7 +515,7 @@ pnfs_mark_request_commit(struct nfs_page *req, struct pnfs_layout_segment *lseg,
+ {
+ 	struct pnfs_ds_commit_info *fl_cinfo = cinfo->ds;
  
-@@ -215,6 +216,7 @@ static void node_irq_request(const char *compat, irq_handler_t errirq_handler)
- 		if (rc) {
- 			pr_err("fsp_of_probe: request_irq failed: np=%pOF rc=%d",
- 			      np, rc);
-+			of_node_put(np);
- 			return;
- 		}
- 	}
+-	if (!lseg || !fl_cinfo->ops->mark_request_commit)
++	if (!lseg || !fl_cinfo->ops || !fl_cinfo->ops->mark_request_commit)
+ 		return false;
+ 	fl_cinfo->ops->mark_request_commit(req, lseg, cinfo, ds_commit_idx);
+ 	return true;
 -- 
 2.33.0
 
