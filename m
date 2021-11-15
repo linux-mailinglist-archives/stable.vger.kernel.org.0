@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F21A3451EC6
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3387451EC4
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355355AbhKPAh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:37:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
+        id S1349078AbhKPAh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:37:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344821AbhKOTZe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344825AbhKOTZe (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19D21636D1;
-        Mon, 15 Nov 2021 19:04:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80ADB636D4;
+        Mon, 15 Nov 2021 19:05:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003099;
-        bh=CFKJpjw+gfq9eNyVrlH/Zu8sClqgsyeDtALXYRsB2hA=;
+        s=korg; t=1637003105;
+        bh=K4ne8YE2c/7j1spFSp9l1T/d44YzHGl6QRftd2lQY5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X5RHrAiht+rgmC5RghuD4QpmxtdQ4jgXXGt3l+7uZMbKhU3dHHdQaZSu6t6raHGlB
-         K5L1dGAFqJnq5BdqxePj9M8FSyOdTK2gMhChqoS7PYOpMvAog5qdKzh54OCqde6eSV
-         4AI7fAeQ3mFWPndksyyrZYwI87uMPffzgPhjNlT0=
+        b=JGpCE2ZwUXsf2ynf1R4JQKXMYFk2Pyh/gDKac42mdBxUuuPnjJkGURrWpm7atNpPq
+         /hc3mVtrwn6lkeS6VU5RvDUQYOQxOAZUM7sRFcJIemf7RoaPuZA90FPzx1iJGn4XAm
+         mUt8JOXm/gUn19Yz0s47O8dNGmznW5xaZgmU66B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 778/917] nvdimm/btt: do not call del_gendisk() if not needed
-Date:   Mon, 15 Nov 2021 18:04:33 +0100
-Message-Id: <20211115165455.322188962@linuxfoundation.org>
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Daejun Park <daejun7.park@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 780/917] scsi: ufs: ufshpb: Use proper power management API
+Date:   Mon, 15 Nov 2021 18:04:35 +0100
+Message-Id: <20211115165455.394125962@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,35 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Chamberlain <mcgrof@kernel.org>
+From: Daejun Park <daejun7.park@samsung.com>
 
-[ Upstream commit 3aefb5ee843fbe4789d03bb181e190d462df95e4 ]
+[ Upstream commit 351b3a849ac7d92449dc75c43db8a857b38387ea ]
 
-del_gendisk() should not called if the disk has not been added. Fix this.
+In ufshpb, pm_runtime_{get,put}_sync() are used to avoid unwanted runtime
+suspend during query requests. Whereas commit b294ff3e3449 ("scsi: ufs:
+core: Enable power management for wlun") modified the driver core to use
+ufshcd_rpm_{get,put}_sync() APIs.
 
-Fixes: 41cd8b70c37a ("libnvdimm, btt: add support for blk integrity")
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Link: https://lore.kernel.org/r/20211103165843.1402142-1-mcgrof@kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Switch to these APIs in HPB module as well.
+
+Link: https://lore.kernel.org/r/20210902003534epcms2p1937a0f0eeb48a441cb69f5ef13ff8430@epcms2p1
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Daejun Park <daejun7.park@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/btt.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/scsi/ufs/ufshpb.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
-index 92dec49522972..3fd1bdb9fc05b 100644
---- a/drivers/nvdimm/btt.c
-+++ b/drivers/nvdimm/btt.c
-@@ -1538,7 +1538,6 @@ static int btt_blk_init(struct btt *btt)
- 		int rc = nd_integrity_init(btt->btt_disk, btt_meta_size(btt));
+diff --git a/drivers/scsi/ufs/ufshpb.c b/drivers/scsi/ufs/ufshpb.c
+index 026a133149dce..46cdfb0dfca94 100644
+--- a/drivers/scsi/ufs/ufshpb.c
++++ b/drivers/scsi/ufs/ufshpb.c
+@@ -2371,11 +2371,11 @@ static int ufshpb_get_lu_info(struct ufs_hba *hba, int lun,
  
- 		if (rc) {
--			del_gendisk(btt->btt_disk);
- 			blk_cleanup_disk(btt->btt_disk);
- 			return rc;
- 		}
+ 	ufshcd_map_desc_id_to_length(hba, QUERY_DESC_IDN_UNIT, &size);
+ 
+-	pm_runtime_get_sync(hba->dev);
++	ufshcd_rpm_get_sync(hba);
+ 	ret = ufshcd_query_descriptor_retry(hba, UPIU_QUERY_OPCODE_READ_DESC,
+ 					    QUERY_DESC_IDN_UNIT, lun, 0,
+ 					    desc_buf, &size);
+-	pm_runtime_put_sync(hba->dev);
++	ufshcd_rpm_put_sync(hba);
+ 
+ 	if (ret) {
+ 		dev_err(hba->dev,
+@@ -2598,10 +2598,10 @@ void ufshpb_get_dev_info(struct ufs_hba *hba, u8 *desc_buf)
+ 	if (version == HPB_SUPPORT_LEGACY_VERSION)
+ 		hpb_dev_info->is_legacy = true;
+ 
+-	pm_runtime_get_sync(hba->dev);
++	ufshcd_rpm_get_sync(hba);
+ 	ret = ufshcd_query_attr_retry(hba, UPIU_QUERY_OPCODE_READ_ATTR,
+ 		QUERY_ATTR_IDN_MAX_HPB_SINGLE_CMD, 0, 0, &max_hpb_single_cmd);
+-	pm_runtime_put_sync(hba->dev);
++	ufshcd_rpm_put_sync(hba);
+ 
+ 	if (ret)
+ 		dev_err(hba->dev, "%s: idn: read max size of single hpb cmd query request failed",
 -- 
 2.33.0
 
