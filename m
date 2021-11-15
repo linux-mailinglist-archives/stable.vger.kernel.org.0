@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3459450DCA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DAD0450AC8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239556AbhKOSHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:07:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46100 "EHLO mail.kernel.org"
+        id S231150AbhKOROn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:14:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239554AbhKOSBT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:01:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B833610CA;
-        Mon, 15 Nov 2021 17:37:00 +0000 (UTC)
+        id S232425AbhKORNH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:13:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FFF76320D;
+        Mon, 15 Nov 2021 17:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997820;
-        bh=+tMZrWAU6WgtK2gvUHEnNXA3MMLzpioVtqizpD77yso=;
+        s=korg; t=1636996210;
+        bh=MRU56tOId8Mxj+TZyUhEIfrnQSLnb0L6uby7nVDXcGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyMNbWILrOyporYn7JjX4ks7LwaJerBOgD1K4BtPTO4xbpZ85KLF0CvJ3X273qAy1
-         B0xEk1xPbOr9UDnblW+6Udu84fkTgA2YJzqdC/y8knQws0BNeN7G/apsbg37JmRdS4
-         nzXqWT0bHEPV5v9BLCO9Jucy4naowtGBSznw21h0=
+        b=JNxuusq/Itdf4DZyiJMNWBTEOz7dWWydxY2KU8IXjd42S+Bs6V9wFWt8ItKW6aUie
+         qBCrBjVSRY0bX0RE8HAzHuQGcU1kxR9+TQK7eJ88Q7qikvq8sHQMLsi7GvhmyKTGbL
+         GjTlCyEehg+//Ec34JzpaTy21YlOc52zra8bsQ2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 255/575] parisc: fix warning in flush_tlb_all
+        stable@vger.kernel.org, Janghyub Seo <jhyub06@gmail.com>,
+        Rushab Shah <rushabshah32@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 056/355] r8169: Add device 10ec:8162 to driver r8169
 Date:   Mon, 15 Nov 2021 17:59:40 +0100
-Message-Id: <20211115165352.599765652@linuxfoundation.org>
+Message-Id: <20211115165315.627928304@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,66 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@stackframe.org>
+From: Janghyub Seo <jhyub06@gmail.com>
 
-[ Upstream commit 1030d681319b43869e0d5b568b9d0226652d1a6f ]
+[ Upstream commit 72f898ca0ab85fde6facf78b14d9f67a4a7b32d1 ]
 
-I've got the following splat after enabling preemption:
+This patch makes the driver r8169 pick up device Realtek Semiconductor Co.
+, Ltd. Device [10ec:8162].
 
-[    3.724721] BUG: using __this_cpu_add() in preemptible [00000000] code: swapper/0/1
-[    3.734630] caller is __this_cpu_preempt_check+0x38/0x50
-[    3.740635] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc4-64bit+ #324
-[    3.744605] Hardware name: 9000/785/C8000
-[    3.744605] Backtrace:
-[    3.744605]  [<00000000401d9d58>] show_stack+0x74/0xb0
-[    3.744605]  [<0000000040c27bd4>] dump_stack_lvl+0x10c/0x188
-[    3.744605]  [<0000000040c27c84>] dump_stack+0x34/0x48
-[    3.744605]  [<0000000040c33438>] check_preemption_disabled+0x178/0x1b0
-[    3.744605]  [<0000000040c334f8>] __this_cpu_preempt_check+0x38/0x50
-[    3.744605]  [<00000000401d632c>] flush_tlb_all+0x58/0x2e0
-[    3.744605]  [<00000000401075c0>] 0x401075c0
-[    3.744605]  [<000000004010b8fc>] 0x4010b8fc
-[    3.744605]  [<00000000401080fc>] 0x401080fc
-[    3.744605]  [<00000000401d5224>] do_one_initcall+0x128/0x378
-[    3.744605]  [<0000000040102de8>] 0x40102de8
-[    3.744605]  [<0000000040c33864>] kernel_init+0x60/0x3a8
-[    3.744605]  [<00000000401d1020>] ret_from_kernel_thread+0x20/0x28
-[    3.744605]
-
-Fix this by moving the __inc_irq_stat() into the locked section.
-
-Signed-off-by: Sven Schnelle <svens@stackframe.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Janghyub Seo <jhyub06@gmail.com>
+Suggested-by: Rushab Shah <rushabshah32@gmail.com>
+Link: https://lore.kernel.org/r/1635231849296.1489250046.441294000@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/mm/init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/realtek/r8169_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
-index 3ec633b11b542..8f10cc6ee0fce 100644
---- a/arch/parisc/mm/init.c
-+++ b/arch/parisc/mm/init.c
-@@ -844,9 +844,9 @@ void flush_tlb_all(void)
- {
- 	int do_recycle;
- 
--	__inc_irq_stat(irq_tlb_count);
- 	do_recycle = 0;
- 	spin_lock(&sid_lock);
-+	__inc_irq_stat(irq_tlb_count);
- 	if (dirty_space_ids > RECYCLE_THRESHOLD) {
- 	    BUG_ON(recycle_inuse);  /* FIXME: Use a semaphore/wait queue here */
- 	    get_dirty_sids(&recycle_ndirty,recycle_dirty_array);
-@@ -865,8 +865,8 @@ void flush_tlb_all(void)
- #else
- void flush_tlb_all(void)
- {
--	__inc_irq_stat(irq_tlb_count);
- 	spin_lock(&sid_lock);
-+	__inc_irq_stat(irq_tlb_count);
- 	flush_tlb_all_local(NULL);
- 	recycle_sids();
- 	spin_unlock(&sid_lock);
+diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
+index 623d86e5e970f..8d2b184ff5758 100644
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -212,6 +212,7 @@ static const struct pci_device_id rtl8169_pci_tbl[] = {
+ 	{ PCI_VDEVICE(REALTEK,	0x8129) },
+ 	{ PCI_VDEVICE(REALTEK,	0x8136), RTL_CFG_NO_GBIT },
+ 	{ PCI_VDEVICE(REALTEK,	0x8161) },
++	{ PCI_VDEVICE(REALTEK,	0x8162) },
+ 	{ PCI_VDEVICE(REALTEK,	0x8167) },
+ 	{ PCI_VDEVICE(REALTEK,	0x8168) },
+ 	{ PCI_VDEVICE(NCUBE,	0x8168) },
 -- 
 2.33.0
 
