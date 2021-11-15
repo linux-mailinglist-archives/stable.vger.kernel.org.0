@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56A95451344
+	by mail.lfdr.de (Postfix) with ESMTP id 9FDC7451345
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347974AbhKOTtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:49:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S1347983AbhKOTte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:49:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245543AbhKOTUn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245538AbhKOTUn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:20:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B51763556;
-        Mon, 15 Nov 2021 18:36:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCA1C63273;
+        Mon, 15 Nov 2021 18:36:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001392;
-        bh=3f04lz0KEqMgieyH0LWG9gSn/eBgV0NBm9lY3SHrTso=;
+        s=korg; t=1637001397;
+        bh=6wigUDftue6ESw8/GhTsQCB/PTXBa0z/UrYpA7Uwcm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZM6pc0Zl9yPasHykKACow/owLyouMkT1D8NjlQooacXqMtbiW+xTXv1wYF7Xl+rO
-         WV45gFYesuraMl3xstAh14EPYZLnJrmljiLdXHolaRzy840DL3MaX9vqQn7acFMhNH
-         AjlT9G4G9/KWC9zqdQGONAzG4pYee03ve/Ui8G9w=
+        b=2NL9DV9q67QqQfE+kvyzIuVsL4SSm7mGj98ZrneU/2zsu9AwcR9cM77e1q7ElFO5W
+         tQTDyjrP83SRHovTZzbdT8J/U/mQ9cl63AeiAdWNMBrc/8tguYZMEf6C3kTE4YxWwX
+         KkwAfAHSplveiGRBsp/SPvT0qx9wvIfIgxfzchkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Black <daniel@mariadb.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 174/917] io-wq: serialize hash clear with wakeup
-Date:   Mon, 15 Nov 2021 17:54:29 +0100
-Message-Id: <20211115165434.675461830@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 176/917] Revert "serial: 8250: Fix reporting real baudrate value in c_ospeed field"
+Date:   Mon, 15 Nov 2021 17:54:31 +0100
+Message-Id: <20211115165434.740019460@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,86 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Johan Hovold <johan@kernel.org>
 
-commit d3e3c102d107bb84251455a298cf475f24bab995 upstream.
+commit d02b006b29de14968ba4afa998bede0d55469e29 upstream.
 
-We need to ensure that we serialize the stalled and hash bits with the
-wait_queue wait handler, or we could be racing with someone modifying
-the hashed state after we find it busy, but before we then give up and
-wait for it to be cleared. This can cause random delays or stalls when
-handling buffered writes for many files, where some of these files cause
-hash collisions between the worker threads.
+This reverts commit 32262e2e429cdb31f9e957e997d53458762931b7.
 
-Cc: stable@vger.kernel.org
-Reported-by: Daniel Black <daniel@mariadb.org>
-Fixes: e941894eae31 ("io-wq: make buffered file write hashed work map per-ctx")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The commit in question claims to determine the inverse of
+serial8250_get_divisor() but failed to notice that some drivers override
+the default implementation using a get_divisor() callback.
+
+This means that the computed line-speed values can be completely wrong
+and results in regular TCSETS requests failing (the incorrect values
+would also be passed to any overridden set_divisor() callback).
+
+Similarly, it also failed to honour the old (deprecated) ASYNC_SPD_FLAGS
+and would break applications relying on those when re-encoding the
+actual line speed.
+
+There are also at least two quirks, UART_BUG_QUOT and an OMAP1510
+workaround, which were happily ignored and that are now broken.
+
+Finally, even if the offending commit were to be implemented correctly,
+this is a new feature and not something which should be backported to
+stable.
+
+Cc: Pali Rohár <pali@kernel.org>
+Fixes: 32262e2e429c ("serial: 8250: Fix reporting real baudrate value in c_ospeed field")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211007133146.28949-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io-wq.c |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |   17 -----------------
+ 1 file changed, 17 deletions(-)
 
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -421,9 +421,10 @@ static inline unsigned int io_get_work_h
- 	return work->flags >> IO_WQ_HASH_SHIFT;
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -2584,19 +2584,6 @@ static unsigned int serial8250_get_divis
+ 	return serial8250_do_get_divisor(port, baud, frac);
  }
  
--static void io_wait_on_hash(struct io_wqe *wqe, unsigned int hash)
-+static bool io_wait_on_hash(struct io_wqe *wqe, unsigned int hash)
+-static unsigned int serial8250_compute_baud_rate(struct uart_port *port,
+-						 unsigned int quot)
+-{
+-	if ((port->flags & UPF_MAGIC_MULTIPLIER) && quot == 0x8001)
+-		return port->uartclk / 4;
+-	else if ((port->flags & UPF_MAGIC_MULTIPLIER) && quot == 0x8002)
+-		return port->uartclk / 8;
+-	else if (port->type == PORT_NPCM)
+-		return DIV_ROUND_CLOSEST(port->uartclk - 2 * (quot + 2), 16 * (quot + 2));
+-	else
+-		return DIV_ROUND_CLOSEST(port->uartclk, 16 * quot);
+-}
+-
+ static unsigned char serial8250_compute_lcr(struct uart_8250_port *up,
+ 					    tcflag_t c_cflag)
  {
- 	struct io_wq *wq = wqe->wq;
-+	bool ret = false;
+@@ -2738,14 +2725,11 @@ void serial8250_update_uartclk(struct ua
  
- 	spin_lock_irq(&wq->hash->wait.lock);
- 	if (list_empty(&wqe->wait.entry)) {
-@@ -431,9 +432,11 @@ static void io_wait_on_hash(struct io_wq
- 		if (!test_bit(hash, &wq->hash->map)) {
- 			__set_current_state(TASK_RUNNING);
- 			list_del_init(&wqe->wait.entry);
-+			ret = true;
- 		}
- 	}
- 	spin_unlock_irq(&wq->hash->wait.lock);
-+	return ret;
- }
+ 	baud = serial8250_get_baud_rate(port, termios, NULL);
+ 	quot = serial8250_get_divisor(port, baud, &frac);
+-	baud = serial8250_compute_baud_rate(port, quot);
  
- static struct io_wq_work *io_get_next_work(struct io_wqe_acct *acct,
-@@ -473,14 +476,21 @@ static struct io_wq_work *io_get_next_wo
- 	}
+ 	serial8250_rpm_get(up);
+ 	spin_lock_irqsave(&port->lock, flags);
  
- 	if (stall_hash != -1U) {
-+		bool unstalled;
-+
- 		/*
- 		 * Set this before dropping the lock to avoid racing with new
- 		 * work being added and clearing the stalled bit.
- 		 */
- 		set_bit(IO_ACCT_STALLED_BIT, &acct->flags);
- 		raw_spin_unlock(&wqe->lock);
--		io_wait_on_hash(wqe, stall_hash);
-+		unstalled = io_wait_on_hash(wqe, stall_hash);
- 		raw_spin_lock(&wqe->lock);
-+		if (unstalled) {
-+			clear_bit(IO_ACCT_STALLED_BIT, &acct->flags);
-+			if (wq_has_sleeper(&wqe->wq->hash->wait))
-+				wake_up(&wqe->wq->hash->wait);
-+		}
- 	}
+ 	uart_update_timeout(port, termios->c_cflag, baud);
+-	if (tty_termios_baud_rate(termios))
+-		tty_termios_encode_baud_rate(termios, baud, baud);
  
- 	return NULL;
-@@ -562,8 +572,11 @@ get_next:
- 				io_wqe_enqueue(wqe, linked);
+ 	serial8250_set_divisor(port, baud, quot, frac);
+ 	serial_port_out(port, UART_LCR, up->lcr);
+@@ -2779,7 +2763,6 @@ serial8250_do_set_termios(struct uart_po
  
- 			if (hash != -1U && !next_hashed) {
-+				/* serialize hash clear with wake_up() */
-+				spin_lock_irq(&wq->hash->wait.lock);
- 				clear_bit(hash, &wq->hash->map);
- 				clear_bit(IO_ACCT_STALLED_BIT, &acct->flags);
-+				spin_unlock_irq(&wq->hash->wait.lock);
- 				if (wq_has_sleeper(&wq->hash->wait))
- 					wake_up(&wq->hash->wait);
- 				raw_spin_lock(&wqe->lock);
+ 	baud = serial8250_get_baud_rate(port, termios, old);
+ 	quot = serial8250_get_divisor(port, baud, &frac);
+-	baud = serial8250_compute_baud_rate(port, quot);
+ 
+ 	/*
+ 	 * Ok, we're now changing the port state.  Do it with
 
 
