@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD8F451E2E
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6FBE451EEB
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:35:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348673AbhKPAfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:35:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
+        id S233026AbhKPAiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:38:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344637AbhKOTZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344638AbhKOTZK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05B2D63354;
-        Mon, 15 Nov 2021 19:01:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8ABE636A6;
+        Mon, 15 Nov 2021 19:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002880;
-        bh=M7Ejnyu+C91jtdf0w6kIO7mmSOv60oYyPFb91OywY8U=;
+        s=korg; t=1637002886;
+        bh=LkVksyCniB251JOTxu7OtmmbtFTlHTvDAgVDAq9HncA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vXplyhDX65P2RepElAu1ogltL6QD9hukxBaqwOaEVbUuiQeOu5U049mf8A/A8YQ1E
-         m/AwH59Z1U9B2QVNexfmyk9B4/E11p/FNVt/0wFwQlaR4hcuadPFKLnWqIAQgF2b6A
-         RSaV8A1m0a0HrIwN/Ud9gI6hw24+SdPegqhKkOEM=
+        b=PXsje6d96J0BrpT3eCQvpr56lSHJmO8nqllC0zHaKBWyEe+ST0VEp2uLqgGGMaFOh
+         7xP1mfNID7CGB6kwLVSzzk8WOL8UZl7bdFKaVpezFljjHtUkfO1V4S3JBMmVc7Htyg
+         oX1sciM2z0Kyg065OvlhwgVLyjrr+yF97PANxD7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 729/917] dmaengine: stm32-dma: fix stm32_dma_get_max_width
-Date:   Mon, 15 Nov 2021 18:03:44 +0100
-Message-Id: <20211115165453.636730032@linuxfoundation.org>
+        stable@vger.kernel.org, Olga Kornievskaia <aglo@umich.edu>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 731/917] NFS: Fix an Oops in pnfs_mark_request_commit()
+Date:   Mon, 15 Nov 2021 18:03:46 +0100
+Message-Id: <20211115165453.708605898@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,44 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit b20fd5fa310cbf7ec367f263a34382a24c4cee73 ]
+[ Upstream commit f0caea8882a7412a2ad4d8274f0280cdf849c9e2 ]
 
-buf_addr parameter of stm32_dma_set_xfer_param function is a dma_addr_t.
-We only need to check the remainder of buf_addr/max_width, so, no need to
-use do_div and extra u64 addr. Use '%' instead.
+Olga reports seeing the following Oops when doing O_DIRECT writes to a
+pNFS flexfiles server:
 
-Fixes: e0ebdbdcb42a ("dmaengine: stm32-dma: take address into account when computing max width")
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211011094259.315023-3-amelie.delaunay@foss.st.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Oops: 0000 [#1] SMP PTI
+CPU: 1 PID: 234186 Comm: kworker/u8:1 Not tainted 5.15.0-rc4+ #4
+Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.13.0-2.module+el8.3.0+7353+9de0a3cc 04/01/2014
+Workqueue: nfsiod rpc_async_release [sunrpc]
+RIP: 0010:nfs_mark_request_commit+0x12/0x30 [nfs]
+Code: ff ff be 03 00 00 00 e8 ac 34 83 eb e9 29 ff ff
+ff e8 22 bc d7 eb 66 90 0f 1f 44 00 00 48 85 f6 74 16 48 8b 42 10 48
+8b 40 18 <48> 8b 40 18 48 85 c0 74 05 e9 70 fc 15 ec 48 89 d6 e9 68 ed
+ff ff
+RSP: 0018:ffffa82f0159fe00 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: ffff8f3393141880 RCX: 0000000000000000
+RDX: ffffa82f0159fe08 RSI: ffff8f3381252500 RDI: ffff8f3393141880
+RBP: ffff8f33ac317c00 R08: 0000000000000000 R09: ffff8f3487724cb0
+R10: 0000000000000008 R11: 0000000000000001 R12: 0000000000000001
+R13: ffff8f3485bccee0 R14: ffff8f33ac317c10 R15: ffff8f33ac317cd8
+FS:  0000000000000000(0000) GS:ffff8f34fbc80000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000018 CR3: 0000000122120006 CR4: 0000000000770ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ nfs_direct_write_completion+0x13b/0x250 [nfs]
+ rpc_free_task+0x39/0x60 [sunrpc]
+ rpc_async_release+0x29/0x40 [sunrpc]
+ process_one_work+0x1ce/0x370
+ worker_thread+0x30/0x380
+ ? process_one_work+0x370/0x370
+ kthread+0x11a/0x140
+ ? set_kthread_struct+0x40/0x40
+ ret_from_fork+0x22/0x30
+
+Reported-by: Olga Kornievskaia <aglo@umich.edu>
+Fixes: 9c455a8c1e14 ("NFS/pNFS: Clean up pNFS commit operations")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/stm32-dma.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/nfs/pnfs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/stm32-dma.c b/drivers/dma/stm32-dma.c
-index 9063c727962ed..fdda916555ec5 100644
---- a/drivers/dma/stm32-dma.c
-+++ b/drivers/dma/stm32-dma.c
-@@ -270,7 +270,6 @@ static enum dma_slave_buswidth stm32_dma_get_max_width(u32 buf_len,
- 						       u32 threshold)
+diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
+index d810ae674f4e8..a0f6ff094b3a4 100644
+--- a/fs/nfs/pnfs.h
++++ b/fs/nfs/pnfs.h
+@@ -517,7 +517,7 @@ pnfs_mark_request_commit(struct nfs_page *req, struct pnfs_layout_segment *lseg,
  {
- 	enum dma_slave_buswidth max_width;
--	u64 addr = buf_addr;
+ 	struct pnfs_ds_commit_info *fl_cinfo = cinfo->ds;
  
- 	if (threshold == STM32_DMA_FIFO_THRESHOLD_FULL)
- 		max_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
-@@ -281,7 +280,7 @@ static enum dma_slave_buswidth stm32_dma_get_max_width(u32 buf_len,
- 	       max_width > DMA_SLAVE_BUSWIDTH_1_BYTE)
- 		max_width = max_width >> 1;
- 
--	if (do_div(addr, max_width))
-+	if (buf_addr % max_width)
- 		max_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
- 
- 	return max_width;
+-	if (!lseg || !fl_cinfo->ops->mark_request_commit)
++	if (!lseg || !fl_cinfo->ops || !fl_cinfo->ops->mark_request_commit)
+ 		return false;
+ 	fl_cinfo->ops->mark_request_commit(req, lseg, cinfo, ds_commit_idx);
+ 	return true;
 -- 
 2.33.0
 
