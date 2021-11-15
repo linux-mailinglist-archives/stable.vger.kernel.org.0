@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92BFD45276D
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:22:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 361434522CB
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237151AbhKPCZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:25:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53202 "EHLO mail.kernel.org"
+        id S1378632AbhKPBQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:16:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237556AbhKORYy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:24:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AAD76324D;
-        Mon, 15 Nov 2021 17:16:51 +0000 (UTC)
+        id S244473AbhKOTPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:15:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 394E5634C5;
+        Mon, 15 Nov 2021 18:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996612;
-        bh=7MOlIOUgqGMGlR+46hStSUoDqVHRgYJM4297GzW23dc=;
+        s=korg; t=1637000483;
+        bh=XXV5DhqosJISImTDClXn7QvhAA/4o2ZnsXX8ytXUbLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U8ADWgtI6YzcMp3zhKvL7w2xlNGZpZYX1vQqR7yyJvr8qc9ZSPmVDQamIo/LlBKk1
-         I1oUYqtkVp4iUAefxI9wEUlbRVi+i7iq3Pb/wxzyT5khfFDDQt+to4rwV0aPsO5FDS
-         tG/7Y3Ik3VRz6RRthliYaUZnNtKkJPlI6gbZEE98=
+        b=FPkdijgX+1zczA9+b4vanexDUwIrWJwo8trCFrowg82OOazWHkVOByj93m+e/Ybz+
+         qlKxw1xZ0vWwL114qtHzrXQXFKncs/BtzuRkyFz2S326HepzOxgMEo6tbL+MVZ5a6p
+         XLuJZONpJmCFdMCcfYVJaa6AqxAlEoWHj8lgLeH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Kees Cook <keescook@chromium.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Anssi Hannula <anssi.hannula@bitwise.fi>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 202/355] media: si470x: Avoid card name truncation
+Subject: [PATCH 5.14 643/849] serial: xilinx_uartps: Fix race condition causing stuck TX
 Date:   Mon, 15 Nov 2021 18:02:06 +0100
-Message-Id: <20211115165320.297036007@linuxfoundation.org>
+Message-Id: <20211115165442.030915901@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Anssi Hannula <anssi.hannula@bitwise.fi>
 
-[ Upstream commit 2908249f3878a591f7918368fdf0b7b0a6c3158c ]
+[ Upstream commit 88b20f84f0fe47409342669caf3e58a3fc64c316 ]
 
-The "card" string only holds 31 characters (and the terminating NUL).
-In order to avoid truncation, use a shorter card description instead of
-the current result, "Silicon Labs Si470x FM Radio Re".
+xilinx_uartps .start_tx() clears TXEMPTY when enabling TXEMPTY to avoid
+any previous TXEVENT event asserting the UART interrupt. This clear
+operation is done immediately after filling the TX FIFO.
 
-Suggested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 78656acdcf48 ("V4L/DVB (7038): USB radio driver for Silicon Labs Si470x FM Radio Receivers")
-Fixes: cc35bbddfe10 ("V4L/DVB (12416): radio-si470x: add i2c driver for si470x")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+However, if the bytes inserted by cdns_uart_handle_tx() are consumed by
+the UART before the TXEMPTY is cleared, the clear operation eats the new
+TXEMPTY event as well, causing cdns_uart_isr() to never receive the
+TXEMPTY event. If there are bytes still queued in circbuf, TX will get
+stuck as they will never get transferred to FIFO (unless new bytes are
+queued to circbuf in which case .start_tx() is called again).
+
+While the racy missed TXEMPTY occurs fairly often with short data
+sequences (e.g. write 1 byte), in those cases circbuf is usually empty
+so no action on TXEMPTY would have been needed anyway. On the other
+hand, longer data sequences make the race much more unlikely as UART
+takes longer to consume the TX FIFO. Therefore it is rare for this race
+to cause visible issues in general.
+
+Fix the race by clearing the TXEMPTY bit in ISR *before* filling the
+FIFO.
+
+The TXEMPTY bit in ISR will only get asserted at the exact moment the
+TX FIFO *becomes* empty, so clearing the bit before filling FIFO does
+not cause an extra immediate assertion even if the FIFO is initially
+empty.
+
+This is hard to reproduce directly on a normal system, but inserting
+e.g. udelay(200) after cdns_uart_handle_tx(port), setting 4000000 baud,
+and then running "dd if=/dev/zero bs=128 of=/dev/ttyPS0 count=50"
+reliably reproduces the issue on my ZynqMP test system unless this fix
+is applied.
+
+Fixes: 85baf542d54e ("tty: xuartps: support 64 byte FIFO size")
+Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
+Link: https://lore.kernel.org/r/20211026102741.2910441-1-anssi.hannula@bitwise.fi
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/si470x/radio-si470x-i2c.c | 2 +-
- drivers/media/radio/si470x/radio-si470x-usb.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/xilinx_uartps.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/radio/si470x/radio-si470x-i2c.c b/drivers/media/radio/si470x/radio-si470x-i2c.c
-index f491420d7b538..a972c0705ac79 100644
---- a/drivers/media/radio/si470x/radio-si470x-i2c.c
-+++ b/drivers/media/radio/si470x/radio-si470x-i2c.c
-@@ -11,7 +11,7 @@
+diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
+index 962e522ccc45c..d5e243908d9fd 100644
+--- a/drivers/tty/serial/xilinx_uartps.c
++++ b/drivers/tty/serial/xilinx_uartps.c
+@@ -601,9 +601,10 @@ static void cdns_uart_start_tx(struct uart_port *port)
+ 	if (uart_circ_empty(&port->state->xmit))
+ 		return;
  
- /* driver definitions */
- #define DRIVER_AUTHOR "Joonyoung Shim <jy0922.shim@samsung.com>";
--#define DRIVER_CARD "Silicon Labs Si470x FM Radio Receiver"
-+#define DRIVER_CARD "Silicon Labs Si470x FM Radio"
- #define DRIVER_DESC "I2C radio driver for Si470x FM Radio Receivers"
- #define DRIVER_VERSION "1.0.2"
++	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_ISR);
++
+ 	cdns_uart_handle_tx(port);
  
-diff --git a/drivers/media/radio/si470x/radio-si470x-usb.c b/drivers/media/radio/si470x/radio-si470x-usb.c
-index fedff68d8c496..3f8634a465730 100644
---- a/drivers/media/radio/si470x/radio-si470x-usb.c
-+++ b/drivers/media/radio/si470x/radio-si470x-usb.c
-@@ -16,7 +16,7 @@
- 
- /* driver definitions */
- #define DRIVER_AUTHOR "Tobias Lorenz <tobias.lorenz@gmx.net>"
--#define DRIVER_CARD "Silicon Labs Si470x FM Radio Receiver"
-+#define DRIVER_CARD "Silicon Labs Si470x FM Radio"
- #define DRIVER_DESC "USB radio driver for Si470x FM Radio Receivers"
- #define DRIVER_VERSION "1.0.10"
- 
+-	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_ISR);
+ 	/* Enable the TX Empty interrupt */
+ 	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_IER);
+ }
 -- 
 2.33.0
 
