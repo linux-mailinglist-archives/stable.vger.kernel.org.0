@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E33545119F
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:09:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 978C8451473
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244281AbhKOTMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:12:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41794 "EHLO mail.kernel.org"
+        id S1349272AbhKOUGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:06:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243731AbhKOTKM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:10:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B660363231;
-        Mon, 15 Nov 2021 18:18:22 +0000 (UTC)
+        id S1344392AbhKOTYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D76F63673;
+        Mon, 15 Nov 2021 18:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000303;
-        bh=K9AunBxZ3A7se6BtYGm4uCfEiXETP6VKE9R+Zr4izz8=;
+        s=korg; t=1637002613;
+        bh=FVgRtSFxjBLi4lbTDdzMZGiHodtA1kV+lQqNjG6YAyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qH1yqkrxJ4KeHQrY0CUsS0YGgAfacUhy9I/QAy9K7E+yhcC0HoeS8xsLQFd7vIDgV
-         M6w0qL5TAIrw1VN6m94KBgXxhlzsKs3nsw71a4hvhAixtkTy5s0vgbjAUtfK/+sSc3
-         05CQEek8wi+fA+wmOeKgpe3OFcRtKT19opYnd6ZI=
+        b=jWr0INP5moBagZeYcHUh/O/KiN7LZr+vcYDpetahJvx+Q93xjt9rCQR8GPS40lu//
+         UMpfcLuxjyn6g5PNZbHurevY1kIcTl1LWfffsSjOqUSY1hd0yi1tnHH0zCaDbrNj2C
+         afo3gd23oqxF4vme9YqgYPQAgG42rEi61wNXvNa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 612/849] ARM: dts: stm32: fix STUSB1600 Type-C irq level on stm32mp15xx-dkx
+Subject: [PATCH 5.15 600/917] arm64: dts: qcom: pm8916: Remove wrong reg-names for rtc@6000
 Date:   Mon, 15 Nov 2021 18:01:35 +0100
-Message-Id: <20211115165440.949643111@linuxfoundation.org>
+Message-Id: <20211115165449.108062115@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 3d4fb3d4c431f45272bf8c308d3cbe030817f046 ]
+[ Upstream commit 483de2b44cd3a168458f8f9ff237e78a434729bc ]
 
-STUSB1600 IRQ (Alert pin) is active low (open drain). Interrupts may get
-lost currently, so fix the IRQ type.
+While removing the size from the "reg" properties in pm8916.dtsi,
+commit bd6429e81010 ("ARM64: dts: qcom: Remove size elements from
+pmic reg properties") mistakenly also removed the second register
+address for the rtc@6000 device. That one did not represent the size
+of the register region but actually the address of the second "alarm"
+register region of the rtc@6000 device.
 
-Fixes: 83686162c0eb ("ARM: dts: stm32: add STUSB1600 Type-C using I2C4 on stm32mp15xx-dkx")
+Now there are "reg-names" for two "reg" elements, but there is actually
+only one "reg" listed.
 
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Since the DT schema for "qcom,pm8941-rtc" only expects one "reg"
+element anyway, just drop the "reg-names" entirely to fix this.
+
+Fixes: bd6429e81010 ("ARM64: dts: qcom: Remove size elements from pmic reg properties")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210928112945.25310-1-stephan@gerhold.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dkx.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/pm8916.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi b/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi
-index 586aac8a998c0..a86f2dfa67acc 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi
-@@ -249,7 +249,7 @@
- 	stusb1600@28 {
- 		compatible = "st,stusb1600";
- 		reg = <0x28>;
--		interrupts = <11 IRQ_TYPE_EDGE_FALLING>;
-+		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
- 		interrupt-parent = <&gpioi>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&stusb1600_pins_a>;
+diff --git a/arch/arm64/boot/dts/qcom/pm8916.dtsi b/arch/arm64/boot/dts/qcom/pm8916.dtsi
+index f931cb0de231f..42180f1b5dbbb 100644
+--- a/arch/arm64/boot/dts/qcom/pm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/pm8916.dtsi
+@@ -86,7 +86,6 @@
+ 		rtc@6000 {
+ 			compatible = "qcom,pm8941-rtc";
+ 			reg = <0x6000>;
+-			reg-names = "rtc", "alarm";
+ 			interrupts = <0x0 0x61 0x1 IRQ_TYPE_EDGE_RISING>;
+ 		};
+ 
 -- 
 2.33.0
 
