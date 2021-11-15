@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A4DC450B69
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:21:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23E4E450E15
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237138AbhKORY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:24:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44996 "EHLO mail.kernel.org"
+        id S240594AbhKOSKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:10:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237450AbhKORVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:21:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1733863279;
-        Mon, 15 Nov 2021 17:16:09 +0000 (UTC)
+        id S239965AbhKOSFM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4037632F9;
+        Mon, 15 Nov 2021 17:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996570;
-        bh=e0AixVREsKewyZWLJurhFn+CQrBq5HryW4idAq/VIao=;
+        s=korg; t=1636998050;
+        bh=gYFZ0b5aZN9Ni542rnRuOLNtYn27+QfJj0MpK/5OOlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tSLdj78rbOoAy1BsMcd/89a9LWPYyWH72VMjhxh9F46CMpws4VyXj3KuBzgRDDOoz
-         KA0dcGNft/32lwHDpOU8yRtoZI85SPwpGnkqJL2S1W2844l9IK+Jso5uzC29s2Q7zB
-         SL/kPA56VeeocNNJYn04FXHe1EGRXsTh9ERhBjAI=
+        b=snc6g+WC+BQnsWl/3QKdHWr97kb2e7F5JD+ps4wxGt7jjTmqcU+wkDhJx8MAjkAs5
+         6ofW5s5HfoXPehR2wSkXh95HBcy2XOlJDFRPBTqp47knKYblQrJyXjlcaLp7/vUWLk
+         f06+ku6VHi7yfd92pRBudK7mJD2ain9lG7Y5Q8BQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Benjamin Li <benl@squareup.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 171/355] vrf: run conntrack only in context of lower/physdev for locally generated packets
+Subject: [PATCH 5.10 370/575] wcn36xx: add proper DMA memory barriers in rx path
 Date:   Mon, 15 Nov 2021 18:01:35 +0100
-Message-Id: <20211115165319.321649118@linuxfoundation.org>
+Message-Id: <20211115165356.588272972@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,138 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Benjamin Li <benl@squareup.com>
 
-[ Upstream commit 8c9c296adfae9ea05f655d69e9f6e13daa86fb4a ]
+[ Upstream commit 9bfe38e064af5decba2ffce66a2958ab8b10eaa4 ]
 
-The VRF driver invokes netfilter for output+postrouting hooks so that users
-can create rules that check for 'oif $vrf' rather than lower device name.
+This is essentially exactly following the dma_wmb()/dma_rmb() usage
+instructions in Documentation/memory-barriers.txt.
 
-This is a problem when NAT rules are configured.
+The theoretical races here are:
 
-To avoid any conntrack involvement in round 1, tag skbs as 'untracked'
-to prevent conntrack from picking them up.
+1. DXE (the DMA Transfer Engine in the Wi-Fi subsystem) seeing the
+dxe->ctrl & WCN36xx_DXE_CTRL_VLD write before the dxe->dst_addr_l
+write, thus performing DMA into the wrong address.
 
-This gets cleared before the packet gets handed to the ip stack so
-conntrack will be active on the second iteration.
+2. CPU reading dxe->dst_addr_l before DXE unsets dxe->ctrl &
+WCN36xx_DXE_CTRL_VLD. This should generally be harmless since DXE
+doesn't write dxe->dst_addr_l (no risk of freeing the wrong skb).
 
-One remaining issue is that a rule like
-
-  output ... oif $vrfname notrack
-
-won't propagate to the second round because we can't tell
-'notrack set via ruleset' and 'notrack set by vrf driver' apart.
-However, this isn't a regression: the 'notrack' removal happens
-instead of unconditional nf_reset_ct().
-I'd also like to avoid leaking more vrf specific conditionals into the
-netfilter infra.
-
-For ingress, conntrack has already been done before the packet makes it
-to the vrf driver, with this patch egress does connection tracking with
-lower/physical device as well.
-
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Acked-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
+Signed-off-by: Benjamin Li <benl@squareup.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211023001528.3077822-1-benl@squareup.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vrf.c | 28 ++++++++++++++++++++++++----
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ drivers/net/wireless/ath/wcn36xx/dxe.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
-index f08ed52d51f3f..f436b8c130611 100644
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -33,6 +33,7 @@
- #include <net/l3mdev.h>
- #include <net/fib_rules.h>
- #include <net/netns/generic.h>
-+#include <net/netfilter/nf_conntrack.h>
+diff --git a/drivers/net/wireless/ath/wcn36xx/dxe.c b/drivers/net/wireless/ath/wcn36xx/dxe.c
+index 70c46c327512f..cf4eb0fb28151 100644
+--- a/drivers/net/wireless/ath/wcn36xx/dxe.c
++++ b/drivers/net/wireless/ath/wcn36xx/dxe.c
+@@ -606,6 +606,10 @@ static int wcn36xx_rx_handle_packets(struct wcn36xx *wcn,
+ 	dxe = ctl->desc;
  
- #define DRV_NAME	"vrf"
- #define DRV_VERSION	"1.0"
-@@ -147,12 +148,26 @@ static int vrf_local_xmit(struct sk_buff *skb, struct net_device *dev,
- 	return NETDEV_TX_OK;
- }
- 
-+static void vrf_nf_set_untracked(struct sk_buff *skb)
-+{
-+	if (skb_get_nfct(skb) == 0)
-+		nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
-+}
+ 	while (!(READ_ONCE(dxe->ctrl) & WCN36xx_DXE_CTRL_VLD)) {
++		/* do not read until we own DMA descriptor */
++		dma_rmb();
 +
-+static void vrf_nf_reset_ct(struct sk_buff *skb)
-+{
-+	if (skb_get_nfct(skb) == IP_CT_UNTRACKED)
-+		nf_reset_ct(skb);
-+}
-+
- #if IS_ENABLED(CONFIG_IPV6)
- static int vrf_ip6_local_out(struct net *net, struct sock *sk,
- 			     struct sk_buff *skb)
- {
- 	int err;
++		/* read/modify DMA descriptor */
+ 		skb = ctl->skb;
+ 		dma_addr = dxe->dst_addr_l;
+ 		ret = wcn36xx_dxe_fill_skb(wcn->dev, ctl, GFP_ATOMIC);
+@@ -616,9 +620,15 @@ static int wcn36xx_rx_handle_packets(struct wcn36xx *wcn,
+ 			dma_unmap_single(wcn->dev, dma_addr, WCN36XX_PKT_SIZE,
+ 					DMA_FROM_DEVICE);
+ 			wcn36xx_rx_skb(wcn, skb);
+-		} /* else keep old skb not submitted and use it for rx DMA */
++		}
++		/* else keep old skb not submitted and reuse it for rx DMA
++		 * (dropping the packet that it contained)
++		 */
  
-+	vrf_nf_reset_ct(skb);
++		/* flush descriptor changes before re-marking as valid */
++		dma_wmb();
+ 		dxe->ctrl = ctrl;
 +
- 	err = nf_hook(NFPROTO_IPV6, NF_INET_LOCAL_OUT, net,
- 		      sk, skb, NULL, skb_dst(skb)->dev, dst_output);
- 
-@@ -232,6 +247,8 @@ static int vrf_ip_local_out(struct net *net, struct sock *sk,
- {
- 	int err;
- 
-+	vrf_nf_reset_ct(skb);
-+
- 	err = nf_hook(NFPROTO_IPV4, NF_INET_LOCAL_OUT, net, sk,
- 		      skb, NULL, skb_dst(skb)->dev, dst_output);
- 	if (likely(err == 1))
-@@ -351,8 +368,7 @@ static void vrf_finish_direct(struct sk_buff *skb)
- 		skb_pull(skb, ETH_HLEN);
+ 		ctl = ctl->next;
+ 		dxe = ctl->desc;
  	}
- 
--	/* reset skb device */
--	nf_reset_ct(skb);
-+	vrf_nf_reset_ct(skb);
- }
- 
- #if IS_ENABLED(CONFIG_IPV6)
-@@ -366,7 +382,7 @@ static int vrf_finish_output6(struct net *net, struct sock *sk,
- 	struct neighbour *neigh;
- 	int ret;
- 
--	nf_reset_ct(skb);
-+	vrf_nf_reset_ct(skb);
- 
- 	skb->protocol = htons(ETH_P_IPV6);
- 	skb->dev = dev;
-@@ -477,6 +493,8 @@ static struct sk_buff *vrf_ip6_out_direct(struct net_device *vrf_dev,
- 
- 	skb->dev = vrf_dev;
- 
-+	vrf_nf_set_untracked(skb);
-+
- 	err = nf_hook(NFPROTO_IPV6, NF_INET_LOCAL_OUT, net, sk,
- 		      skb, NULL, vrf_dev, vrf_ip6_out_direct_finish);
- 
-@@ -584,7 +602,7 @@ static int vrf_finish_output(struct net *net, struct sock *sk, struct sk_buff *s
- 	bool is_v6gw = false;
- 	int ret = -EINVAL;
- 
--	nf_reset_ct(skb);
-+	vrf_nf_reset_ct(skb);
- 
- 	/* Be paranoid, rather than too clever. */
- 	if (unlikely(skb_headroom(skb) < hh_len && dev->header_ops)) {
-@@ -712,6 +730,8 @@ static struct sk_buff *vrf_ip_out_direct(struct net_device *vrf_dev,
- 
- 	skb->dev = vrf_dev;
- 
-+	vrf_nf_set_untracked(skb);
-+
- 	err = nf_hook(NFPROTO_IPV4, NF_INET_LOCAL_OUT, net, sk,
- 		      skb, NULL, vrf_dev, vrf_ip_out_direct_finish);
- 
 -- 
 2.33.0
 
