@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52304451259
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A648451450
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346570AbhKOTfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:35:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42966 "EHLO mail.kernel.org"
+        id S242578AbhKOUHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:07:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244624AbhKOTRF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:17:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8FA961B64;
-        Mon, 15 Nov 2021 18:22:36 +0000 (UTC)
+        id S1344548AbhKOTY6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1A6D6368E;
+        Mon, 15 Nov 2021 18:59:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000557;
-        bh=Hhpt5/09ihCRRLXi62CCzQZ6wDu7vcGPY0lWg+4fKHk=;
+        s=korg; t=1637002775;
+        bh=IolxNsoQEmTGbC4thbwwd9Uu8Nn54WpkeLlquvqF6cQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ijWtoYq7/89R4yu1gKOQlajF0+OphPbO9zlo5cNgI9FCbWHeGoT1ye/q28iUhLy+y
-         6oeoSIVsorXtUVgfKacjWG4LB1zXx6jwAtHLpv4GsLpDbXupvfGV8iboN+sLV+sGIx
-         pcLKNmOLIwSx7R3gbffOdxX6rwaB/4e3KPAkuLaY=
+        b=M9dCd+6EW8m69dmoQidS7dUjqXOV7S8l5w8dejsoyZHFHi1QU9KmJ5ROnAJXFxKOi
+         Ciajk4EF71/IV/acahOmo96yJ1xPxXSSsRByATmf+1m/XoVzv3L5jm7V2jugWWtgUx
+         6yX0LvdC6lQix7u1gfgqAP/MZoNxORKYVJ5R+Dyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Robert-Ionut Alexa <robert-ionut.alexa@nxp.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 703/849] soc: fsl: dpaa2-console: free buffer before returning from dpaa2_console_read
-Date:   Mon, 15 Nov 2021 18:03:06 +0100
-Message-Id: <20211115165444.043681342@linuxfoundation.org>
+        stable@vger.kernel.org, Aharon Landau <aharonl@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 692/917] RDMA/core: Require the driver to set the IOVA correctly during rereg_mr
+Date:   Mon, 15 Nov 2021 18:03:07 +0100
+Message-Id: <20211115165452.353606492@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert-Ionut Alexa <robert-ionut.alexa@nxp.com>
+From: Aharon Landau <aharonl@nvidia.com>
 
-[ Upstream commit 8120bd469f5525da229953c1197f2b826c0109f4 ]
+[ Upstream commit f1a090f09f42be5a5542009f0be310fdb3e768fc ]
 
-Free the kbuf buffer before returning from the dpaa2_console_read()
-function. The variable no longer goes out of scope, leaking the storage
-it points to.
+If the driver returns a new MR during rereg it has to fill it with the
+IOVA from the proper source. If IB_MR_REREG_TRANS is set then the IOVA is
+cmd.hca_va, otherwise the IOVA comes from the old MR. mlx5 for example has
+two calls inside rereg_mr:
 
-Fixes: c93349d8c170 ("soc: fsl: add DPAA2 console support")
-Signed-off-by: Robert-Ionut Alexa <robert-ionut.alexa@nxp.com>
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
+		return create_real_mr(new_pd, umem, mr->ibmr.iova,
+				      new_access_flags);
+and
+		return create_real_mr(new_pd, new_umem, iova, new_access_flags);
+
+Unconditionally overwriting the iova in the newly allocated MR will
+corrupt the iova if the first path is used.
+
+Remove the redundant initializations from ib_uverbs_rereg_mr().
+
+Fixes: 6e0954b11c05 ("RDMA/uverbs: Allow drivers to create a new HW object during rereg_mr")
+Link: https://lore.kernel.org/r/4b0a31bbc372842613286a10d7a8cbb0ee6069c7.1635400472.git.leonro@nvidia.com
+Signed-off-by: Aharon Landau <aharonl@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/fsl/dpaa2-console.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/core/uverbs_cmd.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/soc/fsl/dpaa2-console.c b/drivers/soc/fsl/dpaa2-console.c
-index 27243f706f376..53917410f2bdb 100644
---- a/drivers/soc/fsl/dpaa2-console.c
-+++ b/drivers/soc/fsl/dpaa2-console.c
-@@ -231,6 +231,7 @@ static ssize_t dpaa2_console_read(struct file *fp, char __user *buf,
- 	cd->cur_ptr += bytes;
- 	written += bytes;
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index 740e6b2efe0e7..d1345d76d9b12 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -837,11 +837,8 @@ static int ib_uverbs_rereg_mr(struct uverbs_attr_bundle *attrs)
+ 		new_mr->device = new_pd->device;
+ 		new_mr->pd = new_pd;
+ 		new_mr->type = IB_MR_TYPE_USER;
+-		new_mr->dm = NULL;
+-		new_mr->sig_attrs = NULL;
+ 		new_mr->uobject = uobj;
+ 		atomic_inc(&new_pd->usecnt);
+-		new_mr->iova = cmd.hca_va;
+ 		new_uobj->object = new_mr;
  
-+	kfree(kbuf);
- 	return written;
- 
- err_free_buf:
+ 		rdma_restrack_new(&new_mr->res, RDMA_RESTRACK_MR);
 -- 
 2.33.0
 
