@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F393452383
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA2554526C6
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:07:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354994AbhKPB0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:26:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35150 "EHLO mail.kernel.org"
+        id S239862AbhKPCKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:10:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243406AbhKOTCt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:02:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B099963357;
-        Mon, 15 Nov 2021 18:14:54 +0000 (UTC)
+        id S238877AbhKOR7Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:59:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA694632D5;
+        Mon, 15 Nov 2021 17:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000095;
-        bh=zJy991Q6d5PUwah5OI4Kf82wnINpswc90gVR3xJV0Yw=;
+        s=korg; t=1636997748;
+        bh=3YtXWB/fgXqIhJlzEeTNAesr3cKRa5Gx8ipZuSbTfjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1MJoNx3INfeWd6pwkcwQ5f9NaUdt+M6Lp0k2da4L4WsAVQS4UITQaZCwJbeOjLilL
-         asgysk7B3h3q/p3+7xIcFHvZqD2/m+OtGX08SgdRXkUIXStdnO8BwiW/r1NzKqbw1h
-         H+DdVJRQOOTYje4ihX3gLUcQu5tX1bvMMTqc/eIk=
+        b=DcQ1rVUNgwMxHk+C2kE1jOrUGkdmVtX8PE9wYqKcy1booPgyInx5LjRmlg7vTeQt/
+         Hyp817q1MMxsPLxMs7VegYrQzcKYZWDzANS59+zU/Zq5APgSI8aQXe5OrqnjW9vKEA
+         bD08k3pCiDm1+HWsTzuV+QCXJLd+p8TcitpQouTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 503/849] KVM: s390: pv: avoid stalls for kvm_s390_pv_init_vm
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 261/575] selftests/bpf: Fix strobemeta selftest regression
 Date:   Mon, 15 Nov 2021 17:59:46 +0100
-Message-Id: <20211115165437.295720358@linuxfoundation.org>
+Message-Id: <20211115165352.798892332@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +40,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 1e2aa46de526a5adafe580bca4c25856bb06f09e ]
+[ Upstream commit 0133c20480b14820d43c37c0e9502da4bffcad3a ]
 
-When the system is heavily overcommitted, kvm_s390_pv_init_vm might
-generate stall notifications.
+After most recent nightly Clang update strobemeta selftests started
+failing with the following error (relevant portion of assembly included):
 
-Fix this by using uv_call_sched instead of just uv_call. This is ok because
-we are not holding spinlocks.
+  1624: (85) call bpf_probe_read_user_str#114
+  1625: (bf) r1 = r0
+  1626: (18) r2 = 0xfffffffe
+  1628: (5f) r1 &= r2
+  1629: (55) if r1 != 0x0 goto pc+7
+  1630: (07) r9 += 104
+  1631: (6b) *(u16 *)(r9 +0) = r0
+  1632: (67) r0 <<= 32
+  1633: (77) r0 >>= 32
+  1634: (79) r1 = *(u64 *)(r10 -456)
+  1635: (0f) r1 += r0
+  1636: (7b) *(u64 *)(r10 -456) = r1
+  1637: (79) r1 = *(u64 *)(r10 -368)
+  1638: (c5) if r1 s< 0x1 goto pc+778
+  1639: (bf) r6 = r8
+  1640: (0f) r6 += r7
+  1641: (b4) w1 = 0
+  1642: (6b) *(u16 *)(r6 +108) = r1
+  1643: (79) r3 = *(u64 *)(r10 -352)
+  1644: (79) r9 = *(u64 *)(r10 -456)
+  1645: (bf) r1 = r9
+  1646: (b4) w2 = 1
+  1647: (85) call bpf_probe_read_user_str#114
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Fixes: 214d9bbcd3a672 ("s390/mm: provide memory management functions for protected KVM guests")
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Message-Id: <20210920132502.36111-4-imbrenda@linux.ibm.com>
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+  R1 unbounded memory access, make sure to bounds check any such access
+
+In the above code r0 and r1 are implicitly related. Clang knows that,
+but verifier isn't able to infer this relationship.
+
+Yonghong Song narrowed down this "regression" in code generation to
+a recent Clang optimization change ([0]), which for BPF target generates
+code pattern that BPF verifier can't handle and loses track of register
+boundaries.
+
+This patch works around the issue by adding an BPF assembly-based helper
+that helps to prove to the verifier that upper bound of the register is
+a given constant by controlling the exact share of generated BPF
+instruction sequence. This fixes the immediate issue for strobemeta
+selftest.
+
+  [0] https://github.com/llvm/llvm-project/commit/acabad9ff6bf13e00305d9d8621ee8eafc1f8b08
+
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20211029182907.166910-1-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/pv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/bpf/progs/strobemeta.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 0a854115100b4..00d272d134c24 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -195,7 +195,7 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- 	uvcb.conf_base_stor_origin = (u64)kvm->arch.pv.stor_base;
- 	uvcb.conf_virt_stor_origin = (u64)kvm->arch.pv.stor_var;
+diff --git a/tools/testing/selftests/bpf/progs/strobemeta.h b/tools/testing/selftests/bpf/progs/strobemeta.h
+index 7de534f38c3f1..3687ea755ab5a 100644
+--- a/tools/testing/selftests/bpf/progs/strobemeta.h
++++ b/tools/testing/selftests/bpf/progs/strobemeta.h
+@@ -10,6 +10,14 @@
+ #include <linux/types.h>
+ #include <bpf/bpf_helpers.h>
  
--	cc = uv_call(0, (u64)&uvcb);
-+	cc = uv_call_sched(0, (u64)&uvcb);
- 	*rc = uvcb.header.rc;
- 	*rrc = uvcb.header.rrc;
- 	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
++#define bpf_clamp_umax(VAR, UMAX)					\
++	asm volatile (							\
++		"if %0 <= %[max] goto +1\n"				\
++		"%0 = %[max]\n"						\
++		: "+r"(VAR)						\
++		: [max]"i"(UMAX)					\
++	)
++
+ typedef uint32_t pid_t;
+ struct task_struct {};
+ 
+@@ -413,6 +421,7 @@ static __always_inline void *read_map_var(struct strobemeta_cfg *cfg,
+ 
+ 	len = bpf_probe_read_user_str(payload, STROBE_MAX_STR_LEN, map.tag);
+ 	if (len <= STROBE_MAX_STR_LEN) {
++		bpf_clamp_umax(len, STROBE_MAX_STR_LEN);
+ 		descr->tag_len = len;
+ 		payload += len;
+ 	}
+@@ -430,6 +439,7 @@ static __always_inline void *read_map_var(struct strobemeta_cfg *cfg,
+ 		len = bpf_probe_read_user_str(payload, STROBE_MAX_STR_LEN,
+ 					      map.entries[i].key);
+ 		if (len <= STROBE_MAX_STR_LEN) {
++			bpf_clamp_umax(len, STROBE_MAX_STR_LEN);
+ 			descr->key_lens[i] = len;
+ 			payload += len;
+ 		}
+@@ -437,6 +447,7 @@ static __always_inline void *read_map_var(struct strobemeta_cfg *cfg,
+ 		len = bpf_probe_read_user_str(payload, STROBE_MAX_STR_LEN,
+ 					      map.entries[i].val);
+ 		if (len <= STROBE_MAX_STR_LEN) {
++			bpf_clamp_umax(len, STROBE_MAX_STR_LEN);
+ 			descr->val_lens[i] = len;
+ 			payload += len;
+ 		}
 -- 
 2.33.0
 
