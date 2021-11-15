@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF3F450A87
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:08:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3486450A8B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:08:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231868AbhKORLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:11:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36028 "EHLO mail.kernel.org"
+        id S232302AbhKORLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:11:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231624AbhKORK6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:10:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAE1661452;
-        Mon, 15 Nov 2021 17:08:01 +0000 (UTC)
+        id S231876AbhKORLB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:11:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF07D61B5E;
+        Mon, 15 Nov 2021 17:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996082;
-        bh=j3xRPbqgnoDOzDG61OKYkXTEmxwbmQWNWybf1ke2lAk=;
+        s=korg; t=1636996085;
+        bh=DLDHUZZ3tuw70mh2/ZO/nUh3g/mXXSW7HcsplqejYZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ao7FF/9c6Q9VfxI2H7GPYWvTpPgW1Q/dJfBQJ4gJOrZbEcMJfA2YQyOKysPwlNAUg
-         +K7NStueVMvYT1xHhPhFbExSOAIKZejfOu9hWHM0Gc634MprtlrKn40FiZ6BFJtOQ6
-         fZkmkMLD9JV8yYOFz56f8YsZteIjObsrjDLNZtSU=
+        b=z5HYF9r2Rfn6Us9vlOhTsiK3XJcyH04BR5mU4S9KW2ARvm2KCKwn/GApsdI8S892z
+         wFG/mHuesVVNJnt/38dtcki+Vt1wOxaSSBB2zSSZmLcgVBHxw4Y+4Vkaiq84G5bPzX
+         cEStBuBq5z5KuP9ij00RhBz+IhqVh0axDbF+fubw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 010/355] ocfs2: fix data corruption on truncate
-Date:   Mon, 15 Nov 2021 17:58:54 +0100
-Message-Id: <20211115165313.888881720@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 011/355] scsi: qla2xxx: Fix kernel crash when accessing port_speed sysfs file
+Date:   Mon, 15 Nov 2021 17:58:55 +0100
+Message-Id: <20211115165313.919390626@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -46,91 +42,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Arun Easi <aeasi@marvell.com>
 
-commit 839b63860eb3835da165642923120d305925561d upstream.
+commit 3ef68d4f0c9e7cb589ae8b70f07d77f528105331 upstream.
 
-Patch series "ocfs2: Truncate data corruption fix".
+Kernel crashes when accessing port_speed sysfs file.  The issue happens on
+a CNA when the local array was accessed beyond bounds. Fix this by changing
+the lookup.
 
-As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
-corruption after conversion from inline format") didn't fix all the data
-corruption issues the customer started observing after 6dbf7bb55598
-("fs: Don't invalidate page buffers in block_write_full_page()") This
-time I have tracked them down to two bugs in ocfs2 truncation code.
+BUG: unable to handle kernel paging request at 0000000000004000
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP PTI
+CPU: 15 PID: 455213 Comm: sosreport Kdump: loaded Not tainted
+4.18.0-305.7.1.el8_4.x86_64 #1
+RIP: 0010:string_nocheck+0x12/0x70
+Code: 00 00 4c 89 e2 be 20 00 00 00 48 89 ef e8 86 9a 00 00 4c 01
+e3 eb 81 90 49 89 f2 48 89 ce 48 89 f8 48 c1 fe 30 66 85 f6 74 4f <44> 0f b6 0a
+45 84 c9 74 46 83 ee 01 41 b8 01 00 00 00 48 8d 7c 37
+RSP: 0018:ffffb5141c1afcf0 EFLAGS: 00010286
+RAX: ffff8bf4009f8000 RBX: ffff8bf4009f9000 RCX: ffff0a00ffffff04
+RDX: 0000000000004000 RSI: ffffffffffffffff RDI: ffff8bf4009f8000
+RBP: 0000000000004000 R08: 0000000000000001 R09: ffffb5141c1afb84
+R10: ffff8bf4009f9000 R11: ffffb5141c1afce6 R12: ffff0a00ffffff04
+R13: ffffffffc08e21aa R14: 0000000000001000 R15: ffffffffc08e21aa
+FS:  00007fc4ebfff700(0000) GS:ffff8c717f7c0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000004000 CR3: 000000edfdee6006 CR4: 00000000001706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+  string+0x40/0x50
+  vsnprintf+0x33c/0x520
+  scnprintf+0x4d/0x90
+  qla2x00_port_speed_show+0xb5/0x100 [qla2xxx]
+  dev_attr_show+0x1c/0x40
+  sysfs_kf_seq_show+0x9b/0x100
+  seq_read+0x153/0x410
+  vfs_read+0x91/0x140
+  ksys_read+0x4f/0xb0
+  do_syscall_64+0x5b/0x1a0
+  entry_SYSCALL_64_after_hwframe+0x65/0xca
 
-One bug (truncating page cache before clearing tail cluster and setting
-i_size) could cause data corruption even before 6dbf7bb55598, but before
-that commit it needed a race with page fault, after 6dbf7bb55598 it
-started to be pretty deterministic.
-
-Another bug (zeroing pages beyond old i_size) used to be harmless
-inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598
-in combination with the first bug it resulted in deterministic data
-corruption.
-
-Although fixing only the first problem is needed to stop data
-corruption, I've fixed both issues to make the code more robust.
-
-This patch (of 2):
-
-ocfs2_truncate_file() did unmap invalidate page cache pages before
-zeroing partial tail cluster and setting i_size.  Thus some pages could
-be left (and likely have left if the cluster zeroing happened) in the
-page cache beyond i_size after truncate finished letting user possibly
-see stale data once the file was extended again.  Also the tail cluster
-zeroing was not guaranteed to finish before truncate finished causing
-possible stale data exposure.  The problem started to be particularly
-easy to hit after commit 6dbf7bb55598 "fs: Don't invalidate page buffers
-in block_write_full_page()" stopped invalidation of pages beyond i_size
-from page writeback path.
-
-Fix these problems by unmapping and invalidating pages in the page cache
-after the i_size is reduced and tail cluster is zeroed out.
-
-Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
-Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
-Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20210908164622.19240-7-njavali@marvell.com
+Fixes: 4910b524ac9e ("scsi: qla2xxx: Add support for setting port speed")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/file.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_attr.c |   24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -478,10 +478,11 @@ int ocfs2_truncate_file(struct inode *in
- 	 * greater than page size, so we have to truncate them
- 	 * anyway.
- 	 */
--	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
--	truncate_inode_pages(inode->i_mapping, new_i_size);
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -1759,6 +1759,18 @@ qla2x00_port_speed_store(struct device *
+ 	return strlen(buf);
+ }
  
- 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
-+		unmap_mapping_range(inode->i_mapping,
-+				    new_i_size + PAGE_SIZE - 1, 0, 1);
-+		truncate_inode_pages(inode->i_mapping, new_i_size);
- 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
- 					       i_size_read(inode), 1);
- 		if (status)
-@@ -500,6 +501,9 @@ int ocfs2_truncate_file(struct inode *in
- 		goto bail_unlock_sem;
++static const struct {
++	u16 rate;
++	char *str;
++} port_speed_str[] = {
++	{ PORT_SPEED_4GB, "4" },
++	{ PORT_SPEED_8GB, "8" },
++	{ PORT_SPEED_16GB, "16" },
++	{ PORT_SPEED_32GB, "32" },
++	{ PORT_SPEED_64GB, "64" },
++	{ PORT_SPEED_10GB, "10" },
++};
++
+ static ssize_t
+ qla2x00_port_speed_show(struct device *dev, struct device_attribute *attr,
+     char *buf)
+@@ -1766,7 +1778,8 @@ qla2x00_port_speed_show(struct device *d
+ 	struct scsi_qla_host *vha = shost_priv(dev_to_shost(dev));
+ 	struct qla_hw_data *ha = vha->hw;
+ 	ssize_t rval;
+-	char *spd[7] = {"0", "0", "0", "4", "8", "16", "32"};
++	u16 i;
++	char *speed = "Unknown";
+ 
+ 	rval = qla2x00_get_data_rate(vha);
+ 	if (rval != QLA_SUCCESS) {
+@@ -1775,7 +1788,14 @@ qla2x00_port_speed_show(struct device *d
+ 		return -EINVAL;
  	}
  
-+	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
-+	truncate_inode_pages(inode->i_mapping, new_i_size);
+-	return scnprintf(buf, PAGE_SIZE, "%s\n", spd[ha->link_data_rate]);
++	for (i = 0; i < ARRAY_SIZE(port_speed_str); i++) {
++		if (port_speed_str[i].rate != ha->link_data_rate)
++			continue;
++		speed = port_speed_str[i].str;
++		break;
++	}
 +
- 	status = ocfs2_commit_truncate(osb, inode, di_bh);
- 	if (status < 0) {
- 		mlog_errno(status);
++	return scnprintf(buf, PAGE_SIZE, "%s\n", speed);
+ }
+ 
+ /* ----- */
 
 
