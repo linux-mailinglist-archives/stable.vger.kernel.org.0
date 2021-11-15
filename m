@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA226450BF8
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:30:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16269450E54
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231947AbhKORcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:32:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47376 "EHLO mail.kernel.org"
+        id S236656AbhKOSOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:14:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237886AbhKORan (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:30:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20480632A0;
-        Mon, 15 Nov 2021 17:20:22 +0000 (UTC)
+        id S240282AbhKOSHa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D3C463292;
+        Mon, 15 Nov 2021 17:44:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996823;
-        bh=bWJlWckVg2b5cBfCiEVlmdIDeUK4zJ3yZ3LSF1JYW/s=;
+        s=korg; t=1636998259;
+        bh=lbJ2y0sz5RTdkyM4zcKrv6bxQGMSfGl6rOfdlyq47Y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H+uoXily/tVgFTppTYRxN2VfzKImuQEpol4e66vCB4iwg2FaiCkb5d+aMttKnOTfj
-         34SK2Kp8Z+vvVj0My5X6RMdf6YwRjvMa2XHwjhCL8gsgr60U3ZlIBRYKdME3slSmoQ
-         wU70iOZdfTD5JVvF6JwjUPaJvGoZHaJfs7liOC2o=
+        b=iT2aOg5eqbJvnzshiSut/YjEoWT4yRKbkywmCNlHz0AgkwdUa8C4wTu2pBOlu9Tpu
+         jYn0J8i5ln+4PzrWAfoTTdsdbFLrZErW6+lM6493csc/h/phYQHtkUr7tZbVeuHb85
+         AwU5fKdHpSAq2Y/c90/wy0EuMU9GY+wBFd+MkxgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Li <benl@squareup.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Stefan Agner <stefan@agner.ch>,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 247/355] wcn36xx: add proper DMA memory barriers in rx path
+Subject: [PATCH 5.10 446/575] serial: imx: fix detach/attach of serial console
 Date:   Mon, 15 Nov 2021 18:02:51 +0100
-Message-Id: <20211115165321.728614599@linuxfoundation.org>
+Message-Id: <20211115165359.179657481@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +43,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Li <benl@squareup.com>
+From: Stefan Agner <stefan@agner.ch>
 
-[ Upstream commit 9bfe38e064af5decba2ffce66a2958ab8b10eaa4 ]
+[ Upstream commit 6d0d1b5a1b4870911beb89544ec1a9751c42fec7 ]
 
-This is essentially exactly following the dma_wmb()/dma_rmb() usage
-instructions in Documentation/memory-barriers.txt.
+If the device used as a serial console gets detached/attached at runtime,
+register_console() will try to call imx_uart_setup_console(), but this
+is not possible since it is marked as __init.
 
-The theoretical races here are:
+For instance
 
-1. DXE (the DMA Transfer Engine in the Wi-Fi subsystem) seeing the
-dxe->ctrl & WCN36xx_DXE_CTRL_VLD write before the dxe->dst_addr_l
-write, thus performing DMA into the wrong address.
+  # cat /sys/devices/virtual/tty/console/active
+  tty1 ttymxc0
+  # echo -n N > /sys/devices/virtual/tty/console/subsystem/ttymxc0/console
+  # echo -n Y > /sys/devices/virtual/tty/console/subsystem/ttymxc0/console
 
-2. CPU reading dxe->dst_addr_l before DXE unsets dxe->ctrl &
-WCN36xx_DXE_CTRL_VLD. This should generally be harmless since DXE
-doesn't write dxe->dst_addr_l (no risk of freeing the wrong skb).
+[   73.166649] 8<--- cut here ---
+[   73.167005] Unable to handle kernel paging request at virtual address c154d928
+[   73.167601] pgd = 55433e84
+[   73.167875] [c154d928] *pgd=8141941e(bad)
+[   73.168304] Internal error: Oops: 8000000d [#1] SMP ARM
+[   73.168429] Modules linked in:
+[   73.168522] CPU: 0 PID: 536 Comm: sh Not tainted 5.15.0-rc6-00056-g3968ddcf05fb #3
+[   73.168675] Hardware name: Freescale i.MX6 Ultralite (Device Tree)
+[   73.168791] PC is at imx_uart_console_setup+0x0/0x238
+[   73.168927] LR is at try_enable_new_console+0x98/0x124
+[   73.169056] pc : [<c154d928>]    lr : [<c0196f44>]    psr: a0000013
+[   73.169178] sp : c2ef5e70  ip : 00000000  fp : 00000000
+[   73.169281] r10: 00000000  r9 : c02cf970  r8 : 00000000
+[   73.169389] r7 : 00000001  r6 : 00000001  r5 : c1760164  r4 : c1e0fb08
+[   73.169512] r3 : c154d928  r2 : 00000000  r1 : efffcbd1  r0 : c1760164
+[   73.169641] Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[   73.169782] Control: 10c5387d  Table: 8345406a  DAC: 00000051
+[   73.169895] Register r0 information: non-slab/vmalloc memory
+[   73.170032] Register r1 information: non-slab/vmalloc memory
+[   73.170158] Register r2 information: NULL pointer
+[   73.170273] Register r3 information: non-slab/vmalloc memory
+[   73.170397] Register r4 information: non-slab/vmalloc memory
+[   73.170521] Register r5 information: non-slab/vmalloc memory
+[   73.170647] Register r6 information: non-paged memory
+[   73.170771] Register r7 information: non-paged memory
+[   73.170892] Register r8 information: NULL pointer
+[   73.171009] Register r9 information: non-slab/vmalloc memory
+[   73.171142] Register r10 information: NULL pointer
+[   73.171259] Register r11 information: NULL pointer
+[   73.171375] Register r12 information: NULL pointer
+[   73.171494] Process sh (pid: 536, stack limit = 0xcd1ba82f)
+[   73.171621] Stack: (0xc2ef5e70 to 0xc2ef6000)
+[   73.171731] 5e60:                                     ???????? ???????? ???????? ????????
+[   73.171899] 5e80: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.172059] 5ea0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.172217] 5ec0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.172377] 5ee0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.172537] 5f00: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.172698] 5f20: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.172856] 5f40: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.173016] 5f60: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.173177] 5f80: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.173336] 5fa0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.173496] 5fc0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.173654] 5fe0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.173826] [<c0196f44>] (try_enable_new_console) from [<c01984a8>] (register_console+0x10c/0x2ec)
+[   73.174053] [<c01984a8>] (register_console) from [<c06e2c90>] (console_store+0x14c/0x168)
+[   73.174262] [<c06e2c90>] (console_store) from [<c0383718>] (kernfs_fop_write_iter+0x110/0x1cc)
+[   73.174470] [<c0383718>] (kernfs_fop_write_iter) from [<c02cf5f4>] (vfs_write+0x31c/0x548)
+[   73.174679] [<c02cf5f4>] (vfs_write) from [<c02cf970>] (ksys_write+0x60/0xec)
+[   73.174863] [<c02cf970>] (ksys_write) from [<c0100080>] (ret_fast_syscall+0x0/0x1c)
+[   73.175052] Exception stack(0xc2ef5fa8 to 0xc2ef5ff0)
+[   73.175167] 5fa0:                   ???????? ???????? ???????? ???????? ???????? ????????
+[   73.175327] 5fc0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
+[   73.175486] 5fe0: ???????? ???????? ???????? ????????
+[   73.175608] Code: 00000000 00000000 00000000 00000000 (00000000)
+[   73.175744] ---[ end trace 9b75121265109bf1 ]---
 
-Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
-Signed-off-by: Benjamin Li <benl@squareup.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211023001528.3077822-1-benl@squareup.com
+A similar issue could be triggered by unbinding/binding the serial
+console device [*].
+
+Drop __init so that imx_uart_setup_console() can be safely called at
+runtime.
+
+[*] https://lore.kernel.org/all/20181114174940.7865-3-stefan@agner.ch/
+
+Fixes: a3cb39d258ef ("serial: core: Allow detach and attach serial device for console")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Link: https://lore.kernel.org/r/20211020192643.476895-2-francesco.dolcini@toradex.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wcn36xx/dxe.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/tty/serial/imx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wcn36xx/dxe.c b/drivers/net/wireless/ath/wcn36xx/dxe.c
-index bab30f7a443ce..4da25e84793b7 100644
---- a/drivers/net/wireless/ath/wcn36xx/dxe.c
-+++ b/drivers/net/wireless/ath/wcn36xx/dxe.c
-@@ -563,6 +563,10 @@ static int wcn36xx_rx_handle_packets(struct wcn36xx *wcn,
- 	dxe = ctl->desc;
- 
- 	while (!(READ_ONCE(dxe->ctrl) & WCN36xx_DXE_CTRL_VLD)) {
-+		/* do not read until we own DMA descriptor */
-+		dma_rmb();
-+
-+		/* read/modify DMA descriptor */
- 		skb = ctl->skb;
- 		dma_addr = dxe->dst_addr_l;
- 		ret = wcn36xx_dxe_fill_skb(wcn->dev, ctl, GFP_ATOMIC);
-@@ -573,9 +577,15 @@ static int wcn36xx_rx_handle_packets(struct wcn36xx *wcn,
- 			dma_unmap_single(wcn->dev, dma_addr, WCN36XX_PKT_SIZE,
- 					DMA_FROM_DEVICE);
- 			wcn36xx_rx_skb(wcn, skb);
--		} /* else keep old skb not submitted and use it for rx DMA */
-+		}
-+		/* else keep old skb not submitted and reuse it for rx DMA
-+		 * (dropping the packet that it contained)
-+		 */
- 
-+		/* flush descriptor changes before re-marking as valid */
-+		dma_wmb();
- 		dxe->ctrl = ctrl;
-+
- 		ctl = ctl->next;
- 		dxe = ctl->desc;
+diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+index cacf7266a262d..28cc328ddb6eb 100644
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -2049,7 +2049,7 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
+  * If the port was already initialised (eg, by a boot loader),
+  * try to determine the current setup.
+  */
+-static void __init
++static void
+ imx_uart_console_get_options(struct imx_port *sport, int *baud,
+ 			     int *parity, int *bits)
+ {
+@@ -2108,7 +2108,7 @@ imx_uart_console_get_options(struct imx_port *sport, int *baud,
  	}
+ }
+ 
+-static int __init
++static int
+ imx_uart_console_setup(struct console *co, char *options)
+ {
+ 	struct imx_port *sport;
 -- 
 2.33.0
 
