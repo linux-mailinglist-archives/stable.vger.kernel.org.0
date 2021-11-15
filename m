@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6D9E451127
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84FF7450AB9
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243600AbhKOTBf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:01:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59664 "EHLO mail.kernel.org"
+        id S236762AbhKOROP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:14:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243374AbhKOS5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:57:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23AC7633CE;
-        Mon, 15 Nov 2021 18:12:40 +0000 (UTC)
+        id S236758AbhKORMd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:12:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9561961B73;
+        Mon, 15 Nov 2021 17:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999960;
-        bh=NLBfwYB4JCK7iamPDweZRwFUiCv0ihcylupThbxbA0g=;
+        s=korg; t=1636996178;
+        bh=1LNNbp0bQpyy90ymqT4QRLi+zEFF/d1ZjvZ8jE+GpmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NhodZ/BsQe7TmB6o8kYgk25en50rWeGB8WuGYW7B3tZjhOSEDo7/Jlkr33IPREcRN
-         5xkO0Z9qqG/U8Uj84pzhtA4bN0la7aG2CqYub7v66o+MMhQRgGE8DzRg8hZWX+9mUM
-         zjQsQPj0ArbOCV3mYAUFok/9WHy1gDv3Kxv1vNvo=
+        b=S3XYa4NPcNL55OaILwPZ7rwT9bd7rPMQsX6NKDvN0XC3XIFoIqWMuh1nHS/d6wmGe
+         HfQj2CZ9W6gyqjhk1PANrpG22H5Z/w1FhD3BJtexyiDM/z26Oc60jtQ3iMoo7cm6gC
+         HDf7Gv6jQo81IXGDR3ZLteI/qSObBsgR13txRMuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Keerthy <j-keerthy@ti.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
-        Ladislav Michl <ladis@linux-mips.org>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        linux-omap@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Pierre Ossman <pierre@ossman.eu>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 486/849] clocksource/drivers/timer-ti-dm: Select TIMER_OF
+Subject: [PATCH 5.4 045/355] mmc: winbond: dont build on M68K
 Date:   Mon, 15 Nov 2021 17:59:29 +0100
-Message-Id: <20211115165436.721338308@linuxfoundation.org>
+Message-Id: <20211115165315.006074946@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit eda9a4f7af6ee47e9e131f20e4f8a41a97379293 ]
+[ Upstream commit 162079f2dccd02cb4b6654defd32ca387dd6d4d4 ]
 
-When building OMAP_DM_TIMER without TIMER_OF, there are orphan sections
-due to the use of TIMER_OF_DELCARE() without CONFIG_TIMER_OF. Select
-CONFIG_TIMER_OF when enaling OMAP_DM_TIMER:
+The Winbond MMC driver fails to build on ARCH=m68k so prevent
+that build config. Silences these build errors:
 
-arm-linux-gnueabi-ld: warning: orphan section `__timer_of_table' from `drivers/clocksource/timer-ti-dm-systimer.o' being placed in section `__timer_of_table'
+../drivers/mmc/host/wbsd.c: In function 'wbsd_request_end':
+../drivers/mmc/host/wbsd.c:212:28: error: implicit declaration of function 'claim_dma_lock' [-Werror=implicit-function-declaration]
+  212 |                 dmaflags = claim_dma_lock();
+../drivers/mmc/host/wbsd.c:215:17: error: implicit declaration of function 'release_dma_lock'; did you mean 'release_task'? [-Werror=implicit-function-declaration]
+  215 |                 release_dma_lock(dmaflags);
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202108282255.tkdt4ani-lkp@intel.com/
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Keerthy <j-keerthy@ti.com>
-Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Ladislav Michl <ladis@linux-mips.org>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: linux-omap@vger.kernel.org
-Fixes: 52762fbd1c47 ("clocksource/drivers/timer-ti-dm: Add clockevent and clocksource support")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210828175747.3777891-1-keescook@chromium.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Pierre Ossman <pierre@ossman.eu>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20211017175949.23838-1-rdunlap@infradead.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
-index eb661b539a3ed..da4b9ecec6448 100644
---- a/drivers/clocksource/Kconfig
-+++ b/drivers/clocksource/Kconfig
-@@ -24,6 +24,7 @@ config I8253_LOCK
+diff --git a/drivers/mmc/host/Kconfig b/drivers/mmc/host/Kconfig
+index 49ea02c467bf1..1b4a40d910cfb 100644
+--- a/drivers/mmc/host/Kconfig
++++ b/drivers/mmc/host/Kconfig
+@@ -449,7 +449,7 @@ config MMC_OMAP_HS
  
- config OMAP_DM_TIMER
- 	bool
-+	select TIMER_OF
- 
- config CLKBLD_I8253
- 	def_bool y if CLKSRC_I8253 || CLKEVT_I8253 || I8253_LOCK
+ config MMC_WBSD
+ 	tristate "Winbond W83L51xD SD/MMC Card Interface support"
+-	depends on ISA_DMA_API
++	depends on ISA_DMA_API && !M68K
+ 	help
+ 	  This selects the Winbond(R) W83L51xD Secure digital and
+ 	  Multimedia card Interface.
 -- 
 2.33.0
 
