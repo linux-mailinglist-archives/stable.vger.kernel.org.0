@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83D414525D4
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:56:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 472184525DB
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:57:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345494AbhKPB7o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:59:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49946 "EHLO mail.kernel.org"
+        id S240955AbhKPB7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:59:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240445AbhKOSJq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240447AbhKOSJq (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:09:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA8EF633B8;
-        Mon, 15 Nov 2021 17:46:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA6806329F;
+        Mon, 15 Nov 2021 17:47:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998420;
-        bh=/RpRwCksZUxbLjNIHbcpeijJBhoNGuPrTDZrhoNMOXk=;
+        s=korg; t=1636998423;
+        bh=uyU8KxEH4j7slgjg/8d/vW/9rjTJvSXEafDH9lIvhfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oUOl81Gg62USLcoRlU6VUSfLvY8f6iX5tNGd/HimeZM2D+d6yVuyH7AqxqdnJHDYM
-         keuZpas98nZjzmbescPBBKlZcqK+gADdmkR4uFQP4CLHXxDcwN4X9xDJu7pMlA6ljZ
-         4gvkpxNdOaxPRgSR+mv2GuI0bP7J9LVISFHP0H2A=
+        b=uJyT4DHbzNhA/7zzsnvVJTe7EY/oZt/PCVUAWAfSD7/mVmrNQ4pxB9wPKmj3dk4tY
+         62gXqPJT6uW9egT41GfS/LjakOMTDVmEZgCNMhx+22UelfCOBe5YBTmLp0wBmjOQP6
+         pKvN+aMO5Y8f3aKiD9i1Wmt7A2x+4rmQxafZs3+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kewei Xu <kewei.xu@mediatek.com>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Qii Wang <qii.wang@mediatek.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 470/575] i2c: mediatek: fixing the incorrect register offset
-Date:   Mon, 15 Nov 2021 18:03:15 +0100
-Message-Id: <20211115165359.985188192@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 471/575] NFS: Fix dentry verifier races
+Date:   Mon, 15 Nov 2021 18:03:16 +0100
+Message-Id: <20211115165400.015513952@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -41,37 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kewei Xu <kewei.xu@mediatek.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit b8228aea5a19d5111a7bf44f7de6749d1f5d487a ]
+[ Upstream commit cec08f452a687fce9dfdf47946d00a1d12a8bec5 ]
 
-The reason for the modification here is that the previous
-offset information is incorrect, OFFSET_DEBUGSTAT = 0xE4 is
-the correct value.
+If the directory changed while we were revalidating the dentry, then
+don't update the dentry verifier. There is no value in setting the
+verifier to an older value, and we could end up overwriting a more up to
+date verifier from a parallel revalidation.
 
-Fixes: 25708278f810 ("i2c: mediatek: Add i2c support for MediaTek MT8183")
-Signed-off-by: Kewei Xu <kewei.xu@mediatek.com>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Qii Wang <qii.wang@mediatek.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: efeda80da38d ("NFSv4: Fix revalidation of dentries with delegations")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Tested-by: Benjamin Coddington <bcodding@redhat.com>
+Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/dir.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 0af2784cbd0d9..265635db29aa5 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -195,7 +195,7 @@ static const u16 mt_i2c_regs_v2[] = {
- 	[OFFSET_CLOCK_DIV] = 0x48,
- 	[OFFSET_SOFTRESET] = 0x50,
- 	[OFFSET_SCL_MIS_COMP_POINT] = 0x90,
--	[OFFSET_DEBUGSTAT] = 0xe0,
-+	[OFFSET_DEBUGSTAT] = 0xe4,
- 	[OFFSET_DEBUGCTRL] = 0xe8,
- 	[OFFSET_FIFO_STAT] = 0xf4,
- 	[OFFSET_FIFO_THRESH] = 0xf8,
+diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+index c837675cd395a..8b963c72dd3b1 100644
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -1061,13 +1061,12 @@ static bool nfs_verifier_is_delegated(struct dentry *dentry)
+ static void nfs_set_verifier_locked(struct dentry *dentry, unsigned long verf)
+ {
+ 	struct inode *inode = d_inode(dentry);
++	struct inode *dir = d_inode(dentry->d_parent);
+ 
+-	if (!nfs_verifier_is_delegated(dentry) &&
+-	    !nfs_verify_change_attribute(d_inode(dentry->d_parent), verf))
+-		goto out;
++	if (!nfs_verify_change_attribute(dir, verf))
++		return;
+ 	if (inode && NFS_PROTO(inode)->have_delegation(inode, FMODE_READ))
+ 		nfs_set_verifier_delegated(&verf);
+-out:
+ 	dentry->d_time = verf;
+ }
+ 
 -- 
 2.33.0
 
