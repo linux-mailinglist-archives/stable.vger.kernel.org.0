@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B41F1451F21
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 818F7451D88
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:28:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355612AbhKPAig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:38:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S1345679AbhKOT3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:29:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344412AbhKOTYj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58FB063483;
-        Mon, 15 Nov 2021 18:57:20 +0000 (UTC)
+        id S244391AbhKOTOE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:14:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25B8D6340D;
+        Mon, 15 Nov 2021 18:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002640;
-        bh=KHOXmXGVVdG7386OnbuBldJow+jYs7z9But/PDrCb7o=;
+        s=korg; t=1637000437;
+        bh=UIU8fn2r++JvQ/HB870lAGI4pAU7rADe1TVFedbvmdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQBVAPfv/NssH+1FDIZnIlfxOP0Y6WGDIuskWEK0g9I4ryVKFHzykCnXITdJ/uSVM
-         VdElZYKH0hxxTG29skGADXJ0UkPRkgo6Qd5QTJ4bDCrNnw0LN8rUJa5f5DwdpmXZXL
-         isWvHitFKJWHLTZno59vJC70ufWIQGpYsWP3BKwk=
+        b=X4eogyrclX+LG8ADhRdm0Zd5ooQ84WPrAdKvl4tIhuds57fHmEK5cZJeF01cq7psJ
+         QPEfLHHRE2QfHILO98NM7W4Ee8DvCoZYG1eH2N/FbvPSfeq4ZrGF7tdnRlNHPec5dp
+         UpBP/i322z7XXL8IxP8ItsWW0rxSnVnuNzkz/KdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 644/917] soc: qcom: socinfo: add two missing PMIC IDs
-Date:   Mon, 15 Nov 2021 18:02:19 +0100
-Message-Id: <20211115165450.693256462@linuxfoundation.org>
+Subject: [PATCH 5.14 659/849] serial: cpm_uart: Protect udbg definitions by CONFIG_SERIAL_CPM_CONSOLE
+Date:   Mon, 15 Nov 2021 18:02:22 +0100
+Message-Id: <20211115165442.553570780@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit 2fae3ecc70405b72ea6c923b216d34547559d6a9 ]
+[ Upstream commit d142585bceb3218ad432ed0fcd5be9d6e3cd9052 ]
 
-Add IDs for PMK8001 and PMI8996. They also fall in the list of
-'duplicated' IDs, where the same index was used for multiple chips.
+If CONFIG_CONSOLE_POLL=y, and CONFIG_SERIAL_CPM=m (hence
+CONFIG_SERIAL_CPM_CONSOLE=n):
 
-Fixes: 7fda2b0bfbd9 ("soc: qcom: socinfo: import PMIC IDs from pmic-spmi")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211016190607.49866-1-dmitry.baryshkov@linaro.org
+    drivers/tty/serial/cpm_uart/cpm_uart_core.c:1109:12: warning: ‘udbg_cpm_getc’ defined but not used [-Wunused-function]
+     1109 | static int udbg_cpm_getc(void)
+	  |            ^~~~~~~~~~~~~
+    drivers/tty/serial/cpm_uart/cpm_uart_core.c:1095:13: warning: ‘udbg_cpm_putc’ defined but not used [-Wunused-function]
+     1095 | static void udbg_cpm_putc(char c)
+	  |             ^~~~~~~~~~~~~
+
+Fix this by making the udbg definitions depend on
+CONFIG_SERIAL_CPM_CONSOLE, in addition to CONFIG_CONSOLE_POLL.
+
+Fixes: a60526097f42eb98 ("tty: serial: cpm_uart: Add udbg support for enabling xmon")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/r/20211027075326.3270785-1-geert@linux-m68k.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/socinfo.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/cpm_uart/cpm_uart_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/soc/qcom/socinfo.c b/drivers/soc/qcom/socinfo.c
-index 52e5811671155..5beb452f24013 100644
---- a/drivers/soc/qcom/socinfo.c
-+++ b/drivers/soc/qcom/socinfo.c
-@@ -87,8 +87,8 @@ static const char *const pmic_models[] = {
- 	[15] = "PM8901",
- 	[16] = "PM8950/PM8027",
- 	[17] = "PMI8950/ISL9519",
--	[18] = "PM8921",
--	[19] = "PM8018",
-+	[18] = "PMK8001/PM8921",
-+	[19] = "PMI8996/PM8018",
- 	[20] = "PM8998/PM8015",
- 	[21] = "PMI8998/PM8014",
- 	[22] = "PM8821",
+diff --git a/drivers/tty/serial/cpm_uart/cpm_uart_core.c b/drivers/tty/serial/cpm_uart/cpm_uart_core.c
+index c719aa2b18328..d6d3db9c3b1f8 100644
+--- a/drivers/tty/serial/cpm_uart/cpm_uart_core.c
++++ b/drivers/tty/serial/cpm_uart/cpm_uart_core.c
+@@ -1090,6 +1090,7 @@ static void cpm_put_poll_char(struct uart_port *port,
+ 	cpm_uart_early_write(pinfo, ch, 1, false);
+ }
+ 
++#ifdef CONFIG_SERIAL_CPM_CONSOLE
+ static struct uart_port *udbg_port;
+ 
+ static void udbg_cpm_putc(char c)
+@@ -1114,6 +1115,7 @@ static int udbg_cpm_getc(void)
+ 		cpu_relax();
+ 	return c;
+ }
++#endif /* CONFIG_SERIAL_CPM_CONSOLE */
+ 
+ #endif /* CONFIG_CONSOLE_POLL */
+ 
 -- 
 2.33.0
 
