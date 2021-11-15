@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE121451243
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:31:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D901E451258
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346420AbhKOTeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:34:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42972 "EHLO mail.kernel.org"
+        id S1346566AbhKOTfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:35:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244623AbhKOTRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244626AbhKOTRF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:17:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B60B56108F;
-        Mon, 15 Nov 2021 18:22:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67E9C60234;
+        Mon, 15 Nov 2021 18:22:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000536;
-        bh=cEXiCqt/wcFav9dyaDrS9G747VxKZ1NW+F7bApeWhXk=;
+        s=korg; t=1637000538;
+        bh=z3b5LUKsA3bnLx2Kx3UmbQIB/c7meAyW6Vy+MofAxxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VmwEJSzC2xNDR2v+q3g34RGohBO9/eJl2G75VdUXAGNhOJqwBOZ0uddziC4c/LRrA
-         FH2Qj6cOuXog7oP/pzowpI4KGWCP8TTQUewaPMkM4Zd1NSV8nr1Zb76GbxQQRSfLKh
-         8k4wzD0/GRA4anfb3LnBrrUIVGoKVi5zkpMl2Ypg=
+        b=tGg4mhDwojc9vqYVpf2+PD9d+DNI1crA5eWw5ul8hn7wmVBM7g6qlM0vTWqgFtTv4
+         7iMihGN09VSgP7NuDBwT2rt3morAWN9YyVioCNW+bg5BOxhKlfZ3/WQL2Mdn3AqYsv
+         OTdPT3mONs96YYzLFqqGSP2y4Dw0fQETXXab8opA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 696/849] dmaengine: stm32-dma: fix stm32_dma_get_max_width
-Date:   Mon, 15 Nov 2021 18:02:59 +0100
-Message-Id: <20211115165443.795303420@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 697/849] NFS: Fix up commit deadlocks
+Date:   Mon, 15 Nov 2021 18:03:00 +0100
+Message-Id: <20211115165443.835190213@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,44 +40,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit b20fd5fa310cbf7ec367f263a34382a24c4cee73 ]
+[ Upstream commit 133a48abf6ecc535d7eddc6da1c3e4c972445882 ]
 
-buf_addr parameter of stm32_dma_set_xfer_param function is a dma_addr_t.
-We only need to check the remainder of buf_addr/max_width, so, no need to
-use do_div and extra u64 addr. Use '%' instead.
+If O_DIRECT bumps the commit_info rpcs_out field, then that could lead
+to fsync() hangs. The fix is to ensure that O_DIRECT calls
+nfs_commit_end().
 
-Fixes: e0ebdbdcb42a ("dmaengine: stm32-dma: take address into account when computing max width")
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211011094259.315023-3-amelie.delaunay@foss.st.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 723c921e7dfc ("sched/wait, fs/nfs: Convert wait_on_atomic_t() usage to the new wait_var_event() API")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/stm32-dma.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/nfs/direct.c        | 2 +-
+ fs/nfs/pnfs_nfs.c      | 2 --
+ fs/nfs/write.c         | 9 ++++++---
+ include/linux/nfs_fs.h | 1 +
+ 4 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/dma/stm32-dma.c b/drivers/dma/stm32-dma.c
-index 7dd1d3d0bf063..a5dab5510e625 100644
---- a/drivers/dma/stm32-dma.c
-+++ b/drivers/dma/stm32-dma.c
-@@ -268,7 +268,6 @@ static enum dma_slave_buswidth stm32_dma_get_max_width(u32 buf_len,
- 						       u32 threshold)
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index 2e894fec036b0..3c0335c15a730 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -620,7 +620,7 @@ static void nfs_direct_commit_complete(struct nfs_commit_data *data)
+ 		nfs_unlock_and_release_request(req);
+ 	}
+ 
+-	if (atomic_dec_and_test(&cinfo.mds->rpcs_out))
++	if (nfs_commit_end(cinfo.mds))
+ 		nfs_direct_write_complete(dreq);
+ }
+ 
+diff --git a/fs/nfs/pnfs_nfs.c b/fs/nfs/pnfs_nfs.c
+index 02bd6e83961d9..316f68f96e573 100644
+--- a/fs/nfs/pnfs_nfs.c
++++ b/fs/nfs/pnfs_nfs.c
+@@ -468,7 +468,6 @@ pnfs_bucket_alloc_ds_commits(struct list_head *list,
+ 				goto out_error;
+ 			data->ds_commit_index = i;
+ 			list_add_tail(&data->list, list);
+-			atomic_inc(&cinfo->mds->rpcs_out);
+ 			nreq++;
+ 		}
+ 		mutex_unlock(&NFS_I(cinfo->inode)->commit_mutex);
+@@ -520,7 +519,6 @@ pnfs_generic_commit_pagelist(struct inode *inode, struct list_head *mds_pages,
+ 		data->ds_commit_index = -1;
+ 		list_splice_init(mds_pages, &data->pages);
+ 		list_add_tail(&data->list, &list);
+-		atomic_inc(&cinfo->mds->rpcs_out);
+ 		nreq++;
+ 	}
+ 
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 735a054747752..7dce3e735fc53 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -1657,10 +1657,13 @@ static void nfs_commit_begin(struct nfs_mds_commit_info *cinfo)
+ 	atomic_inc(&cinfo->rpcs_out);
+ }
+ 
+-static void nfs_commit_end(struct nfs_mds_commit_info *cinfo)
++bool nfs_commit_end(struct nfs_mds_commit_info *cinfo)
  {
- 	enum dma_slave_buswidth max_width;
--	u64 addr = buf_addr;
+-	if (atomic_dec_and_test(&cinfo->rpcs_out))
++	if (atomic_dec_and_test(&cinfo->rpcs_out)) {
+ 		wake_up_var(&cinfo->rpcs_out);
++		return true;
++	}
++	return false;
+ }
  
- 	if (threshold == STM32_DMA_FIFO_THRESHOLD_FULL)
- 		max_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
-@@ -279,7 +278,7 @@ static enum dma_slave_buswidth stm32_dma_get_max_width(u32 buf_len,
- 	       max_width > DMA_SLAVE_BUSWIDTH_1_BYTE)
- 		max_width = max_width >> 1;
+ void nfs_commitdata_release(struct nfs_commit_data *data)
+@@ -1760,6 +1763,7 @@ void nfs_init_commit(struct nfs_commit_data *data,
+ 	data->res.fattr   = &data->fattr;
+ 	data->res.verf    = &data->verf;
+ 	nfs_fattr_init(&data->fattr);
++	nfs_commit_begin(cinfo->mds);
+ }
+ EXPORT_SYMBOL_GPL(nfs_init_commit);
  
--	if (do_div(addr, max_width))
-+	if (buf_addr % max_width)
- 		max_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+@@ -1806,7 +1810,6 @@ nfs_commit_list(struct inode *inode, struct list_head *head, int how,
  
- 	return max_width;
+ 	/* Set up the argument struct */
+ 	nfs_init_commit(data, head, NULL, cinfo);
+-	atomic_inc(&cinfo->mds->rpcs_out);
+ 	if (NFS_SERVER(inode)->nfs_client->cl_minorversion)
+ 		task_flags = RPC_TASK_MOVEABLE;
+ 	return nfs_initiate_commit(NFS_CLIENT(inode), data, NFS_PROTO(inode),
+diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
+index ce64745948722..36405ce03b1dc 100644
+--- a/include/linux/nfs_fs.h
++++ b/include/linux/nfs_fs.h
+@@ -564,6 +564,7 @@ extern int nfs_wb_page_cancel(struct inode *inode, struct page* page);
+ extern int  nfs_commit_inode(struct inode *, int);
+ extern struct nfs_commit_data *nfs_commitdata_alloc(bool never_fail);
+ extern void nfs_commit_free(struct nfs_commit_data *data);
++bool nfs_commit_end(struct nfs_mds_commit_info *cinfo);
+ 
+ static inline int
+ nfs_have_writebacks(struct inode *inode)
 -- 
 2.33.0
 
