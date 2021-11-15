@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE06B450E25
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB9C5450B65
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:21:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240703AbhKOSMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:12:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48396 "EHLO mail.kernel.org"
+        id S237859AbhKORYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:24:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240082AbhKOSFe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5482163265;
-        Mon, 15 Nov 2021 17:41:56 +0000 (UTC)
+        id S236960AbhKORTw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:19:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D8ED63267;
+        Mon, 15 Nov 2021 17:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998116;
-        bh=SY9jJh5EYmDgioZGYbfS3mMq78+zmzdfOThuitvZJEs=;
+        s=korg; t=1636996498;
+        bh=nbzD/jH/uTkw+MFAmjiadRwcm9gqyiISq+zuO2d3pFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kp5WEZyDEVW8Ka4jxgZO24CjcPHgcP+8xyLnHGWUYVZvcxs+/0oQloSlrw5+zz0go
-         7y84Hqz+abhYqOrx+d3yVo1q+r2CfQR1PE2IwsIcEmHsxKIB0Sj2CAs9Me7FWNWf57
-         VP6voXka5OMG2VVLXzVc9PcpV47CKtYig8a5X6sQ=
+        b=VsO8o+C9XgwZHa7TUaxhHzzVzxtx8m5d+2ECvJ8jYC5zvycbEjmAnniQ2XkQAM0hl
+         XcXjUvAKBIhNZMSgWrpHSOTztDYNA3avJ9rDF6TanzAW/+XKTdxd2FPTlCFQuFs74n
+         6D5NFiJXEiZhZPSFbFWLRmU4zzp0PkF+nzA2yQf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
-        linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 360/575] block: ataflop: more blk-mq refactoring fixes
+        stable@vger.kernel.org, Israel Rukshin <israelr@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 161/355] nvmet-tcp: fix use-after-free when a port is removed
 Date:   Mon, 15 Nov 2021 18:01:25 +0100
-Message-Id: <20211115165356.257023547@linuxfoundation.org>
+Message-Id: <20211115165318.990923502@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,216 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Israel Rukshin <israelr@nvidia.com>
 
-[ Upstream commit d28e4dff085c5a87025c9a0a85fb798bd8e9ca17 ]
+[ Upstream commit 2351ead99ce9164fb42555aee3f96af84c4839e9 ]
 
-As it turns out, my earlier patch in commit 86d46fdaa12a (block:
-ataflop: fix breakage introduced at blk-mq refactoring) was
-incomplete. This patch fixes any remaining issues found during
-more testing and code review.
+When removing a port, all its controllers are being removed, but there
+are queues on the port that doesn't belong to any controller (during
+connection time). This causes a use-after-free bug for any command
+that dereferences req->port (like in nvmet_alloc_ctrl). Those queues
+should be destroyed before freeing the port via configfs. Destroy
+the remaining queues after the accept_work was cancelled guarantees
+that no new queue will be created.
 
-Requests exceeding 4 k are handled in 4k segments but
-__blk_mq_end_request() is never called on these (still
-sectors outstanding on the request). With redo_fd_request()
-removed, there is no provision to kick off processing of the
-next segment, causing requests exceeding 4k to hang. (By
-setting /sys/block/fd0/queue/max_sectors_k <= 4 as workaround,
-this behaviour can be avoided).
-
-Instead of reintroducing redo_fd_request(), requeue the remainder
-of the request by calling blk_mq_requeue_request() on incomplete
-requests (i.e. when blk_update_request() still returns true), and
-rely on the block layer to queue the residual as new request.
-
-Both error handling and formatting needs to release the
-ST-DMA lock, so call finish_fdc() on these (this was previously
-handled by redo_fd_request()). finish_fdc() may be called
-legitimately without the ST-DMA lock held - make sure we only
-release the lock if we actually held it. In a similar way,
-early exit due to errors in ataflop_queue_rq() must release
-the lock.
-
-After minor errors, fd_error sets up to recalibrate the drive
-but never re-runs the current operation (another task handled by
-redo_fd_request() before). Call do_fd_action() to get the next
-steps (seek, retry read/write) underway.
-
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Fixes: 6ec3938cff95f (ataflop: convert to blk-mq)
-CC: linux-block@vger.kernel.org
-Link: https://lore.kernel.org/r/20211024002013.9332-1-schmitzmic@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Israel Rukshin <israelr@nvidia.com>
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/ataflop.c | 45 +++++++++++++++++++++++++++++++++++------
- 1 file changed, 39 insertions(+), 6 deletions(-)
+ drivers/nvme/target/tcp.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
-index 0a86f9d3a3798..94b76c254db9b 100644
---- a/drivers/block/ataflop.c
-+++ b/drivers/block/ataflop.c
-@@ -456,10 +456,20 @@ static DEFINE_TIMER(fd_timer, check_change);
- 	
- static void fd_end_request_cur(blk_status_t err)
- {
-+	DPRINT(("fd_end_request_cur(), bytes %d of %d\n",
-+		blk_rq_cur_bytes(fd_request),
-+		blk_rq_bytes(fd_request)));
-+
- 	if (!blk_update_request(fd_request, err,
- 				blk_rq_cur_bytes(fd_request))) {
-+		DPRINT(("calling __blk_mq_end_request()\n"));
- 		__blk_mq_end_request(fd_request, err);
- 		fd_request = NULL;
-+	} else {
-+		/* requeue rest of request */
-+		DPRINT(("calling blk_mq_requeue_request()\n"));
-+		blk_mq_requeue_request(fd_request, true);
-+		fd_request = NULL;
- 	}
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index 6b3d1ba7db7ee..fac1985870765 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -1667,6 +1667,17 @@ err_port:
+ 	return ret;
  }
  
-@@ -697,12 +707,21 @@ static void fd_error( void )
- 	if (fd_request->error_count >= MAX_ERRORS) {
- 		printk(KERN_ERR "fd%d: too many errors.\n", SelectedDrive );
- 		fd_end_request_cur(BLK_STS_IOERR);
-+		finish_fdc();
-+		return;
- 	}
- 	else if (fd_request->error_count == RECALIBRATE_ERRORS) {
- 		printk(KERN_WARNING "fd%d: recalibrating\n", SelectedDrive );
- 		if (SelectedDrive != -1)
- 			SUD.track = -1;
- 	}
-+	/* need to re-run request to recalibrate */
-+	atari_disable_irq( IRQ_MFP_FDC );
++static void nvmet_tcp_destroy_port_queues(struct nvmet_tcp_port *port)
++{
++	struct nvmet_tcp_queue *queue;
 +
-+	setup_req_params( SelectedDrive );
-+	do_fd_action( SelectedDrive );
++	mutex_lock(&nvmet_tcp_queue_mutex);
++	list_for_each_entry(queue, &nvmet_tcp_queue_list, queue_list)
++		if (queue->port == port)
++			kernel_sock_shutdown(queue->sock, SHUT_RDWR);
++	mutex_unlock(&nvmet_tcp_queue_mutex);
++}
 +
-+	atari_enable_irq( IRQ_MFP_FDC );
- }
- 
- 
-@@ -729,8 +748,10 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
- 	if (type) {
- 		type--;
- 		if (type >= NUM_DISK_MINORS ||
--		    minor2disktype[type].drive_types > DriveType)
-+		    minor2disktype[type].drive_types > DriveType) {
-+			finish_fdc();
- 			return -EINVAL;
-+		}
- 	}
- 
- 	q = unit[drive].disk[type]->queue;
-@@ -748,6 +769,7 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
- 	}
- 
- 	if (!UDT || desc->track >= UDT->blocks/UDT->spt/2 || desc->head >= 2) {
-+		finish_fdc();
- 		ret = -EINVAL;
- 		goto out;
- 	}
-@@ -788,6 +810,7 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
- 
- 	wait_for_completion(&format_wait);
- 
-+	finish_fdc();
- 	ret = FormatError ? -EIO : 0;
- out:
- 	blk_mq_unquiesce_queue(q);
-@@ -822,6 +845,7 @@ static void do_fd_action( int drive )
- 		    else {
- 			/* all sectors finished */
- 			fd_end_request_cur(BLK_STS_OK);
-+			finish_fdc();
- 			return;
- 		    }
- 		}
-@@ -1225,8 +1249,8 @@ static void fd_rwsec_done1(int status)
- 	}
- 	else {
- 		/* all sectors finished */
--		finish_fdc();
- 		fd_end_request_cur(BLK_STS_OK);
-+		finish_fdc();
- 	}
- 	return;
-   
-@@ -1348,7 +1372,7 @@ static void fd_times_out(struct timer_list *unused)
- 
- static void finish_fdc( void )
+ static void nvmet_tcp_remove_port(struct nvmet_port *nport)
  {
--	if (!NeedSeek) {
-+	if (!NeedSeek || !stdma_is_locked_by(floppy_irq)) {
- 		finish_fdc_done( 0 );
- 	}
- 	else {
-@@ -1383,7 +1407,8 @@ static void finish_fdc_done( int dummy )
- 	start_motor_off_timer();
+ 	struct nvmet_tcp_port *port = nport->priv;
+@@ -1676,6 +1687,11 @@ static void nvmet_tcp_remove_port(struct nvmet_port *nport)
+ 	port->sock->sk->sk_user_data = NULL;
+ 	write_unlock_bh(&port->sock->sk->sk_callback_lock);
+ 	cancel_work_sync(&port->accept_work);
++	/*
++	 * Destroy the remaining queues, which are not belong to any
++	 * controller yet.
++	 */
++	nvmet_tcp_destroy_port_queues(port);
  
- 	local_irq_save(flags);
--	stdma_release();
-+	if (stdma_is_locked_by(floppy_irq))
-+		stdma_release();
- 	local_irq_restore(flags);
- 
- 	DPRINT(("finish_fdc() finished\n"));
-@@ -1480,7 +1505,9 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	int drive = floppy - unit;
- 	int type = floppy->type;
- 
--	DPRINT(("Queue request: drive %d type %d last %d\n", drive, type, bd->last));
-+	DPRINT(("Queue request: drive %d type %d sectors %d of %d last %d\n",
-+		drive, type, blk_rq_cur_sectors(bd->rq),
-+		blk_rq_sectors(bd->rq), bd->last));
- 
- 	spin_lock_irq(&ataflop_lock);
- 	if (fd_request) {
-@@ -1502,6 +1529,7 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
- 		/* drive not connected */
- 		printk(KERN_ERR "Unknown Device: fd%d\n", drive );
- 		fd_end_request_cur(BLK_STS_IOERR);
-+		stdma_release();
- 		goto out;
- 	}
- 		
-@@ -1518,11 +1546,13 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
- 		if (--type >= NUM_DISK_MINORS) {
- 			printk(KERN_WARNING "fd%d: invalid disk format", drive );
- 			fd_end_request_cur(BLK_STS_IOERR);
-+			stdma_release();
- 			goto out;
- 		}
- 		if (minor2disktype[type].drive_types > DriveType)  {
- 			printk(KERN_WARNING "fd%d: unsupported disk format", drive );
- 			fd_end_request_cur(BLK_STS_IOERR);
-+			stdma_release();
- 			goto out;
- 		}
- 		type = minor2disktype[type].index;
-@@ -1623,6 +1653,7 @@ static int fd_locked_ioctl(struct block_device *bdev, fmode_t mode,
- 		/* what if type > 0 here? Overwrite specified entry ? */
- 		if (type) {
- 		        /* refuse to re-set a predefined type for now */
-+			finish_fdc();
- 			return -EINVAL;
- 		}
- 
-@@ -1690,8 +1721,10 @@ static int fd_locked_ioctl(struct block_device *bdev, fmode_t mode,
- 
- 		/* sanity check */
- 		if (setprm.track != dtp->blocks/dtp->spt/2 ||
--		    setprm.head != 2)
-+		    setprm.head != 2) {
-+			finish_fdc();
- 			return -EINVAL;
-+		}
- 
- 		UDT = dtp;
- 		set_capacity(disk, UDT->blocks);
+ 	sock_release(port->sock);
+ 	kfree(port);
 -- 
 2.33.0
 
