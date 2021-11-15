@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7076D4510BD
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:52:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5ED54510CF
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:52:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241785AbhKOSy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:54:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54286 "EHLO mail.kernel.org"
+        id S243156AbhKOSza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:55:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243146AbhKOSw1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243148AbhKOSw1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:52:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF14E633B7;
-        Mon, 15 Nov 2021 18:09:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2B7A633B9;
+        Mon, 15 Nov 2021 18:09:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999770;
-        bh=DxrcaN39ZgFTDSt7DaYjawzoSgpYFe/SF9DogyNNS6k=;
+        s=korg; t=1636999776;
+        bh=vzmCeukmoJV4Y5z/1dgwWqVxS8X1Oudm9E9o5Kg1Zo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bexLQao+ys9/khg7q6PdOZA0naKNyglnVo5v2upIsEWGYqzvfGkugYX4pkknnxSC8
-         me3lIw6e5ZIt6T5L00p1V5lE9jqsWvabO4z34d/wwhuwKqEx7+C2Gi9oITtC9wOr7H
-         CurHIw8VLCnW2Swh55DuPhsAwcHsrZqMzILxRw6k=
+        b=xFrYtGfUBOKXoQkY/vHRfPXhOizQbeevg6ROXxV+bykvmFcg6FcXiYmi5spk/LtCK
+         AiQ15BPdamrVVWRi2qxCuQ+dqu/GCDf39DVxzvz4h3LwAdbkPDiv4I7coV/u20jz+M
+         AsQ13dHx5fKIwj9jnlgmQ6bfiHOYWEF+QUhHeT8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, John Fraker <jfraker@google.com>,
+        David Awogbemila <awogbemila@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 417/849] b43: fix a lower bounds test
-Date:   Mon, 15 Nov 2021 17:58:20 +0100
-Message-Id: <20211115165434.362325253@linuxfoundation.org>
+Subject: [PATCH 5.14 418/849] gve: Recover from queue stall due to missed IRQ
+Date:   Mon, 15 Nov 2021 17:58:21 +0100
+Message-Id: <20211115165434.396513440@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,42 +41,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: John Fraker <jfraker@google.com>
 
-[ Upstream commit 9b793db5fca44d01f72d3564a168171acf7c4076 ]
+[ Upstream commit 87a7f321bb6a45e54b7d6c90d032ee5636a6ad97 ]
 
-The problem is that "channel" is an unsigned int, when it's less 5 the
-value of "channel - 5" is not a negative number as one would expect but
-is very high positive value instead.
+Don't always reset the driver on a TX timeout. Attempt to
+recover by kicking the queue in case an IRQ was missed.
 
-This means that "start" becomes a very high positive value.  The result
-of that is that we never enter the "for (i = start; i <= end; i++) {"
-loop.  Instead of storing the result from b43legacy_radio_aci_detect()
-it just uses zero.
-
-Fixes: ef1a628d83fc ("b43: Implement dynamic PHY API")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Michael Büsch <m@bues.ch>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211006073621.GE8404@kili
+Fixes: 9e5f7d26a4c08 ("gve: Add workqueue and reset support")
+Signed-off-by: John Fraker <jfraker@google.com>
+Signed-off-by: David Awogbemila <awogbemila@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/b43/phy_g.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/google/gve/gve.h        |  4 +-
+ drivers/net/ethernet/google/gve/gve_adminq.h |  1 +
+ drivers/net/ethernet/google/gve/gve_main.c   | 48 +++++++++++++++++++-
+ 3 files changed, 51 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/b43/phy_g.c b/drivers/net/wireless/broadcom/b43/phy_g.c
-index d5a1a5c582366..ac72ca39e409b 100644
---- a/drivers/net/wireless/broadcom/b43/phy_g.c
-+++ b/drivers/net/wireless/broadcom/b43/phy_g.c
-@@ -2297,7 +2297,7 @@ static u8 b43_gphy_aci_scan(struct b43_wldev *dev)
- 	b43_phy_mask(dev, B43_PHY_G_CRS, 0x7FFF);
- 	b43_set_all_gains(dev, 3, 8, 1);
+diff --git a/drivers/net/ethernet/google/gve/gve.h b/drivers/net/ethernet/google/gve/gve.h
+index 2f93ed4705905..c1d4042671f9f 100644
+--- a/drivers/net/ethernet/google/gve/gve.h
++++ b/drivers/net/ethernet/google/gve/gve.h
+@@ -30,7 +30,7 @@
+ #define GVE_MIN_MSIX 3
  
--	start = (channel - 5 > 0) ? channel - 5 : 1;
-+	start = (channel > 5) ? channel - 5 : 1;
- 	end = (channel + 5 < 14) ? channel + 5 : 13;
+ /* Numbers of gve tx/rx stats in stats report. */
+-#define GVE_TX_STATS_REPORT_NUM	5
++#define GVE_TX_STATS_REPORT_NUM	6
+ #define GVE_RX_STATS_REPORT_NUM	2
  
- 	for (i = start; i <= end; i++) {
+ /* Interval to schedule a stats report update, 20000ms. */
+@@ -413,7 +413,9 @@ struct gve_tx_ring {
+ 	u32 q_num ____cacheline_aligned; /* queue idx */
+ 	u32 stop_queue; /* count of queue stops */
+ 	u32 wake_queue; /* count of queue wakes */
++	u32 queue_timeout; /* count of queue timeouts */
+ 	u32 ntfy_id; /* notification block index */
++	u32 last_kick_msec; /* Last time the queue was kicked */
+ 	dma_addr_t bus; /* dma address of the descr ring */
+ 	dma_addr_t q_resources_bus; /* dma address of the queue resources */
+ 	dma_addr_t complq_bus_dqo; /* dma address of the dqo.compl_ring */
+diff --git a/drivers/net/ethernet/google/gve/gve_adminq.h b/drivers/net/ethernet/google/gve/gve_adminq.h
+index 47c3d8f313fcf..3953f6f7a4273 100644
+--- a/drivers/net/ethernet/google/gve/gve_adminq.h
++++ b/drivers/net/ethernet/google/gve/gve_adminq.h
+@@ -270,6 +270,7 @@ enum gve_stat_names {
+ 	TX_LAST_COMPLETION_PROCESSED	= 5,
+ 	RX_NEXT_EXPECTED_SEQUENCE	= 6,
+ 	RX_BUFFERS_POSTED		= 7,
++	TX_TIMEOUT_CNT			= 8,
+ 	// stats from NIC
+ 	RX_QUEUE_DROP_CNT		= 65,
+ 	RX_NO_BUFFERS_POSTED		= 66,
+diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
+index bf8a4a7c43f78..8c996e72748d2 100644
+--- a/drivers/net/ethernet/google/gve/gve_main.c
++++ b/drivers/net/ethernet/google/gve/gve_main.c
+@@ -24,6 +24,9 @@
+ #define GVE_VERSION		"1.0.0"
+ #define GVE_VERSION_PREFIX	"GVE-"
+ 
++// Minimum amount of time between queue kicks in msec (10 seconds)
++#define MIN_TX_TIMEOUT_GAP (1000 * 10)
++
+ const char gve_version_str[] = GVE_VERSION;
+ static const char gve_version_prefix[] = GVE_VERSION_PREFIX;
+ 
+@@ -1116,9 +1119,47 @@ static void gve_turnup(struct gve_priv *priv)
+ 
+ static void gve_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ {
+-	struct gve_priv *priv = netdev_priv(dev);
++	struct gve_notify_block *block;
++	struct gve_tx_ring *tx = NULL;
++	struct gve_priv *priv;
++	u32 last_nic_done;
++	u32 current_time;
++	u32 ntfy_idx;
++
++	netdev_info(dev, "Timeout on tx queue, %d", txqueue);
++	priv = netdev_priv(dev);
++	if (txqueue > priv->tx_cfg.num_queues)
++		goto reset;
++
++	ntfy_idx = gve_tx_idx_to_ntfy(priv, txqueue);
++	if (ntfy_idx > priv->num_ntfy_blks)
++		goto reset;
++
++	block = &priv->ntfy_blocks[ntfy_idx];
++	tx = block->tx;
+ 
++	current_time = jiffies_to_msecs(jiffies);
++	if (tx->last_kick_msec + MIN_TX_TIMEOUT_GAP > current_time)
++		goto reset;
++
++	/* Check to see if there are missed completions, which will allow us to
++	 * kick the queue.
++	 */
++	last_nic_done = gve_tx_load_event_counter(priv, tx);
++	if (last_nic_done - tx->done) {
++		netdev_info(dev, "Kicking queue %d", txqueue);
++		iowrite32be(GVE_IRQ_MASK, gve_irq_doorbell(priv, block));
++		napi_schedule(&block->napi);
++		tx->last_kick_msec = current_time;
++		goto out;
++	} // Else reset.
++
++reset:
+ 	gve_schedule_reset(priv);
++
++out:
++	if (tx)
++		tx->queue_timeout++;
+ 	priv->tx_timeo_cnt++;
+ }
+ 
+@@ -1247,6 +1288,11 @@ void gve_handle_report_stats(struct gve_priv *priv)
+ 				.value = cpu_to_be64(last_completion),
+ 				.queue_id = cpu_to_be32(idx),
+ 			};
++			stats[stats_idx++] = (struct stats) {
++				.stat_name = cpu_to_be32(TX_TIMEOUT_CNT),
++				.value = cpu_to_be64(priv->tx[idx].queue_timeout),
++				.queue_id = cpu_to_be32(idx),
++			};
+ 		}
+ 	}
+ 	/* rx stats */
 -- 
 2.33.0
 
