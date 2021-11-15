@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F1F0450CDA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:41:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6678145102F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:41:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236945AbhKORoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:44:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57646 "EHLO mail.kernel.org"
+        id S242680AbhKOSnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:43:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238521AbhKORlK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:41:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 088A2632E7;
-        Mon, 15 Nov 2021 17:26:59 +0000 (UTC)
+        id S242472AbhKOSlK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:41:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAA92632F1;
+        Mon, 15 Nov 2021 18:04:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997220;
-        bh=jB3Y/lpjpsUQjUlWLXrr9P3cMMSu0u6jv0M4l4q3NKw=;
+        s=korg; t=1636999494;
+        bh=nisjMkk05ddDslovjW33PaKMkAa4TEgO4qZhmM7OoRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sg1L4wYjLcNKAWgeWp2iByoV5ful39FdF3p4bsoIMZXygXZmv5N8K8rmn8uN9GRGb
-         yzDdYghHd7UzW+oaRyrKJa13kcSIHjTBzgIsZU090h7YVbfNdp5csyu5guS08ZkC0T
-         EazL4d+56fbtatIE+o/UuNmeanTNGA4wyLnz3rJU=
+        b=X/0JfmwZMP6LZDknTxXpTWY76SwfPPxpWXSsPEZrWngBkARe24RLM0V/RWQLvgC3b
+         hzcXk8k3fn61PLsYoGp2+exqKSxWpSwm/hz9dtJ5trxc5eG6yI+sM6Z5s02p9ZKuOH
+         AHysp+316wPgS0EDbsYmyQlGcNXji3Oe3bfUk8kE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Wensheng <wangwensheng4@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 041/575] ALSA: timer: Fix use-after-free problem
-Date:   Mon, 15 Nov 2021 17:56:06 +0100
-Message-Id: <20211115165345.053813226@linuxfoundation.org>
+        stable@vger.kernel.org, Li Feng <fengli@smartx.com>,
+        Xiao Ni <xni@redhat.com>, Song Liu <songliubraving@fb.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 284/849] md: update superblock after changing rdev flags in state_store
+Date:   Mon, 15 Nov 2021 17:56:07 +0100
+Message-Id: <20211115165429.878948404@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Xiao Ni <xni@redhat.com>
 
-commit c0317c0e87094f5b5782b6fdef5ae0a4b150496c upstream.
+[ Upstream commit 8b9e2291e355a0eafdd5b1e21a94a6659f24b351 ]
 
-When the timer instance was add into ack_list but was not currently in
-process, the user could stop it via snd_timer_stop1() without delete it
-from the ack_list. Then the user could free the timer instance and when
-it was actually processed UAF occurred.
+When the in memory flag is changed, we need to persist the change in the
+rdev superblock flags. This is needed for "writemostly" and "failfast".
 
-This issue could be reproduced via testcase snd_timer01 in ltp - running
-several instances of that testcase at the same time.
-
-What I actually met was that the ack_list of the timer broken and the
-kernel went into deadloop with irqoff. That could be detected by
-hardlockup detector on board or when we run it on qemu, we could use gdb
-to dump the ack_list when the console has no response.
-
-To fix this issue, we delete the timer instance from ack_list and
-active_list unconditionally in snd_timer_stop1().
-
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211103033517.80531-1-wangwensheng4@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Li Feng <fengli@smartx.com>
+Signed-off-by: Xiao Ni <xni@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/timer.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/md.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/sound/core/timer.c
-+++ b/sound/core/timer.c
-@@ -624,13 +624,13 @@ static int snd_timer_stop1(struct snd_ti
- 	if (!timer)
- 		return -EINVAL;
- 	spin_lock_irqsave(&timer->lock, flags);
-+	list_del_init(&timeri->ack_list);
-+	list_del_init(&timeri->active_list);
- 	if (!(timeri->flags & (SNDRV_TIMER_IFLG_RUNNING |
- 			       SNDRV_TIMER_IFLG_START))) {
- 		result = -EBUSY;
- 		goto unlock;
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 6c0c3d0d905aa..e89eb467f1429 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -2976,7 +2976,11 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 	 *  -write_error - clears WriteErrorSeen
+ 	 *  {,-}failfast - set/clear FailFast
+ 	 */
++
++	struct mddev *mddev = rdev->mddev;
+ 	int err = -EINVAL;
++	bool need_update_sb = false;
++
+ 	if (cmd_match(buf, "faulty") && rdev->mddev->pers) {
+ 		md_error(rdev->mddev, rdev);
+ 		if (test_bit(Faulty, &rdev->flags))
+@@ -2991,7 +2995,6 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 		if (rdev->raid_disk >= 0)
+ 			err = -EBUSY;
+ 		else {
+-			struct mddev *mddev = rdev->mddev;
+ 			err = 0;
+ 			if (mddev_is_clustered(mddev))
+ 				err = md_cluster_ops->remove_disk(mddev, rdev);
+@@ -3008,10 +3011,12 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 	} else if (cmd_match(buf, "writemostly")) {
+ 		set_bit(WriteMostly, &rdev->flags);
+ 		mddev_create_serial_pool(rdev->mddev, rdev, false);
++		need_update_sb = true;
+ 		err = 0;
+ 	} else if (cmd_match(buf, "-writemostly")) {
+ 		mddev_destroy_serial_pool(rdev->mddev, rdev, false);
+ 		clear_bit(WriteMostly, &rdev->flags);
++		need_update_sb = true;
+ 		err = 0;
+ 	} else if (cmd_match(buf, "blocked")) {
+ 		set_bit(Blocked, &rdev->flags);
+@@ -3037,9 +3042,11 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 		err = 0;
+ 	} else if (cmd_match(buf, "failfast")) {
+ 		set_bit(FailFast, &rdev->flags);
++		need_update_sb = true;
+ 		err = 0;
+ 	} else if (cmd_match(buf, "-failfast")) {
+ 		clear_bit(FailFast, &rdev->flags);
++		need_update_sb = true;
+ 		err = 0;
+ 	} else if (cmd_match(buf, "-insync") && rdev->raid_disk >= 0 &&
+ 		   !test_bit(Journal, &rdev->flags)) {
+@@ -3118,6 +3125,8 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 		clear_bit(ExternalBbl, &rdev->flags);
+ 		err = 0;
  	}
--	list_del_init(&timeri->ack_list);
--	list_del_init(&timeri->active_list);
- 	if (timer->card && timer->card->shutdown)
- 		goto unlock;
- 	if (stop) {
++	if (need_update_sb)
++		md_update_sb(mddev, 1);
+ 	if (!err)
+ 		sysfs_notify_dirent_safe(rdev->sysfs_state);
+ 	return err ? err : len;
+-- 
+2.33.0
+
 
 
