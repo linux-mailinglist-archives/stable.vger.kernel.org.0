@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35778450BCC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:27:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49681450E1B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237134AbhKOR3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:29:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53144 "EHLO mail.kernel.org"
+        id S240600AbhKOSKx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:10:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237857AbhKOR0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:26:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D8A661C15;
-        Mon, 15 Nov 2021 17:17:01 +0000 (UTC)
+        id S239999AbhKOSFX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9A156336C;
+        Mon, 15 Nov 2021 17:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996622;
-        bh=Ge91bb0a2WU0ipHhN6WwcgHpKc34PGod3OcIfK2khT0=;
+        s=korg; t=1636998061;
+        bh=+01wE7kexrBhH+3wNvt8GwILd4+MHhbRnSkfgp3UMWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9W0+5v+9quWdnHAMVTHVBFQpNaNv1NqZ2sF55Je6AqnuGpObzTVyyDDbumqxRZxU
-         VCvGDKduAuxZTi84QwVJcBTqtw03sqzJ2rRgn23QrmyoqLTjQb8WFZLSdrIRQwZQPq
-         SLz0S50DVJOZVPaGbx4xfNUMGd8FQnDhy4um7m4Y=
+        b=G4UJrrqhPSUOrlQbDsb1emWemm3siWIzeXxfnGPt43/A8BM5H0Y2qLPy070yMkjOZ
+         IKl6szLzZfnBt/zSUFgLXcuq7bR+j4A1jTA4oKL3bI9lXVzHlKbX+QyKDMXVn60iXd
+         NHYffK1ui2Vf9JjSEJnxEe404hFseB8WVBvY12Eg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 174/355] spi: bcm-qspi: Fix missing clk_disable_unprepare() on error in bcm_qspi_probe()
-Date:   Mon, 15 Nov 2021 18:01:38 +0100
-Message-Id: <20211115165319.415575294@linuxfoundation.org>
+Subject: [PATCH 5.10 374/575] selftests/bpf: Fix fd cleanup in sk_lookup test
+Date:   Mon, 15 Nov 2021 18:01:39 +0100
+Message-Id: <20211115165356.715122354@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-[ Upstream commit ca9b8f56ec089d3a436050afefd17b7237301f47 ]
+[ Upstream commit c3fc706e94f5653def2783ffcd809a38676b7551 ]
 
-Fix the missing clk_disable_unprepare() before return
-from bcm_qspi_probe() in the error handling case.
+Similar to the fix in commit:
+e31eec77e4ab ("bpf: selftests: Fix fd cleanup in get_branch_snapshot")
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211018073413.2029081-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+We use designated initializer to set fds to -1 without breaking on
+future changes to MAX_SERVER constant denoting the array size.
+
+The particular close(0) occurs on non-reuseport tests, so it can be seen
+with -n 115/{2,3} but not 115/4. This can cause problems with future
+tests if they depend on BTF fd never being acquired as fd 0, breaking
+internal libbpf assumptions.
+
+Fixes: 0ab5539f8584 ("selftests/bpf: Tests for BPF_SK_LOOKUP attach point")
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20211028063501.2239335-8-memxor@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm-qspi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/sk_lookup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
-index 8a4be34bccfd2..8a1176efa4c85 100644
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -1300,7 +1300,7 @@ int bcm_qspi_probe(struct platform_device *pdev,
- 					       &qspi->dev_ids[val]);
- 			if (ret < 0) {
- 				dev_err(&pdev->dev, "IRQ %s not found\n", name);
--				goto qspi_probe_err;
-+				goto qspi_unprepare_err;
- 			}
+diff --git a/tools/testing/selftests/bpf/prog_tests/sk_lookup.c b/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
+index 45c82db3c58c5..b4c9f4a96ae4d 100644
+--- a/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
++++ b/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
+@@ -598,7 +598,7 @@ close:
  
- 			qspi->dev_ids[val].dev = qspi;
-@@ -1315,7 +1315,7 @@ int bcm_qspi_probe(struct platform_device *pdev,
- 	if (!num_ints) {
- 		dev_err(&pdev->dev, "no IRQs registered, cannot init driver\n");
- 		ret = -EINVAL;
--		goto qspi_probe_err;
-+		goto qspi_unprepare_err;
- 	}
- 
- 	/*
-@@ -1359,6 +1359,7 @@ int bcm_qspi_probe(struct platform_device *pdev,
- 
- qspi_reg_err:
- 	bcm_qspi_hw_uninit(qspi);
-+qspi_unprepare_err:
- 	clk_disable_unprepare(qspi->clk);
- qspi_probe_err:
- 	kfree(qspi->dev_ids);
+ static void run_lookup_prog(const struct test *t)
+ {
+-	int server_fds[MAX_SERVERS] = { -1 };
++	int server_fds[] = { [0 ... MAX_SERVERS - 1] = -1 };
+ 	int client_fd, reuse_conn_fd = -1;
+ 	struct bpf_link *lookup_link;
+ 	int i, err;
+@@ -1053,7 +1053,7 @@ static void run_sk_assign(struct test_sk_lookup *skel,
+ 			  struct bpf_program *lookup_prog,
+ 			  const char *remote_ip, const char *local_ip)
+ {
+-	int server_fds[MAX_SERVERS] = { -1 };
++	int server_fds[] = { [0 ... MAX_SERVERS - 1] = -1 };
+ 	struct bpf_sk_lookup ctx;
+ 	__u64 server_cookie;
+ 	int i, err;
 -- 
 2.33.0
 
