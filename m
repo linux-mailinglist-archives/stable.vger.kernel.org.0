@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4894F4521A8
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:03:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 800E34521A6
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:03:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346561AbhKPBF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:05:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
+        id S1346391AbhKPBF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:05:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245456AbhKOTUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B04B6353E;
-        Mon, 15 Nov 2021 18:34:59 +0000 (UTC)
+        id S245459AbhKOTUf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DFEC63544;
+        Mon, 15 Nov 2021 18:35:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001299;
-        bh=+OD0D2TZMT1XPeGXqGBv0aMwt/RIOkOeDyIfPGgWW1A=;
+        s=korg; t=1637001304;
+        bh=FfBWpqs4o7ngQ7aNTC+MZUA6fIQcfDaMo2IsJOAoaxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oPUM9Rw3kXeFwVPrXn+GY4Rj1SRzZaOLkJtIYU1ZHM4KNwRRDof8cwas7/u7mDRDS
-         yBryjfGgs0paj/hZhnCCy9eM+pMBB8mhubeztEuNdYa6gOkta9LJhWtH0i57dHoHBo
-         02MRXAAQourB6ueEtZnwFiunZLc8+XcQs/8LrVEo=
+        b=UH6Uc9k9s+JQLQ5csByFsB6DypYTBjU9phwsddHfPMiPpJHY0U5uvnpzJ/yGCAXba
+         xTuK1DawMHcmSDj94Y1oSxFWwiqAxeraBEAz08S/SOo9oYZ9RmT6pdsh8JKsGTD0KW
+         n5yGwDYQCaieHDSsUHfyVDflHSip2T/MNmCSS0BM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.15 138/917] ovl: fix use after free in struct ovl_aio_req
-Date:   Mon, 15 Nov 2021 17:53:53 +0100
-Message-Id: <20211115165433.449951285@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.15 140/917] PCI: pci-bridge-emul: Fix emulation of W1C bits
+Date:   Mon, 15 Nov 2021 17:53:55 +0100
+Message-Id: <20211115165433.513737599@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,92 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Marek Behún <kabel@kernel.org>
 
-commit 9a254403760041528bc8f69fe2f5e1ef86950991 upstream.
+commit 7a41ae80bdcb17e14dd7d83239b8a0cf368f18be upstream.
 
-Example for triggering use after free in a overlay on ext4 setup:
+The pci_bridge_emul_conf_write() function correctly clears W1C bits in
+cfgspace cache, but it does not inform the underlying implementation
+about the clear request: the .write_op() method is given the value with
+these bits cleared.
 
-aio_read
-  ovl_read_iter
-    vfs_iter_read
-      ext4_file_read_iter
-        ext4_dio_read_iter
-          iomap_dio_rw -> -EIOCBQUEUED
-          /*
-	   * Here IO is completed in a separate thread,
-	   * ovl_aio_cleanup_handler() frees aio_req which has iocb embedded
-	   */
-          file_accessed(iocb->ki_filp); /**BOOM**/
+This is wrong if the .write_op() needs to know which bits were requested
+to be cleared.
 
-Fix by introducing a refcount in ovl_aio_req similarly to aio_kiocb.  This
-guarantees that iocb is only freed after vfs_read/write_iter() returns on
-underlying fs.
+Fix the value to be passed into the .write_op() method to have requested
+W1C bits set, so that it can clear them.
 
-Fixes: 2406a307ac7d ("ovl: implement async IO routines")
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Link: https://lore.kernel.org/r/20210930032228.3199690-3-yangerkun@huawei.com/
-Cc: <stable@vger.kernel.org> # v5.6
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Both pci-bridge-emul users (mvebu and aardvark) are compatible with this
+change.
+
+Link: https://lore.kernel.org/r/20211028185659.20329-2-kabel@kernel.org
+Fixes: 23a5fba4d941 ("PCI: Introduce PCI bridge emulated config space common logic")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/overlayfs/file.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/pci/pci-bridge-emul.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -17,6 +17,7 @@
+--- a/drivers/pci/pci-bridge-emul.c
++++ b/drivers/pci/pci-bridge-emul.c
+@@ -431,8 +431,21 @@ int pci_bridge_emul_conf_write(struct pc
+ 	/* Clear the W1C bits */
+ 	new &= ~((value << shift) & (behavior[reg / 4].w1c & mask));
  
- struct ovl_aio_req {
- 	struct kiocb iocb;
-+	refcount_t ref;
- 	struct kiocb *orig_iocb;
- 	struct fd fd;
- };
-@@ -252,6 +253,14 @@ static rwf_t ovl_iocb_to_rwf(int ifl)
- 	return flags;
- }
++	/* Save the new value with the cleared W1C bits into the cfgspace */
+ 	cfgspace[reg / 4] = cpu_to_le32(new);
  
-+static inline void ovl_aio_put(struct ovl_aio_req *aio_req)
-+{
-+	if (refcount_dec_and_test(&aio_req->ref)) {
-+		fdput(aio_req->fd);
-+		kmem_cache_free(ovl_aio_request_cachep, aio_req);
-+	}
-+}
++	/*
++	 * Clear the W1C bits not specified by the write mask, so that the
++	 * write_op() does not clear them.
++	 */
++	new &= ~(behavior[reg / 4].w1c & ~mask);
 +
- static void ovl_aio_cleanup_handler(struct ovl_aio_req *aio_req)
- {
- 	struct kiocb *iocb = &aio_req->iocb;
-@@ -268,8 +277,7 @@ static void ovl_aio_cleanup_handler(stru
- 	}
++	/*
++	 * Set the W1C bits specified by the write mask, so that write_op()
++	 * knows about that they are to be cleared.
++	 */
++	new |= (value << shift) & (behavior[reg / 4].w1c & mask);
++
+ 	if (write_op)
+ 		write_op(bridge, reg, old, new, mask);
  
- 	orig_iocb->ki_pos = iocb->ki_pos;
--	fdput(aio_req->fd);
--	kmem_cache_free(ovl_aio_request_cachep, aio_req);
-+	ovl_aio_put(aio_req);
- }
- 
- static void ovl_aio_rw_complete(struct kiocb *iocb, long res, long res2)
-@@ -319,7 +327,9 @@ static ssize_t ovl_read_iter(struct kioc
- 		aio_req->orig_iocb = iocb;
- 		kiocb_clone(&aio_req->iocb, iocb, real.file);
- 		aio_req->iocb.ki_complete = ovl_aio_rw_complete;
-+		refcount_set(&aio_req->ref, 2);
- 		ret = vfs_iocb_iter_read(real.file, &aio_req->iocb, iter);
-+		ovl_aio_put(aio_req);
- 		if (ret != -EIOCBQUEUED)
- 			ovl_aio_cleanup_handler(aio_req);
- 	}
-@@ -390,7 +400,9 @@ static ssize_t ovl_write_iter(struct kio
- 		kiocb_clone(&aio_req->iocb, iocb, real.file);
- 		aio_req->iocb.ki_flags = ifl;
- 		aio_req->iocb.ki_complete = ovl_aio_rw_complete;
-+		refcount_set(&aio_req->ref, 2);
- 		ret = vfs_iocb_iter_write(real.file, &aio_req->iocb, iter);
-+		ovl_aio_put(aio_req);
- 		if (ret != -EIOCBQUEUED)
- 			ovl_aio_cleanup_handler(aio_req);
- 	}
 
 
