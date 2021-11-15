@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DDB9451126
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07FC1450AAD
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:10:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243438AbhKOTBc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:01:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58128 "EHLO mail.kernel.org"
+        id S232148AbhKORMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:12:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243131AbhKOS5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:57:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A445B6348E;
-        Mon, 15 Nov 2021 18:12:31 +0000 (UTC)
+        id S236536AbhKORM2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:12:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55E0161452;
+        Mon, 15 Nov 2021 17:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999952;
-        bh=SIcsGbCXFI9C5pfWF98kf3KsDj8Gge2BjHzu+lHXedI=;
+        s=korg; t=1636996172;
+        bh=fgW7IZ0V+TaDrxPJYsD4H4Awxt+nUIrh1fRJjTlfW18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kAEz8wffnRVw1lvAPBZrcjGIS3SyTqOmGKylAa/9xc2XgZtR3YLI6DQz6VhtgokGq
-         eKpKiGFyLUQWwCqCF0Is1fsx+SYcvgKg8P/eMD4RHvAsE/pXkp8Rg0RHiSAyuN4Dsp
-         YLtKxR4PWUydUKZjruvznIBAeAMX/gfTkM4Es/Ng=
+        b=yFI+vsVJMGu4Dw6+JdhCzh/tIcbfuIIXd1NBSbaP7vbbdL8T5WDv0zc23pdxlhdM3
+         YdnNEkEvM/jDCKDBlN4XovKHYsLNWUJ91iH3MaMaT143mUzTSlPU7gaRDa2oq2QOEB
+         UMwv5ApZEYAVnHorIpIkh5HHDE90SLtuwN6b6yRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 483/849] nbd: Fix use-after-free in pid_show
-Date:   Mon, 15 Nov 2021 17:59:26 +0100
-Message-Id: <20211115165436.618715905@linuxfoundation.org>
+        stable@vger.kernel.org, Mikko Perttunen <mperttunen@nvidia.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 043/355] reset: tegra-bpmp: Handle errors in BPMP response
+Date:   Mon, 15 Nov 2021 17:59:27 +0100
+Message-Id: <20211115165314.943849440@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,134 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Mikko Perttunen <mperttunen@nvidia.com>
 
-[ Upstream commit 0c98057be9efa32de78dbc4685fc73da9d71faa1 ]
+[ Upstream commit c045ceb5a145d2a9a4bf33cbc55185ddf99f60ab ]
 
-I got issue as follows:
-[  263.886511] BUG: KASAN: use-after-free in pid_show+0x11f/0x13f
-[  263.888359] Read of size 4 at addr ffff8880bf0648c0 by task cat/746
-[  263.890479] CPU: 0 PID: 746 Comm: cat Not tainted 4.19.90-dirty #140
-[  263.893162] Call Trace:
-[  263.893509]  dump_stack+0x108/0x15f
-[  263.893999]  print_address_description+0xa5/0x372
-[  263.894641]  kasan_report.cold+0x236/0x2a8
-[  263.895696]  __asan_report_load4_noabort+0x25/0x30
-[  263.896365]  pid_show+0x11f/0x13f
-[  263.897422]  dev_attr_show+0x48/0x90
-[  263.898361]  sysfs_kf_seq_show+0x24d/0x4b0
-[  263.899479]  kernfs_seq_show+0x14e/0x1b0
-[  263.900029]  seq_read+0x43f/0x1150
-[  263.900499]  kernfs_fop_read+0xc7/0x5a0
-[  263.903764]  vfs_read+0x113/0x350
-[  263.904231]  ksys_read+0x103/0x270
-[  263.905230]  __x64_sys_read+0x77/0xc0
-[  263.906284]  do_syscall_64+0x106/0x360
-[  263.906797]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+The return value from tegra_bpmp_transfer indicates the success or
+failure of the IPC transaction with BPMP. If the transaction
+succeeded, we also need to check the actual command's result code.
+Add code to do this.
 
-Reproduce this issue as follows:
-1. nbd-server 8000 /tmp/disk
-2. nbd-client localhost 8000 /dev/nbd1
-3. cat /sys/block/nbd1/pid
-Then trigger use-after-free in pid_show.
-
-Reason is after do step '2', nbd-client progress is already exit. So
-it's task_struct already freed.
-To solve this issue, revert part of 6521d39a64b3's modify and remove
-useless 'recv_task' member of nbd_device.
-
-Fixes: 6521d39a64b3 ("nbd: Remove variable 'pid'")
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20211020073959.2679255-1-yebin10@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
+Link: https://lore.kernel.org/r/20210915085517.1669675-2-mperttunen@nvidia.com
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/reset/tegra/reset-bpmp.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 99ab58b877f8c..6d7e181d3ed1f 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -122,11 +122,11 @@ struct nbd_device {
- 	struct work_struct remove_work;
+diff --git a/drivers/reset/tegra/reset-bpmp.c b/drivers/reset/tegra/reset-bpmp.c
+index 24d3395964cc4..4c5bba52b1059 100644
+--- a/drivers/reset/tegra/reset-bpmp.c
++++ b/drivers/reset/tegra/reset-bpmp.c
+@@ -20,6 +20,7 @@ static int tegra_bpmp_reset_common(struct reset_controller_dev *rstc,
+ 	struct tegra_bpmp *bpmp = to_tegra_bpmp(rstc);
+ 	struct mrq_reset_request request;
+ 	struct tegra_bpmp_message msg;
++	int err;
  
- 	struct list_head list;
--	struct task_struct *task_recv;
- 	struct task_struct *task_setup;
+ 	memset(&request, 0, sizeof(request));
+ 	request.cmd = command;
+@@ -30,7 +31,13 @@ static int tegra_bpmp_reset_common(struct reset_controller_dev *rstc,
+ 	msg.tx.data = &request;
+ 	msg.tx.size = sizeof(request);
  
- 	struct completion *destroy_complete;
- 	unsigned long flags;
-+	pid_t pid; /* pid of nbd-client, if attached */
- 
- 	char *backend;
- };
-@@ -218,7 +218,7 @@ static ssize_t pid_show(struct device *dev,
- 	struct gendisk *disk = dev_to_disk(dev);
- 	struct nbd_device *nbd = (struct nbd_device *)disk->private_data;
- 
--	return sprintf(buf, "%d\n", task_pid_nr(nbd->task_recv));
-+	return sprintf(buf, "%d\n", nbd->pid);
+-	return tegra_bpmp_transfer(bpmp, &msg);
++	err = tegra_bpmp_transfer(bpmp, &msg);
++	if (err)
++		return err;
++	if (msg.rx.ret)
++		return -EINVAL;
++
++	return 0;
  }
  
- static const struct device_attribute pid_attr = {
-@@ -362,7 +362,7 @@ static int nbd_set_size(struct nbd_device *nbd, loff_t bytesize,
- 	nbd->config->bytesize = bytesize;
- 	nbd->config->blksize_bits = __ffs(blksize);
- 
--	if (!nbd->task_recv)
-+	if (!nbd->pid)
- 		return 0;
- 
- 	if (nbd->config->flags & NBD_FLAG_SEND_TRIM) {
-@@ -1274,7 +1274,7 @@ static void nbd_config_put(struct nbd_device *nbd)
- 		if (test_and_clear_bit(NBD_RT_HAS_PID_FILE,
- 				       &config->runtime_flags))
- 			device_remove_file(disk_to_dev(nbd->disk), &pid_attr);
--		nbd->task_recv = NULL;
-+		nbd->pid = 0;
- 		if (test_and_clear_bit(NBD_RT_HAS_BACKEND_FILE,
- 				       &config->runtime_flags)) {
- 			device_remove_file(disk_to_dev(nbd->disk), &backend_attr);
-@@ -1315,7 +1315,7 @@ static int nbd_start_device(struct nbd_device *nbd)
- 	int num_connections = config->num_connections;
- 	int error = 0, i;
- 
--	if (nbd->task_recv)
-+	if (nbd->pid)
- 		return -EBUSY;
- 	if (!config->socks)
- 		return -EINVAL;
-@@ -1334,7 +1334,7 @@ static int nbd_start_device(struct nbd_device *nbd)
- 	}
- 
- 	blk_mq_update_nr_hw_queues(&nbd->tag_set, config->num_connections);
--	nbd->task_recv = current;
-+	nbd->pid = task_pid_nr(current);
- 
- 	nbd_parse_flags(nbd);
- 
-@@ -1590,8 +1590,8 @@ static int nbd_dbg_tasks_show(struct seq_file *s, void *unused)
- {
- 	struct nbd_device *nbd = s->private;
- 
--	if (nbd->task_recv)
--		seq_printf(s, "recv: %d\n", task_pid_nr(nbd->task_recv));
-+	if (nbd->pid)
-+		seq_printf(s, "recv: %d\n", nbd->pid);
- 
- 	return 0;
- }
-@@ -2177,7 +2177,7 @@ static int nbd_genl_reconfigure(struct sk_buff *skb, struct genl_info *info)
- 	mutex_lock(&nbd->config_lock);
- 	config = nbd->config;
- 	if (!test_bit(NBD_RT_BOUND, &config->runtime_flags) ||
--	    !nbd->task_recv) {
-+	    !nbd->pid) {
- 		dev_err(nbd_to_dev(nbd),
- 			"not configured, cannot reconfigure\n");
- 		ret = -EINVAL;
+ static int tegra_bpmp_reset_module(struct reset_controller_dev *rstc,
 -- 
 2.33.0
 
