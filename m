@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B110B451F16
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36785451F13
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355502AbhKPAi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:38:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47888 "EHLO mail.kernel.org"
+        id S1355483AbhKPAi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:38:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344467AbhKOTYo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD7AD6367A;
-        Mon, 15 Nov 2021 18:57:58 +0000 (UTC)
+        id S1344478AbhKOTYs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAE456367E;
+        Mon, 15 Nov 2021 18:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002679;
-        bh=lNJJ4LLDUiLKVW/5v5gpbEQBxQxQemHk4xMZ9dWm7a4=;
+        s=korg; t=1637002701;
+        bh=AFsCuftF9z9go0FzPJeD93XQ71yWOe7BMJV5lhIjACU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDgF0iXDh3eppD9qodnZGdgfN1zsTJRilv61kRUmCRu1wkOSLJNBCKTtDuyg5zo6p
-         yZYTrhvKe268SKIK0b1yFyJO89+J5qtDcivkZzmkTkztBG6DdZQnStX0wii04YY00X
-         pNzd6CFXfUBSWxDQk/zjUmlsDvilZnRLfUiz6Jhg=
+        b=Yulr2UegdlL6LvhfCeyV2BJyZ/AbEDL+yr4jMSI4C8UCTQSJOnLhmEnwaG9FcXtc5
+         lJxccrbguUF4pcDOuZjCg7YSVcllZkOIPjl2s1csF+pJx6C0Gr5/mCe4AezrKMO6TH
+         Leihp5fQ67hbNn6h3VuKGoha2abM+JOQh1exoj2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Gromm <christian.gromm@microchip.com>,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 630/917] staging: most: dim2: do not double-register the same device
-Date:   Mon, 15 Nov 2021 18:02:05 +0100
-Message-Id: <20211115165450.173452861@linuxfoundation.org>
+Subject: [PATCH 5.15 632/917] RDMA/core: Set sgtable nents when using ib_dma_virt_map_sg()
+Date:   Mon, 15 Nov 2021 18:02:07 +0100
+Message-Id: <20211115165450.240054013@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,187 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 2ab189164056b05474275bb40caa038a37713061 ]
+[ Upstream commit ac0fffa0859b8e1e991939663b3ebdd80bf979e6 ]
 
-Commit 723de0f9171e ("staging: most: remove device from interface
-structure") moved registration of driver-provided struct device to
-the most subsystem.
+ib_dma_map_sgtable_attrs() should be mapping the sgls and setting nents
+but the ib_uses_virt_dma() path falls back to ib_dma_virt_map_sg() which
+will not set the nents in the sgtable.
 
-Dim2 used to register the same struct device to provide a custom device
-attribute. This causes double-registration of the same struct device.
+Check the return value (per the map_sg calling convention) and set
+sgt->nents appropriately on success.
 
-Fix that by moving the custom attribute to driver's dev_groups.
-This moves attribute to the platform_device object, which is a better
-location for platform-specific attributes anyway.
-
-Fixes: 723de0f9171e ("staging: most: remove device from interface structure")
-Acked-by: Christian Gromm <christian.gromm@microchip.com>
-Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Link: https://lore.kernel.org/r/20211011061117.21435-1-nikita.yoush@cogentembedded.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 79fbd3e1241c ("RDMA: Use the sg_table directly and remove the opencoded version from umem")
+Link: https://lore.kernel.org/r/20211013165942.89806-1-logang@deltatee.com
+Reported-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Tested-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/most/dim2/Makefile |  2 +-
- drivers/staging/most/dim2/dim2.c   | 24 ++++++++-------
- drivers/staging/most/dim2/sysfs.c  | 49 ------------------------------
- drivers/staging/most/dim2/sysfs.h  | 11 -------
- 4 files changed, 14 insertions(+), 72 deletions(-)
- delete mode 100644 drivers/staging/most/dim2/sysfs.c
+ include/rdma/ib_verbs.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/most/dim2/Makefile b/drivers/staging/most/dim2/Makefile
-index 861adacf6c729..5f9612af3fa3c 100644
---- a/drivers/staging/most/dim2/Makefile
-+++ b/drivers/staging/most/dim2/Makefile
-@@ -1,4 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0
- obj-$(CONFIG_MOST_DIM2) += most_dim2.o
- 
--most_dim2-objs := dim2.o hal.o sysfs.o
-+most_dim2-objs := dim2.o hal.o
-diff --git a/drivers/staging/most/dim2/dim2.c b/drivers/staging/most/dim2/dim2.c
-index 093ef9a2b2919..b72d7b9b45ea9 100644
---- a/drivers/staging/most/dim2/dim2.c
-+++ b/drivers/staging/most/dim2/dim2.c
-@@ -117,7 +117,8 @@ struct dim2_platform_data {
- 	(((p)[1] == 0x18) && ((p)[2] == 0x05) && ((p)[3] == 0x0C) && \
- 	 ((p)[13] == 0x3C) && ((p)[14] == 0x00) && ((p)[15] == 0x0A))
- 
--bool dim2_sysfs_get_state_cb(void)
-+static ssize_t state_show(struct device *dev, struct device_attribute *attr,
-+			  char *buf)
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index 4b50d9a3018a6..4ba642fc8a19a 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -4097,8 +4097,13 @@ static inline int ib_dma_map_sgtable_attrs(struct ib_device *dev,
+ 					   enum dma_data_direction direction,
+ 					   unsigned long dma_attrs)
  {
- 	bool state;
- 	unsigned long flags;
-@@ -126,9 +127,18 @@ bool dim2_sysfs_get_state_cb(void)
- 	state = dim_get_lock_state();
- 	spin_unlock_irqrestore(&dim_lock, flags);
- 
--	return state;
-+	return sysfs_emit(buf, "%s\n", state ? "locked" : "");
- }
- 
-+static DEVICE_ATTR_RO(state);
++	int nents;
 +
-+static struct attribute *dim2_attrs[] = {
-+	&dev_attr_state.attr,
-+	NULL,
-+};
-+
-+ATTRIBUTE_GROUPS(dim2);
-+
- /**
-  * dimcb_on_error - callback from HAL to report miscommunication between
-  * HDM and HAL
-@@ -866,16 +876,8 @@ static int dim2_probe(struct platform_device *pdev)
- 		goto err_stop_thread;
+ 	if (ib_uses_virt_dma(dev)) {
+-		ib_dma_virt_map_sg(dev, sgt->sgl, sgt->orig_nents);
++		nents = ib_dma_virt_map_sg(dev, sgt->sgl, sgt->orig_nents);
++		if (!nents)
++			return -EIO;
++		sgt->nents = nents;
+ 		return 0;
  	}
- 
--	ret = dim2_sysfs_probe(&dev->dev);
--	if (ret) {
--		dev_err(&pdev->dev, "failed to create sysfs attribute\n");
--		goto err_unreg_iface;
--	}
--
- 	return 0;
- 
--err_unreg_iface:
--	most_deregister_interface(&dev->most_iface);
- err_stop_thread:
- 	kthread_stop(dev->netinfo_task);
- err_shutdown_dim:
-@@ -898,7 +900,6 @@ static int dim2_remove(struct platform_device *pdev)
- 	struct dim2_hdm *dev = platform_get_drvdata(pdev);
- 	unsigned long flags;
- 
--	dim2_sysfs_destroy(&dev->dev);
- 	most_deregister_interface(&dev->most_iface);
- 	kthread_stop(dev->netinfo_task);
- 
-@@ -1082,6 +1083,7 @@ static struct platform_driver dim2_driver = {
- 	.driver = {
- 		.name = "hdm_dim2",
- 		.of_match_table = dim2_of_match,
-+		.dev_groups = dim2_groups,
- 	},
- };
- 
-diff --git a/drivers/staging/most/dim2/sysfs.c b/drivers/staging/most/dim2/sysfs.c
-deleted file mode 100644
-index c85b2cdcdca3d..0000000000000
---- a/drivers/staging/most/dim2/sysfs.c
-+++ /dev/null
-@@ -1,49 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- * sysfs.c - MediaLB sysfs information
-- *
-- * Copyright (C) 2015, Microchip Technology Germany II GmbH & Co. KG
-- */
--
--/* Author: Andrey Shvetsov <andrey.shvetsov@k2l.de> */
--
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--
--#include <linux/kernel.h>
--#include "sysfs.h"
--#include <linux/device.h>
--
--static ssize_t state_show(struct device *dev, struct device_attribute *attr,
--			  char *buf)
--{
--	bool state = dim2_sysfs_get_state_cb();
--
--	return sprintf(buf, "%s\n", state ? "locked" : "");
--}
--
--static DEVICE_ATTR_RO(state);
--
--static struct attribute *dev_attrs[] = {
--	&dev_attr_state.attr,
--	NULL,
--};
--
--static struct attribute_group dev_attr_group = {
--	.attrs = dev_attrs,
--};
--
--static const struct attribute_group *dev_attr_groups[] = {
--	&dev_attr_group,
--	NULL,
--};
--
--int dim2_sysfs_probe(struct device *dev)
--{
--	dev->groups = dev_attr_groups;
--	return device_register(dev);
--}
--
--void dim2_sysfs_destroy(struct device *dev)
--{
--	device_unregister(dev);
--}
-diff --git a/drivers/staging/most/dim2/sysfs.h b/drivers/staging/most/dim2/sysfs.h
-index 24277a17cff3d..09115cf4ed00e 100644
---- a/drivers/staging/most/dim2/sysfs.h
-+++ b/drivers/staging/most/dim2/sysfs.h
-@@ -16,15 +16,4 @@ struct medialb_bus {
- 	struct kobject kobj_group;
- };
- 
--struct device;
--
--int dim2_sysfs_probe(struct device *dev);
--void dim2_sysfs_destroy(struct device *dev);
--
--/*
-- * callback,
-- * must deliver MediaLB state as true if locked or false if unlocked
-- */
--bool dim2_sysfs_get_state_cb(void);
--
- #endif	/* DIM2_SYSFS_H */
+ 	return dma_map_sgtable(dev->dma_device, sgt, direction, dma_attrs);
 -- 
 2.33.0
 
