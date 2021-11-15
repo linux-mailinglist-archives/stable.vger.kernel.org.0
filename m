@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D6E64513E9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98786451401
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348741AbhKOT7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:59:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
+        id S1348855AbhKOUAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:00:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344120AbhKOTX0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 738C463628;
-        Mon, 15 Nov 2021 18:52:20 +0000 (UTC)
+        id S1344134AbhKOTXa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E608B6362D;
+        Mon, 15 Nov 2021 18:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002341;
-        bh=kcIgI3I56zoz/vcWGl/lSsKaLxkYb43a1hPCNXb7ESM=;
+        s=korg; t=1637002343;
+        bh=qlsSibtdxy76CyrAY87rZQTzGiGXmywXzN678qSRYnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qjQJpAF7MtsVoVBLTeUuOH245Yw48scefnPpOAXWXhnQO/rch4tDGZER9t+2yWEKh
-         xznaQsETOD7le/oz6Fbzh841ziIVLaA1lttq3LvgPqXxrTvyBEmiyqkcXXpxKLCusi
-         mnM+DjlvYEPCVqx0C07XYUdLkbXDB1DwNciU8WqY=
+        b=MG5MB0hlD9roOZg6hSSlfCDYNtdDsXYhVyRl41RfdTvdrKFfkoiRu1PUJjbOsKkGk
+         iZoyPyt4vFkc9P4Nj7/Bnr7xMRjn12iStlU1V3UlQkF/JRGleRXpuwpMOd29wdSY5G
+         gFbBbucflXRpr0EUesnMrDo9SOy78wKVmVgdWhek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 530/917] KVM: s390: Fix handle_sske page fault handling
-Date:   Mon, 15 Nov 2021 18:00:25 +0100
-Message-Id: <20211115165446.733898134@linuxfoundation.org>
+Subject: [PATCH 5.15 531/917] libertas_tf: Fix possible memory leak in probe and disconnect
+Date:   Mon, 15 Nov 2021 18:00:26 +0100
+Message-Id: <20211115165446.765188898@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,44 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 85f517b29418158d3e6e90c3f0fc01b306d2f1a1 ]
+[ Upstream commit d549107305b4634c81223a853701c06bcf657bc3 ]
 
-If handle_sske cannot set the storage key, because there is no
-page table entry or no present large page entry, it calls
-fixup_user_fault.
-However, currently, if the call succeeds, handle_sske returns
--EAGAIN, without having set the storage key.
-Instead, retry by continue'ing the loop without incrementing the
-address.
-The same issue in handle_pfmf was fixed by
-a11bdb1a6b78 ("KVM: s390: Fix pfmf and conditional skey emulation").
+I got memory leak as follows when doing fault injection test:
 
-Fixes: bd096f644319 ("KVM: s390: Add skey emulation fault handling")
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20211022152648.26536-1-scgl@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+unreferenced object 0xffff88810a2ddc00 (size 512):
+  comm "kworker/6:1", pid 176, jiffies 4295009893 (age 757.220s)
+  hex dump (first 32 bytes):
+    00 50 05 18 81 88 ff ff 00 00 00 00 00 00 00 00  .P..............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
+    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
+    [<ffffffffa02a1530>] if_usb_probe+0x60/0x37c [libertas_tf_usb]
+    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
+    [<ffffffff82b59630>] really_probe+0x190/0x480
+    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
+    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
+    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
+    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
+    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
+    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
+    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
+    [<ffffffff82b52e49>] device_add+0x829/0x1300
+    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
+    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
+    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
+
+cardp is missing being freed in the error handling path of the probe
+and the path of the disconnect, which will cause memory leak.
+
+This patch adds the missing kfree().
+
+Fixes: c305a19a0d0a ("libertas_tf: usb specific functions")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211020120345.2016045-2-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/priv.c | 2 ++
+ drivers/net/wireless/marvell/libertas_tf/if_usb.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 53da4ceb16a3a..417154b314a64 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -397,6 +397,8 @@ static int handle_sske(struct kvm_vcpu *vcpu)
- 		mmap_read_unlock(current->mm);
- 		if (rc == -EFAULT)
- 			return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		if (rc == -EAGAIN)
-+			continue;
- 		if (rc < 0)
- 			return rc;
- 		start += PAGE_SIZE;
+diff --git a/drivers/net/wireless/marvell/libertas_tf/if_usb.c b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
+index fe0a69e804d8c..75b5319d033f3 100644
+--- a/drivers/net/wireless/marvell/libertas_tf/if_usb.c
++++ b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
+@@ -230,6 +230,7 @@ static int if_usb_probe(struct usb_interface *intf,
+ 
+ dealloc:
+ 	if_usb_free(cardp);
++	kfree(cardp);
+ error:
+ lbtf_deb_leave(LBTF_DEB_MAIN);
+ 	return -ENOMEM;
+@@ -254,6 +255,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
+ 
+ 	/* Unlink and free urb */
+ 	if_usb_free(cardp);
++	kfree(cardp);
+ 
+ 	usb_set_intfdata(intf, NULL);
+ 	usb_put_dev(interface_to_usbdev(intf));
 -- 
 2.33.0
 
