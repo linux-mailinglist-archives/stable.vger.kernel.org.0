@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 819CD450D9B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:57:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CAE6450AB1
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238687AbhKOR7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:59:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40734 "EHLO mail.kernel.org"
+        id S236543AbhKORNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:13:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239198AbhKOR5m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:57:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C50C260F38;
-        Mon, 15 Nov 2021 17:34:56 +0000 (UTC)
+        id S236565AbhKORMa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:12:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D345A6322A;
+        Mon, 15 Nov 2021 17:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997697;
-        bh=MMazxAV7PO/kMsDmIWerrt5q+fB4BzEy63MLdftmtB4=;
+        s=korg; t=1636996175;
+        bh=RwPELUlSRrH8ihBiH8+BhS7PfY7lGPMdxADq8nR8pK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vRB/gpYxKP+e6smcZZVdcbri/v1Zk2sQWlkZwBaoAeBL/3PSqmlP4kCzUfzXr8xXU
-         GF1H/CbESrWfYiFbwFqhDH9FSh11XepYyDuxbCEbWoKP64PiBuQQkaf+zskA6L+BOj
-         cQXAolCH+fCZbkkmzuTDz4806JuY6yrLMGatC0oY=
+        b=qtTxebzqiSVwEzELAHxFYT6DK3zPXxCwXSaoUAVY9odAE0kg6Sev7iJDfM56OtzDi
+         PF6X9tZUJRhfnLoJwYH8StHtcD85eL7YO2+rxjAXFKtqxPb6sWHRew3QEzVB+W4Wis
+         4IPvb6Op0ZKpqXJCWJVegBgiIvRAqET5O2pzfFMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
-        Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pawe=C5=82=20Anikiel?= <pan@semihalf.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 242/575] gfs2: Cancel remote delete work asynchronously
-Date:   Mon, 15 Nov 2021 17:59:27 +0100
-Message-Id: <20211115165352.109274537@linuxfoundation.org>
+Subject: [PATCH 5.4 044/355] reset: socfpga: add empty driver allowing consumers to probe
+Date:   Mon, 15 Nov 2021 17:59:28 +0100
+Message-Id: <20211115165314.975035619@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Paweł Anikiel <pan@semihalf.com>
 
-[ Upstream commit 486408d690e130c3adacf816754b97558d715f46 ]
+[ Upstream commit 3ad60b4b3570937f3278509fe6797a5093ce53f8 ]
 
-In gfs2_inode_lookup and gfs2_create_inode, we're calling
-gfs2_cancel_delete_work which currently cancels any remote delete work
-(delete_work_func) synchronously.  This means that if the work is
-currently running, it will wait for it to finish.  We're doing this to
-pevent a previous instance of an inode from having any influence on the
-next instance.
+The early reset driver doesn't ever probe, which causes consuming
+devices to be unable to probe. Add an empty driver to set this device
+as available, allowing consumers to probe.
 
-However, delete_work_func uses gfs2_inode_lookup internally, and we can
-end up in a deadlock when delete_work_func gets interrupted at the wrong
-time.  For example,
-
-  (1) An inode's iopen glock has delete work queued, but the inode
-      itself has been evicted from the inode cache.
-
-  (2) The delete work is preempted before reaching gfs2_inode_lookup.
-
-  (3) Another process recreates the inode (gfs2_create_inode).  It tries
-      to cancel any outstanding delete work, which blocks waiting for
-      the ongoing delete work to finish.
-
-  (4) The delete work calls gfs2_inode_lookup, which blocks waiting for
-      gfs2_create_inode to instantiate and unlock the new inode =>
-      deadlock.
-
-It turns out that when the delete work notices that its inode has been
-re-instantiated, it will do nothing.  This means that it's safe to
-cancel the delete work asynchronously.  This prevents the kind of
-deadlock described above.
-
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Paweł Anikiel <pan@semihalf.com>
+Link: https://lore.kernel.org/r/20210920124141.1166544-4-pan@semihalf.com
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/reset/reset-socfpga.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index 03c3407c8e26f..533adcd480310 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -1911,7 +1911,7 @@ bool gfs2_queue_delete_work(struct gfs2_glock *gl, unsigned long delay)
- 
- void gfs2_cancel_delete_work(struct gfs2_glock *gl)
- {
--	if (cancel_delayed_work_sync(&gl->gl_delete)) {
-+	if (cancel_delayed_work(&gl->gl_delete)) {
- 		clear_bit(GLF_PENDING_DELETE, &gl->gl_flags);
- 		gfs2_glock_put(gl);
- 	}
+diff --git a/drivers/reset/reset-socfpga.c b/drivers/reset/reset-socfpga.c
+index 96953992c2bb5..1c5236a69dc49 100644
+--- a/drivers/reset/reset-socfpga.c
++++ b/drivers/reset/reset-socfpga.c
+@@ -86,3 +86,29 @@ void __init socfpga_reset_init(void)
+ 	for_each_matching_node(np, socfpga_early_reset_dt_ids)
+ 		a10_reset_init(np);
+ }
++
++/*
++ * The early driver is problematic, because it doesn't register
++ * itself as a driver. This causes certain device links to prevent
++ * consumer devices from probing. The hacky solution is to register
++ * an empty driver, whose only job is to attach itself to the reset
++ * manager and call probe.
++ */
++static const struct of_device_id socfpga_reset_dt_ids[] = {
++	{ .compatible = "altr,rst-mgr", },
++	{ /* sentinel */ },
++};
++
++static int reset_simple_probe(struct platform_device *pdev)
++{
++	return 0;
++}
++
++static struct platform_driver reset_socfpga_driver = {
++	.probe	= reset_simple_probe,
++	.driver = {
++		.name		= "socfpga-reset",
++		.of_match_table	= socfpga_reset_dt_ids,
++	},
++};
++builtin_platform_driver(reset_socfpga_driver);
 -- 
 2.33.0
 
