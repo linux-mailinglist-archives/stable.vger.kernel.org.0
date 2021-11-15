@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D43D45112C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:59:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6973E450D8F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:56:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230008AbhKOTBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:01:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33082 "EHLO mail.kernel.org"
+        id S238793AbhKOR7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:59:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234216AbhKOS5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:57:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F3EB6348F;
-        Mon, 15 Nov 2021 18:12:51 +0000 (UTC)
+        id S239215AbhKOR5o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:57:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66F5263280;
+        Mon, 15 Nov 2021 17:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999972;
-        bh=lb+/OSX+NchLbrkQfvWwD5TsE5ET1oYUuc7l5nJPC68=;
+        s=korg; t=1636997714;
+        bh=jG2DudVcIDSjjviA/a57SjL7lMspYdTBXabl3uQCoJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMQbSlzAT+z9n4fuaYOxOrxiHquJy0x1/Jhfal27xC4Ix/N8lFwEhY6aqKLCeQSac
-         iRV9/zZov9DemfPO/5eDKKz0Bl42j+P04blwbgMdG0mQZPFoW363fhmNVtH3Bw5d/X
-         NgCVxMbiX7pB0p8p5S0MiWpf11vP4Ke2thpMBNMo=
+        b=2ZBPddnJcaya0bk0oOEmjpRt9fSxNAu0c35jgXIC4gi5yrJHm98/3rsYtzUzw0Bub
+         bdAcs/e+rtEujRgLMvpl7X0XVXkHv/ywHSl4HW33Ac7cQ/gXKlLa/d94bY/2yIRqCU
+         qCVA2GcftV89I0Qou/khiXSEfrquIy9SM3JZyAVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Stefan Schaeckeler <schaecsn@gmx.net>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 489/849] crypto: tcrypt - fix skcipher multi-buffer tests for 1420B blocks
+Subject: [PATCH 5.10 247/575] ACPI: AC: Quirk GK45 to skip reading _PSR
 Date:   Mon, 15 Nov 2021 17:59:32 +0100
-Message-Id: <20211115165436.825627110@linuxfoundation.org>
+Message-Id: <20211115165352.296124159@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +40,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horia Geantă <horia.geanta@nxp.com>
+From: Stefan Schaeckeler <schaecsn@gmx.net>
 
-[ Upstream commit 3ae88f676aa63366ffa9eebb8ae787c7e19f0c57 ]
+[ Upstream commit 3d730ee686800d71ecc5c3cb8460dcdcdeaf38a3 ]
 
-Commit ad6d66bcac77e ("crypto: tcrypt - include 1420 byte blocks in aead and skcipher benchmarks")
-mentions:
-> power-of-2 block size. So let's add 1420 bytes explicitly, and round
-> it up to the next blocksize multiple of the algo in question if it
-> does not support 1420 byte blocks.
-but misses updating skcipher multi-buffer tests.
+Let GK45 not go into BIOS for determining the AC power state.
 
-Fix this by using the proper (rounded) input size.
+The BIOS wrongly returns 0, so hardcode the power state to 1.
 
-Fixes: ad6d66bcac77e ("crypto: tcrypt - include 1420 byte blocks in aead and skcipher benchmarks")
-Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+The mini PC GK45 by Besstar Tech Lld. (aka Kodlix) just runs
+off AC. It does not include any batteries. Nevertheless BIOS
+reports AC off:
+
+root@kodlix:/usr/src/linux# cat /sys/class/power_supply/ADP1/online
+0
+
+root@kodlix:/usr/src/linux# modprobe acpi_dbg
+root@kodlix:/usr/src/linux# tools/power/acpi/acpidbg
+
+- find _PSR
+   \_SB.PCI0.SBRG.H_EC.ADP1._PSR Method       000000009283cee8 001 Args 0 Len 001C Aml 00000000f54e5f67
+
+- execute \_SB.PCI0.SBRG.H_EC.ADP1._PSR
+Evaluating \_SB.PCI0.SBRG.H_EC.ADP1._PSR
+Evaluation of \_SB.PCI0.SBRG.H_EC.ADP1._PSR returned object 00000000dc08c187, external buffer length 18
+ [Integer] = 0000000000000000
+
+that should be
+
+ [Integer] = 0000000000000001
+
+Signed-off-by: Stefan Schaeckeler <schaecsn@gmx.net>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/tcrypt.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/acpi/ac.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
-index 6863e57b088d5..54cf01020b435 100644
---- a/crypto/tcrypt.c
-+++ b/crypto/tcrypt.c
-@@ -1333,7 +1333,7 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
+diff --git a/drivers/acpi/ac.c b/drivers/acpi/ac.c
+index 46a64e9fa7165..23ca1a1c67b75 100644
+--- a/drivers/acpi/ac.c
++++ b/drivers/acpi/ac.c
+@@ -64,6 +64,7 @@ static SIMPLE_DEV_PM_OPS(acpi_ac_pm, NULL, acpi_ac_resume);
  
- 			if (bs > XBUFSIZE * PAGE_SIZE) {
- 				pr_err("template (%u) too big for buffer (%lu)\n",
--				       *b_size, XBUFSIZE * PAGE_SIZE);
-+				       bs, XBUFSIZE * PAGE_SIZE);
- 				goto out;
- 			}
+ static int ac_sleep_before_get_state_ms;
+ static int ac_check_pmic = 1;
++static int ac_only;
  
-@@ -1386,8 +1386,7 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
- 				memset(cur->xbuf[p], 0xff, k);
+ static struct acpi_driver acpi_ac_driver = {
+ 	.name = "ac",
+@@ -99,6 +100,11 @@ static int acpi_ac_get_state(struct acpi_ac *ac)
+ 	if (!ac)
+ 		return -EINVAL;
  
- 				skcipher_request_set_crypt(cur->req, cur->sg,
--							   cur->sg, *b_size,
--							   iv);
-+							   cur->sg, bs, iv);
- 			}
++	if (ac_only) {
++		ac->state = 1;
++		return 0;
++	}
++
+ 	status = acpi_evaluate_integer(ac->device->handle, "_PSR", NULL,
+ 				       &ac->state);
+ 	if (ACPI_FAILURE(status)) {
+@@ -212,6 +218,12 @@ static int __init ac_do_not_check_pmic_quirk(const struct dmi_system_id *d)
+ 	return 0;
+ }
  
- 			if (secs) {
++static int __init ac_only_quirk(const struct dmi_system_id *d)
++{
++	ac_only = 1;
++	return 0;
++}
++
+ /* Please keep this list alphabetically sorted */
+ static const struct dmi_system_id ac_dmi_table[]  __initconst = {
+ 	{
+@@ -221,6 +233,13 @@ static const struct dmi_system_id ac_dmi_table[]  __initconst = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
+ 		},
+ 	},
++	{
++		/* Kodlix GK45 returning incorrect state */
++		.callback = ac_only_quirk,
++		.matches = {
++			DMI_MATCH(DMI_PRODUCT_NAME, "GK45"),
++		},
++	},
+ 	{
+ 		/* Lenovo Ideapad Miix 320, AXP288 PMIC, separate fuel-gauge */
+ 		.callback = ac_do_not_check_pmic_quirk,
 -- 
 2.33.0
 
