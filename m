@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 257C245109D
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:48:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9578545109B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:48:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242435AbhKOSvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:51:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54768 "EHLO mail.kernel.org"
+        id S241865AbhKOSvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:51:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242540AbhKOSs7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242704AbhKOSs7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:48:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE93863393;
-        Mon, 15 Nov 2021 18:08:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A40166339A;
+        Mon, 15 Nov 2021 18:08:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999696;
-        bh=OJJ5GzrfKJmexoT8xEDq12/BHY7rNLMU/1N9X08Zcis=;
+        s=korg; t=1636999699;
+        bh=YK6nQqicA5Ub6Uf/Z0XiID/LRg17S2wdQFvnrG6WrOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IoraNBOvSPIx+oJqnJokxxF3+4j2qE+yuH7vsi322jakDOnGK0CRxImw2bI3Q0lDX
-         x6snwBEmnJmUKKLw/SLbqF5cxv72XSqESIjAL/mD7Fl6Hvq9A3CybVFCj56S8M0JaR
-         2a+tVOzhzc82q7jJVhYZRwEyDoWppdZxwNRIiSnI=
+        b=WxjTfW/2VQnkZuYIN3suM8p3DsNfQfJsE4nfOaL9BdD6GgHNRWtRQsHDHIWMWeWxq
+         8uYgQotLR5VLP2N531Acw9smS16PT91j+TqlooocyXPdpYcl28w14jW2g7W1cq+rYv
+         dL+uBFq7p3bSE+CXykZEbP3Sp92gSMmNVo6tBh/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
+        Leslie Shi <Yuliang.Shi@amd.com>,
+        Guchun Chen <guchun.chen@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 357/849] Bluetooth: btmtkuart: fix a memleak in mtk_hci_wmt_sync
-Date:   Mon, 15 Nov 2021 17:57:20 +0100
-Message-Id: <20211115165432.315418335@linuxfoundation.org>
+Subject: [PATCH 5.14 358/849] drm/amdgpu: move amdgpu_virt_release_full_gpu to fini_early stage
+Date:   Mon, 15 Nov 2021 17:57:21 +0100
+Message-Id: <20211115165432.347802162@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,66 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Guchun Chen <guchun.chen@amd.com>
 
-[ Upstream commit 3e5f2d90c28f9454e421108554707620bc23269d ]
+[ Upstream commit 6effad8abe0ba4db3d9c58ed585127858a990f35 ]
 
-bdev->evt_skb will get freed in the normal path and one error path
-of mtk_hci_wmt_sync, while the other error paths do not free it,
-which may cause a memleak. This bug is suggested by a static analysis
-tool, please advise.
+adev->rmmio is set to be NULL in amdgpu_device_unmap_mmio to prevent
+access after pci_remove, however, in SRIOV case, amdgpu_virt_release_full_gpu
+will still use adev->rmmio for access after amdgpu_device_unmap_mmio.
+The patch is to move such SRIOV calling earlier to fini_early stage.
 
-Fixes: e0b67035a90b ("Bluetooth: mediatek: update the common setup between MT7622 and other devices")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 07775fc13878 ("drm/amdgpu: Unmap all MMIO mappings")
+Cc: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Signed-off-by: Leslie Shi <Yuliang.Shi@amd.com>
+Signed-off-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btmtkuart.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/bluetooth/btmtkuart.c b/drivers/bluetooth/btmtkuart.c
-index e9d91d7c0db48..9ba22b13b4fa0 100644
---- a/drivers/bluetooth/btmtkuart.c
-+++ b/drivers/bluetooth/btmtkuart.c
-@@ -158,8 +158,10 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	int err;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 08e53ff747282..eddf03450f1ce 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2689,6 +2689,11 @@ static int amdgpu_device_ip_fini_early(struct amdgpu_device *adev)
+ 		adev->ip_blocks[i].status.hw = false;
+ 	}
  
- 	hlen = sizeof(*hdr) + wmt_params->dlen;
--	if (hlen > 255)
--		return -EINVAL;
-+	if (hlen > 255) {
-+		err = -EINVAL;
-+		goto err_free_skb;
++	if (amdgpu_sriov_vf(adev)) {
++		if (amdgpu_virt_release_full_gpu(adev, false))
++			DRM_ERROR("failed to release exclusive mode on fini\n");
 +	}
++
+ 	return 0;
+ }
  
- 	hdr = (struct mtk_wmt_hdr *)&wc;
- 	hdr->dir = 1;
-@@ -173,7 +175,7 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	err = __hci_cmd_send(hdev, 0xfc6f, hlen, &wc);
- 	if (err < 0) {
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return err;
-+		goto err_free_skb;
- 	}
+@@ -2749,10 +2754,6 @@ static int amdgpu_device_ip_fini(struct amdgpu_device *adev)
  
- 	/* The vendor specific WMT commands are all answered by a vendor
-@@ -190,13 +192,14 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	if (err == -EINTR) {
- 		bt_dev_err(hdev, "Execution of wmt command interrupted");
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return err;
-+		goto err_free_skb;
- 	}
+ 	amdgpu_ras_fini(adev);
  
- 	if (err) {
- 		bt_dev_err(hdev, "Execution of wmt command timed out");
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return -ETIMEDOUT;
-+		err = -ETIMEDOUT;
-+		goto err_free_skb;
- 	}
+-	if (amdgpu_sriov_vf(adev))
+-		if (amdgpu_virt_release_full_gpu(adev, false))
+-			DRM_ERROR("failed to release exclusive mode on fini\n");
+-
+ 	return 0;
+ }
  
- 	/* Parse and handle the return WMT event */
 -- 
 2.33.0
 
