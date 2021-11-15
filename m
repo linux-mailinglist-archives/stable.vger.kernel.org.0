@@ -2,15 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CE3E450B67
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:21:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FEA4450B7D
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236452AbhKORYW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:24:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44992 "EHLO mail.kernel.org"
+        id S237683AbhKORZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:25:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237448AbhKORVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:21:31 -0500
+        id S237646AbhKORXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:23:42 -0500
 Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E21D63278;
         Mon, 15 Nov 2021 17:16:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
