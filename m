@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D04C4513ED
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33FCA451161
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:04:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348754AbhKOT7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:59:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
+        id S243642AbhKOTGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:06:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344135AbhKOTXa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E44E06362F;
-        Mon, 15 Nov 2021 18:52:35 +0000 (UTC)
+        id S243745AbhKOTDs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:03:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA27860F22;
+        Mon, 15 Nov 2021 18:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002356;
-        bh=6wnlAsLWAXDc/4xbWbXpl69JThoV4wWfKpUyNX+mhe0=;
+        s=korg; t=1637000128;
+        bh=jYeWl/vJ+e6RQt4+ew4OW7u4BmhC7Y3Kq8dRPmM91r8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m0sxkcRwOC6p4r5B5s+toRz0L4iyfT0hNn/mkwj3RpiWZqbImf0iShxPMpGhRYL/R
-         YjePY5YWy/F0FxKgNzA8ZPJVXDTAag01sMarmFgaskrtYAo6SGjfb19rZ70HKnWyR9
-         MkU/Q/tU3rZJkcXkUeP5SOtQysDBwpT+XkaGtQnA=
+        b=cYXIPSNxze/CtR33XjDo0nfLXlNQJjdBcpxZZ8wqg+P1T6RpoNTYAPGsyH8U+0N9y
+         hWEcbTZlYR6q1YNiYOFIThxMTnzasmc05eauU+7fgA5jZzISBdCFVdLKnaApzoOQpJ
+         P4XJ5YjjWC+YDu9ARZsEDVZsmWYnqlaN/zZtVABM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 536/917] bpf: Fixes possible race in update_prog_stats() for 32bit arches
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 548/849] bpf: Fix propagation of signed bounds from 64-bit min/max into 32-bit.
 Date:   Mon, 15 Nov 2021 18:00:31 +0100
-Message-Id: <20211115165446.936957479@linuxfoundation.org>
+Message-Id: <20211115165438.798605722@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit d979617aa84d96acca44c2f5778892b4565e322f ]
+[ Upstream commit 388e2c0b978339dee9b0a81a2e546f8979e021e2 ]
 
-It seems update_prog_stats() suffers from same issue fixed
-in the prior patch:
+Similar to unsigned bounds propagation fix signed bounds.
+The 'Fixes' tag is a hint. There is no security bug here.
+The verifier was too conservative.
 
-As it can run while interrupts are enabled, it could
-be re-entered and the u64_stats syncp could be mangled.
-
-Fixes: fec56f5890d9 ("bpf: Introduce BPF trampoline")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+Fixes: 3f50f132d840 ("bpf: Verifier, do explicit ALU32 bounds tracking")
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20211026214133.3114279-3-eric.dumazet@gmail.com
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20211101222153.78759-2-alexei.starovoitov@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/trampoline.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/trampoline.c b/kernel/bpf/trampoline.c
-index fe1e857324e66..d3a307a8c42b9 100644
---- a/kernel/bpf/trampoline.c
-+++ b/kernel/bpf/trampoline.c
-@@ -585,11 +585,13 @@ static void notrace update_prog_stats(struct bpf_prog *prog,
- 	     * Hence check that 'start' is valid.
- 	     */
- 	    start > NO_START_TIME) {
-+		unsigned long flags;
-+
- 		stats = this_cpu_ptr(prog->stats);
--		u64_stats_update_begin(&stats->syncp);
-+		flags = u64_stats_update_begin_irqsave(&stats->syncp);
- 		stats->cnt++;
- 		stats->nsecs += sched_clock() - start;
--		u64_stats_update_end(&stats->syncp);
-+		u64_stats_update_end_irqrestore(&stats->syncp, flags);
- 	}
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index b9fb079559a6d..4dd9cedfc453d 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1397,7 +1397,7 @@ static void __reg_combine_32_into_64(struct bpf_reg_state *reg)
+ 
+ static bool __reg64_bound_s32(s64 a)
+ {
+-	return a > S32_MIN && a < S32_MAX;
++	return a >= S32_MIN && a <= S32_MAX;
  }
  
+ static bool __reg64_bound_u32(u64 a)
 -- 
 2.33.0
 
