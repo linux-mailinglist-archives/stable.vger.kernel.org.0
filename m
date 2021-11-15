@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC7764507D0
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 16:03:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E62414507D1
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 16:03:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232090AbhKOPGm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 10:06:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
+        id S232181AbhKOPGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 10:06:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232203AbhKOPGl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 10:06:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F42061A40;
-        Mon, 15 Nov 2021 15:03:45 +0000 (UTC)
+        id S232214AbhKOPGo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 10:06:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33F6861A3A;
+        Mon, 15 Nov 2021 15:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636988626;
-        bh=bCCCx8zilTpm6hpxIXlUMUEOGL91l3o8l59MkfJhwl0=;
+        s=korg; t=1636988628;
+        bh=gKGjUK1ToucLrk+mOQ5fFCnii8kO0UbspR0W4mLjNAE=;
         h=Subject:To:Cc:From:Date:From;
-        b=VA6Yct/Sfi3mhKQKrMl3Sl/6VjCcei4w6kFbFmEWgFpFUpn1OUU2NzJGGmxgQVANY
-         nUZuu7ttIT8BfCxJZopy6rAd9reAdGcA0L4EuzO8jEFKqsao6foWEoYZm4N4ENTwpK
-         TgvoaNA28/LUvUTxmRa1Ma3GVo7NQe0ETfX35Hzo=
-Subject: FAILED: patch "[PATCH] powerpc/pseries/mobility: ignore ibm, platform-facilities" failed to apply to 5.4-stable tree
+        b=gI844XqpqkwOykIGpcfHWLDhPheAQnbfbb51zK0366bI2vDAFaWtINweP8xHZlYWP
+         RpWQ21XGP1Ylt6OWiYxo2qLSO5U1gLpiBrIFVhpJdxU4Xk8QvMTmy4Z/T1bGkHJQhI
+         JloJsbvAaO4zrPRkMAHOzO4yIj9+jR0UGo7C2Rr0=
+Subject: FAILED: patch "[PATCH] powerpc/pseries/mobility: ignore ibm, platform-facilities" failed to apply to 5.10-stable tree
 To:     nathanl@linux.ibm.com, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Nov 2021 16:03:38 +0100
-Message-ID: <1636988618146168@kroah.com>
+Date:   Mon, 15 Nov 2021 16:03:40 +0100
+Message-ID: <16369886209336@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
