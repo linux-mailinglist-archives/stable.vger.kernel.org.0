@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57369451DDD
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:31:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA1F0451F5E
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:37:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346045AbhKPAeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:34:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
+        id S1356170AbhKPAix (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:38:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343902AbhKOTWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343907AbhKOTWY (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9423635F6;
-        Mon, 15 Nov 2021 18:48:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 278B5633A5;
+        Mon, 15 Nov 2021 18:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002092;
-        bh=0qWVlmnLrMZ+EWmiMSXxICve5sLZ/91HU590eReGbM8=;
+        s=korg; t=1637002095;
+        bh=GIxLn44M6K5RbIEtHjAZqpbTm9WG364rW+X5v5TjWng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APQdSzdLVq4QZNw9Eiv1roEKWg6J5N8xobuei5bNUj81EPAQ3hYAnN1fK++BzPsUE
-         Yjc63OddjVqsevU81DMlV5mgBPlgtMf8jHJIVVFaZdyQ7bQKYtBUcsQfDh35hWzny/
-         fEeygQaqRFimkyF6O6mhyNdsSjQFJ6qk6JjTmRpw=
+        b=DUuIj8V4iicfO1B+FBZ/q1CfdibJ3WrGlYihRqgOQDw57mNFb2sqBRVs4U5DTGi55
+         QJA/Ii4hhuEIq5FkgkXlcOM3stR7Z+1AmMDJjcJKQx+sA9nk1Hlz3CogHofj9KXGXb
+         qV1oDPA/IaspAPtw8SdUz6OmhBWnMXUkq2B7mYQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        kernel test robot <lkp@intel.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Abhinav Kumar <abhinavk@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 435/917] thermal/core: fix a UAF bug in __thermal_cooling_device_register()
-Date:   Mon, 15 Nov 2021 17:58:50 +0100
-Message-Id: <20211115165443.539978665@linuxfoundation.org>
+Subject: [PATCH 5.15 436/917] drm/msm/dsi: do not enable irq handler before powering up the host
+Date:   Mon, 15 Nov 2021 17:58:51 +0100
+Message-Id: <20211115165443.572666822@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,93 +42,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 0a5c26712f963f0500161a23e0ffff8d29f742ab ]
+[ Upstream commit bf94ec093d05e3ed3142d9291b876eeb9997ba5c ]
 
-When device_register() return failed, program will goto out_kfree_type
-to release 'cdev->device' by put_device(). That will call thermal_release()
-to free 'cdev'. But the follow-up processes access 'cdev' continually.
-That trggers the UAF bug.
+The DSI host might be left in some state by the bootloader. If this
+state generates an IRQ, it might hang the system by holding the
+interrupt line before the driver sets up the DSI host to the known
+state.
 
-====================================================================
-BUG: KASAN: use-after-free in __thermal_cooling_device_register+0x75b/0xa90
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
-Call Trace:
- dump_stack_lvl+0xe2/0x152
- print_address_description.constprop.0+0x21/0x140
- ? __thermal_cooling_device_register+0x75b/0xa90
- kasan_report.cold+0x7f/0x11b
- ? __thermal_cooling_device_register+0x75b/0xa90
- __thermal_cooling_device_register+0x75b/0xa90
- ? memset+0x20/0x40
- ? __sanitizer_cov_trace_pc+0x1d/0x50
- ? __devres_alloc_node+0x130/0x180
- devm_thermal_of_cooling_device_register+0x67/0xf0
- max6650_probe.cold+0x557/0x6aa
-......
+Move the request_irq into msm_dsi_host_init and pass IRQF_NO_AUTOEN to
+it. Call enable/disable_irq after msm_dsi_host_power_on/_off()
+functions, so that we can be sure that the interrupt is delivered when
+the host is in the known state.
 
-Freed by task 258:
- kasan_save_stack+0x1b/0x40
- kasan_set_track+0x1c/0x30
- kasan_set_free_info+0x20/0x30
- __kasan_slab_free+0x109/0x140
- kfree+0x117/0x4c0
- thermal_release+0xa0/0x110
- device_release+0xa7/0x240
- kobject_put+0x1ce/0x540
- put_device+0x20/0x30
- __thermal_cooling_device_register+0x731/0xa90
- devm_thermal_of_cooling_device_register+0x67/0xf0
- max6650_probe.cold+0x557/0x6aa [max6650]
+It is not possible to defer the interrupt enablement to a later point,
+because drm_panel_prepare might need to communicate with the panel over
+the DSI link and that requires working interrupt.
 
-Do not use 'cdev' again after put_device() to fix the problem like doing
-in thermal_zone_device_register().
-
-[dlezcano]: as requested by Rafael, change the affectation into two statements.
-
-Fixes: 584837618100 ("thermal/drivers/core: Use a char pointer for the cooling device name")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/r/20211015024504.947520-1-william.xuanziyang@huawei.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: a689554ba6ed ("drm/msm: Initial add DSI connector support")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Abhinav Kumar <abhinavk@codeaurora.org>
+Link: https://lore.kernel.org/r/20211002010830.647416-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/thermal_core.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi.h         |  2 ++
+ drivers/gpu/drm/msm/dsi/dsi_host.c    | 48 +++++++++++++++++----------
+ drivers/gpu/drm/msm/dsi/dsi_manager.c | 16 +++++++++
+ 3 files changed, 49 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
-index d094ebbde0ed7..30134f49b037a 100644
---- a/drivers/thermal/thermal_core.c
-+++ b/drivers/thermal/thermal_core.c
-@@ -887,7 +887,7 @@ __thermal_cooling_device_register(struct device_node *np,
+diff --git a/drivers/gpu/drm/msm/dsi/dsi.h b/drivers/gpu/drm/msm/dsi/dsi.h
+index b50db91cb8a7e..569c8ff062ba4 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi.h
++++ b/drivers/gpu/drm/msm/dsi/dsi.h
+@@ -107,6 +107,8 @@ void msm_dsi_host_cmd_xfer_commit(struct mipi_dsi_host *host,
+ 					u32 dma_base, u32 len);
+ int msm_dsi_host_enable(struct mipi_dsi_host *host);
+ int msm_dsi_host_disable(struct mipi_dsi_host *host);
++void msm_dsi_host_enable_irq(struct mipi_dsi_host *host);
++void msm_dsi_host_disable_irq(struct mipi_dsi_host *host);
+ int msm_dsi_host_power_on(struct mipi_dsi_host *host,
+ 			struct msm_dsi_phy_shared_timings *phy_shared_timings,
+ 			bool is_bonded_dsi, struct msm_dsi_phy *phy);
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index c86b5090fae60..bccd379bdba75 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -1898,6 +1898,23 @@ int msm_dsi_host_init(struct msm_dsi *msm_dsi)
+ 		return ret;
+ 	}
+ 
++	msm_host->irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
++	if (msm_host->irq < 0) {
++		ret = msm_host->irq;
++		dev_err(&pdev->dev, "failed to get irq: %d\n", ret);
++		return ret;
++	}
++
++	/* do not autoenable, will be enabled later */
++	ret = devm_request_irq(&pdev->dev, msm_host->irq, dsi_host_irq,
++			IRQF_TRIGGER_HIGH | IRQF_ONESHOT | IRQF_NO_AUTOEN,
++			"dsi_isr", msm_host);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "failed to request IRQ%u: %d\n",
++				msm_host->irq, ret);
++		return ret;
++	}
++
+ 	init_completion(&msm_host->dma_comp);
+ 	init_completion(&msm_host->video_comp);
+ 	mutex_init(&msm_host->dev_mutex);
+@@ -1941,25 +1958,8 @@ int msm_dsi_host_modeset_init(struct mipi_dsi_host *host,
  {
- 	struct thermal_cooling_device *cdev;
- 	struct thermal_zone_device *pos = NULL;
--	int ret;
-+	int id, ret;
+ 	struct msm_dsi_host *msm_host = to_msm_dsi_host(host);
+ 	const struct msm_dsi_cfg_handler *cfg_hnd = msm_host->cfg_hnd;
+-	struct platform_device *pdev = msm_host->pdev;
+ 	int ret;
  
- 	if (!ops || !ops->get_max_state || !ops->get_cur_state ||
- 	    !ops->set_cur_state)
-@@ -901,6 +901,7 @@ __thermal_cooling_device_register(struct device_node *np,
- 	if (ret < 0)
- 		goto out_kfree_cdev;
- 	cdev->id = ret;
-+	id = ret;
+-	msm_host->irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
+-	if (msm_host->irq < 0) {
+-		ret = msm_host->irq;
+-		DRM_DEV_ERROR(dev->dev, "failed to get irq: %d\n", ret);
+-		return ret;
+-	}
+-
+-	ret = devm_request_irq(&pdev->dev, msm_host->irq,
+-			dsi_host_irq, IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
+-			"dsi_isr", msm_host);
+-	if (ret < 0) {
+-		DRM_DEV_ERROR(&pdev->dev, "failed to request IRQ%u: %d\n",
+-				msm_host->irq, ret);
+-		return ret;
+-	}
+-
+ 	msm_host->dev = dev;
+ 	ret = cfg_hnd->ops->tx_buf_alloc(msm_host, SZ_4K);
+ 	if (ret) {
+@@ -2315,6 +2315,20 @@ void msm_dsi_host_get_phy_clk_req(struct mipi_dsi_host *host,
+ 	clk_req->escclk_rate = msm_host->esc_clk_rate;
+ }
  
- 	ret = dev_set_name(&cdev->device, "cooling_device%d", cdev->id);
- 	if (ret)
-@@ -944,8 +945,9 @@ __thermal_cooling_device_register(struct device_node *np,
- out_kfree_type:
- 	kfree(cdev->type);
- 	put_device(&cdev->device);
-+	cdev = NULL;
- out_ida_remove:
--	ida_simple_remove(&thermal_cdev_ida, cdev->id);
-+	ida_simple_remove(&thermal_cdev_ida, id);
- out_kfree_cdev:
- 	kfree(cdev);
- 	return ERR_PTR(ret);
++void msm_dsi_host_enable_irq(struct mipi_dsi_host *host)
++{
++	struct msm_dsi_host *msm_host = to_msm_dsi_host(host);
++
++	enable_irq(msm_host->irq);
++}
++
++void msm_dsi_host_disable_irq(struct mipi_dsi_host *host)
++{
++	struct msm_dsi_host *msm_host = to_msm_dsi_host(host);
++
++	disable_irq(msm_host->irq);
++}
++
+ int msm_dsi_host_enable(struct mipi_dsi_host *host)
+ {
+ 	struct msm_dsi_host *msm_host = to_msm_dsi_host(host);
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_manager.c b/drivers/gpu/drm/msm/dsi/dsi_manager.c
+index c41d39f5b7cf4..fb4ccffdcfe13 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_manager.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_manager.c
+@@ -377,6 +377,14 @@ static void dsi_mgr_bridge_pre_enable(struct drm_bridge *bridge)
+ 		}
+ 	}
+ 
++	/*
++	 * Enable before preparing the panel, disable after unpreparing, so
++	 * that the panel can communicate over the DSI link.
++	 */
++	msm_dsi_host_enable_irq(host);
++	if (is_bonded_dsi && msm_dsi1)
++		msm_dsi_host_enable_irq(msm_dsi1->host);
++
+ 	/* Always call panel functions once, because even for dual panels,
+ 	 * there is only one drm_panel instance.
+ 	 */
+@@ -411,6 +419,10 @@ host_en_fail:
+ 	if (panel)
+ 		drm_panel_unprepare(panel);
+ panel_prep_fail:
++	msm_dsi_host_disable_irq(host);
++	if (is_bonded_dsi && msm_dsi1)
++		msm_dsi_host_disable_irq(msm_dsi1->host);
++
+ 	if (is_bonded_dsi && msm_dsi1)
+ 		msm_dsi_host_power_off(msm_dsi1->host);
+ host1_on_fail:
+@@ -523,6 +535,10 @@ static void dsi_mgr_bridge_post_disable(struct drm_bridge *bridge)
+ 								id, ret);
+ 	}
+ 
++	msm_dsi_host_disable_irq(host);
++	if (is_bonded_dsi && msm_dsi1)
++		msm_dsi_host_disable_irq(msm_dsi1->host);
++
+ 	/* Save PHY status if it is a clock source */
+ 	msm_dsi_phy_pll_save_state(msm_dsi->phy);
+ 
 -- 
 2.33.0
 
