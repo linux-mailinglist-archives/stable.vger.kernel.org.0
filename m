@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3029D450D13
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:46:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93044451083
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:46:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237510AbhKORtV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:49:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57924 "EHLO mail.kernel.org"
+        id S239084AbhKOSts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:49:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238669AbhKORrF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:47:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B04986331C;
-        Mon, 15 Nov 2021 17:29:35 +0000 (UTC)
+        id S242840AbhKOSqg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:46:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B6666338A;
+        Mon, 15 Nov 2021 18:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997376;
-        bh=amcfJlGK8EQzzLl/9k8w85fKP6X61/j4euPeLkcMqEE=;
+        s=korg; t=1636999631;
+        bh=V7pG7luS5Dn5jZqSoVh10Xv6MOneDPOPyqFVscC7crM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9Q29WE2qdo7aWN7ULE0vesmikUTMaa2QOJ31n+IjJcSePe2W70k8UZQdYwFSgNuU
-         Ti6x0BXJ6+nQBg2/VgNBu3J46/VakdRArbPuVHdO2HpktZEtFZryZOTltW/FffzrSC
-         1ql7e2TMDUrW5Nzyh18VIhJqOGV52zghhrSAdPQo=
+        b=d5oa7PwCsONZ3XaVUtNWYpp5wWI+MvmUydF3dVykIfS9YcNblbiljiXl7zAQAw+79
+         2LFJnEcLk4UDz4ZmmJ91kRLq1qdZaF44HuHLp0NaY5vWK4KnJL2J0i/ffz4yrqMPDG
+         RfXjDnLlLJB4kGJozwkch+mGRvXbsqDWQSJObB3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.10 126/575] KVM: arm64: Extract ESR_ELx.EC only
+        stable@vger.kernel.org, Sriram R <srirrama@codeaurora.org>,
+        Jouni Malinen <jouni@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 368/849] ath11k: Avoid race during regd updates
 Date:   Mon, 15 Nov 2021 17:57:31 +0100
-Message-Id: <20211115165348.069549994@linuxfoundation.org>
+Message-Id: <20211115165432.681689932@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +41,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Sriram R <srirrama@codeaurora.org>
 
-commit 8bb084119f1acc2ec55ea085a97231e3ddb30782 upstream.
+[ Upstream commit 1db2b0d0a39102238fcbf9092cefa65a710642e9 ]
 
-Since ARMv8.0 the upper 32 bits of ESR_ELx have been RES0, and recently
-some of the upper bits gained a meaning and can be non-zero. For
-example, when FEAT_LS64 is implemented, ESR_ELx[36:32] contain ISS2,
-which for an ST64BV or ST64BV0 can be non-zero. This can be seen in ARM
-DDI 0487G.b, page D13-3145, section D13.2.37.
+Whenever ath11k is bootup with a user country already set, cfg80211
+notifies this country info to ath11k soon after registration, where the
+notification is sent to the firmware for fetching the rules of this user
+country input.
 
-Generally, we must not rely on RES0 bit remaining zero in future, and
-when extracting ESR_ELx.EC we must mask out all other bits.
+Multiple race conditions could be seen in this scenario where a new
+request is either lost as pointed in [1] or a new regd overwrites the
+default regd provided by the firmware during bootup. Note that, the
+default regd is used for intersection purpose and hence it should not be
+overwritten.
 
-All C code uses the ESR_ELx_EC() macro, which masks out the irrelevant
-bits, and therefore no alterations are required to C code to avoid
-consuming irrelevant bits.
+The main reason as pointed by [1] is the usage of ATH11K_FLAG_REGISTERED
+flag which is updated after completion of core registration, whereas the
+reg notification from cfg80211 and wmi events for the corresponding
+request can happen much before that. Since the ATH11K_FLAG_REGISTERED is
+currently used to determine if the event containing reg rules belong to
+default regd or for user request, there is a possibility of the default
+regd getting overwritten.
 
-In a couple of places the KVM assembly extracts ESR_ELx.EC using LSR on
-an X register, and so could in theory consume previously RES0 bits. In
-both cases this is for comparison with EC values ESR_ELx_EC_HVC32 and
-ESR_ELx_EC_HVC64, for which the upper bits of ESR_ELx must currently be
-zero, but this could change in future.
+Since the default reg rules will be received only once per pdev on
+firmware load, the above flag based check can be replaced with a check
+to see if default_regd is already set, so that we can now always update
+the new_regd. Also if the new_regd is set, this will be always used to
+update the reg rules for the registered phy.
 
-This patch adjusts the KVM vectors to use UBFX rather than LSR to
-extract ESR_ELx.EC, ensuring these are robust to future additions to
-ESR_ELx.
+[1] https://patchwork.kernel.org/project/linux-wireless/patch/1829665.1PRlr7bOQj@ripper/
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexandru Elisei <alexandru.elisei@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211103110545.4613-1-mark.rutland@arm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.4.0.1-01460-QCAHKSWPL_SILICONZ-1
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+
+Signed-off-by: Sriram R <srirrama@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210721212029.142388-4-jouni@codeaurora.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/esr.h   |    1 +
- arch/arm64/kvm/hyp/hyp-entry.S |    2 +-
- arch/arm64/kvm/hyp/nvhe/host.S |    2 +-
- 3 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath11k/mac.c |  2 +-
+ drivers/net/wireless/ath/ath11k/reg.c | 11 ++++++-----
+ drivers/net/wireless/ath/ath11k/reg.h |  2 +-
+ drivers/net/wireless/ath/ath11k/wmi.c | 16 ++++++----------
+ 4 files changed, 14 insertions(+), 17 deletions(-)
 
---- a/arch/arm64/include/asm/esr.h
-+++ b/arch/arm64/include/asm/esr.h
-@@ -68,6 +68,7 @@
- #define ESR_ELx_EC_MAX		(0x3F)
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index e9b3689331ec2..89a64ebd620f3 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -6590,7 +6590,7 @@ static int __ath11k_mac_register(struct ath11k *ar)
+ 		ar->hw->wiphy->interface_modes &= ~BIT(NL80211_IFTYPE_MONITOR);
  
- #define ESR_ELx_EC_SHIFT	(26)
-+#define ESR_ELx_EC_WIDTH	(6)
- #define ESR_ELx_EC_MASK		(UL(0x3F) << ESR_ELx_EC_SHIFT)
- #define ESR_ELx_EC(esr)		(((esr) & ESR_ELx_EC_MASK) >> ESR_ELx_EC_SHIFT)
+ 	/* Apply the regd received during initialization */
+-	ret = ath11k_regd_update(ar, true);
++	ret = ath11k_regd_update(ar);
+ 	if (ret) {
+ 		ath11k_err(ar->ab, "ath11k regd update failed: %d\n", ret);
+ 		goto err_unregister_hw;
+diff --git a/drivers/net/wireless/ath/ath11k/reg.c b/drivers/net/wireless/ath/ath11k/reg.c
+index e1a1df169034b..92c59009a8ac2 100644
+--- a/drivers/net/wireless/ath/ath11k/reg.c
++++ b/drivers/net/wireless/ath/ath11k/reg.c
+@@ -198,7 +198,7 @@ static void ath11k_copy_regd(struct ieee80211_regdomain *regd_orig,
+ 		       sizeof(struct ieee80211_reg_rule));
+ }
  
---- a/arch/arm64/kvm/hyp/hyp-entry.S
-+++ b/arch/arm64/kvm/hyp/hyp-entry.S
-@@ -43,7 +43,7 @@
- el1_sync:				// Guest trapped into EL2
+-int ath11k_regd_update(struct ath11k *ar, bool init)
++int ath11k_regd_update(struct ath11k *ar)
+ {
+ 	struct ieee80211_regdomain *regd, *regd_copy = NULL;
+ 	int ret, regd_len, pdev_id;
+@@ -209,7 +209,10 @@ int ath11k_regd_update(struct ath11k *ar, bool init)
  
- 	mrs	x0, esr_el2
--	lsr	x0, x0, #ESR_ELx_EC_SHIFT
-+	ubfx	x0, x0, #ESR_ELx_EC_SHIFT, #ESR_ELx_EC_WIDTH
- 	cmp	x0, #ESR_ELx_EC_HVC64
- 	ccmp	x0, #ESR_ELx_EC_HVC32, #4, ne
- 	b.ne	el1_trap
---- a/arch/arm64/kvm/hyp/nvhe/host.S
-+++ b/arch/arm64/kvm/hyp/nvhe/host.S
-@@ -97,7 +97,7 @@ SYM_FUNC_END(__hyp_do_panic)
- .L__vect_start\@:
- 	stp	x0, x1, [sp, #-16]!
- 	mrs	x0, esr_el2
--	lsr	x0, x0, #ESR_ELx_EC_SHIFT
-+	ubfx	x0, x0, #ESR_ELx_EC_SHIFT, #ESR_ELx_EC_WIDTH
- 	cmp	x0, #ESR_ELx_EC_HVC64
- 	ldp	x0, x1, [sp], #16
- 	b.ne	__host_exit
+ 	spin_lock_bh(&ab->base_lock);
+ 
+-	if (init) {
++	/* Prefer the latest regd update over default if it's available */
++	if (ab->new_regd[pdev_id]) {
++		regd = ab->new_regd[pdev_id];
++	} else {
+ 		/* Apply the regd received during init through
+ 		 * WMI_REG_CHAN_LIST_CC event. In case of failure to
+ 		 * receive the regd, initialize with a default world
+@@ -222,8 +225,6 @@ int ath11k_regd_update(struct ath11k *ar, bool init)
+ 				    "failed to receive default regd during init\n");
+ 			regd = (struct ieee80211_regdomain *)&ath11k_world_regd;
+ 		}
+-	} else {
+-		regd = ab->new_regd[pdev_id];
+ 	}
+ 
+ 	if (!regd) {
+@@ -683,7 +684,7 @@ void ath11k_regd_update_work(struct work_struct *work)
+ 					 regd_update_work);
+ 	int ret;
+ 
+-	ret = ath11k_regd_update(ar, false);
++	ret = ath11k_regd_update(ar);
+ 	if (ret) {
+ 		/* Firmware has already moved to the new regd. We need
+ 		 * to maintain channel consistency across FW, Host driver
+diff --git a/drivers/net/wireless/ath/ath11k/reg.h b/drivers/net/wireless/ath/ath11k/reg.h
+index 65d56d44796f6..5fb9dc03a74e8 100644
+--- a/drivers/net/wireless/ath/ath11k/reg.h
++++ b/drivers/net/wireless/ath/ath11k/reg.h
+@@ -31,6 +31,6 @@ void ath11k_regd_update_work(struct work_struct *work);
+ struct ieee80211_regdomain *
+ ath11k_reg_build_regd(struct ath11k_base *ab,
+ 		      struct cur_regulatory_info *reg_info, bool intersect);
+-int ath11k_regd_update(struct ath11k *ar, bool init);
++int ath11k_regd_update(struct ath11k *ar);
+ int ath11k_reg_update_chan_list(struct ath11k *ar);
+ #endif
+diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
+index 72da1283f2ccb..a53eef8e2631c 100644
+--- a/drivers/net/wireless/ath/ath11k/wmi.c
++++ b/drivers/net/wireless/ath/ath11k/wmi.c
+@@ -5841,10 +5841,10 @@ static int ath11k_reg_chan_list_event(struct ath11k_base *ab, struct sk_buff *sk
+ 	}
+ 
+ 	spin_lock(&ab->base_lock);
+-	if (test_bit(ATH11K_FLAG_REGISTERED, &ab->dev_flags)) {
+-		/* Once mac is registered, ar is valid and all CC events from
+-		 * fw is considered to be received due to user requests
+-		 * currently.
++	if (ab->default_regd[pdev_idx]) {
++		/* The initial rules from FW after WMI Init is to build
++		 * the default regd. From then on, any rules updated for
++		 * the pdev could be due to user reg changes.
+ 		 * Free previously built regd before assigning the newly
+ 		 * generated regd to ar. NULL pointer handling will be
+ 		 * taken care by kfree itself.
+@@ -5854,13 +5854,9 @@ static int ath11k_reg_chan_list_event(struct ath11k_base *ab, struct sk_buff *sk
+ 		ab->new_regd[pdev_idx] = regd;
+ 		ieee80211_queue_work(ar->hw, &ar->regd_update_work);
+ 	} else {
+-		/* Multiple events for the same *ar is not expected. But we
+-		 * can still clear any previously stored default_regd if we
+-		 * are receiving this event for the same radio by mistake.
+-		 * NULL pointer handling will be taken care by kfree itself.
++		/* This regd would be applied during mac registration and is
++		 * held constant throughout for regd intersection purpose
+ 		 */
+-		kfree(ab->default_regd[pdev_idx]);
+-		/* This regd would be applied during mac registration */
+ 		ab->default_regd[pdev_idx] = regd;
+ 	}
+ 	ab->dfs_region = reg_info->dfs_region;
+-- 
+2.33.0
+
 
 
