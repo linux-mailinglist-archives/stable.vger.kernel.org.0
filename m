@@ -2,95 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B03DD4517DB
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 23:47:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED9A34517E0
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 23:47:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233543AbhKOWr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 17:47:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44706 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233131AbhKOWaR (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 17:30:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E25361B4C;
-        Mon, 15 Nov 2021 22:27:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637015242;
-        bh=X4nf6zOoRNxUt/0DyKF3TZAqtdB9crSvaHwx2vHHoeg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=pd4lBh9Jlq3BumV0u9ymaqhndjHBORLGS5XL4sE8bdkXdYujxQz0W1Cp7IeDY5kW5
-         j5bMrtjcNWiv00YhWPq7TQt2KUTcFj0DdoN/1fyqXxYlXXJAVobITAlE4vRaZvI4YY
-         5YsOA8z1+VgZPrJqFkyS6RIxbtCeV8hrr8mmaz8+xLCudLguch2u23Dyeq5lXDE2rK
-         JMLFNC9OawT+tuj14ujpzjU0czDvKd18Gt6qZT/+wSjZ/9AGj0zx8c7Rl1mA2Vzjji
-         6QBl0Tb515an6Ecu2B9EdVaxgZiCzdoDmrO6q5c2CTXNx2WrEYKFE8Q+pSDQIdn8Tq
-         VzzkvMiNvMAYw==
-From:   Stefano Stabellini <sstabellini@kernel.org>
-To:     jgross@suse.com
-Cc:     boris.ostrovsky@oracle.com, xen-devel@lists.xenproject.org,
-        linux-kernel@vger.kernel.org, sstabellini@kernel.org,
-        Stefano Stabellini <stefano.stabellini@xilinx.com>,
-        Stable@vger.kernel.org, jbeulich@suse.com
-Subject: [PATCH v2] xen: don't continue xenstore initialization in case of errors
-Date:   Mon, 15 Nov 2021 14:27:19 -0800
-Message-Id: <20211115222719.2558207-1-sstabellini@kernel.org>
-X-Mailer: git-send-email 2.25.1
+        id S1348182AbhKOWsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 17:48:53 -0500
+Received: from outgoing-stata.csail.mit.edu ([128.30.2.210]:46666 "EHLO
+        outgoing-stata.csail.mit.edu" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1351060AbhKOWiy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 17:38:54 -0500
+Received: from [128.177.79.46] (helo=csail.mit.edu)
+        by outgoing-stata.csail.mit.edu with esmtpsa (TLS1.2:RSA_AES_256_CBC_SHA1:256)
+        (Exim 4.82)
+        (envelope-from <srivatsa@csail.mit.edu>)
+        id 1mmkZp-0005ex-25; Mon, 15 Nov 2021 17:35:49 -0500
+Date:   Mon, 15 Nov 2021 14:39:00 -0800
+From:   "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, jgross@suse.com,
+        x86@kernel.org, pv-drivers@vmware.com,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        Deep Shah <sdeep@vmware.com>, stable@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
+        srivatsab@vmware.com, anishs@vmware.com, vithampi@vmware.com,
+        linux-kernel@vger.kernel.org, namit@vmware.com, joe@perches.com,
+        kuba@kernel.org, rostedt@goodmis.org
+Subject: Re: [PATCH v3 1/3] MAINTAINERS: Update maintainers for paravirt ops
+ and VMware hypervisor interface
+Message-ID: <20211115223900.GA22267@csail.mit.edu>
+References: <163657479269.84207.13658789048079672839.stgit@srivatsa-dev>
+ <163657487268.84207.5604596767569015608.stgit@srivatsa-dev>
+ <YYy9P7Rjg9hntmm3@kroah.com>
+ <20211111153916.GA7966@csail.mit.edu>
+ <YY1krlfM5R7uEzJF@kroah.com>
+ <20211111194002.GA8739@csail.mit.edu>
+ <YY6hhWtvh+OvOqAl@sashalap>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YY6hhWtvh+OvOqAl@sashalap>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Stabellini <stefano.stabellini@xilinx.com>
+On Fri, Nov 12, 2021 at 12:16:53PM -0500, Sasha Levin wrote:
+> On Thu, Nov 11, 2021 at 11:40:02AM -0800, Srivatsa S. Bhat wrote:
+> > On Thu, Nov 11, 2021 at 07:45:02PM +0100, Greg KH wrote:
+> > > On Thu, Nov 11, 2021 at 07:39:16AM -0800, Srivatsa S. Bhat wrote:
+> > > > On Thu, Nov 11, 2021 at 07:50:39AM +0100, Greg KH wrote:
+> > > > > On Wed, Nov 10, 2021 at 12:08:16PM -0800, Srivatsa S. Bhat wrote:
+> > > > > > From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> > > > > >
+> > > > > > Deep has decided to transfer maintainership of the VMware hypervisor
+> > > > > > interface to Srivatsa, and the joint-maintainership of paravirt ops in
+> > > > > > the Linux kernel to Srivatsa and Alexey. Update the MAINTAINERS file
+> > > > > > to reflect this change.
+> > > > > >
+> > > > > > Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> > > > > > Acked-by: Alexey Makhalov <amakhalov@vmware.com>
+> > > > > > Acked-by: Deep Shah <sdeep@vmware.com>
+> > > > > > Acked-by: Juergen Gross <jgross@suse.com>
+> > > > > > Cc: stable@vger.kernel.org
+> > > > >
+> > > > > Why are MAINTAINERS updates needed for stable?  That's not normal :(
+> > > >
+> > > > So that people posting bug-fixes / backports to these subsystems for
+> > > > older kernels (stable and LTS releases) will CC the new subsystem
+> > > > maintainers.
+> > > 
+> > > That's not how stable releases work at all.
+> > > 
+> > > > That's why I added CC stable tag only to the first two
+> > > > patches which add/replace maintainers and not the third patch which is
+> > > > just a cleanup.
+> > > 
+> > > Patches for stable kernels need to go into Linus's tree first, and if
+> > > you have the MAINTAINERS file updated properly there, then you will be
+> > > properly cc:ed.  We do not look at the MAINTAINERS file for the older
+> > > kernel when sending patches out, it's totally ignored as that was the
+> > > snapshot at a point in time, which is usually no longer the true state.
+> > > 
+> > 
+> > Sure, but that's the case for patches that get mainlined (and
+> > subsequently backported to -stable) /after/ this update to the
+> > MAINTAINERS file gets merged into mainline.
+> > 
+> > When adding the CC stable tag, the case I was trying to address was
+> > for patches that are already in mainline but weren't CC'ed to stable,
+> > and at some later point, somebody decides to backport them to older
+> > stable kernels. In that case, there is a chance that the contributor
+> > might run ./get_maintainer.pl against the stable tree (as that's the
+> > tree they are backporting the upstream commit against) and end up not
+> > CC'ing the new maintainers. So, I thought it would be good to keep the
+> > maintainer info updated in the older stable kernels too.
+> 
+> If you look at cases like these, I can see an argument around bringing
+> it back to -stable. However, changes in the upstream MAINTAINERS file
+> aren't limited to just change in maintainers.
+> 
+> How would we handle addition of maintainers of a new code upstream? Or
+> removal of maintainers due to code deletion? Or code movement upstream
+> that isn't reflected in the stable tree (think a driver graduating from
+> staging).
+> 
 
-In case of errors in xenbus_init (e.g. missing xen_store_gfn parameter),
-we goto out_error but we forget to reset xen_store_domain_type to
-XS_UNKNOWN. As a consequence xenbus_probe_initcall and other initcalls
-will still try to initialize xenstore resulting into a crash at boot.
+Good point!
 
-[    2.479830] Call trace:
-[    2.482314]  xb_init_comms+0x18/0x150
-[    2.486354]  xs_init+0x34/0x138
-[    2.489786]  xenbus_probe+0x4c/0x70
-[    2.498432]  xenbus_probe_initcall+0x2c/0x7c
-[    2.503944]  do_one_initcall+0x54/0x1b8
-[    2.507358]  kernel_init_freeable+0x1ac/0x210
-[    2.511617]  kernel_init+0x28/0x130
-[    2.516112]  ret_from_fork+0x10/0x20
+> It becomes a mess quite quickly and the easiest solution here is to just
+> use upstream's MAINTAINERS file.
+> 
 
-Cc: <Stable@vger.kernel.org>
-Cc: jbeulich@suse.com
-Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
----
-Changes in v2:
-- use return 0 for the success case
-- remove err initializer as it is not useful any longer
----
- drivers/xen/xenbus/xenbus_probe.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Agreed.
 
-diff --git a/drivers/xen/xenbus/xenbus_probe.c b/drivers/xen/xenbus/xenbus_probe.c
-index bd003ca8acbe..5967aa937255 100644
---- a/drivers/xen/xenbus/xenbus_probe.c
-+++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -909,7 +909,7 @@ static struct notifier_block xenbus_resume_nb = {
- 
- static int __init xenbus_init(void)
- {
--	int err = 0;
-+	int err;
- 	uint64_t v = 0;
- 	xen_store_domain_type = XS_UNKNOWN;
- 
-@@ -983,8 +983,10 @@ static int __init xenbus_init(void)
- 	 */
- 	proc_create_mount_point("xen");
- #endif
-+	return 0;
- 
- out_error:
-+	xen_store_domain_type = XS_UNKNOWN;
- 	return err;
- }
- 
--- 
-2.25.1
+> Maybe we should just remove MAINTAINERS from stable trees to make it
+> obvious.
+> 
 
+I don't think we should go quite that far. Instead, perhaps we can
+modify get_maintainer.pl (if needed) such that it prints out a warning
+or reminder to consult the upstream MAINTAINERS file if the script is
+invoked on an older stable kernel.
+
+Regards,
+Srivatsa
