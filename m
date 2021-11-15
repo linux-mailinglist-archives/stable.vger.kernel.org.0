@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4400451F2C
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25069451E0B
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355433AbhKPAiY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:38:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
+        id S1345599AbhKPAe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:34:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344495AbhKOTYw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344493AbhKOTYw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:24:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C45A61AF0;
-        Mon, 15 Nov 2021 18:58:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4792C63497;
+        Mon, 15 Nov 2021 18:58:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002723;
-        bh=HAE1uLHAMNhtS2u1iqMWBioxpDilE97TU/dWJWCFxF0=;
+        s=korg; t=1637002725;
+        bh=YkW54Ki9Rm7PI7jJAHMIiMXvoahIDOnYIWMdyhs4yPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6FF7h1rPbe7rUW0EzG9xCFFm7qOTg3KyEQEInfJWxpdzCta5dsm00bTfao5mO+1t
-         fwkZpuZbF0cREa93af8drZlB1rQ6hR1jU3Mj4uxian/PC6063PxhLqzgnJtQW3svxq
-         Y9Evbvzda++4mmW0muBWO3WP5DL1vj5oHZ0WngbI=
+        b=UEwiavay1v8+y0kM6SAWwvPoe9OTnkszdfF9ICCFr5WwspeaVtKB2FWbcI+4ovMBj
+         LHIKH8HanyuVxSeOYtk9DZ+0fnIFjOHOnZYHmNQPB9ALfFevJn5ruLAo9Fn6kE6MFY
+         A+zbK7hnXp+qBJqPqXbkc2EQ6RqNOX8sJB0dM5L4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Andrej Shadura <andrew.shadura@collabora.co.uk>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 674/917] HID: u2fzero: clarify error check and length calculations
-Date:   Mon, 15 Nov 2021 18:02:49 +0100
-Message-Id: <20211115165451.744420550@linuxfoundation.org>
+Subject: [PATCH 5.15 675/917] HID: u2fzero: properly handle timeouts in usb_submit_urb
+Date:   Mon, 15 Nov 2021 18:02:50 +0100
+Message-Id: <20211115165451.778852279@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,58 +42,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andrej Shadura <andrew.shadura@collabora.co.uk>
 
-[ Upstream commit b7abf78b7a6c4a29a6e0ba0bb883fe44a2f3d693 ]
+[ Upstream commit 43775e62c4b784f44a159e13ba80e6146a42d502 ]
 
-The previous commit fixed handling of incomplete packets but broke error
-handling: offsetof returns an unsigned value (size_t), but when compared
-against the signed return value, the return value is interpreted as if
-it were unsigned, so negative return values are never less than the
-offset.
+The wait_for_completion_timeout function returns 0 if timed out or a
+positive value if completed. Hence, "less than zero" comparison always
+misses timeouts and doesn't kill the URB as it should, leading to
+re-sending it while it is active.
 
-To make the code easier to read, calculate the minimal packet length
-once and separately, and assign it to a signed int variable to eliminate
-unsigned math and the need for type casts. It then becomes immediately
-obvious how the actual data length is calculated and why the return
-value cannot be less than the minimal length.
-
-Fixes: 22d65765f211 ("HID: u2fzero: ignore incomplete packets without data")
 Fixes: 42337b9d4d95 ("HID: add driver for U2F Zero built-in LED and RNG")
 Signed-off-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-u2fzero.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/hid/hid-u2fzero.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-u2fzero.c b/drivers/hid/hid-u2fzero.c
-index d70cd3d7f583b..94f78ffb76d04 100644
+index 94f78ffb76d04..67ae2b18e33ac 100644
 --- a/drivers/hid/hid-u2fzero.c
 +++ b/drivers/hid/hid-u2fzero.c
-@@ -191,6 +191,8 @@ static int u2fzero_rng_read(struct hwrng *rng, void *data,
- 	struct u2f_hid_msg resp;
- 	int ret;
- 	size_t actual_length;
-+	/* valid packets must have a correct header */
-+	int min_length = offsetof(struct u2f_hid_msg, init.data);
+@@ -132,7 +132,7 @@ static int u2fzero_recv(struct u2fzero_device *dev,
  
- 	if (!dev->present) {
- 		hid_dbg(dev->hdev, "device not present");
-@@ -200,12 +202,12 @@ static int u2fzero_rng_read(struct hwrng *rng, void *data,
- 	ret = u2fzero_recv(dev, &req, &resp);
- 
- 	/* ignore errors or packets without data */
--	if (ret < offsetof(struct u2f_hid_msg, init.data))
-+	if (ret < min_length)
- 		return 0;
- 
- 	/* only take the minimum amount of data it is safe to take */
--	actual_length = min3((size_t)ret - offsetof(struct u2f_hid_msg,
--		init.data), U2F_HID_MSG_LEN(resp), max);
-+	actual_length = min3((size_t)ret - min_length,
-+		U2F_HID_MSG_LEN(resp), max);
- 
- 	memcpy(data, resp.init.data, actual_length);
- 
+ 	ret = (wait_for_completion_timeout(
+ 		&ctx.done, msecs_to_jiffies(USB_CTRL_SET_TIMEOUT)));
+-	if (ret < 0) {
++	if (ret == 0) {
+ 		usb_kill_urb(dev->urb);
+ 		hid_err(hdev, "urb submission timed out");
+ 	} else {
 -- 
 2.33.0
 
