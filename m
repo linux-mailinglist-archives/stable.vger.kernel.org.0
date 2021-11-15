@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A899C4513A8
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44C0B4513B2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348588AbhKOTyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:54:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
+        id S1348626AbhKOTyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:54:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343742AbhKOTV4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DE0763296;
-        Mon, 15 Nov 2021 18:45:27 +0000 (UTC)
+        id S1343864AbhKOTWQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:22:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00A9563395;
+        Mon, 15 Nov 2021 18:47:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001928;
-        bh=aFwVWyObgqDnVTp1yQd/rsY+wDdJUy/Sircfosmh8CU=;
+        s=korg; t=1637002049;
+        bh=OdPxKY2c7kAht3iiLXBnSutzuDh+aocw/PFPwt6d29o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h82CuuZE/0Z5iZSIJzmL56lOJgaOucw0zRSPpfmWxyfNKlZHBvP96qrb3hJ/Sqo2m
-         yFj1sRu+3WVZ0DEgrIjy/A4ZVawosYQKuBqiAegQmuR35mPdw88JDsxRhVhmGgooDx
-         tUiyRUMECL0q+Kcsd7IcbhNKy7TxZ9x8AsJ2IyEc=
+        b=VUt7gOpgqy0g3R8stpB9sQYTKVZXFrBmqKDcV0HEGifIcJMrpA5opByaNdNK6PwCz
+         0EtiT1hx3H/xqZ/ry1i7iYbJhxZ+FLCgn0HOVCer7FyfCPuLaXVKh4tpbLYjrfSy+7
+         0GjI/lLsJhJTijK5WgztI9QQCK0mHmYFsyLgpGLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 373/917] drm/ttm: stop calling tt_swapin in vm_access
-Date:   Mon, 15 Nov 2021 17:57:48 +0100
-Message-Id: <20211115165441.410239317@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+a6969ef522a36d3344c9@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 377/917] media: em28xx: add missing em28xx_close_extension
+Date:   Mon, 15 Nov 2021 17:57:52 +0100
+Message-Id: <20211115165441.547470216@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,57 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Auld <matthew.auld@intel.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit f5d28856b89baab4232a9f841e565763fcebcdf9 ]
+[ Upstream commit 2c98b8a3458df03abdc6945bbef67ef91d181938 ]
 
-In commit:
+If em28xx dev has ->dev_next pointer, we need to delete ->dev_next list
+node from em28xx_extension_devlist on disconnect to avoid UAF bugs and
+corrupted list bugs, since driver frees this pointer on disconnect.
 
-commit 09ac4fcb3f255e9225967c75f5893325c116cdbe
-Author: Felix Kuehling <Felix.Kuehling@amd.com>
-Date:   Thu Jul 13 17:01:16 2017 -0400
+Reported-and-tested-by: syzbot+a6969ef522a36d3344c9@syzkaller.appspotmail.com
 
-    drm/ttm: Implement vm_operations_struct.access v2
-
-we added the vm_access hook, where we also directly call tt_swapin for
-some reason. If something is swapped-out then the ttm_tt must also be
-unpopulated, and since access_kmap should also call tt_populate, if
-needed, then swapping-in will already be handled there.
-
-If anything, calling tt_swapin directly here would likely always fail
-since the tt->pages won't yet be populated, or worse since the tt->pages
-array is never actually cleared in unpopulate this might lead to a nasty
-uaf.
-
-Fixes: 09ac4fcb3f25 ("drm/ttm: Implement vm_operations_struct.access v2")
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Cc: Christian König <christian.koenig@amd.com>
-Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210927114114.152310-1-matthew.auld@intel.com
-Signed-off-by: Christian König <christian.koenig@amd.com>
+Fixes: 1a23f81b7dc3 ("V4L/DVB (9979): em28xx: move usb probe code to a proper place")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ttm/ttm_bo_vm.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/media/usb/em28xx/em28xx-cards.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/ttm/ttm_bo_vm.c b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-index f56be5bc0861e..5b9b7fd01a692 100644
---- a/drivers/gpu/drm/ttm/ttm_bo_vm.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-@@ -519,11 +519,6 @@ int ttm_bo_vm_access(struct vm_area_struct *vma, unsigned long addr,
+diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
+index c1e0dccb74088..948e22e29b42a 100644
+--- a/drivers/media/usb/em28xx/em28xx-cards.c
++++ b/drivers/media/usb/em28xx/em28xx-cards.c
+@@ -4139,8 +4139,11 @@ static void em28xx_usb_disconnect(struct usb_interface *intf)
  
- 	switch (bo->resource->mem_type) {
- 	case TTM_PL_SYSTEM:
--		if (unlikely(bo->ttm->page_flags & TTM_PAGE_FLAG_SWAPPED)) {
--			ret = ttm_tt_swapin(bo->ttm);
--			if (unlikely(ret != 0))
--				return ret;
--		}
- 		fallthrough;
- 	case TTM_PL_TT:
- 		ret = ttm_bo_vm_access_kmap(bo, offset, buf, len, write);
+ 	em28xx_close_extension(dev);
+ 
+-	if (dev->dev_next)
++	if (dev->dev_next) {
++		em28xx_close_extension(dev->dev_next);
+ 		em28xx_release_resources(dev->dev_next);
++	}
++
+ 	em28xx_release_resources(dev);
+ 
+ 	if (dev->dev_next) {
 -- 
 2.33.0
 
