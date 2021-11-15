@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D8B452399
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B33D3452650
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:01:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348391AbhKPB10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:27:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40340 "EHLO mail.kernel.org"
+        id S1348677AbhKPCEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:04:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244018AbhKOTIX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:08:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A33D963263;
-        Mon, 15 Nov 2021 18:17:38 +0000 (UTC)
+        id S239956AbhKOSFL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B06C632F3;
+        Mon, 15 Nov 2021 17:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000259;
-        bh=+nzL5jL2Msra/ldR9ANkqWpVG1UVslXzPszADpIIPxQ=;
+        s=korg; t=1636998025;
+        bh=0dxWu/VuRqyfzH7wNde602N0vf7ElPbN+0WzjLy/mu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ODyE+46BRL2gDZZv4PZsngH6LrPh5N+PhT9xF42LInLaHJ4ldjecH06Cqt/6vQ5U3
-         3erfMKhujXonVpAlNRNeIMdQu7VkYfrTqAjr2dAkcabvWU9CULrslFbDi8OHQhz4tK
-         Rg9qqSnzYzNq+vrzvNm/PCrJjoARvC0knCR9+fHs=
+        b=HEaE1Y4vbyQNzbDASxz0e32g4NGNmdqLIzRQskXqpC3hdUQJldZEQHVDRSA/4PbEn
+         4qAXczXMJoIYUKGYd24f9P4DoDi1UywKumXOyc8xMAXK6qCaez4djY+Bs93qt6pX33
+         C1EeWv1LZVpCrR56SDywgzcBpUbS4qjgdh0tHu4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
-        Anand Moon <linux.amoon@gmail.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 568/849] arm64: dts: meson-sm1: Fix the pwm regulator supply properties
-Date:   Mon, 15 Nov 2021 18:00:51 +0100
-Message-Id: <20211115165439.463688275@linuxfoundation.org>
+Subject: [PATCH 5.10 327/575] net: stream: dont purge sk_error_queue in sk_stream_kill_queues()
+Date:   Mon, 15 Nov 2021 18:00:52 +0100
+Message-Id: <20211115165355.107785706@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,90 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Moon <linux.amoon@gmail.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 0b26fa8a02c2834f1fa8a206a285b9f84c4ad764 ]
+[ Upstream commit 24bcbe1cc69fa52dc4f7b5b2456678ed464724d8 ]
 
-After enabling CONFIG_REGULATOR_DEBUG=y we observe below debug logs.
-Changes help link VDDCPU pwm regulator to 12V regulator supply
-instead of dummy regulator.
+sk_stream_kill_queues() can be called on close when there are
+still outstanding skbs to transmit. Those skbs may try to queue
+notifications to the error queue (e.g. timestamps).
+If sk_stream_kill_queues() purges the queue without taking
+its lock the queue may get corrupted, and skbs leaked.
 
-[   11.602281] pwm-regulator regulator-vddcpu: Looking up pwm-supply property
-               in node /regulator-vddcpu failed
-[   11.602344] VDDCPU: supplied by regulator-dummy
-[   11.602365] regulator-dummy: could not add device link regulator.11: -ENOENT
-[   11.602548] VDDCPU: 721 <--> 1022 mV at 1022 mV, enabled
+This shows up as a warning about an rmem leak:
 
-Fixes: 88d537bc92ca ("arm64: dts: meson: convert meson-sm1-odroid-c4 to dtsi")
-Fixes: 700ab8d83927 ("arm64: dts: khadas-vim3: add support for the SM1 based VIM3L")
-Fixes: 3d9e76483049 ("arm64: dts: meson-sm1-sei610: enable DVFS")
-Fixes: 976e920183e4 ("arm64: dts: meson-sm1: add Banana PI BPI-M5 board dts")
+WARNING: CPU: 24 PID: 0 at net/ipv4/af_inet.c:154 inet_sock_destruct+0x...
 
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Anand Moon <linux.amoon@gmail.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20210919202918.3556-4-linux.amoon@gmail.com
+The leak is always a multiple of 0x300 bytes (the value is in
+%rax on my builds, so RAX: 0000000000000300). 0x300 is truesize of
+an empty sk_buff. Indeed if we dump the socket state at the time
+of the warning the sk_error_queue is often (but not always)
+corrupted. The ->next pointer points back at the list head,
+but not the ->prev pointer. Indeed we can find the leaked skb
+by scanning the kernel memory for something that looks like
+an skb with ->sk = socket in question, and ->truesize = 0x300.
+The contents of ->cb[] of the skb confirms the suspicion that
+it is indeed a timestamp notification (as generated in
+__skb_complete_tx_timestamp()).
+
+Removing purging of sk_error_queue should be okay, since
+inet_sock_destruct() does it again once all socket refs
+are gone. Eric suggests this may cause sockets that go
+thru disconnect() to maintain notifications from the
+previous incarnations of the socket, but that should be
+okay since the race was there anyway, and disconnect()
+is not exactly dependable.
+
+Thanks to Jonathan Lemon and Omar Sandoval for help at various
+stages of tracing the issue.
+
+Fixes: cb9eff097831 ("net: new user space API for time stamping of incoming and outgoing packets")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts  | 2 +-
- arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts | 2 +-
- arch/arm64/boot/dts/amlogic/meson-sm1-odroid.dtsi      | 2 +-
- arch/arm64/boot/dts/amlogic/meson-sm1-sei610.dts       | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ net/core/stream.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
-index effaa138b5f98..212c6aa5a3b86 100644
---- a/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
-@@ -173,7 +173,7 @@
- 		regulator-min-microvolt = <690000>;
- 		regulator-max-microvolt = <1050000>;
+diff --git a/net/core/stream.c b/net/core/stream.c
+index 4f1d4aa5fb38d..a166a32b411fa 100644
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -195,9 +195,6 @@ void sk_stream_kill_queues(struct sock *sk)
+ 	/* First the read buffer. */
+ 	__skb_queue_purge(&sk->sk_receive_queue);
  
--		vin-supply = <&dc_in>;
-+		pwm-supply = <&dc_in>;
+-	/* Next, the error queue. */
+-	__skb_queue_purge(&sk->sk_error_queue);
+-
+ 	/* Next, the write queue. */
+ 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
  
- 		pwms = <&pwm_AO_cd 1 1250 0>;
- 		pwm-dutycycle-range = <100 0>;
-diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
-index f2c0981435944..9c0b544e22098 100644
---- a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
-@@ -24,7 +24,7 @@
- 		regulator-min-microvolt = <690000>;
- 		regulator-max-microvolt = <1050000>;
- 
--		vin-supply = <&vsys_3v3>;
-+		pwm-supply = <&vsys_3v3>;
- 
- 		pwms = <&pwm_AO_cd 1 1250 0>;
- 		pwm-dutycycle-range = <100 0>;
-diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid.dtsi b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid.dtsi
-index 45e7fcb062f96..5779e70caccd3 100644
---- a/arch/arm64/boot/dts/amlogic/meson-sm1-odroid.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1-odroid.dtsi
-@@ -116,7 +116,7 @@
- 		regulator-min-microvolt = <721000>;
- 		regulator-max-microvolt = <1022000>;
- 
--		vin-supply = <&main_12v>;
-+		pwm-supply = <&main_12v>;
- 
- 		pwms = <&pwm_AO_cd 1 1250 0>;
- 		pwm-dutycycle-range = <100 0>;
-diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-sei610.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-sei610.dts
-index 2194a778973f1..427475846fc70 100644
---- a/arch/arm64/boot/dts/amlogic/meson-sm1-sei610.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1-sei610.dts
-@@ -185,7 +185,7 @@
- 		regulator-min-microvolt = <690000>;
- 		regulator-max-microvolt = <1050000>;
- 
--		vin-supply = <&dc_in>;
-+		pwm-supply = <&dc_in>;
- 
- 		pwms = <&pwm_AO_cd 1 1500 0>;
- 		pwm-dutycycle-range = <100 0>;
 -- 
 2.33.0
 
