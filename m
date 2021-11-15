@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B99C7451DFD
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06704451F4D
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350137AbhKPAek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:34:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
+        id S1355961AbhKPAir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:38:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344119AbhKOTX0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 196456362C;
-        Mon, 15 Nov 2021 18:52:14 +0000 (UTC)
+        id S1344044AbhKOTXM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8202E6361C;
+        Mon, 15 Nov 2021 18:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002335;
-        bh=30zaXgkWn6LMf8F82UXUSME9HHe90ZQ+tE5KmINAcbE=;
+        s=korg; t=1637002241;
+        bh=JEwMn5gTkrBchXO4VU1g4R/loMNyVmPXU0YgI8/IL9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/Ke2rfTSw5atJBBouKFDfJ6E38xEDYC/jZYAs0RXapWqJ8d8ukdpayCPa8HwKfvS
-         7Je2cDlJmzMBO41bd/0BA4eXXN+31wbvQ2Zxkt5yVqx5Pa0FNWGIVarsDDlpdPISR5
-         nNOjNErueFrbHMxg+Put+EzN4cr9+BumYzNdxV60=
+        b=E1VyxMqjU9eCvuwA7RJjrKX2OZuuDwgXwvGYllhmS4xyE13ahykPEiUgfSjHhIcvQ
+         wiPtfv65Jj/9ukikoYbickkNAvCH/U6wlVtVLrW5xOiFMAwkpio8oVIHUckAR74TLi
+         tvRFYL7QFu8pqdS57qq8WEq1NX5bnyAONWwShsPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shayne Chen <shayne.chen@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 483/917] mt76: mt7915: fix muar_idx in mt7915_mcu_alloc_sta_req()
-Date:   Mon, 15 Nov 2021 17:59:38 +0100
-Message-Id: <20211115165445.159192388@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 484/917] rsi: stop thread firstly in rsi_91x_init() error handling
+Date:   Mon, 15 Nov 2021 17:59:39 +0100
+Message-Id: <20211115165445.191663068@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,33 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shayne Chen <shayne.chen@mediatek.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 161cc13912d3c3e8857001988dfba39be842454a ]
+[ Upstream commit 515e7184bdf0a3ebf1757cc77fb046b4fe282189 ]
 
-For broadcast/multicast wcid, the muar_idx should be 0xe.
+When fail to init coex module, free 'common' and 'adapter' directly, but
+common->tx_thread which will access 'common' and 'adapter' is running at
+the same time. That will trigger the UAF bug.
 
-Fixes: e57b7901469f ("mt76: add mac80211 driver for MT7915 PCIe-based chipsets")
-Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+==================================================================
+BUG: KASAN: use-after-free in rsi_tx_scheduler_thread+0x50f/0x520 [rsi_91x]
+Read of size 8 at addr ffff8880076dc000 by task Tx-Thread/124777
+CPU: 0 PID: 124777 Comm: Tx-Thread Not tainted 5.15.0-rc5+ #19
+Call Trace:
+ dump_stack_lvl+0xe2/0x152
+ print_address_description.constprop.0+0x21/0x140
+ ? rsi_tx_scheduler_thread+0x50f/0x520
+ kasan_report.cold+0x7f/0x11b
+ ? rsi_tx_scheduler_thread+0x50f/0x520
+ rsi_tx_scheduler_thread+0x50f/0x520
+...
+
+Freed by task 111873:
+ kasan_save_stack+0x1b/0x40
+ kasan_set_track+0x1c/0x30
+ kasan_set_free_info+0x20/0x30
+ __kasan_slab_free+0x109/0x140
+ kfree+0x117/0x4c0
+ rsi_91x_init+0x741/0x8a0 [rsi_91x]
+ rsi_probe+0x9f/0x1750 [rsi_usb]
+
+Stop thread before free 'common' and 'adapter' to fix it.
+
+Fixes: 2108df3c4b18 ("rsi: add coex support")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211015040335.1021546-1-william.xuanziyang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/rsi/rsi_91x_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-index 6dfe3716a63a5..ba36d3caec8e1 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-@@ -721,7 +721,7 @@ mt7915_mcu_alloc_sta_req(struct mt7915_dev *dev, struct mt7915_vif *mvif,
- 		.bss_idx = mvif->idx,
- 		.wlan_idx_lo = msta ? to_wcid_lo(msta->wcid.idx) : 0,
- 		.wlan_idx_hi = msta ? to_wcid_hi(msta->wcid.idx) : 0,
--		.muar_idx = msta ? mvif->omac_idx : 0,
-+		.muar_idx = msta && msta->wcid.sta ? mvif->omac_idx : 0xe,
- 		.is_tlv_append = 1,
- 	};
- 	struct sk_buff *skb;
+diff --git a/drivers/net/wireless/rsi/rsi_91x_main.c b/drivers/net/wireless/rsi/rsi_91x_main.c
+index 143224a3802ba..f1bf71e6c6081 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_main.c
++++ b/drivers/net/wireless/rsi/rsi_91x_main.c
+@@ -369,6 +369,7 @@ struct rsi_hw *rsi_91x_init(u16 oper_mode)
+ 	if (common->coex_mode > 1) {
+ 		if (rsi_coex_attach(common)) {
+ 			rsi_dbg(ERR_ZONE, "Failed to init coex module\n");
++			rsi_kill_thread(&common->tx_thread);
+ 			goto err;
+ 		}
+ 	}
 -- 
 2.33.0
 
