@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF5B450CD8
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:41:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57DB2451041
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:42:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236846AbhKORof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:44:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57872 "EHLO mail.kernel.org"
+        id S237874AbhKOSpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:45:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236810AbhKORlw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:41:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AD74632F2;
-        Mon, 15 Nov 2021 17:27:24 +0000 (UTC)
+        id S239514AbhKOSmq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:42:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59DFA632F8;
+        Mon, 15 Nov 2021 18:05:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997244;
-        bh=/7y1QbQ3B+66AKkKDIdYwpAQZkf/TiziQek0eBIjwE8=;
+        s=korg; t=1636999501;
+        bh=d9w1cBdH6v5n/h5LLRMUKB84BGRL1BZ/mjkB/q3FV9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FGfPOenPHZEI6F+d2ZHcPG18p9L/jVKcTknH2A87r+ehLd9sELYmLAMwUNbwuPSJm
-         w/ko/JaJg6Le0pehO+FezqU8DEGzBkZP+iWEq8DNSJri4ZfV2PG5cwqzvFMiVn6aSq
-         85l0iNo0JtPnp4dCT9821BhZjdD78ou69lOqWPOU=
+        b=ezSlVt757pHBIUT5sHOvrPo24Qrg5n9dowKRi3CPSXjZz2pyc9QFGRjp7IuHjDryW
+         MaZhkoQy5md7fiT87Li9pb1FYCAUWi+Xz4Z7dcBE0Z849dKkC/g+MhEfEyF8M8eHhh
+         UqP4mAWV02PdGZwDxM7mrmF+SfMvbX5bHdG7RnKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 044/575] ext4: ensure enough credits in ext4_ext_shift_path_extents
-Date:   Mon, 15 Nov 2021 17:56:09 +0100
-Message-Id: <20211115165345.164445028@linuxfoundation.org>
+        stable@vger.kernel.org, Lasse Collin <lasse.collin@tukaani.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 287/849] lib/xz: Avoid overlapping memcpy() with invalid input with in-place decompression
+Date:   Mon, 15 Nov 2021 17:56:10 +0100
+Message-Id: <20211115165429.978796563@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,108 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Lasse Collin <lasse.collin@tukaani.org>
 
-commit 4268496e48dc681cfa53b92357314b5d7221e625 upstream.
+[ Upstream commit 83d3c4f22a36d005b55f44628f46cc0d319a75e8 ]
 
-Like ext4_ext_rm_leaf, we can ensure that there are enough credits
-before every call that will consume credits.  As part of this fix we
-fold the functionality of ext4_access_path() into
-ext4_ext_shift_path_extents().  This change is needed as a preparation
-for the next bugfix patch.
+With valid files, the safety margin described in lib/decompress_unxz.c
+ensures that these buffers cannot overlap. But if the uncompressed size
+of the input is larger than the caller thought, which is possible when
+the input file is invalid/corrupt, the buffers can overlap. Obviously
+the result will then be garbage (and usually the decoder will return
+an error too) but no other harm will happen when such an over-run occurs.
 
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20210903062748.4118886-3-yangerkun@huawei.com
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This change only affects uncompressed LZMA2 chunks and so this
+should have no effect on performance.
+
+Link: https://lore.kernel.org/r/20211010213145.17462-2-xiang@kernel.org
+Signed-off-by: Lasse Collin <lasse.collin@tukaani.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/extents.c |   49 +++++++++++++++----------------------------------
- 1 file changed, 15 insertions(+), 34 deletions(-)
+ lib/decompress_unxz.c |  2 +-
+ lib/xz/xz_dec_lzma2.c | 21 +++++++++++++++++++--
+ 2 files changed, 20 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -4971,36 +4971,6 @@ int ext4_get_es_cache(struct inode *inod
- }
+diff --git a/lib/decompress_unxz.c b/lib/decompress_unxz.c
+index a2f38e23004aa..f7a3dc13316a3 100644
+--- a/lib/decompress_unxz.c
++++ b/lib/decompress_unxz.c
+@@ -167,7 +167,7 @@
+  * memeq and memzero are not used much and any remotely sane implementation
+  * is fast enough. memcpy/memmove speed matters in multi-call mode, but
+  * the kernel image is decompressed in single-call mode, in which only
+- * memcpy speed can matter and only if there is a lot of uncompressible data
++ * memmove speed can matter and only if there is a lot of uncompressible data
+  * (LZMA2 stores uncompressible chunks in uncompressed form). Thus, the
+  * functions below should just be kept small; it's probably not worth
+  * optimizing for speed.
+diff --git a/lib/xz/xz_dec_lzma2.c b/lib/xz/xz_dec_lzma2.c
+index 7a6781e3f47b6..d548cf0e59fe6 100644
+--- a/lib/xz/xz_dec_lzma2.c
++++ b/lib/xz/xz_dec_lzma2.c
+@@ -387,7 +387,14 @@ static void dict_uncompressed(struct dictionary *dict, struct xz_buf *b,
  
- /*
-- * ext4_access_path:
-- * Function to access the path buffer for marking it dirty.
-- * It also checks if there are sufficient credits left in the journal handle
-- * to update path.
-- */
--static int
--ext4_access_path(handle_t *handle, struct inode *inode,
--		struct ext4_ext_path *path)
--{
--	int credits, err;
--
--	if (!ext4_handle_valid(handle))
--		return 0;
--
--	/*
--	 * Check if need to extend journal credits
--	 * 3 for leaf, sb, and inode plus 2 (bmap and group
--	 * descriptor) for each block group; assume two block
--	 * groups
--	 */
--	credits = ext4_writepage_trans_blocks(inode);
--	err = ext4_datasem_ensure_credits(handle, inode, 7, credits, 0);
--	if (err < 0)
--		return err;
--
--	err = ext4_ext_get_access(handle, inode, path);
--	return err;
--}
--
--/*
-  * ext4_ext_shift_path_extents:
-  * Shift the extents of a path structure lying between path[depth].p_ext
-  * and EXT_LAST_EXTENT(path[depth].p_hdr), by @shift blocks. @SHIFT tells
-@@ -5014,6 +4984,7 @@ ext4_ext_shift_path_extents(struct ext4_
- 	int depth, err = 0;
- 	struct ext4_extent *ex_start, *ex_last;
- 	bool update = false;
-+	int credits, restart_credits;
- 	depth = path->p_depth;
+ 		*left -= copy_size;
  
- 	while (depth >= 0) {
-@@ -5023,13 +4994,23 @@ ext4_ext_shift_path_extents(struct ext4_
- 				return -EFSCORRUPTED;
+-		memcpy(dict->buf + dict->pos, b->in + b->in_pos, copy_size);
++		/*
++		 * If doing in-place decompression in single-call mode and the
++		 * uncompressed size of the file is larger than the caller
++		 * thought (i.e. it is invalid input!), the buffers below may
++		 * overlap and cause undefined behavior with memcpy().
++		 * With valid inputs memcpy() would be fine here.
++		 */
++		memmove(dict->buf + dict->pos, b->in + b->in_pos, copy_size);
+ 		dict->pos += copy_size;
  
- 			ex_last = EXT_LAST_EXTENT(path[depth].p_hdr);
-+			/* leaf + sb + inode */
-+			credits = 3;
-+			if (ex_start == EXT_FIRST_EXTENT(path[depth].p_hdr)) {
-+				update = true;
-+				/* extent tree + sb + inode */
-+				credits = depth + 2;
-+			}
+ 		if (dict->full < dict->pos)
+@@ -397,7 +404,11 @@ static void dict_uncompressed(struct dictionary *dict, struct xz_buf *b,
+ 			if (dict->pos == dict->end)
+ 				dict->pos = 0;
  
--			err = ext4_access_path(handle, inode, path + depth);
-+			restart_credits = ext4_writepage_trans_blocks(inode);
-+			err = ext4_datasem_ensure_credits(handle, inode, credits,
-+					restart_credits, 0);
- 			if (err)
- 				goto out;
- 
--			if (ex_start == EXT_FIRST_EXTENT(path[depth].p_hdr))
--				update = true;
-+			err = ext4_ext_get_access(handle, inode, path + depth);
-+			if (err)
-+				goto out;
- 
- 			while (ex_start <= ex_last) {
- 				if (SHIFT == SHIFT_LEFT) {
-@@ -5060,7 +5041,7 @@ ext4_ext_shift_path_extents(struct ext4_
+-			memcpy(b->out + b->out_pos, b->in + b->in_pos,
++			/*
++			 * Like above but for multi-call mode: use memmove()
++			 * to avoid undefined behavior with invalid input.
++			 */
++			memmove(b->out + b->out_pos, b->in + b->in_pos,
+ 					copy_size);
  		}
  
- 		/* Update index too */
--		err = ext4_access_path(handle, inode, path + depth);
-+		err = ext4_ext_get_access(handle, inode, path + depth);
- 		if (err)
- 			goto out;
+@@ -421,6 +432,12 @@ static uint32_t dict_flush(struct dictionary *dict, struct xz_buf *b)
+ 		if (dict->pos == dict->end)
+ 			dict->pos = 0;
  
++		/*
++		 * These buffers cannot overlap even if doing in-place
++		 * decompression because in multi-call mode dict->buf
++		 * has been allocated by us in this file; it's not
++		 * provided by the caller like in single-call mode.
++		 */
+ 		memcpy(b->out + b->out_pos, dict->buf + dict->start,
+ 				copy_size);
+ 	}
+-- 
+2.33.0
+
 
 
