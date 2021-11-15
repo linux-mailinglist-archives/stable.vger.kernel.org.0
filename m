@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE1EC450D1F
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:48:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2719F4510A6
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:49:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238693AbhKORtk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:49:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34766 "EHLO mail.kernel.org"
+        id S242845AbhKOSvm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:51:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238827AbhKORrl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:47:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58305632A1;
-        Mon, 15 Nov 2021 17:29:54 +0000 (UTC)
+        id S242940AbhKOSsO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:48:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FAD563396;
+        Mon, 15 Nov 2021 18:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997394;
-        bh=A2mwK9iV+z664mgYuUqmGvLtNDWzgkTZjqZYMokNOlU=;
+        s=korg; t=1636999661;
+        bh=OdPxKY2c7kAht3iiLXBnSutzuDh+aocw/PFPwt6d29o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YvDkG322wgy8tn7+hu8eOg6dTb1pUHHNRTPcZhLK0+4Ohkz9j3IjxjZGLm7TOSSyT
-         T6KJH8D8AIiMZUsOD/cR6n1W8GjFtwF04VigJKXgY3ciDpG7WZJQ8JHdeY+kdn9V2Z
-         OZRfLL61f3/+ek/qMTUUoPXmEJ4vUpIevzt3IkZQ=
+        b=NTij1s3bcfSGTZ898GOuDB8UpP/khdeswjgkPowQizSnjiqDj4pF4ZGhP/uT9KZSV
+         tsdmfJP3PU2Cio3aGkiwO/FM9KUiVpFUKp++qL61DywCYKrGIMM4Y0AA1ty7eW6hSQ
+         Gh3cu37RC+M3K3QKCKmU4gXtIZHuLt7J+aCH2yQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 5.10 132/575] serial: core: Fix initializing and restoring termios speed
-Date:   Mon, 15 Nov 2021 17:57:37 +0100
-Message-Id: <20211115165348.275559033@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+a6969ef522a36d3344c9@syzkaller.appspotmail.com
+Subject: [PATCH 5.14 378/849] media: em28xx: add missing em28xx_close_extension
+Date:   Mon, 15 Nov 2021 17:57:41 +0100
+Message-Id: <20211115165433.029680560@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,108 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 027b57170bf8bb6999a28e4a5f3d78bf1db0f90c upstream.
+[ Upstream commit 2c98b8a3458df03abdc6945bbef67ef91d181938 ]
 
-Since commit edc6afc54968 ("tty: switch to ktermios and new framework")
-termios speed is no longer stored only in c_cflag member but also in new
-additional c_ispeed and c_ospeed members. If BOTHER flag is set in c_cflag
-then termios speed is stored only in these new members.
+If em28xx dev has ->dev_next pointer, we need to delete ->dev_next list
+node from em28xx_extension_devlist on disconnect to avoid UAF bugs and
+corrupted list bugs, since driver frees this pointer on disconnect.
 
-Therefore to correctly restore termios speed it is required to store also
-ispeed and ospeed members, not only cflag member.
+Reported-and-tested-by: syzbot+a6969ef522a36d3344c9@syzkaller.appspotmail.com
 
-In case only cflag member with BOTHER flag is restored then functions
-tty_termios_baud_rate() and tty_termios_input_baud_rate() returns baudrate
-stored in c_ospeed / c_ispeed member, which is zero as it was not restored
-too. If reported baudrate is invalid (e.g. zero) then serial core functions
-report fallback baudrate value 9600. So it means that in this case original
-baudrate is lost and kernel changes it to value 9600.
-
-Simple reproducer of this issue is to boot kernel with following command
-line argument: "console=ttyXXX,86400" (where ttyXXX is the device name).
-For speed 86400 there is no Bnnn constant and therefore kernel has to
-represent this speed via BOTHER c_cflag. Which means that speed is stored
-only in c_ospeed and c_ispeed members, not in c_cflag anymore.
-
-If bootloader correctly configures serial device to speed 86400 then kernel
-prints boot log to early console at speed speed 86400 without any issue.
-But after kernel starts initializing real console device ttyXXX then speed
-is changed to fallback value 9600 because information about speed was lost.
-
-This patch fixes above issue by storing and restoring also ispeed and
-ospeed members, which are required for BOTHER flag.
-
-Fixes: edc6afc54968 ("[PATCH] tty: switch to ktermios and new framework")
-Cc: stable@vger.kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20211002130900.9518-1-pali@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1a23f81b7dc3 ("V4L/DVB (9979): em28xx: move usb probe code to a proper place")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial_core.c |   16 ++++++++++++++--
- include/linux/console.h          |    2 ++
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ drivers/media/usb/em28xx/em28xx-cards.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -222,7 +222,11 @@ static int uart_port_startup(struct tty_
- 	if (retval == 0) {
- 		if (uart_console(uport) && uport->cons->cflag) {
- 			tty->termios.c_cflag = uport->cons->cflag;
-+			tty->termios.c_ispeed = uport->cons->ispeed;
-+			tty->termios.c_ospeed = uport->cons->ospeed;
- 			uport->cons->cflag = 0;
-+			uport->cons->ispeed = 0;
-+			uport->cons->ospeed = 0;
- 		}
- 		/*
- 		 * Initialise the hardware port settings.
-@@ -290,8 +294,11 @@ static void uart_shutdown(struct tty_str
- 		/*
- 		 * Turn off DTR and RTS early.
- 		 */
--		if (uport && uart_console(uport) && tty)
-+		if (uport && uart_console(uport) && tty) {
- 			uport->cons->cflag = tty->termios.c_cflag;
-+			uport->cons->ispeed = tty->termios.c_ispeed;
-+			uport->cons->ospeed = tty->termios.c_ospeed;
-+		}
+diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
+index c1e0dccb74088..948e22e29b42a 100644
+--- a/drivers/media/usb/em28xx/em28xx-cards.c
++++ b/drivers/media/usb/em28xx/em28xx-cards.c
+@@ -4139,8 +4139,11 @@ static void em28xx_usb_disconnect(struct usb_interface *intf)
  
- 		if (!tty || C_HUPCL(tty))
- 			uart_port_dtr_rts(uport, 0);
-@@ -2123,8 +2130,11 @@ uart_set_options(struct uart_port *port,
- 	 * Allow the setting of the UART parameters with a NULL console
- 	 * too:
- 	 */
--	if (co)
-+	if (co) {
- 		co->cflag = termios.c_cflag;
-+		co->ispeed = termios.c_ispeed;
-+		co->ospeed = termios.c_ospeed;
+ 	em28xx_close_extension(dev);
+ 
+-	if (dev->dev_next)
++	if (dev->dev_next) {
++		em28xx_close_extension(dev->dev_next);
+ 		em28xx_release_resources(dev->dev_next);
 +	}
++
+ 	em28xx_release_resources(dev);
  
- 	return 0;
- }
-@@ -2258,6 +2268,8 @@ int uart_resume_port(struct uart_driver
- 		 */
- 		memset(&termios, 0, sizeof(struct ktermios));
- 		termios.c_cflag = uport->cons->cflag;
-+		termios.c_ispeed = uport->cons->ispeed;
-+		termios.c_ospeed = uport->cons->ospeed;
- 
- 		/*
- 		 * If that's unset, use the tty termios setting.
---- a/include/linux/console.h
-+++ b/include/linux/console.h
-@@ -150,6 +150,8 @@ struct console {
- 	short	flags;
- 	short	index;
- 	int	cflag;
-+	uint	ispeed;
-+	uint	ospeed;
- 	void	*data;
- 	struct	 console *next;
- };
+ 	if (dev->dev_next) {
+-- 
+2.33.0
+
 
 
