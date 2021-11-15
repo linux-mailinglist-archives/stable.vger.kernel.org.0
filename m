@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E257B4513F9
+	by mail.lfdr.de (Postfix) with ESMTP id 756B14513F8
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348808AbhKOUAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:00:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
+        id S1348805AbhKOUAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:00:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344163AbhKOTX5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2499633C5;
-        Mon, 15 Nov 2021 18:53:07 +0000 (UTC)
+        id S1344168AbhKOTX6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8526863317;
+        Mon, 15 Nov 2021 18:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002388;
-        bh=kT+YnfsjxFciu5opeqssVT8tP8KjIQg9Tu3kSaqZ9nQ=;
+        s=korg; t=1637002391;
+        bh=M5wreoI7ZtZqdicl6O9B4Piidboyiz02lSZiB1jm0qM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LwA7tzPqXhpD8TZyi92RiEC9uuqBPoEfMYHVEXU5yS/lZOCrPF15lwqv37SlAiecn
-         RMAEnYOFqshkEFfYNHnZg7szTbJ6ozh5VDA06E4SAAjBiOU13TktxLJB9Veb0zsm4E
-         ZhRsVEHJgoxRw9RhJA0KVmJdcyAZGqAWHNS5wrGI=
+        b=BVi74BjPkfk82WRZmhIV64FEF0st20PYfCiRp1cciw2ApzPezYMZnMysPjNn72YnF
+         d4gW48ROhY0WuOtQh9P2u+R4x+NaGlQrziUUz+6yX0EUwb22eF4EXi1FxfAqcyx3d+
+         yIVLpd+7FnPDLCO/wSBrYaB1aAhkWemxrtfb2YBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Corey Minyard <cminyard@mvista.com>,
+        stable@vger.kernel.org, Yinjun Zhang <yinjun.zhang@corigine.com>,
+        Louis Peens <louis.peens@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 547/917] ipmi: kcs_bmc: Fix a memory leak in the error handling path of kcs_bmc_serio_add_device()
-Date:   Mon, 15 Nov 2021 18:00:42 +0100
-Message-Id: <20211115165447.317374063@linuxfoundation.org>
+Subject: [PATCH 5.15 548/917] nfp: fix NULL pointer access when scheduling dim work
+Date:   Mon, 15 Nov 2021 18:00:43 +0100
+Message-Id: <20211115165447.355627268@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,43 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Yinjun Zhang <yinjun.zhang@corigine.com>
 
-[ Upstream commit f281d010b87454e72475b668ad66e34961f744e0 ]
+[ Upstream commit f8d384a640dd32aaf0a05fec137ccbf0e986b09f ]
 
-In the unlikely event where 'devm_kzalloc()' fails and 'kzalloc()'
-succeeds, 'port' would be leaking.
+Each rx/tx ring has a related dim work, when rx/tx ring number is
+decreased by `ethtool -L`, the corresponding rx_ring or tx_ring is
+assigned NULL, while its related work is not destroyed. When scheduled,
+the work will access NULL pointer.
 
-Test each allocation separately to avoid the leak.
-
-Fixes: 3a3d2f6a4c64 ("ipmi: kcs_bmc: Add serio adaptor")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Message-Id: <ecbfa15e94e64f4b878ecab1541ea46c74807670.1631048724.git.christophe.jaillet@wanadoo.fr>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: 9d32e4e7e9e1 ("nfp: add support for coalesce adaptive feature")
+Signed-off-by: Yinjun Zhang <yinjun.zhang@corigine.com>
+Signed-off-by: Louis Peens <louis.peens@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/kcs_bmc_serio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/netronome/nfp/nfp_net_common.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/ipmi/kcs_bmc_serio.c b/drivers/char/ipmi/kcs_bmc_serio.c
-index 7948cabde50b4..7e2067628a6ce 100644
---- a/drivers/char/ipmi/kcs_bmc_serio.c
-+++ b/drivers/char/ipmi/kcs_bmc_serio.c
-@@ -73,10 +73,12 @@ static int kcs_bmc_serio_add_device(struct kcs_bmc_device *kcs_bmc)
- 	struct serio *port;
+diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
+index 5bfa22accf2c9..f8b880c8e5148 100644
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
+@@ -2067,7 +2067,7 @@ static int nfp_net_poll(struct napi_struct *napi, int budget)
+ 		if (napi_complete_done(napi, pkts_polled))
+ 			nfp_net_irq_unmask(r_vec->nfp_net, r_vec->irq_entry);
  
- 	priv = devm_kzalloc(kcs_bmc->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
+-	if (r_vec->nfp_net->rx_coalesce_adapt_on) {
++	if (r_vec->nfp_net->rx_coalesce_adapt_on && r_vec->rx_ring) {
+ 		struct dim_sample dim_sample = {};
+ 		unsigned int start;
+ 		u64 pkts, bytes;
+@@ -2082,7 +2082,7 @@ static int nfp_net_poll(struct napi_struct *napi, int budget)
+ 		net_dim(&r_vec->rx_dim, dim_sample);
+ 	}
  
- 	/* Use kzalloc() as the allocation is cleaned up with kfree() via serio_unregister_port() */
- 	port = kzalloc(sizeof(*port), GFP_KERNEL);
--	if (!(priv && port))
-+	if (!port)
- 		return -ENOMEM;
- 
- 	port->id.type = SERIO_8042;
+-	if (r_vec->nfp_net->tx_coalesce_adapt_on) {
++	if (r_vec->nfp_net->tx_coalesce_adapt_on && r_vec->tx_ring) {
+ 		struct dim_sample dim_sample = {};
+ 		unsigned int start;
+ 		u64 pkts, bytes;
 -- 
 2.33.0
 
