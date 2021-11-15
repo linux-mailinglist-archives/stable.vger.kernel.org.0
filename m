@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99AD14510ED
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:54:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EF72450D6E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:54:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240511AbhKOS4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:56:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54764 "EHLO mail.kernel.org"
+        id S236693AbhKOR5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:57:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243092AbhKOSxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:53:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E17E63477;
-        Mon, 15 Nov 2021 18:10:38 +0000 (UTC)
+        id S239274AbhKOR4V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:56:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C52B76332A;
+        Mon, 15 Nov 2021 17:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999839;
-        bh=vPMz/5VMfVrv/JhrgRAhUPgIPq+gfRu4moruOfVYe3Y=;
+        s=korg; t=1636997626;
+        bh=SqMwSJlsmhRnzp2vM6XUPwpHBdW+FdUM2Grw036Ydhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BED6Aa/w250xyg1oKTjW/73ZzZK9sxxx5f5ZzyAEan15l79+lzy5gGx4BmpVLdPe/
-         hw8Xc2eSK8UiyplwVcpxLBZw+KHyXbsDVUJNoPQF7ekvOfAHATILnozg8T4OlTkUJy
-         Et4Yoc1DYdP1dbZBhGPr0tVKCzUQQuCNurelqhVM=
+        b=kqMdqKpmrk4YC3i9l7Dl/Ni5mVYSXKwmrHatfTWMS5U+k5jqHqc6Q6YW+rNFzBl7+
+         yLHX2EB+LFE2UyEhMIBybgxEPlyv8R5Y93FGvBLE8+sulSZKQ/s++8TdyZxi+iqdC1
+         fq1T1O72Q8aD2FhAlUg//H5XxwI2oVGrAghX0a18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Sriram R <srirrama@codeaurora.org>,
+        Jouni Malinen <jouni@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 425/849] hwmon: Fix possible memleak in __hwmon_device_register()
-Date:   Mon, 15 Nov 2021 17:58:28 +0100
-Message-Id: <20211115165434.642075071@linuxfoundation.org>
+Subject: [PATCH 5.10 184/575] ath11k: Avoid reg rules update during firmware recovery
+Date:   Mon, 15 Nov 2021 17:58:29 +0100
+Message-Id: <20211115165350.063591490@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +41,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Sriram R <srirrama@codeaurora.org>
 
-[ Upstream commit ada61aa0b1184a8fda1a89a340c7d6cc4e59aee5 ]
+[ Upstream commit 69a0fcf8a9f2273040d03e5ee77c9689c09e9d3a ]
 
-I got memory leak as follows when doing fault injection test:
+During firmware recovery, the default reg rules which are
+received via WMI_REG_CHAN_LIST_CC_EVENT can overwrite
+the currently configured user regd.
 
-unreferenced object 0xffff888102740438 (size 8):
-  comm "27", pid 859, jiffies 4295031351 (age 143.992s)
-  hex dump (first 8 bytes):
-    68 77 6d 6f 6e 30 00 00                          hwmon0..
-  backtrace:
-    [<00000000544b5996>] __kmalloc_track_caller+0x1a6/0x300
-    [<00000000df0d62b9>] kvasprintf+0xad/0x140
-    [<00000000d3d2a3da>] kvasprintf_const+0x62/0x190
-    [<000000005f8f0f29>] kobject_set_name_vargs+0x56/0x140
-    [<00000000b739e4b9>] dev_set_name+0xb0/0xe0
-    [<0000000095b69c25>] __hwmon_device_register+0xf19/0x1e50 [hwmon]
-    [<00000000a7e65b52>] hwmon_device_register_with_info+0xcb/0x110 [hwmon]
-    [<000000006f181e86>] devm_hwmon_device_register_with_info+0x85/0x100 [hwmon]
-    [<0000000081bdc567>] tmp421_probe+0x2d2/0x465 [tmp421]
-    [<00000000502cc3f8>] i2c_device_probe+0x4e1/0xbb0
-    [<00000000f90bda3b>] really_probe+0x285/0xc30
-    [<000000007eac7b77>] __driver_probe_device+0x35f/0x4f0
-    [<000000004953d43d>] driver_probe_device+0x4f/0x140
-    [<000000002ada2d41>] __device_attach_driver+0x24c/0x330
-    [<00000000b3977977>] bus_for_each_drv+0x15d/0x1e0
-    [<000000005bf2a8e3>] __device_attach+0x267/0x410
+See below snap for example,
 
-When device_register() returns an error, the name allocated in
-dev_set_name() will be leaked, the put_device() should be used
-instead of calling hwmon_dev_release() to give up the device
-reference, then the name will be freed in kobject_cleanup().
+root@OpenWrt:/# iw reg get | grep country
+country FR: DFS-ETSI
+country FR: DFS-ETSI
+country FR: DFS-ETSI
+country FR: DFS-ETSI
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: bab2243ce189 ("hwmon: Introduce hwmon_device_register_with_groups")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211012112758.2681084-1-yangyingliang@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+root@OpenWrt:/# echo assert > /sys/kernel/debug/ath11k/ipq8074\ hw2.0/simulate_f
+w_crash
+<snip>
+[ 5290.471696] ath11k c000000.wifi1: pdev 1 successfully recovered
+
+root@OpenWrt:/# iw reg get | grep country
+country FR: DFS-ETSI
+country US: DFS-FCC
+country US: DFS-FCC
+country US: DFS-FCC
+
+In the above, the user configured country 'FR' is overwritten
+when the rules of default country 'US' are received and updated during
+recovery. Hence avoid processing of these rules in general
+during firmware recovery as they have been already applied during
+driver registration or after last set user country is configured.
+
+This scenario applies for both AP and STA devices basically because
+cfg80211 is not aware of the recovery and only the driver recovers, but
+changing or resetting of the reg domain during recovery is not needed so
+as to continue with the configured regdomain currently in use.
+
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.4.0.1-01460-QCAHKSWPL_SILICONZ-1
+
+Signed-off-by: Sriram R <srirrama@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210721212029.142388-3-jouni@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/hwmon.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath11k/wmi.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
-index 8d3b1dae31df1..3501a3ead4ba6 100644
---- a/drivers/hwmon/hwmon.c
-+++ b/drivers/hwmon/hwmon.c
-@@ -796,8 +796,10 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
- 	dev_set_drvdata(hdev, drvdata);
- 	dev_set_name(hdev, HWMON_ID_FORMAT, id);
- 	err = device_register(hdev);
--	if (err)
--		goto free_hwmon;
-+	if (err) {
-+		put_device(hdev);
-+		goto ida_remove;
+diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
+index fca71e00123d9..2f777d61f9065 100644
+--- a/drivers/net/wireless/ath/ath11k/wmi.c
++++ b/drivers/net/wireless/ath/ath11k/wmi.c
+@@ -5362,6 +5362,17 @@ static int ath11k_reg_chan_list_event(struct ath11k_base *ab, struct sk_buff *sk
+ 
+ 	pdev_idx = reg_info->phy_id;
+ 
++	/* Avoid default reg rule updates sent during FW recovery if
++	 * it is already available
++	 */
++	spin_lock(&ab->base_lock);
++	if (test_bit(ATH11K_FLAG_RECOVERY, &ab->dev_flags) &&
++	    ab->default_regd[pdev_idx]) {
++		spin_unlock(&ab->base_lock);
++		goto mem_free;
 +	}
- 
- 	INIT_LIST_HEAD(&hwdev->tzdata);
- 
++	spin_unlock(&ab->base_lock);
++
+ 	if (pdev_idx >= ab->num_radios) {
+ 		/* Process the event for phy0 only if single_pdev_only
+ 		 * is true. If pdev_idx is valid but not 0, discard the
 -- 
 2.33.0
 
