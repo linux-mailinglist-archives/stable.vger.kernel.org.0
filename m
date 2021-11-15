@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1ABA45248F
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:36:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C62445217A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:02:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345574AbhKPBjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:39:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41370 "EHLO mail.kernel.org"
+        id S245671AbhKPBFA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:05:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242009AbhKOScU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:32:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 374CA63458;
-        Mon, 15 Nov 2021 17:59:29 +0000 (UTC)
+        id S245579AbhKOTUs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C297A63564;
+        Mon, 15 Nov 2021 18:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999169;
-        bh=iW7bRT3Q5oUIXLn4aRaqSRph6rITcwiUaTSvH7ilcwg=;
+        s=korg; t=1637001436;
+        bh=bnoyRb1o4+QmN4johhpzJ4PbjQX/YTEdqHj4bCwY+Fc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyc33G4k1rk3jvaO1ArSuHeLeDq1WtPB6Thyk2y4tGZ5oFnQRDKqD06GJsdJeq4qj
-         Svj9HvvZmLjbC6gUx+RNLFIQGDGevEPA8ku6b27QBYIK3efscmW3QsAxTtSZco4rND
-         +S9dUC7vxbpO8qthwB+xYT7FvCFJSwpcisWD10uk=
+        b=S948J1LQ3/lSecL3WaEYQLQ1YSWYioAsWyyXz0mfm8zxOJe1+bHhTe4//c3X471P5
+         TDih6BPFXN93tM6Xwt2ijS7tSWSvY/XQAdk7lXpeMWYBoiDnWGbW/l+RAN5EgSXNmT
+         i9cEXz/Ou5c7+D2cxgOexRXqLalFbPBiqRw/ebrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.14 201/849] USB: iowarrior: fix control-message timeouts
-Date:   Mon, 15 Nov 2021 17:54:44 +0100
-Message-Id: <20211115165427.000651142@linuxfoundation.org>
+        stable@vger.kernel.org, Scott Wood <swood@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 190/917] rcutorture: Avoid problematic critical section nesting on PREEMPT_RT
+Date:   Mon, 15 Nov 2021 17:54:45 +0100
+Message-Id: <20211115165435.230278338@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,55 +41,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Scott Wood <swood@redhat.com>
 
-commit 79a4479a17b83310deb0b1a2a274fe5be12d2318 upstream.
+[ Upstream commit 71921a9606ddbcc1d98c00eca7ae82c373d1fecd ]
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+rcutorture is generating some nesting scenarios that are not compatible on PREEMPT_RT.
+For example:
+	preempt_disable();
+	rcu_read_lock_bh();
+	preempt_enable();
+	rcu_read_unlock_bh();
 
-Use the common control-message timeout define for the five-second
-timeout and drop the driver-specific one.
+The problem here is that on PREEMPT_RT the bottom halves have to be
+disabled and enabled in preemptible context.
 
-Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
-Cc: stable@vger.kernel.org      # 2.6.21
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211025115159.4954-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reorder locking: start with BH locking and continue with then with
+disabling preemption or interrupts. In the unlocking do it reverse by
+first enabling interrupts and preemption and BH at the very end.
+Ensure that on PREEMPT_RT BH locking remains unchanged if in
+non-preemptible context.
+
+Link: https://lkml.kernel.org/r/20190911165729.11178-6-swood@redhat.com
+Link: https://lkml.kernel.org/r/20210819182035.GF4126399@paulmck-ThinkPad-P17-Gen-1
+Signed-off-by: Scott Wood <swood@redhat.com>
+[bigeasy: Drop ATOM_BH, make it only about changing BH in atomic
+context. Allow enabling RCU in IRQ-off section. Reword commit message.]
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/iowarrior.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ kernel/rcu/rcutorture.c | 48 ++++++++++++++++++++++++++++++-----------
+ 1 file changed, 36 insertions(+), 12 deletions(-)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -99,10 +99,6 @@ struct iowarrior {
- /*    globals   */
- /*--------------*/
+diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
+index ab4215266ebee..968696ace8f3f 100644
+--- a/kernel/rcu/rcutorture.c
++++ b/kernel/rcu/rcutorture.c
+@@ -1432,28 +1432,34 @@ static void rcutorture_one_extend(int *readstate, int newstate,
+ 	/* First, put new protection in place to avoid critical-section gap. */
+ 	if (statesnew & RCUTORTURE_RDR_BH)
+ 		local_bh_disable();
++	if (statesnew & RCUTORTURE_RDR_RBH)
++		rcu_read_lock_bh();
+ 	if (statesnew & RCUTORTURE_RDR_IRQ)
+ 		local_irq_disable();
+ 	if (statesnew & RCUTORTURE_RDR_PREEMPT)
+ 		preempt_disable();
+-	if (statesnew & RCUTORTURE_RDR_RBH)
+-		rcu_read_lock_bh();
+ 	if (statesnew & RCUTORTURE_RDR_SCHED)
+ 		rcu_read_lock_sched();
+ 	if (statesnew & RCUTORTURE_RDR_RCU)
+ 		idxnew = cur_ops->readlock() << RCUTORTURE_RDR_SHIFT;
  
--/*
-- *  USB spec identifies 5 second timeouts.
-- */
--#define GET_TIMEOUT 5
- #define USB_REQ_GET_REPORT  0x01
- //#if 0
- static int usb_get_report(struct usb_device *dev,
-@@ -114,7 +110,7 @@ static int usb_get_report(struct usb_dev
- 			       USB_DIR_IN | USB_TYPE_CLASS |
- 			       USB_RECIP_INTERFACE, (type << 8) + id,
- 			       inter->desc.bInterfaceNumber, buf, size,
--			       GET_TIMEOUT*HZ);
-+			       USB_CTRL_GET_TIMEOUT);
+-	/* Next, remove old protection, irq first due to bh conflict. */
++	/*
++	 * Next, remove old protection, in decreasing order of strength
++	 * to avoid unlock paths that aren't safe in the stronger
++	 * context. Namely: BH can not be enabled with disabled interrupts.
++	 * Additionally PREEMPT_RT requires that BH is enabled in preemptible
++	 * context.
++	 */
+ 	if (statesold & RCUTORTURE_RDR_IRQ)
+ 		local_irq_enable();
+-	if (statesold & RCUTORTURE_RDR_BH)
+-		local_bh_enable();
+ 	if (statesold & RCUTORTURE_RDR_PREEMPT)
+ 		preempt_enable();
+-	if (statesold & RCUTORTURE_RDR_RBH)
+-		rcu_read_unlock_bh();
+ 	if (statesold & RCUTORTURE_RDR_SCHED)
+ 		rcu_read_unlock_sched();
++	if (statesold & RCUTORTURE_RDR_BH)
++		local_bh_enable();
++	if (statesold & RCUTORTURE_RDR_RBH)
++		rcu_read_unlock_bh();
+ 	if (statesold & RCUTORTURE_RDR_RCU) {
+ 		bool lockit = !statesnew && !(torture_random(trsp) & 0xffff);
+ 
+@@ -1496,6 +1502,9 @@ rcutorture_extend_mask(int oldmask, struct torture_random_state *trsp)
+ 	int mask = rcutorture_extend_mask_max();
+ 	unsigned long randmask1 = torture_random(trsp) >> 8;
+ 	unsigned long randmask2 = randmask1 >> 3;
++	unsigned long preempts = RCUTORTURE_RDR_PREEMPT | RCUTORTURE_RDR_SCHED;
++	unsigned long preempts_irq = preempts | RCUTORTURE_RDR_IRQ;
++	unsigned long bhs = RCUTORTURE_RDR_BH | RCUTORTURE_RDR_RBH;
+ 
+ 	WARN_ON_ONCE(mask >> RCUTORTURE_RDR_SHIFT);
+ 	/* Mostly only one bit (need preemption!), sometimes lots of bits. */
+@@ -1503,11 +1512,26 @@ rcutorture_extend_mask(int oldmask, struct torture_random_state *trsp)
+ 		mask = mask & randmask2;
+ 	else
+ 		mask = mask & (1 << (randmask2 % RCUTORTURE_RDR_NBITS));
+-	/* Can't enable bh w/irq disabled. */
+-	if ((mask & RCUTORTURE_RDR_IRQ) &&
+-	    ((!(mask & RCUTORTURE_RDR_BH) && (oldmask & RCUTORTURE_RDR_BH)) ||
+-	     (!(mask & RCUTORTURE_RDR_RBH) && (oldmask & RCUTORTURE_RDR_RBH))))
+-		mask |= RCUTORTURE_RDR_BH | RCUTORTURE_RDR_RBH;
++
++	/*
++	 * Can't enable bh w/irq disabled.
++	 */
++	if (mask & RCUTORTURE_RDR_IRQ)
++		mask |= oldmask & bhs;
++
++	/*
++	 * Ideally these sequences would be detected in debug builds
++	 * (regardless of RT), but until then don't stop testing
++	 * them on non-RT.
++	 */
++	if (IS_ENABLED(CONFIG_PREEMPT_RT)) {
++		/* Can't modify BH in atomic context */
++		if (oldmask & preempts_irq)
++			mask &= ~bhs;
++		if ((oldmask | mask) & preempts_irq)
++			mask |= oldmask & bhs;
++	}
++
+ 	return mask ?: RCUTORTURE_RDR_RCU;
  }
- //#endif
  
-@@ -129,7 +125,7 @@ static int usb_set_report(struct usb_int
- 			       USB_TYPE_CLASS | USB_RECIP_INTERFACE,
- 			       (type << 8) + id,
- 			       intf->cur_altsetting->desc.bInterfaceNumber, buf,
--			       size, HZ);
-+			       size, 1000);
- }
- 
- /*---------------------*/
+-- 
+2.33.0
+
 
 
