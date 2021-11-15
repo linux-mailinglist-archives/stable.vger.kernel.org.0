@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03356452648
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:01:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 229F04527A3
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:27:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343517AbhKPCEc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:04:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46096 "EHLO mail.kernel.org"
+        id S243426AbhKPC3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:29:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239578AbhKOSDU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:03:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8750363256;
-        Mon, 15 Nov 2021 17:37:53 +0000 (UTC)
+        id S237033AbhKORQM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:16:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2470E63263;
+        Mon, 15 Nov 2021 17:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997874;
-        bh=sdsidGcPE7DXp6zNXMskRefZeui9K0bcLJxqJqIkqX4=;
+        s=korg; t=1636996349;
+        bh=mgTj62vd/B9dx4Plg0wOv90Sqq+ryL27UCC5jKoo1Z4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bwhB9Zw644mPBnzBwNsgv9be0oBR4gNFCjbtpVW7k0HFShZ5sDpl5ue1nu3/bGIlJ
-         Av+KwdlNRLu7Fv1eEFABzPKhyef8fLI4bqsVHMrZQ/3qozW2AdECtfVUQu5kkIMTfY
-         bx9c0eSgV4M26ngqv0NmylqmZ3HVEEDxVa8/lov0=
+        b=gpFG9T3UjSdVpSt4oLI84IYo02R+WdLGDsEZBqDKPm/jywwZegQTgjYcdH7OYxlr0
+         Isf1VMKxGQpekYpVD2r1mfBiqVX4/DKnDk6WpJDLLb6/BJYTYxYSnlNztRSlWyYVMD
+         49WqU85o8g8mNDY87PtT03mr8efFsMVS1ZXIeJOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 306/575] rcu: Always inline rcu_dynticks_task*_{enter,exit}()
-Date:   Mon, 15 Nov 2021 18:00:31 +0100
-Message-Id: <20211115165354.373668302@linuxfoundation.org>
+        stable@vger.kernel.org, Pekka Korpinen <pekka.korpinen@iki.fi>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 108/355] iio: dac: ad5446: Fix ad5622_write() return value
+Date:   Mon, 15 Nov 2021 18:00:32 +0100
+Message-Id: <20211115165317.301582571@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Pekka Korpinen <pekka.korpinen@iki.fi>
 
-[ Upstream commit 7663ad9a5dbcc27f3090e6bfd192c7e59222709f ]
+commit 558df982d4ead9cac628153d0d7b60feae05ddc8 upstream.
 
-RCU managed to grow a few noinstr violations:
+On success i2c_master_send() returns the number of bytes written. The
+call from iio_write_channel_info(), however, expects the return value to
+be zero on success.
 
-  vmlinux.o: warning: objtool: rcu_dynticks_eqs_enter()+0x0: call to rcu_dynticks_task_trace_enter() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: rcu_dynticks_eqs_exit()+0xe: call to rcu_dynticks_task_trace_exit() leaves .noinstr.text section
+This bug causes incorrect consumption of the sysfs buffer in
+iio_write_channel_info(). When writing more than two characters to
+out_voltage0_raw, the ad5446 write handler is called multiple times
+causing unexpected behavior.
 
-Fix them by adding __always_inline to the relevant trivial functions.
-
-Also replace the noinstr with __always_inline for the existing
-rcu_dynticks_task_*() functions since noinstr would force noinline
-them, even when empty, which seems silly.
-
-Fixes: 7d0c9c50c5a1 ("rcu-tasks: Avoid IPIing userspace/idle tasks if kernel is so built")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3ec36a2cf0d5 ("iio:ad5446: Add support for I2C based DACs")
+Signed-off-by: Pekka Korpinen <pekka.korpinen@iki.fi>
+Link: https://lore.kernel.org/r/20210929185755.2384-1-pekka.korpinen@iki.fi
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/rcu/tree_plugin.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iio/dac/ad5446.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index c5091aeaa37bb..6ed153f226b39 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -2573,7 +2573,7 @@ static void rcu_bind_gp_kthread(void)
+--- a/drivers/iio/dac/ad5446.c
++++ b/drivers/iio/dac/ad5446.c
+@@ -527,8 +527,15 @@ static int ad5622_write(struct ad5446_st
+ {
+ 	struct i2c_client *client = to_i2c_client(st->dev);
+ 	__be16 data = cpu_to_be16(val);
++	int ret;
+ 
+-	return i2c_master_send(client, (char *)&data, sizeof(data));
++	ret = i2c_master_send(client, (char *)&data, sizeof(data));
++	if (ret < 0)
++		return ret;
++	if (ret != sizeof(data))
++		return -EIO;
++
++	return 0;
  }
  
- /* Record the current task on dyntick-idle entry. */
--static void noinstr rcu_dynticks_task_enter(void)
-+static __always_inline void rcu_dynticks_task_enter(void)
- {
- #if defined(CONFIG_TASKS_RCU) && defined(CONFIG_NO_HZ_FULL)
- 	WRITE_ONCE(current->rcu_tasks_idle_cpu, smp_processor_id());
-@@ -2581,7 +2581,7 @@ static void noinstr rcu_dynticks_task_enter(void)
- }
- 
- /* Record no current task on dyntick-idle exit. */
--static void noinstr rcu_dynticks_task_exit(void)
-+static __always_inline void rcu_dynticks_task_exit(void)
- {
- #if defined(CONFIG_TASKS_RCU) && defined(CONFIG_NO_HZ_FULL)
- 	WRITE_ONCE(current->rcu_tasks_idle_cpu, -1);
-@@ -2589,7 +2589,7 @@ static void noinstr rcu_dynticks_task_exit(void)
- }
- 
- /* Turn on heavyweight RCU tasks trace readers on idle/user entry. */
--static void rcu_dynticks_task_trace_enter(void)
-+static __always_inline void rcu_dynticks_task_trace_enter(void)
- {
- #ifdef CONFIG_TASKS_TRACE_RCU
- 	if (IS_ENABLED(CONFIG_TASKS_TRACE_RCU_READ_MB))
-@@ -2598,7 +2598,7 @@ static void rcu_dynticks_task_trace_enter(void)
- }
- 
- /* Turn off heavyweight RCU tasks trace readers on idle/user exit. */
--static void rcu_dynticks_task_trace_exit(void)
-+static __always_inline void rcu_dynticks_task_trace_exit(void)
- {
- #ifdef CONFIG_TASKS_TRACE_RCU
- 	if (IS_ENABLED(CONFIG_TASKS_TRACE_RCU_READ_MB))
--- 
-2.33.0
-
+ /**
 
 
