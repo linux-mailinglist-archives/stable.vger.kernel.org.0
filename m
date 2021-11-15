@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34167452527
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:44:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DCF4525C1
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:55:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344455AbhKPBrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:47:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56282 "EHLO mail.kernel.org"
+        id S1344412AbhKPB55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:57:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240837AbhKOSQh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:16:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 827B8632AE;
-        Mon, 15 Nov 2021 17:50:23 +0000 (UTC)
+        id S240957AbhKOSOZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:14:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 769E361027;
+        Mon, 15 Nov 2021 17:48:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998624;
-        bh=Aw8QEou9GB/fEKFhDP+VPvJNVdUc9ZKQ623KgFGoizs=;
+        s=korg; t=1636998535;
+        bh=lWzXz7YK30/LfxHfXGr0JHKMYURieNx3gsFwnmZ3kZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oR/PDACD/N3zb8/rnduQ53c3nuBDRUk7hZUrON+ap0v7ask3sWw7BhJgu7EtYWHau
-         Jss3CD3NzPyGaGD2GqR8aXXY1oE23oiyLnQKR1CLH5mZhjhuod8TN8CBiFAjXQVtIy
-         DHrN7fbZG9sdWhKQ7RckbRZm9sZb1ASwMnlQta+g=
+        b=tlw3o+zdNplOjtEwKrRsm/AjdUnlQO9Fn6b/ootz7SWciGvDvedg2gE1c17CbfRd/
+         HH0asLDxjTRrDrjdBsy78bpzvC6JVUSc9fwpItneu5GyZCQfL0n9FYN/v2suk2a/cK
+         f1TZdFy1N7bcQJDYNMpadtVamwC2jLlSW3MeYBio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rhys Hiltner <rhys@justin.tv>,
-        Michael Pratt <mpratt@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.10 544/575] posix-cpu-timers: Clear task::posix_cputimers_work in copy_process()
-Date:   Mon, 15 Nov 2021 18:04:29 +0100
-Message-Id: <20211115165402.495052553@linuxfoundation.org>
+        stable@vger.kernel.org, Vincent Pelletier <plr.vincent@gmail.com>,
+        Nikita Shubin <nikita.shubin@maquefel.me>,
+        Guo Ren <guoren@linux.alibaba.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Atish Patra <atish.patra@wdc.com>,
+        Anup Patel <anup@brainfault.org>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.10 545/575] irqchip/sifive-plic: Fixup EOI failed when masked
+Date:   Mon, 15 Nov 2021 18:04:30 +0100
+Message-Id: <20211115165402.526449872@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -40,111 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Pratt <mpratt@google.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit ca7752caeaa70bd31d1714af566c9809688544af upstream.
+commit 69ea463021be0d159ab30f96195fb0dd18ee2272 upstream.
 
-copy_process currently copies task_struct.posix_cputimers_work as-is. If a
-timer interrupt arrives while handling clone and before dup_task_struct
-completes then the child task will have:
+When using "devm_request_threaded_irq(,,,,IRQF_ONESHOT,,)" in a driver,
+only the first interrupt is handled, and following interrupts are never
+delivered (initially reported in [1]).
 
-1. posix_cputimers_work.scheduled = true
-2. posix_cputimers_work.work queued.
+That's because the RISC-V PLIC cannot EOI masked interrupts, as explained
+in the description of Interrupt Completion in the PLIC spec [2]:
 
-copy_process clears task_struct.task_works, so (2) will have no effect and
-posix_cpu_timers_work will never run (not to mention it doesn't make sense
-for two tasks to share a common linked list).
+<quote>
+The PLIC signals it has completed executing an interrupt handler by
+writing the interrupt ID it received from the claim to the claim/complete
+register. The PLIC does not check whether the completion ID is the same
+as the last claim ID for that target. If the completion ID does not match
+an interrupt source that *is currently enabled* for the target, the
+completion is silently ignored.
+</quote>
 
-Since posix_cpu_timers_work never runs, posix_cputimers_work.scheduled is
-never cleared. Since scheduled is set, future timer interrupts will skip
-scheduling work, with the ultimate result that the task will never receive
-timer expirations.
+Re-enable the interrupt before completion if it has been masked during
+the handling, and remask it afterwards.
 
-Together, the complete flow is:
+[1] http://lists.infradead.org/pipermail/linux-riscv/2021-July/007441.html
+[2] https://github.com/riscv/riscv-plic-spec/blob/8bc15a35d07c9edf7b5d23fec9728302595ffc4d/riscv-plic.adoc
 
-1. Task 1 calls clone(), enters kernel.
-2. Timer interrupt fires, schedules task work on Task 1.
-   2a. task_struct.posix_cputimers_work.scheduled = true
-   2b. task_struct.posix_cputimers_work.work added to
-       task_struct.task_works.
-3. dup_task_struct() copies Task 1 to Task 2.
-4. copy_process() clears task_struct.task_works for Task 2.
-5. Future timer interrupts on Task 2 see
-   task_struct.posix_cputimers_work.scheduled = true and skip scheduling
-   work.
-
-Fix this by explicitly clearing contents of task_struct.posix_cputimers_work
-in copy_process(). This was never meant to be shared or inherited across
-tasks in the first place.
-
-Fixes: 1fb497dd0030 ("posix-cpu-timers: Provide mechanisms to defer timer handling to task_work")
-Reported-by: Rhys Hiltner <rhys@justin.tv>
-Signed-off-by: Michael Pratt <mpratt@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211101210615.716522-1-mpratt@google.com
+Fixes: bb0fed1c60cc ("irqchip/sifive-plic: Switch to fasteoi flow")
+Reported-by: Vincent Pelletier <plr.vincent@gmail.com>
+Tested-by: Nikita Shubin <nikita.shubin@maquefel.me>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: stable@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Atish Patra <atish.patra@wdc.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+[maz: amended commit message]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211105094748.3894453-1-guoren@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/posix-timers.h   |    2 ++
- kernel/fork.c                  |    1 +
- kernel/time/posix-cpu-timers.c |   19 +++++++++++++++++--
- 3 files changed, 20 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-sifive-plic.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/include/linux/posix-timers.h
-+++ b/include/linux/posix-timers.h
-@@ -177,8 +177,10 @@ static inline void posix_cputimers_group
- #endif
- 
- #ifdef CONFIG_POSIX_CPU_TIMERS_TASK_WORK
-+void clear_posix_cputimers_work(struct task_struct *p);
- void posix_cputimers_init_work(void);
- #else
-+static inline void clear_posix_cputimers_work(struct task_struct *p) { }
- static inline void posix_cputimers_init_work(void) { }
- #endif
- 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2191,6 +2191,7 @@ static __latent_entropy struct task_stru
- 	p->pdeath_signal = 0;
- 	INIT_LIST_HEAD(&p->thread_group);
- 	p->task_works = NULL;
-+	clear_posix_cputimers_work(p);
- 
- 	/*
- 	 * Ensure that the cgroup subsystem policies allow the new process to be
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -1101,13 +1101,28 @@ static void posix_cpu_timers_work(struct
- }
- 
- /*
-+ * Clear existing posix CPU timers task work.
-+ */
-+void clear_posix_cputimers_work(struct task_struct *p)
-+{
-+	/*
-+	 * A copied work entry from the old task is not meaningful, clear it.
-+	 * N.B. init_task_work will not do this.
-+	 */
-+	memset(&p->posix_cputimers_work.work, 0,
-+	       sizeof(p->posix_cputimers_work.work));
-+	init_task_work(&p->posix_cputimers_work.work,
-+		       posix_cpu_timers_work);
-+	p->posix_cputimers_work.scheduled = false;
-+}
-+
-+/*
-  * Initialize posix CPU timers task work in init task. Out of line to
-  * keep the callback static and to avoid header recursion hell.
-  */
- void __init posix_cputimers_init_work(void)
+--- a/drivers/irqchip/irq-sifive-plic.c
++++ b/drivers/irqchip/irq-sifive-plic.c
+@@ -163,7 +163,13 @@ static void plic_irq_eoi(struct irq_data
  {
--	init_task_work(&current->posix_cputimers_work.work,
--		       posix_cpu_timers_work);
-+	clear_posix_cputimers_work(current);
+ 	struct plic_handler *handler = this_cpu_ptr(&plic_handlers);
+ 
+-	writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
++	if (irqd_irq_masked(d)) {
++		plic_irq_unmask(d);
++		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
++		plic_irq_mask(d);
++	} else {
++		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
++	}
  }
  
- /*
+ static struct irq_chip plic_chip = {
 
 
