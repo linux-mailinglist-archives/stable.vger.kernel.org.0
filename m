@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F9B44521F3
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A036C4524DE
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376943AbhKPBHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:07:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
+        id S1357411AbhKPBqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:46:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245278AbhKOTT5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:19:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C2D163527;
-        Mon, 15 Nov 2021 18:31:38 +0000 (UTC)
+        id S241379AbhKOSTj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:19:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34728632AF;
+        Mon, 15 Nov 2021 17:52:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001099;
-        bh=2JYBnu26lh+xnfocP3ExYnaUlwXlPUeVfjs51btJ/Zw=;
+        s=korg; t=1636998728;
+        bh=3UtydLdEJfmraCHWQm0ERCQAxWACsBN7HaPESruk6fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C+THYWJ1YUrQ5/ALFrtqWWXRDpysad6XxgMzdEhIMoZk5wrdshEA0DMq+nKZd8mlO
-         IFqADsqhIMC1PfnaQuncT+ExtsHh703GrKro8fl7K7nosfuJDCzdTD/EY57ASJePgC
-         aM1+CMyW3Spxc0qz5OiG/SmgOl1xjBW3AfPImXDE=
+        b=P3TAB3KnTRooUiPmFsio57TyHZYdIGxbe+j78KiIUnqXMQVztX9QwkX4qMkrPN2Zz
+         z6ZD1Vq2JTcUT4ueVavofrXPByEb5MGolUvvpzY+zMbKSds8uL3bUPp8EFprVOkmZy
+         uTGro4XiyCzuIu4Y/5m38Ewb23TjoHuBK1mjkMuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.15 027/917] media: rkvdec: Do not override sizeimage for output format
-Date:   Mon, 15 Nov 2021 17:52:02 +0100
-Message-Id: <20211115165429.648773143@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+ace149a75a9a0a399ac7@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.14 040/849] ALSA: mixer: fix deadlock in snd_mixer_oss_set_volume
+Date:   Mon, 15 Nov 2021 17:52:03 +0100
+Message-Id: <20211115165421.357772267@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 298d8e8f7bcf023aceb60232d59b983255fec0df upstream.
+commit 3ab7992018455ac63c33e9b3eaa7264e293e40f4 upstream.
 
-The rkvdec H.264 decoder currently overrides sizeimage for the output
-format. This causes issues when userspace requires and requests a larger
-buffer, but ends up with one of insufficient size.
+In commit 411cef6adfb3 ("ALSA: mixer: oss: Fix racy access to slots")
+added mutex protection in snd_mixer_oss_set_volume(). Second
+mutex_lock() in same function looks like typo, fix it.
 
-Instead, only provide a default size if none was requested. This fixes
-the video_decode_accelerator_tests from Chromium failing on the first
-frame due to insufficient buffer space. It also aligns the behavior
-of the rkvdec driver with the Hantro and Cedrus drivers.
-
-Fixes: cd33c830448b ("media: rkvdec: Add the rkvdec driver")
+Reported-by: syzbot+ace149a75a9a0a399ac7@syzkaller.appspotmail.com
+Fixes: 411cef6adfb3 ("ALSA: mixer: oss: Fix racy access to slots")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20211024140315.16704-1-paskripkin@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/media/rkvdec/rkvdec-h264.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/core/oss/mixer_oss.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/media/rkvdec/rkvdec-h264.c
-+++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
-@@ -1015,8 +1015,9 @@ static int rkvdec_h264_adjust_fmt(struct
- 	struct v4l2_pix_format_mplane *fmt = &f->fmt.pix_mp;
- 
- 	fmt->num_planes = 1;
--	fmt->plane_fmt[0].sizeimage = fmt->width * fmt->height *
--				      RKVDEC_H264_MAX_DEPTH_IN_BYTES;
-+	if (!fmt->plane_fmt[0].sizeimage)
-+		fmt->plane_fmt[0].sizeimage = fmt->width * fmt->height *
-+					      RKVDEC_H264_MAX_DEPTH_IN_BYTES;
- 	return 0;
+--- a/sound/core/oss/mixer_oss.c
++++ b/sound/core/oss/mixer_oss.c
+@@ -313,7 +313,7 @@ static int snd_mixer_oss_set_volume(stru
+ 	pslot->volume[1] = right;
+ 	result = (left & 0xff) | ((right & 0xff) << 8);
+  unlock:
+-	mutex_lock(&mixer->reg_mutex);
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
  }
  
 
