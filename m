@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A972B450F31
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:25:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BA3A450F4F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:26:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237683AbhKOS1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:27:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35570 "EHLO mail.kernel.org"
+        id S240378AbhKOS3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:29:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241170AbhKOSYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:24:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C3DC61B4B;
-        Mon, 15 Nov 2021 17:54:11 +0000 (UTC)
+        id S241245AbhKOSYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:24:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 301566332A;
+        Mon, 15 Nov 2021 17:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998851;
-        bh=eneIjC0BOS4PB4i9Qdq5CQRunYiYHt3Gtk95k9VDXig=;
+        s=korg; t=1636998882;
+        bh=emr99NKx5lPm3jGqzsy8kCohVWUpGe16F4WIj11MsF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1TQr0CPfWIzdfl4NwCYGmpvElgOujjg5KZRMUkWpG4ERgCctsvXDVASWE8yONL/xJ
-         S7ClTnXvwrdeJF7vsBBIhca1Jq6DBr1zrtUkwX1tFxJsl4yme+vAIOE6CBEEmKZhS0
-         aVNMVfXLgAgC4xPg0EQHMeXglSw9yTAZQn6FitAA=
+        b=YOYxlYLUMe7K5ZOS+PhBYjGClCc8BUR0Cah9ozQNWI2m1jv6F0UpTbEH3lEW9FGmF
+         FnwbqMflUxj8L17VAS5sMC4hSUlXW6WFqjaQFeL6QEGIioIgF7JjNdsvo80dHsOYiy
+         dY+UslqYkZMSI7rJRhCA1VtYntwj4L0PDrXq0/v8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Martin Habets <habetsm.xilinx@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 068/849] sfc: Export fibre-specific supported link modes
-Date:   Mon, 15 Nov 2021 17:52:31 +0100
-Message-Id: <20211115165422.351772167@linuxfoundation.org>
+Subject: [PATCH 5.14 069/849] sfc: Dont use netif_info before net_device setup
+Date:   Mon, 15 Nov 2021 17:52:32 +0100
+Message-Id: <20211115165422.382553154@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -43,172 +43,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Erik Ekman <erik@kryo.se>
 
-[ Upstream commit c62041c5baa9ded3bc6fd38d3f724de70683b489 ]
+[ Upstream commit bf6abf345dfa77786aca554bc58c64bd428ecb1d ]
 
-The 1/10GbaseT modes were set up for cards with SFP+ cages in
-3497ed8c852a5 ("sfc: report supported link speeds on SFP connections").
-10GbaseT was likely used since no 10G fibre mode existed.
+Use pci_info instead to avoid unnamed/uninitialized noise:
 
-The missing fibre modes for 1/10G were added to ethtool.h in 5711a9822144
-("net: ethtool: add support for 1000BaseX and missing 10G link modes")
-shortly thereafter.
+[197088.688729] sfc 0000:01:00.0: Solarflare NIC detected
+[197088.690333] sfc 0000:01:00.0: Part Number : SFN5122F
+[197088.729061] sfc 0000:01:00.0 (unnamed net_device) (uninitialized): no SR-IOV VFs probed
+[197088.729071] sfc 0000:01:00.0 (unnamed net_device) (uninitialized): no PTP support
 
-The user guide available at https://support-nic.xilinx.com/wp/drivers
-lists support for the following cable and transceiver types in section 2.9:
-- QSFP28 100G Direct Attach Cables
-- QSFP28 100G SR Optical Transceivers (with SR4 modules listed)
-- SFP28 25G Direct Attach Cables
-- SFP28 25G SR Optical Transceivers
-- QSFP+ 40G Direct Attach Cables
-- QSFP+ 40G Active Optical Cables
-- QSFP+ 40G SR4 Optical Transceivers
-- QSFP+ to SFP+ Breakout Direct Attach Cables
-- QSFP+ to SFP+ Breakout Active Optical Cables
-- SFP+ 10G Direct Attach Cables
-- SFP+ 10G SR Optical Transceivers
-- SFP+ 10G LR Optical Transceivers
-- SFP 1000BASE‐T Transceivers
-- 1G Optical Transceivers
-(From user guide issue 28. Issue 16 which also includes older cards like
-SFN5xxx/SFN6xxx has matching lists for 1/10/40G transceiver types.)
-
-Regarding SFP+ 10GBASE‐T transceivers the latest guide says:
-"Solarflare adapters do not support 10GBASE‐T transceiver modules."
-
-Tested using SFN5122F-R7 (with 2 SFP+ ports). Supported link modes do not change
-depending on module used (tested with 1000BASE-T, 1000BASE-BX10, 10GBASE-LR).
-Before:
-
-$ ethtool ext
-Settings for ext:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseT/Full
-	                        10000baseT/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  Not reported
-	Advertised pause frame use: No
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Link partner advertised link modes:  Not reported
-	Link partner advertised pause frame use: No
-	Link partner advertised auto-negotiation: No
-	Link partner advertised FEC modes: Not reported
-	Speed: 1000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: FIBRE
-	PHYAD: 255
-	Transceiver: internal
-        Current message level: 0x000020f7 (8439)
-                               drv probe link ifdown ifup rx_err tx_err hw
-	Link detected: yes
-
-After:
-
-$ ethtool ext
-Settings for ext:
-	Supported ports: [ FIBRE ]
-	Supported link modes:   1000baseT/Full
-	                        1000baseX/Full
-	                        10000baseCR/Full
-	                        10000baseSR/Full
-	                        10000baseLR/Full
-	Supported pause frame use: Symmetric Receive-only
-	Supports auto-negotiation: No
-	Supported FEC modes: Not reported
-	Advertised link modes:  Not reported
-	Advertised pause frame use: No
-	Advertised auto-negotiation: No
-	Advertised FEC modes: Not reported
-	Link partner advertised link modes:  Not reported
-	Link partner advertised pause frame use: No
-	Link partner advertised auto-negotiation: No
-	Link partner advertised FEC modes: Not reported
-	Speed: 1000Mb/s
-	Duplex: Full
-	Auto-negotiation: off
-	Port: FIBRE
-	PHYAD: 255
-	Transceiver: internal
-	Supports Wake-on: g
-	Wake-on: d
-        Current message level: 0x000020f7 (8439)
-                               drv probe link ifdown ifup rx_err tx_err hw
-	Link detected: yes
+Inspired by fa44821a4ddd ("sfc: don't use netif_info et al before
+net_device is registered") from Heiner Kallweit.
 
 Signed-off-by: Erik Ekman <erik@kryo.se>
 Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/mcdi_port_common.c | 37 +++++++++++++++------
- 1 file changed, 26 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/sfc/ptp.c         | 4 ++--
+ drivers/net/ethernet/sfc/siena_sriov.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/mcdi_port_common.c b/drivers/net/ethernet/sfc/mcdi_port_common.c
-index 4bd3ef8f3384e..c4fe3c48ac46a 100644
---- a/drivers/net/ethernet/sfc/mcdi_port_common.c
-+++ b/drivers/net/ethernet/sfc/mcdi_port_common.c
-@@ -132,16 +132,27 @@ void mcdi_to_ethtool_linkset(u32 media, u32 cap, unsigned long *linkset)
- 	case MC_CMD_MEDIA_SFP_PLUS:
- 	case MC_CMD_MEDIA_QSFP_PLUS:
- 		SET_BIT(FIBRE);
--		if (cap & (1 << MC_CMD_PHY_CAP_1000FDX_LBN))
-+		if (cap & (1 << MC_CMD_PHY_CAP_1000FDX_LBN)) {
- 			SET_BIT(1000baseT_Full);
--		if (cap & (1 << MC_CMD_PHY_CAP_10000FDX_LBN))
--			SET_BIT(10000baseT_Full);
--		if (cap & (1 << MC_CMD_PHY_CAP_40000FDX_LBN))
-+			SET_BIT(1000baseX_Full);
-+		}
-+		if (cap & (1 << MC_CMD_PHY_CAP_10000FDX_LBN)) {
-+			SET_BIT(10000baseCR_Full);
-+			SET_BIT(10000baseLR_Full);
-+			SET_BIT(10000baseSR_Full);
-+		}
-+		if (cap & (1 << MC_CMD_PHY_CAP_40000FDX_LBN)) {
- 			SET_BIT(40000baseCR4_Full);
--		if (cap & (1 << MC_CMD_PHY_CAP_100000FDX_LBN))
-+			SET_BIT(40000baseSR4_Full);
-+		}
-+		if (cap & (1 << MC_CMD_PHY_CAP_100000FDX_LBN)) {
- 			SET_BIT(100000baseCR4_Full);
--		if (cap & (1 << MC_CMD_PHY_CAP_25000FDX_LBN))
-+			SET_BIT(100000baseSR4_Full);
-+		}
-+		if (cap & (1 << MC_CMD_PHY_CAP_25000FDX_LBN)) {
- 			SET_BIT(25000baseCR_Full);
-+			SET_BIT(25000baseSR_Full);
-+		}
- 		if (cap & (1 << MC_CMD_PHY_CAP_50000FDX_LBN))
- 			SET_BIT(50000baseCR2_Full);
- 		break;
-@@ -192,15 +203,19 @@ u32 ethtool_linkset_to_mcdi_cap(const unsigned long *linkset)
- 		result |= (1 << MC_CMD_PHY_CAP_100FDX_LBN);
- 	if (TEST_BIT(1000baseT_Half))
- 		result |= (1 << MC_CMD_PHY_CAP_1000HDX_LBN);
--	if (TEST_BIT(1000baseT_Full) || TEST_BIT(1000baseKX_Full))
-+	if (TEST_BIT(1000baseT_Full) || TEST_BIT(1000baseKX_Full) ||
-+			TEST_BIT(1000baseX_Full))
- 		result |= (1 << MC_CMD_PHY_CAP_1000FDX_LBN);
--	if (TEST_BIT(10000baseT_Full) || TEST_BIT(10000baseKX4_Full))
-+	if (TEST_BIT(10000baseT_Full) || TEST_BIT(10000baseKX4_Full) ||
-+			TEST_BIT(10000baseCR_Full) || TEST_BIT(10000baseLR_Full) ||
-+			TEST_BIT(10000baseSR_Full))
- 		result |= (1 << MC_CMD_PHY_CAP_10000FDX_LBN);
--	if (TEST_BIT(40000baseCR4_Full) || TEST_BIT(40000baseKR4_Full))
-+	if (TEST_BIT(40000baseCR4_Full) || TEST_BIT(40000baseKR4_Full) ||
-+			TEST_BIT(40000baseSR4_Full))
- 		result |= (1 << MC_CMD_PHY_CAP_40000FDX_LBN);
--	if (TEST_BIT(100000baseCR4_Full))
-+	if (TEST_BIT(100000baseCR4_Full) || TEST_BIT(100000baseSR4_Full))
- 		result |= (1 << MC_CMD_PHY_CAP_100000FDX_LBN);
--	if (TEST_BIT(25000baseCR_Full))
-+	if (TEST_BIT(25000baseCR_Full) || TEST_BIT(25000baseSR_Full))
- 		result |= (1 << MC_CMD_PHY_CAP_25000FDX_LBN);
- 	if (TEST_BIT(50000baseCR2_Full))
- 		result |= (1 << MC_CMD_PHY_CAP_50000FDX_LBN);
+diff --git a/drivers/net/ethernet/sfc/ptp.c b/drivers/net/ethernet/sfc/ptp.c
+index a39c5143b3864..797e51802ccbb 100644
+--- a/drivers/net/ethernet/sfc/ptp.c
++++ b/drivers/net/ethernet/sfc/ptp.c
+@@ -648,7 +648,7 @@ static int efx_ptp_get_attributes(struct efx_nic *efx)
+ 	} else if (rc == -EINVAL) {
+ 		fmt = MC_CMD_PTP_OUT_GET_ATTRIBUTES_SECONDS_NANOSECONDS;
+ 	} else if (rc == -EPERM) {
+-		netif_info(efx, probe, efx->net_dev, "no PTP support\n");
++		pci_info(efx->pci_dev, "no PTP support\n");
+ 		return rc;
+ 	} else {
+ 		efx_mcdi_display_error(efx, MC_CMD_PTP, sizeof(inbuf),
+@@ -824,7 +824,7 @@ static int efx_ptp_disable(struct efx_nic *efx)
+ 	 * should only have been called during probe.
+ 	 */
+ 	if (rc == -ENOSYS || rc == -EPERM)
+-		netif_info(efx, probe, efx->net_dev, "no PTP support\n");
++		pci_info(efx->pci_dev, "no PTP support\n");
+ 	else if (rc)
+ 		efx_mcdi_display_error(efx, MC_CMD_PTP,
+ 				       MC_CMD_PTP_IN_DISABLE_LEN,
+diff --git a/drivers/net/ethernet/sfc/siena_sriov.c b/drivers/net/ethernet/sfc/siena_sriov.c
+index 83dcfcae3d4b5..441e7f3e53751 100644
+--- a/drivers/net/ethernet/sfc/siena_sriov.c
++++ b/drivers/net/ethernet/sfc/siena_sriov.c
+@@ -1057,7 +1057,7 @@ void efx_siena_sriov_probe(struct efx_nic *efx)
+ 		return;
+ 
+ 	if (efx_siena_sriov_cmd(efx, false, &efx->vi_scale, &count)) {
+-		netif_info(efx, probe, efx->net_dev, "no SR-IOV VFs probed\n");
++		pci_info(efx->pci_dev, "no SR-IOV VFs probed\n");
+ 		return;
+ 	}
+ 	if (count > 0 && count > max_vfs)
 -- 
 2.33.0
 
