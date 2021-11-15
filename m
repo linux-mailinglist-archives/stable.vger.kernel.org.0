@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21B6D4524F0
+	by mail.lfdr.de (Postfix) with ESMTP id 8E3FD4524F1
 	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357642AbhKPBqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:46:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33158 "EHLO mail.kernel.org"
+        id S1357671AbhKPBqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:46:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238932AbhKOSVA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:21:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39F186340B;
-        Mon, 15 Nov 2021 17:52:40 +0000 (UTC)
+        id S236948AbhKOSVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:21:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00DE06340D;
+        Mon, 15 Nov 2021 17:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998760;
-        bh=RPBPs8txgR4jz+UrYslijAM9hUpYSZhHCUg1VppwI1Q=;
+        s=korg; t=1636998765;
+        bh=cGShAZVZKjA7FLRGfzZ0lVk1i67ZPR/EAd9LNp7tZns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnmkI602A0dcYyiCvoltDIFMcw+Ug1NISD7mSnkZUhRo5+xeK/nHa8z1kiKIzGT9t
-         Epx0WoQeRVIZYa+qPK0m/SLlUFhaEBYMGFJ6PDQmHli22VnunWSM/h6KTg4czHHHpL
-         mMaT9KsUY1BCM5tzlHHV38Wx/KPrBIciZtCiJVG8=
+        b=TfgY99fv0D/Xtlkb7mhDrTo8idAv8LVGKiK57TQX1rZXGefLA9l6lvnb3k63u84LB
+         mcjM/fS8+5BG6coVqeAR78CV17ant3dHdemJiSJQRoFtwjaalFqzxNCOpp6wjuRq6s
+         70cUpLFyUmQ0BfhY/GcVX6STCwvGZoJ66t/+lBRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Dinoff <fdinoff@google.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.14 051/849] fuse: fix page stealing
-Date:   Mon, 15 Nov 2021 17:52:14 +0100
-Message-Id: <20211115165421.729618686@linuxfoundation.org>
+        stable@vger.kernel.org, Jane Malalane <jane.malalane@citrix.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.14 053/849] x86/cpu: Fix migration safety with X86_BUG_NULL_SEL
+Date:   Mon, 15 Nov 2021 17:52:16 +0100
+Message-Id: <20211115165421.814076542@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,64 +39,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Jane Malalane <jane.malalane@citrix.com>
 
-commit 712a951025c0667ff00b25afc360f74e639dfabe upstream.
+commit 415de44076640483648d6c0f6d645a9ee61328ad upstream.
 
-It is possible to trigger a crash by splicing anon pipe bufs to the fuse
-device.
+Currently, Linux probes for X86_BUG_NULL_SEL unconditionally which
+makes it unsafe to migrate in a virtualised environment as the
+properties across the migration pool might differ.
 
-The reason for this is that anon_pipe_buf_release() will reuse buf->page if
-the refcount is 1, but that page might have already been stolen and its
-flags modified (e.g. PG_lru added).
+To be specific, the case which goes wrong is:
 
-This happens in the unlikely case of fuse_dev_splice_write() getting around
-to calling pipe_buf_release() after a page has been stolen, added to the
-page cache and removed from the page cache.
+1. Zen1 (or earlier) and Zen2 (or later) in a migration pool
+2. Linux boots on Zen2, probes and finds the absence of X86_BUG_NULL_SEL
+3. Linux is then migrated to Zen1
 
-Fix by calling pipe_buf_release() right after the page was inserted into
-the page cache.  In this case the page has an elevated refcount so any
-release function will know that the page isn't reusable.
+Linux is now running on a X86_BUG_NULL_SEL-impacted CPU while believing
+that the bug is fixed.
 
-Reported-by: Frank Dinoff <fdinoff@google.com>
-Link: https://lore.kernel.org/r/CAAmZXrsGg2xsP1CK+cbuEMumtrqdvD-NKnWzhNcvn71RV3c1yw@mail.gmail.com/
-Fixes: dd3bb14f44a6 ("fuse: support splice() writing to fuse device")
-Cc: <stable@vger.kernel.org> # v2.6.35
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+The only way to address the problem is to fully trust the "no longer
+affected" CPUID bit when virtualised, because in the above case it would
+be clear deliberately to indicate the fact "you might migrate to
+somewhere which has this behaviour".
+
+Zen3 adds the NullSelectorClearsBase CPUID bit to indicate that loading
+a NULL segment selector zeroes the base and limit fields, as well as
+just attributes. Zen2 also has this behaviour but doesn't have the NSCB
+bit.
+
+ [ bp: Minor touchups. ]
+
+Signed-off-by: Jane Malalane <jane.malalane@citrix.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+CC: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20211021104744.24126-1-jane.malalane@citrix.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/dev.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/amd.c    |    2 +
+ arch/x86/kernel/cpu/common.c |   44 ++++++++++++++++++++++++++++++++++++-------
+ arch/x86/kernel/cpu/cpu.h    |    1 
+ arch/x86/kernel/cpu/hygon.c  |    2 +
+ 4 files changed, 42 insertions(+), 7 deletions(-)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -847,6 +847,12 @@ static int fuse_try_move_page(struct fus
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -989,6 +989,8 @@ static void init_amd(struct cpuinfo_x86
+ 	if (cpu_has(c, X86_FEATURE_IRPERF) &&
+ 	    !cpu_has_amd_erratum(c, amd_erratum_1054))
+ 		msr_set_bit(MSR_K7_HWCR, MSR_K7_HWCR_IRPERF_EN_BIT);
++
++	check_null_seg_clears_base(c);
+ }
  
- 	replace_page_cache_page(oldpage, newpage);
+ #ifdef CONFIG_X86_32
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1390,9 +1390,8 @@ void __init early_cpu_init(void)
+ 	early_identify_cpu(&boot_cpu_data);
+ }
  
+-static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
++static bool detect_null_seg_behavior(void)
+ {
+-#ifdef CONFIG_X86_64
+ 	/*
+ 	 * Empirically, writing zero to a segment selector on AMD does
+ 	 * not clear the base, whereas writing zero to a segment
+@@ -1413,10 +1412,43 @@ static void detect_null_seg_behavior(str
+ 	wrmsrl(MSR_FS_BASE, 1);
+ 	loadsegment(fs, 0);
+ 	rdmsrl(MSR_FS_BASE, tmp);
+-	if (tmp != 0)
+-		set_cpu_bug(c, X86_BUG_NULL_SEG);
+ 	wrmsrl(MSR_FS_BASE, old_base);
+-#endif
++	return tmp == 0;
++}
++
++void check_null_seg_clears_base(struct cpuinfo_x86 *c)
++{
++	/* BUG_NULL_SEG is only relevant with 64bit userspace */
++	if (!IS_ENABLED(CONFIG_X86_64))
++		return;
++
++	/* Zen3 CPUs advertise Null Selector Clears Base in CPUID. */
++	if (c->extended_cpuid_level >= 0x80000021 &&
++	    cpuid_eax(0x80000021) & BIT(6))
++		return;
++
 +	/*
-+	 * Release while we have extra ref on stolen page.  Otherwise
-+	 * anon_pipe_buf_release() might think the page can be reused.
++	 * CPUID bit above wasn't set. If this kernel is still running
++	 * as a HV guest, then the HV has decided not to advertize
++	 * that CPUID bit for whatever reason.	For example, one
++	 * member of the migration pool might be vulnerable.  Which
++	 * means, the bug is present: set the BUG flag and return.
 +	 */
-+	pipe_buf_release(cs->pipe, buf);
-+
- 	get_page(newpage);
- 
- 	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
-@@ -2031,8 +2037,12 @@ static ssize_t fuse_dev_splice_write(str
- 
- 	pipe_lock(pipe);
- out_free:
--	for (idx = 0; idx < nbuf; idx++)
--		pipe_buf_release(pipe, &bufs[idx]);
-+	for (idx = 0; idx < nbuf; idx++) {
-+		struct pipe_buffer *buf = &bufs[idx];
-+
-+		if (buf->ops)
-+			pipe_buf_release(pipe, buf);
++	if (cpu_has(c, X86_FEATURE_HYPERVISOR)) {
++		set_cpu_bug(c, X86_BUG_NULL_SEG);
++		return;
 +	}
- 	pipe_unlock(pipe);
++
++	/*
++	 * Zen2 CPUs also have this behaviour, but no CPUID bit.
++	 * 0x18 is the respective family for Hygon.
++	 */
++	if ((c->x86 == 0x17 || c->x86 == 0x18) &&
++	    detect_null_seg_behavior())
++		return;
++
++	/* All the remaining ones are affected */
++	set_cpu_bug(c, X86_BUG_NULL_SEG);
+ }
  
- 	kvfree(bufs);
+ static void generic_identify(struct cpuinfo_x86 *c)
+@@ -1452,8 +1484,6 @@ static void generic_identify(struct cpui
+ 
+ 	get_model_name(c); /* Default name */
+ 
+-	detect_null_seg_behavior(c);
+-
+ 	/*
+ 	 * ESPFIX is a strange bug.  All real CPUs have it.  Paravirt
+ 	 * systems that run Linux at CPL > 0 may or may not have the
+--- a/arch/x86/kernel/cpu/cpu.h
++++ b/arch/x86/kernel/cpu/cpu.h
+@@ -75,6 +75,7 @@ extern int detect_extended_topology_earl
+ extern int detect_extended_topology(struct cpuinfo_x86 *c);
+ extern int detect_ht_early(struct cpuinfo_x86 *c);
+ extern void detect_ht(struct cpuinfo_x86 *c);
++extern void check_null_seg_clears_base(struct cpuinfo_x86 *c);
+ 
+ unsigned int aperfmperf_get_khz(int cpu);
+ 
+--- a/arch/x86/kernel/cpu/hygon.c
++++ b/arch/x86/kernel/cpu/hygon.c
+@@ -335,6 +335,8 @@ static void init_hygon(struct cpuinfo_x8
+ 	/* Hygon CPUs don't reset SS attributes on SYSRET, Xen does. */
+ 	if (!cpu_has(c, X86_FEATURE_XENPV))
+ 		set_cpu_bug(c, X86_BUG_SYSRET_SS_ATTRS);
++
++	check_null_seg_clears_base(c);
+ }
+ 
+ static void cpu_detect_tlb_hygon(struct cpuinfo_x86 *c)
 
 
