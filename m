@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FE0C451009
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:38:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0E4A450C9F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:38:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242481AbhKOSlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:41:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46110 "EHLO mail.kernel.org"
+        id S238536AbhKORlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:41:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242432AbhKOSgu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:36:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB38A63270;
-        Mon, 15 Nov 2021 18:03:03 +0000 (UTC)
+        id S237962AbhKORiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:38:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFD43632DF;
+        Mon, 15 Nov 2021 17:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999384;
-        bh=61IdOsDbuR23eh4huIIIW5QN7TMSHXB+vB+VngHPjD8=;
+        s=korg; t=1636997128;
+        bh=BbYYdb3dVcIH/aoZW75OBYR10LWsYZETPQAD+cSH3y8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z3nCmxNdXdkpl/m9tyX3i8FdjlOrfgDBjyyoF62rl4q+4VVxcZ7Yvrxr0+jZVfTfQ
-         gduiQG8HiYMee1nqYenjKBwYcvIrqCxdyyf83d/UL/oo713qL7JEPqItnltP5qQUV6
-         r4Kr6fB8VxVXnoEyR/AjfVZ7FyLZcEOHO/3mE8DI=
+        b=HvpKZavZf85S8WT/ykztnjCB62eX3YjpsM70DTT7cXgsKCRocF3fC9lpCgYVcH8BZ
+         sH8/6kzkTBMzBKSzfcrybNyqAPGMVZdvAr7mZiJKKh+uni8NS7KoOuGXAlfprnNCv/
+         95upksZW4MX7jT1R3FqQLakjwnkMQKLs1L8ZgD14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, youling <youling257@gmail.com>,
-        Yifan Zhang <yifan1.zhang@amd.com>,
-        James Zhu <James.Zhu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 276/849] drm/amdkfd: fix resume error when iommu disabled in Picasso
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 034/575] ALSA: ua101: fix division by zero at probe
 Date:   Mon, 15 Nov 2021 17:55:59 +0100
-Message-Id: <20211115165429.584416461@linuxfoundation.org>
+Message-Id: <20211115165344.816793153@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zhang <yifan1.zhang@amd.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 6f4b590aae217da16cfa44039a2abcfb209137ab ]
+commit 55f261b73a7e1cb254577c3536cef8f415de220a upstream.
 
-When IOMMU disabled in sbios and kfd in iommuv2 path,
-IOMMU resume failure blocks system resume. Don't allow kfd to
-use iommu v2 when iommu is disabled.
+Add the missing endpoint max-packet sanity check to probe() to avoid
+division by zero in alloc_stream_buffers() in case a malicious device
+has broken descriptors (or when doing descriptor fuzz testing).
 
-Reported-by: youling <youling257@gmail.com>
-Tested-by: youling <youling257@gmail.com>
-Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
-Reviewed-by: James Zhu <James.Zhu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that USB core will reject URBs submitted for endpoints with zero
+wMaxPacketSize but that drivers doing packet-size calculations still
+need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
+endpoint descriptors with maxpacket=0")).
+
+Fixes: 63978ab3e3e9 ("sound: add Edirol UA-101 support")
+Cc: stable@vger.kernel.org      # 2.6.34
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211026095401.26522-1-johan@kernel.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_device.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/misc/ua101.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-index ef64fb8f1bbf5..900ea693c71c6 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-@@ -867,6 +867,7 @@ bool kgd2kfd_device_init(struct kfd_dev *kfd,
- 	kfd_double_confirm_iommu_support(kfd);
+--- a/sound/usb/misc/ua101.c
++++ b/sound/usb/misc/ua101.c
+@@ -1001,7 +1001,7 @@ static int detect_usb_format(struct ua10
+ 		fmt_playback->bSubframeSize * ua->playback.channels;
  
- 	if (kfd_iommu_device_init(kfd)) {
-+		kfd->use_iommu_v2 = false;
- 		dev_err(kfd_device, "Error initializing iommuv2\n");
- 		goto device_iommu_error;
+ 	epd = &ua->intf[INTF_CAPTURE]->altsetting[1].endpoint[0].desc;
+-	if (!usb_endpoint_is_isoc_in(epd)) {
++	if (!usb_endpoint_is_isoc_in(epd) || usb_endpoint_maxp(epd) == 0) {
+ 		dev_err(&ua->dev->dev, "invalid capture endpoint\n");
+ 		return -ENXIO;
  	}
--- 
-2.33.0
-
+@@ -1009,7 +1009,7 @@ static int detect_usb_format(struct ua10
+ 	ua->capture.max_packet_bytes = usb_endpoint_maxp(epd);
+ 
+ 	epd = &ua->intf[INTF_PLAYBACK]->altsetting[1].endpoint[0].desc;
+-	if (!usb_endpoint_is_isoc_out(epd)) {
++	if (!usb_endpoint_is_isoc_out(epd) || usb_endpoint_maxp(epd) == 0) {
+ 		dev_err(&ua->dev->dev, "invalid playback endpoint\n");
+ 		return -ENXIO;
+ 	}
 
 
