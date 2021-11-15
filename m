@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFD38451E45
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C4F9451E49
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346864AbhKPAfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:35:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
+        id S235973AbhKPAfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344770AbhKOTZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344769AbhKOTZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7336861A53;
-        Mon, 15 Nov 2021 19:03:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3D1161ABD;
+        Mon, 15 Nov 2021 19:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003032;
-        bh=a+2VaIAUuFNi6Rt63CHFe68YFV8drM28h/4vPQdTEKI=;
+        s=korg; t=1637003034;
+        bh=0FheslEMrfGSQyN7MCA88IHJ6w+86BGSAvBCsVviE9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2WrS81fSkGPYR/efWr0i239yiT5C9D1d/t4xc/bxOI4BT0H15u0DAW49iGIybgpME
-         SpSMyGJKnRUqa6N/dy5g8kRywlFYj33XWLXK1pYerDkP80f9oMqLZkFU8yBRZJMPze
-         T23rhq+iq3o8fDdI4ah6DanDjDVHXjxUOAj7Yk24=
+        b=01+sBSqqFMydCARDynM5yunePwJn4SLOzRQYADHTH4VEuTz+k7OFQr3Z62XmoquP+
+         LSmHEE5+umgtBjcwhveu5EBwagCkbDBjAh33bVCjq06ihPizCPCZHAQe3W3XGN3+p1
+         Kma+45CUatXZKxtYSvkMeE6kNes+us1omcmXmlOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 786/917] block/ataflop: use the blk_cleanup_disk() helper
-Date:   Mon, 15 Nov 2021 18:04:41 +0100
-Message-Id: <20211115165455.608716618@linuxfoundation.org>
+Subject: [PATCH 5.15 787/917] block/ataflop: add registration bool before calling del_gendisk()
+Date:   Mon, 15 Nov 2021 18:04:42 +0100
+Message-Id: <20211115165455.648788075@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,42 +41,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit 44a469b6acae6ad05c4acca8429467d1d50a8b8d ]
+[ Upstream commit 573effb298011d3fcabc9b12025cf637f8a07911 ]
 
-Use the helper to replace two lines with one.
+The ataflop assumes del_gendisk() is safe to call, this is only
+true because add_disk() does not return a failure, but that will
+change soon. And so, before we get to adding error handling for
+that case, let's make sure we keep track of which disks actually
+get registered. Then we use this to only call del_gendisk for them.
 
 Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Link: https://lore.kernel.org/r/20210927220302.1073499-12-mcgrof@kernel.org
+Link: https://lore.kernel.org/r/20210927220302.1073499-13-mcgrof@kernel.org
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/ataflop.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/block/ataflop.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
-index 4947e41f89b7d..1a908455ff96f 100644
+index 1a908455ff96f..55f6d6f6dbd34 100644
 --- a/drivers/block/ataflop.c
 +++ b/drivers/block/ataflop.c
-@@ -2097,8 +2097,7 @@ static int __init atari_floppy_init (void)
- 
- err:
- 	while (--i >= 0) {
--		blk_cleanup_queue(unit[i].disk[0]->queue);
--		put_disk(unit[i].disk[0]);
-+		blk_cleanup_disk(unit[i].disk[0]);
- 		blk_mq_free_tag_set(&unit[i].tag_set);
+@@ -298,6 +298,7 @@ static struct atari_floppy_struct {
+ 				   disk change detection) */
+ 	int flags;		/* flags */
+ 	struct gendisk *disk[NUM_DISK_MINORS];
++	bool registered[NUM_DISK_MINORS];
+ 	int ref;
+ 	int type;
+ 	struct blk_mq_tag_set tag_set;
+@@ -2021,8 +2022,10 @@ static void ataflop_probe(dev_t dev)
+ 		return;
+ 	mutex_lock(&ataflop_probe_lock);
+ 	if (!unit[drive].disk[type]) {
+-		if (ataflop_alloc_disk(drive, type) == 0)
++		if (ataflop_alloc_disk(drive, type) == 0) {
+ 			add_disk(unit[drive].disk[type]);
++			unit[drive].registered[type] = true;
++		}
+ 	}
+ 	mutex_unlock(&ataflop_probe_lock);
+ }
+@@ -2086,6 +2089,7 @@ static int __init atari_floppy_init (void)
+ 		unit[i].track = -1;
+ 		unit[i].flags = 0;
+ 		add_disk(unit[i].disk[0]);
++		unit[i].registered[0] = true;
  	}
  
-@@ -2156,8 +2155,7 @@ static void __exit atari_floppy_exit(void)
+ 	printk(KERN_INFO "Atari floppy driver: max. %cD, %strack buffering\n",
+@@ -2154,7 +2158,8 @@ static void __exit atari_floppy_exit(void)
+ 		for (type = 0; type < NUM_DISK_MINORS; type++) {
  			if (!unit[i].disk[type])
  				continue;
- 			del_gendisk(unit[i].disk[type]);
--			blk_cleanup_queue(unit[i].disk[type]->queue);
--			put_disk(unit[i].disk[type]);
-+			blk_cleanup_disk(unit[i].disk[type]);
+-			del_gendisk(unit[i].disk[type]);
++			if (unit[i].registered[type])
++				del_gendisk(unit[i].disk[type]);
+ 			blk_cleanup_disk(unit[i].disk[type]);
  		}
  		blk_mq_free_tag_set(&unit[i].tag_set);
- 	}
 -- 
 2.33.0
 
