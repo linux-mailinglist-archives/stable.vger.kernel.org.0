@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82867450C21
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F37EB450EB8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236819AbhKORfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:35:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45792 "EHLO mail.kernel.org"
+        id S241189AbhKOSSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:18:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238176AbhKORdi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:33:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0531A60F22;
-        Mon, 15 Nov 2021 17:21:41 +0000 (UTC)
+        id S240811AbhKOSNs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:13:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31E5F633D1;
+        Mon, 15 Nov 2021 17:48:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996902;
-        bh=iIKX5yfv9uwF+P+1c+mH0hmTXAkbWkdnhEr6khbfSpI=;
+        s=korg; t=1636998523;
+        bh=8WSyiF6VX1KZmwbvRcSqB5HHMc8bnKBppwOHjlLNQug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A23Pin89CkGH/fkHRMK+mMUvsbBhbFqBbMlJl4doOCuxHyRCQGCx5yvYJSM06MCq2
-         NYWqNlDX9a+MJf61N7RgLM97sCEVqXM0Gjg2hapCsjSlo9ulDY6CakQPI0CMQbIQxs
-         0pzXf+O76/6WgTrfkOL/Q5u0HLYeI6OBFQHQZiVw=
+        b=VtSc9PWtGUyouv2jHdi0htT2NawhkxJwycsx0IzRz5sJVX8hj9gr20ea7R+fY6O8/
+         MY4RoVGshjuZAiuwdLTD+H1QgZ/YfWKXMgMhE6wR+nznTvuwguOnOEf2pVPhsgvXzY
+         Uvb+8y/gD0hLLRVw2/qiIjHien/X0fsx7vWokx7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        linux-m68k@lists.linux-m68k.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 308/355] m68k: set a default value for MEMORY_RESERVE
+        stable@vger.kernel.org,
+        Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>,
+        Stafford Horne <shorne@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 507/575] openrisc: fix SMP tlb flush NULL pointer dereference
 Date:   Mon, 15 Nov 2021 18:03:52 +0100
-Message-Id: <20211115165323.686018432@linuxfoundation.org>
+Message-Id: <20211115165401.222515394@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Stafford Horne <shorne@gmail.com>
 
-[ Upstream commit 1aaa557b2db95c9506ed0981bc34505c32d6b62b ]
+[ Upstream commit 27dff9a9c247d4e38d82c2e7234914cfe8499294 ]
 
-'make randconfig' can produce a .config file with
-"CONFIG_MEMORY_RESERVE=" (no value) since it has no default.
-When a subsequent 'make all' is done, kconfig restarts the config
-and prompts for a value for MEMORY_RESERVE. This breaks
-scripting/automation where there is no interactive user input.
+Throughout the OpenRISC kernel port VMA is passed as NULL when flushing
+kernel tlb entries.  Somehow this was missed when I was testing
+c28b27416da9 ("openrisc: Implement proper SMP tlb flushing") and now the
+SMP kernel fails to completely boot.
 
-Add a default value for MEMORY_RESERVE. (Any integer value will
-work here for kconfig.)
+In OpenRISC VMA is used only to determine which cores need to have their
+TLB entries flushed.
 
-Fixes a kconfig warning:
+This patch updates the logic to flush tlbs on all cores when the VMA is
+passed as NULL.  Also, we update places VMA is passed as NULL to use
+flush_tlb_kernel_range instead.  Now, the only place VMA is passed as
+NULL is in the implementation of flush_tlb_kernel_range.
 
-.config:214:warning: symbol value '' invalid for MEMORY_RESERVE
-* Restart config...
-Memory reservation (MiB) (MEMORY_RESERVE) [] (NEW)
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2") # from beginning of git history
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Greg Ungerer <gerg@linux-m68k.org>
-Cc: linux-m68k@lists.linux-m68k.org
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Fixes: c28b27416da9 ("openrisc: Implement proper SMP tlb flushing")
+Reported-by: Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.machine | 1 +
- 1 file changed, 1 insertion(+)
+ arch/openrisc/kernel/dma.c | 4 ++--
+ arch/openrisc/kernel/smp.c | 6 ++++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/m68k/Kconfig.machine b/arch/m68k/Kconfig.machine
-index 1bbe0dd0c4fe5..b88a980f56f8a 100644
---- a/arch/m68k/Kconfig.machine
-+++ b/arch/m68k/Kconfig.machine
-@@ -190,6 +190,7 @@ config INIT_LCD
- config MEMORY_RESERVE
- 	int "Memory reservation (MiB)"
- 	depends on (UCSIMM || UCDIMM)
-+	default 0
- 	help
- 	  Reserve certain memory regions on 68x328 based boards.
+diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
+index 1b16d97e7da7f..a82b2caaa560d 100644
+--- a/arch/openrisc/kernel/dma.c
++++ b/arch/openrisc/kernel/dma.c
+@@ -33,7 +33,7 @@ page_set_nocache(pte_t *pte, unsigned long addr,
+ 	 * Flush the page out of the TLB so that the new page flags get
+ 	 * picked up next time there's an access
+ 	 */
+-	flush_tlb_page(NULL, addr);
++	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
  
+ 	/* Flush page out of dcache */
+ 	for (cl = __pa(addr); cl < __pa(next); cl += cpuinfo->dcache_block_size)
+@@ -56,7 +56,7 @@ page_clear_nocache(pte_t *pte, unsigned long addr,
+ 	 * Flush the page out of the TLB so that the new page flags get
+ 	 * picked up next time there's an access
+ 	 */
+-	flush_tlb_page(NULL, addr);
++	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
+ 
+ 	return 0;
+ }
+diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
+index e4dad76066aed..18b320a06fe56 100644
+--- a/arch/openrisc/kernel/smp.c
++++ b/arch/openrisc/kernel/smp.c
+@@ -261,7 +261,7 @@ static inline void ipi_flush_tlb_range(void *info)
+ 	local_flush_tlb_range(NULL, fd->addr1, fd->addr2);
+ }
+ 
+-static void smp_flush_tlb_range(struct cpumask *cmask, unsigned long start,
++static void smp_flush_tlb_range(const struct cpumask *cmask, unsigned long start,
+ 				unsigned long end)
+ {
+ 	unsigned int cpuid;
+@@ -309,7 +309,9 @@ void flush_tlb_page(struct vm_area_struct *vma, unsigned long uaddr)
+ void flush_tlb_range(struct vm_area_struct *vma,
+ 		     unsigned long start, unsigned long end)
+ {
+-	smp_flush_tlb_range(mm_cpumask(vma->vm_mm), start, end);
++	const struct cpumask *cmask = vma ? mm_cpumask(vma->vm_mm)
++					  : cpu_online_mask;
++	smp_flush_tlb_range(cmask, start, end);
+ }
+ 
+ /* Instruction cache invalidate - performed on each cpu */
 -- 
 2.33.0
 
