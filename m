@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A4B5451FE7
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:43:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3F8451FB9
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353323AbhKPApp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
+        id S244958AbhKPApF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343785AbhKOTWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343788AbhKOTWD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDCA663388;
-        Mon, 15 Nov 2021 18:46:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AF2A63389;
+        Mon, 15 Nov 2021 18:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001964;
-        bh=5Gnvu4l/mw3nqh33uP1ZBV9eq5h0bZTuf6rqVGPReUo=;
+        s=korg; t=1637001966;
+        bh=B/RBgyIizFpmnrWav/raWcYVtb+T/iruKTsAOiXU1VE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QquqDDPilD8SyZDS9bIvpyiRxiYX+32I7aULkwmXgCylTyusodKGCSgdjuT7zlXTq
-         99riMXu28o5s2DVMs9PGFlxW9SoQ86KZf5mrUhbJ5uhR2VlU3s02LFgNNlgYYZloj2
-         YZCo/YM3GR2arVYNi93u4NHmefGOQGL/Zi2bh0OA=
+        b=n3EB2A2tmZEN7AwvOfF5G3JUOnAeK5eQa0y6r9K+Xaj6i+hZ2i78Ajk5O/Urthy1X
+         KErOckJR7dveywcdJQt/z96DX2RvVjc89ZSskgMnp3XEn1355/RMuaef/8PCaL5jpJ
+         shznofcxmL3AhL9GytXQ/EC/Z8DhXUSM8ckU35Wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Lad Prabhakar <prabhakar.csengg@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 388/917] media: i2c: ths8200 needs V4L2_ASYNC
-Date:   Mon, 15 Nov 2021 17:58:03 +0100
-Message-Id: <20211115165441.926115004@linuxfoundation.org>
+Subject: [PATCH 5.15 389/917] media: sun6i-csi: Allow the video device to be open multiple times
+Date:   Mon, 15 Nov 2021 17:58:04 +0100
+Message-Id: <20211115165441.959177736@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -44,42 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Ondrej Jirman <megous@megous.com>
 
-[ Upstream commit e4625044d656f3c33ece0cc9da22577bc10ca5d3 ]
+[ Upstream commit 8ed852834683ebe064157e069af8dfb41cad6403 ]
 
-Fix the build errors reported by the kernel test robot by
-selecting V4L2_ASYNC:
+Previously it was possible, but a recent fix for uninitialized
+`ret` variable broke this behavior.
 
-mips-linux-ld: drivers/media/i2c/ths8200.o: in function `ths8200_remove':
-ths8200.c:(.text+0x1ec): undefined reference to `v4l2_async_unregister_subdev'
-mips-linux-ld: drivers/media/i2c/ths8200.o: in function `ths8200_probe':
-ths8200.c:(.text+0x404): undefined reference to `v4l2_async_register_subdev'
+v4l2_fh_is_singular_file() check is there just to determine
+whether the power needs to be enabled, and it's not a failure
+if it returns false.
 
-Fixes: ed29f89497006 ("media: i2c: ths8200: support asynchronous probing")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Fixes: ba9139116bc0 ("media: sun6i-csi: add a missing return code")
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
-index 08feb3e8c1bf6..6157e73eef24e 100644
---- a/drivers/media/i2c/Kconfig
-+++ b/drivers/media/i2c/Kconfig
-@@ -597,6 +597,7 @@ config VIDEO_AK881X
- config VIDEO_THS8200
- 	tristate "Texas Instruments THS8200 video encoder"
- 	depends on VIDEO_V4L2 && I2C
-+	select V4L2_ASYNC
- 	help
- 	  Support for the Texas Instruments THS8200 video encoder.
+diff --git a/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c b/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c
+index 07b2161392d21..5ba3e29f794fd 100644
+--- a/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c
++++ b/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c
+@@ -467,7 +467,7 @@ static const struct v4l2_ioctl_ops sun6i_video_ioctl_ops = {
+ static int sun6i_video_open(struct file *file)
+ {
+ 	struct sun6i_video *video = video_drvdata(file);
+-	int ret;
++	int ret = 0;
  
+ 	if (mutex_lock_interruptible(&video->lock))
+ 		return -ERESTARTSYS;
+@@ -481,10 +481,8 @@ static int sun6i_video_open(struct file *file)
+ 		goto fh_release;
+ 
+ 	/* check if already powered */
+-	if (!v4l2_fh_is_singular_file(file)) {
+-		ret = -EBUSY;
++	if (!v4l2_fh_is_singular_file(file))
+ 		goto unlock;
+-	}
+ 
+ 	ret = sun6i_csi_set_power(video->csi, true);
+ 	if (ret < 0)
 -- 
 2.33.0
 
