@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5EE4450B97
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57C80450E04
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232493AbhKORZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:25:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53172 "EHLO mail.kernel.org"
+        id S240506AbhKOSKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:10:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237791AbhKORYE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:24:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4FDA63263;
-        Mon, 15 Nov 2021 17:15:32 +0000 (UTC)
+        id S239847AbhKOSEy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:04:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27DDA632E4;
+        Mon, 15 Nov 2021 17:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996533;
-        bh=MXuHkxcgDppSiiraSmcqQgyo93QNB4ztNM089fG9MiY=;
+        s=korg; t=1636997972;
+        bh=2hy/YtDFC+KaLPI7x0LOQ1I4uy+hMQK67ZvVJ9jCSe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ObonH1/mCpKRl45PSK2szlSsu0mi8a45Osk3P4m4UxYYNgv4+YScQ0lMDC/3JRAcF
-         O8Yd1kFRhZGAwH4WfvSFVvRSpRut5AGywIS8QZaps/x1GfiP3DKG/ZO3ZaiNvOQ0Wq
-         JYC1BNXyrBIIW11VLZqcundLvEFe+RVk5bch7qBg=
+        b=lk/FtbtPeF4NKod/5Uwh/nHFm9Z/JLtF7nQqSoZsr84s+tfXiBbM9qPdMgxDwWhJH
+         /sSGuIpnKoiQwYt22ZDXiZcW9OrQzdOdJoEMQcRMEwi/Xzfjqlxa/Sxczumw2oUqpy
+         CJ1qFjQWDm50JxYoEg52SBwLQVnPnpovIgwJ/P9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 142/355] ipmi: Disable some operations during a panic
+        stable@vger.kernel.org, Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 341/575] nvme-rdma: fix error code in nvme_rdma_setup_ctrl
 Date:   Mon, 15 Nov 2021 18:01:06 +0100
-Message-Id: <20211115165318.386668735@linuxfoundation.org>
+Message-Id: <20211115165355.592753279@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,101 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
 
-[ Upstream commit b36eb5e7b75a756baa64909a176dd4269ee05a8b ]
+[ Upstream commit 09748122009aed7bfaa7acc33c10c083a4758322 ]
 
-Don't do kfree or other risky things when oops_in_progress is set.
-It's easy enough to avoid doing them
+In case that icdoff is not zero or mandatory keyed sgls are not
+supported by the NVMe/RDMA target, we'll go to error flow but we'll
+return 0 to the caller. Fix it by returning an appropriate error code.
 
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: c66e2998c8ca ("nvme-rdma: centralize controller setup sequence")
+Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c | 10 +++++++---
- drivers/char/ipmi/ipmi_watchdog.c   | 17 ++++++++++++-----
- 2 files changed, 19 insertions(+), 8 deletions(-)
+ drivers/nvme/host/rdma.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index ac656a6d5daf1..bd3c9fb029fa5 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -4797,7 +4797,9 @@ static atomic_t recv_msg_inuse_count = ATOMIC_INIT(0);
- static void free_smi_msg(struct ipmi_smi_msg *msg)
- {
- 	atomic_dec(&smi_msg_inuse_count);
--	kfree(msg);
-+	/* Try to keep as much stuff out of the panic path as possible. */
-+	if (!oops_in_progress)
-+		kfree(msg);
- }
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 51f4647ea2142..1b90563818434 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -1103,11 +1103,13 @@ static int nvme_rdma_setup_ctrl(struct nvme_rdma_ctrl *ctrl, bool new)
+ 		return ret;
  
- struct ipmi_smi_msg *ipmi_alloc_smi_msg(void)
-@@ -4816,7 +4818,9 @@ EXPORT_SYMBOL(ipmi_alloc_smi_msg);
- static void free_recv_msg(struct ipmi_recv_msg *msg)
- {
- 	atomic_dec(&recv_msg_inuse_count);
--	kfree(msg);
-+	/* Try to keep as much stuff out of the panic path as possible. */
-+	if (!oops_in_progress)
-+		kfree(msg);
- }
- 
- static struct ipmi_recv_msg *ipmi_alloc_recv_msg(void)
-@@ -4834,7 +4838,7 @@ static struct ipmi_recv_msg *ipmi_alloc_recv_msg(void)
- 
- void ipmi_free_recv_msg(struct ipmi_recv_msg *msg)
- {
--	if (msg->user)
-+	if (msg->user && !oops_in_progress)
- 		kref_put(&msg->user->refcount, free_user);
- 	msg->done(msg);
- }
-diff --git a/drivers/char/ipmi/ipmi_watchdog.c b/drivers/char/ipmi/ipmi_watchdog.c
-index ae06e5402e9d5..72ad7fff64a7a 100644
---- a/drivers/char/ipmi/ipmi_watchdog.c
-+++ b/drivers/char/ipmi/ipmi_watchdog.c
-@@ -337,13 +337,17 @@ static atomic_t msg_tofree = ATOMIC_INIT(0);
- static DECLARE_COMPLETION(msg_wait);
- static void msg_free_smi(struct ipmi_smi_msg *msg)
- {
--	if (atomic_dec_and_test(&msg_tofree))
--		complete(&msg_wait);
-+	if (atomic_dec_and_test(&msg_tofree)) {
-+		if (!oops_in_progress)
-+			complete(&msg_wait);
-+	}
- }
- static void msg_free_recv(struct ipmi_recv_msg *msg)
- {
--	if (atomic_dec_and_test(&msg_tofree))
--		complete(&msg_wait);
-+	if (atomic_dec_and_test(&msg_tofree)) {
-+		if (!oops_in_progress)
-+			complete(&msg_wait);
-+	}
- }
- static struct ipmi_smi_msg smi_msg = {
- 	.done = msg_free_smi
-@@ -429,8 +433,10 @@ static int _ipmi_set_timeout(int do_heartbeat)
- 	rv = __ipmi_set_timeout(&smi_msg,
- 				&recv_msg,
- 				&send_heartbeat_now);
--	if (rv)
-+	if (rv) {
-+		atomic_set(&msg_tofree, 0);
- 		return rv;
-+	}
- 
- 	wait_for_completion(&msg_wait);
- 
-@@ -575,6 +581,7 @@ restart:
- 				      &recv_msg,
- 				      1);
- 	if (rv) {
-+		atomic_set(&msg_tofree, 0);
- 		pr_warn("heartbeat send failure: %d\n", rv);
- 		return rv;
+ 	if (ctrl->ctrl.icdoff) {
++		ret = -EOPNOTSUPP;
+ 		dev_err(ctrl->ctrl.device, "icdoff is not supported!\n");
+ 		goto destroy_admin;
  	}
+ 
+ 	if (!(ctrl->ctrl.sgls & (1 << 2))) {
++		ret = -EOPNOTSUPP;
+ 		dev_err(ctrl->ctrl.device,
+ 			"Mandatory keyed sgls are not supported!\n");
+ 		goto destroy_admin;
 -- 
 2.33.0
 
