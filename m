@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74A72452736
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:17:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B26A2452416
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243957AbhKPCUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:20:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52662 "EHLO mail.kernel.org"
+        id S1354080AbhKPBgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:36:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238457AbhKORiS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:38:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 414496322D;
-        Mon, 15 Nov 2021 17:25:53 +0000 (UTC)
+        id S242563AbhKOSiq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:38:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 814E56326D;
+        Mon, 15 Nov 2021 18:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997153;
-        bh=7SncVSBCItQeD44StCjNdZhJa3WwhhsJupE2RG51Lvw=;
+        s=korg; t=1636999407;
+        bh=i1k6L7tT9EcqRvVJFKd6oY6S/rehLbwXr9eN22urIzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dR7S1WNa3CMzXrDOIqsugufR83BqG6dwhWOzVSpxkK1bwve4t7ob8youx0ACGPDIk
-         xXcmiLhr7evyNkxWv6sElhmPeteNS+DQFt2vLcD8vdhwQJxoASC0PdV41DR+Bv/y3E
-         HCxYHCyO5JnN+Zc8vg4IBlBEHlZKeEIJm+yNSWcg=
+        b=xMCsVGWMhrS6obFItxv4hGxRlwMh2OuqgZWiQrNBL2vcc0djLb7QJEBNoEGKnetV3
+         obpq8rIxKEoPFyfqTn8k4vw9kCpVcY0Z8ywmaBRtQHnZObxzOMHTHstFFUcfp6reqg
+         XuBz+IN2LoVdlsRPbjemOQX+KvbMoZWt47jpXy4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Christoph Hellwig <hch@lst.de>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org,
-        syzbot+5516b30f5401d4dcbcae@syzkaller.appspotmail.com,
-        Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: [PATCH 5.10 011/575] scsi: core: Remove command size deduction from scsi_setup_scsi_cmnd()
+        stable@vger.kernel.org, Zong-Zhe Yang <kevin_yang@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 253/849] rtw88: fix RX clock gate setting while fifo dump
 Date:   Mon, 15 Nov 2021 17:55:36 +0100
-Message-Id: <20211115165343.996963128@linuxfoundation.org>
+Message-Id: <20211115165428.791127358@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
+From: Zong-Zhe Yang <kevin_yang@realtek.com>
 
-commit 703535e6ae1e94c89a9c1396b4c7b6b41160ef0c upstream.
+[ Upstream commit c5a8e90730a322f236731fc347dd3afa5db5550e ]
 
-No need to deduce command size in scsi_setup_scsi_cmnd() anymore as
-appropriate checks have been added to scsi_fill_sghdr_rq() function and the
-cmd_len should never be zero here.  The code to do that wasn't correct
-anyway, as it used uninitialized cmd->cmnd, which caused a null-ptr-deref
-if the command size was zero as in the trace below. Fix this by removing
-the unneeded code.
+When fw fifo dumps, RX clock gating should be disabled to avoid
+something unexpected. However, the register operation ran into
+a mistake. So, we fix it.
 
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-CPU: 0 PID: 1822 Comm: repro Not tainted 5.15.0 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
-Call Trace:
- blk_mq_dispatch_rq_list+0x7c7/0x12d0
- __blk_mq_sched_dispatch_requests+0x244/0x380
- blk_mq_sched_dispatch_requests+0xf0/0x160
- __blk_mq_run_hw_queue+0xe8/0x160
- __blk_mq_delay_run_hw_queue+0x252/0x5d0
- blk_mq_run_hw_queue+0x1dd/0x3b0
- blk_mq_sched_insert_request+0x1ff/0x3e0
- blk_execute_rq_nowait+0x173/0x1e0
- blk_execute_rq+0x15c/0x540
- sg_io+0x97c/0x1370
- scsi_ioctl+0xe16/0x28e0
- sd_ioctl+0x134/0x170
- blkdev_ioctl+0x362/0x6e0
- block_ioctl+0xb0/0xf0
- vfs_ioctl+0xa7/0xf0
- do_syscall_64+0x3d/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
----[ end trace 8b086e334adef6d2 ]---
-Kernel panic - not syncing: Fatal exception
-
-Link: https://lore.kernel.org/r/20211103170659.22151-2-tadeusz.struk@linaro.org
-Fixes: 2ceda20f0a99 ("scsi: core: Move command size detection out of the fast path")
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: James E.J. Bottomley <jejb@linux.ibm.com>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Cc: <linux-scsi@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-Cc: <stable@vger.kernel.org> # 5.15, 5.14, 5.10
-Reported-by: syzbot+5516b30f5401d4dcbcae@syzkaller.appspotmail.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210927111830.5354-1-pkshih@realtek.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_lib.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/wireless/realtek/rtw88/fw.c  | 7 +++----
+ drivers/net/wireless/realtek/rtw88/reg.h | 1 +
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1193,8 +1193,6 @@ static blk_status_t scsi_setup_scsi_cmnd
- 	}
+diff --git a/drivers/net/wireless/realtek/rtw88/fw.c b/drivers/net/wireless/realtek/rtw88/fw.c
+index e6399519584bd..a384fc3a4f2b0 100644
+--- a/drivers/net/wireless/realtek/rtw88/fw.c
++++ b/drivers/net/wireless/realtek/rtw88/fw.c
+@@ -1556,12 +1556,10 @@ static void rtw_fw_read_fifo_page(struct rtw_dev *rtwdev, u32 offset, u32 size,
+ 	u32 i;
+ 	u16 idx = 0;
+ 	u16 ctl;
+-	u8 rcr;
  
- 	cmd->cmd_len = scsi_req(req)->cmd_len;
--	if (cmd->cmd_len == 0)
--		cmd->cmd_len = scsi_command_size(cmd->cmnd);
- 	cmd->cmnd = scsi_req(req)->cmd;
- 	cmd->transfersize = blk_rq_bytes(req);
- 	cmd->allowed = scsi_req(req)->retries;
+-	rcr = rtw_read8(rtwdev, REG_RCR + 2);
+ 	ctl = rtw_read16(rtwdev, REG_PKTBUF_DBG_CTRL) & 0xf000;
+ 	/* disable rx clock gate */
+-	rtw_write8(rtwdev, REG_RCR, rcr | BIT(3));
++	rtw_write32_set(rtwdev, REG_RCR, BIT_DISGCLK);
+ 
+ 	do {
+ 		rtw_write16(rtwdev, REG_PKTBUF_DBG_CTRL, start_pg | ctl);
+@@ -1580,7 +1578,8 @@ static void rtw_fw_read_fifo_page(struct rtw_dev *rtwdev, u32 offset, u32 size,
+ 
+ out:
+ 	rtw_write16(rtwdev, REG_PKTBUF_DBG_CTRL, ctl);
+-	rtw_write8(rtwdev, REG_RCR + 2, rcr);
++	/* restore rx clock gate */
++	rtw_write32_clr(rtwdev, REG_RCR, BIT_DISGCLK);
+ }
+ 
+ static void rtw_fw_read_fifo(struct rtw_dev *rtwdev, enum rtw_fw_fifo_sel sel,
+diff --git a/drivers/net/wireless/realtek/rtw88/reg.h b/drivers/net/wireless/realtek/rtw88/reg.h
+index f5ce75095e904..c0fb1e446245f 100644
+--- a/drivers/net/wireless/realtek/rtw88/reg.h
++++ b/drivers/net/wireless/realtek/rtw88/reg.h
+@@ -406,6 +406,7 @@
+ #define BIT_MFBEN		BIT(22)
+ #define BIT_DISCHKPPDLLEN	BIT(21)
+ #define BIT_PKTCTL_DLEN		BIT(20)
++#define BIT_DISGCLK		BIT(19)
+ #define BIT_TIM_PARSER_EN	BIT(18)
+ #define BIT_BC_MD_EN		BIT(17)
+ #define BIT_UC_MD_EN		BIT(16)
+-- 
+2.33.0
+
 
 
