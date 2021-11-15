@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BC0B45134C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24479451353
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348039AbhKOTtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:49:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1348146AbhKOTuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:50:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245583AbhKOTUs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3359E63568;
-        Mon, 15 Nov 2021 18:37:24 +0000 (UTC)
+        id S245635AbhKOTU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFE4E632EB;
+        Mon, 15 Nov 2021 18:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001444;
-        bh=QuAHEIBx/bpVeC2FkUGBqxUxdDNi7NOtet59OMG3eDM=;
+        s=korg; t=1637001506;
+        bh=VqO9UX80S7KII/tWuH8caqgUVnPtn1KRxFD1AbG4BM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FDrDXISNpVVxBkMVNTNuGNq8EYBIPc/eJmgTuZhQ0LDsWPT1nsnro/XtlpL9Mehvo
-         NsJ+6Kvt/MSw/QXAIYxR8D87joCMJgHA1H+EnVx9dsbu3VoRdNfPMrOSY5f8PEySyy
-         BpYaRr5/JY9vLsviWa1OjpTyPyyZ4tvqtGtupjaQ=
+        b=myH/H/Z1w9KoAsRgflXYpBBq0z8ygGhHeCCyGKpSKZNhBJe9Yw38t62KINXxE2DHN
+         TwbI0AqAQPP219TOQpuusCzrsuU05TqLVzmMFjxDeh5sjXx2p0VJHRag/HJo4dX3kK
+         WsM0sVT8Y7eT+jkkLWaz5u8iPvble7PsxAf5yruI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        syzbot+3f91de0b813cc3d19a80@syzkaller.appspotmail.com,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 192/917] drm/amdgpu: move iommu_resume before ip init/resume
-Date:   Mon, 15 Nov 2021 17:54:47 +0100
-Message-Id: <20211115165435.301392847@linuxfoundation.org>
+Subject: [PATCH 5.15 199/917] smackfs: Fix use-after-free in netlbl_catmap_walk()
+Date:   Mon, 15 Nov 2021 17:54:54 +0100
+Message-Id: <20211115165435.542048032@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,37 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Zhu <James.Zhu@amd.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-[ Upstream commit 9cec53c18a3170c7e5673c414da56aeecee94832 ]
+[ Upstream commit 0817534ff9ea809fac1322c5c8c574be8483ea57 ]
 
-Separate iommu_resume from kfd_resume, and move it before
-other amdgpu ip init/resume.
+Syzkaller reported use-after-free bug as described in [1]. The bug is
+triggered when smk_set_cipso() tries to free stale category bitmaps
+while there are concurrent reader(s) using the same bitmaps.
 
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=211277
-Signed-off-by: James Zhu <James.Zhu@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Wait for RCU grace period to finish before freeing the category bitmaps
+in smk_set_cipso(). This makes sure that there are no more readers using
+the stale bitmaps and freeing them should be safe.
+
+[1] https://lore.kernel.org/netdev/000000000000a814c505ca657a4e@google.com/
+
+Reported-by: syzbot+3f91de0b813cc3d19a80@syzkaller.appspotmail.com
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ security/smack/smackfs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index b8d9004fb1635..5b88c873c8a89 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2394,6 +2394,10 @@ static int amdgpu_device_ip_init(struct amdgpu_device *adev)
- 	if (r)
- 		goto init_failed;
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 3a75d2a8f5178..9d853c0e55b84 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -831,6 +831,7 @@ static int smk_open_cipso(struct inode *inode, struct file *file)
+ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
+ 				size_t count, loff_t *ppos, int format)
+ {
++	struct netlbl_lsm_catmap *old_cat;
+ 	struct smack_known *skp;
+ 	struct netlbl_lsm_secattr ncats;
+ 	char mapcatset[SMK_CIPSOLEN];
+@@ -920,9 +921,11 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
  
-+	r = amdgpu_amdkfd_resume_iommu(adev);
-+	if (r)
-+		goto init_failed;
-+
- 	r = amdgpu_device_ip_hw_init_phase1(adev);
- 	if (r)
- 		goto init_failed;
+ 	rc = smk_netlbl_mls(maplevel, mapcatset, &ncats, SMK_CIPSOLEN);
+ 	if (rc >= 0) {
+-		netlbl_catmap_free(skp->smk_netlabel.attr.mls.cat);
++		old_cat = skp->smk_netlabel.attr.mls.cat;
+ 		skp->smk_netlabel.attr.mls.cat = ncats.attr.mls.cat;
+ 		skp->smk_netlabel.attr.mls.lvl = ncats.attr.mls.lvl;
++		synchronize_rcu();
++		netlbl_catmap_free(old_cat);
+ 		rc = count;
+ 		/*
+ 		 * This mapping may have been cached, so clear the cache.
 -- 
 2.33.0
 
