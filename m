@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE719451093
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:48:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E58D145109F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:48:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231823AbhKOSuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:50:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51382 "EHLO mail.kernel.org"
+        id S242918AbhKOSvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:51:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242983AbhKOSsc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:48:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 404856339F;
-        Mon, 15 Nov 2021 18:08:04 +0000 (UTC)
+        id S242538AbhKOSs7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:48:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43685633A2;
+        Mon, 15 Nov 2021 18:08:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999684;
-        bh=aS6U3abrtOvXYcxxpoeZtliLzd3AQANASXEaKaLZ554=;
+        s=korg; t=1636999687;
+        bh=BXm5xaSgcbMJ1OsIkn0kYV6pfHIKqevjspXl/lhw3Gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TPubAnUL6aYfeccbuveKTLUCRq7wyzNqqyPlYR4p0cJRnogC9omNsE+RHCcAprtUw
-         E9yGFVGFDVo2iTRM7OTNuRLUgV6n4fXMmd0yCiHVoWHjbbyXBLUebqUmIQ3ZlPQVCj
-         ray3YGNX6PiwHwmsQOcJ6Y53WsHzGTGFUVvSVi9w=
+        b=ROmCLPH7E9WdZMqLGMYS34eaMxBPmFTVsGiqiPCijGvkf6snEr0DA30gLtEq6JMrc
+         QXQmgMQehcd9jyx+yJT/iBti3Ap0quuDA3GzM45EYR8lveVCO+Xg7MhHkqa8WNPiOr
+         9K+fNTsA4LmRp36vzamXHa0tp/0WO+Vpn7NjblLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Tim Harvey <tharvey@gateworks.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 385/849] media: mtk-vcodec: venc: fix return value when start_streaming fails
-Date:   Mon, 15 Nov 2021 17:57:48 +0100
-Message-Id: <20211115165433.273908482@linuxfoundation.org>
+Subject: [PATCH 5.14 386/849] media: TDA1997x: handle short reads of hdmi info frame.
+Date:   Mon, 15 Nov 2021 17:57:49 +0100
+Message-Id: <20211115165433.308111215@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,49 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 065a7c66bd8b21db212fa86187ff12f0cac6ea6d ]
+[ Upstream commit 48d219f9cc667bc6fbc3e3af0b1bfd75db94fce4 ]
 
-In case vb2ops_venc_start_streaming fails, the error value
-is overwritten by the ret value of pm_runtime_put which might
-be 0. Fix it.
+Static analysis reports this representative problem
 
-Fixes: 985c73693fe5a (" media: mtk-vcodec: Separating mtk encoder driver")
-Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+tda1997x.c:1939: warning: 7th function call argument is an uninitialized
+value
+
+The 7th argument is buffer[0], which is set in the earlier call to
+io_readn().  When io_readn() call to io_read() fails with the first
+read, buffer[0] is not set and 0 is returned and stored in len.
+
+The later call to hdmi_infoframe_unpack()'s size parameter is the
+static size of buffer, always 40, so a short read is not caught
+in hdmi_infoframe_unpacks()'s checking.  The variable len should be
+used instead.
+
+Zero initialize buffer to 0 so it is in a known start state.
+
+Fixes: 9ac0038db9a7 ("media: i2c: Add TDA1997x HDMI receiver driver")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Tim Harvey <tharvey@gateworks.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mtk-vcodec/mtk_vcodec_enc.c | 8 ++++----
+ drivers/media/i2c/tda1997x.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc.c
-index 416f356af363d..d97a6765693f1 100644
---- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc.c
-+++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc.c
-@@ -793,7 +793,7 @@ static int vb2ops_venc_start_streaming(struct vb2_queue *q, unsigned int count)
+diff --git a/drivers/media/i2c/tda1997x.c b/drivers/media/i2c/tda1997x.c
+index ef726faee2a4c..c62554fc35e72 100644
+--- a/drivers/media/i2c/tda1997x.c
++++ b/drivers/media/i2c/tda1997x.c
+@@ -1247,13 +1247,13 @@ tda1997x_parse_infoframe(struct tda1997x_state *state, u16 addr)
  {
- 	struct mtk_vcodec_ctx *ctx = vb2_get_drv_priv(q);
- 	struct venc_enc_param param;
--	int ret;
-+	int ret, pm_ret;
- 	int i;
+ 	struct v4l2_subdev *sd = &state->sd;
+ 	union hdmi_infoframe frame;
+-	u8 buffer[40];
++	u8 buffer[40] = { 0 };
+ 	u8 reg;
+ 	int len, err;
  
- 	/* Once state turn into MTK_STATE_ABORT, we need stop_streaming
-@@ -845,9 +845,9 @@ static int vb2ops_venc_start_streaming(struct vb2_queue *q, unsigned int count)
- 	return 0;
+ 	/* read data */
+ 	len = io_readn(sd, addr, sizeof(buffer), buffer);
+-	err = hdmi_infoframe_unpack(&frame, buffer, sizeof(buffer));
++	err = hdmi_infoframe_unpack(&frame, buffer, len);
+ 	if (err) {
+ 		v4l_err(state->client,
+ 			"failed parsing %d byte infoframe: 0x%04x/0x%02x\n",
+@@ -1927,13 +1927,13 @@ static int tda1997x_log_infoframe(struct v4l2_subdev *sd, int addr)
+ {
+ 	struct tda1997x_state *state = to_state(sd);
+ 	union hdmi_infoframe frame;
+-	u8 buffer[40];
++	u8 buffer[40] = { 0 };
+ 	int len, err;
  
- err_set_param:
--	ret = pm_runtime_put(&ctx->dev->plat_dev->dev);
--	if (ret < 0)
--		mtk_v4l2_err("pm_runtime_put fail %d", ret);
-+	pm_ret = pm_runtime_put(&ctx->dev->plat_dev->dev);
-+	if (pm_ret < 0)
-+		mtk_v4l2_err("pm_runtime_put fail %d", pm_ret);
- 
- err_start_stream:
- 	for (i = 0; i < q->num_buffers; ++i) {
+ 	/* read data */
+ 	len = io_readn(sd, addr, sizeof(buffer), buffer);
+ 	v4l2_dbg(1, debug, sd, "infoframe: addr=%d len=%d\n", addr, len);
+-	err = hdmi_infoframe_unpack(&frame, buffer, sizeof(buffer));
++	err = hdmi_infoframe_unpack(&frame, buffer, len);
+ 	if (err) {
+ 		v4l_err(state->client,
+ 			"failed parsing %d byte infoframe: 0x%04x/0x%02x\n",
 -- 
 2.33.0
 
