@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09CBC451FA7
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 576C8451FA4
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350620AbhKPAoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:44:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
+        id S1350585AbhKPAov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:44:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343727AbhKOTVl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343723AbhKOTVl (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E383635D5;
-        Mon, 15 Nov 2021 18:45:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E5F7635DA;
+        Mon, 15 Nov 2021 18:45:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001905;
-        bh=1InN7D+Ew/U5KubiRBjbG77i9WwLWqSxHEm+CPX0evA=;
+        s=korg; t=1637001907;
+        bh=Idgu4DDNcl1FXQN6NTh07ooap8DRVzi2XKmEZ04Oi8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKpeERLBoS43i2fot9SH/nAO6cHWxWrrzzNuBgZ4ue0nIF1Lp6VRpNF4YL2tYDKJ3
-         LIMlzhWYDSpftqlLHql4wyIps+PdmpEsZD5KSSUlPH4KHGr7uB465E9HRCRjIyqMDW
-         DMFGQZ2Wn9LJ6mPUu+DA1TPjA9OrKI4oY6S9Zkpw=
+        b=knbxf+cLh6WTsmORpr4DGHDONmrcqDGaSB5RQhJov8KKy4y0Xyj1o6PQ8xdzGva8x
+         vhvomhYIwW7lFFrq4nrWJqvmDnFIiEdXBikxMdwwhyBqJ6acYWQKDj587hMgMEewHK
+         36WTUMnH6OPrE9CtA0iUnRidEp1nT5N6Cnm7lCEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Chaignon <paul@cilium.io>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 365/917] bpf/tests: Fix error in tail call limit tests
-Date:   Mon, 15 Nov 2021 17:57:40 +0100
-Message-Id: <20211115165441.138270904@linuxfoundation.org>
+Subject: [PATCH 5.15 366/917] ath11k: fix some sleeping in atomic bugs
+Date:   Mon, 15 Nov 2021 17:57:41 +0100
+Message-Id: <20211115165441.169357657@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,118 +40,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 18935a72eb25525b655262579e1652362a3b29bb ]
+[ Upstream commit aadf7c81a0771b8f1c97dabca6a48bae1b387779 ]
 
-This patch fixes an error in the tail call limit test that caused the
-test to fail on for x86-64 JIT. Previously, the register R0 was used to
-report the total number of tail calls made. However, after a tail call
-fall-through, the value of the R0 register is undefined. Now, all tail
-call error path tests instead use context state to store the count.
+The ath11k_dbring_bufs_replenish() and ath11k_dbring_fill_bufs()
+take a "gfp" parameter but they since they take spinlocks, the
+allocations they do have to be atomic.  This causes a bug because
+ath11k_dbring_buf_setup passes GFP_KERNEL for the gfp flags.
 
-Fixes: 874be05f525e ("bpf, tests: Add tail call test suite")
-Reported-by: Paul Chaignon <paul@cilium.io>
-Reported-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Link: https://lore.kernel.org/bpf/20210914091842.4186267-14-johan.almbladh@anyfinetworks.com
+The fix is to use GFP_ATOMIC and remove the unused parameters.
+
+Fixes: bd6478559e27 ("ath11k: Add direct buffer ring support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210812070434.GE31863@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_bpf.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ drivers/net/wireless/ath/ath11k/dbring.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/lib/test_bpf.c b/lib/test_bpf.c
-index 830a18ecffc88..68d125b409f20 100644
---- a/lib/test_bpf.c
-+++ b/lib/test_bpf.c
-@@ -8992,10 +8992,15 @@ static __init int test_bpf(void)
- struct tail_call_test {
- 	const char *descr;
- 	struct bpf_insn insns[MAX_INSNS];
-+	int flags;
- 	int result;
- 	int stack_depth;
- };
+diff --git a/drivers/net/wireless/ath/ath11k/dbring.c b/drivers/net/wireless/ath/ath11k/dbring.c
+index 5e1f5437b4185..fd98ba5b1130b 100644
+--- a/drivers/net/wireless/ath/ath11k/dbring.c
++++ b/drivers/net/wireless/ath/ath11k/dbring.c
+@@ -8,8 +8,7 @@
  
-+/* Flags that can be passed to tail call test cases */
-+#define FLAG_NEED_STATE		BIT(0)
-+#define FLAG_RESULT_IN_STATE	BIT(1)
-+
- /*
-  * Magic marker used in test snippets for tail calls below.
-  * BPF_LD/MOV to R2 and R2 with this immediate value is replaced
-@@ -9065,32 +9070,38 @@ static struct tail_call_test tail_call_tests[] = {
- 	{
- 		"Tail call error path, max count reached",
- 		.insns = {
--			BPF_ALU64_IMM(BPF_ADD, R1, 1),
--			BPF_ALU64_REG(BPF_MOV, R0, R1),
-+			BPF_LDX_MEM(BPF_W, R2, R1, 0),
-+			BPF_ALU64_IMM(BPF_ADD, R2, 1),
-+			BPF_STX_MEM(BPF_W, R1, R2, 0),
- 			TAIL_CALL(0),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = MAX_TAIL_CALL_CNT + 1,
-+		.flags = FLAG_NEED_STATE | FLAG_RESULT_IN_STATE,
-+		.result = (MAX_TAIL_CALL_CNT + 1 + 1) * MAX_TESTRUNS,
- 	},
- 	{
- 		"Tail call error path, NULL target",
- 		.insns = {
--			BPF_ALU64_IMM(BPF_MOV, R0, -1),
-+			BPF_LDX_MEM(BPF_W, R2, R1, 0),
-+			BPF_ALU64_IMM(BPF_ADD, R2, 1),
-+			BPF_STX_MEM(BPF_W, R1, R2, 0),
- 			TAIL_CALL(TAIL_CALL_NULL),
--			BPF_ALU64_IMM(BPF_MOV, R0, 1),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = 1,
-+		.flags = FLAG_NEED_STATE | FLAG_RESULT_IN_STATE,
-+		.result = MAX_TESTRUNS,
- 	},
- 	{
- 		"Tail call error path, index out of range",
- 		.insns = {
--			BPF_ALU64_IMM(BPF_MOV, R0, -1),
-+			BPF_LDX_MEM(BPF_W, R2, R1, 0),
-+			BPF_ALU64_IMM(BPF_ADD, R2, 1),
-+			BPF_STX_MEM(BPF_W, R1, R2, 0),
- 			TAIL_CALL(TAIL_CALL_INVALID),
--			BPF_ALU64_IMM(BPF_MOV, R0, 1),
- 			BPF_EXIT_INSN(),
- 		},
--		.result = 1,
-+		.flags = FLAG_NEED_STATE | FLAG_RESULT_IN_STATE,
-+		.result = MAX_TESTRUNS,
- 	},
- };
+ static int ath11k_dbring_bufs_replenish(struct ath11k *ar,
+ 					struct ath11k_dbring *ring,
+-					struct ath11k_dbring_element *buff,
+-					gfp_t gfp)
++					struct ath11k_dbring_element *buff)
+ {
+ 	struct ath11k_base *ab = ar->ab;
+ 	struct hal_srng *srng;
+@@ -35,7 +34,7 @@ static int ath11k_dbring_bufs_replenish(struct ath11k *ar,
+ 		goto err;
  
-@@ -9196,6 +9207,8 @@ static __init int test_tail_calls(struct bpf_array *progs)
- 	for (i = 0; i < ARRAY_SIZE(tail_call_tests); i++) {
- 		struct tail_call_test *test = &tail_call_tests[i];
- 		struct bpf_prog *fp = progs->ptrs[i];
-+		int *data = NULL;
-+		int state = 0;
- 		u64 duration;
- 		int ret;
+ 	spin_lock_bh(&ring->idr_lock);
+-	buf_id = idr_alloc(&ring->bufs_idr, buff, 0, ring->bufs_max, gfp);
++	buf_id = idr_alloc(&ring->bufs_idr, buff, 0, ring->bufs_max, GFP_ATOMIC);
+ 	spin_unlock_bh(&ring->idr_lock);
+ 	if (buf_id < 0) {
+ 		ret = -ENOBUFS;
+@@ -72,8 +71,7 @@ err:
+ }
  
-@@ -9212,7 +9225,11 @@ static __init int test_tail_calls(struct bpf_array *progs)
- 		if (fp->jited)
- 			jit_cnt++;
+ static int ath11k_dbring_fill_bufs(struct ath11k *ar,
+-				   struct ath11k_dbring *ring,
+-				   gfp_t gfp)
++				   struct ath11k_dbring *ring)
+ {
+ 	struct ath11k_dbring_element *buff;
+ 	struct hal_srng *srng;
+@@ -92,11 +90,11 @@ static int ath11k_dbring_fill_bufs(struct ath11k *ar,
+ 	size = sizeof(*buff) + ring->buf_sz + align - 1;
  
--		ret = __run_one(fp, NULL, MAX_TESTRUNS, &duration);
-+		if (test->flags & FLAG_NEED_STATE)
-+			data = &state;
-+		ret = __run_one(fp, data, MAX_TESTRUNS, &duration);
-+		if (test->flags & FLAG_RESULT_IN_STATE)
-+			ret = state;
- 		if (ret == test->result) {
- 			pr_cont("%lld PASS", duration);
- 			pass_cnt++;
+ 	while (num_remain > 0) {
+-		buff = kzalloc(size, gfp);
++		buff = kzalloc(size, GFP_ATOMIC);
+ 		if (!buff)
+ 			break;
+ 
+-		ret = ath11k_dbring_bufs_replenish(ar, ring, buff, gfp);
++		ret = ath11k_dbring_bufs_replenish(ar, ring, buff);
+ 		if (ret) {
+ 			ath11k_warn(ar->ab, "failed to replenish db ring num_remain %d req_ent %d\n",
+ 				    num_remain, req_entries);
+@@ -176,7 +174,7 @@ int ath11k_dbring_buf_setup(struct ath11k *ar,
+ 	ring->hp_addr = ath11k_hal_srng_get_hp_addr(ar->ab, srng);
+ 	ring->tp_addr = ath11k_hal_srng_get_tp_addr(ar->ab, srng);
+ 
+-	ret = ath11k_dbring_fill_bufs(ar, ring, GFP_KERNEL);
++	ret = ath11k_dbring_fill_bufs(ar, ring);
+ 
+ 	return ret;
+ }
+@@ -322,7 +320,7 @@ int ath11k_dbring_buffer_release_event(struct ath11k_base *ab,
+ 		}
+ 
+ 		memset(buff, 0, size);
+-		ath11k_dbring_bufs_replenish(ar, ring, buff, GFP_ATOMIC);
++		ath11k_dbring_bufs_replenish(ar, ring, buff);
+ 	}
+ 
+ 	spin_unlock_bh(&srng->lock);
 -- 
 2.33.0
 
