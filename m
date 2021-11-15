@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C457D451F51
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CECD451F52
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356045AbhKPAiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:38:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
+        id S1356031AbhKPAit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:38:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344001AbhKOTXG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344002AbhKOTXG (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:23:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B4C863312;
-        Mon, 15 Nov 2021 18:49:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 157B061A79;
+        Mon, 15 Nov 2021 18:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002194;
-        bh=Qeyx0YVCwR6rX9/M5y0c+7zqXyGyt5uNMJFJMWFWJmY=;
+        s=korg; t=1637002196;
+        bh=GIS4dWSat5ix/XbA6CG/bbdKbloFOS5TzJLSV9zhxJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ax1I04qIAbHtMU/tjSB2hLVNQrLIsN9F20XAKG0m3H6wUW9tZvQ+jpQui5xM+22go
-         f0xJnVXf/W9Vvgi7+xPWqMuJFb6UzfojXhFkBZBMdR4ao+zVOZUwnbtdupsWLyoMAA
-         EKueXt36q1Tt0v6ywWaFXwVuwGY05Ea9wdStqHeY=
+        b=NoQtg06zc3MWrc/Wuee3foFX8s7RBhhKDhs2JiVNUtwbF3/WfRkq9vyz7cIPx8GMq
+         QdVIfoEqbF/grZ4Xguo1nMp3JnFjNxVdwabUIplB2nzpM7gcRAuLkgf0aI7m9k7dsS
+         jOKqNXT9sXVMadhOouRwpo8NgotKV6cekclGrzQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joshua Emele <jemele@chromium.org>,
-        YN Chen <YN.Chen@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 473/917] mt76: mt7921: fix firmware usage of RA info using legacy rates
-Date:   Mon, 15 Nov 2021 17:59:28 +0100
-Message-Id: <20211115165444.820081709@linuxfoundation.org>
+Subject: [PATCH 5.15 474/917] mt76: mt7921: fix kernel warning from cfg80211_calculate_bitrate
+Date:   Mon, 15 Nov 2021 17:59:29 +0100
+Message-Id: <20211115165444.851921200@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,67 +41,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit 99b8e195994d9d77de3bfe0cb403c44a57c2cf79 ]
+[ Upstream commit 8e695328a1006b7bab2d972e7d0111fa6e6faf51 ]
 
-According to the firmware usage, OFDM rates should fill out bit 6 - 13
-while CCK rates should fill out bit 0 - 3 in legacy field of RA info to
-make the rate adaption runs propertly. Otherwise, a unicast frame might be
-picking up the unsupported rate to send out.
+Fix the kernel warning from cfg80211_calculate_bitrate
+due to the legacy rate is not parsed well in the current driver.
+
+Also, zeros struct rate_info before we fill it out to avoid the old value
+is kept such as rate->legacy.
+
+[  790.921560] WARNING: CPU: 7 PID: 970 at net/wireless/util.c:1298 cfg80211_calculate_bitrate+0x354/0x35c [cfg80211]
+[  790.987738] Hardware name: MediaTek Asurada rev1 board (DT)
+[  790.993298] pstate: a0400009 (NzCv daif +PAN -UAO)
+[  790.998104] pc : cfg80211_calculate_bitrate+0x354/0x35c [cfg80211]
+[  791.004295] lr : cfg80211_calculate_bitrate+0x180/0x35c [cfg80211]
+[  791.010462] sp : ffffffc0129c3880
+[  791.013765] x29: ffffffc0129c3880 x28: ffffffd38305bea8
+[  791.019065] x27: ffffffc0129c3970 x26: 0000000000000013
+[  791.024364] x25: 00000000000003ca x24: 000000000000002f
+[  791.029664] x23: 00000000000000d0 x22: ffffff8d108bc000
+[  791.034964] x21: ffffff8d108bc0d0 x20: ffffffc0129c39a8
+[  791.040264] x19: ffffffc0129c39a8 x18: 00000000ffff0a10
+[  791.045563] x17: 0000000000000050 x16: 00000000000000ec
+[  791.050910] x15: ffffffd3f9ebed9c x14: 0000000000000006
+[  791.056211] x13: 00000000000b2eea x12: 0000000000000000
+[  791.061511] x11: 00000000ffffffff x10: 0000000000000000
+[  791.066811] x9 : 0000000000000000 x8 : 0000000000000000
+[  791.072110] x7 : 0000000000000000 x6 : ffffffd3fafa5a7b
+[  791.077409] x5 : 0000000000000000 x4 : 0000000000000000
+[  791.082708] x3 : 0000000000000000 x2 : 0000000000000000
+[  791.088008] x1 : ffffff8d3f79c918 x0 : 0000000000000000
+[  791.093308] Call trace:
+[  791.095770]  cfg80211_calculate_bitrate+0x354/0x35c [cfg80211]
+[  791.101615]  nl80211_put_sta_rate+0x6c/0x2c0 [cfg80211]
+[  791.106853]  nl80211_send_station+0x980/0xaa4 [cfg80211]
+[  791.112178]  nl80211_get_station+0xb4/0x134 [cfg80211]
+[  791.117308]  genl_rcv_msg+0x3a0/0x440
+[  791.120960]  netlink_rcv_skb+0xcc/0x118
+[  791.124785]  genl_rcv+0x34/0x48
+[  791.127916]  netlink_unicast+0x144/0x1dc
 
 Fixes: 1c099ab44727 ("mt76: mt7921: add MCU support")
-Reported-by: Joshua Emele <jemele@chromium.org>
-Co-developed-by: YN Chen <YN.Chen@mediatek.com>
-Signed-off-by: YN Chen <YN.Chen@mediatek.com>
 Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 11 ++++++++++-
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h |  2 ++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/mcu.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-index f57f047fce99c..98d233e24afcc 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-@@ -719,6 +719,7 @@ void mt76_connac_mcu_sta_tlv(struct mt76_phy *mphy, struct sk_buff *skb,
- 	struct sta_rec_state *state;
- 	struct sta_rec_phy *phy;
- 	struct tlv *tlv;
-+	u16 supp_rates;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+index 8ced55501d373..3cb53c642d242 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+@@ -320,11 +320,13 @@ mt7921_mcu_tx_rate_parse(struct mt76_phy *mphy,
+ 			 struct rate_info *rate, u16 r)
+ {
+ 	struct ieee80211_supported_band *sband;
+-	u16 flags = 0;
++	u16 flags = 0, rate_idx;
+ 	u8 txmode = FIELD_GET(MT_WTBL_RATE_TX_MODE, r);
+ 	u8 gi = 0;
+ 	u8 bw = 0;
++	bool cck = false;
  
- 	/* starec ht */
- 	if (sta->ht_cap.ht_supported) {
-@@ -767,7 +768,15 @@ void mt76_connac_mcu_sta_tlv(struct mt76_phy *mphy, struct sk_buff *skb,
++	memset(rate, 0, sizeof(*rate));
+ 	rate->mcs = FIELD_GET(MT_WTBL_RATE_MCS, r);
+ 	rate->nss = FIELD_GET(MT_WTBL_RATE_NSS, r) + 1;
  
- 	tlv = mt76_connac_mcu_add_tlv(skb, STA_REC_RA, sizeof(*ra_info));
- 	ra_info = (struct sta_rec_ra_info *)tlv;
--	ra_info->legacy = cpu_to_le16((u16)sta->supp_rates[band]);
-+
-+	supp_rates = sta->supp_rates[band];
-+	if (band == NL80211_BAND_2GHZ)
-+		supp_rates = FIELD_PREP(RA_LEGACY_OFDM, supp_rates >> 4) |
-+			     FIELD_PREP(RA_LEGACY_CCK, supp_rates & 0xf);
-+	else
-+		supp_rates = FIELD_PREP(RA_LEGACY_OFDM, supp_rates);
-+
-+	ra_info->legacy = cpu_to_le16(supp_rates);
+@@ -349,13 +351,18 @@ mt7921_mcu_tx_rate_parse(struct mt76_phy *mphy,
  
- 	if (sta->ht_cap.ht_supported)
- 		memcpy(ra_info->rx_mcs_bitmask, sta->ht_cap.mcs.rx_mask,
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-index 4bcd728ff97c5..77d4435e4581e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-@@ -124,6 +124,8 @@ struct sta_rec_state {
- 	u8 rsv[1];
- } __packed;
+ 	switch (txmode) {
+ 	case MT_PHY_TYPE_CCK:
++		cck = true;
++		fallthrough;
+ 	case MT_PHY_TYPE_OFDM:
+ 		if (mphy->chandef.chan->band == NL80211_BAND_5GHZ)
+ 			sband = &mphy->sband_5g.sband;
+ 		else
+ 			sband = &mphy->sband_2g.sband;
  
-+#define RA_LEGACY_OFDM GENMASK(13, 6)
-+#define RA_LEGACY_CCK  GENMASK(3, 0)
- #define HT_MCS_MASK_NUM 10
- struct sta_rec_ra_info {
- 	__le16 tag;
+-		rate->legacy = sband->bitrates[rate->mcs].bitrate;
++		rate_idx = FIELD_GET(MT_TX_RATE_IDX, r);
++		rate_idx = mt76_get_rate(mphy->dev, sband, rate_idx,
++					 cck);
++		rate->legacy = sband->bitrates[rate_idx].bitrate;
+ 		break;
+ 	case MT_PHY_TYPE_HT:
+ 	case MT_PHY_TYPE_HT_GF:
 -- 
 2.33.0
 
