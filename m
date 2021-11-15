@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42C3D450CD0
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:41:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E61045102E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:41:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236841AbhKORo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:44:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57846 "EHLO mail.kernel.org"
+        id S242667AbhKOSnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:43:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238533AbhKORlP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:41:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 554E7632F7;
-        Mon, 15 Nov 2021 17:27:16 +0000 (UTC)
+        id S242274AbhKOSlG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:41:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DD2461163;
+        Mon, 15 Nov 2021 18:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997236;
-        bh=9ZOTFdy0CLvC9AoTM8EzwRZpMivbNxO48sYLBUK+xf8=;
+        s=korg; t=1636999491;
+        bh=KfMJRgSboppxZC1GM15J9QRH/7T2RLy+M1M9hzrxPDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=elwMg+iPfnviy2+uuh7QXvqa+8TfExHdBPGHNiKkjL1zQP5lbMKElkafe0FFQRySj
-         mS+C4ctzg0PiAdXKWVvh9jERyUAB3ShdaPmsuvbJgzEFlWkjmLfs8begJ+u1Mp+4DV
-         T5l8iAowSRBZLcLfMp3ChbyB467nAgP9uSUEn6r0=
+        b=t+kbOmXDuAIQso6LJKuU0tOllxxXCOQetlH+45aDvyhIHwPzYaehtEiglm56ZshSV
+         qyhd0aP6/RWZ4e59SzdqzldNG00R+1Voe5jTgNRDB2F/c3Ba8+Hl95EK5TBGFfksMf
+         dF2iuZQWToJCQYFwCsUk5vgm825D8/Aj61e/XeLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Walter Stoll <walter.stoll@duagon.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/575] watchdog: Fix OMAP watchdog early handling
+Subject: [PATCH 5.14 315/849] vrf: run conntrack only in context of lower/physdev for locally generated packets
 Date:   Mon, 15 Nov 2021 17:56:38 +0100
-Message-Id: <20211115165346.159986827@linuxfoundation.org>
+Message-Id: <20211115165430.904707626@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Walter Stoll <walter.stoll@duagon.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit cd004d8299f1dc6cfa6a4eea8f94cb45eaedf070 ]
+[ Upstream commit 8c9c296adfae9ea05f655d69e9f6e13daa86fb4a ]
 
-TI's implementation does not service the watchdog even if the kernel
-command line parameter omap_wdt.early_enable is set to 1. This patch
-fixes the issue.
+The VRF driver invokes netfilter for output+postrouting hooks so that users
+can create rules that check for 'oif $vrf' rather than lower device name.
 
-Signed-off-by: Walter Stoll <walter.stoll@duagon.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/88a8fe5229cd68fa0f1fd22f5d66666c1b7057a0.camel@duagon.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+This is a problem when NAT rules are configured.
+
+To avoid any conntrack involvement in round 1, tag skbs as 'untracked'
+to prevent conntrack from picking them up.
+
+This gets cleared before the packet gets handed to the ip stack so
+conntrack will be active on the second iteration.
+
+One remaining issue is that a rule like
+
+  output ... oif $vrfname notrack
+
+won't propagate to the second round because we can't tell
+'notrack set via ruleset' and 'notrack set by vrf driver' apart.
+However, this isn't a regression: the 'notrack' removal happens
+instead of unconditional nf_reset_ct().
+I'd also like to avoid leaking more vrf specific conditionals into the
+netfilter infra.
+
+For ingress, conntrack has already been done before the packet makes it
+to the vrf driver, with this patch egress does connection tracking with
+lower/physical device as well.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Acked-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/omap_wdt.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/vrf.c | 28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 1616f93dfad7f..74d785b2b478f 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -268,8 +268,12 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 			wdev->wdog.bootstatus = WDIOF_CARDRESET;
+diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
+index 2b1b944d4b281..ec06d3bb9beeb 100644
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -35,6 +35,7 @@
+ #include <net/l3mdev.h>
+ #include <net/fib_rules.h>
+ #include <net/netns/generic.h>
++#include <net/netfilter/nf_conntrack.h>
+ 
+ #define DRV_NAME	"vrf"
+ #define DRV_VERSION	"1.1"
+@@ -424,12 +425,26 @@ static int vrf_local_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	return NETDEV_TX_OK;
+ }
+ 
++static void vrf_nf_set_untracked(struct sk_buff *skb)
++{
++	if (skb_get_nfct(skb) == 0)
++		nf_ct_set(skb, NULL, IP_CT_UNTRACKED);
++}
++
++static void vrf_nf_reset_ct(struct sk_buff *skb)
++{
++	if (skb_get_nfct(skb) == IP_CT_UNTRACKED)
++		nf_reset_ct(skb);
++}
++
+ #if IS_ENABLED(CONFIG_IPV6)
+ static int vrf_ip6_local_out(struct net *net, struct sock *sk,
+ 			     struct sk_buff *skb)
+ {
+ 	int err;
+ 
++	vrf_nf_reset_ct(skb);
++
+ 	err = nf_hook(NFPROTO_IPV6, NF_INET_LOCAL_OUT, net,
+ 		      sk, skb, NULL, skb_dst(skb)->dev, dst_output);
+ 
+@@ -508,6 +523,8 @@ static int vrf_ip_local_out(struct net *net, struct sock *sk,
+ {
+ 	int err;
+ 
++	vrf_nf_reset_ct(skb);
++
+ 	err = nf_hook(NFPROTO_IPV4, NF_INET_LOCAL_OUT, net, sk,
+ 		      skb, NULL, skb_dst(skb)->dev, dst_output);
+ 	if (likely(err == 1))
+@@ -626,8 +643,7 @@ static void vrf_finish_direct(struct sk_buff *skb)
+ 		skb_pull(skb, ETH_HLEN);
  	}
  
--	if (!early_enable)
-+	if (early_enable) {
-+		omap_wdt_start(&wdev->wdog);
-+		set_bit(WDOG_HW_RUNNING, &wdev->wdog.status);
-+	} else {
- 		omap_wdt_disable(wdev);
-+	}
+-	/* reset skb device */
+-	nf_reset_ct(skb);
++	vrf_nf_reset_ct(skb);
+ }
  
- 	ret = watchdog_register_device(&wdev->wdog);
- 	if (ret) {
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -641,7 +657,7 @@ static int vrf_finish_output6(struct net *net, struct sock *sk,
+ 	struct neighbour *neigh;
+ 	int ret;
+ 
+-	nf_reset_ct(skb);
++	vrf_nf_reset_ct(skb);
+ 
+ 	skb->protocol = htons(ETH_P_IPV6);
+ 	skb->dev = dev;
+@@ -752,6 +768,8 @@ static struct sk_buff *vrf_ip6_out_direct(struct net_device *vrf_dev,
+ 
+ 	skb->dev = vrf_dev;
+ 
++	vrf_nf_set_untracked(skb);
++
+ 	err = nf_hook(NFPROTO_IPV6, NF_INET_LOCAL_OUT, net, sk,
+ 		      skb, NULL, vrf_dev, vrf_ip6_out_direct_finish);
+ 
+@@ -859,7 +877,7 @@ static int vrf_finish_output(struct net *net, struct sock *sk, struct sk_buff *s
+ 	bool is_v6gw = false;
+ 	int ret = -EINVAL;
+ 
+-	nf_reset_ct(skb);
++	vrf_nf_reset_ct(skb);
+ 
+ 	/* Be paranoid, rather than too clever. */
+ 	if (unlikely(skb_headroom(skb) < hh_len && dev->header_ops)) {
+@@ -987,6 +1005,8 @@ static struct sk_buff *vrf_ip_out_direct(struct net_device *vrf_dev,
+ 
+ 	skb->dev = vrf_dev;
+ 
++	vrf_nf_set_untracked(skb);
++
+ 	err = nf_hook(NFPROTO_IPV4, NF_INET_LOCAL_OUT, net, sk,
+ 		      skb, NULL, vrf_dev, vrf_ip_out_direct_finish);
+ 
 -- 
 2.33.0
 
