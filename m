@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2CA9450C2A
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A30B7450C2C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236656AbhKORfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:35:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45640 "EHLO mail.kernel.org"
+        id S237783AbhKORfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:35:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237664AbhKOReQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:34:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBDEA63271;
-        Mon, 15 Nov 2021 17:22:23 +0000 (UTC)
+        id S237813AbhKOReR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:34:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B235263275;
+        Mon, 15 Nov 2021 17:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996944;
-        bh=5tgvtFbDhgbdofoNixaH/jT5x/PmV1GkjsS8GYqNzoE=;
+        s=korg; t=1636996947;
+        bh=t0gqTs8M758R77+mkJi6FJvTd8ONEL68KeBSCzTltEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WrIo5HAHjWMmZM9tJvPvavMQ7AYi42QIH/kRSGUNCANRvbGnTkAf7lcOnRPdVZamB
-         hQgZYi/sDMb8wvZSvSXocZA7YdPKmFDx8rgp1VDJVBletAraa6dlcZqZRYmO7vEOVW
-         7tySrH2ZTYuSE0uqGp6XyJ2eK0U13Helr+9WKHgo=
+        b=gH5wqiLKyps6XnxxF2nSSOdNY1+zS7i7qdQHEJn1wySs+G3euHqqbWfs/NsaNesq4
+         ye8fPcXZhl+IHwVomhLPvkieztz3plM2V1AP58XHIjvoXxdJEozmvLe5CJ1phpkCOX
+         P8KAjGSS0dKnCV8DuK0+t6yiCQLUsxTnpfMJTL7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jussi Maki <joamaki@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Vedang Patel <vedang.patel@intel.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 326/355] bpf: sockmap, strparser, and tls are reusing qdisc_skb_cb and colliding
-Date:   Mon, 15 Nov 2021 18:04:10 +0100
-Message-Id: <20211115165324.282508068@linuxfoundation.org>
+Subject: [PATCH 5.4 327/355] net/sched: sch_taprio: fix undefined behavior in ktime_mono_to_any
+Date:   Mon, 15 Nov 2021 18:04:11 +0100
+Message-Id: <20211115165324.314630990@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -42,141 +43,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit e0dc3b93bd7bcff8c3813d1df43e0908499c7cf0 ]
+[ Upstream commit 6dc25401cba4d428328eade8ceae717633fdd702 ]
 
-Strparser is reusing the qdisc_skb_cb struct to stash the skb message handling
-progress, e.g. offset and length of the skb. First this is poorly named and
-inherits a struct from qdisc that doesn't reflect the actual usage of cb[] at
-this layer.
+1) if q->tk_offset == TK_OFFS_MAX, then get_tcp_tstamp() calls
+   ktime_mono_to_any() with out-of-bound value.
 
-But, more importantly strparser is using the following to access its metadata.
+2) if q->tk_offset is changed in taprio_parse_clockid(),
+   taprio_get_time() might also call ktime_mono_to_any()
+   with out-of-bound value as sysbot found:
 
-  (struct _strp_msg *)((void *)skb->cb + offsetof(struct qdisc_skb_cb, data))
+UBSAN: array-index-out-of-bounds in kernel/time/timekeeping.c:908:27
+index 3 is out of range for type 'ktime_t *[3]'
+CPU: 1 PID: 25668 Comm: kworker/u4:0 Not tainted 5.15.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: bat_events batadv_iv_send_outstanding_bat_ogm_packet
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:151
+ __ubsan_handle_out_of_bounds.cold+0x62/0x6c lib/ubsan.c:291
+ ktime_mono_to_any+0x1d4/0x1e0 kernel/time/timekeeping.c:908
+ get_tcp_tstamp net/sched/sch_taprio.c:322 [inline]
+ get_packet_txtime net/sched/sch_taprio.c:353 [inline]
+ taprio_enqueue_one+0x5b0/0x1460 net/sched/sch_taprio.c:420
+ taprio_enqueue+0x3b1/0x730 net/sched/sch_taprio.c:485
+ dev_qdisc_enqueue+0x40/0x300 net/core/dev.c:3785
+ __dev_xmit_skb net/core/dev.c:3869 [inline]
+ __dev_queue_xmit+0x1f6e/0x3630 net/core/dev.c:4194
+ batadv_send_skb_packet+0x4a9/0x5f0 net/batman-adv/send.c:108
+ batadv_iv_ogm_send_to_if net/batman-adv/bat_iv_ogm.c:393 [inline]
+ batadv_iv_ogm_emit net/batman-adv/bat_iv_ogm.c:421 [inline]
+ batadv_iv_send_outstanding_bat_ogm_packet+0x6d7/0x8e0 net/batman-adv/bat_iv_ogm.c:1701
+ process_one_work+0x9b2/0x1690 kernel/workqueue.c:2298
+ worker_thread+0x658/0x11f0 kernel/workqueue.c:2445
+ kthread+0x405/0x4f0 kernel/kthread.c:327
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
 
-Where _strp_msg is defined as:
-
-  struct _strp_msg {
-        struct strp_msg            strp;                 /*     0     8 */
-        int                        accum_len;            /*     8     4 */
-
-        /* size: 12, cachelines: 1, members: 2 */
-        /* last cacheline: 12 bytes */
-  };
-
-So we use 12 bytes of ->data[] in struct. However in BPF code running parser
-and verdict the user has read capabilities into the data[] array as well. Its
-not too problematic, but we should not be exposing internal state to BPF
-program. If its really needed then we can use the probe_read() APIs which allow
-reading kernel memory. And I don't believe cb[] layer poses any API breakage by
-moving this around because programs can't depend on cb[] across layers.
-
-In order to fix another issue with a ctx rewrite we need to stash a temp
-variable somewhere. To make this work cleanly this patch builds a cb struct
-for sk_skb types called sk_skb_cb struct. Then we can use this consistently
-in the strparser, sockmap space. Additionally we can start allowing ->cb[]
-write access after this.
-
-Fixes: 604326b41a6fb ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Jussi Maki <joamaki@gmail.com>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20211103204736.248403-5-john.fastabend@gmail.com
+Fixes: 7ede7b03484b ("taprio: make clock reference conversions easier")
+Fixes: 54002066100b ("taprio: Adjust timestamps for TCP packets")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Vedang Patel <vedang.patel@intel.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Link: https://lore.kernel.org/r/20211108180815.1822479-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/strparser.h   | 16 +++++++++++++++-
- net/core/filter.c         | 21 +++++++++++++++++++++
- net/strparser/strparser.c | 10 +---------
- 3 files changed, 37 insertions(+), 10 deletions(-)
+ net/sched/sch_taprio.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/include/net/strparser.h b/include/net/strparser.h
-index 1d20b98493a10..bec1439bd3be6 100644
---- a/include/net/strparser.h
-+++ b/include/net/strparser.h
-@@ -54,10 +54,24 @@ struct strp_msg {
- 	int offset;
- };
- 
-+struct _strp_msg {
-+	/* Internal cb structure. struct strp_msg must be first for passing
-+	 * to upper layer.
-+	 */
-+	struct strp_msg strp;
-+	int accum_len;
-+};
-+
-+struct sk_skb_cb {
-+#define SK_SKB_CB_PRIV_LEN 20
-+	unsigned char data[SK_SKB_CB_PRIV_LEN];
-+	struct _strp_msg strp;
-+};
-+
- static inline struct strp_msg *strp_msg(struct sk_buff *skb)
- {
- 	return (struct strp_msg *)((void *)skb->cb +
--		offsetof(struct qdisc_skb_cb, data));
-+		offsetof(struct sk_skb_cb, strp));
+diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
+index e14a66ce4884d..b268e61304515 100644
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -94,18 +94,22 @@ static ktime_t sched_base_time(const struct sched_gate_list *sched)
+ 	return ns_to_ktime(sched->base_time);
  }
  
- /* Structure for an attached lower socket */
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 0e161a6dff7e5..5ebc973ed4c50 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -8356,6 +8356,27 @@ static u32 sk_skb_convert_ctx_access(enum bpf_access_type type,
- 		*insn++ = BPF_LDX_MEM(BPF_SIZEOF(void *), si->dst_reg,
- 				      si->src_reg, off);
- 		break;
-+	case offsetof(struct __sk_buff, cb[0]) ...
-+	     offsetofend(struct __sk_buff, cb[4]) - 1:
-+		BUILD_BUG_ON(sizeof_field(struct sk_skb_cb, data) < 20);
-+		BUILD_BUG_ON((offsetof(struct sk_buff, cb) +
-+			      offsetof(struct sk_skb_cb, data)) %
-+			     sizeof(__u64));
-+
-+		prog->cb_access = 1;
-+		off  = si->off;
-+		off -= offsetof(struct __sk_buff, cb[0]);
-+		off += offsetof(struct sk_buff, cb);
-+		off += offsetof(struct sk_skb_cb, data);
-+		if (type == BPF_WRITE)
-+			*insn++ = BPF_STX_MEM(BPF_SIZE(si->code), si->dst_reg,
-+					      si->src_reg, off);
-+		else
-+			*insn++ = BPF_LDX_MEM(BPF_SIZE(si->code), si->dst_reg,
-+					      si->src_reg, off);
-+		break;
-+
-+
+-static ktime_t taprio_get_time(struct taprio_sched *q)
++static ktime_t taprio_mono_to_any(const struct taprio_sched *q, ktime_t mono)
+ {
+-	ktime_t mono = ktime_get();
++	/* This pairs with WRITE_ONCE() in taprio_parse_clockid() */
++	enum tk_offsets tk_offset = READ_ONCE(q->tk_offset);
+ 
+-	switch (q->tk_offset) {
++	switch (tk_offset) {
+ 	case TK_OFFS_MAX:
+ 		return mono;
  	default:
- 		return bpf_convert_ctx_access(type, si, insn_buf, prog,
- 					      target_size);
-diff --git a/net/strparser/strparser.c b/net/strparser/strparser.c
-index b3815c1e8f2ea..cd9954c4ad808 100644
---- a/net/strparser/strparser.c
-+++ b/net/strparser/strparser.c
-@@ -27,18 +27,10 @@
+-		return ktime_mono_to_any(mono, q->tk_offset);
++		return ktime_mono_to_any(mono, tk_offset);
+ 	}
++}
  
- static struct workqueue_struct *strp_wq;
- 
--struct _strp_msg {
--	/* Internal cb structure. struct strp_msg must be first for passing
--	 * to upper layer.
--	 */
--	struct strp_msg strp;
--	int accum_len;
--};
--
- static inline struct _strp_msg *_strp_msg(struct sk_buff *skb)
- {
- 	return (struct _strp_msg *)((void *)skb->cb +
--		offsetof(struct qdisc_skb_cb, data));
-+		offsetof(struct sk_skb_cb, strp));
+-	return KTIME_MAX;
++static ktime_t taprio_get_time(const struct taprio_sched *q)
++{
++	return taprio_mono_to_any(q, ktime_get());
  }
  
- /* Lower lock held */
+ static void taprio_free_sched_cb(struct rcu_head *head)
+@@ -321,7 +325,7 @@ static ktime_t get_tcp_tstamp(struct taprio_sched *q, struct sk_buff *skb)
+ 		return 0;
+ 	}
+ 
+-	return ktime_mono_to_any(skb->skb_mstamp_ns, q->tk_offset);
++	return taprio_mono_to_any(q, skb->skb_mstamp_ns);
+ }
+ 
+ /* There are a few scenarios where we will have to modify the txtime from
+@@ -1342,6 +1346,7 @@ static int taprio_parse_clockid(struct Qdisc *sch, struct nlattr **tb,
+ 		}
+ 	} else if (tb[TCA_TAPRIO_ATTR_SCHED_CLOCKID]) {
+ 		int clockid = nla_get_s32(tb[TCA_TAPRIO_ATTR_SCHED_CLOCKID]);
++		enum tk_offsets tk_offset;
+ 
+ 		/* We only support static clockids and we don't allow
+ 		 * for it to be modified after the first init.
+@@ -1356,22 +1361,24 @@ static int taprio_parse_clockid(struct Qdisc *sch, struct nlattr **tb,
+ 
+ 		switch (clockid) {
+ 		case CLOCK_REALTIME:
+-			q->tk_offset = TK_OFFS_REAL;
++			tk_offset = TK_OFFS_REAL;
+ 			break;
+ 		case CLOCK_MONOTONIC:
+-			q->tk_offset = TK_OFFS_MAX;
++			tk_offset = TK_OFFS_MAX;
+ 			break;
+ 		case CLOCK_BOOTTIME:
+-			q->tk_offset = TK_OFFS_BOOT;
++			tk_offset = TK_OFFS_BOOT;
+ 			break;
+ 		case CLOCK_TAI:
+-			q->tk_offset = TK_OFFS_TAI;
++			tk_offset = TK_OFFS_TAI;
+ 			break;
+ 		default:
+ 			NL_SET_ERR_MSG(extack, "Invalid 'clockid'");
+ 			err = -EINVAL;
+ 			goto out;
+ 		}
++		/* This pairs with READ_ONCE() in taprio_mono_to_any */
++		WRITE_ONCE(q->tk_offset, tk_offset);
+ 
+ 		q->clockid = clockid;
+ 	} else {
 -- 
 2.33.0
 
