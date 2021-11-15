@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7239F452703
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:11:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B0884523D4
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:28:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345845AbhKPCOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:14:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35656 "EHLO mail.kernel.org"
+        id S240091AbhKPBbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:31:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238854AbhKORwl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:52:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19BA0632AF;
-        Mon, 15 Nov 2021 17:32:05 +0000 (UTC)
+        id S242445AbhKOSzo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:55:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38FD0633C8;
+        Mon, 15 Nov 2021 18:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997526;
-        bh=3dpUZXaobsEN6UAh12VaFkhX4FG6f4zW3RRwrUCy55Q=;
+        s=korg; t=1636999905;
+        bh=pn7LAgUSQ82DjVMjRhYDaKSUCMPvDjOGIseLSGYmEIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oKgK1vUDCdSZ2x10m5ZOUYjGMW7C08CBl3Zk8AXvHslc8JDxT2JmAYzucVDDFDOnP
-         k15F1TMgWVlLCufCgV1oWhPfH+uRyJFTwS+1LWkZ6/oRVgOEf6zm1rk3yXcjA+JkG9
-         JjBsERu77pfHarh2S4NPe+poZHTB7vofEt/R1+5g=
+        b=gHyfJwE/nh1bZsAYMUzuM7cMB8s3FhipkPnGOHc3ba/KHcA60nCSn2C/tDmhRnpC4
+         ORXYwpX5s3uQBDQ7ZzhnT/K1PQLOV9qXI1dMHqgxFI7e/zL5jeZyuCdJWCJah+Oo9V
+         i6W3H8+tzgIrc+5L8/B/Rg4OdPaASu5CL0stBKaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Wang <yun.wang@linux.alibaba.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 179/575] x86: Increase exception stack sizes
-Date:   Mon, 15 Nov 2021 17:58:24 +0100
-Message-Id: <20211115165349.892304030@linuxfoundation.org>
+Subject: [PATCH 5.14 423/849] memstick: jmb38x_ms: use appropriate free function in jmb38x_ms_alloc_host()
+Date:   Mon, 15 Nov 2021 17:58:26 +0100
+Message-Id: <20211115165434.572044540@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 7fae4c24a2b84a66c7be399727aca11e7a888462 ]
+[ Upstream commit beae4a6258e64af609ad5995cc6b6056eb0d898e ]
 
-It turns out that a single page of stack is trivial to overflow with
-all the tracing gunk enabled. Raise the exception stacks to 2 pages,
-which is still half the interrupt stacks, which are at 4 pages.
+The "msh" pointer is device managed, meaning that memstick_alloc_host()
+calls device_initialize() on it.  That means that it can't be free
+using kfree() but must instead be freed with memstick_free_host().
+Otherwise it leads to a tiny memory leak of device resources.
 
-Reported-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/YUIO9Ye98S5Eb68w@hirez.programming.kicks-ass.net
+Fixes: 60fdd931d577 ("memstick: add support for JMicron jmb38x MemoryStick host controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20211011123912.GD15188@kili
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/page_64_types.h | 2 +-
+ drivers/memstick/host/jmb38x_ms.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/page_64_types.h b/arch/x86/include/asm/page_64_types.h
-index 3f49dac03617d..224d71aef6303 100644
---- a/arch/x86/include/asm/page_64_types.h
-+++ b/arch/x86/include/asm/page_64_types.h
-@@ -15,7 +15,7 @@
- #define THREAD_SIZE_ORDER	(2 + KASAN_STACK_ORDER)
- #define THREAD_SIZE  (PAGE_SIZE << THREAD_SIZE_ORDER)
+diff --git a/drivers/memstick/host/jmb38x_ms.c b/drivers/memstick/host/jmb38x_ms.c
+index f9a93b0565e15..435d4c058b20e 100644
+--- a/drivers/memstick/host/jmb38x_ms.c
++++ b/drivers/memstick/host/jmb38x_ms.c
+@@ -882,7 +882,7 @@ static struct memstick_host *jmb38x_ms_alloc_host(struct jmb38x_ms *jm, int cnt)
  
--#define EXCEPTION_STACK_ORDER (0 + KASAN_STACK_ORDER)
-+#define EXCEPTION_STACK_ORDER (1 + KASAN_STACK_ORDER)
- #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
+ 	iounmap(host->addr);
+ err_out_free:
+-	kfree(msh);
++	memstick_free_host(msh);
+ 	return NULL;
+ }
  
- #define IRQ_STACK_ORDER (2 + KASAN_STACK_ORDER)
 -- 
 2.33.0
 
