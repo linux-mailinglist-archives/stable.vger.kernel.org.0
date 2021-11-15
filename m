@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F32A045218D
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:02:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97FA74523E7
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:32:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232271AbhKPBFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:05:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
+        id S242156AbhKPBfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:35:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245502AbhKOTUk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AB7F63238;
-        Mon, 15 Nov 2021 18:36:00 +0000 (UTC)
+        id S242050AbhKOSdN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:33:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 206FC6345E;
+        Mon, 15 Nov 2021 18:00:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001360;
-        bh=4L911CvHSeVXx/2OkXHDlrWEFKl0sU8Aw6oIFirPZYM=;
+        s=korg; t=1636999208;
+        bh=g4NJTNerBoEZwFfv92TKPtyb5oRRHk+lF7F1AaKRcKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W1NEBca46V5GlmEJ/1aVLJ0Ue7O8y60lteDWT4NWstBScTPQIsKTovqrK7VGB6sLK
-         TuyfuqsZ9ksPSAYI80WR9yvxoPLSwZu+7zkvGVjHm+e/Abt3AzJ1emmNkbZrh1KeXw
-         JaZoXp1SetLuqUMajcJum+SLgCQcioNmkglQKC04=
+        b=ZWS23MLe/aJfhSbRasx3Yj08YLv9iK9+7/inO3Prwm4diTb0Q1n442PrmqLhS6gSA
+         y4/omVrVIKyGIbWyZvWSMS6EpIpdQH5Kj6dm1kQpetLqsv5j9ws0EkTImrKGdCLnCV
+         oN0Xw8ymMRd0dPt2A7wEqyuac5GY/7KBzDhWuO8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Zhang <quic_taozha@quicinc.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.15 160/917] coresight: cti: Correct the parameter for pm_runtime_put
-Date:   Mon, 15 Nov 2021 17:54:15 +0100
-Message-Id: <20211115165434.185968794@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.14 173/849] PCI: aardvark: Do not unmask unused interrupts
+Date:   Mon, 15 Nov 2021 17:54:16 +0100
+Message-Id: <20211115165426.034181959@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Zhang <quic_taozha@quicinc.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 692c9a499b286ea478f41b23a91fe3873b9e1326 upstream.
+commit 1fb95d7d3c7a926b002fe8a6bd27a1cb428b46dc upstream.
 
-The input parameter of the function pm_runtime_put should be the
-same in the function cti_enable_hw and cti_disable_hw. The correct
-parameter to use here should be dev->parent.
+There are lot of undocumented interrupt bits. To prevent unwanted
+spurious interrupts, fix all *_ALL_MASK macros to define all interrupt
+bits, so that driver can properly mask all interrupts, including those
+which are undocumented.
 
-Signed-off-by: Tao Zhang <quic_taozha@quicinc.com>
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Fixes: 835d722ba10a ("coresight: cti: Initial CoreSight CTI Driver")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1629365377-5937-1-git-send-email-quic_taozha@quicinc.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20211005180952.6812-8-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-cti-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/hwtracing/coresight/coresight-cti-core.c
-+++ b/drivers/hwtracing/coresight/coresight-cti-core.c
-@@ -175,7 +175,7 @@ static int cti_disable_hw(struct cti_drv
- 	coresight_disclaim_device_unlocked(csdev);
- 	CS_LOCK(drvdata->base);
- 	spin_unlock(&drvdata->spinlock);
--	pm_runtime_put(dev);
-+	pm_runtime_put(dev->parent);
- 	return 0;
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -106,13 +106,13 @@
+ #define     PCIE_ISR0_MSI_INT_PENDING		BIT(24)
+ #define     PCIE_ISR0_INTX_ASSERT(val)		BIT(16 + (val))
+ #define     PCIE_ISR0_INTX_DEASSERT(val)	BIT(20 + (val))
+-#define	    PCIE_ISR0_ALL_MASK			GENMASK(26, 0)
++#define     PCIE_ISR0_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_ISR1_REG				(CONTROL_BASE_ADDR + 0x48)
+ #define PCIE_ISR1_MASK_REG			(CONTROL_BASE_ADDR + 0x4C)
+ #define     PCIE_ISR1_POWER_STATE_CHANGE	BIT(4)
+ #define     PCIE_ISR1_FLUSH			BIT(5)
+ #define     PCIE_ISR1_INTX_ASSERT(val)		BIT(8 + (val))
+-#define     PCIE_ISR1_ALL_MASK			GENMASK(11, 4)
++#define     PCIE_ISR1_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_MSI_ADDR_LOW_REG			(CONTROL_BASE_ADDR + 0x50)
+ #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
+ #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
+@@ -240,7 +240,7 @@ enum {
+ #define     PCIE_IRQ_MSI_INT2_DET		BIT(21)
+ #define     PCIE_IRQ_RC_DBELL_DET		BIT(22)
+ #define     PCIE_IRQ_EP_STATUS			BIT(23)
+-#define     PCIE_IRQ_ALL_MASK			0xfff0fb
++#define     PCIE_IRQ_ALL_MASK			GENMASK(31, 0)
+ #define     PCIE_IRQ_ENABLE_INTS_MASK		PCIE_IRQ_CORE_INT
  
- 	/* not disabled this call */
+ /* Transaction types */
 
 
