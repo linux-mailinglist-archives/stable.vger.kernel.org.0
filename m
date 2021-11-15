@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA577451069
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:44:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35FDD450CE0
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:43:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242718AbhKOSr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:47:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51378 "EHLO mail.kernel.org"
+        id S232124AbhKORpu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:45:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238481AbhKOSof (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:44:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52CE963375;
-        Mon, 15 Nov 2021 18:06:12 +0000 (UTC)
+        id S238719AbhKORoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:44:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 488A26328A;
+        Mon, 15 Nov 2021 17:28:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999572;
-        bh=g0jZ1736I1HJDbgU1isGNZGn+DfXrg5XbfELG7oGgGE=;
+        s=korg; t=1636997318;
+        bh=roTB3lPl/1lf1PXJ6A4IeuXaVZCSCEoKkcUu5YXZF80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hCHx0vyF+WpQHQ/w6PBIIY7u67scBhV3TpwtY2JqpuFrXeijgIjTUj593JFdkYOTE
-         8/fZVndV6qWfOcDruWTmDq8H5CpUvaqk3rtvqDPZUmX76Ndo/bi6ApEMWKCSBEmL8S
-         A4YC5On7h2qaqtIIf9+nFKCSP1ZYBWv6Ww9FrPI8=
+        b=RueY4VG1LgG0SKYlvcmDxAj/90SjKcNGjCeaVBJ6H9yoBptV7OU6NqJ6Bwd4gKNri
+         iSwCLS81wRE0v5iPbLWwY114ANUMD8Cyb4M8vO0aM0Sl9X12VN5BSd9nehOCxu9NrE
+         rqaXdaZAeS9yR8PbBztiP9qYyzEd1R+jAW/7fh2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Sidong Yang <realwakka@gmail.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Janghyub Seo <jhyub06@gmail.com>,
+        Rushab Shah <rushabshah32@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 319/849] btrfs: reflink: initialize return value to 0 in btrfs_extent_same()
+Subject: [PATCH 5.10 077/575] r8169: Add device 10ec:8162 to driver r8169
 Date:   Mon, 15 Nov 2021 17:56:42 +0100
-Message-Id: <20211115165431.034853092@linuxfoundation.org>
+Message-Id: <20211115165346.298682928@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sidong Yang <realwakka@gmail.com>
+From: Janghyub Seo <jhyub06@gmail.com>
 
-[ Upstream commit 44bee215f72f13874c0e734a0712c2e3264c0108 ]
+[ Upstream commit 72f898ca0ab85fde6facf78b14d9f67a4a7b32d1 ]
 
-Fix a warning reported by smatch that ret could be returned without
-initialized.  The dedupe operations are supposed to to return 0 for a 0
-length range but the caller does not pass olen == 0. To keep this
-behaviour and also fix the warning initialize ret to 0.
+This patch makes the driver r8169 pick up device Realtek Semiconductor Co.
+, Ltd. Device [10ec:8162].
 
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Sidong Yang <realwakka@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Janghyub Seo <jhyub06@gmail.com>
+Suggested-by: Rushab Shah <rushabshah32@gmail.com>
+Link: https://lore.kernel.org/r/1635231849296.1489250046.441294000@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/reflink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
-index 9b0814318e726..c71e49782e86d 100644
---- a/fs/btrfs/reflink.c
-+++ b/fs/btrfs/reflink.c
-@@ -649,7 +649,7 @@ static int btrfs_extent_same_range(struct inode *src, u64 loff, u64 len,
- static int btrfs_extent_same(struct inode *src, u64 loff, u64 olen,
- 			     struct inode *dst, u64 dst_loff)
- {
--	int ret;
-+	int ret = 0;
- 	u64 i, tail_len, chunk_count;
- 	struct btrfs_root *root_dst = BTRFS_I(dst)->root;
- 
+diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
+index 30be18bac8063..5eac3f494d9e9 100644
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -157,6 +157,7 @@ static const struct pci_device_id rtl8169_pci_tbl[] = {
+ 	{ PCI_VDEVICE(REALTEK,	0x8129) },
+ 	{ PCI_VDEVICE(REALTEK,	0x8136), RTL_CFG_NO_GBIT },
+ 	{ PCI_VDEVICE(REALTEK,	0x8161) },
++	{ PCI_VDEVICE(REALTEK,	0x8162) },
+ 	{ PCI_VDEVICE(REALTEK,	0x8167) },
+ 	{ PCI_VDEVICE(REALTEK,	0x8168) },
+ 	{ PCI_VDEVICE(NCUBE,	0x8168) },
 -- 
 2.33.0
 
