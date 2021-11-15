@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DB3045101D
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:38:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59794450CA3
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:38:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242612AbhKOSlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:41:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44298 "EHLO mail.kernel.org"
+        id S238544AbhKORlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:41:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242544AbhKOSiX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:38:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82B6D632DF;
-        Mon, 15 Nov 2021 18:03:15 +0000 (UTC)
+        id S238010AbhKORiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:38:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5ADE60F9C;
+        Mon, 15 Nov 2021 17:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999396;
-        bh=tap+HRvvemmA8l2EyCeQCQUxgwnf1ec60xbv7fMIo9o=;
+        s=korg; t=1636997142;
+        bh=Xl9CXrdLPgcEC7lELflZA9TbHN8aE1cpmesjhxmrT6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9r5mUsJsa8ZmEf850D7pIKFGkhcm+eCYGy2LxmttGEjM+40lctaHbMZiRvV4Ddsz
-         S4qsAxth4etP5Xb3LtW9ffITZPb2SBYkS7WqWS3x3fyd3zJ4CCMTh1Egi9Y1hJBdlR
-         Z3G/6LfaNUwWj0M0+kdIMg/qSOWFJbGEL9CvAK0E=
+        b=aMhD/IvjZfjTreraaiCHD0GT1+m9a1iP7EjLIJnjY9tXg7HdveKSPwjs4zRlBan/A
+         65B+NpzOFEgbFuH4F98LZxMrXwq8IF3s/i00O5mWl+Gl94faKIiWQ4y7SsaHPcjAxR
+         HF87qBbWaMaVys+Azr8AZekGQaq56VC9IiN7MhAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 249/849] media: imx: set a media_device bus_info string
+        stable@vger.kernel.org, Phoenix Huang <phoenix@emc.com.tw>,
+        Yufei Du <yufeidu@cs.unc.edu>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.10 007/575] Input: elantench - fix misreporting trackpoint coordinates
 Date:   Mon, 15 Nov 2021 17:55:32 +0100
-Message-Id: <20211115165428.635741862@linuxfoundation.org>
+Message-Id: <20211115165343.858285651@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Kepplinger <martin.kepplinger@puri.sm>
+From: Phoenix Huang <phoenix@emc.com.tw>
 
-[ Upstream commit 6d0d779b212c27293d9ccb4da092ff0ccb6efa39 ]
+commit be896bd3b72b44126c55768f14c22a8729b0992e upstream.
 
-Some tools like v4l2-compliance let users select a media device based
-on the bus_info string which can be quite convenient. Use a unique
-string for that.
+Some firmwares occasionally report bogus data from trackpoint, with X or Y
+displacement being too large (outside of [-127, 127] range). Let's drop such
+packets so that we do not generate jumps.
 
-This also fixes the following v4l2-compliance warning:
-warn: v4l2-test-media.cpp(52): empty bus_info
-
-Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Phoenix Huang <phoenix@emc.com.tw>
+Tested-by: Yufei Du <yufeidu@cs.unc.edu>
+Link: https://lore.kernel.org/r/20210729010940.5752-1-phoenix@emc.com.tw
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/media/imx/imx-media-dev-common.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/mouse/elantech.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/staging/media/imx/imx-media-dev-common.c b/drivers/staging/media/imx/imx-media-dev-common.c
-index d186179388d03..4d873726a461b 100644
---- a/drivers/staging/media/imx/imx-media-dev-common.c
-+++ b/drivers/staging/media/imx/imx-media-dev-common.c
-@@ -367,6 +367,8 @@ struct imx_media_dev *imx_media_dev_init(struct device *dev,
- 	imxmd->v4l2_dev.notify = imx_media_notify;
- 	strscpy(imxmd->v4l2_dev.name, "imx-media",
- 		sizeof(imxmd->v4l2_dev.name));
-+	snprintf(imxmd->md.bus_info, sizeof(imxmd->md.bus_info),
-+		 "platform:%s", dev_name(imxmd->md.dev));
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -517,6 +517,19 @@ static void elantech_report_trackpoint(s
+ 	case 0x16008020U:
+ 	case 0x26800010U:
+ 	case 0x36808000U:
++
++		/*
++		 * This firmware misreport coordinates for trackpoint
++		 * occasionally. Discard packets outside of [-127, 127] range
++		 * to prevent cursor jumps.
++		 */
++		if (packet[4] == 0x80 || packet[5] == 0x80 ||
++		    packet[1] >> 7 == packet[4] >> 7 ||
++		    packet[2] >> 7 == packet[5] >> 7) {
++			elantech_debug("discarding packet [%6ph]\n", packet);
++			break;
++
++		}
+ 		x = packet[4] - (int)((packet[1]^0x80) << 1);
+ 		y = (int)((packet[2]^0x80) << 1) - packet[5];
  
- 	media_device_init(&imxmd->md);
- 
--- 
-2.33.0
-
 
 
