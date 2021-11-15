@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FDD6450DE0
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98136450DED
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238377AbhKOSIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:08:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46096 "EHLO mail.kernel.org"
+        id S239814AbhKOSJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:09:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239717AbhKOSEl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239721AbhKOSEl (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:04:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F9A63238;
-        Mon, 15 Nov 2021 17:38:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D11EF63272;
+        Mon, 15 Nov 2021 17:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997905;
-        bh=bmmy2GAUZkk3YZ5fFH+F5PGGjMhKggwkveMEBjul0uk=;
+        s=korg; t=1636997908;
+        bh=5D1esiNiNzWYgkuB/GBXzeWLfcYRQ/HtFAFcME/XTTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZLICJnQgoC3+vKpV/StH9icpGNdEINeh4+mDdGTsdfLB6BdyBQ1cxxec+vrpswLU
-         Nk1Tg9hTKr2miN3ZnOT9iV1Znh1JTN+skxKfUWnlnB4SgeQaXlnYh3JEMObt8Da/Yv
-         H4iuIYBLq3YwcuWL07/0wGF0NQ59LTNVUWdPPhGE=
+        b=NJw/XcLDmtvoOmep+YgVl3ms7bilGMTJcru9e3eGxCPzy1UgFq/HMWr9QmTV9Jj1c
+         qjwKdnUUwI7xIW5kJpcim2HSH9hagyKUTx0hXKkvM8szVmyfqQ3XeFVh2oQPVZNgQK
+         rDDnYxTAMgcxfezrJ5uanepqpPdlSGzLdKAfxqcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 316/575] mmc: sdhci-omap: Fix context restore
-Date:   Mon, 15 Nov 2021 18:00:41 +0100
-Message-Id: <20211115165354.726740647@linuxfoundation.org>
+Subject: [PATCH 5.10 317/575] memstick: avoid out-of-range warning
+Date:   Mon, 15 Nov 2021 18:00:42 +0100
+Message-Id: <20211115165354.758623143@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -40,76 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit d806e334d0390502cd2a820ad33d65d7f9bba618 ]
+[ Upstream commit 4853396f03c3019eccf5cd113e464231e9ddf0b3 ]
 
-We need to restore context in a specified order with HCTL set in two
-phases. This is similar to what omap_hsmmc_context_restore() is doing.
-Otherwise SDIO can stop working on resume.
+clang-14 complains about a sanity check that always passes when the
+page size is 64KB or larger:
 
-And for PM runtime and SDIO cards, we need to also save SYSCTL, IE and
-ISE.
+drivers/memstick/core/ms_block.c:1739:21: error: result of comparison of constant 65536 with expression of type 'unsigned short' is always false [-Werror,-Wtautological-constant-out-of-range-compare]
+        if (msb->page_size > PAGE_SIZE) {
+            ~~~~~~~~~~~~~~ ^ ~~~~~~~~~
 
-This should not be a problem currently, and these patches can be applied
-whenever suitable.
+This is fine, it will still work on all architectures, so just shut
+up that warning with a cast.
 
-Fixes: ee0f309263a6 ("mmc: sdhci-omap: Add Support for Suspend/Resume")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210921110029.21944-3-tony@atomide.com
+Fixes: 0ab30494bc4f ("memstick: add support for legacy memorysticks")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210927094520.696665-1-arnd@kernel.org
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-omap.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/memstick/core/ms_block.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci-omap.c b/drivers/mmc/host/sdhci-omap.c
-index 8a669f57f14b3..53c362bb28661 100644
---- a/drivers/mmc/host/sdhci-omap.c
-+++ b/drivers/mmc/host/sdhci-omap.c
-@@ -62,6 +62,8 @@
- #define SDHCI_OMAP_IE		0x234
- #define INT_CC_EN		BIT(0)
+diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
+index 8004dd64d09a8..bc1f484f50f1d 100644
+--- a/drivers/memstick/core/ms_block.c
++++ b/drivers/memstick/core/ms_block.c
+@@ -1727,7 +1727,7 @@ static int msb_init_card(struct memstick_dev *card)
+ 	msb->pages_in_block = boot_block->attr.block_size * 2;
+ 	msb->block_size = msb->page_size * msb->pages_in_block;
  
-+#define SDHCI_OMAP_ISE		0x238
-+
- #define SDHCI_OMAP_AC12		0x23c
- #define AC12_V1V8_SIGEN		BIT(19)
- #define AC12_SCLK_SEL		BIT(23)
-@@ -113,6 +115,8 @@ struct sdhci_omap_host {
- 	u32			hctl;
- 	u32			sysctl;
- 	u32			capa;
-+	u32			ie;
-+	u32			ise;
- };
- 
- static void sdhci_omap_start_clock(struct sdhci_omap_host *omap_host);
-@@ -1246,14 +1250,23 @@ static void sdhci_omap_context_save(struct sdhci_omap_host *omap_host)
- {
- 	omap_host->con = sdhci_omap_readl(omap_host, SDHCI_OMAP_CON);
- 	omap_host->hctl = sdhci_omap_readl(omap_host, SDHCI_OMAP_HCTL);
-+	omap_host->sysctl = sdhci_omap_readl(omap_host, SDHCI_OMAP_SYSCTL);
- 	omap_host->capa = sdhci_omap_readl(omap_host, SDHCI_OMAP_CAPA);
-+	omap_host->ie = sdhci_omap_readl(omap_host, SDHCI_OMAP_IE);
-+	omap_host->ise = sdhci_omap_readl(omap_host, SDHCI_OMAP_ISE);
- }
- 
-+/* Order matters here, HCTL must be restored in two phases */
- static void sdhci_omap_context_restore(struct sdhci_omap_host *omap_host)
- {
--	sdhci_omap_writel(omap_host, SDHCI_OMAP_CON, omap_host->con);
- 	sdhci_omap_writel(omap_host, SDHCI_OMAP_HCTL, omap_host->hctl);
- 	sdhci_omap_writel(omap_host, SDHCI_OMAP_CAPA, omap_host->capa);
-+	sdhci_omap_writel(omap_host, SDHCI_OMAP_HCTL, omap_host->hctl);
-+
-+	sdhci_omap_writel(omap_host, SDHCI_OMAP_SYSCTL, omap_host->sysctl);
-+	sdhci_omap_writel(omap_host, SDHCI_OMAP_CON, omap_host->con);
-+	sdhci_omap_writel(omap_host, SDHCI_OMAP_IE, omap_host->ie);
-+	sdhci_omap_writel(omap_host, SDHCI_OMAP_ISE, omap_host->ise);
- }
- 
- static int __maybe_unused sdhci_omap_suspend(struct device *dev)
+-	if (msb->page_size > PAGE_SIZE) {
++	if ((size_t)msb->page_size > PAGE_SIZE) {
+ 		/* this isn't supported by linux at all, anyway*/
+ 		dbg("device page %d size isn't supported", msb->page_size);
+ 		return -EINVAL;
 -- 
 2.33.0
 
