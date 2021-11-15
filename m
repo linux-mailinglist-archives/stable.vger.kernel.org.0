@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E6B5451E18
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECB97451E1E
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232758AbhKPAfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:35:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
+        id S1345000AbhKPAfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344547AbhKOTY6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344550AbhKOTY6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:24:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12FEB6368C;
-        Mon, 15 Nov 2021 18:59:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFE0763690;
+        Mon, 15 Nov 2021 18:59:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002772;
-        bh=WTVOg6UfWqBwkhA/w3webc8VR/6JwSWz53HUV3C/n/U=;
+        s=korg; t=1637002780;
+        bh=9/rOJiPt913Sfsy/2VjTdxUpKjbjIM51cH7wDXIpAHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDoB/bDT1HVsc9cL0isSAXjd0zAAGFpUQygEWPVOL6nmCJBfC3iPNiU+t7l9wxNCP
-         JKzyg2JOLmh1huflckdxaAcmxWsqI/BA7Zt8DfhrXiv1cvJOSugelqULjspA2jcUnL
-         eQBQnwcoxdLWSOd0YFFTfOPCNYnMd1oNbD/wFGIU=
+        b=z7xEH0KcTN5zQ+FC7dLBeREhxYVd2VScnei683uQNj9C7iZ8fOLgZd8PrIhFis6YN
+         ebeJRyrR8dh1hPhM5/yvwVEplbjvoFMFc70aZJEg65E63WiTOXFeAhx84dXBR/FxJh
+         LzCmlsTkZrQKZprdVx43w0hsLK1j2B+cF+m3Q5ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Andrew F. Davis" <afd@ti.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        John Johansen <john.johansen@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 691/917] power: supply: bq27xxx: Fix kernel crash on IRQ handler register error
-Date:   Mon, 15 Nov 2021 18:03:06 +0100
-Message-Id: <20211115165452.322956159@linuxfoundation.org>
+Subject: [PATCH 5.15 693/917] apparmor: fix error check
+Date:   Mon, 15 Nov 2021 18:03:08 +0100
+Message-Id: <20211115165452.391395948@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,42 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit cdf10ffe8f626d8a2edc354abf063df0078b2d71 ]
+[ Upstream commit d108370c644b153382632b3e5511ade575c91c86 ]
 
-When registering the IRQ handler fails, do not just return the error code,
-this will free the devm_kzalloc()-ed data struct while leaving the queued
-work queued and the registered power_supply registered with both of them
-now pointing to free-ed memory, resulting in various kernel crashes
-soon afterwards.
+clang static analysis reports this representative problem:
 
-Instead properly tear-down things on IRQ handler register errors.
+label.c:1463:16: warning: Assigned value is garbage or undefined
+        label->hname = name;
+                     ^ ~~~~
 
-Fixes: 703df6c09795 ("power: bq27xxx_battery: Reorganize I2C into a module")
-Cc: Andrew F. Davis <afd@ti.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+In aa_update_label_name(), this the problem block of code
+
+	if (aa_label_acntsxprint(&name, ...) == -1)
+		return res;
+
+On failure, aa_label_acntsxprint() has a more complicated return
+that just -1.  So check for a negative return.
+
+It was also noted that the aa_label_acntsxprint() main comment refers
+to a nonexistent parameter, so clean up the comment.
+
+Fixes: f1bd904175e8 ("apparmor: add the base fns() for domain labels")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/bq27xxx_battery_i2c.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/apparmor/label.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/bq27xxx_battery_i2c.c b/drivers/power/supply/bq27xxx_battery_i2c.c
-index 46f078350fd3f..cf38cbfe13e9d 100644
---- a/drivers/power/supply/bq27xxx_battery_i2c.c
-+++ b/drivers/power/supply/bq27xxx_battery_i2c.c
-@@ -187,7 +187,8 @@ static int bq27xxx_battery_i2c_probe(struct i2c_client *client,
- 			dev_err(&client->dev,
- 				"Unable to register IRQ %d error %d\n",
- 				client->irq, ret);
--			return ret;
-+			bq27xxx_battery_teardown(di);
-+			goto err_failed;
- 		}
- 	}
+diff --git a/security/apparmor/label.c b/security/apparmor/label.c
+index e68bcedca976b..6222fdfebe4e5 100644
+--- a/security/apparmor/label.c
++++ b/security/apparmor/label.c
+@@ -1454,7 +1454,7 @@ bool aa_update_label_name(struct aa_ns *ns, struct aa_label *label, gfp_t gfp)
+ 	if (label->hname || labels_ns(label) != ns)
+ 		return res;
  
+-	if (aa_label_acntsxprint(&name, ns, label, FLAGS_NONE, gfp) == -1)
++	if (aa_label_acntsxprint(&name, ns, label, FLAGS_NONE, gfp) < 0)
+ 		return res;
+ 
+ 	ls = labels_set(label);
+@@ -1704,7 +1704,7 @@ int aa_label_asxprint(char **strp, struct aa_ns *ns, struct aa_label *label,
+ 
+ /**
+  * aa_label_acntsxprint - allocate a __counted string buffer and print label
+- * @strp: buffer to write to. (MAY BE NULL if @size == 0)
++ * @strp: buffer to write to.
+  * @ns: namespace profile is being viewed from
+  * @label: label to view (NOT NULL)
+  * @flags: flags controlling what label info is printed
 -- 
 2.33.0
 
