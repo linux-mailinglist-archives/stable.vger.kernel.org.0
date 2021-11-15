@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B759A4514AF
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:09:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25CEF4512D1
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349331AbhKOUL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:11:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
+        id S1347457AbhKOTjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344907AbhKOTZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8F6E633F7;
-        Mon, 15 Nov 2021 19:06:33 +0000 (UTC)
+        id S245063AbhKOTTI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:19:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D4B4634FF;
+        Mon, 15 Nov 2021 18:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003194;
-        bh=4Q9i46JD4ua5Z6feXD1WD5fRxaU0yrJfmN1w+zpqyEU=;
+        s=korg; t=1637000872;
+        bh=JhA5kIFdh1rFkY7tHxTWH7qcNVtn0gR0p3Xj6C8YNQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fqtwt7+uGcLTBo1CwwinOLiX4vr9c9HSZ7NE2w+7MRpXqFuLWPI69PDqh0osYPkc0
-         G7+Wp3kAwUROGH6Nj/08BYXBK7Lj8LelWSVpjPMI9+HEFobwiythhXg1tEkKQH2SF4
-         zkJK8z21KWbtUBxVBwirBxu1N6DBEe68DrxTNnGw=
+        b=aYHCLKI/S/tHK0Ra/6j7w7EpmBJa/yxu9r1gZ//QRSThsc2dVxXYxBY0MxH8abQ7H
+         9ycMH1eC0ACaH3LtvEwyrc0dfuiWkF5IZATBnNT3QITSrvpRZfi6LRN541nPqheA6G
+         am5yKvj67Tyu9OwDcwKLEMwJpfbFlUSMbnUPQ2SU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 812/917] can: mcp251xfd: mcp251xfd_chip_start(): fix error handling for mcp251xfd_chip_rx_int_enable()
-Date:   Mon, 15 Nov 2021 18:05:07 +0100
-Message-Id: <20211115165456.550512704@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Peng Fan <peng.fan@nxp.com>
+Subject: [PATCH 5.14 825/849] remoteproc: imx_rproc: Fix rsc-table name
+Date:   Mon, 15 Nov 2021 18:05:08 +0100
+Message-Id: <20211115165448.143005053@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Dong Aisheng <aisheng.dong@nxp.com>
 
-[ Upstream commit 69c55f6e7669d46bb40e41f6e2b218428178368a ]
+commit e90547d59d4e29e269e22aa6ce590ed0b41207d2 upstream.
 
-This patch fixes the error handling for mcp251xfd_chip_rx_int_enable().
-Instead just returning the error, properly shut down the chip.
+Usually the dash '-'  is preferred in node name.
+So far, not dts in upstream kernel, so we just update node name
+in driver.
 
-Link: https://lore.kernel.org/all/20211106201526.44292-2-mkl@pengutronix.de
-Fixes: 55e5b97f003e ("can: mcp25xxfd: add driver for Microchip MCP25xxFD SPI CAN")
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: 5e4c1243071d ("remoteproc: imx_rproc: support remote cores booted before Linux Kernel")
+Reviewed-and-tested-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210910090621.3073540-6-peng.fan@oss.nxp.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c | 2 +-
+ drivers/remoteproc/imx_rproc.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-index 212fcd1554e4f..e16dc482f3270 100644
---- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-+++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-@@ -1092,7 +1092,7 @@ static int mcp251xfd_chip_start(struct mcp251xfd_priv *priv)
- 
- 	err = mcp251xfd_chip_rx_int_enable(priv);
- 	if (err)
--		return err;
-+		goto out_chip_stop;
- 
- 	err = mcp251xfd_chip_ecc_init(priv);
- 	if (err)
--- 
-2.33.0
-
+--- a/drivers/remoteproc/imx_rproc.c
++++ b/drivers/remoteproc/imx_rproc.c
+@@ -604,7 +604,7 @@ static int imx_rproc_addr_init(struct im
+ 		}
+ 		priv->mem[b].sys_addr = res.start;
+ 		priv->mem[b].size = resource_size(&res);
+-		if (!strcmp(node->name, "rsc_table"))
++		if (!strcmp(node->name, "rsc-table"))
+ 			priv->rsc_table = priv->mem[b].cpu_addr;
+ 		b++;
+ 	}
 
 
