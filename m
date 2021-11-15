@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EB1C451E6D
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 658FE451E78
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345669AbhKPAgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
+        id S1345042AbhKPAgO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:36:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344939AbhKOTZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20777633F8;
-        Mon, 15 Nov 2021 19:07:16 +0000 (UTC)
+        id S1344972AbhKOTZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A46F633FC;
+        Mon, 15 Nov 2021 19:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003237;
-        bh=4SU+M9U1OCRiVdcWoAiCQcy6gGx7KwNB0uJU271r/hM=;
+        s=korg; t=1637003267;
+        bh=LIfUoqHWMbW5VOX9oBhir4yAM0kUIioz9ouV1UYo+/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YHyliQSZ+8pbZdTwXzo1KvGHkOKUSyq9yI8WoeRhrvbzwSB8o+mKoaKAEgj8svsK7
-         F8eeA7+m1uhOxFgDn8U9mo0RBdFgKw9d3t67S1fsXC8OauwUwiNxN1m0Wdk0SJVqAE
-         W1xVHNSIbVmpiAI8/pd49wWuo3723StyYzWaUGJs=
+        b=y/BXZHvp6t/sJJMWALrjOTelWJRm3LGiw+Z2lXq0u3gwc8+WOqccGNh91QbHpGzKz
+         1fb4ecgY52fC2SvbkCHuCrxdt1irXrJ58rVHRoMTL1nqB737sjCfeXq/I1z5bJGnti
+         Q8iCCxWid95v4b4QHDrq86LTgpEN+RN6V0KtSND0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 844/917] selftests/net: udpgso_bench_rx: fix port argument
-Date:   Mon, 15 Nov 2021 18:05:39 +0100
-Message-Id: <20211115165457.659460492@linuxfoundation.org>
+Subject: [PATCH 5.15 845/917] thermal: int340x: fix build on 32-bit targets
+Date:   Mon, 15 Nov 2021 18:05:40 +0100
+Message-Id: <20211115165457.694027481@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,65 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit d336509cb9d03970911878bb77f0497f64fda061 ]
+[ Upstream commit d9c8e52ff9e84ff1a406330f9ea4de7c5eb40282 ]
 
-The below commit added optional support for passing a bind address.
-It configures the sockaddr bind arguments before parsing options and
-reconfigures on options -b and -4.
+Commit aeb58c860dc5 ("thermal/drivers/int340x: processor_thermal: Suppot
+64 bit RFIM responses") started using 'readq()' to read 64-bit status
+responses from the int340x hardware.
 
-This broke support for passing port (-p) on its own.
+That's all fine and good, but on 32-bit targets a 64-bit 'readq()' is
+ambiguous, since it's no longer an atomic access.  Some hardware might
+require 64-bit accesses, and other hardware might want low word first or
+high word first.
 
-Configure sockaddr after parsing all arguments.
+It's quite likely that the driver isn't relevant in a 32-bit environment
+any more, and there's a patch floating around to just make it depend on
+X86_64, but let's make it buildable on x86-32 anyway.
 
-Fixes: 3327a9c46352 ("selftests: add functionals test for UDP GRO")
-Reported-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The driver previously just read the low 32 bits, so the hardware
+certainly is ok with 32-bit reads, and in a little-endian environment
+the low word first model is the natural one.
+
+So just add the include for the 'io-64-nonatomic-lo-hi.h' version.
+
+Fixes: aeb58c860dc5 ("thermal/drivers/int340x: processor_thermal: Suppot 64 bit RFIM responses")
+Reported-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/udpgso_bench_rx.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/net/udpgso_bench_rx.c b/tools/testing/selftests/net/udpgso_bench_rx.c
-index 76a24052f4b47..6a193425c367f 100644
---- a/tools/testing/selftests/net/udpgso_bench_rx.c
-+++ b/tools/testing/selftests/net/udpgso_bench_rx.c
-@@ -293,19 +293,17 @@ static void usage(const char *filepath)
+diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c b/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
+index 59e93b04f0a9e..66cd0190bc035 100644
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
+@@ -7,6 +7,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
++#include <linux/io-64-nonatomic-lo-hi.h>
+ #include "processor_thermal_device.h"
  
- static void parse_opts(int argc, char **argv)
- {
-+	const char *bind_addr = NULL;
- 	int c;
- 
--	/* bind to any by default */
--	setup_sockaddr(PF_INET6, "::", &cfg_bind_addr);
- 	while ((c = getopt(argc, argv, "4b:C:Gl:n:p:rR:S:tv")) != -1) {
- 		switch (c) {
- 		case '4':
- 			cfg_family = PF_INET;
- 			cfg_alen = sizeof(struct sockaddr_in);
--			setup_sockaddr(PF_INET, "0.0.0.0", &cfg_bind_addr);
- 			break;
- 		case 'b':
--			setup_sockaddr(cfg_family, optarg, &cfg_bind_addr);
-+			bind_addr = optarg;
- 			break;
- 		case 'C':
- 			cfg_connect_timeout_ms = strtoul(optarg, NULL, 0);
-@@ -341,6 +339,11 @@ static void parse_opts(int argc, char **argv)
- 		}
- 	}
- 
-+	if (!bind_addr)
-+		bind_addr = cfg_family == PF_INET6 ? "::" : "0.0.0.0";
-+
-+	setup_sockaddr(cfg_family, bind_addr, &cfg_bind_addr);
-+
- 	if (optind != argc)
- 		usage(argv[0]);
- 
+ #define MBOX_CMD_WORKLOAD_TYPE_READ	0x0E
 -- 
 2.33.0
 
