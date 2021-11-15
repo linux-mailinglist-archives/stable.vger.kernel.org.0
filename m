@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3364A4514A7
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:09:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B759A4514AF
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:09:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349380AbhKOUMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:12:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
+        id S1349331AbhKOUL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:11:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344903AbhKOTZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C399636E1;
-        Mon, 15 Nov 2021 19:06:30 +0000 (UTC)
+        id S1344907AbhKOTZm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8F6E633F7;
+        Mon, 15 Nov 2021 19:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003191;
-        bh=hIItPzpPOxlzT1mxOSXXFrbBaapcpnlpkKMStKkLOA8=;
+        s=korg; t=1637003194;
+        bh=4Q9i46JD4ua5Z6feXD1WD5fRxaU0yrJfmN1w+zpqyEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xuL0VEheJQgRE6XYkMTDmeXlgi5uTV5tiiEc+FtosjR3sTCoyH7+/YVm0CzCeQNV4
-         nvox7Htxqi6rVacRtXeOMZx+GwbyToDZL+y8P1FsHLPto5eR47SowICF1qxFZLss8T
-         YPv1ZucpB5aQ+awOF3aHMoeu55WtcCGcb+NM8T9A=
+        b=fqtwt7+uGcLTBo1CwwinOLiX4vr9c9HSZ7NE2w+7MRpXqFuLWPI69PDqh0osYPkc0
+         G7+Wp3kAwUROGH6Nj/08BYXBK7Lj8LelWSVpjPMI9+HEFobwiythhXg1tEkKQH2SF4
+         zkJK8z21KWbtUBxVBwirBxu1N6DBEe68DrxTNnGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 811/917] can: etas_es58x: es58x_rx_err_msg(): fix memory leak in error path
-Date:   Mon, 15 Nov 2021 18:05:06 +0100
-Message-Id: <20211115165456.510851871@linuxfoundation.org>
+Subject: [PATCH 5.15 812/917] can: mcp251xfd: mcp251xfd_chip_start(): fix error handling for mcp251xfd_chip_rx_int_enable()
+Date:   Mon, 15 Nov 2021 18:05:07 +0100
+Message-Id: <20211115165456.550512704@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,61 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit d9447f768bc8c60623e4bb3ce65b8f4654d33a50 ]
+[ Upstream commit 69c55f6e7669d46bb40e41f6e2b218428178368a ]
 
-In es58x_rx_err_msg(), if can->do_set_mode() fails, the function
-directly returns without calling netif_rx(skb). This means that the
-skb previously allocated by alloc_can_err_skb() is not freed. In other
-terms, this is a memory leak.
+This patch fixes the error handling for mcp251xfd_chip_rx_int_enable().
+Instead just returning the error, properly shut down the chip.
 
-This patch simply removes the return statement in the error branch and
-let the function continue.
-
-Issue was found with GCC -fanalyzer, please follow the link below for
-details.
-
-Fixes: 8537257874e9 ("can: etas_es58x: add core support for ETAS ES58X CAN USB interfaces")
-Link: https://lore.kernel.org/all/20211026180740.1953265-1-mailhol.vincent@wanadoo.fr
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Link: https://lore.kernel.org/all/20211106201526.44292-2-mkl@pengutronix.de
+Fixes: 55e5b97f003e ("can: mcp25xxfd: add driver for Microchip MCP25xxFD SPI CAN")
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/etas_es58x/es58x_core.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/usb/etas_es58x/es58x_core.c b/drivers/net/can/usb/etas_es58x/es58x_core.c
-index 96a13c770e4a1..24627ab146261 100644
---- a/drivers/net/can/usb/etas_es58x/es58x_core.c
-+++ b/drivers/net/can/usb/etas_es58x/es58x_core.c
-@@ -664,7 +664,7 @@ int es58x_rx_err_msg(struct net_device *netdev, enum es58x_err error,
- 	struct can_device_stats *can_stats = &can->can_stats;
- 	struct can_frame *cf = NULL;
- 	struct sk_buff *skb;
--	int ret;
-+	int ret = 0;
+diff --git a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
+index 212fcd1554e4f..e16dc482f3270 100644
+--- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
++++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
+@@ -1092,7 +1092,7 @@ static int mcp251xfd_chip_start(struct mcp251xfd_priv *priv)
  
- 	if (!netif_running(netdev)) {
- 		if (net_ratelimit())
-@@ -823,8 +823,6 @@ int es58x_rx_err_msg(struct net_device *netdev, enum es58x_err error,
- 			can->state = CAN_STATE_BUS_OFF;
- 			can_bus_off(netdev);
- 			ret = can->do_set_mode(netdev, CAN_MODE_STOP);
--			if (ret)
--				return ret;
- 		}
- 		break;
+ 	err = mcp251xfd_chip_rx_int_enable(priv);
+ 	if (err)
+-		return err;
++		goto out_chip_stop;
  
-@@ -881,7 +879,7 @@ int es58x_rx_err_msg(struct net_device *netdev, enum es58x_err error,
- 					ES58X_EVENT_BUSOFF, timestamp);
- 	}
- 
--	return 0;
-+	return ret;
- }
- 
- /**
+ 	err = mcp251xfd_chip_ecc_init(priv);
+ 	if (err)
 -- 
 2.33.0
 
