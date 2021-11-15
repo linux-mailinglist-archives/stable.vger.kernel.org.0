@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49AA2450BF3
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:30:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F07F7450E88
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:13:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232514AbhKORcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:32:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45640 "EHLO mail.kernel.org"
+        id S240721AbhKOSQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:16:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236321AbhKORaa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:30:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F08D63294;
-        Mon, 15 Nov 2021 17:19:41 +0000 (UTC)
+        id S239406AbhKOSHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04E1C633A9;
+        Mon, 15 Nov 2021 17:45:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996781;
-        bh=D9pAjxKP2ZvdzO8faykzK2vbakEmPMUPbT81gKuyA7U=;
+        s=korg; t=1636998332;
+        bh=0zQX922MRo9mZHGDc+lpSJAjgNSvX6Fct3dI6G8PcMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPSs2/UonOAFZfiaSglIKpq9RG4M4P4Ft+8+6tqqSXXcJhvoJoiAQPDjr1I6TR085
-         5qLFZPbiJK2G3e7y6rdPLuRfPrl1KfsyW98ONAjWR9tcuuOw0IjcxR0+4bQSklU5hr
-         xXtmCyn4LTpJt9rmr8LKupDXN0pBBghl01CXi+dA=
+        b=zwRe8Gd2LRLklOqDoSSwOOZz0DS4bet5tc80iEr6MgaISx4l5o1ni9N1+ch6gEAL8
+         WSFTiLQ3iXm+oSaAHZdxL9gDL55k2KOK7r7QxosZDT55S9QY+9vViTnxP7T+LkJFY6
+         3lc3Z7M1DTpDJ4ec+ygTXC1lahJ5z9I5Z4wnLM84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhuacai@kernel.org>,
-        k2ci robot <kernel-bot@kylinos.cn>,
-        Jackie Liu <liuyun01@kylinos.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 265/355] MIPS: loongson64: make CPU_LOONGSON64 depends on MIPS_FP_SUPPORT
+Subject: [PATCH 5.10 464/575] virtio_ring: check desc == NULL when using indirect with packed
 Date:   Mon, 15 Nov 2021 18:03:09 +0100
-Message-Id: <20211115165322.314033181@linuxfoundation.org>
+Message-Id: <20211115165359.778776223@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-[ Upstream commit 7f3b3c2bfa9c93ab9b5595543496f570983dc330 ]
+[ Upstream commit fc6d70f40b3d0b3219e2026d05be0409695f620d ]
 
-mach/loongson64 fails to build when the FPU support is disabled:
+When using indirect with packed, we don't check for allocation failures.
+This patch checks that and fall back on direct.
 
-arch/mips/loongson64/cop2-ex.c:45:15: error: implicit declaration of function ‘__is_fpu_owner’; did you mean ‘is_fpu_owner’? [-Werror=implicit-function-declaration]
-arch/mips/loongson64/cop2-ex.c:98:30: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:99:30: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:131:43: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:137:38: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:203:30: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:219:30: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:283:38: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:301:38: error: ‘struct thread_struct’ has no member named ‘fpu’
-
-Fixes: ef2f826c8f2f ("MIPS: Loongson-3: Enable the COP2 usage")
-Suggested-by: Huacai Chen <chenhuacai@kernel.org>
-Reviewed-by: Huacai Chen <chenhuacai@kernel.org>
-Reported-by: k2ci robot <kernel-bot@kylinos.cn>
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 1ce9e6055fa0 ("virtio_ring: introduce packed ring support")
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20211020112323.67466-3-xuanzhuo@linux.alibaba.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/virtio/virtio_ring.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 2bfef67d52c63..041d34975ea2c 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -1393,6 +1393,7 @@ config CPU_LOONGSON3
- 	select WEAK_REORDERING_BEYOND_LLSC
- 	select MIPS_PGD_C0_CONTEXT
- 	select MIPS_L1_CACHE_SHIFT_6
-+	select MIPS_FP_SUPPORT
- 	select GPIOLIB
- 	select SWIOTLB
- 	help
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 6c730d6d50f71..e9432dbbec0a7 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -992,6 +992,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 
+ 	head = vq->packed.next_avail_idx;
+ 	desc = alloc_indirect_packed(total_sg, gfp);
++	if (!desc)
++		return -ENOMEM;
+ 
+ 	if (unlikely(vq->vq.num_free < 1)) {
+ 		pr_debug("Can't add buf len 1 - avail = 0\n");
+@@ -1103,6 +1105,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+ 	unsigned int i, n, c, descs_used, err_idx;
+ 	__le16 head_flags, flags;
+ 	u16 head, id, prev, curr, avail_used_flags;
++	int err;
+ 
+ 	START_USE(vq);
+ 
+@@ -1118,9 +1121,14 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+ 
+ 	BUG_ON(total_sg == 0);
+ 
+-	if (virtqueue_use_indirect(_vq, total_sg))
+-		return virtqueue_add_indirect_packed(vq, sgs, total_sg,
+-				out_sgs, in_sgs, data, gfp);
++	if (virtqueue_use_indirect(_vq, total_sg)) {
++		err = virtqueue_add_indirect_packed(vq, sgs, total_sg, out_sgs,
++						    in_sgs, data, gfp);
++		if (err != -ENOMEM)
++			return err;
++
++		/* fall back on direct */
++	}
+ 
+ 	head = vq->packed.next_avail_idx;
+ 	avail_used_flags = vq->packed.avail_used_flags;
 -- 
 2.33.0
 
