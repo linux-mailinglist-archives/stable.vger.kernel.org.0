@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D368B45248D
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ECA1452179
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:02:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350838AbhKPBje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:39:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42476 "EHLO mail.kernel.org"
+        id S245656AbhKPBE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:04:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241965AbhKOSbp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:31:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3253D63219;
-        Mon, 15 Nov 2021 17:59:20 +0000 (UTC)
+        id S245581AbhKOTUs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 500916355B;
+        Mon, 15 Nov 2021 18:37:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999160;
-        bh=mKVVGh4uGNlGiSXKQcR2phO36s1abqmtM1jF4zsAxdQ=;
+        s=korg; t=1637001428;
+        bh=DeqjnGbftIwCQgoOGZZTaOrItH53A9Ff1Dq8FjN1Veg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XmEkbp21LfME8vscNij9rN3TOY/87m1OATe1BK+ahqeszlhPX4orr4i5GV0L9BRcL
-         st6MYtrBrVzl02xuaSBkFqHiDKO4V7Vmb8AThwCRNnzC6KRdasIyVkv6KZ9DJS7J+d
-         k7qIj0MipfDSk5PgIqhn1iKZ1cMwxM8G54TZT7Ec=
+        b=bI28t680UMkLRRLlWRRaVo8BGvbtCTsLt2U/WTYU3TGY4tBi680fJC6E3MK7CZVJ0
+         b4IKP4ZzEaq/d4Z5BSEiug3LWLQrnKdGAoygys0G7Av0Gwkfcfr3cABgwOuefPLLDA
+         fytIJHkYH0y3YkfMLnFQMvhPqhlWR7RsB52sQmGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.14 198/849] USB: serial: keyspan: fix memleak on probe errors
-Date:   Mon, 15 Nov 2021 17:54:41 +0100
-Message-Id: <20211115165426.891877679@linuxfoundation.org>
+        stable@vger.kernel.org, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 187/917] Bluetooth: fix use-after-free error in lock_sock_nested()
+Date:   Mon, 15 Nov 2021 17:54:42 +0100
+Message-Id: <20211115165435.133245729@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,98 +41,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-commit 910c996335c37552ee30fcb837375b808bb4f33b upstream.
+[ Upstream commit 1bff51ea59a9afb67d2dd78518ab0582a54a472c ]
 
-I got memory leak as follows when doing fault injection test:
+use-after-free error in lock_sock_nested is reported:
 
-unreferenced object 0xffff888258228440 (size 64):
-  comm "kworker/7:2", pid 2005, jiffies 4294989509 (age 824.540s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
-    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
-    [<ffffffffa02ac0e4>] keyspan_port_probe+0xa4/0x5d0 [keyspan]
-    [<ffffffffa0294c07>] usb_serial_device_probe+0x97/0x1d0 [usbserial]
-    [<ffffffff82b50ca7>] really_probe+0x167/0x460
-    [<ffffffff82b51099>] __driver_probe_device+0xf9/0x180
-    [<ffffffff82b51173>] driver_probe_device+0x53/0x130
-    [<ffffffff82b516f5>] __device_attach_driver+0x105/0x130
-    [<ffffffff82b4cfe9>] bus_for_each_drv+0x129/0x190
-    [<ffffffff82b50a69>] __device_attach+0x1c9/0x270
-    [<ffffffff82b518d0>] device_initial_probe+0x20/0x30
-    [<ffffffff82b4f062>] bus_probe_device+0x142/0x160
-    [<ffffffff82b4a4e9>] device_add+0x829/0x1300
-    [<ffffffffa0295fda>] usb_serial_probe.cold+0xc9b/0x14ac [usbserial]
-    [<ffffffffa02266aa>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
-    [<ffffffff82b50ca7>] really_probe+0x167/0x460
+[  179.140137][ T3731] =====================================================
+[  179.142675][ T3731] BUG: KMSAN: use-after-free in lock_sock_nested+0x280/0x2c0
+[  179.145494][ T3731] CPU: 4 PID: 3731 Comm: kworker/4:2 Not tainted 5.12.0-rc6+ #54
+[  179.148432][ T3731] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+[  179.151806][ T3731] Workqueue: events l2cap_chan_timeout
+[  179.152730][ T3731] Call Trace:
+[  179.153301][ T3731]  dump_stack+0x24c/0x2e0
+[  179.154063][ T3731]  kmsan_report+0xfb/0x1e0
+[  179.154855][ T3731]  __msan_warning+0x5c/0xa0
+[  179.155579][ T3731]  lock_sock_nested+0x280/0x2c0
+[  179.156436][ T3731]  ? kmsan_get_metadata+0x116/0x180
+[  179.157257][ T3731]  l2cap_sock_teardown_cb+0xb8/0x890
+[  179.158154][ T3731]  ? __msan_metadata_ptr_for_load_8+0x10/0x20
+[  179.159141][ T3731]  ? kmsan_get_metadata+0x116/0x180
+[  179.159994][ T3731]  ? kmsan_get_shadow_origin_ptr+0x84/0xb0
+[  179.160959][ T3731]  ? l2cap_sock_recv_cb+0x420/0x420
+[  179.161834][ T3731]  l2cap_chan_del+0x3e1/0x1d50
+[  179.162608][ T3731]  ? kmsan_get_metadata+0x116/0x180
+[  179.163435][ T3731]  ? kmsan_get_shadow_origin_ptr+0x84/0xb0
+[  179.164406][ T3731]  l2cap_chan_close+0xeea/0x1050
+[  179.165189][ T3731]  ? kmsan_internal_unpoison_shadow+0x42/0x70
+[  179.166180][ T3731]  l2cap_chan_timeout+0x1da/0x590
+[  179.167066][ T3731]  ? __msan_metadata_ptr_for_load_8+0x10/0x20
+[  179.168023][ T3731]  ? l2cap_chan_create+0x560/0x560
+[  179.168818][ T3731]  process_one_work+0x121d/0x1ff0
+[  179.169598][ T3731]  worker_thread+0x121b/0x2370
+[  179.170346][ T3731]  kthread+0x4ef/0x610
+[  179.171010][ T3731]  ? process_one_work+0x1ff0/0x1ff0
+[  179.171828][ T3731]  ? kthread_blkcg+0x110/0x110
+[  179.172587][ T3731]  ret_from_fork+0x1f/0x30
+[  179.173348][ T3731]
+[  179.173752][ T3731] Uninit was created at:
+[  179.174409][ T3731]  kmsan_internal_poison_shadow+0x5c/0xf0
+[  179.175373][ T3731]  kmsan_slab_free+0x76/0xc0
+[  179.176060][ T3731]  kfree+0x3a5/0x1180
+[  179.176664][ T3731]  __sk_destruct+0x8af/0xb80
+[  179.177375][ T3731]  __sk_free+0x812/0x8c0
+[  179.178032][ T3731]  sk_free+0x97/0x130
+[  179.178686][ T3731]  l2cap_sock_release+0x3d5/0x4d0
+[  179.179457][ T3731]  sock_close+0x150/0x450
+[  179.180117][ T3731]  __fput+0x6bd/0xf00
+[  179.180787][ T3731]  ____fput+0x37/0x40
+[  179.181481][ T3731]  task_work_run+0x140/0x280
+[  179.182219][ T3731]  do_exit+0xe51/0x3e60
+[  179.182930][ T3731]  do_group_exit+0x20e/0x450
+[  179.183656][ T3731]  get_signal+0x2dfb/0x38f0
+[  179.184344][ T3731]  arch_do_signal_or_restart+0xaa/0xe10
+[  179.185266][ T3731]  exit_to_user_mode_prepare+0x2d2/0x560
+[  179.186136][ T3731]  syscall_exit_to_user_mode+0x35/0x60
+[  179.186984][ T3731]  do_syscall_64+0xc5/0x140
+[  179.187681][ T3731]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  179.188604][ T3731] =====================================================
 
-If keyspan_port_probe() fails to allocate memory for an out_buffer[i] or
-in_buffer[i], the previously allocated memory for out_buffer or
-in_buffer needs to be freed on the error handling path, otherwise a
-memory leak will result.
+In our case, there are two Thread A and B:
 
-Fixes: bad41a5bf177 ("USB: keyspan: fix port DMA-buffer allocations")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Link: https://lore.kernel.org/r/20211015085543.1203011-1-wanghai38@huawei.com
-Cc: stable@vger.kernel.org      # 3.12
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Context: Thread A:              Context: Thread B:
+
+l2cap_chan_timeout()            __se_sys_shutdown()
+  l2cap_chan_close()              l2cap_sock_shutdown()
+    l2cap_chan_del()                l2cap_chan_close()
+      l2cap_sock_teardown_cb()        l2cap_sock_teardown_cb()
+
+Once l2cap_sock_teardown_cb() excuted, this sock will be marked as SOCK_ZAPPED,
+and can be treated as killable in l2cap_sock_kill() if sock_orphan() has
+excuted, at this time we close sock through sock_close() which end to call
+l2cap_sock_kill() like Thread C:
+
+Context: Thread C:
+
+sock_close()
+  l2cap_sock_release()
+    sock_orphan()
+    l2cap_sock_kill()  #free sock if refcnt is 1
+
+If C completed, Once A or B reaches l2cap_sock_teardown_cb() again,
+use-after-free happened.
+
+We should set chan->data to NULL if sock is destructed, for telling teardown
+operation is not allowed in l2cap_sock_teardown_cb(), and also we should
+avoid killing an already killed socket in l2cap_sock_close_cb().
+
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/keyspan.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ net/bluetooth/l2cap_sock.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/keyspan.c
-+++ b/drivers/usb/serial/keyspan.c
-@@ -2890,22 +2890,22 @@ static int keyspan_port_probe(struct usb
- 	for (i = 0; i < ARRAY_SIZE(p_priv->in_buffer); ++i) {
- 		p_priv->in_buffer[i] = kzalloc(IN_BUFLEN, GFP_KERNEL);
- 		if (!p_priv->in_buffer[i])
--			goto err_in_buffer;
-+			goto err_free_in_buffer;
- 	}
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index c99d65ef13b1e..160c016a5dfb9 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -1508,6 +1508,9 @@ static void l2cap_sock_close_cb(struct l2cap_chan *chan)
+ {
+ 	struct sock *sk = chan->data;
  
- 	for (i = 0; i < ARRAY_SIZE(p_priv->out_buffer); ++i) {
- 		p_priv->out_buffer[i] = kzalloc(OUT_BUFLEN, GFP_KERNEL);
- 		if (!p_priv->out_buffer[i])
--			goto err_out_buffer;
-+			goto err_free_out_buffer;
- 	}
++	if (!sk)
++		return;
++
+ 	l2cap_sock_kill(sk);
+ }
  
- 	p_priv->inack_buffer = kzalloc(INACK_BUFLEN, GFP_KERNEL);
- 	if (!p_priv->inack_buffer)
--		goto err_inack_buffer;
-+		goto err_free_out_buffer;
+@@ -1516,6 +1519,9 @@ static void l2cap_sock_teardown_cb(struct l2cap_chan *chan, int err)
+ 	struct sock *sk = chan->data;
+ 	struct sock *parent;
  
- 	p_priv->outcont_buffer = kzalloc(OUTCONT_BUFLEN, GFP_KERNEL);
- 	if (!p_priv->outcont_buffer)
--		goto err_outcont_buffer;
-+		goto err_free_inack_buffer;
++	if (!sk)
++		return;
++
+ 	BT_DBG("chan %p state %s", chan, state_to_string(chan->state));
  
- 	p_priv->device_details = d_details;
+ 	/* This callback can be called both for server (BT_LISTEN)
+@@ -1707,8 +1713,10 @@ static void l2cap_sock_destruct(struct sock *sk)
+ {
+ 	BT_DBG("sk %p", sk);
  
-@@ -2951,15 +2951,14 @@ static int keyspan_port_probe(struct usb
+-	if (l2cap_pi(sk)->chan)
++	if (l2cap_pi(sk)->chan) {
++		l2cap_pi(sk)->chan->data = NULL;
+ 		l2cap_chan_put(l2cap_pi(sk)->chan);
++	}
  
- 	return 0;
- 
--err_outcont_buffer:
-+err_free_inack_buffer:
- 	kfree(p_priv->inack_buffer);
--err_inack_buffer:
-+err_free_out_buffer:
- 	for (i = 0; i < ARRAY_SIZE(p_priv->out_buffer); ++i)
- 		kfree(p_priv->out_buffer[i]);
--err_out_buffer:
-+err_free_in_buffer:
- 	for (i = 0; i < ARRAY_SIZE(p_priv->in_buffer); ++i)
- 		kfree(p_priv->in_buffer[i]);
--err_in_buffer:
- 	kfree(p_priv);
- 
- 	return -ENOMEM;
+ 	if (l2cap_pi(sk)->rx_busy_skb) {
+ 		kfree_skb(l2cap_pi(sk)->rx_busy_skb);
+-- 
+2.33.0
+
 
 
