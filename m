@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AFD8452647
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7D724527A5
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:27:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239501AbhKPCEb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:04:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46080 "EHLO mail.kernel.org"
+        id S243500AbhKPC3v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:29:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239580AbhKOSDU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:03:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFA0463351;
-        Mon, 15 Nov 2021 17:37:58 +0000 (UTC)
+        id S237035AbhKORQM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:16:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D1C63246;
+        Mon, 15 Nov 2021 17:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997879;
-        bh=Gl4Xe7uU/xTaf++Ml296d66z5wC/FE2VWrA/FHOlJP0=;
+        s=korg; t=1636996355;
+        bh=iW7bRT3Q5oUIXLn4aRaqSRph6rITcwiUaTSvH7ilcwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZPQAnzej9hQBML8s74kdgOTvby3NIm9lc2FBWgELm1AIhn1yCQlENWmjr5jhvVqmB
-         y2L7Oi/xhc+XBc+Uiz5Xwg9WeFLIekfHDef20r/UiXUtDESX4ciR6p6oJJNj6hPCVl
-         0eMHN912wTq7K+8FRV1/lxkd13YbIrqdoyBqLvmQ=
+        b=XlFM7GsJ3/1aaayemzBFMLBe9+/mJHsfe7nxRWWmwgb/t32WyXXh+HrLL+7rARNvq
+         HQquYzlYfmxfkTbNSFluniq4IBWS9jgQ4KSvDfOVK+xQQN56xKcCQ3D/IurPQNU+ky
+         Q80AAG2WtPRaBxzoAkzgYXlRUnGn66Xesq7VHPXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 308/575] media: dvb-frontends: mn88443x: Handle errors of clk_prepare_enable()
-Date:   Mon, 15 Nov 2021 18:00:33 +0100
-Message-Id: <20211115165354.436714029@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 110/355] USB: iowarrior: fix control-message timeouts
+Date:   Mon, 15 Nov 2021 18:00:34 +0100
+Message-Id: <20211115165317.364490410@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,80 +38,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 69a10678e2fba3d182e78ea041f2d1b1a6058764 ]
+commit 79a4479a17b83310deb0b1a2a274fe5be12d2318 upstream.
 
-mn88443x_cmn_power_on() did not handle possible errors of
-clk_prepare_enable() and always finished successfully so that its caller
-mn88443x_probe() did not care about failed preparing/enabling of clocks
-as well.
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-Add missed error handling in both mn88443x_cmn_power_on() and
-mn88443x_probe(). This required to change the return value of the former
-from "void" to "int".
+Use the common control-message timeout define for the five-second
+timeout and drop the driver-specific one.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Fixes: 0f408ce8941f ("media: dvb-frontends: add Socionext MN88443x ISDB-S/T demodulator driver")
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
+Cc: stable@vger.kernel.org      # 2.6.21
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211025115159.4954-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-frontends/mn88443x.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/usb/misc/iowarrior.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/mn88443x.c b/drivers/media/dvb-frontends/mn88443x.c
-index e4528784f8477..fff212c0bf3b5 100644
---- a/drivers/media/dvb-frontends/mn88443x.c
-+++ b/drivers/media/dvb-frontends/mn88443x.c
-@@ -204,11 +204,18 @@ struct mn88443x_priv {
- 	struct regmap *regmap_t;
- };
+--- a/drivers/usb/misc/iowarrior.c
++++ b/drivers/usb/misc/iowarrior.c
+@@ -99,10 +99,6 @@ struct iowarrior {
+ /*    globals   */
+ /*--------------*/
  
--static void mn88443x_cmn_power_on(struct mn88443x_priv *chip)
-+static int mn88443x_cmn_power_on(struct mn88443x_priv *chip)
- {
-+	struct device *dev = &chip->client_s->dev;
- 	struct regmap *r_t = chip->regmap_t;
-+	int ret;
+-/*
+- *  USB spec identifies 5 second timeouts.
+- */
+-#define GET_TIMEOUT 5
+ #define USB_REQ_GET_REPORT  0x01
+ //#if 0
+ static int usb_get_report(struct usb_device *dev,
+@@ -114,7 +110,7 @@ static int usb_get_report(struct usb_dev
+ 			       USB_DIR_IN | USB_TYPE_CLASS |
+ 			       USB_RECIP_INTERFACE, (type << 8) + id,
+ 			       inter->desc.bInterfaceNumber, buf, size,
+-			       GET_TIMEOUT*HZ);
++			       USB_CTRL_GET_TIMEOUT);
+ }
+ //#endif
  
--	clk_prepare_enable(chip->mclk);
-+	ret = clk_prepare_enable(chip->mclk);
-+	if (ret) {
-+		dev_err(dev, "Failed to prepare and enable mclk: %d\n",
-+			ret);
-+		return ret;
-+	}
- 
- 	gpiod_set_value_cansleep(chip->reset_gpio, 1);
- 	usleep_range(100, 1000);
-@@ -222,6 +229,8 @@ static void mn88443x_cmn_power_on(struct mn88443x_priv *chip)
- 	} else {
- 		regmap_write(r_t, HIZSET3, 0x8f);
- 	}
-+
-+	return 0;
+@@ -129,7 +125,7 @@ static int usb_set_report(struct usb_int
+ 			       USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+ 			       (type << 8) + id,
+ 			       intf->cur_altsetting->desc.bInterfaceNumber, buf,
+-			       size, HZ);
++			       size, 1000);
  }
  
- static void mn88443x_cmn_power_off(struct mn88443x_priv *chip)
-@@ -738,7 +747,10 @@ static int mn88443x_probe(struct i2c_client *client,
- 	chip->fe.demodulator_priv = chip;
- 	i2c_set_clientdata(client, chip);
- 
--	mn88443x_cmn_power_on(chip);
-+	ret = mn88443x_cmn_power_on(chip);
-+	if (ret)
-+		goto err_i2c_t;
-+
- 	mn88443x_s_sleep(chip);
- 	mn88443x_t_sleep(chip);
- 
--- 
-2.33.0
-
+ /*---------------------*/
 
 
