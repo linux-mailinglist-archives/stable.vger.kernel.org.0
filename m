@@ -2,156 +2,218 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 800BD450798
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 15:54:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 113484507C9
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 16:03:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230101AbhKOO5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 09:57:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33446 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229661AbhKOO5q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 09:57:46 -0500
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37CCEC061570
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 06:54:50 -0800 (PST)
-Received: by mail-lj1-x230.google.com with SMTP id z8so36075385ljz.9
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 06:54:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=g5ZgJ9ybSmxZaOHHfIm4FqhKxdTXF1lea99HqmX4/j4=;
-        b=S91lIxy96BaMvhkT0VPnFcikbWRtwwutqfr3lTkCtCq1PrRMkdxqm2RG7xPV7dcvMn
-         ixNALaIF3BB2n+gjkWhO9X8eTUozOK2MYQSbNgOqSxK5+pE6XsnCZHjA+CIujIbSbL2i
-         hwvZ5eKAZjpU15iwildNA/UmGQ6IlDMsKBppAJKy4OIhVLvPDcnaB41YJjyL+GaPTLmJ
-         /3pEmGWXKH6jtNVews2k/Rpksn8k4DPH2VrbJ/86u92kDlpa5MnkP8NFO962MG5OKDUe
-         6J1WNZJZJpOxZKYfKbjA4/0jYytSaINvifSuXG+Hkj6EMCT/Wso4PkZvTO2KGK6YmPwL
-         ECeg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=g5ZgJ9ybSmxZaOHHfIm4FqhKxdTXF1lea99HqmX4/j4=;
-        b=xqqGLQEcwlC+rye65/p2LGUA3a0CgQC9LhM/9FGmoqVsZ5Vazukd66Jo9RQ8Kvxz0T
-         cCIkROMnYs1AOqraWIKth/IP6V9HXpFWO+IIG3gLlPxrPHK3hYpVioOa1vIgKjZIfhZ1
-         Y+lny9S8hoWMtfjxvkP8zF8W5oeqT6D5Rn9iFao+iEwxf4bslOOoiZAMBo67tmYA7Xqz
-         4rLfsEvVK4rGwhi5qAB9Wh5fvfaYwOOPEerWsgc+WPfDitJThosHvPloGTnxyvRS8GPN
-         +N07Oqh5RuCcfoK9lyUvSGlwk1aZgNwZzMBeYJ6i4H0XQhfo8ytMsktrkfXfNn9P5fX7
-         Mzdg==
-X-Gm-Message-State: AOAM530VzEk95GBA2y3VC1RqOlhwH7tEfbqdcnZom9OHj6fqNdgev9fC
-        dbUuV24N1CSg6z8D32Ij+NhnxIK+dbZcfeEmp16jqw==
-X-Google-Smtp-Source: ABdhPJygyd5g7ToVRwbyKiuO6zgP6SOT0F2D9JY8QzEtk3bx0lvD5R8Wkifd26j79pvUhJhXZOxfQukEdkytUIffyyw=
-X-Received: by 2002:a2e:80c3:: with SMTP id r3mr39387862ljg.4.1636988088500;
- Mon, 15 Nov 2021 06:54:48 -0800 (PST)
+        id S232166AbhKOPG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 10:06:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40412 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231668AbhKOPG1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 10:06:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A74F61A3A;
+        Mon, 15 Nov 2021 15:03:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1636988612;
+        bh=QeVN8UtBiSyU+rNBP/khEcNefrtJ3VzBh8lhN+8ofU4=;
+        h=Subject:To:Cc:From:Date:From;
+        b=cSFj9uxHJxXtsGGkvZ0zCVD6RfHPv7jp5c14NIVm7F3r+H1Wi2rFdQx7DRPFLAdBF
+         qpqaJJYJcDmBRi+icR7Bv8vqyjhIDC6izFIqeynVd9412vTZQ6MB6jhZaMVYZtH972
+         l234a7F8NoGN5koSWSLAR+JOh9pJ0P/G/HvhjKhs=
+Subject: FAILED: patch "[PATCH] powerpc/pseries/mobility: ignore ibm, platform-facilities" failed to apply to 4.4-stable tree
+To:     nathanl@linux.ibm.com, mpe@ellerman.id.au
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 15 Nov 2021 16:03:28 +0100
+Message-ID: <1636988608243172@kroah.com>
 MIME-Version: 1.0
-References: <CAJ+vNU3zKEVz=fHu2hLmEpsQKzinUFW-28Lm=2wSEghjMvQtmw@mail.gmail.com>
- <20211103165415.2016-1-tharvey@gateworks.com>
-In-Reply-To: <20211103165415.2016-1-tharvey@gateworks.com>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Mon, 15 Nov 2021 15:54:11 +0100
-Message-ID: <CAPDyKFqb_muY2AwpxpgFObH74EdkSif0qH0YjADb-MfKB83oHg@mail.gmail.com>
-Subject: Re: [PATCH] mmc: sdhci-esdhc-imx: disable CMDQ support
-To:     Tim Harvey <tharvey@gateworks.com>
-Cc:     Adrian Hunter <adrian.hunter@intel.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <Kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        BOUGH CHEN <haibo.chen@nxp.com>, linux-mmc@vger.kernel.org,
-        Marcel Ziswiler <marcel@ziswiler.com>,
-        Schrempf Frieder <frieder.schrempf@kontron.de>,
-        Adam Ford <aford173@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Peng Fan <peng.fan@nxp.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 3 Nov 2021 at 17:54, Tim Harvey <tharvey@gateworks.com> wrote:
->
-> On IMX SoC's which support CMDQ the following can occur during high a
-> high cpu load:
->
-> mmc2: cqhci: ============ CQHCI REGISTER DUMP ===========
-> mmc2: cqhci: Caps:      0x0000310a | Version:  0x00000510
-> mmc2: cqhci: Config:    0x00001001 | Control:  0x00000000
-> mmc2: cqhci: Int stat:  0x00000000 | Int enab: 0x00000006
-> mmc2: cqhci: Int sig:   0x00000006 | Int Coal: 0x00000000
-> mmc2: cqhci: TDL base:  0x8003f000 | TDL up32: 0x00000000
-> mmc2: cqhci: Doorbell:  0xbf01dfff | TCN:      0x00000000
-> mmc2: cqhci: Dev queue: 0x00000000 | Dev Pend: 0x08000000
-> mmc2: cqhci: Task clr:  0x00000000 | SSC1:     0x00011000
-> mmc2: cqhci: SSC2:      0x00000001 | DCMD rsp: 0x00000800
-> mmc2: cqhci: RED mask:  0xfdf9a080 | TERRI:    0x00000000
-> mmc2: cqhci: Resp idx:  0x0000000d | Resp arg: 0x00000000
-> mmc2: sdhci: ============ SDHCI REGISTER DUMP ===========
-> mmc2: sdhci: Sys addr:  0x7c722000 | Version:  0x00000002
-> mmc2: sdhci: Blk size:  0x00000200 | Blk cnt:  0x00000020
-> mmc2: sdhci: Argument:  0x00018000 | Trn mode: 0x00000023
-> mmc2: sdhci: Present:   0x01f88008 | Host ctl: 0x00000030
-> mmc2: sdhci: Power:     0x00000002 | Blk gap:  0x00000080
-> mmc2: sdhci: Wake-up:   0x00000008 | Clock:    0x0000000f
-> mmc2: sdhci: Timeout:   0x0000008f | Int stat: 0x00000000
-> mmc2: sdhci: Int enab:  0x107f4000 | Sig enab: 0x107f4000
-> mmc2: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000502
-> mmc2: sdhci: Caps:      0x07eb0000 | Caps_1:   0x8000b407
-> mmc2: sdhci: Cmd:       0x00000d1a | Max curr: 0x00ffffff
-> mmc2: sdhci: Resp[0]:   0x00000000 | Resp[1]:  0xffc003ff
-> mmc2: sdhci: Resp[2]:   0x328f5903 | Resp[3]:  0x00d07f01
-> mmc2: sdhci: Host ctl2: 0x00000088
-> mmc2: sdhci: ADMA Err:  0x00000000 | ADMA Ptr: 0xfe179020
-> mmc2: sdhci-esdhc-imx: ========= ESDHC IMX DEBUG STATUS DUMP ====
-> mmc2: sdhci-esdhc-imx: cmd debug status:  0x2120
-> mmc2: sdhci-esdhc-imx: data debug status:  0x2200
-> mmc2: sdhci-esdhc-imx: trans debug status:  0x2300
-> mmc2: sdhci-esdhc-imx: dma debug status:  0x2400
-> mmc2: sdhci-esdhc-imx: adma debug status:  0x2510
-> mmc2: sdhci-esdhc-imx: fifo debug status:  0x2680
-> mmc2: sdhci-esdhc-imx: async fifo debug status:  0x2750
-> mmc2: sdhci: ============================================
->
-> For now, disable CMDQ support on the imx8qm/imx8qxp/imx8mm until the
-> issue is found and resolved.
->
-> Fixes: bb6e358169bf6 ("mmc: sdhci-esdhc-imx: add CMDQ support")
-> Fixes: cde5e8e9ff146 ("mmc: sdhci-esdhc-imx: Add an new esdhc_soc_data
-> for i.MX8MM")
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
 
-Applied for fixes, thanks!
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Kind regards
-Uffe
+thanks,
 
+greg k-h
 
-> ---
->  drivers/mmc/host/sdhci-esdhc-imx.c | 2 --
->  1 file changed, 2 deletions(-)
->
-> diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
-> index e658f0174242..60f19369de84 100644
-> --- a/drivers/mmc/host/sdhci-esdhc-imx.c
-> +++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-> @@ -300,7 +300,6 @@ static struct esdhc_soc_data usdhc_imx8qxp_data = {
->         .flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
->                         | ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200
->                         | ESDHC_FLAG_HS400 | ESDHC_FLAG_HS400_ES
-> -                       | ESDHC_FLAG_CQHCI
->                         | ESDHC_FLAG_STATE_LOST_IN_LPMODE
->                         | ESDHC_FLAG_CLK_RATE_LOST_IN_PM_RUNTIME,
->  };
-> @@ -309,7 +308,6 @@ static struct esdhc_soc_data usdhc_imx8mm_data = {
->         .flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
->                         | ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200
->                         | ESDHC_FLAG_HS400 | ESDHC_FLAG_HS400_ES
-> -                       | ESDHC_FLAG_CQHCI
->                         | ESDHC_FLAG_STATE_LOST_IN_LPMODE,
->  };
->
-> --
-> 2.17.1
->
+------------------ original commit in Linus's tree ------------------
+
+From 319fa1a52e438a6e028329187783a25ad498c4e6 Mon Sep 17 00:00:00 2001
+From: Nathan Lynch <nathanl@linux.ibm.com>
+Date: Wed, 20 Oct 2021 14:47:03 -0500
+Subject: [PATCH] powerpc/pseries/mobility: ignore ibm, platform-facilities
+ updates
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+On VMs with NX encryption, compression, and/or RNG offload, these
+capabilities are described by nodes in the ibm,platform-facilities device
+tree hierarchy:
+
+  $ tree -d /sys/firmware/devicetree/base/ibm,platform-facilities/
+  /sys/firmware/devicetree/base/ibm,platform-facilities/
+  ├── ibm,compression-v1
+  ├── ibm,random-v1
+  └── ibm,sym-encryption-v1
+
+  3 directories
+
+The acceleration functions that these nodes describe are not disrupted by
+live migration, not even temporarily.
+
+But the post-migration ibm,update-nodes sequence firmware always sends
+"delete" messages for this hierarchy, followed by an "add" directive to
+reconstruct it via ibm,configure-connector (log with debugging statements
+enabled in mobility.c):
+
+  mobility: removing node /ibm,platform-facilities/ibm,random-v1:4294967285
+  mobility: removing node /ibm,platform-facilities/ibm,compression-v1:4294967284
+  mobility: removing node /ibm,platform-facilities/ibm,sym-encryption-v1:4294967283
+  mobility: removing node /ibm,platform-facilities:4294967286
+  ...
+  mobility: added node /ibm,platform-facilities:4294967286
+
+Note we receive a single "add" message for the entire hierarchy, and what
+we receive from the ibm,configure-connector sequence is the top-level
+platform-facilities node along with its three children. The debug message
+simply reports the parent node and not the whole subtree.
+
+Also, significantly, the nodes added are almost completely equivalent to
+the ones removed; even phandles are unchanged. ibm,shared-interrupt-pool in
+the leaf nodes is the only property I've observed to differ, and Linux does
+not use that. So in practice, the sum of update messages Linux receives for
+this hierarchy is equivalent to minor property updates.
+
+We succeed in removing the original hierarchy from the device tree. But the
+vio bus code is ignorant of this, and does not unbind or relinquish its
+references. The leaf nodes, still reachable through sysfs, of course still
+refer to the now-freed ibm,platform-facilities parent node, which makes
+use-after-free possible:
+
+  refcount_t: addition on 0; use-after-free.
+  WARNING: CPU: 3 PID: 1706 at lib/refcount.c:25 refcount_warn_saturate+0x164/0x1f0
+  refcount_warn_saturate+0x160/0x1f0 (unreliable)
+  kobject_get+0xf0/0x100
+  of_node_get+0x30/0x50
+  of_get_parent+0x50/0xb0
+  of_fwnode_get_parent+0x54/0x90
+  fwnode_count_parents+0x50/0x150
+  fwnode_full_name_string+0x30/0x110
+  device_node_string+0x49c/0x790
+  vsnprintf+0x1c0/0x4c0
+  sprintf+0x44/0x60
+  devspec_show+0x34/0x50
+  dev_attr_show+0x40/0xa0
+  sysfs_kf_seq_show+0xbc/0x200
+  kernfs_seq_show+0x44/0x60
+  seq_read_iter+0x2a4/0x740
+  kernfs_fop_read_iter+0x254/0x2e0
+  new_sync_read+0x120/0x190
+  vfs_read+0x1d0/0x240
+
+Moreover, the "new" replacement subtree is not correctly added to the
+device tree, resulting in ibm,platform-facilities parent node without the
+appropriate leaf nodes, and broken symlinks in the sysfs device hierarchy:
+
+  $ tree -d /sys/firmware/devicetree/base/ibm,platform-facilities/
+  /sys/firmware/devicetree/base/ibm,platform-facilities/
+
+  0 directories
+
+  $ cd /sys/devices/vio ; find . -xtype l -exec file {} +
+  ./ibm,sym-encryption-v1/of_node: broken symbolic link to
+    ../../../firmware/devicetree/base/ibm,platform-facilities/ibm,sym-encryption-v1
+  ./ibm,random-v1/of_node:         broken symbolic link to
+    ../../../firmware/devicetree/base/ibm,platform-facilities/ibm,random-v1
+  ./ibm,compression-v1/of_node:    broken symbolic link to
+    ../../../firmware/devicetree/base/ibm,platform-facilities/ibm,compression-v1
+
+This is because add_dt_node() -> dlpar_attach_node() attaches only the
+parent node returned from configure-connector, ignoring any children. This
+should be corrected for the general case, but fixing that won't help with
+the stale OF node references, which is the more urgent problem.
+
+One way to address that would be to make the drivers respond to node
+removal notifications, so that node references can be dropped
+appropriately. But this would likely force the drivers to disrupt active
+clients for no useful purpose: equivalent nodes are immediately re-added.
+And recall that the acceleration capabilities described by the nodes remain
+available throughout the whole process.
+
+The solution I believe to be robust for this situation is to convert
+remove+add of a node with an unchanged phandle to an update of the node's
+properties in the Linux device tree structure. That would involve changing
+and adding a fair amount of code, and may take several iterations to land.
+
+Until that can be realized we have a confirmed use-after-free and the
+possibility of memory corruption. So add a limited workaround that
+discriminates on the node type, ignoring adds and removes. This should be
+amenable to backporting in the meantime.
+
+Fixes: 410bccf97881 ("powerpc/pseries: Partition migration in the kernel")
+Cc: stable@vger.kernel.org
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211020194703.2613093-1-nathanl@linux.ibm.com
+
+diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
+index e83e0891272d..210a37a065fb 100644
+--- a/arch/powerpc/platforms/pseries/mobility.c
++++ b/arch/powerpc/platforms/pseries/mobility.c
+@@ -63,6 +63,27 @@ static int mobility_rtas_call(int token, char *buf, s32 scope)
+ 
+ static int delete_dt_node(struct device_node *dn)
+ {
++	struct device_node *pdn;
++	bool is_platfac;
++
++	pdn = of_get_parent(dn);
++	is_platfac = of_node_is_type(dn, "ibm,platform-facilities") ||
++		     of_node_is_type(pdn, "ibm,platform-facilities");
++	of_node_put(pdn);
++
++	/*
++	 * The drivers that bind to nodes in the platform-facilities
++	 * hierarchy don't support node removal, and the removal directive
++	 * from firmware is always followed by an add of an equivalent
++	 * node. The capability (e.g. RNG, encryption, compression)
++	 * represented by the node is never interrupted by the migration.
++	 * So ignore changes to this part of the tree.
++	 */
++	if (is_platfac) {
++		pr_notice("ignoring remove operation for %pOFfp\n", dn);
++		return 0;
++	}
++
+ 	pr_debug("removing node %pOFfp\n", dn);
+ 	dlpar_detach_node(dn);
+ 	return 0;
+@@ -222,6 +243,19 @@ static int add_dt_node(struct device_node *parent_dn, __be32 drc_index)
+ 	if (!dn)
+ 		return -ENOENT;
+ 
++	/*
++	 * Since delete_dt_node() ignores this node type, this is the
++	 * necessary counterpart. We also know that a platform-facilities
++	 * node returned from dlpar_configure_connector() has children
++	 * attached, and dlpar_attach_node() only adds the parent, leaking
++	 * the children. So ignore these on the add side for now.
++	 */
++	if (of_node_is_type(dn, "ibm,platform-facilities")) {
++		pr_notice("ignoring add operation for %pOF\n", dn);
++		dlpar_free_cc_nodes(dn);
++		return 0;
++	}
++
+ 	rc = dlpar_attach_node(dn, parent_dn);
+ 	if (rc)
+ 		dlpar_free_cc_nodes(dn);
+
