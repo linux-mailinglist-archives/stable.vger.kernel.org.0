@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E5E4521C5
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A1F452513
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345896AbhKPBGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:06:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
+        id S1344406AbhKPBqm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:46:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245406AbhKOTUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37FA661BD2;
-        Mon, 15 Nov 2021 18:33:51 +0000 (UTC)
+        id S241901AbhKOSZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:25:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D6F26342B;
+        Mon, 15 Nov 2021 17:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001231;
-        bh=hO7b727CngfcRpWAE/ecy1It6ZEntiZBzdLMSTEj4T8=;
+        s=korg; t=1636998956;
+        bh=c9e0JVzpYrCDaXhy2yfRx+e3NlUNzE9VIMxJ2XvqOZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nt3kLiXiNAyCFhHM2lT784mDOwjdVFOK5YRuLWYKuLLTcQ/1BXpNRqQTvNs1UeKMR
-         xsRRMl4AEJ0eg21d1fNCgvs7XCaHWIjWZ4779dVTMaZE6lbVvOH4LADFXJd9fxASWy
-         Hrmyo2a/C7UbwL+/cCj7mpSahAzCkURwpW27eKHk=
+        b=R8xxJtJh9kmLAkLkvWSoGW/KABV8GlGE+BbbqnwPwaLDWEVBjD1uAiGjfAO/O1VyA
+         rUGjkC8BE4dNhfieO142W5RMOAMKvvP/KDkPaFeN+WvhM7khUQuyG7N+0hfpCWl/hy
+         20ATIKXB3hEm3HLeoS0dWMoopPPtUJWjqH/pBf8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.15 111/917] signal: Add SA_IMMUTABLE to ensure forced siganls do not get changed
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.14 123/849] HID: surface-hid: Use correct event registry for managing HID events
 Date:   Mon, 15 Nov 2021 17:53:26 +0100
-Message-Id: <20211115165432.515240362@linuxfoundation.org>
+Message-Id: <20211115165424.257619685@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,94 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit 00b06da29cf9dc633cdba87acd3f57f4df3fd5c7 upstream.
+commit dc0fd0acb6e0e8025a0a43ada54513b216254fac upstream.
 
-As Andy pointed out that there are races between
-force_sig_info_to_task and sigaction[1] when force_sig_info_task.  As
-Kees discovered[2] ptrace is also able to change these signals.
+Until now, we have only ever seen the REG-category registry being used
+on devices addressed with target ID 2. In fact, we have only ever seen
+Surface Aggregator Module (SAM) HID devices with target ID 2. For those
+devices, the registry also has to be addressed with target ID 2.
 
-In the case of seeccomp killing a process with a signal it is a
-security violation to allow the signal to be caught or manipulated.
+Some devices, like the new Surface Laptop Studio, however, address their
+HID devices on target ID 1. As a result of this, any target ID 2
+commands time out. This includes event management commands addressed to
+the target ID 2 REG-category registry. For these devices, the registry
+has to be addressed via target ID 1 instead.
 
-Solve this problem by introducing a new flag SA_IMMUTABLE that
-prevents sigaction and ptrace from modifying these forced signals.
-This flag is carefully made kernel internal so that no new ABI is
-introduced.
+We therefore assume that the target ID of the registry to be used
+depends on the target ID of the respective device. Implement this
+accordingly.
 
-Longer term I think this can be solved by guaranteeing short circuit
-delivery of signals in this case.  Unfortunately reliable and
-guaranteed short circuit delivery of these signals is still a ways off
-from being implemented, tested, and merged.  So I have implemented a much
-simpler alternative for now.
+Note that we currently allow the surface HID driver to only load against
+devices with target ID 2, so these timeouts are not happening (yet).
+This is just a preparation step before we allow the driver to load
+against all target IDs.
 
-[1] https://lkml.kernel.org/r/b5d52d25-7bde-4030-a7b1-7c6f8ab90660@www.fastmail.com
-[2] https://lkml.kernel.org/r/202110281136.5CE65399A7@keescook
-Cc: stable@vger.kernel.org
-Fixes: 307d522f5eb8 ("signal/seccomp: Refactor seccomp signal and coredump generation")
-Tested-by: Andrea Righi <andrea.righi@canonical.com>
-Tested-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: stable@vger.kernel.org # 5.14+
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20211021130904.862610-3-luzmaximilian@gmail.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/signal_types.h           |    3 +++
- include/uapi/asm-generic/signal-defs.h |    1 +
- kernel/signal.c                        |    8 +++++++-
- 3 files changed, 11 insertions(+), 1 deletion(-)
+ drivers/hid/surface-hid/surface_hid.c         |    2 +-
+ include/linux/surface_aggregator/controller.h |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/include/linux/signal_types.h
-+++ b/include/linux/signal_types.h
-@@ -70,6 +70,9 @@ struct ksignal {
- 	int sig;
- };
+--- a/drivers/hid/surface-hid/surface_hid.c
++++ b/drivers/hid/surface-hid/surface_hid.c
+@@ -209,7 +209,7 @@ static int surface_hid_probe(struct ssam
  
-+/* Used to kill the race between sigaction and forced signals */
-+#define SA_IMMUTABLE		0x00800000
-+
- #ifndef __ARCH_UAPI_SA_FLAGS
- #ifdef SA_RESTORER
- #define __ARCH_UAPI_SA_FLAGS	SA_RESTORER
---- a/include/uapi/asm-generic/signal-defs.h
-+++ b/include/uapi/asm-generic/signal-defs.h
-@@ -45,6 +45,7 @@
- #define SA_UNSUPPORTED	0x00000400
- #define SA_EXPOSE_TAGBITS	0x00000800
- /* 0x00010000 used on mips */
-+/* 0x00800000 used for internal SA_IMMUTABLE */
- /* 0x01000000 used on x86 */
- /* 0x02000000 used on x86 */
- /*
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1323,6 +1323,7 @@ force_sig_info_to_task(struct kernel_sig
- 	blocked = sigismember(&t->blocked, sig);
- 	if (blocked || ignored || sigdfl) {
- 		action->sa.sa_handler = SIG_DFL;
-+		action->sa.sa_flags |= SA_IMMUTABLE;
- 		if (blocked) {
- 			sigdelset(&t->blocked, sig);
- 			recalc_sigpending_and_wake(t);
-@@ -2729,7 +2730,8 @@ relock:
- 		if (!signr)
- 			break; /* will return 0 */
+ 	shid->notif.base.priority = 1;
+ 	shid->notif.base.fn = ssam_hid_event_fn;
+-	shid->notif.event.reg = SSAM_EVENT_REGISTRY_REG;
++	shid->notif.event.reg = SSAM_EVENT_REGISTRY_REG(sdev->uid.target);
+ 	shid->notif.event.id.target_category = sdev->uid.category;
+ 	shid->notif.event.id.instance = sdev->uid.instance;
+ 	shid->notif.event.mask = SSAM_EVENT_MASK_STRICT;
+--- a/include/linux/surface_aggregator/controller.h
++++ b/include/linux/surface_aggregator/controller.h
+@@ -792,8 +792,8 @@ enum ssam_event_mask {
+ #define SSAM_EVENT_REGISTRY_KIP	\
+ 	SSAM_EVENT_REGISTRY(SSAM_SSH_TC_KIP, 0x02, 0x27, 0x28)
  
--		if (unlikely(current->ptrace) && signr != SIGKILL) {
-+		if (unlikely(current->ptrace) && (signr != SIGKILL) &&
-+		    !(sighand->action[signr -1].sa.sa_flags & SA_IMMUTABLE)) {
- 			signr = ptrace_signal(signr, &ksig->info);
- 			if (!signr)
- 				continue;
-@@ -4079,6 +4081,10 @@ int do_sigaction(int sig, struct k_sigac
- 	k = &p->sighand->action[sig-1];
+-#define SSAM_EVENT_REGISTRY_REG \
+-	SSAM_EVENT_REGISTRY(SSAM_SSH_TC_REG, 0x02, 0x01, 0x02)
++#define SSAM_EVENT_REGISTRY_REG(tid)\
++	SSAM_EVENT_REGISTRY(SSAM_SSH_TC_REG, tid, 0x01, 0x02)
  
- 	spin_lock_irq(&p->sighand->siglock);
-+	if (k->sa.sa_flags & SA_IMMUTABLE) {
-+		spin_unlock_irq(&p->sighand->siglock);
-+		return -EINVAL;
-+	}
- 	if (oact)
- 		*oact = *k;
- 
+ /**
+  * enum ssam_event_notifier_flags - Flags for event notifiers.
 
 
