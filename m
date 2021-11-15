@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D600C452240
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:08:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF12D452247
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:08:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349454AbhKPBKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:10:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S245426AbhKPBKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:10:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245109AbhKOTTY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:19:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFACB632C7;
-        Mon, 15 Nov 2021 18:28:41 +0000 (UTC)
+        id S245115AbhKOTTc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:19:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 929D6619E5;
+        Mon, 15 Nov 2021 18:28:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000922;
-        bh=AA7g+gUe2R0sGnxAf3Rf9WiGSecM4vqbcvPumZn30nw=;
+        s=korg; t=1637000930;
+        bh=YrkME0dW2fYwBrJ4fq5sdmolI0Ycmfy85H/CD9DWOjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xYGfZGXqo3N14HQbitEuRPcXKMDY0eirYgJBDmJoWSY/IiX6zAoVZDEM3Pq6yWg4v
-         TUYvG5veknn6g+fg5hqXDHri1DePbm6eVqbAI5zXZ+MOX+gdmzkQA6IAiDK9E4g7K0
-         iqvUmCe20UIiKf7kTNYPJZdQwhtSEEddXvdp9hnY=
+        b=W+/fYN+60AOVB16qStoTgmWilUpwDFJLPaWtZvd1H+679uA3WzT/fBUbKyf+ZZK2F
+         RuNCFu78rpv+1w97gTZkiBwd3BtVIteNox2FgHImNxZfjS4OjtYr5OSdKqLiQLdrxe
+         U75LW+UHWwZ6XTDwfmWVCRWGjlWEcRQfOQDT1g6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Roman Stratiienko <r.stratiienko@gmail.com>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Chen-Yu Tsai <wens@csie.org>, Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 5.14 843/849] drm/sun4i: Fix macros in sun8i_csc.h
-Date:   Mon, 15 Nov 2021 18:05:26 +0100
-Message-Id: <20211115165448.770914649@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.14 845/849] PCI: aardvark: Fix PCIe Max Payload Size setting
+Date:   Mon, 15 Nov 2021 18:05:28 +0100
+Message-Id: <20211115165448.835780529@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,45 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit c302c98da646409d657a473da202f10f417f3ff1 upstream.
+commit a4e17d65dafdd3513042d8f00404c9b6068a825c upstream.
 
-Macros SUN8I_CSC_CTRL() and SUN8I_CSC_COEFF() don't follow usual
-recommendation of having arguments enclosed in parenthesis. While that
-didn't change anything for quite sometime, it actually become important
-after CSC code rework with commit ea067aee45a8 ("drm/sun4i: de2/de3:
-Remove redundant CSC matrices").
+Change PCIe Max Payload Size setting in PCIe Device Control register to 512
+bytes to align with PCIe Link Initialization sequence as defined in Marvell
+Armada 3700 Functional Specification. According to the specification,
+maximal Max Payload Size supported by this device is 512 bytes.
 
-Without this fix, colours are completely off for supported YVU formats
-on SoCs with DE2 (A64, H3, R40, etc.).
+Without this kernel prints suspicious line:
 
-Fix the issue by enclosing macro arguments in parenthesis.
+    pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 16384, max 512)
 
-Cc: stable@vger.kernel.org # 5.12+
-Fixes: 883029390550 ("drm/sun4i: Add DE2 CSC library")
-Reported-by: Roman Stratiienko <r.stratiienko@gmail.com>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210831184819.93670-1-jernej.skrabec@gmail.com
+With this change it changes to:
+
+    pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 512, max 512)
+
+Link: https://lore.kernel.org/r/20211005180952.6812-3-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/sun4i/sun8i_csc.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/sun4i/sun8i_csc.h
-+++ b/drivers/gpu/drm/sun4i/sun8i_csc.h
-@@ -16,8 +16,8 @@ struct sun8i_mixer;
- #define CCSC10_OFFSET 0xA0000
- #define CCSC11_OFFSET 0xF0000
- 
--#define SUN8I_CSC_CTRL(base)		(base + 0x0)
--#define SUN8I_CSC_COEFF(base, i)	(base + 0x10 + 4 * i)
-+#define SUN8I_CSC_CTRL(base)		((base) + 0x0)
-+#define SUN8I_CSC_COEFF(base, i)	((base) + 0x10 + 4 * (i))
- 
- #define SUN8I_CSC_CTRL_EN		BIT(0)
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -597,8 +597,9 @@ static void advk_pcie_setup_hw(struct ad
+ 	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
+ 	reg &= ~PCI_EXP_DEVCTL_RELAX_EN;
+ 	reg &= ~PCI_EXP_DEVCTL_NOSNOOP_EN;
++	reg &= ~PCI_EXP_DEVCTL_PAYLOAD;
+ 	reg &= ~PCI_EXP_DEVCTL_READRQ;
+-	reg |= PCI_EXP_DEVCTL_PAYLOAD; /* Set max payload size */
++	reg |= PCI_EXP_DEVCTL_PAYLOAD_512B;
+ 	reg |= PCI_EXP_DEVCTL_READRQ_512B;
+ 	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
  
 
 
