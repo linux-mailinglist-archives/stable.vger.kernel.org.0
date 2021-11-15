@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EF1E451454
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2456D451422
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230451AbhKOUCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:02:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
+        id S1349057AbhKOUBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:01:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344270AbhKOTYR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64BC663659;
-        Mon, 15 Nov 2021 18:54:49 +0000 (UTC)
+        id S1344290AbhKOTYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B07246331E;
+        Mon, 15 Nov 2021 18:55:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002489;
-        bh=44tmNFUr3yPmoso9ajUWe4/xno244YXGvHWI641IeOc=;
+        s=korg; t=1637002505;
+        bh=ItPzHU+0rwLuz5p5rEi0sw/fXmJ9+mA4XtNVf8DTzHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MTz/+fjpn3vBoDfvGBYyo496lwrKYondFbMHCRdi7q7urDdBgVvawk9mWp+dgFnPG
-         77jIRxCL8ce52Ojzek3pUbwvOCebr7gLZVfQiJ48uBkTjAWuWC4Q3OmuUTzdDd8smE
-         P40RZp1DhevPkmHT0StIMCuOxaakyG0E6xpSbskc=
+        b=XC1M84cIgrvqLjJ8GjHEtnb6gvPHStlCOyM2h8mYR0wBRuigeZEdEcYYvzRZL4gCU
+         LlGgq0lOnLS92/+PKSmntRzv2EuBRl75sIPV1ruDaFw2mWUlWBMAeG0poSi+sWF06O
+         LoLia3v9SiFmUDrtwgiqMI1Nl44SuqEkvSDfWvAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Cong Wang <cong.wang@bytedance.com>,
+        John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 559/917] selftests: mptcp: fix proto type in link_failure tests
-Date:   Mon, 15 Nov 2021 18:00:54 +0100
-Message-Id: <20211115165447.746367190@linuxfoundation.org>
+Subject: [PATCH 5.15 560/917] skmsg: Lose offset info in sk_psock_skb_ingress
+Date:   Mon, 15 Nov 2021 18:00:55 +0100
+Message-Id: <20211115165447.786111339@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,35 +42,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geliang Tang <geliang.tang@suse.com>
+From: Liu Jian <liujian56@huawei.com>
 
-[ Upstream commit 7c909a98042ce403c8497c5d6ff94dd53bdd2131 ]
+[ Upstream commit 7303524e04af49a47991e19f895c3b8cdc3796c7 ]
 
-In listener_ns, we should pass srv_proto argument to mptcp_connect command,
-not cl_proto.
+If sockmap enable strparser, there are lose offset info in
+sk_psock_skb_ingress(). If the length determined by parse_msg function is not
+skb->len, the skb will be converted to sk_msg multiple times, and userspace
+app will get the data multiple times.
 
-Fixes: 7d1e6f1639044 ("selftests: mptcp: add testcase for active-back")
-Signed-off-by: Geliang Tang <geliang.tang@suse.com>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by get the offset and length from strp_msg. And as Cong suggested,
+add one bit in skb->_sk_redir to distinguish enable or disable strparser.
+
+Fixes: 604326b41a6fb ("bpf, sockmap: convert to generic sk_msg interface")
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20211029141216.211899-1-liujian56@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/mptcp/mptcp_join.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/skmsg.h | 18 ++++++++++++++++--
+ net/core/skmsg.c      | 43 +++++++++++++++++++++++++++++++++----------
+ 2 files changed, 49 insertions(+), 12 deletions(-)
 
-diff --git a/tools/testing/selftests/net/mptcp/mptcp_join.sh b/tools/testing/selftests/net/mptcp/mptcp_join.sh
-index 255793c5ac4ff..586af88194e56 100755
---- a/tools/testing/selftests/net/mptcp/mptcp_join.sh
-+++ b/tools/testing/selftests/net/mptcp/mptcp_join.sh
-@@ -297,7 +297,7 @@ do_transfer()
- 	if [ "$test_link_fail" -eq 2 ];then
- 		timeout ${timeout_test} \
- 			ip netns exec ${listener_ns} \
--				$mptcp_connect -t ${timeout_poll} -l -p $port -s ${cl_proto} \
-+				$mptcp_connect -t ${timeout_poll} -l -p $port -s ${srv_proto} \
- 					${local_addr} < "$sinfail" > "$sout" &
- 	else
- 		timeout ${timeout_test} \
+diff --git a/include/linux/skmsg.h b/include/linux/skmsg.h
+index 1ce9a9eb223b6..b4256847c7079 100644
+--- a/include/linux/skmsg.h
++++ b/include/linux/skmsg.h
+@@ -509,8 +509,22 @@ static inline bool sk_psock_strp_enabled(struct sk_psock *psock)
+ 
+ #if IS_ENABLED(CONFIG_NET_SOCK_MSG)
+ 
+-/* We only have one bit so far. */
+-#define BPF_F_PTR_MASK ~(BPF_F_INGRESS)
++#define BPF_F_STRPARSER	(1UL << 1)
++
++/* We only have two bits so far. */
++#define BPF_F_PTR_MASK ~(BPF_F_INGRESS | BPF_F_STRPARSER)
++
++static inline bool skb_bpf_strparser(const struct sk_buff *skb)
++{
++	unsigned long sk_redir = skb->_sk_redir;
++
++	return sk_redir & BPF_F_STRPARSER;
++}
++
++static inline void skb_bpf_set_strparser(struct sk_buff *skb)
++{
++	skb->_sk_redir |= BPF_F_STRPARSER;
++}
+ 
+ static inline bool skb_bpf_ingress(const struct sk_buff *skb)
+ {
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index a86ef7e844f8c..1ae52ac943f62 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -508,6 +508,7 @@ static struct sk_msg *sk_psock_create_ingress_msg(struct sock *sk,
+ }
+ 
+ static int sk_psock_skb_ingress_enqueue(struct sk_buff *skb,
++					u32 off, u32 len,
+ 					struct sk_psock *psock,
+ 					struct sock *sk,
+ 					struct sk_msg *msg)
+@@ -521,11 +522,11 @@ static int sk_psock_skb_ingress_enqueue(struct sk_buff *skb,
+ 	 */
+ 	if (skb_linearize(skb))
+ 		return -EAGAIN;
+-	num_sge = skb_to_sgvec(skb, msg->sg.data, 0, skb->len);
++	num_sge = skb_to_sgvec(skb, msg->sg.data, off, len);
+ 	if (unlikely(num_sge < 0))
+ 		return num_sge;
+ 
+-	copied = skb->len;
++	copied = len;
+ 	msg->sg.start = 0;
+ 	msg->sg.size = copied;
+ 	msg->sg.end = num_sge;
+@@ -536,9 +537,11 @@ static int sk_psock_skb_ingress_enqueue(struct sk_buff *skb,
+ 	return copied;
+ }
+ 
+-static int sk_psock_skb_ingress_self(struct sk_psock *psock, struct sk_buff *skb);
++static int sk_psock_skb_ingress_self(struct sk_psock *psock, struct sk_buff *skb,
++				     u32 off, u32 len);
+ 
+-static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
++static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb,
++				u32 off, u32 len)
+ {
+ 	struct sock *sk = psock->sk;
+ 	struct sk_msg *msg;
+@@ -549,7 +552,7 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
+ 	 * correctly.
+ 	 */
+ 	if (unlikely(skb->sk == sk))
+-		return sk_psock_skb_ingress_self(psock, skb);
++		return sk_psock_skb_ingress_self(psock, skb, off, len);
+ 	msg = sk_psock_create_ingress_msg(sk, skb);
+ 	if (!msg)
+ 		return -EAGAIN;
+@@ -561,7 +564,7 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
+ 	 * into user buffers.
+ 	 */
+ 	skb_set_owner_r(skb, sk);
+-	err = sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
++	err = sk_psock_skb_ingress_enqueue(skb, off, len, psock, sk, msg);
+ 	if (err < 0)
+ 		kfree(msg);
+ 	return err;
+@@ -571,7 +574,8 @@ static int sk_psock_skb_ingress(struct sk_psock *psock, struct sk_buff *skb)
+  * skb. In this case we do not need to check memory limits or skb_set_owner_r
+  * because the skb is already accounted for here.
+  */
+-static int sk_psock_skb_ingress_self(struct sk_psock *psock, struct sk_buff *skb)
++static int sk_psock_skb_ingress_self(struct sk_psock *psock, struct sk_buff *skb,
++				     u32 off, u32 len)
+ {
+ 	struct sk_msg *msg = kzalloc(sizeof(*msg), __GFP_NOWARN | GFP_ATOMIC);
+ 	struct sock *sk = psock->sk;
+@@ -581,7 +585,7 @@ static int sk_psock_skb_ingress_self(struct sk_psock *psock, struct sk_buff *skb
+ 		return -EAGAIN;
+ 	sk_msg_init(msg);
+ 	skb_set_owner_r(skb, sk);
+-	err = sk_psock_skb_ingress_enqueue(skb, psock, sk, msg);
++	err = sk_psock_skb_ingress_enqueue(skb, off, len, psock, sk, msg);
+ 	if (err < 0)
+ 		kfree(msg);
+ 	return err;
+@@ -595,7 +599,7 @@ static int sk_psock_handle_skb(struct sk_psock *psock, struct sk_buff *skb,
+ 			return -EAGAIN;
+ 		return skb_send_sock(psock->sk, skb, off, len);
+ 	}
+-	return sk_psock_skb_ingress(psock, skb);
++	return sk_psock_skb_ingress(psock, skb, off, len);
+ }
+ 
+ static void sk_psock_skb_state(struct sk_psock *psock,
+@@ -638,6 +642,12 @@ static void sk_psock_backlog(struct work_struct *work)
+ 	while ((skb = skb_dequeue(&psock->ingress_skb))) {
+ 		len = skb->len;
+ 		off = 0;
++		if (skb_bpf_strparser(skb)) {
++			struct strp_msg *stm = strp_msg(skb);
++
++			off = stm->offset;
++			len = stm->full_len;
++		}
+ start:
+ 		ingress = skb_bpf_ingress(skb);
+ 		skb_bpf_redirect_clear(skb);
+@@ -877,6 +887,7 @@ static int sk_psock_skb_redirect(struct sk_psock *from, struct sk_buff *skb)
+ 	 * return code, but then didn't set a redirect interface.
+ 	 */
+ 	if (unlikely(!sk_other)) {
++		skb_bpf_redirect_clear(skb);
+ 		sock_drop(from->sk, skb);
+ 		return -EIO;
+ 	}
+@@ -944,6 +955,7 @@ static int sk_psock_verdict_apply(struct sk_psock *psock, struct sk_buff *skb,
+ {
+ 	struct sock *sk_other;
+ 	int err = 0;
++	u32 len, off;
+ 
+ 	switch (verdict) {
+ 	case __SK_PASS:
+@@ -951,6 +963,7 @@ static int sk_psock_verdict_apply(struct sk_psock *psock, struct sk_buff *skb,
+ 		sk_other = psock->sk;
+ 		if (sock_flag(sk_other, SOCK_DEAD) ||
+ 		    !sk_psock_test_state(psock, SK_PSOCK_TX_ENABLED)) {
++			skb_bpf_redirect_clear(skb);
+ 			goto out_free;
+ 		}
+ 
+@@ -963,7 +976,15 @@ static int sk_psock_verdict_apply(struct sk_psock *psock, struct sk_buff *skb,
+ 		 * retrying later from workqueue.
+ 		 */
+ 		if (skb_queue_empty(&psock->ingress_skb)) {
+-			err = sk_psock_skb_ingress_self(psock, skb);
++			len = skb->len;
++			off = 0;
++			if (skb_bpf_strparser(skb)) {
++				struct strp_msg *stm = strp_msg(skb);
++
++				off = stm->offset;
++				len = stm->full_len;
++			}
++			err = sk_psock_skb_ingress_self(psock, skb, off, len);
+ 		}
+ 		if (err < 0) {
+ 			spin_lock_bh(&psock->ingress_lock);
+@@ -1029,6 +1050,8 @@ static void sk_psock_strp_read(struct strparser *strp, struct sk_buff *skb)
+ 		skb_dst_drop(skb);
+ 		skb_bpf_redirect_clear(skb);
+ 		ret = bpf_prog_run_pin_on_cpu(prog, skb);
++		if (ret == SK_PASS)
++			skb_bpf_set_strparser(skb);
+ 		ret = sk_psock_map_verd(ret, skb_bpf_redirect_fetch(skb));
+ 		skb->sk = NULL;
+ 	}
 -- 
 2.33.0
 
