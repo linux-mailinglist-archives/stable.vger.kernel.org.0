@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A742A451DEE
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:31:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D07B8451DF1
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344004AbhKPAed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1346832AbhKPAed (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 19:34:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45396 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344006AbhKOTXH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233731AbhKOTXH (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:23:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7151633A9;
-        Mon, 15 Nov 2021 18:49:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EBFC633B4;
+        Mon, 15 Nov 2021 18:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002199;
-        bh=PMCUqF9vurBqj+h+7PPkSXjzQ2/2zTs6z01L2iua1wQ=;
+        s=korg; t=1637002201;
+        bh=RdOplR5AugF+eTUgdrMUIknooNqDt6t07r9snoXRdpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YDGeOucivKrgDhUcWpY/RFZHK0XI/kwkF4c7wPDJchxqQ1BHuwg87e7V4wY74VSBc
-         ZdI6dDTLVa5ujIp/5uhEjRWQeEcqiRjpnZmNz1UQx7j36LaOvgUzaIkaXdDvfZt8Go
-         Twm1oG0MSBic+NA7YW+ZzcKUAdNxORs6z0WEn0CQ=
+        b=N4cDiS9I0UaJcdPjYXe7drsVBGueD1wmS3tQQyUmC2hSCnHd28O8WnH07if16SDDJ
+         4eByvDhbJVxM9kN0cWU5byig7LBtaeXRdJ6Q/T4s7lyr9Gv06qa2nMw/viixrj2/g+
+         kv7ohsDZeWXKqGk29AlSqd2YjGF1JucPztoEqj/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        stable@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
+        Ryder Lee <ryder.lee@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 475/917] mt76: mt7921: always wake device if necessary in debugfs
-Date:   Mon, 15 Nov 2021 17:59:30 +0100
-Message-Id: <20211115165444.882834918@linuxfoundation.org>
+Subject: [PATCH 5.15 476/917] mt76: mt7915: fix hwmon temp sensor mem use-after-free
+Date:   Mon, 15 Nov 2021 17:59:31 +0100
+Message-Id: <20211115165444.913149583@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,61 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Ben Greear <greearb@candelatech.com>
 
-[ Upstream commit 569008744178b672ea3ad9047fa3098f1b73ca55 ]
+[ Upstream commit 0ae3ff5684514d72357240f1033a7494c51f93ed ]
 
-Add missing device wakeup in debugfs code if we are accessing chip
-registers.
+Without this change, garbage is seen in the hwmon name and sensors output
+for mt7915 is garbled. It appears that the hwmon logic does not make a
+copy of the incoming string, but instead just copies a char* and expects
+it to never go away.
 
-Fixes: 1d8efc741df8 ("mt76: mt7921: introduce Runtime PM support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Fixes: 33fe9c639c13 ("mt76: mt7915: add thermal sensor device support")
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt7915/init.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-index 4c89c4ac8031a..30f3b3085c786 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-@@ -95,6 +95,8 @@ mt7921_tx_stats_show(struct seq_file *file, void *data)
- 	struct mt7921_dev *dev = file->private;
- 	int stat[8], i, n;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/init.c b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
+index 4798d6344305d..b171027e0cfa8 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
+@@ -130,9 +130,12 @@ static int mt7915_thermal_init(struct mt7915_phy *phy)
+ 	struct wiphy *wiphy = phy->mt76->hw->wiphy;
+ 	struct thermal_cooling_device *cdev;
+ 	struct device *hwmon;
++	const char *name;
  
-+	mt7921_mutex_acquire(dev);
+-	cdev = thermal_cooling_device_register(wiphy_name(wiphy), phy,
+-					       &mt7915_thermal_ops);
++	name = devm_kasprintf(&wiphy->dev, GFP_KERNEL, "mt7915_%s",
++			      wiphy_name(wiphy));
 +
- 	mt7921_ampdu_stat_read_phy(&dev->phy, file);
++	cdev = thermal_cooling_device_register(name, phy, &mt7915_thermal_ops);
+ 	if (!IS_ERR(cdev)) {
+ 		if (sysfs_create_link(&wiphy->dev.kobj, &cdev->device.kobj,
+ 				      "cooling_device") < 0)
+@@ -144,8 +147,7 @@ static int mt7915_thermal_init(struct mt7915_phy *phy)
+ 	if (!IS_REACHABLE(CONFIG_HWMON))
+ 		return 0;
  
- 	/* Tx amsdu info */
-@@ -104,6 +106,8 @@ mt7921_tx_stats_show(struct seq_file *file, void *data)
- 		n += stat[i];
- 	}
- 
-+	mt7921_mutex_release(dev);
-+
- 	for (i = 0; i < ARRAY_SIZE(stat); i++) {
- 		seq_printf(file, "AMSDU pack count of %d MSDU in TXD: 0x%x ",
- 			   i + 1, stat[i]);
-@@ -124,6 +128,8 @@ mt7921_queues_acq(struct seq_file *s, void *data)
- 	struct mt7921_dev *dev = dev_get_drvdata(s->private);
- 	int i;
- 
-+	mt7921_mutex_acquire(dev);
-+
- 	for (i = 0; i < 16; i++) {
- 		int j, acs = i / 4, index = i % 4;
- 		u32 ctrl, val, qlen = 0;
-@@ -143,6 +149,8 @@ mt7921_queues_acq(struct seq_file *s, void *data)
- 		seq_printf(s, "AC%d%d: queued=%d\n", acs, index, qlen);
- 	}
- 
-+	mt7921_mutex_release(dev);
-+
- 	return 0;
- }
- 
+-	hwmon = devm_hwmon_device_register_with_groups(&wiphy->dev,
+-						       wiphy_name(wiphy), phy,
++	hwmon = devm_hwmon_device_register_with_groups(&wiphy->dev, name, phy,
+ 						       mt7915_hwmon_groups);
+ 	if (IS_ERR(hwmon))
+ 		return PTR_ERR(hwmon);
 -- 
 2.33.0
 
