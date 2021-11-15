@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D37A345270F
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:12:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10C7F452725
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:14:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238930AbhKPCPN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:15:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35656 "EHLO mail.kernel.org"
+        id S233340AbhKPCRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:17:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238554AbhKORsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:48:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1C4F63320;
-        Mon, 15 Nov 2021 17:30:13 +0000 (UTC)
+        id S238772AbhKORpm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:45:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5167263311;
+        Mon, 15 Nov 2021 17:29:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997414;
-        bh=r0LGiRnDZpsEmQpGpk932AmsmzSV1AM7R+XdtkUqyU8=;
+        s=korg; t=1636997367;
+        bh=hYra+e4a47V+ydyfs1YRzlOCGrI83ATxYV4qKD6WZr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x3wpGmBhomrUaeIdfMZvfl5GVie66nIFQ8SSOFqCn7OMMKil0Gp2Z4hUcoG8jw5Tq
-         tA/hk1FnrQ+bVp/Pc6qy5LCva1PE+k+N8fVreWXBuxjlapeX9dgkyYYTupM8rdqvwT
-         YwxgwpSUwEKNSzEhuCkm+HWkRYhuUQqsmhQN/uUU=
+        b=0Vn32XJSHEwSl1ovQ/ukLae3eKi6bmoEj0bVM0OVTGhdLNsbjj7Y7mvFuwMFwVboY
+         zRmJa8PcT8/zdIA67OT63MMBazD9RFJuaaYjwz/fXxlL8OFHlKOEydrAPAlJrqkv60
+         KNRBaPyOcu5wSpxAXf+F4gG9o12UVhZyL5K1SFfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.10 112/575] rsi: fix key enabled check causing unwanted encryption for vap_id > 0
-Date:   Mon, 15 Nov 2021 17:57:17 +0100
-Message-Id: <20211115165347.539653063@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.10 123/575] mtd: rawnand: socrates: Keep the driver compatible with on-die ECC engines
+Date:   Mon, 15 Nov 2021 17:57:28 +0100
+Message-Id: <20211115165347.963480668@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -40,73 +38,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 99ac6018821253ec67f466086afb63fc18ea48e2 upstream.
+commit b4ebddd6540d78a7f977b3fea0261bd575c6ffe2 upstream.
 
-My previous patch checked if encryption should be enabled by directly
-checking info->control.hw_key (like the downstream driver).
-However that missed that the control and driver_info members of
-struct ieee80211_tx_info are union fields.
+Following the introduction of the generic ECC engine infrastructure, it
+was necessary to reorganize the code and move the ECC configuration in
+the ->attach_chip() hook. Failing to do that properly lead to a first
+series of fixes supposed to stabilize the situation. Unfortunately, this
+only fixed the use of software ECC engines, preventing any other kind of
+engine to be used, including on-die ones.
 
-Due to this when rsi_core_xmit() updates fields in "tx_params"
-(driver_info) it can overwrite the control.hw_key, causing the result
-of the later test to be incorrect.
+It is now time to (finally) fix the situation by ensuring that we still
+provide a default (eg. software ECC) but will still support different
+ECC engines such as on-die ECC engines if properly described in the
+device tree.
 
-With the current structure layout the first byte of control.hw_key is
-overlayed with the vap_id so, since we only test if control.hw_key is
-NULL / non NULL, a non zero vap_id will incorrectly enable encryption.
+There are no changes needed on the core side in order to do this, but we
+just need to leverage the logic there which allows:
+1- a subsystem default (set to Host engines in the raw NAND world)
+2- a driver specific default (here set to software ECC engines)
+3- any type of engine requested by the user (ie. described in the DT)
 
-In basic STA and AP modes the vap_id is always zero so it works but in
-P2P client mode a second VIF is created causing vap_id to be non zero
-and hence encryption to be enabled before keys have been set.
+As the raw NAND subsystem has not yet been fully converted to the ECC
+engine infrastructure, in order to provide a default ECC engine for this
+driver we need to set chip->ecc.engine_type *before* calling
+nand_scan(). During the initialization step, the core will consider this
+entry as the default engine for this driver. This value may of course
+be overloaded by the user if the usual DT properties are provided.
 
-Fix this by extracting the key presence flag to a new field in the driver
-private tx_params structure and populating it first.
-
-Fixes: 314538041b56 ("rsi: fix AP mode with WPA failure due to encrypted EAPOL")
-Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-CC: stable@vger.kernel.org
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1630337206-12410-3-git-send-email-martin.fuzzey@flowbird.group
+Fixes: b36bf0a0fe5d ("mtd: rawnand: socrates: Move the ECC initialization to ->attach_chip()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210928222258.199726-9-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_core.c |    2 ++
- drivers/net/wireless/rsi/rsi_91x_hal.c  |    2 +-
- drivers/net/wireless/rsi/rsi_main.h     |    1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/socrates_nand.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/rsi/rsi_91x_core.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_core.c
-@@ -400,6 +400,8 @@ void rsi_core_xmit(struct rsi_common *co
+--- a/drivers/mtd/nand/raw/socrates_nand.c
++++ b/drivers/mtd/nand/raw/socrates_nand.c
+@@ -119,9 +119,8 @@ static int socrates_nand_device_ready(st
  
- 	info = IEEE80211_SKB_CB(skb);
- 	tx_params = (struct skb_info *)info->driver_data;
-+	/* info->driver_data and info->control part of union so make copy */
-+	tx_params->have_key = !!info->control.hw_key;
- 	wh = (struct ieee80211_hdr *)&skb->data[0];
- 	tx_params->sta_id = 0;
+ static int socrates_attach_chip(struct nand_chip *chip)
+ {
+-	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+-
+-	if (chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
++	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT &&
++	    chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
+ 		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
  
---- a/drivers/net/wireless/rsi/rsi_91x_hal.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
-@@ -203,7 +203,7 @@ int rsi_prepare_data_desc(struct rsi_com
- 		wh->frame_control |= cpu_to_le16(RSI_SET_PS_ENABLE);
+ 	return 0;
+@@ -175,6 +174,13 @@ static int socrates_nand_probe(struct pl
+ 	/* TODO: I have no idea what real delay is. */
+ 	nand_chip->legacy.chip_delay = 20;	/* 20us command delay time */
  
- 	if ((!(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)) &&
--	    info->control.hw_key) {
-+	    tx_params->have_key) {
- 		if (rsi_is_cipher_wep(common))
- 			ieee80211_size += 4;
- 		else
---- a/drivers/net/wireless/rsi/rsi_main.h
-+++ b/drivers/net/wireless/rsi/rsi_main.h
-@@ -139,6 +139,7 @@ struct skb_info {
- 	u8 internal_hdr_size;
- 	struct ieee80211_vif *vif;
- 	u8 vap_id;
-+	bool have_key;
- };
++	/*
++	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
++	 * Set ->engine_type before registering the NAND devices in order to
++	 * provide a driver specific default value.
++	 */
++	nand_chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
++
+ 	dev_set_drvdata(&ofdev->dev, host);
  
- enum edca_queue {
+ 	res = nand_scan(nand_chip, 1);
 
 
