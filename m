@@ -2,42 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2026F4512C9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAED84512C8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347392AbhKOTjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1347403AbhKOTjt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 14:39:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245019AbhKOTSX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9992C63452;
-        Mon, 15 Nov 2021 18:27:12 +0000 (UTC)
+        id S245042AbhKOTS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78BB4634F5;
+        Mon, 15 Nov 2021 18:27:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000833;
-        bh=LvXFF8Mz/4Y1o+iYqxwez/PCgsngKiEOQLHkzwCZsR0=;
+        s=korg; t=1637000836;
+        bh=J525mGhl1YD9mkcieMoRUPPCD1GjzimEAxPVQYBO2oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZ0KPjd+2R5BhZ3JsW5Uag0qw3Nk9jhBg6BrW988mH+u9ZQP1FswwfTSH82HY32UF
-         /8XnK1+FbUn5JlqPFQei9WNNchLVewNoWiwzSlZ0aC6UJHPZ637AwkPS/1hDBC8wNX
-         5QWzlhCLJYwybfTDeemkXoUoCktnXArwsIn19HKM=
+        b=lRPtYnbYWCI8tvgF5XRAnvpTHGcyWPVNQMSs5f6saRWHfGwEZiWkzVtU4m4qXJI5K
+         cHZMu1NNo/QxolZXg9wiCNiY0O2cv7tPiSsNeoOnFpCq1+LDqflpBT9MKvIIOQ2hCD
+         9nvXbGWxBReqhv4hLYmYlYgrMvTX9oOmRCzJR65k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Roman Gushchin <guro@fb.com>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Shakeel Butt <shakeelb@google.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.14 808/849] memcg: prohibit unconditional exceeding the limit of dying tasks
-Date:   Mon, 15 Nov 2021 18:04:51 +0100
-Message-Id: <20211115165447.578146630@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.14 809/849] io-wq: ensure that hash wait lock is IRQ disabling
+Date:   Mon, 15 Nov 2021 18:04:52 +0100
+Message-Id: <20211115165447.611808255@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -49,143 +38,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit a4ebf1b6ca1e011289677239a2a361fde4a88076 upstream.
+commit 08bdbd39b58474d762242e1fadb7f2eb9ffcca71 upstream.
 
-Memory cgroup charging allows killed or exiting tasks to exceed the hard
-limit.  It is assumed that the amount of the memory charged by those
-tasks is bound and most of the memory will get released while the task
-is exiting.  This is resembling a heuristic for the global OOM situation
-when tasks get access to memory reserves.  There is no global memory
-shortage at the memcg level so the memcg heuristic is more relieved.
+A previous commit removed the IRQ safety of the worker and wqe locks,
+but that left one spot of the hash wait lock now being done without
+already having IRQs disabled.
 
-The above assumption is overly optimistic though.  E.g.  vmalloc can
-scale to really large requests and the heuristic would allow that.  We
-used to have an early break in the vmalloc allocator for killed tasks
-but this has been reverted by commit b8c8a338f75e ("Revert "vmalloc:
-back off when the current task is killed"").  There are likely other
-similar code paths which do not check for fatal signals in an
-allocation&charge loop.  Also there are some kernel objects charged to a
-memcg which are not bound to a process life time.
+Ensure that we use the right locking variant for the hashed waitqueue
+lock.
 
-It has been observed that it is not really hard to trigger these
-bypasses and cause global OOM situation.
-
-One potential way to address these runaways would be to limit the amount
-of excess (similar to the global OOM with limited oom reserves).  This
-is certainly possible but it is not really clear how much of an excess
-is desirable and still protects from global OOMs as that would have to
-consider the overall memcg configuration.
-
-This patch is addressing the problem by removing the heuristic
-altogether.  Bypass is only allowed for requests which either cannot
-fail or where the failure is not desirable while excess should be still
-limited (e.g.  atomic requests).  Implementation wise a killed or dying
-task fails to charge if it has passed the OOM killer stage.  That should
-give all forms of reclaim chance to restore the limit before the failure
-(ENOMEM) and tell the caller to back off.
-
-In addition, this patch renames should_force_charge() helper to
-task_is_dying() because now its use is not associated witch forced
-charging.
-
-This patch depends on pagefault_out_of_memory() to not trigger
-out_of_memory(), because then a memcg failure can unwind to VM_FAULT_OOM
-and cause a global OOM killer.
-
-Link: https://lkml.kernel.org/r/8f5cebbb-06da-4902-91f0-6566fc4b4203@virtuozzo.com
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Suggested-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: a9a4aa9fbfc5 ("io-wq: wqe and worker locks no longer need to be IRQ safe")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memcontrol.c |   27 ++++++++-------------------
- 1 file changed, 8 insertions(+), 19 deletions(-)
+ fs/io-wq.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -234,7 +234,7 @@ enum res_type {
- 	     iter != NULL;				\
- 	     iter = mem_cgroup_iter(NULL, iter, NULL))
- 
--static inline bool should_force_charge(void)
-+static inline bool task_is_dying(void)
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -405,7 +405,7 @@ static void io_wait_on_hash(struct io_wq
  {
- 	return tsk_is_oom_victim(current) || fatal_signal_pending(current) ||
- 		(current->flags & PF_EXITING);
-@@ -1607,7 +1607,7 @@ static bool mem_cgroup_out_of_memory(str
- 	 * A few threads which were not waiting at mutex_lock_killable() can
- 	 * fail to bail out. Therefore, check again after holding oom_lock.
- 	 */
--	ret = should_force_charge() || out_of_memory(&oc);
-+	ret = task_is_dying() || out_of_memory(&oc);
+ 	struct io_wq *wq = wqe->wq;
  
- unlock:
- 	mutex_unlock(&oom_lock);
-@@ -2588,6 +2588,7 @@ static int try_charge_memcg(struct mem_c
- 	struct page_counter *counter;
- 	enum oom_status oom_status;
- 	unsigned long nr_reclaimed;
-+	bool passed_oom = false;
- 	bool may_swap = true;
- 	bool drained = false;
- 	unsigned long pflags;
-@@ -2623,15 +2624,6 @@ retry:
- 		goto force;
- 
- 	/*
--	 * Unlike in global OOM situations, memcg is not in a physical
--	 * memory shortage.  Allow dying and OOM-killed tasks to
--	 * bypass the last charges so that they can exit quickly and
--	 * free their memory.
--	 */
--	if (unlikely(should_force_charge()))
--		goto force;
--
--	/*
- 	 * Prevent unbounded recursion when reclaim operations need to
- 	 * allocate memory. This might exceed the limits temporarily,
- 	 * but we prefer facilitating memory reclaim and getting back
-@@ -2688,8 +2680,9 @@ retry:
- 	if (gfp_mask & __GFP_RETRY_MAYFAIL)
- 		goto nomem;
- 
--	if (fatal_signal_pending(current))
--		goto force;
-+	/* Avoid endless loop for tasks bypassed by the oom killer */
-+	if (passed_oom && task_is_dying())
-+		goto nomem;
- 
- 	/*
- 	 * keep retrying as long as the memcg oom killer is able to make
-@@ -2698,14 +2691,10 @@ retry:
- 	 */
- 	oom_status = mem_cgroup_oom(mem_over_limit, gfp_mask,
- 		       get_order(nr_pages * PAGE_SIZE));
--	switch (oom_status) {
--	case OOM_SUCCESS:
-+	if (oom_status == OOM_SUCCESS) {
-+		passed_oom = true;
- 		nr_retries = MAX_RECLAIM_RETRIES;
- 		goto retry;
--	case OOM_FAILED:
--		goto force;
--	default:
--		goto nomem;
+-	spin_lock(&wq->hash->wait.lock);
++	spin_lock_irq(&wq->hash->wait.lock);
+ 	if (list_empty(&wqe->wait.entry)) {
+ 		__add_wait_queue(&wq->hash->wait, &wqe->wait);
+ 		if (!test_bit(hash, &wq->hash->map)) {
+@@ -413,7 +413,7 @@ static void io_wait_on_hash(struct io_wq
+ 			list_del_init(&wqe->wait.entry);
+ 		}
  	}
- nomem:
- 	if (!(gfp_mask & __GFP_NOFAIL))
+-	spin_unlock(&wq->hash->wait.lock);
++	spin_unlock_irq(&wq->hash->wait.lock);
+ }
+ 
+ /*
 
 
