@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99F9E450C40
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:34:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00633450EC2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238103AbhKORgE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:36:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46316 "EHLO mail.kernel.org"
+        id S241265AbhKOSTP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:19:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238291AbhKOReT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:34:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 536E6632BD;
-        Mon, 15 Nov 2021 17:22:57 +0000 (UTC)
+        id S240934AbhKOSOV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:14:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 972A260EB2;
+        Mon, 15 Nov 2021 17:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996977;
-        bh=ybeQckmtYKRCYWE7YxNPaIItfdszF1FCLzYR/rY0o6g=;
+        s=korg; t=1636998532;
+        bh=b5MBXIdU5oHHx0eN6Cg+idtyVMUM06/+xb+yWVIy34w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f2Xr4zVZGRHT662VLe23KqUm7ayfK+Mjv1BARiT121dNg3ylAb9hC1bIriV+uYyjW
-         QpS1gizIU9KWPVwXHZWOVE2hd+axUvG/ZAu8Mxq4LKzVWcBJ4mJc8Iq+7Oas6KNPv4
-         Ii/7jnmO2nck8CXNKDEm+gzGiZoozhVroNDZfZEg=
+        b=FDo4rDQZFhtiLkcOfVZEM2IY2roev0iHh+kG/9xY8WwjSu4OpzQzQItTh0xX+qrY0
+         xDPF0D37RLh8W2M40WDhzt2H4rANbru4hvZsStG/DV/wTLLZnmWgi1jWtE6SXZH2Ny
+         +X4Jr8uGkcaUIta/FlvXtsQMefy/nK3iPvVJ/qrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Pelletier <plr.vincent@gmail.com>,
-        Nikita Shubin <nikita.shubin@maquefel.me>,
-        Guo Ren <guoren@linux.alibaba.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Atish Patra <atish.patra@wdc.com>,
-        Anup Patel <anup@brainfault.org>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 337/355] irqchip/sifive-plic: Fixup EOI failed when masked
+        stable@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 536/575] net/smc: fix sk_refcnt underflow on linkdown and fallback
 Date:   Mon, 15 Nov 2021 18:04:21 +0100
-Message-Id: <20211115165324.642074552@linuxfoundation.org>
+Message-Id: <20211115165402.215161607@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +42,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Dust Li <dust.li@linux.alibaba.com>
 
-commit 69ea463021be0d159ab30f96195fb0dd18ee2272 upstream.
+[ Upstream commit e5d5aadcf3cd59949316df49c27cb21788d7efe4 ]
 
-When using "devm_request_threaded_irq(,,,,IRQF_ONESHOT,,)" in a driver,
-only the first interrupt is handled, and following interrupts are never
-delivered (initially reported in [1]).
+We got the following WARNING when running ab/nginx
+test with RDMA link flapping (up-down-up).
+The reason is when smc_sock fallback and at linkdown
+happens simultaneously, we may got the following situation:
 
-That's because the RISC-V PLIC cannot EOI masked interrupts, as explained
-in the description of Interrupt Completion in the PLIC spec [2]:
+__smc_lgr_terminate()
+ --> smc_conn_kill()
+    --> smc_close_active_abort()
+           smc_sock->sk_state = SMC_CLOSED
+           sock_put(smc_sock)
 
-<quote>
-The PLIC signals it has completed executing an interrupt handler by
-writing the interrupt ID it received from the claim to the claim/complete
-register. The PLIC does not check whether the completion ID is the same
-as the last claim ID for that target. If the completion ID does not match
-an interrupt source that *is currently enabled* for the target, the
-completion is silently ignored.
-</quote>
+smc_sock was set to SMC_CLOSED and sock_put() been called
+when terminate the link group. But later application call
+close() on the socket, then we got:
 
-Re-enable the interrupt before completion if it has been masked during
-the handling, and remask it afterwards.
+__smc_release():
+    if (smc_sock->fallback)
+        smc_sock->sk_state = SMC_CLOSED
+        sock_put(smc_sock)
 
-[1] http://lists.infradead.org/pipermail/linux-riscv/2021-July/007441.html
-[2] https://github.com/riscv/riscv-plic-spec/blob/8bc15a35d07c9edf7b5d23fec9728302595ffc4d/riscv-plic.adoc
+Again we set the smc_sock to CLOSED through it's already
+in CLOSED state, and double put the refcnt, so the following
+warning happens:
 
-Fixes: bb0fed1c60cc ("irqchip/sifive-plic: Switch to fasteoi flow")
-Reported-by: Vincent Pelletier <plr.vincent@gmail.com>
-Tested-by: Nikita Shubin <nikita.shubin@maquefel.me>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Cc: stable@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Atish Patra <atish.patra@wdc.com>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-[maz: amended commit message]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211105094748.3894453-1-guoren@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 5 PID: 860 at lib/refcount.c:28 refcount_warn_saturate+0x8d/0xf0
+Modules linked in:
+CPU: 5 PID: 860 Comm: nginx Not tainted 5.10.46+ #403
+Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 8c24b4c 04/01/2014
+RIP: 0010:refcount_warn_saturate+0x8d/0xf0
+Code: 05 5c 1e b5 01 01 e8 52 25 bc ff 0f 0b c3 80 3d 4f 1e b5 01 00 75 ad 48
+
+RSP: 0018:ffffc90000527e50 EFLAGS: 00010286
+RAX: 0000000000000026 RBX: ffff8881300df2c0 RCX: 0000000000000027
+RDX: 0000000000000000 RSI: ffff88813bd58040 RDI: ffff88813bd58048
+RBP: 0000000000000000 R08: 0000000000000003 R09: 0000000000000001
+R10: ffff8881300df2c0 R11: ffffc90000527c78 R12: ffff8881300df340
+R13: ffff8881300df930 R14: ffff88810b3dad80 R15: ffff8881300df4f8
+FS:  00007f739de8fb80(0000) GS:ffff88813bd40000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000a01b008 CR3: 0000000111b64003 CR4: 00000000003706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ smc_release+0x353/0x3f0
+ __sock_release+0x3d/0xb0
+ sock_close+0x11/0x20
+ __fput+0x93/0x230
+ task_work_run+0x65/0xa0
+ exit_to_user_mode_prepare+0xf9/0x100
+ syscall_exit_to_user_mode+0x27/0x190
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+This patch adds check in __smc_release() to make
+sure we won't do an extra sock_put() and set the
+socket to CLOSED when its already in CLOSED state.
+
+Fixes: 51f1de79ad8e (net/smc: replace sock_put worker by socket refcounting)
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-sifive-plic.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/smc/af_smc.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- a/drivers/irqchip/irq-sifive-plic.c
-+++ b/drivers/irqchip/irq-sifive-plic.c
-@@ -138,7 +138,13 @@ static void plic_irq_eoi(struct irq_data
- {
- 	struct plic_handler *handler = this_cpu_ptr(&plic_handlers);
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index cc2af94e74507..cfb5b9be0569d 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -146,14 +146,18 @@ static int __smc_release(struct smc_sock *smc)
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 		sk->sk_shutdown |= SHUTDOWN_MASK;
+ 	} else {
+-		if (sk->sk_state != SMC_LISTEN && sk->sk_state != SMC_INIT)
+-			sock_put(sk); /* passive closing */
+-		if (sk->sk_state == SMC_LISTEN) {
+-			/* wake up clcsock accept */
+-			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
++		if (sk->sk_state != SMC_CLOSED) {
++			if (sk->sk_state != SMC_LISTEN &&
++			    sk->sk_state != SMC_INIT)
++				sock_put(sk); /* passive closing */
++			if (sk->sk_state == SMC_LISTEN) {
++				/* wake up clcsock accept */
++				rc = kernel_sock_shutdown(smc->clcsock,
++							  SHUT_RDWR);
++			}
++			sk->sk_state = SMC_CLOSED;
++			sk->sk_state_change(sk);
+ 		}
+-		sk->sk_state = SMC_CLOSED;
+-		sk->sk_state_change(sk);
+ 		smc_restore_fallback_changes(smc);
+ 	}
  
--	writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
-+	if (irqd_irq_masked(d)) {
-+		plic_irq_unmask(d);
-+		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
-+		plic_irq_mask(d);
-+	} else {
-+		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
-+	}
- }
- 
- static struct irq_chip plic_chip = {
+-- 
+2.33.0
+
 
 
