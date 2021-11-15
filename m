@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69756450C29
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE0C450EA3
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:15:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236937AbhKORfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:35:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
+        id S240905AbhKOSQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:16:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237338AbhKOReQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:34:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61FA563231;
-        Mon, 15 Nov 2021 17:22:21 +0000 (UTC)
+        id S240694AbhKOSLr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:11:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD16D63309;
+        Mon, 15 Nov 2021 17:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996941;
-        bh=AHHG2iZTUXX4PfrEMTBZMlvqWsZ/3ta9pyckJY4D62c=;
+        s=korg; t=1636998479;
+        bh=Hw4ioX8VStx2ymBPiv3NQlNyTTnqyXkxgYUBC6NSLPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CVcxDR4uW7TnYYiAydOs+HibQDxLHqqk9Cs6STIZuZuCnxWkyWPbTi51G0cuBBFY8
-         tGr6u6LlcspD/ek1CTnjeCj9Ufw7N7qzNnhmFCgk7IetJRL5epDGRq4aUg0q9bhk8W
-         msVUVc6CIYDOBfrpKDmxoX1O9AKwSpyBcO2qDpew=
+        b=mRKrHVTqH5FcV4xQjhjXArMwil9PMWJIkIqc6yHHPwO/uvi6kEqtksebZgIaJ8trw
+         igIVjH4Xi2oYKt+yvhgvPMblbZwtpPh73Ma3kRQzvjAC3U9nhcMD7W76ZTax7rspH9
+         EljFUWyiGNoRTgoFkGOeJZI3TRei59C0cz2Kxz2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 325/355] arm64: pgtable: make __pte_to_phys/__phys_to_pte_val inline functions
+Subject: [PATCH 5.10 524/575] llc: fix out-of-bound array index in llc_sk_dev_hash()
 Date:   Mon, 15 Nov 2021 18:04:09 +0100
-Message-Id: <20211115165324.250708152@linuxfoundation.org>
+Message-Id: <20211115165401.792531749@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit c7c386fbc20262c1d911c615c65db6a58667d92c ]
+[ Upstream commit 8ac9dfd58b138f7e82098a4e0a0d46858b12215b ]
 
-gcc warns about undefined behavior the vmalloc code when building
-with CONFIG_ARM64_PA_BITS_52, when the 'idx++' in the argument to
-__phys_to_pte_val() is evaluated twice:
+Both ifindex and LLC_SK_DEV_HASH_ENTRIES are signed.
 
-mm/vmalloc.c: In function 'vmap_pfn_apply':
-mm/vmalloc.c:2800:58: error: operation on 'data->idx' may be undefined [-Werror=sequence-point]
- 2800 |         *pte = pte_mkspecial(pfn_pte(data->pfns[data->idx++], data->prot));
-      |                                                 ~~~~~~~~~^~
-arch/arm64/include/asm/pgtable-types.h:25:37: note: in definition of macro '__pte'
-   25 | #define __pte(x)        ((pte_t) { (x) } )
-      |                                     ^
-arch/arm64/include/asm/pgtable.h:80:15: note: in expansion of macro '__phys_to_pte_val'
-   80 |         __pte(__phys_to_pte_val((phys_addr_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot))
-      |               ^~~~~~~~~~~~~~~~~
-mm/vmalloc.c:2800:30: note: in expansion of macro 'pfn_pte'
- 2800 |         *pte = pte_mkspecial(pfn_pte(data->pfns[data->idx++], data->prot));
-      |                              ^~~~~~~
+This means that (ifindex % LLC_SK_DEV_HASH_ENTRIES) is negative
+if @ifindex is negative.
 
-I have no idea why this never showed up earlier, but the safest
-workaround appears to be changing those macros into inline functions
-so the arguments get evaluated only once.
+We could simply make LLC_SK_DEV_HASH_ENTRIES unsigned.
 
-Cc: Matthew Wilcox <willy@infradead.org>
-Fixes: 75387b92635e ("arm64: handle 52-bit physical addresses in page table entries")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211105075414.2553155-1-arnd@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+In this patch I chose to use hash_32() to get more entropy
+from @ifindex, like llc_sk_laddr_hashfn().
+
+UBSAN: array-index-out-of-bounds in ./include/net/llc.h:75:26
+index -43 is out of range for type 'hlist_head [64]'
+CPU: 1 PID: 20999 Comm: syz-executor.3 Not tainted 5.15.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ ubsan_epilogue+0xb/0x5a lib/ubsan.c:151
+ __ubsan_handle_out_of_bounds.cold+0x62/0x6c lib/ubsan.c:291
+ llc_sk_dev_hash include/net/llc.h:75 [inline]
+ llc_sap_add_socket+0x49c/0x520 net/llc/llc_conn.c:697
+ llc_ui_bind+0x680/0xd70 net/llc/af_llc.c:404
+ __sys_bind+0x1e9/0x250 net/socket.c:1693
+ __do_sys_bind net/socket.c:1704 [inline]
+ __se_sys_bind net/socket.c:1702 [inline]
+ __x64_sys_bind+0x6f/0xb0 net/socket.c:1702
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7fa503407ae9
+
+Fixes: 6d2e3ea28446 ("llc: use a device based hash table to speed up multicast delivery")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/pgtable.h | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ include/net/llc.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index a92a187ec8919..3a057d4279007 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -54,9 +54,15 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
-  * page table entry, taking care of 52-bit addresses.
-  */
- #ifdef CONFIG_ARM64_PA_BITS_52
--#define __pte_to_phys(pte)	\
--	((pte_val(pte) & PTE_ADDR_LOW) | ((pte_val(pte) & PTE_ADDR_HIGH) << 36))
--#define __phys_to_pte_val(phys)	(((phys) | ((phys) >> 36)) & PTE_ADDR_MASK)
-+static inline phys_addr_t __pte_to_phys(pte_t pte)
-+{
-+	return (pte_val(pte) & PTE_ADDR_LOW) |
-+		((pte_val(pte) & PTE_ADDR_HIGH) << 36);
-+}
-+static inline pteval_t __phys_to_pte_val(phys_addr_t phys)
-+{
-+	return (phys | (phys >> 36)) & PTE_ADDR_MASK;
-+}
- #else
- #define __pte_to_phys(pte)	(pte_val(pte) & PTE_ADDR_MASK)
- #define __phys_to_pte_val(phys)	(phys)
+diff --git a/include/net/llc.h b/include/net/llc.h
+index df282d9b40170..9c10b121b49b0 100644
+--- a/include/net/llc.h
++++ b/include/net/llc.h
+@@ -72,7 +72,9 @@ struct llc_sap {
+ static inline
+ struct hlist_head *llc_sk_dev_hash(struct llc_sap *sap, int ifindex)
+ {
+-	return &sap->sk_dev_hash[ifindex % LLC_SK_DEV_HASH_ENTRIES];
++	u32 bucket = hash_32(ifindex, LLC_SK_DEV_HASH_BITS);
++
++	return &sap->sk_dev_hash[bucket];
+ }
+ 
+ static inline
 -- 
 2.33.0
 
