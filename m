@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32663450E81
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:13:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 402E7450C25
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240626AbhKOSQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:16:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50070 "EHLO mail.kernel.org"
+        id S236925AbhKORfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:35:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239760AbhKOSHo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7DDC633AC;
-        Mon, 15 Nov 2021 17:45:39 +0000 (UTC)
+        id S238188AbhKORdj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:33:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DD3363236;
+        Mon, 15 Nov 2021 17:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998340;
-        bh=/LMzZ7tEJartaEdRZNuZdn+52sOkOeddnZGdXZqxNsQ=;
+        s=korg; t=1636996926;
+        bh=6nX/dfiY7hWluABLzRyGgf7pLQA5f2Y1HaiWVAPAnTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TpHmr59P/NjHmwf3+zdPubrVLdcP+np4uarxygFzIZL46fu7R/Qaswp7y4xkIRVez
-         RIb17Rud5cEoStt854w23cJTZE5APQEZvQa/kkdCtJvnHpQtdjHnwvZBtnvVkviBxZ
-         uEXt007vTeoyk2Y+DKvRxZPrJWKgiDdHAq+on7aM=
+        b=GZJMQYzG866aGVuwQGbKNNF6E3I/thv1uhZgxhMZuiw5CjMF9skn0SoUR0KC8N+k6
+         ktvV4cxOLgAFDOH46xuhBtrJmWcAbfuywA4jqk6xh4mUsz9MLCBgNAvna5rHlL94Sp
+         GSEZe9aUegIfz6JTNR62Hka291QnYB0i0dCbg4as=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 475/575] PCI: aardvark: Fix preserving PCI_EXP_RTCTL_CRSSVE flag on emulated bridge
+Subject: [PATCH 5.4 276/355] scsi: csiostor: Uninitialized data in csio_ln_vnp_read_cbfn()
 Date:   Mon, 15 Nov 2021 18:03:20 +0100
-Message-Id: <20211115165400.152733520@linuxfoundation.org>
+Message-Id: <20211115165322.661215089@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d419052bc6c60fa4ab2b5a51d5f1e55a66e2b4ff ]
+[ Upstream commit f4875d509a0a78ad294a1a538d534b5ba94e685a ]
 
-Commit 43f5c77bcbd2 ("PCI: aardvark: Fix reporting CRS value") started
-using CRSSVE flag for handling CRS responses.
+This variable is just a temporary variable, used to do an endian
+conversion.  The problem is that the last byte is not initialized.  After
+the conversion is completely done, the last byte is discarded so it doesn't
+cause a problem.  But static checkers and the KMSan runtime checker can
+detect the uninitialized read and will complain about it.
 
-PCI_EXP_RTCTL_CRSSVE flag is stored only in emulated config space buffer
-and there is handler for PCI_EXP_RTCTL register. So every read operation
-from config space automatically clears CRSSVE flag as it is not defined in
-PCI_EXP_RTCTL read handler.
-
-Fix this by reading current CRSSVE bit flag from emulated space buffer and
-appending it to PCI_EXP_RTCTL read response.
-
-Link: https://lore.kernel.org/r/20211005180952.6812-5-kabel@kernel.org
-Fixes: 43f5c77bcbd2 ("PCI: aardvark: Fix reporting CRS value")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
+Link: https://lore.kernel.org/r/20211006073242.GA8404@kili
+Fixes: 5036f0a0ecd3 ("[SCSI] csiostor: Fix sparse warnings.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/csiostor/csio_lnode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 65762fddd9fc0..5b34dea80885d 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -885,6 +885,7 @@ advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
- 	case PCI_EXP_RTCTL: {
- 		u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG);
- 		*value = (val & PCIE_MSG_PM_PME_MASK) ? 0 : PCI_EXP_RTCTL_PMEIE;
-+		*value |= le16_to_cpu(bridge->pcie_conf.rootctl) & PCI_EXP_RTCTL_CRSSVE;
- 		*value |= PCI_EXP_RTCAP_CRSVIS << 16;
- 		return PCI_BRIDGE_EMUL_HANDLED;
- 	}
+diff --git a/drivers/scsi/csiostor/csio_lnode.c b/drivers/scsi/csiostor/csio_lnode.c
+index 23cbe4cda760e..c3bf590f5d685 100644
+--- a/drivers/scsi/csiostor/csio_lnode.c
++++ b/drivers/scsi/csiostor/csio_lnode.c
+@@ -619,7 +619,7 @@ csio_ln_vnp_read_cbfn(struct csio_hw *hw, struct csio_mb *mbp)
+ 	struct fc_els_csp *csp;
+ 	struct fc_els_cssp *clsp;
+ 	enum fw_retval retval;
+-	__be32 nport_id;
++	__be32 nport_id = 0;
+ 
+ 	retval = FW_CMD_RETVAL_G(ntohl(rsp->alloc_to_len16));
+ 	if (retval != FW_SUCCESS) {
 -- 
 2.33.0
 
