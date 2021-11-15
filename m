@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 811474521EF
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8106D4521EA
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376908AbhKPBHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:07:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
+        id S1376404AbhKPBHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:07:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245291AbhKOTT6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245292AbhKOTT6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:19:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1591363531;
-        Mon, 15 Nov 2021 18:32:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CFE263217;
+        Mon, 15 Nov 2021 18:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001121;
-        bh=vsF4fAH+G17NUr2Ci7d8v21vjL/lDVS3kInc5+yF8v0=;
+        s=korg; t=1637001126;
+        bh=KjnLQHTkAYs14/AajWgBYzfjAJOa8K0J5aYqscpfdzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ibOq8CCHePWDBHhhWSBDhvArj8ViJibJ43NeT5zAjdaMAl0XZ2OxMWx9/ZFv4BihH
-         iC6yrk1ZvlYsQzU8GRqzOLY5SSyK5JbW0BfwoFxPae7PDwbBs63sSLVt1UI6Eo/Tjm
-         +Cu6PaOUEwagGkgKUaFHV7J8xO6ZXVt9V9iyvK1I=
+        b=iwvTQfVRLouZ78+nFhisop8Ekd1DxYztWycuYIkWXeOL39YVZHcnqTuwAiZdCCSo+
+         tmjZ7Xcsjo6DQQ2B0iBBHCHLgA/veFiP+z+DF5lRpiu6MAH9UpazgOb+HO7BXpDmok
+         D9Y6NxnpRUDbsB9lbkpjoUvbypeyg3+wW+PUKMys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Lundin <glance@acc.umu.se>,
-        Corey Minyard <cminyard@mvista.com>, Stable@vger.kernel.org
-Subject: [PATCH 5.15 070/917] ipmi:watchdog: Set panic count to proper value on a panic
-Date:   Mon, 15 Nov 2021 17:52:45 +0100
-Message-Id: <20211115165431.138824918@linuxfoundation.org>
+        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.15 072/917] hwmon: (pmbus/lm25066) Add offset coefficients
+Date:   Mon, 15 Nov 2021 17:52:47 +0100
+Message-Id: <20211115165431.203226294@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,58 +39,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Zev Weiss <zev@bewilderbeest.net>
 
-commit db05ddf7f321634c5659a0cf7ea56594e22365f7 upstream.
+commit ae59dc455a78fb73034dd1fbb337d7e59c27cbd8 upstream.
 
-You will get two decrements when the messages on a panic are sent, not
-one, since commit 2033f6858970 ("ipmi: Free receive messages when in an
-oops") was added, but the watchdog code had a bug where it didn't set
-the value properly.
+With the exception of the lm5066i, all the devices handled by this
+driver had been missing their offset ('b') coefficients for direct
+format readings.
 
-Reported-by: Anton Lundin <glance@acc.umu.se>
-Cc: <Stable@vger.kernel.org> # v5.4+
-Fixes: 2033f6858970 ("ipmi: Free receive messages when in an oops")
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Cc: stable@vger.kernel.org
+Fixes: 58615a94f6a1 ("hwmon: (pmbus/lm25066) Add support for LM25056")
+Fixes: e53e6497fc9f ("hwmon: (pmbus/lm25066) Refactor device specific coefficients")
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Link: https://lore.kernel.org/r/20210928092242.30036-2-zev@bewilderbeest.net
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/ipmi/ipmi_watchdog.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/hwmon/pmbus/lm25066.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
---- a/drivers/char/ipmi/ipmi_watchdog.c
-+++ b/drivers/char/ipmi/ipmi_watchdog.c
-@@ -497,7 +497,7 @@ static void panic_halt_ipmi_heartbeat(vo
- 	msg.cmd = IPMI_WDOG_RESET_TIMER;
- 	msg.data = NULL;
- 	msg.data_len = 0;
--	atomic_inc(&panic_done_count);
-+	atomic_add(2, &panic_done_count);
- 	rv = ipmi_request_supply_msgs(watchdog_user,
- 				      (struct ipmi_addr *) &addr,
- 				      0,
-@@ -507,7 +507,7 @@ static void panic_halt_ipmi_heartbeat(vo
- 				      &panic_halt_heartbeat_recv_msg,
- 				      1);
- 	if (rv)
--		atomic_dec(&panic_done_count);
-+		atomic_sub(2, &panic_done_count);
- }
- 
- static struct ipmi_smi_msg panic_halt_smi_msg = {
-@@ -531,12 +531,12 @@ static void panic_halt_ipmi_set_timeout(
- 	/* Wait for the messages to be free. */
- 	while (atomic_read(&panic_done_count) != 0)
- 		ipmi_poll_interface(watchdog_user);
--	atomic_inc(&panic_done_count);
-+	atomic_add(2, &panic_done_count);
- 	rv = __ipmi_set_timeout(&panic_halt_smi_msg,
- 				&panic_halt_recv_msg,
- 				&send_heartbeat_now);
- 	if (rv) {
--		atomic_dec(&panic_done_count);
-+		atomic_sub(2, &panic_done_count);
- 		pr_warn("Unable to extend the watchdog timeout\n");
- 	} else {
- 		if (send_heartbeat_now)
+--- a/drivers/hwmon/pmbus/lm25066.c
++++ b/drivers/hwmon/pmbus/lm25066.c
+@@ -55,22 +55,27 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm25056] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 16296,
++			.b = 1343,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 13797,
++			.b = -1833,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 6726,
++			.b = -537,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 5501,
++			.b = -2908,
+ 			.R = -3,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 26882,
++			.b = -5646,
+ 			.R = -4,
+ 		},
+ 		[PSC_TEMPERATURE] = {
+@@ -82,26 +87,32 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm25066] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 22070,
++			.b = -1800,
+ 			.R = -2,
+ 		},
+ 		[PSC_VOLTAGE_OUT] = {
+ 			.m = 22070,
++			.b = -1800,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 13661,
++			.b = -5200,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 6852,
++			.b = -3100,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 736,
++			.b = -3300,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 369,
++			.b = -1900,
+ 			.R = -2,
+ 		},
+ 		[PSC_TEMPERATURE] = {
+@@ -111,26 +122,32 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm5064] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 4611,
++			.b = -642,
+ 			.R = -2,
+ 		},
+ 		[PSC_VOLTAGE_OUT] = {
+ 			.m = 4621,
++			.b = 423,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 10742,
++			.b = 1552,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 5456,
++			.b = 2118,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 1204,
++			.b = 8524,
+ 			.R = -3,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 612,
++			.b = 11202,
+ 			.R = -3,
+ 		},
+ 		[PSC_TEMPERATURE] = {
+@@ -140,26 +157,32 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm5066] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 4587,
++			.b = -1200,
+ 			.R = -2,
+ 		},
+ 		[PSC_VOLTAGE_OUT] = {
+ 			.m = 4587,
++			.b = -2400,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 10753,
++			.b = -1200,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 5405,
++			.b = -600,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 1204,
++			.b = -6000,
+ 			.R = -3,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 605,
++			.b = -8000,
+ 			.R = -3,
+ 		},
+ 		[PSC_TEMPERATURE] = {
 
 
