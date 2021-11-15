@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8073451E9F
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73684451EA0
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353175AbhKPAgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
+        id S1348127AbhKPAgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:36:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345047AbhKOT0F (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345045AbhKOT0F (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:26:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D19B60231;
-        Mon, 15 Nov 2021 19:09:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1CAD60F51;
+        Mon, 15 Nov 2021 19:09:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003360;
-        bh=Jbd0XzbgPEl7d8y6htMcCu4QkvmMC9zLwenjssqKUgw=;
+        s=korg; t=1637003365;
+        bh=mgDNW/47jdGYvV6npQU2dMyP1XGWNtNNHdrFuNuvKYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNd9HMVhyFR5aRIySs7yTz8rhRZrJ5oyTH/+7GPimXGhvc9v9q0FOkIU9fg2L2Nso
-         9kp0TvCeKYiyhnNHnAt8BXwpTqVv9FYvP0+kQRrEUafVgGZN7SzrQK1vHN+ZOmFT84
-         FoXnifZj0A3DjIlYB9Yg6rVNOIViFatFspocPHug=
+        b=AD5PWtKefCrPTb4NYQduGrDcQaYMGZ6bl1c9zzSyjknKQ/9dVgOpJh6NnoO96u1qP
+         I/CAGATpPI5smwMpLDjLe5MtIvxFPSmuGG3A1L5ry/FJnDkshGiRZiWm5oANSavvsy
+         rRS1EFHv1/q2AtGjjag1mKfAS4/5BBVp51CPOwvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hari Bathini <hbathini@linux.ibm.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        stable@vger.kernel.org,
+        Jacques de Laval <jacques.delaval@protonmail.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 906/917] powerpc/bpf: Fix write protecting JIT code
-Date:   Mon, 15 Nov 2021 18:06:41 +0100
-Message-Id: <20211115165459.752992764@linuxfoundation.org>
+Subject: [PATCH 5.15 907/917] powerpc/32e: Ignore ESR in instruction storage interrupt handler
+Date:   Mon, 15 Nov 2021 18:06:42 +0100
+Message-Id: <20211115165459.790919502@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,49 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hari Bathini <hbathini@linux.ibm.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 44a8214de96bafb5210e43bfa2c97c19bf75af3d upstream.
+commit 81291383ffde08b23bce75e7d6b2575ce9d3475c upstream.
 
-Running program with bpf-to-bpf function calls results in data access
-exception (0x300) with the below call trace:
+A e5500 machine running a 32-bit kernel sometimes hangs at boot,
+seemingly going into an infinite loop of instruction storage interrupts.
 
-  bpf_int_jit_compile+0x238/0x750 (unreliable)
-  bpf_check+0x2008/0x2710
-  bpf_prog_load+0xb00/0x13a0
-  __sys_bpf+0x6f4/0x27c0
-  sys_bpf+0x2c/0x40
-  system_call_exception+0x164/0x330
-  system_call_vectored_common+0xe8/0x278
+The ESR (Exception Syndrome Register) has a value of 0x800000 (store)
+when this happens, which is likely set by a previous store. An
+instruction TLB miss interrupt would then leave ESR unchanged, and if no
+PTE exists it calls directly to the instruction storage interrupt
+handler without changing ESR.
 
-as bpf_int_jit_compile() tries writing to write protected JIT code
-location during the extra pass.
+access_error() does not cause a segfault due to a store to a read-only
+vma because is_exec is true. Most subsequent fault handling does not
+check for a write fault on a read-only vma, and might do strange things
+like create a writeable PTE or call page_mkwrite on a read only vma or
+file. It's not clear what happens here to cause the infinite faulting in
+this case, a fault handler failure or low level PTE or TLB handling.
 
-Fix it by holding off write protection of JIT code until the extra
-pass, where branch target addresses fixup happens.
+In any case this can be fixed by having the instruction storage
+interrupt zero regs->dsisr rather than storing the ESR value to it.
 
-Fixes: 62e3d4210ac9 ("powerpc/bpf: Write protect JIT code")
-Cc: stable@vger.kernel.org # v5.14+
-Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
-Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Fixes: a01a3f2ddbcd ("powerpc: remove arguments from fault handler functions")
+Cc: stable@vger.kernel.org # v5.12+
+Reported-by: Jacques de Laval <jacques.delaval@protonmail.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Tested-by: Jacques de Laval <jacques.delaval@protonmail.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211025055649.114728-1-hbathini@linux.ibm.com
+Link: https://lore.kernel.org/r/20211028133043.4159501-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/net/bpf_jit_comp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/head_booke.h |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/net/bpf_jit_comp.c
-+++ b/arch/powerpc/net/bpf_jit_comp.c
-@@ -241,8 +241,8 @@ skip_codegen_passes:
- 	fp->jited_len = alloclen;
+--- a/arch/powerpc/kernel/head_booke.h
++++ b/arch/powerpc/kernel/head_booke.h
+@@ -465,12 +465,21 @@ label:
+ 	bl	do_page_fault;						      \
+ 	b	interrupt_return
  
- 	bpf_flush_icache(bpf_hdr, (u8 *)bpf_hdr + (bpf_hdr->pages * PAGE_SIZE));
--	bpf_jit_binary_lock_ro(bpf_hdr);
- 	if (!fp->is_func || extra_pass) {
-+		bpf_jit_binary_lock_ro(bpf_hdr);
- 		bpf_prog_fill_jited_linfo(fp, addrs);
- out_addrs:
- 		kfree(addrs);
++/*
++ * Instruction TLB Error interrupt handlers may call InstructionStorage
++ * directly without clearing ESR, so the ESR at this point may be left over
++ * from a prior interrupt.
++ *
++ * In any case, do_page_fault for BOOK3E does not use ESR and always expects
++ * dsisr to be 0. ESR_DST from a prior store in particular would confuse fault
++ * handling.
++ */
+ #define INSTRUCTION_STORAGE_EXCEPTION					      \
+ 	START_EXCEPTION(InstructionStorage)				      \
+-	NORMAL_EXCEPTION_PROLOG(0x400, INST_STORAGE);		      \
+-	mfspr	r5,SPRN_ESR;		/* Grab the ESR and save it */	      \
++	NORMAL_EXCEPTION_PROLOG(0x400, INST_STORAGE);			      \
++	li	r5,0;			/* Store 0 in regs->esr (dsisr) */    \
+ 	stw	r5,_ESR(r11);						      \
+-	stw	r12, _DEAR(r11);	/* Pass SRR0 as arg2 */		      \
++	stw	r12, _DEAR(r11);	/* Set regs->dear (dar) to SRR0 */    \
+ 	prepare_transfer_to_handler;					      \
+ 	bl	do_page_fault;						      \
+ 	b	interrupt_return
 
 
