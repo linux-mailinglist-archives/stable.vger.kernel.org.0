@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 826B745260F
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:59:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5D034522BD
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244995AbhKPCBm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:01:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45994 "EHLO mail.kernel.org"
+        id S1354253AbhKPBP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:15:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240143AbhKOSF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D49D3632FE;
-        Mon, 15 Nov 2021 17:42:52 +0000 (UTC)
+        id S244387AbhKOTOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:14:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61081634B9;
+        Mon, 15 Nov 2021 18:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998173;
-        bh=8m/jAuasau/h5OxgDneoZDFt12mQCplE9uQwIKbw0yg=;
+        s=korg; t=1637000428;
+        bh=/FuRj4ws3VovqQvN2tM6OisxzeXfv89tKaz+vhWXbnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kPBXd7MVvTVO96zTvCp0415VSwn4V5/l6BGGXYrkWncrRImWQuR75XTOTft8RsT5S
-         tZVRXgLzOd2eORNRocJ36UojHC2oWLBa5oRXey+VezZShtjfuMu66tCqJVdUfi6bRm
-         bFF+J3Z1Q7cZzAGP2kCA6U0oP40VvWl7lhs/JMxo=
+        b=N3rOXfYxutsIgMwFtvQlmoBmpwAidEN0i3V0ZKDmRyNbyPE5c4/xFGEUm+FqamZTy
+         EBhOYbYsAzBlelxCgSC12lp5n1Rv1hty7ubqul0XSwRs0MHF5lbj+n8+AyoPuXbjFs
+         /0SBFemIyQa8eqGThBJjEYj7GhbNy7/gTAFUSZ90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Kemnade <andreas@kemnade.info>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Haoyue Xu <xuhaoyue1@hisilicon.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 414/575] arm: dts: omap3-gta04a4: accelerometer irq fix
+Subject: [PATCH 5.14 656/849] RDMA/hns: Fix initial arm_st of CQ
 Date:   Mon, 15 Nov 2021 18:02:19 +0100
-Message-Id: <20211115165358.082374217@linuxfoundation.org>
+Message-Id: <20211115165442.456918777@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: Haoyue Xu <xuhaoyue1@hisilicon.com>
 
-[ Upstream commit 884ea75d79a36faf3731ad9d6b9c29f58697638d ]
+[ Upstream commit 571fb4fb78a3bf0fcadbe65eca9ca4ccee885af4 ]
 
-Fix typo in pinctrl. It did only work because the bootloader
-seems to have initialized it.
+We set the init CQ status to ARMED before. As a result, an unexpected CEQE
+would be reported. Therefore, the init CQ status should be set to no_armed
+rather than REG_NXT_CEQE.
 
-Fixes: ee327111953b ("ARM: dts: omap3-gta04: Define and use bma180 irq pin")
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: a5073d6054f7 ("RDMA/hns: Add eq support of hip08")
+Link: https://lore.kernel.org/r/20211029095846.26732-1-liangwenpeng@huawei.com
+Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap3-gta04.dtsi | 2 +-
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
-index 7b8c18e6605e4..80c9e5e34136a 100644
---- a/arch/arm/boot/dts/omap3-gta04.dtsi
-+++ b/arch/arm/boot/dts/omap3-gta04.dtsi
-@@ -515,7 +515,7 @@
- 		compatible = "bosch,bma180";
- 		reg = <0x41>;
- 		pinctrl-names = "default";
--		pintcrl-0 = <&bma180_pins>;
-+		pinctrl-0 = <&bma180_pins>;
- 		interrupt-parent = <&gpio4>;
- 		interrupts = <19 IRQ_TYPE_LEVEL_HIGH>; /* GPIO_115 */
- 	};
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index 0ccb0c453f6a2..a77732c218dcb 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -3335,7 +3335,7 @@ static void hns_roce_v2_write_cqc(struct hns_roce_dev *hr_dev,
+ 	memset(cq_context, 0, sizeof(*cq_context));
+ 
+ 	hr_reg_write(cq_context, CQC_CQ_ST, V2_CQ_STATE_VALID);
+-	hr_reg_write(cq_context, CQC_ARM_ST, REG_NXT_CEQE);
++	hr_reg_write(cq_context, CQC_ARM_ST, NO_ARMED);
+ 	hr_reg_write(cq_context, CQC_SHIFT, ilog2(hr_cq->cq_depth));
+ 	hr_reg_write(cq_context, CQC_CEQN, hr_cq->vector);
+ 	hr_reg_write(cq_context, CQC_CQN, hr_cq->cqn);
 -- 
 2.33.0
 
