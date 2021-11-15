@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0743D450C94
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:37:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 446C5450C5A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:34:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236615AbhKORkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:40:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45640 "EHLO mail.kernel.org"
+        id S237015AbhKORhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:37:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238203AbhKORfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238088AbhKORfL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 12:35:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E82EA632C4;
-        Mon, 15 Nov 2021 17:23:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05A8D632C6;
+        Mon, 15 Nov 2021 17:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996999;
-        bh=1+OsZAiEB/9szk1yAFT0pIl5IblIESF+AxzO2upU1Fg=;
+        s=korg; t=1636997002;
+        bh=MhkQThuZu9xEQw+KVc2XekTNMy1nAIEAK7iqY+0VRB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/3H03pMrwz116LKK+OuH/+21oa1CxVkyqmQG51er8v9pwDmThHuJCHzTxOfGWpjG
-         0/P4B6s/zNxtk9uGRx6eZmNaSIJ0ghEL2l9mqaaTCZlMYAxldM2tXWwsr5sVIu1SUl
-         Omyqaa3qdLKFrgI/vxslh3cZFx1YwzhtknvCNmIE=
+        b=vS2IsOSD2WDGrGBiq7lZV1z65lM9D+rDqMFHhTMq/8aenzv16r4wxSggy1AhKils+
+         Xx9PcHGYWlW41uizOV+6pNhs71FZsDTbUTWAVIP8MfuZmxxscLmCjX7LDkk4+NMY0J
+         9jleIKNuX6dlS0XR6luilnJjzNrYteaiu5/nRHS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 344/355] powerpc/bpf: Fix BPF_SUB when imm == 0x80000000
-Date:   Mon, 15 Nov 2021 18:04:28 +0100
-Message-Id: <20211115165324.870099294@linuxfoundation.org>
+Subject: [PATCH 5.4 345/355] powerpc/security: Add a helper to query stf_barrier type
+Date:   Mon, 15 Nov 2021 18:04:29 +0100
+Message-Id: <20211115165324.902823686@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -42,61 +41,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
 
-upstream commit 5855c4c1f415ca3ba1046e77c0b3d3dfc96c9025
+upstream commit 030905920f32e91a52794937f67434ac0b3ea41a
 
-We aren't handling subtraction involving an immediate value of
-0x80000000 properly. Fix the same.
+Add a helper to return the stf_barrier type for the current processor.
 
-Fixes: 156d0e290e969c ("powerpc/ebpf/jit: Implement JIT compiler for extended BPF")
 Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Fold in fix from Naveen to use imm <= 32768]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/fc4b1276eb10761fd7ce0814c8dd089da2815251.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
-[adjust macros to account for commits 0654186510a40e and 3a181237916310]
+Link: https://lore.kernel.org/r/3bd5d7f96ea1547991ac2ce3137dc2b220bae285.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
 Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/net/bpf_jit_comp64.c |   27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ arch/powerpc/include/asm/security_features.h |    5 +++++
+ arch/powerpc/kernel/security.c               |    5 +++++
+ 2 files changed, 10 insertions(+)
 
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -349,18 +349,25 @@ static int bpf_jit_build_body(struct bpf
- 			PPC_SUB(dst_reg, dst_reg, src_reg);
- 			goto bpf_alu32_trunc;
- 		case BPF_ALU | BPF_ADD | BPF_K: /* (u32) dst += (u32) imm */
--		case BPF_ALU | BPF_SUB | BPF_K: /* (u32) dst -= (u32) imm */
- 		case BPF_ALU64 | BPF_ADD | BPF_K: /* dst += imm */
-+			if (!imm) {
-+				goto bpf_alu32_trunc;
-+			} else if (imm >= -32768 && imm < 32768) {
-+				PPC_ADDI(dst_reg, dst_reg, IMM_L(imm));
-+			} else {
-+				PPC_LI32(b2p[TMP_REG_1], imm);
-+				PPC_ADD(dst_reg, dst_reg, b2p[TMP_REG_1]);
-+			}
-+			goto bpf_alu32_trunc;
-+		case BPF_ALU | BPF_SUB | BPF_K: /* (u32) dst -= (u32) imm */
- 		case BPF_ALU64 | BPF_SUB | BPF_K: /* dst -= imm */
--			if (BPF_OP(code) == BPF_SUB)
--				imm = -imm;
--			if (imm) {
--				if (imm >= -32768 && imm < 32768)
--					PPC_ADDI(dst_reg, dst_reg, IMM_L(imm));
--				else {
--					PPC_LI32(b2p[TMP_REG_1], imm);
--					PPC_ADD(dst_reg, dst_reg, b2p[TMP_REG_1]);
--				}
-+			if (!imm) {
-+				goto bpf_alu32_trunc;
-+			} else if (imm > -32768 && imm <= 32768) {
-+				PPC_ADDI(dst_reg, dst_reg, IMM_L(-imm));
-+			} else {
-+				PPC_LI32(b2p[TMP_REG_1], imm);
-+				PPC_SUB(dst_reg, dst_reg, b2p[TMP_REG_1]);
- 			}
- 			goto bpf_alu32_trunc;
- 		case BPF_ALU | BPF_MUL | BPF_X: /* (u32) dst *= (u32) src */
+--- a/arch/powerpc/include/asm/security_features.h
++++ b/arch/powerpc/include/asm/security_features.h
+@@ -39,6 +39,11 @@ static inline bool security_ftr_enabled(
+ 	return !!(powerpc_security_features & feature);
+ }
+ 
++#ifdef CONFIG_PPC_BOOK3S_64
++enum stf_barrier_type stf_barrier_type_get(void);
++#else
++static inline enum stf_barrier_type stf_barrier_type_get(void) { return STF_BARRIER_NONE; }
++#endif
+ 
+ // Features indicating support for Spectre/Meltdown mitigations
+ 
+--- a/arch/powerpc/kernel/security.c
++++ b/arch/powerpc/kernel/security.c
+@@ -256,6 +256,11 @@ static int __init handle_no_stf_barrier(
+ 
+ early_param("no_stf_barrier", handle_no_stf_barrier);
+ 
++enum stf_barrier_type stf_barrier_type_get(void)
++{
++	return stf_enabled_flush_types;
++}
++
+ /* This is the generic flag used by other architectures */
+ static int __init handle_ssbd(char *p)
+ {
 
 
