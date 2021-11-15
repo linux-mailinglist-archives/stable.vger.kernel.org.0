@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CB61450CF9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:44:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC7D6451039
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:42:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237770AbhKORrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:47:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58144 "EHLO mail.kernel.org"
+        id S239805AbhKOSou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:44:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238734AbhKORpK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:45:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E86A63305;
-        Mon, 15 Nov 2021 17:29:10 +0000 (UTC)
+        id S242265AbhKOSms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:42:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCBB163291;
+        Mon, 15 Nov 2021 18:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997351;
-        bh=777d4et2zH62T8YPExYiwamsUuPq5njEPm0SdYLRbv0=;
+        s=korg; t=1636999512;
+        bh=5Rlg9MeyloG2Lf6JHHtnmUerQqRX+FEwu5Ch3TjbGsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFVcejGKp5lo/yBeN824BURpnkDwPdyh/lWQdyiZ8a+c0gpCO/mNMhCuUN14jTt+n
-         8LzoFipROvIjqbRtYT+tiS5UwAR41H6ZzZncibdxRAk+Xt1O8KeWxUUS62fS0Oe/S1
-         hCztiUXHBDnUHK07ybvuMk6H70ComwEdgLwyolko=
+        b=bgO/OYzJ6QYTEJrB4gusCtdCVtNORRzXk8jQNODIjiPEPzctAZC468XV93oWDxA2X
+         xJRE6LygWegdVhqTny/vU6iGZz6OQYr264H71KRoxueqfEa3pCY4dOVm5jMqKsOEFQ
+         nn/wS0jZYOOAlyZ1Zeq+mQzSJjhXSb6liZpKjxAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mario Risoldi <awxkrnl@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Stefan Schaeckeler <schaecsn@gmx.net>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/575] drm: panel-orientation-quirks: Add quirk for GPD Win3
-Date:   Mon, 15 Nov 2021 17:56:39 +0100
-Message-Id: <20211115165346.198484697@linuxfoundation.org>
+Subject: [PATCH 5.14 317/849] ACPI: AC: Quirk GK45 to skip reading _PSR
+Date:   Mon, 15 Nov 2021 17:56:40 +0100
+Message-Id: <20211115165430.968829273@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario <awxkrnl@gmail.com>
+From: Stefan Schaeckeler <schaecsn@gmx.net>
 
-[ Upstream commit 61b1d445f3bfe4c3ba4335ceeb7e8ba688fd31e2 ]
+[ Upstream commit 3d730ee686800d71ecc5c3cb8460dcdcdeaf38a3 ]
 
-Fixes screen orientation for GPD Win 3 handheld gaming console.
+Let GK45 not go into BIOS for determining the AC power state.
 
-Signed-off-by: Mario Risoldi <awxkrnl@gmail.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211026112737.9181-1-awxkrnl@gmail.com
+The BIOS wrongly returns 0, so hardcode the power state to 1.
+
+The mini PC GK45 by Besstar Tech Lld. (aka Kodlix) just runs
+off AC. It does not include any batteries. Nevertheless BIOS
+reports AC off:
+
+root@kodlix:/usr/src/linux# cat /sys/class/power_supply/ADP1/online
+0
+
+root@kodlix:/usr/src/linux# modprobe acpi_dbg
+root@kodlix:/usr/src/linux# tools/power/acpi/acpidbg
+
+- find _PSR
+   \_SB.PCI0.SBRG.H_EC.ADP1._PSR Method       000000009283cee8 001 Args 0 Len 001C Aml 00000000f54e5f67
+
+- execute \_SB.PCI0.SBRG.H_EC.ADP1._PSR
+Evaluating \_SB.PCI0.SBRG.H_EC.ADP1._PSR
+Evaluation of \_SB.PCI0.SBRG.H_EC.ADP1._PSR returned object 00000000dc08c187, external buffer length 18
+ [Integer] = 0000000000000000
+
+that should be
+
+ [Integer] = 0000000000000001
+
+Signed-off-by: Stefan Schaeckeler <schaecsn@gmx.net>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/acpi/ac.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 30c17a76f49ae..e1b2ce4921ae7 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -191,6 +191,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_BOARD_NAME, "Default string"),
+diff --git a/drivers/acpi/ac.c b/drivers/acpi/ac.c
+index b0cb662233f1a..81aff651a0d49 100644
+--- a/drivers/acpi/ac.c
++++ b/drivers/acpi/ac.c
+@@ -61,6 +61,7 @@ static SIMPLE_DEV_PM_OPS(acpi_ac_pm, NULL, acpi_ac_resume);
+ 
+ static int ac_sleep_before_get_state_ms;
+ static int ac_check_pmic = 1;
++static int ac_only;
+ 
+ static struct acpi_driver acpi_ac_driver = {
+ 	.name = "ac",
+@@ -93,6 +94,11 @@ static int acpi_ac_get_state(struct acpi_ac *ac)
+ 	if (!ac)
+ 		return -EINVAL;
+ 
++	if (ac_only) {
++		ac->state = 1;
++		return 0;
++	}
++
+ 	status = acpi_evaluate_integer(ac->device->handle, "_PSR", NULL,
+ 				       &ac->state);
+ 	if (ACPI_FAILURE(status)) {
+@@ -200,6 +206,12 @@ static int __init ac_do_not_check_pmic_quirk(const struct dmi_system_id *d)
+ 	return 0;
+ }
+ 
++static int __init ac_only_quirk(const struct dmi_system_id *d)
++{
++	ac_only = 1;
++	return 0;
++}
++
+ /* Please keep this list alphabetically sorted */
+ static const struct dmi_system_id ac_dmi_table[]  __initconst = {
+ 	{
+@@ -209,6 +221,13 @@ static const struct dmi_system_id ac_dmi_table[]  __initconst = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
  		},
- 		.driver_data = (void *)&gpd_win2,
-+	}, {	/* GPD Win 3 */
+ 	},
++	{
++		/* Kodlix GK45 returning incorrect state */
++		.callback = ac_only_quirk,
 +		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "GPD"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "G1618-03")
++			DMI_MATCH(DMI_PRODUCT_NAME, "GK45"),
 +		},
-+		.driver_data = (void *)&lcd720x1280_rightside_up,
- 	}, {	/* I.T.Works TW891 */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "To be filled by O.E.M."),
++	},
+ 	{
+ 		/* Lenovo Ideapad Miix 320, AXP288 PMIC, separate fuel-gauge */
+ 		.callback = ac_do_not_check_pmic_quirk,
 -- 
 2.33.0
 
