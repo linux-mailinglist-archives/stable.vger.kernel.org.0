@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87BB84510B4
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:50:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5322C450D46
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:51:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237723AbhKOSwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:52:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55772 "EHLO mail.kernel.org"
+        id S238788AbhKORxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:53:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242966AbhKOSuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:50:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8335F604D1;
-        Mon, 15 Nov 2021 18:08:51 +0000 (UTC)
+        id S238927AbhKORuk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:50:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E95C1632AA;
+        Mon, 15 Nov 2021 17:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999732;
-        bh=QpGi9pmWDoQWDWTiPXW1eevR+tAtIcUVVaVpg/+oFXc=;
+        s=korg; t=1636997477;
+        bh=xbBnIUX/zyaJx7lBhF4iyaKWUIKp0gzgpFILNaZqnwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6wLGa0LB6NtWiSQ6gBf04ILG1BWfTyESZT0bBlHG580AFC3z7gKMiCdvG259tR1M
-         BFjrIwTWQC1tVx8vgMrw49TfW4WqWlcNV3gbkCp1Yas09Tujxf470BRDnygxVtAd4y
-         qXeT90KesRfL+21s9S/j8Nl3IVq6TIQqB67zbR60=
+        b=hvh/U99CQAnwX0ZPjyPk8idzXx83jL6oN7MD9VQgP79amLIPoletqWVqmV4d5Lj4p
+         xr8z9Kk1ScsufHFatsaVKUOXrKrMTbB88lwepboxtJejnebXLSIAILTIfkne0PCkdy
+         F+ekJZYLqUAWz27CH/MgXPSOne7lItLnrHMPMWi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Donnefort <vincent.donnefort@arm.com>,
-        Quentin Perret <qperret@google.com>,
-        Lukasz Luba <lukasz.luba@arm.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Charan Teja Reddy <charante@codeaurora.org>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 404/849] PM: EM: Fix inefficient states detection
-Date:   Mon, 15 Nov 2021 17:58:07 +0100
-Message-Id: <20211115165433.931582160@linuxfoundation.org>
+Subject: [PATCH 5.10 163/575] dma-buf: WARN on dmabuf release with pending attachments
+Date:   Mon, 15 Nov 2021 17:58:08 +0100
+Message-Id: <20211115165349.353529710@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Donnefort <vincent.donnefort@arm.com>
+From: Charan Teja Reddy <charante@codeaurora.org>
 
-[ Upstream commit aa1a43262ad5df010768f69530fa179ff81651d3 ]
+[ Upstream commit f492283b157053e9555787262f058ae33096f568 ]
 
-Currently, a debug message is printed if an inefficient state is detected
-in the Energy Model. Unfortunately, it won't detect if the first state is
-inefficient or if two successive states are. Fix this behavior.
+It is expected from the clients to follow the below steps on an imported
+dmabuf fd:
+a) dmabuf = dma_buf_get(fd) // Get the dmabuf from fd
+b) dma_buf_attach(dmabuf); // Clients attach to the dmabuf
+   o Here the kernel does some slab allocations, say for
+dma_buf_attachment and may be some other slab allocation in the
+dmabuf->ops->attach().
+c) Client may need to do dma_buf_map_attachment().
+d) Accordingly dma_buf_unmap_attachment() should be called.
+e) dma_buf_detach () // Clients detach to the dmabuf.
+   o Here the slab allocations made in b) are freed.
+f) dma_buf_put(dmabuf) // Can free the dmabuf if it is the last
+reference.
 
-Fixes: 27871f7a8a34 (PM: Introduce an Energy Model management framework)
-Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
-Reviewed-by: Quentin Perret <qperret@google.com>
-Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Now say an erroneous client failed at step c) above thus it directly
+called dma_buf_put(), step f) above. Considering that it may be the last
+reference to the dmabuf, buffer will be freed with pending attachments
+left to the dmabuf which can show up as the 'memory leak'. This should
+at least be reported as the WARN().
+
+Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627043468-16381-1-git-send-email-charante@codeaurora.org
+Signed-off-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/energy_model.c | 23 ++++++++---------------
- 1 file changed, 8 insertions(+), 15 deletions(-)
+ drivers/dma-buf/dma-buf.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
-index a332ccd829e24..97e62469a6b32 100644
---- a/kernel/power/energy_model.c
-+++ b/kernel/power/energy_model.c
-@@ -107,8 +107,7 @@ static void em_debug_remove_pd(struct device *dev) {}
- static int em_create_perf_table(struct device *dev, struct em_perf_domain *pd,
- 				int nr_states, struct em_data_callback *cb)
- {
--	unsigned long opp_eff, prev_opp_eff = ULONG_MAX;
--	unsigned long power, freq, prev_freq = 0;
-+	unsigned long power, freq, prev_freq = 0, prev_cost = ULONG_MAX;
- 	struct em_perf_state *table;
- 	int i, ret;
- 	u64 fmax;
-@@ -153,27 +152,21 @@ static int em_create_perf_table(struct device *dev, struct em_perf_domain *pd,
+diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+index 922416b3aaceb..93e9bf7382595 100644
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -79,6 +79,7 @@ static void dma_buf_release(struct dentry *dentry)
+ 	if (dmabuf->resv == (struct dma_resv *)&dmabuf[1])
+ 		dma_resv_fini(dmabuf->resv);
  
- 		table[i].power = power;
- 		table[i].frequency = prev_freq = freq;
--
--		/*
--		 * The hertz/watts efficiency ratio should decrease as the
--		 * frequency grows on sane platforms. But this isn't always
--		 * true in practice so warn the user if a higher OPP is more
--		 * power efficient than a lower one.
--		 */
--		opp_eff = freq / power;
--		if (opp_eff >= prev_opp_eff)
--			dev_dbg(dev, "EM: hertz/watts ratio non-monotonically decreasing: em_perf_state %d >= em_perf_state%d\n",
--					i, i - 1);
--		prev_opp_eff = opp_eff;
- 	}
- 
- 	/* Compute the cost of each performance state. */
- 	fmax = (u64) table[nr_states - 1].frequency;
--	for (i = 0; i < nr_states; i++) {
-+	for (i = nr_states - 1; i >= 0; i--) {
- 		unsigned long power_res = em_scale_power(table[i].power);
- 
- 		table[i].cost = div64_u64(fmax * power_res,
- 					  table[i].frequency);
-+		if (table[i].cost >= prev_cost) {
-+			dev_dbg(dev, "EM: OPP:%lu is inefficient\n",
-+				table[i].frequency);
-+		} else {
-+			prev_cost = table[i].cost;
-+		}
- 	}
- 
- 	pd->table = table;
++	WARN_ON(!list_empty(&dmabuf->attachments));
+ 	module_put(dmabuf->owner);
+ 	kfree(dmabuf->name);
+ 	kfree(dmabuf);
 -- 
 2.33.0
 
