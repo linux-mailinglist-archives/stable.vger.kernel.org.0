@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 083B4450A90
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:08:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 113CA4510FB
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:54:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232422AbhKORLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:11:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37120 "EHLO mail.kernel.org"
+        id S243383AbhKOS5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:57:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232387AbhKORLI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:11:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00B8C61B5E;
-        Mon, 15 Nov 2021 17:08:12 +0000 (UTC)
+        id S243223AbhKOSzp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:55:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24A2F6347F;
+        Mon, 15 Nov 2021 18:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996093;
-        bh=IIsW6wAy0SALIeIWLH4qoOBu7RkiSSi8fyC8KamsJXc=;
+        s=korg; t=1636999878;
+        bh=ZFO3A1aLs7UM3wgRW6/wf0hSRY6OOaENZhff+KKRNes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vN+HnisPBH6dIWfPk2oQaHNxE2vxaK4S/47A2jncPLxNhrZFGm8yxyg8HVllcFm45
-         vpIx45jWy3R5bbDVndSShq1ziN1MAsQw7lRn33aLGtrC1yq9hIVy6f6RECLIebq0Pw
-         xZapQxzr7OVn/SEfQKkke8xPBAnYmNmmuUJhjXq8=
+        b=ydgoIDfpNVNlFfKrKu3pYpSs6SoS6QGc0Z+lM1fEYhpegvhj5tCkzsTJ2elZH8WAP
+         jGxhKt2NCH6cXZzfE/3Hh0outJ5hvf9ZY3QqUUzkOgw9XBOftHKH9VFFaXstV6m1YU
+         bWNV67f/tI3BCcui1Qve/UpUwcoFrjtXwM2/mNVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Kyle McMartin <kyle@mcmartin.ca>
-Subject: [PATCH 5.4 014/355] parisc: Fix ptrace check on syscall return
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 455/849] mt76: fix build error implicit enumeration conversion
 Date:   Mon, 15 Nov 2021 17:58:58 +0100
-Message-Id: <20211115165314.015030463@linuxfoundation.org>
+Message-Id: <20211115165435.683794554@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Sean Wang <sean.wang@mediatek.com>
 
-commit 8779e05ba8aaffec1829872ef9774a71f44f6580 upstream.
+[ Upstream commit adedbc643f02f5a3193b8dcc5cfca97b4c988667 ]
 
-The TIF_XXX flags are stored in the flags field in the thread_info
-struct (TI_FLAGS), not in the flags field of the task_struct structure
-(TASK_FLAGS).
+drivers/net/wireless/mediatek/mt76/mt7915/mcu.c:114:10: error: implicit
+conversion from enumeration type 'enum mt76_cipher_type' to different
+enumeration type 'enum mcu_cipher_type' [-Werror,-Wenum-conversion]
+                return MT_CIPHER_NONE;
+                ~~~~~~ ^~~~~~~~~~~~~~
 
-It seems this bug didn't generate any important side-effects, otherwise it
-wouldn't have went unnoticed for 12 years (since v2.6.32).
+drivers/net/wireless/mediatek/mt76/mt7921/mcu.c:114:10: error: implicit
+conversion from enumeration type 'enum mt76_cipher_type' to different
+enumeration type 'enum mcu_cipher_type' [-Werror,-Wenum-conversion]
+                return MT_CIPHER_NONE;
+                ~~~~~~ ^~~~~~~~~~~~~~
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Fixes: ecd3d4bc06e48 ("parisc: stop using task->ptrace for {single,block}step flags")
-Cc: Kyle McMartin <kyle@mcmartin.ca>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c368362c36d3 ("mt76: fix iv and CCMP header insertion")
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/entry.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 2 +-
+ drivers/net/wireless/mediatek/mt76/mt7921/mcu.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/parisc/kernel/entry.S
-+++ b/arch/parisc/kernel/entry.S
-@@ -1841,7 +1841,7 @@ syscall_restore:
- 	LDREG	TI_TASK-THREAD_SZ_ALGN-FRAME_SIZE(%r30),%r1
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+index caf2033c5c17e..c08c7398f9b85 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+@@ -1201,7 +1201,7 @@ mt7915_mcu_sta_key_tlv(struct mt7915_sta *msta, struct sk_buff *skb,
+ 		u8 cipher;
  
- 	/* Are we being ptraced? */
--	ldw	TASK_FLAGS(%r1),%r19
-+	LDREG	TI_FLAGS-THREAD_SZ_ALGN-FRAME_SIZE(%r30),%r19
- 	ldi	_TIF_SYSCALL_TRACE_MASK,%r2
- 	and,COND(=)	%r19,%r2,%r0
- 	b,n	syscall_restore_rfi
+ 		cipher = mt7915_mcu_get_cipher(key->cipher);
+-		if (cipher == MT_CIPHER_NONE)
++		if (cipher == MCU_CIPHER_NONE)
+ 			return -EOPNOTSUPP;
+ 
+ 		sec_key = &sec->key[0];
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+index 68840e55ede7a..8329b705c2ca2 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+@@ -620,7 +620,7 @@ mt7921_mcu_sta_key_tlv(struct mt7921_sta *msta, struct sk_buff *skb,
+ 		u8 cipher;
+ 
+ 		cipher = mt7921_mcu_get_cipher(key->cipher);
+-		if (cipher == MT_CIPHER_NONE)
++		if (cipher == MCU_CIPHER_NONE)
+ 			return -EOPNOTSUPP;
+ 
+ 		sec_key = &sec->key[0];
+-- 
+2.33.0
+
 
 
