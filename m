@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BFA451298
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BAB7451297
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346962AbhKOTh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:37:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S1346953AbhKOTh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:37:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244901AbhKOTSL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244903AbhKOTSL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:18:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 024326342C;
-        Mon, 15 Nov 2021 18:25:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 017B363283;
+        Mon, 15 Nov 2021 18:25:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000720;
-        bh=YXG8FlXnmCiMIWi6EEdqpqFNEupLxdNoSVRYiwAWTv4=;
+        s=korg; t=1637000723;
+        bh=zjJ+h3wOFBt7imgOdQ4hPI/rIOiXUiMO0kH/8s2vxfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DgtTrbHVDxBzaO1bZW1FH9saa8HVVVfn1PQWEezy7tfGNVRTu2lYRNt5oaGJ1VwSP
-         55uh7AlWHneziDYSojyg+V1STdwCIPpCPRwtSs6gXNtFZl4sJBJ/7W5XLlSV13HPS5
-         abpRa+0OXBZ2UGuVMQ7UZvlJSrnX9Y9qKgK5NkUU=
+        b=aeTQi90HGf/BldQqBDSkD7wSiGwVe9/vqe0zJZJ/BbxLmQs356WaGVK1gwgcK9enH
+         saFZMWrY3yW/0mJK5aARCuM3wNyv51kwMuCO28KTqoC5o+fkuUjR6jjxxMQ80La/h3
+         LZfI+fioLcoDp4k8CexTdq2VfKEcv4s452pqk2pU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jussi Maki <joamaki@gmail.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 766/849] bpf, sockmap: sk_skb data_end access incorrect when src_reg = dst_reg
-Date:   Mon, 15 Nov 2021 18:04:09 +0100
-Message-Id: <20211115165446.176460427@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 767/849] dmaengine: stm32-dma: fix burst in case of unaligned memory address
+Date:   Mon, 15 Nov 2021 18:04:10 +0100
+Message-Id: <20211115165446.207691468@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,123 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jussi Maki <joamaki@gmail.com>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-[ Upstream commit b2c4618162ec615a15883a804cce7e27afecfa58 ]
+[ Upstream commit af229d2c2557b5cf2a3b1eb39847ec1de7446873 ]
 
-The current conversion of skb->data_end reads like this:
+Theorically, address pointers used by STM32 DMA must be chosen so as to
+ensure that all transfers within a burst block are aligned on the address
+boundary equal to the size of the transfer.
+If this is always the case for peripheral addresses on STM32, it is not for
+memory addresses if the user doesn't respect this alignment constraint.
+To avoid a weird behavior of the DMA controller in this case (no error
+triggered but data are not transferred as expected), force no burst.
 
-  ; data_end = (void*)(long)skb->data_end;
-   559: (79) r1 = *(u64 *)(r2 +200)   ; r1  = skb->data
-   560: (61) r11 = *(u32 *)(r2 +112)  ; r11 = skb->len
-   561: (0f) r1 += r11
-   562: (61) r11 = *(u32 *)(r2 +116)
-   563: (1f) r1 -= r11
-
-But similar to the case in 84f44df664e9 ("bpf: sock_ops sk access may stomp
-registers when dst_reg = src_reg"), the code will read an incorrect skb->len
-when src == dst. In this case we end up generating this xlated code:
-
-  ; data_end = (void*)(long)skb->data_end;
-   559: (79) r1 = *(u64 *)(r1 +200)   ; r1  = skb->data
-   560: (61) r11 = *(u32 *)(r1 +112)  ; r11 = (skb->data)->len
-   561: (0f) r1 += r11
-   562: (61) r11 = *(u32 *)(r1 +116)
-   563: (1f) r1 -= r11
-
-... where line 560 is the reading 4B of (skb->data + 112) instead of the
-intended skb->len Here the skb pointer in r1 gets set to skb->data and the
-later deref for skb->len ends up following skb->data instead of skb.
-
-This fixes the issue similarly to the patch mentioned above by creating an
-additional temporary variable and using to store the register when dst_reg =
-src_reg. We name the variable bpf_temp_reg and place it in the cb context for
-sk_skb. Then we restore from the temp to ensure nothing is lost.
-
-Fixes: 16137b09a66f2 ("bpf: Compute data_end dynamically with JIT code")
-Signed-off-by: Jussi Maki <joamaki@gmail.com>
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20211103204736.248403-6-john.fastabend@gmail.com
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/20211011094259.315023-4-amelie.delaunay@foss.st.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/strparser.h |  4 ++++
- net/core/filter.c       | 36 ++++++++++++++++++++++++++++++------
- 2 files changed, 34 insertions(+), 6 deletions(-)
+ drivers/dma/stm32-dma.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/include/net/strparser.h b/include/net/strparser.h
-index bec1439bd3be6..732b7097d78e4 100644
---- a/include/net/strparser.h
-+++ b/include/net/strparser.h
-@@ -66,6 +66,10 @@ struct sk_skb_cb {
- #define SK_SKB_CB_PRIV_LEN 20
- 	unsigned char data[SK_SKB_CB_PRIV_LEN];
- 	struct _strp_msg strp;
-+	/* temp_reg is a temporary register used for bpf_convert_data_end_access
-+	 * when dst_reg == src_reg.
-+	 */
-+	u64 temp_reg;
- };
+diff --git a/drivers/dma/stm32-dma.c b/drivers/dma/stm32-dma.c
+index a5dab5510e625..1b2063fb3d1d6 100644
+--- a/drivers/dma/stm32-dma.c
++++ b/drivers/dma/stm32-dma.c
+@@ -750,8 +750,14 @@ static int stm32_dma_set_xfer_param(struct stm32_dma_chan *chan,
+ 		if (src_bus_width < 0)
+ 			return src_bus_width;
  
- static inline struct strp_msg *strp_msg(struct sk_buff *skb)
-diff --git a/net/core/filter.c b/net/core/filter.c
-index e0b0ff681e68d..58ec74f012930 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -9655,22 +9655,46 @@ static u32 sock_ops_convert_ctx_access(enum bpf_access_type type,
- static struct bpf_insn *bpf_convert_data_end_access(const struct bpf_insn *si,
- 						    struct bpf_insn *insn)
- {
--	/* si->dst_reg = skb->data */
-+	int reg;
-+	int temp_reg_off = offsetof(struct sk_buff, cb) +
-+			   offsetof(struct sk_skb_cb, temp_reg);
-+
-+	if (si->src_reg == si->dst_reg) {
-+		/* We need an extra register, choose and save a register. */
-+		reg = BPF_REG_9;
-+		if (si->src_reg == reg || si->dst_reg == reg)
-+			reg--;
-+		if (si->src_reg == reg || si->dst_reg == reg)
-+			reg--;
-+		*insn++ = BPF_STX_MEM(BPF_DW, si->src_reg, reg, temp_reg_off);
-+	} else {
-+		reg = si->dst_reg;
-+	}
-+
-+	/* reg = skb->data */
- 	*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, data),
--			      si->dst_reg, si->src_reg,
-+			      reg, si->src_reg,
- 			      offsetof(struct sk_buff, data));
- 	/* AX = skb->len */
- 	*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, len),
- 			      BPF_REG_AX, si->src_reg,
- 			      offsetof(struct sk_buff, len));
--	/* si->dst_reg = skb->data + skb->len */
--	*insn++ = BPF_ALU64_REG(BPF_ADD, si->dst_reg, BPF_REG_AX);
-+	/* reg = skb->data + skb->len */
-+	*insn++ = BPF_ALU64_REG(BPF_ADD, reg, BPF_REG_AX);
- 	/* AX = skb->data_len */
- 	*insn++ = BPF_LDX_MEM(BPF_FIELD_SIZEOF(struct sk_buff, data_len),
- 			      BPF_REG_AX, si->src_reg,
- 			      offsetof(struct sk_buff, data_len));
--	/* si->dst_reg = skb->data + skb->len - skb->data_len */
--	*insn++ = BPF_ALU64_REG(BPF_SUB, si->dst_reg, BPF_REG_AX);
-+
-+	/* reg = skb->data + skb->len - skb->data_len */
-+	*insn++ = BPF_ALU64_REG(BPF_SUB, reg, BPF_REG_AX);
-+
-+	if (si->src_reg == si->dst_reg) {
-+		/* Restore the saved register */
-+		*insn++ = BPF_MOV64_REG(BPF_REG_AX, si->src_reg);
-+		*insn++ = BPF_MOV64_REG(si->dst_reg, reg);
-+		*insn++ = BPF_LDX_MEM(BPF_DW, reg, BPF_REG_AX, temp_reg_off);
-+	}
+-		/* Set memory burst size */
+-		src_maxburst = STM32_DMA_MAX_BURST;
++		/*
++		 * Set memory burst size - burst not possible if address is not aligned on
++		 * the address boundary equal to the size of the transfer
++		 */
++		if (buf_addr % buf_len)
++			src_maxburst = 1;
++		else
++			src_maxburst = STM32_DMA_MAX_BURST;
+ 		src_best_burst = stm32_dma_get_best_burst(buf_len,
+ 							  src_maxburst,
+ 							  fifoth,
+@@ -800,8 +806,14 @@ static int stm32_dma_set_xfer_param(struct stm32_dma_chan *chan,
+ 		if (dst_bus_width < 0)
+ 			return dst_bus_width;
  
- 	return insn;
- }
+-		/* Set memory burst size */
+-		dst_maxburst = STM32_DMA_MAX_BURST;
++		/*
++		 * Set memory burst size - burst not possible if address is not aligned on
++		 * the address boundary equal to the size of the transfer
++		 */
++		if (buf_addr % buf_len)
++			dst_maxburst = 1;
++		else
++			dst_maxburst = STM32_DMA_MAX_BURST;
+ 		dst_best_burst = stm32_dma_get_best_burst(buf_len,
+ 							  dst_maxburst,
+ 							  fifoth,
 -- 
 2.33.0
 
