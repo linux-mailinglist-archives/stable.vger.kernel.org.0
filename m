@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 515E74523A6
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:26:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF6214527AD
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:27:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379088AbhKPB1L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:27:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35154 "EHLO mail.kernel.org"
+        id S242289AbhKPCaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:30:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243882AbhKOTEg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:04:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65B546337E;
-        Mon, 15 Nov 2021 18:15:52 +0000 (UTC)
+        id S235145AbhKORQx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:16:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA12D63256;
+        Mon, 15 Nov 2021 17:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000152;
-        bh=pj/EPA4p4QARvQXsM/wTSZzcIH5BEW0FtvfHfw1X9TQ=;
+        s=korg; t=1636996371;
+        bh=wFMUeH1FDA87z3CGgGJ9U3yq3OQ7CrXInZWnOAy9wXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fAchHsvTDwFtJ6DSkuncVDDWAyevdZPyfUTEJZ/3Zj45RxTgUD4f3V+27I3u8F+D2
-         6hcEirIqA67AD9CS0cBYdnTAzvtm0ztmSs+3H/gP3aBpbMlJ9JiFEjekK3BuffRFEj
-         W9jysO0Y+PZ4YSxTU+5n7iMQW/sCtJVfUliB2dzw=
+        b=VHDmnGZQS5/5pfbaeWF7BlNBByry146KowPY1wLzdjp2kyeS5Yvp11URpg4uRga9Y
+         GNjOjv4xeQMMjMrmRPNbeAQoYks2OqHwkyOV2nW4z0O4MN8KT8uW8+F3Uk81stATuT
+         5zfo/35kXIXYt05gu+rFyLW9ChuHFl00ZXdaUvwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Ajish Koshy <Ajish.Koshy@microchip.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 556/849] scsi: pm80xx: Fix lockup in outbound queue management
-Date:   Mon, 15 Nov 2021 18:00:39 +0100
-Message-Id: <20211115165439.066164451@linuxfoundation.org>
+Subject: [PATCH 5.4 116/355] Bluetooth: sco: Fix lock_sock() blockage by memcpy_from_msg()
+Date:   Mon, 15 Nov 2021 18:00:40 +0100
+Message-Id: <20211115165317.561104921@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,230 +40,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajish Koshy <Ajish.Koshy@microchip.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit b27a40534ef76a22628a5c12f98ea489823a8ba5 ]
+[ Upstream commit 99c23da0eed4fd20cae8243f2b51e10e66aa0951 ]
 
-Commit 1f02beff224e ("scsi: pm80xx: Remove global lock from outbound queue
-processing") introduced a lock per outbound queue. Prior to that change the
-driver was using a global lock for all outbound queues.
+The sco_send_frame() also takes lock_sock() during memcpy_from_msg()
+call that may be endlessly blocked by a task with userfaultd
+technique, and this will result in a hung task watchdog trigger.
 
-While processing the I/O responses and events the driver takes the outbound
-queue spinlock and is supposed to release it in pm8001_ccb_task_free_done()
-before calling command done(). Since the older code was using a global
-lock, pm8001_ccb_task_free_done() was releasing the global spin lock. The
-change that split the lock per outbound queue did not consider this and
-pm8001_ccb_task_free_done() was still releasing the global lock.
+Just like the similar fix for hci_sock_sendmsg() in commit
+92c685dc5de0 ("Bluetooth: reorganize functions..."), this patch moves
+the  memcpy_from_msg() out of lock_sock() for addressing the hang.
 
-Link: https://lore.kernel.org/r/20210906170404.5682-3-Ajish.Koshy@microchip.com
-Fixes: 1f02beff224e ("scsi: pm80xx: Remove global lock from outbound queue processing")
-Acked-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Ajish Koshy <Ajish.Koshy@microchip.com>
-Signed-off-by: Viswas G <Viswas.G@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This should be the last piece for fixing CVE-2021-3640 after a few
+already queued fixes.
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_sas.h |  3 +-
- drivers/scsi/pm8001/pm80xx_hwi.c | 53 ++++++++++++++++++++++++++------
- 2 files changed, 45 insertions(+), 11 deletions(-)
+ net/bluetooth/sco.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_sas.h b/drivers/scsi/pm8001/pm8001_sas.h
-index 62d08b535a4b6..e18f2b60371db 100644
---- a/drivers/scsi/pm8001/pm8001_sas.h
-+++ b/drivers/scsi/pm8001/pm8001_sas.h
-@@ -457,6 +457,7 @@ struct outbound_queue_table {
- 	__le32			producer_index;
- 	u32			consumer_idx;
- 	spinlock_t		oq_lock;
-+	unsigned long		lock_flags;
- };
- struct pm8001_hba_memspace {
- 	void __iomem  		*memvirtaddr;
-@@ -738,9 +739,7 @@ pm8001_ccb_task_free_done(struct pm8001_hba_info *pm8001_ha,
- {
- 	pm8001_ccb_task_free(pm8001_ha, task, ccb, ccb_idx);
- 	smp_mb(); /*in order to force CPU ordering*/
--	spin_unlock(&pm8001_ha->lock);
- 	task->task_done(task);
--	spin_lock(&pm8001_ha->lock);
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index 1915943bb646a..cc5a1d2545679 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -280,7 +280,8 @@ static int sco_connect(struct hci_dev *hdev, struct sock *sk)
+ 	return err;
  }
  
- #endif
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index 6ffe17b849ae8..ed02e1aaf868c 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -2379,7 +2379,8 @@ static void mpi_ssp_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 
- /*See the comments for mpi_ssp_completion */
- static void
--mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
-+mpi_sata_completion(struct pm8001_hba_info *pm8001_ha,
-+		struct outbound_queue_table *circularQ, void *piomb)
+-static int sco_send_frame(struct sock *sk, struct msghdr *msg, int len)
++static int sco_send_frame(struct sock *sk, void *buf, int len,
++			  unsigned int msg_flags)
  {
- 	struct sas_task *t;
- 	struct pm8001_ccb_info *ccb;
-@@ -2616,7 +2617,11 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 				IO_OPEN_CNX_ERROR_IT_NEXUS_LOSS);
- 			ts->resp = SAS_TASK_UNDELIVERED;
- 			ts->stat = SAS_QUEUE_FULL;
-+			spin_unlock_irqrestore(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
-+			spin_lock_irqsave(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			return;
- 		}
- 		break;
-@@ -2632,7 +2637,11 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 				IO_OPEN_CNX_ERROR_IT_NEXUS_LOSS);
- 			ts->resp = SAS_TASK_UNDELIVERED;
- 			ts->stat = SAS_QUEUE_FULL;
-+			spin_unlock_irqrestore(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
-+			spin_lock_irqsave(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			return;
- 		}
- 		break;
-@@ -2656,7 +2665,11 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 				IO_OPEN_CNX_ERROR_STP_RESOURCES_BUSY);
- 			ts->resp = SAS_TASK_UNDELIVERED;
- 			ts->stat = SAS_QUEUE_FULL;
-+			spin_unlock_irqrestore(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
-+			spin_lock_irqsave(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			return;
- 		}
- 		break;
-@@ -2727,7 +2740,11 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 					IO_DS_NON_OPERATIONAL);
- 			ts->resp = SAS_TASK_UNDELIVERED;
- 			ts->stat = SAS_QUEUE_FULL;
-+			spin_unlock_irqrestore(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
-+			spin_lock_irqsave(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			return;
- 		}
- 		break;
-@@ -2747,7 +2764,11 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 					IO_DS_IN_ERROR);
- 			ts->resp = SAS_TASK_UNDELIVERED;
- 			ts->stat = SAS_QUEUE_FULL;
-+			spin_unlock_irqrestore(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
-+			spin_lock_irqsave(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			return;
- 		}
- 		break;
-@@ -2785,12 +2806,17 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
- 	} else {
- 		spin_unlock_irqrestore(&t->task_state_lock, flags);
-+		spin_unlock_irqrestore(&circularQ->oq_lock,
-+				circularQ->lock_flags);
- 		pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
-+		spin_lock_irqsave(&circularQ->oq_lock,
-+				circularQ->lock_flags);
- 	}
- }
+ 	struct sco_conn *conn = sco_pi(sk)->conn;
+ 	struct sk_buff *skb;
+@@ -292,15 +293,11 @@ static int sco_send_frame(struct sock *sk, struct msghdr *msg, int len)
  
- /*See the comments for mpi_ssp_completion */
--static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
-+static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha,
-+		struct outbound_queue_table *circularQ, void *piomb)
+ 	BT_DBG("sk %p len %d", sk, len);
+ 
+-	skb = bt_skb_send_alloc(sk, len, msg->msg_flags & MSG_DONTWAIT, &err);
++	skb = bt_skb_send_alloc(sk, len, msg_flags & MSG_DONTWAIT, &err);
+ 	if (!skb)
+ 		return err;
+ 
+-	if (memcpy_from_msg(skb_put(skb, len), msg, len)) {
+-		kfree_skb(skb);
+-		return -EFAULT;
+-	}
+-
++	memcpy(skb_put(skb, len), buf, len);
+ 	hci_send_sco(conn->hcon, skb);
+ 
+ 	return len;
+@@ -714,6 +711,7 @@ static int sco_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 			    size_t len)
  {
- 	struct sas_task *t;
- 	struct task_status_struct *ts;
-@@ -2890,7 +2916,11 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 				IO_OPEN_CNX_ERROR_IT_NEXUS_LOSS);
- 			ts->resp = SAS_TASK_COMPLETE;
- 			ts->stat = SAS_QUEUE_FULL;
-+			spin_unlock_irqrestore(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
-+			spin_lock_irqsave(&circularQ->oq_lock,
-+					circularQ->lock_flags);
- 			return;
- 		}
- 		break;
-@@ -3002,7 +3032,11 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
- 	} else {
- 		spin_unlock_irqrestore(&t->task_state_lock, flags);
-+		spin_unlock_irqrestore(&circularQ->oq_lock,
-+				circularQ->lock_flags);
- 		pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
-+		spin_lock_irqsave(&circularQ->oq_lock,
-+				circularQ->lock_flags);
- 	}
- }
+ 	struct sock *sk = sock->sk;
++	void *buf;
+ 	int err;
  
-@@ -3902,7 +3936,8 @@ static int ssp_coalesced_comp_resp(struct pm8001_hba_info *pm8001_ha,
-  * @pm8001_ha: our hba card information
-  * @piomb: IO message buffer
-  */
--static void process_one_iomb(struct pm8001_hba_info *pm8001_ha, void *piomb)
-+static void process_one_iomb(struct pm8001_hba_info *pm8001_ha,
-+		struct outbound_queue_table *circularQ, void *piomb)
- {
- 	__le32 pHeader = *(__le32 *)piomb;
- 	u32 opc = (u32)((le32_to_cpu(pHeader)) & 0xFFF);
-@@ -3944,11 +3979,11 @@ static void process_one_iomb(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 		break;
- 	case OPC_OUB_SATA_COMP:
- 		pm8001_dbg(pm8001_ha, MSG, "OPC_OUB_SATA_COMP\n");
--		mpi_sata_completion(pm8001_ha, piomb);
-+		mpi_sata_completion(pm8001_ha, circularQ, piomb);
- 		break;
- 	case OPC_OUB_SATA_EVENT:
- 		pm8001_dbg(pm8001_ha, MSG, "OPC_OUB_SATA_EVENT\n");
--		mpi_sata_event(pm8001_ha, piomb);
-+		mpi_sata_event(pm8001_ha, circularQ, piomb);
- 		break;
- 	case OPC_OUB_SSP_EVENT:
- 		pm8001_dbg(pm8001_ha, MSG, "OPC_OUB_SSP_EVENT\n");
-@@ -4117,7 +4152,6 @@ static int process_oq(struct pm8001_hba_info *pm8001_ha, u8 vec)
- 	void *pMsg1 = NULL;
- 	u8 bc;
- 	u32 ret = MPI_IO_STATUS_FAIL;
--	unsigned long flags;
- 	u32 regval;
+ 	BT_DBG("sock %p, sk %p", sock, sk);
+@@ -725,14 +723,24 @@ static int sco_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 	if (msg->msg_flags & MSG_OOB)
+ 		return -EOPNOTSUPP;
  
- 	if (vec == (pm8001_ha->max_q_num - 1)) {
-@@ -4134,7 +4168,7 @@ static int process_oq(struct pm8001_hba_info *pm8001_ha, u8 vec)
- 		}
- 	}
- 	circularQ = &pm8001_ha->outbnd_q_tbl[vec];
--	spin_lock_irqsave(&circularQ->oq_lock, flags);
-+	spin_lock_irqsave(&circularQ->oq_lock, circularQ->lock_flags);
- 	do {
- 		/* spurious interrupt during setup if kexec-ing and
- 		 * driver doing a doorbell access w/ the pre-kexec oq
-@@ -4145,7 +4179,8 @@ static int process_oq(struct pm8001_hba_info *pm8001_ha, u8 vec)
- 		ret = pm8001_mpi_msg_consume(pm8001_ha, circularQ, &pMsg1, &bc);
- 		if (MPI_IO_STATUS_SUCCESS == ret) {
- 			/* process the outbound message */
--			process_one_iomb(pm8001_ha, (void *)(pMsg1 - 4));
-+			process_one_iomb(pm8001_ha, circularQ,
-+						(void *)(pMsg1 - 4));
- 			/* free the message from the outbound circular buffer */
- 			pm8001_mpi_msg_free_set(pm8001_ha, pMsg1,
- 							circularQ, bc);
-@@ -4160,7 +4195,7 @@ static int process_oq(struct pm8001_hba_info *pm8001_ha, u8 vec)
- 				break;
- 		}
- 	} while (1);
--	spin_unlock_irqrestore(&circularQ->oq_lock, flags);
-+	spin_unlock_irqrestore(&circularQ->oq_lock, circularQ->lock_flags);
- 	return ret;
++	buf = kmalloc(len, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	if (memcpy_from_msg(buf, msg, len)) {
++		kfree(buf);
++		return -EFAULT;
++	}
++
+ 	lock_sock(sk);
+ 
+ 	if (sk->sk_state == BT_CONNECTED)
+-		err = sco_send_frame(sk, msg, len);
++		err = sco_send_frame(sk, buf, len, msg->msg_flags);
+ 	else
+ 		err = -ENOTCONN;
+ 
+ 	release_sock(sk);
++	kfree(buf);
+ 	return err;
  }
  
 -- 
