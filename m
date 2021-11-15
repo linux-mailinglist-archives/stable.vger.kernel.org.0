@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D34F451EF2
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:35:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 112A5451EF6
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:35:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347733AbhKPAiE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:38:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45396 "EHLO mail.kernel.org"
+        id S243759AbhKPAiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:38:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344602AbhKOTZE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344598AbhKOTZE (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2E1B63347;
-        Mon, 15 Nov 2021 19:00:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68B6D63697;
+        Mon, 15 Nov 2021 19:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002842;
-        bh=47UUidKVJvjpqfqoGXab7vR8mElUYdvuxqyYcFCoWuQ=;
+        s=korg; t=1637002845;
+        bh=/JddBWnmxlu66qfNt8DF/M/IEQixJTQpsPYN+2VCSYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znjwJr9UC55v5BmJ2lcF2+I2Nc0M0JrPF3xY57aU2yBBKFDRReDbcCg+LhgEy1LPB
-         7kGuzAnc+RbBIf8959SZMBJbrl4isYRb4IJGmkcygz8WtlWZEnDa1ENIkWEZl1Lni1
-         kmr0Njs+EQUbE5U1ZjcmjtB9r1KCaYeuok4ujcdI=
+        b=CVOp5Rx306ngiHK4jgiYD2iMS0Gw27Ft4YvKQYE96rN0PRsQtRBXfAZaHugfKeU9N
+         udNQXybURZctNc3T/DiRTucSLLaeTBDhdLtwMacGaPOhOfYE+jS824bNprbU/3QYfz
+         sd8t92Kay4gENEoDy2v5EYVAAcfsu6ffNaoacqy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Nicolas Schier <n.schier@avm.de>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Mike Marshall <hubcap@omnibond.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 717/917] sparc: Add missing "FORCE" target when using if_changed
-Date:   Mon, 15 Nov 2021 18:03:32 +0100
-Message-Id: <20211115165453.214509557@linuxfoundation.org>
+Subject: [PATCH 5.15 718/917] fs: orangefs: fix error return code of orangefs_revalidate_lookup()
+Date:   Mon, 15 Nov 2021 18:03:33 +0100
+Message-Id: <20211115165453.246135673@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,63 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit a3c7ca2b141b9735eb383246e966a4f4322e3e65 ]
+[ Upstream commit 4c2b46c824a78fc8190d8eafaaea5a9078fe7479 ]
 
-Fix observed warning:
+When op_alloc() returns NULL to new_op, no error return code of
+orangefs_revalidate_lookup() is assigned.
+To fix this bug, ret is assigned with -ENOMEM in this case.
 
-    /builds/linux/arch/sparc/boot/Makefile:35: FORCE prerequisite is missing
-
-Fixes: e1f86d7b4b2a ("kbuild: warn if FORCE is missing for if_changed(_dep,_rule) and filechk")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Nicolas Schier <n.schier@avm.de>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: 8bb8aefd5afb ("OrangeFS: Change almost all instances of the string PVFS2 to OrangeFS.")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/boot/Makefile | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/orangefs/dcache.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/sparc/boot/Makefile b/arch/sparc/boot/Makefile
-index 849236d4eca48..45e5c76d449ea 100644
---- a/arch/sparc/boot/Makefile
-+++ b/arch/sparc/boot/Makefile
-@@ -22,7 +22,7 @@ ifeq ($(CONFIG_SPARC64),y)
+diff --git a/fs/orangefs/dcache.c b/fs/orangefs/dcache.c
+index fe484cf93e5cd..8bbe9486e3a62 100644
+--- a/fs/orangefs/dcache.c
++++ b/fs/orangefs/dcache.c
+@@ -26,8 +26,10 @@ static int orangefs_revalidate_lookup(struct dentry *dentry)
+ 	gossip_debug(GOSSIP_DCACHE_DEBUG, "%s: attempting lookup.\n", __func__);
  
- # Actual linking
+ 	new_op = op_alloc(ORANGEFS_VFS_OP_LOOKUP);
+-	if (!new_op)
++	if (!new_op) {
++		ret = -ENOMEM;
+ 		goto out_put_parent;
++	}
  
--$(obj)/zImage: $(obj)/image
-+$(obj)/zImage: $(obj)/image FORCE
- 	$(call if_changed,gzip)
- 	@echo '  kernel: $@ is ready'
- 
-@@ -31,7 +31,7 @@ $(obj)/vmlinux.aout: vmlinux FORCE
- 	@echo '  kernel: $@ is ready'
- else
- 
--$(obj)/zImage: $(obj)/image
-+$(obj)/zImage: $(obj)/image FORCE
- 	$(call if_changed,strip)
- 	@echo '  kernel: $@ is ready'
- 
-@@ -44,7 +44,7 @@ OBJCOPYFLAGS_image.bin := -S -O binary -R .note -R .comment
- $(obj)/image.bin: $(obj)/image FORCE
- 	$(call if_changed,objcopy)
- 
--$(obj)/image.gz: $(obj)/image.bin
-+$(obj)/image.gz: $(obj)/image.bin FORCE
- 	$(call if_changed,gzip)
- 
- UIMAGE_LOADADDR = $(CONFIG_UBOOT_LOAD_ADDR)
-@@ -56,7 +56,7 @@ quiet_cmd_uimage.o = UIMAGE.O $@
-                      -r -b binary $@ -o $@.o
- 
- targets += uImage
--$(obj)/uImage: $(obj)/image.gz
-+$(obj)/uImage: $(obj)/image.gz FORCE
- 	$(call if_changed,uimage)
- 	$(call if_changed,uimage.o)
- 	@echo '  Image $@ is ready'
+ 	new_op->upcall.req.lookup.sym_follow = ORANGEFS_LOOKUP_LINK_NO_FOLLOW;
+ 	new_op->upcall.req.lookup.parent_refn = parent->refn;
 -- 
 2.33.0
 
