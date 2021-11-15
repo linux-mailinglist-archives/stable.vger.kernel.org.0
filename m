@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 214DA4512C1
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F6445126B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347333AbhKOTjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:39:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1347350AbhKOTjq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245005AbhKOTSV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245007AbhKOTSV (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:18:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6615C63330;
-        Mon, 15 Nov 2021 18:26:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4951C63435;
+        Mon, 15 Nov 2021 18:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000807;
-        bh=s2btmeoulTkQ7X08HdiVya+y5tDUJ5bQHiwoRVk91aY=;
+        s=korg; t=1637000812;
+        bh=yhwfpwdu/KnbovWSFDg1gKZqmTndNAL9H7hSu/+Bnf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BvKMC9EfMenp68QBUG9PtU9skZCrd+NZcTywhIM8425c9zvORl3m0WcyWysq82iV4
-         ClOB7dF7Dp32R60dRPoj6ctSq3g6HjF1ANMsfv04skc9bCZgDvCewxruS5XgspxPRX
-         WG8Y5hGlFmSwhFNgQ9hM3QDpnPD2gpjLAPyfGW8M=
+        b=xr1FGG3rVMW+Jt2YSY9rnDToBtimyiX9po2VvRhWPXVFvYvuzKFLyLfNxMZvYlP+Z
+         W4bfOny3bO16ZR9W8P8SagrSNhWN9Tkjp1Kj0fPHfaYtF7/rvFViylohgt3mipyuiY
+         5490Uqp3bXVVMKLTk0kv9h4Q3khI2evJHW0N8SYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>
-Subject: [PATCH 5.14 799/849] erofs: fix unsafe pagevec reuse of hooked pclusters
-Date:   Mon, 15 Nov 2021 18:04:42 +0100
-Message-Id: <20211115165447.268251260@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.14 801/849] dmaengine: ti: k3-udma: Set r/tchan or rflow to NULL if request fail
+Date:   Mon, 15 Nov 2021 18:04:44 +0100
+Message-Id: <20211115165447.329138823@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,121 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit 86432a6dca9bed79111990851df5756d3eb5f57c upstream.
+commit eb91224e47ec33a0a32c9be0ec0fcb3433e555fd upstream.
 
-There are pclusters in runtime marked with Z_EROFS_PCLUSTER_TAIL
-before actual I/O submission. Thus, the decompression chain can be
-extended if the following pcluster chain hooks such tail pcluster.
+udma_get_*() checks if rchan/tchan/rflow is already allocated by checking
+if it has a NON NULL value. For the error cases, rchan/tchan/rflow will
+have error value and udma_get_*() considers this as already allocated
+(PASS) since the error values are NON NULL. This results in NULL pointer
+dereference error while de-referencing rchan/tchan/rflow.
 
-As the related comment mentioned, if some page is made of a hooked
-pcluster and another followed pcluster, it can be reused for in-place
-I/O (since I/O should be submitted anyway):
- _______________________________________________________________
-|  tail (partial) page |          head (partial) page           |
-|_____PRIMARY_HOOKED___|____________PRIMARY_FOLLOWED____________|
+Reset the value of rchan/tchan/rflow to NULL if a channel request fails.
 
-However, it's by no means safe to reuse as pagevec since if such
-PRIMARY_HOOKED pclusters finally move into bypass chain without I/O
-submission. It's somewhat hard to reproduce with LZ4 and I just found
-it (general protection fault) by ro_fsstressing a LZMA image for long
-time.
-
-I'm going to actively clean up related code together with multi-page
-folio adaption in the next few months. Let's address it directly for
-easier backporting for now.
-
-Call trace for reference:
-  z_erofs_decompress_pcluster+0x10a/0x8a0 [erofs]
-  z_erofs_decompress_queue.isra.36+0x3c/0x60 [erofs]
-  z_erofs_runqueue+0x5f3/0x840 [erofs]
-  z_erofs_readahead+0x1e8/0x320 [erofs]
-  read_pages+0x91/0x270
-  page_cache_ra_unbounded+0x18b/0x240
-  filemap_get_pages+0x10a/0x5f0
-  filemap_read+0xa9/0x330
-  new_sync_read+0x11b/0x1a0
-  vfs_read+0xf1/0x190
-
-Link: https://lore.kernel.org/r/20211103182006.4040-1-xiang@kernel.org
-Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
-Cc: <stable@vger.kernel.org> # 4.19+
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+CC: stable@vger.kernel.org
+Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Link: https://lore.kernel.org/r/20211031032411.27235-3-kishon@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/erofs/zdata.c |   13 +++++++------
- fs/erofs/zpvec.h |   13 ++++++++++---
- 2 files changed, 17 insertions(+), 9 deletions(-)
+ drivers/dma/ti/k3-udma.c |   24 ++++++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
 
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -375,8 +375,8 @@ static bool z_erofs_try_inplace_io(struc
- 
- /* callers must be with collection lock held */
- static int z_erofs_attach_page(struct z_erofs_collector *clt,
--			       struct page *page,
--			       enum z_erofs_page_type type)
-+			       struct page *page, enum z_erofs_page_type type,
-+			       bool pvec_safereuse)
+--- a/drivers/dma/ti/k3-udma.c
++++ b/drivers/dma/ti/k3-udma.c
+@@ -1380,6 +1380,7 @@ static int bcdma_get_bchan(struct udma_c
+ static int udma_get_tchan(struct udma_chan *uc)
  {
- 	int ret;
+ 	struct udma_dev *ud = uc->ud;
++	int ret;
  
-@@ -386,9 +386,9 @@ static int z_erofs_attach_page(struct z_
- 	    z_erofs_try_inplace_io(clt, page))
- 		return 0;
- 
--	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type);
-+	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type,
-+				      pvec_safereuse);
- 	clt->cl->vcnt += (unsigned int)ret;
--
- 	return ret ? 0 : -EAGAIN;
- }
- 
-@@ -731,7 +731,8 @@ hitted:
- 		tight &= (clt->mode >= COLLECT_PRIMARY_FOLLOWED);
- 
- retry:
--	err = z_erofs_attach_page(clt, page, page_type);
-+	err = z_erofs_attach_page(clt, page, page_type,
-+				  clt->mode >= COLLECT_PRIMARY_FOLLOWED);
- 	/* should allocate an additional short-lived page for pagevec */
- 	if (err == -EAGAIN) {
- 		struct page *const newpage =
-@@ -739,7 +740,7 @@ retry:
- 
- 		set_page_private(newpage, Z_EROFS_SHORTLIVED_PAGE);
- 		err = z_erofs_attach_page(clt, newpage,
--					  Z_EROFS_PAGE_TYPE_EXCLUSIVE);
-+					  Z_EROFS_PAGE_TYPE_EXCLUSIVE, true);
- 		if (!err)
- 			goto retry;
- 	}
---- a/fs/erofs/zpvec.h
-+++ b/fs/erofs/zpvec.h
-@@ -106,11 +106,18 @@ static inline void z_erofs_pagevec_ctor_
- 
- static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
- 					   struct page *page,
--					   enum z_erofs_page_type type)
-+					   enum z_erofs_page_type type,
-+					   bool pvec_safereuse)
- {
--	if (!ctor->next && type)
--		if (ctor->index + 1 == ctor->nr)
-+	if (!ctor->next) {
-+		/* some pages cannot be reused as pvec safely without I/O */
-+		if (type == Z_EROFS_PAGE_TYPE_EXCLUSIVE && !pvec_safereuse)
-+			type = Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED;
-+
-+		if (type != Z_EROFS_PAGE_TYPE_EXCLUSIVE &&
-+		    ctor->index + 1 == ctor->nr)
- 			return false;
+ 	if (uc->tchan) {
+ 		dev_dbg(ud->dev, "chan%d: already have tchan%d allocated\n",
+@@ -1394,8 +1395,11 @@ static int udma_get_tchan(struct udma_ch
+ 	 */
+ 	uc->tchan = __udma_reserve_tchan(ud, uc->config.channel_tpl,
+ 					 uc->config.mapped_channel_id);
+-	if (IS_ERR(uc->tchan))
+-		return PTR_ERR(uc->tchan);
++	if (IS_ERR(uc->tchan)) {
++		ret = PTR_ERR(uc->tchan);
++		uc->tchan = NULL;
++		return ret;
 +	}
  
- 	if (ctor->index >= ctor->nr)
- 		z_erofs_pagevec_ctor_pagedown(ctor, false);
+ 	if (ud->tflow_cnt) {
+ 		int tflow_id;
+@@ -1425,6 +1429,7 @@ static int udma_get_tchan(struct udma_ch
+ static int udma_get_rchan(struct udma_chan *uc)
+ {
+ 	struct udma_dev *ud = uc->ud;
++	int ret;
+ 
+ 	if (uc->rchan) {
+ 		dev_dbg(ud->dev, "chan%d: already have rchan%d allocated\n",
+@@ -1439,8 +1444,13 @@ static int udma_get_rchan(struct udma_ch
+ 	 */
+ 	uc->rchan = __udma_reserve_rchan(ud, uc->config.channel_tpl,
+ 					 uc->config.mapped_channel_id);
++	if (IS_ERR(uc->rchan)) {
++		ret = PTR_ERR(uc->rchan);
++		uc->rchan = NULL;
++		return ret;
++	}
+ 
+-	return PTR_ERR_OR_ZERO(uc->rchan);
++	return 0;
+ }
+ 
+ static int udma_get_chan_pair(struct udma_chan *uc)
+@@ -1494,6 +1504,7 @@ static int udma_get_chan_pair(struct udm
+ static int udma_get_rflow(struct udma_chan *uc, int flow_id)
+ {
+ 	struct udma_dev *ud = uc->ud;
++	int ret;
+ 
+ 	if (!uc->rchan) {
+ 		dev_err(ud->dev, "chan%d: does not have rchan??\n", uc->id);
+@@ -1507,8 +1518,13 @@ static int udma_get_rflow(struct udma_ch
+ 	}
+ 
+ 	uc->rflow = __udma_get_rflow(ud, flow_id);
++	if (IS_ERR(uc->rflow)) {
++		ret = PTR_ERR(uc->rflow);
++		uc->rflow = NULL;
++		return ret;
++	}
+ 
+-	return PTR_ERR_OR_ZERO(uc->rflow);
++	return 0;
+ }
+ 
+ static void bcdma_put_bchan(struct udma_chan *uc)
 
 
