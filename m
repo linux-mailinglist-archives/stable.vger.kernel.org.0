@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75078451428
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C66645141E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349314AbhKOUGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:06:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
+        id S1349311AbhKOUGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:06:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344426AbhKOTYk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344427AbhKOTYk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:24:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AF096348E;
-        Mon, 15 Nov 2021 18:57:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C158963491;
+        Mon, 15 Nov 2021 18:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002654;
-        bh=qF+PHc7TDrzIDprQc2qwuO15IpS/3BvqDBrfRHlMus4=;
+        s=korg; t=1637002657;
+        bh=LRl468M4MZZiIM/cUvq7vGAThhER+auvJ6nEzPrl5os=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVjliRRb2ZDxMuiIbPLEuQywjIsXQGmAWxv/76dEzAcmJLTw3ToW3RmGLsporn62Q
-         TGzp8Vc7F7vmpdT3rPB6kstLZvzSEiPWhtPfJ9E4q12O/xLZtB+bp+O4TjGptYDWRr
-         /okcmcOAgxC3WFQgN0oqbgyv3XtWNn/3NvcCDEsI=
+        b=ZsytaYo/AklM/g3Czex0jyQlAaoO+ukoUEpn+2ce4g7dd/zwQAMSkPhsZIf+NMwf4
+         0lEStYATD6LgyKMo3hrTLudorHINcDwx124IwXYKsmxC292jcv9sr/wZtqlHXrpDnu
+         a++OQ9uSy/jP4OXUcbfdluUemc+DMtQtNskHxOBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
         Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 648/917] soundwire: bus: stop dereferencing invalid slave pointer
-Date:   Mon, 15 Nov 2021 18:02:23 +0100
-Message-Id: <20211115165450.836546403@linuxfoundation.org>
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 649/917] scsi: ufs: ufshcd-pltfrm: Fix memory leak due to probe defer
+Date:   Mon, 15 Nov 2021 18:02:24 +0100
+Message-Id: <20211115165450.873727338@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,51 +43,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 4cbbe74d906be0bcffbe1e74b43a00f99626a69c ]
+[ Upstream commit b6ca770ae7f2c560a29bbd02c4e3d734fafaf804 ]
 
-Slave pointer is invalid after end of list iteration, using this
-would result in below Memory abort.
+UFS drivers that probe defer will end up leaking memory allocated for clk
+and regulator names via kstrdup() because the structure that is holding
+this memory is allocated via devm_* variants which will be freed during
+probe defer but the names are never freed.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000004
-...
-Call trace:
- __dev_printk+0x34/0x7c
- _dev_warn+0x6c/0x90
- sdw_bus_exit_clk_stop+0x194/0x1d0
- swrm_runtime_resume+0x13c/0x238
- pm_generic_runtime_resume+0x2c/0x48
- __rpm_callback+0x44/0x150
- rpm_callback+0x6c/0x78
- rpm_resume+0x314/0x558
- rpm_resume+0x378/0x558
- rpm_resume+0x378/0x558
- __pm_runtime_resume+0x3c/0x88
+Use same devm_* variant of kstrdup to free the memory allocated to name
+when driver probe defers.
 
-Use bus->dev instead to print this error message.
+Kmemleak found around 11 leaks on Qualcomm Dragon Board RB5:
 
-Fixes: b50bb8ba369cd ("soundwire: bus: handle -ENODATA errors in clock stop/start sequences")
+unreferenced object 0xffff66f243fb2c00 (size 128):
+  comm "kworker/u16:0", pid 7, jiffies 4294893319 (age 94.848s)
+  hex dump (first 32 bytes):
+    63 6f 72 65 5f 63 6c 6b 00 76 69 72 74 75 61 6c  core_clk.virtual
+    2f 77 6f 72 6b 71 75 65 75 65 2f 73 63 73 69 5f  /workqueue/scsi_
+  backtrace:
+    [<000000006f788cd1>] slab_post_alloc_hook+0x88/0x410
+    [<00000000cfd1372b>] __kmalloc_track_caller+0x138/0x230
+    [<00000000a92ab17b>] kstrdup+0xb0/0x110
+    [<0000000037263ab6>] ufshcd_pltfrm_init+0x1a8/0x500
+    [<00000000a20a5caa>] ufs_qcom_probe+0x20/0x58
+    [<00000000a5e43067>] platform_probe+0x6c/0x118
+    [<00000000ef686e3f>] really_probe+0xc4/0x330
+    [<000000005b18792c>] __driver_probe_device+0x88/0x118
+    [<00000000a5d295e8>] driver_probe_device+0x44/0x158
+    [<000000007e83f58d>] __device_attach_driver+0xb4/0x128
+    [<000000004bfa4470>] bus_for_each_drv+0x68/0xd0
+    [<00000000b89a83bc>] __device_attach+0xec/0x170
+    [<00000000ada2beea>] device_initial_probe+0x14/0x20
+    [<0000000079921612>] bus_probe_device+0x9c/0xa8
+    [<00000000d268bf7c>] deferred_probe_work_func+0x90/0xd0
+    [<000000009ef64bfa>] process_one_work+0x29c/0x788
+unreferenced object 0xffff66f243fb2c80 (size 128):
+  comm "kworker/u16:0", pid 7, jiffies 4294893319 (age 94.848s)
+  hex dump (first 32 bytes):
+    62 75 73 5f 61 67 67 72 5f 63 6c 6b 00 00 00 00  bus_aggr_clk....
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+With this patch no memory leaks are reported.
+
+Link: https://lore.kernel.org/r/20210914092214.6468-1-srinivas.kandagatla@linaro.org
+Fixes: aa4976130934 ("ufs: Add regulator enable support")
+Fixes: c6e79dacd86f ("ufs: Add clock initialization support")
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20211012101521.32087-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd-pltfrm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soundwire/bus.c b/drivers/soundwire/bus.c
-index 1b115734a8f6b..67369e941d0d6 100644
---- a/drivers/soundwire/bus.c
-+++ b/drivers/soundwire/bus.c
-@@ -1110,7 +1110,7 @@ int sdw_bus_exit_clk_stop(struct sdw_bus *bus)
- 	if (!simple_clk_stop) {
- 		ret = sdw_bus_wait_for_clk_prep_deprep(bus, SDW_BROADCAST_DEV_NUM);
- 		if (ret < 0)
--			dev_warn(&slave->dev, "clock stop deprepare wait failed:%d\n", ret);
-+			dev_warn(bus->dev, "clock stop deprepare wait failed:%d\n", ret);
- 	}
+diff --git a/drivers/scsi/ufs/ufshcd-pltfrm.c b/drivers/scsi/ufs/ufshcd-pltfrm.c
+index 8859c13f4e091..eaeae83b999fd 100644
+--- a/drivers/scsi/ufs/ufshcd-pltfrm.c
++++ b/drivers/scsi/ufs/ufshcd-pltfrm.c
+@@ -91,7 +91,7 @@ static int ufshcd_parse_clock_info(struct ufs_hba *hba)
  
- 	list_for_each_entry(slave, &bus->slaves, node) {
+ 		clki->min_freq = clkfreq[i];
+ 		clki->max_freq = clkfreq[i+1];
+-		clki->name = kstrdup(name, GFP_KERNEL);
++		clki->name = devm_kstrdup(dev, name, GFP_KERNEL);
+ 		if (!strcmp(name, "ref_clk"))
+ 			clki->keep_link_active = true;
+ 		dev_dbg(dev, "%s: min %u max %u name %s\n", "freq-table-hz",
+@@ -126,7 +126,7 @@ static int ufshcd_populate_vreg(struct device *dev, const char *name,
+ 	if (!vreg)
+ 		return -ENOMEM;
+ 
+-	vreg->name = kstrdup(name, GFP_KERNEL);
++	vreg->name = devm_kstrdup(dev, name, GFP_KERNEL);
+ 
+ 	snprintf(prop_name, MAX_PROP_SIZE, "%s-max-microamp", name);
+ 	if (of_property_read_u32(np, prop_name, &vreg->max_uA)) {
 -- 
 2.33.0
 
