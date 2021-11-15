@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FE4451413
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8CFF45119A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:08:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348954AbhKOUBN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:01:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45222 "EHLO mail.kernel.org"
+        id S239647AbhKOTLX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:11:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344209AbhKOTYH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8542463640;
-        Mon, 15 Nov 2021 18:53:51 +0000 (UTC)
+        id S244025AbhKOTIZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:08:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 363AA63402;
+        Mon, 15 Nov 2021 18:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002431;
-        bh=R/fx+xIwvyzK1rDFa+j8Fl561fg3gXSRF1xdue3bc/4=;
+        s=korg; t=1637000278;
+        bh=968QfDD1pURssI5vp7c5C92KofDfJ4bAUDofdb6tsAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NMFE05A5ac9mswYEFf/eR35xIG5+1GYpjMuc9k1hviXIxref0nnvJsaTpQuT+TjtU
-         OyYeDeX3IawUXNEVVQ/H21dYW/RbPUkoPpRXPbOXGQRmUGZAG5dPwG9ekKfNrQtqjO
-         FFHUlOwNV/4SSy0dLsrdWuyo9hXUbbT7tm0FYeIQ=
+        b=ossZEH635yzLv4AfqME6mFfYB5I3fVOpiKjGBIl1bnOM7DsoOaY7L5NRCKa3VnO0R
+         mRQmCYdRlQM/yZTwcTdwknYcHnsVVJResD6d372xUc2qnuJxfFUAXIVszbx5y8/Y4N
+         rzNwlbpSBu0RbD8kLgvfO115SnVxIFDfwgghhg+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vaishnavi Bhat <vaish123@in.ibm.com>,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 557/917] ibmvnic: Process crqs after enabling interrupts
+Subject: [PATCH 5.14 569/849] bus: ti-sysc: Fix timekeeping_suspended warning on resume
 Date:   Mon, 15 Nov 2021 18:00:52 +0100
-Message-Id: <20211115165447.683420225@linuxfoundation.org>
+Message-Id: <20211115165439.495201728@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +39,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 6e20d00158f31f7631d68b86996b7e951c4451c8 ]
+[ Upstream commit b3e9431854e8f305385d5de225441c0477b936cb ]
 
-Soon after registering a CRQ it is possible that we get a fail over or
-maybe a CRQ_INIT from the VIOS while interrupts were disabled.
+On resume we can get a warning at kernel/time/timekeeping.c:824 for
+timekeeping_suspended.
 
-Look for any such CRQs after enabling interrupts.
+Let's fix this by adding separate functions for sysc_poll_reset_sysstatus()
+and sysc_poll_reset_sysconfig() and have the new functions handle also
+timekeeping_suspended.
 
-Otherwise we can intermittently fail to bring up ibmvnic adapters during
-boot, specially in kexec/kdump kernels.
+If iopoll at some point supports timekeeping_suspended, we can just drop
+the custom handling from these functions.
 
-Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
-Reported-by: Vaishnavi Bhat <vaish123@in.ibm.com>
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Reviewed-by: Dany Madden <drt@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d46f9fbec719 ("bus: ti-sysc: Use optional clocks on for enable and wait for softreset bit")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/bus/ti-sysc.c | 65 +++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 53 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 7438138c3766a..84961a83803b7 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -5412,6 +5412,9 @@ static int init_crq_queue(struct ibmvnic_adapter *adapter)
- 	crq->cur = 0;
- 	spin_lock_init(&crq->lock);
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 418ada474a85d..dd149cffe5e5b 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -17,6 +17,7 @@
+ #include <linux/of_platform.h>
+ #include <linux/slab.h>
+ #include <linux/sys_soc.h>
++#include <linux/timekeeping.h>
+ #include <linux/iopoll.h>
  
-+	/* process any CRQs that were queued before we enabled interrupts */
-+	tasklet_schedule(&adapter->tasklet);
+ #include <linux/platform_data/ti-sysc.h>
+@@ -223,37 +224,77 @@ static u32 sysc_read_sysstatus(struct sysc *ddata)
+ 	return sysc_read(ddata, offset);
+ }
+ 
+-/* Poll on reset status */
+-static int sysc_wait_softreset(struct sysc *ddata)
++static int sysc_poll_reset_sysstatus(struct sysc *ddata)
+ {
+-	u32 sysc_mask, syss_done, rstval;
+-	int syss_offset, error = 0;
+-
+-	if (ddata->cap->regbits->srst_shift < 0)
+-		return 0;
+-
+-	syss_offset = ddata->offsets[SYSC_SYSSTATUS];
+-	sysc_mask = BIT(ddata->cap->regbits->srst_shift);
++	int error, retries;
++	u32 syss_done, rstval;
+ 
+ 	if (ddata->cfg.quirks & SYSS_QUIRK_RESETDONE_INVERTED)
+ 		syss_done = 0;
+ 	else
+ 		syss_done = ddata->cfg.syss_mask;
+ 
+-	if (syss_offset >= 0) {
++	if (likely(!timekeeping_suspended)) {
+ 		error = readx_poll_timeout_atomic(sysc_read_sysstatus, ddata,
+ 				rstval, (rstval & ddata->cfg.syss_mask) ==
+ 				syss_done, 100, MAX_MODULE_SOFTRESET_WAIT);
++	} else {
++		retries = MAX_MODULE_SOFTRESET_WAIT;
++		while (retries--) {
++			rstval = sysc_read_sysstatus(ddata);
++			if ((rstval & ddata->cfg.syss_mask) == syss_done)
++				return 0;
++			udelay(2); /* Account for udelay flakeyness */
++		}
++		error = -ETIMEDOUT;
++	}
+ 
+-	} else if (ddata->cfg.quirks & SYSC_QUIRK_RESET_STATUS) {
++	return error;
++}
 +
- 	return retrc;
++static int sysc_poll_reset_sysconfig(struct sysc *ddata)
++{
++	int error, retries;
++	u32 sysc_mask, rstval;
++
++	sysc_mask = BIT(ddata->cap->regbits->srst_shift);
++
++	if (likely(!timekeeping_suspended)) {
+ 		error = readx_poll_timeout_atomic(sysc_read_sysconfig, ddata,
+ 				rstval, !(rstval & sysc_mask),
+ 				100, MAX_MODULE_SOFTRESET_WAIT);
++	} else {
++		retries = MAX_MODULE_SOFTRESET_WAIT;
++		while (retries--) {
++			rstval = sysc_read_sysconfig(ddata);
++			if (!(rstval & sysc_mask))
++				return 0;
++			udelay(2); /* Account for udelay flakeyness */
++		}
++		error = -ETIMEDOUT;
+ 	}
  
- req_irq_failed:
+ 	return error;
+ }
+ 
++/* Poll on reset status */
++static int sysc_wait_softreset(struct sysc *ddata)
++{
++	int syss_offset, error = 0;
++
++	if (ddata->cap->regbits->srst_shift < 0)
++		return 0;
++
++	syss_offset = ddata->offsets[SYSC_SYSSTATUS];
++
++	if (syss_offset >= 0)
++		error = sysc_poll_reset_sysstatus(ddata);
++	else if (ddata->cfg.quirks & SYSC_QUIRK_RESET_STATUS)
++		error = sysc_poll_reset_sysconfig(ddata);
++
++	return error;
++}
++
+ static int sysc_add_named_clock_from_child(struct sysc *ddata,
+ 					   const char *name,
+ 					   const char *optfck_name)
 -- 
 2.33.0
 
