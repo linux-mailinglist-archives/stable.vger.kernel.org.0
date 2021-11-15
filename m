@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AA1A4513D8
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE033451441
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233743AbhKOT5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:57:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
+        id S1348110AbhKOT6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:58:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344095AbhKOTXW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344098AbhKOTXW (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:23:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D67B563476;
-        Mon, 15 Nov 2021 18:51:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73952633BF;
+        Mon, 15 Nov 2021 18:51:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002309;
-        bh=rSKTAnT0EGQV08ZjXD6iEHYkZq+ShRp0M2iuP+buSUg=;
+        s=korg; t=1637002312;
+        bh=FUUzhV0aQZHF45SsL1ZUN80Nlr/CDWDn2vwQsaJOprA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RhijSgYJOMi5FDXoi6csP+Jw49Dwb02nwVfq+C/H6D1b8+WIxaDdEImVep6nRYqWs
-         /u3CF6XPaNFf+mjw+kP/PlU15RhrOeUXU/1ra7OuE84D0WTuVYIZ/x0/zElfafh57e
-         hqA0Wmb89h0/2OX+uj2VXkxUT9fxMrjyEGq0U/bY=
+        b=a4E/bT5O0EjMQueJBw6lrwhJLjCoISqMM4lT8rTAY/nLx30tKhlMbGPYiIdtkSLsa
+         ltEPsrsEJGGpfWjCQ+pXh/FgEVh/K0+sZJP59veJ04iDIqNIbcAidPizuhzY9Z6L9M
+         k37UGei1KazV6czxQQQmkXK5LDzeV1VVpV2EueeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Abinaya Kalaiselvan <akalaise@codeaurora.org>,
-        Jouni Malinen <jouni@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
+        linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 516/917] ath10k: fix module load regression with iram-recovery feature
-Date:   Mon, 15 Nov 2021 18:00:11 +0100
-Message-Id: <20211115165446.270685596@linuxfoundation.org>
+Subject: [PATCH 5.15 517/917] block: ataflop: more blk-mq refactoring fixes
+Date:   Mon, 15 Nov 2021 18:00:12 +0100
+Message-Id: <20211115165446.303997101@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,133 +40,216 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abinaya Kalaiselvan <akalaise@codeaurora.org>
+From: Michael Schmitz <schmitzmic@gmail.com>
 
-[ Upstream commit 6f8c8bf4c7c9be1c42088689fd4370e06b46608a ]
+[ Upstream commit d28e4dff085c5a87025c9a0a85fb798bd8e9ca17 ]
 
-Commit 9af7c32ceca8 ("ath10k: add target IRAM recovery feature support")
-introduced a new firmware feature flag ATH10K_FW_FEATURE_IRAM_RECOVERY. But
-this caused ath10k_pci module load to fail if ATH10K_FW_CRASH_DUMP_RAM_DATA bit
-was not enabled in the ath10k coredump_mask module parameter:
+As it turns out, my earlier patch in commit 86d46fdaa12a (block:
+ataflop: fix breakage introduced at blk-mq refactoring) was
+incomplete. This patch fixes any remaining issues found during
+more testing and code review.
 
-[ 2209.328190] ath10k_pci 0000:02:00.0: qca9984/qca9994 hw1.0 target 0x01000000 chip_id 0x00000000 sub 168c:cafe
-[ 2209.434414] ath10k_pci 0000:02:00.0: kconfig debug 1 debugfs 1 tracing 1 dfs 1 testmode 1
-[ 2209.547191] ath10k_pci 0000:02:00.0: firmware ver 10.4-3.9.0.2-00099 api 5 features no-p2p,mfp,peer-flow-ctrl,btcoex-param,allows-mesh-bcast,no-ps,peer-fixed-rate,iram-recovery crc32 cbade90a
-[ 2210.896485] ath10k_pci 0000:02:00.0: board_file api 1 bmi_id 0:1 crc32 a040efc2
-[ 2213.603339] ath10k_pci 0000:02:00.0: failed to copy target iram contents: -12
-[ 2213.839027] ath10k_pci 0000:02:00.0: could not init core (-12)
-[ 2213.933910] ath10k_pci 0000:02:00.0: could not probe fw (-12)
+Requests exceeding 4 k are handled in 4k segments but
+__blk_mq_end_request() is never called on these (still
+sectors outstanding on the request). With redo_fd_request()
+removed, there is no provision to kick off processing of the
+next segment, causing requests exceeding 4k to hang. (By
+setting /sys/block/fd0/queue/max_sectors_k <= 4 as workaround,
+this behaviour can be avoided).
 
-And by default coredump_mask does not have ATH10K_FW_CRASH_DUMP_RAM_DATA
-enabled so anyone using a firmware with iram-recovery feature would fail. To my
-knowledge only QCA9984 firmwares starting from release 10.4-3.9.0.2-00099
-enabled the feature.
+Instead of reintroducing redo_fd_request(), requeue the remainder
+of the request by calling blk_mq_requeue_request() on incomplete
+requests (i.e. when blk_update_request() still returns true), and
+rely on the block layer to queue the residual as new request.
 
-The reason for regression was that ath10k_core_copy_target_iram() used
-ath10k_coredump_get_mem_layout() to get the memory layout, but when
-ATH10K_FW_CRASH_DUMP_RAM_DATA was disabled it would get just NULL and bail out
-with an error.
+Both error handling and formatting needs to release the
+ST-DMA lock, so call finish_fdc() on these (this was previously
+handled by redo_fd_request()). finish_fdc() may be called
+legitimately without the ST-DMA lock held - make sure we only
+release the lock if we actually held it. In a similar way,
+early exit due to errors in ataflop_queue_rq() must release
+the lock.
 
-While looking at all this I noticed another bug: if CONFIG_DEV_COREDUMP is
-disabled but the firmware has iram-recovery enabled the module load fails with
-similar error messages. I fixed that by returning 0 from
-ath10k_core_copy_target_iram() when _ath10k_coredump_get_mem_layout() returns
-NULL.
+After minor errors, fd_error sets up to recalibrate the drive
+but never re-runs the current operation (another task handled by
+redo_fd_request() before). Call do_fd_action() to get the next
+steps (seek, retry read/write) underway.
 
-Tested-on: QCA9984 hw2.0 PCI 10.4-3.9.0.2-00139
-
-Fixes: 9af7c32ceca8 ("ath10k: add target IRAM recovery feature support")
-Signed-off-by: Abinaya Kalaiselvan <akalaise@codeaurora.org>
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211020075054.23061-1-kvalo@codeaurora.org
+Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
+Fixes: 6ec3938cff95f (ataflop: convert to blk-mq)
+CC: linux-block@vger.kernel.org
+Link: https://lore.kernel.org/r/20211024002013.9332-1-schmitzmic@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/core.c     | 11 +++++++++--
- drivers/net/wireless/ath/ath10k/coredump.c | 11 ++++++++---
- drivers/net/wireless/ath/ath10k/coredump.h |  7 +++++++
- 3 files changed, 24 insertions(+), 5 deletions(-)
+ drivers/block/ataflop.c | 45 +++++++++++++++++++++++++++++++++++------
+ 1 file changed, 39 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
-index 2f9be182fbfbb..64c7145b51a2e 100644
---- a/drivers/net/wireless/ath/ath10k/core.c
-+++ b/drivers/net/wireless/ath/ath10k/core.c
-@@ -2690,9 +2690,16 @@ static int ath10k_core_copy_target_iram(struct ath10k *ar)
- 	int i, ret;
- 	u32 len, remaining_len;
- 
--	hw_mem = ath10k_coredump_get_mem_layout(ar);
-+	/* copy target iram feature must work also when
-+	 * ATH10K_FW_CRASH_DUMP_RAM_DATA is disabled, so
-+	 * _ath10k_coredump_get_mem_layout() to accomplist that
-+	 */
-+	hw_mem = _ath10k_coredump_get_mem_layout(ar);
- 	if (!hw_mem)
--		return -ENOMEM;
-+		/* if CONFIG_DEV_COREDUMP is disabled we get NULL, then
-+		 * just silently disable the feature by doing nothing
-+		 */
-+		return 0;
- 
- 	for (i = 0; i < hw_mem->region_table.size; i++) {
- 		tmp = &hw_mem->region_table.regions[i];
-diff --git a/drivers/net/wireless/ath/ath10k/coredump.c b/drivers/net/wireless/ath/ath10k/coredump.c
-index 7eb72290a925c..55e7e11d06d94 100644
---- a/drivers/net/wireless/ath/ath10k/coredump.c
-+++ b/drivers/net/wireless/ath/ath10k/coredump.c
-@@ -1447,11 +1447,17 @@ static u32 ath10k_coredump_get_ramdump_size(struct ath10k *ar)
- 
- const struct ath10k_hw_mem_layout *ath10k_coredump_get_mem_layout(struct ath10k *ar)
+diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
+index bbb64331cf8f4..4947e41f89b7d 100644
+--- a/drivers/block/ataflop.c
++++ b/drivers/block/ataflop.c
+@@ -456,10 +456,20 @@ static DEFINE_TIMER(fd_timer, check_change);
+ 	
+ static void fd_end_request_cur(blk_status_t err)
  {
--	int i;
--
- 	if (!test_bit(ATH10K_FW_CRASH_DUMP_RAM_DATA, &ath10k_coredump_mask))
- 		return NULL;
- 
-+	return _ath10k_coredump_get_mem_layout(ar);
-+}
-+EXPORT_SYMBOL(ath10k_coredump_get_mem_layout);
++	DPRINT(("fd_end_request_cur(), bytes %d of %d\n",
++		blk_rq_cur_bytes(fd_request),
++		blk_rq_bytes(fd_request)));
 +
-+const struct ath10k_hw_mem_layout *_ath10k_coredump_get_mem_layout(struct ath10k *ar)
-+{
-+	int i;
-+
- 	if (WARN_ON(ar->target_version == 0))
- 		return NULL;
- 
-@@ -1464,7 +1470,6 @@ const struct ath10k_hw_mem_layout *ath10k_coredump_get_mem_layout(struct ath10k
- 
- 	return NULL;
- }
--EXPORT_SYMBOL(ath10k_coredump_get_mem_layout);
- 
- struct ath10k_fw_crash_data *ath10k_coredump_new(struct ath10k *ar)
- {
-diff --git a/drivers/net/wireless/ath/ath10k/coredump.h b/drivers/net/wireless/ath/ath10k/coredump.h
-index 42404e246e0e9..240d705150888 100644
---- a/drivers/net/wireless/ath/ath10k/coredump.h
-+++ b/drivers/net/wireless/ath/ath10k/coredump.h
-@@ -176,6 +176,7 @@ int ath10k_coredump_register(struct ath10k *ar);
- void ath10k_coredump_unregister(struct ath10k *ar);
- void ath10k_coredump_destroy(struct ath10k *ar);
- 
-+const struct ath10k_hw_mem_layout *_ath10k_coredump_get_mem_layout(struct ath10k *ar);
- const struct ath10k_hw_mem_layout *ath10k_coredump_get_mem_layout(struct ath10k *ar);
- 
- #else /* CONFIG_DEV_COREDUMP */
-@@ -214,6 +215,12 @@ ath10k_coredump_get_mem_layout(struct ath10k *ar)
- 	return NULL;
+ 	if (!blk_update_request(fd_request, err,
+ 				blk_rq_cur_bytes(fd_request))) {
++		DPRINT(("calling __blk_mq_end_request()\n"));
+ 		__blk_mq_end_request(fd_request, err);
+ 		fd_request = NULL;
++	} else {
++		/* requeue rest of request */
++		DPRINT(("calling blk_mq_requeue_request()\n"));
++		blk_mq_requeue_request(fd_request, true);
++		fd_request = NULL;
+ 	}
  }
  
-+static inline const struct ath10k_hw_mem_layout *
-+_ath10k_coredump_get_mem_layout(struct ath10k *ar)
-+{
-+	return NULL;
-+}
+@@ -697,12 +707,21 @@ static void fd_error( void )
+ 	if (fd_request->error_count >= MAX_ERRORS) {
+ 		printk(KERN_ERR "fd%d: too many errors.\n", SelectedDrive );
+ 		fd_end_request_cur(BLK_STS_IOERR);
++		finish_fdc();
++		return;
+ 	}
+ 	else if (fd_request->error_count == RECALIBRATE_ERRORS) {
+ 		printk(KERN_WARNING "fd%d: recalibrating\n", SelectedDrive );
+ 		if (SelectedDrive != -1)
+ 			SUD.track = -1;
+ 	}
++	/* need to re-run request to recalibrate */
++	atari_disable_irq( IRQ_MFP_FDC );
 +
- #endif /* CONFIG_DEV_COREDUMP */
++	setup_req_params( SelectedDrive );
++	do_fd_action( SelectedDrive );
++
++	atari_enable_irq( IRQ_MFP_FDC );
+ }
  
- #endif /* _COREDUMP_H_ */
+ 
+@@ -729,8 +748,10 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
+ 	if (type) {
+ 		type--;
+ 		if (type >= NUM_DISK_MINORS ||
+-		    minor2disktype[type].drive_types > DriveType)
++		    minor2disktype[type].drive_types > DriveType) {
++			finish_fdc();
+ 			return -EINVAL;
++		}
+ 	}
+ 
+ 	q = unit[drive].disk[type]->queue;
+@@ -748,6 +769,7 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
+ 	}
+ 
+ 	if (!UDT || desc->track >= UDT->blocks/UDT->spt/2 || desc->head >= 2) {
++		finish_fdc();
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+@@ -788,6 +810,7 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
+ 
+ 	wait_for_completion(&format_wait);
+ 
++	finish_fdc();
+ 	ret = FormatError ? -EIO : 0;
+ out:
+ 	blk_mq_unquiesce_queue(q);
+@@ -822,6 +845,7 @@ static void do_fd_action( int drive )
+ 		    else {
+ 			/* all sectors finished */
+ 			fd_end_request_cur(BLK_STS_OK);
++			finish_fdc();
+ 			return;
+ 		    }
+ 		}
+@@ -1225,8 +1249,8 @@ static void fd_rwsec_done1(int status)
+ 	}
+ 	else {
+ 		/* all sectors finished */
+-		finish_fdc();
+ 		fd_end_request_cur(BLK_STS_OK);
++		finish_fdc();
+ 	}
+ 	return;
+   
+@@ -1348,7 +1372,7 @@ static void fd_times_out(struct timer_list *unused)
+ 
+ static void finish_fdc( void )
+ {
+-	if (!NeedSeek) {
++	if (!NeedSeek || !stdma_is_locked_by(floppy_irq)) {
+ 		finish_fdc_done( 0 );
+ 	}
+ 	else {
+@@ -1383,7 +1407,8 @@ static void finish_fdc_done( int dummy )
+ 	start_motor_off_timer();
+ 
+ 	local_irq_save(flags);
+-	stdma_release();
++	if (stdma_is_locked_by(floppy_irq))
++		stdma_release();
+ 	local_irq_restore(flags);
+ 
+ 	DPRINT(("finish_fdc() finished\n"));
+@@ -1480,7 +1505,9 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	int drive = floppy - unit;
+ 	int type = floppy->type;
+ 
+-	DPRINT(("Queue request: drive %d type %d last %d\n", drive, type, bd->last));
++	DPRINT(("Queue request: drive %d type %d sectors %d of %d last %d\n",
++		drive, type, blk_rq_cur_sectors(bd->rq),
++		blk_rq_sectors(bd->rq), bd->last));
+ 
+ 	spin_lock_irq(&ataflop_lock);
+ 	if (fd_request) {
+@@ -1502,6 +1529,7 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 		/* drive not connected */
+ 		printk(KERN_ERR "Unknown Device: fd%d\n", drive );
+ 		fd_end_request_cur(BLK_STS_IOERR);
++		stdma_release();
+ 		goto out;
+ 	}
+ 		
+@@ -1518,11 +1546,13 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 		if (--type >= NUM_DISK_MINORS) {
+ 			printk(KERN_WARNING "fd%d: invalid disk format", drive );
+ 			fd_end_request_cur(BLK_STS_IOERR);
++			stdma_release();
+ 			goto out;
+ 		}
+ 		if (minor2disktype[type].drive_types > DriveType)  {
+ 			printk(KERN_WARNING "fd%d: unsupported disk format", drive );
+ 			fd_end_request_cur(BLK_STS_IOERR);
++			stdma_release();
+ 			goto out;
+ 		}
+ 		type = minor2disktype[type].index;
+@@ -1623,6 +1653,7 @@ static int fd_locked_ioctl(struct block_device *bdev, fmode_t mode,
+ 		/* what if type > 0 here? Overwrite specified entry ? */
+ 		if (type) {
+ 		        /* refuse to re-set a predefined type for now */
++			finish_fdc();
+ 			return -EINVAL;
+ 		}
+ 
+@@ -1690,8 +1721,10 @@ static int fd_locked_ioctl(struct block_device *bdev, fmode_t mode,
+ 
+ 		/* sanity check */
+ 		if (setprm.track != dtp->blocks/dtp->spt/2 ||
+-		    setprm.head != 2)
++		    setprm.head != 2) {
++			finish_fdc();
+ 			return -EINVAL;
++		}
+ 
+ 		UDT = dtp;
+ 		set_capacity(disk, UDT->blocks);
 -- 
 2.33.0
 
