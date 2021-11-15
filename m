@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4830D450D73
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:55:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1BEA4510FD
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:55:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239222AbhKOR5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:57:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40728 "EHLO mail.kernel.org"
+        id S231697AbhKOS5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:57:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239294AbhKOR4g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:56:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AADBD6108D;
-        Mon, 15 Nov 2021 17:33:56 +0000 (UTC)
+        id S243217AbhKOSzp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:55:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EA3C6331A;
+        Mon, 15 Nov 2021 18:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997637;
-        bh=PltFew8cSxT9J4N2kIO5GraBRERaDZL3wUDLRl1ndGY=;
+        s=korg; t=1636999900;
+        bh=tTmXqmdG6aVwUcyq2RC2+4ytls6JqpiwL+hCByUlcWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7LJBSRGWXM5aOlpzIab6WxnC+YDYeyq8EUr6bH5veuzXHj7M7WvOShqkG05TUa+r
-         vlouM3PTtgVKiHgsljoPpOBql4ebWS3+UJhJj+Deh5tvVgLl27g8+PQf0LJfo9ElrI
-         o8K+RQsU/JhzBLZUyj6B0x7JCdj5drR5m0qpgRo0=
+        b=h0TfuMelGMj1raRkDwdz4zoLTvfnMZp+EOsegWZMYwOBA3e7+mh+TdIQLvsLZsGsY
+         xGwvk5T4uPZUrTrkOfY8AAsSyE4nXGm0KrIaYlr9f6h+HiwvSMFQ6O+7HkLJilZHZw
+         v/OQdaUcI0qpRf188KzjbVknWmw0nwKTMcu7SH0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dirk Bender <d.bender@phytec.de>,
-        Stefan Riedmueller <s.riedmueller@phytec.de>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Qi Zheng <zhengqi.arch@bytedance.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 188/575] media: mt9p031: Fix corrupted frame after restarting stream
-Date:   Mon, 15 Nov 2021 17:58:33 +0100
-Message-Id: <20211115165350.205274575@linuxfoundation.org>
+Subject: [PATCH 5.14 431/849] x86: Fix get_wchan() to support the ORC unwinder
+Date:   Mon, 15 Nov 2021 17:58:34 +0100
+Message-Id: <20211115165434.858419932@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,87 +41,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Bender <d.bender@phytec.de>
+From: Qi Zheng <zhengqi.arch@bytedance.com>
 
-[ Upstream commit 0961ba6dd211a4a52d1dd4c2d59be60ac2dc08c7 ]
+[ Upstream commit bc9bbb81730ea667c31c5b284f95ee312bab466f ]
 
-To prevent corrupted frames after starting and stopping the sensor its
-datasheet specifies a specific pause sequence to follow:
+Currently, the kernel CONFIG_UNWINDER_ORC option is enabled by default
+on x86, but the implementation of get_wchan() is still based on the frame
+pointer unwinder, so the /proc/<pid>/wchan usually returned 0 regardless
+of whether the task <pid> is running.
 
-Stopping:
-	Set Pause_Restart Bit -> Set Restart Bit -> Set Chip_Enable Off
+Reimplement get_wchan() by calling stack_trace_save_tsk(), which is
+adapted to the ORC and frame pointer unwinders.
 
-Restarting:
-	Set Chip_Enable On -> Clear Pause_Restart Bit
-
-The Restart Bit is cleared automatically and must not be cleared
-manually as this would cause undefined behavior.
-
-Signed-off-by: Dirk Bender <d.bender@phytec.de>
-Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: ee9f8fce9964 ("x86/unwind: Add the ORC unwinder")
+Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20211008111626.271115116@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/mt9p031.c | 28 +++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+ arch/x86/kernel/process.c | 51 +++------------------------------------
+ 1 file changed, 3 insertions(+), 48 deletions(-)
 
-diff --git a/drivers/media/i2c/mt9p031.c b/drivers/media/i2c/mt9p031.c
-index dc23b9ed510a4..18440c5104ad9 100644
---- a/drivers/media/i2c/mt9p031.c
-+++ b/drivers/media/i2c/mt9p031.c
-@@ -78,7 +78,9 @@
- #define		MT9P031_PIXEL_CLOCK_INVERT		(1 << 15)
- #define		MT9P031_PIXEL_CLOCK_SHIFT(n)		((n) << 8)
- #define		MT9P031_PIXEL_CLOCK_DIVIDE(n)		((n) << 0)
--#define MT9P031_FRAME_RESTART				0x0b
-+#define MT9P031_RESTART					0x0b
-+#define		MT9P031_FRAME_PAUSE_RESTART		(1 << 1)
-+#define		MT9P031_FRAME_RESTART			(1 << 0)
- #define MT9P031_SHUTTER_DELAY				0x0c
- #define MT9P031_RST					0x0d
- #define		MT9P031_RST_ENABLE			1
-@@ -445,9 +447,23 @@ static int mt9p031_set_params(struct mt9p031 *mt9p031)
- static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index f2f733bcb2b95..cd426c3283ee1 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -945,58 +945,13 @@ unsigned long arch_randomize_brk(struct mm_struct *mm)
+  */
+ unsigned long get_wchan(struct task_struct *p)
  {
- 	struct mt9p031 *mt9p031 = to_mt9p031(subdev);
-+	struct i2c_client *client = v4l2_get_subdevdata(subdev);
-+	int val;
- 	int ret;
+-	unsigned long start, bottom, top, sp, fp, ip, ret = 0;
+-	int count = 0;
++	unsigned long entry = 0;
  
- 	if (!enable) {
-+		/* enable pause restart */
-+		val = MT9P031_FRAME_PAUSE_RESTART;
-+		ret = mt9p031_write(client, MT9P031_RESTART, val);
-+		if (ret < 0)
-+			return ret;
-+
-+		/* enable restart + keep pause restart set */
-+		val |= MT9P031_FRAME_RESTART;
-+		ret = mt9p031_write(client, MT9P031_RESTART, val);
-+		if (ret < 0)
-+			return ret;
-+
- 		/* Stop sensor readout */
- 		ret = mt9p031_set_output_control(mt9p031,
- 						 MT9P031_OUTPUT_CONTROL_CEN, 0);
-@@ -467,6 +483,16 @@ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
- 	if (ret < 0)
- 		return ret;
+ 	if (p == current || task_is_running(p))
+ 		return 0;
  
-+	/*
-+	 * - clear pause restart
-+	 * - don't clear restart as clearing restart manually can cause
-+	 *   undefined behavior
-+	 */
-+	val = MT9P031_FRAME_RESTART;
-+	ret = mt9p031_write(client, MT9P031_RESTART, val);
-+	if (ret < 0)
-+		return ret;
-+
- 	return mt9p031_pll_enable(mt9p031);
+-	if (!try_get_task_stack(p))
+-		return 0;
+-
+-	start = (unsigned long)task_stack_page(p);
+-	if (!start)
+-		goto out;
+-
+-	/*
+-	 * Layout of the stack page:
+-	 *
+-	 * ----------- topmax = start + THREAD_SIZE - sizeof(unsigned long)
+-	 * PADDING
+-	 * ----------- top = topmax - TOP_OF_KERNEL_STACK_PADDING
+-	 * stack
+-	 * ----------- bottom = start
+-	 *
+-	 * The tasks stack pointer points at the location where the
+-	 * framepointer is stored. The data on the stack is:
+-	 * ... IP FP ... IP FP
+-	 *
+-	 * We need to read FP and IP, so we need to adjust the upper
+-	 * bound by another unsigned long.
+-	 */
+-	top = start + THREAD_SIZE - TOP_OF_KERNEL_STACK_PADDING;
+-	top -= 2 * sizeof(unsigned long);
+-	bottom = start;
+-
+-	sp = READ_ONCE(p->thread.sp);
+-	if (sp < bottom || sp > top)
+-		goto out;
+-
+-	fp = READ_ONCE_NOCHECK(((struct inactive_task_frame *)sp)->bp);
+-	do {
+-		if (fp < bottom || fp > top)
+-			goto out;
+-		ip = READ_ONCE_NOCHECK(*(unsigned long *)(fp + sizeof(unsigned long)));
+-		if (!in_sched_functions(ip)) {
+-			ret = ip;
+-			goto out;
+-		}
+-		fp = READ_ONCE_NOCHECK(*(unsigned long *)fp);
+-	} while (count++ < 16 && !task_is_running(p));
+-
+-out:
+-	put_task_stack(p);
+-	return ret;
++	stack_trace_save_tsk(p, &entry, 1, 0);
++	return entry;
  }
  
+ long do_arch_prctl_common(struct task_struct *task, int option,
 -- 
 2.33.0
 
