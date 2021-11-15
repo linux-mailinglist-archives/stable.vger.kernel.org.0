@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAFB9450D5E
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:53:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 930ED4510CA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:52:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238964AbhKOR4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:56:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
+        id S243096AbhKOSzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:55:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238414AbhKORxl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:53:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E883632B5;
-        Mon, 15 Nov 2021 17:32:41 +0000 (UTC)
+        id S243173AbhKOSwq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:52:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1960B633BF;
+        Mon, 15 Nov 2021 18:10:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997562;
-        bh=ck8XyBZYnj+ck7af5VYCTGfN3BGiqOHzr1XyLdEhGOw=;
+        s=korg; t=1636999819;
+        bh=e62ZkNqcanl3O6vmdRMo4sNwbyHzxqu5g9NBC10NRz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YhPfbFY1t38nZB5UFdny8fg/iEAsGeiB2/AzEApQJf3c0S5EVl/jtThyT5Pa8diKc
-         h8/ggV7TYT4qptp1F2sJP3xY0RERY5U5xlxHT9+WI+qIgMO9xP/zDxh5oS07URpPqz
-         2ZBM1Q3F30KloixvaRl7v9CrQ4eDrEbdrlVEBQQQ=
+        b=bwlVOkFWnkbF0QEXe33NOzPh3THlFQPVdRUEtmld6sCy37xi7uD1XRayUZri6TRZt
+         C60mZmZEWBRbIL6C3Ol/QK+Moqx4444tJxcSenggljqK5+DsamG8Hy9dWNqrij1cbC
+         djT9tQ2+IbeUwT7LEHruMaa/LB2ZBPSaW8VlVKcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Abhinav Kumar <abhinavk@codeaurora.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 194/575] media: uvcvideo: Set unique vdev name based in type
+Subject: [PATCH 5.14 436/849] drm/msm: potential error pointer dereference in init()
 Date:   Mon, 15 Nov 2021 17:58:39 +0100
-Message-Id: <20211115165350.419514724@linuxfoundation.org>
+Message-Id: <20211115165435.029706856@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e3f60e7e1a2b451f538f9926763432249bcf39c4 ]
+[ Upstream commit b6816441a14bbe356ba8590de79cfea2de6a085c ]
 
-All the entities must have a unique name. We can have a descriptive and
-unique name by appending the function and the entity->id.
+The msm_iommu_new() returns error pointers on failure so check for that
+to avoid an Oops.
 
-This is even resilent to multi chain devices.
-
-Fixes v4l2-compliance:
-Media Controller ioctls:
-                fail: v4l2-test-media.cpp(205): v2_entity_names_set.find(key) != v2_entity_names_set.end()
-        test MEDIA_IOC_G_TOPOLOGY: FAIL
-                fail: v4l2-test-media.cpp(394): num_data_links != num_links
-	test MEDIA_IOC_ENUM_ENTITIES/LINKS: FAIL
-
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: ccac7ce373c1 ("drm/msm: Refactor address space initialization")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Abhinav Kumar <abhinavk@codeaurora.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20211004103806.GD25015@kili
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_driver.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index 282f3d2388cc2..447b6a198926e 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -2065,6 +2065,7 @@ int uvc_register_video_device(struct uvc_device *dev,
- 			      const struct v4l2_file_operations *fops,
- 			      const struct v4l2_ioctl_ops *ioctl_ops)
- {
-+	const char *name;
- 	int ret;
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+index 4fd913522931b..5489a3ae2bedb 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+@@ -896,6 +896,10 @@ static int _dpu_kms_mmu_init(struct dpu_kms *dpu_kms)
+ 		return 0;
  
- 	/* Initialize the video buffers queue. */
-@@ -2093,16 +2094,20 @@ int uvc_register_video_device(struct uvc_device *dev,
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
- 	default:
- 		vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
-+		name = "Video Capture";
- 		break;
- 	case V4L2_BUF_TYPE_VIDEO_OUTPUT:
- 		vdev->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
-+		name = "Video Output";
- 		break;
- 	case V4L2_BUF_TYPE_META_CAPTURE:
- 		vdev->device_caps = V4L2_CAP_META_CAPTURE | V4L2_CAP_STREAMING;
-+		name = "Metadata";
- 		break;
- 	}
+ 	mmu = msm_iommu_new(dpu_kms->dev->dev, domain);
++	if (IS_ERR(mmu)) {
++		iommu_domain_free(domain);
++		return PTR_ERR(mmu);
++	}
+ 	aspace = msm_gem_address_space_create(mmu, "dpu1",
+ 		0x1000, 0x100000000 - 0x1000);
  
--	strscpy(vdev->name, dev->name, sizeof(vdev->name));
-+	snprintf(vdev->name, sizeof(vdev->name), "%s %u", name,
-+		 stream->header.bTerminalLink);
- 
- 	/*
- 	 * Set the driver data before calling video_register_device, otherwise
 -- 
 2.33.0
 
