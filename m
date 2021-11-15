@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 563A74513EA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE1BD451172
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:06:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348747AbhKOT7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:59:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45386 "EHLO mail.kernel.org"
+        id S238012AbhKOTH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:07:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344118AbhKOTX0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C6B86362E;
-        Mon, 15 Nov 2021 18:52:17 +0000 (UTC)
+        id S240754AbhKOTFf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:05:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D976D633E4;
+        Mon, 15 Nov 2021 18:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002338;
-        bh=SCN5aa6sZco6dzL9HU0MMi0W+4jJJx1rWX7LrT34Wwk=;
+        s=korg; t=1637000183;
+        bh=2IH9MM1rZ3/aSVmZLZllG7RS/eIZYJrMnnBQ5yJFil0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3PsAty2MADuZpF3eLm7FoM2r45cO+kv0cyBm5ed+qFbH0jaLiVmuvjgbiq0vyHcw
-         pV1SbQH6KfedXzVj93ON9HesowDTzmmYMUIOGX8cdUEwiiCvk4RmehRJh9iN/GLSa9
-         Mmb1DDEAauTScVXdK1XEiN22Y7f6Il2IPPcLDezw=
+        b=IMENmhv3f1RrYnMdm5H+PR1e28PGyhr4fIkTYo6M8udt0kJEzqjGMYZUuQyxHH676
+         cILox3LkcWZFGveZZM9ea/k6WsyYuEBYf/JRTDwpTXIXNGl505wg353BRwxAjUlf8N
+         afNDVc+6zxRQCfj6UTpaZ3xBVHqQ1QFo5c/UPEIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Javier Martinez Canillas <javierm@redhat.com>,
+        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 521/917] tpm_tis_spi: Add missing SPI ID
-Date:   Mon, 15 Nov 2021 18:00:16 +0100
-Message-Id: <20211115165446.433197920@linuxfoundation.org>
+Subject: [PATCH 5.14 534/849] net: amd-xgbe: Toggle PLL settings during rate change
+Date:   Mon, 15 Nov 2021 18:00:17 +0100
+Message-Id: <20211115165438.332161718@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +42,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 
-[ Upstream commit 7eba41fe8c7bb01ff3d4b757bd622375792bc720 ]
+[ Upstream commit daf182d360e509a494db18666799f4e85d83dda0 ]
 
-In commit c46ed2281bbe ("tpm_tis_spi: add missing SPI device ID entries")
-we added SPI IDs for all the DT aliases to handle the fact that we always
-use SPI modaliases to load modules even when probed via DT however the
-mentioned commit missed that the SPI and OF device ID entries did not
-match and were different and so DT nodes with compatible
-"tcg,tpm_tis-spi" will not match.  Add an extra ID for tpm_tis-spi
-rather than just fix the existing one since what's currently there is
-going to be better for anyone actually using SPI IDs to instantiate.
+For each rate change command submission, the FW has to do a phy
+power off sequence internally. For this to happen correctly, the
+PLL re-initialization control setting has to be turned off before
+sending mailbox commands and re-enabled once the command submission
+is complete.
 
-Fixes: c46ed2281bbe ("tpm_tis_spi: add missing SPI device ID entries")
-Fixes: 96c8395e2166 ("spi: Revert modalias changes")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Without the PLL control setting, the link up takes longer time in a
+fixed phy configuration.
+
+Fixes: 47f164deab22 ("amd-xgbe: Add PCI device support")
+Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_tis_spi_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/amd/xgbe/xgbe-common.h |  8 ++++++++
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 20 +++++++++++++++++++-
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/tpm/tpm_tis_spi_main.c b/drivers/char/tpm/tpm_tis_spi_main.c
-index 54584b4b00d19..aaa59a00eeaef 100644
---- a/drivers/char/tpm/tpm_tis_spi_main.c
-+++ b/drivers/char/tpm/tpm_tis_spi_main.c
-@@ -267,6 +267,7 @@ static const struct spi_device_id tpm_tis_spi_id[] = {
- 	{ "st33htpm-spi", (unsigned long)tpm_tis_spi_probe },
- 	{ "slb9670", (unsigned long)tpm_tis_spi_probe },
- 	{ "tpm_tis_spi", (unsigned long)tpm_tis_spi_probe },
-+	{ "tpm_tis-spi", (unsigned long)tpm_tis_spi_probe },
- 	{ "cr50", (unsigned long)cr50_spi_probe },
- 	{}
- };
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-common.h b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
+index b2cd3bdba9f89..533b8519ec352 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-common.h
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
+@@ -1331,6 +1331,10 @@
+ #define MDIO_VEND2_PMA_CDR_CONTROL	0x8056
+ #endif
+ 
++#ifndef MDIO_VEND2_PMA_MISC_CTRL0
++#define MDIO_VEND2_PMA_MISC_CTRL0	0x8090
++#endif
++
+ #ifndef MDIO_CTRL1_SPEED1G
+ #define MDIO_CTRL1_SPEED1G		(MDIO_CTRL1_SPEED10G & ~BMCR_SPEED100)
+ #endif
+@@ -1389,6 +1393,10 @@
+ #define XGBE_PMA_RX_RST_0_RESET_ON	0x10
+ #define XGBE_PMA_RX_RST_0_RESET_OFF	0x00
+ 
++#define XGBE_PMA_PLL_CTRL_MASK		BIT(15)
++#define XGBE_PMA_PLL_CTRL_ENABLE	BIT(15)
++#define XGBE_PMA_PLL_CTRL_DISABLE	0x0000
++
+ /* Bit setting and getting macros
+  *  The get macro will extract the current bit field value from within
+  *  the variable
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index 18e48b3bc402b..213769054391c 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -1977,12 +1977,26 @@ static void xgbe_phy_rx_reset(struct xgbe_prv_data *pdata)
+ 	}
+ }
+ 
++static void xgbe_phy_pll_ctrl(struct xgbe_prv_data *pdata, bool enable)
++{
++	XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_VEND2_PMA_MISC_CTRL0,
++			 XGBE_PMA_PLL_CTRL_MASK,
++			 enable ? XGBE_PMA_PLL_CTRL_ENABLE
++				: XGBE_PMA_PLL_CTRL_DISABLE);
++
++	/* Wait for command to complete */
++	usleep_range(100, 200);
++}
++
+ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 					unsigned int cmd, unsigned int sub_cmd)
+ {
+ 	unsigned int s0 = 0;
+ 	unsigned int wait;
+ 
++	/* Disable PLL re-initialization during FW command processing */
++	xgbe_phy_pll_ctrl(pdata, false);
++
+ 	/* Log if a previous command did not complete */
+ 	if (XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS)) {
+ 		netif_dbg(pdata, link, pdata->netdev,
+@@ -2003,7 +2017,7 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 	wait = XGBE_RATECHANGE_COUNT;
+ 	while (wait--) {
+ 		if (!XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS))
+-			return;
++			goto reenable_pll;
+ 
+ 		usleep_range(1000, 2000);
+ 	}
+@@ -2013,6 +2027,10 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 
+ 	/* Reset on error */
+ 	xgbe_phy_rx_reset(pdata);
++
++reenable_pll:
++	/* Enable PLL re-initialization */
++	xgbe_phy_pll_ctrl(pdata, true);
+ }
+ 
+ static void xgbe_phy_rrc(struct xgbe_prv_data *pdata)
 -- 
 2.33.0
 
