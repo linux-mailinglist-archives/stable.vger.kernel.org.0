@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 495F7451094
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:48:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADA2C450D24
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:49:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242266AbhKOSuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:50:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51378 "EHLO mail.kernel.org"
+        id S238496AbhKORvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:51:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242981AbhKOSsc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:48:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3FF163398;
-        Mon, 15 Nov 2021 18:07:58 +0000 (UTC)
+        id S238891AbhKORsj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:48:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A431C6329A;
+        Mon, 15 Nov 2021 17:30:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999679;
-        bh=gErPLzbTr0Y0NQ/81u8uZdxaswuViq9lAs1D/Y59Qt8=;
+        s=korg; t=1636997425;
+        bh=9RkiO4g4NF3T9zFHVriGn5KFLta2My4giFSt7pHihfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qO6KM2/neQisZg9yHqTfMw0VEY5lH3kwmULGDXP9Z23rjWuXKbj8dGQZCifREvIl6
-         Y2orGi5sOK3xfuMqazlwOw15ZSov7qFbnKq934lqFnaAyi4nXyXSNqnO0EdeakLW87
-         62MnjhZ75Do0deyNiCSjnUpWN6xP8u6YeH+FGr/Y=
+        b=GE2jIq9fIQy226PGhZc2JwK1z/Eqb0JpUbuxpIRezWkCr7Gs6qipiU/6FP6sa5FPH
+         +6Xu5UbzFxv66DMgjdxVRqR5t3TP2o4GYO6oabsmOyPjDSZqZKTpqDxt2gyO8Y1RYb
+         /DgAq00NCcDNiogp/k7LrnqSEgzp8aj6nAUzeXDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 383/849] media: imx258: Fix getting clock frequency
-Date:   Mon, 15 Nov 2021 17:57:46 +0100
-Message-Id: <20211115165433.204693820@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.10 142/575] PCI: aardvark: Do not unmask unused interrupts
+Date:   Mon, 15 Nov 2021 17:57:47 +0100
+Message-Id: <20211115165348.599374136@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit d170b0ea1760989fe8ac053bef83e61f3bf87992 ]
+commit 1fb95d7d3c7a926b002fe8a6bd27a1cb428b46dc upstream.
 
-Obtain the clock frequency by reading the clock-frequency property if
-there's no clock.
+There are lot of undocumented interrupt bits. To prevent unwanted
+spurious interrupts, fix all *_ALL_MASK macros to define all interrupt
+bits, so that driver can properly mask all interrupts, including those
+which are undocumented.
 
-Fixes: 9fda25332c4b ("media: i2c: imx258: get clock from device properties and enable it via runtime PM")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211005180952.6812-8-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/i2c/imx258.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/imx258.c b/drivers/media/i2c/imx258.c
-index 81cdf37216ca7..c249507aa2dbc 100644
---- a/drivers/media/i2c/imx258.c
-+++ b/drivers/media/i2c/imx258.c
-@@ -1260,18 +1260,18 @@ static int imx258_probe(struct i2c_client *client)
- 		return -ENOMEM;
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -105,13 +105,13 @@
+ #define     PCIE_ISR0_MSI_INT_PENDING		BIT(24)
+ #define     PCIE_ISR0_INTX_ASSERT(val)		BIT(16 + (val))
+ #define     PCIE_ISR0_INTX_DEASSERT(val)	BIT(20 + (val))
+-#define	    PCIE_ISR0_ALL_MASK			GENMASK(26, 0)
++#define     PCIE_ISR0_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_ISR1_REG				(CONTROL_BASE_ADDR + 0x48)
+ #define PCIE_ISR1_MASK_REG			(CONTROL_BASE_ADDR + 0x4C)
+ #define     PCIE_ISR1_POWER_STATE_CHANGE	BIT(4)
+ #define     PCIE_ISR1_FLUSH			BIT(5)
+ #define     PCIE_ISR1_INTX_ASSERT(val)		BIT(8 + (val))
+-#define     PCIE_ISR1_ALL_MASK			GENMASK(11, 4)
++#define     PCIE_ISR1_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_MSI_ADDR_LOW_REG			(CONTROL_BASE_ADDR + 0x50)
+ #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
+ #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
+@@ -239,7 +239,7 @@ enum {
+ #define     PCIE_IRQ_MSI_INT2_DET		BIT(21)
+ #define     PCIE_IRQ_RC_DBELL_DET		BIT(22)
+ #define     PCIE_IRQ_EP_STATUS			BIT(23)
+-#define     PCIE_IRQ_ALL_MASK			0xfff0fb
++#define     PCIE_IRQ_ALL_MASK			GENMASK(31, 0)
+ #define     PCIE_IRQ_ENABLE_INTS_MASK		PCIE_IRQ_CORE_INT
  
- 	imx258->clk = devm_clk_get_optional(&client->dev, NULL);
-+	if (IS_ERR(imx258->clk))
-+		return dev_err_probe(&client->dev, PTR_ERR(imx258->clk),
-+				     "error getting clock\n");
- 	if (!imx258->clk) {
- 		dev_dbg(&client->dev,
- 			"no clock provided, using clock-frequency property\n");
- 
- 		device_property_read_u32(&client->dev, "clock-frequency", &val);
--		if (val != IMX258_INPUT_CLOCK_FREQ)
--			return -EINVAL;
--	} else if (IS_ERR(imx258->clk)) {
--		return dev_err_probe(&client->dev, PTR_ERR(imx258->clk),
--				     "error getting clock\n");
-+	} else {
-+		val = clk_get_rate(imx258->clk);
- 	}
--	if (clk_get_rate(imx258->clk) != IMX258_INPUT_CLOCK_FREQ) {
-+	if (val != IMX258_INPUT_CLOCK_FREQ) {
- 		dev_err(&client->dev, "input clock frequency not supported\n");
- 		return -EINVAL;
- 	}
--- 
-2.33.0
-
+ /* Transaction types */
 
 
