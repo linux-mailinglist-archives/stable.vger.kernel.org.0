@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54B63451EA5
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8073451E9F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347214AbhKPAgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
+        id S1353175AbhKPAgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:36:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345036AbhKOT0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:26:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64E546370E;
-        Mon, 15 Nov 2021 19:09:17 +0000 (UTC)
+        id S1345047AbhKOT0F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:26:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D19B60231;
+        Mon, 15 Nov 2021 19:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003358;
-        bh=/gMAH+Fp3yv3zlWr0R6/xJbcRFSl1Ziv3e1Ze7uyz7o=;
+        s=korg; t=1637003360;
+        bh=Jbd0XzbgPEl7d8y6htMcCu4QkvmMC9zLwenjssqKUgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRUe6vMz/L/l4VjPAxXiDlaI/9s3oLglP22Dz2m8jR4GXpcoET3t6BPJKK+Ltan7I
-         NdR13R6VMSj4QX3wj4WUTVPVdrFBPCsHJNBvtHmdNWE43JdMR4JkpePEAZYoCYY5mK
-         z8gQc/BcM3dzag/5VNq+J4O24wDZhteYNFPYJcXU=
+        b=tNd9HMVhyFR5aRIySs7yTz8rhRZrJ5oyTH/+7GPimXGhvc9v9q0FOkIU9fg2L2Nso
+         9kp0TvCeKYiyhnNHnAt8BXwpTqVv9FYvP0+kQRrEUafVgGZN7SzrQK1vHN+ZOmFT84
+         FoXnifZj0A3DjIlYB9Yg6rVNOIViFatFspocPHug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        stable@vger.kernel.org, Hari Bathini <hbathini@linux.ibm.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 905/917] powerpc/vas: Fix potential NULL pointer dereference
-Date:   Mon, 15 Nov 2021 18:06:40 +0100
-Message-Id: <20211115165459.721757620@linuxfoundation.org>
+Subject: [PATCH 5.15 906/917] powerpc/bpf: Fix write protecting JIT code
+Date:   Mon, 15 Nov 2021 18:06:41 +0100
+Message-Id: <20211115165459.752992764@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,50 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Hari Bathini <hbathini@linux.ibm.com>
 
-commit 61cb9ac66b30374c7fd8a8b2a3c4f8f432c72e36 upstream.
+commit 44a8214de96bafb5210e43bfa2c97c19bf75af3d upstream.
 
-(!ptr && !ptr->foo) strikes again. :)
+Running program with bpf-to-bpf function calls results in data access
+exception (0x300) with the below call trace:
 
-The expression (!ptr && !ptr->foo) is bogus and in case ptr is NULL,
-it leads to a NULL pointer dereference: ptr->foo.
+  bpf_int_jit_compile+0x238/0x750 (unreliable)
+  bpf_check+0x2008/0x2710
+  bpf_prog_load+0xb00/0x13a0
+  __sys_bpf+0x6f4/0x27c0
+  sys_bpf+0x2c/0x40
+  system_call_exception+0x164/0x330
+  system_call_vectored_common+0xe8/0x278
 
-Fix this by converting && to ||
+as bpf_int_jit_compile() tries writing to write protected JIT code
+location during the extra pass.
 
-This issue was detected with the help of Coccinelle, and audited and
-fixed manually.
+Fix it by holding off write protection of JIT code until the extra
+pass, where branch target addresses fixup happens.
 
-Fixes: 1a0d0d5ed5e3 ("powerpc/vas: Add platform specific user window operations")
-Cc: stable@vger.kernel.org
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Fixes: 62e3d4210ac9 ("powerpc/bpf: Write protect JIT code")
+Cc: stable@vger.kernel.org # v5.14+
+Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211015050345.GA1161918@embeddedor
+Link: https://lore.kernel.org/r/20211025055649.114728-1-hbathini@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/book3s/vas-api.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/net/bpf_jit_comp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/platforms/book3s/vas-api.c
-+++ b/arch/powerpc/platforms/book3s/vas-api.c
-@@ -303,7 +303,7 @@ static int coproc_ioc_tx_win_open(struct
- 		return -EINVAL;
- 	}
+--- a/arch/powerpc/net/bpf_jit_comp.c
++++ b/arch/powerpc/net/bpf_jit_comp.c
+@@ -241,8 +241,8 @@ skip_codegen_passes:
+ 	fp->jited_len = alloclen;
  
--	if (!cp_inst->coproc->vops && !cp_inst->coproc->vops->open_win) {
-+	if (!cp_inst->coproc->vops || !cp_inst->coproc->vops->open_win) {
- 		pr_err("VAS API is not registered\n");
- 		return -EACCES;
- 	}
-@@ -373,7 +373,7 @@ static int coproc_mmap(struct file *fp,
- 		return -EINVAL;
- 	}
- 
--	if (!cp_inst->coproc->vops && !cp_inst->coproc->vops->paste_addr) {
-+	if (!cp_inst->coproc->vops || !cp_inst->coproc->vops->paste_addr) {
- 		pr_err("%s(): VAS API is not registered\n", __func__);
- 		return -EACCES;
- 	}
+ 	bpf_flush_icache(bpf_hdr, (u8 *)bpf_hdr + (bpf_hdr->pages * PAGE_SIZE));
+-	bpf_jit_binary_lock_ro(bpf_hdr);
+ 	if (!fp->is_func || extra_pass) {
++		bpf_jit_binary_lock_ro(bpf_hdr);
+ 		bpf_prog_fill_jited_linfo(fp, addrs);
+ out_addrs:
+ 		kfree(addrs);
 
 
