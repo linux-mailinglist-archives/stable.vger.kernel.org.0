@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FDA845119B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:08:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6668E45144B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244055AbhKOTLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:11:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
+        id S242294AbhKOUC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:02:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244027AbhKOTIZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:08:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F56863401;
-        Mon, 15 Nov 2021 18:17:52 +0000 (UTC)
+        id S1344269AbhKOTYR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9901A63246;
+        Mon, 15 Nov 2021 18:54:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000273;
-        bh=808IRSV1ctutIU14jsPC+s3hg0ikRxgE78tFuB8fxVg=;
+        s=korg; t=1637002495;
+        bh=azCIAt/i5nenuAauTHsgoVQlniEz/iibLZCDa+gVVyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aa4Ko6XqERR3qcBZJEy0tHAFvRkoIUrMNMyq28Yx/zCqzybYumkhoQCifflvjxTe/
-         6/zFdEMFa6Y6KK2nTkONV56PFkr0AsnA/JxOA/QhAUp1A4X7AIirgsMS9zRekalykR
-         JLrhn6GUo/ICQJO3/mWja2ux1aKGXse7RRLH7wNM=
+        b=aiKKReGfulxJAO6jAYyXnFh+DNHsRMCndKZHW5O/PbcLrmzVuPiI6UFZyk8aNd5hK
+         cxf1A8UdQwA6DcLeCEUFagVGSV+GUY9mgRbsbd56LiPKtCrPA9eWXcybbkFd2u+V9k
+         V+7gLeffwDhLUheRYaSYLI/5GmHJHpofa/O2H5FE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 599/849] serial: 8250_dw: Drop wrong use of ACPI_PTR()
+Subject: [PATCH 5.15 587/917] bus: ti-sysc: Fix timekeeping_suspended warning on resume
 Date:   Mon, 15 Nov 2021 18:01:22 +0100
-Message-Id: <20211115165440.524113385@linuxfoundation.org>
+Message-Id: <20211115165448.673116349@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +39,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit ebabb77a2a115b6c5e68f7364b598310b5f61fb2 ]
+[ Upstream commit b3e9431854e8f305385d5de225441c0477b936cb ]
 
-ACPI_PTR() is more harmful than helpful. For example, in this case
-if CONFIG_ACPI=n, the ID table left unused which is not what we want.
+On resume we can get a warning at kernel/time/timekeeping.c:824 for
+timekeeping_suspended.
 
-Instead of adding ifdeffery here and there, drop ACPI_PTR().
+Let's fix this by adding separate functions for sysc_poll_reset_sysstatus()
+and sysc_poll_reset_sysconfig() and have the new functions handle also
+timekeeping_suspended.
 
-Fixes: 6a7320c4669f ("serial: 8250_dw: Add ACPI 5.0 support")
-Reported-by: Daniel Palmer <daniel@0x0f.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20211005134516.23218-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+If iopoll at some point supports timekeeping_suspended, we can just drop
+the custom handling from these functions.
+
+Fixes: d46f9fbec719 ("bus: ti-sysc: Use optional clocks on for enable and wait for softreset bit")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_dw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bus/ti-sysc.c | 65 +++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 53 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
-index a3a0154da567d..49559731bbcf1 100644
---- a/drivers/tty/serial/8250/8250_dw.c
-+++ b/drivers/tty/serial/8250/8250_dw.c
-@@ -726,7 +726,7 @@ static struct platform_driver dw8250_platform_driver = {
- 		.name		= "dw-apb-uart",
- 		.pm		= &dw8250_pm_ops,
- 		.of_match_table	= dw8250_of_match,
--		.acpi_match_table = ACPI_PTR(dw8250_acpi_match),
-+		.acpi_match_table = dw8250_acpi_match,
- 	},
- 	.probe			= dw8250_probe,
- 	.remove			= dw8250_remove,
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 6a8b7fb5be58d..f47c7e20cc271 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -17,6 +17,7 @@
+ #include <linux/of_platform.h>
+ #include <linux/slab.h>
+ #include <linux/sys_soc.h>
++#include <linux/timekeeping.h>
+ #include <linux/iopoll.h>
+ 
+ #include <linux/platform_data/ti-sysc.h>
+@@ -223,37 +224,77 @@ static u32 sysc_read_sysstatus(struct sysc *ddata)
+ 	return sysc_read(ddata, offset);
+ }
+ 
+-/* Poll on reset status */
+-static int sysc_wait_softreset(struct sysc *ddata)
++static int sysc_poll_reset_sysstatus(struct sysc *ddata)
+ {
+-	u32 sysc_mask, syss_done, rstval;
+-	int syss_offset, error = 0;
+-
+-	if (ddata->cap->regbits->srst_shift < 0)
+-		return 0;
+-
+-	syss_offset = ddata->offsets[SYSC_SYSSTATUS];
+-	sysc_mask = BIT(ddata->cap->regbits->srst_shift);
++	int error, retries;
++	u32 syss_done, rstval;
+ 
+ 	if (ddata->cfg.quirks & SYSS_QUIRK_RESETDONE_INVERTED)
+ 		syss_done = 0;
+ 	else
+ 		syss_done = ddata->cfg.syss_mask;
+ 
+-	if (syss_offset >= 0) {
++	if (likely(!timekeeping_suspended)) {
+ 		error = readx_poll_timeout_atomic(sysc_read_sysstatus, ddata,
+ 				rstval, (rstval & ddata->cfg.syss_mask) ==
+ 				syss_done, 100, MAX_MODULE_SOFTRESET_WAIT);
++	} else {
++		retries = MAX_MODULE_SOFTRESET_WAIT;
++		while (retries--) {
++			rstval = sysc_read_sysstatus(ddata);
++			if ((rstval & ddata->cfg.syss_mask) == syss_done)
++				return 0;
++			udelay(2); /* Account for udelay flakeyness */
++		}
++		error = -ETIMEDOUT;
++	}
+ 
+-	} else if (ddata->cfg.quirks & SYSC_QUIRK_RESET_STATUS) {
++	return error;
++}
++
++static int sysc_poll_reset_sysconfig(struct sysc *ddata)
++{
++	int error, retries;
++	u32 sysc_mask, rstval;
++
++	sysc_mask = BIT(ddata->cap->regbits->srst_shift);
++
++	if (likely(!timekeeping_suspended)) {
+ 		error = readx_poll_timeout_atomic(sysc_read_sysconfig, ddata,
+ 				rstval, !(rstval & sysc_mask),
+ 				100, MAX_MODULE_SOFTRESET_WAIT);
++	} else {
++		retries = MAX_MODULE_SOFTRESET_WAIT;
++		while (retries--) {
++			rstval = sysc_read_sysconfig(ddata);
++			if (!(rstval & sysc_mask))
++				return 0;
++			udelay(2); /* Account for udelay flakeyness */
++		}
++		error = -ETIMEDOUT;
+ 	}
+ 
+ 	return error;
+ }
+ 
++/* Poll on reset status */
++static int sysc_wait_softreset(struct sysc *ddata)
++{
++	int syss_offset, error = 0;
++
++	if (ddata->cap->regbits->srst_shift < 0)
++		return 0;
++
++	syss_offset = ddata->offsets[SYSC_SYSSTATUS];
++
++	if (syss_offset >= 0)
++		error = sysc_poll_reset_sysstatus(ddata);
++	else if (ddata->cfg.quirks & SYSC_QUIRK_RESET_STATUS)
++		error = sysc_poll_reset_sysconfig(ddata);
++
++	return error;
++}
++
+ static int sysc_add_named_clock_from_child(struct sysc *ddata,
+ 					   const char *name,
+ 					   const char *optfck_name)
 -- 
 2.33.0
 
