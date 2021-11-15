@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6F19450CA2
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:38:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB7E5451010
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:38:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238542AbhKORlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:41:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57866 "EHLO mail.kernel.org"
+        id S242502AbhKOSlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:41:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237968AbhKORiE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:38:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD948632DC;
-        Mon, 15 Nov 2021 17:25:30 +0000 (UTC)
+        id S242433AbhKOSgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:36:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDE7163273;
+        Mon, 15 Nov 2021 18:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997131;
-        bh=DfmFMax0EKZNGYfv0ughNR7qspCQmQMZI0Wshws9coM=;
+        s=korg; t=1636999387;
+        bh=2FNSaQtIK1xtf6h2ey8cw1D/v18nJ78M6xaDzSKJEHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EeeSlSoiXLYYp+76CtlXiDR0aYpd/1NPL/4NG6Jb+h0xm3zmpA/DppS1pF0e3LlbR
-         s5dxrzaRZyXKZou+3wMSxYgKssXE00BFvSaLdqsn6Snxho7UJLaZ4d5EtAMoG0gkwd
-         7xylTCfOIp86IsHqSxlGXj0EZbO/wKb8/mbHxwR4=
+        b=JxzCYoaLZ78xNx0+ZkTmJwnjcubTLiHK/jDay1+VclKVB2KLWKzmL9kcjM6piTQdE
+         tgawrm157broYCNTrx8zO2muugEU1DuQlwhvMI17BUDdqbpv4TfZwl1VTBWk3wnCXq
+         dTfdk3WV9Tys5TvbaYfZ4lk3Lw0INhloaZKdurIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 035/575] ALSA: 6fire: fix control and bulk message timeouts
+        stable@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 277/849] net: phy: micrel: make *-skew-ps check more lenient
 Date:   Mon, 15 Nov 2021 17:56:00 +0100
-Message-Id: <20211115165344.848586464@linuxfoundation.org>
+Message-Id: <20211115165429.615929259@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-commit 9b371c6cc37f954360989eec41c2ddc5a6b83917 upstream.
+[ Upstream commit 67ca5159dbe2edb5dae7544447b8677d2596933a ]
 
-USB control and bulk message timeouts are specified in milliseconds and
-should specifically not vary with CONFIG_HZ.
+It seems reasonable to fine-tune only some of the skew values when using
+one of the rgmii-*id PHY modes, and even when all skew values are
+specified, using the correct ID PHY mode makes sense for documentation
+purposes. Such a configuration also appears in the binding docs in
+Documentation/devicetree/bindings/net/micrel-ksz90x1.txt, so the driver
+should not warn about it.
 
-Fixes: c6d43ba816d1 ("ALSA: usb/6fire - Driver for TerraTec DMX 6Fire USB")
-Cc: stable@vger.kernel.org      # 2.6.39
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211025121142.6531-2-johan@kernel.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Link: https://lore.kernel.org/r/20211012103402.21438-1-matthias.schiffer@ew.tq-group.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/6fire/comm.c     |    2 +-
- sound/usb/6fire/firmware.c |    6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/phy/micrel.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/usb/6fire/comm.c
-+++ b/sound/usb/6fire/comm.c
-@@ -95,7 +95,7 @@ static int usb6fire_comm_send_buffer(u8
- 	int actual_len;
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 5c928f827173c..643b1c1827a92 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -863,9 +863,9 @@ static int ksz9031_config_init(struct phy_device *phydev)
+ 				MII_KSZ9031RN_TX_DATA_PAD_SKEW, 4,
+ 				tx_data_skews, 4, &update);
  
- 	ret = usb_interrupt_msg(dev, usb_sndintpipe(dev, COMM_EP),
--			buffer, buffer[1] + 2, &actual_len, HZ);
-+			buffer, buffer[1] + 2, &actual_len, 1000);
- 	if (ret < 0)
- 		return ret;
- 	else if (actual_len != buffer[1] + 2)
---- a/sound/usb/6fire/firmware.c
-+++ b/sound/usb/6fire/firmware.c
-@@ -160,7 +160,7 @@ static int usb6fire_fw_ezusb_write(struc
- {
- 	return usb_control_msg_send(device, 0, type,
- 				    USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				    value, 0, data, len, HZ, GFP_KERNEL);
-+				    value, 0, data, len, 1000, GFP_KERNEL);
- }
+-		if (update && phydev->interface != PHY_INTERFACE_MODE_RGMII)
++		if (update && !phy_interface_is_rgmii(phydev))
+ 			phydev_warn(phydev,
+-				    "*-skew-ps values should be used only with phy-mode = \"rgmii\"\n");
++				    "*-skew-ps values should be used only with RGMII PHY modes\n");
  
- static int usb6fire_fw_ezusb_read(struct usb_device *device,
-@@ -168,7 +168,7 @@ static int usb6fire_fw_ezusb_read(struct
- {
- 	return usb_control_msg_recv(device, 0, type,
- 				    USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--				    value, 0, data, len, HZ, GFP_KERNEL);
-+				    value, 0, data, len, 1000, GFP_KERNEL);
- }
- 
- static int usb6fire_fw_fpga_write(struct usb_device *device,
-@@ -178,7 +178,7 @@ static int usb6fire_fw_fpga_write(struct
- 	int ret;
- 
- 	ret = usb_bulk_msg(device, usb_sndbulkpipe(device, FPGA_EP), data, len,
--			&actual_len, HZ);
-+			&actual_len, 1000);
- 	if (ret < 0)
- 		return ret;
- 	else if (actual_len != len)
+ 		/* Silicon Errata Sheet (DS80000691D or DS80000692D):
+ 		 * When the device links in the 1000BASE-T slave mode only,
+-- 
+2.33.0
+
 
 
