@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD09745127E
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 760B645127D
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346714AbhKOTgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:36:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43994 "EHLO mail.kernel.org"
+        id S1346704AbhKOTgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:36:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244733AbhKOTRW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:17:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B78763329;
-        Mon, 15 Nov 2021 18:23:27 +0000 (UTC)
+        id S244734AbhKOTRX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:17:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAA3063418;
+        Mon, 15 Nov 2021 18:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000607;
-        bh=DkVPsgTcnYQexjp5QByTiOThIF1L2YtZWbBC5nljprs=;
+        s=korg; t=1637000610;
+        bh=V9pF/5P6yBDjV8Xu5cKMtTSIXhPXpjbzZnzM9gfhcNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vRQQUfQBJlVeZDCgNfejnv4F+vg355LuIBqg5jcqQuqZekd93Yz6hn86c8pHxhHv3
-         JJH1Du/nUZiY4vjl32nj2Zrt1Elv3TeTFII+9WTohC1zuYFYWxb3qr6nftTkdzRR/c
-         mzs6vOQgxs+tpIxdUbfLKLo8cstZ7TlplotmVLQg=
+        b=z5NY/Rw29NNZEiqgHTApePgqMTvCcmszu559BtApeVL8Qj5AicZo1k3YoQloacNa7
+         rF2yavNUNW1QMiWP8JQt8HVhs+fEebW5Kb4yg96ZVf7AEI6+1CvFQrsTYGTwo/GBQz
+         PyM66nsJWpelWBBl9JbuZpFvbcs2cI/sd63wIW88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Po Liu <po.liu@nxp.com>,
+        Yangbo Lu <yangbo.lu@nxp.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 724/849] net: dsa: tag_ocelot: break circular dependency with ocelot switch lib driver
-Date:   Mon, 15 Nov 2021 18:03:27 +0100
-Message-Id: <20211115165444.746577946@linuxfoundation.org>
+Subject: [PATCH 5.14 725/849] net: dsa: felix: fix broken VLAN-tagged PTP under VLAN-aware bridge
+Date:   Mon, 15 Nov 2021 18:03:28 +0100
+Message-Id: <20211115165444.786964597@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -43,233 +44,179 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit deab6b1cd9789bb9bd466d5e76aecb8b336259b4 ]
+[ Upstream commit 92f62485b3715882cd397b0cbd80a96d179b86d6 ]
 
-As explained here:
-https://lore.kernel.org/netdev/20210908220834.d7gmtnwrorhharna@skbuf/
-DSA tagging protocol drivers cannot depend on symbols exported by switch
-drivers, because this creates a circular dependency that breaks module
-autoloading.
+Normally it is expected that the dsa_device_ops :: rcv() method finishes
+parsing the DSA tag and consumes it, then never looks at it again.
 
-The tag_ocelot.c file depends on the ocelot_ptp_rew_op() function
-exported by the common ocelot switch lib. This function looks at
-OCELOT_SKB_CB(skb) and computes how to populate the REW_OP field of the
-DSA tag, for PTP timestamping (the command: one-step/two-step, and the
-TX timestamp identifier).
+But commit c0bcf537667c ("net: dsa: ocelot: add hardware timestamping
+support for Felix") added support for RX timestamping in a very
+unconventional way. On this switch, a partial timestamp is available in
+the DSA header, but the driver got away with not parsing that timestamp
+right away, but instead delayed that parsing for a little longer:
 
-None of that requires deep insight into the driver, it is quite
-stateless, as it only depends upon the skb->cb. So let's make it a
-static inline function and put it in include/linux/dsa/ocelot.h, a
-file that despite its name is used by the ocelot switch driver for
-populating the injection header too - since commit 40d3f295b5fe ("net:
-mscc: ocelot: use common tag parsing code with DSA").
+dsa_switch_rcv():
+	nskb = cpu_dp->rcv(skb, dev); <------------- not here
+	-> ocelot_rcv()
+	...
 
-With that function declared as static inline, its body is expanded
-inside each call site, so the dependency is broken and the DSA tagger
-can be built without the switch library, upon which the felix driver
-depends.
+	skb = nskb;
+	skb_push(skb, ETH_HLEN);
+	skb->pkt_type = PACKET_HOST;
+	skb->protocol = eth_type_trans(skb, skb->dev);
 
-Fixes: 39e5308b3250 ("net: mscc: ocelot: support PTP Sync one-step timestamping")
+	...
+
+	if (dsa_skb_defer_rx_timestamp(p, skb)) <--- but here
+	-> felix_rxtstamp()
+		return 0;
+
+When in felix_rxtstamp(), this driver accounted for the fact that
+eth_type_trans() happened in the meanwhile, so it got a hold of the
+extraction header again by subtracting (ETH_HLEN + OCELOT_TAG_LEN) bytes
+from the current skb->data.
+
+This worked for quite some time but was quite fragile from the very
+beginning. Not to mention that having DSA tag parsing split in two
+different files, under different folders (net/dsa/tag_ocelot.c vs
+drivers/net/dsa/ocelot/felix.c) made it quite non-obvious for patches to
+come that they might break this.
+
+Finally, the blamed commit does the following: at the end of
+ocelot_rcv(), it checks whether the skb payload contains a VLAN header.
+If it does, and this port is under a VLAN-aware bridge, that VLAN ID
+might not be correct in the sense that the packet might have suffered
+VLAN rewriting due to TCAM rules (VCAP IS1). So we consume the VLAN ID
+from the skb payload using __skb_vlan_pop(), and take the classified
+VLAN ID from the DSA tag, and construct a hwaccel VLAN tag with the
+classified VLAN, and the skb payload is VLAN-untagged.
+
+The big problem is that __skb_vlan_pop() does:
+
+	memmove(skb->data + VLAN_HLEN, skb->data, 2 * ETH_ALEN);
+	__skb_pull(skb, VLAN_HLEN);
+
+aka it moves the Ethernet header 4 bytes to the right, and pulls 4 bytes
+from the skb headroom (effectively also moving skb->data, by definition).
+So for felix_rxtstamp()'s fragile logic, all bets are off now.
+Instead of having the "extraction" pointer point to the DSA header,
+it actually points to 4 bytes _inside_ the extraction header.
+Corollary, the last 4 bytes of the "extraction" header are in fact 4
+stale bytes of the destination MAC address from the Ethernet header,
+from prior to the __skb_vlan_pop() movement.
+
+So of course, RX timestamps are completely bogus when the system is
+configured in this way.
+
+The fix is actually very simple: just don't structure the code like that.
+For better or worse, the DSA PTP timestamping API does not offer a
+straightforward way for drivers to present their RX timestamps, but
+other drivers (sja1105) have established a simple mechanism to carry
+their RX timestamp from dsa_device_ops :: rcv() all the way to
+dsa_switch_ops :: port_rxtstamp() and even later. That mechanism is to
+simply save the partial timestamp to the skb->cb, and complete it later.
+
+Question: why don't we simply populate the skb's struct
+skb_shared_hwtstamps from ocelot_rcv(), and bother with this
+complication of propagating the timestamp to felix_rxtstamp()?
+
+Answer: dsa_switch_ops :: port_rxtstamp() answers the question whether
+PTP packets need sleepable context to retrieve the full RX timestamp.
+Currently felix_rxtstamp() answers "no, thanks" to that question, and
+calls ocelot_ptp_gettime64() from softirq atomic context. This is
+understandable, since Felix VSC9959 is a PCIe memory-mapped switch, so
+hardware access does not require sleeping. But the felix driver is
+preparing for the introduction of other switches where hardware access
+is over a slow bus like SPI or MDIO:
+https://lore.kernel.org/lkml/20210814025003.2449143-1-colin.foster@in-advantage.com/
+
+So I would like to keep this code structure, so the rework needed when
+that driver will need PTP support will be minimal (answer "yes, I need
+deferred context for this skb's RX timestamp", then the partial
+timestamp will still be found in the skb->cb.
+
+Fixes: ea440cd2d9b2 ("net: dsa: tag_ocelot: use VLAN information from tagging header when available")
+Reported-by: Po Liu <po.liu@nxp.com>
+Cc: Yangbo Lu <yangbo.lu@nxp.com>
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot.c     | 17 ------------
- drivers/net/ethernet/mscc/ocelot_net.c |  1 +
- include/linux/dsa/ocelot.h             | 37 ++++++++++++++++++++++++++
- include/soc/mscc/ocelot.h              | 24 -----------------
- net/dsa/Kconfig                        |  2 --
- net/dsa/tag_ocelot.c                   |  1 -
- net/dsa/tag_ocelot_8021q.c             |  1 +
- 7 files changed, 39 insertions(+), 44 deletions(-)
+ drivers/net/dsa/ocelot/felix.c | 9 +++------
+ include/linux/dsa/ocelot.h     | 1 +
+ net/dsa/tag_ocelot.c           | 3 +++
+ 3 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
-index acfbe94b52918..ece2ddadaf3bf 100644
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -568,23 +568,6 @@ static int ocelot_port_add_txtstamp_skb(struct ocelot *ocelot, int port,
- 	return 0;
- }
- 
--u32 ocelot_ptp_rew_op(struct sk_buff *skb)
--{
--	struct sk_buff *clone = OCELOT_SKB_CB(skb)->clone;
--	u8 ptp_cmd = OCELOT_SKB_CB(skb)->ptp_cmd;
--	u32 rew_op = 0;
--
--	if (ptp_cmd == IFH_REW_OP_TWO_STEP_PTP && clone) {
--		rew_op = ptp_cmd;
--		rew_op |= OCELOT_SKB_CB(clone)->ts_id << 3;
--	} else if (ptp_cmd == IFH_REW_OP_ORIGIN_PTP) {
--		rew_op = ptp_cmd;
--	}
--
--	return rew_op;
--}
--EXPORT_SYMBOL(ocelot_ptp_rew_op);
--
- static bool ocelot_ptp_is_onestep_sync(struct sk_buff *skb,
- 				       unsigned int ptp_class)
+diff --git a/drivers/net/dsa/ocelot/felix.c b/drivers/net/dsa/ocelot/felix.c
+index 0ba3762d5c219..0b81b5eb36bd1 100644
+--- a/drivers/net/dsa/ocelot/felix.c
++++ b/drivers/net/dsa/ocelot/felix.c
+@@ -1367,12 +1367,12 @@ out:
+ static bool felix_rxtstamp(struct dsa_switch *ds, int port,
+ 			   struct sk_buff *skb, unsigned int type)
  {
-diff --git a/drivers/net/ethernet/mscc/ocelot_net.c b/drivers/net/ethernet/mscc/ocelot_net.c
-index e9d260d84bf33..855833fd42e3d 100644
---- a/drivers/net/ethernet/mscc/ocelot_net.c
-+++ b/drivers/net/ethernet/mscc/ocelot_net.c
-@@ -8,6 +8,7 @@
-  * Copyright 2020-2021 NXP Semiconductors
-  */
+-	u8 *extraction = skb->data - ETH_HLEN - OCELOT_TAG_LEN;
++	u32 tstamp_lo = OCELOT_SKB_CB(skb)->tstamp_lo;
+ 	struct skb_shared_hwtstamps *shhwtstamps;
+ 	struct ocelot *ocelot = ds->priv;
+-	u32 tstamp_lo, tstamp_hi;
+ 	struct timespec64 ts;
+-	u64 tstamp, val;
++	u32 tstamp_hi;
++	u64 tstamp;
  
-+#include <linux/dsa/ocelot.h>
- #include <linux/if_bridge.h>
- #include <net/pkt_cls.h>
- #include "ocelot.h"
+ 	/* If the "no XTR IRQ" workaround is in use, tell DSA to defer this skb
+ 	 * for RX timestamping. Then free it, and poll for its copy through
+@@ -1387,9 +1387,6 @@ static bool felix_rxtstamp(struct dsa_switch *ds, int port,
+ 	ocelot_ptp_gettime64(&ocelot->ptp_info, &ts);
+ 	tstamp = ktime_set(ts.tv_sec, ts.tv_nsec);
+ 
+-	ocelot_xfh_get_rew_val(extraction, &val);
+-	tstamp_lo = (u32)val;
+-
+ 	tstamp_hi = tstamp >> 32;
+ 	if ((tstamp & 0xffffffff) < tstamp_lo)
+ 		tstamp_hi--;
 diff --git a/include/linux/dsa/ocelot.h b/include/linux/dsa/ocelot.h
-index c6bc45ae5e03a..5a6a6fad62ccc 100644
+index 5a6a6fad62ccc..f7e9f7d48b70b 100644
 --- a/include/linux/dsa/ocelot.h
 +++ b/include/linux/dsa/ocelot.h
-@@ -6,6 +6,26 @@
- #define _NET_DSA_TAG_OCELOT_H
- 
- #include <linux/packing.h>
-+#include <linux/skbuff.h>
-+
-+struct ocelot_skb_cb {
-+	struct sk_buff *clone;
-+	unsigned int ptp_class; /* valid only for clones */
-+	u8 ptp_cmd;
-+	u8 ts_id;
-+};
-+
-+#define OCELOT_SKB_CB(skb) \
-+	((struct ocelot_skb_cb *)((skb)->cb))
-+
-+#define IFH_TAG_TYPE_C			0
-+#define IFH_TAG_TYPE_S			1
-+
-+#define IFH_REW_OP_NOOP			0x0
-+#define IFH_REW_OP_DSCP			0x1
-+#define IFH_REW_OP_ONE_STEP_PTP		0x2
-+#define IFH_REW_OP_TWO_STEP_PTP		0x3
-+#define IFH_REW_OP_ORIGIN_PTP		0x5
- 
- #define OCELOT_TAG_LEN			16
- #define OCELOT_SHORT_PREFIX_LEN		4
-@@ -215,4 +235,21 @@ static inline void ocelot_ifh_set_vid(void *injection, u64 vid)
- 	packing(injection, &vid, 11, 0, OCELOT_TAG_LEN, PACK, 0);
- }
- 
-+/* Determine the PTP REW_OP to use for injecting the given skb */
-+static inline u32 ocelot_ptp_rew_op(struct sk_buff *skb)
-+{
-+	struct sk_buff *clone = OCELOT_SKB_CB(skb)->clone;
-+	u8 ptp_cmd = OCELOT_SKB_CB(skb)->ptp_cmd;
-+	u32 rew_op = 0;
-+
-+	if (ptp_cmd == IFH_REW_OP_TWO_STEP_PTP && clone) {
-+		rew_op = ptp_cmd;
-+		rew_op |= OCELOT_SKB_CB(clone)->ts_id << 3;
-+	} else if (ptp_cmd == IFH_REW_OP_ORIGIN_PTP) {
-+		rew_op = ptp_cmd;
-+	}
-+
-+	return rew_op;
-+}
-+
- #endif
-diff --git a/include/soc/mscc/ocelot.h b/include/soc/mscc/ocelot.h
-index 4984093882372..a02f0d7515f25 100644
---- a/include/soc/mscc/ocelot.h
-+++ b/include/soc/mscc/ocelot.h
-@@ -89,15 +89,6 @@
- /* Source PGIDs, one per physical port */
- #define PGID_SRC			80
- 
--#define IFH_TAG_TYPE_C			0
--#define IFH_TAG_TYPE_S			1
--
--#define IFH_REW_OP_NOOP			0x0
--#define IFH_REW_OP_DSCP			0x1
--#define IFH_REW_OP_ONE_STEP_PTP		0x2
--#define IFH_REW_OP_TWO_STEP_PTP		0x3
--#define IFH_REW_OP_ORIGIN_PTP		0x5
--
- #define OCELOT_NUM_TC			8
- 
- #define OCELOT_SPEED_2500		0
-@@ -692,16 +683,6 @@ struct ocelot_policer {
- 	u32 burst; /* bytes */
+@@ -11,6 +11,7 @@
+ struct ocelot_skb_cb {
+ 	struct sk_buff *clone;
+ 	unsigned int ptp_class; /* valid only for clones */
++	u32 tstamp_lo;
+ 	u8 ptp_cmd;
+ 	u8 ts_id;
  };
- 
--struct ocelot_skb_cb {
--	struct sk_buff *clone;
--	unsigned int ptp_class; /* valid only for clones */
--	u8 ptp_cmd;
--	u8 ts_id;
--};
--
--#define OCELOT_SKB_CB(skb) \
--	((struct ocelot_skb_cb *)((skb)->cb))
--
- #define ocelot_read_ix(ocelot, reg, gi, ri) __ocelot_read_ix(ocelot, reg, reg##_GSZ * (gi) + reg##_RSZ * (ri))
- #define ocelot_read_gix(ocelot, reg, gi) __ocelot_read_ix(ocelot, reg, reg##_GSZ * (gi))
- #define ocelot_read_rix(ocelot, reg, ri) __ocelot_read_ix(ocelot, reg, reg##_RSZ * (ri))
-@@ -762,7 +743,6 @@ void ocelot_port_inject_frame(struct ocelot *ocelot, int port, int grp,
- int ocelot_xtr_poll_frame(struct ocelot *ocelot, int grp, struct sk_buff **skb);
- void ocelot_drain_cpu_queue(struct ocelot *ocelot, int grp);
- 
--u32 ocelot_ptp_rew_op(struct sk_buff *skb);
- #else
- 
- static inline bool ocelot_can_inject(struct ocelot *ocelot, int grp)
-@@ -786,10 +766,6 @@ static inline void ocelot_drain_cpu_queue(struct ocelot *ocelot, int grp)
- {
- }
- 
--static inline u32 ocelot_ptp_rew_op(struct sk_buff *skb)
--{
--	return 0;
--}
- #endif
- 
- /* Hardware initialization */
-diff --git a/net/dsa/Kconfig b/net/dsa/Kconfig
-index 970906eb5b2cd..3d3015146f24f 100644
---- a/net/dsa/Kconfig
-+++ b/net/dsa/Kconfig
-@@ -101,8 +101,6 @@ config NET_DSA_TAG_RTL4_A
- 
- config NET_DSA_TAG_OCELOT
- 	tristate "Tag driver for Ocelot family of switches, using NPI port"
--	depends on MSCC_OCELOT_SWITCH_LIB || \
--		   (MSCC_OCELOT_SWITCH_LIB=n && COMPILE_TEST)
- 	select PACKING
- 	help
- 	  Say Y or M if you want to enable NPI tagging for the Ocelot switches
 diff --git a/net/dsa/tag_ocelot.c b/net/dsa/tag_ocelot.c
-index 190f4bfd3bef6..fdaae23890047 100644
+index fdaae23890047..028c1350ce530 100644
 --- a/net/dsa/tag_ocelot.c
 +++ b/net/dsa/tag_ocelot.c
-@@ -2,7 +2,6 @@
- /* Copyright 2019 NXP Semiconductors
-  */
- #include <linux/dsa/ocelot.h>
--#include <soc/mscc/ocelot.h>
- #include "dsa_priv.h"
+@@ -63,6 +63,7 @@ static struct sk_buff *ocelot_rcv(struct sk_buff *skb,
+ 	struct dsa_port *dp;
+ 	u8 *extraction;
+ 	u16 vlan_tpid;
++	u64 rew_val;
  
- static void ocelot_xmit_common(struct sk_buff *skb, struct net_device *netdev,
-diff --git a/net/dsa/tag_ocelot_8021q.c b/net/dsa/tag_ocelot_8021q.c
-index 85ac85c3af8c0..b4cd6842b69a2 100644
---- a/net/dsa/tag_ocelot_8021q.c
-+++ b/net/dsa/tag_ocelot_8021q.c
-@@ -9,6 +9,7 @@
-  *   that on egress
-  */
- #include <linux/dsa/8021q.h>
-+#include <linux/dsa/ocelot.h>
- #include <soc/mscc/ocelot.h>
- #include <soc/mscc/ocelot_ptp.h>
- #include "dsa_priv.h"
+ 	/* Revert skb->data by the amount consumed by the DSA master,
+ 	 * so it points to the beginning of the frame.
+@@ -92,6 +93,7 @@ static struct sk_buff *ocelot_rcv(struct sk_buff *skb,
+ 	ocelot_xfh_get_qos_class(extraction, &qos_class);
+ 	ocelot_xfh_get_tag_type(extraction, &tag_type);
+ 	ocelot_xfh_get_vlan_tci(extraction, &vlan_tci);
++	ocelot_xfh_get_rew_val(extraction, &rew_val);
+ 
+ 	skb->dev = dsa_master_find_slave(netdev, 0, src_port);
+ 	if (!skb->dev)
+@@ -105,6 +107,7 @@ static struct sk_buff *ocelot_rcv(struct sk_buff *skb,
+ 
+ 	skb->offload_fwd_mark = 1;
+ 	skb->priority = qos_class;
++	OCELOT_SKB_CB(skb)->tstamp_lo = rew_val;
+ 
+ 	/* Ocelot switches copy frames unmodified to the CPU. However, it is
+ 	 * possible for the user to request a VLAN modification through
 -- 
 2.33.0
 
