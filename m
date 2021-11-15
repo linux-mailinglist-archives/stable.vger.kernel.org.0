@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5BEB452518
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 772B24521C1
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344404AbhKPBqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:46:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36794 "EHLO mail.kernel.org"
+        id S245391AbhKPBGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:06:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241137AbhKOSZr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:25:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDFAC6342F;
-        Mon, 15 Nov 2021 17:56:09 +0000 (UTC)
+        id S245415AbhKOTUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95A6363276;
+        Mon, 15 Nov 2021 18:34:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998970;
-        bh=+y278zBEDQ1fqVOLstLpNxijn85+NAhFtAVSAsQdi2s=;
+        s=korg; t=1637001247;
+        bh=870ZaPlWckwXfWen7shlPE1msodNXCEhW1Zq3eCLlPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EvsVzqMV5N65M24CmsP7MuY1vlFroFPfaui/LV5ssW55uPMDwXs7x4r13m/vygjFz
-         NFxhRykP7qdrnlySBBcD1QzuEPlFQvoX2SvyPz/7PSIkZDA4fWOqXegvUWMT4gMqmq
-         66GovDUVRIrMbxAf3cbTEWqVtBY09Rm+rO6HUzDE=
+        b=TTShyamowau3GBLtai0bCMVifcLzymNFIf9Op59kL713qJOuomPczaM+MnJC39Lpt
+         qvdSRnFE95r7p4ORF2u8K3TXJPwQVoRVYt2S0VjuOOxJgkRTC8Zirio0vtymXXx4fs
+         9WYkAP7mK78gC7IHsA041Vh1HLsyFhBppZ/gCXsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.14 128/849] PM: sleep: Do not let "syscore" devices runtime-suspend during system transitions
-Date:   Mon, 15 Nov 2021 17:53:31 +0100
-Message-Id: <20211115165424.431545269@linuxfoundation.org>
+        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCH 5.15 117/917] power: supply: max17042_battery: Prevent int underflow in set_soc_threshold
+Date:   Mon, 15 Nov 2021 17:53:32 +0100
+Message-Id: <20211115165432.717899454@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
 
-commit 928265e3601cde78c7e0a3e518a93b27defed3b1 upstream.
+commit e660dbb68c6b3f7b9eb8b9775846a44f9798b719 upstream.
 
-There is no reason to allow "syscore" devices to runtime-suspend
-during system-wide PM transitions, because they are subject to the
-same possible failure modes as any other devices in that respect.
+max17042_set_soc_threshold gets called with offset set to 1, which means
+that minimum threshold value would underflow once SOC got down to 0,
+causing invalid alerts from the gauge.
 
-Accordingly, change device_prepare() and device_complete() to call
-pm_runtime_get_noresume() and pm_runtime_put(), respectively, for
-"syscore" devices too.
-
-Fixes: 057d51a1268f ("Merge branch 'pm-sleep'")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: e5f3872d2044 ("max17042: Add support for signalling change in SOC")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/power/main.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/power/supply/max17042_battery.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/base/power/main.c
-+++ b/drivers/base/power/main.c
-@@ -1051,7 +1051,7 @@ static void device_complete(struct devic
- 	const char *info = NULL;
- 
- 	if (dev->power.syscore)
--		return;
-+		goto out;
- 
- 	device_lock(dev);
- 
-@@ -1081,6 +1081,7 @@ static void device_complete(struct devic
- 
- 	device_unlock(dev);
- 
-+out:
- 	pm_runtime_put(dev);
+--- a/drivers/power/supply/max17042_battery.c
++++ b/drivers/power/supply/max17042_battery.c
+@@ -857,7 +857,8 @@ static void max17042_set_soc_threshold(s
+ 	regmap_read(map, MAX17042_RepSOC, &soc);
+ 	soc >>= 8;
+ 	soc_tr = (soc + off) << 8;
+-	soc_tr |= (soc - off);
++	if (off < soc)
++		soc_tr |= soc - off;
+ 	regmap_write(map, MAX17042_SALRT_Th, soc_tr);
  }
  
-@@ -1794,9 +1795,6 @@ static int device_prepare(struct device
- 	int (*callback)(struct device *) = NULL;
- 	int ret = 0;
- 
--	if (dev->power.syscore)
--		return 0;
--
- 	/*
- 	 * If a device's parent goes into runtime suspend at the wrong time,
- 	 * it won't be possible to resume the device.  To prevent this we
-@@ -1805,6 +1803,9 @@ static int device_prepare(struct device
- 	 */
- 	pm_runtime_get_noresume(dev);
- 
-+	if (dev->power.syscore)
-+		return 0;
-+
- 	device_lock(dev);
- 
- 	dev->power.wakeup_path = false;
 
 
