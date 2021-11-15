@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A37E14521B2
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:03:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 278A14524A6
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:38:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244680AbhKPBG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:06:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
+        id S1344583AbhKPBky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:40:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245426AbhKOTUc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6E8A6346B;
-        Mon, 15 Nov 2021 18:34:35 +0000 (UTC)
+        id S241410AbhKOS0P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:26:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D568B63332;
+        Mon, 15 Nov 2021 17:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001276;
-        bh=a0sG9Dye3TkYPeQ6W3PtCNFjLTt9hYCZ3pfbdMXBkBw=;
+        s=korg; t=1636999005;
+        bh=KjnLQHTkAYs14/AajWgBYzfjAJOa8K0J5aYqscpfdzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4f/4n5H6BMLzW6uGr0imkbAH0CP99no57rmCVfLWFqR1MyXCmnUE2yrmHPIAdQ2I
-         gHsbH8h47GQVrvqOiiCBEReUQKiqXqGO3RUNh9/eJN5CZiNe6NCs6v/bd3e1kWFFTL
-         gze7Aaq9P7D7RK9tlX2yv1uDRBeWmfBvP7AY517w=
+        b=EhuCiUVBBwMJwnLJXnj+yGYIItc4ieGsL2fTm1xIcPEchyxb0T4xJZT3BKbP43/O7
+         DL9GwGBKe++nFtZe1Ura4ypk0Ozz3LCvmbkqsfCa2PoHjuqVxVOCREfPJpRmpG69u8
+         VsD/DbHzV4Yj2xGSH8NMxudr2RThuqiHY6UzajUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
-Subject: [PATCH 5.15 096/917] dma-buf: fix and rework dma_buf_poll v7
+        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.14 108/849] hwmon: (pmbus/lm25066) Add offset coefficients
 Date:   Mon, 15 Nov 2021 17:53:11 +0100
-Message-Id: <20211115165431.999054823@linuxfoundation.org>
+Message-Id: <20211115165423.734248890@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,269 +39,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Zev Weiss <zev@bewilderbeest.net>
 
-commit 6b51b02a3a0ac49dfe302818d0746a799545e4e9 upstream.
+commit ae59dc455a78fb73034dd1fbb337d7e59c27cbd8 upstream.
 
-Daniel pointed me towards this function and there are multiple obvious problems
-in the implementation.
+With the exception of the lm5066i, all the devices handled by this
+driver had been missing their offset ('b') coefficients for direct
+format readings.
 
-First of all the retry loop is not working as intended. In general the retry
-makes only sense if you grab the reference first and then check the sequence
-values.
-
-Then we should always also wait for the exclusive fence.
-
-It's also good practice to keep the reference around when installing callbacks
-to fences you don't own.
-
-And last the whole implementation was unnecessary complex and rather hard to
-understand which could lead to probably unexpected behavior of the IOCTL.
-
-Fix all this by reworking the implementation from scratch. Dropping the
-whole RCU approach and taking the lock instead.
-
-Only mildly tested and needs a thoughtful review of the code.
-
-Pushing through drm-misc-next to avoid merge conflicts and give the code
-another round of testing.
-
-v2: fix the reference counting as well
-v3: keep the excl fence handling as is for stable
-v4: back to testing all fences, drop RCU
-v5: handle in and out separately
-v6: add missing clear of events
-v7: change coding style as suggested by Michel, drop unused variables
-
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Tested-by: Michel Dänzer <mdaenzer@redhat.com>
-CC: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20210720131110.88512-1-christian.koenig@amd.com
+Cc: stable@vger.kernel.org
+Fixes: 58615a94f6a1 ("hwmon: (pmbus/lm25066) Add support for LM25056")
+Fixes: e53e6497fc9f ("hwmon: (pmbus/lm25066) Refactor device specific coefficients")
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Link: https://lore.kernel.org/r/20210928092242.30036-2-zev@bewilderbeest.net
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma-buf/dma-buf.c |  152 +++++++++++++++++++++-------------------------
- include/linux/dma-buf.h   |    2 
- 2 files changed, 71 insertions(+), 83 deletions(-)
+ drivers/hwmon/pmbus/lm25066.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -74,7 +74,7 @@ static void dma_buf_release(struct dentr
- 	 * If you hit this BUG() it means someone dropped their ref to the
- 	 * dma-buf while still having pending operation to the buffer.
- 	 */
--	BUG_ON(dmabuf->cb_shared.active || dmabuf->cb_excl.active);
-+	BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
- 
- 	dma_buf_stats_teardown(dmabuf);
- 	dmabuf->ops->release(dmabuf);
-@@ -205,16 +205,55 @@ static void dma_buf_poll_cb(struct dma_f
- 	wake_up_locked_poll(dcb->poll, dcb->active);
- 	dcb->active = 0;
- 	spin_unlock_irqrestore(&dcb->poll->lock, flags);
-+	dma_fence_put(fence);
-+}
-+
-+static bool dma_buf_poll_shared(struct dma_resv *resv,
-+				struct dma_buf_poll_cb_t *dcb)
-+{
-+	struct dma_resv_list *fobj = dma_resv_shared_list(resv);
-+	struct dma_fence *fence;
-+	int i, r;
-+
-+	if (!fobj)
-+		return false;
-+
-+	for (i = 0; i < fobj->shared_count; ++i) {
-+		fence = rcu_dereference_protected(fobj->shared[i],
-+						  dma_resv_held(resv));
-+		dma_fence_get(fence);
-+		r = dma_fence_add_callback(fence, &dcb->cb, dma_buf_poll_cb);
-+		if (!r)
-+			return true;
-+		dma_fence_put(fence);
-+	}
-+
-+	return false;
-+}
-+
-+static bool dma_buf_poll_excl(struct dma_resv *resv,
-+			      struct dma_buf_poll_cb_t *dcb)
-+{
-+	struct dma_fence *fence = dma_resv_excl_fence(resv);
-+	int r;
-+
-+	if (!fence)
-+		return false;
-+
-+	dma_fence_get(fence);
-+	r = dma_fence_add_callback(fence, &dcb->cb, dma_buf_poll_cb);
-+	if (!r)
-+		return true;
-+	dma_fence_put(fence);
-+
-+	return false;
- }
- 
- static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
- {
- 	struct dma_buf *dmabuf;
- 	struct dma_resv *resv;
--	struct dma_resv_list *fobj;
--	struct dma_fence *fence_excl;
- 	__poll_t events;
--	unsigned shared_count, seq;
- 
- 	dmabuf = file->private_data;
- 	if (!dmabuf || !dmabuf->resv)
-@@ -228,101 +267,50 @@ static __poll_t dma_buf_poll(struct file
- 	if (!events)
- 		return 0;
- 
--retry:
--	seq = read_seqcount_begin(&resv->seq);
--	rcu_read_lock();
--
--	fobj = rcu_dereference(resv->fence);
--	if (fobj)
--		shared_count = fobj->shared_count;
--	else
--		shared_count = 0;
--	fence_excl = dma_resv_excl_fence(resv);
--	if (read_seqcount_retry(&resv->seq, seq)) {
--		rcu_read_unlock();
--		goto retry;
--	}
--
--	if (fence_excl && (!(events & EPOLLOUT) || shared_count == 0)) {
--		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_excl;
--		__poll_t pevents = EPOLLIN;
-+	dma_resv_lock(resv, NULL);
- 
--		if (shared_count == 0)
--			pevents |= EPOLLOUT;
-+	if (events & EPOLLOUT) {
-+		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_out;
- 
-+		/* Check that callback isn't busy */
- 		spin_lock_irq(&dmabuf->poll.lock);
--		if (dcb->active) {
--			dcb->active |= pevents;
--			events &= ~pevents;
--		} else
--			dcb->active = pevents;
-+		if (dcb->active)
-+			events &= ~EPOLLOUT;
-+		else
-+			dcb->active = EPOLLOUT;
- 		spin_unlock_irq(&dmabuf->poll.lock);
- 
--		if (events & pevents) {
--			if (!dma_fence_get_rcu(fence_excl)) {
--				/* force a recheck */
--				events &= ~pevents;
-+		if (events & EPOLLOUT) {
-+			if (!dma_buf_poll_shared(resv, dcb) &&
-+			    !dma_buf_poll_excl(resv, dcb))
-+				/* No callback queued, wake up any other waiters */
- 				dma_buf_poll_cb(NULL, &dcb->cb);
--			} else if (!dma_fence_add_callback(fence_excl, &dcb->cb,
--							   dma_buf_poll_cb)) {
--				events &= ~pevents;
--				dma_fence_put(fence_excl);
--			} else {
--				/*
--				 * No callback queued, wake up any additional
--				 * waiters.
--				 */
--				dma_fence_put(fence_excl);
--				dma_buf_poll_cb(NULL, &dcb->cb);
--			}
-+			else
-+				events &= ~EPOLLOUT;
- 		}
- 	}
- 
--	if ((events & EPOLLOUT) && shared_count > 0) {
--		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_shared;
--		int i;
-+	if (events & EPOLLIN) {
-+		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_in;
- 
--		/* Only queue a new callback if no event has fired yet */
-+		/* Check that callback isn't busy */
- 		spin_lock_irq(&dmabuf->poll.lock);
- 		if (dcb->active)
--			events &= ~EPOLLOUT;
-+			events &= ~EPOLLIN;
- 		else
--			dcb->active = EPOLLOUT;
-+			dcb->active = EPOLLIN;
- 		spin_unlock_irq(&dmabuf->poll.lock);
- 
--		if (!(events & EPOLLOUT))
--			goto out;
--
--		for (i = 0; i < shared_count; ++i) {
--			struct dma_fence *fence = rcu_dereference(fobj->shared[i]);
--
--			if (!dma_fence_get_rcu(fence)) {
--				/*
--				 * fence refcount dropped to zero, this means
--				 * that fobj has been freed
--				 *
--				 * call dma_buf_poll_cb and force a recheck!
--				 */
--				events &= ~EPOLLOUT;
-+		if (events & EPOLLIN) {
-+			if (!dma_buf_poll_excl(resv, dcb))
-+				/* No callback queued, wake up any other waiters */
- 				dma_buf_poll_cb(NULL, &dcb->cb);
--				break;
--			}
--			if (!dma_fence_add_callback(fence, &dcb->cb,
--						    dma_buf_poll_cb)) {
--				dma_fence_put(fence);
--				events &= ~EPOLLOUT;
--				break;
--			}
--			dma_fence_put(fence);
-+			else
-+				events &= ~EPOLLIN;
- 		}
--
--		/* No callback queued, wake up any additional waiters. */
--		if (i == shared_count)
--			dma_buf_poll_cb(NULL, &dcb->cb);
- 	}
- 
--out:
--	rcu_read_unlock();
-+	dma_resv_unlock(resv);
- 	return events;
- }
- 
-@@ -565,8 +553,8 @@ struct dma_buf *dma_buf_export(const str
- 	dmabuf->owner = exp_info->owner;
- 	spin_lock_init(&dmabuf->name_lock);
- 	init_waitqueue_head(&dmabuf->poll);
--	dmabuf->cb_excl.poll = dmabuf->cb_shared.poll = &dmabuf->poll;
--	dmabuf->cb_excl.active = dmabuf->cb_shared.active = 0;
-+	dmabuf->cb_in.poll = dmabuf->cb_out.poll = &dmabuf->poll;
-+	dmabuf->cb_in.active = dmabuf->cb_out.active = 0;
- 
- 	if (!resv) {
- 		resv = (struct dma_resv *)&dmabuf[1];
---- a/include/linux/dma-buf.h
-+++ b/include/linux/dma-buf.h
-@@ -433,7 +433,7 @@ struct dma_buf {
- 		wait_queue_head_t *poll;
- 
- 		__poll_t active;
--	} cb_excl, cb_shared;
-+	} cb_in, cb_out;
- #ifdef CONFIG_DMABUF_SYSFS_STATS
- 	/**
- 	 * @sysfs_entry:
+--- a/drivers/hwmon/pmbus/lm25066.c
++++ b/drivers/hwmon/pmbus/lm25066.c
+@@ -55,22 +55,27 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm25056] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 16296,
++			.b = 1343,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 13797,
++			.b = -1833,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 6726,
++			.b = -537,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 5501,
++			.b = -2908,
+ 			.R = -3,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 26882,
++			.b = -5646,
+ 			.R = -4,
+ 		},
+ 		[PSC_TEMPERATURE] = {
+@@ -82,26 +87,32 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm25066] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 22070,
++			.b = -1800,
+ 			.R = -2,
+ 		},
+ 		[PSC_VOLTAGE_OUT] = {
+ 			.m = 22070,
++			.b = -1800,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 13661,
++			.b = -5200,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 6852,
++			.b = -3100,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 736,
++			.b = -3300,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 369,
++			.b = -1900,
+ 			.R = -2,
+ 		},
+ 		[PSC_TEMPERATURE] = {
+@@ -111,26 +122,32 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm5064] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 4611,
++			.b = -642,
+ 			.R = -2,
+ 		},
+ 		[PSC_VOLTAGE_OUT] = {
+ 			.m = 4621,
++			.b = 423,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 10742,
++			.b = 1552,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 5456,
++			.b = 2118,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 1204,
++			.b = 8524,
+ 			.R = -3,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 612,
++			.b = 11202,
+ 			.R = -3,
+ 		},
+ 		[PSC_TEMPERATURE] = {
+@@ -140,26 +157,32 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm5066] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 4587,
++			.b = -1200,
+ 			.R = -2,
+ 		},
+ 		[PSC_VOLTAGE_OUT] = {
+ 			.m = 4587,
++			.b = -2400,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 10753,
++			.b = -1200,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 5405,
++			.b = -600,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 1204,
++			.b = -6000,
+ 			.R = -3,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 605,
++			.b = -8000,
+ 			.R = -3,
+ 		},
+ 		[PSC_TEMPERATURE] = {
 
 
