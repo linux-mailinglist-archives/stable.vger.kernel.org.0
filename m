@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E894450ACB
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62A28450D82
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:56:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231824AbhKOROr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:14:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51016 "EHLO mail.kernel.org"
+        id S237276AbhKOR7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:59:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236804AbhKORNJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:13:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E16EB61BF5;
-        Mon, 15 Nov 2021 17:10:12 +0000 (UTC)
+        id S239300AbhKOR4g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:56:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B009632C4;
+        Mon, 15 Nov 2021 17:34:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996213;
-        bh=gkLkjXb4iqRXT7QvuN16O3lslBVjnwBA4c/WO/36FZw=;
+        s=korg; t=1636997658;
+        bh=SzQNO/O358U0WtjF0OqVvLkH383vxKiZIXVDUXTmgEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sf6r3UMFyxdI4cVEjcbFTeNXiuAjCI1MaqwUEnxDc11jJORuUk9r9qjSiI6qYPke5
-         UFBGu7nb32heM1nBCu5+KmmopN7qt8iS8S/g/BMajqTBvpdlfM5ohuaWMPzbAA3G/T
-         P7nFjxD4rs9QJnaIlfBQkkqtweIVbpsh6Le56z04=
+        b=HGuXfskID+bxKvNf0b0IRWS2q2drQUbNSrJMI6JGBg7tLeWSPqsslH5cZNcOUceiY
+         fl4wqCJ7yiGRJz9VWV2d+tcuT4IhE1UgRnTLEu0PwIBnMRnhiIln7KuBU44E+7iAsI
+         TH+PHpFe+U5AB2xTO0V+vwtJ0zFS8jaGo+KdL8qA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Wensheng <wangwensheng4@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 030/355] ALSA: timer: Fix use-after-free problem
+        stable@vger.kernel.org, Yuri Savinykh <s02190703@gse.cs.msu.ru>,
+        Nadezda Lutovinova <lutovinova@ispras.ru>,
+        Michael Tretter <m.tretter@pengutronix.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 229/575] media: allegro: ignore interrupt if mailbox is not initialized
 Date:   Mon, 15 Nov 2021 17:59:14 +0100
-Message-Id: <20211115165314.522452533@linuxfoundation.org>
+Message-Id: <20211115165351.645786402@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Michael Tretter <m.tretter@pengutronix.de>
 
-commit c0317c0e87094f5b5782b6fdef5ae0a4b150496c upstream.
+[ Upstream commit 1ecda6393db4be44aba27a243e648dc98c9b92e3 ]
 
-When the timer instance was add into ack_list but was not currently in
-process, the user could stop it via snd_timer_stop1() without delete it
-from the ack_list. Then the user could free the timer instance and when
-it was actually processed UAF occurred.
+The mailbox is initialized after the interrupt handler is installed. As
+the firmware is loaded and started even later, it should not happen that
+the interrupt occurs without the mailbox being initialized.
 
-This issue could be reproduced via testcase snd_timer01 in ltp - running
-several instances of that testcase at the same time.
+As the Linux Driver Verification project (linuxtesting.org) keeps
+reporting this as an error, add a check to ignore interrupts before the
+mailbox is initialized to fix this potential null pointer dereference.
 
-What I actually met was that the ack_list of the timer broken and the
-kernel went into deadloop with irqoff. That could be detected by
-hardlockup detector on board or when we run it on qemu, we could use gdb
-to dump the ack_list when the console has no response.
-
-To fix this issue, we delete the timer instance from ack_list and
-active_list unconditionally in snd_timer_stop1().
-
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211103033517.80531-1-wangwensheng4@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Yuri Savinykh <s02190703@gse.cs.msu.ru>
+Reported-by: Nadezda Lutovinova <lutovinova@ispras.ru>
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/timer.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/media/allegro-dvt/allegro-core.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/sound/core/timer.c
-+++ b/sound/core/timer.c
-@@ -595,13 +595,13 @@ static int snd_timer_stop1(struct snd_ti
- 	if (!timer)
- 		return -EINVAL;
- 	spin_lock_irqsave(&timer->lock, flags);
-+	list_del_init(&timeri->ack_list);
-+	list_del_init(&timeri->active_list);
- 	if (!(timeri->flags & (SNDRV_TIMER_IFLG_RUNNING |
- 			       SNDRV_TIMER_IFLG_START))) {
- 		result = -EBUSY;
- 		goto unlock;
- 	}
--	list_del_init(&timeri->ack_list);
--	list_del_init(&timeri->active_list);
- 	if (timer->card && timer->card->shutdown)
- 		goto unlock;
- 	if (stop) {
+diff --git a/drivers/staging/media/allegro-dvt/allegro-core.c b/drivers/staging/media/allegro-dvt/allegro-core.c
+index 640451134072b..28b6ba895ccd5 100644
+--- a/drivers/staging/media/allegro-dvt/allegro-core.c
++++ b/drivers/staging/media/allegro-dvt/allegro-core.c
+@@ -1802,6 +1802,15 @@ static irqreturn_t allegro_irq_thread(int irq, void *data)
+ {
+ 	struct allegro_dev *dev = data;
+ 
++	/*
++	 * The firmware is initialized after the mailbox is setup. We further
++	 * check the AL5_ITC_CPU_IRQ_STA register, if the firmware actually
++	 * triggered the interrupt. Although this should not happen, make sure
++	 * that we ignore interrupts, if the mailbox is not initialized.
++	 */
++	if (!dev->mbox_status)
++		return IRQ_NONE;
++
+ 	allegro_mbox_notify(dev->mbox_status);
+ 
+ 	return IRQ_HANDLED;
+-- 
+2.33.0
+
 
 
