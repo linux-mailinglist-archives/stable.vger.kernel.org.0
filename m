@@ -2,164 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AD3C4505AF
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:38:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4ED794505CF
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:43:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231594AbhKONlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 08:41:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50900 "EHLO mail.kernel.org"
+        id S231788AbhKONqb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 08:46:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232059AbhKONkz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 08:40:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C2B261AF0;
-        Mon, 15 Nov 2021 13:37:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636983480;
-        bh=MpZ3a/pk5ntakcu72meJeeyZqguwNdb/PWRqy38BZlo=;
-        h=Subject:To:Cc:From:Date:From;
-        b=ale45nIYUCidFtcvMbaFcuoshe142V7U70rRQSEPX0XOsBHEYHvl06qryAOVWeK+c
-         hFNuABcGMV9niUTFPLfjvTql0VCQw9PkzNBOd6uKU5i53K0vme3cxNXHW5wLIRITRu
-         RbdglOGd/GeClra/xhA0xtr39XnoG0Ipj1Ua2638=
-Subject: FAILED: patch "[PATCH] erofs: fix unsafe pagevec reuse of hooked pclusters" failed to apply to 5.10-stable tree
-To:     hsiangkao@linux.alibaba.com, chao@kernel.org,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Nov 2021 14:37:42 +0100
-Message-ID: <16369834628252@kroah.com>
+        id S231938AbhKONlr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 08:41:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4F9761AF0;
+        Mon, 15 Nov 2021 13:38:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1636983531;
+        bh=ly2sCGr9GxslTECmWWpOexhBh5/QS9xbKc6+ky/VYHM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=YUFfjMDcZ75HMJvUHuXCOB8UToKmaLijZzALQ7HH3tyzYj+pV1CqX4j9WwU7IFjK5
+         +EosK9ap+xRivNOUkA2e1Atb/u4GsK9f7KouwJ8bMEZ2q0Ll8HwEVLlL9dxA8JKieq
+         Y3FSRl1hpCIUlXAsFulG9Y9hVTcAeeGrPnvSzzxnVAMUGa++ngmFUaqN6skiLVNYpK
+         8ZF/znPu9nmrgcvlmTMGpZmqCPjJpeki3G6YzVlKW2xw6Cke8OxyMbBTrJaZU3ttVM
+         QbUSe1FK5oNJha9UANaDwmcpC0qautAmLwyPdbPOeJzkIi+K5ltPVXLJTaaKyvLD77
+         A1/vT2foFlMtw==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1mmcBy-0002zb-Hz; Mon, 15 Nov 2021 14:38:38 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Ilia Sergachev <silia@ethz.ch>,
+        Karol Gugala <kgugala@antmicro.com>,
+        Mateusz Holenko <mholenko@antmicro.com>,
+        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org,
+        Filip Kokosinski <fkokosinski@antmicro.com>,
+        Stafford Horne <shorne@gmail.com>
+Subject: [PATCH 1/3] serial: liteuart: fix compile testing
+Date:   Mon, 15 Nov 2021 14:37:43 +0100
+Message-Id: <20211115133745.11445-2-johan@kernel.org>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20211115133745.11445-1-johan@kernel.org>
+References: <20211115133745.11445-1-johan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Allow the liteuart driver to be compile tested by fixing the broken
+Kconfig dependencies.
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Fixes: 1da81e5562fa ("drivers/tty/serial: add LiteUART driver")
+Cc: stable@vger.kernel.org	# 5.11
+Cc: Filip Kokosinski <fkokosinski@antmicro.com>
+Cc: Mateusz Holenko <mholenko@antmicro.com>
+Cc: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/tty/serial/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 86432a6dca9bed79111990851df5756d3eb5f57c Mon Sep 17 00:00:00 2001
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
-Date: Thu, 4 Nov 2021 02:20:06 +0800
-Subject: [PATCH] erofs: fix unsafe pagevec reuse of hooked pclusters
-
-There are pclusters in runtime marked with Z_EROFS_PCLUSTER_TAIL
-before actual I/O submission. Thus, the decompression chain can be
-extended if the following pcluster chain hooks such tail pcluster.
-
-As the related comment mentioned, if some page is made of a hooked
-pcluster and another followed pcluster, it can be reused for in-place
-I/O (since I/O should be submitted anyway):
- _______________________________________________________________
-|  tail (partial) page |          head (partial) page           |
-|_____PRIMARY_HOOKED___|____________PRIMARY_FOLLOWED____________|
-
-However, it's by no means safe to reuse as pagevec since if such
-PRIMARY_HOOKED pclusters finally move into bypass chain without I/O
-submission. It's somewhat hard to reproduce with LZ4 and I just found
-it (general protection fault) by ro_fsstressing a LZMA image for long
-time.
-
-I'm going to actively clean up related code together with multi-page
-folio adaption in the next few months. Let's address it directly for
-easier backporting for now.
-
-Call trace for reference:
-  z_erofs_decompress_pcluster+0x10a/0x8a0 [erofs]
-  z_erofs_decompress_queue.isra.36+0x3c/0x60 [erofs]
-  z_erofs_runqueue+0x5f3/0x840 [erofs]
-  z_erofs_readahead+0x1e8/0x320 [erofs]
-  read_pages+0x91/0x270
-  page_cache_ra_unbounded+0x18b/0x240
-  filemap_get_pages+0x10a/0x5f0
-  filemap_read+0xa9/0x330
-  new_sync_read+0x11b/0x1a0
-  vfs_read+0xf1/0x190
-
-Link: https://lore.kernel.org/r/20211103182006.4040-1-xiang@kernel.org
-Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
-Cc: <stable@vger.kernel.org> # 4.19+
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index 11c7a1aaebad..eb51df4a9f77 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -373,8 +373,8 @@ static bool z_erofs_try_inplace_io(struct z_erofs_collector *clt,
+diff --git a/drivers/tty/serial/Kconfig b/drivers/tty/serial/Kconfig
+index 6ff94cfcd9db..67de892e0947 100644
+--- a/drivers/tty/serial/Kconfig
++++ b/drivers/tty/serial/Kconfig
+@@ -1531,9 +1531,9 @@ config SERIAL_MILBEAUT_USIO_CONSOLE
  
- /* callers must be with collection lock held */
- static int z_erofs_attach_page(struct z_erofs_collector *clt,
--			       struct page *page,
--			       enum z_erofs_page_type type)
-+			       struct page *page, enum z_erofs_page_type type,
-+			       bool pvec_safereuse)
- {
- 	int ret;
- 
-@@ -384,9 +384,9 @@ static int z_erofs_attach_page(struct z_erofs_collector *clt,
- 	    z_erofs_try_inplace_io(clt, page))
- 		return 0;
- 
--	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type);
-+	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type,
-+				      pvec_safereuse);
- 	clt->cl->vcnt += (unsigned int)ret;
--
- 	return ret ? 0 : -EAGAIN;
- }
- 
-@@ -729,7 +729,8 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
- 		tight &= (clt->mode >= COLLECT_PRIMARY_FOLLOWED);
- 
- retry:
--	err = z_erofs_attach_page(clt, page, page_type);
-+	err = z_erofs_attach_page(clt, page, page_type,
-+				  clt->mode >= COLLECT_PRIMARY_FOLLOWED);
- 	/* should allocate an additional short-lived page for pagevec */
- 	if (err == -EAGAIN) {
- 		struct page *const newpage =
-@@ -737,7 +738,7 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
- 
- 		set_page_private(newpage, Z_EROFS_SHORTLIVED_PAGE);
- 		err = z_erofs_attach_page(clt, newpage,
--					  Z_EROFS_PAGE_TYPE_EXCLUSIVE);
-+					  Z_EROFS_PAGE_TYPE_EXCLUSIVE, true);
- 		if (!err)
- 			goto retry;
- 	}
-diff --git a/fs/erofs/zpvec.h b/fs/erofs/zpvec.h
-index dfd7fe0503bb..b05464f4a808 100644
---- a/fs/erofs/zpvec.h
-+++ b/fs/erofs/zpvec.h
-@@ -106,11 +106,18 @@ static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
- 
- static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
- 					   struct page *page,
--					   enum z_erofs_page_type type)
-+					   enum z_erofs_page_type type,
-+					   bool pvec_safereuse)
- {
--	if (!ctor->next && type)
--		if (ctor->index + 1 == ctor->nr)
-+	if (!ctor->next) {
-+		/* some pages cannot be reused as pvec safely without I/O */
-+		if (type == Z_EROFS_PAGE_TYPE_EXCLUSIVE && !pvec_safereuse)
-+			type = Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED;
-+
-+		if (type != Z_EROFS_PAGE_TYPE_EXCLUSIVE &&
-+		    ctor->index + 1 == ctor->nr)
- 			return false;
-+	}
- 
- 	if (ctor->index >= ctor->nr)
- 		z_erofs_pagevec_ctor_pagedown(ctor, false);
+ config SERIAL_LITEUART
+ 	tristate "LiteUART serial port support"
++	depends on LITEX || COMPILE_TEST
+ 	depends on HAS_IOMEM
+-	depends on OF || COMPILE_TEST
+-	depends on LITEX
++	depends on OF
+ 	select SERIAL_CORE
+ 	help
+ 	  This driver is for the FPGA-based LiteUART serial controller from LiteX
+-- 
+2.32.0
 
