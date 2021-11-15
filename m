@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4EC1451360
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 210C5451364
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348208AbhKOTux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:50:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
+        id S1348218AbhKOTu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:50:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245710AbhKOTVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9063E6357F;
-        Mon, 15 Nov 2021 18:39:45 +0000 (UTC)
+        id S245723AbhKOTVF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9495C63290;
+        Mon, 15 Nov 2021 18:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001586;
-        bh=ljXGEtYv3LVKkMhbdgGKXcGzCAp16+Uf2XlwVwgWzrA=;
+        s=korg; t=1637001611;
+        bh=rYISSHylT6l75n8KJIDPA+XngjT7hhBZ+8YlmeCOofc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0twnPEdAZfiMU+Pnz1IUuAKi+Vza8LWPmhwVx0z5rP9CoGprTIJhdLPlFqcCkS1t
-         dSdNRCdJDPvp01HmTUfz7zhXRK7uyVCVEO0VSloH3Iy2vPnlpnK6GCESknpgIKgxp/
-         nAL8mxMFb8i/P401Xn7Yx1++xyJkD1XTLu3B6okQ=
+        b=Dlv18tnFOZ6CEMEm+TusznYzwZqRI5T1NIsirj4owDHJfYNTvrjf637nsGFWDYySK
+         CnafPUGto96fCP9QqXmtYIkontaQ6osYGHrgaXrMQFijiuHOH0r6RiEJ/23hYBaUD/
+         TFqQX4NZcjNzzbjn5k0tQS84qAAxX+TwqNWWVO2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Sierra <alex.sierra@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Philip Yang <philip.yang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 247/917] drm/amdkfd: rm BO resv on validation to avoid deadlock
-Date:   Mon, 15 Nov 2021 17:55:42 +0100
-Message-Id: <20211115165437.175668880@linuxfoundation.org>
+Subject: [PATCH 5.15 255/917] ACPI: scan: Release PM resources blocked by unused objects
+Date:   Mon, 15 Nov 2021 17:55:50 +0100
+Message-Id: <20211115165437.437740138@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,59 +41,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Sierra <alex.sierra@amd.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit ec6abe831a843208e99a59adf108adba22166b3f ]
+[ Upstream commit c10383e8ddf4810b9a5c1595404c2724d925a0a6 ]
 
-This fix the deadlock with the BO reservations during SVM_BO evictions
-while allocations in VRAM are concurrently performed. More specific,
-while the ttm waits for the fence to be signaled (ttm_bo_wait), it
-already has the BO reserved. In parallel, the restore worker might be
-running, prefetching memory to VRAM. This also requires to reserve the
-BO, but blocks the mmap semaphore first. The deadlock happens when the
-SVM_BO eviction worker kicks in and waits for the mmap semaphore held
-in restore worker. Preventing signal the fence back, causing the
-deadlock until the ttm times out.
+On some systems the ACPI namespace contains device objects that are
+not used in certain configurations of the system.  If they start off
+in the D0 power state configuration, they will stay in it until the
+system reboots, because of the lack of any mechanism possibly causing
+their configuration to change.  If that happens, they may prevent
+some power resources from being turned off or generally they may
+prevent the platform from getting into the deepest low-power states
+thus causing some energy to be wasted.
 
-We don't need to hold the BO reservation anymore during validation
-and mapping. Now the physical addresses are taken from hmm_range_fault.
-We also take migrate_mutex to prevent range migration while
-validate_and_map update GPU page table.
+Address this issue by changing the configuration of unused ACPI
+device objects to the D3cold power state one after carrying out
+the ACPI-based enumeration of devices.
 
-Signed-off-by: Alex Sierra <alex.sierra@amd.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Philip Yang <philip.yang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214091
+Link: https://lore.kernel.org/linux-acpi/20211007205126.11769-1-mario.limonciello@amd.com/
+Reported-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/acpi/glue.c     | 25 +++++++++++++++++++++++++
+ drivers/acpi/internal.h |  1 +
+ drivers/acpi/scan.c     |  6 ++++++
+ 3 files changed, 32 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-index 9d0f65a90002d..179080329af89 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-@@ -1307,7 +1307,7 @@ struct svm_validate_context {
- 	struct svm_range *prange;
- 	bool intr;
- 	unsigned long bitmap[MAX_GPU_INSTANCE];
--	struct ttm_validate_buffer tv[MAX_GPU_INSTANCE+1];
-+	struct ttm_validate_buffer tv[MAX_GPU_INSTANCE];
- 	struct list_head validate_list;
- 	struct ww_acquire_ctx ticket;
- };
-@@ -1334,11 +1334,6 @@ static int svm_range_reserve_bos(struct svm_validate_context *ctx)
- 		ctx->tv[gpuidx].num_shared = 4;
- 		list_add(&ctx->tv[gpuidx].head, &ctx->validate_list);
- 	}
--	if (ctx->prange->svm_bo && ctx->prange->ttm_res) {
--		ctx->tv[MAX_GPU_INSTANCE].bo = &ctx->prange->svm_bo->bo->tbo;
--		ctx->tv[MAX_GPU_INSTANCE].num_shared = 1;
--		list_add(&ctx->tv[MAX_GPU_INSTANCE].head, &ctx->validate_list);
--	}
+diff --git a/drivers/acpi/glue.c b/drivers/acpi/glue.c
+index 7a33a6d985f89..1cfafa254e3d4 100644
+--- a/drivers/acpi/glue.c
++++ b/drivers/acpi/glue.c
+@@ -340,3 +340,28 @@ void acpi_device_notify_remove(struct device *dev)
  
- 	r = ttm_eu_reserve_buffers(&ctx->ticket, &ctx->validate_list,
- 				   ctx->intr, NULL);
+ 	acpi_unbind_one(dev);
+ }
++
++int acpi_dev_turn_off_if_unused(struct device *dev, void *not_used)
++{
++	struct acpi_device *adev = to_acpi_device(dev);
++
++	/*
++	 * Skip device objects with device IDs, because they may be in use even
++	 * if they are not companions of any physical device objects.
++	 */
++	if (adev->pnp.type.hardware_id)
++		return 0;
++
++	mutex_lock(&adev->physical_node_lock);
++
++	/*
++	 * Device objects without device IDs are not in use if they have no
++	 * corresponding physical device objects.
++	 */
++	if (list_empty(&adev->physical_node_list))
++		acpi_device_set_power(adev, ACPI_STATE_D3_COLD);
++
++	mutex_unlock(&adev->physical_node_lock);
++
++	return 0;
++}
+diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
+index d91b560e88674..8fbdc172864b0 100644
+--- a/drivers/acpi/internal.h
++++ b/drivers/acpi/internal.h
+@@ -117,6 +117,7 @@ bool acpi_device_is_battery(struct acpi_device *adev);
+ bool acpi_device_is_first_physical_node(struct acpi_device *adev,
+ 					const struct device *dev);
+ int acpi_bus_register_early_device(int type);
++int acpi_dev_turn_off_if_unused(struct device *dev, void *not_used);
+ 
+ /* --------------------------------------------------------------------------
+                      Device Matching and Notification
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 5b54c80b9d32a..770b82483d74d 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -2559,6 +2559,12 @@ int __init acpi_scan_init(void)
+ 		}
+ 	}
+ 
++	/*
++	 * Make sure that power management resources are not blocked by ACPI
++	 * device objects with no users.
++	 */
++	bus_for_each_dev(&acpi_bus_type, NULL, NULL, acpi_dev_turn_off_if_unused);
++
+ 	acpi_turn_off_unused_power_resources();
+ 
+ 	acpi_scan_initialized = true;
 -- 
 2.33.0
 
