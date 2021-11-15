@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60DCF4525C1
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:55:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E72A44525BF
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:55:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344412AbhKPB55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1344888AbhKPB55 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 20:57:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53200 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240957AbhKOSOZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:14:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 769E361027;
-        Mon, 15 Nov 2021 17:48:54 +0000 (UTC)
+        id S240971AbhKOSO0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:14:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C988D60FE7;
+        Mon, 15 Nov 2021 17:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998535;
-        bh=lWzXz7YK30/LfxHfXGr0JHKMYURieNx3gsFwnmZ3kZ0=;
+        s=korg; t=1636998543;
+        bh=Y+1v+vmRwq3BOqP286Wh0XGSek2SDO34d9ypQfS1trs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tlw3o+zdNplOjtEwKrRsm/AjdUnlQO9Fn6b/ootz7SWciGvDvedg2gE1c17CbfRd/
-         HH0asLDxjTRrDrjdBsy78bpzvC6JVUSc9fwpItneu5GyZCQfL0n9FYN/v2suk2a/cK
-         f1TZdFy1N7bcQJDYNMpadtVamwC2jLlSW3MeYBio=
+        b=pTA6fwKzs6bU9dcHC8wZpI7O9t8M9CRwgl+E5305thrEjzmt/1sgBu8QQ3NjuJJez
+         8aQhlNMt6t05AegfUQPorM+il9slPPyv9/BSKYkg+f95XNhTw4ImMR8fN9GNW5K9ot
+         ftMfSVe216wpT3vQwCJW0WckGy2yjx1vaE/0bezM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Pelletier <plr.vincent@gmail.com>,
-        Nikita Shubin <nikita.shubin@maquefel.me>,
-        Guo Ren <guoren@linux.alibaba.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Atish Patra <atish.patra@wdc.com>,
-        Anup Patel <anup@brainfault.org>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 545/575] irqchip/sifive-plic: Fixup EOI failed when masked
-Date:   Mon, 15 Nov 2021 18:04:30 +0100
-Message-Id: <20211115165402.526449872@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+06472778c97ed94af66d@syzkaller.appspotmail.com,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.10 548/575] 9p/net: fix missing error check in p9_check_errors
+Date:   Mon, 15 Nov 2021 18:04:33 +0100
+Message-Id: <20211115165402.635120216@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -44,65 +40,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Dominique Martinet <asmadeus@codewreck.org>
 
-commit 69ea463021be0d159ab30f96195fb0dd18ee2272 upstream.
+commit 27eb4c3144f7a5ebef3c9a261d80cb3e1fa784dc upstream.
 
-When using "devm_request_threaded_irq(,,,,IRQF_ONESHOT,,)" in a driver,
-only the first interrupt is handled, and following interrupts are never
-delivered (initially reported in [1]).
-
-That's because the RISC-V PLIC cannot EOI masked interrupts, as explained
-in the description of Interrupt Completion in the PLIC spec [2]:
-
-<quote>
-The PLIC signals it has completed executing an interrupt handler by
-writing the interrupt ID it received from the claim to the claim/complete
-register. The PLIC does not check whether the completion ID is the same
-as the last claim ID for that target. If the completion ID does not match
-an interrupt source that *is currently enabled* for the target, the
-completion is silently ignored.
-</quote>
-
-Re-enable the interrupt before completion if it has been masked during
-the handling, and remask it afterwards.
-
-[1] http://lists.infradead.org/pipermail/linux-riscv/2021-July/007441.html
-[2] https://github.com/riscv/riscv-plic-spec/blob/8bc15a35d07c9edf7b5d23fec9728302595ffc4d/riscv-plic.adoc
-
-Fixes: bb0fed1c60cc ("irqchip/sifive-plic: Switch to fasteoi flow")
-Reported-by: Vincent Pelletier <plr.vincent@gmail.com>
-Tested-by: Nikita Shubin <nikita.shubin@maquefel.me>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Link: https://lkml.kernel.org/r/99338965-d36c-886e-cd0e-1d8fff2b4746@gmail.com
+Reported-by: syzbot+06472778c97ed94af66d@syzkaller.appspotmail.com
 Cc: stable@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Atish Patra <atish.patra@wdc.com>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-[maz: amended commit message]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211105094748.3894453-1-guoren@kernel.org
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-sifive-plic.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/9p/client.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/irqchip/irq-sifive-plic.c
-+++ b/drivers/irqchip/irq-sifive-plic.c
-@@ -163,7 +163,13 @@ static void plic_irq_eoi(struct irq_data
- {
- 	struct plic_handler *handler = this_cpu_ptr(&plic_handlers);
+--- a/net/9p/client.c
++++ b/net/9p/client.c
+@@ -538,6 +538,8 @@ static int p9_check_errors(struct p9_cli
+ 		kfree(ename);
+ 	} else {
+ 		err = p9pdu_readf(&req->rc, c->proto_version, "d", &ecode);
++		if (err)
++			goto out_err;
+ 		err = -ecode;
  
--	writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
-+	if (irqd_irq_masked(d)) {
-+		plic_irq_unmask(d);
-+		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
-+		plic_irq_mask(d);
-+	} else {
-+		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
-+	}
- }
- 
- static struct irq_chip plic_chip = {
+ 		p9_debug(P9_DEBUG_9P, "<<< RLERROR (%d)\n", -ecode);
 
 
