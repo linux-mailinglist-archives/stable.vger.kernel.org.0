@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EDD3451171
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:06:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F60D451408
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242671AbhKOTHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:07:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38232 "EHLO mail.kernel.org"
+        id S1348895AbhKOUAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:00:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240739AbhKOTFZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:05:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54FAB633DF;
-        Mon, 15 Nov 2021 18:16:17 +0000 (UTC)
+        id S1344189AbhKOTYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CDD46363B;
+        Mon, 15 Nov 2021 18:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000177;
-        bh=DQ0i8PqimY1w6+qIllmuwTvk9wuit1mUHuouyYfBbyI=;
+        s=korg; t=1637002406;
+        bh=zsq7psJ6ZX4x+Di67qG5RxX79HBFRTNYuxpHp2EnpUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RoGh+BJFSSkGO7B9r0L1eNTuxA8BxSIFEyfmaq7eadrnShfVJYjRl8AsG9eBZor+P
-         pwuWVm1nf8MNCwl+hdA6GzbN6jIEpQxDgqrwjyNnqeBA6y3Fw8wZTQhod42fnimC4u
-         E2Hg5mYAWiHbNqUVlfXky3k//6GrJKLaNEQBSq+k=
+        b=IDP22GFIpDS2FPxAmXdQ8UBLZA5sflCmiRKqasnDchSNHfCpP7TZf5tEjqzgKFYy6
+         9+D0a3juzuZd3TTcAseVJihfzyrsRwwYkjrkE0bbtjPT4tAIe3in078V/ySf6lIvbs
+         lH5hFpKFhjuFl/K+sDUjwDJcTmasO0+w9gPOZjqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Aswath Govindraju <a-govindraju@ti.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 564/849] arm64: dts: ti: j7200-main: Fix "vendor-id"/"device-id" properties of pcie node
-Date:   Mon, 15 Nov 2021 18:00:47 +0100
-Message-Id: <20211115165439.328909180@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 553/917] crypto: pcrypt - Delay write to padata->info
+Date:   Mon, 15 Nov 2021 18:00:48 +0100
+Message-Id: <20211115165447.546391008@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit 0d553792726a61ced760422e74ea67552ac69cdb ]
+[ Upstream commit 68b6dea802cea0dbdd8bd7ccc60716b5a32a5d8a ]
 
-commit 3276d9f53cf6 ("arm64: dts: ti: k3-j7200-main: Add PCIe device
-tree node") incorrectly added "vendor-id" and "device-id" as 16-bit
-properties though both of them are 32-bit properties. Fix it here.
+These three events can race when pcrypt is used multiple times in a
+template ("pcrypt(pcrypt(...))"):
 
-Fixes: 3276d9f53cf6 ("arm64: dts: ti: k3-j7200-main: Add PCIe device tree node")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20210915055358.19997-4-kishon@ti.com
+  1.  [taskA] The caller makes the crypto request via crypto_aead_encrypt()
+  2.  [kworkerB] padata serializes the inner pcrypt request
+  3.  [kworkerC] padata serializes the outer pcrypt request
+
+3 might finish before the call to crypto_aead_encrypt() returns in 1,
+resulting in two possible issues.
+
+First, a use-after-free of the crypto request's memory when, for
+example, taskA writes to the outer pcrypt request's padata->info in
+pcrypt_aead_enc() after kworkerC completes the request.
+
+Second, the outer pcrypt request overwrites the inner pcrypt request's
+return code with -EINPROGRESS, making a successful request appear to
+fail.  For instance, kworkerB writes the outer pcrypt request's
+padata->info in pcrypt_aead_done() and then taskA overwrites it
+in pcrypt_aead_enc().
+
+Avoid both situations by delaying the write of padata->info until after
+the inner crypto request's return code is checked.  This prevents the
+use-after-free by not touching the crypto request's memory after the
+next-inner crypto request is made, and stops padata->info from being
+overwritten.
+
+Fixes: 5068c7a883d16 ("crypto: pcrypt - Add pcrypt crypto parallelization wrapper")
+Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j7200-main.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ crypto/pcrypt.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-index e8a41d09b45f2..521a56316fa5c 100644
---- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-@@ -608,8 +608,8 @@
- 		#size-cells = <2>;
- 		bus-range = <0x0 0xf>;
- 		cdns,no-bar-match-nbits = <64>;
--		vendor-id = /bits/ 16 <0x104c>;
--		device-id = /bits/ 16 <0xb00f>;
-+		vendor-id = <0x104c>;
-+		device-id = <0xb00f>;
- 		msi-map = <0x0 &gic_its 0x0 0x10000>;
- 		dma-coherent;
- 		ranges = <0x01000000 0x0 0x18001000  0x00 0x18001000  0x0 0x0010000>,
+diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
+index d569c7ed6c800..9d10b846ccf73 100644
+--- a/crypto/pcrypt.c
++++ b/crypto/pcrypt.c
+@@ -78,12 +78,14 @@ static void pcrypt_aead_enc(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
+ 
+-	padata->info = crypto_aead_encrypt(req);
++	ret = crypto_aead_encrypt(req);
+ 
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
+ 
++	padata->info = ret;
+ 	padata_do_serial(padata);
+ }
+ 
+@@ -123,12 +125,14 @@ static void pcrypt_aead_dec(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
+ 
+-	padata->info = crypto_aead_decrypt(req);
++	ret = crypto_aead_decrypt(req);
+ 
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
+ 
++	padata->info = ret;
+ 	padata_do_serial(padata);
+ }
+ 
 -- 
 2.33.0
 
