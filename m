@@ -2,33 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65776451E7A
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC4CA451E82
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344212AbhKPAgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47888 "EHLO mail.kernel.org"
+        id S1348151AbhKPAgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:36:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344981AbhKOTZw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC506636FE;
-        Mon, 15 Nov 2021 19:08:06 +0000 (UTC)
+        id S1344987AbhKOTZx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6870636FC;
+        Mon, 15 Nov 2021 19:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003287;
-        bh=G96u8exCMCRq7F/kmPqH+o3gME7GnuM0fbQXVZnxiUc=;
+        s=korg; t=1637003290;
+        bh=tkMHConzsAV732kxPz1J4UTMzPaWKtcZUIuMrUyCARA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWL5jzmYX3Dkgoit5xup50Q9f0G2jDByaKp+mD+bkUgqevteEcoAcyotnS/6QJcuL
-         jCrPUMZPpZTvcG7pMgSfr+n2AjfIX3j/gp8cBW8rn1VgoiqPNMhmCbntuon6IrwRne
-         ZX36m6KUTGLWJaZQwkXDWs48SHFk5KLnF7vlc0dk=
+        b=S1TjZxlfJIuqucXuiSi9xXajrj/WSSlwHx0+dUruvvOYg60mg5tDi115wC5MA41B2
+         Qs59vnD9zflKQbcQKSRfkCbe2jmFYnkwE4XAO2yxXNvC1fvFY8W1/LSRaeI7Jp5JR/
+         TZHf3XozFJm3Q8/74bok04oNfTHzvxrDS7JuAxsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        stable@vger.kernel.org,
+        Antonio Terceiro <antonio.terceiro@linaro.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Sebastian Andrzej Siewior <sebastian@breakpoint.cc>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Klaus Kudielka <klaus.kudielka@gmail.com>,
+        Matthias Klose <doko@debian.org>,
+        Arnd Bergmann <arnd@arndb.de>,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.15 847/917] ARM: 9155/1: fix early early_iounmap()
-Date:   Mon, 15 Nov 2021 18:05:42 +0100
-Message-Id: <20211115165457.757617142@linuxfoundation.org>
+Subject: [PATCH 5.15 848/917] ARM: 9156/1: drop cc-option fallbacks for architecture selection
+Date:   Mon, 15 Nov 2021 18:05:43 +0100
+Message-Id: <20211115165457.789088440@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,37 +46,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 0d08e7bf0d0d1a29aff7b16ef516f7415eb1aa05 upstream.
+commit 418ace9992a7647c446ed3186df40cf165b67298 upstream.
 
-Currently __set_fixmap() bails out with a warning when called in early boot
-from early_iounmap(). Fix it, and while at it, make the comment a bit easier
-to understand.
+Naresh and Antonio ran into a build failure with latest Debian
+armhf compilers, with lots of output like
 
-Cc: <stable@vger.kernel.org>
-Fixes: b089c31c519c ("ARM: 8667/3: Fix memory attribute inconsistencies when using fixmap")
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+ tmp/ccY3nOAs.s:2215: Error: selected processor does not support `cpsid i' in ARM mode
+
+As it turns out, $(cc-option) fails early here when the FPU is not
+selected before CPU architecture is selected, as the compiler
+option check runs before enabling -msoft-float, which causes
+a problem when testing a target architecture level without an FPU:
+
+cc1: error: '-mfloat-abi=hard': selected architecture lacks an FPU
+
+Passing e.g. -march=armv6k+fp in place of -march=armv6k would avoid this
+issue, but the fallback logic is already broken because all supported
+compilers (gcc-5 and higher) are much more recent than these options,
+and building with -march=armv5t as a fallback no longer works.
+
+The best way forward that I see is to just remove all the checks, which
+also has the nice side-effect of slightly improving the startup time for
+'make'.
+
+The -mtune=marvell-f option was apparently never supported by any mainline
+compiler, and the custom Codesourcery gcc build that did support is
+now too old to build kernels, so just use -mtune=xscale unconditionally
+for those.
+
+This should be safe to apply on all stable kernels, and will be required
+in order to keep building them with gcc-11 and higher.
+
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=996419
+
+Reported-by: Antonio Terceiro <antonio.terceiro@linaro.org>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reported-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
+Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Tested-by: Klaus Kudielka <klaus.kudielka@gmail.com>
+Cc: Matthias Klose <doko@debian.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/mmu.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/Makefile |   22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
---- a/arch/arm/mm/mmu.c
-+++ b/arch/arm/mm/mmu.c
-@@ -390,9 +390,9 @@ void __set_fixmap(enum fixed_addresses i
- 	BUILD_BUG_ON(__fix_to_virt(__end_of_fixed_addresses) < FIXADDR_START);
- 	BUG_ON(idx >= __end_of_fixed_addresses);
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -60,15 +60,15 @@ KBUILD_CFLAGS	+= $(call cc-option,-fno-i
+ # Note that GCC does not numerically define an architecture version
+ # macro, but instead defines a whole series of macros which makes
+ # testing for a specific architecture or later rather impossible.
+-arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m -Wa,-march=armv7-m
+-arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
+-arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6,-march=armv5t -Wa$(comma)-march=armv6)
++arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m
++arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 -march=armv7-a
++arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 -march=armv6
+ # Only override the compiler option if ARMv6. The ARMv6K extensions are
+ # always available in ARMv7
+ ifeq ($(CONFIG_CPU_32v6),y)
+-arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6k,-march=armv5t -Wa$(comma)-march=armv6k)
++arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 -march=armv6k
+ endif
+-arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5te,-march=armv4t)
++arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 -march=armv5te
+ arch-$(CONFIG_CPU_32v4T)	=-D__LINUX_ARM_ARCH__=4 -march=armv4t
+ arch-$(CONFIG_CPU_32v4)		=-D__LINUX_ARM_ARCH__=4 -march=armv4
+ arch-$(CONFIG_CPU_32v3)		=-D__LINUX_ARM_ARCH__=3 -march=armv3m
+@@ -82,7 +82,7 @@ tune-$(CONFIG_CPU_ARM720T)	=-mtune=arm7t
+ tune-$(CONFIG_CPU_ARM740T)	=-mtune=arm7tdmi
+ tune-$(CONFIG_CPU_ARM9TDMI)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_ARM940T)	=-mtune=arm9tdmi
+-tune-$(CONFIG_CPU_ARM946E)	=$(call cc-option,-mtune=arm9e,-mtune=arm9tdmi)
++tune-$(CONFIG_CPU_ARM946E)	=-mtune=arm9e
+ tune-$(CONFIG_CPU_ARM920T)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_ARM922T)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_ARM925T)	=-mtune=arm9tdmi
+@@ -90,11 +90,11 @@ tune-$(CONFIG_CPU_ARM926T)	=-mtune=arm9t
+ tune-$(CONFIG_CPU_FA526)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_SA110)	=-mtune=strongarm110
+ tune-$(CONFIG_CPU_SA1100)	=-mtune=strongarm1100
+-tune-$(CONFIG_CPU_XSCALE)	=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
+-tune-$(CONFIG_CPU_XSC3)		=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
+-tune-$(CONFIG_CPU_FEROCEON)	=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
+-tune-$(CONFIG_CPU_V6)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
+-tune-$(CONFIG_CPU_V6K)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
++tune-$(CONFIG_CPU_XSCALE)	=-mtune=xscale
++tune-$(CONFIG_CPU_XSC3)		=-mtune=xscale
++tune-$(CONFIG_CPU_FEROCEON)	=-mtune=xscale
++tune-$(CONFIG_CPU_V6)		=-mtune=arm1136j-s
++tune-$(CONFIG_CPU_V6K)		=-mtune=arm1136j-s
  
--	/* we only support device mappings until pgprot_kernel has been set */
-+	/* We support only device mappings before pgprot_kernel is set. */
- 	if (WARN_ON(pgprot_val(prot) != pgprot_val(FIXMAP_PAGE_IO) &&
--		    pgprot_val(pgprot_kernel) == 0))
-+		    pgprot_val(prot) && pgprot_val(pgprot_kernel) == 0))
- 		return;
- 
- 	if (pgprot_val(prot))
+ # Evaluate tune cc-option calls now
+ tune-y := $(tune-y)
 
 
