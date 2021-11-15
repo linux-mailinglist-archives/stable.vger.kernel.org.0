@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9A02450B44
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0188D450E09
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232409AbhKORVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:21:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54728 "EHLO mail.kernel.org"
+        id S240521AbhKOSKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:10:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237124AbhKORRY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:17:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F4A761BF9;
-        Mon, 15 Nov 2021 17:13:12 +0000 (UTC)
+        id S239844AbhKOSEy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:04:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81D106324A;
+        Mon, 15 Nov 2021 17:39:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996393;
-        bh=YRSxY33pmsO1yhavDDiURUh/sU9e6Yw7cFolD1i292g=;
+        s=korg; t=1636997967;
+        bh=YoMJBw+pwqJ7nyxDP2Zq3HG+bM29ivKvUDy+ZzE5B+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kX83fEWmMlafOEq+ANLISfO7KAutDb2BDH+FqSMVIUgUgMTMewWHuDjCGHug4cq19
-         JjZEDEb5rrq/yMoWRdUmH2+OOOFm1Kp/FDMMmA/aawjGUo3PRwPeEfzDNwuGnesQhx
-         ACB57Sgo4ftgHdTmGKzLXTKZp60zkI1AyEFBZwCg=
+        b=OowWssgQNUEp4gGRKNSfYsUFNTYuzKvdxd5iabNgmQKroDOzxsXkeAVmQzkvLm7sV
+         Gta++MVSL4FoWlqMcTdrq475A7yt8i+3ZEpg/agpkD5NlW2itfIpcJBcgE8iJ1Hhkm
+         +LxaW9EMkD7dNWvNcmZA5I4ZRiW5UTuhUUdDMtiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Massey <matthewmassey@fb.com>,
-        Dave Taht <dave.taht@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Sven Eckelmann <seckelmann@datto.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 123/355] net: sched: update default qdisc visibility after Tx queue cnt changes
+Subject: [PATCH 5.10 322/575] ath10k: fix max antenna gain unit
 Date:   Mon, 15 Nov 2021 18:00:47 +0100
-Message-Id: <20211115165317.792698933@linuxfoundation.org>
+Message-Id: <20211115165354.939303517@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,183 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Sven Eckelmann <seckelmann@datto.com>
 
-[ Upstream commit 1e080f17750d1083e8a32f7b350584ae1cd7ff20 ]
+[ Upstream commit 0a491167fe0cf9f26062462de2a8688b96125d48 ]
 
-mq / mqprio make the default child qdiscs visible. They only do
-so for the qdiscs which are within real_num_tx_queues when the
-device is registered. Depending on order of calls in the driver,
-or if user space changes config via ethtool -L the number of
-qdiscs visible under tc qdisc show will differ from the number
-of queues. This is confusing to users and potentially to system
-configuration scripts which try to make sure qdiscs have the
-right parameters.
+Most of the txpower for the ath10k firmware is stored as twicepower (0.5 dB
+steps). This isn't the case for max_antenna_gain - which is still expected
+by the firmware as dB.
 
-Add a new Qdisc_ops callback and make relevant qdiscs TTRT.
+The firmware is converting it from dB to the internal (twicepower)
+representation when it calculates the limits of a channel. This can be seen
+in tpc_stats when configuring "12" as max_antenna_gain. Instead of the
+expected 12 (6 dB), the tpc_stats shows 24 (12 dB).
 
-Note that this uncovers the "shortcut" created by
-commit 1f27cde313d7 ("net: sched: use pfifo_fast for non real queues")
-The default child qdiscs beyond initial real_num_tx are always
-pfifo_fast, no matter what the sysfs setting is. Fixing this
-gets a little tricky because we'd need to keep a reference
-on whatever the default qdisc was at the time of creation.
-In practice this is likely an non-issue the qdiscs likely have
-to be configured to non-default settings, so whatever user space
-is doing such configuration can replace the pfifos... now that
-it will see them.
+Tested on QCA9888 and IPQ4019 with firmware 10.4-3.5.3-00057.
 
-Reported-by: Matthew Massey <matthewmassey@fb.com>
-Reviewed-by: Dave Taht <dave.taht@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 02256930d9b8 ("ath10k: use proper tx power unit")
+Signed-off-by: Sven Eckelmann <seckelmann@datto.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20190611172131.6064-1-sven@narfation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sch_generic.h |  4 ++++
- net/core/dev.c            |  2 ++
- net/sched/sch_generic.c   |  9 +++++++++
- net/sched/sch_mq.c        | 24 ++++++++++++++++++++++++
- net/sched/sch_mqprio.c    | 23 +++++++++++++++++++++++
- 5 files changed, 62 insertions(+)
+ drivers/net/wireless/ath/ath10k/mac.c | 6 +++---
+ drivers/net/wireless/ath/ath10k/wmi.h | 3 +++
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index 0cb0a4bcb5447..939fda8f97215 100644
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -299,6 +299,8 @@ struct Qdisc_ops {
- 					  struct netlink_ext_ack *extack);
- 	void			(*attach)(struct Qdisc *sch);
- 	int			(*change_tx_queue_len)(struct Qdisc *, unsigned int);
-+	void			(*change_real_num_tx)(struct Qdisc *sch,
-+						      unsigned int new_real_tx);
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 90dc48f66fbfe..c42977918e049 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -1041,7 +1041,7 @@ static int ath10k_monitor_vdev_start(struct ath10k *ar, int vdev_id)
+ 	arg.channel.min_power = 0;
+ 	arg.channel.max_power = channel->max_power * 2;
+ 	arg.channel.max_reg_power = channel->max_reg_power * 2;
+-	arg.channel.max_antenna_gain = channel->max_antenna_gain * 2;
++	arg.channel.max_antenna_gain = channel->max_antenna_gain;
  
- 	int			(*dump)(struct Qdisc *, struct sk_buff *);
- 	int			(*dump_stats)(struct Qdisc *, struct gnet_dump *);
-@@ -675,6 +677,8 @@ void qdisc_class_hash_grow(struct Qdisc *, struct Qdisc_class_hash *);
- void qdisc_class_hash_destroy(struct Qdisc_class_hash *);
+ 	reinit_completion(&ar->vdev_setup_done);
+ 	reinit_completion(&ar->vdev_delete_done);
+@@ -1487,7 +1487,7 @@ static int ath10k_vdev_start_restart(struct ath10k_vif *arvif,
+ 	arg.channel.min_power = 0;
+ 	arg.channel.max_power = chandef->chan->max_power * 2;
+ 	arg.channel.max_reg_power = chandef->chan->max_reg_power * 2;
+-	arg.channel.max_antenna_gain = chandef->chan->max_antenna_gain * 2;
++	arg.channel.max_antenna_gain = chandef->chan->max_antenna_gain;
  
- int dev_qdisc_change_tx_queue_len(struct net_device *dev);
-+void dev_qdisc_change_real_num_tx(struct net_device *dev,
-+				  unsigned int new_real_tx);
- void dev_init_scheduler(struct net_device *dev);
- void dev_shutdown(struct net_device *dev);
- void dev_activate(struct net_device *dev);
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 82dc094c03971..ff336417c9b90 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -2589,6 +2589,8 @@ int netif_set_real_num_tx_queues(struct net_device *dev, unsigned int txq)
- 		if (dev->num_tc)
- 			netif_setup_tc(dev, txq);
+ 	if (arvif->vdev_type == WMI_VDEV_TYPE_AP) {
+ 		arg.ssid = arvif->u.ap.ssid;
+@@ -3258,7 +3258,7 @@ static int ath10k_update_channel_list(struct ath10k *ar)
+ 			ch->min_power = 0;
+ 			ch->max_power = channel->max_power * 2;
+ 			ch->max_reg_power = channel->max_reg_power * 2;
+-			ch->max_antenna_gain = channel->max_antenna_gain * 2;
++			ch->max_antenna_gain = channel->max_antenna_gain;
+ 			ch->reg_class_id = 0; /* FIXME */
  
-+		dev_qdisc_change_real_num_tx(dev, txq);
-+
- 		dev->real_num_tx_queues = txq;
- 
- 		if (disabling) {
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index 9bc5cbe9809b8..d973f8a15e117 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -1313,6 +1313,15 @@ static int qdisc_change_tx_queue_len(struct net_device *dev,
- 	return 0;
- }
- 
-+void dev_qdisc_change_real_num_tx(struct net_device *dev,
-+				  unsigned int new_real_tx)
-+{
-+	struct Qdisc *qdisc = dev->qdisc;
-+
-+	if (qdisc->ops->change_real_num_tx)
-+		qdisc->ops->change_real_num_tx(qdisc, new_real_tx);
-+}
-+
- int dev_qdisc_change_tx_queue_len(struct net_device *dev)
- {
- 	bool up = dev->flags & IFF_UP;
-diff --git a/net/sched/sch_mq.c b/net/sched/sch_mq.c
-index e79f1afe0cfd6..db18d8a860f9c 100644
---- a/net/sched/sch_mq.c
-+++ b/net/sched/sch_mq.c
-@@ -125,6 +125,29 @@ static void mq_attach(struct Qdisc *sch)
- 	priv->qdiscs = NULL;
- }
- 
-+static void mq_change_real_num_tx(struct Qdisc *sch, unsigned int new_real_tx)
-+{
-+#ifdef CONFIG_NET_SCHED
-+	struct net_device *dev = qdisc_dev(sch);
-+	struct Qdisc *qdisc;
-+	unsigned int i;
-+
-+	for (i = new_real_tx; i < dev->real_num_tx_queues; i++) {
-+		qdisc = netdev_get_tx_queue(dev, i)->qdisc_sleeping;
-+		/* Only update the default qdiscs we created,
-+		 * qdiscs with handles are always hashed.
-+		 */
-+		if (qdisc != &noop_qdisc && !qdisc->handle)
-+			qdisc_hash_del(qdisc);
-+	}
-+	for (i = dev->real_num_tx_queues; i < new_real_tx; i++) {
-+		qdisc = netdev_get_tx_queue(dev, i)->qdisc_sleeping;
-+		if (qdisc != &noop_qdisc && !qdisc->handle)
-+			qdisc_hash_add(qdisc, false);
-+	}
-+#endif
-+}
-+
- static int mq_dump(struct Qdisc *sch, struct sk_buff *skb)
- {
- 	struct net_device *dev = qdisc_dev(sch);
-@@ -288,6 +311,7 @@ struct Qdisc_ops mq_qdisc_ops __read_mostly = {
- 	.init		= mq_init,
- 	.destroy	= mq_destroy,
- 	.attach		= mq_attach,
-+	.change_real_num_tx = mq_change_real_num_tx,
- 	.dump		= mq_dump,
- 	.owner		= THIS_MODULE,
- };
-diff --git a/net/sched/sch_mqprio.c b/net/sched/sch_mqprio.c
-index 5eb3b1b7ae5e7..50e15add6068f 100644
---- a/net/sched/sch_mqprio.c
-+++ b/net/sched/sch_mqprio.c
-@@ -306,6 +306,28 @@ static void mqprio_attach(struct Qdisc *sch)
- 	priv->qdiscs = NULL;
- }
- 
-+static void mqprio_change_real_num_tx(struct Qdisc *sch,
-+				      unsigned int new_real_tx)
-+{
-+	struct net_device *dev = qdisc_dev(sch);
-+	struct Qdisc *qdisc;
-+	unsigned int i;
-+
-+	for (i = new_real_tx; i < dev->real_num_tx_queues; i++) {
-+		qdisc = netdev_get_tx_queue(dev, i)->qdisc_sleeping;
-+		/* Only update the default qdiscs we created,
-+		 * qdiscs with handles are always hashed.
-+		 */
-+		if (qdisc != &noop_qdisc && !qdisc->handle)
-+			qdisc_hash_del(qdisc);
-+	}
-+	for (i = dev->real_num_tx_queues; i < new_real_tx; i++) {
-+		qdisc = netdev_get_tx_queue(dev, i)->qdisc_sleeping;
-+		if (qdisc != &noop_qdisc && !qdisc->handle)
-+			qdisc_hash_add(qdisc, false);
-+	}
-+}
-+
- static struct netdev_queue *mqprio_queue_get(struct Qdisc *sch,
- 					     unsigned long cl)
- {
-@@ -629,6 +651,7 @@ static struct Qdisc_ops mqprio_qdisc_ops __read_mostly = {
- 	.init		= mqprio_init,
- 	.destroy	= mqprio_destroy,
- 	.attach		= mqprio_attach,
-+	.change_real_num_tx = mqprio_change_real_num_tx,
- 	.dump		= mqprio_dump,
- 	.owner		= THIS_MODULE,
- };
+ 			/* FIXME: why use only legacy modes, why not any
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index 66ecf09068c19..e244b7038e606 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -2066,7 +2066,9 @@ struct wmi_channel {
+ 	union {
+ 		__le32 reginfo1;
+ 		struct {
++			/* note: power unit is 1 dBm */
+ 			u8 antenna_max;
++			/* note: power unit is 0.5 dBm */
+ 			u8 max_tx_power;
+ 		} __packed;
+ 	} __packed;
+@@ -2086,6 +2088,7 @@ struct wmi_channel_arg {
+ 	u32 min_power;
+ 	u32 max_power;
+ 	u32 max_reg_power;
++	/* note: power unit is 1 dBm */
+ 	u32 max_antenna_gain;
+ 	u32 reg_class_id;
+ 	enum wmi_phy_mode mode;
 -- 
 2.33.0
 
