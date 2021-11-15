@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF844451E25
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A017451EE8
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:35:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345124AbhKPAfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:35:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S1355423AbhKPAh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:37:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344627AbhKOTZH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5797163353;
-        Mon, 15 Nov 2021 19:01:17 +0000 (UTC)
+        id S1344651AbhKOTZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 791A6636AD;
+        Mon, 15 Nov 2021 19:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002877;
-        bh=F9d/ltFgpz546J7V7BZDQo31lZcv65VDwmyeHzdymF8=;
+        s=korg; t=1637002899;
+        bh=9hKHflMQr9m/2690S4jwcKZdUKjuHvoNqW8AlOYk21Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6r/8GMt4+mg8Ypr+yUmD8XyEtFO0CH2Fc3z4Zfd7rC0a9PgOpDqoYBt7dKDL5Vlb
-         zx+iiaGWQPmHcZP4FFTzgnwub2jmK5xzi0Rh4tJppTP2+NL9MyJV/NLLSq2p+x1Nh9
-         CJxynG07tll1tOQU923vgHU/wQMamGAMaSIUmxP0=
+        b=wnZpKSWnRY7Gnh2qp0UVbEYcPy7kfwtQ7//vTeOFAfsr3OAbWyGwcXemVupLYgUwy
+         4SQ1NLoYScpgkMbW6x0Cb3+cfSezFZkkLwOzRFe1fOWKYxpsKEwrAygq0BQVn/ubtv
+         zDELf5EqYaauqH8jzCxmeL5+80dgJiT+0KTQ+9JY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Tian <kevin.tian@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 702/917] dmaengine: idxd: move out percpu_ref_exit() to ensure its outside submission
-Date:   Mon, 15 Nov 2021 18:03:17 +0100
-Message-Id: <20211115165452.683790140@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 704/917] Input: ariel-pwrbutton - add SPI device ID table
+Date:   Mon, 15 Nov 2021 18:03:19 +0100
+Message-Id: <20211115165452.762148964@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,57 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 85f604af9c83a4656b1d07bec73298c3ba7d7c1e ]
+[ Upstream commit 5c4c2c8e6fac26fa0b80c234d6e9f75d637193af ]
 
-percpu_ref_tryget_live() is safe to call as long as ref is between init and
-exit according to the function comment. Move percpu_ref_exit() so it is
-called after the dma channel is no longer valid to ensure this holds true.
+Currently autoloading for SPI devices does not use the DT ID table, it uses
+SPI modalises. Supporting OF modalises is going to be difficult if not
+impractical, an attempt was made but has been reverted, so ensure that
+module autoloading works for this driver by adding a SPI device ID table.
 
-Fixes: 93a40a6d7428 ("dmaengine: idxd: add percpu_ref to descriptor submission path")
-Suggested-by: Kevin Tian <kevin.tian@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/163294293832.914350.10326422026738506152.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 96c8395e2166 ("spi: Revert modalias changes")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210927134104.38648-1-broonie@kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/device.c | 1 -
- drivers/dma/idxd/dma.c    | 2 ++
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/misc/ariel-pwrbutton.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
-index 83a5ff2ecf2a0..cbbfa17d8d11b 100644
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -427,7 +427,6 @@ void idxd_wq_quiesce(struct idxd_wq *wq)
- {
- 	percpu_ref_kill(&wq->wq_active);
- 	wait_for_completion(&wq->wq_dead);
--	percpu_ref_exit(&wq->wq_active);
- }
+diff --git a/drivers/input/misc/ariel-pwrbutton.c b/drivers/input/misc/ariel-pwrbutton.c
+index 17bbaac8b80c8..cdc80715b5fd6 100644
+--- a/drivers/input/misc/ariel-pwrbutton.c
++++ b/drivers/input/misc/ariel-pwrbutton.c
+@@ -149,12 +149,19 @@ static const struct of_device_id ariel_pwrbutton_of_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, ariel_pwrbutton_of_match);
  
- /* Device control bits */
-diff --git a/drivers/dma/idxd/dma.c b/drivers/dma/idxd/dma.c
-index e0f056c1d1f56..b90b085d18cff 100644
---- a/drivers/dma/idxd/dma.c
-+++ b/drivers/dma/idxd/dma.c
-@@ -311,6 +311,7 @@ static int idxd_dmaengine_drv_probe(struct idxd_dev *idxd_dev)
++static const struct spi_device_id ariel_pwrbutton_spi_ids[] = {
++	{ .name = "wyse-ariel-ec-input" },
++	{ }
++};
++MODULE_DEVICE_TABLE(spi, ariel_pwrbutton_spi_ids);
++
+ static struct spi_driver ariel_pwrbutton_driver = {
+ 	.driver = {
+ 		.name = "dell-wyse-ariel-ec-input",
+ 		.of_match_table = ariel_pwrbutton_of_match,
+ 	},
+ 	.probe = ariel_pwrbutton_probe,
++	.id_table = ariel_pwrbutton_spi_ids,
+ };
+ module_spi_driver(ariel_pwrbutton_driver);
  
- err_dma:
- 	idxd_wq_quiesce(wq);
-+	percpu_ref_exit(&wq->wq_active);
- err_ref:
- 	idxd_wq_free_resources(wq);
- err_res_alloc:
-@@ -329,6 +330,7 @@ static void idxd_dmaengine_drv_remove(struct idxd_dev *idxd_dev)
- 	idxd_wq_quiesce(wq);
- 	idxd_unregister_dma_channel(wq);
- 	__drv_disable_wq(wq);
-+	percpu_ref_exit(&wq->wq_active);
- 	idxd_wq_free_resources(wq);
- 	wq->type = IDXD_WQT_NONE;
- 	mutex_unlock(&wq->wq_lock);
 -- 
 2.33.0
 
