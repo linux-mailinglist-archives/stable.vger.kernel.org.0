@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB26450EF4
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:22:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E288450EF6
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:22:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241006AbhKOSWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:22:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60616 "EHLO mail.kernel.org"
+        id S241569AbhKOSWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:22:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241317AbhKOSTZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241314AbhKOSTZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:19:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AF77633FA;
-        Mon, 15 Nov 2021 17:51:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2335F63263;
+        Mon, 15 Nov 2021 17:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998689;
-        bh=2JYBnu26lh+xnfocP3ExYnaUlwXlPUeVfjs51btJ/Zw=;
+        s=korg; t=1636998691;
+        bh=VHv/jATYzon7aBwA0JSFUaRtQnEp0JWl/hUXN5QxjFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfeIsCLitBgi7Ex/FsOAWVZJCQEA8B0NbMB8WRgw+cJKvXiCaEHzb8eB1D/u8wpA4
-         PVzPyZve1M7v/lKsI7YhpX7fWRUarvRBZsvP1jbAXycjx6GV12POfmn3YAcO5/Zzs5
-         NDq3rTWDZlrULF7NsP8cjLsCFAeMDIBidht4Hi38=
+        b=1Z9EWcB6eBgjRqP+CTKpQtPyI6Q48IjL0rzFfdJ+bEXjqBUehcNoM3oTFOrNrqVFS
+         nFucL/TUpGgtddiIwFpNPWUFiZDTVet2WQiVvK4DQ3skbNYLHNaYJO6t+aOjYvZrpU
+         5m9nEN2LQdJpKsdY+R6Xl48Tc3VOMY4qSndst2zU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Bryan Pass <bryan.pass@gmail.com>,
+        Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.14 024/849] media: rkvdec: Do not override sizeimage for output format
-Date:   Mon, 15 Nov 2021 17:51:47 +0100
-Message-Id: <20211115165420.806060583@linuxfoundation.org>
+Subject: [PATCH 5.14 025/849] media: ite-cir: IR receiver stop working after receive overflow
+Date:   Mon, 15 Nov 2021 17:51:48 +0100
+Message-Id: <20211115165420.846613229@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,43 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Sean Young <sean@mess.org>
 
-commit 298d8e8f7bcf023aceb60232d59b983255fec0df upstream.
+commit fdc881783099c6343921ff017450831c8766d12a upstream.
 
-The rkvdec H.264 decoder currently overrides sizeimage for the output
-format. This causes issues when userspace requires and requests a larger
-buffer, but ends up with one of insufficient size.
+On an Intel NUC6iSYK, no IR is reported after a receive overflow.
 
-Instead, only provide a default size if none was requested. This fixes
-the video_decode_accelerator_tests from Chromium failing on the first
-frame due to insufficient buffer space. It also aligns the behavior
-of the rkvdec driver with the Hantro and Cedrus drivers.
+When a receiver overflow occurs, this condition is only cleared by
+reading the fifo. Make sure we read anything in the fifo.
 
-Fixes: cd33c830448b ("media: rkvdec: Add the rkvdec driver")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 28c7afb07ccf ("media: ite-cir: check for receive overflow")
+Suggested-by: Bryan Pass <bryan.pass@gmail.com>
+Tested-by: Bryan Pass <bryan.pass@gmail.com>
+Cc: stable@vger.kernel.org>
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/media/rkvdec/rkvdec-h264.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/rc/ite-cir.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/media/rkvdec/rkvdec-h264.c
-+++ b/drivers/staging/media/rkvdec/rkvdec-h264.c
-@@ -1015,8 +1015,9 @@ static int rkvdec_h264_adjust_fmt(struct
- 	struct v4l2_pix_format_mplane *fmt = &f->fmt.pix_mp;
+--- a/drivers/media/rc/ite-cir.c
++++ b/drivers/media/rc/ite-cir.c
+@@ -242,7 +242,7 @@ static irqreturn_t ite_cir_isr(int irq,
+ 	}
  
- 	fmt->num_planes = 1;
--	fmt->plane_fmt[0].sizeimage = fmt->width * fmt->height *
--				      RKVDEC_H264_MAX_DEPTH_IN_BYTES;
-+	if (!fmt->plane_fmt[0].sizeimage)
-+		fmt->plane_fmt[0].sizeimage = fmt->width * fmt->height *
-+					      RKVDEC_H264_MAX_DEPTH_IN_BYTES;
- 	return 0;
- }
- 
+ 	/* check for the receive interrupt */
+-	if (iflags & ITE_IRQ_RX_FIFO) {
++	if (iflags & (ITE_IRQ_RX_FIFO | ITE_IRQ_RX_FIFO_OVERRUN)) {
+ 		/* read the FIFO bytes */
+ 		rx_bytes = dev->params->get_rx_bytes(dev, rx_buf,
+ 						    ITE_RX_FIFO_LEN);
 
 
