@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 029F84513E6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB2F1451179
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:06:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348698AbhKOT7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:59:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
+        id S240816AbhKOTIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:08:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344101AbhKOTXW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E196563624;
-        Mon, 15 Nov 2021 18:51:56 +0000 (UTC)
+        id S243888AbhKOTEg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:04:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E8ED6338E;
+        Mon, 15 Nov 2021 18:16:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002317;
-        bh=jqQBdfUsTlqpcw03DTdGrapHz4I8+P3ZjmDSc5kaC+Y=;
+        s=korg; t=1637000160;
+        bh=ZthVkNfp1aBMaQGDLnuqGuaUv33dpWzeRJ1vmLT2fes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnNQQmoEB4J9BqMvst2FFY0cd+0/xujeBXc/mIdEEZnwoqt2dVlGQZMy0W47WKSkA
-         XgTYXJgbsGfqUg7XIsFNxp+ylsXU0E0zWvf/QnFzzNgpmu9zYCGq0XkNdedty0KO5N
-         Bd5BrpcMf+xlJhERdzI9ZkVZZFQVsOoYKtk1q+Do=
+        b=qnRPNrAinkMy/fWE75xUqLOBTOvfhWPrwXvfzlhT2LTwQZp4zKeT3rZbXnu/83757
+         4wxLF8CD4GLMOOwzOlb201Y2RG+/A2F3ljPfld8jLWQjYoFZMtj33jJ6iJ6CfwRRrh
+         LIgOKMkb0CfSX3HYXx5WEe0iQgrqCrXUbfvbB1Bo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 519/917] libbpf: Fix off-by-one bug in bpf_core_apply_relo()
-Date:   Mon, 15 Nov 2021 18:00:14 +0100
-Message-Id: <20211115165446.370596220@linuxfoundation.org>
+Subject: [PATCH 5.14 532/849] sctp: subtract sctphdr len in sctp_transport_pl_hlen
+Date:   Mon, 15 Nov 2021 18:00:15 +0100
+Message-Id: <20211115165438.264210066@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit de5d0dcef602de39070c31c7e56c58249c56ba37 ]
+[ Upstream commit cc4665ca646c96181a7c00198aa72c59e0c576e8 ]
 
-Fix instruction index validity check which has off-by-one error.
+sctp_transport_pl_hlen() is called to calculate the outer header length
+for PL. However, as the Figure in rfc8899#section-4.4:
 
-Fixes: 3ee4f5335511 ("libbpf: Split bpf_core_apply_relo() into bpf_program independent helper.")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20211025224531.1088894-2-andrii@kernel.org
+   Any additional
+     headers         .--- MPS -----.
+            |        |             |
+            v        v             v
+     +------------------------------+
+     | IP | ** | PL | protocol data |
+     +------------------------------+
+
+                <----- PLPMTU ----->
+     <---------- PMTU -------------->
+
+Outer header are IP + Any additional headers, which doesn't include
+Packetization Layer itself header, namely sctphdr, whereas sctphdr
+is counted by __sctp_mtu_payload().
+
+The incorrect calculation caused the link pathmtu to be set larger
+than expected by t->pl.pmtu + sctp_transport_pl_hlen(). This patch
+is to fix it by subtracting sctphdr len in sctp_transport_pl_hlen().
+
+Fixes: d9e2e410ae30 ("sctp: add the constants/variables and states and some APIs for transport")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/sctp/sctp.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 51180f300d2e1..7145463a4a562 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -5138,7 +5138,7 @@ static int bpf_core_apply_relo(struct bpf_program *prog,
- 	 * relocated, so it's enough to just subtract in-section offset
- 	 */
- 	insn_idx = insn_idx - prog->sec_insn_off;
--	if (insn_idx > prog->insns_cnt)
-+	if (insn_idx >= prog->insns_cnt)
- 		return -EINVAL;
- 	insn = &prog->insns[insn_idx];
+diff --git a/include/net/sctp/sctp.h b/include/net/sctp/sctp.h
+index bc00410223b03..189fdb9db1622 100644
+--- a/include/net/sctp/sctp.h
++++ b/include/net/sctp/sctp.h
+@@ -626,7 +626,8 @@ static inline __u32 sctp_min_frag_point(struct sctp_sock *sp, __u16 datasize)
  
+ static inline int sctp_transport_pl_hlen(struct sctp_transport *t)
+ {
+-	return __sctp_mtu_payload(sctp_sk(t->asoc->base.sk), t, 0, 0);
++	return __sctp_mtu_payload(sctp_sk(t->asoc->base.sk), t, 0, 0) -
++	       sizeof(struct sctphdr);
+ }
+ 
+ static inline void sctp_transport_pl_reset(struct sctp_transport *t)
 -- 
 2.33.0
 
