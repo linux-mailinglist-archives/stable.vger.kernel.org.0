@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DBFD4522A3
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:13:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E552B452663
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240090AbhKPBPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:15:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42962 "EHLO mail.kernel.org"
+        id S243231AbhKPCFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:05:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244241AbhKOTMO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:12:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9B94632B2;
-        Mon, 15 Nov 2021 18:19:39 +0000 (UTC)
+        id S239954AbhKOSFL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3863632F8;
+        Mon, 15 Nov 2021 17:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000380;
-        bh=hez5oQVPSFGPapGDxet0O58mPzjLjxoOuyDKA05VivY=;
+        s=korg; t=1636998039;
+        bh=ihWfijKLHM+esI8o/vDEhqnlAAvHt+1vj5G5EN490Ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YIZRrcLRrEvK9WXldb/bwiTSnBwuUczA+2/c8WMRCuDFP5spzn3+MfRH+05L3MgZO
-         bJBzFY5TQWbEYksOTrKtnO8hjRkGv+m1RK8x0OM0FTX2KULN33lNLQlNuAZESPaTBS
-         68bzdrX53QM86Ee5IPlNVmO3qrvhS6oxYCxzC3dc=
+        b=P5AkKnPiDTEoVHH6eDgk2DlDbk7cQI0ebednzJpkpun2TOAxepzBILJzWkfjM1TyI
+         N6FiztqtRml4iYdnVx05g9g+7hR12HuQokXUWEgXyV9xioxU206grE9hwC9P5cYusc
+         Hkti17HdsyWJFDbMMb9xZTAmbBAH17HMQ0El7f1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
+        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 607/849] staging: ks7010: select CRYPTO_HASH/CRYPTO_MICHAEL_MIC
-Date:   Mon, 15 Nov 2021 18:01:30 +0100
-Message-Id: <20211115165440.789641021@linuxfoundation.org>
+Subject: [PATCH 5.10 366/575] samples/kretprobes: Fix return value if register_kretprobe() failed
+Date:   Mon, 15 Nov 2021 18:01:31 +0100
+Message-Id: <20211115165356.457903337@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vegard Nossum <vegard.nossum@oracle.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 9ca0e55e52c7b2a99f3c2051fc4bd1c63a061519 ]
+[ Upstream commit f76fbbbb5061fe14824ba5807c44bd7400a6b4e1 ]
 
-Fix the following build/link errors:
+Use the actual return value instead of always -1 if register_kretprobe()
+failed.
 
-  ld: drivers/staging/ks7010/ks_hostif.o: in function `michael_mic.constprop.0':
-  ks_hostif.c:(.text+0x95b): undefined reference to `crypto_alloc_shash'
-  ld: ks_hostif.c:(.text+0x97a): undefined reference to `crypto_shash_setkey'
-  ld: ks_hostif.c:(.text+0xa13): undefined reference to `crypto_shash_update'
-  ld: ks_hostif.c:(.text+0xa28): undefined reference to `crypto_shash_update'
-  ld: ks_hostif.c:(.text+0xa48): undefined reference to `crypto_shash_finup'
-  ld: ks_hostif.c:(.text+0xa6d): undefined reference to `crypto_destroy_tfm'
+E.g. without this patch:
 
-Fixes: 8b523f20417d ("staging: ks7010: removed custom Michael MIC implementation.")
-Fixes: 3e5bc68fa5968 ("staging: ks7010: Fix build error")
-Fixes: a4961427e7494 ("Revert "staging: ks7010: Fix build error"")
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
-Link: https://lore.kernel.org/r/20211011152941.12847-1-vegard.nossum@oracle.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ # insmod samples/kprobes/kretprobe_example.ko func=no_such_func
+ insmod: ERROR: could not insert module samples/kprobes/kretprobe_example.ko: Operation not permitted
+
+With this patch:
+
+ # insmod samples/kprobes/kretprobe_example.ko func=no_such_func
+ insmod: ERROR: could not insert module samples/kprobes/kretprobe_example.ko: Unknown symbol in module
+
+Link: https://lkml.kernel.org/r/1635213091-24387-2-git-send-email-yangtiezhu@loongson.cn
+
+Fixes: 804defea1c02 ("Kprobes: move kprobe examples to samples/")
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/ks7010/Kconfig | 3 +++
- 1 file changed, 3 insertions(+)
+ samples/kprobes/kretprobe_example.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/ks7010/Kconfig b/drivers/staging/ks7010/Kconfig
-index 0987fdc2f70db..8ea6c09286798 100644
---- a/drivers/staging/ks7010/Kconfig
-+++ b/drivers/staging/ks7010/Kconfig
-@@ -5,6 +5,9 @@ config KS7010
- 	select WIRELESS_EXT
- 	select WEXT_PRIV
- 	select FW_LOADER
-+	select CRYPTO
-+	select CRYPTO_HASH
-+	select CRYPTO_MICHAEL_MIC
- 	help
- 	  This is a driver for KeyStream KS7010 based SDIO WIFI cards. It is
- 	  found on at least later Spectec SDW-821 (FCC-ID "S2Y-WLAN-11G-K" only,
+diff --git a/samples/kprobes/kretprobe_example.c b/samples/kprobes/kretprobe_example.c
+index 5dc1bf3baa98b..228321ecb1616 100644
+--- a/samples/kprobes/kretprobe_example.c
++++ b/samples/kprobes/kretprobe_example.c
+@@ -86,7 +86,7 @@ static int __init kretprobe_init(void)
+ 	ret = register_kretprobe(&my_kretprobe);
+ 	if (ret < 0) {
+ 		pr_err("register_kretprobe failed, returned %d\n", ret);
+-		return -1;
++		return ret;
+ 	}
+ 	pr_info("Planted return probe at %s: %p\n",
+ 			my_kretprobe.kp.symbol_name, my_kretprobe.kp.addr);
 -- 
 2.33.0
 
