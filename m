@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16E51450D64
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:54:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17797450A8C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:08:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238390AbhKOR4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:56:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39650 "EHLO mail.kernel.org"
+        id S232503AbhKORLS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:11:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239206AbhKORzD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:55:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5203263326;
-        Mon, 15 Nov 2021 17:33:35 +0000 (UTC)
+        id S232072AbhKORLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:11:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E56A61B73;
+        Mon, 15 Nov 2021 17:08:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997615;
-        bh=Ko8gcaZ2CBjpD/j9fuLpDpSwDbMuTKxiXgJe3TywpkA=;
+        s=korg; t=1636996088;
+        bh=wRAGWBpahZ6uPSBO6z6KW73pVimdI4AjoIKTpFg9JM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkIs+iNClkXwfvrv23zer1Ve4ig0nynZJVv+mxTogfhsdaBbKLsfX3nmAozouPcah
-         Et1OyiWUB7r/HI6UfTpIa3ztjlqydCFXPXIHenhvE2z4Ap7SrRUH5OwRcmh9ZQi/FT
-         y+EZtoVq298tACjTZZgN3CWtALeRimziFLivW8s0=
+        b=jfNrTjX9ftalVjTY8lSqfXWI+SZa0HAP51coix5fyvrSVNxK8dEmbnypEri4TV2S5
+         t3wODdSCNmYK5dA6BgOrvN5857L2aOuhZ+e1SADkK98guPkV4dSShV2KPnIBuGr+tP
+         OMuwqJ2h0duZGALEB1yHWtIsluCcoDOQfO+zTuG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Tuo Li <islituo@gmail.com>, Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 211/575] ath: dfs_pattern_detector: Fix possible null-pointer dereference in channel_detector_create()
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        David Jeffery <djeffery@redhat.com>,
+        Laurence Oberman <loberman@redhat.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 012/355] scsi: qla2xxx: Fix use after free in eh_abort path
 Date:   Mon, 15 Nov 2021 17:58:56 +0100
-Message-Id: <20211115165351.010588850@linuxfoundation.org>
+Message-Id: <20211115165313.951325014@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 4b6012a7830b813799a7faf40daa02a837e0fd5b ]
+commit 3d33b303d4f3b74a71bede5639ebba3cfd2a2b4d upstream.
 
-kzalloc() is used to allocate memory for cd->detectors, and if it fails,
-channel_detector_exit() behind the label fail will be called:
-  channel_detector_exit(dpd, cd);
+In eh_abort path driver prematurely exits the call to upper layer. Check
+whether command is aborted / completed by firmware before exiting the call.
 
-In channel_detector_exit(), cd->detectors is dereferenced through:
-  struct pri_detector *de = cd->detectors[i];
+9 [ffff8b1ebf803c00] page_fault at ffffffffb0389778
+  [exception RIP: qla2x00_status_entry+0x48d]
+  RIP: ffffffffc04fa62d  RSP: ffff8b1ebf803cb0  RFLAGS: 00010082
+  RAX: 00000000ffffffff  RBX: 00000000000e0000  RCX: 0000000000000000
+  RDX: 0000000000000000  RSI: 00000000000013d8  RDI: fffff3253db78440
+  RBP: ffff8b1ebf803dd0   R8: ffff8b1ebcd9b0c0   R9: 0000000000000000
+  R10: ffff8b1e38a30808  R11: 0000000000001000  R12: 00000000000003e9
+  R13: 0000000000000000  R14: ffff8b1ebcd9d740  R15: 0000000000000028
+  ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+10 [ffff8b1ebf803cb0] enqueue_entity at ffffffffafce708f
+11 [ffff8b1ebf803d00] enqueue_task_fair at ffffffffafce7b88
+12 [ffff8b1ebf803dd8] qla24xx_process_response_queue at ffffffffc04fc9a6
+[qla2xxx]
+13 [ffff8b1ebf803e78] qla24xx_msix_rsp_q at ffffffffc04ff01b [qla2xxx]
+14 [ffff8b1ebf803eb0] __handle_irq_event_percpu at ffffffffafd50714
 
-To fix this possible null-pointer dereference, check cd->detectors before
-the for loop to dereference cd->detectors.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210805153854.154066-1-islituo@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20210908164622.19240-10-njavali@marvell.com
+Fixes: f45bca8c5052 ("scsi: qla2xxx: Fix double scsi_done for abort path")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Co-developed-by: David Jeffery <djeffery@redhat.com>
+Signed-off-by: David Jeffery <djeffery@redhat.com>
+Co-developed-by: Laurence Oberman <loberman@redhat.com>
+Signed-off-by: Laurence Oberman <loberman@redhat.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/dfs_pattern_detector.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/dfs_pattern_detector.c b/drivers/net/wireless/ath/dfs_pattern_detector.c
-index 0813473793df1..87369073098c8 100644
---- a/drivers/net/wireless/ath/dfs_pattern_detector.c
-+++ b/drivers/net/wireless/ath/dfs_pattern_detector.c
-@@ -182,10 +182,12 @@ static void channel_detector_exit(struct dfs_pattern_detector *dpd,
- 	if (cd == NULL)
- 		return;
- 	list_del(&cd->head);
--	for (i = 0; i < dpd->num_radar_types; i++) {
--		struct pri_detector *de = cd->detectors[i];
--		if (de != NULL)
--			de->exit(de);
-+	if (cd->detectors) {
-+		for (i = 0; i < dpd->num_radar_types; i++) {
-+			struct pri_detector *de = cd->detectors[i];
-+			if (de != NULL)
-+				de->exit(de);
-+		}
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -1229,6 +1229,7 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
+ 	uint32_t ratov_j;
+ 	struct qla_qpair *qpair;
+ 	unsigned long flags;
++	int fast_fail_status = SUCCESS;
+ 
+ 	if (qla2x00_isp_reg_stat(ha)) {
+ 		ql_log(ql_log_info, vha, 0x8042,
+@@ -1236,15 +1237,16 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
+ 		return FAILED;
  	}
- 	kfree(cd->detectors);
- 	kfree(cd);
--- 
-2.33.0
-
+ 
++	/* Save any FAST_IO_FAIL value to return later if abort succeeds */
+ 	ret = fc_block_scsi_eh(cmd);
+ 	if (ret != 0)
+-		return ret;
++		fast_fail_status = ret;
+ 
+ 	sp = scsi_cmd_priv(cmd);
+ 	qpair = sp->qpair;
+ 
+ 	if ((sp->fcport && sp->fcport->deleted) || !qpair)
+-		return SUCCESS;
++		return fast_fail_status != SUCCESS ? fast_fail_status : FAILED;
+ 
+ 	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
+ 	if (sp->completed) {
+@@ -1290,7 +1292,7 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
+ 			    __func__, ha->r_a_tov/10);
+ 			ret = FAILED;
+ 		} else {
+-			ret = SUCCESS;
++			ret = fast_fail_status;
+ 		}
+ 		break;
+ 	default:
 
 
