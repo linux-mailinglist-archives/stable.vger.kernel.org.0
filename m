@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C016E4522E0
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE77452609
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:59:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378666AbhKPBQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:16:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
+        id S1346568AbhKPCB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:01:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244659AbhKOTRJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:17:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D523F60C4A;
-        Mon, 15 Nov 2021 18:22:44 +0000 (UTC)
+        id S238536AbhKOSHr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87F7363296;
+        Mon, 15 Nov 2021 17:46:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000565;
-        bh=XmzqHL0Z0tJSw6FXl0JzN3xJCCpGMGmK9Cp/EP+0nkA=;
+        s=korg; t=1636998362;
+        bh=pv0nAWzhhGnARDuSBdJHIS88X+AsAkSTwhxU9m/hoOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/sF9VPlJv/On9LmOOTsYWP1jAlUtm8yF6Xs6+cUeGRBgOxa5GyLKzv4zhyUe8kGd
-         QaMuCqm3H6GmePEwdAuPhu2SBCo+a/IdftTjqLxhBkni1QxF+mHpw1C0onS36miZr6
-         G7jgV0y1H5WFAkuwfD/Be3fFP0RgOnbhYSYVKq6M=
+        b=zmOxNbvL4jFzp57GU5wi1Nw9mL10WAonZhg0YYAL8KicW+pXCbvGdGUk4G/v6znit
+         d9kKXcoBU3DLkuTBKJFRsPKPQD0G7rJwBEFbzbAz9z5CDpkK8uzBYsqICIAsiFPmaN
+         YiHpXhvfvgWSublUnb336MnjGmJV7699RHeiRObs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, linux-sh@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 706/849] signal/sh: Use force_sig(SIGKILL) instead of do_group_exit(SIGKILL)
-Date:   Mon, 15 Nov 2021 18:03:09 +0100
-Message-Id: <20211115165444.146868366@linuxfoundation.org>
+Subject: [PATCH 5.10 465/575] mips: cm: Convert to bitfield API to fix out-of-bounds access
+Date:   Mon, 15 Nov 2021 18:03:10 +0100
+Message-Id: <20211115165359.815152039@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,61 +42,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit ce0ee4e6ac99606f3945f4d47775544edc3f7985 ]
+[ Upstream commit 18b8f5b6fc53d097cadb94a93d8d6566ba88e389 ]
 
-Today the sh code allocates memory the first time a process uses
-the fpu.  If that memory allocation fails, kill the affected task
-with force_sig(SIGKILL) rather than do_group_exit(SIGKILL).
+mips_cm_error_report() extracts the cause and other cause from the error
+register using shifts.  This works fine for the former, as it is stored
+in the top bits, and the shift will thus remove all non-related bits.
+However, the latter is stored in the bottom bits, hence thus needs masking
+to get rid of non-related bits.  Without such masking, using it as an
+index into the cm2_causes[] array will lead to an out-of-bounds access,
+probably causing a crash.
 
-Calling do_group_exit from an exception handler can potentially lead
-to dead locks as do_group_exit is not designed to be called from
-interrupt context.  Instead use force_sig(SIGKILL) to kill the
-userspace process.  Sending signals in general and force_sig in
-particular has been tested from interrupt context so there should be
-no problems.
+Fix this by using FIELD_GET() instead.  Bite the bullet and convert all
+MIPS CM handling to the bitfield API, to improve readability and safety.
 
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Cc: linux-sh@vger.kernel.org
-Fixes: 0ea820cf9bf5 ("sh: Move over to dynamically allocated FPU context.")
-Link: https://lkml.kernel.org/r/20211020174406.17889-6-ebiederm@xmission.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Fixes: 3885c2b463f6a236 ("MIPS: CM: Add support for reporting CM cache errors")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/kernel/cpu/fpu.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/mips/include/asm/mips-cm.h | 12 ++++++------
+ arch/mips/kernel/mips-cm.c      | 21 ++++++++++-----------
+ 2 files changed, 16 insertions(+), 17 deletions(-)
 
-diff --git a/arch/sh/kernel/cpu/fpu.c b/arch/sh/kernel/cpu/fpu.c
-index ae354a2931e7e..fd6db0ab19288 100644
---- a/arch/sh/kernel/cpu/fpu.c
-+++ b/arch/sh/kernel/cpu/fpu.c
-@@ -62,18 +62,20 @@ void fpu_state_restore(struct pt_regs *regs)
- 	}
+diff --git a/arch/mips/include/asm/mips-cm.h b/arch/mips/include/asm/mips-cm.h
+index aeae2effa123d..23c67c0871b17 100644
+--- a/arch/mips/include/asm/mips-cm.h
++++ b/arch/mips/include/asm/mips-cm.h
+@@ -11,6 +11,7 @@
+ #ifndef __MIPS_ASM_MIPS_CM_H__
+ #define __MIPS_ASM_MIPS_CM_H__
  
- 	if (!tsk_used_math(tsk)) {
--		local_irq_enable();
-+		int ret;
++#include <linux/bitfield.h>
+ #include <linux/bitops.h>
+ #include <linux/errno.h>
+ 
+@@ -153,8 +154,8 @@ GCR_ACCESSOR_RO(32, 0x030, rev)
+ #define CM_GCR_REV_MINOR			GENMASK(7, 0)
+ 
+ #define CM_ENCODE_REV(major, minor) \
+-		(((major) << __ffs(CM_GCR_REV_MAJOR)) | \
+-		 ((minor) << __ffs(CM_GCR_REV_MINOR)))
++		(FIELD_PREP(CM_GCR_REV_MAJOR, major) | \
++		 FIELD_PREP(CM_GCR_REV_MINOR, minor))
+ 
+ #define CM_REV_CM2				CM_ENCODE_REV(6, 0)
+ #define CM_REV_CM2_5				CM_ENCODE_REV(7, 0)
+@@ -362,10 +363,10 @@ static inline int mips_cm_revision(void)
+ static inline unsigned int mips_cm_max_vp_width(void)
+ {
+ 	extern int smp_num_siblings;
+-	uint32_t cfg;
+ 
+ 	if (mips_cm_revision() >= CM_REV_CM3)
+-		return read_gcr_sys_config2() & CM_GCR_SYS_CONFIG2_MAXVPW;
++		return FIELD_GET(CM_GCR_SYS_CONFIG2_MAXVPW,
++				 read_gcr_sys_config2());
+ 
+ 	if (mips_cm_present()) {
  		/*
- 		 * does a slab alloc which can sleep
+@@ -373,8 +374,7 @@ static inline unsigned int mips_cm_max_vp_width(void)
+ 		 * number of VP(E)s, and if that ever changes then this will
+ 		 * need revisiting.
  		 */
--		if (init_fpu(tsk)) {
-+		local_irq_enable();
-+		ret = init_fpu(tsk);
-+		local_irq_disable();
-+		if (ret) {
- 			/*
- 			 * ran out of memory!
- 			 */
--			do_group_exit(SIGKILL);
-+			force_sig(SIGKILL);
- 			return;
- 		}
--		local_irq_disable();
+-		cfg = read_gcr_cl_config() & CM_GCR_Cx_CONFIG_PVPE;
+-		return (cfg >> __ffs(CM_GCR_Cx_CONFIG_PVPE)) + 1;
++		return FIELD_GET(CM_GCR_Cx_CONFIG_PVPE, read_gcr_cl_config()) + 1;
  	}
  
- 	grab_fpu(regs);
+ 	if (IS_ENABLED(CONFIG_SMP))
+diff --git a/arch/mips/kernel/mips-cm.c b/arch/mips/kernel/mips-cm.c
+index f60af512c8773..72c8374a39002 100644
+--- a/arch/mips/kernel/mips-cm.c
++++ b/arch/mips/kernel/mips-cm.c
+@@ -221,8 +221,7 @@ static void mips_cm_probe_l2sync(void)
+ 	phys_addr_t addr;
+ 
+ 	/* L2-only sync was introduced with CM major revision 6 */
+-	major_rev = (read_gcr_rev() & CM_GCR_REV_MAJOR) >>
+-		__ffs(CM_GCR_REV_MAJOR);
++	major_rev = FIELD_GET(CM_GCR_REV_MAJOR, read_gcr_rev());
+ 	if (major_rev < 6)
+ 		return;
+ 
+@@ -305,13 +304,13 @@ void mips_cm_lock_other(unsigned int cluster, unsigned int core,
+ 	preempt_disable();
+ 
+ 	if (cm_rev >= CM_REV_CM3) {
+-		val = core << __ffs(CM3_GCR_Cx_OTHER_CORE);
+-		val |= vp << __ffs(CM3_GCR_Cx_OTHER_VP);
++		val = FIELD_PREP(CM3_GCR_Cx_OTHER_CORE, core) |
++		      FIELD_PREP(CM3_GCR_Cx_OTHER_VP, vp);
+ 
+ 		if (cm_rev >= CM_REV_CM3_5) {
+ 			val |= CM_GCR_Cx_OTHER_CLUSTER_EN;
+-			val |= cluster << __ffs(CM_GCR_Cx_OTHER_CLUSTER);
+-			val |= block << __ffs(CM_GCR_Cx_OTHER_BLOCK);
++			val |= FIELD_PREP(CM_GCR_Cx_OTHER_CLUSTER, cluster);
++			val |= FIELD_PREP(CM_GCR_Cx_OTHER_BLOCK, block);
+ 		} else {
+ 			WARN_ON(cluster != 0);
+ 			WARN_ON(block != CM_GCR_Cx_OTHER_BLOCK_LOCAL);
+@@ -341,7 +340,7 @@ void mips_cm_lock_other(unsigned int cluster, unsigned int core,
+ 		spin_lock_irqsave(&per_cpu(cm_core_lock, curr_core),
+ 				  per_cpu(cm_core_lock_flags, curr_core));
+ 
+-		val = core << __ffs(CM_GCR_Cx_OTHER_CORENUM);
++		val = FIELD_PREP(CM_GCR_Cx_OTHER_CORENUM, core);
+ 	}
+ 
+ 	write_gcr_cl_other(val);
+@@ -385,8 +384,8 @@ void mips_cm_error_report(void)
+ 	cm_other = read_gcr_error_mult();
+ 
+ 	if (revision < CM_REV_CM3) { /* CM2 */
+-		cause = cm_error >> __ffs(CM_GCR_ERROR_CAUSE_ERRTYPE);
+-		ocause = cm_other >> __ffs(CM_GCR_ERROR_MULT_ERR2ND);
++		cause = FIELD_GET(CM_GCR_ERROR_CAUSE_ERRTYPE, cm_error);
++		ocause = FIELD_GET(CM_GCR_ERROR_MULT_ERR2ND, cm_other);
+ 
+ 		if (!cause)
+ 			return;
+@@ -444,8 +443,8 @@ void mips_cm_error_report(void)
+ 		ulong core_id_bits, vp_id_bits, cmd_bits, cmd_group_bits;
+ 		ulong cm3_cca_bits, mcp_bits, cm3_tr_bits, sched_bit;
+ 
+-		cause = cm_error >> __ffs64(CM3_GCR_ERROR_CAUSE_ERRTYPE);
+-		ocause = cm_other >> __ffs(CM_GCR_ERROR_MULT_ERR2ND);
++		cause = FIELD_GET(CM3_GCR_ERROR_CAUSE_ERRTYPE, cm_error);
++		ocause = FIELD_GET(CM_GCR_ERROR_MULT_ERR2ND, cm_other);
+ 
+ 		if (!cause)
+ 			return;
 -- 
 2.33.0
 
