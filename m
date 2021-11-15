@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AC9C450B04
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:14:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2586450DF4
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236539AbhKORRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:17:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50536 "EHLO mail.kernel.org"
+        id S239762AbhKOSJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:09:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236944AbhKORPb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:15:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9939161C12;
-        Mon, 15 Nov 2021 17:11:59 +0000 (UTC)
+        id S239728AbhKOSEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:04:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF3386101B;
+        Mon, 15 Nov 2021 17:38:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996320;
-        bh=eN137RGl3cvcxNk/R6nNdsoJzwWnc+3Y5seUkbBr64g=;
+        s=korg; t=1636997930;
+        bh=TBI3aO7xF0u1trT5ru+rFS23Y1JCnXCPXJA1PDBjIPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBR/Zujds7bun24WuiPvm/vbd53hN33FBSf7e9K4m7fpbDMDISQd3eAfgBWUgz3Nh
-         saZ9JMCfjGJWUsNIdOk3/0ZYZsIPU4XaTJ7fNoanLjvIdWk+vxPlvR6SVY8Z5kmsxO
-         HzfHSB06taFaiBLlingiOiKthZ5ZQ5m5CsNZ5464=
+        b=CDBWlpuXiEYhjavKYoi3ih8o2jP9kJPVf7O1J5mTNFmGBATzgn8vo6Il36BVDiK+X
+         W9DyUHLgklesDlJ+cIWu0OWIKZWDIItnRJTgMRT8X4SF9ATVq0/XK+TM0ubEGx1UXr
+         oq5W1WRL8yMCl7W2jqhAmQW7IfRY9iVBbvYFFOUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9988f17cf72a1045a189@syzkaller.appspotmail.com,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 095/355] ALSA: mixer: oss: Fix racy access to slots
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Lad Prabhakar <prabhakar.csengg@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 294/575] media: i2c: ths8200 needs V4L2_ASYNC
 Date:   Mon, 15 Nov 2021 18:00:19 +0100
-Message-Id: <20211115165316.872451387@linuxfoundation.org>
+Message-Id: <20211115165353.946824789@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,176 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 411cef6adfb38a5bb6bd9af3941b28198e7fb680 upstream.
+[ Upstream commit e4625044d656f3c33ece0cc9da22577bc10ca5d3 ]
 
-The OSS mixer can reassign the mapping slots dynamically via proc
-file.  Although the addition and deletion of those slots are protected
-by mixer->reg_mutex, the access to slots aren't, hence this may cause
-UAF when the slots in use are deleted concurrently.
+Fix the build errors reported by the kernel test robot by
+selecting V4L2_ASYNC:
 
-This patch applies the mixer->reg_mutex in all appropriate code paths
-(i.e. the ioctl functions) that may access slots.
+mips-linux-ld: drivers/media/i2c/ths8200.o: in function `ths8200_remove':
+ths8200.c:(.text+0x1ec): undefined reference to `v4l2_async_unregister_subdev'
+mips-linux-ld: drivers/media/i2c/ths8200.o: in function `ths8200_probe':
+ths8200.c:(.text+0x404): undefined reference to `v4l2_async_register_subdev'
 
-Reported-by: syzbot+9988f17cf72a1045a189@syzkaller.appspotmail.com
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/00000000000036adc005ceca9175@google.com
-Link: https://lore.kernel.org/r/20211020164846.922-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ed29f89497006 ("media: i2c: ths8200: support asynchronous probing")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
+Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/oss/mixer_oss.c |   43 +++++++++++++++++++++++++++++++++----------
- 1 file changed, 33 insertions(+), 10 deletions(-)
+ drivers/media/i2c/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/oss/mixer_oss.c
-+++ b/sound/core/oss/mixer_oss.c
-@@ -130,11 +130,13 @@ static int snd_mixer_oss_devmask(struct
+diff --git a/drivers/media/i2c/Kconfig b/drivers/media/i2c/Kconfig
+index 878f66ef2719f..5f5a3915ac778 100644
+--- a/drivers/media/i2c/Kconfig
++++ b/drivers/media/i2c/Kconfig
+@@ -595,6 +595,7 @@ config VIDEO_AK881X
+ config VIDEO_THS8200
+ 	tristate "Texas Instruments THS8200 video encoder"
+ 	depends on VIDEO_V4L2 && I2C
++	select V4L2_ASYNC
+ 	help
+ 	  Support for the Texas Instruments THS8200 video encoder.
  
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	for (chn = 0; chn < 31; chn++) {
- 		pslot = &mixer->slots[chn];
- 		if (pslot->put_volume || pslot->put_recsrc)
- 			result |= 1 << chn;
- 	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
-@@ -146,11 +148,13 @@ static int snd_mixer_oss_stereodevs(stru
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	for (chn = 0; chn < 31; chn++) {
- 		pslot = &mixer->slots[chn];
- 		if (pslot->put_volume && pslot->stereo)
- 			result |= 1 << chn;
- 	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
-@@ -161,6 +165,7 @@ static int snd_mixer_oss_recmask(struct
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	if (mixer->put_recsrc && mixer->get_recsrc) {	/* exclusive */
- 		result = mixer->mask_recsrc;
- 	} else {
-@@ -172,6 +177,7 @@ static int snd_mixer_oss_recmask(struct
- 				result |= 1 << chn;
- 		}
- 	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
-@@ -182,11 +188,12 @@ static int snd_mixer_oss_get_recsrc(stru
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	if (mixer->put_recsrc && mixer->get_recsrc) {	/* exclusive */
--		int err;
- 		unsigned int index;
--		if ((err = mixer->get_recsrc(fmixer, &index)) < 0)
--			return err;
-+		result = mixer->get_recsrc(fmixer, &index);
-+		if (result < 0)
-+			goto unlock;
- 		result = 1 << index;
- 	} else {
- 		struct snd_mixer_oss_slot *pslot;
-@@ -201,7 +208,10 @@ static int snd_mixer_oss_get_recsrc(stru
- 			}
- 		}
- 	}
--	return mixer->oss_recsrc = result;
-+	mixer->oss_recsrc = result;
-+ unlock:
-+	mutex_unlock(&mixer->reg_mutex);
-+	return result;
- }
- 
- static int snd_mixer_oss_set_recsrc(struct snd_mixer_oss_file *fmixer, int recsrc)
-@@ -214,6 +224,7 @@ static int snd_mixer_oss_set_recsrc(stru
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	if (mixer->get_recsrc && mixer->put_recsrc) {	/* exclusive input */
- 		if (recsrc & ~mixer->oss_recsrc)
- 			recsrc &= ~mixer->oss_recsrc;
-@@ -239,6 +250,7 @@ static int snd_mixer_oss_set_recsrc(stru
- 			}
- 		}
- 	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
-@@ -250,6 +262,7 @@ static int snd_mixer_oss_get_volume(stru
- 
- 	if (mixer == NULL || slot > 30)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	pslot = &mixer->slots[slot];
- 	left = pslot->volume[0];
- 	right = pslot->volume[1];
-@@ -257,15 +270,21 @@ static int snd_mixer_oss_get_volume(stru
- 		result = pslot->get_volume(fmixer, pslot, &left, &right);
- 	if (!pslot->stereo)
- 		right = left;
--	if (snd_BUG_ON(left < 0 || left > 100))
--		return -EIO;
--	if (snd_BUG_ON(right < 0 || right > 100))
--		return -EIO;
-+	if (snd_BUG_ON(left < 0 || left > 100)) {
-+		result = -EIO;
-+		goto unlock;
-+	}
-+	if (snd_BUG_ON(right < 0 || right > 100)) {
-+		result = -EIO;
-+		goto unlock;
-+	}
- 	if (result >= 0) {
- 		pslot->volume[0] = left;
- 		pslot->volume[1] = right;
- 	 	result = (left & 0xff) | ((right & 0xff) << 8);
- 	}
-+ unlock:
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
-@@ -278,6 +297,7 @@ static int snd_mixer_oss_set_volume(stru
- 
- 	if (mixer == NULL || slot > 30)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	pslot = &mixer->slots[slot];
- 	if (left > 100)
- 		left = 100;
-@@ -288,10 +308,13 @@ static int snd_mixer_oss_set_volume(stru
- 	if (pslot->put_volume)
- 		result = pslot->put_volume(fmixer, pslot, left, right);
- 	if (result < 0)
--		return result;
-+		goto unlock;
- 	pslot->volume[0] = left;
- 	pslot->volume[1] = right;
-- 	return (left & 0xff) | ((right & 0xff) << 8);
-+	result = (left & 0xff) | ((right & 0xff) << 8);
-+ unlock:
-+	mutex_lock(&mixer->reg_mutex);
-+	return result;
- }
- 
- static int snd_mixer_oss_ioctl1(struct snd_mixer_oss_file *fmixer, unsigned int cmd, unsigned long arg)
+-- 
+2.33.0
+
 
 
