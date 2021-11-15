@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C039450E8F
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:13:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D68EB450C9C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:38:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239969AbhKOSQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:16:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50070 "EHLO mail.kernel.org"
+        id S238467AbhKORk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:40:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240641AbhKOSLd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:11:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 192DE633C2;
-        Mon, 15 Nov 2021 17:47:33 +0000 (UTC)
+        id S238207AbhKORfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:35:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6125632C9;
+        Mon, 15 Nov 2021 17:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998454;
-        bh=hRgGveg67O4YaQdaBJBoise6YYevgIu8X342+sr0c6I=;
+        s=korg; t=1636997010;
+        bh=v3jjhu3CAerA37uJHLK8mnXOzu3dFw6yz7vdWhH5TJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5Ry6F4KxbcYMX6MsTqZ46d6plKaL2ts8TFJOHipfGCe5qoL1VXIWNN2OmCvU5niw
-         2Q+5sKQ4HPTFOdQhS3t1gOM7bifIKQ6N/Q1xifQNQ5F/bi9/HMV2YJZF2s4XAcrSO9
-         Df7ofwedP8xmIKxYLsRlWPPkQfgqIZgy4dCWavtE=
+        b=X65u7J+0tV0uMydmlhdb9Po4/vE+xwchklaZXz+SFL+Ahq/NiZ7TKWI0pxrE2L2Hk
+         +3dblNIk6Q+Q1uufCxF0v8ZhOQKeBBmMd48aD++MGtagjvF3MyvTM++GDvDFqdWUy+
+         JMAKvA/Lmv1PdoCvyImQb18vg9Gdb7QdY98VYLAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 516/575] ataflop: remove ataflop_probe_lock mutex
+        syzbot+e4df4e1389e28972e955@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 317/355] net: vlan: fix a UAF in vlan_dev_real_dev()
 Date:   Mon, 15 Nov 2021 18:04:01 +0100
-Message-Id: <20211115165401.523895690@linuxfoundation.org>
+Message-Id: <20211115165323.971309841@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,142 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 4ddb85d36613c45bde00d368bf9f357bd0708a0c ]
+[ Upstream commit 563bcbae3ba233c275c244bfce2efe12938f5363 ]
 
-Commit bf9c0538e485b591 ("ataflop: use a separate gendisk for each media
-format") introduced ataflop_probe_lock mutex, but forgot to unlock the
-mutex when atari_floppy_init() (i.e. module loading) succeeded. This will
-result in double lock deadlock if ataflop_probe() is called. Also,
-unregister_blkdev() must not be called from atari_floppy_init() with
-ataflop_probe_lock held when atari_floppy_init() failed, for
-ataflop_probe() waits for ataflop_probe_lock with major_names_lock held
-(i.e. AB-BA deadlock).
+The real_dev of a vlan net_device may be freed after
+unregister_vlan_dev(). Access the real_dev continually by
+vlan_dev_real_dev() will trigger the UAF problem for the
+real_dev like following:
 
-__register_blkdev() needs to be called last in order to avoid calling
-ataflop_probe() when atari_floppy_init() is about to fail, for memory for
-completing already-started ataflop_probe() safely will be released as soon
-as atari_floppy_init() released ataflop_probe_lock mutex.
+==================================================================
+BUG: KASAN: use-after-free in vlan_dev_real_dev+0xf9/0x120
+Call Trace:
+ kasan_report.cold+0x83/0xdf
+ vlan_dev_real_dev+0xf9/0x120
+ is_eth_port_of_netdev_filter.part.0+0xb1/0x2c0
+ is_eth_port_of_netdev_filter+0x28/0x40
+ ib_enum_roce_netdev+0x1a3/0x300
+ ib_enum_all_roce_netdevs+0xc7/0x140
+ netdevice_event_work_handler+0x9d/0x210
+...
 
-As with commit 8b52d8be86d72308 ("loop: reorder loop_exit"),
-unregister_blkdev() needs to be called first in order to avoid calling
-ataflop_alloc_disk() from ataflop_probe() after del_gendisk() from
-atari_floppy_exit().
+Freed by task 9288:
+ kasan_save_stack+0x1b/0x40
+ kasan_set_track+0x1c/0x30
+ kasan_set_free_info+0x20/0x30
+ __kasan_slab_free+0xfc/0x130
+ slab_free_freelist_hook+0xdd/0x240
+ kfree+0xe4/0x690
+ kvfree+0x42/0x50
+ device_release+0x9f/0x240
+ kobject_put+0x1c8/0x530
+ put_device+0x1b/0x30
+ free_netdev+0x370/0x540
+ ppp_destroy_interface+0x313/0x3d0
+...
 
-By relocating __register_blkdev() / unregister_blkdev() as explained above,
-we can remove ataflop_probe_lock mutex, for probe function and __exit
-function are serialized by major_names_lock mutex.
+Move the put_device(real_dev) to vlan_dev_free(). Ensure
+real_dev not be freed before vlan_dev unregistered.
 
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: bf9c0538e485b591 ("ataflop: use a separate gendisk for each media format")
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Link: https://lore.kernel.org/r/20211103230437.1639990-11-mcgrof@kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot+e4df4e1389e28972e955@syzkaller.appspotmail.com
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/ataflop.c | 47 +++++++++++++++++++++++------------------
- 1 file changed, 27 insertions(+), 20 deletions(-)
+ net/8021q/vlan.c     | 3 ---
+ net/8021q/vlan_dev.c | 3 +++
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
-index 2d3a66362dcf9..3a29f1992d971 100644
---- a/drivers/block/ataflop.c
-+++ b/drivers/block/ataflop.c
-@@ -2016,8 +2016,6 @@ static int ataflop_alloc_disk(unsigned int drive, unsigned int type)
- 	return 0;
- }
- 
--static DEFINE_MUTEX(ataflop_probe_lock);
--
- static void ataflop_probe(dev_t dev)
- {
- 	int drive = MINOR(dev) & 3;
-@@ -2025,14 +2023,32 @@ static void ataflop_probe(dev_t dev)
- 
- 	if (drive >= FD_MAX_UNITS || type > NUM_DISK_MINORS)
- 		return;
--	mutex_lock(&ataflop_probe_lock);
- 	if (!unit[drive].disk[type]) {
- 		if (ataflop_alloc_disk(drive, type) == 0) {
- 			add_disk(unit[drive].disk[type]);
- 			unit[drive].registered[type] = true;
- 		}
+diff --git a/net/8021q/vlan.c b/net/8021q/vlan.c
+index 3f47abf9ef4a6..cd7c0429cddf8 100644
+--- a/net/8021q/vlan.c
++++ b/net/8021q/vlan.c
+@@ -116,9 +116,6 @@ void unregister_vlan_dev(struct net_device *dev, struct list_head *head)
  	}
--	mutex_unlock(&ataflop_probe_lock);
-+}
-+
-+static void atari_floppy_cleanup(void)
-+{
-+	int i;
-+	int type;
-+
-+	for (i = 0; i < FD_MAX_UNITS; i++) {
-+		for (type = 0; type < NUM_DISK_MINORS; type++) {
-+			if (!unit[i].disk[type])
-+				continue;
-+			del_gendisk(unit[i].disk[type]);
-+			blk_cleanup_queue(unit[i].disk[type]->queue);
-+			put_disk(unit[i].disk[type]);
-+		}
-+		blk_mq_free_tag_set(&unit[i].tag_set);
-+	}
-+
-+	del_timer_sync(&fd_timer);
-+	atari_stram_free(DMABuffer);
+ 
+ 	vlan_vid_del(real_dev, vlan->vlan_proto, vlan_id);
+-
+-	/* Get rid of the vlan's reference to real_dev */
+-	dev_put(real_dev);
  }
  
- static void atari_cleanup_floppy_disk(struct atari_floppy_struct *fs)
-@@ -2058,11 +2074,6 @@ static int __init atari_floppy_init (void)
- 		/* Amiga, Mac, ... don't have Atari-compatible floppy :-) */
- 		return -ENODEV;
+ int vlan_check_real_dev(struct net_device *real_dev,
+diff --git a/net/8021q/vlan_dev.c b/net/8021q/vlan_dev.c
+index 2a78da4072de9..415a29d42cdf0 100644
+--- a/net/8021q/vlan_dev.c
++++ b/net/8021q/vlan_dev.c
+@@ -790,6 +790,9 @@ static void vlan_dev_free(struct net_device *dev)
  
--	mutex_lock(&ataflop_probe_lock);
--	ret = __register_blkdev(FLOPPY_MAJOR, "fd", ataflop_probe);
--	if (ret)
--		goto out_unlock;
--
- 	for (i = 0; i < FD_MAX_UNITS; i++) {
- 		memset(&unit[i].tag_set, 0, sizeof(unit[i].tag_set));
- 		unit[i].tag_set.ops = &ataflop_mq_ops;
-@@ -2116,15 +2127,17 @@ static int __init atari_floppy_init (void)
- 	       UseTrackbuffer ? "" : "no ");
- 	config_types();
- 
--	return 0;
-+	ret = __register_blkdev(FLOPPY_MAJOR, "fd", ataflop_probe);
-+	if (ret) {
-+		printk(KERN_ERR "atari_floppy_init: cannot register block device\n");
-+		atari_floppy_cleanup();
-+	}
-+	return ret;
- 
- err:
- 	while (--i >= 0)
- 		atari_cleanup_floppy_disk(&unit[i]);
- 
--	unregister_blkdev(FLOPPY_MAJOR, "fd");
--out_unlock:
--	mutex_unlock(&ataflop_probe_lock);
- 	return ret;
+ 	free_percpu(vlan->vlan_pcpu_stats);
+ 	vlan->vlan_pcpu_stats = NULL;
++
++	/* Get rid of the vlan's reference to real_dev */
++	dev_put(vlan->real_dev);
  }
  
-@@ -2169,14 +2182,8 @@ __setup("floppy=", atari_floppy_setup);
- 
- static void __exit atari_floppy_exit(void)
- {
--	int i;
--
--	for (i = 0; i < FD_MAX_UNITS; i++)
--		atari_cleanup_floppy_disk(&unit[i]);
- 	unregister_blkdev(FLOPPY_MAJOR, "fd");
--
--	del_timer_sync(&fd_timer);
--	atari_stram_free( DMABuffer );
-+	atari_floppy_cleanup();
- }
- 
- module_init(atari_floppy_init)
+ void vlan_setup(struct net_device *dev)
 -- 
 2.33.0
 
