@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADA134511BC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:11:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1972D45145A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244324AbhKOTNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:13:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42214 "EHLO mail.kernel.org"
+        id S1349093AbhKOUCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:02:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244155AbhKOTLH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:11:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3AC461130;
-        Mon, 15 Nov 2021 18:19:03 +0000 (UTC)
+        id S1344338AbhKOTYc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7021A63661;
+        Mon, 15 Nov 2021 18:56:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000344;
-        bh=+G64ou5zMIBp3gvj6bUysTam3ewkp3gKss0u54tN8zo=;
+        s=korg; t=1637002561;
+        bh=Zw90p/ZsdLRxko2E62WUIDtJM/Fhg1ws1f5Ep9Yi2X4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBTUlqV7xAxYsAjpDAQ5qOSetmriLpzAyCvCKQya36ZUMLgoJptWF+2Ip4lg+LiaM
-         A6XXEXZchnK2nxjZjkbvNXo3ttsuUJpv3mssS9uvQMX7sb2hxBUixVpeaaSMGff+c1
-         E7Jd7gYe5SuYXT+txYn965LXNMSqXFRum3ypFE2k=
+        b=K16UGhuFci4/Y05qqTuLoWgRZKbPyFMp6+IVedGdy8hLMhxKaWoyR+7/LUkUaIvRI
+         izFXKdUbOpbzwSubDMOPa9eAZJngCkJ1uqZHM/6HynIieER50+VC90a1QOB8NnMHo4
+         433+s7ZYgI9YrQD+5aM/iGUjAV0T+3Des4fUsmZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Stefan Agner <stefan@agner.ch>,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 626/849] serial: imx: fix detach/attach of serial console
+Subject: [PATCH 5.15 614/917] ASoC: SOF: topology: do not power down primary core during topology removal
 Date:   Mon, 15 Nov 2021 18:01:49 +0100
-Message-Id: <20211115165441.442466480@linuxfoundation.org>
+Message-Id: <20211115165449.614889659@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,121 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
 
-[ Upstream commit 6d0d1b5a1b4870911beb89544ec1a9751c42fec7 ]
+[ Upstream commit ec626334eaffe101df9ed79e161eba95124e64ad ]
 
-If the device used as a serial console gets detached/attached at runtime,
-register_console() will try to call imx_uart_setup_console(), but this
-is not possible since it is marked as __init.
+When removing the topology components, do not power down
+the primary core. Doing so will result in an IPC timeout
+when the SOF PCI device runtime suspends.
 
-For instance
+Fixes: 0dcdf84289fb ("ASoC: SOF: add a "core" parameter to widget loading functions")
 
-  # cat /sys/devices/virtual/tty/console/active
-  tty1 ttymxc0
-  # echo -n N > /sys/devices/virtual/tty/console/subsystem/ttymxc0/console
-  # echo -n Y > /sys/devices/virtual/tty/console/subsystem/ttymxc0/console
-
-[   73.166649] 8<--- cut here ---
-[   73.167005] Unable to handle kernel paging request at virtual address c154d928
-[   73.167601] pgd = 55433e84
-[   73.167875] [c154d928] *pgd=8141941e(bad)
-[   73.168304] Internal error: Oops: 8000000d [#1] SMP ARM
-[   73.168429] Modules linked in:
-[   73.168522] CPU: 0 PID: 536 Comm: sh Not tainted 5.15.0-rc6-00056-g3968ddcf05fb #3
-[   73.168675] Hardware name: Freescale i.MX6 Ultralite (Device Tree)
-[   73.168791] PC is at imx_uart_console_setup+0x0/0x238
-[   73.168927] LR is at try_enable_new_console+0x98/0x124
-[   73.169056] pc : [<c154d928>]    lr : [<c0196f44>]    psr: a0000013
-[   73.169178] sp : c2ef5e70  ip : 00000000  fp : 00000000
-[   73.169281] r10: 00000000  r9 : c02cf970  r8 : 00000000
-[   73.169389] r7 : 00000001  r6 : 00000001  r5 : c1760164  r4 : c1e0fb08
-[   73.169512] r3 : c154d928  r2 : 00000000  r1 : efffcbd1  r0 : c1760164
-[   73.169641] Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-[   73.169782] Control: 10c5387d  Table: 8345406a  DAC: 00000051
-[   73.169895] Register r0 information: non-slab/vmalloc memory
-[   73.170032] Register r1 information: non-slab/vmalloc memory
-[   73.170158] Register r2 information: NULL pointer
-[   73.170273] Register r3 information: non-slab/vmalloc memory
-[   73.170397] Register r4 information: non-slab/vmalloc memory
-[   73.170521] Register r5 information: non-slab/vmalloc memory
-[   73.170647] Register r6 information: non-paged memory
-[   73.170771] Register r7 information: non-paged memory
-[   73.170892] Register r8 information: NULL pointer
-[   73.171009] Register r9 information: non-slab/vmalloc memory
-[   73.171142] Register r10 information: NULL pointer
-[   73.171259] Register r11 information: NULL pointer
-[   73.171375] Register r12 information: NULL pointer
-[   73.171494] Process sh (pid: 536, stack limit = 0xcd1ba82f)
-[   73.171621] Stack: (0xc2ef5e70 to 0xc2ef6000)
-[   73.171731] 5e60:                                     ???????? ???????? ???????? ????????
-[   73.171899] 5e80: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.172059] 5ea0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.172217] 5ec0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.172377] 5ee0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.172537] 5f00: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.172698] 5f20: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.172856] 5f40: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.173016] 5f60: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.173177] 5f80: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.173336] 5fa0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.173496] 5fc0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.173654] 5fe0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.173826] [<c0196f44>] (try_enable_new_console) from [<c01984a8>] (register_console+0x10c/0x2ec)
-[   73.174053] [<c01984a8>] (register_console) from [<c06e2c90>] (console_store+0x14c/0x168)
-[   73.174262] [<c06e2c90>] (console_store) from [<c0383718>] (kernfs_fop_write_iter+0x110/0x1cc)
-[   73.174470] [<c0383718>] (kernfs_fop_write_iter) from [<c02cf5f4>] (vfs_write+0x31c/0x548)
-[   73.174679] [<c02cf5f4>] (vfs_write) from [<c02cf970>] (ksys_write+0x60/0xec)
-[   73.174863] [<c02cf970>] (ksys_write) from [<c0100080>] (ret_fast_syscall+0x0/0x1c)
-[   73.175052] Exception stack(0xc2ef5fa8 to 0xc2ef5ff0)
-[   73.175167] 5fa0:                   ???????? ???????? ???????? ???????? ???????? ????????
-[   73.175327] 5fc0: ???????? ???????? ???????? ???????? ???????? ???????? ???????? ????????
-[   73.175486] 5fe0: ???????? ???????? ???????? ????????
-[   73.175608] Code: 00000000 00000000 00000000 00000000 (00000000)
-[   73.175744] ---[ end trace 9b75121265109bf1 ]---
-
-A similar issue could be triggered by unbinding/binding the serial
-console device [*].
-
-Drop __init so that imx_uart_setup_console() can be safely called at
-runtime.
-
-[*] https://lore.kernel.org/all/20181114174940.7865-3-stefan@agner.ch/
-
-Fixes: a3cb39d258ef ("serial: core: Allow detach and attach serial device for console")
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Link: https://lore.kernel.org/r/20211020192643.476895-2-francesco.dolcini@toradex.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20211006104041.27183-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/imx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/sof/topology.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index 8b121cd869e94..51a9f9423b1a6 100644
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -2017,7 +2017,7 @@ imx_uart_console_write(struct console *co, const char *s, unsigned int count)
-  * If the port was already initialised (eg, by a boot loader),
-  * try to determine the current setup.
-  */
--static void __init
-+static void
- imx_uart_console_get_options(struct imx_port *sport, int *baud,
- 			     int *parity, int *bits)
- {
-@@ -2076,7 +2076,7 @@ imx_uart_console_get_options(struct imx_port *sport, int *baud,
- 	}
- }
+diff --git a/sound/soc/sof/topology.c b/sound/soc/sof/topology.c
+index cc9585bfa4e9f..1bb2dcf37ffe9 100644
+--- a/sound/soc/sof/topology.c
++++ b/sound/soc/sof/topology.c
+@@ -2598,6 +2598,15 @@ static int sof_widget_unload(struct snd_soc_component *scomp,
  
--static int __init
-+static int
- imx_uart_console_setup(struct console *co, char *options)
- {
- 	struct imx_port *sport;
+ 		/* power down the pipeline schedule core */
+ 		pipeline = swidget->private;
++
++		/*
++		 * Runtime PM should still function normally if topology loading fails and
++		 * it's components are unloaded. Do not power down the primary core so that the
++		 * CTX_SAVE IPC can succeed during runtime suspend.
++		 */
++		if (pipeline->core == SOF_DSP_PRIMARY_CORE)
++			break;
++
+ 		ret = snd_sof_dsp_core_power_down(sdev, 1 << pipeline->core);
+ 		if (ret < 0)
+ 			dev_err(scomp->dev, "error: powering down pipeline schedule core %d\n",
 -- 
 2.33.0
 
