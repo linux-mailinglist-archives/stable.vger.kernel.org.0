@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 444024520F6
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:54:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5975E4520E1
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:54:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343728AbhKPA5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:57:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
+        id S1359323AbhKPA46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:56:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245614AbhKOTUv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 362D963272;
-        Mon, 15 Nov 2021 18:37:55 +0000 (UTC)
+        id S245669AbhKOTVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CFEA61A4E;
+        Mon, 15 Nov 2021 18:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001476;
-        bh=WlweSMgc3nZMdE+OFl3w+LUov0XoXxB10YoQ849+17o=;
+        s=korg; t=1637001534;
+        bh=qT2SY6fv46Gn9/Bc1mnjMQbsZb5EuuRuEpMBD50gTC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I5W2sIbX1ZHVuvEVAtYI4xtDpEEkoWQVHO3wezIufee/6KxkQIrx93ydHzL3R7K6t
-         QL1K742majfoux+XHdLGaDxmDHTgQrI8ae/03c0CxrR0c/CEYdoaEHGWBpXsr/QftX
-         gKtWsFxPgaDkw5jxb1g/XTH7wP2Se85DdsX5h7Kc=
+        b=nJ3dIz8qOpqIHz7CVFLCCpITQzeXVJB0YGMEGBAZOt6YbbJ02aWj9Mt9FRBvrNW3+
+         9QfC9SFj9PqiRTqrGhxuCnbPeZOagjZALmveWuEhEVVwjO+SBkGQMsKBl2mxEpR6Tf
+         c+BKhjJXXwF0ngY3NET7+L0nkwsqtQELU7XZkUEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neeraj Upadhyay <neeraju@codeaurora.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Ritesh Singh <ritesi@codeaurora.org>,
+        Seevalamuthu Mariappan <seevalam@codeaurora.org>,
+        Jouni Malinen <jouni@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 198/917] rcu-tasks: Move RTGS_WAIT_CBS to beginning of rcu_tasks_kthread() loop
-Date:   Mon, 15 Nov 2021 17:54:53 +0100
-Message-Id: <20211115165435.503302745@linuxfoundation.org>
+Subject: [PATCH 5.15 200/917] ath11k: Align bss_chan_info structure with firmware
+Date:   Mon, 15 Nov 2021 17:54:55 +0100
+Message-Id: <20211115165435.579273880@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,43 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Seevalamuthu Mariappan <seevalam@codeaurora.org>
 
-[ Upstream commit 0db7c32ad3160ae06f497d48a74bd46a2a35e6bf ]
+[ Upstream commit feab5bb8f1d4621025dceae7eef62d5f92de34ac ]
 
-Early in debugging, it made some sense to differentiate the first
-iteration from subsequent iterations, but now this just causes confusion.
-This commit therefore moves the "set_tasks_gp_state(rtp, RTGS_WAIT_CBS)"
-statement to the beginning of the "for" loop in rcu_tasks_kthread().
+pdev_id in structure 'wmi_pdev_bss_chan_info_event' is wrongly placed
+at the beginning. This causes invalid values in survey dump. Hence, align
+the structure with the firmware.
 
-Reported-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Note: The firmware releases follow this order since the feature was
+implemented. Also, it is not changing across the branches including
+QCA6390.
+
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.1.0.1-01228-QCAHKSWPL_SILICONZ-1
+
+Signed-off-by: Ritesh Singh <ritesi@codeaurora.org>
+Signed-off-by: Seevalamuthu Mariappan <seevalam@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210720214922.118078-3-jouni@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tasks.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath11k/wmi.c | 1 +
+ drivers/net/wireless/ath/ath11k/wmi.h | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index 806160c44b172..6591914af4864 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -197,6 +197,7 @@ static int __noreturn rcu_tasks_kthread(void *arg)
- 	 * This loop is terminated by the system going down.  ;-)
- 	 */
- 	for (;;) {
-+		set_tasks_gp_state(rtp, RTGS_WAIT_CBS);
+diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
+index 6c253eae9d069..27c060dd3fb47 100644
+--- a/drivers/net/wireless/ath/ath11k/wmi.c
++++ b/drivers/net/wireless/ath/ath11k/wmi.c
+@@ -1339,6 +1339,7 @@ int ath11k_wmi_pdev_bss_chan_info_request(struct ath11k *ar,
+ 				     WMI_TAG_PDEV_BSS_CHAN_INFO_REQUEST) |
+ 			  FIELD_PREP(WMI_TLV_LEN, sizeof(*cmd) - TLV_HDR_SIZE);
+ 	cmd->req_type = type;
++	cmd->pdev_id = ar->pdev->pdev_id;
  
- 		/* Pick up any new callbacks. */
- 		raw_spin_lock_irqsave(&rtp->cbs_lock, flags);
-@@ -236,8 +237,6 @@ static int __noreturn rcu_tasks_kthread(void *arg)
- 		}
- 		/* Paranoid sleep to keep this from entering a tight loop */
- 		schedule_timeout_idle(rtp->gp_sleep);
--
--		set_tasks_gp_state(rtp, RTGS_WAIT_CBS);
- 	}
- }
+ 	ath11k_dbg(ar->ab, ATH11K_DBG_WMI,
+ 		   "WMI bss chan info req type %d\n", type);
+diff --git a/drivers/net/wireless/ath/ath11k/wmi.h b/drivers/net/wireless/ath/ath11k/wmi.h
+index d35c47e0b19d4..0b7d337b36930 100644
+--- a/drivers/net/wireless/ath/ath11k/wmi.h
++++ b/drivers/net/wireless/ath/ath11k/wmi.h
+@@ -2960,6 +2960,7 @@ struct wmi_pdev_bss_chan_info_req_cmd {
+ 	u32 tlv_header;
+ 	/* ref wmi_bss_chan_info_req_type */
+ 	u32 req_type;
++	u32 pdev_id;
+ } __packed;
  
+ struct wmi_ap_ps_peer_cmd {
+@@ -4056,7 +4057,6 @@ struct wmi_vdev_stopped_event {
+ } __packed;
+ 
+ struct wmi_pdev_bss_chan_info_event {
+-	u32 pdev_id;
+ 	u32 freq;	/* Units in MHz */
+ 	u32 noise_floor;	/* units are dBm */
+ 	/* rx clear - how often the channel was unused */
+@@ -4074,6 +4074,7 @@ struct wmi_pdev_bss_chan_info_event {
+ 	/*rx_cycle cnt for my bss in 64bits format */
+ 	u32 rx_bss_cycle_count_low;
+ 	u32 rx_bss_cycle_count_high;
++	u32 pdev_id;
+ } __packed;
+ 
+ #define WMI_VDEV_INSTALL_KEY_COMPL_STATUS_SUCCESS 0
 -- 
 2.33.0
 
