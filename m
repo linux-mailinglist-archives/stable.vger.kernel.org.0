@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3674C4520B7
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D418A4520B6
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343784AbhKPA4R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:56:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
+        id S245732AbhKPA4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:56:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343543AbhKOTVS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343541AbhKOTVS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42E72632B1;
-        Mon, 15 Nov 2021 18:41:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F068E63291;
+        Mon, 15 Nov 2021 18:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001705;
-        bh=LYR2W95ebjp7DRuQ9X3HmqQlJt75WLxMhBbupiA0wIs=;
+        s=korg; t=1637001708;
+        bh=UvXS3OWOgXkyW0b1hMKKDxUt0PP2iOMr5n6l083y5Gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J886cKMSeo+i/mwLW/jGXPzqxr9kQ+h3TCpJrLniZn53bQCbRr1Ws1b8RRkg7FO/2
-         AdutYnssu744eUEXf9386XGEbGvER8EFTPyw9dQksJbyFfX2zza0tncSJMj4AYskZD
-         oKlNtfg6mqvOaLrZPgd4HK92L2yA4a2FMBF9YZ/o=
+        b=0jvi7fOKrHbHk6vSu34mUHUXExmoqRTxlzvUTOlD7Gxwtr6ELtwc3XVvlzV5uEuve
+         sNplpQV7BujH2UfQHZprZphHgZz63H23lM9miQvyUAktqFoMLDC5+v445OqJoaEfl+
+         Cs2KFC+5We7pVLYpujaoaml5QD1LwTDZ0dAXSqJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
+        Antonio Quartulli <a@unstable.cc>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 289/917] ARM: clang: Do not rely on lr register for stacktrace
-Date:   Mon, 15 Nov 2021 17:56:24 +0100
-Message-Id: <20211115165438.563164673@linuxfoundation.org>
+Subject: [PATCH 5.15 290/917] gre/sit: Dont generate link-local addr if addr_gen_mode is IN6_ADDR_GEN_MODE_NONE
+Date:   Mon, 15 Nov 2021 17:56:25 +0100
+Message-Id: <20211115165438.594423101@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,44 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Stephen Suryaputra <ssuryaextr@gmail.com>
 
-[ Upstream commit b3ea5d56f212ad81328c82454829a736197ebccc ]
+[ Upstream commit 61e18ce7348bfefb5688a8bcd4b4d6b37c0f9b2a ]
 
-Currently the stacktrace on clang compiled arm kernel uses the 'lr'
-register to find the first frame address from pt_regs. However, that
-is wrong after calling another function, because the 'lr' register
-is used by 'bl' instruction and never be recovered.
+When addr_gen_mode is set to IN6_ADDR_GEN_MODE_NONE, the link-local addr
+should not be generated. But it isn't the case for GRE (as well as GRE6)
+and SIT tunnels. Make it so that tunnels consider the addr_gen_mode,
+especially for IN6_ADDR_GEN_MODE_NONE.
 
-As same as gcc arm kernel, directly use the frame pointer (r11) of
-the pt_regs to find the first frame address.
+Do this in add_v4_addrs() to cover both GRE and SIT only if the addr
+scope is link.
 
-Note that this fixes kretprobe stacktrace issue only with
-CONFIG_UNWINDER_FRAME_POINTER=y. For the CONFIG_UNWINDER_ARM,
-we need another fix.
-
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
+Acked-by: Antonio Quartulli <a@unstable.cc>
+Link: https://lore.kernel.org/r/20211020200618.467342-1-ssuryaextr@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/stacktrace.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/ipv6/addrconf.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
-index 76ea4178a55cb..db798eac74315 100644
---- a/arch/arm/kernel/stacktrace.c
-+++ b/arch/arm/kernel/stacktrace.c
-@@ -54,8 +54,7 @@ int notrace unwind_frame(struct stackframe *frame)
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index c6a90b7bbb70e..846037e73723f 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -3110,6 +3110,9 @@ static void add_v4_addrs(struct inet6_dev *idev)
+ 	memcpy(&addr.s6_addr32[3], idev->dev->dev_addr + offset, 4);
  
- 	frame->sp = frame->fp;
- 	frame->fp = *(unsigned long *)(fp);
--	frame->pc = frame->lr;
--	frame->lr = *(unsigned long *)(fp + 4);
-+	frame->pc = *(unsigned long *)(fp + 4);
- #else
- 	/* check current frame pointer is within bounds */
- 	if (fp < low + 12 || fp > high - 4)
+ 	if (idev->dev->flags&IFF_POINTOPOINT) {
++		if (idev->cnf.addr_gen_mode == IN6_ADDR_GEN_MODE_NONE)
++			return;
++
+ 		addr.s6_addr32[0] = htonl(0xfe800000);
+ 		scope = IFA_LINK;
+ 		plen = 64;
 -- 
 2.33.0
 
