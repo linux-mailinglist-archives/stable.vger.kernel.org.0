@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13F33451293
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47D87451484
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346929AbhKOThi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:37:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1346963AbhKOUJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:09:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244889AbhKOTSK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AF6960EB4;
-        Mon, 15 Nov 2021 18:24:59 +0000 (UTC)
+        id S1344668AbhKOTZL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DFB66336A;
+        Mon, 15 Nov 2021 19:02:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000699;
-        bh=Hw4ioX8VStx2ymBPiv3NQlNyTTnqyXkxgYUBC6NSLPw=;
+        s=korg; t=1637002927;
+        bh=8nMh4556PnSqMvey3LDI6Te4hPxj8FVySxLxuQaqzbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGonXRBOO/xn0APYy4G9U7/43DSUSwaBWb3X3zpKZaAMgcSIw+5DMwzSJv4gB3YBT
-         +AAo5noCMkuNY1Ht7UBKVnPkIoxiW3Uf2CuiU+Ih/V4JEkmiollwup7JD5Z6KNrkNM
-         td9BXbquVkiVXkeBUQOnnuRtYpjOdY4Yx+cFi4Oo=
+        b=Wgf1/BnQEkdq5mCaJIK/HZdhtsmSvP2U7WuxPsn951lKcAVocpJxI2bBNhXdgyUkb
+         EVkhFKi0UbBOS1/VF3CIm3Wz7TpRanhIjFCQiCcOFM6U5ZkW52vp/qJu6GpG+BftnA
+         HTi7yNlu+8j7cKfSGTeVSlqVdpcjXIaWIxJnsKtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 759/849] llc: fix out-of-bound array index in llc_sk_dev_hash()
-Date:   Mon, 15 Nov 2021 18:04:02 +0100
-Message-Id: <20211115165445.927101517@linuxfoundation.org>
+Subject: [PATCH 5.15 748/917] scsi: qla2xxx: Fix gnl list corruption
+Date:   Mon, 15 Nov 2021 18:04:03 +0100
+Message-Id: <20211115165454.281401795@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 8ac9dfd58b138f7e82098a4e0a0d46858b12215b ]
+[ Upstream commit c98c5daaa24b583cba1369b7d167f93c6ae7299c ]
 
-Both ifindex and LLC_SK_DEV_HASH_ENTRIES are signed.
+Current code does list element deletion and addition in and out of lock
+protection. This patch moves deletion behind lock.
 
-This means that (ifindex % LLC_SK_DEV_HASH_ENTRIES) is negative
-if @ifindex is negative.
+list_add double add: new=ffff9130b5eb89f8, prev=ffff9130b5eb89f8,
+    next=ffff9130c6a715f0.
+ ------------[ cut here ]------------
+ kernel BUG at lib/list_debug.c:31!
+ invalid opcode: 0000 [#1] SMP PTI
+ CPU: 1 PID: 182395 Comm: kworker/1:37 Kdump: loaded Tainted: G W  OE
+ --------- -  - 4.18.0-193.el8.x86_64 #1
+ Hardware name: HP ProLiant DL160 Gen8, BIOS J03 02/10/2014
+ Workqueue: qla2xxx_wq qla2x00_iocb_work_fn [qla2xxx]
+ RIP: 0010:__list_add_valid+0x41/0x50
+ Code: 85 94 00 00 00 48 39 c7 74 0b 48 39 d7 74 06 b8 01 00 00 00 c3 48 89 f2
+ 4c 89 c1 48 89 fe 48 c7 c7 60 83 ad 97 e8 4d bd ce ff <0f> 0b 0f 1f 00 66 2e
+ 0f 1f 84 00 00 00 00 00 48 8b 07 48 8b 57 08
+ RSP: 0018:ffffaba306f47d68 EFLAGS: 00010046
+ RAX: 0000000000000058 RBX: ffff9130b5eb8800 RCX: 0000000000000006
+ RDX: 0000000000000000 RSI: 0000000000000096 RDI: ffff9130b7456a00
+ RBP: ffff9130c6a70a58 R08: 000000000008d7be R09: 0000000000000001
+ R10: 0000000000000000 R11: 0000000000000001 R12: ffff9130c6a715f0
+ R13: ffff9130b5eb8824 R14: ffff9130b5eb89f8 R15: ffff9130b5eb89f8
+ FS:  0000000000000000(0000) GS:ffff9130b7440000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007efcaaef11a0 CR3: 000000005200a002 CR4: 00000000000606e0
+ Call Trace:
+  qla24xx_async_gnl+0x113/0x3c0 [qla2xxx]
+  ? qla2x00_iocb_work_fn+0x53/0x80 [qla2xxx]
+  ? process_one_work+0x1a7/0x3b0
+  ? worker_thread+0x30/0x390
+  ? create_worker+0x1a0/0x1a0
+  ? kthread+0x112/0x130
 
-We could simply make LLC_SK_DEV_HASH_ENTRIES unsigned.
-
-In this patch I chose to use hash_32() to get more entropy
-from @ifindex, like llc_sk_laddr_hashfn().
-
-UBSAN: array-index-out-of-bounds in ./include/net/llc.h:75:26
-index -43 is out of range for type 'hlist_head [64]'
-CPU: 1 PID: 20999 Comm: syz-executor.3 Not tainted 5.15.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:151
- __ubsan_handle_out_of_bounds.cold+0x62/0x6c lib/ubsan.c:291
- llc_sk_dev_hash include/net/llc.h:75 [inline]
- llc_sap_add_socket+0x49c/0x520 net/llc/llc_conn.c:697
- llc_ui_bind+0x680/0xd70 net/llc/af_llc.c:404
- __sys_bind+0x1e9/0x250 net/socket.c:1693
- __do_sys_bind net/socket.c:1704 [inline]
- __se_sys_bind net/socket.c:1702 [inline]
- __x64_sys_bind+0x6f/0xb0 net/socket.c:1702
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7fa503407ae9
-
-Fixes: 6d2e3ea28446 ("llc: use a device based hash table to speed up multicast delivery")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20211026115412.27691-3-njavali@marvell.com
+Fixes: 726b85487067 ("qla2xxx: Add framework for async fabric discovery")
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/llc.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_init.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/include/net/llc.h b/include/net/llc.h
-index df282d9b40170..9c10b121b49b0 100644
---- a/include/net/llc.h
-+++ b/include/net/llc.h
-@@ -72,7 +72,9 @@ struct llc_sap {
- static inline
- struct hlist_head *llc_sk_dev_hash(struct llc_sap *sap, int ifindex)
- {
--	return &sap->sk_dev_hash[ifindex % LLC_SK_DEV_HASH_ENTRIES];
-+	u32 bucket = hash_32(ifindex, LLC_SK_DEV_HASH_BITS);
-+
-+	return &sap->sk_dev_hash[bucket];
- }
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index df3884d9f12a2..6da4419bcec16 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -987,8 +987,6 @@ static void qla24xx_async_gnl_sp_done(srb_t *sp, int res)
+ 	    sp->name, res, sp->u.iocb_cmd.u.mbx.in_mb[1],
+ 	    sp->u.iocb_cmd.u.mbx.in_mb[2]);
  
- static inline
+-	if (res == QLA_FUNCTION_TIMEOUT)
+-		return;
+ 
+ 	sp->fcport->flags &= ~(FCF_ASYNC_SENT|FCF_ASYNC_ACTIVE);
+ 	memset(&ea, 0, sizeof(ea));
+@@ -1026,8 +1024,8 @@ static void qla24xx_async_gnl_sp_done(srb_t *sp, int res)
+ 	spin_unlock_irqrestore(&vha->hw->tgt.sess_lock, flags);
+ 
+ 	list_for_each_entry_safe(fcport, tf, &h, gnl_entry) {
+-		list_del_init(&fcport->gnl_entry);
+ 		spin_lock_irqsave(&vha->hw->tgt.sess_lock, flags);
++		list_del_init(&fcport->gnl_entry);
+ 		fcport->flags &= ~(FCF_ASYNC_SENT | FCF_ASYNC_ACTIVE);
+ 		spin_unlock_irqrestore(&vha->hw->tgt.sess_lock, flags);
+ 		ea.fcport = fcport;
 -- 
 2.33.0
 
