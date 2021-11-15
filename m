@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74632450E66
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B3F1450E33
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240761AbhKOSNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:13:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46090 "EHLO mail.kernel.org"
+        id S240757AbhKOSNX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:13:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240107AbhKOSFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240099AbhKOSFi (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:05:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D81656328C;
-        Mon, 15 Nov 2021 17:42:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D9FA6328B;
+        Mon, 15 Nov 2021 17:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998149;
-        bh=FVgRtSFxjBLi4lbTDdzMZGiHodtA1kV+lQqNjG6YAyY=;
+        s=korg; t=1636998152;
+        bh=z3zCdgddTu7o9VtNGfI/VexuLOy4dSMQ8b8vrrRlQh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GeIumljsZXyAJ9TCynS8Mz1ExIyZn5t3MsgZmyQGZ1fNYxoQ3tImULAUS1P1LXi4/
-         9vTnv5eptldDD4jrjwOnPYBN2xhtLF8yzuaRdV8OUIfOnYjL9GhVyoCxA0VBK728ml
-         LxusGgaB0zqCjdpsdrRRz6wKgWXL/MRsp8obm8PQ=
+        b=Zgj5xOPLh/ubsqdhwjAIzf0GXxnJ3CD74e2Hulu5tVDL/IiZlAjXLRX+yx5y3b/Nd
+         FFTm3EoiCU5EgBid1lpV7nUqT3RFoVkUx6HTW8rg6ov9UYgelfU66mDuPYQP8uFMB5
+         53YJIke/yqs2tej2o1Fmv++qgzWkXH66yxRg8GXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 406/575] arm64: dts: qcom: pm8916: Remove wrong reg-names for rtc@6000
-Date:   Mon, 15 Nov 2021 18:02:11 +0100
-Message-Id: <20211115165357.808331433@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 407/575] ALSA: hda: Reduce udelay() at SKL+ position reporting
+Date:   Mon, 15 Nov 2021 18:02:12 +0100
+Message-Id: <20211115165357.842642362@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -40,44 +40,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 483de2b44cd3a168458f8f9ff237e78a434729bc ]
+[ Upstream commit 46243b85b0ec5d2cee7545e5ce18c015ce91957e ]
 
-While removing the size from the "reg" properties in pm8916.dtsi,
-commit bd6429e81010 ("ARM64: dts: qcom: Remove size elements from
-pmic reg properties") mistakenly also removed the second register
-address for the rtc@6000 device. That one did not represent the size
-of the register region but actually the address of the second "alarm"
-register region of the rtc@6000 device.
+The position reporting on Intel Skylake and later chips via
+azx_get_pos_skl() contains a udelay(20) call for the capture streams.
+A call for this alone doesn't sound too harmful.  However, as the
+pointer PCM ops is one of the hottest path in the PCM operations --
+especially for the timer-scheduled operations like PulseAudio -- such
+a delay hogs CPU usage significantly in the total performance.
 
-Now there are "reg-names" for two "reg" elements, but there is actually
-only one "reg" listed.
+The code there was taken from the original code in ASoC SST Skylake
+driver blindly.  The udelay() is a workaround for the case where the
+reported position is behind the period boundary at the timing
+triggered from interrupts; applications often expect that the full
+data is available for the whole period when returned (and also that's
+the definition of the ALSA PCM period).
 
-Since the DT schema for "qcom,pm8941-rtc" only expects one "reg"
-element anyway, just drop the "reg-names" entirely to fix this.
+OTOH, HD-audio (legacy) driver has already some workarounds for the
+delayed position reporting due to its relatively large FIFO, such as
+the BDL position adjustment and the delayed period-elapsed call in the
+work.  That said, the udelay() is almost superfluous for HD-audio
+driver unlike SST, and we can drop the udelay().
 
-Fixes: bd6429e81010 ("ARM64: dts: qcom: Remove size elements from pmic reg properties")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20210928112945.25310-1-stephan@gerhold.net
+Though, the current code doesn't guarantee the full period readiness
+as mentioned in the above, but rather it checks the wallclock and
+detects the unexpected jump.  That's one missing piece, and the drop
+of udelay() needs a bit more sanity checks for the delayed handling.
+
+This patch implements those: the drop of udelay() call in
+azx_get_pos_skl() and the more proper check of hwptr in
+azx_position_ok().  The latter change is applied only for the case
+where the stream is running in the normal mode without
+no_period_wakeup flag.  When no_period_wakeup is set, it essentially
+ignores the period handling and rather concentrates only on the
+current position; which implies that we don't need to care about the
+period boundary at all.
+
+Fixes: f87e7f25893d ("ALSA: hda - Improved position reporting on SKL+")
+Reported-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210929072934.6809-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/pm8916.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ sound/pci/hda/hda_intel.c | 28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/pm8916.dtsi b/arch/arm64/boot/dts/qcom/pm8916.dtsi
-index f931cb0de231f..42180f1b5dbbb 100644
---- a/arch/arm64/boot/dts/qcom/pm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/pm8916.dtsi
-@@ -86,7 +86,6 @@
- 		rtc@6000 {
- 			compatible = "qcom,pm8941-rtc";
- 			reg = <0x6000>;
--			reg-names = "rtc", "alarm";
- 			interrupts = <0x0 0x61 0x1 IRQ_TYPE_EDGE_RISING>;
- 		};
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 1bae0746e7266..a8eae31e47efb 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -672,13 +672,17 @@ static int azx_position_check(struct azx *chip, struct azx_dev *azx_dev)
+  * the update-IRQ timing.  The IRQ is issued before actually the
+  * data is processed.  So, we need to process it afterwords in a
+  * workqueue.
++ *
++ * Returns 1 if OK to proceed, 0 for delay handling, -1 for skipping update
+  */
+ static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev)
+ {
+ 	struct snd_pcm_substream *substream = azx_dev->core.substream;
++	struct snd_pcm_runtime *runtime = substream->runtime;
+ 	int stream = substream->stream;
+ 	u32 wallclk;
+ 	unsigned int pos;
++	snd_pcm_uframes_t hwptr, target;
  
+ 	wallclk = azx_readl(chip, WALLCLK) - azx_dev->core.start_wallclk;
+ 	if (wallclk < (azx_dev->core.period_wallclk * 2) / 3)
+@@ -715,6 +719,24 @@ static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev)
+ 		/* NG - it's below the first next period boundary */
+ 		return chip->bdl_pos_adj ? 0 : -1;
+ 	azx_dev->core.start_wallclk += wallclk;
++
++	if (azx_dev->core.no_period_wakeup)
++		return 1; /* OK, no need to check period boundary */
++
++	if (runtime->hw_ptr_base != runtime->hw_ptr_interrupt)
++		return 1; /* OK, already in hwptr updating process */
++
++	/* check whether the period gets really elapsed */
++	pos = bytes_to_frames(runtime, pos);
++	hwptr = runtime->hw_ptr_base + pos;
++	if (hwptr < runtime->status->hw_ptr)
++		hwptr += runtime->buffer_size;
++	target = runtime->hw_ptr_interrupt + runtime->period_size;
++	if (hwptr < target) {
++		/* too early wakeup, process it later */
++		return chip->bdl_pos_adj ? 0 : -1;
++	}
++
+ 	return 1; /* OK, it's fine */
+ }
+ 
+@@ -909,11 +931,7 @@ static unsigned int azx_get_pos_skl(struct azx *chip, struct azx_dev *azx_dev)
+ 	if (azx_dev->core.substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+ 		return azx_skl_get_dpib_pos(chip, azx_dev);
+ 
+-	/* For capture, we need to read posbuf, but it requires a delay
+-	 * for the possible boundary overlap; the read of DPIB fetches the
+-	 * actual posbuf
+-	 */
+-	udelay(20);
++	/* read of DPIB fetches the actual posbuf */
+ 	azx_skl_get_dpib_pos(chip, azx_dev);
+ 	return azx_get_pos_posbuf(chip, azx_dev);
+ }
 -- 
 2.33.0
 
