@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E7AB45143B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAED945146E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349121AbhKOUDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:03:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
+        id S1349239AbhKOUFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:05:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344334AbhKOTYc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C422A633C9;
-        Mon, 15 Nov 2021 18:55:50 +0000 (UTC)
+        id S1344363AbhKOTYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F6AB63671;
+        Mon, 15 Nov 2021 18:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002551;
-        bh=1ArnBZwTUgifX4QOxHaoyNyJ6VeAY6igUcObeKPvmhM=;
+        s=korg; t=1637002599;
+        bh=6pdPCUW72c+n3XcKU14saw6/ijKUA0nPsA4ADp5JEJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hhGH6GbgiVjML+n7oK8rwmHY7abzyjW4r0BWvIq1L/PQzyR7m6KnYq2syjWykKkh3
-         MtVaGwY3FSp7WhKpjFTBVOqTxDwsxSRkLHUhCsrrpVghsNej8jZh6m3huZnLdDD03L
-         Yzjfa1KlPaWlTgZANgjaGsxkWu5JWTPdbcZoa+5k=
+        b=WgmjNEhKQUbS8wT/uCZUEB67mlQQGNxrbRNyHzYLI7B6GmBLbiVWpdUp9dOOhTkxf
+         6DXL0HpLeoc8OYO6KHvzUmgBl+PjZmDxT6pbr8pzaW6rGEbrDXT1slCuEFprHwgQHK
+         mYYkXHNQgjQ90gXYeeKbJNitkrd3FcExvh+IrQAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhuacai@kernel.org>,
-        k2ci robot <kernel-bot@kylinos.cn>,
-        Jackie Liu <liuyun01@kylinos.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 593/917] MIPS: loongson64: make CPU_LOONGSON64 depends on MIPS_FP_SUPPORT
-Date:   Mon, 15 Nov 2021 18:01:28 +0100
-Message-Id: <20211115165448.870735068@linuxfoundation.org>
+Subject: [PATCH 5.15 595/917] pinctrl: renesas: rzg2l: Fix missing port register 21h
+Date:   Mon, 15 Nov 2021 18:01:30 +0100
+Message-Id: <20211115165448.944550140@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,45 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit 7f3b3c2bfa9c93ab9b5595543496f570983dc330 ]
+[ Upstream commit fcfb63148c241adad54ed99fc318167176d7254b ]
 
-mach/loongson64 fails to build when the FPU support is disabled:
+Remove the duplicate port register 22h and replace it with missing port
+register 21h.
 
-arch/mips/loongson64/cop2-ex.c:45:15: error: implicit declaration of function ‘__is_fpu_owner’; did you mean ‘is_fpu_owner’? [-Werror=implicit-function-declaration]
-arch/mips/loongson64/cop2-ex.c:98:30: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:99:30: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:131:43: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:137:38: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:203:30: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:219:30: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:283:38: error: ‘struct thread_struct’ has no member named ‘fpu’
-arch/mips/loongson64/cop2-ex.c:301:38: error: ‘struct thread_struct’ has no member named ‘fpu’
-
-Fixes: ef2f826c8f2f ("MIPS: Loongson-3: Enable the COP2 usage")
-Suggested-by: Huacai Chen <chenhuacai@kernel.org>
-Reviewed-by: Huacai Chen <chenhuacai@kernel.org>
-Reported-by: k2ci robot <kernel-bot@kylinos.cn>
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/20210922074140.22178-1-biju.das.jz@bp.renesas.com
+Fixes: c4c4637eb57f2a25 ("pinctrl: renesas: Add RZ/G2L pin and gpio controller driver")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/renesas/pinctrl-rzg2l.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 6b8f591c5054c..cbbb302a460eb 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -1379,6 +1379,7 @@ config CPU_LOONGSON64
- 	select MIPS_ASID_BITS_VARIABLE
- 	select MIPS_PGD_C0_CONTEXT
- 	select MIPS_L1_CACHE_SHIFT_6
-+	select MIPS_FP_SUPPORT
- 	select GPIOLIB
- 	select SWIOTLB
- 	select HAVE_KVM
+diff --git a/drivers/pinctrl/renesas/pinctrl-rzg2l.c b/drivers/pinctrl/renesas/pinctrl-rzg2l.c
+index dbf2f521bb272..20b2af889ca96 100644
+--- a/drivers/pinctrl/renesas/pinctrl-rzg2l.c
++++ b/drivers/pinctrl/renesas/pinctrl-rzg2l.c
+@@ -852,7 +852,7 @@ static const u32 rzg2l_gpio_configs[] = {
+ 	RZG2L_GPIO_PORT_PACK(2, 0x1e, RZG2L_MPXED_PIN_FUNCS),
+ 	RZG2L_GPIO_PORT_PACK(2, 0x1f, RZG2L_MPXED_PIN_FUNCS),
+ 	RZG2L_GPIO_PORT_PACK(2, 0x20, RZG2L_MPXED_PIN_FUNCS),
+-	RZG2L_GPIO_PORT_PACK(3, 0x22, RZG2L_MPXED_PIN_FUNCS),
++	RZG2L_GPIO_PORT_PACK(3, 0x21, RZG2L_MPXED_PIN_FUNCS),
+ 	RZG2L_GPIO_PORT_PACK(2, 0x22, RZG2L_MPXED_PIN_FUNCS),
+ 	RZG2L_GPIO_PORT_PACK(2, 0x23, RZG2L_MPXED_PIN_FUNCS),
+ 	RZG2L_GPIO_PORT_PACK(3, 0x24, RZG2L_MPXED_ETH_PIN_FUNCS(PIN_CFG_IOLH_ETH0)),
 -- 
 2.33.0
 
