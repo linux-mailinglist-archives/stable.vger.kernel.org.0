@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06025450C5C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:34:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41B62450ECA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238083AbhKORhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:37:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46724 "EHLO mail.kernel.org"
+        id S241354AbhKOSTb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:19:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238093AbhKORfN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:35:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3D0C61B73;
-        Mon, 15 Nov 2021 17:23:43 +0000 (UTC)
+        id S240968AbhKOSO0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:14:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DCF86121F;
+        Mon, 15 Nov 2021 17:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997024;
-        bh=yD6A3nA9YNCW3QrUDqIhpWZov8PD83PvkvwYLmgv6+g=;
+        s=korg; t=1636998537;
+        bh=/0NK2XNf2/7sFQak0jFfbv6c1ZRa7UX7Nfh1ZrEQz2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eN9pctDHo9lO6OOlJ5sxTrQzLQw4AoqsgSWMvt/2ufLYgbqzZp9qWtnYQ2GGlqY0x
-         O1PZLiBGWinsWbCkZ+NnHXoGCxHJ1uGb18gH2e+uD321RxTi+HyZixsFg01Rh2zGna
-         LuRZ4kMzZQBsTi/M24/mRqzhaKuvlSRKPAACVrrA=
+        b=hOnc2IPGcD62oyqAg/OUx+emCdV1SBB9rVW03rdwCGMLFe2L+e+zl/oynnMqpEnP+
+         BC2gIgeKJ14HZT2g0nHcXFDxSViZbtqZzgWxh4joajrFgbwPj0xE0j7YM5jhCeBE/N
+         Pxo/c3JjyVNIxVmlCsG1rdCN4RmruYY+gVA735As=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Roman Gushchin <guro@fb.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 347/355] mm, oom: pagefault_out_of_memory: dont force global OOM for dying tasks
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Light Hsieh <light.hsieh@mediatek.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.10 546/575] f2fs: should use GFP_NOFS for directory inodes
 Date:   Mon, 15 Nov 2021 18:04:31 +0100
-Message-Id: <20211115165324.973641094@linuxfoundation.org>
+Message-Id: <20211115165402.559605086@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,74 +41,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit 0b28179a6138a5edd9d82ad2687c05b3773c387b upstream.
+commit 92d602bc7177325e7453189a22e0c8764ed3453e upstream.
 
-Patch series "memcg: prohibit unconditional exceeding the limit of dying tasks", v3.
+We use inline_dentry which requires to allocate dentry page when adding a link.
+If we allow to reclaim memory from filesystem, we do down_read(&sbi->cp_rwsem)
+twice by f2fs_lock_op(). I think this should be okay, but how about stopping
+the lockdep complaint [1]?
 
-Memory cgroup charging allows killed or exiting tasks to exceed the hard
-limit.  It can be misused and allowed to trigger global OOM from inside
-a memcg-limited container.  On the other hand if memcg fails allocation,
-called from inside #PF handler it triggers global OOM from inside
-pagefault_out_of_memory().
+f2fs_create()
+ - f2fs_lock_op()
+ - f2fs_do_add_link()
+  - __f2fs_find_entry
+   - f2fs_get_read_data_page()
+   -> kswapd
+    - shrink_node
+     - f2fs_evict_inode
+      - f2fs_lock_op()
 
-To prevent these problems this patchset:
- (a) removes execution of out_of_memory() from
-     pagefault_out_of_memory(), becasue nobody can explain why it is
-     necessary.
- (b) allow memcg to fail allocation of dying/killed tasks.
+[1]
 
-This patch (of 3):
+fs_reclaim
+){+.+.}-{0:0}
+:
+kswapd0:        lock_acquire+0x114/0x394
+kswapd0:        __fs_reclaim_acquire+0x40/0x50
+kswapd0:        prepare_alloc_pages+0x94/0x1ec
+kswapd0:        __alloc_pages_nodemask+0x78/0x1b0
+kswapd0:        pagecache_get_page+0x2e0/0x57c
+kswapd0:        f2fs_get_read_data_page+0xc0/0x394
+kswapd0:        f2fs_find_data_page+0xa4/0x23c
+kswapd0:        find_in_level+0x1a8/0x36c
+kswapd0:        __f2fs_find_entry+0x70/0x100
+kswapd0:        f2fs_do_add_link+0x84/0x1ec
+kswapd0:        f2fs_mkdir+0xe4/0x1e4
+kswapd0:        vfs_mkdir+0x110/0x1c0
+kswapd0:        do_mkdirat+0xa4/0x160
+kswapd0:        __arm64_sys_mkdirat+0x24/0x34
+kswapd0:        el0_svc_common.llvm.17258447499513131576+0xc4/0x1e8
+kswapd0:        do_el0_svc+0x28/0xa0
+kswapd0:        el0_svc+0x24/0x38
+kswapd0:        el0_sync_handler+0x88/0xec
+kswapd0:        el0_sync+0x1c0/0x200
+kswapd0:
+-> #1
+(
+&sbi->cp_rwsem
+){++++}-{3:3}
+:
+kswapd0:        lock_acquire+0x114/0x394
+kswapd0:        down_read+0x7c/0x98
+kswapd0:        f2fs_do_truncate_blocks+0x78/0x3dc
+kswapd0:        f2fs_truncate+0xc8/0x128
+kswapd0:        f2fs_evict_inode+0x2b8/0x8b8
+kswapd0:        evict+0xd4/0x2f8
+kswapd0:        iput+0x1c0/0x258
+kswapd0:        do_unlinkat+0x170/0x2a0
+kswapd0:        __arm64_sys_unlinkat+0x4c/0x68
+kswapd0:        el0_svc_common.llvm.17258447499513131576+0xc4/0x1e8
+kswapd0:        do_el0_svc+0x28/0xa0
+kswapd0:        el0_svc+0x24/0x38
+kswapd0:        el0_sync_handler+0x88/0xec
+kswapd0:        el0_sync+0x1c0/0x200
 
-Any allocation failure during the #PF path will return with VM_FAULT_OOM
-which in turn results in pagefault_out_of_memory which in turn executes
-out_out_memory() and can kill a random task.
-
-An allocation might fail when the current task is the oom victim and
-there are no memory reserves left.  The OOM killer is already handled at
-the page allocator level for the global OOM and at the charging level
-for the memcg one.  Both have much more information about the scope of
-allocation/charge request.  This means that either the OOM killer has
-been invoked properly and didn't lead to the allocation success or it
-has been skipped because it couldn't have been invoked.  In both cases
-triggering it from here is pointless and even harmful.
-
-It makes much more sense to let the killed task die rather than to wake
-up an eternally hungry oom-killer and send him to choose a fatter victim
-for breakfast.
-
-Link: https://lkml.kernel.org/r/0828a149-786e-7c06-b70a-52d086818ea3@virtuozzo.com
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Suggested-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: bdbc90fa55af ("f2fs: don't put dentry page in pagecache into highmem")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Light Hsieh <light.hsieh@mediatek.com>
+Tested-by: Light Hsieh <light.hsieh@mediatek.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/oom_kill.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/f2fs/inode.c |    2 +-
+ fs/f2fs/namei.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/oom_kill.c
-+++ b/mm/oom_kill.c
-@@ -1131,6 +1131,9 @@ void pagefault_out_of_memory(void)
- 	if (mem_cgroup_oom_synchronize(true))
- 		return;
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -511,7 +511,7 @@ make_now:
+ 		inode->i_op = &f2fs_dir_inode_operations;
+ 		inode->i_fop = &f2fs_dir_operations;
+ 		inode->i_mapping->a_ops = &f2fs_dblock_aops;
+-		inode_nohighmem(inode);
++		mapping_set_gfp_mask(inode->i_mapping, GFP_NOFS);
+ 	} else if (S_ISLNK(inode->i_mode)) {
+ 		if (file_is_encrypt(inode))
+ 			inode->i_op = &f2fs_encrypted_symlink_inode_operations;
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -744,7 +744,7 @@ static int f2fs_mkdir(struct inode *dir,
+ 	inode->i_op = &f2fs_dir_inode_operations;
+ 	inode->i_fop = &f2fs_dir_operations;
+ 	inode->i_mapping->a_ops = &f2fs_dblock_aops;
+-	inode_nohighmem(inode);
++	mapping_set_gfp_mask(inode->i_mapping, GFP_NOFS);
  
-+	if (fatal_signal_pending(current))
-+		return;
-+
- 	if (!mutex_trylock(&oom_lock))
- 		return;
- 	out_of_memory(&oc);
+ 	set_inode_flag(inode, FI_INC_LINK);
+ 	f2fs_lock_op(sbi);
 
 
