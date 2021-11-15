@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E6B0450EB9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82867450C21
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241193AbhKOSSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:18:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56284 "EHLO mail.kernel.org"
+        id S236819AbhKORfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:35:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240814AbhKOSNs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:13:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78FB3633CD;
-        Mon, 15 Nov 2021 17:48:40 +0000 (UTC)
+        id S238176AbhKORdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:33:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0531A60F22;
+        Mon, 15 Nov 2021 17:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998521;
-        bh=f0bwt59mWTBxbnkd+lRYP7/mtQf3iRwSnXTJp8JtV7U=;
+        s=korg; t=1636996902;
+        bh=iIKX5yfv9uwF+P+1c+mH0hmTXAkbWkdnhEr6khbfSpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tp622spTAXGSkHmZrcoFoDRYmt0xHlIosUgTs9t+J/JDkv+r/gNq45rRqHddjpbyn
-         6RhwWxg2jbNpe3ivKFLyyolNpWFOxvRqvyncdIJF4bvoXNPoaYYOQdivqR0YFZzz2g
-         gUiNh2YZQm+q0jfmW3bZzHJXs0W99LziPYAq8/GQ=
+        b=A23Pin89CkGH/fkHRMK+mMUvsbBhbFqBbMlJl4doOCuxHyRCQGCx5yvYJSM06MCq2
+         NYWqNlDX9a+MJf61N7RgLM97sCEVqXM0Gjg2hapCsjSlo9ulDY6CakQPI0CMQbIQxs
+         0pzXf+O76/6WgTrfkOL/Q5u0HLYeI6OBFQHQZiVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 506/575] ethtool: fix ethtool msg len calculation for pause stats
-Date:   Mon, 15 Nov 2021 18:03:51 +0100
-Message-Id: <20211115165401.191763160@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        linux-m68k@lists.linux-m68k.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 308/355] m68k: set a default value for MEMORY_RESERVE
+Date:   Mon, 15 Nov 2021 18:03:52 +0100
+Message-Id: <20211115165323.686018432@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 1aabe578dd86e9f2867c4db4fba9a15f4ba1825d ]
+[ Upstream commit 1aaa557b2db95c9506ed0981bc34505c32d6b62b ]
 
-ETHTOOL_A_PAUSE_STAT_MAX is the MAX attribute id,
-so we need to subtract non-stats and add one to
-get a count (IOW -2+1 == -1).
+'make randconfig' can produce a .config file with
+"CONFIG_MEMORY_RESERVE=" (no value) since it has no default.
+When a subsequent 'make all' is done, kconfig restarts the config
+and prompts for a value for MEMORY_RESERVE. This breaks
+scripting/automation where there is no interactive user input.
 
-Otherwise we'll see:
+Add a default value for MEMORY_RESERVE. (Any integer value will
+work here for kconfig.)
 
-  ethnl cmd 21: calculated reply length 40, but consumed 52
+Fixes a kconfig warning:
 
-Fixes: 9a27a33027f2 ("ethtool: add standard pause stats")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+.config:214:warning: symbol value '' invalid for MEMORY_RESERVE
+* Restart config...
+Memory reservation (MiB) (MEMORY_RESERVE) [] (NEW)
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2") # from beginning of git history
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Greg Ungerer <gerg@linux-m68k.org>
+Cc: linux-m68k@lists.linux-m68k.org
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/ethtool_netlink.h      | 3 +++
- include/uapi/linux/ethtool_netlink.h | 4 +++-
- net/ethtool/pause.c                  | 3 +--
- 3 files changed, 7 insertions(+), 3 deletions(-)
+ arch/m68k/Kconfig.machine | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/ethtool_netlink.h b/include/linux/ethtool_netlink.h
-index 1e7bf78cb3829..aba348d58ff61 100644
---- a/include/linux/ethtool_netlink.h
-+++ b/include/linux/ethtool_netlink.h
-@@ -10,6 +10,9 @@
- #define __ETHTOOL_LINK_MODE_MASK_NWORDS \
- 	DIV_ROUND_UP(__ETHTOOL_LINK_MODE_MASK_NBITS, 32)
- 
-+#define ETHTOOL_PAUSE_STAT_CNT	(__ETHTOOL_A_PAUSE_STAT_CNT -		\
-+				 ETHTOOL_A_PAUSE_STAT_TX_FRAMES)
-+
- enum ethtool_multicast_groups {
- 	ETHNL_MCGRP_MONITOR,
- };
-diff --git a/include/uapi/linux/ethtool_netlink.h b/include/uapi/linux/ethtool_netlink.h
-index e2bf36e6964b6..c94fa29415021 100644
---- a/include/uapi/linux/ethtool_netlink.h
-+++ b/include/uapi/linux/ethtool_netlink.h
-@@ -394,7 +394,9 @@ enum {
- 	ETHTOOL_A_PAUSE_STAT_TX_FRAMES,
- 	ETHTOOL_A_PAUSE_STAT_RX_FRAMES,
- 
--	/* add new constants above here */
-+	/* add new constants above here
-+	 * adjust ETHTOOL_PAUSE_STAT_CNT if adding non-stats!
-+	 */
- 	__ETHTOOL_A_PAUSE_STAT_CNT,
- 	ETHTOOL_A_PAUSE_STAT_MAX = (__ETHTOOL_A_PAUSE_STAT_CNT - 1)
- };
-diff --git a/net/ethtool/pause.c b/net/ethtool/pause.c
-index d4ac02718b72a..c7bc704c8862a 100644
---- a/net/ethtool/pause.c
-+++ b/net/ethtool/pause.c
-@@ -62,8 +62,7 @@ static int pause_reply_size(const struct ethnl_req_info *req_base,
- 
- 	if (req_base->flags & ETHTOOL_FLAG_STATS)
- 		n += nla_total_size(0) +	/* _PAUSE_STATS */
--			nla_total_size_64bit(sizeof(u64)) *
--				(ETHTOOL_A_PAUSE_STAT_MAX - 2);
-+		     nla_total_size_64bit(sizeof(u64)) * ETHTOOL_PAUSE_STAT_CNT;
- 	return n;
- }
+diff --git a/arch/m68k/Kconfig.machine b/arch/m68k/Kconfig.machine
+index 1bbe0dd0c4fe5..b88a980f56f8a 100644
+--- a/arch/m68k/Kconfig.machine
++++ b/arch/m68k/Kconfig.machine
+@@ -190,6 +190,7 @@ config INIT_LCD
+ config MEMORY_RESERVE
+ 	int "Memory reservation (MiB)"
+ 	depends on (UCSIMM || UCDIMM)
++	default 0
+ 	help
+ 	  Reserve certain memory regions on 68x328 based boards.
  
 -- 
 2.33.0
