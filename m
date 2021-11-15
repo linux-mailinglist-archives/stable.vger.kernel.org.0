@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68FC6450BC2
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:26:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AFE2450B8E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237755AbhKOR3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:29:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53142 "EHLO mail.kernel.org"
+        id S232124AbhKORZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:25:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237849AbhKOR0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:26:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 427E060F9C;
-        Mon, 15 Nov 2021 17:17:17 +0000 (UTC)
+        id S237789AbhKORYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:24:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C561B63275;
+        Mon, 15 Nov 2021 17:15:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996637;
-        bh=eZAqm9bvl2NZYOtfH4C5RMtBchZenZQjw/pFwHipA+E=;
+        s=korg; t=1636996541;
+        bh=bPcAk2fM0XQWTCdgAXcxx9toztZUW4WclGpglOPQJSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8r0OSLhdf7Bmxe1l9h+5/WVcytyoYiRYygR28NE92kZXIkJidcjj6Ib7M+2v9lh+
-         Xzz3EYWKTApTCDEm7jzm4iFBI/NXU3ebBvcBtDpnjJdeMjFLRTd8ayE7U2K7BInTxp
-         dJiy7RZdp1WZqb00PHHsALjxYQblXs4ekn1WPkSw=
+        b=EuVD+wVwJkDGqNBKVLMXbzqAsC8bXdZsguvI/Ge/spYL4JiYDFmsT1LC1WfNnz8rU
+         rUokw8i7v7zKvXdXpcGAznjQ9LHVbV8IUD0SRLMePFxn0Fj+8Xnyx92rZ+1cTauHSE
+         VPWz++sfgesoDJP1kkYHqJudwPe79O4RV0c/a7P4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 169/355] net: dsa: lantiq_gswip: serialize access to the PCE table
-Date:   Mon, 15 Nov 2021 18:01:33 +0100
-Message-Id: <20211115165319.255917034@linuxfoundation.org>
+Subject: [PATCH 5.4 170/355] ARM: 9136/1: ARMv7-M uses BE-8, not BE-32
+Date:   Mon, 15 Nov 2021 18:01:34 +0100
+Message-Id: <20211115165319.289533918@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -42,119 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 49753a75b9a32de4c0393bb8d1e51ea223fda8e4 ]
+[ Upstream commit 345dac33f58894a56d17b92a41be10e16585ceff ]
 
-Looking at the code, the GSWIP switch appears to hold bridging service
-structures (VLANs, FDBs, forwarding rules) in PCE table entries.
-Hardware access to the PCE table is non-atomic, and is comprised of
-several register reads and writes.
+When configuring the kernel for big-endian, we set either BE-8 or BE-32
+based on the CPU architecture level. Until linux-4.4, we did not have
+any ARMv7-M platform allowing big-endian builds, but now i.MX/Vybrid
+is in that category, adn we get a build error because of this:
 
-These accesses are currently serialized by the rtnl_lock, but DSA is
-changing its driver API and that lock will no longer be held when
-calling ->port_fdb_add() and ->port_fdb_del().
+arch/arm/kernel/module-plts.c: In function 'get_module_plt':
+arch/arm/kernel/module-plts.c:60:46: error: implicit declaration of function '__opcode_to_mem_thumb32' [-Werror=implicit-function-declaration]
 
-So this driver needs to serialize the access to the PCE table using its
-own locking scheme. This patch adds that.
+This comes down to picking the wrong default, ARMv7-M uses BE8
+like ARMv7-A does. Changing the default gets the kernel to compile
+and presumably works.
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+https://lore.kernel.org/all/1455804123-2526139-2-git-send-email-arnd@arndb.de/
+
+Tested-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/lantiq_gswip.c | 28 +++++++++++++++++++++++-----
- 1 file changed, 23 insertions(+), 5 deletions(-)
+ arch/arm/mm/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
-index 60e36f46f8abe..d612ef8648baa 100644
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -274,6 +274,7 @@ struct gswip_priv {
- 	int num_gphy_fw;
- 	struct gswip_gphy_fw *gphy_fw;
- 	u32 port_vlan_filter;
-+	struct mutex pce_table_lock;
- };
+diff --git a/arch/arm/mm/Kconfig b/arch/arm/mm/Kconfig
+index 0ab3a86b1f523..fc388eb60e0b7 100644
+--- a/arch/arm/mm/Kconfig
++++ b/arch/arm/mm/Kconfig
+@@ -752,7 +752,7 @@ config CPU_BIG_ENDIAN
+ config CPU_ENDIAN_BE8
+ 	bool
+ 	depends on CPU_BIG_ENDIAN
+-	default CPU_V6 || CPU_V6K || CPU_V7
++	default CPU_V6 || CPU_V6K || CPU_V7 || CPU_V7M
+ 	help
+ 	  Support for the BE-8 (big-endian) mode on ARMv6 and ARMv7 processors.
  
- struct gswip_pce_table_entry {
-@@ -521,10 +522,14 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
- 	u16 addr_mode = tbl->key_mode ? GSWIP_PCE_TBL_CTRL_OPMOD_KSRD :
- 					GSWIP_PCE_TBL_CTRL_OPMOD_ADRD;
- 
-+	mutex_lock(&priv->pce_table_lock);
-+
- 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
- 				     GSWIP_PCE_TBL_CTRL_BAS);
--	if (err)
-+	if (err) {
-+		mutex_unlock(&priv->pce_table_lock);
- 		return err;
-+	}
- 
- 	gswip_switch_w(priv, tbl->index, GSWIP_PCE_TBL_ADDR);
- 	gswip_switch_mask(priv, GSWIP_PCE_TBL_CTRL_ADDR_MASK |
-@@ -534,8 +539,10 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
- 
- 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
- 				     GSWIP_PCE_TBL_CTRL_BAS);
--	if (err)
-+	if (err) {
-+		mutex_unlock(&priv->pce_table_lock);
- 		return err;
-+	}
- 
- 	for (i = 0; i < ARRAY_SIZE(tbl->key); i++)
- 		tbl->key[i] = gswip_switch_r(priv, GSWIP_PCE_TBL_KEY(i));
-@@ -551,6 +558,8 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
- 	tbl->valid = !!(crtl & GSWIP_PCE_TBL_CTRL_VLD);
- 	tbl->gmap = (crtl & GSWIP_PCE_TBL_CTRL_GMAP_MASK) >> 7;
- 
-+	mutex_unlock(&priv->pce_table_lock);
-+
- 	return 0;
- }
- 
-@@ -563,10 +572,14 @@ static int gswip_pce_table_entry_write(struct gswip_priv *priv,
- 	u16 addr_mode = tbl->key_mode ? GSWIP_PCE_TBL_CTRL_OPMOD_KSWR :
- 					GSWIP_PCE_TBL_CTRL_OPMOD_ADWR;
- 
-+	mutex_lock(&priv->pce_table_lock);
-+
- 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
- 				     GSWIP_PCE_TBL_CTRL_BAS);
--	if (err)
-+	if (err) {
-+		mutex_unlock(&priv->pce_table_lock);
- 		return err;
-+	}
- 
- 	gswip_switch_w(priv, tbl->index, GSWIP_PCE_TBL_ADDR);
- 	gswip_switch_mask(priv, GSWIP_PCE_TBL_CTRL_ADDR_MASK |
-@@ -598,8 +611,12 @@ static int gswip_pce_table_entry_write(struct gswip_priv *priv,
- 	crtl |= GSWIP_PCE_TBL_CTRL_BAS;
- 	gswip_switch_w(priv, crtl, GSWIP_PCE_TBL_CTRL);
- 
--	return gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
--				      GSWIP_PCE_TBL_CTRL_BAS);
-+	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
-+				     GSWIP_PCE_TBL_CTRL_BAS);
-+
-+	mutex_unlock(&priv->pce_table_lock);
-+
-+	return err;
- }
- 
- /* Add the LAN port into a bridge with the CPU port by
-@@ -2020,6 +2037,7 @@ static int gswip_probe(struct platform_device *pdev)
- 	priv->ds->priv = priv;
- 	priv->ds->ops = &gswip_switch_ops;
- 	priv->dev = dev;
-+	mutex_init(&priv->pce_table_lock);
- 	version = gswip_switch_r(priv, GSWIP_VERSION);
- 
- 	/* bring up the mdio bus */
 -- 
 2.33.0
 
