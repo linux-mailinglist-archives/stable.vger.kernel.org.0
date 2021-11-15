@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E342D451149
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8A8451148
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:02:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243747AbhKOTD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:03:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35148 "EHLO mail.kernel.org"
+        id S243737AbhKOTDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:03:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243259AbhKOTA4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243301AbhKOTA4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:00:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CEFA61AA2;
-        Mon, 15 Nov 2021 18:13:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E094061A56;
+        Mon, 15 Nov 2021 18:13:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000036;
-        bh=uyDSCMG8nRy2/VVy9gWDgHJeX1p+EAuKtPxR1I8ee3U=;
+        s=korg; t=1637000039;
+        bh=bBkGjMWZxNSNRLaYykUkU8bSGKS7TUKAE7HXC0Eo9ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gyHLyWaUJsBHusiKH7DFJaZpgFQyFLHVBQemkn9jymFiqBHFcRERyxcHtjcTIzZ2r
-         io9Jzfs/njuyl54UsdN2jwMBTPUT+Yl1g6J9Vnnx4f/KNsE/WwqDdzviFMhOrdKCVg
-         H8p7lE5tyTJpQb9KK2Tomhy42fox0ZwsmHelWcHA=
+        b=mSm2RcwOCN4EVl7bfQzPosudvnA08llb/Ff8kvixxtsshEhq8TDNrLsrSbYSQgkVE
+         //YXN2z4I9GXno6oLC6dbCp+VW1mtH2Ikkzzk87HHp84vZPX5v7d6VJP93XGLnB8QJ
+         KgwxMKlzwqxtR9tCJe5HBpIiGSke7mo2eZwauUQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 514/849] cpufreq: intel_pstate: Fix cpu->pstate.turbo_freq initialization
-Date:   Mon, 15 Nov 2021 17:59:57 +0100
-Message-Id: <20211115165437.675915916@linuxfoundation.org>
+Subject: [PATCH 5.14 515/849] spi: spi-rpc-if: Check return value of rpcif_sw_init()
+Date:   Mon, 15 Nov 2021 17:59:58 +0100
+Message-Id: <20211115165437.706476289@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,41 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Rui <rui.zhang@intel.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit c72bcf0ab87a92634e58af62e89af0f40dfd0b88 ]
+[ Upstream commit 0b0a281ed7001d4c4f4c47bdc84680c4997761ca ]
 
-Fix a problem in active mode that cpu->pstate.turbo_freq is initialized
-only if HWP-to-frequency scaling factor is refined.
+rpcif_sw_init() can fail so make sure we check the return value
+of it and on error exit rpcif_spi_probe() callback with error code.
 
-In passive mode, this problem is not exposed, because
-cpu->pstate.turbo_freq is set again, later in
-intel_cpufreq_cpu_init()->intel_pstate_get_hwp_cap().
-
-Fixes: eb3693f0521e ("cpufreq: intel_pstate: hybrid: CPU-specific scaling factor")
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: eb8d6d464a27 ("spi: add Renesas RPC-IF driver")
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20211025205631.21151-4-prabhakar.mahadev-lad.rj@bp.renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/spi/spi-rpc-if.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index e7cd3882bda4d..2789cad7403d8 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -615,9 +615,8 @@ static void intel_pstate_hybrid_hwp_calibrate(struct cpudata *cpu)
- 	 * the scaling factor is too high, so recompute it so that the HWP_CAP
- 	 * highest performance corresponds to the maximum turbo frequency.
- 	 */
--	if (turbo_freq < cpu->pstate.turbo_pstate * scaling) {
--		pr_debug("CPU%d: scaling too high (%d)\n", cpu->cpu, scaling);
--
-+	cpu->pstate.turbo_freq = cpu->pstate.turbo_pstate * scaling;
-+	if (turbo_freq < cpu->pstate.turbo_freq) {
- 		cpu->pstate.turbo_freq = turbo_freq;
- 		scaling = DIV_ROUND_UP(turbo_freq, cpu->pstate.turbo_pstate);
- 	}
+diff --git a/drivers/spi/spi-rpc-if.c b/drivers/spi/spi-rpc-if.c
+index c53138ce00309..83796a4ead34a 100644
+--- a/drivers/spi/spi-rpc-if.c
++++ b/drivers/spi/spi-rpc-if.c
+@@ -139,7 +139,9 @@ static int rpcif_spi_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	rpc = spi_controller_get_devdata(ctlr);
+-	rpcif_sw_init(rpc, parent);
++	error = rpcif_sw_init(rpc, parent);
++	if (error)
++		return error;
+ 
+ 	platform_set_drvdata(pdev, ctlr);
+ 
 -- 
 2.33.0
 
