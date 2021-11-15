@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C305450E02
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4900450B3F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:18:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240463AbhKOSJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:09:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46092 "EHLO mail.kernel.org"
+        id S237296AbhKORU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:20:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239850AbhKOSEy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:04:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ED3763274;
-        Mon, 15 Nov 2021 17:39:37 +0000 (UTC)
+        id S237315AbhKORTY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:19:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5731C63264;
+        Mon, 15 Nov 2021 17:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997978;
-        bh=QNkBOXerpcpHEfQOVpQVhKG2iNCf4nEvew5Iw5lWYuM=;
+        s=korg; t=1636996451;
+        bh=00t9+56O2F+wjU4QcpzyqZH5P6Zty6X2Mm41xVal2yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DqW3SrvaObnHhKtBGMgod3klXj2joQhOA1V2AjJZZ2qur/Y37zBmD/s8WJG8W2YUm
-         5QSW3jjDAqEH/B8IGCwp+Qx0eWVQ3OV4KsDN75q9QORfxSx/QJ/Tq4MMkN4zAWUk1e
-         +ykxzbWf1L9t8bAgdikJeFcPcEVHkQS8Q4JUpoJU=
+        b=wELE07TYF/Uey8XNuQe+jJoU1JxPh7RE62sbbmJmH2QCPEr95cY7OGEk7RSACEKcW
+         aK18jW4nj5Yh170GVcTzWsq1eQ6TUGSR7o3GnbSUWxfOy0bmnrJ1jVev1U42YLmsRu
+         v6rG+RicovQF4+bdLnJURVNMhh4W5DxqsU5h810A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Keerthy <j-keerthy@ti.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
-        Ladislav Michl <ladis@linux-mips.org>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        linux-omap@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Bingbu Cao <bingbu.cao@intel.com>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 343/575] clocksource/drivers/timer-ti-dm: Select TIMER_OF
-Date:   Mon, 15 Nov 2021 18:01:08 +0100
-Message-Id: <20211115165355.663142735@linuxfoundation.org>
+Subject: [PATCH 5.4 145/355] media: ipu3-imgu: VIDIOC_QUERYCAP: Fix bus_info
+Date:   Mon, 15 Nov 2021 18:01:09 +0100
+Message-Id: <20211115165318.481796148@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit eda9a4f7af6ee47e9e131f20e4f8a41a97379293 ]
+[ Upstream commit ea2b9a33711604e91f8c826f4dcb3c12baa1990a ]
 
-When building OMAP_DM_TIMER without TIMER_OF, there are orphan sections
-due to the use of TIMER_OF_DELCARE() without CONFIG_TIMER_OF. Select
-CONFIG_TIMER_OF when enaling OMAP_DM_TIMER:
+bus_info field had a different value for the media entity and the video
+device.
 
-arm-linux-gnueabi-ld: warning: orphan section `__timer_of_table' from `drivers/clocksource/timer-ti-dm-systimer.o' being placed in section `__timer_of_table'
+Fixes v4l2-compliance:
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202108282255.tkdt4ani-lkp@intel.com/
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Keerthy <j-keerthy@ti.com>
-Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Ladislav Michl <ladis@linux-mips.org>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: linux-omap@vger.kernel.org
-Fixes: 52762fbd1c47 ("clocksource/drivers/timer-ti-dm: Add clockevent and clocksource support")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210828175747.3777891-1-keescook@chromium.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+v4l2-compliance.cpp(637): media bus_info 'PCI:0000:00:05.0' differs from
+			  V4L2 bus_info 'PCI:viewfinder'
+
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/media/ipu3/ipu3-v4l2.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
-index 39f4d88662002..a0c6e88bebe08 100644
---- a/drivers/clocksource/Kconfig
-+++ b/drivers/clocksource/Kconfig
-@@ -24,6 +24,7 @@ config I8253_LOCK
+diff --git a/drivers/staging/media/ipu3/ipu3-v4l2.c b/drivers/staging/media/ipu3/ipu3-v4l2.c
+index dd214fcd80cf8..53239ea67fe48 100644
+--- a/drivers/staging/media/ipu3/ipu3-v4l2.c
++++ b/drivers/staging/media/ipu3/ipu3-v4l2.c
+@@ -594,11 +594,12 @@ static const struct imgu_fmt *find_format(struct v4l2_format *f, u32 type)
+ static int imgu_vidioc_querycap(struct file *file, void *fh,
+ 				struct v4l2_capability *cap)
+ {
+-	struct imgu_video_device *node = file_to_intel_imgu_node(file);
++	struct imgu_device *imgu = video_drvdata(file);
  
- config OMAP_DM_TIMER
- 	bool
-+	select TIMER_OF
+ 	strscpy(cap->driver, IMGU_NAME, sizeof(cap->driver));
+ 	strscpy(cap->card, IMGU_NAME, sizeof(cap->card));
+-	snprintf(cap->bus_info, sizeof(cap->bus_info), "PCI:%s", node->name);
++	snprintf(cap->bus_info, sizeof(cap->bus_info), "PCI:%s",
++		 pci_name(imgu->pci_dev));
  
- config CLKBLD_I8253
- 	def_bool y if CLKSRC_I8253 || CLKEVT_I8253 || I8253_LOCK
+ 	return 0;
+ }
 -- 
 2.33.0
 
