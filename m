@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25A36450AFA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:13:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73565450DF7
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232422AbhKORQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:16:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47706 "EHLO mail.kernel.org"
+        id S239813AbhKOSJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:09:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236819AbhKORO7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:14:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A52761BE5;
-        Mon, 15 Nov 2021 17:11:43 +0000 (UTC)
+        id S239725AbhKOSEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:04:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D979A63273;
+        Mon, 15 Nov 2021 17:38:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996303;
-        bh=lBs+HZbKEHzuBDHl54AKoseW1ciC+arOT7XrgYwq0PA=;
+        s=korg; t=1636997916;
+        bh=SQUIl27+J9GshuXiioMTfQ3qYx8UPi7VAJfE5Hkkalg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lGBXzH+S18231P18CNDArTZJ3gckPBtPDkWCyA6ZJ2a/zDPjbirSD/KFabsMkVNY9
-         X69800nOHdDPittzgm+1/+Gj0eYq7b0+xbgg91Vq94sMxcH/Bsyp56noFafHQukRM7
-         GeD33GwSpqqxUa2B8N35q5tEqla0cJesRkkE8D8k=
+        b=g4H4dB9JCSZTHd+RefAB+ZGAvUC465VzVFvxMEdM6lNnS/8Xk6QQzJLbhL/MbdRn9
+         Wq7BX1t+AIyhVK068ht0pCZktMAdZfzwMQGX6hm80e0G5smsNOc/29cbYslzQ1JdOz
+         xtc+R1eDWww8Lg950H+SEK07xQsS5q2k+43Dp+nQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 090/355] KVM: nVMX: Query current VMCS when determining if MSR bitmaps are in use
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 289/575] media: cxd2880-spi: Fix a null pointer dereference on error handling path
 Date:   Mon, 15 Nov 2021 18:00:14 +0100
-Message-Id: <20211115165316.714161050@linuxfoundation.org>
+Message-Id: <20211115165353.778286142@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,66 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 7dfbc624eb5726367900c8d86deff50836240361 upstream.
+[ Upstream commit 11b982e950d2138e90bd120501df10a439006ff8 ]
 
-Check the current VMCS controls to determine if an MSR write will be
-intercepted due to MSR bitmaps being disabled.  In the nested VMX case,
-KVM will disable MSR bitmaps in vmcs02 if they're disabled in vmcs12 or
-if KVM can't map L1's bitmaps for whatever reason.
+Currently the null pointer check on dvb_spi->vcc_supply is inverted and
+this leads to only null values of the dvb_spi->vcc_supply being passed
+to the call of regulator_disable causing null pointer dereferences.
+Fix this by only calling regulator_disable if dvb_spi->vcc_supply is
+not null.
 
-Note, the bad behavior is relatively benign in the current code base as
-KVM sets all bits in vmcs02's MSR bitmap by default, clears bits if and
-only if L0 KVM also disables interception of an MSR, and only uses the
-buggy helper for MSR_IA32_SPEC_CTRL.  Because KVM explicitly tests WRMSR
-before disabling interception of MSR_IA32_SPEC_CTRL, the flawed check
-will only result in KVM reading MSR_IA32_SPEC_CTRL from hardware when it
-isn't strictly necessary.
+Addresses-Coverity: ("Dereference after null check")
 
-Tag the fix for stable in case a future fix wants to use
-msr_write_intercepted(), in which case a buggy implementation in older
-kernels could prove subtly problematic.
-
-Fixes: d28b387fb74d ("KVM/VMX: Allow direct access to MSR_IA32_SPEC_CTRL")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20211109013047.2041518-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: dcb014582101 ("media: cxd2880-spi: Fix an error handling path")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/spi/cxd2880-spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -785,15 +785,15 @@ void update_exception_bitmap(struct kvm_
- /*
-  * Check if MSR is intercepted for currently loaded MSR bitmap.
-  */
--static bool msr_write_intercepted(struct kvm_vcpu *vcpu, u32 msr)
-+static bool msr_write_intercepted(struct vcpu_vmx *vmx, u32 msr)
- {
- 	unsigned long *msr_bitmap;
- 	int f = sizeof(unsigned long);
- 
--	if (!cpu_has_vmx_msr_bitmap())
-+	if (!(exec_controls_get(vmx) & CPU_BASED_USE_MSR_BITMAPS))
- 		return true;
- 
--	msr_bitmap = to_vmx(vcpu)->loaded_vmcs->msr_bitmap;
-+	msr_bitmap = vmx->loaded_vmcs->msr_bitmap;
- 
- 	if (msr <= 0x1fff) {
- 		return !!test_bit(msr, msr_bitmap + 0x800 / f);
-@@ -6579,7 +6579,7 @@ static void vmx_vcpu_run(struct kvm_vcpu
- 	 * If the L02 MSR bitmap does not intercept the MSR, then we need to
- 	 * save it.
- 	 */
--	if (unlikely(!msr_write_intercepted(vcpu, MSR_IA32_SPEC_CTRL)))
-+	if (unlikely(!msr_write_intercepted(vmx, MSR_IA32_SPEC_CTRL)))
- 		vmx->spec_ctrl = native_read_msr(MSR_IA32_SPEC_CTRL);
- 
- 	x86_spec_ctrl_restore_host(vmx->spec_ctrl, 0);
+diff --git a/drivers/media/spi/cxd2880-spi.c b/drivers/media/spi/cxd2880-spi.c
+index 93194f03764d2..11273be702b6e 100644
+--- a/drivers/media/spi/cxd2880-spi.c
++++ b/drivers/media/spi/cxd2880-spi.c
+@@ -618,7 +618,7 @@ fail_frontend:
+ fail_attach:
+ 	dvb_unregister_adapter(&dvb_spi->adapter);
+ fail_adapter:
+-	if (!dvb_spi->vcc_supply)
++	if (dvb_spi->vcc_supply)
+ 		regulator_disable(dvb_spi->vcc_supply);
+ fail_regulator:
+ 	kfree(dvb_spi);
+-- 
+2.33.0
+
 
 
