@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4807D450ADC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:12:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4539F451130
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236746AbhKORPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:15:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40582 "EHLO mail.kernel.org"
+        id S243673AbhKOTCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:02:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236264AbhKORLm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:11:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1987610CA;
-        Mon, 15 Nov 2021 17:08:46 +0000 (UTC)
+        id S243491AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:59:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 650FF63496;
+        Mon, 15 Nov 2021 18:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996127;
-        bh=BfVzLQkqCwR/4NhX7T4+boHwbywNIMuU4cR+EW/pDGs=;
+        s=korg; t=1636999993;
+        bh=GIS4dWSat5ix/XbA6CG/bbdKbloFOS5TzJLSV9zhxJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DrYxCm5TC/viR/AsH4fIRP71x5XySGxhgh+zsXzycxgi0QclSZnL4pmL/4/6cyBwo
-         MvOGpOw4hmSqd9x4WI02oFF0Kn2o4JGM0r/7Bo+LFzwI5T9cva8KKEDFgE3yIpoSP/
-         b9iT/pQLYwQmDi2hlBt6OXq7LGo6O3oBd4xIGfJA=
+        b=RaBIUHNCQss9Y6IJLFZOxoOMxzHydiEbzxiDbfWHwXE65+H/Q/UUts92HNI/OATNp
+         cs8HFT3edHBCtIRQArlDHrR5OzuK2tgENW5bmvVvdfzRHWWE7q7c+b9ndCtMPanNd2
+         T84KMO1F0cUvyrLpsg7ZrEFI6sIIMjMmU+g49Rxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 025/355] ALSA: ua101: fix division by zero at probe
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 466/849] mt76: mt7921: fix kernel warning from cfg80211_calculate_bitrate
 Date:   Mon, 15 Nov 2021 17:59:09 +0100
-Message-Id: <20211115165314.360437526@linuxfoundation.org>
+Message-Id: <20211115165436.046516128@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +39,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Sean Wang <sean.wang@mediatek.com>
 
-commit 55f261b73a7e1cb254577c3536cef8f415de220a upstream.
+[ Upstream commit 8e695328a1006b7bab2d972e7d0111fa6e6faf51 ]
 
-Add the missing endpoint max-packet sanity check to probe() to avoid
-division by zero in alloc_stream_buffers() in case a malicious device
-has broken descriptors (or when doing descriptor fuzz testing).
+Fix the kernel warning from cfg80211_calculate_bitrate
+due to the legacy rate is not parsed well in the current driver.
 
-Note that USB core will reject URBs submitted for endpoints with zero
-wMaxPacketSize but that drivers doing packet-size calculations still
-need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
-endpoint descriptors with maxpacket=0")).
+Also, zeros struct rate_info before we fill it out to avoid the old value
+is kept such as rate->legacy.
 
-Fixes: 63978ab3e3e9 ("sound: add Edirol UA-101 support")
-Cc: stable@vger.kernel.org      # 2.6.34
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211026095401.26522-1-johan@kernel.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[  790.921560] WARNING: CPU: 7 PID: 970 at net/wireless/util.c:1298 cfg80211_calculate_bitrate+0x354/0x35c [cfg80211]
+[  790.987738] Hardware name: MediaTek Asurada rev1 board (DT)
+[  790.993298] pstate: a0400009 (NzCv daif +PAN -UAO)
+[  790.998104] pc : cfg80211_calculate_bitrate+0x354/0x35c [cfg80211]
+[  791.004295] lr : cfg80211_calculate_bitrate+0x180/0x35c [cfg80211]
+[  791.010462] sp : ffffffc0129c3880
+[  791.013765] x29: ffffffc0129c3880 x28: ffffffd38305bea8
+[  791.019065] x27: ffffffc0129c3970 x26: 0000000000000013
+[  791.024364] x25: 00000000000003ca x24: 000000000000002f
+[  791.029664] x23: 00000000000000d0 x22: ffffff8d108bc000
+[  791.034964] x21: ffffff8d108bc0d0 x20: ffffffc0129c39a8
+[  791.040264] x19: ffffffc0129c39a8 x18: 00000000ffff0a10
+[  791.045563] x17: 0000000000000050 x16: 00000000000000ec
+[  791.050910] x15: ffffffd3f9ebed9c x14: 0000000000000006
+[  791.056211] x13: 00000000000b2eea x12: 0000000000000000
+[  791.061511] x11: 00000000ffffffff x10: 0000000000000000
+[  791.066811] x9 : 0000000000000000 x8 : 0000000000000000
+[  791.072110] x7 : 0000000000000000 x6 : ffffffd3fafa5a7b
+[  791.077409] x5 : 0000000000000000 x4 : 0000000000000000
+[  791.082708] x3 : 0000000000000000 x2 : 0000000000000000
+[  791.088008] x1 : ffffff8d3f79c918 x0 : 0000000000000000
+[  791.093308] Call trace:
+[  791.095770]  cfg80211_calculate_bitrate+0x354/0x35c [cfg80211]
+[  791.101615]  nl80211_put_sta_rate+0x6c/0x2c0 [cfg80211]
+[  791.106853]  nl80211_send_station+0x980/0xaa4 [cfg80211]
+[  791.112178]  nl80211_get_station+0xb4/0x134 [cfg80211]
+[  791.117308]  genl_rcv_msg+0x3a0/0x440
+[  791.120960]  netlink_rcv_skb+0xcc/0x118
+[  791.124785]  genl_rcv+0x34/0x48
+[  791.127916]  netlink_unicast+0x144/0x1dc
+
+Fixes: 1c099ab44727 ("mt76: mt7921: add MCU support")
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/misc/ua101.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/mcu.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/sound/usb/misc/ua101.c
-+++ b/sound/usb/misc/ua101.c
-@@ -1020,7 +1020,7 @@ static int detect_usb_format(struct ua10
- 		fmt_playback->bSubframeSize * ua->playback.channels;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+index 8ced55501d373..3cb53c642d242 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+@@ -320,11 +320,13 @@ mt7921_mcu_tx_rate_parse(struct mt76_phy *mphy,
+ 			 struct rate_info *rate, u16 r)
+ {
+ 	struct ieee80211_supported_band *sband;
+-	u16 flags = 0;
++	u16 flags = 0, rate_idx;
+ 	u8 txmode = FIELD_GET(MT_WTBL_RATE_TX_MODE, r);
+ 	u8 gi = 0;
+ 	u8 bw = 0;
++	bool cck = false;
  
- 	epd = &ua->intf[INTF_CAPTURE]->altsetting[1].endpoint[0].desc;
--	if (!usb_endpoint_is_isoc_in(epd)) {
-+	if (!usb_endpoint_is_isoc_in(epd) || usb_endpoint_maxp(epd) == 0) {
- 		dev_err(&ua->dev->dev, "invalid capture endpoint\n");
- 		return -ENXIO;
- 	}
-@@ -1028,7 +1028,7 @@ static int detect_usb_format(struct ua10
- 	ua->capture.max_packet_bytes = usb_endpoint_maxp(epd);
++	memset(rate, 0, sizeof(*rate));
+ 	rate->mcs = FIELD_GET(MT_WTBL_RATE_MCS, r);
+ 	rate->nss = FIELD_GET(MT_WTBL_RATE_NSS, r) + 1;
  
- 	epd = &ua->intf[INTF_PLAYBACK]->altsetting[1].endpoint[0].desc;
--	if (!usb_endpoint_is_isoc_out(epd)) {
-+	if (!usb_endpoint_is_isoc_out(epd) || usb_endpoint_maxp(epd) == 0) {
- 		dev_err(&ua->dev->dev, "invalid playback endpoint\n");
- 		return -ENXIO;
- 	}
+@@ -349,13 +351,18 @@ mt7921_mcu_tx_rate_parse(struct mt76_phy *mphy,
+ 
+ 	switch (txmode) {
+ 	case MT_PHY_TYPE_CCK:
++		cck = true;
++		fallthrough;
+ 	case MT_PHY_TYPE_OFDM:
+ 		if (mphy->chandef.chan->band == NL80211_BAND_5GHZ)
+ 			sband = &mphy->sband_5g.sband;
+ 		else
+ 			sband = &mphy->sband_2g.sband;
+ 
+-		rate->legacy = sband->bitrates[rate->mcs].bitrate;
++		rate_idx = FIELD_GET(MT_TX_RATE_IDX, r);
++		rate_idx = mt76_get_rate(mphy->dev, sband, rate_idx,
++					 cck);
++		rate->legacy = sband->bitrates[rate_idx].bitrate;
+ 		break;
+ 	case MT_PHY_TYPE_HT:
+ 	case MT_PHY_TYPE_HT_GF:
+-- 
+2.33.0
+
 
 
