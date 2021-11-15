@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 624C8451E72
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65776451E7A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344007AbhKPAgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45222 "EHLO mail.kernel.org"
+        id S1344212AbhKPAgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:36:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344980AbhKOTZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344981AbhKOTZw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15E0B636FA;
-        Mon, 15 Nov 2021 19:08:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC506636FE;
+        Mon, 15 Nov 2021 19:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003284;
-        bh=yT9kCNGsMtaMYfdVhvUnVhEI2DuFWGKfPsijpFwuxrg=;
+        s=korg; t=1637003287;
+        bh=G96u8exCMCRq7F/kmPqH+o3gME7GnuM0fbQXVZnxiUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ywCYYe6QRTiflP1lGTpDc/POiOBlJqS+lB6Oma+hlkpNmzWvOSgiK1SlqfT/xV0mF
-         Xq++0lohotUlENyOLLek+x0PjkiTimwGC7Q+1YyV05YOean78hIiud2YiAJcj2Blbr
-         Db5nCD5snB15KQFDHfS6qSepaw8TWPSR5bYYCuL8=
+        b=mWL5jzmYX3Dkgoit5xup50Q9f0G2jDByaKp+mD+bkUgqevteEcoAcyotnS/6QJcuL
+         jCrPUMZPpZTvcG7pMgSfr+n2AjfIX3j/gp8cBW8rn1VgoiqPNMhmCbntuon6IrwRne
+         ZX36m6KUTGLWJaZQwkXDWs48SHFk5KLnF7vlc0dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Sikorski <belegdol@gmail.com>,
-        Jeremy Allison <jra@samba.org>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 846/917] smb3: do not error on fsync when readonly
-Date:   Mon, 15 Nov 2021 18:05:41 +0100
-Message-Id: <20211115165457.725993733@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.15 847/917] ARM: 9155/1: fix early early_iounmap()
+Date:   Mon, 15 Nov 2021 18:05:42 +0100
+Message-Id: <20211115165457.757617142@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,89 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit 71e6864eacbef0b2645ca043cdfbac272cb6cea3 upstream.
+commit 0d08e7bf0d0d1a29aff7b16ef516f7415eb1aa05 upstream.
 
-Linux allows doing a flush/fsync on a file open for read-only,
-but the protocol does not allow that.  If the file passed in
-on the flush is read-only try to find a writeable handle for
-the same inode, if that is not possible skip sending the
-fsync call to the server to avoid breaking the apps.
+Currently __set_fixmap() bails out with a warning when called in early boot
+from early_iounmap(). Fix it, and while at it, make the comment a bit easier
+to understand.
 
-Reported-by: Julian Sikorski <belegdol@gmail.com>
-Tested-by: Julian Sikorski <belegdol@gmail.com>
-Suggested-by: Jeremy Allison <jra@samba.org>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Cc: <stable@vger.kernel.org>
+Fixes: b089c31c519c ("ARM: 8667/3: Fix memory attribute inconsistencies when using fixmap")
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/file.c |   35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+ arch/arm/mm/mmu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -2692,12 +2692,23 @@ int cifs_strict_fsync(struct file *file,
- 	tcon = tlink_tcon(smbfile->tlink);
- 	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOSSYNC)) {
- 		server = tcon->ses->server;
--		if (server->ops->flush)
--			rc = server->ops->flush(xid, tcon, &smbfile->fid);
--		else
-+		if (server->ops->flush == NULL) {
- 			rc = -ENOSYS;
-+			goto strict_fsync_exit;
-+		}
-+
-+		if ((OPEN_FMODE(smbfile->f_flags) & FMODE_WRITE) == 0) {
-+			smbfile = find_writable_file(CIFS_I(inode), FIND_WR_ANY);
-+			if (smbfile) {
-+				rc = server->ops->flush(xid, tcon, &smbfile->fid);
-+				cifsFileInfo_put(smbfile);
-+			} else
-+				cifs_dbg(FYI, "ignore fsync for file not open for write\n");
-+		} else
-+			rc = server->ops->flush(xid, tcon, &smbfile->fid);
- 	}
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -390,9 +390,9 @@ void __set_fixmap(enum fixed_addresses i
+ 	BUILD_BUG_ON(__fix_to_virt(__end_of_fixed_addresses) < FIXADDR_START);
+ 	BUG_ON(idx >= __end_of_fixed_addresses);
  
-+strict_fsync_exit:
- 	free_xid(xid);
- 	return rc;
- }
-@@ -2709,6 +2720,7 @@ int cifs_fsync(struct file *file, loff_t
- 	struct cifs_tcon *tcon;
- 	struct TCP_Server_Info *server;
- 	struct cifsFileInfo *smbfile = file->private_data;
-+	struct inode *inode = file_inode(file);
- 	struct cifs_sb_info *cifs_sb = CIFS_FILE_SB(file);
+-	/* we only support device mappings until pgprot_kernel has been set */
++	/* We support only device mappings before pgprot_kernel is set. */
+ 	if (WARN_ON(pgprot_val(prot) != pgprot_val(FIXMAP_PAGE_IO) &&
+-		    pgprot_val(pgprot_kernel) == 0))
++		    pgprot_val(prot) && pgprot_val(pgprot_kernel) == 0))
+ 		return;
  
- 	rc = file_write_and_wait_range(file, start, end);
-@@ -2725,12 +2737,23 @@ int cifs_fsync(struct file *file, loff_t
- 	tcon = tlink_tcon(smbfile->tlink);
- 	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOSSYNC)) {
- 		server = tcon->ses->server;
--		if (server->ops->flush)
--			rc = server->ops->flush(xid, tcon, &smbfile->fid);
--		else
-+		if (server->ops->flush == NULL) {
- 			rc = -ENOSYS;
-+			goto fsync_exit;
-+		}
-+
-+		if ((OPEN_FMODE(smbfile->f_flags) & FMODE_WRITE) == 0) {
-+			smbfile = find_writable_file(CIFS_I(inode), FIND_WR_ANY);
-+			if (smbfile) {
-+				rc = server->ops->flush(xid, tcon, &smbfile->fid);
-+				cifsFileInfo_put(smbfile);
-+			} else
-+				cifs_dbg(FYI, "ignore fsync for file not open for write\n");
-+		} else
-+			rc = server->ops->flush(xid, tcon, &smbfile->fid);
- 	}
- 
-+fsync_exit:
- 	free_xid(xid);
- 	return rc;
- }
+ 	if (pgprot_val(prot))
 
 
