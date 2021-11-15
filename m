@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74B75450B2B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:17:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB31450DDB
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231393AbhKORUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:20:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49076 "EHLO mail.kernel.org"
+        id S240399AbhKOSIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:08:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237252AbhKORTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:19:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 232F761BF5;
-        Mon, 15 Nov 2021 17:13:46 +0000 (UTC)
+        id S239588AbhKOSDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:03:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A5A3632DB;
+        Mon, 15 Nov 2021 17:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996427;
-        bh=mscGSKiCUvM6aaANlcM79d96EOeuFUrOomDIk1A89Sk=;
+        s=korg; t=1636997857;
+        bh=1b1DCiBnuzfdBPAF32D2UpkHdSRFO5JOBtELVSsR/CE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUaPcD+m3LA13SQ6jOw/5lORBWtjK1djz0dzc14JBFEhvrb6yUcAfo9fEiqDrL2IY
-         UVnY91Qz5tDdlT3GUvk0bybOX5bWor8dir/LZmhbAU6a0XI3txRVkAPJuEKPNCTlne
-         lxuuFNnDIEGvuG7NGI1iOyv5hEyLtE1KEDRRDTTM=
+        b=ZvzIFgmvTSi2/+5aIfog5cVbU/FRClGv0rFbeEecFvJlvfZtwpO5BAmqvfGO9fA/R
+         bYR6sbluOijIPeuwIVYeUQSvQ6xdkpgRZ5IsDeqIDdt5fmY+SlzVJEPGwvDXxwlx0E
+         ke7DTjAmmgz7ldieT9Eut3SOmVtCAcbw41Vuth+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 102/355] PCI: aardvark: Fix reporting Data Link Layer Link Active
+        stable@vger.kernel.org, Anel Orazgaliyeva <anelkz@amazon.de>,
+        Aman Priyadarshi <apeureka@amazon.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 301/575] cpuidle: Fix kobject memory leaks in error paths
 Date:   Mon, 15 Nov 2021 18:00:26 +0100
-Message-Id: <20211115165317.106091603@linuxfoundation.org>
+Message-Id: <20211115165354.184089587@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Anel Orazgaliyeva <anelkz@amazon.de>
 
-commit 2b650b7ff20eb7ea8ef9031d20fb657286ab90cc upstream.
+[ Upstream commit e5f5a66c9aa9c331da5527c2e3fd9394e7091e01 ]
 
-Add support for reporting PCI_EXP_LNKSTA_DLLLA bit in Link Control register
-on emulated bridge via current LTSSM state. Also correctly indicate DLLLA
-capability via PCI_EXP_LNKCAP_DLLLARC bit in Link Control Capability
-register.
+Commit c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
+fixes the cleanup of kobjects; however, it removes kfree() calls
+altogether, leading to memory leaks.
 
-Link: https://lore.kernel.org/r/20211005180952.6812-14-kabel@kernel.org
-Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix those and also defer the initialization of dev->kobj_dev until
+after the error check, so that we do not end up with a dangling
+pointer.
+
+Fixes: c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
+Signed-off-by: Anel Orazgaliyeva <anelkz@amazon.de>
+Suggested-by: Aman Priyadarshi <apeureka@amazon.de>
+[ rjw: Subject edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   29 ++++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+ drivers/cpuidle/sysfs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -278,6 +278,20 @@ static inline bool advk_pcie_link_up(str
- 	return ltssm_state >= LTSSM_L0 && ltssm_state < LTSSM_DISABLED;
- }
- 
-+static inline bool advk_pcie_link_active(struct advk_pcie *pcie)
-+{
-+	/*
-+	 * According to PCIe Base specification 3.0, Table 4-14: Link
-+	 * Status Mapped to the LTSSM, and 4.2.6.3.6 Configuration.Idle
-+	 * is Link Up mapped to LTSSM Configuration.Idle, Recovery, L0,
-+	 * L0s, L1 and L2 states. And according to 3.2.1. Data Link
-+	 * Control and Management State Machine Rules is DL Up status
-+	 * reported in DL Active state.
-+	 */
-+	u8 ltssm_state = advk_pcie_ltssm_state(pcie);
-+	return ltssm_state >= LTSSM_CONFIG_IDLE && ltssm_state < LTSSM_DISABLED;
-+}
-+
- static inline bool advk_pcie_link_training(struct advk_pcie *pcie)
- {
- 	/*
-@@ -576,12 +590,26 @@ advk_pci_bridge_emul_pcie_conf_read(stru
- 		return PCI_BRIDGE_EMUL_HANDLED;
+diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
+index 53ec9585ccd44..469e18547d06c 100644
+--- a/drivers/cpuidle/sysfs.c
++++ b/drivers/cpuidle/sysfs.c
+@@ -488,6 +488,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
+ 					   &kdev->kobj, "state%d", i);
+ 		if (ret) {
+ 			kobject_put(&kobj->kobj);
++			kfree(kobj);
+ 			goto error_state;
+ 		}
+ 		cpuidle_add_s2idle_attr_group(kobj);
+@@ -619,6 +620,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
+ 				   &kdev->kobj, "driver");
+ 	if (ret) {
+ 		kobject_put(&kdrv->kobj);
++		kfree(kdrv);
+ 		return ret;
  	}
  
-+	case PCI_EXP_LNKCAP: {
-+		u32 val = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + reg);
-+		/*
-+		 * PCI_EXP_LNKCAP_DLLLARC bit is hardwired in aardvark HW to 0.
-+		 * But support for PCI_EXP_LNKSTA_DLLLA is emulated via ltssm
-+		 * state so explicitly enable PCI_EXP_LNKCAP_DLLLARC flag.
-+		 */
-+		val |= PCI_EXP_LNKCAP_DLLLARC;
-+		*value = val;
-+		return PCI_BRIDGE_EMUL_HANDLED;
-+	}
-+
- 	case PCI_EXP_LNKCTL: {
- 		/* u32 contains both PCI_EXP_LNKCTL and PCI_EXP_LNKSTA */
- 		u32 val = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + reg) &
- 			~(PCI_EXP_LNKSTA_LT << 16);
- 		if (advk_pcie_link_training(pcie))
- 			val |= (PCI_EXP_LNKSTA_LT << 16);
-+		if (advk_pcie_link_active(pcie))
-+			val |= (PCI_EXP_LNKSTA_DLLLA << 16);
- 		*value = val;
- 		return PCI_BRIDGE_EMUL_HANDLED;
+@@ -705,7 +707,6 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
+ 	if (!kdev)
+ 		return -ENOMEM;
+ 	kdev->dev = dev;
+-	dev->kobj_dev = kdev;
+ 
+ 	init_completion(&kdev->kobj_unregister);
+ 
+@@ -713,9 +714,11 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
+ 				   "cpuidle");
+ 	if (error) {
+ 		kobject_put(&kdev->kobj);
++		kfree(kdev);
+ 		return error;
  	}
-@@ -589,7 +617,6 @@ advk_pci_bridge_emul_pcie_conf_read(stru
- 	case PCI_CAP_LIST_ID:
- 	case PCI_EXP_DEVCAP:
- 	case PCI_EXP_DEVCTL:
--	case PCI_EXP_LNKCAP:
- 		*value = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + reg);
- 		return PCI_BRIDGE_EMUL_HANDLED;
- 	default:
+ 
++	dev->kobj_dev = kdev;
+ 	kobject_uevent(&kdev->kobj, KOBJ_ADD);
+ 
+ 	return 0;
+-- 
+2.33.0
+
 
 
