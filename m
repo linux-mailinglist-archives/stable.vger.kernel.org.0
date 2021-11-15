@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA536451077
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:46:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB61450CF9
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:44:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241772AbhKOStU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:49:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50176 "EHLO mail.kernel.org"
+        id S237770AbhKORrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:47:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242823AbhKOSq2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:46:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2393763294;
-        Mon, 15 Nov 2021 18:06:47 +0000 (UTC)
+        id S238734AbhKORpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:45:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E86A63305;
+        Mon, 15 Nov 2021 17:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999608;
-        bh=YtvZQXR6blEQrRhqV8Hoc5MCz0xWdczojaCz4kx+HGQ=;
+        s=korg; t=1636997351;
+        bh=777d4et2zH62T8YPExYiwamsUuPq5njEPm0SdYLRbv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hC/luAlJvqmBuJy05XDQ4t+Hp49u55bqEN044788Pd6H0Te7jUVbYpPYneJQ5iODL
-         e3daIIZlgRljMvh6D43/TmctJpSWkgEspCmsW+jmHLGCrMITuXROynknK//ngqx6rG
-         h9maGUcxW7yUm0LlrmctKlpENyoP33pO+Y31JErE=
+        b=eFVcejGKp5lo/yBeN824BURpnkDwPdyh/lWQdyiZ8a+c0gpCO/mNMhCuUN14jTt+n
+         8LzoFipROvIjqbRtYT+tiS5UwAR41H6ZzZncibdxRAk+Xt1O8KeWxUUS62fS0Oe/S1
+         hCztiUXHBDnUHK07ybvuMk6H70ComwEdgLwyolko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Mario Risoldi <awxkrnl@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 316/849] net: annotate data-race in neigh_output()
+Subject: [PATCH 5.10 074/575] drm: panel-orientation-quirks: Add quirk for GPD Win3
 Date:   Mon, 15 Nov 2021 17:56:39 +0100
-Message-Id: <20211115165430.936471977@linuxfoundation.org>
+Message-Id: <20211115165346.198484697@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,146 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mario <awxkrnl@gmail.com>
 
-[ Upstream commit d18785e213866935b4c3dc0c33c3e18801ce0ce8 ]
+[ Upstream commit 61b1d445f3bfe4c3ba4335ceeb7e8ba688fd31e2 ]
 
-neigh_output() reads n->nud_state and hh->hh_len locklessly.
+Fixes screen orientation for GPD Win 3 handheld gaming console.
 
-This is fine, but we need to add annotations and document this.
-
-We evaluate skip_cache first to avoid reading these fields
-if the cache has to by bypassed.
-
-syzbot report:
-
-BUG: KCSAN: data-race in __neigh_event_send / ip_finish_output2
-
-write to 0xffff88810798a885 of 1 bytes by interrupt on cpu 1:
- __neigh_event_send+0x40d/0xac0 net/core/neighbour.c:1128
- neigh_event_send include/net/neighbour.h:444 [inline]
- neigh_resolve_output+0x104/0x410 net/core/neighbour.c:1476
- neigh_output include/net/neighbour.h:510 [inline]
- ip_finish_output2+0x80a/0xaa0 net/ipv4/ip_output.c:221
- ip_finish_output+0x3b5/0x510 net/ipv4/ip_output.c:309
- NF_HOOK_COND include/linux/netfilter.h:296 [inline]
- ip_output+0xf3/0x1a0 net/ipv4/ip_output.c:423
- dst_output include/net/dst.h:450 [inline]
- ip_local_out+0x164/0x220 net/ipv4/ip_output.c:126
- __ip_queue_xmit+0x9d3/0xa20 net/ipv4/ip_output.c:525
- ip_queue_xmit+0x34/0x40 net/ipv4/ip_output.c:539
- __tcp_transmit_skb+0x142a/0x1a00 net/ipv4/tcp_output.c:1405
- tcp_transmit_skb net/ipv4/tcp_output.c:1423 [inline]
- tcp_xmit_probe_skb net/ipv4/tcp_output.c:4011 [inline]
- tcp_write_wakeup+0x4a9/0x810 net/ipv4/tcp_output.c:4064
- tcp_send_probe0+0x2c/0x2b0 net/ipv4/tcp_output.c:4079
- tcp_probe_timer net/ipv4/tcp_timer.c:398 [inline]
- tcp_write_timer_handler+0x394/0x520 net/ipv4/tcp_timer.c:626
- tcp_write_timer+0xb9/0x180 net/ipv4/tcp_timer.c:642
- call_timer_fn+0x2e/0x1d0 kernel/time/timer.c:1421
- expire_timers+0x135/0x240 kernel/time/timer.c:1466
- __run_timers+0x368/0x430 kernel/time/timer.c:1734
- run_timer_softirq+0x19/0x30 kernel/time/timer.c:1747
- __do_softirq+0x12c/0x26e kernel/softirq.c:558
- invoke_softirq kernel/softirq.c:432 [inline]
- __irq_exit_rcu kernel/softirq.c:636 [inline]
- irq_exit_rcu+0x4e/0xa0 kernel/softirq.c:648
- sysvec_apic_timer_interrupt+0x69/0x80 arch/x86/kernel/apic/apic.c:1097
- asm_sysvec_apic_timer_interrupt+0x12/0x20
- native_safe_halt arch/x86/include/asm/irqflags.h:51 [inline]
- arch_safe_halt arch/x86/include/asm/irqflags.h:89 [inline]
- acpi_safe_halt drivers/acpi/processor_idle.c:109 [inline]
- acpi_idle_do_entry drivers/acpi/processor_idle.c:553 [inline]
- acpi_idle_enter+0x258/0x2e0 drivers/acpi/processor_idle.c:688
- cpuidle_enter_state+0x2b4/0x760 drivers/cpuidle/cpuidle.c:237
- cpuidle_enter+0x3c/0x60 drivers/cpuidle/cpuidle.c:351
- call_cpuidle kernel/sched/idle.c:158 [inline]
- cpuidle_idle_call kernel/sched/idle.c:239 [inline]
- do_idle+0x1a3/0x250 kernel/sched/idle.c:306
- cpu_startup_entry+0x15/0x20 kernel/sched/idle.c:403
- secondary_startup_64_no_verify+0xb1/0xbb
-
-read to 0xffff88810798a885 of 1 bytes by interrupt on cpu 0:
- neigh_output include/net/neighbour.h:507 [inline]
- ip_finish_output2+0x79a/0xaa0 net/ipv4/ip_output.c:221
- ip_finish_output+0x3b5/0x510 net/ipv4/ip_output.c:309
- NF_HOOK_COND include/linux/netfilter.h:296 [inline]
- ip_output+0xf3/0x1a0 net/ipv4/ip_output.c:423
- dst_output include/net/dst.h:450 [inline]
- ip_local_out+0x164/0x220 net/ipv4/ip_output.c:126
- __ip_queue_xmit+0x9d3/0xa20 net/ipv4/ip_output.c:525
- ip_queue_xmit+0x34/0x40 net/ipv4/ip_output.c:539
- __tcp_transmit_skb+0x142a/0x1a00 net/ipv4/tcp_output.c:1405
- tcp_transmit_skb net/ipv4/tcp_output.c:1423 [inline]
- tcp_xmit_probe_skb net/ipv4/tcp_output.c:4011 [inline]
- tcp_write_wakeup+0x4a9/0x810 net/ipv4/tcp_output.c:4064
- tcp_send_probe0+0x2c/0x2b0 net/ipv4/tcp_output.c:4079
- tcp_probe_timer net/ipv4/tcp_timer.c:398 [inline]
- tcp_write_timer_handler+0x394/0x520 net/ipv4/tcp_timer.c:626
- tcp_write_timer+0xb9/0x180 net/ipv4/tcp_timer.c:642
- call_timer_fn+0x2e/0x1d0 kernel/time/timer.c:1421
- expire_timers+0x135/0x240 kernel/time/timer.c:1466
- __run_timers+0x368/0x430 kernel/time/timer.c:1734
- run_timer_softirq+0x19/0x30 kernel/time/timer.c:1747
- __do_softirq+0x12c/0x26e kernel/softirq.c:558
- invoke_softirq kernel/softirq.c:432 [inline]
- __irq_exit_rcu kernel/softirq.c:636 [inline]
- irq_exit_rcu+0x4e/0xa0 kernel/softirq.c:648
- sysvec_apic_timer_interrupt+0x69/0x80 arch/x86/kernel/apic/apic.c:1097
- asm_sysvec_apic_timer_interrupt+0x12/0x20
- native_safe_halt arch/x86/include/asm/irqflags.h:51 [inline]
- arch_safe_halt arch/x86/include/asm/irqflags.h:89 [inline]
- acpi_safe_halt drivers/acpi/processor_idle.c:109 [inline]
- acpi_idle_do_entry drivers/acpi/processor_idle.c:553 [inline]
- acpi_idle_enter+0x258/0x2e0 drivers/acpi/processor_idle.c:688
- cpuidle_enter_state+0x2b4/0x760 drivers/cpuidle/cpuidle.c:237
- cpuidle_enter+0x3c/0x60 drivers/cpuidle/cpuidle.c:351
- call_cpuidle kernel/sched/idle.c:158 [inline]
- cpuidle_idle_call kernel/sched/idle.c:239 [inline]
- do_idle+0x1a3/0x250 kernel/sched/idle.c:306
- cpu_startup_entry+0x15/0x20 kernel/sched/idle.c:403
- rest_init+0xee/0x100 init/main.c:734
- arch_call_rest_init+0xa/0xb
- start_kernel+0x5e4/0x669 init/main.c:1142
- secondary_startup_64_no_verify+0xb1/0xbb
-
-value changed: 0x20 -> 0x01
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.15.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mario Risoldi <awxkrnl@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211026112737.9181-1-awxkrnl@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/neighbour.h | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/include/net/neighbour.h b/include/net/neighbour.h
-index 22ced1381ede5..990f9b1d17092 100644
---- a/include/net/neighbour.h
-+++ b/include/net/neighbour.h
-@@ -504,10 +504,15 @@ static inline int neigh_output(struct neighbour *n, struct sk_buff *skb,
- {
- 	const struct hh_cache *hh = &n->hh;
- 
--	if ((n->nud_state & NUD_CONNECTED) && hh->hh_len && !skip_cache)
-+	/* n->nud_state and hh->hh_len could be changed under us.
-+	 * neigh_hh_output() is taking care of the race later.
-+	 */
-+	if (!skip_cache &&
-+	    (READ_ONCE(n->nud_state) & NUD_CONNECTED) &&
-+	    READ_ONCE(hh->hh_len))
- 		return neigh_hh_output(hh, skb);
--	else
--		return n->output(n, skb);
-+
-+	return n->output(n, skb);
- }
- 
- static inline struct neighbour *
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index 30c17a76f49ae..e1b2ce4921ae7 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -191,6 +191,12 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_BOARD_NAME, "Default string"),
+ 		},
+ 		.driver_data = (void *)&gpd_win2,
++	}, {	/* GPD Win 3 */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "GPD"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "G1618-03")
++		},
++		.driver_data = (void *)&lcd720x1280_rightside_up,
+ 	}, {	/* I.T.Works TW891 */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "To be filled by O.E.M."),
 -- 
 2.33.0
 
