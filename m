@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92A97451E99
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6272F451DC4
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:31:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349288AbhKPAgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
+        id S1344629AbhKPAeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:34:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343867AbhKOTWQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343870AbhKOTWQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 245506329D;
-        Mon, 15 Nov 2021 18:47:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A56C2632A0;
+        Mon, 15 Nov 2021 18:47:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002062;
-        bh=vPMz/5VMfVrv/JhrgRAhUPgIPq+gfRu4moruOfVYe3Y=;
+        s=korg; t=1637002068;
+        bh=CiqiMcsR+FxPL8RYA/TbTDWlZtYqTLptODb+rDL8XdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPrxvQ5rcZeG0QMbunHhJgx+gU7nOvzbAEMDfgQZbRt09DnLatWtn4gyK1SiD+Y+t
-         9trpe6dyRDZZqUFJr3y3JZxLSBV/IkH+Y2ZyKii/hJ5CekRdDwRQf6rMC5UhliKvS3
-         nDoGpIv4Kyht9TNvmdVB/YPQBLVQUWbv+4O+rNH8=
+        b=Ci2ERDjvP7maQJv8mxNoGrRFgm9GQBCB3kFoSoMYSm+Ma5hB+bXFKid4TYX6wLyBG
+         9VpikHjTlJbLUKGPx/mZNemh4aU3qTmLEr9pBWeaznYlfqVPOnMNJgOsWiCSGEqeIg
+         s7hxg8ktBhUbgnj5sGdIVEjtxx1P+GjiYMM3+uOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Sven Eckelmann <seckelmann@datto.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 425/917] hwmon: Fix possible memleak in __hwmon_device_register()
-Date:   Mon, 15 Nov 2021 17:58:40 +0100
-Message-Id: <20211115165443.206688464@linuxfoundation.org>
+Subject: [PATCH 5.15 427/917] ath10k: fix max antenna gain unit
+Date:   Mon, 15 Nov 2021 17:58:42 +0100
+Message-Id: <20211115165443.272201076@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,66 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Sven Eckelmann <seckelmann@datto.com>
 
-[ Upstream commit ada61aa0b1184a8fda1a89a340c7d6cc4e59aee5 ]
+[ Upstream commit 0a491167fe0cf9f26062462de2a8688b96125d48 ]
 
-I got memory leak as follows when doing fault injection test:
+Most of the txpower for the ath10k firmware is stored as twicepower (0.5 dB
+steps). This isn't the case for max_antenna_gain - which is still expected
+by the firmware as dB.
 
-unreferenced object 0xffff888102740438 (size 8):
-  comm "27", pid 859, jiffies 4295031351 (age 143.992s)
-  hex dump (first 8 bytes):
-    68 77 6d 6f 6e 30 00 00                          hwmon0..
-  backtrace:
-    [<00000000544b5996>] __kmalloc_track_caller+0x1a6/0x300
-    [<00000000df0d62b9>] kvasprintf+0xad/0x140
-    [<00000000d3d2a3da>] kvasprintf_const+0x62/0x190
-    [<000000005f8f0f29>] kobject_set_name_vargs+0x56/0x140
-    [<00000000b739e4b9>] dev_set_name+0xb0/0xe0
-    [<0000000095b69c25>] __hwmon_device_register+0xf19/0x1e50 [hwmon]
-    [<00000000a7e65b52>] hwmon_device_register_with_info+0xcb/0x110 [hwmon]
-    [<000000006f181e86>] devm_hwmon_device_register_with_info+0x85/0x100 [hwmon]
-    [<0000000081bdc567>] tmp421_probe+0x2d2/0x465 [tmp421]
-    [<00000000502cc3f8>] i2c_device_probe+0x4e1/0xbb0
-    [<00000000f90bda3b>] really_probe+0x285/0xc30
-    [<000000007eac7b77>] __driver_probe_device+0x35f/0x4f0
-    [<000000004953d43d>] driver_probe_device+0x4f/0x140
-    [<000000002ada2d41>] __device_attach_driver+0x24c/0x330
-    [<00000000b3977977>] bus_for_each_drv+0x15d/0x1e0
-    [<000000005bf2a8e3>] __device_attach+0x267/0x410
+The firmware is converting it from dB to the internal (twicepower)
+representation when it calculates the limits of a channel. This can be seen
+in tpc_stats when configuring "12" as max_antenna_gain. Instead of the
+expected 12 (6 dB), the tpc_stats shows 24 (12 dB).
 
-When device_register() returns an error, the name allocated in
-dev_set_name() will be leaked, the put_device() should be used
-instead of calling hwmon_dev_release() to give up the device
-reference, then the name will be freed in kobject_cleanup().
+Tested on QCA9888 and IPQ4019 with firmware 10.4-3.5.3-00057.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: bab2243ce189 ("hwmon: Introduce hwmon_device_register_with_groups")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211012112758.2681084-1-yangyingliang@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 02256930d9b8 ("ath10k: use proper tx power unit")
+Signed-off-by: Sven Eckelmann <seckelmann@datto.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20190611172131.6064-1-sven@narfation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/hwmon.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/mac.c | 6 +++---
+ drivers/net/wireless/ath/ath10k/wmi.h | 3 +++
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
-index 8d3b1dae31df1..3501a3ead4ba6 100644
---- a/drivers/hwmon/hwmon.c
-+++ b/drivers/hwmon/hwmon.c
-@@ -796,8 +796,10 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
- 	dev_set_drvdata(hdev, drvdata);
- 	dev_set_name(hdev, HWMON_ID_FORMAT, id);
- 	err = device_register(hdev);
--	if (err)
--		goto free_hwmon;
-+	if (err) {
-+		put_device(hdev);
-+		goto ida_remove;
-+	}
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 7ca68c81d9b61..5ec19d91cf372 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -1052,7 +1052,7 @@ static int ath10k_monitor_vdev_start(struct ath10k *ar, int vdev_id)
+ 	arg.channel.min_power = 0;
+ 	arg.channel.max_power = channel->max_power * 2;
+ 	arg.channel.max_reg_power = channel->max_reg_power * 2;
+-	arg.channel.max_antenna_gain = channel->max_antenna_gain * 2;
++	arg.channel.max_antenna_gain = channel->max_antenna_gain;
  
- 	INIT_LIST_HEAD(&hwdev->tzdata);
+ 	reinit_completion(&ar->vdev_setup_done);
+ 	reinit_completion(&ar->vdev_delete_done);
+@@ -1498,7 +1498,7 @@ static int ath10k_vdev_start_restart(struct ath10k_vif *arvif,
+ 	arg.channel.min_power = 0;
+ 	arg.channel.max_power = chandef->chan->max_power * 2;
+ 	arg.channel.max_reg_power = chandef->chan->max_reg_power * 2;
+-	arg.channel.max_antenna_gain = chandef->chan->max_antenna_gain * 2;
++	arg.channel.max_antenna_gain = chandef->chan->max_antenna_gain;
  
+ 	if (arvif->vdev_type == WMI_VDEV_TYPE_AP) {
+ 		arg.ssid = arvif->u.ap.ssid;
+@@ -3426,7 +3426,7 @@ static int ath10k_update_channel_list(struct ath10k *ar)
+ 			ch->min_power = 0;
+ 			ch->max_power = channel->max_power * 2;
+ 			ch->max_reg_power = channel->max_reg_power * 2;
+-			ch->max_antenna_gain = channel->max_antenna_gain * 2;
++			ch->max_antenna_gain = channel->max_antenna_gain;
+ 			ch->reg_class_id = 0; /* FIXME */
+ 
+ 			/* FIXME: why use only legacy modes, why not any
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index 41c1a3d339c25..01bfd09a9d88c 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -2066,7 +2066,9 @@ struct wmi_channel {
+ 	union {
+ 		__le32 reginfo1;
+ 		struct {
++			/* note: power unit is 1 dBm */
+ 			u8 antenna_max;
++			/* note: power unit is 0.5 dBm */
+ 			u8 max_tx_power;
+ 		} __packed;
+ 	} __packed;
+@@ -2086,6 +2088,7 @@ struct wmi_channel_arg {
+ 	u32 min_power;
+ 	u32 max_power;
+ 	u32 max_reg_power;
++	/* note: power unit is 1 dBm */
+ 	u32 max_antenna_gain;
+ 	u32 reg_class_id;
+ 	enum wmi_phy_mode mode;
 -- 
 2.33.0
 
