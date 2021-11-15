@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 265674524F3
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 266E94524F6
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357698AbhKPBqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:46:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33184 "EHLO mail.kernel.org"
+        id S1357753AbhKPBqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:46:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237863AbhKOSVV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:21:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B5736340E;
-        Mon, 15 Nov 2021 17:52:49 +0000 (UTC)
+        id S238836AbhKOSVY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:21:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17B4B63410;
+        Mon, 15 Nov 2021 17:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998770;
-        bh=s4vK5kNkSFffjxjZWpUMaex5FUDPxDn8P4NpQN9vDMM=;
+        s=korg; t=1636998778;
+        bh=1e6b9FBICrzlKpl2mB1WYH8Lon7reBS5kHqhBVwnZ5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBOJN8mdAiM9eoNVtX+RydSE8zY+PopURzgn1G5JrzNsQX0/5cBgl1oceSnaOM5W/
-         yV/U6euaqbM42MFzfAhRltaezge20aZEYhLzPKhm9ad+A+eZOZlpK2inI2RTpHD6tP
-         /FS8ocq+8KjMF42fcK1YT6TJVNwQFuKiCFFJuKD8=
+        b=DruqKThuDqosikmDRbo+C0PBVRuLmfvtBn/HEy4s+PVu8OAXL+FocZP+CI0ubjxMq
+         fGIWo0TByWumm78oWI+FVkJCpV66VjHyGuPTHc/jERBys3wB5JqTlbPNrL17YkkYrY
+         nEpJ0vmfdOSlauHX1d1Dbhvv9WqkzV8ccCgJuxYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Zary <linux@zary.sk>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@kernel.org
-Subject: [PATCH 5.14 055/849] x86/iopl: Fake iopl(3) CLI/STI usage
-Date:   Mon, 15 Nov 2021 17:52:18 +0100
-Message-Id: <20211115165421.876747659@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stefan Binding <sbinding@opensource.cirrus.com>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 058/849] ASoC: cs42l42: Ensure 0dB full scale volume is used for headsets
+Date:   Mon, 15 Nov 2021 17:52:21 +0100
+Message-Id: <20211115165421.989761603@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,131 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Stefan Binding <sbinding@opensource.cirrus.com>
 
-commit b968e84b509da593c50dc3db679e1d33de701f78 upstream.
+[ Upstream commit aa18457c4af7a9dad1f2b150b11beae1d8ab57aa ]
 
-Since commit c8137ace5638 ("x86/iopl: Restrict iopl() permission
-scope") it's possible to emulate iopl(3) using ioperm(), except for
-the CLI/STI usage.
+Ensure the default 0dB playback path is always used.
 
-Userspace CLI/STI usage is very dubious (read broken), since any
-exception taken during that window can lead to rescheduling anyway (or
-worse). The IOPL(2) manpage even states that usage of CLI/STI is highly
-discouraged and might even crash the system.
+The code that set FULL_SCALE_VOL based on LOAD_DET_RCSTAT was
+spurious, and resulted in a -6dB attenuation being accidentally
+inserted into the playback path.
 
-Of course, that won't stop people and HP has the dubious honour of
-being the first vendor to be found using this in their hp-health
-package.
-
-In order to enable this 'software' to still 'work', have the #GP treat
-the CLI/STI instructions as NOPs when iopl(3). Warn the user that
-their program is doing dubious things.
-
-Fixes: a24ca9976843 ("x86/iopl: Remove legacy IOPL option")
-Reported-by: Ondrej Zary <linux@zary.sk>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@kernel.org # v5.5+
-Link: https://lkml.kernel.org/r/20210918090641.GD5106@worktop.programming.kicks-ass.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Stefan Binding <sbinding@opensource.cirrus.com>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20211011144903.28915-1-rf@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/insn-eval.h |    1 +
- arch/x86/include/asm/processor.h |    1 +
- arch/x86/kernel/process.c        |    1 +
- arch/x86/kernel/traps.c          |   33 +++++++++++++++++++++++++++++++++
- arch/x86/lib/insn-eval.c         |    2 +-
- 5 files changed, 37 insertions(+), 1 deletion(-)
+ sound/soc/codecs/cs42l42.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
---- a/arch/x86/include/asm/insn-eval.h
-+++ b/arch/x86/include/asm/insn-eval.h
-@@ -21,6 +21,7 @@ int insn_get_modrm_rm_off(struct insn *i
- int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs);
- unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
- int insn_get_code_seg_params(struct pt_regs *regs);
-+int insn_get_effective_ip(struct pt_regs *regs, unsigned long *ip);
- int insn_fetch_from_user(struct pt_regs *regs,
- 			 unsigned char buf[MAX_INSN_SIZE]);
- int insn_fetch_from_user_inatomic(struct pt_regs *regs,
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -516,6 +516,7 @@ struct thread_struct {
- 	 */
- 	unsigned long		iopl_emul;
+diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
+index 99c022be94a68..8838b9a0de8e4 100644
+--- a/sound/soc/codecs/cs42l42.c
++++ b/sound/soc/codecs/cs42l42.c
+@@ -901,7 +901,6 @@ static int cs42l42_mute_stream(struct snd_soc_dai *dai, int mute, int stream)
+ 	struct snd_soc_component *component = dai->component;
+ 	struct cs42l42_private *cs42l42 = snd_soc_component_get_drvdata(component);
+ 	unsigned int regval;
+-	u8 fullScaleVol;
+ 	int ret;
  
-+	unsigned int		iopl_warn:1;
- 	unsigned int		sig_on_uaccess_err:1;
+ 	if (mute) {
+@@ -972,20 +971,11 @@ static int cs42l42_mute_stream(struct snd_soc_dai *dai, int mute, int stream)
+ 		cs42l42->stream_use |= 1 << stream;
  
- 	/*
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -132,6 +132,7 @@ int copy_thread(unsigned long clone_flag
- 	frame->ret_addr = (unsigned long) ret_from_fork;
- 	p->thread.sp = (unsigned long) fork_frame;
- 	p->thread.io_bitmap = NULL;
-+	p->thread.iopl_warn = 0;
- 	memset(p->thread.ptrace_bps, 0, sizeof(p->thread.ptrace_bps));
- 
- #ifdef CONFIG_X86_64
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -528,6 +528,36 @@ static enum kernel_gp_hint get_kernel_gp
- 
- #define GPFSTR "general protection fault"
- 
-+static bool fixup_iopl_exception(struct pt_regs *regs)
-+{
-+	struct thread_struct *t = &current->thread;
-+	unsigned char byte;
-+	unsigned long ip;
-+
-+	if (!IS_ENABLED(CONFIG_X86_IOPL_IOPERM) || t->iopl_emul != 3)
-+		return false;
-+
-+	if (insn_get_effective_ip(regs, &ip))
-+		return false;
-+
-+	if (get_user(byte, (const char __user *)ip))
-+		return false;
-+
-+	if (byte != 0xfa && byte != 0xfb)
-+		return false;
-+
-+	if (!t->iopl_warn && printk_ratelimit()) {
-+		pr_err("%s[%d] attempts to use CLI/STI, pretending it's a NOP, ip:%lx",
-+		       current->comm, task_pid_nr(current), ip);
-+		print_vma_addr(KERN_CONT " in ", ip);
-+		pr_cont("\n");
-+		t->iopl_warn = 1;
-+	}
-+
-+	regs->ip += 1;
-+	return true;
-+}
-+
- DEFINE_IDTENTRY_ERRORCODE(exc_general_protection)
- {
- 	char desc[sizeof(GPFSTR) + 50 + 2*sizeof(unsigned long) + 1] = GPFSTR;
-@@ -553,6 +583,9 @@ DEFINE_IDTENTRY_ERRORCODE(exc_general_pr
- 	tsk = current;
- 
- 	if (user_mode(regs)) {
-+		if (fixup_iopl_exception(regs))
-+			goto exit;
-+
- 		tsk->thread.error_code = error_code;
- 		tsk->thread.trap_nr = X86_TRAP_GP;
- 
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -1417,7 +1417,7 @@ void __user *insn_get_addr_ref(struct in
+ 		if (stream == SNDRV_PCM_STREAM_PLAYBACK) {
+-			/* Read the headphone load */
+-			regval = snd_soc_component_read(component, CS42L42_LOAD_DET_RCSTAT);
+-			if (((regval & CS42L42_RLA_STAT_MASK) >> CS42L42_RLA_STAT_SHIFT) ==
+-			    CS42L42_RLA_STAT_15_OHM) {
+-				fullScaleVol = CS42L42_HP_FULL_SCALE_VOL_MASK;
+-			} else {
+-				fullScaleVol = 0;
+-			}
+-
+-			/* Un-mute the headphone, set the full scale volume flag */
++			/* Un-mute the headphone */
+ 			snd_soc_component_update_bits(component, CS42L42_HP_CTL,
+ 						      CS42L42_HP_ANA_AMUTE_MASK |
+-						      CS42L42_HP_ANA_BMUTE_MASK |
+-						      CS42L42_HP_FULL_SCALE_VOL_MASK, fullScaleVol);
++						      CS42L42_HP_ANA_BMUTE_MASK,
++						      0);
+ 		}
  	}
- }
  
--static int insn_get_effective_ip(struct pt_regs *regs, unsigned long *ip)
-+int insn_get_effective_ip(struct pt_regs *regs, unsigned long *ip)
- {
- 	unsigned long seg_base = 0;
- 
+-- 
+2.33.0
+
 
 
