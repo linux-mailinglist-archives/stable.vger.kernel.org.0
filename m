@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E34D1451268
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4038E45143E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245267AbhKOTfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:35:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
+        id S1349405AbhKOUHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:07:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244718AbhKOTRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:17:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB80D611CC;
-        Mon, 15 Nov 2021 18:23:03 +0000 (UTC)
+        id S1344469AbhKOTYo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20FAB61501;
+        Mon, 15 Nov 2021 18:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000584;
-        bh=CNvbAcdhZ2PsHJMjtkKDF0kxQ3hi5jEBvy5Vup0evvI=;
+        s=korg; t=1637002692;
+        bh=LuXujK1kTYJb17w277hhzMyPotG7BOvgqlyI078tPiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGbUAMZ4UgjwcrqiLEZrVOA+7/9Oe1L13zZct5RLcrdkTpOwrCxLiiWm5ikIh+elG
-         ynCleGIDF3CXwLdFlesHjUs/38K7LJVu/Zl8q9PpEZZN39dqHoqbKm1/qY6tHumVN6
-         HkZk9247UfX/5ycaZNJX1txjfNe9l70YFZunU5gs=
+        b=g8pG9ANvXwqoA+kqdkg1q4s26gIi2nxy5eQXASjHmNHAK/6QCXulvibeIVXRVftdY
+         d/9+6Q80kfguofYcdaXckik/WzngMX6pgkjAzuS0yT6MRVBnf09g8ajyrihqQX8v98
+         74WksAkL2WiLyNWbteWc32KJ0eOjmlKu2xJ06/zM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Bhupesh Sharma <bhupesh.sharma@linaro.org>,
+        Thara Gopinath <thara.gopinath@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 672/849] rtc: mcp795: Add SPI ID table
-Date:   Mon, 15 Nov 2021 18:02:35 +0100
-Message-Id: <20211115165443.007773081@linuxfoundation.org>
+Subject: [PATCH 5.15 661/917] arm64: dts: qcom: sdm845: Use RPMH_CE_CLK macro directly
+Date:   Mon, 15 Nov 2021 18:02:36 +0100
+Message-Id: <20211115165451.302073004@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Bhupesh Sharma <bhupesh.sharma@linaro.org>
 
-[ Upstream commit 3109151c47343c80300177ec7704e0757064efdc ]
+[ Upstream commit eed1d9b6e36b06faa53c6dc74134ec21b1336d94 ]
 
-Currently autoloading for SPI devices does not use the DT ID table, it uses
-SPI modalises. Supporting OF modalises is going to be difficult if not
-impractical, an attempt was made but has been reverted, so ensure that
-module autoloading works for this driver by adding an id_table listing the
-SPI IDs for everything.
+In commit 3e482859f1ef ("dts: qcom: sdm845: Add dt entries
+to support crypto engine."), we decided to use the value indicated
+by constant RPMH_CE_CLK rather than using it directly.
 
-Fixes: 96c8395e2166 ("spi: Revert modalias changes")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210927130240.33693-1-broonie@kernel.org
+Now that the same RPMH clock value might be used for other
+SoCs (in addition to sdm845), let's use the constant
+RPMH_CE_CLK to make sure that this dtsi is compatible with the
+other qcom ones.
+
+Signed-off-by: Bhupesh Sharma <bhupesh.sharma@linaro.org>
+Reviewed-by: Thara Gopinath <thara.gopinath@linaro.org>
+Link: https://lore.kernel.org/r/20210519143700.27392-8-bhupesh.sharma@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-mcp795.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm64/boot/dts/qcom/sdm845.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
-index bad7792b6ca58..0d515b3df5710 100644
---- a/drivers/rtc/rtc-mcp795.c
-+++ b/drivers/rtc/rtc-mcp795.c
-@@ -430,12 +430,19 @@ static const struct of_device_id mcp795_of_match[] = {
- MODULE_DEVICE_TABLE(of, mcp795_of_match);
- #endif
- 
-+static const struct spi_device_id mcp795_spi_ids[] = {
-+	{ .name = "mcp795" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(spi, mcp795_spi_ids);
-+
- static struct spi_driver mcp795_driver = {
- 		.driver = {
- 				.name = "rtc-mcp795",
- 				.of_match_table = of_match_ptr(mcp795_of_match),
- 		},
- 		.probe = mcp795_probe,
-+		.id_table = mcp795_spi_ids,
- };
- 
- module_spi_driver(mcp795_driver);
+diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+index b3b9119261844..98370d474f646 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
+@@ -2316,7 +2316,7 @@
+ 			compatible = "qcom,bam-v1.7.0";
+ 			reg = <0 0x01dc4000 0 0x24000>;
+ 			interrupts = <GIC_SPI 272 IRQ_TYPE_LEVEL_HIGH>;
+-			clocks = <&rpmhcc 15>;
++			clocks = <&rpmhcc RPMH_CE_CLK>;
+ 			clock-names = "bam_clk";
+ 			#dma-cells = <1>;
+ 			qcom,ee = <0>;
+@@ -2332,7 +2332,7 @@
+ 			reg = <0 0x01dfa000 0 0x6000>;
+ 			clocks = <&gcc GCC_CE1_AHB_CLK>,
+ 				 <&gcc GCC_CE1_AHB_CLK>,
+-				 <&rpmhcc 15>;
++				 <&rpmhcc RPMH_CE_CLK>;
+ 			clock-names = "iface", "bus", "core";
+ 			dmas = <&cryptobam 6>, <&cryptobam 7>;
+ 			dma-names = "rx", "tx";
 -- 
 2.33.0
 
