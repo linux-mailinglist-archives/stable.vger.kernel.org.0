@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 882A545265E
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94E6445278A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:23:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349840AbhKPCFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:05:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46098 "EHLO mail.kernel.org"
+        id S236662AbhKPC0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:26:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240010AbhKOSF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B5C063371;
-        Mon, 15 Nov 2021 17:41:09 +0000 (UTC)
+        id S237401AbhKORVC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:21:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D736E6324A;
+        Mon, 15 Nov 2021 17:15:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998069;
-        bh=KFLqRm6YvDx71RC1lPpY22hOq0Jb8J/NODucDGAnVqg=;
+        s=korg; t=1636996544;
+        bh=9bkTcyDqVFJ98Vss6MyRjSPsCXeWUNDdXpB7sopy0pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vxCV1e652/7tbfOGKxdYMnsoOq7bHt5Ua6Q6TRIU0oGbKQ+pIG7BEjvKqHQi8zuBg
-         fr7NElUSS7xGRVBvxPvSr5WXadZflFsqo4M6DLiWOOwEbt0W5miKkFe+xXvwaY0otj
-         3SFTGV9k5d9+d8vpSc2CyiMaT0BRPldcMBFy0SNA=
+        b=WDkYpvSGN6+45sCKE1/e6xNpzKGNhiRj0JwTuZIdnI1luYe2/m4lfzxKdcDY4C8wW
+         Y/cN29Ujxl9kA1c5i/DTJg5Xyo89IHUpSyySBYB6vEBvb5J8YgsnXaJetYSLgfJpRn
+         c+iqcaOI01JoaPI4C4gbsGunMD8JEHjinsCdehm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 376/575] net: phylink: avoid mvneta warning when setting pause parameters
-Date:   Mon, 15 Nov 2021 18:01:41 +0100
-Message-Id: <20211115165356.784611110@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 179/355] parisc/kgdb: add kgdb_roundup() to make kgdb work with idle polling
+Date:   Mon, 15 Nov 2021 18:01:43 +0100
+Message-Id: <20211115165319.572620137@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +39,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Sven Schnelle <svens@stackframe.org>
 
-[ Upstream commit fd8d9731bcdfb22d28e45bce789bcb211c868c78 ]
+[ Upstream commit 66e29fcda1824f0427966fbee2bd2c85bf362c82 ]
 
-mvneta does not support asymetric pause modes, and it flags this by the
-lack of AsymPause in the supported field. When setting pause modes, we
-check that pause->rx_pause == pause->tx_pause, but only when pause
-autoneg is enabled. When pause autoneg is disabled, we still allow
-pause->rx_pause != pause->tx_pause, which is incorrect when the MAC
-does not support asymetric pause, and causes mvneta to issue a warning.
+With idle polling, IPIs are not sent when a CPU idle, but queued
+and run later from do_idle(). The default kgdb_call_nmi_hook()
+implementation gets the pointer to struct pt_regs from get_irq_reqs(),
+which doesn't work in that case because it was not called from the
+IPI interrupt handler. Fix it by defining our own kgdb_roundup()
+function which sents an IPI_ENTER_KGDB. When that IPI is received
+on the target CPU kgdb_nmicallback() is called.
 
-Fix this by removing the test for pause->autoneg, so we always check
-that pause->rx_pause == pause->tx_pause for network devices that do not
-support AsymPause.
-
-Fixes: 9525ae83959b ("phylink: add phylink infrastructure")
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phylink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/parisc/kernel/smp.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
-index 025c3246f3396..899496f089d2e 100644
---- a/drivers/net/phy/phylink.c
-+++ b/drivers/net/phy/phylink.c
-@@ -1610,7 +1610,7 @@ int phylink_ethtool_set_pauseparam(struct phylink *pl,
- 		return -EOPNOTSUPP;
+diff --git a/arch/parisc/kernel/smp.c b/arch/parisc/kernel/smp.c
+index e202c37e56af3..9997465c11820 100644
+--- a/arch/parisc/kernel/smp.c
++++ b/arch/parisc/kernel/smp.c
+@@ -29,6 +29,7 @@
+ #include <linux/bitops.h>
+ #include <linux/ftrace.h>
+ #include <linux/cpu.h>
++#include <linux/kgdb.h>
  
- 	if (!phylink_test(pl->supported, Asym_Pause) &&
--	    !pause->autoneg && pause->rx_pause != pause->tx_pause)
-+	    pause->rx_pause != pause->tx_pause)
- 		return -EINVAL;
+ #include <linux/atomic.h>
+ #include <asm/current.h>
+@@ -71,7 +72,10 @@ enum ipi_message_type {
+ 	IPI_CALL_FUNC,
+ 	IPI_CPU_START,
+ 	IPI_CPU_STOP,
+-	IPI_CPU_TEST
++	IPI_CPU_TEST,
++#ifdef CONFIG_KGDB
++	IPI_ENTER_KGDB,
++#endif
+ };
  
- 	pause_state = 0;
+ 
+@@ -169,7 +173,12 @@ ipi_interrupt(int irq, void *dev_id)
+ 			case IPI_CPU_TEST:
+ 				smp_debug(100, KERN_DEBUG "CPU%d is alive!\n", this_cpu);
+ 				break;
+-
++#ifdef CONFIG_KGDB
++			case IPI_ENTER_KGDB:
++				smp_debug(100, KERN_DEBUG "CPU%d ENTER_KGDB\n", this_cpu);
++				kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
++				break;
++#endif
+ 			default:
+ 				printk(KERN_CRIT "Unknown IPI num on CPU%d: %lu\n",
+ 					this_cpu, which);
+@@ -225,6 +234,12 @@ send_IPI_allbutself(enum ipi_message_type op)
+ 	}
+ }
+ 
++#ifdef CONFIG_KGDB
++void kgdb_roundup_cpus(void)
++{
++	send_IPI_allbutself(IPI_ENTER_KGDB);
++}
++#endif
+ 
+ inline void 
+ smp_send_stop(void)	{ send_IPI_allbutself(IPI_CPU_STOP); }
 -- 
 2.33.0
 
