@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8252450D26
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:49:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B513A4510A8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:49:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238424AbhKORwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:52:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34766 "EHLO mail.kernel.org"
+        id S242447AbhKOSvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:51:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238664AbhKORtj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:49:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67AF56120F;
-        Mon, 15 Nov 2021 17:30:49 +0000 (UTC)
+        id S243017AbhKOStJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:49:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42A42632A0;
+        Mon, 15 Nov 2021 18:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997449;
-        bh=4YamMmPewrVW2qrua6yAloqcbZ6UoG+EsKNyCNx00/s=;
+        s=korg; t=1636999710;
+        bh=jZ5j3IIeFKevyECZ9SdkAnJzRNLg/HOwH9NDQyH5Cfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hGrI8aST/f/I10lE4U9MiJwrLjGaqrI/b8iojxeuiDIPtM8aIDdeExwHhWxJ5gwaq
-         0nrQLenHWwfQ4gkUIs2Is+9rlUAZjYLaw09NCx8fUdQrMa0V/xNz79Atngz//nEq3C
-         7/1IQ5S+js4pmbP24HxcVoWOzKt9i90jmW0ur0JQ=
+        b=wX18PCCtj9pu59qoRp0aqNOsprSrmNo71t9hdnbEKPzLFmVF/jvxu4dDDmxMmNsi+
+         T0gD07VpnOntGtJn3S3jV8naYzyGgfvvV7v6DIpT3HOPK50mT1SyuWrRypKy29oo/N
+         t60qaxpNRf6zrczDtw09gH90BkoptntWPSFht9LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Reimar=20D=C3=B6ffinger?= <Reimar.Doeffinger@gmx.de>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 5.10 109/575] libata: fix checking of DMA state
-Date:   Mon, 15 Nov 2021 17:57:14 +0100
-Message-Id: <20211115165347.429522866@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Bee <knaerzche@gmail.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 352/849] drm: bridge: it66121: Fix return value it66121_probe
+Date:   Mon, 15 Nov 2021 17:57:15 +0100
+Message-Id: <20211115165432.143667285@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reimar Döffinger <Reimar.Doeffinger@gmx.de>
+From: Alex Bee <knaerzche@gmail.com>
 
-commit f971a85439bd25dc7b4d597cf5e4e8dc7ffc884b upstream.
+[ Upstream commit f3bc07eba481942a246926c5b934199e7ccd567b ]
 
-Checking if DMA is enabled should be done via the
-ata_dma_enabled helper function, since the init state
-0xff indicates disabled.
-This meant that ATA_CMD_READ_LOG_DMA_EXT was used and probed
-for before DMA was enabled, which caused hangs for some combinations
-of controllers and devices.
-It might also have caused it to be incorrectly disabled as broken,
-but there have been no reports of that.
+Currently it66121_probe returns -EPROBE_DEFER if the there is no remote
+endpoint found in the device tree which doesn't seem helpful, since this
+is not going to change later and it is never checked if the next bridge
+has been initialized yet. It will fail in that case later while doing
+drm_bridge_attach for the next bridge in it66121_bridge_attach.
 
-Cc: stable@vger.kernel.org
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=195895
-Signed-off-by: Reimar Döffinger <Reimar.Doeffinger@gmx.de>
-Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since the bindings documentation for it66121 bridge driver states
+there has to be a remote endpoint defined, its safe to return -EINVAL
+in that case.
+This additonally adds a check, if the remote endpoint is enabled and
+returns -EPROBE_DEFER, if the remote bridge hasn't been initialized
+(yet).
+
+Fixes: 988156dc2fc9 ("drm: bridge: add it66121 driver")
+Signed-off-by: Alex Bee <knaerzche@gmail.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210918140420.231346-1-knaerzche@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/ite-it66121.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -2004,7 +2004,7 @@ unsigned int ata_read_log_page(struct at
+diff --git a/drivers/gpu/drm/bridge/ite-it66121.c b/drivers/gpu/drm/bridge/ite-it66121.c
+index 9dc41a7b91362..06b59b422c696 100644
+--- a/drivers/gpu/drm/bridge/ite-it66121.c
++++ b/drivers/gpu/drm/bridge/ite-it66121.c
+@@ -918,11 +918,23 @@ static int it66121_probe(struct i2c_client *client,
+ 		return -EINVAL;
  
- retry:
- 	ata_tf_init(dev, &tf);
--	if (dev->dma_mode && ata_id_has_read_log_dma_ext(dev->id) &&
-+	if (ata_dma_enabled(dev) && ata_id_has_read_log_dma_ext(dev->id) &&
- 	    !(dev->horkage & ATA_HORKAGE_NO_DMA_LOG)) {
- 		tf.command = ATA_CMD_READ_LOG_DMA_EXT;
- 		tf.protocol = ATA_PROT_DMA;
+ 	ep = of_graph_get_remote_node(dev->of_node, 1, -1);
+-	if (!ep)
+-		return -EPROBE_DEFER;
++	if (!ep) {
++		dev_err(ctx->dev, "The endpoint is unconnected\n");
++		return -EINVAL;
++	}
++
++	if (!of_device_is_available(ep)) {
++		of_node_put(ep);
++		dev_err(ctx->dev, "The remote device is disabled\n");
++		return -ENODEV;
++	}
+ 
+ 	ctx->next_bridge = of_drm_find_bridge(ep);
+ 	of_node_put(ep);
++	if (!ctx->next_bridge) {
++		dev_dbg(ctx->dev, "Next bridge not found, deferring probe\n");
++		return -EPROBE_DEFER;
++	}
+ 
+ 	if (!ctx->next_bridge)
+ 		return -EPROBE_DEFER;
+-- 
+2.33.0
+
 
 
