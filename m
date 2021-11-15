@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6135E452184
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:02:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC124523EC
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:32:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244446AbhKPBFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:05:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
+        id S242895AbhKPBf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:35:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233126AbhKOTUm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89C0F6326F;
-        Mon, 15 Nov 2021 18:36:24 +0000 (UTC)
+        id S242039AbhKOSdN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:33:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2D2661BFB;
+        Mon, 15 Nov 2021 17:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001385;
-        bh=5t6++Vi4M6dV4NICACVBi41CWwRTV7a8qD44Dej0bWQ=;
+        s=korg; t=1636999192;
+        bh=vHq9U+jy2ekVKwToG37Qkro9gvty6zbyGVjN07VsoP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHnnPCE8hLFFc3t/PB/4jx89MiPhqsiU8eiathkYOF6K40E1NtPPjVgCYXuXO4FHm
-         hkE9HQOfXne80jw0Gbf/of5B6+t8YmgFYW8F1qqLtthMOC7gmEC/YjG5hDlC1gsJFm
-         tfq0uTyrch+kx8Lw0twBWRML0/BrERWIOY0qStpc=
+        b=Cw2OAd/06S8fk7IBR/Vsat7c66afDGnsuEs9pMB/5LEXJ+/7nl5GoDmfbSIZ2iajA
+         8ldfSGMR9qYjbudWeMrrd+GCvy0j5f/pzz9CBm9ilwGOxDzZTHMpXjyLBWQ49y7fqU
+         MVsfenPbwVkd091EMPWLOfsHuTHeblVUlvLh1jzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 163/917] iio: buffer: check return value of kstrdup_const()
-Date:   Mon, 15 Nov 2021 17:54:18 +0100
-Message-Id: <20211115165434.293471726@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.14 177/849] PCI: aardvark: Read all 16-bits from PCIE_MSI_PAYLOAD_REG
+Date:   Mon, 15 Nov 2021 17:54:20 +0100
+Message-Id: <20211115165426.164375440@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Marek Behún <kabel@kernel.org>
 
-commit 2c0ad3f0cc04dec489552a21b80cd6d708bea96d upstream.
+commit 95997723b6402cd6c53e0f9e7ac640ec64eaaff8 upstream.
 
-Check return value of kstrdup_const() in iio_buffer_wrap_attr(),
-or it will cause null-ptr-deref in kernfs_name_hash() when calling
-device_add() as follows:
+The PCIE_MSI_PAYLOAD_REG contains 16-bit MSI number, not only lower
+8 bits. Fix reading content of this register and add a comment
+describing the access to this register.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-RIP: 0010:strlen+0x0/0x20
-Call Trace:
- kernfs_name_hash+0x22/0x110
- kernfs_find_ns+0x11d/0x390
- kernfs_remove_by_name_ns+0x3b/0xb0
- remove_files.isra.1+0x7b/0x190
- internal_create_group+0x7f1/0xbb0
- internal_create_groups+0xa3/0x150
- device_add+0x8f0/0x2020
- cdev_device_add+0xc3/0x160
- __iio_device_register+0x1427/0x1b40 [industrialio]
- __devm_iio_device_register+0x22/0x80 [industrialio]
- adjd_s311_probe+0x195/0x200 [adjd_s311]
- i2c_device_probe+0xa07/0xbb0
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 15097c7a1adc ("iio: buffer: wrap all buffer attributes into iio_dev_attr")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211013040438.1689277-1-yangyingliang@huawei.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Link: https://lore.kernel.org/r/20211028185659.20329-4-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/industrialio-buffer.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/pci/controller/pci-aardvark.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/industrialio-buffer.c
-+++ b/drivers/iio/industrialio-buffer.c
-@@ -1312,6 +1312,11 @@ static struct attribute *iio_buffer_wrap
- 	iio_attr->buffer = buffer;
- 	memcpy(&iio_attr->dev_attr, dattr, sizeof(iio_attr->dev_attr));
- 	iio_attr->dev_attr.attr.name = kstrdup_const(attr->name, GFP_KERNEL);
-+	if (!iio_attr->dev_attr.attr.name) {
-+		kfree(iio_attr);
-+		return NULL;
-+	}
-+
- 	sysfs_attr_init(&iio_attr->dev_attr.attr);
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -119,6 +119,7 @@
+ #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
+ #define PCIE_MSI_MASK_REG			(CONTROL_BASE_ADDR + 0x5C)
+ #define PCIE_MSI_PAYLOAD_REG			(CONTROL_BASE_ADDR + 0x9C)
++#define     PCIE_MSI_DATA_MASK			GENMASK(15, 0)
  
- 	list_add(&iio_attr->l, &buffer->buffer_attr_list);
+ /* PCIe window configuration */
+ #define OB_WIN_BASE_ADDR			0x4c00
+@@ -1361,8 +1362,12 @@ static void advk_pcie_handle_msi(struct
+ 		if (!(BIT(msi_idx) & msi_status))
+ 			continue;
+ 
++		/*
++		 * msi_idx contains bits [4:0] of the msi_data and msi_data
++		 * contains 16bit MSI interrupt number
++		 */
+ 		advk_writel(pcie, BIT(msi_idx), PCIE_MSI_STATUS_REG);
+-		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & 0xFF;
++		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & PCIE_MSI_DATA_MASK;
+ 		generic_handle_irq(msi_data);
+ 	}
+ 
 
 
