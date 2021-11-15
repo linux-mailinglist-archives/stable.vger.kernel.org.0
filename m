@@ -2,41 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9A06452750
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:17:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA41245274A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:17:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348665AbhKPCUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:20:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57906 "EHLO mail.kernel.org"
+        id S1349660AbhKPCUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:20:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238388AbhKORnE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238395AbhKORnE (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 12:43:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1A5C6326D;
-        Mon, 15 Nov 2021 17:27:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F7A063270;
+        Mon, 15 Nov 2021 17:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997271;
-        bh=vbDlyIVcrD4DuO6HOnWMvVM64vrgsGBC0nwOL0t7YW0=;
+        s=korg; t=1636997274;
+        bh=rlD6LY/I2aXBFLH3S2IaC0RGg+morjQNZT9wq6P88xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IrCIO5cFRctyEyDywUq4b56oBY3V9KNhlFLwDfw4CAxXGj43C/c3k0JWr0Wb7XhW5
-         tySCfky/9l1CiO7TwU59+Sm5JvtXJAkCUWP//K3xJwqdU8kaaR7AChfdg3EAFvy0UA
-         YwWBQnuxBLzB9Ok1Av6sv9PYsppJJaIC7Ea8ybzQ=
+        b=xfQoTpFitZL9LDcmEticlN2IO5SAl/YzFHA5g2kKZqUA1wy2Btr7UXXH4Qpqeu+U0
+         xLHueuS9gqUJX00+b0OGWc2gLNBmYJrpUhHjnOrH9lfF6p/HryxpN/aq6pbfYXl4jB
+         dkzBe7wZqWCrzF7XYaltaHpZRjhmQkT19u7r/Vig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>, X86 ML <x86@kernel.org>,
-        Daniel Xu <dxu@dxuuu.xyz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Abhishek Sagar <sagar.abhishek@gmail.com>,
-        Andrii Nakryiko <andrii.nakryiko@gmail.com>,
-        Paul McKenney <paulmck@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 088/575] ia64: kprobes: Fix to pass correct trampoline address to the handler
-Date:   Mon, 15 Nov 2021 17:56:53 +0100
-Message-Id: <20211115165346.686379338@linuxfoundation.org>
+        stable@vger.kernel.org, Xinjie Zheng <xinjie@google.com>,
+        Sujithra Periasamy <sujithra@google.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.10 089/575] selinux: fix race condition when computing ocontext SIDs
+Date:   Mon, 15 Nov 2021 17:56:54 +0100
+Message-Id: <20211115165346.718157088@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -48,80 +41,301 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit a7fe2378454cf46cd5e2776d05e72bbe8f0a468c upstream.
+commit cbfcd13be5cb2a07868afe67520ed181956579a7 upstream.
 
-The following commit:
+Current code contains a lot of racy patterns when converting an
+ocontext's context structure to an SID. This is being done in a "lazy"
+fashion, such that the SID is looked up in the SID table only when it's
+first needed and then cached in the "sid" field of the ocontext
+structure. However, this is done without any locking or memory barriers
+and is thus unsafe.
 
-   Commit e792ff804f49 ("ia64: kprobes: Use generic kretprobe trampoline handler")
+Between commits 24ed7fdae669 ("selinux: use separate table for initial
+SID lookup") and 66f8e2f03c02 ("selinux: sidtab reverse lookup hash
+table"), this race condition lead to an actual observable bug, because a
+pointer to the shared sid field was passed directly to
+sidtab_context_to_sid(), which was using this location to also store an
+intermediate value, which could have been read by other threads and
+interpreted as an SID. In practice this caused e.g. new mounts to get a
+wrong (seemingly random) filesystem context, leading to strange denials.
+This bug has been spotted in the wild at least twice, see [1] and [2].
 
-Passed the wrong trampoline address to __kretprobe_trampoline_handler(): it
-passes the descriptor address instead of function entry address.
+Fix the race condition by making all the racy functions use a common
+helper that ensures the ocontext::sid accesses are made safely using the
+appropriate SMP constructs.
 
-Pass the right parameter.
+Note that security_netif_sid() was populating the sid field of both
+contexts stored in the ocontext, but only the first one was actually
+used. The SELinux wiki's documentation on the "netifcon" policy
+statement [3] suggests that using only the first context is intentional.
+I kept only the handling of the first context here, as there is really
+no point in doing the SID lookup for the unused one.
 
-Also use correct symbol dereference function to get the function address
-from 'kretprobe_trampoline' - an IA64 special.
+I wasn't able to reproduce the bug mentioned above on any kernel that
+includes commit 66f8e2f03c02, even though it has been reported that the
+issue occurs with that commit, too, just less frequently. Thus, I wasn't
+able to verify that this patch fixes the issue, but it makes sense to
+avoid the race condition regardless.
 
-Link: https://lkml.kernel.org/r/163163042696.489837.12551102356265354730.stgit@devnote2
+[1] https://github.com/containers/container-selinux/issues/89
+[2] https://lists.fedoraproject.org/archives/list/selinux@lists.fedoraproject.org/thread/6DMTAMHIOAOEMUAVTULJD45JZU7IBAFM/
+[3] https://selinuxproject.org/page/NetworkStatements#netifcon
 
-Fixes: e792ff804f49 ("ia64: kprobes: Use generic kretprobe trampoline handler")
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: X86 ML <x86@kernel.org>
-Cc: Daniel Xu <dxu@dxuuu.xyz>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Abhishek Sagar <sagar.abhishek@gmail.com>
-Cc: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Cc: Paul McKenney <paulmck@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Xinjie Zheng <xinjie@google.com>
+Reported-by: Sujithra Periasamy <sujithra@google.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/ia64/kernel/kprobes.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ security/selinux/ss/services.c |  162 +++++++++++++++++++----------------------
+ 1 file changed, 77 insertions(+), 85 deletions(-)
 
---- a/arch/ia64/kernel/kprobes.c
-+++ b/arch/ia64/kernel/kprobes.c
-@@ -398,7 +398,8 @@ static void kretprobe_trampoline(void)
- 
- int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
- {
--	regs->cr_iip = __kretprobe_trampoline_handler(regs, kretprobe_trampoline, NULL);
-+	regs->cr_iip = __kretprobe_trampoline_handler(regs,
-+		dereference_function_descriptor(kretprobe_trampoline), NULL);
- 	/*
- 	 * By returning a non-zero value, we are telling
- 	 * kprobe_handler() that we don't want the post_handler
-@@ -414,7 +415,7 @@ void __kprobes arch_prepare_kretprobe(st
- 	ri->fp = NULL;
- 
- 	/* Replace the return addr with trampoline addr */
--	regs->b0 = ((struct fnptr *)kretprobe_trampoline)->ip;
-+	regs->b0 = (unsigned long)dereference_function_descriptor(kretprobe_trampoline);
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2369,6 +2369,43 @@ err_policy:
  }
  
- /* Check the instruction in the slot is break */
-@@ -918,14 +919,14 @@ static struct kprobe trampoline_p = {
- int __init arch_init_kprobes(void)
- {
- 	trampoline_p.addr =
--		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip;
-+		dereference_function_descriptor(kretprobe_trampoline);
- 	return register_kprobe(&trampoline_p);
+ /**
++ * ocontext_to_sid - Helper to safely get sid for an ocontext
++ * @sidtab: SID table
++ * @c: ocontext structure
++ * @index: index of the context entry (0 or 1)
++ * @out_sid: pointer to the resulting SID value
++ *
++ * For all ocontexts except OCON_ISID the SID fields are populated
++ * on-demand when needed. Since updating the SID value is an SMP-sensitive
++ * operation, this helper must be used to do that safely.
++ *
++ * WARNING: This function may return -ESTALE, indicating that the caller
++ * must retry the operation after re-acquiring the policy pointer!
++ */
++static int ocontext_to_sid(struct sidtab *sidtab, struct ocontext *c,
++			   size_t index, u32 *out_sid)
++{
++	int rc;
++	u32 sid;
++
++	/* Ensure the associated sidtab entry is visible to this thread. */
++	sid = smp_load_acquire(&c->sid[index]);
++	if (!sid) {
++		rc = sidtab_context_to_sid(sidtab, &c->context[index], &sid);
++		if (rc)
++			return rc;
++
++		/*
++		 * Ensure the new sidtab entry is visible to other threads
++		 * when they see the SID.
++		 */
++		smp_store_release(&c->sid[index], sid);
++	}
++	*out_sid = sid;
++	return 0;
++}
++
++/**
+  * security_port_sid - Obtain the SID for a port.
+  * @protocol: protocol number
+  * @port: port number
+@@ -2405,17 +2442,13 @@ retry:
+ 	}
+ 
+ 	if (c) {
+-		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab, &c->context[0],
+-						   &c->sid[0]);
+-			if (rc == -ESTALE) {
+-				rcu_read_unlock();
+-				goto retry;
+-			}
+-			if (rc)
+-				goto out;
++		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
++		if (rc == -ESTALE) {
++			rcu_read_unlock();
++			goto retry;
+ 		}
+-		*out_sid = c->sid[0];
++		if (rc)
++			goto out;
+ 	} else {
+ 		*out_sid = SECINITSID_PORT;
+ 	}
+@@ -2463,18 +2496,13 @@ retry:
+ 	}
+ 
+ 	if (c) {
+-		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab,
+-						   &c->context[0],
+-						   &c->sid[0]);
+-			if (rc == -ESTALE) {
+-				rcu_read_unlock();
+-				goto retry;
+-			}
+-			if (rc)
+-				goto out;
++		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
++		if (rc == -ESTALE) {
++			rcu_read_unlock();
++			goto retry;
+ 		}
+-		*out_sid = c->sid[0];
++		if (rc)
++			goto out;
+ 	} else
+ 		*out_sid = SECINITSID_UNLABELED;
+ 
+@@ -2522,17 +2550,13 @@ retry:
+ 	}
+ 
+ 	if (c) {
+-		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab, &c->context[0],
+-						   &c->sid[0]);
+-			if (rc == -ESTALE) {
+-				rcu_read_unlock();
+-				goto retry;
+-			}
+-			if (rc)
+-				goto out;
++		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
++		if (rc == -ESTALE) {
++			rcu_read_unlock();
++			goto retry;
+ 		}
+-		*out_sid = c->sid[0];
++		if (rc)
++			goto out;
+ 	} else
+ 		*out_sid = SECINITSID_UNLABELED;
+ 
+@@ -2575,25 +2599,13 @@ retry:
+ 	}
+ 
+ 	if (c) {
+-		if (!c->sid[0] || !c->sid[1]) {
+-			rc = sidtab_context_to_sid(sidtab, &c->context[0],
+-						   &c->sid[0]);
+-			if (rc == -ESTALE) {
+-				rcu_read_unlock();
+-				goto retry;
+-			}
+-			if (rc)
+-				goto out;
+-			rc = sidtab_context_to_sid(sidtab, &c->context[1],
+-						   &c->sid[1]);
+-			if (rc == -ESTALE) {
+-				rcu_read_unlock();
+-				goto retry;
+-			}
+-			if (rc)
+-				goto out;
++		rc = ocontext_to_sid(sidtab, c, 0, if_sid);
++		if (rc == -ESTALE) {
++			rcu_read_unlock();
++			goto retry;
+ 		}
+-		*if_sid = c->sid[0];
++		if (rc)
++			goto out;
+ 	} else
+ 		*if_sid = SECINITSID_NETIF;
+ 
+@@ -2684,18 +2696,13 @@ retry:
+ 	}
+ 
+ 	if (c) {
+-		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab,
+-						   &c->context[0],
+-						   &c->sid[0]);
+-			if (rc == -ESTALE) {
+-				rcu_read_unlock();
+-				goto retry;
+-			}
+-			if (rc)
+-				goto out;
++		rc = ocontext_to_sid(sidtab, c, 0, out_sid);
++		if (rc == -ESTALE) {
++			rcu_read_unlock();
++			goto retry;
+ 		}
+-		*out_sid = c->sid[0];
++		if (rc)
++			goto out;
+ 	} else {
+ 		*out_sid = SECINITSID_NODE;
+ 	}
+@@ -2859,7 +2866,7 @@ static inline int __security_genfs_sid(s
+ 	u16 sclass;
+ 	struct genfs *genfs;
+ 	struct ocontext *c;
+-	int rc, cmp = 0;
++	int cmp = 0;
+ 
+ 	while (path[0] == '/' && path[1] == '/')
+ 		path++;
+@@ -2873,9 +2880,8 @@ static inline int __security_genfs_sid(s
+ 			break;
+ 	}
+ 
+-	rc = -ENOENT;
+ 	if (!genfs || cmp)
+-		goto out;
++		return -ENOENT;
+ 
+ 	for (c = genfs->head; c; c = c->next) {
+ 		len = strlen(c->u.name);
+@@ -2884,20 +2890,10 @@ static inline int __security_genfs_sid(s
+ 			break;
+ 	}
+ 
+-	rc = -ENOENT;
+ 	if (!c)
+-		goto out;
++		return -ENOENT;
+ 
+-	if (!c->sid[0]) {
+-		rc = sidtab_context_to_sid(sidtab, &c->context[0], &c->sid[0]);
+-		if (rc)
+-			goto out;
+-	}
+-
+-	*sid = c->sid[0];
+-	rc = 0;
+-out:
+-	return rc;
++	return ocontext_to_sid(sidtab, c, 0, sid);
  }
  
- int __kprobes arch_trampoline_kprobe(struct kprobe *p)
- {
- 	if (p->addr ==
--		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip)
-+		dereference_function_descriptor(kretprobe_trampoline))
- 		return 1;
+ /**
+@@ -2980,17 +2976,13 @@ retry:
  
- 	return 0;
+ 	if (c) {
+ 		sbsec->behavior = c->v.behavior;
+-		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab, &c->context[0],
+-						   &c->sid[0]);
+-			if (rc == -ESTALE) {
+-				rcu_read_unlock();
+-				goto retry;
+-			}
+-			if (rc)
+-				goto out;
++		rc = ocontext_to_sid(sidtab, c, 0, &sbsec->sid);
++		if (rc == -ESTALE) {
++			rcu_read_unlock();
++			goto retry;
+ 		}
+-		sbsec->sid = c->sid[0];
++		if (rc)
++			goto out;
+ 	} else {
+ 		rc = __security_genfs_sid(policy, fstype, "/",
+ 					SECCLASS_DIR, &sbsec->sid);
 
 
