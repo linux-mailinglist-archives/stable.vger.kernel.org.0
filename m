@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA19F4513BA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0875D4513BD
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233034AbhKOTzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:55:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
+        id S242393AbhKOTz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:55:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343950AbhKOTWb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343964AbhKOTWb (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52E9B63365;
-        Mon, 15 Nov 2021 18:49:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00B3C6360C;
+        Mon, 15 Nov 2021 18:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002151;
-        bh=qwivl6QBXeWUvuLBRy8LfcdNXw5gHAOodpc44a9sNMY=;
+        s=korg; t=1637002162;
+        bh=ZqtzCwWJmZwgK4rD5LjCXDimHEY7Is+c+F5SzG6TP9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oTHujEe9xqp/8cZg6zrkN+iThFFf1te+3h8i5JZYhyqKc27WNfr/etpO2FrR5+6bv
-         T0Opi059G7asTpgXpsFEwbbp5yY981cuO5v/Vz0vyOvzmbiaHSs6uArUYLEnRRI7AC
-         sfOmLmbQ8htU0gpu6h47oymCo2A5q2EXcBmat1fE=
+        b=mDKmB7hdR5OmXTKcDff9QNzPeJ+FRmmV8qMWml1fRBHcJYR4vwppEIWInIZnTodY9
+         hZiR+2cYVIcRpfuMHQfK2Ej2bTWB0NNG+nvnfcLxYYPsl13g2PLZjrFKCDL1iBWCwa
+         RVtSdVgEOb48f6qWUI77BzaK7GViUF5CEQcwtMxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 458/917] mt76: mt7915: fix endianness warning in mt7915_mac_add_txs_skb
-Date:   Mon, 15 Nov 2021 17:59:13 +0100
-Message-Id: <20211115165444.306061906@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Leon Yen <Leon.Yen@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 462/917] mt76: connac: fix mt76_connac_gtk_rekey_tlv usage
+Date:   Mon, 15 Nov 2021 17:59:17 +0100
+Message-Id: <20211115165444.438627839@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,38 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Leon Yen <Leon.Yen@mediatek.com>
 
-[ Upstream commit 08b3c8da87aed4200dab00906f149d675ca90f23 ]
+[ Upstream commit d741abeafa47a7331cd4fe526e44db4ad3da0f62 ]
 
-Fix the following sparse warning in mt7915_mac_add_txs_skb routine:
+The mistaken structure is introduced since we added the GTK rekey offload
+to mt7663. The patch fixes mt76_connac_gtk_rekey_tlv structure according
+to the MT7663 and MT7921 firmware we have submitted into
+linux-firmware.git.
 
-drivers/net/wireless/mediatek/mt76/mt7915/mac.c:1235:29:
-	warning: cast to restricted __le32
-drivers/net/wireless/mediatek/mt76/mt7915/mac.c:1235:23:
-	warning: restricted __le32 degrades to integer
-
-Fixes: 3de4cb1756565 ("mt76: mt7915: add support for tx status reporting")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Fixes: b47e21e75c80 ("mt76: mt7615: add gtk rekey offload support")
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Leon Yen <Leon.Yen@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-index 2462704094b0a..bbc996f86b5c3 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-@@ -1232,7 +1232,7 @@ mt7915_mac_add_txs_skb(struct mt7915_dev *dev, struct mt76_wcid *wcid, int pid,
- 		goto out;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
+index 1c73beb226771..4bcd728ff97c5 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
+@@ -844,14 +844,14 @@ struct mt76_connac_gtk_rekey_tlv {
+ 			* 2: rekey update
+ 			*/
+ 	u8 keyid;
+-	u8 pad[2];
++	u8 option; /* 1: rekey data update without enabling offload */
++	u8 pad[1];
+ 	__le32 proto; /* WPA-RSN-WAPI-OPSN */
+ 	__le32 pairwise_cipher;
+ 	__le32 group_cipher;
+ 	__le32 key_mgmt; /* NONE-PSK-IEEE802.1X */
+ 	__le32 mgmt_group_cipher;
+-	u8 option; /* 1: rekey data update without enabling offload */
+-	u8 reserverd[3];
++	u8 reserverd[4];
+ } __packed;
  
- 	info = IEEE80211_SKB_CB(skb);
--	if (!(txs_data[0] & le32_to_cpu(MT_TXS0_ACK_ERROR_MASK)))
-+	if (!(txs_data[0] & cpu_to_le32(MT_TXS0_ACK_ERROR_MASK)))
- 		info->flags |= IEEE80211_TX_STAT_ACK;
- 
- 	info->status.ampdu_len = 1;
+ #define MT76_CONNAC_WOW_MASK_MAX_LEN			16
 -- 
 2.33.0
 
