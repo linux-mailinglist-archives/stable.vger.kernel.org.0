@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72163450FE2
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:34:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D356450C74
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:36:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242138AbhKOShZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:37:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42474 "EHLO mail.kernel.org"
+        id S238249AbhKORiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:38:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242363AbhKOSfN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:35:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42E0E60041;
-        Mon, 15 Nov 2021 18:02:04 +0000 (UTC)
+        id S236973AbhKORhE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:37:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 618EF63280;
+        Mon, 15 Nov 2021 17:24:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999324;
-        bh=tL3cNx9DGLvWMHPkZ+/58zXhibgTw22YvZCOTbdVdyg=;
+        s=korg; t=1636997070;
+        bh=4PA6mi4mXcRZkrAW4kNbRjAbLxxTtnKZwDp5mM3ec0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g0k1IA2FwV0oG6ApZQ6hf7QGOuQtFpofLTv7/db6c681mR6WjOWqTVgpCmeo7ULJA
-         YNuj1qF4iiIt53JmUlYPjPKFPhLjojI0xznzb4yv9QPSVN1+xLV2Do9sTXtTEG7pFk
-         PolfxGjVxnoVZhNLELLN8ZG6tLnTBR4E/qXrWSfc=
+        b=QKhyySCLK/B40oIPn5rr1pAOH+9XVd1o0Wi6p+qFfx8B5mZIXOkZXOg4INMbIhPOZ
+         LzPV9d3mbrREr6g2N3vyqy6is+46PTFrNeTX9JcmLQoe867ySR06yAAZhGnfQg8Xei
+         2qqxSUHhZOoBfnvMQOqZKXYNhw8KVjTxoNnYVFYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luigi Rizzo <lrizzo@google.com>,
-        Josh Don <joshdon@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 257/849] fs/proc/uptime.c: Fix idle time reporting in /proc/uptime
+        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
+        Jaehoon Chung <jh80.chung@samsung.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 015/575] mmc: dw_mmc: Dont wait for DRTO on Write RSP error
 Date:   Mon, 15 Nov 2021 17:55:40 +0100
-Message-Id: <20211115165428.933993748@linuxfoundation.org>
+Message-Id: <20211115165344.140890869@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,104 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Don <joshdon@google.com>
+From: Christian Löhle <CLoehle@hyperstone.com>
 
-[ Upstream commit a130e8fbc7de796eb6e680724d87f4737a26d0ac ]
+commit 43592c8736e84025d7a45e61a46c3fa40536a364 upstream.
 
-/proc/uptime reports idle time by reading the CPUTIME_IDLE field from
-the per-cpu kcpustats. However, on NO_HZ systems, idle time is not
-continually updated on idle cpus, leading this value to appear
-incorrectly small.
+Only wait for DRTO on reads, otherwise the driver hangs.
 
-/proc/stat performs an accounting update when reading idle time; we
-can use the same approach for uptime.
+The driver prevents sending CMD12 on response errors like CRCs. According
+to the comment this is because some cards have problems with this during
+the UHS tuning sequence. Unfortunately this workaround currently also
+applies for any command with data. On reads this will set the drto timer,
+which then triggers after a while. On writes this will not set any timer
+and the tasklet will not be scheduled again.
 
-With this patch, /proc/stat and /proc/uptime now agree on idle time.
-Additionally, the following shows idle time tick up consistently on an
-idle machine:
+I cannot test for the UHS workarounds need, but even if so, it should at
+most apply to reads. I have observed many hangs when CMD25 response
+contained a CRC error. This patch fixes this without touching the actual
+UHS tuning workaround.
 
-  (while true; do cat /proc/uptime; sleep 1; done) | awk '{print $2-prev; prev=$2}'
-
-Reported-by: Luigi Rizzo <lrizzo@google.com>
-Signed-off-by: Josh Don <joshdon@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lkml.kernel.org/r/20210827165438.3280779-1-joshdon@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
+Reviewed-by: Jaehoon Chung <jh80.chung@samsung.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/af8f8b8674ba4fcc9a781019e4aeb72c@hyperstone.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/proc/stat.c              |  4 ++--
- fs/proc/uptime.c            | 14 +++++++++-----
- include/linux/kernel_stat.h |  1 +
- 3 files changed, 12 insertions(+), 7 deletions(-)
+ drivers/mmc/host/dw_mmc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/proc/stat.c b/fs/proc/stat.c
-index 6561a06ef9059..4fb8729a68d4e 100644
---- a/fs/proc/stat.c
-+++ b/fs/proc/stat.c
-@@ -24,7 +24,7 @@
- 
- #ifdef arch_idle_time
- 
--static u64 get_idle_time(struct kernel_cpustat *kcs, int cpu)
-+u64 get_idle_time(struct kernel_cpustat *kcs, int cpu)
- {
- 	u64 idle;
- 
-@@ -46,7 +46,7 @@ static u64 get_iowait_time(struct kernel_cpustat *kcs, int cpu)
- 
- #else
- 
--static u64 get_idle_time(struct kernel_cpustat *kcs, int cpu)
-+u64 get_idle_time(struct kernel_cpustat *kcs, int cpu)
- {
- 	u64 idle, idle_usecs = -1ULL;
- 
-diff --git a/fs/proc/uptime.c b/fs/proc/uptime.c
-index 5a1b228964fb7..deb99bc9b7e6b 100644
---- a/fs/proc/uptime.c
-+++ b/fs/proc/uptime.c
-@@ -12,18 +12,22 @@ static int uptime_proc_show(struct seq_file *m, void *v)
- {
- 	struct timespec64 uptime;
- 	struct timespec64 idle;
--	u64 nsec;
-+	u64 idle_nsec;
- 	u32 rem;
- 	int i;
- 
--	nsec = 0;
--	for_each_possible_cpu(i)
--		nsec += (__force u64) kcpustat_cpu(i).cpustat[CPUTIME_IDLE];
-+	idle_nsec = 0;
-+	for_each_possible_cpu(i) {
-+		struct kernel_cpustat kcs;
-+
-+		kcpustat_cpu_fetch(&kcs, i);
-+		idle_nsec += get_idle_time(&kcs, i);
-+	}
- 
- 	ktime_get_boottime_ts64(&uptime);
- 	timens_add_boottime(&uptime);
- 
--	idle.tv_sec = div_u64_rem(nsec, NSEC_PER_SEC, &rem);
-+	idle.tv_sec = div_u64_rem(idle_nsec, NSEC_PER_SEC, &rem);
- 	idle.tv_nsec = rem;
- 	seq_printf(m, "%lu.%02lu %lu.%02lu\n",
- 			(unsigned long) uptime.tv_sec,
-diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
-index 44ae1a7eb9e39..69ae6b2784645 100644
---- a/include/linux/kernel_stat.h
-+++ b/include/linux/kernel_stat.h
-@@ -102,6 +102,7 @@ extern void account_system_index_time(struct task_struct *, u64,
- 				      enum cpu_usage_stat);
- extern void account_steal_time(u64);
- extern void account_idle_time(u64);
-+extern u64 get_idle_time(struct kernel_cpustat *kcs, int cpu);
- 
- #ifdef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
- static inline void account_process_tick(struct task_struct *tsk, int user)
--- 
-2.33.0
-
+--- a/drivers/mmc/host/dw_mmc.c
++++ b/drivers/mmc/host/dw_mmc.c
+@@ -2014,7 +2014,8 @@ static void dw_mci_tasklet_func(unsigned
+ 				 * delayed. Allowing the transfer to take place
+ 				 * avoids races and keeps things simple.
+ 				 */
+-				if (err != -ETIMEDOUT) {
++				if (err != -ETIMEDOUT &&
++				    host->dir_status == DW_MCI_RECV_STATUS) {
+ 					state = STATE_SENDING_DATA;
+ 					continue;
+ 				}
 
 
