@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C376E451E76
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C07A451E77
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243626AbhKPAgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
+        id S1355183AbhKPAgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:36:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344970AbhKOTZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344971AbhKOTZw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58383633FE;
-        Mon, 15 Nov 2021 19:07:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6497F63401;
+        Mon, 15 Nov 2021 19:07:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003261;
-        bh=ig0hJiKTYvtkZazunsf01HBqGfvfe21uZdqzF7JLj00=;
+        s=korg; t=1637003265;
+        bh=JiS9z61ucItHFQBOirNVN+aBihVXJmCTgy8BPlPzw6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0+al4gFG4kr/kHP5knO3uCHe9/GKDDS972AYzc/zKnRIasM8wFgyxaAcAA/0nbKo3
-         XgHUAiIWE5F1PUlCDT5wq6/1iUAWRutIDvfDbth1BIidV+HHe4r9OzILh6A38t9rId
-         AvTy41qUXetpT1mW5m2skcqyJO658B9PP92X7+r0=
+        b=etXoZvquv5ZEtwpBqWSNkqIjqJ/rLTyJIK00OaiSzjag9cNyOyt2amk0X0IP2zDHy
+         9Ue2eqLQ/VvZyTvBOzw0kKYJdNT2pYiE83/fwRzIAwvnTw7XbSKInKPdbsA7AE8is4
+         zIurEUb7yIdYh8fIizz/7QZXlVBB4XCo23jssh6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 870/917] ksmbd: dont need 8byte alignment for request length in ksmbd_check_message
-Date:   Mon, 15 Nov 2021 18:06:05 +0100
-Message-Id: <20211115165458.554873416@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15 871/917] dmaengine: ti: k3-udma: Set bchan to NULL if a channel request fail
+Date:   Mon, 15 Nov 2021 18:06:06 +0100
+Message-Id: <20211115165458.587955919@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,40 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-commit b53ad8107ee873795ecb5039d46b5d5502d404f2 upstream.
+commit 5c6c6d60e4b489308ae4da8424c869f7cc53cd12 upstream.
 
-When validating request length in ksmbd_check_message, 8byte alignment
-is not needed for compound request. It can cause wrong validation
-of request length.
+bcdma_get_*() checks if bchan is already allocated by checking if it
+has a NON NULL value. For the error cases, bchan will have error value
+and bcdma_get_*() considers this as already allocated (PASS) since the
+error values are NON NULL. This results in NULL pointer dereference
+error while de-referencing bchan.
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Cc: stable@vger.kernel.org # v5.15
-Acked-by: Hyunchul Lee <hyc.lee@gmail.com>
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Reset the value of bchan to NULL if a channel request fails.
+
+CC: stable@vger.kernel.org
+Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Link: https://lore.kernel.org/r/20211031032411.27235-2-kishon@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smb2misc.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/dma/ti/k3-udma.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/ksmbd/smb2misc.c
-+++ b/fs/ksmbd/smb2misc.c
-@@ -358,12 +358,10 @@ int ksmbd_smb2_check_message(struct ksmb
- 		hdr = &pdu->hdr;
- 	}
+--- a/drivers/dma/ti/k3-udma.c
++++ b/drivers/dma/ti/k3-udma.c
+@@ -1348,6 +1348,7 @@ static int bcdma_get_bchan(struct udma_c
+ {
+ 	struct udma_dev *ud = uc->ud;
+ 	enum udma_tp_level tpl;
++	int ret;
  
--	if (le32_to_cpu(hdr->NextCommand) > 0) {
-+	if (le32_to_cpu(hdr->NextCommand) > 0)
- 		len = le32_to_cpu(hdr->NextCommand);
--	} else if (work->next_smb2_rcv_hdr_off) {
-+	else if (work->next_smb2_rcv_hdr_off)
- 		len -= work->next_smb2_rcv_hdr_off;
--		len = round_up(len, 8);
--	}
+ 	if (uc->bchan) {
+ 		dev_dbg(ud->dev, "chan%d: already have bchan%d allocated\n",
+@@ -1365,8 +1366,11 @@ static int bcdma_get_bchan(struct udma_c
+ 		tpl = ud->bchan_tpl.levels - 1;
  
- 	if (check_smb2_hdr(hdr))
- 		return 1;
+ 	uc->bchan = __udma_reserve_bchan(ud, tpl, -1);
+-	if (IS_ERR(uc->bchan))
+-		return PTR_ERR(uc->bchan);
++	if (IS_ERR(uc->bchan)) {
++		ret = PTR_ERR(uc->bchan);
++		uc->bchan = NULL;
++		return ret;
++	}
+ 
+ 	uc->tchan = uc->bchan;
+ 
 
 
