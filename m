@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21FB2451ED7
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30E83451E5A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245229AbhKPAhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:37:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
+        id S1351053AbhKPAfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344728AbhKOTZS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F38F7636BC;
-        Mon, 15 Nov 2021 19:03:12 +0000 (UTC)
+        id S1344834AbhKOTZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23843636D5;
+        Mon, 15 Nov 2021 19:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002993;
-        bh=c/jpbdtY4rrPtEz/JZ/lUDJYscs4qspt8O2ustMnsto=;
+        s=korg; t=1637003107;
+        bh=ukUkNkgEOJfofclmytLU7+tfjPdvv26ytBgVqzHoJGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zMMXcxRtzOwwciQS3p0ZVbCbqH/NY+dUqpf90Y38x4gQ6Akqhe9DsFJ6uMuyCnmD1
-         fk7rQu3RPbktI2Crfbg6eu+MQ3n4AmKY8V+14OHN4z8bve/hjNECK8jPKfOOauZeWo
-         kaeKvAd+qcZzCL/p7LA1lctYPAd+0lx2ogDmX7j8=
+        b=lVCjAwYPMgKX6ncmbXz+/hdV0nJfruj9eoAe509yb+FGKrEOUNqtPQKCKWHCtC9yg
+         5Aqt0ScnV8IDR+ky9yIxqe78AP0qdeMN3togl3TBDTJ4xcU22oD94krmSl2Agzx9S2
+         Y7/c2vIscfW3dYgNFspFreidDHIjQdkIcIikjzDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>,
-        Stafford Horne <shorne@gmail.com>,
+        syzbot+e4df4e1389e28972e955@syzkaller.appspotmail.com,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 770/917] openrisc: fix SMP tlb flush NULL pointer dereference
-Date:   Mon, 15 Nov 2021 18:04:25 +0100
-Message-Id: <20211115165455.047643378@linuxfoundation.org>
+Subject: [PATCH 5.15 771/917] net: vlan: fix a UAF in vlan_dev_real_dev()
+Date:   Mon, 15 Nov 2021 18:04:26 +0100
+Message-Id: <20211115165455.080464396@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,78 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stafford Horne <shorne@gmail.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 27dff9a9c247d4e38d82c2e7234914cfe8499294 ]
+[ Upstream commit 563bcbae3ba233c275c244bfce2efe12938f5363 ]
 
-Throughout the OpenRISC kernel port VMA is passed as NULL when flushing
-kernel tlb entries.  Somehow this was missed when I was testing
-c28b27416da9 ("openrisc: Implement proper SMP tlb flushing") and now the
-SMP kernel fails to completely boot.
+The real_dev of a vlan net_device may be freed after
+unregister_vlan_dev(). Access the real_dev continually by
+vlan_dev_real_dev() will trigger the UAF problem for the
+real_dev like following:
 
-In OpenRISC VMA is used only to determine which cores need to have their
-TLB entries flushed.
+==================================================================
+BUG: KASAN: use-after-free in vlan_dev_real_dev+0xf9/0x120
+Call Trace:
+ kasan_report.cold+0x83/0xdf
+ vlan_dev_real_dev+0xf9/0x120
+ is_eth_port_of_netdev_filter.part.0+0xb1/0x2c0
+ is_eth_port_of_netdev_filter+0x28/0x40
+ ib_enum_roce_netdev+0x1a3/0x300
+ ib_enum_all_roce_netdevs+0xc7/0x140
+ netdevice_event_work_handler+0x9d/0x210
+...
 
-This patch updates the logic to flush tlbs on all cores when the VMA is
-passed as NULL.  Also, we update places VMA is passed as NULL to use
-flush_tlb_kernel_range instead.  Now, the only place VMA is passed as
-NULL is in the implementation of flush_tlb_kernel_range.
+Freed by task 9288:
+ kasan_save_stack+0x1b/0x40
+ kasan_set_track+0x1c/0x30
+ kasan_set_free_info+0x20/0x30
+ __kasan_slab_free+0xfc/0x130
+ slab_free_freelist_hook+0xdd/0x240
+ kfree+0xe4/0x690
+ kvfree+0x42/0x50
+ device_release+0x9f/0x240
+ kobject_put+0x1c8/0x530
+ put_device+0x1b/0x30
+ free_netdev+0x370/0x540
+ ppp_destroy_interface+0x313/0x3d0
+...
 
-Fixes: c28b27416da9 ("openrisc: Implement proper SMP tlb flushing")
-Reported-by: Jan Henrik Weinstock <jan.weinstock@rwth-aachen.de>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Move the put_device(real_dev) to vlan_dev_free(). Ensure
+real_dev not be freed before vlan_dev unregistered.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: syzbot+e4df4e1389e28972e955@syzkaller.appspotmail.com
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/kernel/dma.c | 4 ++--
- arch/openrisc/kernel/smp.c | 6 ++++--
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ net/8021q/vlan.c     | 3 ---
+ net/8021q/vlan_dev.c | 3 +++
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/openrisc/kernel/dma.c b/arch/openrisc/kernel/dma.c
-index 1b16d97e7da7f..a82b2caaa560d 100644
---- a/arch/openrisc/kernel/dma.c
-+++ b/arch/openrisc/kernel/dma.c
-@@ -33,7 +33,7 @@ page_set_nocache(pte_t *pte, unsigned long addr,
- 	 * Flush the page out of the TLB so that the new page flags get
- 	 * picked up next time there's an access
- 	 */
--	flush_tlb_page(NULL, addr);
-+	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
+diff --git a/net/8021q/vlan.c b/net/8021q/vlan.c
+index 55275ef9a31a7..a3a0a5e994f5a 100644
+--- a/net/8021q/vlan.c
++++ b/net/8021q/vlan.c
+@@ -123,9 +123,6 @@ void unregister_vlan_dev(struct net_device *dev, struct list_head *head)
+ 	}
  
- 	/* Flush page out of dcache */
- 	for (cl = __pa(addr); cl < __pa(next); cl += cpuinfo->dcache_block_size)
-@@ -56,7 +56,7 @@ page_clear_nocache(pte_t *pte, unsigned long addr,
- 	 * Flush the page out of the TLB so that the new page flags get
- 	 * picked up next time there's an access
- 	 */
--	flush_tlb_page(NULL, addr);
-+	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
- 
- 	return 0;
- }
-diff --git a/arch/openrisc/kernel/smp.c b/arch/openrisc/kernel/smp.c
-index 415e209732a3d..ba78766cf00b5 100644
---- a/arch/openrisc/kernel/smp.c
-+++ b/arch/openrisc/kernel/smp.c
-@@ -272,7 +272,7 @@ static inline void ipi_flush_tlb_range(void *info)
- 	local_flush_tlb_range(NULL, fd->addr1, fd->addr2);
+ 	vlan_vid_del(real_dev, vlan->vlan_proto, vlan_id);
+-
+-	/* Get rid of the vlan's reference to real_dev */
+-	dev_put(real_dev);
  }
  
--static void smp_flush_tlb_range(struct cpumask *cmask, unsigned long start,
-+static void smp_flush_tlb_range(const struct cpumask *cmask, unsigned long start,
- 				unsigned long end)
- {
- 	unsigned int cpuid;
-@@ -320,7 +320,9 @@ void flush_tlb_page(struct vm_area_struct *vma, unsigned long uaddr)
- void flush_tlb_range(struct vm_area_struct *vma,
- 		     unsigned long start, unsigned long end)
- {
--	smp_flush_tlb_range(mm_cpumask(vma->vm_mm), start, end);
-+	const struct cpumask *cmask = vma ? mm_cpumask(vma->vm_mm)
-+					  : cpu_online_mask;
-+	smp_flush_tlb_range(cmask, start, end);
+ int vlan_check_real_dev(struct net_device *real_dev,
+diff --git a/net/8021q/vlan_dev.c b/net/8021q/vlan_dev.c
+index 0c21d1fec8522..aeeb5f90417b5 100644
+--- a/net/8021q/vlan_dev.c
++++ b/net/8021q/vlan_dev.c
+@@ -843,6 +843,9 @@ static void vlan_dev_free(struct net_device *dev)
+ 
+ 	free_percpu(vlan->vlan_pcpu_stats);
+ 	vlan->vlan_pcpu_stats = NULL;
++
++	/* Get rid of the vlan's reference to real_dev */
++	dev_put(vlan->real_dev);
  }
  
- /* Instruction cache invalidate - performed on each cpu */
+ void vlan_setup(struct net_device *dev)
 -- 
 2.33.0
 
