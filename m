@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A42804512A8
+	by mail.lfdr.de (Postfix) with ESMTP id 5A1A84512A7
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347166AbhKOTiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:38:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
+        id S1347151AbhKOTit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:38:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244945AbhKOTSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244948AbhKOTSP (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:18:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81326634DC;
-        Mon, 15 Nov 2021 18:26:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F2BB634E3;
+        Mon, 15 Nov 2021 18:26:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000763;
-        bh=Js35mzMXXuPW73VGHnzmZ7ITS+htH9oxH8gZJpnRil0=;
+        s=korg; t=1637000765;
+        bh=A2RFcS0QxXijrT/BZRHLwEfc1AgUeJmPmJ04TVZauPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p2Nyf9HiNIDl81hBDfDFzxrsQ4sPJOuYPmpXYgPiA2DixWWNgANHTmzl1/m37/s2O
-         +BTz9ozuJwxtZvvGgkk+MokZg52lAWbLuka43yWXzRKSDSYN//v4QmuKpSUX9ew4kZ
-         ONt5CD/0z5bMPmk4icVG73Sq3kbfwUehILyeoE8U=
+        b=KEd9PVlY7F/kB5ad5U5oHrl9jm0UqoqbodC+LZAFoOiWhLZfMd87SGaCMZlO6W7q+
+         DonO5Ud5/wZb6NnB8kpiYNapcwzuoddUKKzjs/fx7PF2xKxpsJbMctNRpvYl4aTWYY
+         JlIj5fA53YoZUhFuYyu2Vj8QR/2o2vKCEu3KJptc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hangbin Liu <liuhangbin@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 750/849] selftests/bpf/xdp_redirect_multi: Give tcpdump a chance to terminate cleanly
-Date:   Mon, 15 Nov 2021 18:03:53 +0100
-Message-Id: <20211115165445.629044726@linuxfoundation.org>
+Subject: [PATCH 5.14 751/849] selftests/bpf/xdp_redirect_multi: Limit the tests in netns
+Date:   Mon, 15 Nov 2021 18:03:54 +0100
+Message-Id: <20211115165445.658805759@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -43,42 +43,125 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 648c3677062fbd14d754b853daebb295426771e8 ]
+[ Upstream commit 8955c1a329873385775081e029d9a7c6aa9037e1 ]
 
-No need to kill tcpdump with -9.
+As I want to test both DEVMAP and DEVMAP_HASH in XDP multicast redirect, I
+limited DEVMAP max entries to a small value for performace. When the test
+runs after amount of interface creating/deleting tests. The interface index
+will exceed the map max entries and xdp_redirect_multi will error out with
+"Get interfacesInterface index to large".
+
+Fix this issue by limit the tests in netns and specify the ifindex when
+creating interfaces.
 
 Fixes: d23292476297 ("selftests/bpf: Add xdp_redirect_multi test")
-Suggested-by: Jiri Benc <jbenc@redhat.com>
+Reported-by: Jiri Benc <jbenc@redhat.com>
 Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20211027033553.962413-4-liuhangbin@gmail.com
+Link: https://lore.kernel.org/bpf/20211027033553.962413-5-liuhangbin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_xdp_redirect_multi.sh | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../selftests/bpf/test_xdp_redirect_multi.sh  | 23 ++++++++++++-------
+ .../selftests/bpf/xdp_redirect_multi.c        |  4 ++--
+ 2 files changed, 17 insertions(+), 10 deletions(-)
 
 diff --git a/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh b/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh
-index c2a933caa32d4..37e347159ab44 100755
+index 37e347159ab44..bedff7aa7023f 100755
 --- a/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh
 +++ b/tools/testing/selftests/bpf/test_xdp_redirect_multi.sh
-@@ -106,7 +106,7 @@ do_egress_tests()
- 	sleep 0.5
- 	ip netns exec ns1 ping 192.0.2.254 -i 0.1 -c 4 &> /dev/null
- 	sleep 0.5
--	pkill -9 tcpdump
-+	pkill tcpdump
+@@ -2,11 +2,11 @@
+ # SPDX-License-Identifier: GPL-2.0
+ #
+ # Test topology:
+-#     - - - - - - - - - - - - - - - - - - - - - - - - -
+-#    | veth1         veth2         veth3 |  ... init net
++#    - - - - - - - - - - - - - - - - - - -
++#    | veth1         veth2         veth3 |  ns0
+ #     - -| - - - - - - | - - - - - - | - -
+ #    ---------     ---------     ---------
+-#    | veth0 |     | veth0 |     | veth0 |  ...
++#    | veth0 |     | veth0 |     | veth0 |
+ #    ---------     ---------     ---------
+ #       ns1           ns2           ns3
+ #
+@@ -51,6 +51,7 @@ clean_up()
+ 		ip link del veth$i 2> /dev/null
+ 		ip netns del ns$i 2> /dev/null
+ 	done
++	ip netns del ns0 2> /dev/null
+ }
  
- 	# mac check
- 	grep -q "${veth_mac[2]} > ff:ff:ff:ff:ff:ff" ${LOG_DIR}/mac_ns1-2_${mode}.log && \
-@@ -133,7 +133,7 @@ do_ping_tests()
- 	# IPv6 test
- 	ip netns exec ns1 ping6 2001:db8::2 -i 0.1 -c 2 &> /dev/null
- 	sleep 0.5
--	pkill -9 tcpdump
-+	pkill tcpdump
+ # Kselftest framework requirement - SKIP code is 4.
+@@ -78,10 +79,12 @@ setup_ns()
+ 		mode="xdpdrv"
+ 	fi
  
- 	# All netns should receive the redirect arp requests
- 	[ $(grep -cF "who-has 192.0.2.254" ${LOG_DIR}/ns1-1_${mode}.log) -eq 4 ] && \
++	ip netns add ns0
+ 	for i in $(seq $NUM); do
+ 	        ip netns add ns$i
+-	        ip link add veth$i type veth peer name veth0 netns ns$i
+-		ip link set veth$i up
++		ip -n ns$i link add veth0 index 2 type veth \
++			peer name veth$i netns ns0 index $((1 + $i))
++		ip -n ns0 link set veth$i up
+ 		ip -n ns$i link set veth0 up
+ 
+ 		ip -n ns$i addr add 192.0.2.$i/24 dev veth0
+@@ -92,7 +95,7 @@ setup_ns()
+ 			xdp_dummy.o sec xdp_dummy &> /dev/null || \
+ 			{ test_fail "Unable to load dummy xdp" && exit 1; }
+ 		IFACES="$IFACES veth$i"
+-		veth_mac[$i]=$(ip link show veth$i | awk '/link\/ether/ {print $2}')
++		veth_mac[$i]=$(ip -n ns0 link show veth$i | awk '/link\/ether/ {print $2}')
+ 	done
+ }
+ 
+@@ -177,9 +180,13 @@ do_tests()
+ 		xdpgeneric) drv_p="-S";;
+ 	esac
+ 
+-	./xdp_redirect_multi $drv_p $IFACES &> ${LOG_DIR}/xdp_redirect_${mode}.log &
++	ip netns exec ns0 ./xdp_redirect_multi $drv_p $IFACES &> ${LOG_DIR}/xdp_redirect_${mode}.log &
+ 	xdp_pid=$!
+ 	sleep 1
++	if ! ps -p $xdp_pid > /dev/null; then
++		test_fail "$mode xdp_redirect_multi start failed"
++		return 1
++	fi
+ 
+ 	if [ "$mode" = "xdpegress" ]; then
+ 		do_egress_tests $mode
+@@ -190,7 +197,7 @@ do_tests()
+ 	kill $xdp_pid
+ }
+ 
+-trap clean_up 0 2 3 6 9
++trap clean_up EXIT
+ 
+ check_env
+ 
+diff --git a/tools/testing/selftests/bpf/xdp_redirect_multi.c b/tools/testing/selftests/bpf/xdp_redirect_multi.c
+index 3696a8f32c235..f5ffba341c174 100644
+--- a/tools/testing/selftests/bpf/xdp_redirect_multi.c
++++ b/tools/testing/selftests/bpf/xdp_redirect_multi.c
+@@ -129,7 +129,7 @@ int main(int argc, char **argv)
+ 		goto err_out;
+ 	}
+ 
+-	printf("Get interfaces");
++	printf("Get interfaces:");
+ 	for (i = 0; i < MAX_IFACE_NUM && argv[optind + i]; i++) {
+ 		ifaces[i] = if_nametoindex(argv[optind + i]);
+ 		if (!ifaces[i])
+@@ -139,7 +139,7 @@ int main(int argc, char **argv)
+ 			goto err_out;
+ 		}
+ 		if (ifaces[i] > MAX_INDEX_NUM) {
+-			printf("Interface index to large\n");
++			printf(" interface index too large\n");
+ 			goto err_out;
+ 		}
+ 		printf(" %d", ifaces[i]);
 -- 
 2.33.0
 
