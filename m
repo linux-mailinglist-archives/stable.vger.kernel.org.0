@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BCA5450E65
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2553D450BDC
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:28:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240333AbhKOSPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:15:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49944 "EHLO mail.kernel.org"
+        id S236911AbhKORaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:30:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238328AbhKOSHi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B62D86330F;
-        Mon, 15 Nov 2021 17:44:59 +0000 (UTC)
+        id S238020AbhKOR2m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:28:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3648C6328F;
+        Mon, 15 Nov 2021 17:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998300;
-        bh=YkW54Ki9Rm7PI7jJAHMIiMXvoahIDOnYIWMdyhs4yPA=;
+        s=korg; t=1636996767;
+        bh=92s7hVoVYSpvg4TzQYzi8uBciFgVYJybxaS3mstSrb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xLT9Ao3+b9Q2kS0tesN4gRMIMJIaJh6dBoi6M5AtA1CjzAwiqjWXnSL1kxDw54LRN
-         A//EGE9kv8pstxkpeh1K7wc5y6BqCqiKF/9HTJPHUMM4v+hf0Fhlyv68W/PhvvLpCq
-         xpmfvzFsYA+/fMJ7GhXp+iq0vYvN/ZVAJEGluIcU=
+        b=Y/EQ/hctC7iIyVQG6MrHGdLtnj0sUSN+bkD1NLgo4dIlVAql1/JDXnvUe9aGlcXz8
+         uXjh3n7XQIm3RvR3Dw8Z1OW6wA3YeXKqLmzHsAEgN1+Ry7uhQGyHqKz1BFFNzQJ/BJ
+         6kcLN2usk+cn6s8P1hlhjkKluKoitPkmIUAYdlKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andrej Shadura <andrew.shadura@collabora.co.uk>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 459/575] HID: u2fzero: properly handle timeouts in usb_submit_urb
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 260/355] ARM: dts: qcom: msm8974: Add xo_board reference clock to DSI0 PHY
 Date:   Mon, 15 Nov 2021 18:03:04 +0100
-Message-Id: <20211115165359.613783257@linuxfoundation.org>
+Message-Id: <20211115165322.148713682@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrej Shadura <andrew.shadura@collabora.co.uk>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit 43775e62c4b784f44a159e13ba80e6146a42d502 ]
+[ Upstream commit 8ccecf6c710b8c048eecc65709640642e5357d6e ]
 
-The wait_for_completion_timeout function returns 0 if timed out or a
-positive value if completed. Hence, "less than zero" comparison always
-misses timeouts and doesn't kill the URB as it should, leading to
-re-sending it while it is active.
+According to YAML validation, and for a future patchset putting this
+xo_board reference clock to use as VCO reference parent, add the missing
+clock to dsi_phy0.
 
-Fixes: 42337b9d4d95 ("HID: add driver for U2F Zero built-in LED and RNG")
-Signed-off-by: Andrej Shadura <andrew.shadura@collabora.co.uk>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 5a9fc531f6ec ("ARM: dts: msm8974: add display support")
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210830175739.143401-1-marijn.suijten@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-u2fzero.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom-msm8974.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-u2fzero.c b/drivers/hid/hid-u2fzero.c
-index 94f78ffb76d04..67ae2b18e33ac 100644
---- a/drivers/hid/hid-u2fzero.c
-+++ b/drivers/hid/hid-u2fzero.c
-@@ -132,7 +132,7 @@ static int u2fzero_recv(struct u2fzero_device *dev,
+diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi b/arch/arm/boot/dts/qcom-msm8974.dtsi
+index 369e58f64145d..9de4f17955e31 100644
+--- a/arch/arm/boot/dts/qcom-msm8974.dtsi
++++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
+@@ -1213,8 +1213,8 @@
+ 				#phy-cells = <0>;
+ 				qcom,dsi-phy-index = <0>;
  
- 	ret = (wait_for_completion_timeout(
- 		&ctx.done, msecs_to_jiffies(USB_CTRL_SET_TIMEOUT)));
--	if (ret < 0) {
-+	if (ret == 0) {
- 		usb_kill_urb(dev->urb);
- 		hid_err(hdev, "urb submission timed out");
- 	} else {
+-				clocks = <&mmcc MDSS_AHB_CLK>;
+-				clock-names = "iface";
++				clocks = <&mmcc MDSS_AHB_CLK>, <&xo_board>;
++				clock-names = "iface", "ref";
+ 			};
+ 		};
+ 	};
 -- 
 2.33.0
 
