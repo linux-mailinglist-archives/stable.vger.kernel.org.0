@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4410A450D5C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:53:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87BB84510B4
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:50:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236612AbhKORzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:55:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35664 "EHLO mail.kernel.org"
+        id S237723AbhKOSwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:52:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238925AbhKORuk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:50:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFA96632A8;
-        Mon, 15 Nov 2021 17:31:13 +0000 (UTC)
+        id S242966AbhKOSuY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:50:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8335F604D1;
+        Mon, 15 Nov 2021 18:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997474;
-        bh=zkva6D9XNbKclvxoEiGKlwUdHSvbFINQDj1W7so7dVg=;
+        s=korg; t=1636999732;
+        bh=QpGi9pmWDoQWDWTiPXW1eevR+tAtIcUVVaVpg/+oFXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A8X8nAkYUf11M7khK54jFVwhtOIY0sqg0eiUsg87+VQ6xXGjZAm07xHg8TzXNFAvz
-         3AaR2xGgZRBWXosSfrsFHI6z93WtzqA2x9heGTmvvcECjRlZCNott2AlkFCICAEnsx
-         GpWqfCLHy82dBT0rPAxDixRyhXiOCeal/GOu83uY=
+        b=U6wLGa0LB6NtWiSQ6gBf04ILG1BWfTyESZT0bBlHG580AFC3z7gKMiCdvG259tR1M
+         BFjrIwTWQC1tVx8vgMrw49TfW4WqWlcNV3gbkCp1Yas09Tujxf470BRDnygxVtAd4y
+         qXeT90KesRfL+21s9S/j8Nl3IVq6TIQqB67zbR60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.10 162/575] power: supply: max17042_battery: Clear status bits in interrupt handler
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        Quentin Perret <qperret@google.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 404/849] PM: EM: Fix inefficient states detection
 Date:   Mon, 15 Nov 2021 17:58:07 +0100
-Message-Id: <20211115165349.315595564@linuxfoundation.org>
+Message-Id: <20211115165433.931582160@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-commit 0cf48167b87e388fa1268c9fe6d2443ae7f43d8a upstream.
+[ Upstream commit aa1a43262ad5df010768f69530fa179ff81651d3 ]
 
-The gauge requires us to clear the status bits manually for some alerts
-to be properly dismissed. Previously the IRQ was configured to react only
-on falling edge, which wasn't technically correct (the ALRT line is active
-low), but it had a happy side-effect of preventing interrupt storms
-on uncleared alerts from happening.
+Currently, a debug message is printed if an inefficient state is detected
+in the Energy Model. Unfortunately, it won't detect if the first state is
+inefficient or if two successive states are. Fix this behavior.
 
-Fixes: 7fbf6b731bca ("power: supply: max17042: Do not enforce (incorrect) interrupt trigger type")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 27871f7a8a34 (PM: Introduce an Energy Model management framework)
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Reviewed-by: Quentin Perret <qperret@google.com>
+Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/max17042_battery.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/power/energy_model.c | 23 ++++++++---------------
+ 1 file changed, 8 insertions(+), 15 deletions(-)
 
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -875,6 +875,10 @@ static irqreturn_t max17042_thread_handl
- 		max17042_set_soc_threshold(chip, 1);
+diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
+index a332ccd829e24..97e62469a6b32 100644
+--- a/kernel/power/energy_model.c
++++ b/kernel/power/energy_model.c
+@@ -107,8 +107,7 @@ static void em_debug_remove_pd(struct device *dev) {}
+ static int em_create_perf_table(struct device *dev, struct em_perf_domain *pd,
+ 				int nr_states, struct em_data_callback *cb)
+ {
+-	unsigned long opp_eff, prev_opp_eff = ULONG_MAX;
+-	unsigned long power, freq, prev_freq = 0;
++	unsigned long power, freq, prev_freq = 0, prev_cost = ULONG_MAX;
+ 	struct em_perf_state *table;
+ 	int i, ret;
+ 	u64 fmax;
+@@ -153,27 +152,21 @@ static int em_create_perf_table(struct device *dev, struct em_perf_domain *pd,
+ 
+ 		table[i].power = power;
+ 		table[i].frequency = prev_freq = freq;
+-
+-		/*
+-		 * The hertz/watts efficiency ratio should decrease as the
+-		 * frequency grows on sane platforms. But this isn't always
+-		 * true in practice so warn the user if a higher OPP is more
+-		 * power efficient than a lower one.
+-		 */
+-		opp_eff = freq / power;
+-		if (opp_eff >= prev_opp_eff)
+-			dev_dbg(dev, "EM: hertz/watts ratio non-monotonically decreasing: em_perf_state %d >= em_perf_state%d\n",
+-					i, i - 1);
+-		prev_opp_eff = opp_eff;
  	}
  
-+	/* we implicitly handle all alerts via power_supply_changed */
-+	regmap_clear_bits(chip->regmap, MAX17042_STATUS,
-+			  0xFFFF & ~(STATUS_POR_BIT | STATUS_BST_BIT));
-+
- 	power_supply_changed(chip->battery);
- 	return IRQ_HANDLED;
- }
+ 	/* Compute the cost of each performance state. */
+ 	fmax = (u64) table[nr_states - 1].frequency;
+-	for (i = 0; i < nr_states; i++) {
++	for (i = nr_states - 1; i >= 0; i--) {
+ 		unsigned long power_res = em_scale_power(table[i].power);
+ 
+ 		table[i].cost = div64_u64(fmax * power_res,
+ 					  table[i].frequency);
++		if (table[i].cost >= prev_cost) {
++			dev_dbg(dev, "EM: OPP:%lu is inefficient\n",
++				table[i].frequency);
++		} else {
++			prev_cost = table[i].cost;
++		}
+ 	}
+ 
+ 	pd->table = table;
+-- 
+2.33.0
+
 
 
