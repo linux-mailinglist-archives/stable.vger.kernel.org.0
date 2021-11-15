@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01F4D452410
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B371645273A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:17:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355182AbhKPBf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:35:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47394 "EHLO mail.kernel.org"
+        id S244257AbhKPCUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:20:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242569AbhKOSiq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:38:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BDE363272;
-        Mon, 15 Nov 2021 18:03:37 +0000 (UTC)
+        id S237244AbhKORir (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:38:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A321863256;
+        Mon, 15 Nov 2021 17:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999417;
-        bh=PtyTeq9XGQA96nbLvZkx5jb4VmyVuQQlTm3f44FQDDw=;
+        s=korg; t=1636997162;
+        bh=6Ik0L6DcZRHNVkcVftg5qvtW7qkwC4YTSxPMnQJxz4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CiobQ77oCmnigzrzCQc7qre6jXyYepJdb+fTUhT47EglnpXfQj4HV/+jXzKG/L5GB
-         ZnJqmBldxu27Ti4X/4bungTZ4OqvmjT3vgUwBfSjNQdIpVnD0eRHcHFcWlsmCjEoVR
-         ZwGfZa7FvtmBXfli3FS8zddVQaPTfULmBBtjPrYY=
+        b=yPMl+Ji6eaVzHUfDbWR9pAgCVwaSbonDeccg9J6KAevmm8P9ExX4HKfLPx1TlaeBj
+         64eWYqtDfaLuQWF4uYLRPAsfm72x3abaBsKa8fdPhtlgr4WB75OpCT/CCca+zm5WQz
+         3J2saLCQlXcX7zZtIEE+PXvxpBw4cCbrShTM9cpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalesh Singh <kaleshsingh@google.com>,
-        kernel test robot <lkp@intel.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 290/849] tracing/cfi: Fix cmp_entries_* functions signature mismatch
+        stable@vger.kernel.org, Jane Malalane <jane.malalane@citrix.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 048/575] x86/cpu: Fix migration safety with X86_BUG_NULL_SEL
 Date:   Mon, 15 Nov 2021 17:56:13 +0100
-Message-Id: <20211115165430.080492111@linuxfoundation.org>
+Message-Id: <20211115165345.298317820@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,134 +39,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kalesh Singh <kaleshsingh@google.com>
+From: Jane Malalane <jane.malalane@citrix.com>
 
-[ Upstream commit 7ce1bb83a14019f8c396d57ec704d19478747716 ]
+commit 415de44076640483648d6c0f6d645a9ee61328ad upstream.
 
-If CONFIG_CFI_CLANG=y, attempting to read an event histogram will cause
-the kernel to panic due to failed CFI check.
+Currently, Linux probes for X86_BUG_NULL_SEL unconditionally which
+makes it unsafe to migrate in a virtualised environment as the
+properties across the migration pool might differ.
 
-    1. echo 'hist:keys=common_pid' >> events/sched/sched_switch/trigger
-    2. cat events/sched/sched_switch/hist
-    3. kernel panics on attempting to read hist
+To be specific, the case which goes wrong is:
 
-This happens because the sort() function expects a generic
-int (*)(const void *, const void *) pointer for the compare function.
-To prevent this CFI failure, change tracing map cmp_entries_* function
-signatures to match this.
+1. Zen1 (or earlier) and Zen2 (or later) in a migration pool
+2. Linux boots on Zen2, probes and finds the absence of X86_BUG_NULL_SEL
+3. Linux is then migrated to Zen1
 
-Also, fix the build error reported by the kernel test robot [1].
+Linux is now running on a X86_BUG_NULL_SEL-impacted CPU while believing
+that the bug is fixed.
 
-[1] https://lore.kernel.org/r/202110141140.zzi4dRh4-lkp@intel.com/
+The only way to address the problem is to fully trust the "no longer
+affected" CPUID bit when virtualised, because in the above case it would
+be clear deliberately to indicate the fact "you might migrate to
+somewhere which has this behaviour".
 
-Link: https://lkml.kernel.org/r/20211014045217.3265162-1-kaleshsingh@google.com
+Zen3 adds the NullSelectorClearsBase CPUID bit to indicate that loading
+a NULL segment selector zeroes the base and limit fields, as well as
+just attributes. Zen2 also has this behaviour but doesn't have the NSCB
+bit.
 
-Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ [ bp: Minor touchups. ]
+
+Signed-off-by: Jane Malalane <jane.malalane@citrix.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+CC: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20211021104744.24126-1-jane.malalane@citrix.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/tracing_map.c | 40 ++++++++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 17 deletions(-)
+ arch/x86/kernel/cpu/amd.c    |    2 +
+ arch/x86/kernel/cpu/common.c |   44 ++++++++++++++++++++++++++++++++++++-------
+ arch/x86/kernel/cpu/cpu.h    |    1 
+ arch/x86/kernel/cpu/hygon.c  |    2 +
+ 4 files changed, 42 insertions(+), 7 deletions(-)
 
-diff --git a/kernel/trace/tracing_map.c b/kernel/trace/tracing_map.c
-index d6bddb157ef20..39bb56d2dcbef 100644
---- a/kernel/trace/tracing_map.c
-+++ b/kernel/trace/tracing_map.c
-@@ -834,29 +834,35 @@ int tracing_map_init(struct tracing_map *map)
- 	return err;
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -1017,6 +1017,8 @@ static void init_amd(struct cpuinfo_x86
+ 	if (cpu_has(c, X86_FEATURE_IRPERF) &&
+ 	    !cpu_has_amd_erratum(c, amd_erratum_1054))
+ 		msr_set_bit(MSR_K7_HWCR, MSR_K7_HWCR_IRPERF_EN_BIT);
++
++	check_null_seg_clears_base(c);
  }
  
--static int cmp_entries_dup(const struct tracing_map_sort_entry **a,
--			   const struct tracing_map_sort_entry **b)
-+static int cmp_entries_dup(const void *A, const void *B)
- {
-+	const struct tracing_map_sort_entry *a, *b;
- 	int ret = 0;
- 
--	if (memcmp((*a)->key, (*b)->key, (*a)->elt->map->key_size))
-+	a = *(const struct tracing_map_sort_entry **)A;
-+	b = *(const struct tracing_map_sort_entry **)B;
-+
-+	if (memcmp(a->key, b->key, a->elt->map->key_size))
- 		ret = 1;
- 
- 	return ret;
+ #ifdef CONFIG_X86_32
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1391,9 +1391,8 @@ void __init early_cpu_init(void)
+ 	early_identify_cpu(&boot_cpu_data);
  }
  
--static int cmp_entries_sum(const struct tracing_map_sort_entry **a,
--			   const struct tracing_map_sort_entry **b)
-+static int cmp_entries_sum(const void *A, const void *B)
+-static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
++static bool detect_null_seg_behavior(void)
  {
- 	const struct tracing_map_elt *elt_a, *elt_b;
-+	const struct tracing_map_sort_entry *a, *b;
- 	struct tracing_map_sort_key *sort_key;
- 	struct tracing_map_field *field;
- 	tracing_map_cmp_fn_t cmp_fn;
- 	void *val_a, *val_b;
- 	int ret = 0;
- 
--	elt_a = (*a)->elt;
--	elt_b = (*b)->elt;
-+	a = *(const struct tracing_map_sort_entry **)A;
-+	b = *(const struct tracing_map_sort_entry **)B;
+-#ifdef CONFIG_X86_64
+ 	/*
+ 	 * Empirically, writing zero to a segment selector on AMD does
+ 	 * not clear the base, whereas writing zero to a segment
+@@ -1414,10 +1413,43 @@ static void detect_null_seg_behavior(str
+ 	wrmsrl(MSR_FS_BASE, 1);
+ 	loadsegment(fs, 0);
+ 	rdmsrl(MSR_FS_BASE, tmp);
+-	if (tmp != 0)
+-		set_cpu_bug(c, X86_BUG_NULL_SEG);
+ 	wrmsrl(MSR_FS_BASE, old_base);
+-#endif
++	return tmp == 0;
++}
 +
-+	elt_a = a->elt;
-+	elt_b = b->elt;
- 
- 	sort_key = &elt_a->map->sort_key;
- 
-@@ -873,18 +879,21 @@ static int cmp_entries_sum(const struct tracing_map_sort_entry **a,
- 	return ret;
++void check_null_seg_clears_base(struct cpuinfo_x86 *c)
++{
++	/* BUG_NULL_SEG is only relevant with 64bit userspace */
++	if (!IS_ENABLED(CONFIG_X86_64))
++		return;
++
++	/* Zen3 CPUs advertise Null Selector Clears Base in CPUID. */
++	if (c->extended_cpuid_level >= 0x80000021 &&
++	    cpuid_eax(0x80000021) & BIT(6))
++		return;
++
++	/*
++	 * CPUID bit above wasn't set. If this kernel is still running
++	 * as a HV guest, then the HV has decided not to advertize
++	 * that CPUID bit for whatever reason.	For example, one
++	 * member of the migration pool might be vulnerable.  Which
++	 * means, the bug is present: set the BUG flag and return.
++	 */
++	if (cpu_has(c, X86_FEATURE_HYPERVISOR)) {
++		set_cpu_bug(c, X86_BUG_NULL_SEG);
++		return;
++	}
++
++	/*
++	 * Zen2 CPUs also have this behaviour, but no CPUID bit.
++	 * 0x18 is the respective family for Hygon.
++	 */
++	if ((c->x86 == 0x17 || c->x86 == 0x18) &&
++	    detect_null_seg_behavior())
++		return;
++
++	/* All the remaining ones are affected */
++	set_cpu_bug(c, X86_BUG_NULL_SEG);
  }
  
--static int cmp_entries_key(const struct tracing_map_sort_entry **a,
--			   const struct tracing_map_sort_entry **b)
-+static int cmp_entries_key(const void *A, const void *B)
- {
- 	const struct tracing_map_elt *elt_a, *elt_b;
-+	const struct tracing_map_sort_entry *a, *b;
- 	struct tracing_map_sort_key *sort_key;
- 	struct tracing_map_field *field;
- 	tracing_map_cmp_fn_t cmp_fn;
- 	void *val_a, *val_b;
- 	int ret = 0;
+ static void generic_identify(struct cpuinfo_x86 *c)
+@@ -1453,8 +1485,6 @@ static void generic_identify(struct cpui
  
--	elt_a = (*a)->elt;
--	elt_b = (*b)->elt;
-+	a = *(const struct tracing_map_sort_entry **)A;
-+	b = *(const struct tracing_map_sort_entry **)B;
+ 	get_model_name(c); /* Default name */
+ 
+-	detect_null_seg_behavior(c);
+-
+ 	/*
+ 	 * ESPFIX is a strange bug.  All real CPUs have it.  Paravirt
+ 	 * systems that run Linux at CPL > 0 may or may not have the
+--- a/arch/x86/kernel/cpu/cpu.h
++++ b/arch/x86/kernel/cpu/cpu.h
+@@ -73,6 +73,7 @@ extern int detect_extended_topology_earl
+ extern int detect_extended_topology(struct cpuinfo_x86 *c);
+ extern int detect_ht_early(struct cpuinfo_x86 *c);
+ extern void detect_ht(struct cpuinfo_x86 *c);
++extern void check_null_seg_clears_base(struct cpuinfo_x86 *c);
+ 
+ unsigned int aperfmperf_get_khz(int cpu);
+ 
+--- a/arch/x86/kernel/cpu/hygon.c
++++ b/arch/x86/kernel/cpu/hygon.c
+@@ -351,6 +351,8 @@ static void init_hygon(struct cpuinfo_x8
+ 	/* Hygon CPUs don't reset SS attributes on SYSRET, Xen does. */
+ 	if (!cpu_has(c, X86_FEATURE_XENPV))
+ 		set_cpu_bug(c, X86_BUG_SYSRET_SS_ATTRS);
 +
-+	elt_a = a->elt;
-+	elt_b = b->elt;
++	check_null_seg_clears_base(c);
+ }
  
- 	sort_key = &elt_a->map->sort_key;
- 
-@@ -989,10 +998,8 @@ static void sort_secondary(struct tracing_map *map,
- 			   struct tracing_map_sort_key *primary_key,
- 			   struct tracing_map_sort_key *secondary_key)
- {
--	int (*primary_fn)(const struct tracing_map_sort_entry **,
--			  const struct tracing_map_sort_entry **);
--	int (*secondary_fn)(const struct tracing_map_sort_entry **,
--			    const struct tracing_map_sort_entry **);
-+	int (*primary_fn)(const void *, const void *);
-+	int (*secondary_fn)(const void *, const void *);
- 	unsigned i, start = 0, n_sub = 1;
- 
- 	if (is_key(map, primary_key->field_idx))
-@@ -1061,8 +1068,7 @@ int tracing_map_sort_entries(struct tracing_map *map,
- 			     unsigned int n_sort_keys,
- 			     struct tracing_map_sort_entry ***sort_entries)
- {
--	int (*cmp_entries_fn)(const struct tracing_map_sort_entry **,
--			      const struct tracing_map_sort_entry **);
-+	int (*cmp_entries_fn)(const void *, const void *);
- 	struct tracing_map_sort_entry *sort_entry, **entries;
- 	int i, n_entries, ret;
- 
--- 
-2.33.0
-
+ static void cpu_detect_tlb_hygon(struct cpuinfo_x86 *c)
 
 
