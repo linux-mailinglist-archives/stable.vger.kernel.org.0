@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37FE8451063
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:44:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8957A45105C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:44:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242124AbhKOSrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:47:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50328 "EHLO mail.kernel.org"
+        id S242255AbhKOSqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:46:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239369AbhKOSoe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:44:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61EB163364;
-        Mon, 15 Nov 2021 18:05:55 +0000 (UTC)
+        id S242169AbhKOSof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:44:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15A516337B;
+        Mon, 15 Nov 2021 18:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999555;
-        bh=RT4c1amvKbIveG1AjmPg6G5GHIIEYCHdQS57BgVmXgg=;
+        s=korg; t=1636999558;
+        bh=vweOytTpGXujTVuKhXZ6x+Au4aO2W2AJuoH9DP546t8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e4d+/RN4YFW5CFbbNU7KcJ04gaqkABlLeKTS9nH94zRX42G34uuQVADv/iK7NxN8n
-         gUOsfnwZRME1Ai+SyYKhzi1bAoZ9hejrDv2Vdy7H/kfFusih210ghAk6EIxXQ4tMJ3
-         1YfPEfZJbay67LIFTwV/0O0M2TcNNvQKvlXiw0Lk=
+        b=otVbJOPpYizbTX9CiWIxpp53Y0fu76oOCfPzWCXJggR4Vex1kvT4UupmiqWRN0uoY
+         JPFvWH6vQtFRpiftXzSDV1T/TOiWUsW6woD6+MtknDUZRUU9HleP1CAOf3ikieosGq
+         Rgs5HQ8U0ynlvOGI5bQMLE1JtY81Xc3TTo4Fz/Sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 340/849] drm/bridge: it66121: Wait for next bridge to be probed
-Date:   Mon, 15 Nov 2021 17:57:03 +0100
-Message-Id: <20211115165431.736940201@linuxfoundation.org>
+Subject: [PATCH 5.14 341/849] Bluetooth: fix init and cleanup of sco_conn.timeout_work
+Date:   Mon, 15 Nov 2021 17:57:04 +0100
+Message-Id: <20211115165431.768150358@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,40 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit 8b03e3fc79189b17d31a82f5e175698802a11e87 ]
+[ Upstream commit 49d8a5606428ca0962d09050a5af81461ff90fbb ]
 
-If run before the next bridge is initialized, of_drm_find_bridge() will
-give us a NULL pointer.
+Before freeing struct sco_conn, all delayed timeout work should be
+cancelled. Otherwise, sco_sock_timeout could potentially use the
+sco_conn after it has been freed.
 
-If that's the case, return -EPROBE_DEFER; we may have more luck next
-time.
+Additionally, sco_conn.timeout_work should be initialized when the
+connection is allocated, not when the channel is added. This is
+because an sco_conn can create channels with multiple sockets over its
+lifetime, which happens if sockets are released but the connection
+isn't deleted.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Fixes: 988156dc2fc9 ("drm: bridge: add it66121 driver")
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210827163956.27517-2-paul@crapouillou.net
+Fixes: ba316be1b6a0 ("Bluetooth: schedule SCO timeouts with delayed_work")
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ite-it66121.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/bluetooth/sco.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/ite-it66121.c b/drivers/gpu/drm/bridge/ite-it66121.c
-index b130d01147c6c..9dc41a7b91362 100644
---- a/drivers/gpu/drm/bridge/ite-it66121.c
-+++ b/drivers/gpu/drm/bridge/ite-it66121.c
-@@ -924,6 +924,9 @@ static int it66121_probe(struct i2c_client *client,
- 	ctx->next_bridge = of_drm_find_bridge(ep);
- 	of_node_put(ep);
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index 2766faf95c534..2e251ac89da58 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -134,6 +134,7 @@ static struct sco_conn *sco_conn_add(struct hci_conn *hcon)
+ 		return NULL;
  
-+	if (!ctx->next_bridge)
-+		return -EPROBE_DEFER;
+ 	spin_lock_init(&conn->lock);
++	INIT_DELAYED_WORK(&conn->timeout_work, sco_sock_timeout);
+ 
+ 	hcon->sco_data = conn;
+ 	conn->hcon = hcon;
+@@ -197,11 +198,11 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
+ 		sco_chan_del(sk, err);
+ 		bh_unlock_sock(sk);
+ 		sock_put(sk);
+-
+-		/* Ensure no more work items will run before freeing conn. */
+-		cancel_delayed_work_sync(&conn->timeout_work);
+ 	}
+ 
++	/* Ensure no more work items will run before freeing conn. */
++	cancel_delayed_work_sync(&conn->timeout_work);
 +
- 	i2c_set_clientdata(client, ctx);
- 	mutex_init(&ctx->lock);
+ 	hcon->sco_data = NULL;
+ 	kfree(conn);
+ }
+@@ -214,8 +215,6 @@ static void __sco_chan_add(struct sco_conn *conn, struct sock *sk,
+ 	sco_pi(sk)->conn = conn;
+ 	conn->sk = sk;
  
+-	INIT_DELAYED_WORK(&conn->timeout_work, sco_sock_timeout);
+-
+ 	if (parent)
+ 		bt_accept_enqueue(parent, sk, true);
+ }
 -- 
 2.33.0
 
