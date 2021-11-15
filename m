@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B0AD450ABB
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52155450ABF
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232376AbhKOROU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:14:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46236 "EHLO mail.kernel.org"
+        id S236539AbhKOROX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:14:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236772AbhKORMh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:12:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7036D61BE5;
-        Mon, 15 Nov 2021 17:09:40 +0000 (UTC)
+        id S236783AbhKORMm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:12:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA1BC61BD2;
+        Mon, 15 Nov 2021 17:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996181;
-        bh=KgNYs70AqdvifhnDfLu/6gP4SPOTkLTRF+1SM1Y2Zpc=;
+        s=korg; t=1636996186;
+        bh=nT29tOonLZyIVBUT79fB2ueAINJ036I800GYLiZPX/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MmkVZyY7V3MdcBDT5Ob6COonl2H8y/8Jq9DUcXATcRAEmea9/KId9mBiqlqGOT/CQ
-         tKSRdgJAU3zBEbeitgER4Tdz44lmDLbXSEaebiImgix851axPZWcZ2XLNJ/ByC4j3E
-         2td9+8QXVMxSRgpUSRm/SOcyLnfzSnNVr8LXXkro=
+        b=VokZoH0RhDQgRPrvPjpXLao7kTyZY0WvZ7HxjIME1VFT6kbJRDyXmYLlzoERzgCtp
+         47YUTNBfqMYObMr1kOJZFK6T4zPndSjwkN2SkWySzL1P/J6IqLKaAddtNiWqUoTZ2J
+         BuZW8C2W/wB9CHVCNNukk4hpafn8IE2CsZWkbAyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bryant Mairs <bryant@mai.rs>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 046/355] drm: panel-orientation-quirks: Add quirk for Aya Neo 2021
-Date:   Mon, 15 Nov 2021 17:59:30 +0100
-Message-Id: <20211115165315.039533150@linuxfoundation.org>
+Subject: [PATCH 5.4 047/355] bpf: Define bpf_jit_alloc_exec_limit for arm64 JIT
+Date:   Mon, 15 Nov 2021 17:59:31 +0100
+Message-Id: <20211115165315.072260694@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -40,37 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryant Mairs <bryant@mai.rs>
+From: Lorenz Bauer <lmb@cloudflare.com>
 
-[ Upstream commit def0c3697287f6e85d5ac68b21302966c95474f9 ]
+[ Upstream commit 5d63ae908242f028bd10860cba98450d11c079b8 ]
 
-Fixes screen orientation for the Aya Neo 2021 handheld gaming console.
+Expose the maximum amount of useable memory from the arm64 JIT.
 
-Signed-off-by: Bryant Mairs <bryant@mai.rs>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211019142433.4295-1-bryant@mai.rs
+Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20211014142554.53120-3-lmb@cloudflare.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/net/bpf_jit_comp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index f6bdec7fa9253..30c17a76f49ae 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -134,6 +134,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T103HAF"),
- 		},
- 		.driver_data = (void *)&lcd800x1280_rightside_up,
-+	}, {	/* AYA NEO 2021 */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "AYADEVICE"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "AYA NEO 2021"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_rightside_up,
- 	}, {	/* GPD MicroPC (generic strings, also match on bios date) */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
+diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
+index afc7d41347f73..a343677837c77 100644
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -996,6 +996,11 @@ out:
+ 	return prog;
+ }
+ 
++u64 bpf_jit_alloc_exec_limit(void)
++{
++	return BPF_JIT_REGION_SIZE;
++}
++
+ void *bpf_jit_alloc_exec(unsigned long size)
+ {
+ 	return __vmalloc_node_range(size, PAGE_SIZE, BPF_JIT_REGION_START,
 -- 
 2.33.0
 
