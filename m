@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 039BB4521C0
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98DAD4521C6
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352365AbhKPBGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:06:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
+        id S1349495AbhKPBGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:06:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245410AbhKOTUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245408AbhKOTUa (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:20:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6B6660041;
-        Mon, 15 Nov 2021 18:33:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6490761C15;
+        Mon, 15 Nov 2021 18:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001239;
-        bh=qlmn6Bgw0UqFDSuKTeL9xceGwLBTOC+lDycFXeBxUDI=;
+        s=korg; t=1637001241;
+        bh=hYra+e4a47V+ydyfs1YRzlOCGrI83ATxYV4qKD6WZr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=agCz37AzzbuIX2sOi9d+AwDk8OOwyX3eLP4zGfIQYabPjVgSumme0sf/KFHEniSkZ
-         5Tuwfd1rh4a1uQOZKIrezLZqETBg+wjOKgOqSQwuoM/9nlfKfceHURqKsEbenfOqZa
-         MW4YBWI2x+s1ScqgxgUuhvVQaRtEvajXMNYSOGXk=
+        b=1L6959VlSt2a/jCW67HOCc2+V9TpP6nvb7tj9mQ1WKLE+AA+Ihz5Y7lQMLKQizz2B
+         TPkKo/LzgeLjCVq9kPcYmi44zp40h+JrV5Gt/7Dijkr3jP3bJD+vrG1yPNUttotrZe
+         43Uuxso5vRTifa0J+7QTGahPbbbuSdL0QPvYhi/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
-        Li Yang <leoyang.li@nxp.com>
-Subject: [PATCH 5.15 114/917] soc: fsl: dpio: use the combined functions to protect critical zone
-Date:   Mon, 15 Nov 2021 17:53:29 +0100
-Message-Id: <20211115165432.608397356@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.15 115/917] mtd: rawnand: socrates: Keep the driver compatible with on-die ECC engines
+Date:   Mon, 15 Nov 2021 17:53:30 +0100
+Message-Id: <20211115165432.640113135@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,87 +38,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Li <Meng.Li@windriver.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit dc7e5940aad6641bd5ab33ea8b21c4b3904d989f upstream.
+commit b4ebddd6540d78a7f977b3fea0261bd575c6ffe2 upstream.
 
-In orininal code, use 2 function spin_lock() and local_irq_save() to
-protect the critical zone. But when enable the kernel debug config,
-there are below inconsistent lock state detected.
-================================
-WARNING: inconsistent lock state
-5.10.63-yocto-standard #1 Not tainted
---------------------------------
-inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
-lock_torture_wr/226 [HC0[0]:SC1[5]:HE1:SE0] takes:
-ffff002005b2dd80 (&p->access_spinlock){+.?.}-{3:3}, at: qbman_swp_enqueue_multiple_mem_back+0x44/0x270
-{SOFTIRQ-ON-W} state was registered at:
-  lock_acquire.part.0+0xf8/0x250
-  lock_acquire+0x68/0x84
-  _raw_spin_lock+0x68/0x90
-  qbman_swp_enqueue_multiple_mem_back+0x44/0x270
-  ......
-  cryptomgr_test+0x38/0x60
-  kthread+0x158/0x164
-  ret_from_fork+0x10/0x38
-irq event stamp: 4498
-hardirqs last  enabled at (4498): [<ffff800010fcf980>] _raw_spin_unlock_irqrestore+0x90/0xb0
-hardirqs last disabled at (4497): [<ffff800010fcffc4>] _raw_spin_lock_irqsave+0xd4/0xe0
-softirqs last  enabled at (4458): [<ffff8000100108c4>] __do_softirq+0x674/0x724
-softirqs last disabled at (4465): [<ffff80001005b2a4>] __irq_exit_rcu+0x190/0x19c
+Following the introduction of the generic ECC engine infrastructure, it
+was necessary to reorganize the code and move the ECC configuration in
+the ->attach_chip() hook. Failing to do that properly lead to a first
+series of fixes supposed to stabilize the situation. Unfortunately, this
+only fixed the use of software ECC engines, preventing any other kind of
+engine to be used, including on-die ones.
 
-other info that might help us debug this:
- Possible unsafe locking scenario:
-       CPU0
-       ----
-  lock(&p->access_spinlock);
-  <Interrupt>
-    lock(&p->access_spinlock);
- *** DEADLOCK ***
+It is now time to (finally) fix the situation by ensuring that we still
+provide a default (eg. software ECC) but will still support different
+ECC engines such as on-die ECC engines if properly described in the
+device tree.
 
-So, in order to avoid deadlock, use the combined functions
-spin_lock_irqsave/spin_unlock_irqrestore() to protect critical zone.
+There are no changes needed on the core side in order to do this, but we
+just need to leverage the logic there which allows:
+1- a subsystem default (set to Host engines in the raw NAND world)
+2- a driver specific default (here set to software ECC engines)
+3- any type of engine requested by the user (ie. described in the DT)
 
-Fixes: 3b2abda7d28c ("soc: fsl: dpio: Replace QMAN array mode with ring mode enqueue")
+As the raw NAND subsystem has not yet been fully converted to the ECC
+engine infrastructure, in order to provide a default ECC engine for this
+driver we need to set chip->ecc.engine_type *before* calling
+nand_scan(). During the initialization step, the core will consider this
+entry as the default engine for this driver. This value may of course
+be overloaded by the user if the usual DT properties are provided.
+
+Fixes: b36bf0a0fe5d ("mtd: rawnand: socrates: Move the ECC initialization to ->attach_chip()")
 Cc: stable@vger.kernel.org
-Signed-off-by: Meng Li <Meng.Li@windriver.com>
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210928222258.199726-9-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/fsl/dpio/qbman-portal.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/mtd/nand/raw/socrates_nand.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/soc/fsl/dpio/qbman-portal.c
-+++ b/drivers/soc/fsl/dpio/qbman-portal.c
-@@ -732,8 +732,7 @@ int qbman_swp_enqueue_multiple_mem_back(
- 	int i, num_enqueued = 0;
- 	unsigned long irq_flags;
+--- a/drivers/mtd/nand/raw/socrates_nand.c
++++ b/drivers/mtd/nand/raw/socrates_nand.c
+@@ -119,9 +119,8 @@ static int socrates_nand_device_ready(st
  
--	spin_lock(&s->access_spinlock);
--	local_irq_save(irq_flags);
-+	spin_lock_irqsave(&s->access_spinlock, irq_flags);
+ static int socrates_attach_chip(struct nand_chip *chip)
+ {
+-	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+-
+-	if (chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
++	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT &&
++	    chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
+ 		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
  
- 	half_mask = (s->eqcr.pi_ci_mask>>1);
- 	full_mask = s->eqcr.pi_ci_mask;
-@@ -744,8 +743,7 @@ int qbman_swp_enqueue_multiple_mem_back(
- 		s->eqcr.available = qm_cyc_diff(s->eqcr.pi_ring_size,
- 					eqcr_ci, s->eqcr.ci);
- 		if (!s->eqcr.available) {
--			local_irq_restore(irq_flags);
--			spin_unlock(&s->access_spinlock);
-+			spin_unlock_irqrestore(&s->access_spinlock, irq_flags);
- 			return 0;
- 		}
- 	}
-@@ -784,8 +782,7 @@ int qbman_swp_enqueue_multiple_mem_back(
- 	dma_wmb();
- 	qbman_write_register(s, QBMAN_CINH_SWP_EQCR_PI,
- 				(QB_RT_BIT)|(s->eqcr.pi)|s->eqcr.pi_vb);
--	local_irq_restore(irq_flags);
--	spin_unlock(&s->access_spinlock);
-+	spin_unlock_irqrestore(&s->access_spinlock, irq_flags);
+ 	return 0;
+@@ -175,6 +174,13 @@ static int socrates_nand_probe(struct pl
+ 	/* TODO: I have no idea what real delay is. */
+ 	nand_chip->legacy.chip_delay = 20;	/* 20us command delay time */
  
- 	return num_enqueued;
- }
++	/*
++	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
++	 * Set ->engine_type before registering the NAND devices in order to
++	 * provide a driver specific default value.
++	 */
++	nand_chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
++
+ 	dev_set_drvdata(&ofdev->dev, host);
+ 
+ 	res = nand_scan(nand_chip, 1);
 
 
