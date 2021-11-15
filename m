@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F08451242
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:31:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C53CA451252
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241628AbhKOTd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:33:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42970 "EHLO mail.kernel.org"
+        id S240098AbhKOTed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:34:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244625AbhKOTRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244629AbhKOTRF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:17:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9ABCD61B44;
-        Mon, 15 Nov 2021 18:22:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AE6861B3D;
+        Mon, 15 Nov 2021 18:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000531;
-        bh=0hsI4YDMGAhptLhRTnSi3BZAiLFMj3piUW3GFS5g3I0=;
+        s=korg; t=1637000533;
+        bh=PoP7Q20XjbfcFNZUewxMCrBT7r450rjbOU2RsYQ4iKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cY/Ped+L0pojmGDLq61I7txDRxDCOUqd+EyXRR+JNlHhV7pX0m7hGVqGNwPBI2xaj
-         pvqSBvBUsHeZUzn2Px0NGiCYPR6Kp9gAKOiDOu93INZaG2EdfetnTSyewyxLMRABJj
-         20w9LQ2NRvEy8lr/P3TVERGIXS/nlW8GCBy49t6A=
+        b=rPEd9KJPBfTO1OqK0RxG+vNFGiQ2ehrVMnzhyp+vGs6XfvMqETcaylR5R56RXcRPN
+         cMF464Af4rXzVjc9gzr4CUBk23F3BwCn78bjL8Kf4GsDPFttcfAT0pt5N+a5uJBHtA
+         s3lZhLuZtqgeNj+DSHwwmpZHtoDrw2AM43n5GDbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Claudiu Beznea <claudiu.beznea@microchip.com>,
         Tudor Ambarus <tudor.ambarus@microchip.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 694/849] dmaengine: at_xdmac: call at_xdmac_axi_config() on resume path
-Date:   Mon, 15 Nov 2021 18:02:57 +0100
-Message-Id: <20211115165443.729946240@linuxfoundation.org>
+Subject: [PATCH 5.14 695/849] dmaengine: at_xdmac: fix AT_XDMAC_CC_PERID() macro
+Date:   Mon, 15 Nov 2021 18:02:58 +0100
+Message-Id: <20211115165443.764314644@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -43,106 +43,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit fa5270ec2f2688d98a82895be7039b81c87d856c ]
+[ Upstream commit 320c88a3104dc955f928a1eecebd551ff89530c0 ]
 
-at_xdmac could be used on SoCs which supports backup mode (where most
-of the SoC power, including power to DMA controller, is closed at suspend
-time). Thus, on resume, the settings which were previously done need to be
-restored. Do the same for axi configuration.
+AT_XDMAC_CC_PERID() should be used to setup bits 24..30 of XDMAC_CC
+register. Using it without parenthesis around 0x7f & (i) will lead to
+setting all the time zero for bits 24..30 of XDMAC_CC as the << operator
+has higher precedence over bitwise &. Thus, add paranthesis around
+0x7f & (i).
 
-Fixes: f40566f220a1 ("dmaengine: at_xdmac: add AXI priority support and recommended settings")
+Fixes: 15a03850ab8f ("dmaengine: at_xdmac: fix macro typo")
 Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
 Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/20211007111230.2331837-2-claudiu.beznea@microchip.com
+Link: https://lore.kernel.org/r/20211007111230.2331837-3-claudiu.beznea@microchip.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/at_xdmac.c | 51 ++++++++++++++++++++++--------------------
- 1 file changed, 27 insertions(+), 24 deletions(-)
+ drivers/dma/at_xdmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/dma/at_xdmac.c b/drivers/dma/at_xdmac.c
-index 64a52bf4d7377..855a59f3248ee 100644
+index 855a59f3248ee..9089b67b3e468 100644
 --- a/drivers/dma/at_xdmac.c
 +++ b/drivers/dma/at_xdmac.c
-@@ -1926,6 +1926,30 @@ static void at_xdmac_free_chan_resources(struct dma_chan *chan)
- 	return;
- }
- 
-+static void at_xdmac_axi_config(struct platform_device *pdev)
-+{
-+	struct at_xdmac	*atxdmac = (struct at_xdmac *)platform_get_drvdata(pdev);
-+	bool dev_m2m = false;
-+	u32 dma_requests;
-+
-+	if (!atxdmac->layout->axi_config)
-+		return; /* Not supported */
-+
-+	if (!of_property_read_u32(pdev->dev.of_node, "dma-requests",
-+				  &dma_requests)) {
-+		dev_info(&pdev->dev, "controller in mem2mem mode.\n");
-+		dev_m2m = true;
-+	}
-+
-+	if (dev_m2m) {
-+		at_xdmac_write(atxdmac, AT_XDMAC_GCFG, AT_XDMAC_GCFG_M2M);
-+		at_xdmac_write(atxdmac, AT_XDMAC_GWAC, AT_XDMAC_GWAC_M2M);
-+	} else {
-+		at_xdmac_write(atxdmac, AT_XDMAC_GCFG, AT_XDMAC_GCFG_P2M);
-+		at_xdmac_write(atxdmac, AT_XDMAC_GWAC, AT_XDMAC_GWAC_P2M);
-+	}
-+}
-+
- #ifdef CONFIG_PM
- static int atmel_xdmac_prepare(struct device *dev)
- {
-@@ -1975,6 +1999,7 @@ static int atmel_xdmac_resume(struct device *dev)
- 	struct at_xdmac		*atxdmac = dev_get_drvdata(dev);
- 	struct at_xdmac_chan	*atchan;
- 	struct dma_chan		*chan, *_chan;
-+	struct platform_device	*pdev = container_of(dev, struct platform_device, dev);
- 	int			i;
- 	int ret;
- 
-@@ -1982,6 +2007,8 @@ static int atmel_xdmac_resume(struct device *dev)
- 	if (ret)
- 		return ret;
- 
-+	at_xdmac_axi_config(pdev);
-+
- 	/* Clear pending interrupts. */
- 	for (i = 0; i < atxdmac->dma.chancnt; i++) {
- 		atchan = &atxdmac->chan[i];
-@@ -2007,30 +2034,6 @@ static int atmel_xdmac_resume(struct device *dev)
- }
- #endif /* CONFIG_PM_SLEEP */
- 
--static void at_xdmac_axi_config(struct platform_device *pdev)
--{
--	struct at_xdmac	*atxdmac = (struct at_xdmac *)platform_get_drvdata(pdev);
--	bool dev_m2m = false;
--	u32 dma_requests;
--
--	if (!atxdmac->layout->axi_config)
--		return; /* Not supported */
--
--	if (!of_property_read_u32(pdev->dev.of_node, "dma-requests",
--				  &dma_requests)) {
--		dev_info(&pdev->dev, "controller in mem2mem mode.\n");
--		dev_m2m = true;
--	}
--
--	if (dev_m2m) {
--		at_xdmac_write(atxdmac, AT_XDMAC_GCFG, AT_XDMAC_GCFG_M2M);
--		at_xdmac_write(atxdmac, AT_XDMAC_GWAC, AT_XDMAC_GWAC_M2M);
--	} else {
--		at_xdmac_write(atxdmac, AT_XDMAC_GCFG, AT_XDMAC_GCFG_P2M);
--		at_xdmac_write(atxdmac, AT_XDMAC_GWAC, AT_XDMAC_GWAC_P2M);
--	}
--}
--
- static int at_xdmac_probe(struct platform_device *pdev)
- {
- 	struct at_xdmac	*atxdmac;
+@@ -155,7 +155,7 @@
+ #define		AT_XDMAC_CC_WRIP	(0x1 << 23)	/* Write in Progress (read only) */
+ #define			AT_XDMAC_CC_WRIP_DONE		(0x0 << 23)
+ #define			AT_XDMAC_CC_WRIP_IN_PROGRESS	(0x1 << 23)
+-#define		AT_XDMAC_CC_PERID(i)	(0x7f & (i) << 24)	/* Channel Peripheral Identifier */
++#define		AT_XDMAC_CC_PERID(i)	((0x7f & (i)) << 24)	/* Channel Peripheral Identifier */
+ #define AT_XDMAC_CDS_MSP	0x2C	/* Channel Data Stride Memory Set Pattern */
+ #define AT_XDMAC_CSUS		0x30	/* Channel Source Microblock Stride */
+ #define AT_XDMAC_CDUS		0x34	/* Channel Destination Microblock Stride */
 -- 
 2.33.0
 
