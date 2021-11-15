@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49377450EF9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:22:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EB42450EE7
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:18:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238653AbhKOSXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:23:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58856 "EHLO mail.kernel.org"
+        id S238658AbhKOSVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:21:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241316AbhKOSTZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:19:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A75AF633FB;
-        Mon, 15 Nov 2021 17:51:33 +0000 (UTC)
+        id S241323AbhKOST0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:19:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A94C633FC;
+        Mon, 15 Nov 2021 17:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998694;
-        bh=JqiDyWgxdTGY9yk21UUxFMl4N8SoqgNZtiLSIXLFRPM=;
+        s=korg; t=1636998696;
+        bh=xVhAAYW/y8QSF3uEjAXUZDZTXOFpSn0h1Gjfcsgw4SI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yf/B/OxUnMMQdB4xrUmeqz+NiboOHUxTmoi5uF+eA+T8bQ5orqtVsWN6Bc3kvb+u8
-         afTAmj6PDdp7Bi3oBqSiGS7QBqESCNzIfcnvfILTPvrhYcyN18U5w+yfVyG5dx/m54
-         tjevJn8YtO3sqSj2oC4+HaX972CAPCoL/h1gpVWo=
+        b=A+fUyLr+s+i7t1BXsJ96sJyV7Wgdwdd8g1HVYtiygI68nmMGb2S+CZmiF+K4tRA4K
+         7UKnAkMwyBJauRymiEigwg0CdBT4RShvTMfFur38pqEbE+0EUI7xWlqHZn378AoxX4
+         22xr3QfZZaXbHnPG5S2XFPl4ruLRGe30mxnTY3sI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Joaqu=C3=ADn=20Alberto=20Calder=C3=B3n=20Pozo?= 
+        <kini_calderon@hotmail.com>, Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.14 026/849] media: rkvdec: Support dynamic resolution changes
-Date:   Mon, 15 Nov 2021 17:51:49 +0100
-Message-Id: <20211115165420.885543176@linuxfoundation.org>
+Subject: [PATCH 5.14 027/849] media: ir-kbd-i2c: improve responsiveness of hauppauge zilog receivers
+Date:   Mon, 15 Nov 2021 17:51:50 +0100
+Message-Id: <20211115165420.918043300@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,107 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Sean Young <sean@mess.org>
 
-commit 0887e9e152efbd3601d6c907e90033d25067277d upstream.
+commit c73ba202a851c0b611ef2c25e568fadeff5e667f upstream.
 
-The mem-to-mem stateless decoder API specifies support for dynamic
-resolution changes. In particular, the decoder should accept format
-changes on the OUTPUT queue even when buffers have been allocated,
-as long as it is not streaming.
+The IR receiver has two issues:
 
-Relax restrictions for S_FMT as described in the previous paragraph,
-and as long as the codec format remains the same. This aligns it with
-the Hantro and Cedrus decoders. This change was mostly based on commit
-ae02d49493b5 ("media: hantro: Fix s_fmt for dynamic resolution changes").
+ - Sometimes there is no response to a button press
+ - Sometimes a button press is repeated when it should not have been
 
-Since rkvdec_s_fmt() is now just a wrapper around the output/capture
-variants without any additional shared functionality, drop the wrapper
-and call the respective functions directly.
+Hanging the polling interval fixes this behaviour.
 
-Fixes: cd33c830448b ("media: rkvdec: Add the rkvdec driver")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=994050
+
+Cc: stable@vger.kernel.org
+Suggested-by: Joaquín Alberto Calderón Pozo <kini_calderon@hotmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/media/rkvdec/rkvdec.c |   40 +++++++++++++++++-----------------
- 1 file changed, 20 insertions(+), 20 deletions(-)
+ drivers/media/i2c/ir-kbd-i2c.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/media/rkvdec/rkvdec.c
-+++ b/drivers/staging/media/rkvdec/rkvdec.c
-@@ -280,31 +280,20 @@ static int rkvdec_try_output_fmt(struct
- 	return 0;
- }
- 
--static int rkvdec_s_fmt(struct file *file, void *priv,
--			struct v4l2_format *f,
--			int (*try_fmt)(struct file *, void *,
--				       struct v4l2_format *))
-+static int rkvdec_s_capture_fmt(struct file *file, void *priv,
-+				struct v4l2_format *f)
- {
- 	struct rkvdec_ctx *ctx = fh_to_rkvdec_ctx(priv);
- 	struct vb2_queue *vq;
-+	int ret;
- 
--	if (!try_fmt)
--		return -EINVAL;
--
--	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
-+	/* Change not allowed if queue is busy */
-+	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx,
-+			     V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
- 	if (vb2_is_busy(vq))
- 		return -EBUSY;
- 
--	return try_fmt(file, priv, f);
--}
--
--static int rkvdec_s_capture_fmt(struct file *file, void *priv,
--				struct v4l2_format *f)
--{
--	struct rkvdec_ctx *ctx = fh_to_rkvdec_ctx(priv);
--	int ret;
--
--	ret = rkvdec_s_fmt(file, priv, f, rkvdec_try_capture_fmt);
-+	ret = rkvdec_try_capture_fmt(file, priv, f);
- 	if (ret)
- 		return ret;
- 
-@@ -319,10 +308,21 @@ static int rkvdec_s_output_fmt(struct fi
- 	struct v4l2_m2m_ctx *m2m_ctx = ctx->fh.m2m_ctx;
- 	const struct rkvdec_coded_fmt_desc *desc;
- 	struct v4l2_format *cap_fmt;
--	struct vb2_queue *peer_vq;
-+	struct vb2_queue *peer_vq, *vq;
- 	int ret;
- 
- 	/*
-+	 * In order to support dynamic resolution change, the decoder admits
-+	 * a resolution change, as long as the pixelformat remains. Can't be
-+	 * done if streaming.
-+	 */
-+	vq = v4l2_m2m_get_vq(m2m_ctx, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
-+	if (vb2_is_streaming(vq) ||
-+	    (vb2_is_busy(vq) &&
-+	     f->fmt.pix_mp.pixelformat != ctx->coded_fmt.fmt.pix_mp.pixelformat))
-+		return -EBUSY;
-+
-+	/*
- 	 * Since format change on the OUTPUT queue will reset the CAPTURE
- 	 * queue, we can't allow doing so when the CAPTURE queue has buffers
- 	 * allocated.
-@@ -331,7 +331,7 @@ static int rkvdec_s_output_fmt(struct fi
- 	if (vb2_is_busy(peer_vq))
- 		return -EBUSY;
- 
--	ret = rkvdec_s_fmt(file, priv, f, rkvdec_try_output_fmt);
-+	ret = rkvdec_try_output_fmt(file, priv, f);
- 	if (ret)
- 		return ret;
- 
+--- a/drivers/media/i2c/ir-kbd-i2c.c
++++ b/drivers/media/i2c/ir-kbd-i2c.c
+@@ -791,6 +791,7 @@ static int ir_probe(struct i2c_client *c
+ 		rc_proto    = RC_PROTO_BIT_RC5 | RC_PROTO_BIT_RC6_MCE |
+ 							RC_PROTO_BIT_RC6_6A_32;
+ 		ir_codes    = RC_MAP_HAUPPAUGE;
++		ir->polling_interval = 125;
+ 		probe_tx = true;
+ 		break;
+ 	}
 
 
