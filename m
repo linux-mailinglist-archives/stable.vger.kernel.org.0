@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A9264523E8
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4F0C452159
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242824AbhKPBf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:35:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
+        id S1348324AbhKPBD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:03:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242044AbhKOSdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:33:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 228206345A;
-        Mon, 15 Nov 2021 17:59:42 +0000 (UTC)
+        id S245586AbhKOTUs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FAA0632DF;
+        Mon, 15 Nov 2021 18:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999183;
-        bh=TOjlPrRJfj9axhzhp0RKU2dhlU5V9dASr+ThzNajcqA=;
+        s=korg; t=1637001450;
+        bh=Ja4sfL0puwDXNS+I4ZRmUISm3QMFen7tERu64JKWy0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nq31D79trtpgOyqlYRChzW1nX3KEGZ66N5TiX2u2Q1mbL7er4xJ6QFgYUiW0czbUm
-         X8oPzpan+QMfFJ67MnI4KpQvLp+5KqI0VGUAEWaU7/w2J/beS+8OEb5SmWbL0VXMT4
-         sY5ToeVi/VMi+5k3Gq1Llo38SiY1f62oaO+Cengs=
+        b=hI4b0vZzc5zxqWqpOcGDeuj/DVoRx3fEqpJmG2KGEUf6ycrc3wrgODTqbHx88e3gU
+         mgSUBlGTw8XvvtLxmRh6d19P4KwLb2EJQ/X/go0MS3VsD6AnXv26jFqSe1/FURpYuK
+         Fx72XGJmtqWZA1uFHfssuLr80jX4IhSMJKUA8EQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 205/849] dma-buf: WARN on dmabuf release with pending attachments
-Date:   Mon, 15 Nov 2021 17:54:48 +0100
-Message-Id: <20211115165427.135914290@linuxfoundation.org>
+Subject: [PATCH 5.15 194/917] MIPS: lantiq: dma: reset correct number of channel
+Date:   Mon, 15 Nov 2021 17:54:49 +0100
+Message-Id: <20211115165435.374222817@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Reddy <charante@codeaurora.org>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit f492283b157053e9555787262f058ae33096f568 ]
+[ Upstream commit 5ca9ce2ba4d5884cd94d1a856c675ab1242cd242 ]
 
-It is expected from the clients to follow the below steps on an imported
-dmabuf fd:
-a) dmabuf = dma_buf_get(fd) // Get the dmabuf from fd
-b) dma_buf_attach(dmabuf); // Clients attach to the dmabuf
-   o Here the kernel does some slab allocations, say for
-dma_buf_attachment and may be some other slab allocation in the
-dmabuf->ops->attach().
-c) Client may need to do dma_buf_map_attachment().
-d) Accordingly dma_buf_unmap_attachment() should be called.
-e) dma_buf_detach () // Clients detach to the dmabuf.
-   o Here the slab allocations made in b) are freed.
-f) dma_buf_put(dmabuf) // Can free the dmabuf if it is the last
-reference.
+Different SoCs have a different number of channels, e.g .:
+* amazon-se has 10 channels,
+* danube+ar9 have 20 channels,
+* vr9 has 28 channels,
+* ar10 has 24 channels.
 
-Now say an erroneous client failed at step c) above thus it directly
-called dma_buf_put(), step f) above. Considering that it may be the last
-reference to the dmabuf, buffer will be freed with pending attachments
-left to the dmabuf which can show up as the 'memory leak'. This should
-at least be reported as the WARN().
+We can read the ID register and, depending on the reported
+number of channels, reset the appropriate number of channels.
 
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1627043468-16381-1-git-send-email-charante@codeaurora.org
-Signed-off-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/dma-buf.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/lantiq/xway/dma.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-index 511fe0d217a08..733c8b1c8467c 100644
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -79,6 +79,7 @@ static void dma_buf_release(struct dentry *dentry)
- 	if (dmabuf->resv == (struct dma_resv *)&dmabuf[1])
- 		dma_resv_fini(dmabuf->resv);
+diff --git a/arch/mips/lantiq/xway/dma.c b/arch/mips/lantiq/xway/dma.c
+index 2784715933d13..364ab39eb8a41 100644
+--- a/arch/mips/lantiq/xway/dma.c
++++ b/arch/mips/lantiq/xway/dma.c
+@@ -31,6 +31,7 @@
+ #define LTQ_DMA_PCTRL		0x44
+ #define LTQ_DMA_IRNEN		0xf4
  
-+	WARN_ON(!list_empty(&dmabuf->attachments));
- 	module_put(dmabuf->owner);
- 	kfree(dmabuf->name);
- 	kfree(dmabuf);
++#define DMA_ID_CHNR		GENMASK(26, 20)	/* channel number */
+ #define DMA_DESCPT		BIT(3)		/* descriptor complete irq */
+ #define DMA_TX			BIT(8)		/* TX channel direction */
+ #define DMA_CHAN_ON		BIT(0)		/* channel on / off bit */
+@@ -41,7 +42,6 @@
+ #define DMA_POLL		BIT(31)		/* turn on channel polling */
+ #define DMA_CLK_DIV4		BIT(6)		/* polling clock divider */
+ #define DMA_2W_BURST		BIT(1)		/* 2 word burst length */
+-#define DMA_MAX_CHANNEL		20		/* the soc has 20 channels */
+ #define DMA_ETOP_ENDIANNESS	(0xf << 8) /* endianness swap etop channels */
+ #define DMA_WEIGHT	(BIT(17) | BIT(16))	/* default channel wheight */
+ 
+@@ -207,7 +207,7 @@ ltq_dma_init(struct platform_device *pdev)
+ {
+ 	struct clk *clk;
+ 	struct resource *res;
+-	unsigned id;
++	unsigned int id, nchannels;
+ 	int i;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -229,17 +229,18 @@ ltq_dma_init(struct platform_device *pdev)
+ 	ltq_dma_w32(0, LTQ_DMA_IRNEN);
+ 
+ 	/* reset/configure each channel */
+-	for (i = 0; i < DMA_MAX_CHANNEL; i++) {
++	id = ltq_dma_r32(LTQ_DMA_ID);
++	nchannels = ((id & DMA_ID_CHNR) >> 20);
++	for (i = 0; i < nchannels; i++) {
+ 		ltq_dma_w32(i, LTQ_DMA_CS);
+ 		ltq_dma_w32(DMA_CHAN_RST, LTQ_DMA_CCTRL);
+ 		ltq_dma_w32(DMA_POLL | DMA_CLK_DIV4, LTQ_DMA_CPOLL);
+ 		ltq_dma_w32_mask(DMA_CHAN_ON, 0, LTQ_DMA_CCTRL);
+ 	}
+ 
+-	id = ltq_dma_r32(LTQ_DMA_ID);
+ 	dev_info(&pdev->dev,
+ 		"Init done - hw rev: %X, ports: %d, channels: %d\n",
+-		id & 0x1f, (id >> 16) & 0xf, id >> 20);
++		id & 0x1f, (id >> 16) & 0xf, nchannels);
+ 
+ 	return 0;
+ }
 -- 
 2.33.0
 
