@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 766C745252D
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:44:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FA17452561
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:47:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352049AbhKPBrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:47:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56284 "EHLO mail.kernel.org"
+        id S1350551AbhKPBuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:50:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240836AbhKOSQh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:16:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B167633EA;
-        Mon, 15 Nov 2021 17:50:26 +0000 (UTC)
+        id S240725AbhKOSQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:16:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01459632A4;
+        Mon, 15 Nov 2021 17:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998627;
-        bh=a7OMn0YFCZkpcYS/A6FAT4bxPuZiIcShRV1DyD0NRis=;
+        s=korg; t=1636998609;
+        bh=rpmqs0E2kthm5Kw+YgsqiMgz1VIMiyGZq7wev7TEZ7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yVNQGU96V5ZRK8MsiSU7iImQxFdcrcNm4wKMMPTdH47aXjYt/YcmFoD+HIskJJCew
-         +WcKNdKv87FqAZdSC2gU+1rDMHrmFy/L02WyQ+wX3KJU3NVLi9418N0GsF972O7q+Z
-         Je2dXhGluIiYfmI+4qi7l2DWgQMIGX5CyHjYXY4c=
+        b=RcIfgdRGvR0Mqs+noYITPlLPvxIKZSCP3cjZDshhyo34ESTGReGKCv+4USX7GNEVU
+         CUyVshbc6YUXiSfv0FJrAPePnCREaVE0mjclD0uJ05MUrlQc//TmxlsDSN4eUa6cG5
+         cUL09ZkJVXiVI2TAYKHl6gezYNniqDMmLJqTIm4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 535/575] vsock: prevent unnecessary refcnt inc for nonblocking connect
-Date:   Mon, 15 Nov 2021 18:04:20 +0100
-Message-Id: <20211115165402.177569284@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.10 539/575] ARM: 9155/1: fix early early_iounmap()
+Date:   Mon, 15 Nov 2021 18:04:24 +0100
+Message-Id: <20211115165402.325821442@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -41,42 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-[ Upstream commit c7cd82b90599fa10915f41e3dd9098a77d0aa7b6 ]
+commit 0d08e7bf0d0d1a29aff7b16ef516f7415eb1aa05 upstream.
 
-Currently vosck_connect() increments sock refcount for nonblocking
-socket each time it's called, which can lead to memory leak if
-it's called multiple times because connect timeout function decrements
-sock refcount only once.
+Currently __set_fixmap() bails out with a warning when called in early boot
+from early_iounmap(). Fix it, and while at it, make the comment a bit easier
+to understand.
 
-Fixes it by making vsock_connect() return -EALREADY immediately when
-sock state is already SS_CONNECTING.
-
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: b089c31c519c ("ARM: 8667/3: Fix memory attribute inconsistencies when using fixmap")
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/vmw_vsock/af_vsock.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mm/mmu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 326250513570e..7fe36dbcbe187 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1279,6 +1279,8 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
- 		 * non-blocking call.
- 		 */
- 		err = -EALREADY;
-+		if (flags & O_NONBLOCK)
-+			goto out;
- 		break;
- 	default:
- 		if ((sk->sk_state == TCP_LISTEN) ||
--- 
-2.33.0
-
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -391,9 +391,9 @@ void __set_fixmap(enum fixed_addresses i
+ 		     FIXADDR_END);
+ 	BUG_ON(idx >= __end_of_fixed_addresses);
+ 
+-	/* we only support device mappings until pgprot_kernel has been set */
++	/* We support only device mappings before pgprot_kernel is set. */
+ 	if (WARN_ON(pgprot_val(prot) != pgprot_val(FIXMAP_PAGE_IO) &&
+-		    pgprot_val(pgprot_kernel) == 0))
++		    pgprot_val(prot) && pgprot_val(pgprot_kernel) == 0))
+ 		return;
+ 
+ 	if (pgprot_val(prot))
 
 
