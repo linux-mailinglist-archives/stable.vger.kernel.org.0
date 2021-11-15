@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DA684522B2
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:13:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79ED645261A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:59:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352973AbhKPBPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:15:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42218 "EHLO mail.kernel.org"
+        id S1358839AbhKPCBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:01:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232596AbhKOTMr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:12:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A72FF6340B;
-        Mon, 15 Nov 2021 18:20:08 +0000 (UTC)
+        id S240108AbhKOSFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABAB163291;
+        Mon, 15 Nov 2021 17:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000409;
-        bh=sVCqPlrg+Xi7x07brtJUh20w41IEVgmlu3X7KuRUbgs=;
+        s=korg; t=1636998160;
+        bh=G0FlLdFRD173aR5K2iEGsQ5OZSDzcH9YDEYBQqLWCmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6OF6/iguDboPYOe2g9ZS7QciNrGdRS0H+804Xro0L4xMSh7zkPUq8I9Cem8aoL+2
-         /C3+V4sOrMc0QgnlJyyqiQJPMuv/S+mveZXg5b+Kqv02jmvJcx/jp8n8aNp/s8Mlwa
-         MmJdakgzGpgPFsjov91fob0yJ+giQUn8/a08NiKw=
+        b=OIvxbilYvji1RRbtFosDCjDpKTShrYK8EhmSKB/Qudd1nq4jrPcE9NlMvyhFBU4fF
+         nZzf26DgJPUHsGbxr3q8LSex/+mgUsT5Od76NqTOFUi+C9wJKgFafLCpZwvfTCf8H9
+         Izwix2e9RP6LD3xmnxGOA6Al9JyfnT+N5IcBbFjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 650/849] powerpc/book3e: Fix set_memory_x() and set_memory_nx()
-Date:   Mon, 15 Nov 2021 18:02:13 +0100
-Message-Id: <20211115165442.253038526@linuxfoundation.org>
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 410/575] ALSA: hda: Use position buffer for SKL+ again
+Date:   Mon, 15 Nov 2021 18:02:15 +0100
+Message-Id: <20211115165357.943776979@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,169 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit b6cb20fdc2735f8b2e082937066c33fe376c2ee2 ]
+[ Upstream commit c4ca3871e21fa085096316f5f8d9975cf3dfde1d ]
 
-set_memory_x() calls pte_mkexec() which sets _PAGE_EXEC.
-set_memory_nx() calls pte_exprotec() which clears _PAGE_EXEC.
+The commit f87e7f25893d ("ALSA: hda - Improved position reporting on
+SKL+") changed the PCM position report for SKL+ chips to use DPIB, but
+according to Pierre, DPIB is no best choice for the accurate position
+reports and it often reports too early.  The recommended method is
+rather the classical position buffer.
 
-Book3e has 2 bits, UX and SX, which defines the exec rights
-resp. for user (PR=1) and for kernel (PR=0).
+This patch makes the PCM position reporting on SKL+ back to the
+position buffer again.
 
-_PAGE_EXEC is defined as UX only.
-
-An executable kernel page is set with either _PAGE_KERNEL_RWX
-or _PAGE_KERNEL_ROX, which both have SX set and UX cleared.
-
-So set_memory_nx() call for an executable kernel page does
-nothing because UX is already cleared.
-
-And set_memory_x() on a non-executable kernel page makes it
-executable for the user and keeps it non-executable for kernel.
-
-Also, pte_exec() always returns 'false' on kernel pages, because
-it checks _PAGE_EXEC which doesn't include SX, so for instance
-the W+X check doesn't work.
-
-To fix this:
-  - change tlb_low_64e.S to use _PAGE_BAP_UX instead of _PAGE_USER
-  - sets both UX and SX in _PAGE_EXEC so that pte_exec() returns
-    true whenever one of the two bits is set and pte_exprotect()
-    clears both bits.
-  - Define a book3e specific version of pte_mkexec() which sets
-    either SX or UX based on UR.
-
-Fixes: 1f9ad21c3b38 ("powerpc/mm: Implement set_memory() routines")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c41100f9c144dc5b62e5a751b810190c6b5d42fd.1635226743.git.christophe.leroy@csgroup.eu
+Fixes: f87e7f25893d ("ALSA: hda - Improved position reporting on SKL+")
+Suggested-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210929072934.6809-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/nohash/32/pgtable.h |  2 ++
- arch/powerpc/include/asm/nohash/64/pgtable.h |  5 -----
- arch/powerpc/include/asm/nohash/pte-book3e.h | 18 ++++++++++++++----
- arch/powerpc/mm/nohash/tlb_low_64e.S         |  8 ++++----
- 4 files changed, 20 insertions(+), 13 deletions(-)
+ sound/pci/hda/hda_intel.c | 23 +----------------------
+ 1 file changed, 1 insertion(+), 22 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/nohash/32/pgtable.h b/arch/powerpc/include/asm/nohash/32/pgtable.h
-index ac0a5ff48c3ad..d6ba821a56ced 100644
---- a/arch/powerpc/include/asm/nohash/32/pgtable.h
-+++ b/arch/powerpc/include/asm/nohash/32/pgtable.h
-@@ -193,10 +193,12 @@ static inline pte_t pte_wrprotect(pte_t pte)
- }
- #endif
- 
-+#ifndef pte_mkexec
- static inline pte_t pte_mkexec(pte_t pte)
- {
- 	return __pte(pte_val(pte) | _PAGE_EXEC);
- }
-+#endif
- 
- #define pmd_none(pmd)		(!pmd_val(pmd))
- #define	pmd_bad(pmd)		(pmd_val(pmd) & _PMD_BAD)
-diff --git a/arch/powerpc/include/asm/nohash/64/pgtable.h b/arch/powerpc/include/asm/nohash/64/pgtable.h
-index d081704b13fb9..9d2905a474103 100644
---- a/arch/powerpc/include/asm/nohash/64/pgtable.h
-+++ b/arch/powerpc/include/asm/nohash/64/pgtable.h
-@@ -118,11 +118,6 @@ static inline pte_t pte_wrprotect(pte_t pte)
- 	return __pte(pte_val(pte) & ~_PAGE_RW);
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index a0955e17adee9..64115a796af06 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -915,27 +915,6 @@ static int azx_get_delay_from_fifo(struct azx *chip, struct azx_dev *azx_dev,
+ 	return substream->runtime->delay;
  }
  
--static inline pte_t pte_mkexec(pte_t pte)
+-static unsigned int azx_skl_get_dpib_pos(struct azx *chip,
+-					 struct azx_dev *azx_dev)
 -{
--	return __pte(pte_val(pte) | _PAGE_EXEC);
+-	return _snd_hdac_chip_readl(azx_bus(chip),
+-				    AZX_REG_VS_SDXDPIB_XBASE +
+-				    (AZX_REG_VS_SDXDPIB_XINTERVAL *
+-				     azx_dev->core.index));
 -}
 -
- #define PMD_BAD_BITS		(PTE_TABLE_SIZE-1)
- #define PUD_BAD_BITS		(PMD_TABLE_SIZE-1)
+-/* get the current DMA position with correction on SKL+ chips */
+-static unsigned int azx_get_pos_skl(struct azx *chip, struct azx_dev *azx_dev)
+-{
+-	/* DPIB register gives a more accurate position for playback */
+-	if (azx_dev->core.substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+-		return azx_skl_get_dpib_pos(chip, azx_dev);
+-
+-	/* read of DPIB fetches the actual posbuf */
+-	azx_skl_get_dpib_pos(chip, azx_dev);
+-	return azx_get_pos_posbuf(chip, azx_dev);
+-}
+-
+ static void __azx_shutdown_chip(struct azx *chip, bool skip_link_reset)
+ {
+ 	azx_stop_chip(chip);
+@@ -1632,7 +1611,7 @@ static void assign_position_fix(struct azx *chip, int fix)
+ 		[POS_FIX_POSBUF] = azx_get_pos_posbuf,
+ 		[POS_FIX_VIACOMBO] = azx_via_get_position,
+ 		[POS_FIX_COMBO] = azx_get_pos_lpib,
+-		[POS_FIX_SKL] = azx_get_pos_skl,
++		[POS_FIX_SKL] = azx_get_pos_posbuf,
+ 		[POS_FIX_FIFO] = azx_get_pos_fifo,
+ 	};
  
-diff --git a/arch/powerpc/include/asm/nohash/pte-book3e.h b/arch/powerpc/include/asm/nohash/pte-book3e.h
-index 813918f407653..f798640422c2d 100644
---- a/arch/powerpc/include/asm/nohash/pte-book3e.h
-+++ b/arch/powerpc/include/asm/nohash/pte-book3e.h
-@@ -48,7 +48,7 @@
- #define _PAGE_WRITETHRU	0x800000 /* W: cache write-through */
- 
- /* "Higher level" linux bit combinations */
--#define _PAGE_EXEC		_PAGE_BAP_UX /* .. and was cache cleaned */
-+#define _PAGE_EXEC		(_PAGE_BAP_SX | _PAGE_BAP_UX) /* .. and was cache cleaned */
- #define _PAGE_RW		(_PAGE_BAP_SW | _PAGE_BAP_UW) /* User write permission */
- #define _PAGE_KERNEL_RW		(_PAGE_BAP_SW | _PAGE_BAP_SR | _PAGE_DIRTY)
- #define _PAGE_KERNEL_RO		(_PAGE_BAP_SR)
-@@ -93,11 +93,11 @@
- /* Permission masks used to generate the __P and __S table */
- #define PAGE_NONE	__pgprot(_PAGE_BASE)
- #define PAGE_SHARED	__pgprot(_PAGE_BASE | _PAGE_USER | _PAGE_RW)
--#define PAGE_SHARED_X	__pgprot(_PAGE_BASE | _PAGE_USER | _PAGE_RW | _PAGE_EXEC)
-+#define PAGE_SHARED_X	__pgprot(_PAGE_BASE | _PAGE_USER | _PAGE_RW | _PAGE_BAP_UX)
- #define PAGE_COPY	__pgprot(_PAGE_BASE | _PAGE_USER)
--#define PAGE_COPY_X	__pgprot(_PAGE_BASE | _PAGE_USER | _PAGE_EXEC)
-+#define PAGE_COPY_X	__pgprot(_PAGE_BASE | _PAGE_USER | _PAGE_BAP_UX)
- #define PAGE_READONLY	__pgprot(_PAGE_BASE | _PAGE_USER)
--#define PAGE_READONLY_X	__pgprot(_PAGE_BASE | _PAGE_USER | _PAGE_EXEC)
-+#define PAGE_READONLY_X	__pgprot(_PAGE_BASE | _PAGE_USER | _PAGE_BAP_UX)
- 
- #ifndef __ASSEMBLY__
- static inline pte_t pte_mkprivileged(pte_t pte)
-@@ -113,6 +113,16 @@ static inline pte_t pte_mkuser(pte_t pte)
- }
- 
- #define pte_mkuser pte_mkuser
-+
-+static inline pte_t pte_mkexec(pte_t pte)
-+{
-+	if (pte_val(pte) & _PAGE_BAP_UR)
-+		return __pte((pte_val(pte) & ~_PAGE_BAP_SX) | _PAGE_BAP_UX);
-+	else
-+		return __pte((pte_val(pte) & ~_PAGE_BAP_UX) | _PAGE_BAP_SX);
-+}
-+#define pte_mkexec pte_mkexec
-+
- #endif /* __ASSEMBLY__ */
- 
- #endif /* __KERNEL__ */
-diff --git a/arch/powerpc/mm/nohash/tlb_low_64e.S b/arch/powerpc/mm/nohash/tlb_low_64e.S
-index bf24451f3e71f..9235e720e3572 100644
---- a/arch/powerpc/mm/nohash/tlb_low_64e.S
-+++ b/arch/powerpc/mm/nohash/tlb_low_64e.S
-@@ -222,7 +222,7 @@ tlb_miss_kernel_bolted:
- 
- tlb_miss_fault_bolted:
- 	/* We need to check if it was an instruction miss */
--	andi.	r10,r11,_PAGE_EXEC|_PAGE_BAP_SX
-+	andi.	r10,r11,_PAGE_BAP_UX|_PAGE_BAP_SX
- 	bne	itlb_miss_fault_bolted
- dtlb_miss_fault_bolted:
- 	tlb_epilog_bolted
-@@ -239,7 +239,7 @@ itlb_miss_fault_bolted:
- 	srdi	r15,r16,60		/* get region */
- 	bne-	itlb_miss_fault_bolted
- 
--	li	r11,_PAGE_PRESENT|_PAGE_EXEC	/* Base perm */
-+	li	r11,_PAGE_PRESENT|_PAGE_BAP_UX	/* Base perm */
- 
- 	/* We do the user/kernel test for the PID here along with the RW test
- 	 */
-@@ -614,7 +614,7 @@ itlb_miss_fault_e6500:
- 
- 	/* We do the user/kernel test for the PID here along with the RW test
- 	 */
--	li	r11,_PAGE_PRESENT|_PAGE_EXEC	/* Base perm */
-+	li	r11,_PAGE_PRESENT|_PAGE_BAP_UX	/* Base perm */
- 	oris	r11,r11,_PAGE_ACCESSED@h
- 
- 	cmpldi	cr0,r15,0			/* Check for user region */
-@@ -734,7 +734,7 @@ normal_tlb_miss_done:
- 
- normal_tlb_miss_access_fault:
- 	/* We need to check if it was an instruction miss */
--	andi.	r10,r11,_PAGE_EXEC
-+	andi.	r10,r11,_PAGE_BAP_UX
- 	bne	1f
- 	ld	r14,EX_TLB_DEAR(r12)
- 	ld	r15,EX_TLB_ESR(r12)
 -- 
 2.33.0
 
