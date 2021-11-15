@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E472A451489
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19E734512BB
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348779AbhKOUKC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:10:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
+        id S1347259AbhKOTjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344747AbhKOTZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B59C6337E;
-        Mon, 15 Nov 2021 19:03:39 +0000 (UTC)
+        id S244996AbhKOTSU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 098D8634F1;
+        Mon, 15 Nov 2021 18:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003020;
-        bh=5cOqaQJbyHoiQgMKotHX0NfJlS6GVCCR+o5CC1fa/9E=;
+        s=korg; t=1637000795;
+        bh=lWzXz7YK30/LfxHfXGr0JHKMYURieNx3gsFwnmZ3kZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ff3cwmm2q7uM7fVPXBZk+aQ29xfs/pGWUmlmVFtXn7CmO8y+/Bqy8OGVqw7f8v6c1
-         ikK75V98dwIjizPCBuj2zQzNTm97xDyhYn/i7gG9xxEa8BjM6jDDBS2YvAxeJQ+A8W
-         I38tt/l4asPcRxmc83XA0S0XmqO0bVPgTakm9Lxs=
+        b=fd/Z8HSnJQ+YTG1RIF3NCuNplkRjmM+FB21YPwNuD3pDIo2cXudFS46+bE2ddtvBt
+         XLxcpAJa3rqUsBkcY+wOJrBrQTXbYGVxcxVoc7QLawDzidGyCyFrlJzz5jys8CcMve
+         IVdF2CDV038O7pfRkH5MU90SUXMVHzddn1OH8u7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daejun Park <daejun7.park@samsung.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 782/917] scsi: ufs: ufshpb: Properly handle max-single-cmd
-Date:   Mon, 15 Nov 2021 18:04:37 +0100
-Message-Id: <20211115165455.473946243@linuxfoundation.org>
+        stable@vger.kernel.org, Vincent Pelletier <plr.vincent@gmail.com>,
+        Nikita Shubin <nikita.shubin@maquefel.me>,
+        Guo Ren <guoren@linux.alibaba.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Atish Patra <atish.patra@wdc.com>,
+        Anup Patel <anup@brainfault.org>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.14 795/849] irqchip/sifive-plic: Fixup EOI failed when masked
+Date:   Mon, 15 Nov 2021 18:04:38 +0100
+Message-Id: <20211115165447.135133276@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,109 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avri Altman <avri.altman@wdc.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit 9ec5128a8b5631d652ed06b37e0166f337802f90 ]
+commit 69ea463021be0d159ab30f96195fb0dd18ee2272 upstream.
 
-The spec recommends that for transfer length larger than the max-single-cmd
-attribute (bMAX_DATA_SIZE_FOR_HPB_SINGLE_CMD) it is possible to couple
-pre-requests with the HPB-READ command.  Being a recommendation, using
-pre-requests can be perceived merely as a means of optimization.  A common
-practice was to send pre-requests for chunks within some interval, and
-leave the READ10 untouched if larger.
+When using "devm_request_threaded_irq(,,,,IRQF_ONESHOT,,)" in a driver,
+only the first interrupt is handled, and following interrupts are never
+delivered (initially reported in [1]).
 
-Now that the pre-request flows have been removed, all the commands are
-single commands.  Properly handle this attribute and do not send HPB-READ
-for transfer lengths larger than max-single-cmd.
+That's because the RISC-V PLIC cannot EOI masked interrupts, as explained
+in the description of Interrupt Completion in the PLIC spec [2]:
 
-[mkp: resolve conflict]
+<quote>
+The PLIC signals it has completed executing an interrupt handler by
+writing the interrupt ID it received from the claim to the claim/complete
+register. The PLIC does not check whether the completion ID is the same
+as the last claim ID for that target. If the completion ID does not match
+an interrupt source that *is currently enabled* for the target, the
+completion is silently ignored.
+</quote>
 
-Fixes: 09d9e4d04187 ("scsi: ufs: ufshpb: Remove HPB2.0 flows")
-Link: https://lore.kernel.org/r/20211031123654.17719-1-avri.altman@wdc.com
-Reviewed-by: Daejun Park <daejun7.park@samsung.com>
-Signed-off-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Re-enable the interrupt before completion if it has been masked during
+the handling, and remask it afterwards.
+
+[1] http://lists.infradead.org/pipermail/linux-riscv/2021-July/007441.html
+[2] https://github.com/riscv/riscv-plic-spec/blob/8bc15a35d07c9edf7b5d23fec9728302595ffc4d/riscv-plic.adoc
+
+Fixes: bb0fed1c60cc ("irqchip/sifive-plic: Switch to fasteoi flow")
+Reported-by: Vincent Pelletier <plr.vincent@gmail.com>
+Tested-by: Nikita Shubin <nikita.shubin@maquefel.me>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Cc: stable@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Atish Patra <atish.patra@wdc.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+[maz: amended commit message]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211105094748.3894453-1-guoren@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshpb.c | 24 +++++++++++++-----------
- drivers/scsi/ufs/ufshpb.h |  1 -
- 2 files changed, 13 insertions(+), 12 deletions(-)
+ drivers/irqchip/irq-sifive-plic.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshpb.c b/drivers/scsi/ufs/ufshpb.c
-index 3b1a90b1d82ac..a86d0cc50de21 100644
---- a/drivers/scsi/ufs/ufshpb.c
-+++ b/drivers/scsi/ufs/ufshpb.c
-@@ -394,8 +394,6 @@ int ufshpb_prep(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
- 	if (!ufshpb_is_supported_chunk(hpb, transfer_len))
- 		return 0;
- 
--	WARN_ON_ONCE(transfer_len > HPB_MULTI_CHUNK_HIGH);
--
- 	if (hpb->is_hcm) {
- 		/*
- 		 * in host control mode, reads are the main source for
-@@ -1572,7 +1570,7 @@ static void ufshpb_lu_parameter_init(struct ufs_hba *hba,
- 	if (ufshpb_is_legacy(hba))
- 		hpb->pre_req_max_tr_len = HPB_LEGACY_CHUNK_HIGH;
- 	else
--		hpb->pre_req_max_tr_len = HPB_MULTI_CHUNK_HIGH;
-+		hpb->pre_req_max_tr_len = hpb_dev_info->max_hpb_single_cmd;
- 
- 	hpb->lu_pinned_start = hpb_lu_info->pinned_start;
- 	hpb->lu_pinned_end = hpb_lu_info->num_pinned ?
-@@ -2582,7 +2580,7 @@ void ufshpb_get_dev_info(struct ufs_hba *hba, u8 *desc_buf)
+--- a/drivers/irqchip/irq-sifive-plic.c
++++ b/drivers/irqchip/irq-sifive-plic.c
+@@ -163,7 +163,13 @@ static void plic_irq_eoi(struct irq_data
  {
- 	struct ufshpb_dev_info *hpb_dev_info = &hba->ufshpb_dev;
- 	int version, ret;
--	u32 max_hpb_single_cmd = HPB_MULTI_CHUNK_LOW;
-+	int max_single_cmd;
+ 	struct plic_handler *handler = this_cpu_ptr(&plic_handlers);
  
- 	hpb_dev_info->control_mode = desc_buf[DEVICE_DESC_PARAM_HPB_CONTROL];
- 
-@@ -2598,18 +2596,22 @@ void ufshpb_get_dev_info(struct ufs_hba *hba, u8 *desc_buf)
- 	if (version == HPB_SUPPORT_LEGACY_VERSION)
- 		hpb_dev_info->is_legacy = true;
- 
--	ret = ufshcd_query_attr_retry(hba, UPIU_QUERY_OPCODE_READ_ATTR,
--		QUERY_ATTR_IDN_MAX_HPB_SINGLE_CMD, 0, 0, &max_hpb_single_cmd);
--	if (ret)
--		dev_err(hba->dev, "%s: idn: read max size of single hpb cmd query request failed",
--			__func__);
--	hpb_dev_info->max_hpb_single_cmd = max_hpb_single_cmd;
--
- 	/*
- 	 * Get the number of user logical unit to check whether all
- 	 * scsi_device finish initialization
- 	 */
- 	hpb_dev_info->num_lu = desc_buf[DEVICE_DESC_PARAM_NUM_LU];
-+
-+	if (hpb_dev_info->is_legacy)
-+		return;
-+
-+	ret = ufshcd_query_attr_retry(hba, UPIU_QUERY_OPCODE_READ_ATTR,
-+		QUERY_ATTR_IDN_MAX_HPB_SINGLE_CMD, 0, 0, &max_single_cmd);
-+
-+	if (ret)
-+		hpb_dev_info->max_hpb_single_cmd = HPB_LEGACY_CHUNK_HIGH;
-+	else
-+		hpb_dev_info->max_hpb_single_cmd = min(max_single_cmd + 1, HPB_MULTI_CHUNK_HIGH);
+-	writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
++	if (irqd_irq_masked(d)) {
++		plic_irq_unmask(d);
++		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
++		plic_irq_mask(d);
++	} else {
++		writel(d->hwirq, handler->hart_base + CONTEXT_CLAIM);
++	}
  }
  
- void ufshpb_init(struct ufs_hba *hba)
-diff --git a/drivers/scsi/ufs/ufshpb.h b/drivers/scsi/ufs/ufshpb.h
-index f15d8fdbce2ef..b475dbd789883 100644
---- a/drivers/scsi/ufs/ufshpb.h
-+++ b/drivers/scsi/ufs/ufshpb.h
-@@ -31,7 +31,6 @@
- 
- /* hpb support chunk size */
- #define HPB_LEGACY_CHUNK_HIGH			1
--#define HPB_MULTI_CHUNK_LOW			7
- #define HPB_MULTI_CHUNK_HIGH			255
- 
- /* hpb vender defined opcode */
--- 
-2.33.0
-
+ static struct irq_chip plic_chip = {
 
 
