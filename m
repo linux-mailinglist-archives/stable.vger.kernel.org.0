@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73684451EA0
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA1F7451E88
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348127AbhKPAgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
+        id S243399AbhKPAg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:36:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345045AbhKOT0F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:26:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1CAD60F51;
-        Mon, 15 Nov 2021 19:09:24 +0000 (UTC)
+        id S1345061AbhKOT0H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:26:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0289F60EE4;
+        Mon, 15 Nov 2021 19:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003365;
-        bh=mgDNW/47jdGYvV6npQU2dMyP1XGWNtNNHdrFuNuvKYs=;
+        s=korg; t=1637003370;
+        bh=jEsPN6D0hFl/Ft7hVzroBX7+X1zeddaqnRqUwQ8bxt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AD5PWtKefCrPTb4NYQduGrDcQaYMGZ6bl1c9zzSyjknKQ/9dVgOpJh6NnoO96u1qP
-         I/CAGATpPI5smwMpLDjLe5MtIvxFPSmuGG3A1L5ry/FJnDkshGiRZiWm5oANSavvsy
-         rRS1EFHv1/q2AtGjjag1mKfAS4/5BBVp51CPOwvk=
+        b=bzO63pA926uat/asZyROZrFevyytguWFqqdtbrsTVXCBKTInbIs4KPCPO090nvrvR
+         vm33GRYj7hqRzq3titROkJJhTzry/RD2MSt25sdueyoQwS8Hlb1Hv0C8qlxHuEtbUk
+         oKmQTFSIQBMsCvQ11Bjbdewc85p/aFfyjyAExFSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jacques de Laval <jacques.delaval@protonmail.com>,
+        stable@vger.kernel.org, Russell Currey <ruscur@russell.cc>,
         Nicholas Piggin <npiggin@gmail.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 907/917] powerpc/32e: Ignore ESR in instruction storage interrupt handler
-Date:   Mon, 15 Nov 2021 18:06:42 +0100
-Message-Id: <20211115165459.790919502@linuxfoundation.org>
+Subject: [PATCH 5.15 909/917] powerpc/security: Use a mutex for interrupt exit code patching
+Date:   Mon, 15 Nov 2021 18:06:44 +0100
+Message-Id: <20211115165459.863700428@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,68 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Russell Currey <ruscur@russell.cc>
 
-commit 81291383ffde08b23bce75e7d6b2575ce9d3475c upstream.
+commit 3c12b4df8d5e026345a19886ae375b3ebc33c0b6 upstream.
 
-A e5500 machine running a 32-bit kernel sometimes hangs at boot,
-seemingly going into an infinite loop of instruction storage interrupts.
+The mitigation-patching.sh script in the powerpc selftests toggles
+all mitigations on and off simultaneously, revealing that rfi_flush
+and stf_barrier cannot safely operate at the same time due to races
+in updating the static key.
 
-The ESR (Exception Syndrome Register) has a value of 0x800000 (store)
-when this happens, which is likely set by a previous store. An
-instruction TLB miss interrupt would then leave ESR unchanged, and if no
-PTE exists it calls directly to the instruction storage interrupt
-handler without changing ESR.
+On some systems, the static key code throws a warning and the kernel
+remains functional.  On others, the kernel will hang or crash.
 
-access_error() does not cause a segfault due to a store to a read-only
-vma because is_exec is true. Most subsequent fault handling does not
-check for a write fault on a read-only vma, and might do strange things
-like create a writeable PTE or call page_mkwrite on a read only vma or
-file. It's not clear what happens here to cause the infinite faulting in
-this case, a fault handler failure or low level PTE or TLB handling.
+Fix this by slapping on a mutex.
 
-In any case this can be fixed by having the instruction storage
-interrupt zero regs->dsisr rather than storing the ESR value to it.
-
-Fixes: a01a3f2ddbcd ("powerpc: remove arguments from fault handler functions")
-Cc: stable@vger.kernel.org # v5.12+
-Reported-by: Jacques de Laval <jacques.delaval@protonmail.com>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Tested-by: Jacques de Laval <jacques.delaval@protonmail.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Fixes: 13799748b957 ("powerpc/64: use interrupt restart table to speed up return from interrupt")
+Cc: stable@vger.kernel.org # v5.14+
+Signed-off-by: Russell Currey <ruscur@russell.cc>
+Acked-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211028133043.4159501-1-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20211027072410.40950-1-ruscur@russell.cc
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/head_booke.h |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ arch/powerpc/lib/feature-fixups.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/arch/powerpc/kernel/head_booke.h
-+++ b/arch/powerpc/kernel/head_booke.h
-@@ -465,12 +465,21 @@ label:
- 	bl	do_page_fault;						      \
- 	b	interrupt_return
+--- a/arch/powerpc/lib/feature-fixups.c
++++ b/arch/powerpc/lib/feature-fixups.c
+@@ -228,6 +228,7 @@ static void do_stf_exit_barrier_fixups(e
  
-+/*
-+ * Instruction TLB Error interrupt handlers may call InstructionStorage
-+ * directly without clearing ESR, so the ESR at this point may be left over
-+ * from a prior interrupt.
-+ *
-+ * In any case, do_page_fault for BOOK3E does not use ESR and always expects
-+ * dsisr to be 0. ESR_DST from a prior store in particular would confuse fault
-+ * handling.
-+ */
- #define INSTRUCTION_STORAGE_EXCEPTION					      \
- 	START_EXCEPTION(InstructionStorage)				      \
--	NORMAL_EXCEPTION_PROLOG(0x400, INST_STORAGE);		      \
--	mfspr	r5,SPRN_ESR;		/* Grab the ESR and save it */	      \
-+	NORMAL_EXCEPTION_PROLOG(0x400, INST_STORAGE);			      \
-+	li	r5,0;			/* Store 0 in regs->esr (dsisr) */    \
- 	stw	r5,_ESR(r11);						      \
--	stw	r12, _DEAR(r11);	/* Pass SRR0 as arg2 */		      \
-+	stw	r12, _DEAR(r11);	/* Set regs->dear (dar) to SRR0 */    \
- 	prepare_transfer_to_handler;					      \
- 	bl	do_page_fault;						      \
- 	b	interrupt_return
+ static bool stf_exit_reentrant = false;
+ static bool rfi_exit_reentrant = false;
++static DEFINE_MUTEX(exit_flush_lock);
+ 
+ static int __do_stf_barrier_fixups(void *data)
+ {
+@@ -253,6 +254,9 @@ void do_stf_barrier_fixups(enum stf_barr
+ 	 * low level interrupt exit code before patching. After the patching,
+ 	 * if allowed, then flip the branch to allow fast exits.
+ 	 */
++
++	// Prevent static key update races with do_rfi_flush_fixups()
++	mutex_lock(&exit_flush_lock);
+ 	static_branch_enable(&interrupt_exit_not_reentrant);
+ 
+ 	stop_machine(__do_stf_barrier_fixups, &types, NULL);
+@@ -264,6 +268,8 @@ void do_stf_barrier_fixups(enum stf_barr
+ 
+ 	if (stf_exit_reentrant && rfi_exit_reentrant)
+ 		static_branch_disable(&interrupt_exit_not_reentrant);
++
++	mutex_unlock(&exit_flush_lock);
+ }
+ 
+ void do_uaccess_flush_fixups(enum l1d_flush_type types)
+@@ -486,6 +492,9 @@ void do_rfi_flush_fixups(enum l1d_flush_
+ 	 * without stop_machine, so this could be achieved with a broadcast
+ 	 * IPI instead, but this matches the stf sequence.
+ 	 */
++
++	// Prevent static key update races with do_stf_barrier_fixups()
++	mutex_lock(&exit_flush_lock);
+ 	static_branch_enable(&interrupt_exit_not_reentrant);
+ 
+ 	stop_machine(__do_rfi_flush_fixups, &types, NULL);
+@@ -497,6 +506,8 @@ void do_rfi_flush_fixups(enum l1d_flush_
+ 
+ 	if (stf_exit_reentrant && rfi_exit_reentrant)
+ 		static_branch_disable(&interrupt_exit_not_reentrant);
++
++	mutex_unlock(&exit_flush_lock);
+ }
+ 
+ void do_barrier_nospec_fixups_range(bool enable, void *fixup_start, void *fixup_end)
 
 
