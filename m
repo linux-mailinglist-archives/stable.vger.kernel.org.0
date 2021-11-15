@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDCF6450CC7
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:41:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD10451033
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:41:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232536AbhKORnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:43:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57854 "EHLO mail.kernel.org"
+        id S237387AbhKOSo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:44:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231428AbhKORlr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:41:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF052632F0;
-        Mon, 15 Nov 2021 17:27:21 +0000 (UTC)
+        id S242543AbhKOSma (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:42:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5190263292;
+        Mon, 15 Nov 2021 18:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997242;
-        bh=TxN76q50vqjwJgelsAA/eoQ3t0Y9uTwPbHLLF9WTJkQ=;
+        s=korg; t=1636999496;
+        bh=ahQxha6ntwCF4KYuNlxlCj+wzXEmueobk5jXRawApFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q56JKfYwd09R/bQV7qyEk5mys/1QChhMg6NC0rSZ6Us7yHSCuu72gAPWbOCmiQkob
-         yllxyCMeuuvkgYmZG0gdpcgzzBfaBaNIlJbtBQ52HH/THqu9JsBcLlUjkBOIcHqZaX
-         W5TbgVjIytXJxCgnw46XEpgSKOCY3ChZebc6XepQ=
+        b=K9c6Zu/R7vfJ84UTzEZO6aoJSNPrCODDBPxEllZNwB4SSS3TTHEFkckPvVNQrkDpJ
+         3bAdexGHLiZYhcda4lgMVWlubyGeZ0RzFCAjP+YC5SlaWuOv2Y64GCW6+4TJCgeSj6
+         JNIRoJqvsshM+ROHnnfoOOj6zH7rtpCO5ZPsHdes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shaoying Xu <shaoyi@amazon.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 043/575] ext4: fix lazy initialization next schedule time computation in more granular unit
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 285/849] memstick: r592: Fix a UAF bug when removing the driver
 Date:   Mon, 15 Nov 2021 17:56:08 +0100
-Message-Id: <20211115165345.125318943@linuxfoundation.org>
+Message-Id: <20211115165429.916383651@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaoying Xu <shaoyi@amazon.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 39fec6889d15a658c3a3ebb06fd69d3584ddffd3 upstream.
+[ Upstream commit 738216c1953e802aa9f930c5d15b8f9092c847ff ]
 
-Ext4 file system has default lazy inode table initialization setup once
-it is mounted. However, it has issue on computing the next schedule time
-that makes the timeout same amount in jiffies but different real time in
-secs if with various HZ values. Therefore, fix by measuring the current
-time in a more granular unit nanoseconds and make the next schedule time
-independent of the HZ value.
+In r592_remove(), the driver will free dma after freeing the host, which
+may cause a UAF bug.
 
-Fixes: bfff68738f1c ("ext4: add support for lazy inode table initialization")
-Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210902164412.9994-2-shaoyi@amazon.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The following log reveals it:
+
+[   45.361796 ] BUG: KASAN: use-after-free in r592_remove+0x269/0x350 [r592]
+[   45.364286 ] Call Trace:
+[   45.364472 ]  dump_stack_lvl+0xa8/0xd1
+[   45.364751 ]  print_address_description+0x87/0x3b0
+[   45.365137 ]  kasan_report+0x172/0x1c0
+[   45.365415 ]  ? r592_remove+0x269/0x350 [r592]
+[   45.365834 ]  ? r592_remove+0x269/0x350 [r592]
+[   45.366168 ]  __asan_report_load8_noabort+0x14/0x20
+[   45.366531 ]  r592_remove+0x269/0x350 [r592]
+[   45.378785 ]
+[   45.378903 ] Allocated by task 4674:
+[   45.379162 ]  ____kasan_kmalloc+0xb5/0xe0
+[   45.379455 ]  __kasan_kmalloc+0x9/0x10
+[   45.379730 ]  __kmalloc+0x150/0x280
+[   45.379984 ]  memstick_alloc_host+0x2a/0x190
+[   45.380664 ]
+[   45.380781 ] Freed by task 5509:
+[   45.381014 ]  kasan_set_track+0x3d/0x70
+[   45.381293 ]  kasan_set_free_info+0x23/0x40
+[   45.381635 ]  ____kasan_slab_free+0x10b/0x140
+[   45.381950 ]  __kasan_slab_free+0x11/0x20
+[   45.382241 ]  slab_free_freelist_hook+0x81/0x150
+[   45.382575 ]  kfree+0x13e/0x290
+[   45.382805 ]  memstick_free+0x1c/0x20
+[   45.383070 ]  device_release+0x9c/0x1d0
+[   45.383349 ]  kobject_put+0x2ef/0x4c0
+[   45.383616 ]  put_device+0x1f/0x30
+[   45.383865 ]  memstick_free_host+0x24/0x30
+[   45.384162 ]  r592_remove+0x242/0x350 [r592]
+[   45.384473 ]  pci_device_remove+0xa9/0x250
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/1634383581-11055-1-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/memstick/host/r592.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3436,9 +3436,9 @@ static int ext4_run_li_request(struct ex
- 	struct super_block *sb = elr->lr_super;
- 	ext4_group_t ngroups = EXT4_SB(sb)->s_groups_count;
- 	ext4_group_t group = elr->lr_next_group;
--	unsigned long timeout = 0;
- 	unsigned int prefetch_ios = 0;
- 	int ret = 0;
-+	u64 start_time;
+diff --git a/drivers/memstick/host/r592.c b/drivers/memstick/host/r592.c
+index 615a83782e55d..7aba0fdeba177 100644
+--- a/drivers/memstick/host/r592.c
++++ b/drivers/memstick/host/r592.c
+@@ -839,15 +839,15 @@ static void r592_remove(struct pci_dev *pdev)
+ 	}
+ 	memstick_remove_host(dev->host);
  
- 	if (elr->lr_mode == EXT4_LI_MODE_PREFETCH_BBITMAP) {
- 		elr->lr_next_group = ext4_mb_prefetch(sb, group,
-@@ -3475,14 +3475,13 @@ static int ext4_run_li_request(struct ex
- 		ret = 1;
++	if (dev->dummy_dma_page)
++		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
++			dev->dummy_dma_page_physical_address);
++
+ 	free_irq(dev->irq, dev);
+ 	iounmap(dev->mmio);
+ 	pci_release_regions(pdev);
+ 	pci_disable_device(pdev);
+ 	memstick_free_host(dev->host);
+-
+-	if (dev->dummy_dma_page)
+-		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
+-			dev->dummy_dma_page_physical_address);
+ }
  
- 	if (!ret) {
--		timeout = jiffies;
-+		start_time = ktime_get_real_ns();
- 		ret = ext4_init_inode_table(sb, group,
- 					    elr->lr_timeout ? 0 : 1);
- 		trace_ext4_lazy_itable_init(sb, group);
- 		if (elr->lr_timeout == 0) {
--			timeout = (jiffies - timeout) *
--				EXT4_SB(elr->lr_super)->s_li_wait_mult;
--			elr->lr_timeout = timeout;
-+			elr->lr_timeout = nsecs_to_jiffies((ktime_get_real_ns() - start_time) *
-+				EXT4_SB(elr->lr_super)->s_li_wait_mult);
- 		}
- 		elr->lr_next_sched = jiffies + elr->lr_timeout;
- 		elr->lr_next_group = group + 1;
+ #ifdef CONFIG_PM_SLEEP
+-- 
+2.33.0
+
 
 
