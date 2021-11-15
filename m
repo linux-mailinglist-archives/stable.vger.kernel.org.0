@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8AB5452529
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:44:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CC1B45224D
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:08:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353048AbhKPBrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:47:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56278 "EHLO mail.kernel.org"
+        id S1377433AbhKPBKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:10:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240848AbhKOSQh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:16:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A766633FE;
-        Mon, 15 Nov 2021 17:50:29 +0000 (UTC)
+        id S245146AbhKOTTe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:19:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E285561B95;
+        Mon, 15 Nov 2021 18:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998629;
-        bh=onHz6mkg1pW0j1NGiyStz+qOsokjE1K5p1KKWc/42pk=;
+        s=korg; t=1637000956;
+        bh=fZyoex3Xh9SqjGK4bzXXvL+Yb+kn2e8dDp1t2zGQWag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFNFnEQ9LS9CPWlIv+GqBrTrM4VtnM2ai2M6cwM0v6NQkCJics/ZUekHwYuw3Fs6e
-         dl0nnrvsWiL/iV7p9PQRJlU46rnyih/727xThc8JSKW8SVVIUuSrt6A3ArLkX8jwqw
-         M8lTC8gX88US96hJUdWjpFmoY7HsL8gjzevWh4sc=
+        b=zR+kUM+Tmm8mt6YJpl2+5k4jS9UfDuLK8jgPIwYti2wJw/RKmmMhd5VOL+cz4jbm8
+         viZExMaOoOCGIin8XyMf6VnzyXLnoF0oqXc5iHt296EmIetuszp9iUOoEdKE81C4ox
+         +seEVZfyoOWiGMfDjJ1+6i7SyKO53xHFBp3Bgr5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoming Ni <nixiaoming@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 571/575] powerpc/85xx: fix timebase sync issue when CONFIG_HOTPLUG_CPU=n
-Date:   Mon, 15 Nov 2021 18:04:56 +0100
-Message-Id: <20211115165403.452029277@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Andersen <jackoalan@gmail.com>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.14 814/849] mfd: dln2: Add cell for initializing DLN2 ADC
+Date:   Mon, 15 Nov 2021 18:04:57 +0100
+Message-Id: <20211115165447.779771707@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,137 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoming Ni <nixiaoming@huawei.com>
+From: Jack Andersen <jackoalan@gmail.com>
 
-commit c45361abb9185b1e172bd75eff51ad5f601ccae4 upstream.
+commit 313c84b5ae4104e48c661d5d706f9f4c425fd50f upstream.
 
-When CONFIG_SMP=y, timebase synchronization is required when the second
-kernel is started.
+This patch extends the DLN2 driver; adding cell for adc_dln2 module.
 
-arch/powerpc/kernel/smp.c:
-  int __cpu_up(unsigned int cpu, struct task_struct *tidle)
-  {
-  	...
-  	if (smp_ops->give_timebase)
-  		smp_ops->give_timebase();
-  	...
-  }
+The original patch[1] fell through the cracks when the driver was added
+so ADC has never actually been usable. That patch did not have ACPI
+support which was added in v5.9, so the oldest supported version this
+current patch can be backported to is 5.10.
 
-  void start_secondary(void *unused)
-  {
-  	...
-  	if (smp_ops->take_timebase)
-  		smp_ops->take_timebase();
-  	...
-  }
+[1] https://www.spinics.net/lists/linux-iio/msg33975.html
 
-When CONFIG_HOTPLUG_CPU=n and CONFIG_KEXEC_CORE=n,
- smp_85xx_ops.give_timebase is NULL,
- smp_85xx_ops.take_timebase is NULL,
-As a result, the timebase is not synchronized.
-
-Timebase  synchronization does not depend on CONFIG_HOTPLUG_CPU.
-
-Fixes: 56f1ba280719 ("powerpc/mpc85xx: refactor the PM operations")
-Cc: stable@vger.kernel.org # v4.6+
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210929033646.39630-3-nixiaoming@huawei.com
+Cc: <stable@vger.kernel.org> # 5.10+
+Signed-off-by: Jack Andersen <jackoalan@gmail.com>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20211018112541.25466-1-noralf@tronnes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/85xx/Makefile         |    4 +++-
- arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c |    4 ++++
- arch/powerpc/platforms/85xx/smp.c            |   12 ++++++------
- 3 files changed, 13 insertions(+), 7 deletions(-)
+ drivers/mfd/dln2.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/arch/powerpc/platforms/85xx/Makefile
-+++ b/arch/powerpc/platforms/85xx/Makefile
-@@ -3,7 +3,9 @@
- # Makefile for the PowerPC 85xx linux kernel.
- #
- obj-$(CONFIG_SMP) += smp.o
--obj-$(CONFIG_FSL_PMC)		  += mpc85xx_pm_ops.o
-+ifneq ($(CONFIG_FSL_CORENET_RCPM),y)
-+obj-$(CONFIG_SMP) += mpc85xx_pm_ops.o
-+endif
- 
- obj-y += common.o
- 
---- a/arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c
-+++ b/arch/powerpc/platforms/85xx/mpc85xx_pm_ops.c
-@@ -17,6 +17,7 @@
- 
- static struct ccsr_guts __iomem *guts;
- 
-+#ifdef CONFIG_FSL_PMC
- static void mpc85xx_irq_mask(int cpu)
- {
- 
-@@ -49,6 +50,7 @@ static void mpc85xx_cpu_up_prepare(int c
- {
- 
- }
-+#endif
- 
- static void mpc85xx_freeze_time_base(bool freeze)
- {
-@@ -76,10 +78,12 @@ static const struct of_device_id mpc85xx
- 
- static const struct fsl_pm_ops mpc85xx_pm_ops = {
- 	.freeze_time_base = mpc85xx_freeze_time_base,
-+#ifdef CONFIG_FSL_PMC
- 	.irq_mask = mpc85xx_irq_mask,
- 	.irq_unmask = mpc85xx_irq_unmask,
- 	.cpu_die = mpc85xx_cpu_die,
- 	.cpu_up_prepare = mpc85xx_cpu_up_prepare,
-+#endif
+--- a/drivers/mfd/dln2.c
++++ b/drivers/mfd/dln2.c
+@@ -50,6 +50,7 @@ enum dln2_handle {
+ 	DLN2_HANDLE_GPIO,
+ 	DLN2_HANDLE_I2C,
+ 	DLN2_HANDLE_SPI,
++	DLN2_HANDLE_ADC,
+ 	DLN2_HANDLES
  };
  
- int __init mpc85xx_setup_pmc(void)
---- a/arch/powerpc/platforms/85xx/smp.c
-+++ b/arch/powerpc/platforms/85xx/smp.c
-@@ -40,7 +40,6 @@ struct epapr_spin_table {
- 	u32	pir;
+@@ -653,6 +654,7 @@ enum {
+ 	DLN2_ACPI_MATCH_GPIO	= 0,
+ 	DLN2_ACPI_MATCH_I2C	= 1,
+ 	DLN2_ACPI_MATCH_SPI	= 2,
++	DLN2_ACPI_MATCH_ADC	= 3,
  };
  
--#ifdef CONFIG_HOTPLUG_CPU
- static u64 timebase;
- static int tb_req;
- static int tb_valid;
-@@ -112,6 +111,7 @@ static void mpc85xx_take_timebase(void)
- 	local_irq_restore(flags);
- }
+ static struct dln2_platform_data dln2_pdata_gpio = {
+@@ -683,6 +685,16 @@ static struct mfd_cell_acpi_match dln2_a
+ 	.adr = DLN2_ACPI_MATCH_SPI,
+ };
  
-+#ifdef CONFIG_HOTPLUG_CPU
- static void smp_85xx_cpu_offline_self(void)
- {
- 	unsigned int cpu = smp_processor_id();
-@@ -495,21 +495,21 @@ void __init mpc85xx_smp_init(void)
- 		smp_85xx_ops.probe = NULL;
- 	}
++/* Only one ADC port supported */
++static struct dln2_platform_data dln2_pdata_adc = {
++	.handle = DLN2_HANDLE_ADC,
++	.port = 0,
++};
++
++static struct mfd_cell_acpi_match dln2_acpi_match_adc = {
++	.adr = DLN2_ACPI_MATCH_ADC,
++};
++
+ static const struct mfd_cell dln2_devs[] = {
+ 	{
+ 		.name = "dln2-gpio",
+@@ -702,6 +714,12 @@ static const struct mfd_cell dln2_devs[]
+ 		.platform_data = &dln2_pdata_spi,
+ 		.pdata_size = sizeof(struct dln2_platform_data),
+ 	},
++	{
++		.name = "dln2-adc",
++		.acpi_match = &dln2_acpi_match_adc,
++		.platform_data = &dln2_pdata_adc,
++		.pdata_size = sizeof(struct dln2_platform_data),
++	},
+ };
  
--#ifdef CONFIG_HOTPLUG_CPU
- #ifdef CONFIG_FSL_CORENET_RCPM
-+	/* Assign a value to qoriq_pm_ops on PPC_E500MC */
- 	fsl_rcpm_init();
--#endif
--
--#ifdef CONFIG_FSL_PMC
-+#else
-+	/* Assign a value to qoriq_pm_ops on !PPC_E500MC */
- 	mpc85xx_setup_pmc();
- #endif
- 	if (qoriq_pm_ops) {
- 		smp_85xx_ops.give_timebase = mpc85xx_give_timebase;
- 		smp_85xx_ops.take_timebase = mpc85xx_take_timebase;
-+#ifdef CONFIG_HOTPLUG_CPU
- 		smp_85xx_ops.cpu_offline_self = smp_85xx_cpu_offline_self;
- 		smp_85xx_ops.cpu_die = qoriq_cpu_kill;
--	}
- #endif
-+	}
- 	smp_ops = &smp_85xx_ops;
- 
- #ifdef CONFIG_KEXEC_CORE
+ static void dln2_stop(struct dln2_dev *dln2)
 
 
