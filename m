@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13BEC450AAE
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:10:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67B8A450D9D
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:57:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235961AbhKORMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:12:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41950 "EHLO mail.kernel.org"
+        id S239073AbhKOR74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:59:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232330AbhKORMX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:12:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2862861BF4;
-        Mon, 15 Nov 2021 17:09:27 +0000 (UTC)
+        id S239196AbhKOR5m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:57:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4730763331;
+        Mon, 15 Nov 2021 17:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996167;
-        bh=emqzvXSGhpk9mAlcl6RDCi3adLFuMDWgCLXT2ABjK98=;
+        s=korg; t=1636997691;
+        bh=FC60KiVY7CgR/RBg4YFGKdpFPrhy50AdvTksaDfEXaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Az68Sim3unPqVGo40AuCWG8TSvNNTCW6jL1zbrGPJ+rtxMdhdD4tQ6JuWDoUMM5yA
-         izPSCHRjKq8V4dTFpDbbz+Rfs9bWYdqObJyTql5ebkMODPLVtygfnhUqdAUJYWMo/X
-         REM5VK9F4dhhvz1fExu4zi3yYBkGQ9Ky3E9dJbiU=
+        b=z2fOgOiNG0PxUkDqjhNLKDFNTB3gWo9TV+L5jKR2g4Qhg0F9ExVzlikAwsI58WNV8
+         LCk/VcWRTRDtxY8WLnGuCwMsABZTb2wAyh5LOGGKQszLdgxB3T+gqZN7maS9TPID7R
+         AWPljYSmGAoT+r51MJYPzHBvvF98+Y5VwhdSFYh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 041/355] hyperv/vmbus: include linux/bitops.h
+        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
+        Antonio Quartulli <a@unstable.cc>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 240/575] gre/sit: Dont generate link-local addr if addr_gen_mode is IN6_ADDR_GEN_MODE_NONE
 Date:   Mon, 15 Nov 2021 17:59:25 +0100
-Message-Id: <20211115165314.879879759@linuxfoundation.org>
+Message-Id: <20211115165352.036074088@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Stephen Suryaputra <ssuryaextr@gmail.com>
 
-[ Upstream commit 8017c99680fa65e1e8d999df1583de476a187830 ]
+[ Upstream commit 61e18ce7348bfefb5688a8bcd4b4d6b37c0f9b2a ]
 
-On arm64 randconfig builds, hyperv sometimes fails with this
-error:
+When addr_gen_mode is set to IN6_ADDR_GEN_MODE_NONE, the link-local addr
+should not be generated. But it isn't the case for GRE (as well as GRE6)
+and SIT tunnels. Make it so that tunnels consider the addr_gen_mode,
+especially for IN6_ADDR_GEN_MODE_NONE.
 
-In file included from drivers/hv/hv_trace.c:3:
-In file included from drivers/hv/hyperv_vmbus.h:16:
-In file included from arch/arm64/include/asm/sync_bitops.h:5:
-arch/arm64/include/asm/bitops.h:11:2: error: only <linux/bitops.h> can be included directly
-In file included from include/asm-generic/bitops/hweight.h:5:
-include/asm-generic/bitops/arch_hweight.h:9:9: error: implicit declaration of function '__sw_hweight32' [-Werror,-Wimplicit-function-declaration]
-include/asm-generic/bitops/atomic.h:17:7: error: implicit declaration of function 'BIT_WORD' [-Werror,-Wimplicit-function-declaration]
+Do this in add_v4_addrs() to cover both GRE and SIT only if the addr
+scope is link.
 
-Include the correct header first.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211018131929.2260087-1-arnd@kernel.org
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Stephen Suryaputra <ssuryaextr@gmail.com>
+Acked-by: Antonio Quartulli <a@unstable.cc>
+Link: https://lore.kernel.org/r/20211020200618.467342-1-ssuryaextr@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/hyperv_vmbus.h | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv6/addrconf.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
-index cabcb66e7c5ef..356382a340b2c 100644
---- a/drivers/hv/hyperv_vmbus.h
-+++ b/drivers/hv/hyperv_vmbus.h
-@@ -13,6 +13,7 @@
- #define _HYPERV_VMBUS_H
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 884d430e23cb3..29526937077b3 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -3097,6 +3097,9 @@ static void sit_add_v4_addrs(struct inet6_dev *idev)
+ 	memcpy(&addr.s6_addr32[3], idev->dev->dev_addr, 4);
  
- #include <linux/list.h>
-+#include <linux/bitops.h>
- #include <asm/sync_bitops.h>
- #include <asm/hyperv-tlfs.h>
- #include <linux/atomic.h>
+ 	if (idev->dev->flags&IFF_POINTOPOINT) {
++		if (idev->cnf.addr_gen_mode == IN6_ADDR_GEN_MODE_NONE)
++			return;
++
+ 		addr.s6_addr32[0] = htonl(0xfe800000);
+ 		scope = IFA_LINK;
+ 		plen = 64;
 -- 
 2.33.0
 
