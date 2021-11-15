@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5776D451FB0
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4A34451FC5
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350505AbhKPApC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
+        id S239836AbhKPApQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343752AbhKOTV5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BC146339D;
-        Mon, 15 Nov 2021 18:45:36 +0000 (UTC)
+        id S1343784AbhKOTWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:22:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0DD6635E1;
+        Mon, 15 Nov 2021 18:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001936;
-        bh=FJgi0X6NyIL0I6Kq38gj1W8prcVyVQSF2ax9B3/W0Fo=;
+        s=korg; t=1637001959;
+        bh=gk9i/QMV6qjMsowELFGQHJlWlPx2evps556UGxorL5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TceV6O6p5BSJW6ug8ZG5c1ce+mXe18xwhQ98IgcPrqjOScin2TBhx7x+jjdjQk16b
-         +mXFtFaz54IOoI+4web9rHW7WNHLJGHFuc42+DckMDc9YmSmvB2BALm4KTr53nnE0O
-         2vCrTRcyS8AuhZEdOmHahatvSbxby0lkxEA2OV1k=
+        b=aMzqH3+dyAXoIluEDTahktC/9q+io9fNgpOps/YVKz3WqBiYgBfhr0/IL8Y9Y1/BS
+         1al08rZ5lWs7Xrtu9ZpWZQoDhmyZuuOSm2v4oPuI7nY/IM0mNePf7vzlmI4rgZfxft
+         HLl3WAfNWcN+Pef9u2HJ7g8u/1YxNqk+7g07T+EQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 376/917] libbpf: Fix skel_internal.h to set errno on loader retval < 0
-Date:   Mon, 15 Nov 2021 17:57:51 +0100
-Message-Id: <20211115165441.507146162@linuxfoundation.org>
+Subject: [PATCH 5.15 378/917] media: meson-ge2d: Fix rotation parameter changes detection in ge2d_s_ctrl()
+Date:   Mon, 15 Nov 2021 17:57:53 +0100
+Message-Id: <20211115165441.586122863@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,52 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit e68ac0082787f4e8ee6ae5b19076ec7709ce715b ]
+[ Upstream commit 4b9e3e8af4b336eefca1f1ee535bc4b6734ed6aa ]
 
-When the loader indicates an internal error (result of a checked bpf
-system call), it returns the result in attr.test.retval. However, tests
-that rely on ASSERT_OK_PTR on NULL (returned from light skeleton) may
-miss that NULL denotes an error if errno is set to 0. This would result
-in skel pointer being NULL, while ASSERT_OK_PTR returning 1, leading to
-a SEGV on dereference of skel, because libbpf_get_error relies on the
-assumption that errno is always set in case of error for ptr == NULL.
+There is likely a typo here. To be consistent, we should compare
+'fmt.height' with 'ctx->out.pix_fmt.height', not 'ctx->out.pix_fmt.width'.
 
-In particular, this was observed for the ksyms_module test. When
-executed using `./test_progs -t ksyms`, prior tests manipulated errno
-and the test didn't crash when it failed at ksyms_module load, while
-using `./test_progs -t ksyms_module` crashed due to errno being
-untouched.
+Instead of fixing the test, just remove it and copy 'fmt' unconditionally.
 
-Fixes: 67234743736a (libbpf: Generate loader program out of BPF ELF file.)
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210927145941.1383001-11-memxor@gmail.com
+Fixes: 59a635327ca7 ("media: meson: Add M2M driver for the Amlogic GE2D Accelerator Unit")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/skel_internal.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/platform/meson/ge2d/ge2d.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/tools/lib/bpf/skel_internal.h b/tools/lib/bpf/skel_internal.h
-index b22b50c1b173e..9cf66702fa8dd 100644
---- a/tools/lib/bpf/skel_internal.h
-+++ b/tools/lib/bpf/skel_internal.h
-@@ -105,10 +105,12 @@ static inline int bpf_load_and_run(struct bpf_load_and_run_opts *opts)
- 	err = skel_sys_bpf(BPF_PROG_RUN, &attr, sizeof(attr));
- 	if (err < 0 || (int)attr.test.retval < 0) {
- 		opts->errstr = "failed to execute loader prog";
--		if (err < 0)
-+		if (err < 0) {
- 			err = -errno;
--		else
-+		} else {
- 			err = (int)attr.test.retval;
-+			errno = -err;
-+		}
- 		goto out;
+diff --git a/drivers/media/platform/meson/ge2d/ge2d.c b/drivers/media/platform/meson/ge2d/ge2d.c
+index a1393fefa8aea..9b1e973e78da3 100644
+--- a/drivers/media/platform/meson/ge2d/ge2d.c
++++ b/drivers/media/platform/meson/ge2d/ge2d.c
+@@ -779,11 +779,7 @@ static int ge2d_s_ctrl(struct v4l2_ctrl *ctrl)
+ 		 * If the rotation parameter changes the OUTPUT frames
+ 		 * parameters, take them in account
+ 		 */
+-		if (fmt.width != ctx->out.pix_fmt.width ||
+-		    fmt.height != ctx->out.pix_fmt.width ||
+-		    fmt.bytesperline > ctx->out.pix_fmt.bytesperline ||
+-		    fmt.sizeimage > ctx->out.pix_fmt.sizeimage)
+-			ctx->out.pix_fmt = fmt;
++		ctx->out.pix_fmt = fmt;
+ 
+ 		break;
  	}
- 	err = 0;
 -- 
 2.33.0
 
