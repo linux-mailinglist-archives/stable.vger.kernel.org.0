@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5960450B73
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6BF9450DFB
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236274AbhKORYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:24:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50936 "EHLO mail.kernel.org"
+        id S239902AbhKOSJn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:09:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237647AbhKORXm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:23:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAC4263246;
-        Mon, 15 Nov 2021 17:15:24 +0000 (UTC)
+        id S239836AbhKOSEx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:04:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 895CD619E3;
+        Mon, 15 Nov 2021 17:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996525;
-        bh=LuA1Ioty0p7m4NLfqNvuURt4xangfK27QVOJTs23rKU=;
+        s=korg; t=1636997964;
+        bh=ke48mqdZH2OA4qy1tg07rSC3Or8ooyAKw/9VaUN0brU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C43OPaXGkn8jDnh0BfY/PVtEoMrm/FPbaAEwHV5PO10gO+ORSAZfynkOIOwxIFJnu
-         HJ1CV/WWHQQ2AsUzBPSPADiW4fRnxkFaI9+DguObDSWqjb5uSqCUGsJjXPfz0Cp2Y1
-         xu1LKQCPrlloLZN+rHLE7U6JuTCLkcmA4QMKD/gE=
+        b=K2e9JS74CHIzmdPc4IsLwTXhxP0ISdfdS+DPtBlXzrhnkoezsja056l2YjOmBWeq0
+         sSFJPFxp4a9qzpITlwoSfS6GVAkVHPlf9KxsowbGHM5CC/NaRgiwiMbFAVdquOtGlP
+         /9UPjBiKl6ISPRaURaQEnzLfmwrerCWlkf6+0gpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-ia64@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Chris Down <chris@chrisdown.name>,
-        Paul Gortmaker <paul.gortmaker@windriver.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 139/355] ia64: dont do IA64_CMPXCHG_DEBUG without CONFIG_PRINTK
-Date:   Mon, 15 Nov 2021 18:01:03 +0100
-Message-Id: <20211115165318.294086865@linuxfoundation.org>
+        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        Tim Gardner <tim.gardner@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 339/575] net: enetc: unmap DMA in enetc_send_cmd()
+Date:   Mon, 15 Nov 2021 18:01:04 +0100
+Message-Id: <20211115165355.524327484@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +42,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Tim Gardner <tim.gardner@canonical.com>
 
-[ Upstream commit c15b5fc054c3d6c97e953617605235c5cb8ce979 ]
+[ Upstream commit cd4bc63de774eee95e9bac26a565cd80e0fca421 ]
 
-When CONFIG_PRINTK is not set, the CMPXCHG_BUGCHECK() macro calls
-_printk(), but _printk() is a static inline function, not available
-as an extern.
-Since the purpose of the macro is to print the BUGCHECK info,
-make this config option depend on PRINTK.
+Coverity complains of a possible dereference of a null return value.
 
-Fixes multiple occurrences of this build error:
+   	5. returned_null: kzalloc returns NULL. [show details]
+   	6. var_assigned: Assigning: si_data = NULL return value from kzalloc.
+488        si_data = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
+489        cbd.length = cpu_to_le16(data_size);
+490
+491        dma = dma_map_single(&priv->si->pdev->dev, si_data,
+492                             data_size, DMA_FROM_DEVICE);
 
-../include/linux/printk.h:208:5: error: static declaration of '_printk' follows non-static declaration
-  208 | int _printk(const char *s, ...)
-      |     ^~~~~~~
-In file included from ../arch/ia64/include/asm/cmpxchg.h:5,
-../arch/ia64/include/uapi/asm/cmpxchg.h:146:28: note: previous declaration of '_printk' with type 'int(const char *, ...)'
-  146 |                 extern int _printk(const char *fmt, ...);
+While this kzalloc() is unlikely to fail, I did notice that the function
+returned without unmapping si_data.
 
-Cc: linux-ia64@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Chris Down <chris@chrisdown.name>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
+Fix this by refactoring the error paths and checking for kzalloc()
+failure.
+
+Fixes: 888ae5a3952ba ("net: enetc: add tc flower psfp offload driver")
+Cc: Claudiu Manoil <claudiu.manoil@nxp.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org (open list)
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+Acked-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/Kconfig.debug | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/freescale/enetc/enetc_qos.c   | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/arch/ia64/Kconfig.debug b/arch/ia64/Kconfig.debug
-index 40ca23bd228d6..2ce008e2d1644 100644
---- a/arch/ia64/Kconfig.debug
-+++ b/arch/ia64/Kconfig.debug
-@@ -39,7 +39,7 @@ config DISABLE_VHPT
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc_qos.c b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+index dbceb99c4441a..9e6988fd3787a 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc_qos.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
+@@ -486,14 +486,16 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
  
- config IA64_DEBUG_CMPXCHG
- 	bool "Turn on compare-and-exchange bug checking (slow!)"
--	depends on DEBUG_KERNEL
-+	depends on DEBUG_KERNEL && PRINTK
- 	help
- 	  Selecting this option turns on bug checking for the IA-64
- 	  compare-and-exchange instructions.  This is slow!  Itaniums
+ 	data_size = sizeof(struct streamid_data);
+ 	si_data = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
++	if (!si_data)
++		return -ENOMEM;
+ 	cbd.length = cpu_to_le16(data_size);
+ 
+ 	dma = dma_map_single(&priv->si->pdev->dev, si_data,
+ 			     data_size, DMA_FROM_DEVICE);
+ 	if (dma_mapping_error(&priv->si->pdev->dev, dma)) {
+ 		netdev_err(priv->si->ndev, "DMA mapping failed!\n");
+-		kfree(si_data);
+-		return -ENOMEM;
++		err = -ENOMEM;
++		goto out;
+ 	}
+ 
+ 	cbd.addr[0] = lower_32_bits(dma);
+@@ -513,12 +515,10 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
+ 
+ 	err = enetc_send_cmd(priv->si, &cbd);
+ 	if (err)
+-		return -EINVAL;
++		goto out;
+ 
+-	if (!enable) {
+-		kfree(si_data);
+-		return 0;
+-	}
++	if (!enable)
++		goto out;
+ 
+ 	/* Enable the entry overwrite again incase space flushed by hardware */
+ 	memset(&cbd, 0, sizeof(cbd));
+@@ -563,6 +563,10 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
+ 	}
+ 
+ 	err = enetc_send_cmd(priv->si, &cbd);
++out:
++	if (!dma_mapping_error(&priv->si->pdev->dev, dma))
++		dma_unmap_single(&priv->si->pdev->dev, dma, data_size, DMA_FROM_DEVICE);
++
+ 	kfree(si_data);
+ 
+ 	return err;
 -- 
 2.33.0
 
