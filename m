@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 097CA45238E
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD3C24527B3
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:27:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349133AbhKPB1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:27:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35152 "EHLO mail.kernel.org"
+        id S243452AbhKPCaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:30:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243892AbhKOTEg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:04:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F760633DE;
-        Mon, 15 Nov 2021 18:16:14 +0000 (UTC)
+        id S236985AbhKORRX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:17:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 766CF63251;
+        Mon, 15 Nov 2021 17:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000175;
-        bh=+7gUFY/JsKMUy689ZPiaF4dEV58+TeCt9SGME78mxlw=;
+        s=korg; t=1636996391;
+        bh=aTWdgHCGfZpTL5f3BpDC0k5lCuUr3n6/EyanIOC7mZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w8XpV5DIuGySmzgJVggtfniPo2zk8vtQefbvNngJiTWbCClEYnlSBZZd07o44n5wu
-         RPykDXFESpLPk3fiirYbGqOXN39yHfu5JmcHn4RqqsfvnqBWpTYBGZgA1PFtWjg72L
-         wL+O4urVBZxN8OWQ4b4GwCQpRIGwxtWr70djaA+M=
+        b=hKHb3rb0P3CZ6f4edWOWnGIRYOFlxb9EvYzW2ImeDXHdMrx5RWKe6Qa5sNBcemVr4
+         eZJrac6omVlgM+rEu8IAFS1tRzjFE6d3S8xzC72JZkdtGoZbu6xpz6BQVNJJnaaZg1
+         fAEfCWG+iKCYFdU0RyyFiMxaJnwJQ/EPdmu+ixPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Aswath Govindraju <a-govindraju@ti.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 563/849] arm64: dts: ti: k3-j721e-main: Fix "bus-range" upto 256 bus number for PCIe
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 122/355] locking/lockdep: Avoid RCU-induced noinstr fail
 Date:   Mon, 15 Nov 2021 18:00:46 +0100
-Message-Id: <20211115165439.297344744@linuxfoundation.org>
+Message-Id: <20211115165317.761237547@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 5f46633565b1c1e1840a927676065d72b442dac4 ]
+[ Upstream commit ce0b9c805dd66d5e49fd53ec5415ae398f4c56e6 ]
 
-commit 4e5833884f66 ("arm64: dts: ti: k3-j721e-main: Add PCIe device
-tree nodes") restricted PCIe bus numbers from 0 to 15 (due to SMMU
-restriction in J721E). However since SMMU is not enabled, allow the full
-supported bus numbers from 0 to 255.
+vmlinux.o: warning: objtool: look_up_lock_class()+0xc7: call to rcu_read_lock_any_held() leaves .noinstr.text section
 
-Fixes: 4e5833884f66 ("arm64: dts: ti: k3-j721e-main: Add PCIe device tree nodes")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20210915055358.19997-3-kishon@ti.com
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20210624095148.311980536@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j721e-main.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/locking/lockdep.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index 43be5d23130b4..08c8d1b47dcd9 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -610,7 +610,7 @@
- 		clock-names = "fck";
- 		#address-cells = <3>;
- 		#size-cells = <2>;
--		bus-range = <0x0 0xf>;
-+		bus-range = <0x0 0xff>;
- 		vendor-id = <0x104c>;
- 		device-id = <0xb00d>;
- 		msi-map = <0x0 &gic_its 0x0 0x10000>;
-@@ -658,7 +658,7 @@
- 		clock-names = "fck";
- 		#address-cells = <3>;
- 		#size-cells = <2>;
--		bus-range = <0x0 0xf>;
-+		bus-range = <0x0 0xff>;
- 		vendor-id = <0x104c>;
- 		device-id = <0xb00d>;
- 		msi-map = <0x0 &gic_its 0x10000 0x10000>;
-@@ -706,7 +706,7 @@
- 		clock-names = "fck";
- 		#address-cells = <3>;
- 		#size-cells = <2>;
--		bus-range = <0x0 0xf>;
-+		bus-range = <0x0 0xff>;
- 		vendor-id = <0x104c>;
- 		device-id = <0xb00d>;
- 		msi-map = <0x0 &gic_its 0x20000 0x10000>;
-@@ -754,7 +754,7 @@
- 		clock-names = "fck";
- 		#address-cells = <3>;
- 		#size-cells = <2>;
--		bus-range = <0x0 0xf>;
-+		bus-range = <0x0 0xff>;
- 		vendor-id = <0x104c>;
- 		device-id = <0xb00d>;
- 		msi-map = <0x0 &gic_its 0x30000 0x10000>;
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 3ec8fd2e80e53..db109d38f301e 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -830,7 +830,7 @@ look_up_lock_class(const struct lockdep_map *lock, unsigned int subclass)
+ 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
+ 		return NULL;
+ 
+-	hlist_for_each_entry_rcu(class, hash_head, hash_entry) {
++	hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
+ 		if (class->key == key) {
+ 			/*
+ 			 * Huh! same key, different name? Did someone trample
 -- 
 2.33.0
 
