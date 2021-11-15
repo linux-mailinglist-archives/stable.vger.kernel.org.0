@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC06451367
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3B85451366
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348230AbhKOTvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:51:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1348227AbhKOTvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:51:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245753AbhKOTVK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C74AD632F7;
-        Mon, 15 Nov 2021 18:40:36 +0000 (UTC)
+        id S245756AbhKOTVM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BCB463593;
+        Mon, 15 Nov 2021 18:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001637;
-        bh=BQRMNvmJRzCvnlsMGT/ELfWssZ1bdxZhEXVknYcY8RM=;
+        s=korg; t=1637001640;
+        bh=nisjMkk05ddDslovjW33PaKMkAa4TEgO4qZhmM7OoRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bBB8hqWDk4rxZD+GrB+1EZFEY3PBEZLXcmaBlUVzsK/iysHjdPkRy5BAcWZJEkyKL
-         +9SiuJsA50RlNttlVSNRCRT9qNI6oalYv7rBoxDv62Lbqr7rrlqesL0SS24ZRJkrXW
-         IMzolq6OEA5wrbCqR1gEmlT4qeGcCZEutRYbLU6k=
+        b=rU+5Iq9LXUFdCswwEgtbV3BFAtcwelMrqsolW1x0J9pc7qsGcZsKtXr/+0yJF/u0x
+         vOHDDUNh99aDU4rFS943iBIYJelw+AN86zfxqXMHT98J8dKJ1zyUxoQWSVh8HEsOxq
+         /YSkR7pIt10OguJOry2ZtaNfeyjou3KicT2KFChI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
+        stable@vger.kernel.org, Li Feng <fengli@smartx.com>,
+        Xiao Ni <xni@redhat.com>, Song Liu <songliubraving@fb.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 264/917] floppy: fix calling platform_device_unregister() on invalid drives
-Date:   Mon, 15 Nov 2021 17:55:59 +0100
-Message-Id: <20211115165437.735263116@linuxfoundation.org>
+Subject: [PATCH 5.15 265/917] md: update superblock after changing rdev flags in state_store
+Date:   Mon, 15 Nov 2021 17:56:00 +0100
+Message-Id: <20211115165437.767269862@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,74 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Chamberlain <mcgrof@kernel.org>
+From: Xiao Ni <xni@redhat.com>
 
-[ Upstream commit 662167e59d2f3c15a44a88088fc6c1a67c8a3650 ]
+[ Upstream commit 8b9e2291e355a0eafdd5b1e21a94a6659f24b351 ]
 
-platform_device_unregister() should only be called when
-a respective platform_device_register() is called. However
-the floppy driver currently allows failures when registring
-a drive and a bail out could easily cause an invalid call
-to platform_device_unregister() where it was not intended.
+When the in memory flag is changed, we need to persist the change in the
+rdev superblock flags. This is needed for "writemostly" and "failfast".
 
-Fix this by adding a bool to keep track of when the platform
-device was registered for a drive.
-
-This does not fix any known panic / bug. This issue was found
-through code inspection while preparing the driver to use the
-up and coming support for device_add_disk() error handling.
->From what I can tell from code inspection, chances of this
-ever happening should be insanely small, perhaps OOM.
-
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Link: https://lore.kernel.org/r/20210927220302.1073499-5-mcgrof@kernel.org
+Reviewed-by: Li Feng <fengli@smartx.com>
+Signed-off-by: Xiao Ni <xni@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/floppy.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/md/md.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
-index 9538146e520e0..3592a6277d0bb 100644
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -4478,6 +4478,7 @@ static const struct blk_mq_ops floppy_mq_ops = {
- };
- 
- static struct platform_device floppy_device[N_DRIVE];
-+static bool registered[N_DRIVE];
- 
- static bool floppy_available(int drive)
- {
-@@ -4693,6 +4694,8 @@ static int __init do_floppy_init(void)
- 		if (err)
- 			goto out_remove_drives;
- 
-+		registered[drive] = true;
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 6c0c3d0d905aa..e89eb467f1429 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -2976,7 +2976,11 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 	 *  -write_error - clears WriteErrorSeen
+ 	 *  {,-}failfast - set/clear FailFast
+ 	 */
 +
- 		device_add_disk(&floppy_device[drive].dev, disks[drive][0],
- 				NULL);
++	struct mddev *mddev = rdev->mddev;
+ 	int err = -EINVAL;
++	bool need_update_sb = false;
++
+ 	if (cmd_match(buf, "faulty") && rdev->mddev->pers) {
+ 		md_error(rdev->mddev, rdev);
+ 		if (test_bit(Faulty, &rdev->flags))
+@@ -2991,7 +2995,6 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 		if (rdev->raid_disk >= 0)
+ 			err = -EBUSY;
+ 		else {
+-			struct mddev *mddev = rdev->mddev;
+ 			err = 0;
+ 			if (mddev_is_clustered(mddev))
+ 				err = md_cluster_ops->remove_disk(mddev, rdev);
+@@ -3008,10 +3011,12 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 	} else if (cmd_match(buf, "writemostly")) {
+ 		set_bit(WriteMostly, &rdev->flags);
+ 		mddev_create_serial_pool(rdev->mddev, rdev, false);
++		need_update_sb = true;
+ 		err = 0;
+ 	} else if (cmd_match(buf, "-writemostly")) {
+ 		mddev_destroy_serial_pool(rdev->mddev, rdev, false);
+ 		clear_bit(WriteMostly, &rdev->flags);
++		need_update_sb = true;
+ 		err = 0;
+ 	} else if (cmd_match(buf, "blocked")) {
+ 		set_bit(Blocked, &rdev->flags);
+@@ -3037,9 +3042,11 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 		err = 0;
+ 	} else if (cmd_match(buf, "failfast")) {
+ 		set_bit(FailFast, &rdev->flags);
++		need_update_sb = true;
+ 		err = 0;
+ 	} else if (cmd_match(buf, "-failfast")) {
+ 		clear_bit(FailFast, &rdev->flags);
++		need_update_sb = true;
+ 		err = 0;
+ 	} else if (cmd_match(buf, "-insync") && rdev->raid_disk >= 0 &&
+ 		   !test_bit(Journal, &rdev->flags)) {
+@@ -3118,6 +3125,8 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
+ 		clear_bit(ExternalBbl, &rdev->flags);
+ 		err = 0;
  	}
-@@ -4703,7 +4706,8 @@ out_remove_drives:
- 	while (drive--) {
- 		if (floppy_available(drive)) {
- 			del_gendisk(disks[drive][0]);
--			platform_device_unregister(&floppy_device[drive]);
-+			if (registered[drive])
-+				platform_device_unregister(&floppy_device[drive]);
- 		}
- 	}
- out_release_dma:
-@@ -4946,7 +4950,8 @@ static void __exit floppy_module_exit(void)
- 				if (disks[drive][i])
- 					del_gendisk(disks[drive][i]);
- 			}
--			platform_device_unregister(&floppy_device[drive]);
-+			if (registered[drive])
-+				platform_device_unregister(&floppy_device[drive]);
- 		}
- 		for (i = 0; i < ARRAY_SIZE(floppy_type); i++) {
- 			if (disks[drive][i])
++	if (need_update_sb)
++		md_update_sb(mddev, 1);
+ 	if (!err)
+ 		sysfs_notify_dirent_safe(rdev->sysfs_state);
+ 	return err ? err : len;
 -- 
 2.33.0
 
