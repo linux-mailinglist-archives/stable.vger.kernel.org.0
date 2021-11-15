@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32072450ED0
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 882FE450ED7
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241435AbhKOSUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:20:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58650 "EHLO mail.kernel.org"
+        id S240891AbhKOSUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:20:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240550AbhKOSPx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:15:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F6BA633E2;
-        Mon, 15 Nov 2021 17:49:41 +0000 (UTC)
+        id S240666AbhKOSQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:16:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D681363278;
+        Mon, 15 Nov 2021 17:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998582;
-        bh=KqPV+5idkf2+NjD6Q1uow3wjLkwmEutaUPHgxT3W8Fw=;
+        s=korg; t=1636998587;
+        bh=KwEe3m6BBn1PfB12fUQtGVLrKRCOA5YbUBWy85GBrvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kq9JpYSE0ZUaVQPAeY2Ex39teZ8UqLgXPOwD54l1NqG4q5c8gra+OpHKWC+1X8/gj
-         srJpscRlCbZOZ/TOCdsKyREoazYu2N96HzFJBBjuzKeiGPkbeek/RT09JAM7jhFXN3
-         HkK4toZCs0ns+Fi9xl8kRbrYWfX20+6NGslN/g1g=
+        b=edi+ovD+NYTR04HYQMZeI7THlfxbEGYl8GJye6ajuM0beCubTLJ+ufxKjGCjVw7QY
+         J6D44Tb7fIOsTb1bcydClXR6qZKgXnarc6Ex87EuPuWsUzLobc+covFVkIwIt2VfFG
+         YsNtGXwQ52SsNtbC5pz8Ru3XYHxpm3R6NdruqZOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        bfu@redhat.com, Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.10 561/575] s390/cio: make ccw_device_dma_* more robust
-Date:   Mon, 15 Nov 2021 18:04:46 +0100
-Message-Id: <20211115165403.093301133@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Hoffmann <jan@3e8.eu>,
+        Kestrel seventyfour <kestrelseventyfour@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.10 563/575] mtd: rawnand: xway: Keep the driver compatible with on-die ECC engines
+Date:   Mon, 15 Nov 2021 18:04:48 +0100
+Message-Id: <20211115165403.163999834@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -41,81 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit ad9a14517263a16af040598c7920c09ca9670a31 upstream.
+commit 6bcd2960af1b7bacb2f1e710ab0c0b802d900501 upstream.
 
-Since commit 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
-classic notifiers") we were supposed to make sure that
-virtio_ccw_release_dev() completes before the ccw device and the
-attached dma pool are torn down, but unfortunately we did not.  Before
-that commit it used to be OK to delay cleaning up the memory allocated
-by virtio-ccw indefinitely (which isn't really intuitive for guys used
-to destruction happens in reverse construction order), but now we
-trigger a BUG_ON if the genpool is destroyed before all memory allocated
-from it is deallocated. Which brings down the guest. We can observe this
-problem, when unregister_virtio_device() does not give up the last
-reference to the virtio_device (e.g. because a virtio-scsi attached scsi
-disk got removed without previously unmounting its previously mounted
-partition).
+Following the introduction of the generic ECC engine infrastructure, it
+was necessary to reorganize the code and move the ECC configuration in
+the ->attach_chip() hook. Failing to do that properly lead to a first
+series of fixes supposed to stabilize the situation. Unfortunately, this
+only fixed the use of software ECC engines, preventing any other kind of
+engine to be used, including on-die ones.
 
-To make sure that the genpool is only destroyed after all the necessary
-freeing is done let us take a reference on the ccw device on each
-ccw_device_dma_zalloc() and give it up on each ccw_device_dma_free().
+It is now time to (finally) fix the situation by ensuring that we still
+provide a default (eg. software ECC) but will still support different
+ECC engines such as on-die ECC engines if properly described in the
+device tree.
 
-Actually there are multiple approaches to fixing the problem at hand
-that can work. The upside of this one is that it is the safest one while
-remaining simple. We don't crash the guest even if the driver does not
-pair allocations and frees. The downside is the reference counting
-overhead, that the reference counting for ccw devices becomes more
-complex, in a sense that we need to pair the calls to the aforementioned
-functions for it to be correct, and that if we happen to leak, we leak
-more than necessary (the whole ccw device instead of just the genpool).
+There are no changes needed on the core side in order to do this, but we
+just need to leverage the logic there which allows:
+1- a subsystem default (set to Host engines in the raw NAND world)
+2- a driver specific default (here set to software ECC engines)
+3- any type of engine requested by the user (ie. described in the DT)
 
-Some alternatives to this approach are taking a reference in
-virtio_ccw_online() and giving it up in virtio_ccw_release_dev() or
-making sure virtio_ccw_release_dev() completes its work before
-virtio_ccw_remove() returns. The downside of these approaches is that
-these are less safe against programming errors.
+As the raw NAND subsystem has not yet been fully converted to the ECC
+engine infrastructure, in order to provide a default ECC engine for this
+driver we need to set chip->ecc.engine_type *before* calling
+nand_scan(). During the initialization step, the core will consider this
+entry as the default engine for this driver. This value may of course
+be overloaded by the user if the usual DT properties are provided.
 
-Cc: <stable@vger.kernel.org> # v5.3
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and classic notifiers")
-Reported-by: bfu@redhat.com
-Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: d525914b5bd8 ("mtd: rawnand: xway: Move the ECC initialization to ->attach_chip()")
+Cc: stable@vger.kernel.org
+Cc: Jan Hoffmann <jan@3e8.eu>
+Cc: Kestrel seventyfour <kestrelseventyfour@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Tested-by: Jan Hoffmann <jan@3e8.eu>
+Link: https://lore.kernel.org/linux-mtd/20210928222258.199726-10-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/cio/device_ops.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/xway_nand.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -825,13 +825,23 @@ EXPORT_SYMBOL_GPL(ccw_device_get_chid);
-  */
- void *ccw_device_dma_zalloc(struct ccw_device *cdev, size_t size)
+--- a/drivers/mtd/nand/raw/xway_nand.c
++++ b/drivers/mtd/nand/raw/xway_nand.c
+@@ -148,9 +148,8 @@ static void xway_write_buf(struct nand_c
+ 
+ static int xway_attach_chip(struct nand_chip *chip)
  {
--	return cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
-+	void *addr;
+-	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+-
+-	if (chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
++	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT &&
++	    chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
+ 		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+ 
+ 	return 0;
+@@ -219,6 +218,13 @@ static int xway_nand_probe(struct platfo
+ 		    | NAND_CON_SE_P | NAND_CON_WP_P | NAND_CON_PRE_P
+ 		    | cs_flag, EBU_NAND_CON);
+ 
++	/*
++	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
++	 * Set ->engine_type before registering the NAND devices in order to
++	 * provide a driver specific default value.
++	 */
++	data->chip.ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
 +
-+	if (!get_device(&cdev->dev))
-+		return NULL;
-+	addr = cio_gp_dma_zalloc(cdev->private->dma_pool, &cdev->dev, size);
-+	if (IS_ERR_OR_NULL(addr))
-+		put_device(&cdev->dev);
-+	return addr;
- }
- EXPORT_SYMBOL(ccw_device_dma_zalloc);
- 
- void ccw_device_dma_free(struct ccw_device *cdev, void *cpu_addr, size_t size)
- {
-+	if (!cpu_addr)
-+		return;
- 	cio_gp_dma_free(cdev->private->dma_pool, cpu_addr, size);
-+	put_device(&cdev->dev);
- }
- EXPORT_SYMBOL(ccw_device_dma_free);
- 
+ 	/* Scan to find existence of the device */
+ 	err = nand_scan(&data->chip, 1);
+ 	if (err)
 
 
