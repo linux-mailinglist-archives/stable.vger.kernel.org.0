@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE6C8450E43
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A83D450E85
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:13:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240851AbhKOSN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:13:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48894 "EHLO mail.kernel.org"
+        id S240633AbhKOSQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:16:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240210AbhKOSHW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C91963394;
-        Mon, 15 Nov 2021 17:43:28 +0000 (UTC)
+        id S239432AbhKOSHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 334B163316;
+        Mon, 15 Nov 2021 17:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998209;
-        bh=vo6Lsvq4i+FGd3a0twRJRjQ948mnWJGLloR6+8Dz+r0=;
+        s=korg; t=1636998328;
+        bh=hI+1b2RSlrUmiEH5w1TT/EiHcYbHXU8DUzQOva243LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hg+e5iEGcQOrBny2MzvuNtI/fP3Qnyv/IkK0KMSD9JS5EH8/npxlbogO0k6Ln0xxT
-         LkDX1DEIIHEO3RSNWguM/hogkgDHKpIYxkCT60zS3+LoCKmjYfIau23xDrnAjglaSA
-         pH5VdBf2MBMWVsJy4MEcG7EqiG8cxOgsTw6th5n8=
+        b=fYFHuBVZR6VLee3wOZoq674TTxRy3ZW3xy8dA4l4S6Y+ZA8l3rYRsIw4rnKakDDEn
+         8d8c6wtWmpJ4lx4RXpJVj9NcDF1svzGqhAuZG13S54sMc4cd0A/8wx4ZlK+HOU9DZa
+         d29i9az6Ru/17qrw07xJtyT4qNVYCQ2PRHlXNeKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Beomho Seo <beomho.seo@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Jakob Hauser <jahau@rocketmail.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 426/575] usb: gadget: hid: fix error code in do_config()
-Date:   Mon, 15 Nov 2021 18:02:31 +0100
-Message-Id: <20211115165358.510343806@linuxfoundation.org>
+Subject: =?UTF-8?q?=5BPATCH=205=2E10=20427/575=5D=20=3D=3FUTF-8=3Fq=3Fpower=3A=3D20supply=3A=3D20rt5033=3D5Fbattery=3A=3D20Change=3D20voltage=3F=3D=20=3D=3FUTF-8=3Fq=3F=3D20values=3D20to=3D20=3DC2=3DB5V=3F=3D?=
+Date:   Mon, 15 Nov 2021 18:02:32 +0100
+Message-Id: <20211115165358.549511983@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -40,38 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jakob Hauser <jahau@rocketmail.com>
 
-[ Upstream commit 68e7c510fdf4f6167404609da52e1979165649f6 ]
+[ Upstream commit bf895295e9a73411889816f1a0c1f4f1a2d9c678 ]
 
-Return an error code if usb_get_function() fails.  Don't return success.
+Currently the rt5033_battery driver provides voltage values in mV. It
+should be µV as stated in Documentation/power/power_supply_class.rst.
 
-Fixes: 4bc8a33f2407 ("usb: gadget: hid: convert to new interface of f_hid")
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20211011123739.GC15188@kili
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b847dd96e659 ("power: rt5033_battery: Add RT5033 Fuel gauge device driver")
+Cc: Beomho Seo <beomho.seo@samsung.com>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Jakob Hauser <jahau@rocketmail.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/legacy/hid.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/power/supply/rt5033_battery.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/legacy/hid.c b/drivers/usb/gadget/legacy/hid.c
-index 5b27d289443fe..3912cc805f3af 100644
---- a/drivers/usb/gadget/legacy/hid.c
-+++ b/drivers/usb/gadget/legacy/hid.c
-@@ -99,8 +99,10 @@ static int do_config(struct usb_configuration *c)
+diff --git a/drivers/power/supply/rt5033_battery.c b/drivers/power/supply/rt5033_battery.c
+index 9ad0afe83d1b7..7a23c70f48791 100644
+--- a/drivers/power/supply/rt5033_battery.c
++++ b/drivers/power/supply/rt5033_battery.c
+@@ -60,7 +60,7 @@ static int rt5033_battery_get_watt_prop(struct i2c_client *client,
+ 	regmap_read(battery->regmap, regh, &msb);
+ 	regmap_read(battery->regmap, regl, &lsb);
  
- 	list_for_each_entry(e, &hidg_func_list, node) {
- 		e->f = usb_get_function(e->fi);
--		if (IS_ERR(e->f))
-+		if (IS_ERR(e->f)) {
-+			status = PTR_ERR(e->f);
- 			goto put;
-+		}
- 		status = usb_add_function(c, e->f);
- 		if (status < 0) {
- 			usb_put_function(e->f);
+-	ret = ((msb << 4) + (lsb >> 4)) * 1250 / 1000;
++	ret = ((msb << 4) + (lsb >> 4)) * 1250;
+ 
+ 	return ret;
+ }
 -- 
 2.33.0
 
