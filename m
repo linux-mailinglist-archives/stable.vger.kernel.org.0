@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7061745139A
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D04314513A1
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348504AbhKOTxh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:53:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S1348532AbhKOTx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:53:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343683AbhKOTVg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343685AbhKOTVg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77C1263374;
-        Mon, 15 Nov 2021 18:44:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 133BF63384;
+        Mon, 15 Nov 2021 18:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001868;
-        bh=G7iF7BWLw3NatKyU1LmP+Six9fftezIoKHMjGeriogo=;
+        s=korg; t=1637001870;
+        bh=CNN4dH+4NmfZ2QAIoo9fKaV7TbgbqMFD1753YpD7gm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUhZEyax/TLlD73YpQGjJra3kiuXeKJrlZ1qeg5xiSrEXsS3z0NNBw8Slpf1LBoCD
-         FNJ0YKD3lDTeGK8kus0R1qs8EYiU2bY8RPnnQATcI9gWFlE1GOyfrHjED0V5RdDWkJ
-         Bg6umU1NQC3+LhbQYDlJ2mkgBS1j2iLxPUdxUOyg=
+        b=oImPJQtdXJX4lLm9pecrMHt3zBvxH70OXezK3PCubywhroWXv2BU6Jy95OUcz48i9
+         8fHQnjEIkNCmm65s1TnfLYaPEOHFcVJXp8WgpLKx4Uc3PJNnM/h1G6VDENFsboFJtV
+         Jta2d/GY6WvHqn2t7+u9kGA5+JzMWLSMJZuzOWjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Wojciech Ziemba <wojciech.ziemba@intel.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 352/917] crypto: caam - disable pkc for non-E SoCs
-Date:   Mon, 15 Nov 2021 17:57:27 +0100
-Message-Id: <20211115165440.688031550@linuxfoundation.org>
+Subject: [PATCH 5.15 353/917] crypto: qat - power up 4xxx device
+Date:   Mon, 15 Nov 2021 17:57:28 +0100
+Message-Id: <20211115165440.719580780@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,84 +42,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit f20311cc9c58052e0b215013046cbf390937910c ]
+[ Upstream commit ca605f97dae4bf070b7c584aec23c1c922e4d823 ]
 
-On newer CAAM versions, not all accelerators are disabled if the SoC is
-a non-E variant. While the driver checks most of the modules for
-availability, there is one - PKHA - which sticks out. On non-E variants
-it is still reported as available, that is the number of instances is
-non-zero, but it has limited functionality. In particular it doesn't
-support encryption and decryption, but just signing and verifying. This
-is indicated by a bit in the PKHA_MISC field. Take this bit into account
-if we are checking for availability.
+After reset or boot, QAT 4xxx devices are inactive and require to be
+explicitly activated.
+This is done by writing the DRV_ACTIVE bit in the PM_INTERRUPT register
+and polling the PM_INIT_STATE to make sure that the transaction has
+completed properly.
 
-This will the following error:
-[    8.167817] caam_jr 8020000.jr: 20000b0f: CCB: desc idx 11: : Invalid CHA selected.
+If this is not done, the driver will fail the initialization sequence
+reporting the following message:
+    [   22.081193] 4xxx 0000:f7:00.0: enabling device (0140 -> 0142)
+    [   22.720285] QAT: AE0 is inactive!!
+    [   22.720287] QAT: failed to get device out of reset
+    [   22.720288] 4xxx 0000:f7:00.0: qat_hal_clr_reset error
+    [   22.720290] 4xxx 0000:f7:00.0: Failed to init the AEs
+    [   22.720290] 4xxx 0000:f7:00.0: Failed to initialise Acceleration Engine
+    [   22.720789] 4xxx 0000:f7:00.0: Resetting device qat_dev0
+    [   22.825099] 4xxx: probe of 0000:f7:00.0 failed with error -14
 
-Tested on an NXP LS1028A (non-E) SoC.
+The patch also temporarily disables the power management source of
+interrupt, to avoid possible spurious interrupts as the power management
+feature is not fully supported.
 
-Fixes: d239b10d4ceb ("crypto: caam - add register map changes cf. Era 10")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+The device init function has been added to adf_dev_init(), and not in the
+probe of 4xxx to make sure that the device is re-enabled in case of
+reset.
+
+Note that the error code reported by hw_data->init_device() in
+adf_dev_init() has been shadowed for consistency with the other calls
+in the same function.
+
+Fixes: 8c8268166e83 ("crypto: qat - add qat_4xxx driver")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/caam/caampkc.c | 19 +++++++++++++++----
- drivers/crypto/caam/regs.h    |  3 +++
- 2 files changed, 18 insertions(+), 4 deletions(-)
+ .../crypto/qat/qat_4xxx/adf_4xxx_hw_data.c    | 31 +++++++++++++++++++
+ .../crypto/qat/qat_4xxx/adf_4xxx_hw_data.h    | 10 ++++++
+ .../crypto/qat/qat_common/adf_accel_devices.h |  1 +
+ drivers/crypto/qat/qat_common/adf_init.c      |  5 +++
+ 4 files changed, 47 insertions(+)
 
-diff --git a/drivers/crypto/caam/caampkc.c b/drivers/crypto/caam/caampkc.c
-index e313233ec6de7..bf6275ffc4aad 100644
---- a/drivers/crypto/caam/caampkc.c
-+++ b/drivers/crypto/caam/caampkc.c
-@@ -1153,16 +1153,27 @@ static struct caam_akcipher_alg caam_rsa = {
- int caam_pkc_init(struct device *ctrldev)
+diff --git a/drivers/crypto/qat/qat_4xxx/adf_4xxx_hw_data.c b/drivers/crypto/qat/qat_4xxx/adf_4xxx_hw_data.c
+index 33d8e50dcbdac..88c0ded411f15 100644
+--- a/drivers/crypto/qat/qat_4xxx/adf_4xxx_hw_data.c
++++ b/drivers/crypto/qat/qat_4xxx/adf_4xxx_hw_data.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: (BSD-3-Clause OR GPL-2.0-only)
+ /* Copyright(c) 2020 Intel Corporation */
++#include <linux/iopoll.h>
+ #include <adf_accel_devices.h>
+ #include <adf_common_drv.h>
+ #include <adf_pf2vf_msg.h>
+@@ -161,6 +162,35 @@ static void adf_enable_ints(struct adf_accel_dev *accel_dev)
+ 	ADF_CSR_WR(addr, ADF_4XXX_SMIAPF_MASK_OFFSET, 0);
+ }
+ 
++static int adf_init_device(struct adf_accel_dev *accel_dev)
++{
++	void __iomem *addr;
++	u32 status;
++	u32 csr;
++	int ret;
++
++	addr = (&GET_BARS(accel_dev)[ADF_4XXX_PMISC_BAR])->virt_addr;
++
++	/* Temporarily mask PM interrupt */
++	csr = ADF_CSR_RD(addr, ADF_4XXX_ERRMSK2);
++	csr |= ADF_4XXX_PM_SOU;
++	ADF_CSR_WR(addr, ADF_4XXX_ERRMSK2, csr);
++
++	/* Set DRV_ACTIVE bit to power up the device */
++	ADF_CSR_WR(addr, ADF_4XXX_PM_INTERRUPT, ADF_4XXX_PM_DRV_ACTIVE);
++
++	/* Poll status register to make sure the device is powered up */
++	ret = read_poll_timeout(ADF_CSR_RD, status,
++				status & ADF_4XXX_PM_INIT_STATE,
++				ADF_4XXX_PM_POLL_DELAY_US,
++				ADF_4XXX_PM_POLL_TIMEOUT_US, true, addr,
++				ADF_4XXX_PM_STATUS);
++	if (ret)
++		dev_err(&GET_DEV(accel_dev), "Failed to power up the device\n");
++
++	return ret;
++}
++
+ static int adf_enable_pf2vf_comms(struct adf_accel_dev *accel_dev)
  {
- 	struct caam_drv_private *priv = dev_get_drvdata(ctrldev);
--	u32 pk_inst;
-+	u32 pk_inst, pkha;
- 	int err;
- 	init_done = false;
+ 	return 0;
+@@ -215,6 +245,7 @@ void adf_init_hw_data_4xxx(struct adf_hw_device_data *hw_data)
+ 	hw_data->exit_arb = adf_exit_arb;
+ 	hw_data->get_arb_mapping = adf_get_arbiter_mapping;
+ 	hw_data->enable_ints = adf_enable_ints;
++	hw_data->init_device = adf_init_device;
+ 	hw_data->reset_device = adf_reset_flr;
+ 	hw_data->admin_ae_mask = ADF_4XXX_ADMIN_AE_MASK;
+ 	hw_data->uof_get_num_objs = uof_get_num_objs;
+diff --git a/drivers/crypto/qat/qat_4xxx/adf_4xxx_hw_data.h b/drivers/crypto/qat/qat_4xxx/adf_4xxx_hw_data.h
+index 4fe2a776293c2..924bac6feb372 100644
+--- a/drivers/crypto/qat/qat_4xxx/adf_4xxx_hw_data.h
++++ b/drivers/crypto/qat/qat_4xxx/adf_4xxx_hw_data.h
+@@ -62,6 +62,16 @@
+ #define ADF_4XXX_ADMINMSGLR_OFFSET	(0x500578)
+ #define ADF_4XXX_MAILBOX_BASE_OFFSET	(0x600970)
  
- 	/* Determine public key hardware accelerator presence. */
--	if (priv->era < 10)
-+	if (priv->era < 10) {
- 		pk_inst = (rd_reg32(&priv->ctrl->perfmon.cha_num_ls) &
- 			   CHA_ID_LS_PK_MASK) >> CHA_ID_LS_PK_SHIFT;
--	else
--		pk_inst = rd_reg32(&priv->ctrl->vreg.pkha) & CHA_VER_NUM_MASK;
-+	} else {
-+		pkha = rd_reg32(&priv->ctrl->vreg.pkha);
-+		pk_inst = pkha & CHA_VER_NUM_MASK;
++/* Power management */
++#define ADF_4XXX_PM_POLL_DELAY_US	20
++#define ADF_4XXX_PM_POLL_TIMEOUT_US	USEC_PER_SEC
++#define ADF_4XXX_PM_STATUS		(0x50A00C)
++#define ADF_4XXX_PM_INTERRUPT		(0x50A028)
++#define ADF_4XXX_PM_DRV_ACTIVE		BIT(20)
++#define ADF_4XXX_PM_INIT_STATE		BIT(21)
++/* Power management source in ERRSOU2 and ERRMSK2 */
++#define ADF_4XXX_PM_SOU			BIT(18)
 +
-+		/*
-+		 * Newer CAAMs support partially disabled functionality. If this is the
-+		 * case, the number is non-zero, but this bit is set to indicate that
-+		 * no encryption or decryption is supported. Only signing and verifying
-+		 * is supported.
-+		 */
-+		if (pkha & CHA_VER_MISC_PKHA_NO_CRYPT)
-+			pk_inst = 0;
+ /* Firmware Binaries */
+ #define ADF_4XXX_FW		"qat_4xxx.bin"
+ #define ADF_4XXX_MMP		"qat_4xxx_mmp.bin"
+diff --git a/drivers/crypto/qat/qat_common/adf_accel_devices.h b/drivers/crypto/qat/qat_common/adf_accel_devices.h
+index 38c0af6d4e43e..580566cfcb04c 100644
+--- a/drivers/crypto/qat/qat_common/adf_accel_devices.h
++++ b/drivers/crypto/qat/qat_common/adf_accel_devices.h
+@@ -166,6 +166,7 @@ struct adf_hw_device_data {
+ 	int (*init_arb)(struct adf_accel_dev *accel_dev);
+ 	void (*exit_arb)(struct adf_accel_dev *accel_dev);
+ 	const u32 *(*get_arb_mapping)(void);
++	int (*init_device)(struct adf_accel_dev *accel_dev);
+ 	void (*disable_iov)(struct adf_accel_dev *accel_dev);
+ 	void (*configure_iov_threads)(struct adf_accel_dev *accel_dev,
+ 				      bool enable);
+diff --git a/drivers/crypto/qat/qat_common/adf_init.c b/drivers/crypto/qat/qat_common/adf_init.c
+index 60bc7b991d351..e3749e5817d94 100644
+--- a/drivers/crypto/qat/qat_common/adf_init.c
++++ b/drivers/crypto/qat/qat_common/adf_init.c
+@@ -79,6 +79,11 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
+ 		return -EFAULT;
+ 	}
+ 
++	if (hw_data->init_device && hw_data->init_device(accel_dev)) {
++		dev_err(&GET_DEV(accel_dev), "Failed to initialize device\n");
++		return -EFAULT;
 +	}
- 
- 	/* Do not register algorithms if PKHA is not present. */
- 	if (!pk_inst)
-diff --git a/drivers/crypto/caam/regs.h b/drivers/crypto/caam/regs.h
-index af61f3a2c0d46..3738625c02509 100644
---- a/drivers/crypto/caam/regs.h
-+++ b/drivers/crypto/caam/regs.h
-@@ -322,6 +322,9 @@ struct version_regs {
- /* CHA Miscellaneous Information - AESA_MISC specific */
- #define CHA_VER_MISC_AES_GCM	BIT(1 + CHA_VER_MISC_SHIFT)
- 
-+/* CHA Miscellaneous Information - PKHA_MISC specific */
-+#define CHA_VER_MISC_PKHA_NO_CRYPT	BIT(7 + CHA_VER_MISC_SHIFT)
 +
- /*
-  * caam_perfmon - Performance Monitor/Secure Memory Status/
-  *                CAAM Global Status/Component Version IDs
+ 	if (hw_data->init_admin_comms && hw_data->init_admin_comms(accel_dev)) {
+ 		dev_err(&GET_DEV(accel_dev), "Failed initialize admin comms\n");
+ 		return -EFAULT;
 -- 
 2.33.0
 
