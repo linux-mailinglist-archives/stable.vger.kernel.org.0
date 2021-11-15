@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA5EF4512EC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD55B451277
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347573AbhKOTk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:40:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
+        id S1347540AbhKOTkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:40:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245195AbhKOTTs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:19:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DA1E63513;
-        Mon, 15 Nov 2021 18:30:04 +0000 (UTC)
+        id S245157AbhKOTTg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:19:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F24C9632D1;
+        Mon, 15 Nov 2021 18:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001004;
-        bh=02EdHIL6Z5pYAU9ue9d194kpmRsiT4o2WXsRo9XO3LY=;
+        s=korg; t=1637000972;
+        bh=cMi7/WR0SzFjhWw9coJvUoHsGKU8YWx/WwqkhgiBMbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kv+iwFbJo5HxjxgbarIVkoKTcvSLnWKiCc5IQTlUQK4eMfOSgEMaLigyPmjNy93TU
-         814Dayw29eW8gR7B7vsOz7IW3vq1NyCvpSBfUHzjlVKrHe6+rhzYpIpBZziBYBaDEL
-         IxW//mmCp3APXGILwUy4CdmNoMq2cbzQ8AxeXMYw=
+        b=hhHoob/swEhpltceIOFKwc1XpRaylWlJMgr6hkLZPGPAG4qZyAcn+whKnoaTmBkLJ
+         OmU8geHkSeqLnHMDI91jtQ0fdnoCLO2PpnhXMSs9OVeYNdRUGEjCJ6+MWvpqNiWZQo
+         Mw250M4kdTBgBkUoakTIn7A6lmD7uhex4A1tjZKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 009/917] scsi: core: Avoid leaving shost->last_reset with stale value if EH does not run
-Date:   Mon, 15 Nov 2021 17:51:44 +0100
-Message-Id: <20211115165429.043239136@linuxfoundation.org>
+Subject: [PATCH 5.15 013/917] scsi: qla2xxx: Fix crash in NVMe abort path
+Date:   Mon, 15 Nov 2021 17:51:48 +0100
+Message-Id: <20211115165429.187025452@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,148 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ewan D. Milne <emilne@redhat.com>
+From: Arun Easi <aeasi@marvell.com>
 
-commit 5ae17501bc62a49b0b193dcce003f16375f16654 upstream.
+commit e6e22e6cc2962d3f3d71914b47f7fbc454670e8a upstream.
 
-The changes to issue the abort from the scmd->abort_work instead of the EH
-thread introduced a problem if eh_deadline is used.  If aborting the
-command(s) is successful, and there are never any scmds added to the
-shost->eh_cmd_q, there is no code path which will reset the ->last_reset
-value back to zero.
+System crash was seen when I/O was run against an NVMe target and aborts
+were occurring.
 
-The effect of this is that after a successful abort with no EH thread
-activity, a subsequent timeout, perhaps a long time later, might
-immediately be considered past a user-set eh_deadline time, and the host
-will be reset with no attempt at recovery.
+Crash stack is:
 
-Fix this by resetting ->last_reset back to zero in scmd_eh_abort_handler()
-if it is determined that the EH thread will not run to do this.
+    -- relevant crash stack --
+    BUG: kernel NULL pointer dereference, address: 0000000000000010
+    :
+    #6 [ffffae1f8666bdd0] page_fault at ffffffffa740122e
+       [exception RIP: qla_nvme_abort_work+339]
+       RIP: ffffffffc0f592e3  RSP: ffffae1f8666be80  RFLAGS: 00010297
+       RAX: 0000000000000000  RBX: ffff9b581fc8af80  RCX: ffffffffc0f83bd0
+       RDX: 0000000000000001  RSI: ffff9b5839c6c7c8  RDI: 0000000008000000
+       RBP: ffff9b6832f85000   R8: ffffffffc0f68160   R9: ffffffffc0f70652
+       R10: ffffae1f862ffdc8  R11: 0000000000000300  R12: 000000000000010d
+       R13: 0000000000000000  R14: ffff9b5839cea000  R15: 0ffff9b583fab170
+       ORIG_RAX: ffffffffffffffff   CS: 0010  SS: 0018
+    #7 [ffffae1f8666be98] process_one_work at ffffffffa6aba184
+    #8 [ffffae1f8666bed8] worker_thread at ffffffffa6aba39d
+    #9 [ffffae1f8666bf10] kthread at ffffffffa6ac06ed
 
-Thanks to Gopinath Marappan for investigating this problem.
+The crash was due to a stale SRB structure access after it was aborted.
+Fix the issue by removing stale access.
 
-Link: https://lore.kernel.org/r/20211029194311.17504-2-emilne@redhat.com
-Fixes: e494f6a72839 ("[SCSI] improved eh timeout handler")
+Link: https://lore.kernel.org/r/20210908164622.19240-5-njavali@marvell.com
+Fixes: 2cabf10dbbe3 ("scsi: qla2xxx: Fix hang on NVMe command timeouts")
 Cc: stable@vger.kernel.org
-Signed-off-by: Ewan D. Milne <emilne@redhat.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hosts.c      |    1 +
- drivers/scsi/scsi_error.c |   25 +++++++++++++++++++++++++
- drivers/scsi/scsi_lib.c   |    1 +
- include/scsi/scsi_cmnd.h  |    2 +-
- include/scsi/scsi_host.h  |    1 +
- 5 files changed, 29 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_nvme.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -388,6 +388,7 @@ struct Scsi_Host *scsi_host_alloc(struct
- 	shost->shost_state = SHOST_CREATED;
- 	INIT_LIST_HEAD(&shost->__devices);
- 	INIT_LIST_HEAD(&shost->__targets);
-+	INIT_LIST_HEAD(&shost->eh_abort_list);
- 	INIT_LIST_HEAD(&shost->eh_cmd_q);
- 	INIT_LIST_HEAD(&shost->starved_list);
- 	init_waitqueue_head(&shost->host_wait);
---- a/drivers/scsi/scsi_error.c
-+++ b/drivers/scsi/scsi_error.c
-@@ -135,6 +135,23 @@ static bool scsi_eh_should_retry_cmd(str
- 	return true;
- }
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -228,6 +228,8 @@ static void qla_nvme_abort_work(struct w
+ 	fc_port_t *fcport = sp->fcport;
+ 	struct qla_hw_data *ha = fcport->vha->hw;
+ 	int rval, abts_done_called = 1;
++	bool io_wait_for_abort_done;
++	uint32_t handle;
  
-+static void scsi_eh_complete_abort(struct scsi_cmnd *scmd, struct Scsi_Host *shost)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(shost->host_lock, flags);
-+	list_del_init(&scmd->eh_entry);
-+	/*
-+	 * If the abort succeeds, and there is no further
-+	 * EH action, clear the ->last_reset time.
-+	 */
-+	if (list_empty(&shost->eh_abort_list) &&
-+	    list_empty(&shost->eh_cmd_q))
-+		if (shost->eh_deadline != -1)
-+			shost->last_reset = 0;
-+	spin_unlock_irqrestore(shost->host_lock, flags);
-+}
-+
- /**
-  * scmd_eh_abort_handler - Handle command aborts
-  * @work:	command to be aborted.
-@@ -152,6 +169,7 @@ scmd_eh_abort_handler(struct work_struct
- 		container_of(work, struct scsi_cmnd, abort_work.work);
- 	struct scsi_device *sdev = scmd->device;
- 	enum scsi_disposition rtn;
-+	unsigned long flags;
- 
- 	if (scsi_host_eh_past_deadline(sdev->host)) {
- 		SCSI_LOG_ERROR_RECOVERY(3,
-@@ -175,12 +193,14 @@ scmd_eh_abort_handler(struct work_struct
- 				SCSI_LOG_ERROR_RECOVERY(3,
- 					scmd_printk(KERN_WARNING, scmd,
- 						    "retry aborted command\n"));
-+				scsi_eh_complete_abort(scmd, sdev->host);
- 				scsi_queue_insert(scmd, SCSI_MLQUEUE_EH_RETRY);
- 				return;
- 			} else {
- 				SCSI_LOG_ERROR_RECOVERY(3,
- 					scmd_printk(KERN_WARNING, scmd,
- 						    "finish aborted command\n"));
-+				scsi_eh_complete_abort(scmd, sdev->host);
- 				scsi_finish_command(scmd);
- 				return;
- 			}
-@@ -193,6 +213,9 @@ scmd_eh_abort_handler(struct work_struct
- 		}
+ 	ql_dbg(ql_dbg_io, fcport->vha, 0xffff,
+ 	       "%s called for sp=%p, hndl=%x on fcport=%p desc=%p deleted=%d\n",
+@@ -244,12 +246,20 @@ static void qla_nvme_abort_work(struct w
+ 		goto out;
  	}
  
-+	spin_lock_irqsave(sdev->host->host_lock, flags);
-+	list_del_init(&scmd->eh_entry);
-+	spin_unlock_irqrestore(sdev->host->host_lock, flags);
- 	scsi_eh_scmd_add(scmd);
- }
++	/*
++	 * sp may not be valid after abort_command if return code is either
++	 * SUCCESS or ERR_FROM_FW codes, so cache the value here.
++	 */
++	io_wait_for_abort_done = ql2xabts_wait_nvme &&
++					QLA_ABTS_WAIT_ENABLED(sp);
++	handle = sp->handle;
++
+ 	rval = ha->isp_ops->abort_command(sp);
  
-@@ -223,6 +246,8 @@ scsi_abort_command(struct scsi_cmnd *scm
- 	spin_lock_irqsave(shost->host_lock, flags);
- 	if (shost->eh_deadline != -1 && !shost->last_reset)
- 		shost->last_reset = jiffies;
-+	BUG_ON(!list_empty(&scmd->eh_entry));
-+	list_add_tail(&scmd->eh_entry, &shost->eh_abort_list);
- 	spin_unlock_irqrestore(shost->host_lock, flags);
+ 	ql_dbg(ql_dbg_io, fcport->vha, 0x212b,
+ 	    "%s: %s command for sp=%p, handle=%x on fcport=%p rval=%x\n",
+ 	    __func__, (rval != QLA_SUCCESS) ? "Failed to abort" : "Aborted",
+-	    sp, sp->handle, fcport, rval);
++	    sp, handle, fcport, rval);
  
- 	scmd->eh_eflags |= SCSI_EH_ABORT_SCHEDULED;
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1143,6 +1143,7 @@ void scsi_init_command(struct scsi_devic
- 	cmd->sense_buffer = buf;
- 	cmd->prot_sdb = prot;
- 	cmd->flags = flags;
-+	INIT_LIST_HEAD(&cmd->eh_entry);
- 	INIT_DELAYED_WORK(&cmd->abort_work, scmd_eh_abort_handler);
- 	cmd->jiffies_at_alloc = jiffies_at_alloc;
- 	cmd->retries = retries;
---- a/include/scsi/scsi_cmnd.h
-+++ b/include/scsi/scsi_cmnd.h
-@@ -68,7 +68,7 @@ struct scsi_pointer {
- struct scsi_cmnd {
- 	struct scsi_request req;
- 	struct scsi_device *device;
--	struct list_head eh_entry; /* entry for the host eh_cmd_q */
-+	struct list_head eh_entry; /* entry for the host eh_abort_list/eh_cmd_q */
- 	struct delayed_work abort_work;
- 
- 	struct rcu_head rcu;
---- a/include/scsi/scsi_host.h
-+++ b/include/scsi/scsi_host.h
-@@ -556,6 +556,7 @@ struct Scsi_Host {
- 
- 	struct mutex		scan_mutex;/* serialize scanning activity */
- 
-+	struct list_head	eh_abort_list;
- 	struct list_head	eh_cmd_q;
- 	struct task_struct    * ehandler;  /* Error recovery thread. */
- 	struct completion     * eh_action; /* Wait for specific actions on the
+ 	/*
+ 	 * If async tmf is enabled, the abort callback is called only on
+@@ -264,7 +274,7 @@ static void qla_nvme_abort_work(struct w
+ 	 * are waited until ABTS complete. This kref is decreased
+ 	 * at qla24xx_abort_sp_done function.
+ 	 */
+-	if (abts_done_called && ql2xabts_wait_nvme && QLA_ABTS_WAIT_ENABLED(sp))
++	if (abts_done_called && io_wait_for_abort_done)
+ 		return;
+ out:
+ 	/* kref_get was done before work was schedule. */
 
 
