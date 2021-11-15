@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 035A4451399
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 490FF4513A2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348498AbhKOTxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:53:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
+        id S1348526AbhKOTx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:53:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343684AbhKOTVg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343686AbhKOTVg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18DE5635C9;
-        Mon, 15 Nov 2021 18:44:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA279635CA;
+        Mon, 15 Nov 2021 18:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001873;
-        bh=bd+2F2jxwup3Z8uPlx2LJhzVqbD7Fzo8Ul9a0xGIq7s=;
+        s=korg; t=1637001876;
+        bh=MOgtQPjKu4VuxJuvQ1L+8NVmGbk3+bhdxYeR+CpAnxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xaP/SHWSLb01XGFG85xUldYRm8fPlcZ8l5LMV5H4H6VEOJM9bUtl00tYS5BqCLbzk
-         75UnOLcuZBZf60KmI7HkiVfjiuoDJGC8E+BdM+LNrW4/rc049n5NzT92pv+ajg/9+N
-         do9DY+OgE9y7+6boCAlMKXEJOZka0wgK1Y+9LMWc=
+        b=wK41SN+J2sGatPDYHw8K/JEObjt375J2kUVDOYIa5qobCjlA/+ffy1NvhdCcGLKtM
+         LxmMuf3RxMsqe1ooBNmgD7Rx61e2fG2J1f1+/lf+zjqs4VYQ41ZF8PxUUX/sFPGM/t
+         Z+ZR4CvLStcYpv/gtC+Q2Bt722EtZb2mM2mkLWRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Archie Pusaka <apusaka@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 354/917] Bluetooth: hci_h5: Fix (runtime)suspend issues on RTL8723BS HCIs
-Date:   Mon, 15 Nov 2021 17:57:29 +0100
-Message-Id: <20211115165440.754140172@linuxfoundation.org>
+Subject: [PATCH 5.15 355/917] bnxt_en: Check devlink allocation and registration status
+Date:   Mon, 15 Nov 2021 17:57:30 +0100
+Message-Id: <20211115165440.792512625@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,84 +41,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 9a9023f314873241a43b5a2b96e9c0caaa958433 ]
+[ Upstream commit e624c70e1131e145bd0510b8a700b5e2d112e377 ]
 
-The recently added H5_WAKEUP_DISABLE h5->flags flag gets checked in
-h5_btrtl_open(), but it gets set in h5_serdev_probe() *after*
-calling  hci_uart_register_device() and thus after h5_btrtl_open()
-is called, set this flag earlier.
+devlink is a software interface that doesn't depend on any hardware
+capabilities. The failure in SW means memory issues, wrong parameters,
+programmer error e.t.c.
 
-Also on devices where suspend/resume involves fully re-probing the HCI,
-runtime-pm suspend should not be used, make the runtime-pm setup
-conditional on the H5_WAKEUP_DISABLE flag too.
+Like any other such interface in the kernel, the returned status of
+devlink APIs should be checked and propagated further and not ignored.
 
-This fixes the HCI being removed and then re-added every 10 seconds
-because it was being reprobed as soon as it was runtime-suspended.
-
-Fixes: 66f077dde749 ("Bluetooth: hci_h5: add WAKEUP_DISABLE flag")
-Fixes: d9dd833cf6d2 ("Bluetooth: hci_h5: Add runtime suspend")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Archie Pusaka <apusaka@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 4ab0c6a8ffd7 ("bnxt_en: add support to enable VF-representors")
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_h5.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c         |  5 ++++-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c | 13 ++++++-------
+ drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h | 13 -------------
+ 3 files changed, 10 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
-index eb0099a212888..d49a39d17d7dc 100644
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -848,6 +848,8 @@ static int h5_serdev_probe(struct serdev_device *serdev)
- 		h5->vnd = data->vnd;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 62f84cc91e4d1..0fba01db336cc 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -13370,7 +13370,9 @@ static int bnxt_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
  	}
  
-+	if (data->driver_info & H5_INFO_WAKEUP_DISABLE)
-+		set_bit(H5_WAKEUP_DISABLE, &h5->flags);
+ 	bnxt_inv_fw_health_reg(bp);
+-	bnxt_dl_register(bp);
++	rc = bnxt_dl_register(bp);
++	if (rc)
++		goto init_err_dl;
  
- 	h5->enable_gpio = devm_gpiod_get_optional(dev, "enable", GPIOD_OUT_LOW);
- 	if (IS_ERR(h5->enable_gpio))
-@@ -862,9 +864,6 @@ static int h5_serdev_probe(struct serdev_device *serdev)
- 	if (err)
- 		return err;
+ 	rc = register_netdev(dev);
+ 	if (rc)
+@@ -13390,6 +13392,7 @@ static int bnxt_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
  
--	if (data->driver_info & H5_INFO_WAKEUP_DISABLE)
--		set_bit(H5_WAKEUP_DISABLE, &h5->flags);
+ init_err_cleanup:
+ 	bnxt_dl_unregister(bp);
++init_err_dl:
+ 	bnxt_shutdown_tc(bp);
+ 	bnxt_clear_int_mode(bp);
+ 
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
+index 9576547df4aba..2a80882971e3d 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.c
+@@ -134,7 +134,7 @@ void bnxt_dl_fw_reporters_create(struct bnxt *bp)
+ {
+ 	struct bnxt_fw_health *health = bp->fw_health;
+ 
+-	if (!bp->dl || !health)
++	if (!health)
+ 		return;
+ 
+ 	if (!(bp->fw_cap & BNXT_FW_CAP_HOT_RESET) || health->fw_reset_reporter)
+@@ -188,7 +188,7 @@ void bnxt_dl_fw_reporters_destroy(struct bnxt *bp, bool all)
+ {
+ 	struct bnxt_fw_health *health = bp->fw_health;
+ 
+-	if (!bp->dl || !health)
++	if (!health)
+ 		return;
+ 
+ 	if ((all || !(bp->fw_cap & BNXT_FW_CAP_HOT_RESET)) &&
+@@ -781,6 +781,7 @@ int bnxt_dl_register(struct bnxt *bp)
+ {
+ 	const struct devlink_ops *devlink_ops;
+ 	struct devlink_port_attrs attrs = {};
++	struct bnxt_dl *bp_dl;
+ 	struct devlink *dl;
+ 	int rc;
+ 
+@@ -795,7 +796,9 @@ int bnxt_dl_register(struct bnxt *bp)
+ 		return -ENOMEM;
+ 	}
+ 
+-	bnxt_link_bp_to_dl(bp, dl);
++	bp->dl = dl;
++	bp_dl = devlink_priv(dl);
++	bp_dl->bp = bp;
+ 
+ 	/* Add switchdev eswitch mode setting, if SRIOV supported */
+ 	if (pci_find_ext_capability(bp->pdev, PCI_EXT_CAP_ID_SRIOV) &&
+@@ -833,7 +836,6 @@ err_dl_port_unreg:
+ err_dl_unreg:
+ 	devlink_unregister(dl);
+ err_dl_free:
+-	bnxt_link_bp_to_dl(bp, NULL);
+ 	devlink_free(dl);
+ 	return rc;
+ }
+@@ -842,9 +844,6 @@ void bnxt_dl_unregister(struct bnxt *bp)
+ {
+ 	struct devlink *dl = bp->dl;
+ 
+-	if (!dl)
+-		return;
 -
- 	return 0;
+ 	if (BNXT_PF(bp)) {
+ 		bnxt_dl_params_unregister(bp);
+ 		devlink_port_unregister(&bp->dl_port);
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h
+index d889f240da2b2..406dc655a5fc9 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_devlink.h
+@@ -20,19 +20,6 @@ static inline struct bnxt *bnxt_get_bp_from_dl(struct devlink *dl)
+ 	return ((struct bnxt_dl *)devlink_priv(dl))->bp;
  }
  
-@@ -964,11 +963,13 @@ static void h5_btrtl_open(struct h5 *h5)
- 	serdev_device_set_parity(h5->hu->serdev, SERDEV_PARITY_EVEN);
- 	serdev_device_set_baudrate(h5->hu->serdev, 115200);
- 
--	pm_runtime_set_active(&h5->hu->serdev->dev);
--	pm_runtime_use_autosuspend(&h5->hu->serdev->dev);
--	pm_runtime_set_autosuspend_delay(&h5->hu->serdev->dev,
--					 SUSPEND_TIMEOUT_MS);
--	pm_runtime_enable(&h5->hu->serdev->dev);
-+	if (!test_bit(H5_WAKEUP_DISABLE, &h5->flags)) {
-+		pm_runtime_set_active(&h5->hu->serdev->dev);
-+		pm_runtime_use_autosuspend(&h5->hu->serdev->dev);
-+		pm_runtime_set_autosuspend_delay(&h5->hu->serdev->dev,
-+						 SUSPEND_TIMEOUT_MS);
-+		pm_runtime_enable(&h5->hu->serdev->dev);
-+	}
- 
- 	/* The controller needs up to 500ms to wakeup */
- 	gpiod_set_value_cansleep(h5->enable_gpio, 1);
-@@ -978,7 +979,8 @@ static void h5_btrtl_open(struct h5 *h5)
- 
- static void h5_btrtl_close(struct h5 *h5)
- {
--	pm_runtime_disable(&h5->hu->serdev->dev);
-+	if (!test_bit(H5_WAKEUP_DISABLE, &h5->flags))
-+		pm_runtime_disable(&h5->hu->serdev->dev);
- 
- 	gpiod_set_value_cansleep(h5->device_wake_gpio, 0);
- 	gpiod_set_value_cansleep(h5->enable_gpio, 0);
+-/* To clear devlink pointer from bp, pass NULL dl */
+-static inline void bnxt_link_bp_to_dl(struct bnxt *bp, struct devlink *dl)
+-{
+-	bp->dl = dl;
+-
+-	/* add a back pointer in dl to bp */
+-	if (dl) {
+-		struct bnxt_dl *bp_dl = devlink_priv(dl);
+-
+-		bp_dl->bp = bp;
+-	}
+-}
+-
+ #define NVM_OFF_MSIX_VEC_PER_PF_MAX	108
+ #define NVM_OFF_MSIX_VEC_PER_PF_MIN	114
+ #define NVM_OFF_IGNORE_ARI		164
 -- 
 2.33.0
 
