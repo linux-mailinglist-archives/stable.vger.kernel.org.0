@@ -2,105 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F27F94514EC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:21:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B7244514D9
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:14:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349518AbhKOUOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:14:21 -0500
-Received: from mail.hallyn.com ([178.63.66.53]:39844 "EHLO mail.hallyn.com"
+        id S1349513AbhKOUOR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:14:17 -0500
+Received: from mga12.intel.com ([192.55.52.136]:29777 "EHLO mga12.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347167AbhKOTjC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:39:02 -0500
-X-Greylist: delayed 567 seconds by postgrey-1.27 at vger.kernel.org; Mon, 15 Nov 2021 14:38:57 EST
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-        id 92EC38DA; Mon, 15 Nov 2021 13:26:26 -0600 (CST)
-Date:   Mon, 15 Nov 2021 13:26:26 -0600
-From:   "Serge E. Hallyn" <serge@hallyn.com>
-To:     Alistair Delva <adelva@google.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Serge Hallyn <serge@hallyn.com>, Jens Axboe <axboe@kernel.dk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, kernel-team@android.com,
-        stable@vger.kernel.org, john.johansen@canonical.com
-Subject: Re: [PATCH v2] block: Check ADMIN before NICE for IOPRIO_CLASS_RT
-Message-ID: <20211115192626.GA25294@mail.hallyn.com>
-References: <20211115181655.3608659-1-adelva@google.com>
+        id S1347219AbhKOTjG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:39:06 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10169"; a="213547103"
+X-IronPort-AV: E=Sophos;i="5.87,237,1631602800"; 
+   d="scan'208";a="213547103"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2021 11:29:13 -0800
+X-IronPort-AV: E=Sophos;i="5.87,237,1631602800"; 
+   d="scan'208";a="506056920"
+Received: from rchatre-ws.ostc.intel.com ([10.54.69.144])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2021 11:29:12 -0800
+From:   Reinette Chatre <reinette.chatre@intel.com>
+To:     dave.hansen@linux.intel.com, jarkko@kernel.org, tglx@linutronix.de,
+        bp@alien8.de, mingo@redhat.com, linux-sgx@vger.kernel.org,
+        x86@kernel.org
+Cc:     seanjc@google.com, tony.luck@intel.com, hpa@zytor.com,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH V3] x86/sgx: Fix free page accounting
+Date:   Mon, 15 Nov 2021 11:29:04 -0800
+Message-Id: <a95a40743bbd3f795b465f30922dde7f1ea9e0eb.1637004094.git.reinette.chatre@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211115181655.3608659-1-adelva@google.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 15, 2021 at 06:16:55PM +0000, Alistair Delva wrote:
-> Booting to Android userspace on 5.14 or newer triggers the following
-> SELinux denial:
-> 
-> avc: denied { sys_nice } for comm="init" capability=23
->      scontext=u:r:init:s0 tcontext=u:r:init:s0 tclass=capability
->      permissive=0
-> 
-> Init is PID 0 running as root, so it already has CAP_SYS_ADMIN. For
-> better compatibility with older SEPolicy, check ADMIN before NICE.
-> 
-> Fixes: 9d3a39a5f1e4 ("block: grant IOPRIO_CLASS_RT to CAP_SYS_NICE")
-> Signed-off-by: Alistair Delva <adelva@google.com>
-> Cc: Khazhismel Kumykov <khazhy@google.com>
-> Cc: Bart Van Assche <bvanassche@acm.org>
-> Cc: Serge Hallyn <serge@hallyn.com>
+The SGX driver maintains a single global free page counter,
+sgx_nr_free_pages, that reflects the number of free pages available
+across all NUMA nodes. Correspondingly, a list of free pages is
+associated with each NUMA node and sgx_nr_free_pages is updated
+every time a page is added or removed from any of the free page
+lists. The main usage of sgx_nr_free_pages is by the reclaimer
+that runs when it (sgx_nr_free_pages) goes below a watermark
+to ensure that there are always some free pages available to, for
+example, support efficient page faults.
 
-This won't harm anything, so
+With sgx_nr_free_pages accessed and modified from a few places
+it is essential to ensure that these accesses are done safely but
+this is not the case. sgx_nr_free_pages is read without any
+protection and updated with inconsistent protection by any one
+of the spin locks associated with the individual NUMA nodes.
+For example:
 
-Acked-by: Serge Hallyn <serge@hallyn.com>
+      CPU_A                                 CPU_B
+      -----                                 -----
+ spin_lock(&nodeA->lock);              spin_lock(&nodeB->lock);
+ ...                                   ...
+ sgx_nr_free_pages--;  /* NOT SAFE */  sgx_nr_free_pages--;
 
-but questions below.
+ spin_unlock(&nodeA->lock);            spin_unlock(&nodeB->lock);
 
-> Cc: Jens Axboe <axboe@kernel.dk>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Paul Moore <paul@paul-moore.com>
-> Cc: selinux@vger.kernel.org
-> Cc: linux-security-module@vger.kernel.org
-> Cc: kernel-team@android.com
-> Cc: stable@vger.kernel.org # v5.14+
-> ---
-> v2: added comment requested by Jens
->  block/ioprio.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/block/ioprio.c b/block/ioprio.c
-> index 0e4ff245f2bf..313c14a70bbd 100644
-> --- a/block/ioprio.c
-> +++ b/block/ioprio.c
-> @@ -69,7 +69,14 @@ int ioprio_check_cap(int ioprio)
->  
->  	switch (class) {
->  		case IOPRIO_CLASS_RT:
-> -			if (!capable(CAP_SYS_NICE) && !capable(CAP_SYS_ADMIN))
-> +			/*
-> +			 * Originally this only checked for CAP_SYS_ADMIN,
-> +			 * which was implicitly allowed for pid 0 by security
+Since sgx_nr_free_pages may be protected by different spin locks
+while being modified from different CPUs, the following scenario
+is possible:
 
-What do you mean, implicitly allowed for pid 0?  Can you point to where
-that happens?
+      CPU_A                                CPU_B
+      -----                                -----
+{sgx_nr_free_pages = 100}
+ spin_lock(&nodeA->lock);              spin_lock(&nodeB->lock);
+ sgx_nr_free_pages--;                  sgx_nr_free_pages--;
+ /* LOAD sgx_nr_free_pages = 100 */    /* LOAD sgx_nr_free_pages = 100 */
+ /* sgx_nr_free_pages--          */    /* sgx_nr_free_pages--          */
+ /* STORE sgx_nr_free_pages = 99 */    /* STORE sgx_nr_free_pages = 99 */
+ spin_unlock(&nodeA->lock);            spin_unlock(&nodeB->lock);
 
-> +			 * modules such as SELinux. Make sure we check
-> +			 * CAP_SYS_ADMIN first to avoid a denial/avc for
-> +			 * possibly missing CAP_SYS_NICE permission.
-> +			 */
-> +			if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_NICE))
->  				return -EPERM;
+In the above scenario, sgx_nr_free_pages is decremented from two CPUs
+but instead of sgx_nr_free_pages ending with a value that is two less
+than it started with, it was only decremented by one while the number
+of free pages were actually reduced by two. The consequence of
+sgx_nr_free_pages not being protected is that its value may not
+accurately reflect the actual number of free pages on the system,
+impacting the availability of free pages in support of many flows.
 
-But whichever one comes first can cause an avc denial message.  It seems
-like we need a new capable() primitive which supports multiple bits,
-when more than one can authorize an action, and which emits an audit
-message only if all bits are missing.
+The problematic scenario is when the reclaimer does not run because it
+believes there to be sufficient free pages while any attempt to allocate
+a page fails because there are no free pages available. In the SGX driver
+the reclaimer's watermark is only 32 pages so after encountering the
+above example scenario 32 times a user space hang is possible when there
+are no more free pages because of repeated page faults caused by no
+free pages made available.
 
->  			fallthrough;
->  			/* rt has prio field too */
-> -- 
-> 2.34.0.rc1.387.gb447b232ab-goog
+The following flow was encountered:
+asm_exc_page_fault
+ ...
+   sgx_vma_fault()
+     sgx_encl_load_page()
+       sgx_encl_eldu() // Encrypted page needs to be loaded from backing
+                       // storage into newly allocated SGX memory page
+         sgx_alloc_epc_page() // Allocate a page of SGX memory
+           __sgx_alloc_epc_page() // Fails, no free SGX memory
+           ...
+           if (sgx_should_reclaim(SGX_NR_LOW_PAGES)) // Wake reclaimer
+             wake_up(&ksgxd_waitq);
+           return -EBUSY; // Return -EBUSY giving reclaimer time to run
+       return -EBUSY;
+     return -EBUSY;
+   return VM_FAULT_NOPAGE;
+
+The reclaimer is triggered in above flow with the following code:
+
+static bool sgx_should_reclaim(unsigned long watermark)
+{
+        return sgx_nr_free_pages < watermark &&
+               !list_empty(&sgx_active_page_list);
+}
+
+In the problematic scenario there were no free pages available yet the
+value of sgx_nr_free_pages was above the watermark. The allocation of
+SGX memory thus always failed because of a lack of free pages while no
+free pages were made available because the reclaimer is never started
+because of sgx_nr_free_pages' incorrect value. The consequence was that
+user space kept encountering VM_FAULT_NOPAGE that caused the same
+address to be accessed repeatedly with the same result.
+
+Change the global free page counter to an atomic type that
+ensures simultaneous updates are done safely. While doing so, move
+the updating of the variable outside of the spin lock critical
+section to which it does not belong.
+
+Cc: stable@vger.kernel.org
+Fixes: 901ddbb9ecf5 ("x86/sgx: Add a basic NUMA allocation scheme to sgx_alloc_epc_page()")
+Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+---
+Changes since V2:
+- V2:
+https://lore.kernel.org/lkml/b2e69e9febcae5d98d331de094d9cc7ce3217e66.1636487172.git.reinette.chatre@intel.com/
+- Update changelog to provide example of unsafe variable modification (Jarkko).
+
+Changes since V1:
+- V1:
+  https://lore.kernel.org/lkml/373992d869cd356ce9e9afe43ef4934b70d604fd.1636049678.git.reinette.chatre@intel.com/
+- Add static to definition of sgx_nr_free_pages (Tony).
+- Add Tony's signature.
+- Provide detail about error scenario in changelog (Jarkko).
+
+ arch/x86/kernel/cpu/sgx/main.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
+index 63d3de02bbcc..8471a8b9b48e 100644
+--- a/arch/x86/kernel/cpu/sgx/main.c
++++ b/arch/x86/kernel/cpu/sgx/main.c
+@@ -28,8 +28,7 @@ static DECLARE_WAIT_QUEUE_HEAD(ksgxd_waitq);
+ static LIST_HEAD(sgx_active_page_list);
+ static DEFINE_SPINLOCK(sgx_reclaimer_lock);
+ 
+-/* The free page list lock protected variables prepend the lock. */
+-static unsigned long sgx_nr_free_pages;
++static atomic_long_t sgx_nr_free_pages = ATOMIC_LONG_INIT(0);
+ 
+ /* Nodes with one or more EPC sections. */
+ static nodemask_t sgx_numa_mask;
+@@ -403,14 +402,15 @@ static void sgx_reclaim_pages(void)
+ 
+ 		spin_lock(&node->lock);
+ 		list_add_tail(&epc_page->list, &node->free_page_list);
+-		sgx_nr_free_pages++;
+ 		spin_unlock(&node->lock);
++		atomic_long_inc(&sgx_nr_free_pages);
+ 	}
+ }
+ 
+ static bool sgx_should_reclaim(unsigned long watermark)
+ {
+-	return sgx_nr_free_pages < watermark && !list_empty(&sgx_active_page_list);
++	return atomic_long_read(&sgx_nr_free_pages) < watermark &&
++	       !list_empty(&sgx_active_page_list);
+ }
+ 
+ static int ksgxd(void *p)
+@@ -471,9 +471,9 @@ static struct sgx_epc_page *__sgx_alloc_epc_page_from_node(int nid)
+ 
+ 	page = list_first_entry(&node->free_page_list, struct sgx_epc_page, list);
+ 	list_del_init(&page->list);
+-	sgx_nr_free_pages--;
+ 
+ 	spin_unlock(&node->lock);
++	atomic_long_dec(&sgx_nr_free_pages);
+ 
+ 	return page;
+ }
+@@ -625,9 +625,9 @@ void sgx_free_epc_page(struct sgx_epc_page *page)
+ 	spin_lock(&node->lock);
+ 
+ 	list_add_tail(&page->list, &node->free_page_list);
+-	sgx_nr_free_pages++;
+ 
+ 	spin_unlock(&node->lock);
++	atomic_long_inc(&sgx_nr_free_pages);
+ }
+ 
+ static bool __init sgx_setup_epc_section(u64 phys_addr, u64 size,
+-- 
+2.25.1
+
