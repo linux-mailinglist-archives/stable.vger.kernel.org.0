@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A1E2450E70
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30868450BEA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:28:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236634AbhKOSPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:15:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50068 "EHLO mail.kernel.org"
+        id S230501AbhKORbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:31:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240313AbhKOSHd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 323D663306;
-        Mon, 15 Nov 2021 17:44:32 +0000 (UTC)
+        id S237988AbhKOR2d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:28:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A00C76328B;
+        Mon, 15 Nov 2021 17:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998272;
-        bh=OXRQUmIw8c6w3x5521GPDy04TPzDpS7Q4dc2midSmIc=;
+        s=korg; t=1636996740;
+        bh=C0CYAjG4SOXZ+K7g1cEEIuEouQ9CBxyUG0bLwdVTpfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+Ixx6CD6F0eAKXqW2DAf/Ii0gT089zgKrho98px+n6CYR2dh/+bmSHGkmrvNkVXV
-         Wlcy9wqLnS5rPLO/J/PidODbrv0ESY+mbgkt9iPXuqTiy36A//uxqhmmrVAeWuv9wm
-         J5/h4qeaRIFPgYYNGWktwyj6xz7SfHDYLvF3cavU=
+        b=Xq6vCgffqS/Xz//4JTD4Ev/42s6xg/PAsPOvoS/IzUDPjAvUGwlSzVz7ID35hyv62
+         NFoswiCXDnkhjDGiCl3t7j+r0i7dq+oLfEEQbCpeGADvpUPKFYYgEjtvI4NzmKtm6X
+         mvbC7bpjbU47HYdopZKMml+d09vixph25Sh1Ds1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Guru Das Srinagesh <quic_gurus@quicinc.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 450/575] firmware: qcom_scm: Fix error retval in __qcom_scm_is_call_available()
+Subject: [PATCH 5.4 251/355] crypto: pcrypt - Delay write to padata->info
 Date:   Mon, 15 Nov 2021 18:02:55 +0100
-Message-Id: <20211115165359.316721679@linuxfoundation.org>
+Message-Id: <20211115165321.856461183@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guru Das Srinagesh <quic_gurus@quicinc.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit 38212b2a8a6fc4c3a6fa99d7445b833bedc9a67c ]
+[ Upstream commit 68b6dea802cea0dbdd8bd7ccc60716b5a32a5d8a ]
 
-Since __qcom_scm_is_call_available() returns bool, have it return false
-instead of -EINVAL if an invalid SMC convention is detected.
+These three events can race when pcrypt is used multiple times in a
+template ("pcrypt(pcrypt(...))"):
 
-This fixes the Smatch static checker warning:
+  1.  [taskA] The caller makes the crypto request via crypto_aead_encrypt()
+  2.  [kworkerB] padata serializes the inner pcrypt request
+  3.  [kworkerC] padata serializes the outer pcrypt request
 
-	drivers/firmware/qcom_scm.c:255 __qcom_scm_is_call_available()
-	warn: signedness bug returning '(-22)'
+3 might finish before the call to crypto_aead_encrypt() returns in 1,
+resulting in two possible issues.
 
-Fixes: 9d11af8b06a8 ("firmware: qcom_scm: Make __qcom_scm_is_call_available() return bool")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Guru Das Srinagesh <quic_gurus@quicinc.com>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/1633982414-28347-1-git-send-email-quic_gurus@quicinc.com
+First, a use-after-free of the crypto request's memory when, for
+example, taskA writes to the outer pcrypt request's padata->info in
+pcrypt_aead_enc() after kworkerC completes the request.
+
+Second, the outer pcrypt request overwrites the inner pcrypt request's
+return code with -EINPROGRESS, making a successful request appear to
+fail.  For instance, kworkerB writes the outer pcrypt request's
+padata->info in pcrypt_aead_done() and then taskA overwrites it
+in pcrypt_aead_enc().
+
+Avoid both situations by delaying the write of padata->info until after
+the inner crypto request's return code is checked.  This prevents the
+use-after-free by not touching the crypto request's memory after the
+next-inner crypto request is made, and stops padata->info from being
+overwritten.
+
+Fixes: 5068c7a883d16 ("crypto: pcrypt - Add pcrypt crypto parallelization wrapper")
+Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/qcom_scm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/pcrypt.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/firmware/qcom_scm.c b/drivers/firmware/qcom_scm.c
-index c5b20bdc08e9d..e10a99860ca4b 100644
---- a/drivers/firmware/qcom_scm.c
-+++ b/drivers/firmware/qcom_scm.c
-@@ -252,7 +252,7 @@ static bool __qcom_scm_is_call_available(struct device *dev, u32 svc_id,
- 		break;
- 	default:
- 		pr_err("Unknown SMC convention being used\n");
--		return -EINVAL;
-+		return false;
- 	}
+diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
+index a4f3b3f342c8d..276d2fd9e911c 100644
+--- a/crypto/pcrypt.c
++++ b/crypto/pcrypt.c
+@@ -79,12 +79,14 @@ static void pcrypt_aead_enc(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
  
- 	ret = qcom_scm_call(dev, &desc, &res);
+-	padata->info = crypto_aead_encrypt(req);
++	ret = crypto_aead_encrypt(req);
+ 
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
+ 
++	padata->info = ret;
+ 	padata_do_serial(padata);
+ }
+ 
+@@ -124,12 +126,14 @@ static void pcrypt_aead_dec(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
+ 
+-	padata->info = crypto_aead_decrypt(req);
++	ret = crypto_aead_decrypt(req);
+ 
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
+ 
++	padata->info = ret;
+ 	padata_do_serial(padata);
+ }
+ 
 -- 
 2.33.0
 
