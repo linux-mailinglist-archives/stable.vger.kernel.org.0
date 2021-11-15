@@ -2,101 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7DED4505D2
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:43:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C8484505D5
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:44:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234939AbhKONqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 08:46:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51378 "EHLO mail.kernel.org"
+        id S231789AbhKONqf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 08:46:35 -0500
+Received: from mga02.intel.com ([134.134.136.20]:32909 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231833AbhKONmA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 08:42:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 424516322A;
-        Mon, 15 Nov 2021 13:39:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636983544;
-        bh=+nzGqJjtCHiG4tHhl4vCQQ7KhI89Vvcs4vIdqk3J5VU=;
-        h=Subject:To:Cc:From:Date:From;
-        b=eMl3pg1SrPdYD02gRijx93t7Wzy/+rL/lMeES+YfO9ycfvioVmXnM+sM/+3jrsowp
-         F4ZtXlKOBwga+hxS0f1MM/bJHYCu1iRaiSj8u1LQsxCv2Go0IUh1NudgWIei6JYURr
-         IXZghJWFpofKXTbStc9iXOh5+ycBL+9SBCRvJpx0=
-Subject: FAILED: patch "[PATCH] block: Hold invalidate_lock in BLKZEROOUT ioctl" failed to apply to 5.4-stable tree
-To:     shinichiro.kawasaki@wdc.com, axboe@kernel.dk, jack@suse.cz
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Nov 2021 14:38:49 +0100
-Message-ID: <16369835292598@kroah.com>
+        id S236447AbhKONnm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 08:43:42 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10168"; a="220649226"
+X-IronPort-AV: E=Sophos;i="5.87,236,1631602800"; 
+   d="scan'208";a="220649226"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2021 05:40:18 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.87,236,1631602800"; 
+   d="scan'208";a="471907598"
+Received: from spandruv-desk.jf.intel.com ([10.54.75.21])
+  by orsmga002.jf.intel.com with ESMTP; 15 Nov 2021 05:40:18 -0800
+From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To:     rafael@kernel.org, viresh.kumar@linaro.org
+Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [UPDATE][PATCH] cpufreq: intel_pstate: Fix EPP restore after offline/online
+Date:   Mon, 15 Nov 2021 05:40:17 -0800
+Message-Id: <20211115134017.1257932-1-srinivas.pandruvada@linux.intel.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+When using performance policy, EPP value is restored to non "performance"
+mode EPP after offline and online.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+For example:
+cat /sys/devices/system/cpu/cpu1/cpufreq/energy_performance_preference
+performance
+echo 0 > /sys/devices/system/cpu/cpu1/online
+echo 1 > /sys/devices/system/cpu/cpu1/online
+cat /sys/devices/system/cpu/cpu1/cpufreq/energy_performance_preference
+balance_performance
 
-thanks,
+The commit 4adcf2e5829f ("cpufreq: intel_pstate: Add ->offline and ->online callbacks")
+optimized save restore path of the HWP request MSR, when there is no
+change in the policy. Also added special processing for performance mode
+EPP. If EPP has been set to "performance" by the active mode "performance"
+scaling algorithm, replace that value with the cached EPP. This ends up
+replacing with cached EPP during offline, which is restored during online
+again.
 
-greg k-h
+So add a change which will set cpu_data->epp_policy to zero, when in
+performance policy and has non zero epp. In this way EPP is set to zero
+again.
 
------------------- original commit in Linus's tree ------------------
+Fixes: 4adcf2e5829f ("cpufreq: intel_pstate: Add ->offline and ->online callbacks")
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: stable@vger.kernel.org # v5.9+
+---
+Update: Minor optimization to skip non performance policy code path
 
-From 35e4c6c1a2fc2eb11b9306e95cda1fa06a511948 Mon Sep 17 00:00:00 2001
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Date: Tue, 9 Nov 2021 19:47:23 +0900
-Subject: [PATCH] block: Hold invalidate_lock in BLKZEROOUT ioctl
+ drivers/cpufreq/intel_pstate.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-When BLKZEROOUT ioctl and data read race, the data read leaves stale
-page cache. To avoid the stale page cache, hold invalidate_lock of the
-block device file mapping. The stale page cache is observed when
-blktests test case block/009 is modified to call "blkdiscard -z" command
-and repeated hundreds of times.
-
-This patch can be applied back to the stable kernel version v5.15.y.
-Rework is required for older stable kernels.
-
-Fixes: 22dd6d356628 ("block: invalidate the page cache when issuing BLKZEROOUT")
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: stable@vger.kernel.org # v5.15
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20211109104723.835533-3-shinichiro.kawasaki@wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/block/ioctl.c b/block/ioctl.c
-index 9fa87f64f703..0a1d10ac2e1a 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -154,6 +154,7 @@ static int blk_ioctl_zeroout(struct block_device *bdev, fmode_t mode,
- {
- 	uint64_t range[2];
- 	uint64_t start, end, len;
-+	struct inode *inode = bdev->bd_inode;
- 	int err;
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index 815df3daae9d..6d7d73a0c66b 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -936,11 +936,17 @@ static void intel_pstate_hwp_set(unsigned int cpu)
+ 	max = cpu_data->max_perf_ratio;
+ 	min = cpu_data->min_perf_ratio;
  
- 	if (!(mode & FMODE_WRITE))
-@@ -176,12 +177,17 @@ static int blk_ioctl_zeroout(struct block_device *bdev, fmode_t mode,
- 		return -EINVAL;
+-	if (cpu_data->policy == CPUFREQ_POLICY_PERFORMANCE)
+-		min = max;
+-
+ 	rdmsrl_on_cpu(cpu, MSR_HWP_REQUEST, &value);
  
- 	/* Invalidate the page cache, including dirty pages */
-+	filemap_invalidate_lock(inode->i_mapping);
- 	err = truncate_bdev_range(bdev, mode, start, end);
- 	if (err)
--		return err;
-+		goto fail;
++	if (cpu_data->policy == CPUFREQ_POLICY_PERFORMANCE) {
++		min = max;
++		epp = 0;
++		if (boot_cpu_has(X86_FEATURE_HWP_EPP))
++			epp = (value >> 24) & 0xff;
++		if (epp)
++			cpu_data->epp_policy = 0;
++	}
 +
-+	err = blkdev_issue_zeroout(bdev, start >> 9, len >> 9, GFP_KERNEL,
-+				   BLKDEV_ZERO_NOUNMAP);
+ 	value &= ~HWP_MIN_PERF(~0L);
+ 	value |= HWP_MIN_PERF(min);
  
--	return blkdev_issue_zeroout(bdev, start >> 9, len >> 9, GFP_KERNEL,
--			BLKDEV_ZERO_NOUNMAP);
-+fail:
-+	filemap_invalidate_unlock(inode->i_mapping);
-+	return err;
- }
- 
- static int put_ushort(unsigned short __user *argp, unsigned short val)
+-- 
+2.17.1
 
