@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3ED94522A4
+	by mail.lfdr.de (Postfix) with ESMTP id 4DBFD4522A3
 	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:13:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345191AbhKPBPf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:15:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42978 "EHLO mail.kernel.org"
+        id S240090AbhKPBPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:15:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244242AbhKOTMO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244241AbhKOTMO (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:12:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0D1E634AC;
-        Mon, 15 Nov 2021 18:19:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9B94632B2;
+        Mon, 15 Nov 2021 18:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000377;
-        bh=lNJJ4LLDUiLKVW/5v5gpbEQBxQxQemHk4xMZ9dWm7a4=;
+        s=korg; t=1637000380;
+        bh=hez5oQVPSFGPapGDxet0O58mPzjLjxoOuyDKA05VivY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pgcXRlBSyT3eoFbyolbj6GYGVkWUlW81OpI/OzCZuOYnX46STQxaSg6O5CVYnbae4
-         KLz7AXz8g4N+Inw4SFdwnu2tt4lhUmDDRITcfyKX2IwpTpm5OEAqHg7cArnDJwU/s8
-         Qxz3OazH9DV6DCavjMzEv/vpQVgrEUwx7EuJz16E=
+        b=YIZRrcLRrEvK9WXldb/bwiTSnBwuUczA+2/c8WMRCuDFP5spzn3+MfRH+05L3MgZO
+         bJBzFY5TQWbEYksOTrKtnO8hjRkGv+m1RK8x0OM0FTX2KULN33lNLQlNuAZESPaTBS
+         68bzdrX53QM86Ee5IPlNVmO3qrvhS6oxYCxzC3dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Gromm <christian.gromm@microchip.com>,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 606/849] staging: most: dim2: do not double-register the same device
-Date:   Mon, 15 Nov 2021 18:01:29 +0100
-Message-Id: <20211115165440.757031317@linuxfoundation.org>
+Subject: [PATCH 5.14 607/849] staging: ks7010: select CRYPTO_HASH/CRYPTO_MICHAEL_MIC
+Date:   Mon, 15 Nov 2021 18:01:30 +0100
+Message-Id: <20211115165440.789641021@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,187 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+From: Vegard Nossum <vegard.nossum@oracle.com>
 
-[ Upstream commit 2ab189164056b05474275bb40caa038a37713061 ]
+[ Upstream commit 9ca0e55e52c7b2a99f3c2051fc4bd1c63a061519 ]
 
-Commit 723de0f9171e ("staging: most: remove device from interface
-structure") moved registration of driver-provided struct device to
-the most subsystem.
+Fix the following build/link errors:
 
-Dim2 used to register the same struct device to provide a custom device
-attribute. This causes double-registration of the same struct device.
+  ld: drivers/staging/ks7010/ks_hostif.o: in function `michael_mic.constprop.0':
+  ks_hostif.c:(.text+0x95b): undefined reference to `crypto_alloc_shash'
+  ld: ks_hostif.c:(.text+0x97a): undefined reference to `crypto_shash_setkey'
+  ld: ks_hostif.c:(.text+0xa13): undefined reference to `crypto_shash_update'
+  ld: ks_hostif.c:(.text+0xa28): undefined reference to `crypto_shash_update'
+  ld: ks_hostif.c:(.text+0xa48): undefined reference to `crypto_shash_finup'
+  ld: ks_hostif.c:(.text+0xa6d): undefined reference to `crypto_destroy_tfm'
 
-Fix that by moving the custom attribute to driver's dev_groups.
-This moves attribute to the platform_device object, which is a better
-location for platform-specific attributes anyway.
-
-Fixes: 723de0f9171e ("staging: most: remove device from interface structure")
-Acked-by: Christian Gromm <christian.gromm@microchip.com>
-Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Link: https://lore.kernel.org/r/20211011061117.21435-1-nikita.yoush@cogentembedded.com
+Fixes: 8b523f20417d ("staging: ks7010: removed custom Michael MIC implementation.")
+Fixes: 3e5bc68fa5968 ("staging: ks7010: Fix build error")
+Fixes: a4961427e7494 ("Revert "staging: ks7010: Fix build error"")
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+Link: https://lore.kernel.org/r/20211011152941.12847-1-vegard.nossum@oracle.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/most/dim2/Makefile |  2 +-
- drivers/staging/most/dim2/dim2.c   | 24 ++++++++-------
- drivers/staging/most/dim2/sysfs.c  | 49 ------------------------------
- drivers/staging/most/dim2/sysfs.h  | 11 -------
- 4 files changed, 14 insertions(+), 72 deletions(-)
- delete mode 100644 drivers/staging/most/dim2/sysfs.c
+ drivers/staging/ks7010/Kconfig | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/staging/most/dim2/Makefile b/drivers/staging/most/dim2/Makefile
-index 861adacf6c729..5f9612af3fa3c 100644
---- a/drivers/staging/most/dim2/Makefile
-+++ b/drivers/staging/most/dim2/Makefile
-@@ -1,4 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0
- obj-$(CONFIG_MOST_DIM2) += most_dim2.o
- 
--most_dim2-objs := dim2.o hal.o sysfs.o
-+most_dim2-objs := dim2.o hal.o
-diff --git a/drivers/staging/most/dim2/dim2.c b/drivers/staging/most/dim2/dim2.c
-index 093ef9a2b2919..b72d7b9b45ea9 100644
---- a/drivers/staging/most/dim2/dim2.c
-+++ b/drivers/staging/most/dim2/dim2.c
-@@ -117,7 +117,8 @@ struct dim2_platform_data {
- 	(((p)[1] == 0x18) && ((p)[2] == 0x05) && ((p)[3] == 0x0C) && \
- 	 ((p)[13] == 0x3C) && ((p)[14] == 0x00) && ((p)[15] == 0x0A))
- 
--bool dim2_sysfs_get_state_cb(void)
-+static ssize_t state_show(struct device *dev, struct device_attribute *attr,
-+			  char *buf)
- {
- 	bool state;
- 	unsigned long flags;
-@@ -126,9 +127,18 @@ bool dim2_sysfs_get_state_cb(void)
- 	state = dim_get_lock_state();
- 	spin_unlock_irqrestore(&dim_lock, flags);
- 
--	return state;
-+	return sysfs_emit(buf, "%s\n", state ? "locked" : "");
- }
- 
-+static DEVICE_ATTR_RO(state);
-+
-+static struct attribute *dim2_attrs[] = {
-+	&dev_attr_state.attr,
-+	NULL,
-+};
-+
-+ATTRIBUTE_GROUPS(dim2);
-+
- /**
-  * dimcb_on_error - callback from HAL to report miscommunication between
-  * HDM and HAL
-@@ -866,16 +876,8 @@ static int dim2_probe(struct platform_device *pdev)
- 		goto err_stop_thread;
- 	}
- 
--	ret = dim2_sysfs_probe(&dev->dev);
--	if (ret) {
--		dev_err(&pdev->dev, "failed to create sysfs attribute\n");
--		goto err_unreg_iface;
--	}
--
- 	return 0;
- 
--err_unreg_iface:
--	most_deregister_interface(&dev->most_iface);
- err_stop_thread:
- 	kthread_stop(dev->netinfo_task);
- err_shutdown_dim:
-@@ -898,7 +900,6 @@ static int dim2_remove(struct platform_device *pdev)
- 	struct dim2_hdm *dev = platform_get_drvdata(pdev);
- 	unsigned long flags;
- 
--	dim2_sysfs_destroy(&dev->dev);
- 	most_deregister_interface(&dev->most_iface);
- 	kthread_stop(dev->netinfo_task);
- 
-@@ -1082,6 +1083,7 @@ static struct platform_driver dim2_driver = {
- 	.driver = {
- 		.name = "hdm_dim2",
- 		.of_match_table = dim2_of_match,
-+		.dev_groups = dim2_groups,
- 	},
- };
- 
-diff --git a/drivers/staging/most/dim2/sysfs.c b/drivers/staging/most/dim2/sysfs.c
-deleted file mode 100644
-index c85b2cdcdca3d..0000000000000
---- a/drivers/staging/most/dim2/sysfs.c
-+++ /dev/null
-@@ -1,49 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- * sysfs.c - MediaLB sysfs information
-- *
-- * Copyright (C) 2015, Microchip Technology Germany II GmbH & Co. KG
-- */
--
--/* Author: Andrey Shvetsov <andrey.shvetsov@k2l.de> */
--
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--
--#include <linux/kernel.h>
--#include "sysfs.h"
--#include <linux/device.h>
--
--static ssize_t state_show(struct device *dev, struct device_attribute *attr,
--			  char *buf)
--{
--	bool state = dim2_sysfs_get_state_cb();
--
--	return sprintf(buf, "%s\n", state ? "locked" : "");
--}
--
--static DEVICE_ATTR_RO(state);
--
--static struct attribute *dev_attrs[] = {
--	&dev_attr_state.attr,
--	NULL,
--};
--
--static struct attribute_group dev_attr_group = {
--	.attrs = dev_attrs,
--};
--
--static const struct attribute_group *dev_attr_groups[] = {
--	&dev_attr_group,
--	NULL,
--};
--
--int dim2_sysfs_probe(struct device *dev)
--{
--	dev->groups = dev_attr_groups;
--	return device_register(dev);
--}
--
--void dim2_sysfs_destroy(struct device *dev)
--{
--	device_unregister(dev);
--}
-diff --git a/drivers/staging/most/dim2/sysfs.h b/drivers/staging/most/dim2/sysfs.h
-index 24277a17cff3d..09115cf4ed00e 100644
---- a/drivers/staging/most/dim2/sysfs.h
-+++ b/drivers/staging/most/dim2/sysfs.h
-@@ -16,15 +16,4 @@ struct medialb_bus {
- 	struct kobject kobj_group;
- };
- 
--struct device;
--
--int dim2_sysfs_probe(struct device *dev);
--void dim2_sysfs_destroy(struct device *dev);
--
--/*
-- * callback,
-- * must deliver MediaLB state as true if locked or false if unlocked
-- */
--bool dim2_sysfs_get_state_cb(void);
--
- #endif	/* DIM2_SYSFS_H */
+diff --git a/drivers/staging/ks7010/Kconfig b/drivers/staging/ks7010/Kconfig
+index 0987fdc2f70db..8ea6c09286798 100644
+--- a/drivers/staging/ks7010/Kconfig
++++ b/drivers/staging/ks7010/Kconfig
+@@ -5,6 +5,9 @@ config KS7010
+ 	select WIRELESS_EXT
+ 	select WEXT_PRIV
+ 	select FW_LOADER
++	select CRYPTO
++	select CRYPTO_HASH
++	select CRYPTO_MICHAEL_MIC
+ 	help
+ 	  This is a driver for KeyStream KS7010 based SDIO WIFI cards. It is
+ 	  found on at least later Spectec SDW-821 (FCC-ID "S2Y-WLAN-11G-K" only,
 -- 
 2.33.0
 
