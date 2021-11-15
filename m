@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE6B044FF1E
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 08:13:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92B8244FF32
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 08:25:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230423AbhKOHQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 02:16:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40454 "EHLO
+        id S229673AbhKOH2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 02:28:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230083AbhKOHQM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 02:16:12 -0500
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1209C061766
-        for <stable@vger.kernel.org>; Sun, 14 Nov 2021 23:13:15 -0800 (PST)
-Received: by mail-pj1-x1036.google.com with SMTP id j5-20020a17090a318500b001a6c749e697so10405683pjb.1
-        for <stable@vger.kernel.org>; Sun, 14 Nov 2021 23:13:15 -0800 (PST)
+        with ESMTP id S230075AbhKOH2a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 02:28:30 -0500
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84604C061766
+        for <stable@vger.kernel.org>; Sun, 14 Nov 2021 23:25:34 -0800 (PST)
+Received: by mail-pg1-x531.google.com with SMTP id h63so6933654pgc.12
+        for <stable@vger.kernel.org>; Sun, 14 Nov 2021 23:25:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=czehRClw10nbDe/dp25Fw7u9ulN3jPHPcez/Sp35PXE=;
-        b=o57WeHjohPCuaEZpBD33flEiJdZqVAh2AxVf+urEwGy1CIBm14DAmRIzhhavEW40Pg
-         Z7BVsyhaDrWi7Sw+E5qowIviX5AxJgJmnehbbZRxIb83EhvwvDnm8xvOBsZnmJEMuxcN
-         OjwIgZ+7w3i+kklDkgy/lKVS35+/N9NiokQfko/JLgqtGsOgqtLZdJ1QYAXWxp4Gw13A
-         ulCFcMyT8xVG6RBc+0ARI8YkKFs47OPeF2bWhl3Ovl4WzU1XGe5gzSLHS20pfkEfBV0q
-         VZjsG0jW7dVoDl30JEIdIXG/ot09s6j+UmlY2uEHk0cWgvBhAjUxvc5l+xxbnfaEy6jo
-         vX5g==
+        bh=xPMaCzEZzucLKPpqiyrCivsTq8gZY4tADotY1wja8oU=;
+        b=AWWnfTi17O2E61yKvTx7XdD4SG8PHD64szKgXPan1V6UfMMXFebkyf689l45ji/NXr
+         KJegTHZZe6yOg6n9ALbiUyuoy/xcKzMyIw+9I76y5LoTkkuQWX8Qb2jDzn7KmmTngpID
+         UjoMjHO7MK86IZ15tMaXkt/JNVJyJLNzavozd2dJlrmuGASxcFBrwvlXkmO+JVucjd40
+         OvGGI8CYkLiD1257IIiP8tJEPoERCJ6/+p91ZfGAgLPn0GWICzGa54D6UlSQMmqjypOm
+         USBSlakqwKyqzGD1g1dhrDigYuaUVhUq+MfPae2cY8JsyXTVfybBf3LDeOf/9fEoSXgh
+         Rc8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=czehRClw10nbDe/dp25Fw7u9ulN3jPHPcez/Sp35PXE=;
-        b=R/WtYABs2KzAdlH/NeVFd9A1PvuVPu7JcWHenPj8OtOBAA9e6dlCtl2X4XMaYcyku9
-         IgNYH/VCBP6o5Jo7ziuyDK70vvdv9I15G7Wh3vFb2zCGs9WPcAjes5blf2JDRX8u9gTU
-         PkT+IGjXX+ScKAPTheOsdaM+/f/HmViiIwbDgvEFw4g5jaWpf7x8p4AYcDGbnichrRML
-         4N3shfA/P0H8xRy43+IwOlwOXhiniCrlLoo/3C56/ajUfYSEIfJMfXUnylb+gpzgFi4u
-         dyGQdm/E1DRvzJlg/M5Ho61QLbwhBn5OsWucOOGbErllYsRksymEHlSajPepV/9gFDj3
-         rY4A==
-X-Gm-Message-State: AOAM530Wz4W+x1Xl8DAWXh02cbsecM2R2PpSbbtfqECD2znooo7focim
-        MEdfkeICt87SkgRVMXB33WsXyRYbL/3tU+Tn
-X-Google-Smtp-Source: ABdhPJybGPcyXbwNKQCPDoL1/WL1ZiS3NDc3+ljqDGAkg4qyoYWiJ45pgmWl7MH0Hs0I/MuMukEVfg==
-X-Received: by 2002:a17:902:8645:b0:142:8c0d:3f4a with SMTP id y5-20020a170902864500b001428c0d3f4amr32500487plt.3.1636960394848;
-        Sun, 14 Nov 2021 23:13:14 -0800 (PST)
+        bh=xPMaCzEZzucLKPpqiyrCivsTq8gZY4tADotY1wja8oU=;
+        b=K476ViPf67zfX3ISrEbEKe+Hi4cGO9+rH9D6vUUZzGe6DYC/8KW+cNcE+HT1JWZfv8
+         nJE7RevqzsgV++qZN3HNByJ9XQkWngnrz41hg/0jZ0PiuErZJxAUIQoKiJNeoAMfTKhm
+         DIrCssyw9BzLKrMdqiksYBE+X5HF5wfG/j+k2wD/ckefUwVXduv/Ne3J/Fv+CaJW14NF
+         iVUeb3U4F4Mz8B0VzTD/plHtAMAR3UTaEfIo1WbnQtSdtQTAVMa6ur8RgIpX/DQidwpB
+         8sj8RoE+j6i84jEPBxTRN8Z3iktI7y5QIACcfKjWF9F2aeudGgBXqTi6AfAg5j2KwWlz
+         5NZA==
+X-Gm-Message-State: AOAM530BEiNObCTfOQPnAzEtDhmbkiLrQcZHqN9tn9BJ2PBy54NlG5vC
+        q1+bH1by6hfCHXSNlF/AUC9/mQaKKNHWXHrM
+X-Google-Smtp-Source: ABdhPJxCdexE/SUZzgGfXRChwNjJE5Oalm+eqH1GyYfuRJHaP96Sg/FYxxq7UKqz5FotiEAqQz7vyg==
+X-Received: by 2002:a05:6a00:14c8:b0:49f:af00:d5cd with SMTP id w8-20020a056a0014c800b0049faf00d5cdmr30955893pfu.59.1636961133084;
+        Sun, 14 Nov 2021 23:25:33 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z71sm14908314pfc.19.2021.11.14.23.13.14
+        by smtp.gmail.com with ESMTPSA id l12sm14472502pfu.100.2021.11.14.23.25.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Nov 2021 23:13:14 -0800 (PST)
-Message-ID: <6192088a.1c69fb81.23337.a8b2@mx.google.com>
-Date:   Sun, 14 Nov 2021 23:13:14 -0800 (PST)
+        Sun, 14 Nov 2021 23:25:32 -0800 (PST)
+Message-ID: <61920b6c.1c69fb81.dc6ba.8e81@mx.google.com>
+Date:   Sun, 14 Nov 2021 23:25:32 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
+X-Kernelci-Branch: queue/5.15
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.14.18-788-gd649998125f4
+X-Kernelci-Kernel: v5.15.2-851-g750602323c68
 X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/5.14 build: 175 builds: 5 failed, 170 passed, 4 errors,
- 7 warnings (v5.14.18-788-gd649998125f4)
+Subject: stable-rc/queue/5.15 build: 180 builds: 20 failed, 160 passed,
+ 18 errors, 7 warnings (v5.15.2-851-g750602323c68)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,67 +65,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 build: 175 builds: 5 failed, 170 passed, 4 errors, 7 w=
-arnings (v5.14.18-788-gd649998125f4)
+stable-rc/queue/5.15 build: 180 builds: 20 failed, 160 passed, 18 errors, 7=
+ warnings (v5.15.2-851-g750602323c68)
 
 Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-4/kernel/v5.14.18-788-gd649998125f4/
+5/kernel/v5.15.2-851-g750602323c68/
 
 Tree: stable-rc
-Branch: queue/5.14
-Git Describe: v5.14.18-788-gd649998125f4
-Git Commit: d649998125f4d4b4356a049f9d22be51e829d62e
+Branch: queue/5.15
+Git Describe: v5.15.2-851-g750602323c68
+Git Commit: 750602323c68ab51f3b65c59efc4289a7e7c60f9
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
 
 Build Failures Detected:
 
+arm64:
+    defconfig: (gcc-10) FAIL
+
 arm:
+    am200epdkit_defconfig: (gcc-10) FAIL
+    badge4_defconfig: (gcc-10) FAIL
+    cerfcube_defconfig: (gcc-10) FAIL
+    corgi_defconfig: (gcc-10) FAIL
+    imote2_defconfig: (gcc-10) FAIL
+    lart_defconfig: (gcc-10) FAIL
+    magician_defconfig: (gcc-10) FAIL
+    pcm027_defconfig: (gcc-10) FAIL
+    qcom_defconfig: (gcc-10) FAIL
     rpc_defconfig: (gcc-10) FAIL
+    simpad_defconfig: (gcc-10) FAIL
+    viper_defconfig: (gcc-10) FAIL
 
 mips:
     decstation_64_defconfig: (gcc-10) FAIL
     ip27_defconfig: (gcc-10) FAIL
     ip28_defconfig: (gcc-10) FAIL
     lemote2f_defconfig: (gcc-10) FAIL
+    mtx1_defconfig: (gcc-10) FAIL
+    rt305x_defconfig: (gcc-10) FAIL
+    xway_defconfig: (gcc-10) FAIL
 
 Errors and Warnings Detected:
 
 arc:
+    tinyconfig (gcc-10): 1 warning
 
 arm64:
 
 arm:
+    am200epdkit_defconfig (gcc-10): 1 error
+    badge4_defconfig (gcc-10): 1 error
+    cerfcube_defconfig (gcc-10): 1 error
+    corgi_defconfig (gcc-10): 1 error
+    imote2_defconfig (gcc-10): 1 error
+    lart_defconfig (gcc-10): 1 error
+    magician_defconfig (gcc-10): 1 error
+    pcm027_defconfig (gcc-10): 1 error
+    qcom_defconfig (gcc-10): 1 error
     rpc_defconfig (gcc-10): 4 errors
+    simpad_defconfig (gcc-10): 1 error
+    viper_defconfig (gcc-10): 1 error
 
 i386:
 
 mips:
+    32r2el_defconfig (gcc-10): 1 warning
     lemote2f_defconfig (gcc-10): 1 warning
     loongson2k_defconfig (gcc-10): 1 warning
+    mtx1_defconfig (gcc-10): 1 error
     rm200_defconfig (gcc-10): 1 warning
+    rt305x_defconfig (gcc-10): 1 error
+    xway_defconfig (gcc-10): 1 error, 2 warnings
 
 riscv:
-    rv32_defconfig (gcc-10): 4 warnings
 
 x86_64:
 
 Errors summary:
 
+    11   ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.=
+ko] undefined!
     2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
     2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
 h=3D=E2=80=99
+    2    api.c:(.text+0x598): undefined reference to `crypto_alg_tested'
+    1    /tmp/kci/linux/build/../drivers/gpu/drm/panel/panel-simple.c:803: =
+undefined reference to `drm_panel_dp_aux_backlight'
 
 Warnings summary:
 
-    2    net/mac80211/mlme.c:4345:1: warning: the frame size of 1056 bytes =
+    2    net/mac80211/mlme.c:4345:1: warning: the frame size of 1200 bytes =
 is larger than 1024 bytes [-Wframe-larger-than=3D]
-    2    <stdin>:834:2: warning: #warning syscall fstat64 not implemented [=
--Wcpp]
-    2    <stdin>:1131:2: warning: #warning syscall fstatat64 not implemente=
-d [-Wcpp]
+    1    drivers/net/ethernet/lantiq_etop.c:281:4: warning: ignoring return=
+ value of =E2=80=98request_irq=E2=80=99 declared with attribute =E2=80=98wa=
+rn_unused_result=E2=80=99 [-Wunused-result]
+    1    drivers/net/ethernet/lantiq_etop.c:273:4: warning: ignoring return=
+ value of =E2=80=98request_irq=E2=80=99 declared with attribute =E2=80=98wa=
+rn_unused_result=E2=80=99 [-Wunused-result]
     1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
+e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
+ted "0,0"
+    1    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' i=
+s unknown, fallback to ''
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -136,8 +180,13 @@ Detailed per-defconfig build reports:
 
 ---------------------------------------------------------------------------=
 -----
-32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_device_reg=
+): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expected "=
+0,0"
 
 ---------------------------------------------------------------------------=
 -----
@@ -146,18 +195,21 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
 
 ---------------------------------------------------------------------------=
 -----
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 =
+section mismatches
+
+Errors:
+    api.c:(.text+0x598): undefined reference to `crypto_alg_tested'
 
 ---------------------------------------------------------------------------=
 -----
@@ -211,8 +263,12 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+badge4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.ko] u=
+ndefined!
 
 ---------------------------------------------------------------------------=
 -----
@@ -256,8 +312,12 @@ cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 
 ---------------------------------------------------------------------------=
 -----
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.ko] u=
+ndefined!
 
 ---------------------------------------------------------------------------=
 -----
@@ -291,8 +351,12 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+corgi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.ko] u=
+ndefined!
 
 ---------------------------------------------------------------------------=
 -----
@@ -336,7 +400,7 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+defconfig (arm64, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
@@ -436,8 +500,12 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+imote2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.ko] u=
+ndefined!
 
 ---------------------------------------------------------------------------=
 -----
@@ -506,8 +574,12 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+lart_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.ko] u=
+ndefined!
 
 ---------------------------------------------------------------------------=
 -----
@@ -515,8 +587,13 @@ lemote2f_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 1 warning, 0 se=
 ction mismatches
 
 Warnings:
-    net/mac80211/mlme.c:4345:1: warning: the frame size of 1056 bytes is la=
+    net/mac80211/mlme.c:4345:1: warning: the frame size of 1200 bytes is la=
 rger than 1024 bytes [-Wframe-larger-than=3D]
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -529,7 +606,7 @@ loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
 section mismatches
 
 Warnings:
-    net/mac80211/mlme.c:4345:1: warning: the frame size of 1056 bytes is la=
+    net/mac80211/mlme.c:4345:1: warning: the frame size of 1200 bytes is la=
 rger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
@@ -559,8 +636,11 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+magician_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    api.c:(.text+0x598): undefined reference to `crypto_alg_tested'
 
 ---------------------------------------------------------------------------=
 -----
@@ -591,6 +671,11 @@ section mismatches
 -----
 maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -634,8 +719,12 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+mtx1_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.ko] u=
+ndefined!
 
 ---------------------------------------------------------------------------=
 -----
@@ -744,17 +833,16 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+pcm027_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.ko] u=
+ndefined!
 
 ---------------------------------------------------------------------------=
 -----
 pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
 ---------------------------------------------------------------------------=
@@ -789,8 +877,12 @@ pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+qcom_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    /tmp/kci/linux/build/../drivers/gpu/drm/panel/panel-simple.c:803: undef=
+ined reference to `drm_panel_dp_aux_backlight'
 
 ---------------------------------------------------------------------------=
 -----
@@ -840,21 +932,17 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+rt305x_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.ko] u=
+ndefined!
 
 ---------------------------------------------------------------------------=
 -----
-rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sect=
+rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
-
-Warnings:
-    <stdin>:834:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1131:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-    <stdin>:834:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1131:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
 
 ---------------------------------------------------------------------------=
 -----
@@ -878,6 +966,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+sama7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
 sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
  0 section mismatches
 
@@ -893,8 +986,12 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+simpad_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 secti=
+on mismatches
+
+Errors:
+    ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.ko] u=
+ndefined!
 
 ---------------------------------------------------------------------------=
 -----
@@ -948,6 +1045,11 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
 tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
@@ -963,8 +1065,12 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' is unk=
+nown, fallback to ''
 
 ---------------------------------------------------------------------------=
 -----
@@ -1003,8 +1109,12 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+viper_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.ko] u=
+ndefined!
 
 ---------------------------------------------------------------------------=
 -----
@@ -1015,6 +1125,11 @@ ction mismatches
 -----
 vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1030,6 +1145,23 @@ x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
 -----
 xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 2 warnings, 0 sectio=
+n mismatches
+
+Errors:
+    ERROR: modpost: "crypto_boot_test_finished" [crypto/crypto_algapi.ko] u=
+ndefined!
+
+Warnings:
+    drivers/net/ethernet/lantiq_etop.c:273:4: warning: ignoring return valu=
+e of =E2=80=98request_irq=E2=80=99 declared with attribute =E2=80=98warn_un=
+used_result=E2=80=99 [-Wunused-result]
+    drivers/net/ethernet/lantiq_etop.c:281:4: warning: ignoring return valu=
+e of =E2=80=98request_irq=E2=80=99 declared with attribute =E2=80=98warn_un=
+used_result=E2=80=99 [-Wunused-result]
 
 ---------------------------------------------------------------------------=
 -----
