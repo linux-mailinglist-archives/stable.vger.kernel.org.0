@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 398AA450BAD
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2865450E37
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237144AbhKOR1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:27:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50940 "EHLO mail.kernel.org"
+        id S240771AbhKOSN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:13:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237254AbhKORYo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:24:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 910486326B;
-        Mon, 15 Nov 2021 17:18:43 +0000 (UTC)
+        id S240135AbhKOSFk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89A056328E;
+        Mon, 15 Nov 2021 17:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996724;
-        bh=Gl4Xe7uU/xTaf++Ml296d66z5wC/FE2VWrA/FHOlJP0=;
+        s=korg; t=1636998168;
+        bh=UtjqxZWRze2aYZLRYH3XCMkx7eZPNuLAn9ROZRLXKIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/85OfFsQ5m0cUzWyiwnnX/acItzzY6LW0+z+9icWFSmpEQtmJNsMIPUGxPNsqJbd
-         dSwtkawmEMrw6h8+MT2ZW4NhdI7OM23kWSCRWZR7Lt2//FcOyaeQ587xY9LvpPlmAq
-         PiV694EQLv5ty37/fQm5bYXn/y0EBrDmidvimMwA=
+        b=a+dFs1RKqVWPtR4Fwj3UdlV0WL4xogRVb3BVn6QvA1EqZSgoP8rdQ+hUbzveQPtui
+         OIbEuxYM32nqXZXyg17fs5wNy8RGs6b0XQOUDQ13JW20QB8cnuiCnUIRxueqD8sHPE
+         Wu05otGm5vtvS3MtxXvixNtIvV2ekAO/CQQio2iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Changyuan Lyu <changyuanl@google.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Igor Pylypiv <ipylypiv@google.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 212/355] media: dvb-frontends: mn88443x: Handle errors of clk_prepare_enable()
-Date:   Mon, 15 Nov 2021 18:02:16 +0100
-Message-Id: <20211115165320.622767129@linuxfoundation.org>
+Subject: [PATCH 5.10 412/575] scsi: pm80xx: Fix misleading log statement in pm8001_mpi_get_nvmd_resp()
+Date:   Mon, 15 Nov 2021 18:02:17 +0100
+Message-Id: <20211115165358.005877103@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,78 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Igor Pylypiv <ipylypiv@google.com>
 
-[ Upstream commit 69a10678e2fba3d182e78ea041f2d1b1a6058764 ]
+[ Upstream commit 4084a7235d38311a77c86ba69ba849bd787db87b ]
 
-mn88443x_cmn_power_on() did not handle possible errors of
-clk_prepare_enable() and always finished successfully so that its caller
-mn88443x_probe() did not care about failed preparing/enabling of clocks
-as well.
+pm8001_mpi_get_nvmd_resp() handles a GET_NVMD_DATA response, not a
+SET_NVMD_DATA response, as the log statement implies.
 
-Add missed error handling in both mn88443x_cmn_power_on() and
-mn88443x_probe(). This required to change the return value of the former
-from "void" to "int".
-
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Fixes: 0f408ce8941f ("media: dvb-frontends: add Socionext MN88443x ISDB-S/T demodulator driver")
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 1f889b58716a ("scsi: pm80xx: Fix pm8001_mpi_get_nvmd_resp() race condition")
+Link: https://lore.kernel.org/r/20210929025847.646999-1-ipylypiv@google.com
+Reviewed-by: Changyuan Lyu <changyuanl@google.com>
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Igor Pylypiv <ipylypiv@google.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/mn88443x.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/dvb-frontends/mn88443x.c b/drivers/media/dvb-frontends/mn88443x.c
-index e4528784f8477..fff212c0bf3b5 100644
---- a/drivers/media/dvb-frontends/mn88443x.c
-+++ b/drivers/media/dvb-frontends/mn88443x.c
-@@ -204,11 +204,18 @@ struct mn88443x_priv {
- 	struct regmap *regmap_t;
- };
- 
--static void mn88443x_cmn_power_on(struct mn88443x_priv *chip)
-+static int mn88443x_cmn_power_on(struct mn88443x_priv *chip)
- {
-+	struct device *dev = &chip->client_s->dev;
- 	struct regmap *r_t = chip->regmap_t;
-+	int ret;
- 
--	clk_prepare_enable(chip->mclk);
-+	ret = clk_prepare_enable(chip->mclk);
-+	if (ret) {
-+		dev_err(dev, "Failed to prepare and enable mclk: %d\n",
-+			ret);
-+		return ret;
-+	}
- 
- 	gpiod_set_value_cansleep(chip->reset_gpio, 1);
- 	usleep_range(100, 1000);
-@@ -222,6 +229,8 @@ static void mn88443x_cmn_power_on(struct mn88443x_priv *chip)
- 	} else {
- 		regmap_write(r_t, HIZSET3, 0x8f);
- 	}
-+
-+	return 0;
- }
- 
- static void mn88443x_cmn_power_off(struct mn88443x_priv *chip)
-@@ -738,7 +747,10 @@ static int mn88443x_probe(struct i2c_client *client,
- 	chip->fe.demodulator_priv = chip;
- 	i2c_set_clientdata(client, chip);
- 
--	mn88443x_cmn_power_on(chip);
-+	ret = mn88443x_cmn_power_on(chip);
-+	if (ret)
-+		goto err_i2c_t;
-+
- 	mn88443x_s_sleep(chip);
- 	mn88443x_t_sleep(chip);
- 
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index 2114d2dd3501a..5d751628a6340 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -3107,7 +3107,7 @@ pm8001_mpi_get_nvmd_resp(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 	 * fw_control_context->usrAddr
+ 	 */
+ 	complete(pm8001_ha->nvmd_completion);
+-	pm8001_dbg(pm8001_ha, MSG, "Set nvm data complete!\n");
++	pm8001_dbg(pm8001_ha, MSG, "Get nvmd data complete!\n");
+ 	ccb->task = NULL;
+ 	ccb->ccb_tag = 0xFFFFFFFF;
+ 	pm8001_tag_free(pm8001_ha, tag);
 -- 
 2.33.0
 
