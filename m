@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63E04450DD0
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62DE8450AEA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:13:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236965AbhKOSHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:07:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46082 "EHLO mail.kernel.org"
+        id S237011AbhKORQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:16:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239547AbhKOSBT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:01:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB67A63346;
-        Mon, 15 Nov 2021 17:36:32 +0000 (UTC)
+        id S231330AbhKOROo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:14:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E78C61BD2;
+        Mon, 15 Nov 2021 17:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997793;
-        bh=6hUbhkYV+TZcDVKEtkEzGn1X+v2vGSdrTB4OdUF0GFE=;
+        s=korg; t=1636996268;
+        bh=lmyTwlSTaOA3RuONXtbyQwUrrHnruOYLE2E5shgqJac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KRT0bifHBtTsgf9E0QCSqFCQHXKpUpIA2M7k/mwV47i/2qNhLAScy0HVB9rtX68/4
-         BU7MBlu6Ts7Oi0ulhuQijKmBT7mz9/donlBJwLGZYo/agsNZCIyqgI7WIDMcTqzDCg
-         yKzegcx6BoLv/hrAGjcp+gAd9FEkB16jw/BJjr+M=
+        b=oK/8HDCcsFXLnjOggaSojeDaJfPxc4RYJVN6uqmH3jFxXtCN0eynQwgspX1iLZnaS
+         Te7c6I16g11xxsYv2YD72fn45VNkViK77xYanKooeE2g0Ahd22V59TlAr6qploMFFn
+         7GxDezZdjUUPu+fu58Jm2C8KHY3yFtPFd8ACDHkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 277/575] rxrpc: Fix _usecs_to_jiffies() by using usecs_to_jiffies()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 078/355] mwifiex: Read a PCI register after writing the TX ring write pointer
 Date:   Mon, 15 Nov 2021 18:00:02 +0100
-Message-Id: <20211115165353.350117706@linuxfoundation.org>
+Message-Id: <20211115165316.328535509@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Jonas Dreßler <verdre@v0yd.nl>
 
-[ Upstream commit acde891c243c1ed85b19d4d5042bdf00914f5739 ]
+commit e5f4eb8223aa740237cd463246a7debcddf4eda1 upstream.
 
-Directly using _usecs_to_jiffies() might be unsafe, so it's
-better to use usecs_to_jiffies() instead.
-Because we can see that the result of _usecs_to_jiffies()
-could be larger than MAX_JIFFY_OFFSET values without the
-check of the input.
+On the 88W8897 PCIe+USB card the firmware randomly crashes after setting
+the TX ring write pointer. The issue is present in the latest firmware
+version 15.68.19.p21 of the PCIe+USB card.
 
-Fixes: c410bf01933e ("Fix the excessive initial retransmission timeout")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Those firmware crashes can be worked around by reading any PCI register
+of the card after setting that register, so read the PCI_VENDOR_ID
+register here. The reason this works is probably because we keep the bus
+from entering an ASPM state for a bit longer, because that's what causes
+the cards firmware to crash.
+
+This fixes a bug where during RX/TX traffic and with ASPM L1 substates
+enabled (the specific substates where the issue happens appear to be
+platform dependent), the firmware crashes and eventually a command
+timeout appears in the logs.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109681
+Cc: stable@vger.kernel.org
+Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211011133224.15561-2-verdre@v0yd.nl
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/rtt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/marvell/mwifiex/pcie.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/rxrpc/rtt.c b/net/rxrpc/rtt.c
-index 4e565eeab4260..be61d6f5be8d1 100644
---- a/net/rxrpc/rtt.c
-+++ b/net/rxrpc/rtt.c
-@@ -22,7 +22,7 @@ static u32 rxrpc_rto_min_us(struct rxrpc_peer *peer)
- 
- static u32 __rxrpc_set_rto(const struct rxrpc_peer *peer)
- {
--	return _usecs_to_jiffies((peer->srtt_us >> 3) + peer->rttvar_us);
-+	return usecs_to_jiffies((peer->srtt_us >> 3) + peer->rttvar_us);
- }
- 
- static u32 rxrpc_bound_rto(u32 rto)
--- 
-2.33.0
-
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.c
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+@@ -1326,6 +1326,14 @@ mwifiex_pcie_send_data(struct mwifiex_ad
+ 			ret = -1;
+ 			goto done_unmap;
+ 		}
++
++		/* The firmware (latest version 15.68.19.p21) of the 88W8897 PCIe+USB card
++		 * seems to crash randomly after setting the TX ring write pointer when
++		 * ASPM powersaving is enabled. A workaround seems to be keeping the bus
++		 * busy by reading a random register afterwards.
++		 */
++		mwifiex_read_reg(adapter, PCI_VENDOR_ID, &rx_val);
++
+ 		if ((mwifiex_pcie_txbd_not_full(card)) &&
+ 		    tx_param->next_pkt_len) {
+ 			/* have more packets and TxBD still can hold more */
 
 
