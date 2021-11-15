@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CDCD4512DA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3574512D7
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347513AbhKOTkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:40:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
+        id S1347508AbhKOTkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:40:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245101AbhKOTTV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245102AbhKOTTV (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:19:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94DF66350D;
-        Mon, 15 Nov 2021 18:28:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 021D8632CE;
+        Mon, 15 Nov 2021 18:28:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000909;
-        bh=F+y8T0eTPE35YwxE2gPKn3zUcJvUy+Q85fQsxNfOlGQ=;
+        s=korg; t=1637000914;
+        bh=cxZbC6Kf5oarzP6hG/PPzTeF+T7Xk4LAtg+8GzFPaiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b5d3V/QXHuhlv22P14c9YupTzSTIh3XiVf5XqxdzvBVU9YWaBtYm1cEgELMrTa6GQ
-         e6v7FGRfawnbBtbyUKXzdzH5raSsCllVDfdRucPiTukU2XVCzywA/F45gz3ccNnXbm
-         JmTmPW7/swjseMiUfSWWa7wDvVGhq882c4jSHZaE=
+        b=Y/4AYj9HX/xn3cyBIEEuk73R3HFsElqUUKEJt9gQIAbwr1AVfu9wjElx7mEM0dG5J
+         VcUw5cq4yNlXYpMPFokPGYpI5/ka7g+/HdcrKIWuuPQI/UAR1bFr32312eOnHV+hIv
+         NhvjvUOP1mGi3MLZJnwVtV/YAMX8iRS/gMu9TMCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vasant Hegde <hegdevasant@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.14 838/849] powerpc/powernv/prd: Unregister OPAL_MSG_PRD2 notifier during module unload
-Date:   Mon, 15 Nov 2021 18:05:21 +0100
-Message-Id: <20211115165448.591227195@linuxfoundation.org>
+Subject: [PATCH 5.14 840/849] powerpc/64s/interrupt: Fix check_return_regs_valid() false positive
+Date:   Mon, 15 Nov 2021 18:05:23 +0100
+Message-Id: <20211115165448.662623750@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,106 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 52862ab33c5d97490f3fa345d6529829e6d6637b upstream.
+commit 4a5cb51f3db4be547225a4bce7a43d41b231382b upstream.
 
-Commit 587164cd, introduced new opal message type (OPAL_MSG_PRD2) and
-added opal notifier. But I missed to unregister the notifier during
-module unload path. This results in below call trace if you try to
-unload and load opal_prd module.
+The check_return_regs_valid() can cause a false positive if the return
+regs are marked as norestart and they are an HSRR type interrupt,
+because the low bit in the bottom of regs->trap causes interrupt type
+matching to fail.
 
-Also add new notifier_block for OPAL_MSG_PRD2 message.
+This can occcur for example on bare metal with a HV privileged doorbell
+interrupt that causes a signal, but do_signal returns early because
+get_signal() fails, and takes the "No signal to deliver" path. In this
+case no signal was delivered so the return location is not changed so
+return SRRs are not invalidated, yet set_trap_norestart is called, which
+messes up the match. Building go-1.16.6 is known to reproduce this.
 
-Sample calltrace (modprobe -r opal_prd; modprobe opal_prd)
-  BUG: Unable to handle kernel data access on read at 0xc0080000192200e0
-  Faulting instruction address: 0xc00000000018d1cc
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA PowerNV
-  CPU: 66 PID: 7446 Comm: modprobe Kdump: loaded Tainted: G            E     5.14.0prd #759
-  NIP:  c00000000018d1cc LR: c00000000018d2a8 CTR: c0000000000cde10
-  REGS: c0000003c4c0f0a0 TRAP: 0300   Tainted: G            E      (5.14.0prd)
-  MSR:  9000000002009033 <SF,HV,VEC,EE,ME,IR,DR,RI,LE>  CR: 24224824  XER: 20040000
-  CFAR: c00000000018d2a4 DAR: c0080000192200e0 DSISR: 40000000 IRQMASK: 1
-  ...
-  NIP notifier_chain_register+0x2c/0xc0
-  LR  atomic_notifier_chain_register+0x48/0x80
-  Call Trace:
-    0xc000000002090610 (unreliable)
-    atomic_notifier_chain_register+0x58/0x80
-    opal_message_notifier_register+0x7c/0x1e0
-    opal_prd_probe+0x84/0x150 [opal_prd]
-    platform_probe+0x78/0x130
-    really_probe+0x110/0x5d0
-    __driver_probe_device+0x17c/0x230
-    driver_probe_device+0x60/0x130
-    __driver_attach+0xfc/0x220
-    bus_for_each_dev+0xa8/0x130
-    driver_attach+0x34/0x50
-    bus_add_driver+0x1b0/0x300
-    driver_register+0x98/0x1a0
-    __platform_driver_register+0x38/0x50
-    opal_prd_driver_init+0x34/0x50 [opal_prd]
-    do_one_initcall+0x60/0x2d0
-    do_init_module+0x7c/0x320
-    load_module+0x3394/0x3650
-    __do_sys_finit_module+0xd4/0x160
-    system_call_exception+0x140/0x290
-    system_call_common+0xf4/0x258
+Fix it by using the TRAP() accessor which masks out the low bit.
 
-Fixes: 587164cd593c ("powerpc/powernv: Add new opal message type")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+Fixes: 6eaaf9de3599 ("powerpc/64s/interrupt: Check and fix srr_valid without crashing")
+Cc: stable@vger.kernel.org # v5.14+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211028165716.41300-1-hegdevasant@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/20211026122531.3599918-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/powernv/opal-prd.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/interrupt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/platforms/powernv/opal-prd.c
-+++ b/arch/powerpc/platforms/powernv/opal-prd.c
-@@ -369,6 +369,12 @@ static struct notifier_block opal_prd_ev
- 	.priority	= 0,
- };
+--- a/arch/powerpc/kernel/interrupt.c
++++ b/arch/powerpc/kernel/interrupt.c
+@@ -268,7 +268,7 @@ static void check_return_regs_valid(stru
+ 	if (trap_is_scv(regs))
+ 		return;
  
-+static struct notifier_block opal_prd_event_nb2 = {
-+	.notifier_call	= opal_prd_msg_notifier,
-+	.next		= NULL,
-+	.priority	= 0,
-+};
-+
- static int opal_prd_probe(struct platform_device *pdev)
- {
- 	int rc;
-@@ -390,9 +396,10 @@ static int opal_prd_probe(struct platfor
- 		return rc;
- 	}
- 
--	rc = opal_message_notifier_register(OPAL_MSG_PRD2, &opal_prd_event_nb);
-+	rc = opal_message_notifier_register(OPAL_MSG_PRD2, &opal_prd_event_nb2);
- 	if (rc) {
- 		pr_err("Couldn't register PRD2 event notifier\n");
-+		opal_message_notifier_unregister(OPAL_MSG_PRD, &opal_prd_event_nb);
- 		return rc;
- 	}
- 
-@@ -401,6 +408,8 @@ static int opal_prd_probe(struct platfor
- 		pr_err("failed to register miscdev\n");
- 		opal_message_notifier_unregister(OPAL_MSG_PRD,
- 				&opal_prd_event_nb);
-+		opal_message_notifier_unregister(OPAL_MSG_PRD2,
-+				&opal_prd_event_nb2);
- 		return rc;
- 	}
- 
-@@ -411,6 +420,7 @@ static int opal_prd_remove(struct platfo
- {
- 	misc_deregister(&opal_prd_dev);
- 	opal_message_notifier_unregister(OPAL_MSG_PRD, &opal_prd_event_nb);
-+	opal_message_notifier_unregister(OPAL_MSG_PRD2, &opal_prd_event_nb2);
- 	return 0;
- }
- 
+-	trap = regs->trap;
++	trap = TRAP(regs);
+ 	// EE in HV mode sets HSRRs like 0xea0
+ 	if (cpu_has_feature(CPU_FTR_HVMODE) && trap == INTERRUPT_EXTERNAL)
+ 		trap = 0xea0;
 
 
