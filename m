@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26B9C452434
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86D93452432
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356818AbhKPBgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:36:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46110 "EHLO mail.kernel.org"
+        id S1353305AbhKPBga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:36:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242402AbhKOSkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242405AbhKOSkx (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:40:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09AC661465;
-        Mon, 15 Nov 2021 18:04:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70E8161AAA;
+        Mon, 15 Nov 2021 18:04:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999481;
-        bh=z/9lSSjHPdxiziWh/RvqfN6xgR11jGWWxrbE7iR0qsM=;
+        s=korg; t=1636999483;
+        bh=GmjGkJnunf7uEOm60B7d8f8ctLDz3XwBubtOELLd0fU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=toaIGU5W43qsY+s5mL8NjhP6hB/C4FM6H/AOlfVf+bcyZr/nGDgJAeTWd+7BPr6TQ
-         1RS3FW3yXk8ySU2UEDFY2/DcfDx5gTDjNsvcpQcMNZGU71n2AwyaD46auDtWtF6lrw
-         gTenLbOcBMtzmIXmvkYouoOMNTFMfmlV5TMr+hHE=
+        b=X2PTgLOtOTuzeBl8R6ae3k6LP/v8C/j3mII6+3aapOqDC7HMa5jYx/hppzDann0yT
+         Cy9o2s4LvhFE+xkbVuM4W9vAv1rTzsNpPBz7QncPoISdAxfMRyk+zXY31pzBIQ9gyQ
+         O/bIOMRS2SPS+U9dQf09XtaKMlyyroUcFyS0Hn4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
-        Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 311/849] gfs2: Cancel remote delete work asynchronously
-Date:   Mon, 15 Nov 2021 17:56:34 +0100
-Message-Id: <20211115165430.770719190@linuxfoundation.org>
+Subject: [PATCH 5.14 312/849] gfs2: Fix glock_hash_walk bugs
+Date:   Mon, 15 Nov 2021 17:56:35 +0100
+Message-Id: <20211115165430.803024330@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,57 +42,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 486408d690e130c3adacf816754b97558d715f46 ]
+[ Upstream commit 7427f3bb49d81525b7dd1d0f7c5f6bbc752e6f0e ]
 
-In gfs2_inode_lookup and gfs2_create_inode, we're calling
-gfs2_cancel_delete_work which currently cancels any remote delete work
-(delete_work_func) synchronously.  This means that if the work is
-currently running, it will wait for it to finish.  We're doing this to
-pevent a previous instance of an inode from having any influence on the
-next instance.
+So far, glock_hash_walk took a reference on each glock it iterated over, and it
+was the examiner's responsibility to drop those references.  Dropping the final
+reference to a glock can sleep and the examiners are called in a RCU critical
+section with spin locks held, so examiners that didn't need the extra reference
+had to drop it asynchronously via gfs2_glock_queue_put or similar.  This wasn't
+done correctly in thaw_glock which did call gfs2_glock_put, and not at all in
+dump_glock_func.
 
-However, delete_work_func uses gfs2_inode_lookup internally, and we can
-end up in a deadlock when delete_work_func gets interrupted at the wrong
-time.  For example,
+Change glock_hash_walk to not take glock references at all.  That way, the
+examiners that don't need them won't have to bother with slow asynchronous
+puts, and the examiners that do need references can take them themselves.
 
-  (1) An inode's iopen glock has delete work queued, but the inode
-      itself has been evicted from the inode cache.
-
-  (2) The delete work is preempted before reaching gfs2_inode_lookup.
-
-  (3) Another process recreates the inode (gfs2_create_inode).  It tries
-      to cancel any outstanding delete work, which blocks waiting for
-      the ongoing delete work to finish.
-
-  (4) The delete work calls gfs2_inode_lookup, which blocks waiting for
-      gfs2_create_inode to instantiate and unlock the new inode =>
-      deadlock.
-
-It turns out that when the delete work notices that its inode has been
-re-instantiated, it will do nothing.  This means that it's safe to
-cancel the delete work asynchronously.  This prevents the kind of
-deadlock described above.
-
+Reported-by: Alexander Aring <aahringo@redhat.com>
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/gfs2/glock.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
 diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index 1f3902ecddedd..fea68ed127b89 100644
+index fea68ed127b89..b17b6350c0317 100644
 --- a/fs/gfs2/glock.c
 +++ b/fs/gfs2/glock.c
-@@ -1920,7 +1920,7 @@ bool gfs2_queue_delete_work(struct gfs2_glock *gl, unsigned long delay)
+@@ -1894,10 +1894,10 @@ static void glock_hash_walk(glock_examiner examiner, const struct gfs2_sbd *sdp)
+ 	do {
+ 		rhashtable_walk_start(&iter);
  
- void gfs2_cancel_delete_work(struct gfs2_glock *gl)
- {
--	if (cancel_delayed_work_sync(&gl->gl_delete)) {
-+	if (cancel_delayed_work(&gl->gl_delete)) {
- 		clear_bit(GLF_PENDING_DELETE, &gl->gl_flags);
- 		gfs2_glock_put(gl);
+-		while ((gl = rhashtable_walk_next(&iter)) && !IS_ERR(gl))
+-			if (gl->gl_name.ln_sbd == sdp &&
+-			    lockref_get_not_dead(&gl->gl_lockref))
++		while ((gl = rhashtable_walk_next(&iter)) && !IS_ERR(gl)) {
++			if (gl->gl_name.ln_sbd == sdp)
+ 				examiner(gl);
++		}
+ 
+ 		rhashtable_walk_stop(&iter);
+ 	} while (cond_resched(), gl == ERR_PTR(-EAGAIN));
+@@ -1939,7 +1939,6 @@ static void flush_delete_work(struct gfs2_glock *gl)
+ 					   &gl->gl_delete, 0);
+ 		}
  	}
+-	gfs2_glock_queue_work(gl, 0);
+ }
+ 
+ void gfs2_flush_delete_work(struct gfs2_sbd *sdp)
+@@ -1956,10 +1955,10 @@ void gfs2_flush_delete_work(struct gfs2_sbd *sdp)
+ 
+ static void thaw_glock(struct gfs2_glock *gl)
+ {
+-	if (!test_and_clear_bit(GLF_FROZEN, &gl->gl_flags)) {
+-		gfs2_glock_put(gl);
++	if (!test_and_clear_bit(GLF_FROZEN, &gl->gl_flags))
++		return;
++	if (!lockref_get_not_dead(&gl->gl_lockref))
+ 		return;
+-	}
+ 	set_bit(GLF_REPLY_PENDING, &gl->gl_flags);
+ 	gfs2_glock_queue_work(gl, 0);
+ }
+@@ -1975,9 +1974,12 @@ static void clear_glock(struct gfs2_glock *gl)
+ 	gfs2_glock_remove_from_lru(gl);
+ 
+ 	spin_lock(&gl->gl_lockref.lock);
+-	if (gl->gl_state != LM_ST_UNLOCKED)
+-		handle_callback(gl, LM_ST_UNLOCKED, 0, false);
+-	__gfs2_glock_queue_work(gl, 0);
++	if (!__lockref_is_dead(&gl->gl_lockref)) {
++		gl->gl_lockref.count++;
++		if (gl->gl_state != LM_ST_UNLOCKED)
++			handle_callback(gl, LM_ST_UNLOCKED, 0, false);
++		__gfs2_glock_queue_work(gl, 0);
++	}
+ 	spin_unlock(&gl->gl_lockref.lock);
+ }
+ 
 -- 
 2.33.0
 
