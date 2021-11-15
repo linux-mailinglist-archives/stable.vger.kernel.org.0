@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90FF34521DB
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C88C74521DA
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376798AbhKPBHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:07:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
+        id S1354180AbhKPBHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:07:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245360AbhKOTUM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245361AbhKOTUM (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:20:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 042286345B;
-        Mon, 15 Nov 2021 18:33:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC92063348;
+        Mon, 15 Nov 2021 18:33:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001184;
-        bh=epHNQsR5h+ibAZrZ4r9fXGTFuVumkpBGfSrRsAbItns=;
+        s=korg; t=1637001187;
+        bh=TyhqmtIGgPW455S0aLffpgcWlAclk7jNbxxTgC/pIMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDz2wBrrbMFeOAiqNjHLZ0zHkSmrRjO7B6cAIIdNQM2w4w8f+KYl4Rugs9fLkY2Xh
-         k5e1i/sCKFdV5n1JgGo6OmujeunpoqljpJk1eSM6Geij9VgiQ2c+4yMbnyqMfznUxH
-         GeXMyV/Jda6sI+dfiAsFPQseFgo4Gzaa/waaoaSE=
+        b=lVHKT4s4pdOQVeWwgvmQkZBBG6ffBENrC0TVaXD1NIUqz5YeTCZ61TvZfx7kz95RA
+         u6YRTd/fLcyI48QQ4/0u6BWMiE+fm+gZoCHKpQJPKxnBJGVtfBDeBYQ6+mLIENRP/k
+         dz7H7vnO0y1IUeXFLe6JVCSyVIEacczbTkvkk3tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Zary <linux@zary.sk>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@kernel.org
-Subject: [PATCH 5.15 060/917] x86/iopl: Fake iopl(3) CLI/STI usage
-Date:   Mon, 15 Nov 2021 17:52:35 +0100
-Message-Id: <20211115165430.804431442@linuxfoundation.org>
+        stable@vger.kernel.org, Li Zhang <zhanglikernel@gmail.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 061/917] btrfs: clear MISSING device status bit in btrfs_close_one_device
+Date:   Mon, 15 Nov 2021 17:52:36 +0100
+Message-Id: <20211115165430.837348536@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,131 +39,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Li Zhang <zhanglikernel@gmail.com>
 
-commit b968e84b509da593c50dc3db679e1d33de701f78 upstream.
+commit 5d03dbebba2594d2e6fbf3b5dd9060c5a835de3b upstream.
 
-Since commit c8137ace5638 ("x86/iopl: Restrict iopl() permission
-scope") it's possible to emulate iopl(3) using ioperm(), except for
-the CLI/STI usage.
+Reported bug: https://github.com/kdave/btrfs-progs/issues/389
 
-Userspace CLI/STI usage is very dubious (read broken), since any
-exception taken during that window can lead to rescheduling anyway (or
-worse). The IOPL(2) manpage even states that usage of CLI/STI is highly
-discouraged and might even crash the system.
+There's a problem with scrub reporting aborted status but returning
+error code 0, on a filesystem with missing and readded device.
 
-Of course, that won't stop people and HP has the dubious honour of
-being the first vendor to be found using this in their hp-health
-package.
+Roughly these steps:
 
-In order to enable this 'software' to still 'work', have the #GP treat
-the CLI/STI instructions as NOPs when iopl(3). Warn the user that
-their program is doing dubious things.
+- mkfs -d raid1 dev1 dev2
+- fill with data
+- unmount
+- make dev1 disappear
+- mount -o degraded
+- copy more data
+- make dev1 appear again
 
-Fixes: a24ca9976843 ("x86/iopl: Remove legacy IOPL option")
-Reported-by: Ondrej Zary <linux@zary.sk>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@kernel.org # v5.5+
-Link: https://lkml.kernel.org/r/20210918090641.GD5106@worktop.programming.kicks-ass.net
+Running scrub afterwards reports that the command was aborted, but the
+system log message says the exit code was 0.
+
+It seems that the cause of the error is decrementing
+fs_devices->missing_devices but not clearing device->dev_state.  Every
+time we umount filesystem, it would call close_ctree, And it would
+eventually involve btrfs_close_one_device to close the device, but it
+only decrements fs_devices->missing_devices but does not clear the
+device BTRFS_DEV_STATE_MISSING bit. Worse, this bug will cause Integer
+Overflow, because every time umount, fs_devices->missing_devices will
+decrease. If fs_devices->missing_devices value hit 0, it would overflow.
+
+With added debugging:
+
+   loop1: detected capacity change from 0 to 20971520
+   BTRFS: device fsid 56ad51f1-5523-463b-8547-c19486c51ebb devid 1 transid 21 /dev/loop1 scanned by systemd-udevd (2311)
+   loop2: detected capacity change from 0 to 20971520
+   BTRFS: device fsid 56ad51f1-5523-463b-8547-c19486c51ebb devid 2 transid 17 /dev/loop2 scanned by systemd-udevd (2313)
+   BTRFS info (device loop1): flagging fs with big metadata feature
+   BTRFS info (device loop1): allowing degraded mounts
+   BTRFS info (device loop1): using free space tree
+   BTRFS info (device loop1): has skinny extents
+   BTRFS info (device loop1):  before clear_missing.00000000f706684d /dev/loop1 0
+   BTRFS warning (device loop1): devid 2 uuid 6635ac31-56dd-4852-873b-c60f5e2d53d2 is missing
+   BTRFS info (device loop1):  before clear_missing.0000000000000000 /dev/loop2 1
+   BTRFS info (device loop1): flagging fs with big metadata feature
+   BTRFS info (device loop1): allowing degraded mounts
+   BTRFS info (device loop1): using free space tree
+   BTRFS info (device loop1): has skinny extents
+   BTRFS info (device loop1):  before clear_missing.00000000f706684d /dev/loop1 0
+   BTRFS warning (device loop1): devid 2 uuid 6635ac31-56dd-4852-873b-c60f5e2d53d2 is missing
+   BTRFS info (device loop1):  before clear_missing.0000000000000000 /dev/loop2 0
+   BTRFS info (device loop1): flagging fs with big metadata feature
+   BTRFS info (device loop1): allowing degraded mounts
+   BTRFS info (device loop1): using free space tree
+   BTRFS info (device loop1): has skinny extents
+   BTRFS info (device loop1):  before clear_missing.00000000f706684d /dev/loop1 18446744073709551615
+   BTRFS warning (device loop1): devid 2 uuid 6635ac31-56dd-4852-873b-c60f5e2d53d2 is missing
+   BTRFS info (device loop1):  before clear_missing.0000000000000000 /dev/loop2 18446744073709551615
+
+If fs_devices->missing_devices is 0, next time it would be 18446744073709551615
+
+After apply this patch, the fs_devices->missing_devices seems to be
+right:
+
+  $ truncate -s 10g test1
+  $ truncate -s 10g test2
+  $ losetup /dev/loop1 test1
+  $ losetup /dev/loop2 test2
+  $ mkfs.btrfs -draid1 -mraid1 /dev/loop1 /dev/loop2 -f
+  $ losetup -d /dev/loop2
+  $ mount -o degraded /dev/loop1 /mnt/1
+  $ umount /mnt/1
+  $ mount -o degraded /dev/loop1 /mnt/1
+  $ umount /mnt/1
+  $ mount -o degraded /dev/loop1 /mnt/1
+  $ umount /mnt/1
+  $ dmesg
+
+   loop1: detected capacity change from 0 to 20971520
+   loop2: detected capacity change from 0 to 20971520
+   BTRFS: device fsid 15aa1203-98d3-4a66-bcae-ca82f629c2cd devid 1 transid 5 /dev/loop1 scanned by mkfs.btrfs (1863)
+   BTRFS: device fsid 15aa1203-98d3-4a66-bcae-ca82f629c2cd devid 2 transid 5 /dev/loop2 scanned by mkfs.btrfs (1863)
+   BTRFS info (device loop1): flagging fs with big metadata feature
+   BTRFS info (device loop1): allowing degraded mounts
+   BTRFS info (device loop1): disk space caching is enabled
+   BTRFS info (device loop1): has skinny extents
+   BTRFS info (device loop1):  before clear_missing.00000000975bd577 /dev/loop1 0
+   BTRFS warning (device loop1): devid 2 uuid 8b333791-0b3f-4f57-b449-1c1ab6b51f38 is missing
+   BTRFS info (device loop1):  before clear_missing.0000000000000000 /dev/loop2 1
+   BTRFS info (device loop1): checking UUID tree
+   BTRFS info (device loop1): flagging fs with big metadata feature
+   BTRFS info (device loop1): allowing degraded mounts
+   BTRFS info (device loop1): disk space caching is enabled
+   BTRFS info (device loop1): has skinny extents
+   BTRFS info (device loop1):  before clear_missing.00000000975bd577 /dev/loop1 0
+   BTRFS warning (device loop1): devid 2 uuid 8b333791-0b3f-4f57-b449-1c1ab6b51f38 is missing
+   BTRFS info (device loop1):  before clear_missing.0000000000000000 /dev/loop2 1
+   BTRFS info (device loop1): flagging fs with big metadata feature
+   BTRFS info (device loop1): allowing degraded mounts
+   BTRFS info (device loop1): disk space caching is enabled
+   BTRFS info (device loop1): has skinny extents
+   BTRFS info (device loop1):  before clear_missing.00000000975bd577 /dev/loop1 0
+   BTRFS warning (device loop1): devid 2 uuid 8b333791-0b3f-4f57-b449-1c1ab6b51f38 is missing
+   BTRFS info (device loop1):  before clear_missing.0000000000000000 /dev/loop2 1
+
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Li Zhang <zhanglikernel@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/insn-eval.h |    1 +
- arch/x86/include/asm/processor.h |    1 +
- arch/x86/kernel/process.c        |    1 +
- arch/x86/kernel/traps.c          |   33 +++++++++++++++++++++++++++++++++
- arch/x86/lib/insn-eval.c         |    2 +-
- 5 files changed, 37 insertions(+), 1 deletion(-)
+ fs/btrfs/volumes.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/insn-eval.h
-+++ b/arch/x86/include/asm/insn-eval.h
-@@ -21,6 +21,7 @@ int insn_get_modrm_rm_off(struct insn *i
- int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs);
- unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
- int insn_get_code_seg_params(struct pt_regs *regs);
-+int insn_get_effective_ip(struct pt_regs *regs, unsigned long *ip);
- int insn_fetch_from_user(struct pt_regs *regs,
- 			 unsigned char buf[MAX_INSN_SIZE]);
- int insn_fetch_from_user_inatomic(struct pt_regs *regs,
---- a/arch/x86/include/asm/processor.h
-+++ b/arch/x86/include/asm/processor.h
-@@ -518,6 +518,7 @@ struct thread_struct {
- 	 */
- 	unsigned long		iopl_emul;
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -1122,8 +1122,10 @@ static void btrfs_close_one_device(struc
+ 	if (device->devid == BTRFS_DEV_REPLACE_DEVID)
+ 		clear_bit(BTRFS_DEV_STATE_REPLACE_TGT, &device->dev_state);
  
-+	unsigned int		iopl_warn:1;
- 	unsigned int		sig_on_uaccess_err:1;
- 
- 	/*
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -132,6 +132,7 @@ int copy_thread(unsigned long clone_flag
- 	frame->ret_addr = (unsigned long) ret_from_fork;
- 	p->thread.sp = (unsigned long) fork_frame;
- 	p->thread.io_bitmap = NULL;
-+	p->thread.iopl_warn = 0;
- 	memset(p->thread.ptrace_bps, 0, sizeof(p->thread.ptrace_bps));
- 
- #ifdef CONFIG_X86_64
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -528,6 +528,36 @@ static enum kernel_gp_hint get_kernel_gp
- 
- #define GPFSTR "general protection fault"
- 
-+static bool fixup_iopl_exception(struct pt_regs *regs)
-+{
-+	struct thread_struct *t = &current->thread;
-+	unsigned char byte;
-+	unsigned long ip;
-+
-+	if (!IS_ENABLED(CONFIG_X86_IOPL_IOPERM) || t->iopl_emul != 3)
-+		return false;
-+
-+	if (insn_get_effective_ip(regs, &ip))
-+		return false;
-+
-+	if (get_user(byte, (const char __user *)ip))
-+		return false;
-+
-+	if (byte != 0xfa && byte != 0xfb)
-+		return false;
-+
-+	if (!t->iopl_warn && printk_ratelimit()) {
-+		pr_err("%s[%d] attempts to use CLI/STI, pretending it's a NOP, ip:%lx",
-+		       current->comm, task_pid_nr(current), ip);
-+		print_vma_addr(KERN_CONT " in ", ip);
-+		pr_cont("\n");
-+		t->iopl_warn = 1;
+-	if (test_bit(BTRFS_DEV_STATE_MISSING, &device->dev_state))
++	if (test_bit(BTRFS_DEV_STATE_MISSING, &device->dev_state)) {
++		clear_bit(BTRFS_DEV_STATE_MISSING, &device->dev_state);
+ 		fs_devices->missing_devices--;
 +	}
-+
-+	regs->ip += 1;
-+	return true;
-+}
-+
- DEFINE_IDTENTRY_ERRORCODE(exc_general_protection)
- {
- 	char desc[sizeof(GPFSTR) + 50 + 2*sizeof(unsigned long) + 1] = GPFSTR;
-@@ -553,6 +583,9 @@ DEFINE_IDTENTRY_ERRORCODE(exc_general_pr
- 	tsk = current;
  
- 	if (user_mode(regs)) {
-+		if (fixup_iopl_exception(regs))
-+			goto exit;
-+
- 		tsk->thread.error_code = error_code;
- 		tsk->thread.trap_nr = X86_TRAP_GP;
- 
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -1417,7 +1417,7 @@ void __user *insn_get_addr_ref(struct in
- 	}
- }
- 
--static int insn_get_effective_ip(struct pt_regs *regs, unsigned long *ip)
-+int insn_get_effective_ip(struct pt_regs *regs, unsigned long *ip)
- {
- 	unsigned long seg_base = 0;
- 
+ 	btrfs_close_bdev(device);
+ 	if (device->bdev) {
 
 
