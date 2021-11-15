@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A51C5450D01
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:44:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB66F45107C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:46:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238833AbhKORrl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:47:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58626 "EHLO mail.kernel.org"
+        id S239204AbhKOSt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:49:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238742AbhKORpS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:45:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F17C6330F;
-        Mon, 15 Nov 2021 17:29:21 +0000 (UTC)
+        id S242835AbhKOSqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:46:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26FD063293;
+        Mon, 15 Nov 2021 18:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997362;
-        bh=sF8fHi2Yg07ypCz0lBor9KwD8I+9TbF5mnw5PXmD5pw=;
+        s=korg; t=1636999619;
+        bh=GEK4oGja1rp4ZwDbg53pN+o2JQmK+EZF+En5tw4nLIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MBcbzp2mwKRNIO7oVU5Db0VEIRf1CKjaK4gya07QSnb6HLabxmvv1HDYFQCzt/65T
-         ULFtMOlI2ILS/xZC1U42/kPpFIjOYW4kglFL+AQrtYfx0rG/2SdVv2aCn89bTzD7HI
-         y6A7OZSNdD/v5/m8c0KRGh+1qaxmF2h1UgRvtjsg=
+        b=yF2ugqaoC3Xg6WwACCPcVwcI5YU7H4KVxROmOxSSpj+fKEPu+9JEbFXTMzwkDP3Tn
+         mDLgwhbCBMRluEUbpTcUq57U09FNnD2kHiaEZCTJQOcVU7QwMcpCwb7DePHZiiGW7U
+         rEX5Fn51maokETt6ti19AZzgDU0NeC54Txm7+pGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
-        Li Yang <leoyang.li@nxp.com>
-Subject: [PATCH 5.10 121/575] soc: fsl: dpio: replace smp_processor_id with raw_smp_processor_id
-Date:   Mon, 15 Nov 2021 17:57:26 +0100
-Message-Id: <20211115165347.879602500@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+1638e7c770eef6b6c0d0@syzkaller.appspotmail.com,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 364/849] cfg80211: always free wiphy specific regdomain
+Date:   Mon, 15 Nov 2021 17:57:27 +0100
+Message-Id: <20211115165432.546582455@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Li <Meng.Li@windriver.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit e775eb9fc2a4107f03222fa48bc95c2c82427e64 upstream.
+[ Upstream commit e53e9828a8d2c6545e01ff9711f1221f2fd199ce ]
 
-When enable debug kernel configs,there will be calltrace as below:
+In the (somewhat unlikely) event that we allocate a wiphy, then
+add a regdomain to it, and then fail registration, we leak the
+regdomain. Fix this by just always freeing it at the end, in the
+normal cases we'll free (and NULL) it during wiphy_unregister().
+This happened when the wiphy settings were bad, and since they
+can be controlled by userspace with hwsim, syzbot was able to
+find this issue.
 
-BUG: using smp_processor_id() in preemptible [00000000] code: swapper/0/1
-caller is debug_smp_processor_id+0x20/0x30
-CPU: 6 PID: 1 Comm: swapper/0 Not tainted 5.10.63-yocto-standard #1
-Hardware name: NXP Layerscape LX2160ARDB (DT)
-Call trace:
- dump_backtrace+0x0/0x1a0
- show_stack+0x24/0x30
- dump_stack+0xf0/0x13c
- check_preemption_disabled+0x100/0x110
- debug_smp_processor_id+0x20/0x30
- dpaa2_io_query_fq_count+0xdc/0x154
- dpaa2_eth_stop+0x144/0x314
- __dev_close_many+0xdc/0x160
- __dev_change_flags+0xe8/0x220
- dev_change_flags+0x30/0x70
- ic_close_devs+0x50/0x78
- ip_auto_config+0xed0/0xf10
- do_one_initcall+0xac/0x460
- kernel_init_freeable+0x30c/0x378
- kernel_init+0x20/0x128
- ret_from_fork+0x10/0x38
-
-Based on comment in the context, it doesn't matter whether
-preemption is disable or not. So, replace smp_processor_id()
-with raw_smp_processor_id() to avoid above call trace.
-
-Fixes: c89105c9b390 ("staging: fsl-mc: Move DPIO from staging to drivers/soc/fsl")
-Cc: stable@vger.kernel.org
-Signed-off-by: Meng Li <Meng.Li@windriver.com>
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot+1638e7c770eef6b6c0d0@syzkaller.appspotmail.com
+Fixes: 3e0c3ff36c4c ("cfg80211: allow multiple driver regulatory_hints()")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/20210927131105.68b70cef4674.I4b9f0aa08c2af28555963b9fe3d34395bb72e0cc@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/fsl/dpio/dpio-service.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/core.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/soc/fsl/dpio/dpio-service.c
-+++ b/drivers/soc/fsl/dpio/dpio-service.c
-@@ -59,7 +59,7 @@ static inline struct dpaa2_io *service_s
- 	 * potentially being migrated away.
- 	 */
- 	if (cpu < 0)
--		cpu = smp_processor_id();
-+		cpu = raw_smp_processor_id();
+diff --git a/net/wireless/core.c b/net/wireless/core.c
+index aaba847d79eb2..eb297e1015e05 100644
+--- a/net/wireless/core.c
++++ b/net/wireless/core.c
+@@ -1081,6 +1081,16 @@ void cfg80211_dev_free(struct cfg80211_registered_device *rdev)
+ 	list_for_each_entry_safe(scan, tmp, &rdev->bss_list, list)
+ 		cfg80211_put_bss(&rdev->wiphy, &scan->pub);
+ 	mutex_destroy(&rdev->wiphy.mtx);
++
++	/*
++	 * The 'regd' can only be non-NULL if we never finished
++	 * initializing the wiphy and thus never went through the
++	 * unregister path - e.g. in failure scenarios. Thus, it
++	 * cannot have been visible to anyone if non-NULL, so we
++	 * can just free it here.
++	 */
++	kfree(rcu_dereference_raw(rdev->wiphy.regd));
++
+ 	kfree(rdev);
+ }
  
- 	/* If a specific cpu was requested, pick it up immediately */
- 	return dpio_by_cpu[cpu];
+-- 
+2.33.0
+
 
 
