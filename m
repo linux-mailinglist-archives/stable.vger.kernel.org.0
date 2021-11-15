@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04FC8452086
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:52:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C247645208A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:52:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345986AbhKPAzc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:55:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44866 "EHLO mail.kernel.org"
+        id S245644AbhKPAzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:55:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245713AbhKOTVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE5B96328B;
-        Mon, 15 Nov 2021 18:39:56 +0000 (UTC)
+        id S245718AbhKOTVE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61C0A61465;
+        Mon, 15 Nov 2021 18:39:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001597;
-        bh=fV5uOh05VxwKaWWs9g5a6o9+meRze9rqC/tFkdxlLWA=;
+        s=korg; t=1637001600;
+        bh=8Ch3EU3UK83abFyDFxq8C9tda3V4GfTWuRtUmaB6dXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TVoDhxGGk8231VrLFRL4mTSH8NS7eup5ASeucLBjTJSVjJlOkoohqenAGqJcbbKTR
-         EsBYqeE0PdSdoDB31Gw3iEiaGiUlREhwhYegm7Z1botpHihjrhtHCEIF5rcx6gOY+G
-         ErfsVwDW8jMAot3/YXpdtUKVSgHl3iSpJbAXCx9A=
+        b=p1zC9sHu+Sp8R0gR7AaEzre3hhH7/faUtjI3mgQw6osrOhJtuwLMVqTLFgDR2BW8b
+         hKweLz3KOJxG4LhjS08zKaR/qRgRe0eElt4z2AhcBD/AHn6rQKxty5rHsbmj7vUwjb
+         R7ZU4WiPJnA/hKvD41pKj5kdYBrtR7UUxXTt5o8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Quentin Perret <qperret@google.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 251/917] KVM: arm64: Propagate errors from __pkvm_prot_finalize hypercall
-Date:   Mon, 15 Nov 2021 17:55:46 +0100
-Message-Id: <20211115165437.302624318@linuxfoundation.org>
+        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 252/917] mmc: moxart: Fix reference count leaks in moxart_probe
+Date:   Mon, 15 Nov 2021 17:55:47 +0100
+Message-Id: <20211115165437.334163001@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,76 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit 2f2e1a5069679491d18cf9021da19b40c56a17f3 ]
+[ Upstream commit 8105c2abbf36296bf38ca44f55ee45d160db476a ]
 
-If the __pkvm_prot_finalize hypercall returns an error, we WARN but fail
-to propagate the failure code back to kvm_arch_init().
+The issue happens in several error handling paths on two refcounted
+object related to the object "host" (dma_chan_rx, dma_chan_tx). In
+these paths, the function forgets to decrement one or both objects'
+reference count increased earlier by dma_request_chan(), causing
+reference count leaks.
 
-Pass a pointer to a zero-initialised return variable so that failure
-to finalise the pKVM protections on a host CPU can be reported back to
-KVM.
+Fix it by balancing the refcounts of both objects in some error
+handling paths. In correspondence with the changes in moxart_probe(),
+IS_ERR() is replaced with IS_ERR_OR_NULL() in moxart_remove() as well.
 
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Quentin Perret <qperret@google.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211008135839.1193-5-will@kernel.org
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Link: https://lore.kernel.org/r/20211009041918.28419-1-xiongx18@fudan.edu.cn
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/arm.c | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ drivers/mmc/host/moxart-mmc.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-index fe102cd2e5183..9b328bb05596a 100644
---- a/arch/arm64/kvm/arm.c
-+++ b/arch/arm64/kvm/arm.c
-@@ -1971,9 +1971,25 @@ out_err:
- 	return err;
- }
+diff --git a/drivers/mmc/host/moxart-mmc.c b/drivers/mmc/host/moxart-mmc.c
+index 6c9d38132f74c..7b9fcef490de7 100644
+--- a/drivers/mmc/host/moxart-mmc.c
++++ b/drivers/mmc/host/moxart-mmc.c
+@@ -621,6 +621,14 @@ static int moxart_probe(struct platform_device *pdev)
+ 			ret = -EPROBE_DEFER;
+ 			goto out;
+ 		}
++		if (!IS_ERR(host->dma_chan_tx)) {
++			dma_release_channel(host->dma_chan_tx);
++			host->dma_chan_tx = NULL;
++		}
++		if (!IS_ERR(host->dma_chan_rx)) {
++			dma_release_channel(host->dma_chan_rx);
++			host->dma_chan_rx = NULL;
++		}
+ 		dev_dbg(dev, "PIO mode transfer enabled\n");
+ 		host->have_dma = false;
+ 	} else {
+@@ -675,6 +683,10 @@ static int moxart_probe(struct platform_device *pdev)
+ 	return 0;
  
--static void _kvm_host_prot_finalize(void *discard)
-+static void _kvm_host_prot_finalize(void *arg)
- {
--	WARN_ON(kvm_call_hyp_nvhe(__pkvm_prot_finalize));
-+	int *err = arg;
-+
-+	if (WARN_ON(kvm_call_hyp_nvhe(__pkvm_prot_finalize)))
-+		WRITE_ONCE(*err, -EINVAL);
-+}
-+
-+static int pkvm_drop_host_privileges(void)
-+{
-+	int ret = 0;
-+
-+	/*
-+	 * Flip the static key upfront as that may no longer be possible
-+	 * once the host stage 2 is installed.
-+	 */
-+	static_branch_enable(&kvm_protected_mode_initialized);
-+	on_each_cpu(_kvm_host_prot_finalize, &ret, 1);
-+	return ret;
- }
+ out:
++	if (!IS_ERR_OR_NULL(host->dma_chan_tx))
++		dma_release_channel(host->dma_chan_tx);
++	if (!IS_ERR_OR_NULL(host->dma_chan_rx))
++		dma_release_channel(host->dma_chan_rx);
+ 	if (mmc)
+ 		mmc_free_host(mmc);
+ 	return ret;
+@@ -687,9 +699,9 @@ static int moxart_remove(struct platform_device *pdev)
  
- static int finalize_hyp_mode(void)
-@@ -1987,15 +2003,7 @@ static int finalize_hyp_mode(void)
- 	 * None of other sections should ever be introspected.
- 	 */
- 	kmemleak_free_part(__hyp_bss_start, __hyp_bss_end - __hyp_bss_start);
--
--	/*
--	 * Flip the static key upfront as that may no longer be possible
--	 * once the host stage 2 is installed.
--	 */
--	static_branch_enable(&kvm_protected_mode_initialized);
--	on_each_cpu(_kvm_host_prot_finalize, NULL, 1);
--
--	return 0;
-+	return pkvm_drop_host_privileges();
- }
+ 	dev_set_drvdata(&pdev->dev, NULL);
  
- struct kvm_vcpu *kvm_mpidr_to_vcpu(struct kvm *kvm, unsigned long mpidr)
+-	if (!IS_ERR(host->dma_chan_tx))
++	if (!IS_ERR_OR_NULL(host->dma_chan_tx))
+ 		dma_release_channel(host->dma_chan_tx);
+-	if (!IS_ERR(host->dma_chan_rx))
++	if (!IS_ERR_OR_NULL(host->dma_chan_rx))
+ 		dma_release_channel(host->dma_chan_rx);
+ 	mmc_remove_host(mmc);
+ 	mmc_free_host(mmc);
 -- 
 2.33.0
 
