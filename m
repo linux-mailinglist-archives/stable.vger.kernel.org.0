@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 252EF450D28
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:49:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A50FD4510C0
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:52:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236503AbhKORwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:52:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34892 "EHLO mail.kernel.org"
+        id S236809AbhKOSy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:54:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238794AbhKORuI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:50:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BBC863284;
-        Mon, 15 Nov 2021 17:30:54 +0000 (UTC)
+        id S242944AbhKOSwe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:52:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B347F63473;
+        Mon, 15 Nov 2021 18:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997455;
-        bh=X8vso3hW+mADoosQ2fCBZ32ykJZCSSZI2hJm/JV7pC8=;
+        s=korg; t=1636999803;
+        bh=0oNsBUU3kljeFYbE87L3PM2wv2F72C/ERb29oBTfUTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtYdW2LYH8yibe7NCkfpLgupm+80kuvzZGnwh8oDC5z6kRfzfvsQQwejN7kdRpI9x
-         fQjK3jWQhPwafzSJAS4lNJtf8qXooSdX6yUIdkwt/z9yDcs/clPExiRuXDYqu1Gmm3
-         UqB1AhRaoi8NMhq45YNiDPkY9oU7oBRF7pYwFmcs=
+        b=055DZg2ddarVgGFf5HK/3SWrQz6wP/lJ5u51XBPAbtn9CW01s7eRJBO3r9/1gipu7
+         GVoUzzWpWuHRX/8D4itgI0REguXlyCuoUvejx26TQWSpdpmpBz2bUKVOu65YsXYWCn
+         /hL37WYyuGshjpoIMXxNQcAN76UFMxk8DjeChvt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pekka Korpinen <pekka.korpinen@iki.fi>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 155/575] iio: dac: ad5446: Fix ad5622_write() return value
+        stable@vger.kernel.org, Punit Agrawal <punitagrawal@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 397/849] kprobes: Do not use local variable when creating debugfs file
 Date:   Mon, 15 Nov 2021 17:58:00 +0100
-Message-Id: <20211115165349.053506248@linuxfoundation.org>
+Message-Id: <20211115165433.677655202@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pekka Korpinen <pekka.korpinen@iki.fi>
+From: Punit Agrawal <punitagrawal@gmail.com>
 
-commit 558df982d4ead9cac628153d0d7b60feae05ddc8 upstream.
+[ Upstream commit 8f7262cd66699a4b02eb7549b35c81b2116aad95 ]
 
-On success i2c_master_send() returns the number of bytes written. The
-call from iio_write_channel_info(), however, expects the return value to
-be zero on success.
+debugfs_create_file() takes a pointer argument that can be used during
+file operation callbacks (accessible via i_private in the inode
+structure). An obvious requirement is for the pointer to refer to
+valid memory when used.
 
-This bug causes incorrect consumption of the sysfs buffer in
-iio_write_channel_info(). When writing more than two characters to
-out_voltage0_raw, the ad5446 write handler is called multiple times
-causing unexpected behavior.
+When creating the debugfs file to dynamically enable / disable
+kprobes, a pointer to local variable is passed to
+debugfs_create_file(); which will go out of scope when the init
+function returns. The reason this hasn't triggered random memory
+corruption is because the pointer is not accessed during the debugfs
+file callbacks.
 
-Fixes: 3ec36a2cf0d5 ("iio:ad5446: Add support for I2C based DACs")
-Signed-off-by: Pekka Korpinen <pekka.korpinen@iki.fi>
-Link: https://lore.kernel.org/r/20210929185755.2384-1-pekka.korpinen@iki.fi
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since the enabled state is managed by the kprobes_all_disabled global
+variable, the local variable is not needed. Fix the incorrect (and
+unnecessary) usage of local variable during debugfs_file_create() by
+passing NULL instead.
+
+Link: https://lkml.kernel.org/r/163163031686.489837.4476867635937014973.stgit@devnote2
+
+Fixes: bf8f6e5b3e51 ("Kprobes: The ON/OFF knob thru debugfs")
+Signed-off-by: Punit Agrawal <punitagrawal@gmail.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ad5446.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ kernel/kprobes.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/iio/dac/ad5446.c
-+++ b/drivers/iio/dac/ad5446.c
-@@ -531,8 +531,15 @@ static int ad5622_write(struct ad5446_st
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 790a573bbe00c..1cf8bca1ea861 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2809,13 +2809,12 @@ static const struct file_operations fops_kp = {
+ static int __init debugfs_kprobe_init(void)
  {
- 	struct i2c_client *client = to_i2c_client(st->dev);
- 	__be16 data = cpu_to_be16(val);
-+	int ret;
+ 	struct dentry *dir;
+-	unsigned int value = 1;
  
--	return i2c_master_send(client, (char *)&data, sizeof(data));
-+	ret = i2c_master_send(client, (char *)&data, sizeof(data));
-+	if (ret < 0)
-+		return ret;
-+	if (ret != sizeof(data))
-+		return -EIO;
-+
-+	return 0;
- }
+ 	dir = debugfs_create_dir("kprobes", NULL);
  
- /*
+ 	debugfs_create_file("list", 0400, dir, NULL, &kprobes_fops);
+ 
+-	debugfs_create_file("enabled", 0600, dir, &value, &fops_kp);
++	debugfs_create_file("enabled", 0600, dir, NULL, &fops_kp);
+ 
+ 	debugfs_create_file("blacklist", 0400, dir, NULL,
+ 			    &kprobe_blacklist_fops);
+-- 
+2.33.0
+
 
 
