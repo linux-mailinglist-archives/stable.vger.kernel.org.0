@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D497451F32
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5646451DEC
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:31:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356052AbhKPAiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:38:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
+        id S1344271AbhKPAec (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:34:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343982AbhKOTWl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:22:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56599619EA;
-        Mon, 15 Nov 2021 18:49:48 +0000 (UTC)
+        id S1344000AbhKOTXG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3AFA61A52;
+        Mon, 15 Nov 2021 18:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002188;
-        bh=7Oa2YBDwtyfLKTLhzm80IhvRQ76tnVZgWzt0QREhhOQ=;
+        s=korg; t=1637002191;
+        bh=nJN+TsdqJfQK67Uf7jXTTWFVG8lLgeSpUz+HJUdBQzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yIMR2HTDUUZgtOBhfe7/Y5Sg4X+10jFsGhZc6S6H6lGHfLnNPjafGDL8EF0w63xhL
-         sCmjJYWs7eGliKq3nIQ3e18nkZ08wzHtVSQRySn6CuggjKL+3bQaZAQDdwLCIynIFr
-         lnCmhe4CCHBpiRbb+L4qdOol7MIpprhfbLKUb0Tw=
+        b=jDIS8Zbob0/38tkpF2yd5ynUwbIKLGB4iYrdNd4/E3EpVmsOj/7kbrQXzIYr70T0M
+         PgWLVYSb+EmebYRxkPNBXBDOJ/3X4nCAySPGEAwjV2IHob2Kkkbm7rzEouOuFoUIrB
+         yXJPBn1CoKKioeaOGrYyhNi/jWjt5is7zq3CFZkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
+        Eric-SY Chang <Eric-SY.Chang@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 471/917] mt76: overwrite default reg_ops if necessary
-Date:   Mon, 15 Nov 2021 17:59:26 +0100
-Message-Id: <20211115165444.747115613@linuxfoundation.org>
+Subject: [PATCH 5.15 472/917] mt76: mt7921: report HE MU radiotap
+Date:   Mon, 15 Nov 2021 17:59:27 +0100
+Message-Id: <20211115165444.779374875@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,171 +41,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit f6e1f59885dae5a2553f8bbd328be2cb1c80ccb2 ]
+[ Upstream commit 4fee32153ab62356aeea9d152d8f33a5fd3a0086 ]
 
-Introduce mt76_register_debugfs_fops routine in order to
-define per-driver regs file operations and make sure the
-device is up before reading or writing its registers
+Report HE MU/BF radiotap.
 
-Fixes: 1d8efc741df8 ("mt76: mt7921: introduce Runtime PM support")
-Fixes: de5ff3c9d1a2 ("mt76: mt7615: introduce pm_power_save delayed work")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+That fixed HE MU packets dropped by mac80211 because they are missing the
+ieee80211_radiotap_he_mu header.
+
+Fixes: 163f4d22c118d ("mt76: mt7921: add MAC support")
+Co-developed-by: Ryder Lee <ryder.lee@mediatek.com>
+Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+Co-developed-by: Eric-SY Chang <Eric-SY.Chang@mediatek.com>
+Signed-off-by: Eric-SY Chang <Eric-SY.Chang@mediatek.com>
+Tested-by: Eric-SY Chang <Eric-SY.Chang@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/debugfs.c  | 10 ++++---
- drivers/net/wireless/mediatek/mt76/mt76.h     |  8 ++++-
- .../wireless/mediatek/mt76/mt7615/debugfs.c   | 29 ++++++++++++++++++-
- .../wireless/mediatek/mt76/mt7921/debugfs.c   | 28 +++++++++++++++++-
- 4 files changed, 68 insertions(+), 7 deletions(-)
+ .../net/wireless/mediatek/mt76/mt7921/mac.c   | 65 ++++++++++++++++---
+ .../net/wireless/mediatek/mt76/mt7921/mac.h   |  8 +++
+ 2 files changed, 65 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/debugfs.c b/drivers/net/wireless/mediatek/mt76/debugfs.c
-index fa48cc3a7a8f7..ad97308c78534 100644
---- a/drivers/net/wireless/mediatek/mt76/debugfs.c
-+++ b/drivers/net/wireless/mediatek/mt76/debugfs.c
-@@ -116,8 +116,11 @@ static int mt76_read_rate_txpower(struct seq_file *s, void *data)
- 	return 0;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
+index f4714b0f6e5c4..8a16f3f4d5253 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
+@@ -180,12 +180,56 @@ mt7921_mac_decode_he_radiotap_ru(struct mt76_rx_status *status,
+ 				      IEEE80211_RADIOTAP_HE_DATA2_RU_OFFSET);
  }
  
--struct dentry *mt76_register_debugfs(struct mt76_dev *dev)
-+struct dentry *
-+mt76_register_debugfs_fops(struct mt76_dev *dev,
-+			   const struct file_operations *ops)
- {
-+	const struct file_operations *fops = ops ? ops : &fops_regval;
- 	struct dentry *dir;
- 
- 	dir = debugfs_create_dir("mt76", dev->hw->wiphy->debugfsdir);
-@@ -126,8 +129,7 @@ struct dentry *mt76_register_debugfs(struct mt76_dev *dev)
- 
- 	debugfs_create_u8("led_pin", 0600, dir, &dev->led_pin);
- 	debugfs_create_u32("regidx", 0600, dir, &dev->debugfs_reg);
--	debugfs_create_file_unsafe("regval", 0600, dir, dev,
--				   &fops_regval);
-+	debugfs_create_file_unsafe("regval", 0600, dir, dev, fops);
- 	debugfs_create_file_unsafe("napi_threaded", 0600, dir, dev,
- 				   &fops_napi_threaded);
- 	debugfs_create_blob("eeprom", 0400, dir, &dev->eeprom);
-@@ -140,4 +142,4 @@ struct dentry *mt76_register_debugfs(struct mt76_dev *dev)
- 
- 	return dir;
- }
--EXPORT_SYMBOL_GPL(mt76_register_debugfs);
-+EXPORT_SYMBOL_GPL(mt76_register_debugfs_fops);
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
-index 25c5ceef52577..4d01fd85283df 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76.h
-@@ -869,7 +869,13 @@ struct mt76_phy *mt76_alloc_phy(struct mt76_dev *dev, unsigned int size,
- int mt76_register_phy(struct mt76_phy *phy, bool vht,
- 		      struct ieee80211_rate *rates, int n_rates);
- 
--struct dentry *mt76_register_debugfs(struct mt76_dev *dev);
-+struct dentry *mt76_register_debugfs_fops(struct mt76_dev *dev,
-+					  const struct file_operations *ops);
-+static inline struct dentry *mt76_register_debugfs(struct mt76_dev *dev)
++static void
++mt7921_mac_decode_he_mu_radiotap(struct sk_buff *skb,
++				 struct mt76_rx_status *status,
++				 __le32 *rxv)
 +{
-+	return mt76_register_debugfs_fops(dev, NULL);
++	static const struct ieee80211_radiotap_he_mu mu_known = {
++		.flags1 = HE_BITS(MU_FLAGS1_SIG_B_MCS_KNOWN) |
++			  HE_BITS(MU_FLAGS1_SIG_B_DCM_KNOWN) |
++			  HE_BITS(MU_FLAGS1_CH1_RU_KNOWN) |
++			  HE_BITS(MU_FLAGS1_SIG_B_SYMS_USERS_KNOWN) |
++			  HE_BITS(MU_FLAGS1_SIG_B_COMP_KNOWN),
++		.flags2 = HE_BITS(MU_FLAGS2_BW_FROM_SIG_A_BW_KNOWN) |
++			  HE_BITS(MU_FLAGS2_PUNC_FROM_SIG_A_BW_KNOWN),
++	};
++	struct ieee80211_radiotap_he_mu *he_mu = NULL;
++
++	he_mu = skb_push(skb, sizeof(mu_known));
++	memcpy(he_mu, &mu_known, sizeof(mu_known));
++
++#define MU_PREP(f, v)	le16_encode_bits(v, IEEE80211_RADIOTAP_HE_MU_##f)
++
++	he_mu->flags1 |= MU_PREP(FLAGS1_SIG_B_MCS, status->rate_idx);
++	if (status->he_dcm)
++		he_mu->flags1 |= MU_PREP(FLAGS1_SIG_B_DCM, status->he_dcm);
++
++	he_mu->flags2 |= MU_PREP(FLAGS2_BW_FROM_SIG_A_BW, status->bw) |
++			 MU_PREP(FLAGS2_SIG_B_SYMS_USERS,
++				 le32_get_bits(rxv[2], MT_CRXV_HE_NUM_USER));
++
++	he_mu->ru_ch1[0] = FIELD_GET(MT_CRXV_HE_RU0, cpu_to_le32(rxv[3]));
++
++	if (status->bw >= RATE_INFO_BW_40) {
++		he_mu->flags1 |= HE_BITS(MU_FLAGS1_CH2_RU_KNOWN);
++		he_mu->ru_ch2[0] =
++			FIELD_GET(MT_CRXV_HE_RU1, cpu_to_le32(rxv[3]));
++	}
++
++	if (status->bw >= RATE_INFO_BW_80) {
++		he_mu->ru_ch1[1] =
++			FIELD_GET(MT_CRXV_HE_RU2, cpu_to_le32(rxv[3]));
++		he_mu->ru_ch2[1] =
++			FIELD_GET(MT_CRXV_HE_RU3, cpu_to_le32(rxv[3]));
++	}
 +}
 +
- int mt76_queues_read(struct seq_file *s, void *data);
- void mt76_seq_puts_array(struct seq_file *file, const char *str,
- 			 s8 *val, int len);
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c
-index cb4659771fd97..bda22ca0bd714 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c
-@@ -2,6 +2,33 @@
- 
- #include "mt7615.h"
- 
-+static int
-+mt7615_reg_set(void *data, u64 val)
-+{
-+	struct mt7615_dev *dev = data;
-+
-+	mt7615_mutex_acquire(dev);
-+	mt76_wr(dev, dev->mt76.debugfs_reg, val);
-+	mt7615_mutex_release(dev);
-+
-+	return 0;
-+}
-+
-+static int
-+mt7615_reg_get(void *data, u64 *val)
-+{
-+	struct mt7615_dev *dev = data;
-+
-+	mt7615_mutex_acquire(dev);
-+	*val = mt76_rr(dev, dev->mt76.debugfs_reg);
-+	mt7615_mutex_release(dev);
-+
-+	return 0;
-+}
-+
-+DEFINE_DEBUGFS_ATTRIBUTE(fops_regval, mt7615_reg_get, mt7615_reg_set,
-+			 "0x%08llx\n");
-+
- static int
- mt7615_radar_pattern_set(void *data, u64 val)
+ static void
+ mt7921_mac_decode_he_radiotap(struct sk_buff *skb,
+ 			      struct mt76_rx_status *status,
+ 			      __le32 *rxv, u32 phy)
  {
-@@ -506,7 +533,7 @@ int mt7615_init_debugfs(struct mt7615_dev *dev)
- {
- 	struct dentry *dir;
+-	/* TODO: struct ieee80211_radiotap_he_mu */
+ 	static const struct ieee80211_radiotap_he known = {
+ 		.data1 = HE_BITS(DATA1_DATA_MCS_KNOWN) |
+ 			 HE_BITS(DATA1_DATA_DCM_KNOWN) |
+@@ -193,6 +237,7 @@ mt7921_mac_decode_he_radiotap(struct sk_buff *skb,
+ 			 HE_BITS(DATA1_CODING_KNOWN) |
+ 			 HE_BITS(DATA1_LDPC_XSYMSEG_KNOWN) |
+ 			 HE_BITS(DATA1_DOPPLER_KNOWN) |
++			 HE_BITS(DATA1_SPTL_REUSE_KNOWN) |
+ 			 HE_BITS(DATA1_BSS_COLOR_KNOWN),
+ 		.data2 = HE_BITS(DATA2_GI_KNOWN) |
+ 			 HE_BITS(DATA2_TXBF_KNOWN) |
+@@ -207,9 +252,12 @@ mt7921_mac_decode_he_radiotap(struct sk_buff *skb,
  
--	dir = mt76_register_debugfs(&dev->mt76);
-+	dir = mt76_register_debugfs_fops(&dev->mt76, &fops_regval);
- 	if (!dir)
- 		return -ENOMEM;
+ 	he->data3 = HE_PREP(DATA3_BSS_COLOR, BSS_COLOR, rxv[14]) |
+ 		    HE_PREP(DATA3_LDPC_XSYMSEG, LDPC_EXT_SYM, rxv[2]);
++	he->data4 = HE_PREP(DATA4_SU_MU_SPTL_REUSE, SR_MASK, rxv[11]);
+ 	he->data5 = HE_PREP(DATA5_PE_DISAMBIG, PE_DISAMBIG, rxv[2]) |
+ 		    le16_encode_bits(ltf_size,
+ 				     IEEE80211_RADIOTAP_HE_DATA5_LTF_SIZE);
++	if (cpu_to_le32(rxv[0]) & MT_PRXV_TXBF)
++		he->data5 |= HE_BITS(DATA5_TXBF);
+ 	he->data6 = HE_PREP(DATA6_TXOP, TXOP_DUR, rxv[14]) |
+ 		    HE_PREP(DATA6_DOPPLER, DOPPLER, rxv[14]);
  
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-index 77468bdae460b..4c89c4ac8031a 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-@@ -4,6 +4,32 @@
- #include "mt7921.h"
- #include "eeprom.h"
+@@ -217,8 +265,7 @@ mt7921_mac_decode_he_radiotap(struct sk_buff *skb,
+ 	case MT_PHY_TYPE_HE_SU:
+ 		he->data1 |= HE_BITS(DATA1_FORMAT_SU) |
+ 			     HE_BITS(DATA1_UL_DL_KNOWN) |
+-			     HE_BITS(DATA1_BEAM_CHANGE_KNOWN) |
+-			     HE_BITS(DATA1_SPTL_REUSE_KNOWN);
++			     HE_BITS(DATA1_BEAM_CHANGE_KNOWN);
  
-+static int
-+mt7921_reg_set(void *data, u64 val)
-+{
-+	struct mt7921_dev *dev = data;
-+
-+	mt7921_mutex_acquire(dev);
-+	mt76_wr(dev, dev->mt76.debugfs_reg, val);
-+	mt7921_mutex_release(dev);
-+
-+	return 0;
-+}
-+
-+static int
-+mt7921_reg_get(void *data, u64 *val)
-+{
-+	struct mt7921_dev *dev = data;
-+
-+	mt7921_mutex_acquire(dev);
-+	*val = mt76_rr(dev, dev->mt76.debugfs_reg);
-+	mt7921_mutex_release(dev);
-+
-+	return 0;
-+}
-+
-+DEFINE_DEBUGFS_ATTRIBUTE(fops_regval, mt7921_reg_get, mt7921_reg_set,
-+			 "0x%08llx\n");
- static int
- mt7921_fw_debug_set(void *data, u64 val)
- {
-@@ -373,7 +399,7 @@ int mt7921_init_debugfs(struct mt7921_dev *dev)
- {
- 	struct dentry *dir;
+ 		he->data3 |= HE_PREP(DATA3_BEAM_CHANGE, BEAM_CHNG, rxv[14]) |
+ 			     HE_PREP(DATA3_UL_DL, UPLINK, rxv[2]);
+@@ -232,17 +279,15 @@ mt7921_mac_decode_he_radiotap(struct sk_buff *skb,
+ 		break;
+ 	case MT_PHY_TYPE_HE_MU:
+ 		he->data1 |= HE_BITS(DATA1_FORMAT_MU) |
+-			     HE_BITS(DATA1_UL_DL_KNOWN) |
+-			     HE_BITS(DATA1_SPTL_REUSE_KNOWN);
++			     HE_BITS(DATA1_UL_DL_KNOWN);
  
--	dir = mt76_register_debugfs(&dev->mt76);
-+	dir = mt76_register_debugfs_fops(&dev->mt76, &fops_regval);
- 	if (!dir)
- 		return -ENOMEM;
+ 		he->data3 |= HE_PREP(DATA3_UL_DL, UPLINK, rxv[2]);
+-		he->data4 |= HE_PREP(DATA4_SU_MU_SPTL_REUSE, SR_MASK, rxv[11]);
++		he->data4 |= HE_PREP(DATA4_MU_STA_ID, MU_AID, rxv[7]);
  
+ 		mt7921_mac_decode_he_radiotap_ru(status, he, rxv);
+ 		break;
+ 	case MT_PHY_TYPE_HE_TB:
+ 		he->data1 |= HE_BITS(DATA1_FORMAT_TRIG) |
+-			     HE_BITS(DATA1_SPTL_REUSE_KNOWN) |
+ 			     HE_BITS(DATA1_SPTL_REUSE2_KNOWN) |
+ 			     HE_BITS(DATA1_SPTL_REUSE3_KNOWN) |
+ 			     HE_BITS(DATA1_SPTL_REUSE4_KNOWN);
+@@ -606,9 +651,13 @@ int mt7921_mac_fill_rx(struct mt7921_dev *dev, struct sk_buff *skb)
+ 
+ 	mt7921_mac_assoc_rssi(dev, skb);
+ 
+-	if (rxv && status->flag & RX_FLAG_RADIOTAP_HE)
++	if (rxv && status->flag & RX_FLAG_RADIOTAP_HE) {
+ 		mt7921_mac_decode_he_radiotap(skb, status, rxv, mode);
+ 
++		if (status->flag & RX_FLAG_RADIOTAP_HE_MU)
++			mt7921_mac_decode_he_mu_radiotap(skb, status, rxv);
++	}
++
+ 	if (!status->wcid || !ieee80211_is_data_qos(fc))
+ 		return 0;
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.h b/drivers/net/wireless/mediatek/mt76/mt7921/mac.h
+index 3af67fac213df..f0194c8780372 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.h
+@@ -116,6 +116,7 @@ enum rx_pkt_type {
+ #define MT_PRXV_TX_DCM			BIT(4)
+ #define MT_PRXV_TX_ER_SU_106T		BIT(5)
+ #define MT_PRXV_NSTS			GENMASK(9, 7)
++#define MT_PRXV_TXBF			BIT(10)
+ #define MT_PRXV_HT_AD_CODE		BIT(11)
+ #define MT_PRXV_FRAME_MODE		GENMASK(14, 12)
+ #define MT_PRXV_SGI			GENMASK(16, 15)
+@@ -138,8 +139,15 @@ enum rx_pkt_type {
+ #define MT_CRXV_HE_LTF_SIZE		GENMASK(18, 17)
+ #define MT_CRXV_HE_LDPC_EXT_SYM		BIT(20)
+ #define MT_CRXV_HE_PE_DISAMBIG		BIT(23)
++#define MT_CRXV_HE_NUM_USER		GENMASK(30, 24)
+ #define MT_CRXV_HE_UPLINK		BIT(31)
+ 
++#define MT_CRXV_HE_RU0			GENMASK(7, 0)
++#define MT_CRXV_HE_RU1			GENMASK(15, 8)
++#define MT_CRXV_HE_RU2			GENMASK(23, 16)
++#define MT_CRXV_HE_RU3			GENMASK(31, 24)
++#define MT_CRXV_HE_MU_AID		GENMASK(30, 20)
++
+ #define MT_CRXV_HE_SR_MASK		GENMASK(11, 8)
+ #define MT_CRXV_HE_SR1_MASK		GENMASK(16, 12)
+ #define MT_CRXV_HE_SR2_MASK             GENMASK(20, 17)
 -- 
 2.33.0
 
