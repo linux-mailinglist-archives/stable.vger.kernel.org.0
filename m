@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB9CF450C0C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:31:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D700450C0E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:31:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238316AbhKORe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:34:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45792 "EHLO mail.kernel.org"
+        id S236814AbhKOReb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:34:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238065AbhKORcf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238071AbhKORcf (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 12:32:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9525563251;
-        Mon, 15 Nov 2021 17:20:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ABA563284;
+        Mon, 15 Nov 2021 17:20:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996851;
-        bh=gA1nP/SKTZLsmWMhFjIdHKMajsBoEMT3gOgPbtgnPRo=;
+        s=korg; t=1636996854;
+        bh=fWuWmIPGI5GtDA01JmYFFBJuPO5kD7ENMC6lsgU3Hmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1MhhM6iqmysVVVQyef8BOnaFEfDUR/6BVaERngVSF2yH4Ud4f+5WDEeftinl93ku
-         vXAn9U9VgQQ9aNThgMDtZhEHBLd3en1bdkngbnvtjM4GgX7gFN+qZFSaasV8yRBfWV
-         53bySRvtCbD+zCbBhdJ2G9cLs0jM3MyVkL0frjN0=
+        b=0HZNsgL3uSoVp739bBIZ+4QavVkzsfbytgx7zR/BSK+wH5e80bzXbb28R2nyvHq/W
+         /qri6du/n/0OhsDpskVDaO9TgNgeYm30NBnIGnIgvaSMsNWu6IDlCzyhjLA+Htogx+
+         Kuo52n4F4YnLK6KTovP/2K/k04QAuRgqSr/FyO3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Baptiste Lepers <baptiste.lepers@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Simon Ser <contact@emersion.fr>,
+        "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 291/355] pnfs/flexfiles: Fix misplaced barrier in nfs4_ff_layout_prepare_ds
-Date:   Mon, 15 Nov 2021 18:03:35 +0100
-Message-Id: <20211115165323.136170301@linuxfoundation.org>
+Subject: [PATCH 5.4 292/355] drm/plane-helper: fix uninitialized variable reference
+Date:   Mon, 15 Nov 2021 18:03:36 +0100
+Message-Id: <20211115165323.168870917@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -41,72 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baptiste Lepers <baptiste.lepers@gmail.com>
+From: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
 
-[ Upstream commit a2915fa06227b056a8f9b0d79b61dca08ad5cfc6 ]
+[ Upstream commit 7be28bd73f23e53d6e7f5fe891ba9503fc0c7210 ]
 
-_nfs4_pnfs_v3/v4_ds_connect do
-   some work
-   smp_wmb
-   ds->ds_clp = clp;
+drivers/gpu/drm/drm_plane_helper.c: In function 'drm_primary_helper_update':
+drivers/gpu/drm/drm_plane_helper.c:113:32: error: 'visible' is used uninitialized [-Werror=uninitialized]
+  113 |         struct drm_plane_state plane_state = {
+      |                                ^~~~~~~~~~~
+drivers/gpu/drm/drm_plane_helper.c:178:14: note: 'visible' was declared here
+  178 |         bool visible;
+      |              ^~~~~~~
+cc1: all warnings being treated as errors
 
-And nfs4_ff_layout_prepare_ds currently does
-   smp_rmb
-   if(ds->ds_clp)
-      ...
+visible is an output, not an input. in practice this use might turn out
+OK but it's still UB.
 
-This patch places the smp_rmb after the if. This ensures that following
-reads only happen once nfs4_ff_layout_prepare_ds has checked that data
-has been properly initialized.
-
-Fixes: d67ae825a59d6 ("pnfs/flexfiles: Add the FlexFile Layout Driver")
-Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: df86af9133b4 ("drm/plane-helper: Add drm_plane_helper_check_state()")
+Reviewed-by: Simon Ser <contact@emersion.fr>
+Signed-off-by: Alex Xu (Hello71) <alex_y_xu@yahoo.ca>
+Signed-off-by: Simon Ser <contact@emersion.fr>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211007063706.305984-1-alex_y_xu@yahoo.ca
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/flexfilelayout/flexfilelayoutdev.c | 4 ++--
- fs/nfs/pnfs_nfs.c                         | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/drm_plane_helper.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/nfs/flexfilelayout/flexfilelayoutdev.c b/fs/nfs/flexfilelayout/flexfilelayoutdev.c
-index 3eda40a320a53..1f12297109b41 100644
---- a/fs/nfs/flexfilelayout/flexfilelayoutdev.c
-+++ b/fs/nfs/flexfilelayout/flexfilelayoutdev.c
-@@ -378,10 +378,10 @@ nfs4_ff_layout_prepare_ds(struct pnfs_layout_segment *lseg,
- 		goto noconnect;
- 
- 	ds = mirror->mirror_ds->ds;
-+	if (READ_ONCE(ds->ds_clp))
-+		goto out;
- 	/* matching smp_wmb() in _nfs4_pnfs_v3/4_ds_connect */
- 	smp_rmb();
--	if (ds->ds_clp)
--		goto out;
- 
- 	/* FIXME: For now we assume the server sent only one version of NFS
- 	 * to use for the DS.
-diff --git a/fs/nfs/pnfs_nfs.c b/fs/nfs/pnfs_nfs.c
-index 249cf9037dbd7..aff44a7b98f86 100644
---- a/fs/nfs/pnfs_nfs.c
-+++ b/fs/nfs/pnfs_nfs.c
-@@ -641,7 +641,7 @@ static int _nfs4_pnfs_v3_ds_connect(struct nfs_server *mds_srv,
- 	}
- 
- 	smp_wmb();
--	ds->ds_clp = clp;
-+	WRITE_ONCE(ds->ds_clp, clp);
- 	dprintk("%s [new] addr: %s\n", __func__, ds->ds_remotestr);
- out:
- 	return status;
-@@ -714,7 +714,7 @@ static int _nfs4_pnfs_v4_ds_connect(struct nfs_server *mds_srv,
- 	}
- 
- 	smp_wmb();
--	ds->ds_clp = clp;
-+	WRITE_ONCE(ds->ds_clp, clp);
- 	dprintk("%s [new] addr: %s\n", __func__, ds->ds_remotestr);
- out:
- 	return status;
+diff --git a/drivers/gpu/drm/drm_plane_helper.c b/drivers/gpu/drm/drm_plane_helper.c
+index 3aae7ea522f23..c3f2292dc93d5 100644
+--- a/drivers/gpu/drm/drm_plane_helper.c
++++ b/drivers/gpu/drm/drm_plane_helper.c
+@@ -123,7 +123,6 @@ static int drm_plane_helper_check_update(struct drm_plane *plane,
+ 		.crtc_w = drm_rect_width(dst),
+ 		.crtc_h = drm_rect_height(dst),
+ 		.rotation = rotation,
+-		.visible = *visible,
+ 	};
+ 	struct drm_crtc_state crtc_state = {
+ 		.crtc = crtc,
 -- 
 2.33.0
 
