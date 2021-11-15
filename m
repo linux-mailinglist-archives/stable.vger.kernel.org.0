@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8208245111A
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97F70451132
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:59:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243392AbhKOTBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:01:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59670 "EHLO mail.kernel.org"
+        id S243700AbhKOTCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:02:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243487AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243492AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:59:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC62661AF0;
-        Mon, 15 Nov 2021 18:13:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CB0C61B04;
+        Mon, 15 Nov 2021 18:13:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000018;
-        bh=FUUzhV0aQZHF45SsL1ZUN80Nlr/CDWDn2vwQsaJOprA=;
+        s=korg; t=1637000020;
+        bh=5wKCXZgJs50IfqxEX0Hcmi9cCjL9Sqv8f2CKMecUbuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=txSQUiLHLMPauq79XP83qM40+deBMJKNZBbzNgC0Lo3Cx2koho3l2AlbKaZoVFyLd
-         ZdP2dkWfNKseSJkhHH/fDvn5ueIFSYuozsZdijrqZcz3TO6ry8KHWsJ9bQjsYFwLDG
-         p8VR/ZjsalLu0pqGYO451WL52EuYjqqdCi0uaMaI=
+        b=mscrjFeQ3CQAexacP7eHBFOBFN5fRHTgKr1Pw1FzVfUkMgIiTYLrQRijztncvGZFB
+         hQxSuLEvZJsIWMOexmXpMzMop/ftm+F9jpRSyyM/U7RPLbRuggKurpsAkPZ2WS2Tpv
+         QaaPjcQWwJow9BP4SjB6KuVqSJZrzOc4mVtwqmMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
-        linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 508/849] block: ataflop: more blk-mq refactoring fixes
-Date:   Mon, 15 Nov 2021 17:59:51 +0100
-Message-Id: <20211115165437.471352298@linuxfoundation.org>
+Subject: [PATCH 5.14 509/849] blk-cgroup: synchronize blkg creation against policy deactivation
+Date:   Mon, 15 Nov 2021 17:59:52 +0100
+Message-Id: <20211115165437.503523906@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,216 +40,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit d28e4dff085c5a87025c9a0a85fb798bd8e9ca17 ]
+[ Upstream commit 0c9d338c8443b06da8e8d3bfce824c5ea6d3488f ]
 
-As it turns out, my earlier patch in commit 86d46fdaa12a (block:
-ataflop: fix breakage introduced at blk-mq refactoring) was
-incomplete. This patch fixes any remaining issues found during
-more testing and code review.
+Our test reports a null pointer dereference:
 
-Requests exceeding 4 k are handled in 4k segments but
-__blk_mq_end_request() is never called on these (still
-sectors outstanding on the request). With redo_fd_request()
-removed, there is no provision to kick off processing of the
-next segment, causing requests exceeding 4k to hang. (By
-setting /sys/block/fd0/queue/max_sectors_k <= 4 as workaround,
-this behaviour can be avoided).
+[  168.534653] ==================================================================
+[  168.535614] Disabling lock debugging due to kernel taint
+[  168.536346] BUG: kernel NULL pointer dereference, address: 0000000000000008
+[  168.537274] #PF: supervisor read access in kernel mode
+[  168.537964] #PF: error_code(0x0000) - not-present page
+[  168.538667] PGD 0 P4D 0
+[  168.539025] Oops: 0000 [#1] PREEMPT SMP KASAN
+[  168.539656] CPU: 13 PID: 759 Comm: bash Tainted: G    B             5.15.0-rc2-next-202100
+[  168.540954] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_0738364
+[  168.542736] RIP: 0010:bfq_pd_init+0x88/0x1e0
+[  168.543318] Code: 98 00 00 00 e8 c9 e4 5b ff 4c 8b 65 00 49 8d 7c 24 08 e8 bb e4 5b ff 4d0
+[  168.545803] RSP: 0018:ffff88817095f9c0 EFLAGS: 00010002
+[  168.546497] RAX: 0000000000000001 RBX: ffff888101a1c000 RCX: 0000000000000000
+[  168.547438] RDX: 0000000000000003 RSI: 0000000000000002 RDI: ffff888106553428
+[  168.548402] RBP: ffff888106553400 R08: ffffffff961bcaf4 R09: 0000000000000001
+[  168.549365] R10: ffffffffa2e16c27 R11: fffffbfff45c2d84 R12: 0000000000000000
+[  168.550291] R13: ffff888101a1c098 R14: ffff88810c7a08c8 R15: ffffffffa55541a0
+[  168.551221] FS:  00007fac75227700(0000) GS:ffff88839ba80000(0000) knlGS:0000000000000000
+[  168.552278] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  168.553040] CR2: 0000000000000008 CR3: 0000000165ce7000 CR4: 00000000000006e0
+[  168.554000] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  168.554929] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  168.555888] Call Trace:
+[  168.556221]  <TASK>
+[  168.556510]  blkg_create+0x1c0/0x8c0
+[  168.556989]  blkg_conf_prep+0x574/0x650
+[  168.557502]  ? stack_trace_save+0x99/0xd0
+[  168.558033]  ? blkcg_conf_open_bdev+0x1b0/0x1b0
+[  168.558629]  tg_set_conf.constprop.0+0xb9/0x280
+[  168.559231]  ? kasan_set_track+0x29/0x40
+[  168.559758]  ? kasan_set_free_info+0x30/0x60
+[  168.560344]  ? tg_set_limit+0xae0/0xae0
+[  168.560853]  ? do_sys_openat2+0x33b/0x640
+[  168.561383]  ? do_sys_open+0xa2/0x100
+[  168.561877]  ? __x64_sys_open+0x4e/0x60
+[  168.562383]  ? __kasan_check_write+0x20/0x30
+[  168.562951]  ? copyin+0x48/0x70
+[  168.563390]  ? _copy_from_iter+0x234/0x9e0
+[  168.563948]  tg_set_conf_u64+0x17/0x20
+[  168.564467]  cgroup_file_write+0x1ad/0x380
+[  168.565014]  ? cgroup_file_poll+0x80/0x80
+[  168.565568]  ? __mutex_lock_slowpath+0x30/0x30
+[  168.566165]  ? pgd_free+0x100/0x160
+[  168.566649]  kernfs_fop_write_iter+0x21d/0x340
+[  168.567246]  ? cgroup_file_poll+0x80/0x80
+[  168.567796]  new_sync_write+0x29f/0x3c0
+[  168.568314]  ? new_sync_read+0x410/0x410
+[  168.568840]  ? __handle_mm_fault+0x1c97/0x2d80
+[  168.569425]  ? copy_page_range+0x2b10/0x2b10
+[  168.570007]  ? _raw_read_lock_bh+0xa0/0xa0
+[  168.570622]  vfs_write+0x46e/0x630
+[  168.571091]  ksys_write+0xcd/0x1e0
+[  168.571563]  ? __x64_sys_read+0x60/0x60
+[  168.572081]  ? __kasan_check_write+0x20/0x30
+[  168.572659]  ? do_user_addr_fault+0x446/0xff0
+[  168.573264]  __x64_sys_write+0x46/0x60
+[  168.573774]  do_syscall_64+0x35/0x80
+[  168.574264]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  168.574960] RIP: 0033:0x7fac74915130
+[  168.575456] Code: 73 01 c3 48 8b 0d 58 ed 2c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 444
+[  168.577969] RSP: 002b:00007ffc3080e288 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+[  168.578986] RAX: ffffffffffffffda RBX: 0000000000000009 RCX: 00007fac74915130
+[  168.579937] RDX: 0000000000000009 RSI: 000056007669f080 RDI: 0000000000000001
+[  168.580884] RBP: 000056007669f080 R08: 000000000000000a R09: 00007fac75227700
+[  168.581841] R10: 000056007655c8f0 R11: 0000000000000246 R12: 0000000000000009
+[  168.582796] R13: 0000000000000001 R14: 00007fac74be55e0 R15: 00007fac74be08c0
+[  168.583757]  </TASK>
+[  168.584063] Modules linked in:
+[  168.584494] CR2: 0000000000000008
+[  168.584964] ---[ end trace 2475611ad0f77a1a ]---
 
-Instead of reintroducing redo_fd_request(), requeue the remainder
-of the request by calling blk_mq_requeue_request() on incomplete
-requests (i.e. when blk_update_request() still returns true), and
-rely on the block layer to queue the residual as new request.
+This is because blkg_alloc() is called from blkg_conf_prep() without
+holding 'q->queue_lock', and elevator is exited before blkg_create():
 
-Both error handling and formatting needs to release the
-ST-DMA lock, so call finish_fdc() on these (this was previously
-handled by redo_fd_request()). finish_fdc() may be called
-legitimately without the ST-DMA lock held - make sure we only
-release the lock if we actually held it. In a similar way,
-early exit due to errors in ataflop_queue_rq() must release
-the lock.
+thread 1                            thread 2
+blkg_conf_prep
+ spin_lock_irq(&q->queue_lock);
+ blkg_lookup_check -> return NULL
+ spin_unlock_irq(&q->queue_lock);
 
-After minor errors, fd_error sets up to recalibrate the drive
-but never re-runs the current operation (another task handled by
-redo_fd_request() before). Call do_fd_action() to get the next
-steps (seek, retry read/write) underway.
+ blkg_alloc
+  blkcg_policy_enabled -> true
+  pd = ->pd_alloc_fn
+  blkg->pd[i] = pd
+                                   blk_mq_exit_sched
+                                    bfq_exit_queue
+                                     blkcg_deactivate_policy
+                                      spin_lock_irq(&q->queue_lock);
+                                      __clear_bit(pol->plid, q->blkcg_pols);
+                                      spin_unlock_irq(&q->queue_lock);
+                                    q->elevator = NULL;
+  spin_lock_irq(&q->queue_lock);
+   blkg_create
+    if (blkg->pd[i])
+     ->pd_init_fn -> q->elevator is NULL
+  spin_unlock_irq(&q->queue_lock);
 
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Fixes: 6ec3938cff95f (ataflop: convert to blk-mq)
-CC: linux-block@vger.kernel.org
-Link: https://lore.kernel.org/r/20211024002013.9332-1-schmitzmic@gmail.com
+Because blkcg_deactivate_policy() requires queue to be frozen, we can
+grab q_usage_counter to synchoronize blkg_conf_prep() against
+blkcg_deactivate_policy().
+
+Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20211020014036.2141723-1-yukuai3@huawei.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/ataflop.c | 45 +++++++++++++++++++++++++++++++++++------
- 1 file changed, 39 insertions(+), 6 deletions(-)
+ block/blk-cgroup.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
-index bbb64331cf8f4..4947e41f89b7d 100644
---- a/drivers/block/ataflop.c
-+++ b/drivers/block/ataflop.c
-@@ -456,10 +456,20 @@ static DEFINE_TIMER(fd_timer, check_change);
- 	
- static void fd_end_request_cur(blk_status_t err)
- {
-+	DPRINT(("fd_end_request_cur(), bytes %d of %d\n",
-+		blk_rq_cur_bytes(fd_request),
-+		blk_rq_bytes(fd_request)));
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index 8e4dcf6036f60..8d9041e0f4bec 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -634,6 +634,14 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
+ 
+ 	q = bdev->bd_disk->queue;
+ 
++	/*
++	 * blkcg_deactivate_policy() requires queue to be frozen, we can grab
++	 * q_usage_counter to prevent concurrent with blkcg_deactivate_policy().
++	 */
++	ret = blk_queue_enter(q, 0);
++	if (ret)
++		return ret;
 +
- 	if (!blk_update_request(fd_request, err,
- 				blk_rq_cur_bytes(fd_request))) {
-+		DPRINT(("calling __blk_mq_end_request()\n"));
- 		__blk_mq_end_request(fd_request, err);
- 		fd_request = NULL;
-+	} else {
-+		/* requeue rest of request */
-+		DPRINT(("calling blk_mq_requeue_request()\n"));
-+		blk_mq_requeue_request(fd_request, true);
-+		fd_request = NULL;
+ 	rcu_read_lock();
+ 	spin_lock_irq(&q->queue_lock);
+ 
+@@ -703,6 +711,7 @@ int blkg_conf_prep(struct blkcg *blkcg, const struct blkcg_policy *pol,
+ 			goto success;
  	}
- }
- 
-@@ -697,12 +707,21 @@ static void fd_error( void )
- 	if (fd_request->error_count >= MAX_ERRORS) {
- 		printk(KERN_ERR "fd%d: too many errors.\n", SelectedDrive );
- 		fd_end_request_cur(BLK_STS_IOERR);
-+		finish_fdc();
-+		return;
- 	}
- 	else if (fd_request->error_count == RECALIBRATE_ERRORS) {
- 		printk(KERN_WARNING "fd%d: recalibrating\n", SelectedDrive );
- 		if (SelectedDrive != -1)
- 			SUD.track = -1;
- 	}
-+	/* need to re-run request to recalibrate */
-+	atari_disable_irq( IRQ_MFP_FDC );
-+
-+	setup_req_params( SelectedDrive );
-+	do_fd_action( SelectedDrive );
-+
-+	atari_enable_irq( IRQ_MFP_FDC );
- }
- 
- 
-@@ -729,8 +748,10 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
- 	if (type) {
- 		type--;
- 		if (type >= NUM_DISK_MINORS ||
--		    minor2disktype[type].drive_types > DriveType)
-+		    minor2disktype[type].drive_types > DriveType) {
-+			finish_fdc();
- 			return -EINVAL;
-+		}
- 	}
- 
- 	q = unit[drive].disk[type]->queue;
-@@ -748,6 +769,7 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
- 	}
- 
- 	if (!UDT || desc->track >= UDT->blocks/UDT->spt/2 || desc->head >= 2) {
-+		finish_fdc();
- 		ret = -EINVAL;
- 		goto out;
- 	}
-@@ -788,6 +810,7 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
- 
- 	wait_for_completion(&format_wait);
- 
-+	finish_fdc();
- 	ret = FormatError ? -EIO : 0;
- out:
- 	blk_mq_unquiesce_queue(q);
-@@ -822,6 +845,7 @@ static void do_fd_action( int drive )
- 		    else {
- 			/* all sectors finished */
- 			fd_end_request_cur(BLK_STS_OK);
-+			finish_fdc();
- 			return;
- 		    }
- 		}
-@@ -1225,8 +1249,8 @@ static void fd_rwsec_done1(int status)
- 	}
- 	else {
- 		/* all sectors finished */
--		finish_fdc();
- 		fd_end_request_cur(BLK_STS_OK);
-+		finish_fdc();
- 	}
- 	return;
-   
-@@ -1348,7 +1372,7 @@ static void fd_times_out(struct timer_list *unused)
- 
- static void finish_fdc( void )
- {
--	if (!NeedSeek) {
-+	if (!NeedSeek || !stdma_is_locked_by(floppy_irq)) {
- 		finish_fdc_done( 0 );
- 	}
- 	else {
-@@ -1383,7 +1407,8 @@ static void finish_fdc_done( int dummy )
- 	start_motor_off_timer();
- 
- 	local_irq_save(flags);
--	stdma_release();
-+	if (stdma_is_locked_by(floppy_irq))
-+		stdma_release();
- 	local_irq_restore(flags);
- 
- 	DPRINT(("finish_fdc() finished\n"));
-@@ -1480,7 +1505,9 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
- 	int drive = floppy - unit;
- 	int type = floppy->type;
- 
--	DPRINT(("Queue request: drive %d type %d last %d\n", drive, type, bd->last));
-+	DPRINT(("Queue request: drive %d type %d sectors %d of %d last %d\n",
-+		drive, type, blk_rq_cur_sectors(bd->rq),
-+		blk_rq_sectors(bd->rq), bd->last));
- 
- 	spin_lock_irq(&ataflop_lock);
- 	if (fd_request) {
-@@ -1502,6 +1529,7 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
- 		/* drive not connected */
- 		printk(KERN_ERR "Unknown Device: fd%d\n", drive );
- 		fd_end_request_cur(BLK_STS_IOERR);
-+		stdma_release();
- 		goto out;
- 	}
- 		
-@@ -1518,11 +1546,13 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
- 		if (--type >= NUM_DISK_MINORS) {
- 			printk(KERN_WARNING "fd%d: invalid disk format", drive );
- 			fd_end_request_cur(BLK_STS_IOERR);
-+			stdma_release();
- 			goto out;
- 		}
- 		if (minor2disktype[type].drive_types > DriveType)  {
- 			printk(KERN_WARNING "fd%d: unsupported disk format", drive );
- 			fd_end_request_cur(BLK_STS_IOERR);
-+			stdma_release();
- 			goto out;
- 		}
- 		type = minor2disktype[type].index;
-@@ -1623,6 +1653,7 @@ static int fd_locked_ioctl(struct block_device *bdev, fmode_t mode,
- 		/* what if type > 0 here? Overwrite specified entry ? */
- 		if (type) {
- 		        /* refuse to re-set a predefined type for now */
-+			finish_fdc();
- 			return -EINVAL;
- 		}
- 
-@@ -1690,8 +1721,10 @@ static int fd_locked_ioctl(struct block_device *bdev, fmode_t mode,
- 
- 		/* sanity check */
- 		if (setprm.track != dtp->blocks/dtp->spt/2 ||
--		    setprm.head != 2)
-+		    setprm.head != 2) {
-+			finish_fdc();
- 			return -EINVAL;
-+		}
- 
- 		UDT = dtp;
- 		set_capacity(disk, UDT->blocks);
+ success:
++	blk_queue_exit(q);
+ 	ctx->bdev = bdev;
+ 	ctx->blkg = blkg;
+ 	ctx->body = input;
+@@ -715,6 +724,7 @@ fail_unlock:
+ 	rcu_read_unlock();
+ fail:
+ 	blkdev_put_no_open(bdev);
++	blk_queue_exit(q);
+ 	/*
+ 	 * If queue was bypassing, we should retry.  Do so after a
+ 	 * short msleep().  It isn't strictly necessary but queue
 -- 
 2.33.0
 
