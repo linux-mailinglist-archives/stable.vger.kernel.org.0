@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 059D6451FDC
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB4F451FD7
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354991AbhKPApj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44866 "EHLO mail.kernel.org"
+        id S1352250AbhKPAph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343826AbhKOTWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343830AbhKOTWJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8355F635F1;
-        Mon, 15 Nov 2021 18:46:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65A24635EC;
+        Mon, 15 Nov 2021 18:47:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002015;
-        bh=PzEUd0t1C2mtRwyKJhg2re0zJ/0SLCVCQwZJawrxHN0=;
+        s=korg; t=1637002022;
+        bh=pDqxmG5Nbpnia46jNRTLm/KQEdxbmsXfMMZFUfkKv9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=he6O2vCUTATgIUclWRbDSzUxmqoSWrgi0jkguGC25Ik8vs2zR173yZvnQv/F0ZwqJ
-         V/QBY4JmKs3bq2lL3q+BGL9oeX/PSt0nDZJl2sgVBiPCJyZpyGwWTorqPqXGqGcd+P
-         tInzCV2xmwwVUbaYBR385It16nL6iviqjwr5Mh20=
+        b=FXdBncMDzKmOrJKtBMtCeoRHntSwjZ81gUAEFXZqnvTxqWcxLbibAWhuEQCtbLWSQ
+         pOPHMDjCbjIBdksVpplh5It2/A7wLvBp5Or6i6AdOLTozIp4Chn4U2d52/zPVIzNCA
+         8WWh0vsdzFjMoe7h4s0+WBn5H7CSCARgs6HtcEi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 406/917] rcu: Always inline rcu_dynticks_task*_{enter,exit}()
-Date:   Mon, 15 Nov 2021 17:58:21 +0100
-Message-Id: <20211115165442.558885324@linuxfoundation.org>
+Subject: [PATCH 5.15 408/917] netfilter: nft_dynset: relax superfluous check on set updates
+Date:   Mon, 15 Nov 2021 17:58:23 +0100
+Message-Id: <20211115165442.628192553@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,71 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 7663ad9a5dbcc27f3090e6bfd192c7e59222709f ]
+[ Upstream commit 7b1394892de8d95748d05e3ee41e85edb4abbfa1 ]
 
-RCU managed to grow a few noinstr violations:
+Relax this condition to make add and update commands idempotent for sets
+with no timeout. The eval function already checks if the set element
+timeout is available and updates it if the update command is used.
 
-  vmlinux.o: warning: objtool: rcu_dynticks_eqs_enter()+0x0: call to rcu_dynticks_task_trace_enter() leaves .noinstr.text section
-  vmlinux.o: warning: objtool: rcu_dynticks_eqs_exit()+0xe: call to rcu_dynticks_task_trace_exit() leaves .noinstr.text section
-
-Fix them by adding __always_inline to the relevant trivial functions.
-
-Also replace the noinstr with __always_inline for the existing
-rcu_dynticks_task_*() functions since noinstr would force noinline
-them, even when empty, which seems silly.
-
-Fixes: 7d0c9c50c5a1 ("rcu-tasks: Avoid IPIing userspace/idle tasks if kernel is so built")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 22fe54d5fefc ("netfilter: nf_tables: add support for dynamic set updates")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_plugin.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/netfilter/nft_dynset.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index d070059163d70..0d21a5cdc7247 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -1480,7 +1480,7 @@ static void rcu_bind_gp_kthread(void)
- }
+diff --git a/net/netfilter/nft_dynset.c b/net/netfilter/nft_dynset.c
+index 6ba3256fa8449..87f3af4645d9c 100644
+--- a/net/netfilter/nft_dynset.c
++++ b/net/netfilter/nft_dynset.c
+@@ -198,17 +198,8 @@ static int nft_dynset_init(const struct nft_ctx *ctx,
+ 		return -EBUSY;
  
- /* Record the current task on dyntick-idle entry. */
--static void noinstr rcu_dynticks_task_enter(void)
-+static __always_inline void rcu_dynticks_task_enter(void)
- {
- #if defined(CONFIG_TASKS_RCU) && defined(CONFIG_NO_HZ_FULL)
- 	WRITE_ONCE(current->rcu_tasks_idle_cpu, smp_processor_id());
-@@ -1488,7 +1488,7 @@ static void noinstr rcu_dynticks_task_enter(void)
- }
+ 	priv->op = ntohl(nla_get_be32(tb[NFTA_DYNSET_OP]));
+-	switch (priv->op) {
+-	case NFT_DYNSET_OP_ADD:
+-	case NFT_DYNSET_OP_DELETE:
+-		break;
+-	case NFT_DYNSET_OP_UPDATE:
+-		if (!(set->flags & NFT_SET_TIMEOUT))
+-			return -EOPNOTSUPP;
+-		break;
+-	default:
++	if (priv->op > NFT_DYNSET_OP_DELETE)
+ 		return -EOPNOTSUPP;
+-	}
  
- /* Record no current task on dyntick-idle exit. */
--static void noinstr rcu_dynticks_task_exit(void)
-+static __always_inline void rcu_dynticks_task_exit(void)
- {
- #if defined(CONFIG_TASKS_RCU) && defined(CONFIG_NO_HZ_FULL)
- 	WRITE_ONCE(current->rcu_tasks_idle_cpu, -1);
-@@ -1496,7 +1496,7 @@ static void noinstr rcu_dynticks_task_exit(void)
- }
- 
- /* Turn on heavyweight RCU tasks trace readers on idle/user entry. */
--static void rcu_dynticks_task_trace_enter(void)
-+static __always_inline void rcu_dynticks_task_trace_enter(void)
- {
- #ifdef CONFIG_TASKS_TRACE_RCU
- 	if (IS_ENABLED(CONFIG_TASKS_TRACE_RCU_READ_MB))
-@@ -1505,7 +1505,7 @@ static void rcu_dynticks_task_trace_enter(void)
- }
- 
- /* Turn off heavyweight RCU tasks trace readers on idle/user exit. */
--static void rcu_dynticks_task_trace_exit(void)
-+static __always_inline void rcu_dynticks_task_trace_exit(void)
- {
- #ifdef CONFIG_TASKS_TRACE_RCU
- 	if (IS_ENABLED(CONFIG_TASKS_TRACE_RCU_READ_MB))
+ 	timeout = 0;
+ 	if (tb[NFTA_DYNSET_TIMEOUT] != NULL) {
 -- 
 2.33.0
 
