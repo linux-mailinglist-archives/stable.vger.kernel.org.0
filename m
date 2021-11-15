@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1985E450F3A
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:25:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59611450F38
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:25:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241166AbhKOS1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:27:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36900 "EHLO mail.kernel.org"
+        id S241290AbhKOS1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:27:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241784AbhKOSZF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:25:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07E8B632C6;
-        Mon, 15 Nov 2021 17:55:28 +0000 (UTC)
+        id S241791AbhKOSZG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:25:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D410363424;
+        Mon, 15 Nov 2021 17:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998929;
-        bh=oZhXbpmweQro5ewwkKxk0Yd8mk+wgVBiyc+oC8/xaYg=;
+        s=korg; t=1636998932;
+        bh=uzuWhexilooU1bzcPxT8rPHcvti3JgSt+ClT0khjSbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rqp3It56frxHRysfeqGN67UNGbn757EO1LwCKh8IuxD1oPeHPORBPOiLDw1t3EGk0
-         +SoLXy+HfSM7rvfPKJXteLe2IjowFdUu/4j/IY4PWlh1JpUtzbbBMzl96jpRWbE4NO
-         dfaQoTLFjDP+a02ZNTdZlhyfSb7BR+3RroqldcNg=
+        b=Hsb+KN+NxwOUFAznjr2w3U1pvTfx4XXoBTFz5pa9Q91ci4Y3PYCJvu+DqpvY3sFh/
+         MxhMvch1jaZeSKz4eMtno6t5q25cNBdxX32RjjJt72eEpVDl/DlKPDzXKDGk+4WNs0
+         BZM2wkGALZLaRO1/TGqPcrOZNNxfRb5CmYrY1gGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Erik Stromdahl <erik.stromdahl@gmail.com>,
+        Johan Hovold <johan@kernel.org>,
         Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.14 114/849] ath6kl: fix control-message timeout
-Date:   Mon, 15 Nov 2021 17:53:17 +0100
-Message-Id: <20211115165423.938044235@linuxfoundation.org>
+Subject: [PATCH 5.14 115/849] ath10k: fix control-message timeout
+Date:   Mon, 15 Nov 2021 17:53:18 +0100
+Message-Id: <20211115165423.973743169@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,31 +42,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit a066d28a7e729f808a3e6eff22e70c003091544e upstream.
+commit 5286132324230168d3fab6ffc16bfd7de85bdfb4 upstream.
 
 USB control-message timeouts are specified in milliseconds and should
 specifically not vary with CONFIG_HZ.
 
-Fixes: 241b128b6b69 ("ath6kl: add back beginnings of USB support")
-Cc: stable@vger.kernel.org      # 3.4
+Fixes: 4db66499df91 ("ath10k: add initial USB support")
+Cc: stable@vger.kernel.org      # 4.14
+Cc: Erik Stromdahl <erik.stromdahl@gmail.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211025120522.6045-3-johan@kernel.org
+Link: https://lore.kernel.org/r/20211025120522.6045-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath6kl/usb.c |    2 +-
+ drivers/net/wireless/ath/ath10k/usb.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/ath/ath6kl/usb.c
-+++ b/drivers/net/wireless/ath/ath6kl/usb.c
-@@ -912,7 +912,7 @@ static int ath6kl_usb_submit_ctrl_in(str
- 				 req,
- 				 USB_DIR_IN | USB_TYPE_VENDOR |
- 				 USB_RECIP_DEVICE, value, index, buf,
--				 size, 2 * HZ);
-+				 size, 2000);
+--- a/drivers/net/wireless/ath/ath10k/usb.c
++++ b/drivers/net/wireless/ath/ath10k/usb.c
+@@ -525,7 +525,7 @@ static int ath10k_usb_submit_ctrl_in(str
+ 			      req,
+ 			      USB_DIR_IN | USB_TYPE_VENDOR |
+ 			      USB_RECIP_DEVICE, value, index, buf,
+-			      size, 2 * HZ);
++			      size, 2000);
  
  	if (ret < 0) {
- 		ath6kl_warn("Failed to read usb control message: %d\n", ret);
+ 		ath10k_warn(ar, "Failed to read usb control message: %d\n",
 
 
