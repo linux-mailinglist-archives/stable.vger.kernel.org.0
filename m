@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF0D945116B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7870451404
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237492AbhKOTHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:07:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34352 "EHLO mail.kernel.org"
+        id S1348881AbhKOUAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:00:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243894AbhKOTEg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:04:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D30E5633D9;
-        Mon, 15 Nov 2021 18:16:08 +0000 (UTC)
+        id S1344186AbhKOTYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E769C63477;
+        Mon, 15 Nov 2021 18:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000169;
-        bh=EYQqwvIU2Jf5xonjsiX1RsACkhcB4QJwMFfsRuPF8uo=;
+        s=korg; t=1637002398;
+        bh=mWh9u5ddMvpm+ElyLF3g21j0rqXi9IiCzfmtB2a/K0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kU+s4yWBlpL3G1Wjhnkl0jvIyxJstumBh1oh95h+07rSWBX1rjmY6c8xxRPJKQbUw
-         eR1l/5VdpoQnmKXck4KVQFxHTiyLzp3FH8rOAbV02CIaGRWgEjUYcOLzEVOD27P4yM
-         uQN23NJfDIGpJZ2v+Tb0gha2J8d7Imi9Xo9KnP8k=
+        b=o36Kla9kgYJ++b6lOEY1I6CLYzhL0xbchXFTXqXDbXoAIZSN0cDQz0ghJ8Xyt+PqI
+         7yPgERUg81VcThoJeAgp4P0re5EmR70I3PLOfXrEWGGFxiH/vtAAK3oXbbWKSY3Dol
+         gLdRewd87RjzmJvdj+yQ6VLeezLo9Z/aV94hQUPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 561/849] RDMA/bnxt_re: Fix query SRQ failure
-Date:   Mon, 15 Nov 2021 18:00:44 +0100
-Message-Id: <20211115165439.235891432@linuxfoundation.org>
+Subject: [PATCH 5.15 550/917] net: phylink: avoid mvneta warning when setting pause parameters
+Date:   Mon, 15 Nov 2021 18:00:45 +0100
+Message-Id: <20211115165447.432048582@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Selvin Xavier <selvin.xavier@broadcom.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 598d16fa1bf93431ad35bbab3ed1affe4fb7b562 ]
+[ Upstream commit fd8d9731bcdfb22d28e45bce789bcb211c868c78 ]
 
-Fill the missing parameters for the FW command while querying SRQ.
+mvneta does not support asymetric pause modes, and it flags this by the
+lack of AsymPause in the supported field. When setting pause modes, we
+check that pause->rx_pause == pause->tx_pause, but only when pause
+autoneg is enabled. When pause autoneg is disabled, we still allow
+pause->rx_pause != pause->tx_pause, which is incorrect when the MAC
+does not support asymetric pause, and causes mvneta to issue a warning.
 
-Fixes: 37cb11acf1f7 ("RDMA/bnxt_re: Add SRQ support for Broadcom adapters")
-Link: https://lore.kernel.org/r/1631709163-2287-8-git-send-email-selvin.xavier@broadcom.com
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fix this by removing the test for pause->autoneg, so we always check
+that pause->rx_pause == pause->tx_pause for network devices that do not
+support AsymPause.
+
+Fixes: 9525ae83959b ("phylink: add phylink infrastructure")
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/qplib_fp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/phy/phylink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/qplib_fp.c b/drivers/infiniband/hw/bnxt_re/qplib_fp.c
-index d4d4959c2434c..bd153aa7e9ab3 100644
---- a/drivers/infiniband/hw/bnxt_re/qplib_fp.c
-+++ b/drivers/infiniband/hw/bnxt_re/qplib_fp.c
-@@ -707,12 +707,13 @@ int bnxt_qplib_query_srq(struct bnxt_qplib_res *res,
- 	int rc = 0;
+diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
+index 5a58c77d00022..7ec3105010ac1 100644
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -1727,7 +1727,7 @@ int phylink_ethtool_set_pauseparam(struct phylink *pl,
+ 		return -EOPNOTSUPP;
  
- 	RCFW_CMD_PREP(req, QUERY_SRQ, cmd_flags);
--	req.srq_cid = cpu_to_le32(srq->id);
+ 	if (!phylink_test(pl->supported, Asym_Pause) &&
+-	    !pause->autoneg && pause->rx_pause != pause->tx_pause)
++	    pause->rx_pause != pause->tx_pause)
+ 		return -EINVAL;
  
- 	/* Configure the request */
- 	sbuf = bnxt_qplib_rcfw_alloc_sbuf(rcfw, sizeof(*sb));
- 	if (!sbuf)
- 		return -ENOMEM;
-+	req.resp_size = sizeof(*sb) / BNXT_QPLIB_CMDQE_UNITS;
-+	req.srq_cid = cpu_to_le32(srq->id);
- 	sb = sbuf->sb;
- 	rc = bnxt_qplib_rcfw_send_message(rcfw, (void *)&req, (void *)&resp,
- 					  (void *)sbuf, 0);
+ 	pause_state = 0;
 -- 
 2.33.0
 
