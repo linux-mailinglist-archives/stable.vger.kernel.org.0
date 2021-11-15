@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A995451ECD
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD38451E45
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343687AbhKPAhd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:37:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
+        id S1346864AbhKPAfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344753AbhKOTZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 942EF60ED3;
-        Mon, 15 Nov 2021 19:03:48 +0000 (UTC)
+        id S1344770AbhKOTZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7336861A53;
+        Mon, 15 Nov 2021 19:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003029;
-        bh=vIc+lZBCnHovu4k3sg3oxOLOzpfZdl+l3cAUUTA8ZhM=;
+        s=korg; t=1637003032;
+        bh=a+2VaIAUuFNi6Rt63CHFe68YFV8drM28h/4vPQdTEKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySbllx+32+9xNg3+gikrGQivTCYRw9/0D5OpEVgLz9ad2GltD/LKL/F2Shy5BTO0g
-         9G4+HwQKCuAbBdePmb8sHoAVG4AWIxU/DOI/6HX2FAwgtAmNcvLO4xFKdK3v6yk8Za
-         s6C+J0oo7AIX8flKTTi2DU5+G7IsfNfRC9lLqDLw=
+        b=2WrS81fSkGPYR/efWr0i239yiT5C9D1d/t4xc/bxOI4BT0H15u0DAW49iGIybgpME
+         SpSMyGJKnRUqa6N/dy5g8kRywlFYj33XWLXK1pYerDkP80f9oMqLZkFU8yBRZJMPze
+         T23rhq+iq3o8fDdI4ah6DanDjDVHXjxUOAj7Yk24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Luis Chamberlain <mcgrof@kernel.org>,
+        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 785/917] nvdimm/pmem: cleanup the disk if pmem_release_disk() is yet assigned
-Date:   Mon, 15 Nov 2021 18:04:40 +0100
-Message-Id: <20211115165455.570840542@linuxfoundation.org>
+Subject: [PATCH 5.15 786/917] block/ataflop: use the blk_cleanup_disk() helper
+Date:   Mon, 15 Nov 2021 18:04:41 +0100
+Message-Id: <20211115165455.608716618@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,61 +41,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit accf58afb689f81daadde24080ea1164ad2db75f ]
+[ Upstream commit 44a469b6acae6ad05c4acca8429467d1d50a8b8d ]
 
-Prior to devm being able to use pmem_release_disk() there are other
-failure which can occur for which we must account for and release the
-disk for. Address those few cases.
+Use the helper to replace two lines with one.
 
-Fixes: 3dd60fb9d95d ("nvdimm/pmem: stop using q_usage_count as external pgmap refcount")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Link: https://lore.kernel.org/r/20211103230437.1639990-6-mcgrof@kernel.org
+Link: https://lore.kernel.org/r/20210927220302.1073499-12-mcgrof@kernel.org
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/pmem.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/block/ataflop.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-index 054154c22899a..2721dd2ead0a7 100644
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -429,8 +429,10 @@ static int pmem_attach_disk(struct device *dev,
- 		bb_range.end = res->end;
+diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
+index 4947e41f89b7d..1a908455ff96f 100644
+--- a/drivers/block/ataflop.c
++++ b/drivers/block/ataflop.c
+@@ -2097,8 +2097,7 @@ static int __init atari_floppy_init (void)
+ 
+ err:
+ 	while (--i >= 0) {
+-		blk_cleanup_queue(unit[i].disk[0]->queue);
+-		put_disk(unit[i].disk[0]);
++		blk_cleanup_disk(unit[i].disk[0]);
+ 		blk_mq_free_tag_set(&unit[i].tag_set);
  	}
  
--	if (IS_ERR(addr))
--		return PTR_ERR(addr);
-+	if (IS_ERR(addr)) {
-+		rc = PTR_ERR(addr);
-+		goto out;
-+	}
- 	pmem->virt_addr = addr;
- 
- 	blk_queue_write_cache(q, true, fua);
-@@ -455,7 +457,8 @@ static int pmem_attach_disk(struct device *dev,
- 		flags = DAXDEV_F_SYNC;
- 	dax_dev = alloc_dax(pmem, disk->disk_name, &pmem_dax_ops, flags);
- 	if (IS_ERR(dax_dev)) {
--		return PTR_ERR(dax_dev);
-+		rc = PTR_ERR(dax_dev);
-+		goto out;
+@@ -2156,8 +2155,7 @@ static void __exit atari_floppy_exit(void)
+ 			if (!unit[i].disk[type])
+ 				continue;
+ 			del_gendisk(unit[i].disk[type]);
+-			blk_cleanup_queue(unit[i].disk[type]->queue);
+-			put_disk(unit[i].disk[type]);
++			blk_cleanup_disk(unit[i].disk[type]);
+ 		}
+ 		blk_mq_free_tag_set(&unit[i].tag_set);
  	}
- 	dax_write_cache(dax_dev, nvdimm_has_cache(nd_region));
- 	pmem->dax_dev = dax_dev;
-@@ -470,8 +473,10 @@ static int pmem_attach_disk(struct device *dev,
- 					  "badblocks");
- 	if (!pmem->bb_state)
- 		dev_warn(dev, "'badblocks' notification disabled\n");
--
- 	return 0;
-+out:
-+	blk_cleanup_disk(pmem->disk);
-+	return rc;
- }
- 
- static int nd_pmem_probe(struct device *dev)
 -- 
 2.33.0
 
