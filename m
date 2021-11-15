@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6118A4520AA
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CBD24520AC
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349993AbhKPAz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:55:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S1357501AbhKPA4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:56:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343529AbhKOTVQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343528AbhKOTVQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73650635A6;
-        Mon, 15 Nov 2021 18:41:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 353FD635A7;
+        Mon, 15 Nov 2021 18:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001688;
-        bh=Yk+6y3MIWso31w8GoTd4+7ZttxrL6yGEtLQspATe/gM=;
+        s=korg; t=1637001690;
+        bh=lkcLUPp/PhhoF4tmdW3kgfpn58FriiTE5lQOeueI/bA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O9+OMIPGy76w0am8eAGC6b/eF8vF1PL1Rf2Qmk5KlHrzfmaHiVtOx8GTWtqxTohwo
-         mtuc+IvxIhuntjmkay/joWMmjQllIJtTiJ03vQKC75RtJNGRSRjuAayw4VvXf7JNf7
-         RcZJMBuRswsojhFlzBIXHR/aAdGTVBZgCprsxDyw=
+        b=dqPi1sLmufN84GxrkiJWkD1u3/vkWM4O3iNErYaPUdDycQ83BomfOlvxcdHmVvBjC
+         IO3n/w7rmajSVujck+a9TjbXaRXpAFsANnAA8G6jnupgCVdz+gzdEy9Y6OkVFW/qHk
+         7HjPYNBKBBVh6lDe6nv9OzV53iEx0bSA6ALf2/c8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Henneman <henneman@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 283/917] arm64: vdso32: suppress error message for make mrproper
-Date:   Mon, 15 Nov 2021 17:56:18 +0100
-Message-Id: <20211115165438.365171082@linuxfoundation.org>
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 284/917] PM: hibernate: Get block device exclusively in swsusp_check()
+Date:   Mon, 15 Nov 2021 17:56:19 +0100
+Message-Id: <20211115165438.397188333@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,50 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 14831fad73f5ac30ac61760487d95a538e6ab3cb ]
+[ Upstream commit 39fbef4b0f77f9c89c8f014749ca533643a37c9f ]
 
-When running the following command without arm-linux-gnueabi-gcc in
-one's $PATH, the following warning is observed:
+The following kernel crash can be triggered:
 
-$ ARCH=arm64 CROSS_COMPILE_COMPAT=arm-linux-gnueabi- make -j72 LLVM=1 mrproper
-make[1]: arm-linux-gnueabi-gcc: No such file or directory
+[   89.266592] ------------[ cut here ]------------
+[   89.267427] kernel BUG at fs/buffer.c:3020!
+[   89.268264] invalid opcode: 0000 [#1] SMP KASAN PTI
+[   89.269116] CPU: 7 PID: 1750 Comm: kmmpd-loop0 Not tainted 5.10.0-862.14.0.6.x86_64-08610-gc932cda3cef4-dirty #20
+[   89.273169] RIP: 0010:submit_bh_wbc.isra.0+0x538/0x6d0
+[   89.277157] RSP: 0018:ffff888105ddfd08 EFLAGS: 00010246
+[   89.278093] RAX: 0000000000000005 RBX: ffff888124231498 RCX: ffffffffb2772612
+[   89.279332] RDX: 1ffff11024846293 RSI: 0000000000000008 RDI: ffff888124231498
+[   89.280591] RBP: ffff8881248cc000 R08: 0000000000000001 R09: ffffed1024846294
+[   89.281851] R10: ffff88812423149f R11: ffffed1024846293 R12: 0000000000003800
+[   89.283095] R13: 0000000000000001 R14: 0000000000000000 R15: ffff8881161f7000
+[   89.284342] FS:  0000000000000000(0000) GS:ffff88839b5c0000(0000) knlGS:0000000000000000
+[   89.285711] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   89.286701] CR2: 00007f166ebc01a0 CR3: 0000000435c0e000 CR4: 00000000000006e0
+[   89.287919] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   89.289138] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   89.290368] Call Trace:
+[   89.290842]  write_mmp_block+0x2ca/0x510
+[   89.292218]  kmmpd+0x433/0x9a0
+[   89.294902]  kthread+0x2dd/0x3e0
+[   89.296268]  ret_from_fork+0x22/0x30
+[   89.296906] Modules linked in:
 
-This is because KCONFIG is not run for mrproper, so CONFIG_CC_IS_CLANG
-is not set, and we end up eagerly evaluating various variables that try
-to invoke CC_COMPAT.
+by running the following commands:
 
-This is a similar problem to what was observed in
-commit dc960bfeedb0 ("h8300: suppress error messages for 'make clean'")
+ 1. mkfs.ext4 -O mmp  /dev/sda -b 1024
+ 2. mount /dev/sda /home/test
+ 3. echo "/dev/sda" > /sys/power/resume
 
-Reported-by: Lucas Henneman <henneman@google.com>
-Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20211019223646.1146945-4-ndesaulniers@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
+That happens because swsusp_check() calls set_blocksize() on the
+target partition which confuses the file system:
+
+       Thread1                       Thread2
+mount /dev/sda /home/test
+get s_mmp_bh  --> has mapped flag
+start kmmpd thread
+				echo "/dev/sda" > /sys/power/resume
+				  resume_store
+				    software_resume
+				      swsusp_check
+				        set_blocksize
+					  truncate_inode_pages_range
+					    truncate_cleanup_page
+					      block_invalidatepage
+					        discard_buffer --> clean mapped flag
+write_mmp_block
+  submit_bh
+    submit_bh_wbc
+      BUG_ON(!buffer_mapped(bh))
+
+To address this issue, modify swsusp_check() to open the target block
+device with exclusive access.
+
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/vdso32/Makefile | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/power/swap.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
-index 3dba0c4f8f42b..764d1900d5aab 100644
---- a/arch/arm64/kernel/vdso32/Makefile
-+++ b/arch/arm64/kernel/vdso32/Makefile
-@@ -40,7 +40,8 @@ cc32-as-instr = $(call try-run,\
- # As a result we set our own flags here.
+diff --git a/kernel/power/swap.c b/kernel/power/swap.c
+index 3cb89baebc796..0aabc94125d6b 100644
+--- a/kernel/power/swap.c
++++ b/kernel/power/swap.c
+@@ -1521,9 +1521,10 @@ end:
+ int swsusp_check(void)
+ {
+ 	int error;
++	void *holder;
  
- # KBUILD_CPPFLAGS and NOSTDINC_FLAGS from top-level Makefile
--VDSO_CPPFLAGS := -DBUILD_VDSO -D__KERNEL__ -nostdinc -isystem $(shell $(CC_COMPAT) -print-file-name=include)
-+VDSO_CPPFLAGS := -DBUILD_VDSO -D__KERNEL__ -nostdinc
-+VDSO_CPPFLAGS += -isystem $(shell $(CC_COMPAT) -print-file-name=include 2>/dev/null)
- VDSO_CPPFLAGS += $(LINUXINCLUDE)
+ 	hib_resume_bdev = blkdev_get_by_dev(swsusp_resume_device,
+-					    FMODE_READ, NULL);
++					    FMODE_READ | FMODE_EXCL, &holder);
+ 	if (!IS_ERR(hib_resume_bdev)) {
+ 		set_blocksize(hib_resume_bdev, PAGE_SIZE);
+ 		clear_page(swsusp_header);
+@@ -1545,7 +1546,7 @@ int swsusp_check(void)
  
- # Common C and assembly flags
+ put:
+ 		if (error)
+-			blkdev_put(hib_resume_bdev, FMODE_READ);
++			blkdev_put(hib_resume_bdev, FMODE_READ | FMODE_EXCL);
+ 		else
+ 			pr_debug("Image signature found, resuming\n");
+ 	} else {
 -- 
 2.33.0
 
