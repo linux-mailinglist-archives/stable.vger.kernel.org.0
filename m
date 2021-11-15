@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D21D84521A4
+	by mail.lfdr.de (Postfix) with ESMTP id 644384521A3
 	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:03:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245469AbhKPBFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:05:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
+        id S1346161AbhKPBFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:05:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245461AbhKOTUf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245463AbhKOTUf (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:20:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 496D96354A;
-        Mon, 15 Nov 2021 18:35:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C3D46354B;
+        Mon, 15 Nov 2021 18:35:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001309;
-        bh=hYQE+7hJEdA+L5jYAWSJucXNU7vGHmO4eYdauqdSTVc=;
+        s=korg; t=1637001319;
+        bh=g4NJTNerBoEZwFfv92TKPtyb5oRRHk+lF7F1AaKRcKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RcuTHqoKg+ne8tCvbhcV0EczYsAp2iepm8NhQRbsQlhLwM8l9Gi908QLIy6chOxBE
-         NbfBWbHGvYkmCGNNvoYrM/RkL/a25JWdGbrIo74jrMKqEnsprT8AroHhs0fq+GoB29
-         a3gAwIS0PCLEF40HLBBAR2L7ccjgPSbXPYyGg54A=
+        b=PXqSY5HVLYiwc3anvb5w/5T4NfuP++/TK4G9mN0FHekRRDlkx9aHGjrBXEdugrevb
+         RppKmgpSpN2xtp4fyOFihvN2DUbKwiqxzocZexz/C3PQcncyhl6GvJYRz6LeYO4pnR
+         Z9klL9m40YXJk2Hw3lDqDc6gzRX9wnNy5DYV4gJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.15 142/917] cxl/pci: Fix NULL vs ERR_PTR confusion
-Date:   Mon, 15 Nov 2021 17:53:57 +0100
-Message-Id: <20211115165433.576582526@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.15 145/917] PCI: aardvark: Do not unmask unused interrupts
+Date:   Mon, 15 Nov 2021 17:54:00 +0100
+Message-Id: <20211115165433.679316271@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,36 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit ca76a3a8052b71c0334d5c094859cfa340c290a8 upstream.
+commit 1fb95d7d3c7a926b002fe8a6bd27a1cb428b46dc upstream.
 
-cxl_pci_map_regblock() may return an ERR_PTR(), but cxl_pci_setup_regs()
-is only prepared for NULL as the error case. Pick the minimal fix for
--stable backport purposes and just have cxl_pci_map_regblock() return
-NULL for errors.
+There are lot of undocumented interrupt bits. To prevent unwanted
+spurious interrupts, fix all *_ALL_MASK macros to define all interrupt
+bits, so that driver can properly mask all interrupts, including those
+which are undocumented.
 
-Fixes: f8a7e8c29be8 ("cxl/pci: Reserve all device regions at once")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Link: https://lore.kernel.org/r/163433325724.834522.17809774578178224149.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Link: https://lore.kernel.org/r/20211005180952.6812-8-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cxl/pci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/cxl/pci.c
-+++ b/drivers/cxl/pci.c
-@@ -972,7 +972,7 @@ static void __iomem *cxl_mem_map_regbloc
- 	if (pci_resource_len(pdev, bar) < offset) {
- 		dev_err(dev, "BAR%d: %pr: too small (offset: %#llx)\n", bar,
- 			&pdev->resource[bar], (unsigned long long)offset);
--		return IOMEM_ERR_PTR(-ENXIO);
-+		return NULL;
- 	}
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -106,13 +106,13 @@
+ #define     PCIE_ISR0_MSI_INT_PENDING		BIT(24)
+ #define     PCIE_ISR0_INTX_ASSERT(val)		BIT(16 + (val))
+ #define     PCIE_ISR0_INTX_DEASSERT(val)	BIT(20 + (val))
+-#define	    PCIE_ISR0_ALL_MASK			GENMASK(26, 0)
++#define     PCIE_ISR0_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_ISR1_REG				(CONTROL_BASE_ADDR + 0x48)
+ #define PCIE_ISR1_MASK_REG			(CONTROL_BASE_ADDR + 0x4C)
+ #define     PCIE_ISR1_POWER_STATE_CHANGE	BIT(4)
+ #define     PCIE_ISR1_FLUSH			BIT(5)
+ #define     PCIE_ISR1_INTX_ASSERT(val)		BIT(8 + (val))
+-#define     PCIE_ISR1_ALL_MASK			GENMASK(11, 4)
++#define     PCIE_ISR1_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_MSI_ADDR_LOW_REG			(CONTROL_BASE_ADDR + 0x50)
+ #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
+ #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
+@@ -240,7 +240,7 @@ enum {
+ #define     PCIE_IRQ_MSI_INT2_DET		BIT(21)
+ #define     PCIE_IRQ_RC_DBELL_DET		BIT(22)
+ #define     PCIE_IRQ_EP_STATUS			BIT(23)
+-#define     PCIE_IRQ_ALL_MASK			0xfff0fb
++#define     PCIE_IRQ_ALL_MASK			GENMASK(31, 0)
+ #define     PCIE_IRQ_ENABLE_INTS_MASK		PCIE_IRQ_CORE_INT
  
- 	addr = pci_iomap(pdev, bar, 0);
+ /* Transaction types */
 
 
