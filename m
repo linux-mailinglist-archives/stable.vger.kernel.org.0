@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB9C5450B65
+	by mail.lfdr.de (Postfix) with ESMTP id 93209450B64
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:21:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237859AbhKORYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237212AbhKORYU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 12:24:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51082 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236960AbhKORTw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236941AbhKORTw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 12:19:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D8ED63267;
-        Mon, 15 Nov 2021 17:14:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AF5F6326A;
+        Mon, 15 Nov 2021 17:15:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996498;
-        bh=nbzD/jH/uTkw+MFAmjiadRwcm9gqyiISq+zuO2d3pFg=;
+        s=korg; t=1636996501;
+        bh=p9dDR6AKIpy4EKkEAOp0tCiEtQG88nQSrAduA0ytCi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VsO8o+C9XgwZHa7TUaxhHzzVzxtx8m5d+2ECvJ8jYC5zvycbEjmAnniQ2XkQAM0hl
-         XcXjUvAKBIhNZMSgWrpHSOTztDYNA3avJ9rDF6TanzAW/+XKTdxd2FPTlCFQuFs74n
-         6D5NFiJXEiZhZPSFbFWLRmU4zzp0PkF+nzA2yQf4=
+        b=Xl4zmF3hTNSMJ1k/SFA18Yesp/KJ5890ME70Gk+Ie0jygNQF4+l+pb+hj/GqtHML/
+         Vvo6Hbe8O32amctAM06dKp5yO9gcDqriSyPGRbUVW5OXMY9Ynh8RpfYNlXf7qrqQs1
+         ck5ylmcKhdsiciQCmVJAI41LFvUEFSIAytIzTYgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Israel Rukshin <israelr@nvidia.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 161/355] nvmet-tcp: fix use-after-free when a port is removed
-Date:   Mon, 15 Nov 2021 18:01:25 +0100
-Message-Id: <20211115165318.990923502@linuxfoundation.org>
+Subject: [PATCH 5.4 162/355] nvme: drop scan_lock and always kick requeue list when removing namespaces
+Date:   Mon, 15 Nov 2021 18:01:26 +0100
+Message-Id: <20211115165319.027060170@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -40,60 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Israel Rukshin <israelr@nvidia.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 2351ead99ce9164fb42555aee3f96af84c4839e9 ]
+[ Upstream commit 2b81a5f015199f3d585ce710190a9e87714d3c1e ]
 
-When removing a port, all its controllers are being removed, but there
-are queues on the port that doesn't belong to any controller (during
-connection time). This causes a use-after-free bug for any command
-that dereferences req->port (like in nvmet_alloc_ctrl). Those queues
-should be destroyed before freeing the port via configfs. Destroy
-the remaining queues after the accept_work was cancelled guarantees
-that no new queue will be created.
+When reading the partition table on initial scan hits an I/O error the
+I/O will hang with the scan_mutex held:
 
-Signed-off-by: Israel Rukshin <israelr@nvidia.com>
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+[<0>] do_read_cache_page+0x49b/0x790
+[<0>] read_part_sector+0x39/0xe0
+[<0>] read_lba+0xf9/0x1d0
+[<0>] efi_partition+0xf1/0x7f0
+[<0>] bdev_disk_changed+0x1ee/0x550
+[<0>] blkdev_get_whole+0x81/0x90
+[<0>] blkdev_get_by_dev+0x128/0x2e0
+[<0>] device_add_disk+0x377/0x3c0
+[<0>] nvme_mpath_set_live+0x130/0x1b0 [nvme_core]
+[<0>] nvme_mpath_add_disk+0x150/0x160 [nvme_core]
+[<0>] nvme_alloc_ns+0x417/0x950 [nvme_core]
+[<0>] nvme_validate_or_alloc_ns+0xe9/0x1e0 [nvme_core]
+[<0>] nvme_scan_work+0x168/0x310 [nvme_core]
+[<0>] process_one_work+0x231/0x420
+
+and trying to delete the controller will deadlock as it tries to grab
+the scan mutex:
+
+[<0>] nvme_mpath_clear_ctrl_paths+0x25/0x80 [nvme_core]
+[<0>] nvme_remove_namespaces+0x31/0xf0 [nvme_core]
+[<0>] nvme_do_delete_ctrl+0x4b/0x80 [nvme_core]
+
+As we're now properly ordering the namespace list there is no need to
+hold the scan_mutex in nvme_mpath_clear_ctrl_paths() anymore.
+And we always need to kick the requeue list as the path will be marked
+as unusable and I/O will be requeued _without_ a current path.
+
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/tcp.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/nvme/host/multipath.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index 6b3d1ba7db7ee..fac1985870765 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -1667,6 +1667,17 @@ err_port:
- 	return ret;
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 016a67fd41989..9f01af2f03e68 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -156,13 +156,12 @@ void nvme_mpath_clear_ctrl_paths(struct nvme_ctrl *ctrl)
+ {
+ 	struct nvme_ns *ns;
+ 
+-	mutex_lock(&ctrl->scan_lock);
+ 	down_read(&ctrl->namespaces_rwsem);
+-	list_for_each_entry(ns, &ctrl->namespaces, list)
+-		if (nvme_mpath_clear_current_path(ns))
+-			kblockd_schedule_work(&ns->head->requeue_work);
++	list_for_each_entry(ns, &ctrl->namespaces, list) {
++		nvme_mpath_clear_current_path(ns);
++		kblockd_schedule_work(&ns->head->requeue_work);
++	}
+ 	up_read(&ctrl->namespaces_rwsem);
+-	mutex_unlock(&ctrl->scan_lock);
  }
  
-+static void nvmet_tcp_destroy_port_queues(struct nvmet_tcp_port *port)
-+{
-+	struct nvmet_tcp_queue *queue;
-+
-+	mutex_lock(&nvmet_tcp_queue_mutex);
-+	list_for_each_entry(queue, &nvmet_tcp_queue_list, queue_list)
-+		if (queue->port == port)
-+			kernel_sock_shutdown(queue->sock, SHUT_RDWR);
-+	mutex_unlock(&nvmet_tcp_queue_mutex);
-+}
-+
- static void nvmet_tcp_remove_port(struct nvmet_port *nport)
- {
- 	struct nvmet_tcp_port *port = nport->priv;
-@@ -1676,6 +1687,11 @@ static void nvmet_tcp_remove_port(struct nvmet_port *nport)
- 	port->sock->sk->sk_user_data = NULL;
- 	write_unlock_bh(&port->sock->sk->sk_callback_lock);
- 	cancel_work_sync(&port->accept_work);
-+	/*
-+	 * Destroy the remaining queues, which are not belong to any
-+	 * controller yet.
-+	 */
-+	nvmet_tcp_destroy_port_queues(port);
- 
- 	sock_release(port->sock);
- 	kfree(port);
+ static bool nvme_path_is_disabled(struct nvme_ns *ns)
 -- 
 2.33.0
 
