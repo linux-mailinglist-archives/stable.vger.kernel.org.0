@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F156451EF7
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:35:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E45F6451EEE
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:35:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344432AbhKPAiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:38:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S1346655AbhKPAiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:38:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344597AbhKOTZE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2C3063699;
-        Mon, 15 Nov 2021 19:00:52 +0000 (UTC)
+        id S1344614AbhKOTZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4C656369B;
+        Mon, 15 Nov 2021 19:00:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002853;
-        bh=xizWIrRy1p+QFp6NVczNGyk8vn/MqFpq6Vbc24WtEzM=;
+        s=korg; t=1637002856;
+        bh=kTg7vA0T5h8J6aM/WFZfU/0eUdXmNFLFTgfEQnUOvbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ozUmv11QXCLkrFEKSiBXorzZ+ed50AqCu5z4iLJUvH0zZKDlzeiOTn3/Xa+Reb9wT
-         dJwqwm3gFDrqSbSuJ7aMkVwJmJHPDPrtPdoVDGE2qAQAMWyeMz1gg9jSjsrKyicoRl
-         k2OPBJ/s1K+cPg3cltMoenMqFa1R/r8QoRDIPrNM=
+        b=c1Oe/7ch7st3QS50MBq/6NVgra0CnG51lZAERPJMOLtp45JTpvY3oR+t58zvNC5Hv
+         qFFVpJyh5f5M6Ao4gXUpIm981j5Rm7Kcg3HRo4ykkkfYYwaa/Gb8McTirQCt4+/CgH
+         imwmkhYj/qI61HudpzdSPtCuqnftzUKq7zoQHSXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Pratyush Yadav <p.yadav@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 720/917] drm/bridge: nwl-dsi: Add atomic_get_input_bus_fmts
-Date:   Mon, 15 Nov 2021 18:03:35 +0100
-Message-Id: <20211115165453.318721839@linuxfoundation.org>
+Subject: [PATCH 5.15 721/917] mtd: spi-nor: hisi-sfc: Remove excessive clk_disable_unprepare()
+Date:   Mon, 15 Nov 2021 18:03:36 +0100
+Message-Id: <20211115165453.355868374@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,83 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guido Günther <agx@sigxcpu.org>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 2f1495fac8d38bfade18bd7e31fa787cd7815626 ]
+[ Upstream commit 78e4d342187625585932bb437ec26e1060f7fc6f ]
 
-Components further up in the chain might ask us for supported formats.
+hisi_spi_nor_probe() invokes clk_disable_unprepare() on all paths after
+successful call of clk_prepare_enable(). Besides, the clock is enabled by
+hispi_spi_nor_prep() and disabled by hispi_spi_nor_unprep(). So at remove
+time it is not possible to have the clock enabled. The patch removes
+excessive clk_disable_unprepare() from hisi_spi_nor_remove().
 
-Without this MEDIA_BUS_FMT_FIXED is assumed which then breaks display
-output with mxsfb since it can't determine a proper bus format.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-We handle the bus formats that correspond to the DSI formats the bridge
-can potentially output (see chapter 13.6 of the i.MX 8MQ reference
-manual) - which matches what xsfb can input.
-
-Fixes: b776b0f00f24 ("drm: mxsfb: Use bus_format from the nearest bridge if present")
-
-Signed-off-by: Guido Günther <agx@sigxcpu.org>
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1712f2b952694fd4484dfd8576fbc5b4d7adf042.1633959458.git.agx@sigxcpu.org
+Fixes: e523f11141bd ("mtd: spi-nor: add hisilicon spi-nor flash controller driver")
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
+Link: https://lore.kernel.org/r/20210709144529.31379-1-novikov@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/nwl-dsi.c | 35 ++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ drivers/mtd/spi-nor/controllers/hisi-sfc.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
-index ed8ac5059cd26..a7389a0facfb4 100644
---- a/drivers/gpu/drm/bridge/nwl-dsi.c
-+++ b/drivers/gpu/drm/bridge/nwl-dsi.c
-@@ -939,6 +939,40 @@ static void nwl_dsi_bridge_detach(struct drm_bridge *bridge)
- 	drm_of_panel_bridge_remove(dsi->dev->of_node, 1, 0);
+diff --git a/drivers/mtd/spi-nor/controllers/hisi-sfc.c b/drivers/mtd/spi-nor/controllers/hisi-sfc.c
+index 47fbf1d1e5573..516e502694780 100644
+--- a/drivers/mtd/spi-nor/controllers/hisi-sfc.c
++++ b/drivers/mtd/spi-nor/controllers/hisi-sfc.c
+@@ -477,7 +477,6 @@ static int hisi_spi_nor_remove(struct platform_device *pdev)
+ 
+ 	hisi_spi_nor_unregister_all(host);
+ 	mutex_destroy(&host->lock);
+-	clk_disable_unprepare(host->clk);
+ 	return 0;
  }
  
-+static u32 *nwl_bridge_atomic_get_input_bus_fmts(struct drm_bridge *bridge,
-+						 struct drm_bridge_state *bridge_state,
-+						 struct drm_crtc_state *crtc_state,
-+						 struct drm_connector_state *conn_state,
-+						 u32 output_fmt,
-+						 unsigned int *num_input_fmts)
-+{
-+	u32 *input_fmts, input_fmt;
-+
-+	*num_input_fmts = 0;
-+
-+	switch (output_fmt) {
-+	/* If MEDIA_BUS_FMT_FIXED is tested, return default bus format */
-+	case MEDIA_BUS_FMT_FIXED:
-+		input_fmt = MEDIA_BUS_FMT_RGB888_1X24;
-+		break;
-+	case MEDIA_BUS_FMT_RGB888_1X24:
-+	case MEDIA_BUS_FMT_RGB666_1X18:
-+	case MEDIA_BUS_FMT_RGB565_1X16:
-+		input_fmt = output_fmt;
-+		break;
-+	default:
-+		return NULL;
-+	}
-+
-+	input_fmts = kcalloc(1, sizeof(*input_fmts), GFP_KERNEL);
-+	if (!input_fmts)
-+		return NULL;
-+	input_fmts[0] = input_fmt;
-+	*num_input_fmts = 1;
-+
-+	return input_fmts;
-+}
-+
- static const struct drm_bridge_funcs nwl_dsi_bridge_funcs = {
- 	.atomic_duplicate_state	= drm_atomic_helper_bridge_duplicate_state,
- 	.atomic_destroy_state	= drm_atomic_helper_bridge_destroy_state,
-@@ -946,6 +980,7 @@ static const struct drm_bridge_funcs nwl_dsi_bridge_funcs = {
- 	.atomic_check		= nwl_dsi_bridge_atomic_check,
- 	.atomic_enable		= nwl_dsi_bridge_atomic_enable,
- 	.atomic_disable		= nwl_dsi_bridge_atomic_disable,
-+	.atomic_get_input_bus_fmts = nwl_bridge_atomic_get_input_bus_fmts,
- 	.mode_set		= nwl_dsi_bridge_mode_set,
- 	.mode_valid		= nwl_dsi_bridge_mode_valid,
- 	.attach			= nwl_dsi_bridge_attach,
 -- 
 2.33.0
 
