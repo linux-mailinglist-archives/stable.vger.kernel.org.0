@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFAFF4514C0
+	by mail.lfdr.de (Postfix) with ESMTP id 19B144514BE
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:10:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344273AbhKOUMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:12:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
+        id S1349404AbhKOUMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:12:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344943AbhKOTZr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66349636FD;
-        Mon, 15 Nov 2021 19:07:22 +0000 (UTC)
+        id S1344949AbhKOTZs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 252DD63499;
+        Mon, 15 Nov 2021 19:07:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003243;
-        bh=C8gM2fcdLMFlozC0N5gpMU6z5lj/cT4un22z9qSwOqg=;
+        s=korg; t=1637003248;
+        bh=vWdzKBr/23yPIwG9CxZQJGct2T6Ul5/g8eNvRuOjaWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TRpb93K5S+S2C5mLjHzoPzoNKjuVYWcdhkjDutxlRQnu+ZtNKNwpL91+jWxjFPPam
-         6QDyKCJCeFOLS4lKPzCgYdXoUe602NoZcrLFIALgqKKk+d3M+00eyQzoDg7K2x2x45
-         Gr+blmtN4iPTCG7DFGtfOJmaVkEo5JjwoAkDXdqc=
+        b=gekPGzzBTfU6Mw9CXO8M0xwgtqj60zNVE1PUWmiTw0zZb8H+m856She3WCnuB4WDk
+         XIQdH/1m9AE0XNgdqzhPtrpoyNtZ5IzHNgMjtAfhcHNfprEn7eIEqpE0ywGkttk1pl
+         N9KtWAztSsfTe8JwY1ZokEAEtfCbrzb2PpCfdQoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.15 863/917] ceph: fix mdsmap decode when there are MDSs beyond max_mds
-Date:   Mon, 15 Nov 2021 18:05:58 +0100
-Message-Id: <20211115165458.290802129@linuxfoundation.org>
+        stable@vger.kernel.org, Matthew Brost <matthew.brost@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        John Harrison <John.C.Harrison@Intel.com>
+Subject: [PATCH 5.15 865/917] drm/i915/guc: Fix blocked context accounting
+Date:   Mon, 15 Nov 2021 18:06:00 +0100
+Message-Id: <20211115165458.363094484@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,40 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Matthew Brost <matthew.brost@intel.com>
 
-commit 0e24421ac431e7af62d4acef6c638b85aae51728 upstream.
+commit fc30a6764a54dea42291aeb7009bef7aa2fc1cd4 upstream.
 
-If the max_mds is decreased in a cephfs cluster, there is a window
-of time before the MDSs are removed. If a map goes out during this
-period, the mdsmap may show the decreased max_mds but still shows
-those MDSes as in or in the export target list.
+Prior to this patch the blocked context counter was cleared on
+init_sched_state (used during registering a context & resets) which is
+incorrect. This state needs to be persistent or the counter can read the
+incorrect value resulting in scheduling never getting enabled again.
 
-Ensure that we don't fail the map decode in that case.
-
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/52436
-Fixes: d517b3983dd3 ("ceph: reconnect to the export targets on new mdsmaps")
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: 62eaf0ae217d ("drm/i915/guc: Support request cancellation")
+Signed-off-by: Matthew Brost <matthew.brost@intel.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210909164744.31249-2-matthew.brost@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/mdsmap.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ceph/mdsmap.c
-+++ b/fs/ceph/mdsmap.c
-@@ -263,10 +263,6 @@ struct ceph_mdsmap *ceph_mdsmap_decode(v
- 				goto nomem;
- 			for (j = 0; j < num_export_targets; j++) {
- 				target = ceph_decode_32(&pexport_targets);
--				if (target >= m->possible_max_rank) {
--					err = -EIO;
--					goto corrupt;
--				}
- 				info->export_targets[j] = target;
- 			}
- 		} else {
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+@@ -152,7 +152,7 @@ static inline void init_sched_state(stru
+ {
+ 	/* Only should be called from guc_lrc_desc_pin() */
+ 	atomic_set(&ce->guc_sched_state_no_lock, 0);
+-	ce->guc_state.sched_state = 0;
++	ce->guc_state.sched_state &= SCHED_STATE_BLOCKED_MASK;
+ }
+ 
+ static inline bool
 
 
