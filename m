@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99007452099
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:52:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93F6245209B
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344429AbhKPAzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:55:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S1345158AbhKPAzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:55:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233224AbhKOTVI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245750AbhKOTVI (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70B586328E;
-        Mon, 15 Nov 2021 18:40:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 167CC632F6;
+        Mon, 15 Nov 2021 18:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001627;
-        bh=M3SvlGThEGmBAIM1ZNtPR3eLWV4qwpyTYN7lP2Z8onQ=;
+        s=korg; t=1637001629;
+        bh=8GwS4AjwiiTZMorK0iz3ID6+BH3cgVcnS/xU0obfKNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u8IyG8WDY/gjQuJIs9oXco/kzyYEyQxV32KPuAGtt/ym41HNOPj7aJRj/50feGNvm
-         tQKAgRfax+EplWTa2dUDmgxzXAEK7qj1QrQ5EfsjGFxsArWfK/hd5ec1uMZZcNeI+o
-         LswrAgiigO1bWiL/z0u70ujP5RJlwf1bf2Sv65Gw=
+        b=Rrv5ROH3khd0ZDOpqkBTD0WF2pCPyhzZqsfjvOsSEkNy97XjkFwSk9jK8ROJvkJHR
+         oAm22usZfJljPQzw1v8OrsvNIsbH5EEuVJvBwkC92ulYquaDV0BwEcQRSeaRS0rk0+
+         tmfPjnUrTOql7kg1Pit2KBJuStc9SnwGHqe7lhPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
-        Sean Paul <sean@poorly.run>, David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
-        Tim Gardner <tim.gardner@canonical.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 261/917] drm/msm: prevent NULL dereference in msm_gpu_crashstate_capture()
-Date:   Mon, 15 Nov 2021 17:55:56 +0100
-Message-Id: <20211115165437.636623552@linuxfoundation.org>
+Subject: [PATCH 5.15 262/917] thermal/drivers/tsens: Add timeout to get_temp_tsens_valid
+Date:   Mon, 15 Nov 2021 17:55:57 +0100
+Message-Id: <20211115165437.671079522@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -45,52 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Gardner <tim.gardner@canonical.com>
+From: Ansuel Smith <ansuelsmth@gmail.com>
 
-[ Upstream commit b220c154832c5cd0df34cbcbcc19d7135c16e823 ]
+[ Upstream commit d012f9189fda0f3a1b303780ba0bbc7298d0d349 ]
 
-Coverity complains of a possible NULL dereference:
+The function can loop and lock the system if for whatever reason the bit
+for the target sensor is NEVER valid. This is the case if a sensor is
+disabled by the factory and the valid bit is never reported as actually
+valid. Add a timeout check and exit if a timeout occurs. As this is
+a very rare condition, handle the timeout only if the first read fails.
+While at it also rework the function to improve readability and convert
+to poll_timeout generic macro.
 
-CID 120718 (#1 of 1): Dereference null return value (NULL_RETURNS)
-23. dereference: Dereferencing a pointer that might be NULL state->bos when
-    calling msm_gpu_crashstate_get_bo. [show details]
-301                        msm_gpu_crashstate_get_bo(state, submit->bos[i].obj,
-302                                submit->bos[i].iova, submit->bos[i].flags);
-
-Fix this by employing the same state->bos NULL check as is used in the next
-for loop.
-
-Cc: Rob Clark <robdclark@gmail.com>
-Cc: Sean Paul <sean@poorly.run>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: linux-arm-msm@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: freedreno@lists.freedesktop.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210929162554.14295-1-tim.gardner@canonical.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20211007172859.583-1-ansuelsmth@gmail.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_gpu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/qcom/tsens.c | 29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_gpu.c b/drivers/gpu/drm/msm/msm_gpu.c
-index 8a3a592da3a4d..2c46cd968ac4c 100644
---- a/drivers/gpu/drm/msm/msm_gpu.c
-+++ b/drivers/gpu/drm/msm/msm_gpu.c
-@@ -296,7 +296,7 @@ static void msm_gpu_crashstate_capture(struct msm_gpu *gpu,
- 		state->bos = kcalloc(nr,
- 			sizeof(struct msm_gpu_state_bo), GFP_KERNEL);
+diff --git a/drivers/thermal/qcom/tsens.c b/drivers/thermal/qcom/tsens.c
+index b1162e566a707..99a8d9f3e03ca 100644
+--- a/drivers/thermal/qcom/tsens.c
++++ b/drivers/thermal/qcom/tsens.c
+@@ -603,22 +603,21 @@ int get_temp_tsens_valid(const struct tsens_sensor *s, int *temp)
+ 	int ret;
  
--		for (i = 0; i < submit->nr_bos; i++) {
-+		for (i = 0; state->bos && i < submit->nr_bos; i++) {
- 			if (should_dump(submit, i)) {
- 				msm_gpu_crashstate_get_bo(state, submit->bos[i].obj,
- 					submit->bos[i].iova, submit->bos[i].flags);
+ 	/* VER_0 doesn't have VALID bit */
+-	if (tsens_version(priv) >= VER_0_1) {
+-		ret = regmap_field_read(priv->rf[valid_idx], &valid);
+-		if (ret)
+-			return ret;
+-		while (!valid) {
+-			/* Valid bit is 0 for 6 AHB clock cycles.
+-			 * At 19.2MHz, 1 AHB clock is ~60ns.
+-			 * We should enter this loop very, very rarely.
+-			 */
+-			ndelay(400);
+-			ret = regmap_field_read(priv->rf[valid_idx], &valid);
+-			if (ret)
+-				return ret;
+-		}
+-	}
++	if (tsens_version(priv) == VER_0)
++		goto get_temp;
++
++	/* Valid bit is 0 for 6 AHB clock cycles.
++	 * At 19.2MHz, 1 AHB clock is ~60ns.
++	 * We should enter this loop very, very rarely.
++	 * Wait 1 us since it's the min of poll_timeout macro.
++	 * Old value was 400 ns.
++	 */
++	ret = regmap_field_read_poll_timeout(priv->rf[valid_idx], valid,
++					     valid, 1, 20 * USEC_PER_MSEC);
++	if (ret)
++		return ret;
+ 
++get_temp:
+ 	/* Valid bit is set, OK to read the temperature */
+ 	*temp = tsens_hw_to_mC(s, temp_idx);
+ 
 -- 
 2.33.0
 
