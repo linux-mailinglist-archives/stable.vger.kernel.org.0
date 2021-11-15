@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34DC545132E
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D226145132A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347792AbhKOTrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:47:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
+        id S245188AbhKOTqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:46:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245442AbhKOTUd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74D7F61268;
-        Mon, 15 Nov 2021 18:34:38 +0000 (UTC)
+        id S245384AbhKOTU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE72C63468;
+        Mon, 15 Nov 2021 18:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001279;
-        bh=Sqy0U/mJtaa9Wu2RRnegbHHjbEpgayJOZin4QfmRK2E=;
+        s=korg; t=1637001221;
+        bh=DbZ0Cveu/LdiU1FYLC2gWZytgdmF3iJGUGKJLPNlJxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gidlwkO6i+XjSd+N6bR3hLG/gylVs9CwETOfJ5f1v16r2rIWS4+eh0aPyoPgG0IB3
-         Gq3+VCMLmCqBH5XOe24XoUs7bnp7ReEp2JDhIsyZhc16V1jk/hG5M/dpu+Rg9mnuKh
-         7czqXYfcKgdINhiDHet/6IB2anl2nPyNN1d/IwuY=
+        b=0VwaAFdJWiCKLpJLneFGxikTJaGanVwYQ/p/4dc5CoQ4qyxdA9x5geOt1U1tBze9B
+         uNWo97gcmHpdfgDjNnIEjKh6+0BDVVHv89xkFroBH9KzDzTLXkhlP3VYdNNga+ig8/
+         sTJo0KqT7Z7TaAUQtct6a6lyhrDRld2hvUF2uJHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Li <benl@squareup.com>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.15 097/917] wcn36xx: handle connection loss indication
-Date:   Mon, 15 Nov 2021 17:53:12 +0100
-Message-Id: <20211115165432.032111489@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.15 108/917] signal: Remove the bogus sigkill_pending in ptrace_stop
+Date:   Mon, 15 Nov 2021 17:53:23 +0100
+Message-Id: <20211115165432.419547557@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,90 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Li <benl@squareup.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit d6dbce453b19c64b96f3e927b10230f9a704b504 upstream.
+commit 7d613f9f72ec8f90ddefcae038fdae5adb8404b3 upstream.
 
-Firmware sends delete_sta_context_ind when it detects the AP has gone
-away in STA mode. Right now the handler for that indication only handles
-AP mode; fix it to also handle STA mode.
+The existence of sigkill_pending is a little silly as it is
+functionally a duplicate of fatal_signal_pending that is used in
+exactly one place.
+
+Checking for pending fatal signals and returning early in ptrace_stop
+is actively harmful.  It casues the ptrace_stop called by
+ptrace_signal to return early before setting current->exit_code.
+Later when ptrace_signal reads the signal number from
+current->exit_code is undefined, making it unpredictable what will
+happen.
+
+Instead rely on the fact that schedule will not sleep if there is a
+pending signal that can awaken a task.
+
+Removing the explict sigkill_pending test fixes fixes ptrace_signal
+when ptrace_stop does not stop because current->exit_code is always
+set to to signr.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Benjamin Li <benl@squareup.com>
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210901180606.11686-1-benl@squareup.com
+Fixes: 3d749b9e676b ("ptrace: simplify ptrace_stop()->sigkill_pending() path")
+Fixes: 1a669c2f16d4 ("Add arch_ptrace_stop")
+Link: https://lkml.kernel.org/r/87pmsyx29t.fsf@disp2133
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/wcn36xx/smd.c |   44 ++++++++++++++++++++++++---------
- 1 file changed, 33 insertions(+), 11 deletions(-)
+ kernel/signal.c |   18 ++++--------------
+ 1 file changed, 4 insertions(+), 14 deletions(-)
 
---- a/drivers/net/wireless/ath/wcn36xx/smd.c
-+++ b/drivers/net/wireless/ath/wcn36xx/smd.c
-@@ -2623,30 +2623,52 @@ static int wcn36xx_smd_delete_sta_contex
- 					      size_t len)
- {
- 	struct wcn36xx_hal_delete_sta_context_ind_msg *rsp = buf;
--	struct wcn36xx_vif *tmp;
-+	struct wcn36xx_vif *vif_priv;
-+	struct ieee80211_vif *vif;
-+	struct ieee80211_bss_conf *bss_conf;
- 	struct ieee80211_sta *sta;
-+	bool found = false;
- 
- 	if (len != sizeof(*rsp)) {
- 		wcn36xx_warn("Corrupted delete sta indication\n");
- 		return -EIO;
- 	}
- 
--	wcn36xx_dbg(WCN36XX_DBG_HAL, "delete station indication %pM index %d\n",
--		    rsp->addr2, rsp->sta_id);
-+	wcn36xx_dbg(WCN36XX_DBG_HAL,
-+		    "delete station indication %pM index %d reason %d\n",
-+		    rsp->addr2, rsp->sta_id, rsp->reason_code);
- 
--	list_for_each_entry(tmp, &wcn->vif_list, list) {
-+	list_for_each_entry(vif_priv, &wcn->vif_list, list) {
- 		rcu_read_lock();
--		sta = ieee80211_find_sta(wcn36xx_priv_to_vif(tmp), rsp->addr2);
--		if (sta)
--			ieee80211_report_low_ack(sta, 0);
-+		vif = wcn36xx_priv_to_vif(vif_priv);
-+
-+		if (vif->type == NL80211_IFTYPE_STATION) {
-+			/* We could call ieee80211_find_sta too, but checking
-+			 * bss_conf is clearer.
-+			 */
-+			bss_conf = &vif->bss_conf;
-+			if (vif_priv->sta_assoc &&
-+			    !memcmp(bss_conf->bssid, rsp->addr2, ETH_ALEN)) {
-+				found = true;
-+				wcn36xx_dbg(WCN36XX_DBG_HAL,
-+					    "connection loss bss_index %d\n",
-+					    vif_priv->bss_index);
-+				ieee80211_connection_loss(vif);
-+			}
-+		} else {
-+			sta = ieee80211_find_sta(vif, rsp->addr2);
-+			if (sta) {
-+				found = true;
-+				ieee80211_report_low_ack(sta, 0);
-+			}
-+		}
-+
- 		rcu_read_unlock();
--		if (sta)
-+		if (found)
- 			return 0;
- 	}
- 
--	wcn36xx_warn("STA with addr %pM and index %d not found\n",
--		     rsp->addr2,
--		     rsp->sta_id);
-+	wcn36xx_warn("BSS or STA with addr %pM not found\n", rsp->addr2);
- 	return -ENOENT;
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -2169,15 +2169,6 @@ static inline bool may_ptrace_stop(void)
+ 	return true;
  }
  
+-/*
+- * Return non-zero if there is a SIGKILL that should be waking us up.
+- * Called with the siglock held.
+- */
+-static bool sigkill_pending(struct task_struct *tsk)
+-{
+-	return sigismember(&tsk->pending.signal, SIGKILL) ||
+-	       sigismember(&tsk->signal->shared_pending.signal, SIGKILL);
+-}
+ 
+ /*
+  * This must be called with current->sighand->siglock held.
+@@ -2204,17 +2195,16 @@ static void ptrace_stop(int exit_code, i
+ 		 * calling arch_ptrace_stop, so we must release it now.
+ 		 * To preserve proper semantics, we must do this before
+ 		 * any signal bookkeeping like checking group_stop_count.
+-		 * Meanwhile, a SIGKILL could come in before we retake the
+-		 * siglock.  That must prevent us from sleeping in TASK_TRACED.
+-		 * So after regaining the lock, we must check for SIGKILL.
+ 		 */
+ 		spin_unlock_irq(&current->sighand->siglock);
+ 		arch_ptrace_stop(exit_code, info);
+ 		spin_lock_irq(&current->sighand->siglock);
+-		if (sigkill_pending(current))
+-			return;
+ 	}
+ 
++	/*
++	 * schedule() will not sleep if there is a pending signal that
++	 * can awaken the task.
++	 */
+ 	set_special_state(TASK_TRACED);
+ 
+ 	/*
 
 
