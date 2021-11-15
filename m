@@ -2,406 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 078C4450745
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 15:40:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 812D9450755
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 15:42:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236771AbhKOOm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 09:42:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48198 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236219AbhKOOmm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 09:42:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C9166320D;
-        Mon, 15 Nov 2021 14:39:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636987185;
-        bh=CqJTxr0Ynuh3PChSbnaqimqbQ05Pn7FkbMjFz6wkfgo=;
-        h=Subject:To:Cc:From:Date:From;
-        b=KL5ZHNIoAL6szCN7Fg6fOzQGN3PItCncZFycumfbykQgWPFsGj1wiD67tdcwR8GwF
-         Pn1vM94dY14AUNpgRRn/0gDY1L8RLedrbSdp+0++sEuvbzLaLm2MwDTqe5qpKfZkAT
-         uT0LbVEZSCi1Gk3QeZpwdSeoaABMuEQrcO05fpdo=
-Subject: FAILED: patch "[PATCH] PM: sleep: Avoid calling put_device() under dpm_list_mtx" failed to apply to 5.4-stable tree
-To:     rafael.j.wysocki@intel.com, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Nov 2021 15:39:43 +0100
-Message-ID: <163698718316352@kroah.com>
+        id S232060AbhKOOow (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 09:44:52 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:39945 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236379AbhKOOoY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 09:44:24 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1636987288;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=2eGYU7kRPDzaMQLWywXxjUNa1F3/wp4T3xsGl+O0s1E=;
+        b=A08u2H49+Wwn4kl5D8+ivucOC2eYSxyOlIaHGpOS850wfswBA6U3+fy6xgj65//dmW8Txe
+        Ouuhncvfak/5+jbivlPBvPZ1wKIx1h+wwszBTgFZ0mci+4+6KI8mIF8M14hTnbgvKbR0DG
+        u8UIHt2FXPqpAQO37rtSTHqRa9K3ddw=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-91-RcYyIvZXNtq4V5WYK8sXrA-1; Mon, 15 Nov 2021 09:41:26 -0500
+X-MC-Unique: RcYyIvZXNtq4V5WYK8sXrA-1
+Received: by mail-qk1-f199.google.com with SMTP id m9-20020a05620a24c900b00467f2fdd657so9549122qkn.5
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 06:41:26 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=2eGYU7kRPDzaMQLWywXxjUNa1F3/wp4T3xsGl+O0s1E=;
+        b=gt6x6MrJkIDgg7T6e2mwWJ/PkisvHhTrxAif+unj3AGp/1SNXR9j/nbz8jrzpT7sKV
+         zrEA7mMWlRF9mcXHrgCK4j2sCZ+SmGriRseg9srKuCa0KnHCSpDpS8A00Uw3rwzg+h9t
+         2DJnoeghpDYGAnShmh3YBNfnen4bY7iX91P1G8YoS16Ek+XDG+BFoO95XpIMxy2tZBGc
+         tYR83BZjnTn6W85HfUM7egmUhEbN/bB1BTKyMqR7sJaV0xBPPblpSnRpLspLRuH5wBP3
+         qX62Lpqx4v4FaGuijBYVf/yaNl8raBQ9+MpevUHQj9BvnPHE1nWoujVtOIpUom49ZKMr
+         SL5Q==
+X-Gm-Message-State: AOAM532dSNkeGsG3d/9/w/nxas42nslykHGdc94zQn8K2+6TQlsD8SmF
+        W1bjPpGdCIKVsH0HUMhuU5wjHAw32ggJOdU9LNPCa97OytzaR06rW6AmxD4CYeaxGEXccJPK6qh
+        RUWN9eRYaWHpgY89b+BFIhpFLV9nPsTZY
+X-Received: by 2002:a05:620a:20d6:: with SMTP id f22mr19954225qka.342.1636987286237;
+        Mon, 15 Nov 2021 06:41:26 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxZLOEFQhepWOw6JOzO4SCklliK49uXxlxX3b+9Zbdpx1EdICt5Nx3/qlzUBwLZHoL9MNdHDrmxWpdxBZUCz3g=
+X-Received: by 2002:a05:620a:20d6:: with SMTP id f22mr19954211qka.342.1636987286055;
+ Mon, 15 Nov 2021 06:41:26 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <1631532743204250@kroah.com>
+In-Reply-To: <1631532743204250@kroah.com>
+From:   Miklos Szeredi <mszeredi@redhat.com>
+Date:   Mon, 15 Nov 2021 15:41:15 +0100
+Message-ID: <CAOssrKd1=0vow0PBHf+d_5cLmiNUufM_LAmzJstErbP3HTHviw@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] fuse: truncate pagecache on
+ atomic_o_trunc" failed to apply to 4.19-stable tree
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>, xieyongji@bytedance.com
+Content-Type: multipart/mixed; boundary="000000000000b02b9d05d0d4cdbe"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+--000000000000b02b9d05d0d4cdbe
+Content-Type: text/plain; charset="UTF-8"
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Mon, Sep 13, 2021 at 1:32 PM <gregkh@linuxfoundation.org> wrote:
+>
+>
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-thanks,
+Hi Greg,
 
-greg k-h
+Attaching the backport of commit 76224355db75 ("fuse: truncate
+pagecache on atomic_o_trunc") to v4.19.217.
 
------------------- original commit in Linus's tree ------------------
+Thanks,
+Miklos
 
-From 2aa36604e8243698ff22bd5fef0dd0c6bb07ba92 Mon Sep 17 00:00:00 2001
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Date: Thu, 4 Nov 2021 18:26:26 +0100
-Subject: [PATCH] PM: sleep: Avoid calling put_device() under dpm_list_mtx
+--000000000000b02b9d05d0d4cdbe
+Content-Type: text/x-patch; charset="US-ASCII"; 
+	name="fuse-truncate-pagecache-on-atomic_o_trunc-4.19.patch"
+Content-Disposition: attachment; 
+	filename="fuse-truncate-pagecache-on-atomic_o_trunc-4.19.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <f_kw0rxze30>
+X-Attachment-Id: f_kw0rxze30
 
-It is generally unsafe to call put_device() with dpm_list_mtx held,
-because the given device's release routine may carry out an action
-depending on that lock which then may deadlock, so modify the
-system-wide suspend and resume of devices to always drop dpm_list_mtx
-before calling put_device() (and adjust white space somewhat while
-at it).
-
-For instance, this prevents the following splat from showing up in
-the kernel log after a system resume in certain configurations:
-
-[ 3290.969514] ======================================================
-[ 3290.969517] WARNING: possible circular locking dependency detected
-[ 3290.969519] 5.15.0+ #2420 Tainted: G S
-[ 3290.969523] ------------------------------------------------------
-[ 3290.969525] systemd-sleep/4553 is trying to acquire lock:
-[ 3290.969529] ffff888117ab1138 ((wq_completion)hci0#2){+.+.}-{0:0}, at: flush_workqueue+0x87/0x4a0
-[ 3290.969554]
-               but task is already holding lock:
-[ 3290.969556] ffffffff8280fca8 (dpm_list_mtx){+.+.}-{3:3}, at: dpm_resume+0x12e/0x3e0
-[ 3290.969571]
-               which lock already depends on the new lock.
-
-[ 3290.969573]
-               the existing dependency chain (in reverse order) is:
-[ 3290.969575]
-               -> #3 (dpm_list_mtx){+.+.}-{3:3}:
-[ 3290.969583]        __mutex_lock+0x9d/0xa30
-[ 3290.969591]        device_pm_add+0x2e/0xe0
-[ 3290.969597]        device_add+0x4d5/0x8f0
-[ 3290.969605]        hci_conn_add_sysfs+0x43/0xb0 [bluetooth]
-[ 3290.969689]        hci_conn_complete_evt.isra.71+0x124/0x750 [bluetooth]
-[ 3290.969747]        hci_event_packet+0xd6c/0x28a0 [bluetooth]
-[ 3290.969798]        hci_rx_work+0x213/0x640 [bluetooth]
-[ 3290.969842]        process_one_work+0x2aa/0x650
-[ 3290.969851]        worker_thread+0x39/0x400
-[ 3290.969859]        kthread+0x142/0x170
-[ 3290.969865]        ret_from_fork+0x22/0x30
-[ 3290.969872]
-               -> #2 (&hdev->lock){+.+.}-{3:3}:
-[ 3290.969881]        __mutex_lock+0x9d/0xa30
-[ 3290.969887]        hci_event_packet+0xba/0x28a0 [bluetooth]
-[ 3290.969935]        hci_rx_work+0x213/0x640 [bluetooth]
-[ 3290.969978]        process_one_work+0x2aa/0x650
-[ 3290.969985]        worker_thread+0x39/0x400
-[ 3290.969993]        kthread+0x142/0x170
-[ 3290.969999]        ret_from_fork+0x22/0x30
-[ 3290.970004]
-               -> #1 ((work_completion)(&hdev->rx_work)){+.+.}-{0:0}:
-[ 3290.970013]        process_one_work+0x27d/0x650
-[ 3290.970020]        worker_thread+0x39/0x400
-[ 3290.970028]        kthread+0x142/0x170
-[ 3290.970033]        ret_from_fork+0x22/0x30
-[ 3290.970038]
-               -> #0 ((wq_completion)hci0#2){+.+.}-{0:0}:
-[ 3290.970047]        __lock_acquire+0x15cb/0x1b50
-[ 3290.970054]        lock_acquire+0x26c/0x300
-[ 3290.970059]        flush_workqueue+0xae/0x4a0
-[ 3290.970066]        drain_workqueue+0xa1/0x130
-[ 3290.970073]        destroy_workqueue+0x34/0x1f0
-[ 3290.970081]        hci_release_dev+0x49/0x180 [bluetooth]
-[ 3290.970130]        bt_host_release+0x1d/0x30 [bluetooth]
-[ 3290.970195]        device_release+0x33/0x90
-[ 3290.970201]        kobject_release+0x63/0x160
-[ 3290.970211]        dpm_resume+0x164/0x3e0
-[ 3290.970215]        dpm_resume_end+0xd/0x20
-[ 3290.970220]        suspend_devices_and_enter+0x1a4/0xba0
-[ 3290.970229]        pm_suspend+0x26b/0x310
-[ 3290.970236]        state_store+0x42/0x90
-[ 3290.970243]        kernfs_fop_write_iter+0x135/0x1b0
-[ 3290.970251]        new_sync_write+0x125/0x1c0
-[ 3290.970257]        vfs_write+0x360/0x3c0
-[ 3290.970263]        ksys_write+0xa7/0xe0
-[ 3290.970269]        do_syscall_64+0x3a/0x80
-[ 3290.970276]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 3290.970284]
-               other info that might help us debug this:
-
-[ 3290.970285] Chain exists of:
-                 (wq_completion)hci0#2 --> &hdev->lock --> dpm_list_mtx
-
-[ 3290.970297]  Possible unsafe locking scenario:
-
-[ 3290.970299]        CPU0                    CPU1
-[ 3290.970300]        ----                    ----
-[ 3290.970302]   lock(dpm_list_mtx);
-[ 3290.970306]                                lock(&hdev->lock);
-[ 3290.970310]                                lock(dpm_list_mtx);
-[ 3290.970314]   lock((wq_completion)hci0#2);
-[ 3290.970319]
-                *** DEADLOCK ***
-
-[ 3290.970321] 7 locks held by systemd-sleep/4553:
-[ 3290.970325]  #0: ffff888103bcd448 (sb_writers#4){.+.+}-{0:0}, at: ksys_write+0xa7/0xe0
-[ 3290.970341]  #1: ffff888115a14488 (&of->mutex){+.+.}-{3:3}, at: kernfs_fop_write_iter+0x103/0x1b0
-[ 3290.970355]  #2: ffff888100f719e0 (kn->active#233){.+.+}-{0:0}, at: kernfs_fop_write_iter+0x10c/0x1b0
-[ 3290.970369]  #3: ffffffff82661048 (autosleep_lock){+.+.}-{3:3}, at: state_store+0x12/0x90
-[ 3290.970384]  #4: ffffffff82658ac8 (system_transition_mutex){+.+.}-{3:3}, at: pm_suspend+0x9f/0x310
-[ 3290.970399]  #5: ffffffff827f2a48 (acpi_scan_lock){+.+.}-{3:3}, at: acpi_suspend_begin+0x4c/0x80
-[ 3290.970416]  #6: ffffffff8280fca8 (dpm_list_mtx){+.+.}-{3:3}, at: dpm_resume+0x12e/0x3e0
-[ 3290.970428]
-               stack backtrace:
-[ 3290.970431] CPU: 3 PID: 4553 Comm: systemd-sleep Tainted: G S                5.15.0+ #2420
-[ 3290.970438] Hardware name: Dell Inc. XPS 13 9380/0RYJWW, BIOS 1.5.0 06/03/2019
-[ 3290.970441] Call Trace:
-[ 3290.970446]  dump_stack_lvl+0x44/0x57
-[ 3290.970454]  check_noncircular+0x105/0x120
-[ 3290.970468]  ? __lock_acquire+0x15cb/0x1b50
-[ 3290.970474]  __lock_acquire+0x15cb/0x1b50
-[ 3290.970487]  lock_acquire+0x26c/0x300
-[ 3290.970493]  ? flush_workqueue+0x87/0x4a0
-[ 3290.970503]  ? __raw_spin_lock_init+0x3b/0x60
-[ 3290.970510]  ? lockdep_init_map_type+0x58/0x240
-[ 3290.970519]  flush_workqueue+0xae/0x4a0
-[ 3290.970526]  ? flush_workqueue+0x87/0x4a0
-[ 3290.970544]  ? drain_workqueue+0xa1/0x130
-[ 3290.970552]  drain_workqueue+0xa1/0x130
-[ 3290.970561]  destroy_workqueue+0x34/0x1f0
-[ 3290.970572]  hci_release_dev+0x49/0x180 [bluetooth]
-[ 3290.970624]  bt_host_release+0x1d/0x30 [bluetooth]
-[ 3290.970687]  device_release+0x33/0x90
-[ 3290.970695]  kobject_release+0x63/0x160
-[ 3290.970705]  dpm_resume+0x164/0x3e0
-[ 3290.970710]  ? dpm_resume_early+0x251/0x3b0
-[ 3290.970718]  dpm_resume_end+0xd/0x20
-[ 3290.970723]  suspend_devices_and_enter+0x1a4/0xba0
-[ 3290.970737]  pm_suspend+0x26b/0x310
-[ 3290.970746]  state_store+0x42/0x90
-[ 3290.970755]  kernfs_fop_write_iter+0x135/0x1b0
-[ 3290.970764]  new_sync_write+0x125/0x1c0
-[ 3290.970777]  vfs_write+0x360/0x3c0
-[ 3290.970785]  ksys_write+0xa7/0xe0
-[ 3290.970794]  do_syscall_64+0x3a/0x80
-[ 3290.970803]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 3290.970811] RIP: 0033:0x7f41b1328164
-[ 3290.970819] Code: 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 80 00 00 00 00 8b 05 4a d2 2c 00 48 63 ff 85 c0 75 13 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 54 f3 c3 66 90 55 53 48 89 d5 48 89 f3 48 83
-[ 3290.970824] RSP: 002b:00007ffe6ae21b28 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-[ 3290.970831] RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 00007f41b1328164
-[ 3290.970836] RDX: 0000000000000004 RSI: 000055965e651070 RDI: 0000000000000004
-[ 3290.970839] RBP: 000055965e651070 R08: 000055965e64f390 R09: 00007f41b1e3d1c0
-[ 3290.970843] R10: 000000000000000a R11: 0000000000000246 R12: 0000000000000004
-[ 3290.970846] R13: 0000000000000001 R14: 000055965e64f2b0 R15: 0000000000000004
-
-Cc: All applicable <stable@vger.kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-diff --git a/drivers/base/power/main.c b/drivers/base/power/main.c
-index 2fb08d4f1aca..f4d0c555de29 100644
---- a/drivers/base/power/main.c
-+++ b/drivers/base/power/main.c
-@@ -710,6 +710,7 @@ static void dpm_noirq_resume_devices(pm_message_t state)
- 		dev = to_device(dpm_noirq_list.next);
- 		get_device(dev);
- 		list_move_tail(&dev->power.entry, &dpm_late_early_list);
-+
- 		mutex_unlock(&dpm_list_mtx);
- 
- 		if (!is_async(dev)) {
-@@ -724,8 +725,9 @@ static void dpm_noirq_resume_devices(pm_message_t state)
- 			}
- 		}
- 
--		mutex_lock(&dpm_list_mtx);
- 		put_device(dev);
-+
-+		mutex_lock(&dpm_list_mtx);
- 	}
- 	mutex_unlock(&dpm_list_mtx);
- 	async_synchronize_full();
-@@ -849,6 +851,7 @@ void dpm_resume_early(pm_message_t state)
- 		dev = to_device(dpm_late_early_list.next);
- 		get_device(dev);
- 		list_move_tail(&dev->power.entry, &dpm_suspended_list);
-+
- 		mutex_unlock(&dpm_list_mtx);
- 
- 		if (!is_async(dev)) {
-@@ -862,8 +865,10 @@ void dpm_resume_early(pm_message_t state)
- 				pm_dev_err(dev, state, " early", error);
- 			}
- 		}
--		mutex_lock(&dpm_list_mtx);
-+
- 		put_device(dev);
-+
-+		mutex_lock(&dpm_list_mtx);
- 	}
- 	mutex_unlock(&dpm_list_mtx);
- 	async_synchronize_full();
-@@ -1026,7 +1031,12 @@ void dpm_resume(pm_message_t state)
- 		}
- 		if (!list_empty(&dev->power.entry))
- 			list_move_tail(&dev->power.entry, &dpm_prepared_list);
-+
-+		mutex_unlock(&dpm_list_mtx);
-+
- 		put_device(dev);
-+
-+		mutex_lock(&dpm_list_mtx);
- 	}
- 	mutex_unlock(&dpm_list_mtx);
- 	async_synchronize_full();
-@@ -1104,14 +1114,16 @@ void dpm_complete(pm_message_t state)
- 		get_device(dev);
- 		dev->power.is_prepared = false;
- 		list_move(&dev->power.entry, &list);
-+
- 		mutex_unlock(&dpm_list_mtx);
- 
- 		trace_device_pm_callback_start(dev, "", state.event);
- 		device_complete(dev, state);
- 		trace_device_pm_callback_end(dev, 0);
- 
--		mutex_lock(&dpm_list_mtx);
- 		put_device(dev);
-+
-+		mutex_lock(&dpm_list_mtx);
- 	}
- 	list_splice(&list, &dpm_list);
- 	mutex_unlock(&dpm_list_mtx);
-@@ -1296,17 +1308,21 @@ static int dpm_noirq_suspend_devices(pm_message_t state)
- 		error = device_suspend_noirq(dev);
- 
- 		mutex_lock(&dpm_list_mtx);
-+
- 		if (error) {
- 			pm_dev_err(dev, state, " noirq", error);
- 			dpm_save_failed_dev(dev_name(dev));
--			put_device(dev);
--			break;
--		}
--		if (!list_empty(&dev->power.entry))
-+		} else if (!list_empty(&dev->power.entry)) {
- 			list_move(&dev->power.entry, &dpm_noirq_list);
-+		}
-+
-+		mutex_unlock(&dpm_list_mtx);
-+
- 		put_device(dev);
- 
--		if (async_error)
-+		mutex_lock(&dpm_list_mtx);
-+
-+		if (error || async_error)
- 			break;
- 	}
- 	mutex_unlock(&dpm_list_mtx);
-@@ -1472,23 +1488,28 @@ int dpm_suspend_late(pm_message_t state)
- 		struct device *dev = to_device(dpm_suspended_list.prev);
- 
- 		get_device(dev);
-+
- 		mutex_unlock(&dpm_list_mtx);
- 
- 		error = device_suspend_late(dev);
- 
- 		mutex_lock(&dpm_list_mtx);
-+
- 		if (!list_empty(&dev->power.entry))
- 			list_move(&dev->power.entry, &dpm_late_early_list);
- 
- 		if (error) {
- 			pm_dev_err(dev, state, " late", error);
- 			dpm_save_failed_dev(dev_name(dev));
--			put_device(dev);
--			break;
- 		}
-+
-+		mutex_unlock(&dpm_list_mtx);
-+
- 		put_device(dev);
- 
--		if (async_error)
-+		mutex_lock(&dpm_list_mtx);
-+
-+		if (error || async_error)
- 			break;
- 	}
- 	mutex_unlock(&dpm_list_mtx);
-@@ -1748,21 +1769,27 @@ int dpm_suspend(pm_message_t state)
- 		struct device *dev = to_device(dpm_prepared_list.prev);
- 
- 		get_device(dev);
-+
- 		mutex_unlock(&dpm_list_mtx);
- 
- 		error = device_suspend(dev);
- 
- 		mutex_lock(&dpm_list_mtx);
-+
- 		if (error) {
- 			pm_dev_err(dev, state, "", error);
- 			dpm_save_failed_dev(dev_name(dev));
--			put_device(dev);
--			break;
--		}
--		if (!list_empty(&dev->power.entry))
-+		} else if (!list_empty(&dev->power.entry)) {
- 			list_move(&dev->power.entry, &dpm_suspended_list);
-+		}
-+
-+		mutex_unlock(&dpm_list_mtx);
-+
- 		put_device(dev);
--		if (async_error)
-+
-+		mutex_lock(&dpm_list_mtx);
-+
-+		if (error || async_error)
- 			break;
- 	}
- 	mutex_unlock(&dpm_list_mtx);
-@@ -1879,6 +1906,7 @@ int dpm_prepare(pm_message_t state)
- 		struct device *dev = to_device(dpm_list.next);
- 
- 		get_device(dev);
-+
- 		mutex_unlock(&dpm_list_mtx);
- 
- 		trace_device_pm_callback_start(dev, "", state.event);
-@@ -1886,21 +1914,23 @@ int dpm_prepare(pm_message_t state)
- 		trace_device_pm_callback_end(dev, error);
- 
- 		mutex_lock(&dpm_list_mtx);
--		if (error) {
--			if (error == -EAGAIN) {
--				put_device(dev);
--				error = 0;
--				continue;
--			}
-+
-+		if (!error) {
-+			dev->power.is_prepared = true;
-+			if (!list_empty(&dev->power.entry))
-+				list_move_tail(&dev->power.entry, &dpm_prepared_list);
-+		} else if (error == -EAGAIN) {
-+			error = 0;
-+		} else {
- 			dev_info(dev, "not prepared for power transition: code %d\n",
- 				 error);
--			put_device(dev);
--			break;
- 		}
--		dev->power.is_prepared = true;
--		if (!list_empty(&dev->power.entry))
--			list_move_tail(&dev->power.entry, &dpm_prepared_list);
-+
-+		mutex_unlock(&dpm_list_mtx);
-+
- 		put_device(dev);
-+
-+		mutex_lock(&dpm_list_mtx);
- 	}
- 	mutex_unlock(&dpm_list_mtx);
- 	trace_suspend_resume(TPS("dpm_prepare"), state.event, false);
+RnJvbSA1NmQwODIwNGY3ZGE2NDJjM2M5MTRmYjViNTIwOGJmZmU5ZGViZTNhIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBNaWtsb3MgU3plcmVkaSA8bXN6ZXJlZGlAcmVkaGF0LmNvbT4K
+RGF0ZTogVHVlLCAxNyBBdWcgMjAyMSAyMTowNToxNiArMDIwMApTdWJqZWN0OiBbUEFUQ0hdIGZ1
+c2U6IHRydW5jYXRlIHBhZ2VjYWNoZSBvbiBhdG9taWNfb190cnVuYwoKZnVzZV9maW5pc2hfb3Bl
+bigpIHdpbGwgYmUgY2FsbGVkIHdpdGggRlVTRV9OT1dSSVRFIGluIGNhc2Ugb2YgYXRvbWljCk9f
+VFJVTkMuICBUaGlzIGNhbiBkZWFkbG9jayB3aXRoIGZ1c2Vfd2FpdF9vbl9wYWdlX3dyaXRlYmFj
+aygpIGluCmZ1c2VfbGF1bmRlcl9wYWdlKCkgdHJpZ2dlcmVkIGJ5IGludmFsaWRhdGVfaW5vZGVf
+cGFnZXMyKCkuCgpGaXggYnkgcmVwbGFjaW5nIGludmFsaWRhdGVfaW5vZGVfcGFnZXMyKCkgaW4g
+ZnVzZV9maW5pc2hfb3BlbigpIHdpdGggYQp0cnVuY2F0ZV9wYWdlY2FjaGUoKSBjYWxsLiAgVGhp
+cyBtYWtlcyBzZW5zZSByZWdhcmRsZXNzIG9mIEZPUEVOX0tFRVBfQ0FDSEUKb3IgZmMtPndyaXRl
+YmFjayBjYWNoZSwgc28gZG8gaXQgdW5jb25kaXRpb25hbGx5LgoKUmVwb3J0ZWQtYnk6IFhpZSBZ
+b25namkgPHhpZXlvbmdqaUBieXRlZGFuY2UuY29tPgpSZXBvcnRlZC1hbmQtdGVzdGVkLWJ5OiBz
+eXpib3QrYmVhNDRhNTE4OTgzNmQ5NTY4OTRAc3l6a2FsbGVyLmFwcHNwb3RtYWlsLmNvbQpGaXhl
+czogZTQ2NDgzMDliODVhICgiZnVzZTogdHJ1bmNhdGUgcGVuZGluZyB3cml0ZXMgb24gT19UUlVO
+QyIpCkNjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4KU2lnbmVkLW9mZi1ieTogTWlrbG9zIFN6
+ZXJlZGkgPG1zemVyZWRpQHJlZGhhdC5jb20+CihjaGVycnkgcGlja2VkIGZyb20gY29tbWl0IDc2
+MjI0MzU1ZGI3NTcwY2JlNmI2Zjc1Yzg5MjlhMTU1ODgyOGRkNTUpCi0tLQogZnMvZnVzZS9maWxl
+LmMgfCA3ICsrKysrLS0KIDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKyksIDIgZGVsZXRp
+b25zKC0pCgpkaWZmIC0tZ2l0IGEvZnMvZnVzZS9maWxlLmMgYi9mcy9mdXNlL2ZpbGUuYwppbmRl
+eCA2YTNkODk2NzJmZjcuLjEzMzcxYTQwZjdhMSAxMDA2NDQKLS0tIGEvZnMvZnVzZS9maWxlLmMK
+KysrIGIvZnMvZnVzZS9maWxlLmMKQEAgLTE3OCwxMiArMTc4LDExIEBAIHZvaWQgZnVzZV9maW5p
+c2hfb3BlbihzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZmlsZSkKIAogCWlmIChm
+Zi0+b3Blbl9mbGFncyAmIEZPUEVOX0RJUkVDVF9JTykKIAkJZmlsZS0+Zl9vcCA9ICZmdXNlX2Rp
+cmVjdF9pb19maWxlX29wZXJhdGlvbnM7Ci0JaWYgKCEoZmYtPm9wZW5fZmxhZ3MgJiBGT1BFTl9L
+RUVQX0NBQ0hFKSkKLQkJaW52YWxpZGF0ZV9pbm9kZV9wYWdlczIoaW5vZGUtPmlfbWFwcGluZyk7
+CiAJaWYgKGZmLT5vcGVuX2ZsYWdzICYgRk9QRU5fU1RSRUFNKQogCQlzdHJlYW1fb3Blbihpbm9k
+ZSwgZmlsZSk7CiAJZWxzZSBpZiAoZmYtPm9wZW5fZmxhZ3MgJiBGT1BFTl9OT05TRUVLQUJMRSkK
+IAkJbm9uc2Vla2FibGVfb3Blbihpbm9kZSwgZmlsZSk7CisKIAlpZiAoZmMtPmF0b21pY19vX3Ry
+dW5jICYmIChmaWxlLT5mX2ZsYWdzICYgT19UUlVOQykpIHsKIAkJc3RydWN0IGZ1c2VfaW5vZGUg
+KmZpID0gZ2V0X2Z1c2VfaW5vZGUoaW5vZGUpOwogCkBAIC0xOTEsMTAgKzE5MCwxNCBAQCB2b2lk
+IGZ1c2VfZmluaXNoX29wZW4oc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGUgKmZpbGUp
+CiAJCWZpLT5hdHRyX3ZlcnNpb24gPSArK2ZjLT5hdHRyX3ZlcnNpb247CiAJCWlfc2l6ZV93cml0
+ZShpbm9kZSwgMCk7CiAJCXNwaW5fdW5sb2NrKCZmYy0+bG9jayk7CisJCXRydW5jYXRlX3BhZ2Vj
+YWNoZShpbm9kZSwgMCk7CiAJCWZ1c2VfaW52YWxpZGF0ZV9hdHRyKGlub2RlKTsKIAkJaWYgKGZj
+LT53cml0ZWJhY2tfY2FjaGUpCiAJCQlmaWxlX3VwZGF0ZV90aW1lKGZpbGUpOworCX0gZWxzZSBp
+ZiAoIShmZi0+b3Blbl9mbGFncyAmIEZPUEVOX0tFRVBfQ0FDSEUpKSB7CisJCWludmFsaWRhdGVf
+aW5vZGVfcGFnZXMyKGlub2RlLT5pX21hcHBpbmcpOwogCX0KKwogCWlmICgoZmlsZS0+Zl9tb2Rl
+ICYgRk1PREVfV1JJVEUpICYmIGZjLT53cml0ZWJhY2tfY2FjaGUpCiAJCWZ1c2VfbGlua193cml0
+ZV9maWxlKGZpbGUpOwogfQotLSAKMi4zMS4xCgo=
+--000000000000b02b9d05d0d4cdbe--
 
