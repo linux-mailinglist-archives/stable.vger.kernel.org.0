@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A5484510DD
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:53:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF3F450A87
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:08:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241895AbhKOSzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:55:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58134 "EHLO mail.kernel.org"
+        id S231868AbhKORLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:11:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243242AbhKOSxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:53:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F415633C3;
-        Mon, 15 Nov 2021 18:11:04 +0000 (UTC)
+        id S231624AbhKORK6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:10:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAE1661452;
+        Mon, 15 Nov 2021 17:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999864;
-        bh=XMurRLKbdokoQ0wXu8uqWwWWsUmdqJRhIwYGr3T1sQQ=;
+        s=korg; t=1636996082;
+        bh=j3xRPbqgnoDOzDG61OKYkXTEmxwbmQWNWybf1ke2lAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vBwTOB4tihPQlRZSWHWMZMSlNYt4Nt13z2jErNW/wK3jAOGYw1Pf374q+zvmfVq6F
-         RhsePhEhw5q0AnupbcD6/IzyoN2xNUfWPPTaNe8AQ6Dse1X+S0W8dzmHFzoVxmYw3I
-         gamWSh1E0BS/KbW0a1WcCNEsRtdZ8D5gFZObY7wo=
+        b=ao7FF/9c6Q9VfxI2H7GPYWvTpPgW1Q/dJfBQJ4gJOrZbEcMJfA2YQyOKysPwlNAUg
+         +K7NStueVMvYT1xHhPhFbExSOAIKZejfOu9hWHM0Gc634MprtlrKn40FiZ6BFJtOQ6
+         fZkmkMLD9JV8yYOFz56f8YsZteIjObsrjDLNZtSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 451/849] mt76: mt7921: fix endianness warning in mt7921_update_txs
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 010/355] ocfs2: fix data corruption on truncate
 Date:   Mon, 15 Nov 2021 17:58:54 +0100
-Message-Id: <20211115165435.548869659@linuxfoundation.org>
+Message-Id: <20211115165313.888881720@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 7fc167bbc9296e6aeaaa4063db3639e8a3db75f6 ]
+commit 839b63860eb3835da165642923120d305925561d upstream.
 
-Fix the following sparse warning in mt7921_update_txs routine:
-drivers/net/wireless/mediatek/mt76/mt7921/mac.c:752:31:
-	warning: cast to restricted __le32
-drivers/net/wireless/mediatek/mt76/mt7921/mac.c:752:31:
-	warning: restricted __le32 degrades to integer
+Patch series "ocfs2: Truncate data corruption fix".
 
-Fixes: e5bca8c5d2cd3 ("mt76: mt7921: improve code readability for mt7921_update_txs")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
+corruption after conversion from inline format") didn't fix all the data
+corruption issues the customer started observing after 6dbf7bb55598
+("fs: Don't invalidate page buffers in block_write_full_page()") This
+time I have tracked them down to two bugs in ocfs2 truncation code.
+
+One bug (truncating page cache before clearing tail cluster and setting
+i_size) could cause data corruption even before 6dbf7bb55598, but before
+that commit it needed a race with page fault, after 6dbf7bb55598 it
+started to be pretty deterministic.
+
+Another bug (zeroing pages beyond old i_size) used to be harmless
+inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598
+in combination with the first bug it resulted in deterministic data
+corruption.
+
+Although fixing only the first problem is needed to stop data
+corruption, I've fixed both issues to make the code more robust.
+
+This patch (of 2):
+
+ocfs2_truncate_file() did unmap invalidate page cache pages before
+zeroing partial tail cluster and setting i_size.  Thus some pages could
+be left (and likely have left if the cluster zeroing happened) in the
+page cache beyond i_size after truncate finished letting user possibly
+see stale data once the file was extended again.  Also the tail cluster
+zeroing was not guaranteed to finish before truncate finished causing
+possible stale data exposure.  The problem started to be particularly
+easy to hit after commit 6dbf7bb55598 "fs: Don't invalidate page buffers
+in block_write_full_page()" stopped invalidation of pages beyond i_size
+from page writeback path.
+
+Fix these problems by unmapping and invalidating pages in the page cache
+after the i_size is reduced and tail cluster is zeroed out.
+
+Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
+Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
+Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/mac.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ocfs2/file.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-index 7fe2e3a50428f..f4714b0f6e5c4 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-@@ -735,8 +735,9 @@ mt7921_mac_write_txwi_80211(struct mt7921_dev *dev, __le32 *txwi,
- static void mt7921_update_txs(struct mt76_wcid *wcid, __le32 *txwi)
- {
- 	struct mt7921_sta *msta = container_of(wcid, struct mt7921_sta, wcid);
--	u32 pid, frame_type = FIELD_GET(MT_TXD2_FRAME_TYPE, txwi[2]);
-+	u32 pid, frame_type;
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -478,10 +478,11 @@ int ocfs2_truncate_file(struct inode *in
+ 	 * greater than page size, so we have to truncate them
+ 	 * anyway.
+ 	 */
+-	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
+-	truncate_inode_pages(inode->i_mapping, new_i_size);
  
-+	frame_type = FIELD_GET(MT_TXD2_FRAME_TYPE, le32_to_cpu(txwi[2]));
- 	if (!(frame_type & (IEEE80211_FTYPE_DATA >> 2)))
- 		return;
+ 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
++		unmap_mapping_range(inode->i_mapping,
++				    new_i_size + PAGE_SIZE - 1, 0, 1);
++		truncate_inode_pages(inode->i_mapping, new_i_size);
+ 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
+ 					       i_size_read(inode), 1);
+ 		if (status)
+@@ -500,6 +501,9 @@ int ocfs2_truncate_file(struct inode *in
+ 		goto bail_unlock_sem;
+ 	}
  
--- 
-2.33.0
-
++	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
++	truncate_inode_pages(inode->i_mapping, new_i_size);
++
+ 	status = ocfs2_commit_truncate(osb, inode, di_bh);
+ 	if (status < 0) {
+ 		mlog_errno(status);
 
 
