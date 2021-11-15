@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58C6B4520C6
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:54:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B8494520C9
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:54:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245493AbhKPA43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:56:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
+        id S1347317AbhKPA4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:56:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343571AbhKOTVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5D4B635A9;
-        Mon, 15 Nov 2021 18:42:21 +0000 (UTC)
+        id S1343592AbhKOTVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D316635B2;
+        Mon, 15 Nov 2021 18:42:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001742;
-        bh=g0jZ1736I1HJDbgU1isGNZGn+DfXrg5XbfELG7oGgGE=;
+        s=korg; t=1637001765;
+        bh=sSpDhzScpt00UuWxntFiasssOzC/nJ3VGTws58mP+jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eR2S2b0m8UlS2ei+O19RD1IjN7CrAbieN7iEsVKm/C49K3ihyXmHAcRdmBCA7m1xQ
-         7TjJS8WbSmmKooESnHI4I55zgLKL7ZF3uAb6mYT6ed/ibxrfdMGtgBpMLTXYRvycMj
-         WIOT5ARZ81r/zLW5sQU4a5fRZ4aUpsu/Jta9UmvU=
+        b=1KE4tPldlqNcpbBloyu/2cf/rLddLgogEDAUnLIxAXHwGOJiVz9VtwwJM5V4z/zr+
+         dI6VcflwmlgfQd8g3ZjiXn07R5JnXbr5oMxHJqqgQt/jQo7FhlGafdoVEYTQouJxh3
+         ES6YiUqPn97S9ugELyuqe3jEhR2+Pn9G6q3hJZ0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Sidong Yang <realwakka@gmail.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 302/917] btrfs: reflink: initialize return value to 0 in btrfs_extent_same()
-Date:   Mon, 15 Nov 2021 17:56:37 +0100
-Message-Id: <20211115165438.998948870@linuxfoundation.org>
+Subject: [PATCH 5.15 305/917] wcn36xx: Correct band/freq reporting on RX
+Date:   Mon, 15 Nov 2021 17:56:40 +0100
+Message-Id: <20211115165439.100606150@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,37 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sidong Yang <realwakka@gmail.com>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-[ Upstream commit 44bee215f72f13874c0e734a0712c2e3264c0108 ]
+[ Upstream commit 8a27ca39478270e07baf9c09aa0c99709769ba03 ]
 
-Fix a warning reported by smatch that ret could be returned without
-initialized.  The dedupe operations are supposed to to return 0 for a 0
-length range but the caller does not pass olen == 0. To keep this
-behaviour and also fix the warning initialize ret to 0.
+For packets originating from hardware scan, the channel and band is
+included in the buffer descriptor (bd->rf_band & bd->rx_ch).
 
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Sidong Yang <realwakka@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+For 2Ghz band the channel value is directly reported in the 4-bit
+rx_ch field. For 5Ghz band, the rx_ch field contains a mapping
+index (given the 4-bit limitation).
+
+The reserved0 value field is also used to extend 4-bit mapping to
+5-bit mapping to support more than 16 5Ghz channels.
+
+This change adds correct reporting of the frequency/band, that is
+used in scan mechanism. And is required for 5Ghz hardware scan
+support.
+
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1634554678-7993-1-git-send-email-loic.poulain@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/reflink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/wcn36xx/txrx.c | 23 +++++++++++++++++++++++
+ drivers/net/wireless/ath/wcn36xx/txrx.h |  3 ++-
+ 2 files changed, 25 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
-index 9b0814318e726..c71e49782e86d 100644
---- a/fs/btrfs/reflink.c
-+++ b/fs/btrfs/reflink.c
-@@ -649,7 +649,7 @@ static int btrfs_extent_same_range(struct inode *src, u64 loff, u64 len,
- static int btrfs_extent_same(struct inode *src, u64 loff, u64 olen,
- 			     struct inode *dst, u64 dst_loff)
- {
--	int ret;
-+	int ret = 0;
- 	u64 i, tail_len, chunk_count;
- 	struct btrfs_root *root_dst = BTRFS_I(dst)->root;
+diff --git a/drivers/net/wireless/ath/wcn36xx/txrx.c b/drivers/net/wireless/ath/wcn36xx/txrx.c
+index eaf2410e39647..c0f51fa13dfa1 100644
+--- a/drivers/net/wireless/ath/wcn36xx/txrx.c
++++ b/drivers/net/wireless/ath/wcn36xx/txrx.c
+@@ -31,6 +31,13 @@ struct wcn36xx_rate {
+ 	enum rate_info_bw bw;
+ };
  
++/* Buffer descriptor rx_ch field is limited to 5-bit (4+1), a mapping is used
++ * for 11A Channels.
++ */
++static const u8 ab_rx_ch_map[] = { 36, 40, 44, 48, 52, 56, 60, 64, 100, 104,
++				   108, 112, 116, 120, 124, 128, 132, 136, 140,
++				   149, 153, 157, 161, 165, 144 };
++
+ static const struct wcn36xx_rate wcn36xx_rate_table[] = {
+ 	/* 11b rates */
+ 	{  10, 0, RX_ENC_LEGACY, 0, RATE_INFO_BW_20 },
+@@ -291,6 +298,22 @@ int wcn36xx_rx_skb(struct wcn36xx *wcn, struct sk_buff *skb)
+ 	    ieee80211_is_probe_resp(hdr->frame_control))
+ 		status.boottime_ns = ktime_get_boottime_ns();
+ 
++	if (bd->scan_learn) {
++		/* If packet originates from hardware scanning, extract the
++		 * band/channel from bd descriptor.
++		 */
++		u8 hwch = (bd->reserved0 << 4) + bd->rx_ch;
++
++		if (bd->rf_band != 1 && hwch <= sizeof(ab_rx_ch_map) && hwch >= 1) {
++			status.band = NL80211_BAND_5GHZ;
++			status.freq = ieee80211_channel_to_frequency(ab_rx_ch_map[hwch - 1],
++								     status.band);
++		} else {
++			status.band = NL80211_BAND_2GHZ;
++			status.freq = ieee80211_channel_to_frequency(hwch, status.band);
++		}
++	}
++
+ 	memcpy(IEEE80211_SKB_RXCB(skb), &status, sizeof(status));
+ 
+ 	if (ieee80211_is_beacon(hdr->frame_control)) {
+diff --git a/drivers/net/wireless/ath/wcn36xx/txrx.h b/drivers/net/wireless/ath/wcn36xx/txrx.h
+index 032216e82b2be..b54311ffde9c5 100644
+--- a/drivers/net/wireless/ath/wcn36xx/txrx.h
++++ b/drivers/net/wireless/ath/wcn36xx/txrx.h
+@@ -110,7 +110,8 @@ struct wcn36xx_rx_bd {
+ 	/* 0x44 */
+ 	u32	exp_seq_num:12;
+ 	u32	cur_seq_num:12;
+-	u32	fr_type_subtype:8;
++	u32	rf_band:2;
++	u32	fr_type_subtype:6;
+ 
+ 	/* 0x48 */
+ 	u32	msdu_size:16;
 -- 
 2.33.0
 
