@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 817C6451097
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:48:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB6FC450D43
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:50:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238318AbhKOSvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:51:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54766 "EHLO mail.kernel.org"
+        id S238476AbhKORxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:53:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242701AbhKOSs7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:48:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0146A633A5;
-        Mon, 15 Nov 2021 18:08:12 +0000 (UTC)
+        id S238357AbhKORtS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:49:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E65A6331A;
+        Mon, 15 Nov 2021 17:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999693;
-        bh=TuMDX0vo3Zm4oB6/mobRY5UZv9WRM6P+BymZF79XnPg=;
+        s=korg; t=1636997436;
+        bh=RvhLvZ/ApkAe4kgJ3nlQ6+LY5y0knpUdvM3VTNWyh6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oyArRCnpgYItQ5RnTzHLm65h1qKPcuMhTaeocX2YfmH7Be+fIAgDtsQRVWILT36tv
-         tiQ0eeEebCRyhDlHWWvZnHrbakYW31UFDDSWS4mrNgdMyHusL7CzXLAxD3YreWG2d9
-         7k9WyF1iyUIea1xDb5DsMddmZag7U0wE01Gh+M3I=
+        b=fWIbPnzPBAovpcHFKONNDf6lqkUtZp5CxMVwnTW9BN8weqrTIH171HKXWblgYC2gs
+         5CPELTKrlE0WcZlQ/YEPXLna5dzndZ0lL/SVeMu9BjbAOLPz7moH3QDyYr3dPWmgvb
+         Ck8BYs8yjE6MzfSrew/oWiKKzk460zqbmAZIKkaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ajay Singh <ajay.kathat@microchip.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
+        Angus Ainslie <angus@akkea.ca>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
         Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 356/849] wilc1000: fix possible memory leak in cfg_scan_result()
+        Karun Eagalapati <karun256@gmail.com>,
+        Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        Martin Kepplinger <martink@posteo.de>,
+        Prameela Rani Garnepudi <prameela.j04cs@gmail.com>,
+        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        Siva Rebbagondla <siva8118@gmail.com>, netdev@vger.kernel.org
+Subject: [PATCH 5.10 114/575] rsi: Fix module dev_oper_mode parameter description
 Date:   Mon, 15 Nov 2021 17:57:19 +0100
-Message-Id: <20211115165432.284935005@linuxfoundation.org>
+Message-Id: <20211115165347.606828636@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +49,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajay Singh <ajay.kathat@microchip.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 3c719fed0f3a5e95b1d164609ecc81c4191ade70 ]
+commit 31f97cf9f0c31143a2a6fcc89c4a1286ce20157e upstream.
 
-When the BSS reference holds a valid reference, it is not freed. The 'if'
-condition is wrong. Instead of the 'if (bss)' check, the 'if (!bss)' check
-is used.
-The issue is solved by removing the unnecessary 'if' check because
-cfg80211_put_bss() already performs the NULL validation.
+The module parameters are missing dev_oper_mode 12, BT classic alone,
+add it. Moreover, the parameters encode newlines, which ends up being
+printed malformed e.g. by modinfo, so fix that too.
 
-Fixes: 6cd4fa5ab691 ("staging: wilc1000: make use of cfg80211_inform_bss_frame()")
-Signed-off-by: Ajay Singh <ajay.kathat@microchip.com>
+However, the module parameter string is duplicated in both USB and SDIO
+modules and the dev_oper_mode mode enumeration in those module parameters
+is a duplicate of macros used by the driver. Furthermore, the enumeration
+is confusing.
+
+So, deduplicate the module parameter string and use __stringify() to
+encode the correct mode enumeration values into the module parameter
+string. Finally, replace 'Wi-Fi' with 'Wi-Fi alone' and 'BT' with
+'BT classic alone' to clarify what those modes really mean.
+
+Fixes: 898b255339310 ("rsi: add module parameter operating mode")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
+Cc: Angus Ainslie <angus@akkea.ca>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: Karun Eagalapati <karun256@gmail.com>
+Cc: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Cc: Martin Kepplinger <martink@posteo.de>
+Cc: Prameela Rani Garnepudi <prameela.j04cs@gmail.com>
+Cc: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Cc: Siva Rebbagondla <siva8118@gmail.com>
+Cc: netdev@vger.kernel.org
+Cc: <stable@vger.kernel.org> # 4.17+
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210916164902.74629-3-ajay.kathat@microchip.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20210916144245.10181-1-marex@denx.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/microchip/wilc1000/cfg80211.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/rsi/rsi_91x_sdio.c |    5 +----
+ drivers/net/wireless/rsi/rsi_91x_usb.c  |    5 +----
+ drivers/net/wireless/rsi/rsi_hal.h      |   11 +++++++++++
+ 3 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/microchip/wilc1000/cfg80211.c b/drivers/net/wireless/microchip/wilc1000/cfg80211.c
-index 96973ec7bd9ac..87c14969c75fa 100644
---- a/drivers/net/wireless/microchip/wilc1000/cfg80211.c
-+++ b/drivers/net/wireless/microchip/wilc1000/cfg80211.c
-@@ -129,8 +129,7 @@ static void cfg_scan_result(enum scan_event scan_event,
- 						info->frame_len,
- 						(s32)info->rssi * 100,
- 						GFP_KERNEL);
--		if (!bss)
--			cfg80211_put_bss(wiphy, bss);
-+		cfg80211_put_bss(wiphy, bss);
- 	} else if (scan_event == SCAN_EVENT_DONE) {
- 		mutex_lock(&priv->scan_req_lock);
+--- a/drivers/net/wireless/rsi/rsi_91x_sdio.c
++++ b/drivers/net/wireless/rsi/rsi_91x_sdio.c
+@@ -24,10 +24,7 @@
+ /* Default operating mode is wlan STA + BT */
+ static u16 dev_oper_mode = DEV_OPMODE_STA_BT_DUAL;
+ module_param(dev_oper_mode, ushort, 0444);
+-MODULE_PARM_DESC(dev_oper_mode,
+-		 "1[Wi-Fi], 4[BT], 8[BT LE], 5[Wi-Fi STA + BT classic]\n"
+-		 "9[Wi-Fi STA + BT LE], 13[Wi-Fi STA + BT classic + BT LE]\n"
+-		 "6[AP + BT classic], 14[AP + BT classic + BT LE]");
++MODULE_PARM_DESC(dev_oper_mode, DEV_OPMODE_PARAM_DESC);
  
--- 
-2.33.0
-
+ /**
+  * rsi_sdio_set_cmd52_arg() - This function prepares cmd 52 read/write arg.
+--- a/drivers/net/wireless/rsi/rsi_91x_usb.c
++++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
+@@ -25,10 +25,7 @@
+ /* Default operating mode is wlan STA + BT */
+ static u16 dev_oper_mode = DEV_OPMODE_STA_BT_DUAL;
+ module_param(dev_oper_mode, ushort, 0444);
+-MODULE_PARM_DESC(dev_oper_mode,
+-		 "1[Wi-Fi], 4[BT], 8[BT LE], 5[Wi-Fi STA + BT classic]\n"
+-		 "9[Wi-Fi STA + BT LE], 13[Wi-Fi STA + BT classic + BT LE]\n"
+-		 "6[AP + BT classic], 14[AP + BT classic + BT LE]");
++MODULE_PARM_DESC(dev_oper_mode, DEV_OPMODE_PARAM_DESC);
+ 
+ static int rsi_rx_urb_submit(struct rsi_hw *adapter, u8 ep_num, gfp_t flags);
+ 
+--- a/drivers/net/wireless/rsi/rsi_hal.h
++++ b/drivers/net/wireless/rsi/rsi_hal.h
+@@ -28,6 +28,17 @@
+ #define DEV_OPMODE_AP_BT		6
+ #define DEV_OPMODE_AP_BT_DUAL		14
+ 
++#define DEV_OPMODE_PARAM_DESC		\
++	__stringify(DEV_OPMODE_WIFI_ALONE)	"[Wi-Fi alone], "	\
++	__stringify(DEV_OPMODE_BT_ALONE)	"[BT classic alone], "	\
++	__stringify(DEV_OPMODE_BT_LE_ALONE)	"[BT LE alone], "	\
++	__stringify(DEV_OPMODE_BT_DUAL)		"[BT classic + BT LE alone], " \
++	__stringify(DEV_OPMODE_STA_BT)		"[Wi-Fi STA + BT classic], " \
++	__stringify(DEV_OPMODE_STA_BT_LE)	"[Wi-Fi STA + BT LE], "	\
++	__stringify(DEV_OPMODE_STA_BT_DUAL)	"[Wi-Fi STA + BT classic + BT LE], " \
++	__stringify(DEV_OPMODE_AP_BT)		"[Wi-Fi AP + BT classic], "	\
++	__stringify(DEV_OPMODE_AP_BT_DUAL)	"[Wi-Fi AP + BT classic + BT LE]"
++
+ #define FLASH_WRITE_CHUNK_SIZE		(4 * 1024)
+ #define FLASH_SECTOR_SIZE		(4 * 1024)
+ 
 
 
