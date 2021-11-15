@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD54545223D
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:08:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4326F45223A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:08:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345427AbhKPBKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:10:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1376441AbhKPBK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:10:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245100AbhKOTTV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245104AbhKOTTV (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:19:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A41D63502;
-        Mon, 15 Nov 2021 18:28:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 425C663444;
+        Mon, 15 Nov 2021 18:28:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000903;
-        bh=Jbd0XzbgPEl7d8y6htMcCu4QkvmMC9zLwenjssqKUgw=;
+        s=korg; t=1637000911;
+        bh=jEsPN6D0hFl/Ft7hVzroBX7+X1zeddaqnRqUwQ8bxt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VF2BIPsk4Xwy8AdrWg5+b7wnpr6O1tOCcXKLWybZldKoLGcJFh0km2cYVN0Wez7f3
-         8QSbAEFj7+Z9+Bc3R7dMNJA1d/Da3WAlk9kYkUXEUhJnXnLABsAnjxjmSYVyVjS+al
-         j0jFGdKPz8ZZrO7x+oPgLiuwFCNph0/aomRnGHSw=
+        b=Ix6yHJpFXWR9o1JAGxP6LWqOwoqpmy4pqDup2x4JmptzrC47VFo3cLJdxexp+C3ap
+         ZEfh+JGRl5SPkEH3TYkkixeYR9GzFHeiEoM9pNyW9gYfzM93c3S0USG4Rgci4w/y4o
+         LiES3N9Z/a+HVOzG1oud0iGhF1D1zJmqnX5T3iV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hari Bathini <hbathini@linux.ibm.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Russell Currey <ruscur@russell.cc>,
+        Nicholas Piggin <npiggin@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.14 836/849] powerpc/bpf: Fix write protecting JIT code
-Date:   Mon, 15 Nov 2021 18:05:19 +0100
-Message-Id: <20211115165448.519522940@linuxfoundation.org>
+Subject: [PATCH 5.14 839/849] powerpc/security: Use a mutex for interrupt exit code patching
+Date:   Mon, 15 Nov 2021 18:05:22 +0100
+Message-Id: <20211115165448.623368830@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,49 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hari Bathini <hbathini@linux.ibm.com>
+From: Russell Currey <ruscur@russell.cc>
 
-commit 44a8214de96bafb5210e43bfa2c97c19bf75af3d upstream.
+commit 3c12b4df8d5e026345a19886ae375b3ebc33c0b6 upstream.
 
-Running program with bpf-to-bpf function calls results in data access
-exception (0x300) with the below call trace:
+The mitigation-patching.sh script in the powerpc selftests toggles
+all mitigations on and off simultaneously, revealing that rfi_flush
+and stf_barrier cannot safely operate at the same time due to races
+in updating the static key.
 
-  bpf_int_jit_compile+0x238/0x750 (unreliable)
-  bpf_check+0x2008/0x2710
-  bpf_prog_load+0xb00/0x13a0
-  __sys_bpf+0x6f4/0x27c0
-  sys_bpf+0x2c/0x40
-  system_call_exception+0x164/0x330
-  system_call_vectored_common+0xe8/0x278
+On some systems, the static key code throws a warning and the kernel
+remains functional.  On others, the kernel will hang or crash.
 
-as bpf_int_jit_compile() tries writing to write protected JIT code
-location during the extra pass.
+Fix this by slapping on a mutex.
 
-Fix it by holding off write protection of JIT code until the extra
-pass, where branch target addresses fixup happens.
-
-Fixes: 62e3d4210ac9 ("powerpc/bpf: Write protect JIT code")
+Fixes: 13799748b957 ("powerpc/64: use interrupt restart table to speed up return from interrupt")
 Cc: stable@vger.kernel.org # v5.14+
-Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
-Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Russell Currey <ruscur@russell.cc>
+Acked-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211025055649.114728-1-hbathini@linux.ibm.com
+Link: https://lore.kernel.org/r/20211027072410.40950-1-ruscur@russell.cc
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/net/bpf_jit_comp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/lib/feature-fixups.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/arch/powerpc/net/bpf_jit_comp.c
-+++ b/arch/powerpc/net/bpf_jit_comp.c
-@@ -241,8 +241,8 @@ skip_codegen_passes:
- 	fp->jited_len = alloclen;
+--- a/arch/powerpc/lib/feature-fixups.c
++++ b/arch/powerpc/lib/feature-fixups.c
+@@ -228,6 +228,7 @@ static void do_stf_exit_barrier_fixups(e
  
- 	bpf_flush_icache(bpf_hdr, (u8 *)bpf_hdr + (bpf_hdr->pages * PAGE_SIZE));
--	bpf_jit_binary_lock_ro(bpf_hdr);
- 	if (!fp->is_func || extra_pass) {
-+		bpf_jit_binary_lock_ro(bpf_hdr);
- 		bpf_prog_fill_jited_linfo(fp, addrs);
- out_addrs:
- 		kfree(addrs);
+ static bool stf_exit_reentrant = false;
+ static bool rfi_exit_reentrant = false;
++static DEFINE_MUTEX(exit_flush_lock);
+ 
+ static int __do_stf_barrier_fixups(void *data)
+ {
+@@ -253,6 +254,9 @@ void do_stf_barrier_fixups(enum stf_barr
+ 	 * low level interrupt exit code before patching. After the patching,
+ 	 * if allowed, then flip the branch to allow fast exits.
+ 	 */
++
++	// Prevent static key update races with do_rfi_flush_fixups()
++	mutex_lock(&exit_flush_lock);
+ 	static_branch_enable(&interrupt_exit_not_reentrant);
+ 
+ 	stop_machine(__do_stf_barrier_fixups, &types, NULL);
+@@ -264,6 +268,8 @@ void do_stf_barrier_fixups(enum stf_barr
+ 
+ 	if (stf_exit_reentrant && rfi_exit_reentrant)
+ 		static_branch_disable(&interrupt_exit_not_reentrant);
++
++	mutex_unlock(&exit_flush_lock);
+ }
+ 
+ void do_uaccess_flush_fixups(enum l1d_flush_type types)
+@@ -486,6 +492,9 @@ void do_rfi_flush_fixups(enum l1d_flush_
+ 	 * without stop_machine, so this could be achieved with a broadcast
+ 	 * IPI instead, but this matches the stf sequence.
+ 	 */
++
++	// Prevent static key update races with do_stf_barrier_fixups()
++	mutex_lock(&exit_flush_lock);
+ 	static_branch_enable(&interrupt_exit_not_reentrant);
+ 
+ 	stop_machine(__do_rfi_flush_fixups, &types, NULL);
+@@ -497,6 +506,8 @@ void do_rfi_flush_fixups(enum l1d_flush_
+ 
+ 	if (stf_exit_reentrant && rfi_exit_reentrant)
+ 		static_branch_disable(&interrupt_exit_not_reentrant);
++
++	mutex_unlock(&exit_flush_lock);
+ }
+ 
+ void do_barrier_nospec_fixups_range(bool enable, void *fixup_start, void *fixup_end)
 
 
