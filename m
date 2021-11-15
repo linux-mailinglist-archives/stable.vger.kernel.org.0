@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C36450AE2
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:12:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8CD450AE3
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:12:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236737AbhKORP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:15:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45158 "EHLO mail.kernel.org"
+        id S236953AbhKORPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:15:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236787AbhKOROS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:14:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E870263245;
-        Mon, 15 Nov 2021 17:10:56 +0000 (UTC)
+        id S236615AbhKOROi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:14:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ABBE6324A;
+        Mon, 15 Nov 2021 17:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996257;
-        bh=KtmSilp6BstahOv755BtAIa2ywvDkEIiaPhjuH3g3Yc=;
+        s=korg; t=1636996259;
+        bh=Evu+K9Wkb9pU6sX9ikL1VUHN234Qn9kIHg2N8HqSdVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmhbWl1RI/spYqDXt9kme8Lt0L8UiFnbRbQht0VTGRIoLLzGucGRMPGOqYd4/7ydW
-         86W+OnisvokHcPCHCDXdS0jf4fyhdwntLYG3fiYmEdV1p+/xsk/YRcc7QK5vIYRHrX
-         BUVs+I3LLSrCJsUHognihtgGpRLMSdftG9iddoCc=
+        b=Tyrk3/JAk2bMXDaAEGNlogCuV1jjcq8Dr/cAreYSUl2b54x14ZY56dRkvLzJTmvLH
+         3ORdmOR4A8Dk35knOm5b4eTRe0KiCHj3w7b2nQ49vPQPl9KF96hLjQpm0gubyQYqxm
+         cv6+gmBPEGn8VFLjglt7rKpeE2Q4s09XpqngoK+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingmar Klein <ingmar_klein@web.de>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 5.4 074/355] PCI: Mark Atheros QCA6174 to avoid bus reset
-Date:   Mon, 15 Nov 2021 17:59:58 +0100
-Message-Id: <20211115165316.200982182@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 075/355] rtl8187: fix control-message timeouts
+Date:   Mon, 15 Nov 2021 17:59:59 +0100
+Message-Id: <20211115165316.234199680@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -40,35 +39,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ingmar Klein <ingmar_klein@web.de>
+From: Johan Hovold <johan@kernel.org>
 
-commit e3f4bd3462f6f796594ecc0dda7144ed2d1e5a26 upstream.
+commit 2e9be536a213e838daed6ba42024dd68954ac061 upstream.
 
-When passing the Atheros QCA6174 through to a virtual machine, the VM hangs
-at the point where the ath10k driver loads.
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-Add a quirk to avoid bus resets on this device, which avoids the hang.
-
-[bhelgaas: commit log]
-Link: https://lore.kernel.org/r/08982e05-b6e8-5a8d-24ab-da1488ee50a8@web.de
-Signed-off-by: Ingmar Klein <ingmar_klein@web.de>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Pali Rohár <pali@kernel.org>
-Cc: stable@vger.kernel.org
+Fixes: 605bebe23bf6 ("[PATCH] Add rtl8187 wireless driver")
+Cc: stable@vger.kernel.org      # 2.6.23
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211025120522.6045-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -3584,6 +3584,7 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_A
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x003c, quirk_no_bus_reset);
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0033, quirk_no_bus_reset);
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0034, quirk_no_bus_reset);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x003e, quirk_no_bus_reset);
+--- a/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c
++++ b/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c
+@@ -28,7 +28,7 @@ u8 rtl818x_ioread8_idx(struct rtl8187_pr
+ 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits8, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits8, sizeof(val), 500);
  
- /*
-  * Root port on some Cavium CN8xxx chips do not successfully complete a bus
+ 	val = priv->io_dmabuf->bits8;
+ 	mutex_unlock(&priv->io_mutex);
+@@ -45,7 +45,7 @@ u16 rtl818x_ioread16_idx(struct rtl8187_
+ 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits16, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits16, sizeof(val), 500);
+ 
+ 	val = priv->io_dmabuf->bits16;
+ 	mutex_unlock(&priv->io_mutex);
+@@ -62,7 +62,7 @@ u32 rtl818x_ioread32_idx(struct rtl8187_
+ 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits32, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits32, sizeof(val), 500);
+ 
+ 	val = priv->io_dmabuf->bits32;
+ 	mutex_unlock(&priv->io_mutex);
+@@ -79,7 +79,7 @@ void rtl818x_iowrite8_idx(struct rtl8187
+ 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits8, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits8, sizeof(val), 500);
+ 
+ 	mutex_unlock(&priv->io_mutex);
+ }
+@@ -93,7 +93,7 @@ void rtl818x_iowrite16_idx(struct rtl818
+ 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits16, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits16, sizeof(val), 500);
+ 
+ 	mutex_unlock(&priv->io_mutex);
+ }
+@@ -107,7 +107,7 @@ void rtl818x_iowrite32_idx(struct rtl818
+ 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits32, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits32, sizeof(val), 500);
+ 
+ 	mutex_unlock(&priv->io_mutex);
+ }
+@@ -183,7 +183,7 @@ static void rtl8225_write_8051(struct ie
+ 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
+ 			addr, 0x8225, &priv->io_dmabuf->bits16, sizeof(data),
+-			HZ / 2);
++			500);
+ 
+ 	mutex_unlock(&priv->io_mutex);
+ 
 
 
