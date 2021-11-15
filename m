@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49681450E1B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1103A450B81
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240600AbhKOSKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:10:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48394 "EHLO mail.kernel.org"
+        id S237703AbhKORZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:25:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239999AbhKOSFX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9A156336C;
-        Mon, 15 Nov 2021 17:41:00 +0000 (UTC)
+        id S237775AbhKORYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:24:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60CD46325A;
+        Mon, 15 Nov 2021 17:17:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998061;
-        bh=+01wE7kexrBhH+3wNvt8GwILd4+MHhbRnSkfgp3UMWI=;
+        s=korg; t=1636996626;
+        bh=oyICd/a6c5ww8c1xKMkHgzV1Bv0FK8bubS6hzg/lM34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G4UJrrqhPSUOrlQbDsb1emWemm3siWIzeXxfnGPt43/A8BM5H0Y2qLPy070yMkjOZ
-         IKl6szLzZfnBt/zSUFgLXcuq7bR+j4A1jTA4oKL3bI9lXVzHlKbX+QyKDMXVn60iXd
-         NHYffK1ui2Vf9JjSEJnxEe404hFseB8WVBvY12Eg=
+        b=N4iJK83fmq8y9VjMCagoITxsyZ9Vz0/L+9MXPROt1SYj9TtWkvMigY3m46MgWZX3M
+         twnxtGOs7stjogoLOfhNsjmhwBIyPMFgYLqc60Wol0Du7bCr51kvnt243dYRtDllbo
+         0MvNl9fUEPTVa5Qyv1lfrfc7+lyOvPIcGgrrC/Jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 374/575] selftests/bpf: Fix fd cleanup in sk_lookup test
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 175/355] x86/hyperv: Protect set_hv_tscchange_cb() against getting preempted
 Date:   Mon, 15 Nov 2021 18:01:39 +0100
-Message-Id: <20211115165356.715122354@linuxfoundation.org>
+Message-Id: <20211115165319.445996763@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit c3fc706e94f5653def2783ffcd809a38676b7551 ]
+[ Upstream commit 285f68afa8b20f752b0b7194d54980b5e0e27b75 ]
 
-Similar to the fix in commit:
-e31eec77e4ab ("bpf: selftests: Fix fd cleanup in get_branch_snapshot")
+The following issue is observed with CONFIG_DEBUG_PREEMPT when KVM loads:
 
-We use designated initializer to set fds to -1 without breaking on
-future changes to MAX_SERVER constant denoting the array size.
+ KVM: vmx: using Hyper-V Enlightened VMCS
+ BUG: using smp_processor_id() in preemptible [00000000] code: systemd-udevd/488
+ caller is set_hv_tscchange_cb+0x16/0x80
+ CPU: 1 PID: 488 Comm: systemd-udevd Not tainted 5.15.0-rc5+ #396
+ Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS Hyper-V UEFI Release v4.0 12/17/2019
+ Call Trace:
+  dump_stack_lvl+0x6a/0x9a
+  check_preemption_disabled+0xde/0xe0
+  ? kvm_gen_update_masterclock+0xd0/0xd0 [kvm]
+  set_hv_tscchange_cb+0x16/0x80
+  kvm_arch_init+0x23f/0x290 [kvm]
+  kvm_init+0x30/0x310 [kvm]
+  vmx_init+0xaf/0x134 [kvm_intel]
+  ...
 
-The particular close(0) occurs on non-reuseport tests, so it can be seen
-with -n 115/{2,3} but not 115/4. This can cause problems with future
-tests if they depend on BTF fd never being acquired as fd 0, breaking
-internal libbpf assumptions.
+set_hv_tscchange_cb() can get preempted in between acquiring
+smp_processor_id() and writing to HV_X64_MSR_REENLIGHTENMENT_CONTROL. This
+is not an issue by itself: HV_X64_MSR_REENLIGHTENMENT_CONTROL is a
+partition-wide MSR and it doesn't matter which particular CPU will be
+used to receive reenlightenment notifications. The only real problem can
+(in theory) be observed if the CPU whose id was acquired with
+smp_processor_id() goes offline before we manage to write to the MSR,
+the logic in hv_cpu_die() won't be able to reassign it correctly.
 
-Fixes: 0ab5539f8584 ("selftests/bpf: Tests for BPF_SK_LOOKUP attach point")
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20211028063501.2239335-8-memxor@gmail.com
+Reported-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Link: https://lore.kernel.org/r/20211012155005.1613352-1-vkuznets@redhat.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/sk_lookup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/hyperv/hv_init.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/sk_lookup.c b/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
-index 45c82db3c58c5..b4c9f4a96ae4d 100644
---- a/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
-+++ b/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
-@@ -598,7 +598,7 @@ close:
+diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
+index 79583bac9ac4a..812db1ac8cb11 100644
+--- a/arch/x86/hyperv/hv_init.c
++++ b/arch/x86/hyperv/hv_init.c
+@@ -155,7 +155,6 @@ void set_hv_tscchange_cb(void (*cb)(void))
+ 	struct hv_reenlightenment_control re_ctrl = {
+ 		.vector = HYPERV_REENLIGHTENMENT_VECTOR,
+ 		.enabled = 1,
+-		.target_vp = hv_vp_index[smp_processor_id()]
+ 	};
+ 	struct hv_tsc_emulation_control emu_ctrl = {.enabled = 1};
  
- static void run_lookup_prog(const struct test *t)
- {
--	int server_fds[MAX_SERVERS] = { -1 };
-+	int server_fds[] = { [0 ... MAX_SERVERS - 1] = -1 };
- 	int client_fd, reuse_conn_fd = -1;
- 	struct bpf_link *lookup_link;
- 	int i, err;
-@@ -1053,7 +1053,7 @@ static void run_sk_assign(struct test_sk_lookup *skel,
- 			  struct bpf_program *lookup_prog,
- 			  const char *remote_ip, const char *local_ip)
- {
--	int server_fds[MAX_SERVERS] = { -1 };
-+	int server_fds[] = { [0 ... MAX_SERVERS - 1] = -1 };
- 	struct bpf_sk_lookup ctx;
- 	__u64 server_cookie;
- 	int i, err;
+@@ -169,8 +168,12 @@ void set_hv_tscchange_cb(void (*cb)(void))
+ 	/* Make sure callback is registered before we write to MSRs */
+ 	wmb();
+ 
++	re_ctrl.target_vp = hv_vp_index[get_cpu()];
++
+ 	wrmsrl(HV_X64_MSR_REENLIGHTENMENT_CONTROL, *((u64 *)&re_ctrl));
+ 	wrmsrl(HV_X64_MSR_TSC_EMULATION_CONTROL, *((u64 *)&emu_ctrl));
++
++	put_cpu();
+ }
+ EXPORT_SYMBOL_GPL(set_hv_tscchange_cb);
+ 
 -- 
 2.33.0
 
