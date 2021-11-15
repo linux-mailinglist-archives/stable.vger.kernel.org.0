@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73374451392
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AC6845137A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348434AbhKOTwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:52:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1348281AbhKOTvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:51:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343614AbhKOTV0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343613AbhKOTV0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64067635BB;
-        Mon, 15 Nov 2021 18:43:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13529635B8;
+        Mon, 15 Nov 2021 18:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001783;
-        bh=3YtXWB/fgXqIhJlzEeTNAesr3cKRa5Gx8ipZuSbTfjA=;
+        s=korg; t=1637001786;
+        bh=RiV6o3xlqct9o0S+qUsjUOp1C4FLjZPFFtwZBcvw6mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AcmiNvXl/mRsFOy2pr07tqj/G5vOGh1ScZbKMK0Mtelv6WIaVRa+ocnH4lFm4kIdT
-         z1YatRTw19xdUfOnJdsJpXuCjfnfskvZS3yf7STIBt2FUvFkLMpp02X7gSnU8sVnlJ
-         8MeUu3NeX3wzh6Bdjsbg+KHS8oW0cseVD0AC3wBw=
+        b=ZosWgFQ4dpNUnBaEoMfOGOcQ14fm1/p2Ia2rCsR7ZT12tho/pU6vl2yr0YzZFVZII
+         Zol+wIXM1rUfb4y2NrNY5DObAwEo6nX9IAdWY/Nnrv4Wck4PoNByVqFlwiz2WGZnwP
+         tpghx9c8iUYHbPJYXbxCBH4yYOPQ2Znvibd+WLZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 320/917] selftests/bpf: Fix strobemeta selftest regression
-Date:   Mon, 15 Nov 2021 17:56:55 +0100
-Message-Id: <20211115165439.595346231@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Imre Deak <imre.deak@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 321/917] fbdev/efifb: Release PCI devices runtime PM ref during FB destroy
+Date:   Mon, 15 Nov 2021 17:56:56 +0100
+Message-Id: <20211115165439.627314554@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,107 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit 0133c20480b14820d43c37c0e9502da4bffcad3a ]
+[ Upstream commit 55285e21f04517939480966164a33898c34b2af2 ]
 
-After most recent nightly Clang update strobemeta selftests started
-failing with the following error (relevant portion of assembly included):
+Atm the EFI FB platform driver gets a runtime PM reference for the
+associated GFX PCI device during probing the EFI FB platform device and
+releases it only when the platform device gets unbound.
 
-  1624: (85) call bpf_probe_read_user_str#114
-  1625: (bf) r1 = r0
-  1626: (18) r2 = 0xfffffffe
-  1628: (5f) r1 &= r2
-  1629: (55) if r1 != 0x0 goto pc+7
-  1630: (07) r9 += 104
-  1631: (6b) *(u16 *)(r9 +0) = r0
-  1632: (67) r0 <<= 32
-  1633: (77) r0 >>= 32
-  1634: (79) r1 = *(u64 *)(r10 -456)
-  1635: (0f) r1 += r0
-  1636: (7b) *(u64 *)(r10 -456) = r1
-  1637: (79) r1 = *(u64 *)(r10 -368)
-  1638: (c5) if r1 s< 0x1 goto pc+778
-  1639: (bf) r6 = r8
-  1640: (0f) r6 += r7
-  1641: (b4) w1 = 0
-  1642: (6b) *(u16 *)(r6 +108) = r1
-  1643: (79) r3 = *(u64 *)(r10 -352)
-  1644: (79) r9 = *(u64 *)(r10 -456)
-  1645: (bf) r1 = r9
-  1646: (b4) w2 = 1
-  1647: (85) call bpf_probe_read_user_str#114
+When fbcon switches to the FB provided by the PCI device's driver (for
+instance i915/drmfb), the EFI FB will get only unregistered without the
+EFI FB platform device getting unbound, keeping the runtime PM reference
+acquired during the platform device probing. This reference will prevent
+the PCI driver from runtime suspending the device.
 
-  R1 unbounded memory access, make sure to bounds check any such access
+Fix this by releasing the RPM reference from the EFI FB's destroy hook,
+called when the FB gets unregistered.
 
-In the above code r0 and r1 are implicitly related. Clang knows that,
-but verifier isn't able to infer this relationship.
+While at it assert that pm_runtime_get_sync() didn't fail.
 
-Yonghong Song narrowed down this "regression" in code generation to
-a recent Clang optimization change ([0]), which for BPF target generates
-code pattern that BPF verifier can't handle and loses track of register
-boundaries.
+v2:
+- Move pm_runtime_get_sync() before register_framebuffer() to avoid its
+  race wrt. efifb_destroy()->pm_runtime_put(). (Daniel)
+- Assert that pm_runtime_get_sync() didn't fail.
+- Clarify commit message wrt. platform/PCI device/driver and driver
+  removal vs. device unbinding.
 
-This patch works around the issue by adding an BPF assembly-based helper
-that helps to prove to the verifier that upper bound of the register is
-a given constant by controlling the exact share of generated BPF
-instruction sequence. This fixes the immediate issue for strobemeta
-selftest.
-
-  [0] https://github.com/llvm/llvm-project/commit/acabad9ff6bf13e00305d9d8621ee8eafc1f8b08
-
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20211029182907.166910-1-andrii@kernel.org
+Fixes: a6c0fd3d5a8b ("efifb: Ensure graphics device for efifb stays at PCI D0")
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch> (v1)
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Acked-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210809133146.2478382-1-imre.deak@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/strobemeta.h | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/video/fbdev/efifb.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/strobemeta.h b/tools/testing/selftests/bpf/progs/strobemeta.h
-index 7de534f38c3f1..3687ea755ab5a 100644
---- a/tools/testing/selftests/bpf/progs/strobemeta.h
-+++ b/tools/testing/selftests/bpf/progs/strobemeta.h
-@@ -10,6 +10,14 @@
- #include <linux/types.h>
- #include <bpf/bpf_helpers.h>
+diff --git a/drivers/video/fbdev/efifb.c b/drivers/video/fbdev/efifb.c
+index 8ea8f079cde26..edca3703b9640 100644
+--- a/drivers/video/fbdev/efifb.c
++++ b/drivers/video/fbdev/efifb.c
+@@ -47,6 +47,8 @@ static bool use_bgrt = true;
+ static bool request_mem_succeeded = false;
+ static u64 mem_flags = EFI_MEMORY_WC | EFI_MEMORY_UC;
  
-+#define bpf_clamp_umax(VAR, UMAX)					\
-+	asm volatile (							\
-+		"if %0 <= %[max] goto +1\n"				\
-+		"%0 = %[max]\n"						\
-+		: "+r"(VAR)						\
-+		: [max]"i"(UMAX)					\
-+	)
++static struct pci_dev *efifb_pci_dev;	/* dev with BAR covering the efifb */
 +
- typedef uint32_t pid_t;
- struct task_struct {};
+ static struct fb_var_screeninfo efifb_defined = {
+ 	.activate		= FB_ACTIVATE_NOW,
+ 	.height			= -1,
+@@ -243,6 +245,9 @@ static inline void efifb_show_boot_graphics(struct fb_info *info) {}
  
-@@ -413,6 +421,7 @@ static __always_inline void *read_map_var(struct strobemeta_cfg *cfg,
+ static void efifb_destroy(struct fb_info *info)
+ {
++	if (efifb_pci_dev)
++		pm_runtime_put(&efifb_pci_dev->dev);
++
+ 	if (info->screen_base) {
+ 		if (mem_flags & (EFI_MEMORY_UC | EFI_MEMORY_WC))
+ 			iounmap(info->screen_base);
+@@ -333,7 +338,6 @@ ATTRIBUTE_GROUPS(efifb);
  
- 	len = bpf_probe_read_user_str(payload, STROBE_MAX_STR_LEN, map.tag);
- 	if (len <= STROBE_MAX_STR_LEN) {
-+		bpf_clamp_umax(len, STROBE_MAX_STR_LEN);
- 		descr->tag_len = len;
- 		payload += len;
+ static bool pci_dev_disabled;	/* FB base matches BAR of a disabled device */
+ 
+-static struct pci_dev *efifb_pci_dev;	/* dev with BAR covering the efifb */
+ static struct resource *bar_resource;
+ static u64 bar_offset;
+ 
+@@ -569,17 +573,22 @@ static int efifb_probe(struct platform_device *dev)
+ 		pr_err("efifb: cannot allocate colormap\n");
+ 		goto err_groups;
  	}
-@@ -430,6 +439,7 @@ static __always_inline void *read_map_var(struct strobemeta_cfg *cfg,
- 		len = bpf_probe_read_user_str(payload, STROBE_MAX_STR_LEN,
- 					      map.entries[i].key);
- 		if (len <= STROBE_MAX_STR_LEN) {
-+			bpf_clamp_umax(len, STROBE_MAX_STR_LEN);
- 			descr->key_lens[i] = len;
- 			payload += len;
- 		}
-@@ -437,6 +447,7 @@ static __always_inline void *read_map_var(struct strobemeta_cfg *cfg,
- 		len = bpf_probe_read_user_str(payload, STROBE_MAX_STR_LEN,
- 					      map.entries[i].val);
- 		if (len <= STROBE_MAX_STR_LEN) {
-+			bpf_clamp_umax(len, STROBE_MAX_STR_LEN);
- 			descr->val_lens[i] = len;
- 			payload += len;
- 		}
++
++	if (efifb_pci_dev)
++		WARN_ON(pm_runtime_get_sync(&efifb_pci_dev->dev) < 0);
++
+ 	err = register_framebuffer(info);
+ 	if (err < 0) {
+ 		pr_err("efifb: cannot register framebuffer\n");
+-		goto err_fb_dealoc;
++		goto err_put_rpm_ref;
+ 	}
+ 	fb_info(info, "%s frame buffer device\n", info->fix.id);
+-	if (efifb_pci_dev)
+-		pm_runtime_get_sync(&efifb_pci_dev->dev);
+ 	return 0;
+ 
+-err_fb_dealoc:
++err_put_rpm_ref:
++	if (efifb_pci_dev)
++		pm_runtime_put(&efifb_pci_dev->dev);
++
+ 	fb_dealloc_cmap(&info->cmap);
+ err_groups:
+ 	sysfs_remove_groups(&dev->dev.kobj, efifb_groups);
+@@ -603,8 +612,6 @@ static int efifb_remove(struct platform_device *pdev)
+ 	unregister_framebuffer(info);
+ 	sysfs_remove_groups(&pdev->dev.kobj, efifb_groups);
+ 	framebuffer_release(info);
+-	if (efifb_pci_dev)
+-		pm_runtime_put(&efifb_pci_dev->dev);
+ 
+ 	return 0;
+ }
 -- 
 2.33.0
 
