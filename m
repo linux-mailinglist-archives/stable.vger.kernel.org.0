@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BC5C452220
+	by mail.lfdr.de (Postfix) with ESMTP id A4EEF452221
 	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:07:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348545AbhKPBKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:10:08 -0500
+        id S1350426AbhKPBKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:10:09 -0500
 Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244847AbhKOTRq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:17:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58EB060EE9;
-        Mon, 15 Nov 2021 18:24:51 +0000 (UTC)
+        id S244916AbhKOTSO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5D126342D;
+        Mon, 15 Nov 2021 18:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000692;
-        bh=iY1GpGYyI6XkhG6JDsSgFIzhszGE+E1jSVYEETRjWvM=;
+        s=korg; t=1637000731;
+        bh=bp8XQciujjx2tduNWt7kp6MnhtEOcBX9budyB4cej3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oh7d3qvY40yb5UX4YbF19xDiZGtPFw0A7V/wX4mBe2o+VkDhLBr62IDG3xj+S5O6U
-         Hq14oRWylTlxktxXmNYEC6CWb7VxNZJ7zDzuJMXky3AEnt1LUJbd+od20cdJdL9zYG
-         eVKDdlK13307XxnaSqbPzx2E5ve+vNnYVWfm/Mn0=
+        b=t1/XOUFgM/1k5rhAimDFXIPjoqqRF1cDFeDOpfst1T/w9jVBBipO3U3RdGnnGVTRo
+         KsS3zRtclh2ZcMjOTppY32SQCFZm/oz2ZNtuDzh8ZkW7zpMljGyd3f/sBiPuNIeMUO
+         uw1pTvdLLu4MCak7TIp43syFOWr6oUY02PGCC8r8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Henry Burns <henryburns@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
+        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 756/849] mm/zsmalloc.c: close race window between zs_pool_dec_isolated() and zs_unregister_migration()
-Date:   Mon, 15 Nov 2021 18:03:59 +0100
-Message-Id: <20211115165445.819512701@linuxfoundation.org>
+Subject: [PATCH 5.14 770/849] drm/i915/fb: Fix rounding error in subsampled plane size calculation
+Date:   Mon, 15 Nov 2021 18:04:13 +0100
+Message-Id: <20211115165446.309483174@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -44,62 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit afe8605ca45424629fdddfd85984b442c763dc47 ]
+[ Upstream commit 90ab96f3872eae816f4e07deaa77322a91237960 ]
 
-There is one possible race window between zs_pool_dec_isolated() and
-zs_unregister_migration() because wait_for_isolated_drain() checks the
-isolated count without holding class->lock and there is no order inside
-zs_pool_dec_isolated().  Thus the below race window could be possible:
+For NV12 FBs with odd main surface tile-row height the CCS surface
+height was incorrectly calculated 1 less than the actual value. Fix this
+by rounding up the result of divison. For consistency do the same for
+the CCS surface width calculation.
 
-  zs_pool_dec_isolated		zs_unregister_migration
-    check pool->destroying != 0
-				  pool->destroying = true;
-				  smp_mb();
-				  wait_for_isolated_drain()
-				    wait for pool->isolated_pages == 0
-    atomic_long_dec(&pool->isolated_pages);
-    atomic_long_read(&pool->isolated_pages) == 0
-
-Since we observe the pool->destroying (false) before atomic_long_dec()
-for pool->isolated_pages, waking pool->migration_wait up is missed.
-
-Fix this by ensure checking pool->destroying happens after the
-atomic_long_dec(&pool->isolated_pages).
-
-Link: https://lkml.kernel.org/r/20210708115027.7557-1-linmiaohe@huawei.com
-Fixes: 701d678599d0 ("mm/zsmalloc.c: fix race condition in zs_destroy_pool")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Henry Burns <henryburns@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b3e57bccd68a ("drm/i915/tgl: Gen-12 render decompression")
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211026225105.2783797-2-imre.deak@intel.com
+(cherry picked from commit 2ee5ef9c934ad26376c9282171e731e6c0339815)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/zsmalloc.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/i915/display/intel_fb.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index 68e8831068f4b..b897ce3b399a1 100644
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -1830,10 +1830,11 @@ static inline void zs_pool_dec_isolated(struct zs_pool *pool)
- 	VM_BUG_ON(atomic_long_read(&pool->isolated_pages) <= 0);
- 	atomic_long_dec(&pool->isolated_pages);
- 	/*
--	 * There's no possibility of racing, since wait_for_isolated_drain()
--	 * checks the isolated count under &class->lock after enqueuing
--	 * on migration_wait.
-+	 * Checking pool->destroying must happen after atomic_long_dec()
-+	 * for pool->isolated_pages above. Paired with the smp_mb() in
-+	 * zs_unregister_migration().
- 	 */
-+	smp_mb__after_atomic();
- 	if (atomic_long_read(&pool->isolated_pages) == 0 && pool->destroying)
- 		wake_up_all(&pool->migration_wait);
+diff --git a/drivers/gpu/drm/i915/display/intel_fb.c b/drivers/gpu/drm/i915/display/intel_fb.c
+index c60a81a81c09c..c6413c5409420 100644
+--- a/drivers/gpu/drm/i915/display/intel_fb.c
++++ b/drivers/gpu/drm/i915/display/intel_fb.c
+@@ -172,8 +172,9 @@ static void intel_fb_plane_dims(const struct intel_framebuffer *fb, int color_pl
+ 
+ 	intel_fb_plane_get_subsampling(&main_hsub, &main_vsub, &fb->base, main_plane);
+ 	intel_fb_plane_get_subsampling(&hsub, &vsub, &fb->base, color_plane);
+-	*w = fb->base.width / main_hsub / hsub;
+-	*h = fb->base.height / main_vsub / vsub;
++
++	*w = DIV_ROUND_UP(fb->base.width, main_hsub * hsub);
++	*h = DIV_ROUND_UP(fb->base.height, main_vsub * vsub);
  }
+ 
+ static u32 intel_adjust_tile_offset(int *x, int *y,
 -- 
 2.33.0
 
