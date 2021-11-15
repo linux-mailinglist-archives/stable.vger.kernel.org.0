@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B645450CD6
+	by mail.lfdr.de (Postfix) with ESMTP id 1E9F6450CD5
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:41:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237661AbhKORod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:44:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57868 "EHLO mail.kernel.org"
+        id S237286AbhKORoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:44:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237334AbhKORly (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237058AbhKORly (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 12:41:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA58B632F3;
-        Mon, 15 Nov 2021 17:27:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26D6A632FB;
+        Mon, 15 Nov 2021 17:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997247;
-        bh=zr9+qOmVC9QCtsJNBaf1BMCOPihvwMxhYinK66G6ccw=;
+        s=korg; t=1636997249;
+        bh=yEhwxwhZR3+nwaMvzKJKR28jKlABA332O8um+9J1pwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ljTpV5KZ1HfHQC1nGXTVYT/995gYABWKGPTq25qc7tWmHxCqDC3P38IQ72iCxzMh
-         eVEndK8E6W4k6wR7UUrWFMYlbu1E3+1nUUAtfbmsjKL8T3YyvZFoN1RpFpz++k+71u
-         j28GsyereMzwX+ByESbd2gjgFGJxMZ6qahry5dZA=
+        b=E+K3HHFuuscjgNhDl4rOkRqL+YMe5ukMBtLZVRvB9lU+1LXAveFfCs5UGa9i2ibdZ
+         J6EgD9+FCX6iRh8e6ykdmBPtlpYXOoX+vcfbF+ETGzkHwKlQNf2PCii1/Mnf1CynFT
+         +ilTW1VEJFVQYSJUcX3uYyoi0nlc1EiA00w8vXcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        yangerkun <yangerkun@huawei.com>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 045/575] ext4: refresh the ext4_ext_path struct after dropping i_data_sem.
-Date:   Mon, 15 Nov 2021 17:56:10 +0100
-Message-Id: <20211115165345.197972482@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Dinoff <fdinoff@google.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.10 046/575] fuse: fix page stealing
+Date:   Mon, 15 Nov 2021 17:56:11 +0100
+Message-Id: <20211115165345.230292968@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -39,95 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 1811bc401aa58c7bdb0df3205aa6613b49d32127 upstream.
+commit 712a951025c0667ff00b25afc360f74e639dfabe upstream.
 
-After we drop i_data sem, we need to reload the ext4_ext_path
-structure since the extent tree can change once i_data_sem is
-released.
+It is possible to trigger a crash by splicing anon pipe bufs to the fuse
+device.
 
-This addresses the BUG:
+The reason for this is that anon_pipe_buf_release() will reuse buf->page if
+the refcount is 1, but that page might have already been stolen and its
+flags modified (e.g. PG_lru added).
 
-[52117.465187] ------------[ cut here ]------------
-[52117.465686] kernel BUG at fs/ext4/extents.c:1756!
-...
-[52117.478306] Call Trace:
-[52117.478565]  ext4_ext_shift_extents+0x3ee/0x710
-[52117.479020]  ext4_fallocate+0x139c/0x1b40
-[52117.479405]  ? __do_sys_newfstat+0x6b/0x80
-[52117.479805]  vfs_fallocate+0x151/0x4b0
-[52117.480177]  ksys_fallocate+0x4a/0xa0
-[52117.480533]  __x64_sys_fallocate+0x22/0x30
-[52117.480930]  do_syscall_64+0x35/0x80
-[52117.481277]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[52117.481769] RIP: 0033:0x7fa062f855ca
+This happens in the unlikely case of fuse_dev_splice_write() getting around
+to calling pipe_buf_release() after a page has been stolen, added to the
+page cache and removed from the page cache.
 
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20210903062748.4118886-4-yangerkun@huawei.com
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fix by calling pipe_buf_release() right after the page was inserted into
+the page cache.  In this case the page has an elevated refcount so any
+release function will know that the page isn't reusable.
+
+Reported-by: Frank Dinoff <fdinoff@google.com>
+Link: https://lore.kernel.org/r/CAAmZXrsGg2xsP1CK+cbuEMumtrqdvD-NKnWzhNcvn71RV3c1yw@mail.gmail.com/
+Fixes: dd3bb14f44a6 ("fuse: support splice() writing to fuse device")
+Cc: <stable@vger.kernel.org> # v2.6.35
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/extents.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ fs/fuse/dev.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -5005,8 +5005,11 @@ ext4_ext_shift_path_extents(struct ext4_
- 			restart_credits = ext4_writepage_trans_blocks(inode);
- 			err = ext4_datasem_ensure_credits(handle, inode, credits,
- 					restart_credits, 0);
--			if (err)
-+			if (err) {
-+				if (err > 0)
-+					err = -EAGAIN;
- 				goto out;
-+			}
- 
- 			err = ext4_ext_get_access(handle, inode, path + depth);
- 			if (err)
-@@ -5080,6 +5083,7 @@ ext4_ext_shift_extents(struct inode *ino
- 	int ret = 0, depth;
- 	struct ext4_extent *extent;
- 	ext4_lblk_t stop, *iterator, ex_start, ex_end;
-+	ext4_lblk_t tmp = EXT_MAX_BLOCKS;
- 
- 	/* Let path point to the last extent */
- 	path = ext4_find_extent(inode, EXT_MAX_BLOCKS - 1, NULL,
-@@ -5133,11 +5137,15 @@ ext4_ext_shift_extents(struct inode *ino
- 	 * till we reach stop. In case of right shift, iterator points to stop
- 	 * and it is decreased till we reach start.
- 	 */
-+again:
- 	if (SHIFT == SHIFT_LEFT)
- 		iterator = &start;
- 	else
- 		iterator = &stop;
- 
-+	if (tmp != EXT_MAX_BLOCKS)
-+		*iterator = tmp;
-+
- 	/*
- 	 * Its safe to start updating extents.  Start and stop are unsigned, so
- 	 * in case of right shift if extent with 0 block is reached, iterator
-@@ -5166,6 +5174,7 @@ ext4_ext_shift_extents(struct inode *ino
- 			}
- 		}
- 
-+		tmp = *iterator;
- 		if (SHIFT == SHIFT_LEFT) {
- 			extent = EXT_LAST_EXTENT(path[depth].p_hdr);
- 			*iterator = le32_to_cpu(extent->ee_block) +
-@@ -5184,6 +5193,9 @@ ext4_ext_shift_extents(struct inode *ino
- 		}
- 		ret = ext4_ext_shift_path_extents(path, shift, inode,
- 				handle, SHIFT);
-+		/* iterator can be NULL which means we should break */
-+		if (ret == -EAGAIN)
-+			goto again;
- 		if (ret)
- 			break;
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -851,6 +851,12 @@ static int fuse_try_move_page(struct fus
+ 		goto out_put_old;
  	}
+ 
++	/*
++	 * Release while we have extra ref on stolen page.  Otherwise
++	 * anon_pipe_buf_release() might think the page can be reused.
++	 */
++	pipe_buf_release(cs->pipe, buf);
++
+ 	get_page(newpage);
+ 
+ 	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
+@@ -2035,8 +2041,12 @@ static ssize_t fuse_dev_splice_write(str
+ 
+ 	pipe_lock(pipe);
+ out_free:
+-	for (idx = 0; idx < nbuf; idx++)
+-		pipe_buf_release(pipe, &bufs[idx]);
++	for (idx = 0; idx < nbuf; idx++) {
++		struct pipe_buffer *buf = &bufs[idx];
++
++		if (buf->ops)
++			pipe_buf_release(pipe, buf);
++	}
+ 	pipe_unlock(pipe);
+ 
+ 	kvfree(bufs);
 
 
