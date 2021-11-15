@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7E6C451368
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9986F4513B6
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348233AbhKOTvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:51:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
+        id S1348273AbhKOTvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:51:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343496AbhKOTVN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3243C63397;
-        Mon, 15 Nov 2021 18:40:41 +0000 (UTC)
+        id S1343587AbhKOTVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B60B263314;
+        Mon, 15 Nov 2021 18:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001642;
-        bh=IBfQZCHaY/OSG3u1dwUa+rNau3W/f3FNO46mI16h+Tw=;
+        s=korg; t=1637001755;
+        bh=fbqIj3nq4MlUwzjp9L7I2DlzTFpL1U6pHnDjYnDG0BA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sr9NszYirguz7FWQZplpjFdlvXpKYw6EPu+nlDALdYVxor+kb5+q8cmKjLmvAiV5U
-         DXJCUymRHCC3Cf+DMcU9mxgXuMgNEpkd+wrYOpbAXi5dberr5s4SkAO8i0YFA//gDQ
-         Vi85nyvOndLQGRMQgchcyYXkP8Q6PIldsEE2a4IM=
+        b=y+rzXWrEWVAIxq1XKkumiXwoe9q1TCbt0ninyp7kFbG706cWHK1QryNG6gYzFNQlz
+         EFl5EHxQbOzBqRn6409by2A1tguG6v9i6YACeAqRQ5brdNIamvQJjK2Uk53JgakWLq
+         r1rDZjg/FHl0+YUpJuG1LOTF4q0+jS35pyUMV3iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 266/917] memstick: r592: Fix a UAF bug when removing the driver
-Date:   Mon, 15 Nov 2021 17:56:01 +0100
-Message-Id: <20211115165437.799989589@linuxfoundation.org>
+        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 275/917] block: remove inaccurate requeue check
+Date:   Mon, 15 Nov 2021 17:56:10 +0100
+Message-Id: <20211115165438.106169250@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,78 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 738216c1953e802aa9f930c5d15b8f9092c847ff ]
+[ Upstream commit 037057a5a979c7eeb2ee5d12cf4c24b805192c75 ]
 
-In r592_remove(), the driver will free dma after freeing the host, which
-may cause a UAF bug.
+This check is meant to catch cases where a requeue is attempted on a
+request that is still inserted. It's never really been useful to catch any
+misuse, and now it's actively wrong. Outside of that, this should not be a
+BUG_ON() to begin with.
 
-The following log reveals it:
+Remove the check as it's now causing active harm, as requeue off the plug
+path will trigger it even though the request state is just fine.
 
-[   45.361796 ] BUG: KASAN: use-after-free in r592_remove+0x269/0x350 [r592]
-[   45.364286 ] Call Trace:
-[   45.364472 ]  dump_stack_lvl+0xa8/0xd1
-[   45.364751 ]  print_address_description+0x87/0x3b0
-[   45.365137 ]  kasan_report+0x172/0x1c0
-[   45.365415 ]  ? r592_remove+0x269/0x350 [r592]
-[   45.365834 ]  ? r592_remove+0x269/0x350 [r592]
-[   45.366168 ]  __asan_report_load8_noabort+0x14/0x20
-[   45.366531 ]  r592_remove+0x269/0x350 [r592]
-[   45.378785 ]
-[   45.378903 ] Allocated by task 4674:
-[   45.379162 ]  ____kasan_kmalloc+0xb5/0xe0
-[   45.379455 ]  __kasan_kmalloc+0x9/0x10
-[   45.379730 ]  __kmalloc+0x150/0x280
-[   45.379984 ]  memstick_alloc_host+0x2a/0x190
-[   45.380664 ]
-[   45.380781 ] Freed by task 5509:
-[   45.381014 ]  kasan_set_track+0x3d/0x70
-[   45.381293 ]  kasan_set_free_info+0x23/0x40
-[   45.381635 ]  ____kasan_slab_free+0x10b/0x140
-[   45.381950 ]  __kasan_slab_free+0x11/0x20
-[   45.382241 ]  slab_free_freelist_hook+0x81/0x150
-[   45.382575 ]  kfree+0x13e/0x290
-[   45.382805 ]  memstick_free+0x1c/0x20
-[   45.383070 ]  device_release+0x9c/0x1d0
-[   45.383349 ]  kobject_put+0x2ef/0x4c0
-[   45.383616 ]  put_device+0x1f/0x30
-[   45.383865 ]  memstick_free_host+0x24/0x30
-[   45.384162 ]  r592_remove+0x242/0x350 [r592]
-[   45.384473 ]  pci_device_remove+0xa9/0x250
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/1634383581-11055-1-git-send-email-zheyuma97@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Link: https://lore.kernel.org/linux-block/CAHj4cs80zAUc2grnCZ015-2Rvd-=gXRfB_dFKy=RTm+wRo09HQ@mail.gmail.com/
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/host/r592.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ block/blk-mq.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/memstick/host/r592.c b/drivers/memstick/host/r592.c
-index e79a0218c492e..1d35d147552d4 100644
---- a/drivers/memstick/host/r592.c
-+++ b/drivers/memstick/host/r592.c
-@@ -838,15 +838,15 @@ static void r592_remove(struct pci_dev *pdev)
- 	}
- 	memstick_remove_host(dev->host);
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 49587c181e3fd..c8a9d10f7c18b 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -763,7 +763,6 @@ void blk_mq_requeue_request(struct request *rq, bool kick_requeue_list)
+ 	/* this request will be re-inserted to io scheduler queue */
+ 	blk_mq_sched_requeue_request(rq);
  
-+	if (dev->dummy_dma_page)
-+		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
-+			dev->dummy_dma_page_physical_address);
-+
- 	free_irq(dev->irq, dev);
- 	iounmap(dev->mmio);
- 	pci_release_regions(pdev);
- 	pci_disable_device(pdev);
- 	memstick_free_host(dev->host);
--
--	if (dev->dummy_dma_page)
--		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
--			dev->dummy_dma_page_physical_address);
+-	BUG_ON(!list_empty(&rq->queuelist));
+ 	blk_mq_add_to_requeue_list(rq, true, kick_requeue_list);
  }
- 
- #ifdef CONFIG_PM_SLEEP
+ EXPORT_SYMBOL(blk_mq_requeue_request);
 -- 
 2.33.0
 
