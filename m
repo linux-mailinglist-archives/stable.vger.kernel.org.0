@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17797450A8C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:08:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9073C4510F8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:54:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232503AbhKORLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:11:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36438 "EHLO mail.kernel.org"
+        id S243362AbhKOS5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:57:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232072AbhKORLD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:11:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E56A61B73;
-        Mon, 15 Nov 2021 17:08:07 +0000 (UTC)
+        id S242440AbhKOSyq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:54:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BCB6633C4;
+        Mon, 15 Nov 2021 18:11:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996088;
-        bh=wRAGWBpahZ6uPSBO6z6KW73pVimdI4AjoIKTpFg9JM8=;
+        s=korg; t=1636999873;
+        bh=1JJY+d1hilmZPQB4fO71zQCsWNuLLbJf8RR3944VvFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jfNrTjX9ftalVjTY8lSqfXWI+SZa0HAP51coix5fyvrSVNxK8dEmbnypEri4TV2S5
-         t3wODdSCNmYK5dA6BgOrvN5857L2aOuhZ+e1SADkK98guPkV4dSShV2KPnIBuGr+tP
-         OMuwqJ2h0duZGALEB1yHWtIsluCcoDOQfO+zTuG0=
+        b=zNECPgEQI7KyGV1AdDpmn47TucVZmA9KTurIDmKWeonP+9JSKJ499vQoRiKLf+877
+         CSLcK080duo9izQYnBzt8IN8D9CbC6srboFcEmRrGnCssIBglNb5Ha9x3c8d0P+bX4
+         W50YYxDfY4C6kxcRMz4P+Ap4anGEuZDLzs4imiS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        David Jeffery <djeffery@redhat.com>,
-        Laurence Oberman <loberman@redhat.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 012/355] scsi: qla2xxx: Fix use after free in eh_abort path
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 453/849] mt76: mt7915: fix info leak in mt7915_mcu_set_pre_cal()
 Date:   Mon, 15 Nov 2021 17:58:56 +0100
-Message-Id: <20211115165313.951325014@linuxfoundation.org>
+Message-Id: <20211115165435.615049454@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 3d33b303d4f3b74a71bede5639ebba3cfd2a2b4d upstream.
+[ Upstream commit 3924715ffe5e064a85f56490f77b7b2084230800 ]
 
-In eh_abort path driver prematurely exits the call to upper layer. Check
-whether command is aborted / completed by firmware before exiting the call.
+Zero out all the unused members of "req" so that we don't disclose
+stack information.
 
-9 [ffff8b1ebf803c00] page_fault at ffffffffb0389778
-  [exception RIP: qla2x00_status_entry+0x48d]
-  RIP: ffffffffc04fa62d  RSP: ffff8b1ebf803cb0  RFLAGS: 00010082
-  RAX: 00000000ffffffff  RBX: 00000000000e0000  RCX: 0000000000000000
-  RDX: 0000000000000000  RSI: 00000000000013d8  RDI: fffff3253db78440
-  RBP: ffff8b1ebf803dd0   R8: ffff8b1ebcd9b0c0   R9: 0000000000000000
-  R10: ffff8b1e38a30808  R11: 0000000000001000  R12: 00000000000003e9
-  R13: 0000000000000000  R14: ffff8b1ebcd9d740  R15: 0000000000000028
-  ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
-10 [ffff8b1ebf803cb0] enqueue_entity at ffffffffafce708f
-11 [ffff8b1ebf803d00] enqueue_task_fair at ffffffffafce7b88
-12 [ffff8b1ebf803dd8] qla24xx_process_response_queue at ffffffffc04fc9a6
-[qla2xxx]
-13 [ffff8b1ebf803e78] qla24xx_msix_rsp_q at ffffffffc04ff01b [qla2xxx]
-14 [ffff8b1ebf803eb0] __handle_irq_event_percpu at ffffffffafd50714
-
-Link: https://lore.kernel.org/r/20210908164622.19240-10-njavali@marvell.com
-Fixes: f45bca8c5052 ("scsi: qla2xxx: Fix double scsi_done for abort path")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Co-developed-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Co-developed-by: Laurence Oberman <loberman@redhat.com>
-Signed-off-by: Laurence Oberman <loberman@redhat.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 495184ac91bb ("mt76: mt7915: add support for applying pre-calibration data")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -1229,6 +1229,7 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
- 	uint32_t ratov_j;
- 	struct qla_qpair *qpair;
- 	unsigned long flags;
-+	int fast_fail_status = SUCCESS;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+index 2f30047bd80f2..caf2033c5c17e 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+@@ -3481,7 +3481,7 @@ static int mt7915_mcu_set_pre_cal(struct mt7915_dev *dev, u8 idx,
+ 		u8 idx;
+ 		u8 rsv[4];
+ 		__le32 len;
+-	} req;
++	} req = {};
+ 	struct sk_buff *skb;
  
- 	if (qla2x00_isp_reg_stat(ha)) {
- 		ql_log(ql_log_info, vha, 0x8042,
-@@ -1236,15 +1237,16 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
- 		return FAILED;
- 	}
- 
-+	/* Save any FAST_IO_FAIL value to return later if abort succeeds */
- 	ret = fc_block_scsi_eh(cmd);
- 	if (ret != 0)
--		return ret;
-+		fast_fail_status = ret;
- 
- 	sp = scsi_cmd_priv(cmd);
- 	qpair = sp->qpair;
- 
- 	if ((sp->fcport && sp->fcport->deleted) || !qpair)
--		return SUCCESS;
-+		return fast_fail_status != SUCCESS ? fast_fail_status : FAILED;
- 
- 	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
- 	if (sp->completed) {
-@@ -1290,7 +1292,7 @@ qla2xxx_eh_abort(struct scsi_cmnd *cmd)
- 			    __func__, ha->r_a_tov/10);
- 			ret = FAILED;
- 		} else {
--			ret = SUCCESS;
-+			ret = fast_fail_status;
- 		}
- 		break;
- 	default:
+ 	skb = mt76_mcu_msg_alloc(&dev->mt76, NULL, sizeof(req) + len);
+-- 
+2.33.0
+
 
 
