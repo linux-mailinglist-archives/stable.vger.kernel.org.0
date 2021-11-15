@@ -2,51 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCEC8450EA5
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69756450C29
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240742AbhKOSQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:16:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49950 "EHLO mail.kernel.org"
+        id S236937AbhKORfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:35:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240695AbhKOSLr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:11:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEB9063317;
-        Mon, 15 Nov 2021 17:47:55 +0000 (UTC)
+        id S237338AbhKOReQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:34:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61FA563231;
+        Mon, 15 Nov 2021 17:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998476;
-        bh=QeOx66bLaohTdP8iS3no5arKK1EF+YLTTkG3AQMRpUo=;
+        s=korg; t=1636996941;
+        bh=AHHG2iZTUXX4PfrEMTBZMlvqWsZ/3ta9pyckJY4D62c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Jb2HN69OhqmKTu7S6RducJLBtUirHxHsVXOD+qgMG71LqRpE+awp1PiHnhE5bQXa
-         td3fp6odRlsECRtYzvyrBL1hlGN5nJXLzTTlaaxP5A3FH2hpzecsFFrb5p/4jfMvdS
-         RtkVcZty+lX5gXCTqSzUUMv26b4iQBLlI+HM4CEM=
+        b=CVcxDR4uW7TnYYiAydOs+HibQDxLHqqk9Cs6STIZuZuCnxWkyWPbTi51G0cuBBFY8
+         tGr6u6LlcspD/ek1CTnjeCj9Ufw7N7qzNnhmFCgk7IetJRL5epDGRq4aUg0q9bhk8W
+         msVUVc6CIYDOBfrpKDmxoX1O9AKwSpyBcO2qDpew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@redhat.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 523/575] perf bpf: Add missing free to bpf_event__print_bpf_prog_info()
-Date:   Mon, 15 Nov 2021 18:04:08 +0100
-Message-Id: <20211115165401.758780025@linuxfoundation.org>
+Subject: [PATCH 5.4 325/355] arm64: pgtable: make __pte_to_phys/__phys_to_pte_val inline functions
+Date:   Mon, 15 Nov 2021 18:04:09 +0100
+Message-Id: <20211115165324.250708152@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 88c42f4d6cb249eb68524282f8d4cc32f9059984 ]
+[ Upstream commit c7c386fbc20262c1d911c615c65db6a58667d92c ]
 
-If btf__new() is called then there needs to be a corresponding btf__free().
+gcc warns about undefined behavior the vmalloc code when building
+with CONFIG_ARM64_PA_BITS_52, when the 'idx++' in the argument to
+__phys_to_pte_val() is evaluated twice:
 
-Fixes: f8dfeae009effc0b ("perf bpf: Show more BPF program info in print_bpf_prog_info()")
-Signed-off-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: bpf@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20211106053733.3580931-2-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+mm/vmalloc.c: In function 'vmap_pfn_apply':
+mm/vmalloc.c:2800:58: error: operation on 'data->idx' may be undefined [-Werror=sequence-point]
+ 2800 |         *pte = pte_mkspecial(pfn_pte(data->pfns[data->idx++], data->prot));
+      |                                                 ~~~~~~~~~^~
+arch/arm64/include/asm/pgtable-types.h:25:37: note: in definition of macro '__pte'
+   25 | #define __pte(x)        ((pte_t) { (x) } )
+      |                                     ^
+arch/arm64/include/asm/pgtable.h:80:15: note: in expansion of macro '__phys_to_pte_val'
+   80 |         __pte(__phys_to_pte_val((phys_addr_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot))
+      |               ^~~~~~~~~~~~~~~~~
+mm/vmalloc.c:2800:30: note: in expansion of macro 'pfn_pte'
+ 2800 |         *pte = pte_mkspecial(pfn_pte(data->pfns[data->idx++], data->prot));
+      |                              ^~~~~~~
+
+I have no idea why this never showed up earlier, but the safest
+workaround appears to be changing those macros into inline functions
+so the arguments get evaluated only once.
+
+Cc: Matthew Wilcox <willy@infradead.org>
+Fixes: 75387b92635e ("arm64: handle 52-bit physical addresses in page table entries")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20211105075414.2553155-1-arnd@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/bpf-event.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/pgtable.h | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/util/bpf-event.c b/tools/perf/util/bpf-event.c
-index 3742511a08d15..c8101575dbf45 100644
---- a/tools/perf/util/bpf-event.c
-+++ b/tools/perf/util/bpf-event.c
-@@ -557,7 +557,7 @@ void bpf_event__print_bpf_prog_info(struct bpf_prog_info *info,
- 		synthesize_bpf_prog_name(name, KSYM_NAME_LEN, info, btf, 0);
- 		fprintf(fp, "# bpf_prog_info %u: %s addr 0x%llx size %u\n",
- 			info->id, name, prog_addrs[0], prog_lens[0]);
--		return;
-+		goto out;
- 	}
- 
- 	fprintf(fp, "# bpf_prog_info %u:\n", info->id);
-@@ -567,4 +567,6 @@ void bpf_event__print_bpf_prog_info(struct bpf_prog_info *info,
- 		fprintf(fp, "# \tsub_prog %u: %s addr 0x%llx size %u\n",
- 			i, name, prog_addrs[i], prog_lens[i]);
- 	}
-+out:
-+	btf__free(btf);
- }
+diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+index a92a187ec8919..3a057d4279007 100644
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -54,9 +54,15 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+  * page table entry, taking care of 52-bit addresses.
+  */
+ #ifdef CONFIG_ARM64_PA_BITS_52
+-#define __pte_to_phys(pte)	\
+-	((pte_val(pte) & PTE_ADDR_LOW) | ((pte_val(pte) & PTE_ADDR_HIGH) << 36))
+-#define __phys_to_pte_val(phys)	(((phys) | ((phys) >> 36)) & PTE_ADDR_MASK)
++static inline phys_addr_t __pte_to_phys(pte_t pte)
++{
++	return (pte_val(pte) & PTE_ADDR_LOW) |
++		((pte_val(pte) & PTE_ADDR_HIGH) << 36);
++}
++static inline pteval_t __phys_to_pte_val(phys_addr_t phys)
++{
++	return (phys | (phys >> 36)) & PTE_ADDR_MASK;
++}
+ #else
+ #define __pte_to_phys(pte)	(pte_val(pte) & PTE_ADDR_MASK)
+ #define __phys_to_pte_val(phys)	(phys)
 -- 
 2.33.0
 
