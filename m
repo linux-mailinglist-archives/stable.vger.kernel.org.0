@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E792D4527AA
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:27:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 349A2452674
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243854AbhKPC35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:29:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49400 "EHLO mail.kernel.org"
+        id S1346652AbhKPCFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:05:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236906AbhKORQh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:16:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B68B6324A;
-        Mon, 15 Nov 2021 17:12:42 +0000 (UTC)
+        id S239679AbhKOSEe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:04:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 665CD63354;
+        Mon, 15 Nov 2021 17:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996362;
-        bh=9zaGkbzG33G9/jCc0uSKhcFLFeZIb49t5hfma//Osj4=;
+        s=korg; t=1636997894;
+        bh=DxrcaN39ZgFTDSt7DaYjawzoSgpYFe/SF9DogyNNS6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0gs3Vg6FcEDvMlotHV2DCcUbWWRcIpkqIrMvpFCP/Mi189ngory0dWxWqF77qrI0T
-         aa9EmaBG4S/aSVFfaU+tDVjyMGG03PUR+he9kGDtwyy2fyO1pDlz5CTn/1+ee8GGbb
-         xVLNuDMACqmrhfYgzIuVQJYXMSj20OXPh2b9SkU4=
+        b=uO4d/Zk63Zvn2O/vbzqkYuoORYgQ62aX+k82KS1qlHqAZ+XenIh8JkFSzBsOXSnqn
+         wFaIjjCKGRnab1jNrPpkM6GNavQYLCmyeDWjkvxYmUaqlfsLsJPEU3sX1JHpTuLQJp
+         EzEdbFTkHlL8wl1Yxk7RGEFnmh0b934a5dBBuNPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Ser <contact@emersion.fr>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 113/355] drm: panel-orientation-quirks: Update the Lenovo Ideapad D330 quirk (v2)
-Date:   Mon, 15 Nov 2021 18:00:37 +0100
-Message-Id: <20211115165317.459447985@linuxfoundation.org>
+Subject: [PATCH 5.10 313/575] b43: fix a lower bounds test
+Date:   Mon, 15 Nov 2021 18:00:38 +0100
+Message-Id: <20211115165354.614637009@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 820a2ab23d5eab4ccfb82581eda8ad4acf18458f ]
+[ Upstream commit 9b793db5fca44d01f72d3564a168171acf7c4076 ]
 
-2 improvements to the Lenovo Ideapad D330 panel-orientation quirks:
+The problem is that "channel" is an unsigned int, when it's less 5 the
+value of "channel - 5" is not a negative number as one would expect but
+is very high positive value instead.
 
-1. Some versions of the Lenovo Ideapad D330 have a DMI_PRODUCT_NAME of
-"81H3" and others have "81MD". Testing has shown that the "81MD" also has
-a 90 degree mounted panel. Drop the DMI_PRODUCT_NAME from the existing
-quirk so that the existing quirk matches both variants.
+This means that "start" becomes a very high positive value.  The result
+of that is that we never enter the "for (i = start; i <= end; i++) {"
+loop.  Instead of storing the result from b43legacy_radio_aci_detect()
+it just uses zero.
 
-2. Some of the Lenovo Ideapad D330 models have a HD (800x1280) screen
-instead of a FHD (1200x1920) screen (both are mounted right-side-up) add
-a second Lenovo Ideapad D330 quirk for the HD version.
-
-Changes in v2:
-- Add a new quirk for Lenovo Ideapad D330 models with a HD screen instead
-  of a FHD screen
-
-Link: https://github.com/systemd/systemd/pull/18884
-Acked-by: Simon Ser <contact@emersion.fr>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210530110428.12994-2-hdegoede@redhat.com
+Fixes: ef1a628d83fc ("b43: Implement dynamic PHY API")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Michael Büsch <m@bues.ch>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211006073621.GE8404@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/wireless/broadcom/b43/phy_g.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index e1b2ce4921ae7..5d0942e3985b2 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -223,10 +223,15 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo MIIX 320-10ICR"),
- 		},
- 		.driver_data = (void *)&lcd800x1280_rightside_up,
--	}, {	/* Lenovo Ideapad D330 */
-+	}, {	/* Lenovo Ideapad D330-10IGM (HD) */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGM"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_rightside_up,
-+	}, {	/* Lenovo Ideapad D330-10IGM (FHD) */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
--		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "81H3"),
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGM"),
- 		},
- 		.driver_data = (void *)&lcd1200x1920_rightside_up,
+diff --git a/drivers/net/wireless/broadcom/b43/phy_g.c b/drivers/net/wireless/broadcom/b43/phy_g.c
+index d5a1a5c582366..ac72ca39e409b 100644
+--- a/drivers/net/wireless/broadcom/b43/phy_g.c
++++ b/drivers/net/wireless/broadcom/b43/phy_g.c
+@@ -2297,7 +2297,7 @@ static u8 b43_gphy_aci_scan(struct b43_wldev *dev)
+ 	b43_phy_mask(dev, B43_PHY_G_CRS, 0x7FFF);
+ 	b43_set_all_gains(dev, 3, 8, 1);
+ 
+-	start = (channel - 5 > 0) ? channel - 5 : 1;
++	start = (channel > 5) ? channel - 5 : 1;
+ 	end = (channel + 5 < 14) ? channel + 5 : 13;
+ 
+ 	for (i = start; i <= end; i++) {
 -- 
 2.33.0
 
