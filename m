@@ -2,34 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B8494520C9
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:54:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B83C451FCA
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347317AbhKPA4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:56:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
+        id S241129AbhKPApZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343592AbhKOTVX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D316635B2;
-        Mon, 15 Nov 2021 18:42:45 +0000 (UTC)
+        id S232241AbhKOTVf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A7DF63378;
+        Mon, 15 Nov 2021 18:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001765;
-        bh=sSpDhzScpt00UuWxntFiasssOzC/nJ3VGTws58mP+jc=;
+        s=korg; t=1637001844;
+        bh=HANXrd2/9MTOGH8hczRCGiawaKbg0JM76CqO71X4+oc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1KE4tPldlqNcpbBloyu/2cf/rLddLgogEDAUnLIxAXHwGOJiVz9VtwwJM5V4z/zr+
-         dI6VcflwmlgfQd8g3ZjiXn07R5JnXbr5oMxHJqqgQt/jQo7FhlGafdoVEYTQouJxh3
-         ES6YiUqPn97S9ugELyuqe3jEhR2+Pn9G6q3hJZ0A=
+        b=rGUtSbFWfX5q75U4wBW/IQIU8vilFzQQhDyMhTscfb4xF32M7311+ygxd1xh0fqcH
+         131/TUec2ssqHedxXya9F8StPKE/3sHMU8j+1dtn2k/IHaUUxeziqsw872ctYTAJ9p
+         BqASwmIEVX4Eld/W7HS7MceNti4G4AQGyaW3PdFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        Guo Ren <guoren@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Jisheng Zhang <jszhang@kernel.org>,
+        Abaci <abaci@linux.alibaba.com>,
+        Michael Wang <yun.wang@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 305/917] wcn36xx: Correct band/freq reporting on RX
-Date:   Mon, 15 Nov 2021 17:56:40 +0100
-Message-Id: <20211115165439.100606150@linuxfoundation.org>
+Subject: [PATCH 5.15 308/917] ftrace: do CPU checking after preemption disabled
+Date:   Mon, 15 Nov 2021 17:56:43 +0100
+Message-Id: <20211115165439.198917033@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,89 +62,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: 王贇 <yun.wang@linux.alibaba.com>
 
-[ Upstream commit 8a27ca39478270e07baf9c09aa0c99709769ba03 ]
+[ Upstream commit d33cc657372366a8959f099c619a208b4c5dc664 ]
 
-For packets originating from hardware scan, the channel and band is
-included in the buffer descriptor (bd->rf_band & bd->rx_ch).
+With CONFIG_DEBUG_PREEMPT we observed reports like:
 
-For 2Ghz band the channel value is directly reported in the 4-bit
-rx_ch field. For 5Ghz band, the rx_ch field contains a mapping
-index (given the 4-bit limitation).
+  BUG: using smp_processor_id() in preemptible
+  caller is perf_ftrace_function_call+0x6f/0x2e0
+  CPU: 1 PID: 680 Comm: a.out Not tainted
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x8d/0xcf
+   check_preemption_disabled+0x104/0x110
+   ? optimize_nops.isra.7+0x230/0x230
+   ? text_poke_bp_batch+0x9f/0x310
+   perf_ftrace_function_call+0x6f/0x2e0
+   ...
+   __text_poke+0x5/0x620
+   text_poke_bp_batch+0x9f/0x310
 
-The reserved0 value field is also used to extend 4-bit mapping to
-5-bit mapping to support more than 16 5Ghz channels.
+This telling us the CPU could be changed after task is preempted, and
+the checking on CPU before preemption will be invalid.
 
-This change adds correct reporting of the frequency/band, that is
-used in scan mechanism. And is required for 5Ghz hardware scan
-support.
+Since now ftrace_test_recursion_trylock() will help to disable the
+preemption, this patch just do the checking after trylock() to address
+the issue.
 
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1634554678-7993-1-git-send-email-loic.poulain@linaro.org
+Link: https://lkml.kernel.org/r/54880691-5fe2-33e7-d12f-1fa6136f5183@linux.alibaba.com
+
+CC: Steven Rostedt <rostedt@goodmis.org>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Miroslav Benes <mbenes@suse.cz>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Jisheng Zhang <jszhang@kernel.org>
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wcn36xx/txrx.c | 23 +++++++++++++++++++++++
- drivers/net/wireless/ath/wcn36xx/txrx.h |  3 ++-
- 2 files changed, 25 insertions(+), 1 deletion(-)
+ kernel/trace/trace_event_perf.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wcn36xx/txrx.c b/drivers/net/wireless/ath/wcn36xx/txrx.c
-index eaf2410e39647..c0f51fa13dfa1 100644
---- a/drivers/net/wireless/ath/wcn36xx/txrx.c
-+++ b/drivers/net/wireless/ath/wcn36xx/txrx.c
-@@ -31,6 +31,13 @@ struct wcn36xx_rate {
- 	enum rate_info_bw bw;
- };
+diff --git a/kernel/trace/trace_event_perf.c b/kernel/trace/trace_event_perf.c
+index 6aed10e2f7ce0..fba8cb77a73af 100644
+--- a/kernel/trace/trace_event_perf.c
++++ b/kernel/trace/trace_event_perf.c
+@@ -441,13 +441,13 @@ perf_ftrace_function_call(unsigned long ip, unsigned long parent_ip,
+ 	if (!rcu_is_watching())
+ 		return;
  
-+/* Buffer descriptor rx_ch field is limited to 5-bit (4+1), a mapping is used
-+ * for 11A Channels.
-+ */
-+static const u8 ab_rx_ch_map[] = { 36, 40, 44, 48, 52, 56, 60, 64, 100, 104,
-+				   108, 112, 116, 120, 124, 128, 132, 136, 140,
-+				   149, 153, 157, 161, 165, 144 };
+-	if ((unsigned long)ops->private != smp_processor_id())
+-		return;
+-
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+ 
++	if ((unsigned long)ops->private != smp_processor_id())
++		goto out;
 +
- static const struct wcn36xx_rate wcn36xx_rate_table[] = {
- 	/* 11b rates */
- 	{  10, 0, RX_ENC_LEGACY, 0, RATE_INFO_BW_20 },
-@@ -291,6 +298,22 @@ int wcn36xx_rx_skb(struct wcn36xx *wcn, struct sk_buff *skb)
- 	    ieee80211_is_probe_resp(hdr->frame_control))
- 		status.boottime_ns = ktime_get_boottime_ns();
+ 	event = container_of(ops, struct perf_event, ftrace_ops);
  
-+	if (bd->scan_learn) {
-+		/* If packet originates from hardware scanning, extract the
-+		 * band/channel from bd descriptor.
-+		 */
-+		u8 hwch = (bd->reserved0 << 4) + bd->rx_ch;
-+
-+		if (bd->rf_band != 1 && hwch <= sizeof(ab_rx_ch_map) && hwch >= 1) {
-+			status.band = NL80211_BAND_5GHZ;
-+			status.freq = ieee80211_channel_to_frequency(ab_rx_ch_map[hwch - 1],
-+								     status.band);
-+		} else {
-+			status.band = NL80211_BAND_2GHZ;
-+			status.freq = ieee80211_channel_to_frequency(hwch, status.band);
-+		}
-+	}
-+
- 	memcpy(IEEE80211_SKB_RXCB(skb), &status, sizeof(status));
- 
- 	if (ieee80211_is_beacon(hdr->frame_control)) {
-diff --git a/drivers/net/wireless/ath/wcn36xx/txrx.h b/drivers/net/wireless/ath/wcn36xx/txrx.h
-index 032216e82b2be..b54311ffde9c5 100644
---- a/drivers/net/wireless/ath/wcn36xx/txrx.h
-+++ b/drivers/net/wireless/ath/wcn36xx/txrx.h
-@@ -110,7 +110,8 @@ struct wcn36xx_rx_bd {
- 	/* 0x44 */
- 	u32	exp_seq_num:12;
- 	u32	cur_seq_num:12;
--	u32	fr_type_subtype:8;
-+	u32	rf_band:2;
-+	u32	fr_type_subtype:6;
- 
- 	/* 0x48 */
- 	u32	msdu_size:16;
+ 	/*
 -- 
 2.33.0
 
