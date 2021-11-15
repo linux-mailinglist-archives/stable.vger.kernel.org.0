@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1123E450B87
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5FB5450E74
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237214AbhKORZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:25:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50868 "EHLO mail.kernel.org"
+        id S240165AbhKOSPS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:15:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237777AbhKORYD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:24:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1F3963286;
-        Mon, 15 Nov 2021 17:18:24 +0000 (UTC)
+        id S237879AbhKOSHk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74DF4633A5;
+        Mon, 15 Nov 2021 17:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996705;
-        bh=DbtiOiCLEsnKuUdPZWFWTy0CB/G5GaTeDk2npq8/nNE=;
+        s=korg; t=1636998323;
+        bh=rLY4Mke7S36U1O4oppZxQHTcYaUOjDpT7lsAxWlWmoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hRpmUDQcXdUhjRC7TbJrCnhRpbEOw7TUc6H/bANKZNNs82ZxYmCMGVKwqcGjvacv8
-         nFyDdzmXqH+yV0Ow0UkrR8dje3J8EvDZtvYSyNJvyf0SaQ7uqW0ezuROhFcgd82A/S
-         omi9u1Z89C45ufY8DpwVdZagA4vu4bZXSJdDsoIg=
+        b=i7tNAxdIY4dfVm/M0BDiQu0AC0d4WoltfD5+Myi0imYB+kI2VOcGG0aqIu/iOR59J
+         KsH3AdxKBem3S0JwKdYPlwzrunG7s4jxaoUiZhCRoFmkTkq+plpnxvAOSOxNiOWywL
+         XVfnsjt7qbcv2zE5TVffaJZgNqu5Fl1Bg+nxtiGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Keerthy <j-keerthy@ti.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
-        Ladislav Michl <ladis@linux-mips.org>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        linux-omap@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Patrice Chotard <patrice.chotard@foss.st.com>,
+        Patrick Delaunay <patrick.delaunay@foss.st.com>,
+        linux-stm32@st-md-mailman.stormreply.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 236/355] clocksource/drivers/timer-ti-dm: Select TIMER_OF
+Subject: [PATCH 5.10 435/575] ARM: dts: stm32: Reduce DHCOR SPI NOR frequency to 50 MHz
 Date:   Mon, 15 Nov 2021 18:02:40 +0100
-Message-Id: <20211115165321.385021610@linuxfoundation.org>
+Message-Id: <20211115165358.816966209@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit eda9a4f7af6ee47e9e131f20e4f8a41a97379293 ]
+[ Upstream commit 2012579b31293d0a8cf2024e9dab66810bf1a15e ]
 
-When building OMAP_DM_TIMER without TIMER_OF, there are orphan sections
-due to the use of TIMER_OF_DELCARE() without CONFIG_TIMER_OF. Select
-CONFIG_TIMER_OF when enaling OMAP_DM_TIMER:
+The SPI NOR is a bit further away from the SoC on DHCOR than on DHCOM,
+which causes additional signal delay. At 108 MHz, this delay triggers
+a sporadic issue where the first bit of RX data is not received by the
+QSPI controller.
 
-arm-linux-gnueabi-ld: warning: orphan section `__timer_of_table' from `drivers/clocksource/timer-ti-dm-systimer.o' being placed in section `__timer_of_table'
+There are two options of addressing this problem, either by using the
+DLYB block to compensate the extra delay, or by reducing the QSPI bus
+clock frequency. The former requires calibration and that is overly
+complex, so opt for the second option.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202108282255.tkdt4ani-lkp@intel.com/
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Keerthy <j-keerthy@ti.com>
-Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Ladislav Michl <ladis@linux-mips.org>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: linux-omap@vger.kernel.org
-Fixes: 52762fbd1c47 ("clocksource/drivers/timer-ti-dm: Add clockevent and clocksource support")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210828175747.3777891-1-keescook@chromium.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: 76045bc457104 ("ARM: dts: stm32: Add QSPI NOR on AV96")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Patrice Chotard <patrice.chotard@foss.st.com>
+Cc: Patrick Delaunay <patrick.delaunay@foss.st.com>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
-index 3bb5625504e2f..9bfe4c5af87e3 100644
---- a/drivers/clocksource/Kconfig
-+++ b/drivers/clocksource/Kconfig
-@@ -24,6 +24,7 @@ config I8253_LOCK
- 
- config OMAP_DM_TIMER
- 	bool
-+	select TIMER_OF
- 
- config CLKBLD_I8253
- 	def_bool y if CLKSRC_I8253 || CLKEVT_I8253 || I8253_LOCK
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi
+index a9eb82b2f1704..5af32140e128b 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi
+@@ -198,7 +198,7 @@
+ 		compatible = "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-rx-bus-width = <4>;
+-		spi-max-frequency = <108000000>;
++		spi-max-frequency = <50000000>;
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+ 	};
 -- 
 2.33.0
 
