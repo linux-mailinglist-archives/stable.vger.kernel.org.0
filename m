@@ -2,100 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79B0B4505A1
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:36:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 462844505AD
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:38:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231669AbhKONjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 08:39:23 -0500
-Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:60436
-        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234526AbhKONel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 08:34:41 -0500
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com [209.85.208.200])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 43E2C3F19A
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 13:31:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1636983105;
-        bh=ojqXvdJwzGTTkyeWkIs8mxvrFI+WspsP1IO2MdAm86c=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=hfC9fRwGFv9emmeFqqm3yxIEZ7IXO9j8oEJ20y7cgRBQFa8hu6+HkZ6eN9N1WDYfL
-         afI5PuGPy8pzAXX0jKU7fC+hmIZcmiMu/on5Bk6iG8mWg/RYm38bmWb/mPS6a0kIvh
-         0gt4XPpY83ukS9MOCZSU560SHXtyYkMhvnKN/93d/pILJkIMDODQTkWf5XIja0Fl1S
-         eJZcIMjIkcIyipw/+So6IRb/1XLa4tkNTmmXmiHbsX5XX+KInsUYJA1KeWQd571VT/
-         gzNLSskMlcKg1Etv6WUd6gYzyxv/u1P2eODpIC/43JVRvpEz9ScprAzohEW9UuJUeB
-         xU5LxhqkptUHg==
-Received: by mail-lj1-f200.google.com with SMTP id j11-20020a2ea90b000000b00218c174bb5dso5096547ljq.22
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 05:31:45 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=ojqXvdJwzGTTkyeWkIs8mxvrFI+WspsP1IO2MdAm86c=;
-        b=ywrAd9BHI7V80CsmxxrUOoTXl5+v56xlEyHkAcr7t8cB8iLPV9njtjctO4/+XCVh6p
-         DbP4QYyo6tBdsuLG9uEQFwqiRVWk9m3SrrwkQMOxYcJbfjiv395xjI1JneXwZ3PnyS0n
-         hLmbmcTPWyO3PkD73oHoEjWc5gsIzzmOWM1yrFfubCpjwZr1ZdSUUc9UTUCH54i/2z1V
-         HdBWJPGc8gI6CGg05d1C9ofdR8YBcCpX51dsSpTn/wHtAfJrDXTTDoTxobfiM/CRPIsY
-         TdgHp9CVKCE8/SAZl94Zwx5y4TAELvyuTcxCQSwGQb8ilOYUuq39ibTzE4k8H4M3kJj8
-         loKw==
-X-Gm-Message-State: AOAM530cAirEj8acZ7tQhLz4/els7K3XtegljCIWNapTVwTUJ/GSZ9A5
-        uYovQOE63y125hTB1ViaIWhWN8RgQI5buN+MkVw1fNu3kDBFYXkB7HqrKD/acklWtlLW8FadmYt
-        ofVp/wAPd/VzNdBkHPjSdDAX8kNKEM9RhgA==
-X-Received: by 2002:a05:6512:12d3:: with SMTP id p19mr25334047lfg.53.1636983104674;
-        Mon, 15 Nov 2021 05:31:44 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxqp5859FRwLs3vmdFsfbBUc9BqBiGXS88gVU5mPrJzcrErPFY4HeUhmswDPzB6Oz2RO38LAA==
-X-Received: by 2002:a05:6512:12d3:: with SMTP id p19mr25334026lfg.53.1636983104533;
-        Mon, 15 Nov 2021 05:31:44 -0800 (PST)
-Received: from [192.168.3.67] (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
-        by smtp.gmail.com with ESMTPSA id z12sm1421048lfs.101.2021.11.15.05.31.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 15 Nov 2021 05:31:44 -0800 (PST)
-Message-ID: <d1786910-6bf7-9aa5-296d-a467e41fe861@canonical.com>
-Date:   Mon, 15 Nov 2021 14:31:43 +0100
+        id S231645AbhKONlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 08:41:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50778 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231926AbhKONki (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 08:40:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2CC561A82;
+        Mon, 15 Nov 2021 13:37:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1636983463;
+        bh=Q4NkNLyBDqAPm8o3+0fYJ2De6Z8wAf7tUlY8lAwUQHU=;
+        h=Subject:To:Cc:From:Date:From;
+        b=2H5qeHoh/0oSB6LseJTfewCdZtxHJDrk2nDCdpLT7UMGs2F8Tl0NE9O+Dfk/SeDnM
+         GELkATn/NHzK/8iY44t/JqCTc38MHt+Xj7RU8Gtg6+6ThCAqwsRGrlaettt5qXqMTQ
+         9zXTxmkirnWSLuN/egyEbl7fn5KPf+EL64b+YW7k=
+Subject: FAILED: patch "[PATCH] erofs: fix unsafe pagevec reuse of hooked pclusters" failed to apply to 4.19-stable tree
+To:     hsiangkao@linux.alibaba.com, chao@kernel.org,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 15 Nov 2021 14:37:40 +0100
+Message-ID: <1636983460149191@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.1
-Subject: Re: [PATCH v2 1/2] ARM: dts: exynos/i9100: Fix BCM4330 Bluetooth
- reset polarity
-Content-Language: en-US
-To:     Rob Herring <robh+dt@kernel.org>,
-        Paul Cercueil <paul@crapouillou.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org
-References: <20211031234137.87070-1-paul@crapouillou.net>
- <163698188786.128367.17376497674811914207.b4-ty@canonical.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-In-Reply-To: <163698188786.128367.17376497674811914207.b4-ty@canonical.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 15/11/2021 14:11, Krzysztof Kozlowski wrote:
-> On Sun, 31 Oct 2021 23:41:36 +0000, Paul Cercueil wrote:
->> The reset GPIO was marked active-high, which is against what's specified
->> in the documentation. Mark the reset GPIO as active-low. With this
->> change, Bluetooth can now be used on the i9100.
->>
->>
-> 
-> Applied, thanks!
-> 
-> [1/2] ARM: dts: exynos/i9100: Fix BCM4330 Bluetooth reset polarity
->       commit: 9cb6de45a006a9799ec399bce60d64b6d4fcc4af
-> [2/2] ARM: dts: exynos/i9100: Use interrupt for BCM4330 host wakeup
->       commit: 8e14b530f8c90346eab43c7b59b03ff9fec7d171
-> 
 
-Applied with fixed title. Please use prefix matching history (git log
---oneline).
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
+thanks,
 
-Best regards,
-Krzysztof
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 86432a6dca9bed79111990851df5756d3eb5f57c Mon Sep 17 00:00:00 2001
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
+Date: Thu, 4 Nov 2021 02:20:06 +0800
+Subject: [PATCH] erofs: fix unsafe pagevec reuse of hooked pclusters
+
+There are pclusters in runtime marked with Z_EROFS_PCLUSTER_TAIL
+before actual I/O submission. Thus, the decompression chain can be
+extended if the following pcluster chain hooks such tail pcluster.
+
+As the related comment mentioned, if some page is made of a hooked
+pcluster and another followed pcluster, it can be reused for in-place
+I/O (since I/O should be submitted anyway):
+ _______________________________________________________________
+|  tail (partial) page |          head (partial) page           |
+|_____PRIMARY_HOOKED___|____________PRIMARY_FOLLOWED____________|
+
+However, it's by no means safe to reuse as pagevec since if such
+PRIMARY_HOOKED pclusters finally move into bypass chain without I/O
+submission. It's somewhat hard to reproduce with LZ4 and I just found
+it (general protection fault) by ro_fsstressing a LZMA image for long
+time.
+
+I'm going to actively clean up related code together with multi-page
+folio adaption in the next few months. Let's address it directly for
+easier backporting for now.
+
+Call trace for reference:
+  z_erofs_decompress_pcluster+0x10a/0x8a0 [erofs]
+  z_erofs_decompress_queue.isra.36+0x3c/0x60 [erofs]
+  z_erofs_runqueue+0x5f3/0x840 [erofs]
+  z_erofs_readahead+0x1e8/0x320 [erofs]
+  read_pages+0x91/0x270
+  page_cache_ra_unbounded+0x18b/0x240
+  filemap_get_pages+0x10a/0x5f0
+  filemap_read+0xa9/0x330
+  new_sync_read+0x11b/0x1a0
+  vfs_read+0xf1/0x190
+
+Link: https://lore.kernel.org/r/20211103182006.4040-1-xiang@kernel.org
+Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+Cc: <stable@vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+
+diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
+index 11c7a1aaebad..eb51df4a9f77 100644
+--- a/fs/erofs/zdata.c
++++ b/fs/erofs/zdata.c
+@@ -373,8 +373,8 @@ static bool z_erofs_try_inplace_io(struct z_erofs_collector *clt,
+ 
+ /* callers must be with collection lock held */
+ static int z_erofs_attach_page(struct z_erofs_collector *clt,
+-			       struct page *page,
+-			       enum z_erofs_page_type type)
++			       struct page *page, enum z_erofs_page_type type,
++			       bool pvec_safereuse)
+ {
+ 	int ret;
+ 
+@@ -384,9 +384,9 @@ static int z_erofs_attach_page(struct z_erofs_collector *clt,
+ 	    z_erofs_try_inplace_io(clt, page))
+ 		return 0;
+ 
+-	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type);
++	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type,
++				      pvec_safereuse);
+ 	clt->cl->vcnt += (unsigned int)ret;
+-
+ 	return ret ? 0 : -EAGAIN;
+ }
+ 
+@@ -729,7 +729,8 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
+ 		tight &= (clt->mode >= COLLECT_PRIMARY_FOLLOWED);
+ 
+ retry:
+-	err = z_erofs_attach_page(clt, page, page_type);
++	err = z_erofs_attach_page(clt, page, page_type,
++				  clt->mode >= COLLECT_PRIMARY_FOLLOWED);
+ 	/* should allocate an additional short-lived page for pagevec */
+ 	if (err == -EAGAIN) {
+ 		struct page *const newpage =
+@@ -737,7 +738,7 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
+ 
+ 		set_page_private(newpage, Z_EROFS_SHORTLIVED_PAGE);
+ 		err = z_erofs_attach_page(clt, newpage,
+-					  Z_EROFS_PAGE_TYPE_EXCLUSIVE);
++					  Z_EROFS_PAGE_TYPE_EXCLUSIVE, true);
+ 		if (!err)
+ 			goto retry;
+ 	}
+diff --git a/fs/erofs/zpvec.h b/fs/erofs/zpvec.h
+index dfd7fe0503bb..b05464f4a808 100644
+--- a/fs/erofs/zpvec.h
++++ b/fs/erofs/zpvec.h
+@@ -106,11 +106,18 @@ static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
+ 
+ static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
+ 					   struct page *page,
+-					   enum z_erofs_page_type type)
++					   enum z_erofs_page_type type,
++					   bool pvec_safereuse)
+ {
+-	if (!ctor->next && type)
+-		if (ctor->index + 1 == ctor->nr)
++	if (!ctor->next) {
++		/* some pages cannot be reused as pvec safely without I/O */
++		if (type == Z_EROFS_PAGE_TYPE_EXCLUSIVE && !pvec_safereuse)
++			type = Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED;
++
++		if (type != Z_EROFS_PAGE_TYPE_EXCLUSIVE &&
++		    ctor->index + 1 == ctor->nr)
+ 			return false;
++	}
+ 
+ 	if (ctor->index >= ctor->nr)
+ 		z_erofs_pagevec_ctor_pagedown(ctor, false);
+
