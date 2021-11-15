@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23E4E450E15
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84250450B99
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240594AbhKOSKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:10:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
+        id S237224AbhKORZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:25:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239965AbhKOSFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4037632F9;
-        Mon, 15 Nov 2021 17:40:49 +0000 (UTC)
+        id S237795AbhKORYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:24:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3564661BE5;
+        Mon, 15 Nov 2021 17:16:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998050;
-        bh=gYFZ0b5aZN9Ni542rnRuOLNtYn27+QfJj0MpK/5OOlQ=;
+        s=korg; t=1636996600;
+        bh=H1R1ry/SNqfaA2QrG/8oLvNarFc8s/wWRIA9F1o9V9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=snc6g+WC+BQnsWl/3QKdHWr97kb2e7F5JD+ps4wxGt7jjTmqcU+wkDhJx8MAjkAs5
-         6ofW5s5HfoXPehR2wSkXh95HBcy2XOlJDFRPBTqp47knKYblQrJyXjlcaLp7/vUWLk
-         f06+ku6VHi7yfd92pRBudK7mJD2ain9lG7Y5Q8BQ=
+        b=E92knLcMtX0sP8yb5aqBKi1ZxWlUcXGy6DcxfpYbgm/WMMxFvkJWNQDmA13NyrTE9
+         MoyaSVfv3wSro6Zd/JWJjWfN2S7CiUxb56AGLSaZKRtN94+SKMWD5q4o3qVObnAj9a
+         yIM2FomA/LPo3E6ZyKhkXKqZ1SeFSqQ+aZ2dWQd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Li <benl@squareup.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 370/575] wcn36xx: add proper DMA memory barriers in rx path
-Date:   Mon, 15 Nov 2021 18:01:35 +0100
-Message-Id: <20211115165356.588272972@linuxfoundation.org>
+Subject: [PATCH 5.4 172/355] net: annotate data-race in neigh_output()
+Date:   Mon, 15 Nov 2021 18:01:36 +0100
+Message-Id: <20211115165319.352094208@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +41,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Li <benl@squareup.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 9bfe38e064af5decba2ffce66a2958ab8b10eaa4 ]
+[ Upstream commit d18785e213866935b4c3dc0c33c3e18801ce0ce8 ]
 
-This is essentially exactly following the dma_wmb()/dma_rmb() usage
-instructions in Documentation/memory-barriers.txt.
+neigh_output() reads n->nud_state and hh->hh_len locklessly.
 
-The theoretical races here are:
+This is fine, but we need to add annotations and document this.
 
-1. DXE (the DMA Transfer Engine in the Wi-Fi subsystem) seeing the
-dxe->ctrl & WCN36xx_DXE_CTRL_VLD write before the dxe->dst_addr_l
-write, thus performing DMA into the wrong address.
+We evaluate skip_cache first to avoid reading these fields
+if the cache has to by bypassed.
 
-2. CPU reading dxe->dst_addr_l before DXE unsets dxe->ctrl &
-WCN36xx_DXE_CTRL_VLD. This should generally be harmless since DXE
-doesn't write dxe->dst_addr_l (no risk of freeing the wrong skb).
+syzbot report:
 
-Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
-Signed-off-by: Benjamin Li <benl@squareup.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211023001528.3077822-1-benl@squareup.com
+BUG: KCSAN: data-race in __neigh_event_send / ip_finish_output2
+
+write to 0xffff88810798a885 of 1 bytes by interrupt on cpu 1:
+ __neigh_event_send+0x40d/0xac0 net/core/neighbour.c:1128
+ neigh_event_send include/net/neighbour.h:444 [inline]
+ neigh_resolve_output+0x104/0x410 net/core/neighbour.c:1476
+ neigh_output include/net/neighbour.h:510 [inline]
+ ip_finish_output2+0x80a/0xaa0 net/ipv4/ip_output.c:221
+ ip_finish_output+0x3b5/0x510 net/ipv4/ip_output.c:309
+ NF_HOOK_COND include/linux/netfilter.h:296 [inline]
+ ip_output+0xf3/0x1a0 net/ipv4/ip_output.c:423
+ dst_output include/net/dst.h:450 [inline]
+ ip_local_out+0x164/0x220 net/ipv4/ip_output.c:126
+ __ip_queue_xmit+0x9d3/0xa20 net/ipv4/ip_output.c:525
+ ip_queue_xmit+0x34/0x40 net/ipv4/ip_output.c:539
+ __tcp_transmit_skb+0x142a/0x1a00 net/ipv4/tcp_output.c:1405
+ tcp_transmit_skb net/ipv4/tcp_output.c:1423 [inline]
+ tcp_xmit_probe_skb net/ipv4/tcp_output.c:4011 [inline]
+ tcp_write_wakeup+0x4a9/0x810 net/ipv4/tcp_output.c:4064
+ tcp_send_probe0+0x2c/0x2b0 net/ipv4/tcp_output.c:4079
+ tcp_probe_timer net/ipv4/tcp_timer.c:398 [inline]
+ tcp_write_timer_handler+0x394/0x520 net/ipv4/tcp_timer.c:626
+ tcp_write_timer+0xb9/0x180 net/ipv4/tcp_timer.c:642
+ call_timer_fn+0x2e/0x1d0 kernel/time/timer.c:1421
+ expire_timers+0x135/0x240 kernel/time/timer.c:1466
+ __run_timers+0x368/0x430 kernel/time/timer.c:1734
+ run_timer_softirq+0x19/0x30 kernel/time/timer.c:1747
+ __do_softirq+0x12c/0x26e kernel/softirq.c:558
+ invoke_softirq kernel/softirq.c:432 [inline]
+ __irq_exit_rcu kernel/softirq.c:636 [inline]
+ irq_exit_rcu+0x4e/0xa0 kernel/softirq.c:648
+ sysvec_apic_timer_interrupt+0x69/0x80 arch/x86/kernel/apic/apic.c:1097
+ asm_sysvec_apic_timer_interrupt+0x12/0x20
+ native_safe_halt arch/x86/include/asm/irqflags.h:51 [inline]
+ arch_safe_halt arch/x86/include/asm/irqflags.h:89 [inline]
+ acpi_safe_halt drivers/acpi/processor_idle.c:109 [inline]
+ acpi_idle_do_entry drivers/acpi/processor_idle.c:553 [inline]
+ acpi_idle_enter+0x258/0x2e0 drivers/acpi/processor_idle.c:688
+ cpuidle_enter_state+0x2b4/0x760 drivers/cpuidle/cpuidle.c:237
+ cpuidle_enter+0x3c/0x60 drivers/cpuidle/cpuidle.c:351
+ call_cpuidle kernel/sched/idle.c:158 [inline]
+ cpuidle_idle_call kernel/sched/idle.c:239 [inline]
+ do_idle+0x1a3/0x250 kernel/sched/idle.c:306
+ cpu_startup_entry+0x15/0x20 kernel/sched/idle.c:403
+ secondary_startup_64_no_verify+0xb1/0xbb
+
+read to 0xffff88810798a885 of 1 bytes by interrupt on cpu 0:
+ neigh_output include/net/neighbour.h:507 [inline]
+ ip_finish_output2+0x79a/0xaa0 net/ipv4/ip_output.c:221
+ ip_finish_output+0x3b5/0x510 net/ipv4/ip_output.c:309
+ NF_HOOK_COND include/linux/netfilter.h:296 [inline]
+ ip_output+0xf3/0x1a0 net/ipv4/ip_output.c:423
+ dst_output include/net/dst.h:450 [inline]
+ ip_local_out+0x164/0x220 net/ipv4/ip_output.c:126
+ __ip_queue_xmit+0x9d3/0xa20 net/ipv4/ip_output.c:525
+ ip_queue_xmit+0x34/0x40 net/ipv4/ip_output.c:539
+ __tcp_transmit_skb+0x142a/0x1a00 net/ipv4/tcp_output.c:1405
+ tcp_transmit_skb net/ipv4/tcp_output.c:1423 [inline]
+ tcp_xmit_probe_skb net/ipv4/tcp_output.c:4011 [inline]
+ tcp_write_wakeup+0x4a9/0x810 net/ipv4/tcp_output.c:4064
+ tcp_send_probe0+0x2c/0x2b0 net/ipv4/tcp_output.c:4079
+ tcp_probe_timer net/ipv4/tcp_timer.c:398 [inline]
+ tcp_write_timer_handler+0x394/0x520 net/ipv4/tcp_timer.c:626
+ tcp_write_timer+0xb9/0x180 net/ipv4/tcp_timer.c:642
+ call_timer_fn+0x2e/0x1d0 kernel/time/timer.c:1421
+ expire_timers+0x135/0x240 kernel/time/timer.c:1466
+ __run_timers+0x368/0x430 kernel/time/timer.c:1734
+ run_timer_softirq+0x19/0x30 kernel/time/timer.c:1747
+ __do_softirq+0x12c/0x26e kernel/softirq.c:558
+ invoke_softirq kernel/softirq.c:432 [inline]
+ __irq_exit_rcu kernel/softirq.c:636 [inline]
+ irq_exit_rcu+0x4e/0xa0 kernel/softirq.c:648
+ sysvec_apic_timer_interrupt+0x69/0x80 arch/x86/kernel/apic/apic.c:1097
+ asm_sysvec_apic_timer_interrupt+0x12/0x20
+ native_safe_halt arch/x86/include/asm/irqflags.h:51 [inline]
+ arch_safe_halt arch/x86/include/asm/irqflags.h:89 [inline]
+ acpi_safe_halt drivers/acpi/processor_idle.c:109 [inline]
+ acpi_idle_do_entry drivers/acpi/processor_idle.c:553 [inline]
+ acpi_idle_enter+0x258/0x2e0 drivers/acpi/processor_idle.c:688
+ cpuidle_enter_state+0x2b4/0x760 drivers/cpuidle/cpuidle.c:237
+ cpuidle_enter+0x3c/0x60 drivers/cpuidle/cpuidle.c:351
+ call_cpuidle kernel/sched/idle.c:158 [inline]
+ cpuidle_idle_call kernel/sched/idle.c:239 [inline]
+ do_idle+0x1a3/0x250 kernel/sched/idle.c:306
+ cpu_startup_entry+0x15/0x20 kernel/sched/idle.c:403
+ rest_init+0xee/0x100 init/main.c:734
+ arch_call_rest_init+0xa/0xb
+ start_kernel+0x5e4/0x669 init/main.c:1142
+ secondary_startup_64_no_verify+0xb1/0xbb
+
+value changed: 0x20 -> 0x01
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.15.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wcn36xx/dxe.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ include/net/neighbour.h | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wcn36xx/dxe.c b/drivers/net/wireless/ath/wcn36xx/dxe.c
-index 70c46c327512f..cf4eb0fb28151 100644
---- a/drivers/net/wireless/ath/wcn36xx/dxe.c
-+++ b/drivers/net/wireless/ath/wcn36xx/dxe.c
-@@ -606,6 +606,10 @@ static int wcn36xx_rx_handle_packets(struct wcn36xx *wcn,
- 	dxe = ctl->desc;
+diff --git a/include/net/neighbour.h b/include/net/neighbour.h
+index 2be8d6b0dfb69..4232bc8ce3d7d 100644
+--- a/include/net/neighbour.h
++++ b/include/net/neighbour.h
+@@ -505,10 +505,15 @@ static inline int neigh_output(struct neighbour *n, struct sk_buff *skb,
+ {
+ 	const struct hh_cache *hh = &n->hh;
  
- 	while (!(READ_ONCE(dxe->ctrl) & WCN36xx_DXE_CTRL_VLD)) {
-+		/* do not read until we own DMA descriptor */
-+		dma_rmb();
+-	if ((n->nud_state & NUD_CONNECTED) && hh->hh_len && !skip_cache)
++	/* n->nud_state and hh->hh_len could be changed under us.
++	 * neigh_hh_output() is taking care of the race later.
++	 */
++	if (!skip_cache &&
++	    (READ_ONCE(n->nud_state) & NUD_CONNECTED) &&
++	    READ_ONCE(hh->hh_len))
+ 		return neigh_hh_output(hh, skb);
+-	else
+-		return n->output(n, skb);
 +
-+		/* read/modify DMA descriptor */
- 		skb = ctl->skb;
- 		dma_addr = dxe->dst_addr_l;
- 		ret = wcn36xx_dxe_fill_skb(wcn->dev, ctl, GFP_ATOMIC);
-@@ -616,9 +620,15 @@ static int wcn36xx_rx_handle_packets(struct wcn36xx *wcn,
- 			dma_unmap_single(wcn->dev, dma_addr, WCN36XX_PKT_SIZE,
- 					DMA_FROM_DEVICE);
- 			wcn36xx_rx_skb(wcn, skb);
--		} /* else keep old skb not submitted and use it for rx DMA */
-+		}
-+		/* else keep old skb not submitted and reuse it for rx DMA
-+		 * (dropping the packet that it contained)
-+		 */
++	return n->output(n, skb);
+ }
  
-+		/* flush descriptor changes before re-marking as valid */
-+		dma_wmb();
- 		dxe->ctrl = ctrl;
-+
- 		ctl = ctl->next;
- 		dxe = ctl->desc;
- 	}
+ static inline struct neighbour *
 -- 
 2.33.0
 
