@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEB04451F5A
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:37:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8424451F5C
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:37:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356089AbhKPAiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1356102AbhKPAiv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 19:38:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343962AbhKOTWb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343958AbhKOTWb (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0971603E9;
-        Mon, 15 Nov 2021 18:49:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69DC0613A7;
+        Mon, 15 Nov 2021 18:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002170;
-        bh=QJ3YIvLm44vUF+yDxsnXbTWLjAcT/ko1TfRrGAis7Uk=;
+        s=korg; t=1637002173;
+        bh=U+Cz+1MOXx3jqtBh8kCLfofdzsmkjEKbIY+PGsRFGV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kW6RkAdf13/9wdhnqUY2rah0fmXbdOCbeJ77cUXrx34YDfYZKEkBoYNX/q3vW4TH4
-         i2dXzB/XDXhZ/Mp/Vst+4gmqikbgzFBvs5zZW5qoOulMx5SiFb8160MWpA7iLAVNiH
-         LuCwGZKn5EftbSWFIY44WPF9s5fC9Jt7n+MPVUFY=
+        b=JGJAYQiTNok7Ge3XvvfDUH81sLo1bYllwH+ojc/tezF3xNaPZeU0rFgoGhnhgin62
+         8PMEx0yJuA4ulyIl/6olRW/3MDpGfz8PQ9kdkEDaxD+1maAwnYrymVUXzadbD2M4hi
+         vYXRNtNuQvTpQtKEn9IcjQSHZdfSI3HJ9BshsoIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 465/917] mt76: mt76x02: fix endianness warnings in mt76x02_mac.c
-Date:   Mon, 15 Nov 2021 17:59:20 +0100
-Message-Id: <20211115165444.542359070@linuxfoundation.org>
+        stable@vger.kernel.org, Jimmy Hu <Jimmy.Hu@mediatek.com>,
+        Deren Wu <deren.wu@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 466/917] mt76: mt7921: Fix out of order process by invalid event pkt
+Date:   Mon, 15 Nov 2021 17:59:21 +0100
+Message-Id: <20211115165444.575954915@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,85 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit c33edef520213feccebc22c9474c685b9fb60611 ]
+[ Upstream commit cd3f387371e941e6806b455b4ba5b9f4ca4b77c6 ]
 
-Fix the following sparse warning in mt76x02_mac_write_txwi and
-mt76x02_mac_tx_rate_val routines:
-drivers/net/wireless/mediatek/mt76/mt76x02_mac.c:237:19:
-	warning: restricted __le16 degrades to intege
-	warning: cast from restricted __le16
-drivers/net/wireless/mediatek/mt76/mt76x02_mac.c:383:28:
-	warning: incorrect type in assignment (different base types)
-	expected restricted __le16 [usertype] rate
-	got unsigned long
+The acceptable event report should inlcude original CMD-ID. Otherwise,
+drop unexpected result from fw.
 
-Fixes: db9f11d3433f7 ("mt76: store wcid tx rate info in one u32 reduce locking")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Fixes: 1c099ab44727c ("mt76: mt7921: add MCU support")
+Signed-off-by: Jimmy Hu <Jimmy.Hu@mediatek.com>
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76x02_mac.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/mcu.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c b/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c
-index c32e6dc687739..07b21b2085823 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x02_mac.c
-@@ -176,7 +176,7 @@ void mt76x02_mac_wcid_set_drop(struct mt76x02_dev *dev, u8 idx, bool drop)
- 		mt76_wr(dev, MT_WCID_DROP(idx), (val & ~bit) | (bit * drop));
- }
- 
--static __le16
-+static u16
- mt76x02_mac_tx_rate_val(struct mt76x02_dev *dev,
- 			const struct ieee80211_tx_rate *rate, u8 *nss_val)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+index 8329b705c2ca2..8ced55501d373 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+@@ -157,6 +157,7 @@ mt7921_mcu_parse_response(struct mt76_dev *mdev, int cmd,
+ 			  struct sk_buff *skb, int seq)
  {
-@@ -222,14 +222,14 @@ mt76x02_mac_tx_rate_val(struct mt76x02_dev *dev,
- 		rateval |= MT_RXWI_RATE_SGI;
+ 	struct mt7921_mcu_rxd *rxd;
++	int mcu_cmd = cmd & MCU_CMD_MASK;
+ 	int ret = 0;
  
- 	*nss_val = nss;
--	return cpu_to_le16(rateval);
-+	return rateval;
- }
- 
- void mt76x02_mac_wcid_set_rate(struct mt76x02_dev *dev, struct mt76_wcid *wcid,
- 			       const struct ieee80211_tx_rate *rate)
- {
- 	s8 max_txpwr_adj = mt76x02_tx_get_max_txpwr_adj(dev, rate);
--	__le16 rateval;
-+	u16 rateval;
- 	u32 tx_info;
- 	s8 nss;
- 
-@@ -342,7 +342,7 @@ void mt76x02_mac_write_txwi(struct mt76x02_dev *dev, struct mt76x02_txwi *txwi,
- 	struct ieee80211_key_conf *key = info->control.hw_key;
- 	u32 wcid_tx_info;
- 	u16 rate_ht_mask = FIELD_PREP(MT_RXWI_RATE_PHY, BIT(1) | BIT(2));
--	u16 txwi_flags = 0;
-+	u16 txwi_flags = 0, rateval;
- 	u8 nss;
- 	s8 txpwr_adj, max_txpwr_adj;
- 	u8 ccmp_pn[8], nstreams = dev->mphy.chainmask & 0xf;
-@@ -380,14 +380,15 @@ void mt76x02_mac_write_txwi(struct mt76x02_dev *dev, struct mt76x02_txwi *txwi,
- 
- 	if (wcid && (rate->idx < 0 || !rate->count)) {
- 		wcid_tx_info = wcid->tx_info;
--		txwi->rate = FIELD_GET(MT_WCID_TX_INFO_RATE, wcid_tx_info);
-+		rateval = FIELD_GET(MT_WCID_TX_INFO_RATE, wcid_tx_info);
- 		max_txpwr_adj = FIELD_GET(MT_WCID_TX_INFO_TXPWR_ADJ,
- 					  wcid_tx_info);
- 		nss = FIELD_GET(MT_WCID_TX_INFO_NSS, wcid_tx_info);
- 	} else {
--		txwi->rate = mt76x02_mac_tx_rate_val(dev, rate, &nss);
-+		rateval = mt76x02_mac_tx_rate_val(dev, rate, &nss);
- 		max_txpwr_adj = mt76x02_tx_get_max_txpwr_adj(dev, rate);
+ 	if (!skb) {
+@@ -194,6 +195,9 @@ mt7921_mcu_parse_response(struct mt76_dev *mdev, int cmd,
+ 		skb_pull(skb, sizeof(*rxd));
+ 		event = (struct mt7921_mcu_uni_event *)skb->data;
+ 		ret = le32_to_cpu(event->status);
++		/* skip invalid event */
++		if (mcu_cmd != event->cid)
++			ret = -EAGAIN;
+ 		break;
  	}
-+	txwi->rate = cpu_to_le16(rateval);
- 
- 	txpwr_adj = mt76x02_tx_get_txpwr_adj(dev, dev->txpower_conf,
- 					     max_txpwr_adj);
+ 	case MCU_CMD_REG_READ: {
 -- 
 2.33.0
 
