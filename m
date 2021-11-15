@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 242D4450F81
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:29:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF8F5450F80
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:29:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238898AbhKOScH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:32:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36904 "EHLO mail.kernel.org"
+        id S242001AbhKOScD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:32:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232177AbhKOS3o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:29:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 637216344E;
-        Mon, 15 Nov 2021 17:58:18 +0000 (UTC)
+        id S240824AbhKOS3p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:29:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F13276344B;
+        Mon, 15 Nov 2021 17:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999098;
-        bh=r0Iuw4bHx/K7S8hDlq88RVgKdNwWlI32TXlOsx0U5eY=;
+        s=korg; t=1636999101;
+        bh=pHEm7tUF1dkso5ru07rRpKujM9nnoDPt0XNDZFwsXxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2dW8PFtjDJPyifUQVy5jSBJJtZqEUzD4pra94UcZm9oSTl2rwu8XrJH1aYz4anhrQ
-         jleuGLc6einEtWoBx7JDBHm8cXa0pADo+4zQRefrC520WoTckMM6fmTKRqmswzQ8Nr
-         lOhAf0jaLQlBXyd1aZD7qfiqEAlu4ggKgCkB8y60=
+        b=SFAF35BRxVn1D0tQP7DClKzjOFyGLy17RhRWHHsDwp8bFkLvuvW3544kAod9pIOG6
+         4nS+ueG6jubDLZdCOn+jzOC/9GuHmnUaXKo5BiTYpYKOrAhCM0uXnITTlg/EtcfpOO
+         k4lNl8cLawEKwQ74VBjzsPg4BS4oTK5CNUAmev0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.14 142/849] ASoC: tegra: Restore AC97 support
-Date:   Mon, 15 Nov 2021 17:53:45 +0100
-Message-Id: <20211115165424.929328858@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.14 143/849] signal: Remove the bogus sigkill_pending in ptrace_stop
+Date:   Mon, 15 Nov 2021 17:53:46 +0100
+Message-Id: <20211115165424.977156932@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,123 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit de8fc2b0a3f9930f3cbe801d40758bb1d80b0ad8 upstream.
+commit 7d613f9f72ec8f90ddefcae038fdae5adb8404b3 upstream.
 
-The device-tree of AC97 codecs need to be parsed differently from I2S
-codecs, plus codec device may need to be created. This was missed by the
-patch that unified machine drivers into a single driver, fix it. It should
-restore audio on Toradex Colibri board.
+The existence of sigkill_pending is a little silly as it is
+functionally a duplicate of fatal_signal_pending that is used in
+exactly one place.
 
-Cc: <stable@vger.kernel.org>
-Fixes: cc8f70f56039 ("ASoC: tegra: Unify ASoC machine drivers")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20211024192853.21957-1-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Checking for pending fatal signals and returning early in ptrace_stop
+is actively harmful.  It casues the ptrace_stop called by
+ptrace_signal to return early before setting current->exit_code.
+Later when ptrace_signal reads the signal number from
+current->exit_code is undefined, making it unpredictable what will
+happen.
+
+Instead rely on the fact that schedule will not sleep if there is a
+pending signal that can awaken a task.
+
+Removing the explict sigkill_pending test fixes fixes ptrace_signal
+when ptrace_stop does not stop because current->exit_code is always
+set to to signr.
+
+Cc: stable@vger.kernel.org
+Fixes: 3d749b9e676b ("ptrace: simplify ptrace_stop()->sigkill_pending() path")
+Fixes: 1a669c2f16d4 ("Add arch_ptrace_stop")
+Link: https://lkml.kernel.org/r/87pmsyx29t.fsf@disp2133
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/tegra/tegra_asoc_machine.c |   63 ++++++++++++++++++++++++++++-------
- sound/soc/tegra/tegra_asoc_machine.h |    1 
- 2 files changed, 52 insertions(+), 12 deletions(-)
+ kernel/signal.c |   18 ++++--------------
+ 1 file changed, 4 insertions(+), 14 deletions(-)
 
---- a/sound/soc/tegra/tegra_asoc_machine.c
-+++ b/sound/soc/tegra/tegra_asoc_machine.c
-@@ -341,9 +341,34 @@ tegra_machine_parse_phandle(struct devic
- 	return np;
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -2109,15 +2109,6 @@ static inline bool may_ptrace_stop(void)
+ 	return true;
  }
  
-+static void tegra_machine_unregister_codec(void *pdev)
-+{
-+	platform_device_unregister(pdev);
-+}
-+
-+static int tegra_machine_register_codec(struct device *dev, const char *name)
-+{
-+	struct platform_device *pdev;
-+	int err;
-+
-+	if (!name)
-+		return 0;
-+
-+	pdev = platform_device_register_simple(name, -1, NULL, 0);
-+	if (IS_ERR(pdev))
-+		return PTR_ERR(pdev);
-+
-+	err = devm_add_action_or_reset(dev, tegra_machine_unregister_codec,
-+				       pdev);
-+	if (err)
-+		return err;
-+
-+	return 0;
-+}
-+
- int tegra_asoc_machine_probe(struct platform_device *pdev)
- {
--	struct device_node *np_codec, *np_i2s;
-+	struct device_node *np_codec, *np_i2s, *np_ac97;
- 	const struct tegra_asoc_data *asoc;
- 	struct device *dev = &pdev->dev;
- 	struct tegra_machine *machine;
-@@ -404,17 +429,30 @@ int tegra_asoc_machine_probe(struct plat
- 			return err;
+-/*
+- * Return non-zero if there is a SIGKILL that should be waking us up.
+- * Called with the siglock held.
+- */
+-static bool sigkill_pending(struct task_struct *tsk)
+-{
+-	return sigismember(&tsk->pending.signal, SIGKILL) ||
+-	       sigismember(&tsk->signal->shared_pending.signal, SIGKILL);
+-}
+ 
+ /*
+  * This must be called with current->sighand->siglock held.
+@@ -2144,17 +2135,16 @@ static void ptrace_stop(int exit_code, i
+ 		 * calling arch_ptrace_stop, so we must release it now.
+ 		 * To preserve proper semantics, we must do this before
+ 		 * any signal bookkeeping like checking group_stop_count.
+-		 * Meanwhile, a SIGKILL could come in before we retake the
+-		 * siglock.  That must prevent us from sleeping in TASK_TRACED.
+-		 * So after regaining the lock, we must check for SIGKILL.
+ 		 */
+ 		spin_unlock_irq(&current->sighand->siglock);
+ 		arch_ptrace_stop(exit_code, info);
+ 		spin_lock_irq(&current->sighand->siglock);
+-		if (sigkill_pending(current))
+-			return;
  	}
  
--	np_codec = tegra_machine_parse_phandle(dev, "nvidia,audio-codec");
--	if (IS_ERR(np_codec))
--		return PTR_ERR(np_codec);
--
--	np_i2s = tegra_machine_parse_phandle(dev, "nvidia,i2s-controller");
--	if (IS_ERR(np_i2s))
--		return PTR_ERR(np_i2s);
--
--	card->dai_link->cpus->of_node = np_i2s;
--	card->dai_link->codecs->of_node = np_codec;
--	card->dai_link->platforms->of_node = np_i2s;
-+	if (asoc->set_ac97) {
-+		err = tegra_machine_register_codec(dev, asoc->codec_dev_name);
-+		if (err)
-+			return err;
-+
-+		np_ac97 = tegra_machine_parse_phandle(dev, "nvidia,ac97-controller");
-+		if (IS_ERR(np_ac97))
-+			return PTR_ERR(np_ac97);
-+
-+		card->dai_link->cpus->of_node = np_ac97;
-+		card->dai_link->platforms->of_node = np_ac97;
-+	} else {
-+		np_codec = tegra_machine_parse_phandle(dev, "nvidia,audio-codec");
-+		if (IS_ERR(np_codec))
-+			return PTR_ERR(np_codec);
-+
-+		np_i2s = tegra_machine_parse_phandle(dev, "nvidia,i2s-controller");
-+		if (IS_ERR(np_i2s))
-+			return PTR_ERR(np_i2s);
-+
-+		card->dai_link->cpus->of_node = np_i2s;
-+		card->dai_link->codecs->of_node = np_codec;
-+		card->dai_link->platforms->of_node = np_i2s;
-+	}
++	/*
++	 * schedule() will not sleep if there is a pending signal that
++	 * can awaken the task.
++	 */
+ 	set_special_state(TASK_TRACED);
  
- 	if (asoc->add_common_controls) {
- 		card->controls = tegra_machine_controls;
-@@ -589,6 +627,7 @@ static struct snd_soc_card snd_soc_tegra
- static const struct tegra_asoc_data tegra_wm9712_data = {
- 	.card = &snd_soc_tegra_wm9712,
- 	.add_common_dapm_widgets = true,
-+	.codec_dev_name = "wm9712-codec",
- 	.set_ac97 = true,
- };
- 
---- a/sound/soc/tegra/tegra_asoc_machine.h
-+++ b/sound/soc/tegra/tegra_asoc_machine.h
-@@ -13,6 +13,7 @@ struct snd_soc_pcm_runtime;
- 
- struct tegra_asoc_data {
- 	unsigned int (*mclk_rate)(unsigned int srate);
-+	const char *codec_dev_name;
- 	struct snd_soc_card *card;
- 	unsigned int mclk_id;
- 	bool hp_jack_gpio_active_low;
+ 	/*
 
 
