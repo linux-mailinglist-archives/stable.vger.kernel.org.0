@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A01A6450DDE
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60BDA450DD8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237925AbhKOSIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:08:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46082 "EHLO mail.kernel.org"
+        id S239995AbhKOSIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:08:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239581AbhKOSDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239586AbhKOSDU (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:03:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5575963350;
-        Mon, 15 Nov 2021 17:37:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E85AE63352;
+        Mon, 15 Nov 2021 17:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997876;
-        bh=Pn5CN1leSWAeKcMEAOS0osKrNufGb3AMkAW1MPGCqsw=;
+        s=korg; t=1636997882;
+        bh=nzcXEK5B7Fmm3Hz/H0qqxBNGhJpM8Gq6gbs1c8+Pygc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QrNnSzTEODlnEXKXgLi4Wei0xvkv0MdIxt1uJFZINgj8MLstQICYmeqv987W8d8aO
-         WmryK5LVPng1PMjsaEGBLhGPFUeyn111bpCRmW7ES8ELl2aNheRpFbFOnvqb2eahY1
-         sUiV7/nCfk09VupzPO35aMQogt9EiVBJerVKvODc=
+        b=Ql2Gq4FC8j28IuKqcIz8uT9ibcs3lAgm8OEuSYmX9QnYuVQPrSPlwz/fYASoyGevw
+         D0ebwvsvMIsDBxm+wzG53+M7OGHXz5tlQK4ijlfVPMGv6bkoa/CXWz8Ifnkkvy4v3H
+         Bei1u+YhDiAqZ6zlyybsVT49im1r+foGLgZPu/Bc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 307/575] netfilter: nft_dynset: relax superfluous check on set updates
-Date:   Mon, 15 Nov 2021 18:00:32 +0100
-Message-Id: <20211115165354.404614027@linuxfoundation.org>
+Subject: [PATCH 5.10 309/575] crypto: qat - detect PFVF collision after ACK
+Date:   Mon, 15 Nov 2021 18:00:34 +0100
+Message-Id: <20211115165354.475708828@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -39,44 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 7b1394892de8d95748d05e3ee41e85edb4abbfa1 ]
+[ Upstream commit 9b768e8a3909ac1ab39ed44a3933716da7761a6f ]
 
-Relax this condition to make add and update commands idempotent for sets
-with no timeout. The eval function already checks if the set element
-timeout is available and updates it if the update command is used.
+Detect a PFVF collision between the local and the remote function by
+checking if the message on the PFVF CSR has been overwritten.
+This is done after the remote function confirms that the message has
+been received, by clearing the interrupt bit, or the maximum number of
+attempts (ADF_IOV_MSG_ACK_MAX_RETRY) to check the CSR has been exceeded.
 
-Fixes: 22fe54d5fefc ("netfilter: nf_tables: add support for dynamic set updates")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Co-developed-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_dynset.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/netfilter/nft_dynset.c b/net/netfilter/nft_dynset.c
-index 5c84a968dae29..58904bee1a0df 100644
---- a/net/netfilter/nft_dynset.c
-+++ b/net/netfilter/nft_dynset.c
-@@ -141,17 +141,8 @@ static int nft_dynset_init(const struct nft_ctx *ctx,
- 		return -EBUSY;
+diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+index e829c6aaf16fd..a5bd77d0f0487 100644
+--- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
++++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+@@ -150,6 +150,13 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
+ 		val = ADF_CSR_RD(pmisc_bar_addr, pf2vf_offset);
+ 	} while ((val & int_bit) && (count++ < ADF_IOV_MSG_ACK_MAX_RETRY));
  
- 	priv->op = ntohl(nla_get_be32(tb[NFTA_DYNSET_OP]));
--	switch (priv->op) {
--	case NFT_DYNSET_OP_ADD:
--	case NFT_DYNSET_OP_DELETE:
--		break;
--	case NFT_DYNSET_OP_UPDATE:
--		if (!(set->flags & NFT_SET_TIMEOUT))
--			return -EOPNOTSUPP;
--		break;
--	default:
-+	if (priv->op > NFT_DYNSET_OP_DELETE)
- 		return -EOPNOTSUPP;
--	}
- 
- 	timeout = 0;
- 	if (tb[NFTA_DYNSET_TIMEOUT] != NULL) {
++	if (val != msg) {
++		dev_dbg(&GET_DEV(accel_dev),
++			"Collision - PFVF CSR overwritten by remote function\n");
++		ret = -EIO;
++		goto out;
++	}
++
+ 	if (val & int_bit) {
+ 		dev_dbg(&GET_DEV(accel_dev), "ACK not received from remote\n");
+ 		val &= ~int_bit;
 -- 
 2.33.0
 
