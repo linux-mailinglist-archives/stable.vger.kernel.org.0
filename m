@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E26452089
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:52:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E056F4520F3
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:54:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349956AbhKPAzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:55:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44636 "EHLO mail.kernel.org"
+        id S1346111AbhKPA5S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:57:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245685AbhKOTVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DDE86358B;
-        Mon, 15 Nov 2021 18:39:25 +0000 (UTC)
+        id S245618AbhKOTUv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D49F661B3F;
+        Mon, 15 Nov 2021 18:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001566;
-        bh=Yg6485zONVOhKeEM60PrE9n4QDWxXd0O/gKALd726mU=;
+        s=korg; t=1637001479;
+        bh=XSrM/4N7wkstFVDHzo08fqqGpORo2iClP/4WzKmLCkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3rpSWNRMygVAElLqYfQimWeoeiDT3PjJ2UuZnDnIBkVnt7F7tFHlwvntAQj2mvn8
-         /WJ01Vo7qXTUY2yiTWwgx592Y98oeghuUxhF6V0Feb2fSMIjnZO8mb8Pd1vMlPHRHI
-         ZRWJQHvOuHVmMSHCxbg5orhRcTzdC+7NVe88PesQ=
+        b=hCr9WBDa7MCh8mf0IfJgxsYyNGXUgk+FBXE+qWD44Q/TEBtCz+2TroMlC2fZpxL1t
+         4eMAwPvtpRjz0+sr66TahXzBCWAaB4fixpzNImJFNeMkSpG8jKs1/Dc8bDzmKmeX6i
+         9PZ9hQ0VKOKRsmtbMKpRh3TJm13timswfofeSXlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Paul Crowley <paulcrowley@google.com>,
+        Eric Biggers <ebiggers@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 206/917] spi: Check we have a spi_device_id for each DT compatible
-Date:   Mon, 15 Nov 2021 17:55:01 +0100
-Message-Id: <20211115165435.784069535@linuxfoundation.org>
+Subject: [PATCH 5.15 207/917] fscrypt: allow 256-bit master keys with AES-256-XTS
+Date:   Mon, 15 Nov 2021 17:55:02 +0100
+Message-Id: <20211115165435.817081101@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,89 +40,212 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 5fa6863ba69265cb7e45567d12614790ff26bd56 ]
+[ Upstream commit 7f595d6a6cdc336834552069a2e0a4f6d4756ddf ]
 
-Currently for SPI devices we use the spi_device_id for module autoloading
-even on systems using device tree, meaning that listing a compatible string
-in the of_match_table isn't enough to have the module for a SPI driver
-autoloaded.
+fscrypt currently requires a 512-bit master key when AES-256-XTS is
+used, since AES-256-XTS keys are 512-bit and fscrypt requires that the
+master key be at least as long any key that will be derived from it.
 
-We attempted to fix this by generating OF based modaliases for devices
-instantiated from DT in 3ce6c9e2617e ("spi: add of_device_uevent_modalias
-support") but this meant we no longer reported spi_device_id based aliases
-which broke drivers such as spi-nor which don't list all the compatible
-strings they support directly for DT, and in at least that case it's not
-super practical to do so given the very large number of compatibles
-needed, much larger than the number spi_device_ids due to vendor strings.
-As a result fell back to using spi_device_id based modalises.
+However, this is overly strict because AES-256-XTS doesn't actually have
+a 512-bit security strength, but rather 256-bit.  The fact that XTS
+takes twice the expected key size is a quirk of the XTS mode.  It is
+sufficient to use 256 bits of entropy for AES-256-XTS, provided that it
+is first properly expanded into a 512-bit key, which HKDF-SHA512 does.
 
-Try to close the gap by printing a warning when a SPI driver has a DT
-compatible that won't be matched as a SPI device ID with the goal of having
-drivers provide both. Given fallback compatibles this check is going to be
-excessive but it should be robust which is probably more important here.
+Therefore, relax the check of the master key size to use the security
+strength of the derived key rather than the size of the derived key
+(except for v1 encryption policies, which don't use HKDF).
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210921192149.50740-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Besides making things more flexible for userspace, this is needed in
+order for the use of a KDF which only takes a 256-bit key to be
+introduced into the fscrypt key hierarchy.  This will happen with
+hardware-wrapped keys support, as all known hardware which supports that
+feature uses an SP800-108 KDF using AES-256-CMAC, so the wrapped keys
+are wrapped 256-bit AES keys.  Moreover, there is interest in fscrypt
+supporting the same type of AES-256-CMAC based KDF in software as an
+alternative to HKDF-SHA512.  There is no security problem with such
+features, so fix the key length check to work properly with them.
+
+Reviewed-by: Paul Crowley <paulcrowley@google.com>
+Link: https://lore.kernel.org/r/20210921030303.5598-1-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 41 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 41 insertions(+)
+ Documentation/filesystems/fscrypt.rst | 10 ++---
+ fs/crypto/fscrypt_private.h           |  5 ++-
+ fs/crypto/hkdf.c                      | 11 ++++--
+ fs/crypto/keysetup.c                  | 57 +++++++++++++++++++++------
+ 4 files changed, 61 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 926b68aa45d3e..2a2f41b6df685 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -451,6 +451,47 @@ int __spi_register_driver(struct module *owner, struct spi_driver *sdrv)
- {
- 	sdrv->driver.owner = owner;
- 	sdrv->driver.bus = &spi_bus_type;
-+
-+	/*
-+	 * For Really Good Reasons we use spi: modaliases not of:
-+	 * modaliases for DT so module autoloading won't work if we
-+	 * don't have a spi_device_id as well as a compatible string.
-+	 */
-+	if (sdrv->driver.of_match_table) {
-+		const struct of_device_id *of_id;
-+
-+		for (of_id = sdrv->driver.of_match_table; of_id->compatible[0];
-+		     of_id++) {
-+			const char *of_name;
-+
-+			/* Strip off any vendor prefix */
-+			of_name = strnchr(of_id->compatible,
-+					  sizeof(of_id->compatible), ',');
-+			if (of_name)
-+				of_name++;
-+			else
-+				of_name = of_id->compatible;
-+
-+			if (sdrv->id_table) {
-+				const struct spi_device_id *spi_id;
-+
-+				for (spi_id = sdrv->id_table; spi_id->name[0];
-+				     spi_id++)
-+					if (strcmp(spi_id->name, of_name) == 0)
-+						break;
-+
-+				if (spi_id->name[0])
-+					continue;
-+			} else {
-+				if (strcmp(sdrv->driver.name, of_name) == 0)
-+					continue;
-+			}
-+
-+			pr_warn("SPI driver %s has no spi_device_id for %s\n",
-+				sdrv->driver.name, of_id->compatible);
-+		}
-+	}
-+
- 	return driver_register(&sdrv->driver);
+diff --git a/Documentation/filesystems/fscrypt.rst b/Documentation/filesystems/fscrypt.rst
+index 0eb799d9d05a2..7940a45d39522 100644
+--- a/Documentation/filesystems/fscrypt.rst
++++ b/Documentation/filesystems/fscrypt.rst
+@@ -176,11 +176,11 @@ Master Keys
+ 
+ Each encrypted directory tree is protected by a *master key*.  Master
+ keys can be up to 64 bytes long, and must be at least as long as the
+-greater of the key length needed by the contents and filenames
+-encryption modes being used.  For example, if AES-256-XTS is used for
+-contents encryption, the master key must be 64 bytes (512 bits).  Note
+-that the XTS mode is defined to require a key twice as long as that
+-required by the underlying block cipher.
++greater of the security strength of the contents and filenames
++encryption modes being used.  For example, if any AES-256 mode is
++used, the master key must be at least 256 bits, i.e. 32 bytes.  A
++stricter requirement applies if the key is used by a v1 encryption
++policy and AES-256-XTS is used; such keys must be 64 bytes.
+ 
+ To "unlock" an encrypted directory tree, userspace must provide the
+ appropriate master key.  There can be any number of master keys, each
+diff --git a/fs/crypto/fscrypt_private.h b/fs/crypto/fscrypt_private.h
+index 3fa965eb3336d..cb25ef0cdf1f3 100644
+--- a/fs/crypto/fscrypt_private.h
++++ b/fs/crypto/fscrypt_private.h
+@@ -549,8 +549,9 @@ int __init fscrypt_init_keyring(void);
+ struct fscrypt_mode {
+ 	const char *friendly_name;
+ 	const char *cipher_str;
+-	int keysize;
+-	int ivsize;
++	int keysize;		/* key size in bytes */
++	int security_strength;	/* security strength in bytes */
++	int ivsize;		/* IV size in bytes */
+ 	int logged_impl_name;
+ 	enum blk_crypto_mode_num blk_crypto_mode;
+ };
+diff --git a/fs/crypto/hkdf.c b/fs/crypto/hkdf.c
+index e0ec210555053..7607d18b35fc0 100644
+--- a/fs/crypto/hkdf.c
++++ b/fs/crypto/hkdf.c
+@@ -16,9 +16,14 @@
+ 
+ /*
+  * HKDF supports any unkeyed cryptographic hash algorithm, but fscrypt uses
+- * SHA-512 because it is reasonably secure and efficient; and since it produces
+- * a 64-byte digest, deriving an AES-256-XTS key preserves all 64 bytes of
+- * entropy from the master key and requires only one iteration of HKDF-Expand.
++ * SHA-512 because it is well-established, secure, and reasonably efficient.
++ *
++ * HKDF-SHA256 was also considered, as its 256-bit security strength would be
++ * sufficient here.  A 512-bit security strength is "nice to have", though.
++ * Also, on 64-bit CPUs, SHA-512 is usually just as fast as SHA-256.  In the
++ * common case of deriving an AES-256-XTS key (512 bits), that can result in
++ * HKDF-SHA512 being much faster than HKDF-SHA256, as the longer digest size of
++ * SHA-512 causes HKDF-Expand to only need to do one iteration rather than two.
+  */
+ #define HKDF_HMAC_ALG		"hmac(sha512)"
+ #define HKDF_HASHLEN		SHA512_DIGEST_SIZE
+diff --git a/fs/crypto/keysetup.c b/fs/crypto/keysetup.c
+index bca9c6658a7c5..89cd533a88bff 100644
+--- a/fs/crypto/keysetup.c
++++ b/fs/crypto/keysetup.c
+@@ -19,6 +19,7 @@ struct fscrypt_mode fscrypt_modes[] = {
+ 		.friendly_name = "AES-256-XTS",
+ 		.cipher_str = "xts(aes)",
+ 		.keysize = 64,
++		.security_strength = 32,
+ 		.ivsize = 16,
+ 		.blk_crypto_mode = BLK_ENCRYPTION_MODE_AES_256_XTS,
+ 	},
+@@ -26,12 +27,14 @@ struct fscrypt_mode fscrypt_modes[] = {
+ 		.friendly_name = "AES-256-CTS-CBC",
+ 		.cipher_str = "cts(cbc(aes))",
+ 		.keysize = 32,
++		.security_strength = 32,
+ 		.ivsize = 16,
+ 	},
+ 	[FSCRYPT_MODE_AES_128_CBC] = {
+ 		.friendly_name = "AES-128-CBC-ESSIV",
+ 		.cipher_str = "essiv(cbc(aes),sha256)",
+ 		.keysize = 16,
++		.security_strength = 16,
+ 		.ivsize = 16,
+ 		.blk_crypto_mode = BLK_ENCRYPTION_MODE_AES_128_CBC_ESSIV,
+ 	},
+@@ -39,12 +42,14 @@ struct fscrypt_mode fscrypt_modes[] = {
+ 		.friendly_name = "AES-128-CTS-CBC",
+ 		.cipher_str = "cts(cbc(aes))",
+ 		.keysize = 16,
++		.security_strength = 16,
+ 		.ivsize = 16,
+ 	},
+ 	[FSCRYPT_MODE_ADIANTUM] = {
+ 		.friendly_name = "Adiantum",
+ 		.cipher_str = "adiantum(xchacha12,aes)",
+ 		.keysize = 32,
++		.security_strength = 32,
+ 		.ivsize = 32,
+ 		.blk_crypto_mode = BLK_ENCRYPTION_MODE_ADIANTUM,
+ 	},
+@@ -357,6 +362,45 @@ static int fscrypt_setup_v2_file_key(struct fscrypt_info *ci,
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(__spi_register_driver);
+ 
++/*
++ * Check whether the size of the given master key (@mk) is appropriate for the
++ * encryption settings which a particular file will use (@ci).
++ *
++ * If the file uses a v1 encryption policy, then the master key must be at least
++ * as long as the derived key, as this is a requirement of the v1 KDF.
++ *
++ * Otherwise, the KDF can accept any size key, so we enforce a slightly looser
++ * requirement: we require that the size of the master key be at least the
++ * maximum security strength of any algorithm whose key will be derived from it
++ * (but in practice we only need to consider @ci->ci_mode, since any other
++ * possible subkeys such as DIRHASH and INODE_HASH will never increase the
++ * required key size over @ci->ci_mode).  This allows AES-256-XTS keys to be
++ * derived from a 256-bit master key, which is cryptographically sufficient,
++ * rather than requiring a 512-bit master key which is unnecessarily long.  (We
++ * still allow 512-bit master keys if the user chooses to use them, though.)
++ */
++static bool fscrypt_valid_master_key_size(const struct fscrypt_master_key *mk,
++					  const struct fscrypt_info *ci)
++{
++	unsigned int min_keysize;
++
++	if (ci->ci_policy.version == FSCRYPT_POLICY_V1)
++		min_keysize = ci->ci_mode->keysize;
++	else
++		min_keysize = ci->ci_mode->security_strength;
++
++	if (mk->mk_secret.size < min_keysize) {
++		fscrypt_warn(NULL,
++			     "key with %s %*phN is too short (got %u bytes, need %u+ bytes)",
++			     master_key_spec_type(&mk->mk_spec),
++			     master_key_spec_len(&mk->mk_spec),
++			     (u8 *)&mk->mk_spec.u,
++			     mk->mk_secret.size, min_keysize);
++		return false;
++	}
++	return true;
++}
++
+ /*
+  * Find the master key, then set up the inode's actual encryption key.
+  *
+@@ -422,18 +466,7 @@ static int setup_file_encryption_key(struct fscrypt_info *ci,
+ 		goto out_release_key;
+ 	}
+ 
+-	/*
+-	 * Require that the master key be at least as long as the derived key.
+-	 * Otherwise, the derived key cannot possibly contain as much entropy as
+-	 * that required by the encryption mode it will be used for.  For v1
+-	 * policies it's also required for the KDF to work at all.
+-	 */
+-	if (mk->mk_secret.size < ci->ci_mode->keysize) {
+-		fscrypt_warn(NULL,
+-			     "key with %s %*phN is too short (got %u bytes, need %u+ bytes)",
+-			     master_key_spec_type(&mk_spec),
+-			     master_key_spec_len(&mk_spec), (u8 *)&mk_spec.u,
+-			     mk->mk_secret.size, ci->ci_mode->keysize);
++	if (!fscrypt_valid_master_key_size(mk, ci)) {
+ 		err = -ENOKEY;
+ 		goto out_release_key;
+ 	}
 -- 
 2.33.0
 
