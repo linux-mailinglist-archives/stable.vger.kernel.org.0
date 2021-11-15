@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0531E451493
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 995264512BF
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345271AbhKOUKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:10:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45386 "EHLO mail.kernel.org"
+        id S1347294AbhKOTjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344750AbhKOTZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C1F7636C3;
-        Mon, 15 Nov 2021 19:03:37 +0000 (UTC)
+        id S244993AbhKOTST (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F98E634ED;
+        Mon, 15 Nov 2021 18:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003017;
-        bh=t/uFbwEIvIONzprdNkwS2joaq+X3GGozQJFMysvBvPo=;
+        s=korg; t=1637000793;
+        bh=LaQolLDedjbJxwFaGCEB1MFbUiWd9BvrhNJyA7IpoqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZTuf3WHnA/lMrs1lW2cbO+2kkvth2/UeA2vXPt5OPIqedLaWVPCXn9meMI1vUooq
-         YliQCOS1uo8ZDlKlXxdvpe7Wzau0b57Ct1wqWOx1i3JKdmw8aTmMP6uKL4BuFoQkb6
-         5k+0eY2uzuOWCd5uo0ZzIJe9ppZHpkXAgmC7nixo=
+        b=f1YwriWspp4XsMU9baKqqNcwisCHoShkBaEA5BbWE5R9k9Obgt77lGp4+XrCmN+Cw
+         1dOnDJ7UKH5XO6OYbPV5PnQo9YesdIbp+7ay6+tkxbQYi/M76Lzxvzv7RfnubErQ2j
+         PcDIrKEcfxVvhrtl8ASHPu7OJ8G2onzLDA7H61Jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 781/917] scsi: ufs: core: Fix NULL pointer dereference
-Date:   Mon, 15 Nov 2021 18:04:36 +0100
-Message-Id: <20211115165455.433705855@linuxfoundation.org>
+        stable@vger.kernel.org, Rhys Hiltner <rhys@justin.tv>,
+        Michael Pratt <mpratt@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.14 794/849] posix-cpu-timers: Clear task::posix_cputimers_work in copy_process()
+Date:   Mon, 15 Nov 2021 18:04:37 +0100
+Message-Id: <20211115165447.102265576@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,103 +40,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bean Huo <beanhuo@micron.com>
+From: Michael Pratt <mpratt@google.com>
 
-[ Upstream commit 1da3b0141e74c18c2377d4c2655406a90a87742f ]
+commit ca7752caeaa70bd31d1714af566c9809688544af upstream.
 
-Calling ufshcd_rpm_{get/put}_sync() prior to ufshcd_scsi_add_wlus() being
-called will trigger a NULL pointer dereference. This is because
-hba->sdev_ufs_device is initialized in ufshcd_scsi_add_wlus().
+copy_process currently copies task_struct.posix_cputimers_work as-is. If a
+timer interrupt arrives while handling clone and before dup_task_struct
+completes then the child task will have:
 
-    Unable to handle kernel NULL pointer dereference at virtual address
-    0000000000000348
-    Mem abort info:
-      ESR = 0x96000004
-      EC = 0x25: DABT (current EL), IL = 32 bits
-      SET = 0, FnV = 0
-      EA = 0, S1PTW = 0
-      FSC = 0x04: level 0 translation fault
-    Data abort info:
-      ISV = 0, ISS = 0x00000004
-      CM = 0, WnR = 0
-    [0000000000000348] user address but active_mm is swapper
-    Internal error: Oops: 96000004 [#1] PREEMPT SMP
-    Modules linked in:
-    CPU: 0 PID: 91 Comm: kworker/u16:1 Not tainted 5.15.0-rc1-beanhuo-linaro-1423
-    Hardware name: MicronRB (DT)
-    Workqueue: events_unbound async_run_entry_fn
-    pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-    pc : pm_runtime_drop_link+0x128/0x338
-    lr : ufshpb_get_dev_info+0x8c/0x148
-    sp : ffff800012573c10
-    x29: ffff800012573c10 x28: 0000000000000000 x27: 0000000000000003
-    x26: ffff000001d21298 x25: 000000005abcea60 x24: ffff800011d89000
-    x23: 0000000000000001 x22: ffff000001d21880 x21: ffff000001ec9300
-    x20: 0000000000000004 x19: 0000000000000198 x18: ffffffffffffffff
-    x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000041400
-    x14: 5eee00201100200a x13: 000000000000bb03 x12: 0000000000000000
-    x11: 0000000000000100 x10: 0200000000000000 x9 : bb0000021a162c01
-    x8 : 0302010021021003 x7 : 0000000000000000 x6 : ffff800012573af0
-    x5 : 0000000000000001 x4 : 0000000000000001 x3 : 0000000000000200
-    x2 : 0000000000000348 x1 : 0000000000000348 x0 : ffff80001095308c
-    Call trace:
-     pm_runtime_drop_link+0x128/0x338
-     ufshpb_get_dev_info+0x8c/0x148
-     ufshcd_probe_hba+0xda0/0x11b8
-     ufshcd_async_scan+0x34/0x330
-     async_run_entry_fn+0x38/0x180
-     process_one_work+0x1f4/0x498
-     worker_thread+0x48/0x480
-     kthread+0x140/0x158
-     ret_from_fork+0x10/0x20
-    Code: 88027c01 35ffffa2 17fff6c4 f9800051 (885f7c40)
-    ---[ end trace 2ba541335f595c95 ]
+1. posix_cputimers_work.scheduled = true
+2. posix_cputimers_work.work queued.
 
-ufshpb_get_dev_info() is only called during asynchronous scanning and at
-that time pm_runtime_get_sync() has been called:
+copy_process clears task_struct.task_works, so (2) will have no effect and
+posix_cpu_timers_work will never run (not to mention it doesn't make sense
+for two tasks to share a common linked list).
 
-    ...
-    /* Hold auto suspend until async scan completes */
-    pm_runtime_get_sync(dev);
-    atomic_set(&hba->scsi_block_reqs_cnt, 0);
-    ...
-    ufshcd_async_scan()
-        ufshcd_probe_hba(hba, true);
-            ufshcd_device_params_init(hba);
-                ufshpb_get_dev_info();
-    ...
-        pm_runtime_put_sync(hba->dev);
+Since posix_cpu_timers_work never runs, posix_cputimers_work.scheduled is
+never cleared. Since scheduled is set, future timer interrupts will skip
+scheduling work, with the ultimate result that the task will never receive
+timer expirations.
 
-Remove ufshcd_rpm_{get/put}_sync() from ufshpb_get_dev_info() to fix this
-problem.
+Together, the complete flow is:
 
-Link: https://lore.kernel.org/r/20210929200640.828611-2-huobean@gmail.com
-Fixes: 351b3a849ac7 ("scsi: ufs: ufshpb: Use proper power management API")
-Signed-off-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+1. Task 1 calls clone(), enters kernel.
+2. Timer interrupt fires, schedules task work on Task 1.
+   2a. task_struct.posix_cputimers_work.scheduled = true
+   2b. task_struct.posix_cputimers_work.work added to
+       task_struct.task_works.
+3. dup_task_struct() copies Task 1 to Task 2.
+4. copy_process() clears task_struct.task_works for Task 2.
+5. Future timer interrupts on Task 2 see
+   task_struct.posix_cputimers_work.scheduled = true and skip scheduling
+   work.
+
+Fix this by explicitly clearing contents of task_struct.posix_cputimers_work
+in copy_process(). This was never meant to be shared or inherited across
+tasks in the first place.
+
+Fixes: 1fb497dd0030 ("posix-cpu-timers: Provide mechanisms to defer timer handling to task_work")
+Reported-by: Rhys Hiltner <rhys@justin.tv>
+Signed-off-by: Michael Pratt <mpratt@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211101210615.716522-1-mpratt@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshpb.c | 3 ---
- 1 file changed, 3 deletions(-)
+ include/linux/posix-timers.h   |    2 ++
+ kernel/fork.c                  |    1 +
+ kernel/time/posix-cpu-timers.c |   19 +++++++++++++++++--
+ 3 files changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshpb.c b/drivers/scsi/ufs/ufshpb.c
-index 46cdfb0dfca94..3b1a90b1d82ac 100644
---- a/drivers/scsi/ufs/ufshpb.c
-+++ b/drivers/scsi/ufs/ufshpb.c
-@@ -2598,11 +2598,8 @@ void ufshpb_get_dev_info(struct ufs_hba *hba, u8 *desc_buf)
- 	if (version == HPB_SUPPORT_LEGACY_VERSION)
- 		hpb_dev_info->is_legacy = true;
+--- a/include/linux/posix-timers.h
++++ b/include/linux/posix-timers.h
+@@ -177,8 +177,10 @@ static inline void posix_cputimers_group
+ #endif
  
--	ufshcd_rpm_get_sync(hba);
- 	ret = ufshcd_query_attr_retry(hba, UPIU_QUERY_OPCODE_READ_ATTR,
- 		QUERY_ATTR_IDN_MAX_HPB_SINGLE_CMD, 0, 0, &max_hpb_single_cmd);
--	ufshcd_rpm_put_sync(hba);
--
- 	if (ret)
- 		dev_err(hba->dev, "%s: idn: read max size of single hpb cmd query request failed",
- 			__func__);
--- 
-2.33.0
-
+ #ifdef CONFIG_POSIX_CPU_TIMERS_TASK_WORK
++void clear_posix_cputimers_work(struct task_struct *p);
+ void posix_cputimers_init_work(void);
+ #else
++static inline void clear_posix_cputimers_work(struct task_struct *p) { }
+ static inline void posix_cputimers_init_work(void) { }
+ #endif
+ 
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2206,6 +2206,7 @@ static __latent_entropy struct task_stru
+ 	p->pdeath_signal = 0;
+ 	INIT_LIST_HEAD(&p->thread_group);
+ 	p->task_works = NULL;
++	clear_posix_cputimers_work(p);
+ 
+ #ifdef CONFIG_KRETPROBES
+ 	p->kretprobe_instances.first = NULL;
+--- a/kernel/time/posix-cpu-timers.c
++++ b/kernel/time/posix-cpu-timers.c
+@@ -1101,13 +1101,28 @@ static void posix_cpu_timers_work(struct
+ }
+ 
+ /*
++ * Clear existing posix CPU timers task work.
++ */
++void clear_posix_cputimers_work(struct task_struct *p)
++{
++	/*
++	 * A copied work entry from the old task is not meaningful, clear it.
++	 * N.B. init_task_work will not do this.
++	 */
++	memset(&p->posix_cputimers_work.work, 0,
++	       sizeof(p->posix_cputimers_work.work));
++	init_task_work(&p->posix_cputimers_work.work,
++		       posix_cpu_timers_work);
++	p->posix_cputimers_work.scheduled = false;
++}
++
++/*
+  * Initialize posix CPU timers task work in init task. Out of line to
+  * keep the callback static and to avoid header recursion hell.
+  */
+ void __init posix_cputimers_init_work(void)
+ {
+-	init_task_work(&current->posix_cputimers_work.work,
+-		       posix_cpu_timers_work);
++	clear_posix_cputimers_work(current);
+ }
+ 
+ /*
 
 
