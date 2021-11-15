@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81F294510D3
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:52:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2245450D59
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:52:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243208AbhKOSzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:55:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55780 "EHLO mail.kernel.org"
+        id S238705AbhKORyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:54:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238115AbhKOSw1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:52:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D1F4633BC;
-        Mon, 15 Nov 2021 18:09:55 +0000 (UTC)
+        id S238909AbhKORwo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:52:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 118B263271;
+        Mon, 15 Nov 2021 17:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999795;
-        bh=bn4B1iqs03nAu6fHpUSJchaPq3RWde9Xjd6oUJ4oq5E=;
+        s=korg; t=1636997540;
+        bh=M7KYK+ahIYqjZZQ2s8fXRzsF0bFxQUrv/kfEICO4qMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ozOVHkpMQeosjzvVCQdaFVEwD/HXnz8fvcFiyxXxtpZQVYmgGfPd+aDvpBoAjxrjg
-         7kgqacN56h1hWYIx9otH76R8wuw8fceQLePPmOf1S2ktIFxK2G/FMF8bNdO0a5Tltu
-         O8hyLYaTz+rEFJ9hgLxvkKLPBX5bIU2LXKF2DeB4=
+        b=Uz1fXVPaNW5mXflpV8+W6JC73BZTocmDQFT40/evEGcRFs4oDTEpdzjW/4TdOlMkL
+         WdiUtFn5AF/K38ap9MTP7cqCoge1dKKgpQhrsk+JzQu+bZ2X4DhGUlfZ2+PIn6IvSd
+         2nc0XuDITZ0mWYAfvnTkUFcplufh8IKhXFsjI0GM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 394/849] media: cx23885: Fix snd_card_free call on null card pointer
-Date:   Mon, 15 Nov 2021 17:57:57 +0100
-Message-Id: <20211115165433.571750919@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.10 153/575] pinctrl: core: fix possible memory leak in pinctrl_enable()
+Date:   Mon, 15 Nov 2021 17:57:58 +0100
+Message-Id: <20211115165348.991021662@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 7266dda2f1dfe151b12ef0c14eb4d4e622fb211c ]
+commit c7892ae13e461ed20154321eb792e07ebe38f5b3 upstream.
 
-Currently a call to snd_card_new that fails will set card with a NULL
-pointer, this causes a null pointer dereference on the error cleanup
-path when card it passed to snd_card_free. Fix this by adding a new
-error exit path that does not call snd_card_free and exiting via this
-new path.
+I got memory leak as follows when doing fault injection test:
 
-Addresses-Coverity: ("Explicit null dereference")
+unreferenced object 0xffff888020a7a680 (size 64):
+  comm "i2c-mcp23018-41", pid 23090, jiffies 4295160544 (age 8.680s)
+  hex dump (first 32 bytes):
+    00 48 d3 1e 80 88 ff ff 00 1a 56 c1 ff ff ff ff  .H........V.....
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000083c79b35>] kmem_cache_alloc_trace+0x16d/0x360
+    [<0000000051803c95>] pinctrl_init_controller+0x6ed/0xb70
+    [<0000000064346707>] pinctrl_register+0x27/0x80
+    [<0000000029b0e186>] devm_pinctrl_register+0x5b/0xe0
+    [<00000000391f5a3e>] mcp23s08_probe_one+0x968/0x118a [pinctrl_mcp23s08]
+    [<000000006112c039>] mcp230xx_probe+0x266/0x560 [pinctrl_mcp23s08_i2c]
 
-Fixes: 9e44d63246a9 ("[media] cx23885: Add ALSA support")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If pinctrl_claim_hogs() fails, the 'pindesc' allocated in pinctrl_register_one_pin()
+need be freed.
+
+Cc: stable@vger.kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 950b0d91dc10 ("pinctrl: core: Fix regression caused by delayed work for hogs")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20211022014323.1156924-1-yangyingliang@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/pci/cx23885/cx23885-alsa.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pinctrl/core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/pci/cx23885/cx23885-alsa.c b/drivers/media/pci/cx23885/cx23885-alsa.c
-index ab14d35214aa8..25dc8d4dc5b73 100644
---- a/drivers/media/pci/cx23885/cx23885-alsa.c
-+++ b/drivers/media/pci/cx23885/cx23885-alsa.c
-@@ -550,7 +550,7 @@ struct cx23885_audio_dev *cx23885_audio_register(struct cx23885_dev *dev)
- 			   SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
- 			THIS_MODULE, sizeof(struct cx23885_audio_dev), &card);
- 	if (err < 0)
--		goto error;
-+		goto error_msg;
+--- a/drivers/pinctrl/core.c
++++ b/drivers/pinctrl/core.c
+@@ -2077,6 +2077,8 @@ int pinctrl_enable(struct pinctrl_dev *p
+ 	if (error) {
+ 		dev_err(pctldev->dev, "could not claim hogs: %i\n",
+ 			error);
++		pinctrl_free_pindescs(pctldev, pctldev->desc->pins,
++				      pctldev->desc->npins);
+ 		mutex_destroy(&pctldev->mutex);
+ 		kfree(pctldev);
  
- 	chip = (struct cx23885_audio_dev *) card->private_data;
- 	chip->dev = dev;
-@@ -576,6 +576,7 @@ struct cx23885_audio_dev *cx23885_audio_register(struct cx23885_dev *dev)
- 
- error:
- 	snd_card_free(card);
-+error_msg:
- 	pr_err("%s(): Failed to register analog audio adapter\n",
- 	       __func__);
- 
--- 
-2.33.0
-
 
 
