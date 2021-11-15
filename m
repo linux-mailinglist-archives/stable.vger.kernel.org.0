@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2702A4522A5
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:13:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EB2B452664
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345214AbhKPBPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:15:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42976 "EHLO mail.kernel.org"
+        id S1346676AbhKPCFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:05:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244245AbhKOTMO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:12:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 642356331F;
-        Mon, 15 Nov 2021 18:19:48 +0000 (UTC)
+        id S239948AbhKOSFM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 383B86336A;
+        Mon, 15 Nov 2021 17:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000389;
-        bh=g84It8D/XAF80OxbteF4BhzVeqgVoB790lpQqdEBBtU=;
+        s=korg; t=1636998047;
+        bh=Ft5spIUE9njj7hiEe3Zznwr1C/bl1i6GG9RYr9kwZhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w/f5ckYdqJPPGm5I+WyIutmpqToIhhKNCQ+L9ptR70M9hwBeSkVLhhT4NE3TlvjRm
-         VdfeLHUlX0Dzj+P7AzviKHnpt418RQrB01yrBG8Cqa/8cbfVjpUPyHVdjPDhWRrlv7
-         dLWSBrDCduZ9qBlpNO6gFdllUm6qVd7qTxsyIF8k=
+        b=CUxRmN8WqKIZl9jrB1kymBvjIkjTrNWcCgX3MZ/zmaoQu4NG0vGbCXajULk0V6i4N
+         z7RkO3m2yEi4eODiQG4nqd4eq3Tpnb10dPE9lQwE7+P0nTsAXsciWAX1WBVMKWuFx3
+         pi1K4E83kEHBocuwVPVI/TZlmcA4oWORP5lhtcWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 610/849] pinctrl: renesas: checker: Fix off-by-one bug in drive register check
-Date:   Mon, 15 Nov 2021 18:01:33 +0100
-Message-Id: <20211115165440.881207583@linuxfoundation.org>
+Subject: [PATCH 5.10 369/575] libertas: Fix possible memory leak in probe and disconnect
+Date:   Mon, 15 Nov 2021 18:01:34 +0100
+Message-Id: <20211115165356.556068130@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 28e7f8ff90583791a034d43b5d2e3fe394142e13 ]
+[ Upstream commit 9692151e2fe7a326bafe99836fd1f20a2cc3a049 ]
 
-The GENMASK(h, l) macro creates a contiguous bitmask starting at bit
-position @l and ending at position @h, inclusive.
+I got memory leak as follows when doing fault injection test:
 
-This did not trigger any error checks, as the individual register fields
-cover at most 3 of the 4 available bits.
+unreferenced object 0xffff88812c7d7400 (size 512):
+  comm "kworker/6:1", pid 176, jiffies 4295003332 (age 822.830s)
+  hex dump (first 32 bytes):
+    00 68 1e 04 81 88 ff ff 01 00 00 00 00 00 00 00  .h..............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
+    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
+    [<ffffffffa02c9873>] if_usb_probe+0x63/0x446 [usb8xxx]
+    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
+    [<ffffffff82b59630>] really_probe+0x190/0x480
+    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
+    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
+    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
+    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
+    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
+    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
+    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
+    [<ffffffff82b52e49>] device_add+0x829/0x1300
+    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
+    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
+    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
 
-Fixes: 08df16e07ad0a1ec ("pinctrl: sh-pfc: checker: Add drive strength register checks")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/8f82d6147fbe3367d4c83962480e97f58d9c96a2.1633615652.git.geert+renesas@glider.be
+cardp is missing being freed in the error handling path of the probe
+and the path of the disconnect, which will cause memory leak.
+
+This patch adds the missing kfree().
+
+Fixes: 876c9d3aeb98 ("[PATCH] Marvell Libertas 8388 802.11b/g USB driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211020120345.2016045-3-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/renesas/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/marvell/libertas/if_usb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/renesas/core.c b/drivers/pinctrl/renesas/core.c
-index 5ccc49b387f17..77d1dc0f5b9ba 100644
---- a/drivers/pinctrl/renesas/core.c
-+++ b/drivers/pinctrl/renesas/core.c
-@@ -886,7 +886,7 @@ static void __init sh_pfc_check_drive_reg(const struct sh_pfc_soc_info *info,
- 		if (!field->pin && !field->offset && !field->size)
- 			continue;
+diff --git a/drivers/net/wireless/marvell/libertas/if_usb.c b/drivers/net/wireless/marvell/libertas/if_usb.c
+index 20436a289d5cd..5d6dc1dd050d4 100644
+--- a/drivers/net/wireless/marvell/libertas/if_usb.c
++++ b/drivers/net/wireless/marvell/libertas/if_usb.c
+@@ -292,6 +292,7 @@ err_add_card:
+ 	if_usb_reset_device(cardp);
+ dealloc:
+ 	if_usb_free(cardp);
++	kfree(cardp);
  
--		mask = GENMASK(field->offset + field->size, field->offset);
-+		mask = GENMASK(field->offset + field->size - 1, field->offset);
- 		if (mask & seen)
- 			sh_pfc_err("drive_reg 0x%x: field %u overlap\n",
- 				   drive->reg, i);
+ error:
+ 	return r;
+@@ -316,6 +317,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
+ 
+ 	/* Unlink and free urb */
+ 	if_usb_free(cardp);
++	kfree(cardp);
+ 
+ 	usb_set_intfdata(intf, NULL);
+ 	usb_put_dev(interface_to_usbdev(intf));
 -- 
 2.33.0
 
