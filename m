@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 657CD4524A7
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:38:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A37E14521B2
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:03:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347224AbhKPBk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:40:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36388 "EHLO mail.kernel.org"
+        id S244680AbhKPBG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:06:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241537AbhKOS0P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:26:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CDB363331;
-        Mon, 15 Nov 2021 17:56:42 +0000 (UTC)
+        id S245426AbhKOTUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6E8A6346B;
+        Mon, 15 Nov 2021 18:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999002;
-        bh=D3v0+mxK57xKnC0wg3ABahybZT2joCCHOzqiptJBP1s=;
+        s=korg; t=1637001276;
+        bh=a0sG9Dye3TkYPeQ6W3PtCNFjLTt9hYCZ3pfbdMXBkBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jekgtaUU6584xxn3Lmvw+0dZyif7U4IPGbgtF1OrMIWXBGG8pzFnoR/Qq6Rybs5hp
-         xoXjD/tn42hhmibvQOvDhkNOwFtYuzepRDIErFLE456Tvk+T8IFonuiBlfSjLXuRzQ
-         HG2Hn9VJSe/w9SqNlSiX+iKzMmAA5W4AGgT1iKRo=
+        b=t4f/4n5H6BMLzW6uGr0imkbAH0CP99no57rmCVfLWFqR1MyXCmnUE2yrmHPIAdQ2I
+         gHsbH8h47GQVrvqOiiCBEReUQKiqXqGO3RUNh9/eJN5CZiNe6NCs6v/bd3e1kWFFTL
+         gze7Aaq9P7D7RK9tlX2yv1uDRBeWmfBvP7AY517w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Stutte <jens@chianterastutte.eu>,
-        Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Song Liu <songliubraving@fb.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.14 107/849] md/raid1: only allocate write behind bio for WriteMostly device
-Date:   Mon, 15 Nov 2021 17:53:10 +0100
-Message-Id: <20211115165423.703470937@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Subject: [PATCH 5.15 096/917] dma-buf: fix and rework dma_buf_poll v7
+Date:   Mon, 15 Nov 2021 17:53:11 +0100
+Message-Id: <20211115165431.999054823@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +41,269 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@linux.dev>
+From: Christian König <christian.koenig@amd.com>
 
-commit fd3b6975e9c11c4fa00965f82a0bfbb3b7b44101 upstream.
+commit 6b51b02a3a0ac49dfe302818d0746a799545e4e9 upstream.
 
-Commit 6607cd319b6b91bff94e90f798a61c031650b514 ("raid1: ensure write
-behind bio has less than BIO_MAX_VECS sectors") tried to guarantee the
-size of behind bio is not bigger than BIO_MAX_VECS sectors.
+Daniel pointed me towards this function and there are multiple obvious problems
+in the implementation.
 
-Unfortunately the same calltrace still could happen since an array could
-enable write-behind without write mostly device.
+First of all the retry loop is not working as intended. In general the retry
+makes only sense if you grab the reference first and then check the sequence
+values.
 
-To match the manpage of mdadm (which says "write-behind is only attempted
-on drives marked as write-mostly"), we need to check WriteMostly flag to
-avoid such unexpected behavior.
+Then we should always also wait for the exclusive fence.
 
-[1]. https://bugzilla.kernel.org/show_bug.cgi?id=213181#c25
+It's also good practice to keep the reference around when installing callbacks
+to fences you don't own.
 
-Cc: stable@vger.kernel.org # v5.12+
-Cc: Jens Stutte <jens@chianterastutte.eu>
-Reported-by: Jens Stutte <jens@chianterastutte.eu>
-Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+And last the whole implementation was unnecessary complex and rather hard to
+understand which could lead to probably unexpected behavior of the IOCTL.
+
+Fix all this by reworking the implementation from scratch. Dropping the
+whole RCU approach and taking the lock instead.
+
+Only mildly tested and needs a thoughtful review of the code.
+
+Pushing through drm-misc-next to avoid merge conflicts and give the code
+another round of testing.
+
+v2: fix the reference counting as well
+v3: keep the excl fence handling as is for stable
+v4: back to testing all fences, drop RCU
+v5: handle in and out separately
+v6: add missing clear of events
+v7: change coding style as suggested by Michel, drop unused variables
+
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Tested-by: Michel Dänzer <mdaenzer@redhat.com>
+CC: stable@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20210720131110.88512-1-christian.koenig@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/raid1.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma-buf/dma-buf.c |  152 +++++++++++++++++++++-------------------------
+ include/linux/dma-buf.h   |    2 
+ 2 files changed, 71 insertions(+), 83 deletions(-)
 
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -1496,7 +1496,7 @@ static void raid1_write_request(struct m
- 		if (!r1_bio->bios[i])
- 			continue;
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -74,7 +74,7 @@ static void dma_buf_release(struct dentr
+ 	 * If you hit this BUG() it means someone dropped their ref to the
+ 	 * dma-buf while still having pending operation to the buffer.
+ 	 */
+-	BUG_ON(dmabuf->cb_shared.active || dmabuf->cb_excl.active);
++	BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
  
--		if (first_clone) {
-+		if (first_clone && test_bit(WriteMostly, &rdev->flags)) {
- 			/* do behind I/O ?
- 			 * Not if there are too many, or cannot
- 			 * allocate memory, or a reader on WriteMostly
+ 	dma_buf_stats_teardown(dmabuf);
+ 	dmabuf->ops->release(dmabuf);
+@@ -205,16 +205,55 @@ static void dma_buf_poll_cb(struct dma_f
+ 	wake_up_locked_poll(dcb->poll, dcb->active);
+ 	dcb->active = 0;
+ 	spin_unlock_irqrestore(&dcb->poll->lock, flags);
++	dma_fence_put(fence);
++}
++
++static bool dma_buf_poll_shared(struct dma_resv *resv,
++				struct dma_buf_poll_cb_t *dcb)
++{
++	struct dma_resv_list *fobj = dma_resv_shared_list(resv);
++	struct dma_fence *fence;
++	int i, r;
++
++	if (!fobj)
++		return false;
++
++	for (i = 0; i < fobj->shared_count; ++i) {
++		fence = rcu_dereference_protected(fobj->shared[i],
++						  dma_resv_held(resv));
++		dma_fence_get(fence);
++		r = dma_fence_add_callback(fence, &dcb->cb, dma_buf_poll_cb);
++		if (!r)
++			return true;
++		dma_fence_put(fence);
++	}
++
++	return false;
++}
++
++static bool dma_buf_poll_excl(struct dma_resv *resv,
++			      struct dma_buf_poll_cb_t *dcb)
++{
++	struct dma_fence *fence = dma_resv_excl_fence(resv);
++	int r;
++
++	if (!fence)
++		return false;
++
++	dma_fence_get(fence);
++	r = dma_fence_add_callback(fence, &dcb->cb, dma_buf_poll_cb);
++	if (!r)
++		return true;
++	dma_fence_put(fence);
++
++	return false;
+ }
+ 
+ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
+ {
+ 	struct dma_buf *dmabuf;
+ 	struct dma_resv *resv;
+-	struct dma_resv_list *fobj;
+-	struct dma_fence *fence_excl;
+ 	__poll_t events;
+-	unsigned shared_count, seq;
+ 
+ 	dmabuf = file->private_data;
+ 	if (!dmabuf || !dmabuf->resv)
+@@ -228,101 +267,50 @@ static __poll_t dma_buf_poll(struct file
+ 	if (!events)
+ 		return 0;
+ 
+-retry:
+-	seq = read_seqcount_begin(&resv->seq);
+-	rcu_read_lock();
+-
+-	fobj = rcu_dereference(resv->fence);
+-	if (fobj)
+-		shared_count = fobj->shared_count;
+-	else
+-		shared_count = 0;
+-	fence_excl = dma_resv_excl_fence(resv);
+-	if (read_seqcount_retry(&resv->seq, seq)) {
+-		rcu_read_unlock();
+-		goto retry;
+-	}
+-
+-	if (fence_excl && (!(events & EPOLLOUT) || shared_count == 0)) {
+-		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_excl;
+-		__poll_t pevents = EPOLLIN;
++	dma_resv_lock(resv, NULL);
+ 
+-		if (shared_count == 0)
+-			pevents |= EPOLLOUT;
++	if (events & EPOLLOUT) {
++		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_out;
+ 
++		/* Check that callback isn't busy */
+ 		spin_lock_irq(&dmabuf->poll.lock);
+-		if (dcb->active) {
+-			dcb->active |= pevents;
+-			events &= ~pevents;
+-		} else
+-			dcb->active = pevents;
++		if (dcb->active)
++			events &= ~EPOLLOUT;
++		else
++			dcb->active = EPOLLOUT;
+ 		spin_unlock_irq(&dmabuf->poll.lock);
+ 
+-		if (events & pevents) {
+-			if (!dma_fence_get_rcu(fence_excl)) {
+-				/* force a recheck */
+-				events &= ~pevents;
++		if (events & EPOLLOUT) {
++			if (!dma_buf_poll_shared(resv, dcb) &&
++			    !dma_buf_poll_excl(resv, dcb))
++				/* No callback queued, wake up any other waiters */
+ 				dma_buf_poll_cb(NULL, &dcb->cb);
+-			} else if (!dma_fence_add_callback(fence_excl, &dcb->cb,
+-							   dma_buf_poll_cb)) {
+-				events &= ~pevents;
+-				dma_fence_put(fence_excl);
+-			} else {
+-				/*
+-				 * No callback queued, wake up any additional
+-				 * waiters.
+-				 */
+-				dma_fence_put(fence_excl);
+-				dma_buf_poll_cb(NULL, &dcb->cb);
+-			}
++			else
++				events &= ~EPOLLOUT;
+ 		}
+ 	}
+ 
+-	if ((events & EPOLLOUT) && shared_count > 0) {
+-		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_shared;
+-		int i;
++	if (events & EPOLLIN) {
++		struct dma_buf_poll_cb_t *dcb = &dmabuf->cb_in;
+ 
+-		/* Only queue a new callback if no event has fired yet */
++		/* Check that callback isn't busy */
+ 		spin_lock_irq(&dmabuf->poll.lock);
+ 		if (dcb->active)
+-			events &= ~EPOLLOUT;
++			events &= ~EPOLLIN;
+ 		else
+-			dcb->active = EPOLLOUT;
++			dcb->active = EPOLLIN;
+ 		spin_unlock_irq(&dmabuf->poll.lock);
+ 
+-		if (!(events & EPOLLOUT))
+-			goto out;
+-
+-		for (i = 0; i < shared_count; ++i) {
+-			struct dma_fence *fence = rcu_dereference(fobj->shared[i]);
+-
+-			if (!dma_fence_get_rcu(fence)) {
+-				/*
+-				 * fence refcount dropped to zero, this means
+-				 * that fobj has been freed
+-				 *
+-				 * call dma_buf_poll_cb and force a recheck!
+-				 */
+-				events &= ~EPOLLOUT;
++		if (events & EPOLLIN) {
++			if (!dma_buf_poll_excl(resv, dcb))
++				/* No callback queued, wake up any other waiters */
+ 				dma_buf_poll_cb(NULL, &dcb->cb);
+-				break;
+-			}
+-			if (!dma_fence_add_callback(fence, &dcb->cb,
+-						    dma_buf_poll_cb)) {
+-				dma_fence_put(fence);
+-				events &= ~EPOLLOUT;
+-				break;
+-			}
+-			dma_fence_put(fence);
++			else
++				events &= ~EPOLLIN;
+ 		}
+-
+-		/* No callback queued, wake up any additional waiters. */
+-		if (i == shared_count)
+-			dma_buf_poll_cb(NULL, &dcb->cb);
+ 	}
+ 
+-out:
+-	rcu_read_unlock();
++	dma_resv_unlock(resv);
+ 	return events;
+ }
+ 
+@@ -565,8 +553,8 @@ struct dma_buf *dma_buf_export(const str
+ 	dmabuf->owner = exp_info->owner;
+ 	spin_lock_init(&dmabuf->name_lock);
+ 	init_waitqueue_head(&dmabuf->poll);
+-	dmabuf->cb_excl.poll = dmabuf->cb_shared.poll = &dmabuf->poll;
+-	dmabuf->cb_excl.active = dmabuf->cb_shared.active = 0;
++	dmabuf->cb_in.poll = dmabuf->cb_out.poll = &dmabuf->poll;
++	dmabuf->cb_in.active = dmabuf->cb_out.active = 0;
+ 
+ 	if (!resv) {
+ 		resv = (struct dma_resv *)&dmabuf[1];
+--- a/include/linux/dma-buf.h
++++ b/include/linux/dma-buf.h
+@@ -433,7 +433,7 @@ struct dma_buf {
+ 		wait_queue_head_t *poll;
+ 
+ 		__poll_t active;
+-	} cb_excl, cb_shared;
++	} cb_in, cb_out;
+ #ifdef CONFIG_DMABUF_SYSFS_STATS
+ 	/**
+ 	 * @sysfs_entry:
 
 
