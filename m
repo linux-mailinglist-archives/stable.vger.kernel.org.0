@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21640451379
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C34AE451388
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348288AbhKOTve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:51:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
+        id S1348376AbhKOTwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:52:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343631AbhKOTVc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343636AbhKOTVc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96AD9635C6;
-        Mon, 15 Nov 2021 18:43:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44ED463364;
+        Mon, 15 Nov 2021 18:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001818;
-        bh=f1xlnui6Zdw2CS6W6CHlEOfYUMbrtAY+zN3e7S5p3ew=;
+        s=korg; t=1637001820;
+        bh=l7IbL0SCAf5kl9Zwvubb+PMWofpQ2xz7GEE4JfWaloU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ECwwS8bdkJSOXGLDchqBrKp7avWX9CliMvvtgLsh47SdkT/eIDxaAkhTLaYE1iKIx
-         qQ779DjuCJAyqaHTAmOXpgPRbSSv3E2jfraqRhpipn74I5AVYBD5n6rrf1ZEXWp3wP
-         mqIDlyCJ7Ciw8yxDYNCJ3hpbgZysBd2YBITsT5kw=
+        b=yoBQMYqSIUBc0B3oesQ52iN6csDT5eee6ohonyoQt9EGTN49xnQzGIcQ+YlCaJfEz
+         ycf1BO5li8MUc7ws/NT++2G95AFAujadmUip6A4b/LEZywqkfE8EiTfyd26njJ6qSl
+         yJr9t/68ukz6mgDYYdW26RgTYs6hSTCCiC1kLDgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neeraj Upadhyay <neeraju@codeaurora.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 332/917] rcu: Fix existing exp request check in sync_sched_exp_online_cleanup()
-Date:   Mon, 15 Nov 2021 17:57:07 +0100
-Message-Id: <20211115165440.014619674@linuxfoundation.org>
+Subject: [PATCH 5.15 333/917] MIPS: lantiq: dma: fix burst length for DEU
+Date:   Mon, 15 Nov 2021 17:57:08 +0100
+Message-Id: <20211115165440.053786402@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,42 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neeraj Upadhyay <neeraju@codeaurora.org>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit f0b2b2df5423fb369ac762c77900bc7765496d58 ]
+[ Upstream commit 5ad74d39c51dd41b3c819f4f5396655f0629b4fd ]
 
-The sync_sched_exp_online_cleanup() checks to see if RCU needs
-an expedited quiescent state from the incoming CPU, sending it
-an IPI if so. Before sending IPI, it checks whether expedited
-qs need has been already requested for the incoming CPU, by
-checking rcu_data.cpu_no_qs.b.exp for the current cpu, on which
-sync_sched_exp_online_cleanup() is running. This works for the
-case where incoming CPU is same as self. However, for the case
-where incoming CPU is different from self, expedited request
-won't get marked, which can potentially delay reporting of
-expedited quiescent state for the incoming CPU.
+The current definition of 2W burst length is invalid.
+This patch fixes it. Current downstream DEU driver doesn't
+use DMA. An incorrect burst length value doesn't cause any
+errors. This patch also adds other burst length values.
 
-Fixes: e015a3411220 ("rcu: Avoid self-IPI in sync_sched_exp_online_cleanup()")
-Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: dfec1a827d2b ("MIPS: Lantiq: Add DMA support")
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_exp.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/lantiq/xway/dma.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
-index 2796084ef85a5..454b516ea566e 100644
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -760,7 +760,7 @@ static void sync_sched_exp_online_cleanup(int cpu)
- 	my_cpu = get_cpu();
- 	/* Quiescent state either not needed or already requested, leave. */
- 	if (!(READ_ONCE(rnp->expmask) & rdp->grpmask) ||
--	    __this_cpu_read(rcu_data.cpu_no_qs.b.exp)) {
-+	    rdp->cpu_no_qs.b.exp) {
- 		put_cpu();
- 		return;
- 	}
+diff --git a/arch/mips/lantiq/xway/dma.c b/arch/mips/lantiq/xway/dma.c
+index 364ab39eb8a41..53fcc672a2944 100644
+--- a/arch/mips/lantiq/xway/dma.c
++++ b/arch/mips/lantiq/xway/dma.c
+@@ -41,7 +41,11 @@
+ #define DMA_IRQ_ACK		0x7e		/* IRQ status register */
+ #define DMA_POLL		BIT(31)		/* turn on channel polling */
+ #define DMA_CLK_DIV4		BIT(6)		/* polling clock divider */
+-#define DMA_2W_BURST		BIT(1)		/* 2 word burst length */
++#define DMA_PCTRL_2W_BURST	0x1		/* 2 word burst length */
++#define DMA_PCTRL_4W_BURST	0x2		/* 4 word burst length */
++#define DMA_PCTRL_8W_BURST	0x3		/* 8 word burst length */
++#define DMA_TX_BURST_SHIFT	4		/* tx burst shift */
++#define DMA_RX_BURST_SHIFT	2		/* rx burst shift */
+ #define DMA_ETOP_ENDIANNESS	(0xf << 8) /* endianness swap etop channels */
+ #define DMA_WEIGHT	(BIT(17) | BIT(16))	/* default channel wheight */
+ 
+@@ -192,7 +196,8 @@ ltq_dma_init_port(int p)
+ 		break;
+ 
+ 	case DMA_PORT_DEU:
+-		ltq_dma_w32((DMA_2W_BURST << 4) | (DMA_2W_BURST << 2),
++		ltq_dma_w32((DMA_PCTRL_2W_BURST << DMA_TX_BURST_SHIFT) |
++			(DMA_PCTRL_2W_BURST << DMA_RX_BURST_SHIFT),
+ 			LTQ_DMA_PCTRL);
+ 		break;
+ 
 -- 
 2.33.0
 
