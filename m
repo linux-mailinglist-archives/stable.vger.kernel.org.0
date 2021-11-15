@@ -2,110 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E00345091E
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 17:02:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F212E45095C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 17:16:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236420AbhKOQFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 11:05:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49148 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232263AbhKOQFJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 11:05:09 -0500
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A5B5C061746
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 08:02:13 -0800 (PST)
-Received: by mail-pg1-x534.google.com with SMTP id p17so14955902pgj.2
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 08:02:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=tivrXntTWIbCkVzZC4y1HIyO4FqKtX6bYEAzYxt9B4c=;
-        b=oWCc1n4tm5zCJxae3xkGIvL4qNO5jJQK2PhsxaekoUCUdhsyS7fg9L2yaSfdbujV6o
-         Nxst2ng8GqpnJQDUI63bIJ9xF+qaMBDWS8GZZ6aPcOTldEZM5rehKQwQnphbJz2UsHyt
-         VEiEBBs85fhJgJd4r6lseabO8YMZjqRaKncMOBiOVwBIu1Mujam77+cBPU1X303T/eNA
-         f4jYM1hLklyJnwCD4BJBnhFX1rkPuAGRZkO/m4okbBL/i6/JnjpAP82/ZWWkSfaFR+xY
-         r1NWO0EsdOZt6G/ek3HGZRAaKGon42iM9vQaiXnB8LBn52A3DXSZYYIzW1UCu3zHOHp0
-         GLBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=tivrXntTWIbCkVzZC4y1HIyO4FqKtX6bYEAzYxt9B4c=;
-        b=x0/hXX6muUBrzNHhUt+vQB96Yr7WE+U72ckomIErM4vYpFGyUC7fWNxiB2HMMy5/AU
-         50Pw2IG1To/xfZ15nBCfKjhq6JGizleh9CrCNv5BXyoLYY6pTSbtGkzG7Yo5ESvZzeEn
-         8Ek1oFjBrOe1N3gD9J+sJNwSmaTmSjZ2/dvLvJ9d5VLt32nG5kPFFM6wgN2/PKXVuAEY
-         tHeHS9UH1h8jujhHmCut4Q95eHw/1jc4fZbby4OjgSuhXiFQu1zaE7MsU7UhTFaTQaaY
-         yFsksRlaM2umP+GpJjLBjdpELZ26eaCfwBN45TxGqPp0hUs4eYCb3Nw5by9qerlwkS/w
-         ZGpA==
-X-Gm-Message-State: AOAM532mtJ40uyc1w+u2zA5/pNtFGP2ZHC74yEmND4x32aMCa4HH79TO
-        C3JM0Lk7i2lzdySWYanfF6s+wCjXTAp5xBOz
-X-Google-Smtp-Source: ABdhPJzwcqJ6KzoH1s6JCM7i7hqtm/wv2VNT0LxCOTZuK4dKTRSpry+DXx0j2CMmYHa146COp1uoBw==
-X-Received: by 2002:a63:bf45:: with SMTP id i5mr25148151pgo.161.1636992133191;
-        Mon, 15 Nov 2021 08:02:13 -0800 (PST)
-Received: from localhost.localdomain ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id o2sm16331383pfu.206.2021.11.15.08.02.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Nov 2021 08:02:12 -0800 (PST)
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-To:     davem@davemloft.net
-Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Jon Maloy <jmaloy@redhat.com>,
-        Ying Xue <ying.xue@windriver.com>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        tipc-discussion@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dmitry Vyukov <dvyukov@google.com>
-Subject: [PATCH v2] tipc: check for null after calling kmemdup
-Date:   Mon, 15 Nov 2021 08:01:43 -0800
-Message-Id: <20211115160143.5099-1-tadeusz.struk@linaro.org>
-X-Mailer: git-send-email 2.33.1
+        id S231542AbhKOQTi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 11:19:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34534 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232236AbhKOQT2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 11:19:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82C5460F26;
+        Mon, 15 Nov 2021 16:16:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1636992993;
+        bh=7e+9rZ/xDzKrRii7qIt/dyC4yXmh91QvEb5sm2/oQNU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hX1CLeprqyMN+jI59EhRvbvIVJMDpVFz/sYwmke0uQ8sN3npUqM2fA330uC8D7cL5
+         bbMNGb4wRYow8jyFB5iiMdM3NE3ZupXUGtXIIDCDdi9uJCe8+4tqmPkoGiLfEzp2ls
+         TWJpDjHYG3RnqC6MKwsmP7qcf6WwfCdvpBo+pqpg=
+Date:   Mon, 15 Nov 2021 17:16:30 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Deucher, Alexander" <Alexander.Deucher@amd.com>
+Subject: Re: [PATCH v2] drm/amd/display: Look at firmware version to
+ determine using dmub on dcn21
+Message-ID: <YZKH3m3znx7FmnDJ@kroah.com>
+References: <20211115153655.4870-1-mario.limonciello@amd.com>
+ <YZKAs1rxuonK64kN@kroah.com>
+ <SA0PR12MB4510EB1DC98B5156F8FCAFA8E2989@SA0PR12MB4510.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <SA0PR12MB4510EB1DC98B5156F8FCAFA8E2989@SA0PR12MB4510.namprd12.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-kmemdup can return a null pointer so need to check for it, otherwise
-the null key will be dereferenced later in tipc_crypto_key_xmit as
-can be seen in the trace [1].
+On Mon, Nov 15, 2021 at 03:47:24PM +0000, Limonciello, Mario wrote:
+> [AMD Official Use Only]
+> 
+> > -----Original Message-----
+> > From: Greg KH <gregkh@linuxfoundation.org>
+> > Sent: Monday, November 15, 2021 09:46
+> > To: Limonciello, Mario <Mario.Limonciello@amd.com>
+> > Cc: stable@vger.kernel.org; Deucher, Alexander
+> > <Alexander.Deucher@amd.com>
+> > Subject: Re: [PATCH v2] drm/amd/display: Look at firmware version to
+> > determine using dmub on dcn21
+> > 
+> > On Mon, Nov 15, 2021 at 09:36:55AM -0600, Mario Limonciello wrote:
+> > > commit 91adec9e0709 ("drm/amd/display: Look at firmware version to
+> > > determine using dmub on dcn21")
+> > >
+> > > Newer DMUB firmware on Renoir and Green Sardine do not need to
+> > disable
+> > > dmcu and this actually causes problems with DP-C alt mode for a number of
+> > > machines.
+> > >
+> > > Backport the fix from this from hand modified backport because mainline
+> > > switched to IP version checking which doesn't exist in linux-stable.
+> > >
+> > > BugLink:
+> > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgitla
+> > b.freedesktop.org%2Fdrm%2Famd%2F-
+> > %2Fissues%2F1772&amp;data=04%7C01%7Cmario.limonciello%40amd.com%
+> > 7C6601c50631344fa7148208d9a84f050a%7C3dd8961fe4884e608e11a82d994e1
+> > 83d%7C0%7C0%7C637725879609631767%7CUnknown%7CTWFpbGZsb3d8eyJ
+> > WIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%
+> > 7C3000&amp;sdata=jIGJARLqpAL6Vc6AyK8qVj1yZ7qFm5sXFj%2FerhoMEUc
+> > %3D&amp;reserved=0
+> > > BugLink:
+> > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgitla
+> > b.freedesktop.org%2Fdrm%2Famd%2F-
+> > %2Fissues%2F1735&amp;data=04%7C01%7Cmario.limonciello%40amd.com%
+> > 7C6601c50631344fa7148208d9a84f050a%7C3dd8961fe4884e608e11a82d994e1
+> > 83d%7C0%7C0%7C637725879609631767%7CUnknown%7CTWFpbGZsb3d8eyJ
+> > WIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%
+> > 7C3000&amp;sdata=t8iG0MlBgncmZ5Py%2FhWuWBHMbSCCK%2BtFTV4faxcl
+> > N3c%3D&amp;reserved=0
+> > > Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+> > > Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+> > > ---
+> > > Changes from v1->v2:
+> > >  * Update commit message syntax for hand modified commit
+> > >  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 9 ++++++++-
+> > >  1 file changed, 8 insertions(+), 1 deletion(-)
+> > 
+> > What tree(s) are you wanting this backported to?
+> 
+> 5.13+
 
-Cc: Jon Maloy <jmaloy@redhat.com>
-Cc: Ying Xue <ying.xue@windriver.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: tipc-discussion@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # 5.15, 5.14, 5.10
+Now queued up, thanks.
 
-[1] https://syzkaller.appspot.com/bug?id=bca180abb29567b189efdbdb34cbf7ba851c2a58
-
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
----
-Changed in v2:
-- use tipc_aead_free() to free all crytpo tfm instances
-  that might have been allocated before the fail.
----
- net/tipc/crypto.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/net/tipc/crypto.c b/net/tipc/crypto.c
-index dc60c32bb70d..d293614d5fc6 100644
---- a/net/tipc/crypto.c
-+++ b/net/tipc/crypto.c
-@@ -597,6 +597,10 @@ static int tipc_aead_init(struct tipc_aead **aead, struct tipc_aead_key *ukey,
- 	tmp->cloned = NULL;
- 	tmp->authsize = TIPC_AES_GCM_TAG_SIZE;
- 	tmp->key = kmemdup(ukey, tipc_aead_key_size(ukey), GFP_KERNEL);
-+	if (!tmp->key) {
-+		tipc_aead_free(&tmp->rcu);
-+		return -ENOMEM;
-+	}
- 	memcpy(&tmp->salt, ukey->key + keylen, TIPC_AES_GCM_SALT_SIZE);
- 	atomic_set(&tmp->users, 0);
- 	atomic64_set(&tmp->seqno, 0);
--- 
-2.33.1
-
+greg k-h
