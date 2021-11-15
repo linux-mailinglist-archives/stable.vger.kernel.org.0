@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 300A5451386
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F855451384
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348323AbhKOTwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:52:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
+        id S1348318AbhKOTwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:52:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343638AbhKOTVc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343639AbhKOTVc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC6866336F;
-        Mon, 15 Nov 2021 18:43:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5969D61175;
+        Mon, 15 Nov 2021 18:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001826;
-        bh=vnL3S5y3kVeGohaUYqoUZ83bmX+JiOUmFd+jjkjScnE=;
+        s=korg; t=1637001828;
+        bh=rD1Lnm8JyQPC7TaO76H8MUnMWyQalTtxd5XqIYQHdZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j1khuYwxrvLHAGZxLyWBmBsmPa4TZ18jwSi8mp+OAHwDVyRgsiFECfbnEtJhwClC3
-         7PR9EVDI7G7lpPfQa0njS84Zkhk0H9jnhGkdLrJi1tSuYDZ/RXIwuLxbI+TkneMw7J
-         yITg9hLbW/bJ0Pm14Crtt/UJe3BtrdQ2KBbR/rVY=
+        b=fapvaO5WGgS3zmFU4wwTPcVRGe9GBHFZGmVZaTyFarmnqsNH0fMoynRFJolnmj5Bq
+         tSEQksPeD7GeVLP08mjqkwl9gw2xl+GQ+iSXdFt/5Q9T6MDCAd/6TTxR7lnq5AtLse
+         g5gQuZOdEJZwlN7ur48idQyf9toPePdCJmNmllEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Juergen Gross <jgross@suse.com>,
-        Miroslav Benes <mbenes@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 334/917] x86/xen: Mark cpu_bringup_and_idle() as dead_end_function
-Date:   Mon, 15 Nov 2021 17:57:09 +0100
-Message-Id: <20211115165440.083725329@linuxfoundation.org>
+        Marco Elver <elver@google.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 335/917] objtool: Handle __sanitize_cov*() tail calls
+Date:   Mon, 15 Nov 2021 17:57:10 +0100
+Message-Id: <20211115165440.115882461@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -44,43 +42,291 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 9af9dcf11bda3e2c0e24c1acaacb8685ad974e93 ]
+[ Upstream commit f56dae88a81fded66adf2bea9922d1d98d1da14f ]
 
-The asm_cpu_bringup_and_idle() function is required to push the return
-value on the stack in order to make ORC happy, but the only reason
-objtool doesn't complain is because of a happy accident.
+Turns out the compilers also generate tail calls to __sanitize_cov*(),
+make sure to also patch those out in noinstr code.
 
-The thing is that asm_cpu_bringup_and_idle() doesn't return, so
-validate_branch() never terminates and falls through to the next
-function, which in the normal case is the hypercall_page. And that, as
-it happens, is 4095 NOPs and a RET.
-
-Make asm_cpu_bringup_and_idle() terminate on it's own, by making the
-function it calls as a dead-end. This way we no longer rely on what
-code happens to come after.
-
-Fixes: c3881eb58d56 ("x86/xen: Make the secondary CPU idle tasks reliable")
+Fixes: 0f1441b44e82 ("objtool: Fix noinstr vs KCOV")
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Link: https://lore.kernel.org/r/20210624095147.693801717@infradead.org
+Acked-by: Marco Elver <elver@google.com>
+Link: https://lore.kernel.org/r/20210624095147.818783799@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/objtool/arch/x86/decode.c      |  20 ++++
+ tools/objtool/check.c                | 158 ++++++++++++++-------------
+ tools/objtool/include/objtool/arch.h |   1 +
+ 3 files changed, 105 insertions(+), 74 deletions(-)
 
+diff --git a/tools/objtool/arch/x86/decode.c b/tools/objtool/arch/x86/decode.c
+index 0893436cc09f8..77b51600e3e94 100644
+--- a/tools/objtool/arch/x86/decode.c
++++ b/tools/objtool/arch/x86/decode.c
+@@ -659,6 +659,26 @@ const char *arch_nop_insn(int len)
+ 	return nops[len-1];
+ }
+ 
++#define BYTE_RET	0xC3
++
++const char *arch_ret_insn(int len)
++{
++	static const char ret[5][5] = {
++		{ BYTE_RET },
++		{ BYTE_RET, BYTES_NOP1 },
++		{ BYTE_RET, BYTES_NOP2 },
++		{ BYTE_RET, BYTES_NOP3 },
++		{ BYTE_RET, BYTES_NOP4 },
++	};
++
++	if (len < 1 || len > 5) {
++		WARN("invalid RET size: %d\n", len);
++		return NULL;
++	}
++
++	return ret[len-1];
++}
++
+ /* asm/alternative.h ? */
+ 
+ #define ALTINSTR_FLAG_INV	(1 << 15)
 diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 06b5c164ae931..8bffc004f4e53 100644
+index 8bffc004f4e53..81982948f981d 100644
 --- a/tools/objtool/check.c
 +++ b/tools/objtool/check.c
-@@ -173,6 +173,7 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
- 		"rewind_stack_do_exit",
- 		"kunit_try_catch_throw",
- 		"xen_start_kernel",
-+		"cpu_bringup_and_idle",
- 	};
+@@ -829,6 +829,79 @@ static struct reloc *insn_reloc(struct objtool_file *file, struct instruction *i
+ 	return insn->reloc;
+ }
  
- 	if (!func)
++static void remove_insn_ops(struct instruction *insn)
++{
++	struct stack_op *op, *tmp;
++
++	list_for_each_entry_safe(op, tmp, &insn->stack_ops, list) {
++		list_del(&op->list);
++		free(op);
++	}
++}
++
++static void add_call_dest(struct objtool_file *file, struct instruction *insn,
++			  struct symbol *dest, bool sibling)
++{
++	struct reloc *reloc = insn_reloc(file, insn);
++
++	insn->call_dest = dest;
++	if (!dest)
++		return;
++
++	if (insn->call_dest->static_call_tramp) {
++		list_add_tail(&insn->call_node,
++			      &file->static_call_list);
++	}
++
++	/*
++	 * Many compilers cannot disable KCOV with a function attribute
++	 * so they need a little help, NOP out any KCOV calls from noinstr
++	 * text.
++	 */
++	if (insn->sec->noinstr &&
++	    !strncmp(insn->call_dest->name, "__sanitizer_cov_", 16)) {
++		if (reloc) {
++			reloc->type = R_NONE;
++			elf_write_reloc(file->elf, reloc);
++		}
++
++		elf_write_insn(file->elf, insn->sec,
++			       insn->offset, insn->len,
++			       sibling ? arch_ret_insn(insn->len)
++			               : arch_nop_insn(insn->len));
++
++		insn->type = sibling ? INSN_RETURN : INSN_NOP;
++	}
++
++	if (mcount && !strcmp(insn->call_dest->name, "__fentry__")) {
++		if (sibling)
++			WARN_FUNC("Tail call to __fentry__ !?!?", insn->sec, insn->offset);
++
++		if (reloc) {
++			reloc->type = R_NONE;
++			elf_write_reloc(file->elf, reloc);
++		}
++
++		elf_write_insn(file->elf, insn->sec,
++			       insn->offset, insn->len,
++			       arch_nop_insn(insn->len));
++
++		insn->type = INSN_NOP;
++
++		list_add_tail(&insn->mcount_loc_node,
++			      &file->mcount_loc_list);
++	}
++
++	/*
++	 * Whatever stack impact regular CALLs have, should be undone
++	 * by the RETURN of the called function.
++	 *
++	 * Annotated intra-function calls retain the stack_ops but
++	 * are converted to JUMP, see read_intra_function_calls().
++	 */
++	remove_insn_ops(insn);
++}
++
+ /*
+  * Find the destination instructions for all jumps.
+  */
+@@ -867,11 +940,7 @@ static int add_jump_destinations(struct objtool_file *file)
+ 			continue;
+ 		} else if (insn->func) {
+ 			/* internal or external sibling call (with reloc) */
+-			insn->call_dest = reloc->sym;
+-			if (insn->call_dest->static_call_tramp) {
+-				list_add_tail(&insn->call_node,
+-					      &file->static_call_list);
+-			}
++			add_call_dest(file, insn, reloc->sym, true);
+ 			continue;
+ 		} else if (reloc->sym->sec->idx) {
+ 			dest_sec = reloc->sym->sec;
+@@ -927,13 +996,8 @@ static int add_jump_destinations(struct objtool_file *file)
+ 
+ 			} else if (insn->jump_dest->func->pfunc != insn->func->pfunc &&
+ 				   insn->jump_dest->offset == insn->jump_dest->func->offset) {
+-
+ 				/* internal sibling call (without reloc) */
+-				insn->call_dest = insn->jump_dest->func;
+-				if (insn->call_dest->static_call_tramp) {
+-					list_add_tail(&insn->call_node,
+-						      &file->static_call_list);
+-				}
++				add_call_dest(file, insn, insn->jump_dest->func, true);
+ 			}
+ 		}
+ 	}
+@@ -941,16 +1005,6 @@ static int add_jump_destinations(struct objtool_file *file)
+ 	return 0;
+ }
+ 
+-static void remove_insn_ops(struct instruction *insn)
+-{
+-	struct stack_op *op, *tmp;
+-
+-	list_for_each_entry_safe(op, tmp, &insn->stack_ops, list) {
+-		list_del(&op->list);
+-		free(op);
+-	}
+-}
+-
+ static struct symbol *find_call_destination(struct section *sec, unsigned long offset)
+ {
+ 	struct symbol *call_dest;
+@@ -969,6 +1023,7 @@ static int add_call_destinations(struct objtool_file *file)
+ {
+ 	struct instruction *insn;
+ 	unsigned long dest_off;
++	struct symbol *dest;
+ 	struct reloc *reloc;
+ 
+ 	for_each_insn(file, insn) {
+@@ -978,7 +1033,9 @@ static int add_call_destinations(struct objtool_file *file)
+ 		reloc = insn_reloc(file, insn);
+ 		if (!reloc) {
+ 			dest_off = arch_jump_destination(insn);
+-			insn->call_dest = find_call_destination(insn->sec, dest_off);
++			dest = find_call_destination(insn->sec, dest_off);
++
++			add_call_dest(file, insn, dest, false);
+ 
+ 			if (insn->ignore)
+ 				continue;
+@@ -996,9 +1053,8 @@ static int add_call_destinations(struct objtool_file *file)
+ 
+ 		} else if (reloc->sym->type == STT_SECTION) {
+ 			dest_off = arch_dest_reloc_offset(reloc->addend);
+-			insn->call_dest = find_call_destination(reloc->sym->sec,
+-								dest_off);
+-			if (!insn->call_dest) {
++			dest = find_call_destination(reloc->sym->sec, dest_off);
++			if (!dest) {
+ 				WARN_FUNC("can't find call dest symbol at %s+0x%lx",
+ 					  insn->sec, insn->offset,
+ 					  reloc->sym->sec->name,
+@@ -1006,6 +1062,8 @@ static int add_call_destinations(struct objtool_file *file)
+ 				return -1;
+ 			}
+ 
++			add_call_dest(file, insn, dest, false);
++
+ 		} else if (arch_is_retpoline(reloc->sym)) {
+ 			/*
+ 			 * Retpoline calls are really dynamic calls in
+@@ -1021,55 +1079,7 @@ static int add_call_destinations(struct objtool_file *file)
+ 			continue;
+ 
+ 		} else
+-			insn->call_dest = reloc->sym;
+-
+-		if (insn->call_dest && insn->call_dest->static_call_tramp) {
+-			list_add_tail(&insn->call_node,
+-				      &file->static_call_list);
+-		}
+-
+-		/*
+-		 * Many compilers cannot disable KCOV with a function attribute
+-		 * so they need a little help, NOP out any KCOV calls from noinstr
+-		 * text.
+-		 */
+-		if (insn->sec->noinstr &&
+-		    !strncmp(insn->call_dest->name, "__sanitizer_cov_", 16)) {
+-			if (reloc) {
+-				reloc->type = R_NONE;
+-				elf_write_reloc(file->elf, reloc);
+-			}
+-
+-			elf_write_insn(file->elf, insn->sec,
+-				       insn->offset, insn->len,
+-				       arch_nop_insn(insn->len));
+-			insn->type = INSN_NOP;
+-		}
+-
+-		if (mcount && !strcmp(insn->call_dest->name, "__fentry__")) {
+-			if (reloc) {
+-				reloc->type = R_NONE;
+-				elf_write_reloc(file->elf, reloc);
+-			}
+-
+-			elf_write_insn(file->elf, insn->sec,
+-				       insn->offset, insn->len,
+-				       arch_nop_insn(insn->len));
+-
+-			insn->type = INSN_NOP;
+-
+-			list_add_tail(&insn->mcount_loc_node,
+-				      &file->mcount_loc_list);
+-		}
+-
+-		/*
+-		 * Whatever stack impact regular CALLs have, should be undone
+-		 * by the RETURN of the called function.
+-		 *
+-		 * Annotated intra-function calls retain the stack_ops but
+-		 * are converted to JUMP, see read_intra_function_calls().
+-		 */
+-		remove_insn_ops(insn);
++			add_call_dest(file, insn, reloc->sym, false);
+ 	}
+ 
+ 	return 0;
+diff --git a/tools/objtool/include/objtool/arch.h b/tools/objtool/include/objtool/arch.h
+index 062bb6e9b8658..478e054fcdf71 100644
+--- a/tools/objtool/include/objtool/arch.h
++++ b/tools/objtool/include/objtool/arch.h
+@@ -82,6 +82,7 @@ unsigned long arch_jump_destination(struct instruction *insn);
+ unsigned long arch_dest_reloc_offset(int addend);
+ 
+ const char *arch_nop_insn(int len);
++const char *arch_ret_insn(int len);
+ 
+ int arch_decode_hint_reg(struct instruction *insn, u8 sp_reg);
+ 
 -- 
 2.33.0
 
