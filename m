@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F9C45237F
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C34064527B1
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:27:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352979AbhKPB0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:26:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35152 "EHLO mail.kernel.org"
+        id S243395AbhKPCaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:30:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243463AbhKOTCt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:02:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A62E563368;
-        Mon, 15 Nov 2021 18:15:05 +0000 (UTC)
+        id S236859AbhKORRL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:17:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 880E261BFE;
+        Mon, 15 Nov 2021 17:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000106;
-        bh=Vml9FdpwBb/m1Fv0zYGhQLH7BSgx+U3HNiH8ddqoG0c=;
+        s=korg; t=1636996377;
+        bh=yDgTj+AOYsL4nq7OifvfLKf9C5BzpgQD6Xjpx5Hx5cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hRsHjf9/FCfRAAMn1O5piTQov/fMzNX4bvSXYAXfB4rIVLZKmBqgtyY0/chWc0arn
-         JKDtaPycnoQ912aYj9pXbMOJOL5QuujzD+SEV3kns6Xxc6AR2mECrM4oFjMDR4Mf0d
-         UwrCqZQOOGQe+MZ+D+UeNgttC6/EDuMQsw2nFPgk=
+        b=LRz5o97Rg+IlQP8cdvSqMh5xntMMOHVT8iDT8w5UEtY/JNKcCYceFyYr/az1EFjdP
+         s3faG2y2hbOBb+AppNHE+79W5Ue3S6WwhTuADQUl8nxlXlP6syGng2SHOzfCZhBiOV
+         62W1RHgPDRxl8PeIwBPiCJ/ENfcM/pWFbU/MAUUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 540/849] selftests/bpf: Fix fclose/pclose mismatch in test_progs
-Date:   Mon, 15 Nov 2021 18:00:23 +0100
-Message-Id: <20211115165438.531278070@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Remi Pommarel <repk@triplefau.lt>
+Subject: [PATCH 5.4 100/355] PCI: aardvark: Fix checking for link up via LTSSM state
+Date:   Mon, 15 Nov 2021 18:00:24 +0100
+Message-Id: <20211115165317.036839152@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +42,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit f48ad69097fe79d1de13c4d8fef556d4c11c5e68 ]
+commit 661c399a651c11aaf83c45cbfe0b4a1fb7bc3179 upstream.
 
-Make sure to use pclose() to properly close the pipe opened by popen().
+Current implementation of advk_pcie_link_up() is wrong as it marks also
+link disabled or hot reset states as link up.
 
-Fixes: 81f77fd0deeb ("bpf: add selftest for stackmap with BPF_F_STACK_BUILD_ID")
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20211026143409.42666-1-andrea.righi@canonical.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix it by marking link up only to those states which are defined in PCIe
+Base specification 3.0, Table 4-14: Link Status Mapped to the LTSSM.
+
+To simplify implementation, Define macros for every LTSSM state which
+aardvark hardware can return in CFG_REG register.
+
+Fix also checking for link training according to the same Table 4-14.
+Define a new function advk_pcie_link_training() for this purpose.
+
+Link: https://lore.kernel.org/r/20211005180952.6812-13-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
+Cc: Remi Pommarel <repk@triplefau.lt>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/test_progs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |   76 +++++++++++++++++++++++++++++++---
+ 1 file changed, 70 insertions(+), 6 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/test_progs.c b/tools/testing/selftests/bpf/test_progs.c
-index bfbf2277b61a6..f381253902274 100644
---- a/tools/testing/selftests/bpf/test_progs.c
-+++ b/tools/testing/selftests/bpf/test_progs.c
-@@ -348,7 +348,7 @@ int extract_build_id(char *build_id, size_t size)
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -126,8 +126,50 @@
+ #define CFG_REG					(LMI_BASE_ADDR + 0x0)
+ #define     LTSSM_SHIFT				24
+ #define     LTSSM_MASK				0x3f
+-#define     LTSSM_L0				0x10
+ #define     RC_BAR_CONFIG			0x300
++
++/* LTSSM values in CFG_REG */
++enum {
++	LTSSM_DETECT_QUIET			= 0x0,
++	LTSSM_DETECT_ACTIVE			= 0x1,
++	LTSSM_POLLING_ACTIVE			= 0x2,
++	LTSSM_POLLING_COMPLIANCE		= 0x3,
++	LTSSM_POLLING_CONFIGURATION		= 0x4,
++	LTSSM_CONFIG_LINKWIDTH_START		= 0x5,
++	LTSSM_CONFIG_LINKWIDTH_ACCEPT		= 0x6,
++	LTSSM_CONFIG_LANENUM_ACCEPT		= 0x7,
++	LTSSM_CONFIG_LANENUM_WAIT		= 0x8,
++	LTSSM_CONFIG_COMPLETE			= 0x9,
++	LTSSM_CONFIG_IDLE			= 0xa,
++	LTSSM_RECOVERY_RCVR_LOCK		= 0xb,
++	LTSSM_RECOVERY_SPEED			= 0xc,
++	LTSSM_RECOVERY_RCVR_CFG			= 0xd,
++	LTSSM_RECOVERY_IDLE			= 0xe,
++	LTSSM_L0				= 0x10,
++	LTSSM_RX_L0S_ENTRY			= 0x11,
++	LTSSM_RX_L0S_IDLE			= 0x12,
++	LTSSM_RX_L0S_FTS			= 0x13,
++	LTSSM_TX_L0S_ENTRY			= 0x14,
++	LTSSM_TX_L0S_IDLE			= 0x15,
++	LTSSM_TX_L0S_FTS			= 0x16,
++	LTSSM_L1_ENTRY				= 0x17,
++	LTSSM_L1_IDLE				= 0x18,
++	LTSSM_L2_IDLE				= 0x19,
++	LTSSM_L2_TRANSMIT_WAKE			= 0x1a,
++	LTSSM_DISABLED				= 0x20,
++	LTSSM_LOOPBACK_ENTRY_MASTER		= 0x21,
++	LTSSM_LOOPBACK_ACTIVE_MASTER		= 0x22,
++	LTSSM_LOOPBACK_EXIT_MASTER		= 0x23,
++	LTSSM_LOOPBACK_ENTRY_SLAVE		= 0x24,
++	LTSSM_LOOPBACK_ACTIVE_SLAVE		= 0x25,
++	LTSSM_LOOPBACK_EXIT_SLAVE		= 0x26,
++	LTSSM_HOT_RESET				= 0x27,
++	LTSSM_RECOVERY_EQUALIZATION_PHASE0	= 0x28,
++	LTSSM_RECOVERY_EQUALIZATION_PHASE1	= 0x29,
++	LTSSM_RECOVERY_EQUALIZATION_PHASE2	= 0x2a,
++	LTSSM_RECOVERY_EQUALIZATION_PHASE3	= 0x2b,
++};
++
+ #define VENDOR_ID_REG				(LMI_BASE_ADDR + 0x44)
  
- 	if (getline(&line, &len, fp) == -1)
- 		goto err;
--	fclose(fp);
-+	pclose(fp);
- 
- 	if (len > size)
- 		len = size;
-@@ -357,7 +357,7 @@ int extract_build_id(char *build_id, size_t size)
- 	free(line);
- 	return 0;
- err:
--	fclose(fp);
-+	pclose(fp);
- 	return -1;
+ /* PCIe core controller registers */
+@@ -219,13 +261,35 @@ static inline u32 advk_readl(struct advk
+ 	return readl(pcie->base + reg);
  }
  
--- 
-2.33.0
-
+-static int advk_pcie_link_up(struct advk_pcie *pcie)
++static u8 advk_pcie_ltssm_state(struct advk_pcie *pcie)
+ {
+-	u32 val, ltssm_state;
++	u32 val;
++	u8 ltssm_state;
+ 
+ 	val = advk_readl(pcie, CFG_REG);
+ 	ltssm_state = (val >> LTSSM_SHIFT) & LTSSM_MASK;
+-	return ltssm_state >= LTSSM_L0;
++	return ltssm_state;
++}
++
++static inline bool advk_pcie_link_up(struct advk_pcie *pcie)
++{
++	/* check if LTSSM is in normal operation - some L* state */
++	u8 ltssm_state = advk_pcie_ltssm_state(pcie);
++	return ltssm_state >= LTSSM_L0 && ltssm_state < LTSSM_DISABLED;
++}
++
++static inline bool advk_pcie_link_training(struct advk_pcie *pcie)
++{
++	/*
++	 * According to PCIe Base specification 3.0, Table 4-14: Link
++	 * Status Mapped to the LTSSM is Link Training mapped to LTSSM
++	 * Configuration and Recovery states.
++	 */
++	u8 ltssm_state = advk_pcie_ltssm_state(pcie);
++	return ((ltssm_state >= LTSSM_CONFIG_LINKWIDTH_START &&
++		 ltssm_state < LTSSM_L0) ||
++		(ltssm_state >= LTSSM_RECOVERY_EQUALIZATION_PHASE0 &&
++		 ltssm_state <= LTSSM_RECOVERY_EQUALIZATION_PHASE3));
+ }
+ 
+ static int advk_pcie_wait_for_link(struct advk_pcie *pcie)
+@@ -252,7 +316,7 @@ static void advk_pcie_wait_for_retrain(s
+ 	size_t retries;
+ 
+ 	for (retries = 0; retries < RETRAIN_WAIT_MAX_RETRIES; ++retries) {
+-		if (!advk_pcie_link_up(pcie))
++		if (advk_pcie_link_training(pcie))
+ 			break;
+ 		udelay(RETRAIN_WAIT_USLEEP_US);
+ 	}
+@@ -516,7 +580,7 @@ advk_pci_bridge_emul_pcie_conf_read(stru
+ 		/* u32 contains both PCI_EXP_LNKCTL and PCI_EXP_LNKSTA */
+ 		u32 val = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + reg) &
+ 			~(PCI_EXP_LNKSTA_LT << 16);
+-		if (!advk_pcie_link_up(pcie))
++		if (advk_pcie_link_training(pcie))
+ 			val |= (PCI_EXP_LNKSTA_LT << 16);
+ 		*value = val;
+ 		return PCI_BRIDGE_EMUL_HANDLED;
 
 
