@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F724451400
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 092C44513F2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348852AbhKOUAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:00:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
+        id S1348782AbhKOT7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:59:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344136AbhKOTXa (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344137AbhKOTXa (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:23:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46AB063630;
-        Mon, 15 Nov 2021 18:52:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A22C063631;
+        Mon, 15 Nov 2021 18:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002345;
-        bh=Ft5spIUE9njj7hiEe3Zznwr1C/bl1i6GG9RYr9kwZhA=;
+        s=korg; t=1637002348;
+        bh=fa/Byx/jJp0ciwcwRiGlcavl8k6kZl0YqorzghPFiWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLSvfYZg4W9HXYJfViBpxQ6Lyb6UaRhkh68Snw1/Tk+rcIURBwQSVpDZwypoBXhvv
-         IoQjU4zbG/T+NW4prPUcfnfr7LUFHQbzEwbEKCBFzsMnzkw+6W+r1ZaxD6o7tWOg6P
-         yBW2rLPfYK1FjsnmqAWg+EK7ORrx5zfJ9s4vLCuM=
+        b=si7njU3d3uqT35wFK1Bqv2pRw2jX0gPx279OI0yCrC6C87KDnZg63vaFXm5lROXC+
+         ng21oFRL7YambBfKvUo861F+qTKFnE2bnRUiv76zV/b4na4wLecwRrwcdjjR6BtcPq
+         Yu/5NK6Za2eX8fSRCS3xt2T2slPY+0IdGVsavmY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
+        stable@vger.kernel.org, Benjamin Li <benl@squareup.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 532/917] libertas: Fix possible memory leak in probe and disconnect
-Date:   Mon, 15 Nov 2021 18:00:27 +0100
-Message-Id: <20211115165446.796903392@linuxfoundation.org>
+Subject: [PATCH 5.15 533/917] wcn36xx: add proper DMA memory barriers in rx path
+Date:   Mon, 15 Nov 2021 18:00:28 +0100
+Message-Id: <20211115165446.828763756@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,70 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Benjamin Li <benl@squareup.com>
 
-[ Upstream commit 9692151e2fe7a326bafe99836fd1f20a2cc3a049 ]
+[ Upstream commit 9bfe38e064af5decba2ffce66a2958ab8b10eaa4 ]
 
-I got memory leak as follows when doing fault injection test:
+This is essentially exactly following the dma_wmb()/dma_rmb() usage
+instructions in Documentation/memory-barriers.txt.
 
-unreferenced object 0xffff88812c7d7400 (size 512):
-  comm "kworker/6:1", pid 176, jiffies 4295003332 (age 822.830s)
-  hex dump (first 32 bytes):
-    00 68 1e 04 81 88 ff ff 01 00 00 00 00 00 00 00  .h..............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
-    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
-    [<ffffffffa02c9873>] if_usb_probe+0x63/0x446 [usb8xxx]
-    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
-    [<ffffffff82b59630>] really_probe+0x190/0x480
-    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
-    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
-    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
-    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
-    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
-    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
-    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
-    [<ffffffff82b52e49>] device_add+0x829/0x1300
-    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
-    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
-    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
+The theoretical races here are:
 
-cardp is missing being freed in the error handling path of the probe
-and the path of the disconnect, which will cause memory leak.
+1. DXE (the DMA Transfer Engine in the Wi-Fi subsystem) seeing the
+dxe->ctrl & WCN36xx_DXE_CTRL_VLD write before the dxe->dst_addr_l
+write, thus performing DMA into the wrong address.
 
-This patch adds the missing kfree().
+2. CPU reading dxe->dst_addr_l before DXE unsets dxe->ctrl &
+WCN36xx_DXE_CTRL_VLD. This should generally be harmless since DXE
+doesn't write dxe->dst_addr_l (no risk of freeing the wrong skb).
 
-Fixes: 876c9d3aeb98 ("[PATCH] Marvell Libertas 8388 802.11b/g USB driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
+Signed-off-by: Benjamin Li <benl@squareup.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211020120345.2016045-3-wanghai38@huawei.com
+Link: https://lore.kernel.org/r/20211023001528.3077822-1-benl@squareup.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas/if_usb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/wcn36xx/dxe.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas/if_usb.c b/drivers/net/wireless/marvell/libertas/if_usb.c
-index 20436a289d5cd..5d6dc1dd050d4 100644
---- a/drivers/net/wireless/marvell/libertas/if_usb.c
-+++ b/drivers/net/wireless/marvell/libertas/if_usb.c
-@@ -292,6 +292,7 @@ err_add_card:
- 	if_usb_reset_device(cardp);
- dealloc:
- 	if_usb_free(cardp);
-+	kfree(cardp);
+diff --git a/drivers/net/wireless/ath/wcn36xx/dxe.c b/drivers/net/wireless/ath/wcn36xx/dxe.c
+index 0e0bbcd11300b..aff04ef662663 100644
+--- a/drivers/net/wireless/ath/wcn36xx/dxe.c
++++ b/drivers/net/wireless/ath/wcn36xx/dxe.c
+@@ -606,6 +606,10 @@ static int wcn36xx_rx_handle_packets(struct wcn36xx *wcn,
+ 	dxe = ctl->desc;
  
- error:
- 	return r;
-@@ -316,6 +317,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
+ 	while (!(READ_ONCE(dxe->ctrl) & WCN36xx_DXE_CTRL_VLD)) {
++		/* do not read until we own DMA descriptor */
++		dma_rmb();
++
++		/* read/modify DMA descriptor */
+ 		skb = ctl->skb;
+ 		dma_addr = dxe->dst_addr_l;
+ 		ret = wcn36xx_dxe_fill_skb(wcn->dev, ctl, GFP_ATOMIC);
+@@ -616,9 +620,15 @@ static int wcn36xx_rx_handle_packets(struct wcn36xx *wcn,
+ 			dma_unmap_single(wcn->dev, dma_addr, WCN36XX_PKT_SIZE,
+ 					DMA_FROM_DEVICE);
+ 			wcn36xx_rx_skb(wcn, skb);
+-		} /* else keep old skb not submitted and use it for rx DMA */
++		}
++		/* else keep old skb not submitted and reuse it for rx DMA
++		 * (dropping the packet that it contained)
++		 */
  
- 	/* Unlink and free urb */
- 	if_usb_free(cardp);
-+	kfree(cardp);
- 
- 	usb_set_intfdata(intf, NULL);
- 	usb_put_dev(interface_to_usbdev(intf));
++		/* flush descriptor changes before re-marking as valid */
++		dma_wmb();
+ 		dxe->ctrl = ctrl;
++
+ 		ctl = ctl->next;
+ 		dxe = ctl->desc;
+ 	}
 -- 
 2.33.0
 
