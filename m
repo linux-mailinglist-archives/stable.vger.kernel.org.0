@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA10E4526D3
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:07:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A58814526D2
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245401AbhKPCKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1349431AbhKPCKh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 21:10:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45994 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239539AbhKOSBM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:01:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A04863341;
-        Mon, 15 Nov 2021 17:36:27 +0000 (UTC)
+        id S239544AbhKOSBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:01:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6DBA6334B;
+        Mon, 15 Nov 2021 17:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997788;
-        bh=zlgi4i2C09Cqvl1DXJVyI05x0bKAQExgenOZHrcPfWI=;
+        s=korg; t=1636997809;
+        bh=+dOCgScBuLGA5rX4r89TlgYq7kAClVxKLevAe1tM21E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCid2wNIAeKc6OVEME3mnIuxzXG942x2WnmbWx0D0Nrj4X/tLZkZPXb4d1sz9b3cZ
-         TtkLmbWZQk/An9HTYOYE1q3Ci7WO1UhHMp6UTl35CKygWbMUnIvcT+04WTsNyHLxUc
-         DSkHZjKW3IGp5COgqe/8SCh3x/6e/l32+K7H+fZU=
+        b=ZDK5Bk7kaXVyAxkir3/hvyXrMApb+5v0dABEfrWL1ePSr8Slt/KCF9CJUFnaGC8jf
+         teZEMrQxMDT6vScl560PKBTA0hhjRsev6hQQrmV8ZpBmvIhI9TizdeK42PM3CrtlOW
+         yJ/cxZNTtx/npF+cpBQhTkjDwUMn+349e6tq34d0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Baochen Qiang <bqiang@codeaurora.org>,
+        Jouni Malinen <jouni@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 275/575] Bluetooth: btmtkuart: fix a memleak in mtk_hci_wmt_sync
-Date:   Mon, 15 Nov 2021 18:00:00 +0100
-Message-Id: <20211115165353.288042724@linuxfoundation.org>
+Subject: [PATCH 5.10 282/575] ath11k: Fix memory leak in ath11k_qmi_driver_event_work
+Date:   Mon, 15 Nov 2021 18:00:07 +0100
+Message-Id: <20211115165353.530325242@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -40,66 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Baochen Qiang <bqiang@codeaurora.org>
 
-[ Upstream commit 3e5f2d90c28f9454e421108554707620bc23269d ]
+[ Upstream commit 72de799aa9e3e064b35238ef053d2f0a49db055a ]
 
-bdev->evt_skb will get freed in the normal path and one error path
-of mtk_hci_wmt_sync, while the other error paths do not free it,
-which may cause a memleak. This bug is suggested by a static analysis
-tool, please advise.
+The buffer pointed to by event is not freed in case
+ATH11K_FLAG_UNREGISTERING bit is set, resulting in
+memory leak, so fix it.
 
-Fixes: e0b67035a90b ("Bluetooth: mediatek: update the common setup between MT7622 and other devices")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Signed-off-by: Baochen Qiang <bqiang@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210913180246.193388-4-jouni@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btmtkuart.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/net/wireless/ath/ath11k/qmi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/btmtkuart.c b/drivers/bluetooth/btmtkuart.c
-index 6c40bc75fb5b8..719d4685a2ddd 100644
---- a/drivers/bluetooth/btmtkuart.c
-+++ b/drivers/bluetooth/btmtkuart.c
-@@ -158,8 +158,10 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	int err;
+diff --git a/drivers/net/wireless/ath/ath11k/qmi.c b/drivers/net/wireless/ath/ath11k/qmi.c
+index 2ae7c6bf091e9..c842e275d1adf 100644
+--- a/drivers/net/wireless/ath/ath11k/qmi.c
++++ b/drivers/net/wireless/ath/ath11k/qmi.c
+@@ -2616,8 +2616,10 @@ static void ath11k_qmi_driver_event_work(struct work_struct *work)
+ 		list_del(&event->list);
+ 		spin_unlock(&qmi->event_lock);
  
- 	hlen = sizeof(*hdr) + wmt_params->dlen;
--	if (hlen > 255)
--		return -EINVAL;
-+	if (hlen > 255) {
-+		err = -EINVAL;
-+		goto err_free_skb;
-+	}
+-		if (test_bit(ATH11K_FLAG_UNREGISTERING, &ab->dev_flags))
++		if (test_bit(ATH11K_FLAG_UNREGISTERING, &ab->dev_flags)) {
++			kfree(event);
+ 			return;
++		}
  
- 	hdr = (struct mtk_wmt_hdr *)&wc;
- 	hdr->dir = 1;
-@@ -173,7 +175,7 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	err = __hci_cmd_send(hdev, 0xfc6f, hlen, &wc);
- 	if (err < 0) {
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return err;
-+		goto err_free_skb;
- 	}
- 
- 	/* The vendor specific WMT commands are all answered by a vendor
-@@ -190,13 +192,14 @@ static int mtk_hci_wmt_sync(struct hci_dev *hdev,
- 	if (err == -EINTR) {
- 		bt_dev_err(hdev, "Execution of wmt command interrupted");
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return err;
-+		goto err_free_skb;
- 	}
- 
- 	if (err) {
- 		bt_dev_err(hdev, "Execution of wmt command timed out");
- 		clear_bit(BTMTKUART_TX_WAIT_VND_EVT, &bdev->tx_state);
--		return -ETIMEDOUT;
-+		err = -ETIMEDOUT;
-+		goto err_free_skb;
- 	}
- 
- 	/* Parse and handle the return WMT event */
+ 		switch (event->type) {
+ 		case ATH11K_QMI_EVENT_SERVER_ARRIVE:
 -- 
 2.33.0
 
