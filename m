@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCD89450E67
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EF5D450E7C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240884AbhKOSOE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:14:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50066 "EHLO mail.kernel.org"
+        id S237991AbhKOSPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:15:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240232AbhKOSH1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240230AbhKOSH1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:07:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CCA363398;
-        Mon, 15 Nov 2021 17:43:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD8FF63395;
+        Mon, 15 Nov 2021 17:43:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998217;
-        bh=1CdcMoD7T6sL+FA2oBmbmtdO2KvatlXTNgWgcvXBMxA=;
+        s=korg; t=1636998220;
+        bh=qoNE+hBPLqpzXpTP8y5G1K88Rtigbn+X1ssvycPlcpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iU83h8UAuLYb4F9YlEUFOfhBDXA4AngUh7k75R9MR38Ij2jXt60g3QOxD0zaPzrWZ
-         tbgZWefwZcm3obH6MZRsP4YwRU9hajAZajW8dRyo9QaIkDtTdZKkoJjbPb55XhluRt
-         w5qL3W6lzuFp3KYOuBSU0iLm47HmhWtcyXmW07qU=
+        b=Xto+v7M4vQ7V567VRL9xOSGnAJ0AlJ6ANvOu/gKrSPTzv9/rNnXkF9KIoVRmQNKN5
+         dLUjzuVS4sb5NNFdM0AjUhruisZ32koVM17lr9cmeYijruz+B8/bOsY2UVLlDQlNUU
+         y1S4QJExVXYV2+Vg9b7iuloq/Hx7CN5eDffiMSis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
-        Anand Moon <linux.amoon@gmail.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 398/575] arm64: dts: meson-g12b: Fix the pwm regulator supply properties
-Date:   Mon, 15 Nov 2021 18:02:03 +0100
-Message-Id: <20211115165357.538231932@linuxfoundation.org>
+Subject: [PATCH 5.10 399/575] bus: ti-sysc: Fix timekeeping_suspended warning on resume
+Date:   Mon, 15 Nov 2021 18:02:04 +0100
+Message-Id: <20211115165357.569947261@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -41,108 +39,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Moon <linux.amoon@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 62183863f708c2464769e0d477c8ce9f3d326feb ]
+[ Upstream commit b3e9431854e8f305385d5de225441c0477b936cb ]
 
-After enabling CONFIG_REGULATOR_DEBUG=y we observer below debug logs.
-Changes help link VDDCP_A and VDDCPU_B pwm regulator to 12V regulator
-supply instead of dummy regulator.
+On resume we can get a warning at kernel/time/timekeeping.c:824 for
+timekeeping_suspended.
 
-[    4.147196] VDDCPU_A: will resolve supply early: pwm
-[    4.147216] pwm-regulator regulator-vddcpu-a: Looking up pwm-supply from device tree
-[    4.147227] pwm-regulator regulator-vddcpu-a: Looking up pwm-supply property in node /regulator-vddcpu-a failed
-[    4.147258] VDDCPU_A: supplied by regulator-dummy
-[    4.147288] regulator-dummy: could not add device link regulator.12: -ENOENT
-[    4.147353] VDDCPU_A: 721 <--> 1022 mV at 871 mV, enabled
-[    4.152014] VDDCPU_B: will resolve supply early: pwm
-[    4.152035] pwm-regulator regulator-vddcpu-b: Looking up pwm-supply from device tree
-[    4.152047] pwm-regulator regulator-vddcpu-b: Looking up pwm-supply property in node /regulator-vddcpu-b failed
-[    4.152079] VDDCPU_B: supplied by regulator-dummy
-[    4.152108] regulator-dummy: could not add device link regulator.13: -ENOENT
+Let's fix this by adding separate functions for sysc_poll_reset_sysstatus()
+and sysc_poll_reset_sysconfig() and have the new functions handle also
+timekeeping_suspended.
 
-Fixes: c6d29c66e582 ("arm64: dts: meson-g12b-khadas-vim3: add initial device-tree")
-Fixes: d14734a04a8a ("arm64: dts: meson-g12b-odroid-n2: enable DVFS")
-Fixes: 3cb74db9b256 ("arm64: dts: meson: convert ugoos-am6 to common w400 dtsi")
+If iopoll at some point supports timekeeping_suspended, we can just drop
+the custom handling from these functions.
 
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Anand Moon <linux.amoon@gmail.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20210919202918.3556-3-linux.amoon@gmail.com
+Fixes: d46f9fbec719 ("bus: ti-sysc: Use optional clocks on for enable and wait for softreset bit")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-g12b-khadas-vim3.dtsi | 4 ++--
- arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi   | 4 ++--
- arch/arm64/boot/dts/amlogic/meson-g12b-w400.dtsi        | 4 ++--
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/bus/ti-sysc.c | 65 +++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 53 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-khadas-vim3.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-khadas-vim3.dtsi
-index f42cf4b8af2d4..16dd409051b40 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12b-khadas-vim3.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12b-khadas-vim3.dtsi
-@@ -18,7 +18,7 @@
- 		regulator-min-microvolt = <690000>;
- 		regulator-max-microvolt = <1050000>;
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 02341fd66e8d2..2ff437e5c7051 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -17,6 +17,7 @@
+ #include <linux/of_platform.h>
+ #include <linux/slab.h>
+ #include <linux/sys_soc.h>
++#include <linux/timekeeping.h>
+ #include <linux/iopoll.h>
  
--		vin-supply = <&dc_in>;
-+		pwm-supply = <&dc_in>;
+ #include <linux/platform_data/ti-sysc.h>
+@@ -223,37 +224,77 @@ static u32 sysc_read_sysstatus(struct sysc *ddata)
+ 	return sysc_read(ddata, offset);
+ }
  
- 		pwms = <&pwm_ab 0 1250 0>;
- 		pwm-dutycycle-range = <100 0>;
-@@ -37,7 +37,7 @@
- 		regulator-min-microvolt = <690000>;
- 		regulator-max-microvolt = <1050000>;
+-/* Poll on reset status */
+-static int sysc_wait_softreset(struct sysc *ddata)
++static int sysc_poll_reset_sysstatus(struct sysc *ddata)
+ {
+-	u32 sysc_mask, syss_done, rstval;
+-	int syss_offset, error = 0;
+-
+-	if (ddata->cap->regbits->srst_shift < 0)
+-		return 0;
+-
+-	syss_offset = ddata->offsets[SYSC_SYSSTATUS];
+-	sysc_mask = BIT(ddata->cap->regbits->srst_shift);
++	int error, retries;
++	u32 syss_done, rstval;
  
--		vin-supply = <&vsys_3v3>;
-+		pwm-supply = <&vsys_3v3>;
+ 	if (ddata->cfg.quirks & SYSS_QUIRK_RESETDONE_INVERTED)
+ 		syss_done = 0;
+ 	else
+ 		syss_done = ddata->cfg.syss_mask;
  
- 		pwms = <&pwm_AO_cd 1 1250 0>;
- 		pwm-dutycycle-range = <100 0>;
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi
-index 39a09661c5f62..59b5f39088757 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12b-odroid-n2.dtsi
-@@ -128,7 +128,7 @@
- 		regulator-min-microvolt = <721000>;
- 		regulator-max-microvolt = <1022000>;
+-	if (syss_offset >= 0) {
++	if (likely(!timekeeping_suspended)) {
+ 		error = readx_poll_timeout_atomic(sysc_read_sysstatus, ddata,
+ 				rstval, (rstval & ddata->cfg.syss_mask) ==
+ 				syss_done, 100, MAX_MODULE_SOFTRESET_WAIT);
++	} else {
++		retries = MAX_MODULE_SOFTRESET_WAIT;
++		while (retries--) {
++			rstval = sysc_read_sysstatus(ddata);
++			if ((rstval & ddata->cfg.syss_mask) == syss_done)
++				return 0;
++			udelay(2); /* Account for udelay flakeyness */
++		}
++		error = -ETIMEDOUT;
++	}
  
--		vin-supply = <&main_12v>;
-+		pwm-supply = <&main_12v>;
+-	} else if (ddata->cfg.quirks & SYSC_QUIRK_RESET_STATUS) {
++	return error;
++}
++
++static int sysc_poll_reset_sysconfig(struct sysc *ddata)
++{
++	int error, retries;
++	u32 sysc_mask, rstval;
++
++	sysc_mask = BIT(ddata->cap->regbits->srst_shift);
++
++	if (likely(!timekeeping_suspended)) {
+ 		error = readx_poll_timeout_atomic(sysc_read_sysconfig, ddata,
+ 				rstval, !(rstval & sysc_mask),
+ 				100, MAX_MODULE_SOFTRESET_WAIT);
++	} else {
++		retries = MAX_MODULE_SOFTRESET_WAIT;
++		while (retries--) {
++			rstval = sysc_read_sysconfig(ddata);
++			if (!(rstval & sysc_mask))
++				return 0;
++			udelay(2); /* Account for udelay flakeyness */
++		}
++		error = -ETIMEDOUT;
+ 	}
  
- 		pwms = <&pwm_ab 0 1250 0>;
- 		pwm-dutycycle-range = <100 0>;
-@@ -147,7 +147,7 @@
- 		regulator-min-microvolt = <721000>;
- 		regulator-max-microvolt = <1022000>;
+ 	return error;
+ }
  
--		vin-supply = <&main_12v>;
-+		pwm-supply = <&main_12v>;
- 
- 		pwms = <&pwm_AO_cd 1 1250 0>;
- 		pwm-dutycycle-range = <100 0>;
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-w400.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-w400.dtsi
-index feb0885047400..b40d2c1002c92 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12b-w400.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12b-w400.dtsi
-@@ -96,7 +96,7 @@
- 		regulator-min-microvolt = <721000>;
- 		regulator-max-microvolt = <1022000>;
- 
--		vin-supply = <&main_12v>;
-+		pwm-supply = <&main_12v>;
- 
- 		pwms = <&pwm_ab 0 1250 0>;
- 		pwm-dutycycle-range = <100 0>;
-@@ -115,7 +115,7 @@
- 		regulator-min-microvolt = <721000>;
- 		regulator-max-microvolt = <1022000>;
- 
--		vin-supply = <&main_12v>;
-+		pwm-supply = <&main_12v>;
- 
- 		pwms = <&pwm_AO_cd 1 1250 0>;
- 		pwm-dutycycle-range = <100 0>;
++/* Poll on reset status */
++static int sysc_wait_softreset(struct sysc *ddata)
++{
++	int syss_offset, error = 0;
++
++	if (ddata->cap->regbits->srst_shift < 0)
++		return 0;
++
++	syss_offset = ddata->offsets[SYSC_SYSSTATUS];
++
++	if (syss_offset >= 0)
++		error = sysc_poll_reset_sysstatus(ddata);
++	else if (ddata->cfg.quirks & SYSC_QUIRK_RESET_STATUS)
++		error = sysc_poll_reset_sysconfig(ddata);
++
++	return error;
++}
++
+ static int sysc_add_named_clock_from_child(struct sysc *ddata,
+ 					   const char *name,
+ 					   const char *optfck_name)
 -- 
 2.33.0
 
