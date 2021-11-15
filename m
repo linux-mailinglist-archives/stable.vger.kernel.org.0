@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 745194510AB
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:49:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E42A450D29
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:49:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242203AbhKOSw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:52:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52898 "EHLO mail.kernel.org"
+        id S236808AbhKORwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:52:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243038AbhKOSuT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:50:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A627B63312;
-        Mon, 15 Nov 2021 18:08:35 +0000 (UTC)
+        id S238797AbhKORuI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:50:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A65363251;
+        Mon, 15 Nov 2021 17:30:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999716;
-        bh=bc2mkQdXRTv39dWaMp1xI6OR/Y4Q0dRQZUJzfHhsIAM=;
+        s=korg; t=1636997458;
+        bh=EB+iKJh/yyi/sv+iR3UpJvKhL6oH2KY/99lvOZII0TQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lc1YSphYHgAIm4eIregRcAMmfH0Ky7q7bAzxCZYnSbbgsjCQTW0Xt2aGwq6Ym0Lsr
-         fg4X2Q0Jqc+QynX+9Io8maSddITM6anxuTrqqX/kvbX1GqK4a1Y4RfpNT3KDfHi/Mi
-         f7OZD8vVXb0VqYyk71PIYEUY9CpibhwYEN3ccTWM=
+        b=UvyIaMSzBLyshnpUcQwpY7a+66G8J/zkBJcRvSVb7VeuY5hj0nmjqRWmd58/N7lYl
+         MOxmovquVvkKcDnNdWnRAZmUqKlqBE/EYa/KusSRpIdH07je2KjrdWXV/E8UYNe2qY
+         oJEVZ2y9ZC/GQMv2nr36xjF1OjjGz5rRrC8q/FEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 398/849] crypto: ecc - fix CRYPTO_DEFAULT_RNG dependency
+        stable@vger.kernel.org,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 156/575] iio: ad5770r: make devicetree property reading consistent
 Date:   Mon, 15 Nov 2021 17:58:01 +0100
-Message-Id: <20211115165433.717609398@linuxfoundation.org>
+Message-Id: <20211115165349.090047155@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Nuno Sá <nuno.sa@analog.com>
 
-[ Upstream commit 38aa192a05f22f9778f9420e630f0322525ef12e ]
+commit 26df977a909f818b7d346b3990735513e7e0bf93 upstream.
 
-The ecc.c file started out as part of the ECDH algorithm but got
-moved out into a standalone module later. It does not build without
-CRYPTO_DEFAULT_RNG, so now that other modules are using it as well we
-can run into this link error:
+The bindings file for this driver is defining the property as 'reg' but
+the driver was reading it with the 'num' name. The bindings actually had
+the 'num' property when added in
+commit ea52c21268e6 ("dt-bindings: iio: dac: Add docs for AD5770R DAC")
+and then changed it to 'reg' in
+commit 2cf3818f18b2 ("dt-bindings: iio: dac: AD5570R fix bindings errors").
+However, both these commits landed in v5.7 so the assumption is
+that either 'num' is not being used or if it is, the validations were not
+done.
 
-aarch64-linux-ld: ecc.c:(.text+0xfc8): undefined reference to `crypto_default_rng'
-aarch64-linux-ld: ecc.c:(.text+0xff4): undefined reference to `crypto_put_default_rng'
+Anyways, if someone comes back yelling about this, we might just support
+both of the properties in the future. Not ideal, but that's life...
 
-Move the 'select CRYPTO_DEFAULT_RNG' statement into the correct symbol.
-
-Fixes: 0d7a78643f69 ("crypto: ecrdsa - add EC-RDSA (GOST 34.10) algorithm")
-Fixes: 4e6602916bc6 ("crypto: ecdsa - Add support for ECDSA signature verification")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2cf3818f18b2 ("dt-bindings: iio: dac: AD5570R fix bindings errors")
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210818080525.62790-1-nuno.sa@analog.com
+Cc: Stable@vger.kernel.org
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/Kconfig | 2 +-
+ drivers/iio/dac/ad5770r.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/crypto/Kconfig b/crypto/Kconfig
-index 64b772c5d1c9b..46129f49a38c3 100644
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -233,12 +233,12 @@ config CRYPTO_DH
+--- a/drivers/iio/dac/ad5770r.c
++++ b/drivers/iio/dac/ad5770r.c
+@@ -522,7 +522,7 @@ static int ad5770r_channel_config(struct
+ 		return -EINVAL;
  
- config CRYPTO_ECC
- 	tristate
-+	select CRYPTO_RNG_DEFAULT
- 
- config CRYPTO_ECDH
- 	tristate "ECDH algorithm"
- 	select CRYPTO_ECC
- 	select CRYPTO_KPP
--	select CRYPTO_RNG_DEFAULT
- 	help
- 	  Generic implementation of the ECDH algorithm
- 
--- 
-2.33.0
-
+ 	device_for_each_child_node(&st->spi->dev, child) {
+-		ret = fwnode_property_read_u32(child, "num", &num);
++		ret = fwnode_property_read_u32(child, "reg", &num);
+ 		if (ret)
+ 			goto err_child_out;
+ 		if (num >= AD5770R_MAX_CHANNELS) {
 
 
