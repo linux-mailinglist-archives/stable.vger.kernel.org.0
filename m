@@ -2,124 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D744516B5
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 22:38:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C355E4516EB
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 22:52:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350899AbhKOVkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 16:40:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36226 "EHLO
+        id S1345810AbhKOVwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 16:52:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347991AbhKOVbk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 16:31:40 -0500
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADED7C07978E
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 13:17:12 -0800 (PST)
-Received: by mail-pj1-x104a.google.com with SMTP id mn13-20020a17090b188d00b001a64f277c1eso202438pjb.2
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 13:17:12 -0800 (PST)
+        with ESMTP id S1351337AbhKOVri (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 16:47:38 -0500
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68EC8C0432D3
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 13:24:02 -0800 (PST)
+Received: by mail-pf1-x42d.google.com with SMTP id b68so16123228pfg.11
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 13:24:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=XKLWlLaz9dMMXpY7vqrKj+gJX43hfIjMlaR58B8E1J0=;
-        b=KsbuBZr2cvOp1RXmqbysm7ST4ITB8FxHBMsGtm6YNxN6qNLWMEjiO3fgxBW7T2fuv4
-         7iJeku2Ir8e2JTr4OPAr1j4Ovv+xija18RivWUEOeuJJKhLPD/Ys550gcBWPOonQ6w1T
-         4xaz5cR0/TJOC1yErdqvrcQMRK2lfJhAaQYBPwFC+7XNBvSmjWCIDuc3tn+8KFC7mina
-         0dMMy7Y6WktLt9+4K4yQWlwu6v4lJyuml23ipqIYwoxNgAvZax9JCHtJv1zjD+tJo3Pj
-         /WyCiKmyHOknsqo6r9ZmReSL4jbzbRjhUYUUVD6poQ0JtGG5mL4n5IQ9u8Ieul542ckd
-         4IsQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tcS5luizrzD/4F4BUGufFxJKJR6hYL4mqlHIV/Uj8qw=;
+        b=PsK0nEAEIMSokI8Jw7V3eyCWywvNkQ06zFZzPrIiIAx9RdtlJn+jmip0cqjs203FTq
+         1MSu4NcI4GX+drwgEidLRuN9gHVXsOHKqf3311ThWvFN4acbwpsSReltAymdYnDU+uk1
+         RLeMJqh95tjtH277QhELTXm3E0qpAoYy0YjgD/6h/TylWQAopsi8CijeB6pieil8mAtA
+         xn+7p/Ai8pOoMyoC41RlTjoU6vm39bHnmvsS5Pb3y6W81PaxhKH+WzjGyExlyxkErYeC
+         FKipiq/IQ80wtcminub2pcireFelMRPGZx2ZN1S5FO8BAYjBGTADH2LbDnjLb0KFyLxV
+         yq0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=XKLWlLaz9dMMXpY7vqrKj+gJX43hfIjMlaR58B8E1J0=;
-        b=fridMb7+raaZBFz612yz96C92DIWU2vtdGzHBUZT8ir8FmByq/6bpLn8BOLhfSnpig
-         wIrDDRBBI7kBGL4ymGvqYX//m4+NTkMiYE14O2MlrtJ3BdGm6HFyajtvkMKSlV1I45zo
-         vZLYywj51bInJgl8pKgBjajn9URkoTdnzASovUUFeh0U7yTS5udbX+u7tgq0cKPl5i4N
-         tLp+IqcbeNzUa5LL0A0pDU+AoM5DruLJaVdG4g6cV5SSYCunDXDFW7aHs0PX0Wm6bqqo
-         7TVDf8QeUCYTs8dkC/VpVUWGoeUEUnEWNOuONEhxYd4/pNEzJYjLp0WW60h3z2ne/g8/
-         rwbw==
-X-Gm-Message-State: AOAM532L5kaAPqb9Llne9J32EzIsNEkyRjXBTcuYmbq7sNJmNH1xrlBB
-        iCZY2IPrj3IqyimdCItb9wiHHe9tIUnw
-X-Google-Smtp-Source: ABdhPJzTHdkyhPUStS6JfR8W1Vb+jz+OWtaRuA2J8PFkGBP9eQbWPebsjSpHeALvCb1Vqmgfk70L/+Rp81kD
-X-Received: from bgardon.sea.corp.google.com ([2620:15c:100:202:916d:2253:5849:9965])
- (user=bgardon job=sendgmr) by 2002:a17:902:ba84:b0:142:5514:8dd7 with SMTP id
- k4-20020a170902ba8400b0014255148dd7mr39012600pls.87.1637011032196; Mon, 15
- Nov 2021 13:17:12 -0800 (PST)
-Date:   Mon, 15 Nov 2021 13:17:04 -0800
-Message-Id: <20211115211704.2621644-1-bgardon@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.34.0.rc1.387.gb447b232ab-goog
-Subject: [PATCH 1/1] KVM: x86/mmu: Fix TLB flush range when handling
- disconnected pt
-From:   Ben Gardon <bgardon@google.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>, Peter Xu <peterx@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Peter Shier <pshier@google.com>,
-        David Matlack <dmatlack@google.com>,
-        Mingwei Zhang <mizhang@google.com>,
-        Yulei Zhang <yulei.kernel@gmail.com>,
-        Wanpeng Li <kernellwp@gmail.com>,
-        Xiao Guangrong <xiaoguangrong.eric@gmail.com>,
-        Kai Huang <kai.huang@intel.com>,
-        Keqian Zhu <zhukeqian1@huawei.com>,
-        David Hildenbrand <david@redhat.com>,
-        Ben Gardon <bgardon@google.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tcS5luizrzD/4F4BUGufFxJKJR6hYL4mqlHIV/Uj8qw=;
+        b=IvtvvPvJKV1CDnPpTYRvw3JvZWEMqYd8mG8rqoZOf2NNbKYhOfte0UBTYzMYwSotR8
+         dTii3tYTpD2oBU8HF5RCq46w1Rv/jzqN/GnHN8VHPxS/59d4q/N7QOoTybLuo+NqS8eW
+         Zc3vg6fU2HnZtGUXnlO850rNBeLQLOgZ9dP6sv9NPc5MCegjvjDFeiBNJ6Tsyi3Hf+cg
+         RZx7yKt+XkHJH0tIanptGBldVf6mhafjlxfOxJbqGQGBnFfaRt9LAHoQtsK+ksh/7FMO
+         fOQ3IRfh25n5zXQO3qp0Odoid8c2sDHKKOMYX2iWFzfH4CtaeQSLxC0qEdUXGLV0v50m
+         rDVw==
+X-Gm-Message-State: AOAM530+wlhgTNlr0yhmN4Ro8YbpH07KfhEsrIV3iIlqIWHuaILoWpog
+        SuftMPP+PhwyeV9vafbnnK8peWm/YB9WQFKc
+X-Google-Smtp-Source: ABdhPJyOTJVDzPIEkAHGwVYRl9tAxhYx9UzSolfbpeKiodCVkJs+GRJ6TxwJ/yTAW34nG3BXDB2Piw==
+X-Received: by 2002:a65:6a12:: with SMTP id m18mr1407401pgu.124.1637011441831;
+        Mon, 15 Nov 2021 13:24:01 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z3sm15958934pfh.79.2021.11.15.13.24.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Nov 2021 13:24:01 -0800 (PST)
+Message-ID: <6192cff1.1c69fb81.d96cb.e30f@mx.google.com>
+Date:   Mon, 15 Nov 2021 13:24:01 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.290-159-gcb74f3cdcc0d
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.9 baseline: 120 runs,
+ 2 regressions (v4.9.290-159-gcb74f3cdcc0d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When recursively clearing out disconnected pts, the range based TLB
-flush in handle_removed_tdp_mmu_page uses the wrong starting GFN,
-resulting in the flush mostly missing the affected range. Fix this by
-using base_gfn for the flush.
+stable-rc/queue/4.9 baseline: 120 runs, 2 regressions (v4.9.290-159-gcb74f3=
+cdcc0d)
 
-In response to feedback from David Matlack on the RFC version of this
-patch, also move a few definitions into the for loop in the function to
-prevent unintended references to them in the future.
+Regressions Summary
+-------------------
 
-Fixes: a066e61f13cf ("KVM: x86/mmu: Factor out handling of removed page tables")
-CC: stable@vger.kernel.org
+platform    | arch   | lab           | compiler | defconfig                =
+    | regressions
+------------+--------+---------------+----------+--------------------------=
+----+------------
+panda       | arm    | lab-collabora | gcc-10   | omap2plus_defconfig      =
+    | 1          =
 
-Signed-off-by: Ben Gardon <bgardon@google.com>
----
- arch/x86/kvm/mmu/tdp_mmu.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+qemu_x86_64 | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon...6-chromeb=
+ook | 1          =
 
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index 7c5dd83e52de..4bd541050d21 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -317,9 +317,6 @@ static void handle_removed_tdp_mmu_page(struct kvm *kvm, tdp_ptep_t pt,
- 	struct kvm_mmu_page *sp = sptep_to_sp(rcu_dereference(pt));
- 	int level = sp->role.level;
- 	gfn_t base_gfn = sp->gfn;
--	u64 old_child_spte;
--	u64 *sptep;
--	gfn_t gfn;
- 	int i;
- 
- 	trace_kvm_mmu_prepare_zap_page(sp);
-@@ -327,8 +324,9 @@ static void handle_removed_tdp_mmu_page(struct kvm *kvm, tdp_ptep_t pt,
- 	tdp_mmu_unlink_page(kvm, sp, shared);
- 
- 	for (i = 0; i < PT64_ENT_PER_PAGE; i++) {
--		sptep = rcu_dereference(pt) + i;
--		gfn = base_gfn + i * KVM_PAGES_PER_HPAGE(level);
-+		u64 *sptep = rcu_dereference(pt) + i;
-+		gfn_t gfn = base_gfn + i * KVM_PAGES_PER_HPAGE(level);
-+		u64 old_child_spte;
- 
- 		if (shared) {
- 			/*
-@@ -374,7 +372,7 @@ static void handle_removed_tdp_mmu_page(struct kvm *kvm, tdp_ptep_t pt,
- 				    shared);
- 	}
- 
--	kvm_flush_remote_tlbs_with_address(kvm, gfn,
-+	kvm_flush_remote_tlbs_with_address(kvm, base_gfn,
- 					   KVM_PAGES_PER_HPAGE(level + 1));
- 
- 	call_rcu(&sp->rcu_head, tdp_mmu_free_sp_rcu_callback);
--- 
-2.34.0.rc1.387.gb447b232ab-goog
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.290-159-gcb74f3cdcc0d/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.290-159-gcb74f3cdcc0d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      cb74f3cdcc0d1f4348cff79ad701468d7bb2cd4d =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform    | arch   | lab           | compiler | defconfig                =
+    | regressions
+------------+--------+---------------+----------+--------------------------=
+----+------------
+panda       | arm    | lab-collabora | gcc-10   | omap2plus_defconfig      =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6192951c9dc96802203358e2
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.290-1=
+59-gcb74f3cdcc0d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.290-1=
+59-gcb74f3cdcc0d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6192951c9dc9680=
+2203358e5
+        failing since 0 day (last pass: v4.9.290-56-g5c0fdc0dbedd, first fa=
+il: v4.9.290-153-g690c63d8995e7)
+        2 lines
+
+    2021-11-15T17:12:43.142020  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/125
+    2021-11-15T17:12:43.151059  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =
+
+
+
+platform    | arch   | lab           | compiler | defconfig                =
+    | regressions
+------------+--------+---------------+----------+--------------------------=
+----+------------
+qemu_x86_64 | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon...6-chromeb=
+ook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6192957783abce831d33596d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.290-1=
+59-gcb74f3cdcc0d/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.290-1=
+59-gcb74f3cdcc0d/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6192957783abce831d335=
+96e
+        new failure (last pass: v4.9.290-46-g1993e44ad53b) =
+
+ =20
