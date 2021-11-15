@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12B584512E2
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C441E4512E7
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347544AbhKOTkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:40:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S1347557AbhKOTkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:40:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245155AbhKOTTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:19:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7B43634AE;
-        Mon, 15 Nov 2021 18:29:34 +0000 (UTC)
+        id S245169AbhKOTTn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:19:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6344634AB;
+        Mon, 15 Nov 2021 18:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000975;
-        bh=QCH8uv6tbjYdRyEDMet5rpgQb0GJePIbyfcNBTQ+rvM=;
+        s=korg; t=1637000980;
+        bh=1vlQxgWvv6mlibt4gMYdzN8sX3Rs91zWBBQcXsEaV2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uuLEO/YI8TLu6EDuOziKOVuJLXzCt+lIIGt39+sv7+JXtuYA59qwE/FzooUWqGcgn
-         0E1KRzE4ddP6AFjnMIyWCDc5X7Oww0zwTovKaywPbdvJP1LN+Bdkf838+yrUpXttZO
-         RH+ZEQLPPM/lDxHt2NTWPJbOj/9lslNtPwoOsE8Q=
+        b=kWatVitkdq9Bh9q70yp4FotDnfZBvxlUQkfbz2Inbd6sW6zjGYMJHSHciE5tXKbpI
+         YNsGHeZOYOgJufEIfg1MHivOI9EIF8QVR7ikP0gXRZDgDqtwWJhnm74KOcb7QsEDaC
+         Sk4njqwJ6UPpa9y0jdCjBIi2oUHOXB9u2f6uZ8A0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 014/917] scsi: qla2xxx: Fix kernel crash when accessing port_speed sysfs file
-Date:   Mon, 15 Nov 2021 17:51:49 +0100
-Message-Id: <20211115165429.216854068@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>
+Subject: [PATCH 5.15 016/917] ce/gf100: fix incorrect CE0 address calculation on some GPUs
+Date:   Mon, 15 Nov 2021 17:51:51 +0100
+Message-Id: <20211115165429.280423813@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,105 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-commit 3ef68d4f0c9e7cb589ae8b70f07d77f528105331 upstream.
+commit 93f43ed81abec8c805e1b77eb1d20dbc51a24dc4 upstream.
 
-Kernel crashes when accessing port_speed sysfs file.  The issue happens on
-a CNA when the local array was accessed beyond bounds. Fix this by changing
-the lookup.
+The code which constructs the modules for each engine present on the GPU
+passes -1 for 'instance' on non-instanced engines, which affects how the
+name for a sub-device is generated.  This is then stored as 'instance 0'
+in nvkm_subdev.inst, so code can potentially be shared with earlier GPUs
+that only had a single instance of an engine.
 
-BUG: unable to handle kernel paging request at 0000000000004000
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP PTI
-CPU: 15 PID: 455213 Comm: sosreport Kdump: loaded Not tainted
-4.18.0-305.7.1.el8_4.x86_64 #1
-RIP: 0010:string_nocheck+0x12/0x70
-Code: 00 00 4c 89 e2 be 20 00 00 00 48 89 ef e8 86 9a 00 00 4c 01
-e3 eb 81 90 49 89 f2 48 89 ce 48 89 f8 48 c1 fe 30 66 85 f6 74 4f <44> 0f b6 0a
-45 84 c9 74 46 83 ee 01 41 b8 01 00 00 00 48 8d 7c 37
-RSP: 0018:ffffb5141c1afcf0 EFLAGS: 00010286
-RAX: ffff8bf4009f8000 RBX: ffff8bf4009f9000 RCX: ffff0a00ffffff04
-RDX: 0000000000004000 RSI: ffffffffffffffff RDI: ffff8bf4009f8000
-RBP: 0000000000004000 R08: 0000000000000001 R09: ffffb5141c1afb84
-R10: ffff8bf4009f9000 R11: ffffb5141c1afce6 R12: ffff0a00ffffff04
-R13: ffffffffc08e21aa R14: 0000000000001000 R15: ffffffffc08e21aa
-FS:  00007fc4ebfff700(0000) GS:ffff8c717f7c0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000004000 CR3: 000000edfdee6006 CR4: 00000000001706e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-  string+0x40/0x50
-  vsnprintf+0x33c/0x520
-  scnprintf+0x4d/0x90
-  qla2x00_port_speed_show+0xb5/0x100 [qla2xxx]
-  dev_attr_show+0x1c/0x40
-  sysfs_kf_seq_show+0x9b/0x100
-  seq_read+0x153/0x410
-  vfs_read+0x91/0x140
-  ksys_read+0x4f/0xb0
-  do_syscall_64+0x5b/0x1a0
-  entry_SYSCALL_64_after_hwframe+0x65/0xca
+However, GF100's CE constructor uses this value to calculate the address
+of its falcon before it's translated, resulting in CE0 getting the wrong
+address.
 
-Link: https://lore.kernel.org/r/20210908164622.19240-7-njavali@marvell.com
-Fixes: 4910b524ac9e ("scsi: qla2xxx: Add support for setting port speed")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This slightly modifies the approach, always passing a valid instance for
+engines that *can* have multiple copies, and having the code for earlier
+GPUs explicitly ask for non-instanced name generation.
+
+Bug: https://gitlab.freedesktop.org/drm/nouveau/-/issues/91
+
+Fixes: 50551b15c760 ("drm/nouveau/ce: switch to instanced constructor")
+Cc: <stable@vger.kernel.org> # v5.12+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Tested-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211103011057.15344-1-skeggsb@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c |   24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c    |    2 +-
+ drivers/gpu/drm/nouveau/nvkm/engine/device/base.c |    3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -1868,6 +1868,18 @@ qla2x00_port_speed_store(struct device *
- 	return strlen(buf);
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/ce/gt215.c
+@@ -78,6 +78,6 @@ int
+ gt215_ce_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
+ 	     struct nvkm_engine **pengine)
+ {
+-	return nvkm_falcon_new_(&gt215_ce, device, type, inst,
++	return nvkm_falcon_new_(&gt215_ce, device, type, -1,
+ 				(device->chipset != 0xaf), 0x104000, pengine);
  }
- 
-+static const struct {
-+	u16 rate;
-+	char *str;
-+} port_speed_str[] = {
-+	{ PORT_SPEED_4GB, "4" },
-+	{ PORT_SPEED_8GB, "8" },
-+	{ PORT_SPEED_16GB, "16" },
-+	{ PORT_SPEED_32GB, "32" },
-+	{ PORT_SPEED_64GB, "64" },
-+	{ PORT_SPEED_10GB, "10" },
-+};
-+
- static ssize_t
- qla2x00_port_speed_show(struct device *dev, struct device_attribute *attr,
-     char *buf)
-@@ -1875,7 +1887,8 @@ qla2x00_port_speed_show(struct device *d
- 	struct scsi_qla_host *vha = shost_priv(dev_to_shost(dev));
- 	struct qla_hw_data *ha = vha->hw;
- 	ssize_t rval;
--	char *spd[7] = {"0", "0", "0", "4", "8", "16", "32"};
-+	u16 i;
-+	char *speed = "Unknown";
- 
- 	rval = qla2x00_get_data_rate(vha);
- 	if (rval != QLA_SUCCESS) {
-@@ -1884,7 +1897,14 @@ qla2x00_port_speed_show(struct device *d
- 		return -EINVAL;
- 	}
- 
--	return scnprintf(buf, PAGE_SIZE, "%s\n", spd[ha->link_data_rate]);
-+	for (i = 0; i < ARRAY_SIZE(port_speed_str); i++) {
-+		if (port_speed_str[i].rate != ha->link_data_rate)
-+			continue;
-+		speed = port_speed_str[i].str;
-+		break;
-+	}
-+
-+	return scnprintf(buf, PAGE_SIZE, "%s\n", speed);
- }
- 
- static ssize_t
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
+@@ -3147,8 +3147,7 @@ nvkm_device_ctor(const struct nvkm_devic
+ 	WARN_ON(device->chip->ptr.inst & ~((1 << ARRAY_SIZE(device->ptr)) - 1));             \
+ 	for (j = 0; device->chip->ptr.inst && j < ARRAY_SIZE(device->ptr); j++) {            \
+ 		if ((device->chip->ptr.inst & BIT(j)) && (subdev_mask & BIT_ULL(type))) {    \
+-			int inst = (device->chip->ptr.inst == 1) ? -1 : (j);                 \
+-			ret = device->chip->ptr.ctor(device, (type), inst, &device->ptr[j]); \
++			ret = device->chip->ptr.ctor(device, (type), (j), &device->ptr[j]);  \
+ 			subdev = nvkm_device_subdev(device, (type), (j));                    \
+ 			if (ret) {                                                           \
+ 				nvkm_subdev_del(&subdev);                                    \
 
 
