@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B0874514A8
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:09:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5464514AA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:09:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348890AbhKOULg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:11:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
+        id S1349078AbhKOULt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:11:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344888AbhKOTZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344892AbhKOTZk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E882E633F1;
-        Mon, 15 Nov 2021 19:06:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D4F4636DD;
+        Mon, 15 Nov 2021 19:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003180;
-        bh=RVPesjfFaUpLuAjJj4MexMZO7Ju4/g9b/3mA5ZBD1+k=;
+        s=korg; t=1637003186;
+        bh=2FAVq0cSXkIby1CZISilZb0CiTX22xuvyVOj3IO7wn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hXoH766g8GzQ/LWkaGXd5kcgm1teeoNoxOjp1a8YDf/Wir49As29eo1z4l9m3vkF0
-         JHh5MSTwQcPkQanmaoF4fkb7DeskxWlIRDjCCWdgQodsxII7XTl4k8m0J5fadlre7F
-         Ul/eMXLlpQwCf4TZo9Xmi8+tiPYnXcdTyLb+WRKM=
+        b=E81l5DocFSbf6NyA8Kvb+1SQiv+dqyOKqvQwKhXWz+WOt8Ckn4p6wET7DrLIEjDk7
+         wLwVLrujXCKm/fWDeC4iYMXOmyqR88iEw9r36FGarqxxHJ1omJFvINxtgGY8tYH/NT
+         nw4NQ8TvqP15gHarUDzOnOOLZGRuCBfDfT0lphiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 839/917] net: ethernet: ti: cpsw_ale: Fix access to un-initialized memory
-Date:   Mon, 15 Nov 2021 18:05:34 +0100
-Message-Id: <20211115165457.492438074@linuxfoundation.org>
+Subject: [PATCH 5.15 841/917] vsock: prevent unnecessary refcnt inc for nonblocking connect
+Date:   Mon, 15 Nov 2021 18:05:36 +0100
+Message-Id: <20211115165457.563639774@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,41 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
 
-[ Upstream commit 7a166854b4e24c57d56b3eba9fe1594985ee0a2c ]
+[ Upstream commit c7cd82b90599fa10915f41e3dd9098a77d0aa7b6 ]
 
-It is spurious to allocate a bitmap without initializing it.
-So, better safe than sorry, initialize it to 0 at least to have some known
-values.
+Currently vosck_connect() increments sock refcount for nonblocking
+socket each time it's called, which can lead to memory leak if
+it's called multiple times because connect timeout function decrements
+sock refcount only once.
 
-While at it, switch to the devm_bitmap_ API which is less verbose.
+Fixes it by making vsock_connect() return -EALREADY immediately when
+sock state is already SS_CONNECTING.
 
-Fixes: 4b41d3436796 ("net: ethernet: ti: cpsw: allow untagged traffic on host port")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/cpsw_ale.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/vmw_vsock/af_vsock.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/ti/cpsw_ale.c b/drivers/net/ethernet/ti/cpsw_ale.c
-index 0c75e0576ee1f..1ef0aaef5c61c 100644
---- a/drivers/net/ethernet/ti/cpsw_ale.c
-+++ b/drivers/net/ethernet/ti/cpsw_ale.c
-@@ -1299,10 +1299,8 @@ struct cpsw_ale *cpsw_ale_create(struct cpsw_ale_params *params)
- 	if (!ale)
- 		return ERR_PTR(-ENOMEM);
- 
--	ale->p0_untag_vid_mask =
--		devm_kmalloc_array(params->dev, BITS_TO_LONGS(VLAN_N_VID),
--				   sizeof(unsigned long),
--				   GFP_KERNEL);
-+	ale->p0_untag_vid_mask = devm_bitmap_zalloc(params->dev, VLAN_N_VID,
-+						    GFP_KERNEL);
- 	if (!ale->p0_untag_vid_mask)
- 		return ERR_PTR(-ENOMEM);
- 
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index e2c0cfb334d20..fa8c1b623fa21 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1322,6 +1322,8 @@ static int vsock_connect(struct socket *sock, struct sockaddr *addr,
+ 		 * non-blocking call.
+ 		 */
+ 		err = -EALREADY;
++		if (flags & O_NONBLOCK)
++			goto out;
+ 		break;
+ 	default:
+ 		if ((sk->sk_state == TCP_LISTEN) ||
 -- 
 2.33.0
 
