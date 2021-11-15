@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80199450E60
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F834450BCA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:27:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239307AbhKOSOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:14:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49940 "EHLO mail.kernel.org"
+        id S237506AbhKOR3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:29:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238451AbhKOSHi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D78A633A1;
-        Mon, 15 Nov 2021 17:44:51 +0000 (UTC)
+        id S237850AbhKOR0d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:26:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4ADDD619EC;
+        Mon, 15 Nov 2021 17:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998292;
-        bh=55lL8uulT8XdG1MaepOPi9KIpP4N9v2b8WKmFvB41KU=;
+        s=korg; t=1636996688;
+        bh=uW1Z6WMCUWy/5QO2cc8QWmfz3awNB6pguTI/tNIMpQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xsaZZc3kqmmieqHbqxSXwx46DDRKOkMqpCdQSQtZ9+3GdTTsbkjcxvze0hcVs68Fp
-         +24mjANWoQ0NvKR1ywicbclN18RuQzLonXYKtq53tYaBFm4SO4SSyzeSMPJwWmGY9B
-         6rCsnU00YJuG7TFJPb5nwf1fDRrBTgZY5vo3qG2M=
+        b=lMp9fxfSqNJo6R33M2Q3Y9/AL/SaYSyqYcm6WOPNA3Hyc/L06WVclY2w4jOt+WQv1
+         /l3RF9cDd5z35Qrz/kJPY8l/55yv89PO2nqeHPZZyXU0hMBAay0KD61dmSQsey87h7
+         GC4hKxpkBTQY+S0yf2SkpYRrtMdj7ADnU9un16zo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 430/575] RDMA/mlx4: Return missed an error if device doesnt support steering
+Subject: [PATCH 5.4 231/355] rsi: stop thread firstly in rsi_91x_init() error handling
 Date:   Mon, 15 Nov 2021 18:02:35 +0100
-Message-Id: <20211115165358.652287621@linuxfoundation.org>
+Message-Id: <20211115165321.228111461@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit f4e56ec4452f48b8292dcf0e1c4bdac83506fb8b ]
+[ Upstream commit 515e7184bdf0a3ebf1757cc77fb046b4fe282189 ]
 
-The error flow fixed in this patch is not possible because all kernel
-users of create QP interface check that device supports steering before
-set IB_QP_CREATE_NETIF_QP flag.
+When fail to init coex module, free 'common' and 'adapter' directly, but
+common->tx_thread which will access 'common' and 'adapter' is running at
+the same time. That will trigger the UAF bug.
 
-Fixes: c1c98501121e ("IB/mlx4: Add support for steerable IB UD QPs")
-Link: https://lore.kernel.org/r/91c61f6e60eb0240f8bbc321fda7a1d2986dd03c.1634023677.git.leonro@nvidia.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+==================================================================
+BUG: KASAN: use-after-free in rsi_tx_scheduler_thread+0x50f/0x520 [rsi_91x]
+Read of size 8 at addr ffff8880076dc000 by task Tx-Thread/124777
+CPU: 0 PID: 124777 Comm: Tx-Thread Not tainted 5.15.0-rc5+ #19
+Call Trace:
+ dump_stack_lvl+0xe2/0x152
+ print_address_description.constprop.0+0x21/0x140
+ ? rsi_tx_scheduler_thread+0x50f/0x520
+ kasan_report.cold+0x7f/0x11b
+ ? rsi_tx_scheduler_thread+0x50f/0x520
+ rsi_tx_scheduler_thread+0x50f/0x520
+...
+
+Freed by task 111873:
+ kasan_save_stack+0x1b/0x40
+ kasan_set_track+0x1c/0x30
+ kasan_set_free_info+0x20/0x30
+ __kasan_slab_free+0x109/0x140
+ kfree+0x117/0x4c0
+ rsi_91x_init+0x741/0x8a0 [rsi_91x]
+ rsi_probe+0x9f/0x1750 [rsi_usb]
+
+Stop thread before free 'common' and 'adapter' to fix it.
+
+Fixes: 2108df3c4b18 ("rsi: add coex support")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211015040335.1021546-1-william.xuanziyang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/qp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/rsi/rsi_91x_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
-index 6bc0818f4b2c6..c6a815a705fef 100644
---- a/drivers/infiniband/hw/mlx4/qp.c
-+++ b/drivers/infiniband/hw/mlx4/qp.c
-@@ -1099,8 +1099,10 @@ static int create_qp_common(struct ib_pd *pd, struct ib_qp_init_attr *init_attr,
- 			if (dev->steering_support ==
- 			    MLX4_STEERING_MODE_DEVICE_MANAGED)
- 				qp->flags |= MLX4_IB_QP_NETIF;
--			else
-+			else {
-+				err = -EINVAL;
- 				goto err;
-+			}
+diff --git a/drivers/net/wireless/rsi/rsi_91x_main.c b/drivers/net/wireless/rsi/rsi_91x_main.c
+index aece1d3a6b055..441fda71f6289 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_main.c
++++ b/drivers/net/wireless/rsi/rsi_91x_main.c
+@@ -368,6 +368,7 @@ struct rsi_hw *rsi_91x_init(u16 oper_mode)
+ 	if (common->coex_mode > 1) {
+ 		if (rsi_coex_attach(common)) {
+ 			rsi_dbg(ERR_ZONE, "Failed to init coex module\n");
++			rsi_kill_thread(&common->tx_thread);
+ 			goto err;
  		}
- 
- 		err = set_kernel_sq_size(dev, &init_attr->cap, qp_type, qp);
+ 	}
 -- 
 2.33.0
 
