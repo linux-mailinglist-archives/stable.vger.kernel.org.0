@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75CB9451192
+	by mail.lfdr.de (Postfix) with ESMTP id BEA44451193
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:07:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243990AbhKOTJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:09:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38232 "EHLO mail.kernel.org"
+        id S243183AbhKOTJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:09:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240831AbhKOTHX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:07:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23AE7633ED;
-        Mon, 15 Nov 2021 18:17:12 +0000 (UTC)
+        id S243400AbhKOTHc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:07:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD80E633F4;
+        Mon, 15 Nov 2021 18:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000232;
-        bh=iC7IF6dVqGVqWQIH98l7aYnkMCcZP24pH6pirizffw0=;
+        s=korg; t=1637000235;
+        bh=CdI08ViV6BvG1YXh6LB3amNdngiUBTB8LPRQeIAyfvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bt9JUNRX+jPRYpuTaGord9dKJoOff8YOMY2ARbuOmnxikkaB1z19FTpYNpWB203EZ
-         V3/qSZZnGB/s4re3EHiVfKVw0jLs9diW7a0t/GZTbTvVfx74VpWGhx5hrgaN6hTIX+
-         hvZv5B+56GfjyKVEDPdXP0NyKKqy/l67deF9npbw=
+        b=nxVBiAeiGzpE6m5U9loZEcZNYW9oW1D7RahxMl3tCqPoiynxivVQ++FQ9wh/Di5AO
+         sCVyBSaz5YLHrRlwul2BL5l9dLBj9LpF1yOkOGhBuQRCe1895mN0tDlOLJAj89Jbhl
+         uruppo2StClKMqWT6hcXhLj5ki6nB+1PBDF31O/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Birsan <cristian.birsan@microchip.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Sumit Saxena <sumit.saxena@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 585/849] power: reset: at91-reset: check properly the return value of devm_of_iomap
-Date:   Mon, 15 Nov 2021 18:01:08 +0100
-Message-Id: <20211115165440.044478964@linuxfoundation.org>
+Subject: [PATCH 5.14 586/849] scsi: megaraid_sas: Fix concurrent access to ISR between IRQ polling and real interrupt
+Date:   Mon, 15 Nov 2021 18:01:09 +0100
+Message-Id: <20211115165440.075540650@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,44 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Sumit Saxena <sumit.saxena@broadcom.com>
 
-[ Upstream commit f558c8072c3461b65c12c0068b108f78cebc8246 ]
+[ Upstream commit e7dcc514a49e74051b869697d5ab0370f6301d57 ]
 
-devm_of_iomap() returns error code or valid pointer. Check its return
-value with IS_ERR().
+IRQ polling thread calls ISR after enable_irq() to handle any missed I/O
+completion. The atomic flag "in_used" was added to have the synchronization
+between the IRQ polling thread and the interrupt context. There is a bug
+around it leading to a race condition.
 
-Fixes: bd3127733f2c ("power: reset: at91-reset: use devm_of_iomap")
-Reported-by: Cristian Birsan <cristian.birsan@microchip.com>
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Below is the sequence:
+
+ - IRQ polling thread accesses ISR, fetches the reply descriptor.
+
+ - Real interrupt arrives and pre-empts polling thread (enable_irq() is
+   already called).
+
+ - Interrupt context picks the same reply descriptor as fetched by polling
+   thread, processes it, and exits.
+
+ - Polling thread resumes and processes the descriptor which is already
+   processed by interrupt thread leads to kernel crash.
+
+Setting the "in_used" flag before fetching the reply descriptor ensures
+synchronized access to ISR.
+
+Link: https://www.spinics.net/lists/linux-scsi/msg159440.html
+Link: https://lore.kernel.org/r/20210929124022.24605-2-sumit.saxena@broadcom.com
+Fixes: 9bedd36e9146 ("scsi: megaraid_sas: Handle missing interrupts while re-enabling IRQs")
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/reset/at91-reset.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_fusion.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/power/reset/at91-reset.c b/drivers/power/reset/at91-reset.c
-index 026649409135c..64def79d557a8 100644
---- a/drivers/power/reset/at91-reset.c
-+++ b/drivers/power/reset/at91-reset.c
-@@ -193,7 +193,7 @@ static int __init at91_reset_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+index 06399c026a8d5..1ff2198583a71 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+@@ -3530,6 +3530,9 @@ complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex,
+ 	if (atomic_read(&instance->adprecovery) == MEGASAS_HW_CRITICAL_ERROR)
+ 		return IRQ_HANDLED;
  
- 	reset->rstc_base = devm_of_iomap(&pdev->dev, pdev->dev.of_node, 0, NULL);
--	if (!reset->rstc_base) {
-+	if (IS_ERR(reset->rstc_base)) {
- 		dev_err(&pdev->dev, "Could not map reset controller address\n");
- 		return -ENODEV;
- 	}
-@@ -203,7 +203,7 @@ static int __init at91_reset_probe(struct platform_device *pdev)
- 		for_each_matching_node_and_match(np, at91_ramc_of_match, &match) {
- 			reset->ramc_lpr = (u32)match->data;
- 			reset->ramc_base[idx] = devm_of_iomap(&pdev->dev, np, 0, NULL);
--			if (!reset->ramc_base[idx]) {
-+			if (IS_ERR(reset->ramc_base[idx])) {
- 				dev_err(&pdev->dev, "Could not map ram controller address\n");
- 				of_node_put(np);
- 				return -ENODEV;
++	if (irq_context && !atomic_add_unless(&irq_context->in_used, 1, 1))
++		return 0;
++
+ 	desc = fusion->reply_frames_desc[MSIxIndex] +
+ 				fusion->last_reply_idx[MSIxIndex];
+ 
+@@ -3540,11 +3543,11 @@ complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex,
+ 	reply_descript_type = reply_desc->ReplyFlags &
+ 		MPI2_RPY_DESCRIPT_FLAGS_TYPE_MASK;
+ 
+-	if (reply_descript_type == MPI2_RPY_DESCRIPT_FLAGS_UNUSED)
++	if (reply_descript_type == MPI2_RPY_DESCRIPT_FLAGS_UNUSED) {
++		if (irq_context)
++			atomic_dec(&irq_context->in_used);
+ 		return IRQ_NONE;
+-
+-	if (irq_context && !atomic_add_unless(&irq_context->in_used, 1, 1))
+-		return 0;
++	}
+ 
+ 	num_completed = 0;
+ 
 -- 
 2.33.0
 
