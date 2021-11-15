@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C22A4511CA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:12:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 390A745146C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243944AbhKOTPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:15:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42972 "EHLO mail.kernel.org"
+        id S1349231AbhKOUFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:05:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244246AbhKOTMO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:12:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87137632AC;
-        Mon, 15 Nov 2021 18:19:45 +0000 (UTC)
+        id S1344388AbhKOTYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FD2263674;
+        Mon, 15 Nov 2021 18:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000386;
-        bh=l0DhgL9GZFbs46t6S34TVAF/MCOHyfU1Hgkb5SNQPCc=;
+        s=korg; t=1637002604;
+        bh=O7u4g5SOqoogmZiCBJ7XpdKjtfB0L9thbORUUz+Utzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQXjH2M1U1WfcS6SeA/9Mv+VJIMmgSyc/W0pFYS25rBvBAVp6TypmjG/At6tA7kvu
-         PxM8SLoLlc29KJRW4rNUV63QdEr1a7AEYnoe+m2/yWLBPg2HpWObNlL1SKqaJ/EH5g
-         WyaeAt6c3dtXBjwecyyq9oyfKSAOvz2Jf1X7v2NM=
+        b=QJRXupcB7LRYr1wqDph1EWQmJIpye5Y8RTBCIMy3iuET+Ic8199Xp42EsuD13NjTf
+         OdoycCNti2IDXHoww9tXJAFZo8wNyJlsHe5BJYEh/tk2ZicXUoorVDhCk8POcvUA1g
+         K5u+7B+FLycSOQTx800NEsoWhxkqyREtqk1MQ9uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Athira Rajeev <atrajeev@linux.vnet.ibm.cm>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Vincent Knecht <vincent.knecht@mailoo.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 609/849] powerpc/perf: Fix cycles/instructions as PM_CYC/PM_INST_CMPL in power10
+Subject: [PATCH 5.15 597/917] arm64: dts: qcom: msm8916: Fix Secondary MI2S bit clock
 Date:   Mon, 15 Nov 2021 18:01:32 +0100
-Message-Id: <20211115165440.851213344@linuxfoundation.org>
+Message-Id: <20211115165449.010276540@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,179 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.cm>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 8f6aca0e0f26eaaee670cd27896993a45cdc8f9e ]
+[ Upstream commit 8199a0b31e76d158ac14841e7119890461f8c595 ]
 
-On power9 and earlier platforms, the default event used for cyles and
-instructions is PM_CYC (0x0001e) and PM_INST_CMPL (0x00002)
-respectively. These events use two programmable PMCs and by default will
-count irrespective of the run latch state (idle state). But since they
-use programmable PMCs, these events can lead to multiplexing with other
-events, because there are only 4 programmable PMCs. Hence in power10,
-performance monitoring unit (PMU) driver uses performance monitor
-counter 5 (PMC5) and performance monitor counter6 (PMC6) for counting
-instructions and cycles.
+At the moment, playing audio on Secondary MI2S will just end up getting
+stuck, without actually playing any audio. This happens because the wrong
+bit clock is configured when playing audio on Secondary MI2S.
 
-Currently on power10, the event used for cycles is PM_RUN_CYC (0x600F4)
-and instructions uses PM_RUN_INST_CMPL (0x500fa). But counting of these
-events in idle state is controlled by the CC56RUN bit setting in Monitor
-Mode Control Register0 (MMCR0). If the CC56RUN bit is zero, PMC5/6 will
-not count when CTRL[RUN] (run latch) is zero. This could lead to missing
-some counts if a thread is in idle state during system wide profiling.
+The PRI_I2S_CLK (better name: SPKR_I2S_CLK) is used by the SPKR audio mux
+block that provides both Primary and Secondary MI2S.
 
-To fix it, set the CC56RUN bit in MMCR0 for power10, which makes PMC5
-and PMC6 count instructions and cycles regardless of the run latch
-state. Since this change make PMC5/6 count as PM_INST_CMPL/PM_CYC,
-rename the event code 0x600f4 as PM_CYC instead of PM_RUN_CYC and event
-code 0x500fa as PM_INST_CMPL instead of PM_RUN_INST_CMPL. The changes
-are only for PMC5/6 event codes and will not affect the behaviour of
-PM_RUN_CYC/PM_RUN_INST_CMPL if progammed in other PMC's.
+The SEC_I2S_CLK (better name: MIC_I2S_CLK) is used by the MIC audio mux
+block that provides Tertiary MI2S. Quaternary MI2S is also part of the
+MIC audio mux but has its own clock (AUX_I2S_CLK).
 
-Fixes: a64e697cef23 ("powerpc/perf: power10 Performance Monitoring support")
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.cm>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.ibm.com>
-[mpe: Tweak change log wording for style and consistency]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211007075121.28497-1-atrajeev@linux.vnet.ibm.com
+This means that (quite confusingly) the SEC_I2S_CLK is not actually
+used for Secondary MI2S as the name would suggest. Secondary MI2S
+needs to have the same clock as Primary MI2S configured.
+
+Fix the clock list for the lpass node in the device tree and add
+a comment to clarify this confusing naming. With these changes,
+audio can be played correctly on Secondary MI2S.
+
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Fixes: 3761a3618f55 ("arm64: dts: qcom: add lpass node")
+Tested-by: Vincent Knecht <vincent.knecht@mailoo.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210816181810.2242-1-stephan@gerhold.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/power10-events-list.h |  8 ++---
- arch/powerpc/perf/power10-pmu.c         | 44 +++++++++++++++++--------
- 2 files changed, 35 insertions(+), 17 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8916.dtsi | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/perf/power10-events-list.h b/arch/powerpc/perf/power10-events-list.h
-index 93be7197d2502..564f14097f07b 100644
---- a/arch/powerpc/perf/power10-events-list.h
-+++ b/arch/powerpc/perf/power10-events-list.h
-@@ -9,10 +9,10 @@
- /*
-  * Power10 event codes.
-  */
--EVENT(PM_RUN_CYC,				0x600f4);
-+EVENT(PM_CYC,				0x600f4);
- EVENT(PM_DISP_STALL_CYC,			0x100f8);
- EVENT(PM_EXEC_STALL,				0x30008);
--EVENT(PM_RUN_INST_CMPL,				0x500fa);
-+EVENT(PM_INST_CMPL,				0x500fa);
- EVENT(PM_BR_CMPL,                               0x4d05e);
- EVENT(PM_BR_MPRED_CMPL,                         0x400f6);
- EVENT(PM_BR_FIN,				0x2f04a);
-@@ -50,8 +50,8 @@ EVENT(PM_DTLB_MISS,				0x300fc);
- /* ITLB Reloaded */
- EVENT(PM_ITLB_MISS,				0x400fc);
- 
--EVENT(PM_RUN_CYC_ALT,				0x0001e);
--EVENT(PM_RUN_INST_CMPL_ALT,			0x00002);
-+EVENT(PM_CYC_ALT,				0x0001e);
-+EVENT(PM_INST_CMPL_ALT,				0x00002);
- 
- /*
-  * Memory Access Events
-diff --git a/arch/powerpc/perf/power10-pmu.c b/arch/powerpc/perf/power10-pmu.c
-index f9d64c63bb4a7..9dd75f3858372 100644
---- a/arch/powerpc/perf/power10-pmu.c
-+++ b/arch/powerpc/perf/power10-pmu.c
-@@ -91,8 +91,8 @@ extern u64 PERF_REG_EXTENDED_MASK;
- 
- /* Table of alternatives, sorted by column 0 */
- static const unsigned int power10_event_alternatives[][MAX_ALT] = {
--	{ PM_RUN_CYC_ALT,		PM_RUN_CYC },
--	{ PM_RUN_INST_CMPL_ALT,		PM_RUN_INST_CMPL },
-+	{ PM_CYC_ALT,			PM_CYC },
-+	{ PM_INST_CMPL_ALT,		PM_INST_CMPL },
- };
- 
- static int power10_get_alternatives(u64 event, unsigned int flags, u64 alt[])
-@@ -118,8 +118,8 @@ static int power10_check_attr_config(struct perf_event *ev)
- 	return 0;
- }
- 
--GENERIC_EVENT_ATTR(cpu-cycles,			PM_RUN_CYC);
--GENERIC_EVENT_ATTR(instructions,		PM_RUN_INST_CMPL);
-+GENERIC_EVENT_ATTR(cpu-cycles,			PM_CYC);
-+GENERIC_EVENT_ATTR(instructions,		PM_INST_CMPL);
- GENERIC_EVENT_ATTR(branch-instructions,		PM_BR_CMPL);
- GENERIC_EVENT_ATTR(branch-misses,		PM_BR_MPRED_CMPL);
- GENERIC_EVENT_ATTR(cache-references,		PM_LD_REF_L1);
-@@ -148,8 +148,8 @@ CACHE_EVENT_ATTR(dTLB-load-misses,		PM_DTLB_MISS);
- CACHE_EVENT_ATTR(iTLB-load-misses,		PM_ITLB_MISS);
- 
- static struct attribute *power10_events_attr_dd1[] = {
--	GENERIC_EVENT_PTR(PM_RUN_CYC),
--	GENERIC_EVENT_PTR(PM_RUN_INST_CMPL),
-+	GENERIC_EVENT_PTR(PM_CYC),
-+	GENERIC_EVENT_PTR(PM_INST_CMPL),
- 	GENERIC_EVENT_PTR(PM_BR_CMPL),
- 	GENERIC_EVENT_PTR(PM_BR_MPRED_CMPL),
- 	GENERIC_EVENT_PTR(PM_LD_REF_L1),
-@@ -173,8 +173,8 @@ static struct attribute *power10_events_attr_dd1[] = {
- };
- 
- static struct attribute *power10_events_attr[] = {
--	GENERIC_EVENT_PTR(PM_RUN_CYC),
--	GENERIC_EVENT_PTR(PM_RUN_INST_CMPL),
-+	GENERIC_EVENT_PTR(PM_CYC),
-+	GENERIC_EVENT_PTR(PM_INST_CMPL),
- 	GENERIC_EVENT_PTR(PM_BR_FIN),
- 	GENERIC_EVENT_PTR(PM_MPRED_BR_FIN),
- 	GENERIC_EVENT_PTR(PM_LD_REF_L1),
-@@ -271,8 +271,8 @@ static const struct attribute_group *power10_pmu_attr_groups[] = {
- };
- 
- static int power10_generic_events_dd1[] = {
--	[PERF_COUNT_HW_CPU_CYCLES] =			PM_RUN_CYC,
--	[PERF_COUNT_HW_INSTRUCTIONS] =			PM_RUN_INST_CMPL,
-+	[PERF_COUNT_HW_CPU_CYCLES] =			PM_CYC,
-+	[PERF_COUNT_HW_INSTRUCTIONS] =			PM_INST_CMPL,
- 	[PERF_COUNT_HW_BRANCH_INSTRUCTIONS] =		PM_BR_CMPL,
- 	[PERF_COUNT_HW_BRANCH_MISSES] =			PM_BR_MPRED_CMPL,
- 	[PERF_COUNT_HW_CACHE_REFERENCES] =		PM_LD_REF_L1,
-@@ -280,8 +280,8 @@ static int power10_generic_events_dd1[] = {
- };
- 
- static int power10_generic_events[] = {
--	[PERF_COUNT_HW_CPU_CYCLES] =			PM_RUN_CYC,
--	[PERF_COUNT_HW_INSTRUCTIONS] =			PM_RUN_INST_CMPL,
-+	[PERF_COUNT_HW_CPU_CYCLES] =			PM_CYC,
-+	[PERF_COUNT_HW_INSTRUCTIONS] =			PM_INST_CMPL,
- 	[PERF_COUNT_HW_BRANCH_INSTRUCTIONS] =		PM_BR_FIN,
- 	[PERF_COUNT_HW_BRANCH_MISSES] =			PM_MPRED_BR_FIN,
- 	[PERF_COUNT_HW_CACHE_REFERENCES] =		PM_LD_REF_L1,
-@@ -548,6 +548,24 @@ static u64 power10_cache_events[C(MAX)][C(OP_MAX)][C(RESULT_MAX)] = {
- 
- #undef C
- 
-+/*
-+ * Set the MMCR0[CC56RUN] bit to enable counting for
-+ * PMC5 and PMC6 regardless of the state of CTRL[RUN],
-+ * so that we can use counters 5 and 6 as PM_INST_CMPL and
-+ * PM_CYC.
-+ */
-+static int power10_compute_mmcr(u64 event[], int n_ev,
-+				unsigned int hwc[], struct mmcr_regs *mmcr,
-+				struct perf_event *pevents[], u32 flags)
-+{
-+	int ret;
+diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+index 3f85e34a8ce6f..fbff712639513 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+@@ -1384,11 +1384,17 @@
+ 		lpass: audio-controller@7708000 {
+ 			status = "disabled";
+ 			compatible = "qcom,lpass-cpu-apq8016";
 +
-+	ret = isa207_compute_mmcr(event, n_ev, hwc, mmcr, pevents, flags);
-+	if (!ret)
-+		mmcr->mmcr0 |= MMCR0_C56RUN;
-+	return ret;
-+}
-+
- static struct power_pmu power10_pmu = {
- 	.name			= "POWER10",
- 	.n_counter		= MAX_PMU_COUNTERS,
-@@ -555,7 +573,7 @@ static struct power_pmu power10_pmu = {
- 	.test_adder		= ISA207_TEST_ADDER,
- 	.group_constraint_mask	= CNST_CACHE_PMC4_MASK,
- 	.group_constraint_val	= CNST_CACHE_PMC4_VAL,
--	.compute_mmcr		= isa207_compute_mmcr,
-+	.compute_mmcr		= power10_compute_mmcr,
- 	.config_bhrb		= power10_config_bhrb,
- 	.bhrb_filter_map	= power10_bhrb_filter_map,
- 	.get_constraint		= isa207_get_constraint,
++			/*
++			 * Note: Unlike the name would suggest, the SEC_I2S_CLK
++			 * is actually only used by Tertiary MI2S while
++			 * Primary/Secondary MI2S both use the PRI_I2S_CLK.
++			 */
+ 			clocks = <&gcc GCC_ULTAUDIO_AHBFABRIC_IXFABRIC_CLK>,
+ 				 <&gcc GCC_ULTAUDIO_PCNOC_MPORT_CLK>,
+ 				 <&gcc GCC_ULTAUDIO_PCNOC_SWAY_CLK>,
+ 				 <&gcc GCC_ULTAUDIO_LPAIF_PRI_I2S_CLK>,
+-				 <&gcc GCC_ULTAUDIO_LPAIF_SEC_I2S_CLK>,
++				 <&gcc GCC_ULTAUDIO_LPAIF_PRI_I2S_CLK>,
+ 				 <&gcc GCC_ULTAUDIO_LPAIF_SEC_I2S_CLK>,
+ 				 <&gcc GCC_ULTAUDIO_LPAIF_AUX_I2S_CLK>;
+ 
 -- 
 2.33.0
 
