@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C88C04512B3
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0531E451493
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:07:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347226AbhKOTjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:39:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
+        id S1345271AbhKOUKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:10:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244992AbhKOTST (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFE21634F2;
-        Mon, 15 Nov 2021 18:26:29 +0000 (UTC)
+        id S1344750AbhKOTZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C1F7636C3;
+        Mon, 15 Nov 2021 19:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000790;
-        bh=pyKJXitu9zXRSG3lK7a2NWw9sKfdbmPhqi3fOBvrbL0=;
+        s=korg; t=1637003017;
+        bh=t/uFbwEIvIONzprdNkwS2joaq+X3GGozQJFMysvBvPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPGX7jxxi0svtyYjhlpgnQlojxcoALDVzefmgF/rp0I+n+5N82VYRtYSQTq+snbVl
-         bOIegTdVUNzT/wxQis3dne8ZMMe8Cd5kZMdLGt7tL3lUFc/OQxPif5XkYUdHN8OZns
-         +jybzerclKqMDWKxL26MQ7bs5BrfY0EvbVpVNGoM=
+        b=iZTuf3WHnA/lMrs1lW2cbO+2kkvth2/UeA2vXPt5OPIqedLaWVPCXn9meMI1vUooq
+         YliQCOS1uo8ZDlKlXxdvpe7Wzau0b57Ct1wqWOx1i3JKdmw8aTmMP6uKL4BuFoQkb6
+         5k+0eY2uzuOWCd5uo0ZzIJe9ppZHpkXAgmC7nixo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.14 793/849] KVM: x86: move guest_pv_has out of user_access section
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 781/917] scsi: ufs: core: Fix NULL pointer dereference
 Date:   Mon, 15 Nov 2021 18:04:36 +0100
-Message-Id: <20211115165447.068593140@linuxfoundation.org>
+Message-Id: <20211115165455.433705855@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +40,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Bean Huo <beanhuo@micron.com>
 
-commit 3e067fd8503d6205aa0c1c8f48f6b209c592d19c upstream.
+[ Upstream commit 1da3b0141e74c18c2377d4c2655406a90a87742f ]
 
-When UBSAN is enabled, the code emitted for the call to guest_pv_has
-includes a call to __ubsan_handle_load_invalid_value.  objtool
-complains that this call happens with UACCESS enabled; to avoid
-the warning, pull the calls to user_access_begin into both arms
-of the "if" statement, after the check for guest_pv_has.
+Calling ufshcd_rpm_{get/put}_sync() prior to ufshcd_scsi_add_wlus() being
+called will trigger a NULL pointer dereference. This is because
+hba->sdev_ufs_device is initialized in ufshcd_scsi_add_wlus().
 
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Unable to handle kernel NULL pointer dereference at virtual address
+    0000000000000348
+    Mem abort info:
+      ESR = 0x96000004
+      EC = 0x25: DABT (current EL), IL = 32 bits
+      SET = 0, FnV = 0
+      EA = 0, S1PTW = 0
+      FSC = 0x04: level 0 translation fault
+    Data abort info:
+      ISV = 0, ISS = 0x00000004
+      CM = 0, WnR = 0
+    [0000000000000348] user address but active_mm is swapper
+    Internal error: Oops: 96000004 [#1] PREEMPT SMP
+    Modules linked in:
+    CPU: 0 PID: 91 Comm: kworker/u16:1 Not tainted 5.15.0-rc1-beanhuo-linaro-1423
+    Hardware name: MicronRB (DT)
+    Workqueue: events_unbound async_run_entry_fn
+    pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+    pc : pm_runtime_drop_link+0x128/0x338
+    lr : ufshpb_get_dev_info+0x8c/0x148
+    sp : ffff800012573c10
+    x29: ffff800012573c10 x28: 0000000000000000 x27: 0000000000000003
+    x26: ffff000001d21298 x25: 000000005abcea60 x24: ffff800011d89000
+    x23: 0000000000000001 x22: ffff000001d21880 x21: ffff000001ec9300
+    x20: 0000000000000004 x19: 0000000000000198 x18: ffffffffffffffff
+    x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000041400
+    x14: 5eee00201100200a x13: 000000000000bb03 x12: 0000000000000000
+    x11: 0000000000000100 x10: 0200000000000000 x9 : bb0000021a162c01
+    x8 : 0302010021021003 x7 : 0000000000000000 x6 : ffff800012573af0
+    x5 : 0000000000000001 x4 : 0000000000000001 x3 : 0000000000000200
+    x2 : 0000000000000348 x1 : 0000000000000348 x0 : ffff80001095308c
+    Call trace:
+     pm_runtime_drop_link+0x128/0x338
+     ufshpb_get_dev_info+0x8c/0x148
+     ufshcd_probe_hba+0xda0/0x11b8
+     ufshcd_async_scan+0x34/0x330
+     async_run_entry_fn+0x38/0x180
+     process_one_work+0x1f4/0x498
+     worker_thread+0x48/0x480
+     kthread+0x140/0x158
+     ret_from_fork+0x10/0x20
+    Code: 88027c01 35ffffa2 17fff6c4 f9800051 (885f7c40)
+    ---[ end trace 2ba541335f595c95 ]
+
+ufshpb_get_dev_info() is only called during asynchronous scanning and at
+that time pm_runtime_get_sync() has been called:
+
+    ...
+    /* Hold auto suspend until async scan completes */
+    pm_runtime_get_sync(dev);
+    atomic_set(&hba->scsi_block_reqs_cnt, 0);
+    ...
+    ufshcd_async_scan()
+        ufshcd_probe_hba(hba, true);
+            ufshcd_device_params_init(hba);
+                ufshpb_get_dev_info();
+    ...
+        pm_runtime_put_sync(hba->dev);
+
+Remove ufshcd_rpm_{get/put}_sync() from ufshpb_get_dev_info() to fix this
+problem.
+
+Link: https://lore.kernel.org/r/20210929200640.828611-2-huobean@gmail.com
+Fixes: 351b3a849ac7 ("scsi: ufs: ufshpb: Use proper power management API")
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshpb.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3222,9 +3222,6 @@ static void record_steal_time(struct kvm
- 	}
+diff --git a/drivers/scsi/ufs/ufshpb.c b/drivers/scsi/ufs/ufshpb.c
+index 46cdfb0dfca94..3b1a90b1d82ac 100644
+--- a/drivers/scsi/ufs/ufshpb.c
++++ b/drivers/scsi/ufs/ufshpb.c
+@@ -2598,11 +2598,8 @@ void ufshpb_get_dev_info(struct ufs_hba *hba, u8 *desc_buf)
+ 	if (version == HPB_SUPPORT_LEGACY_VERSION)
+ 		hpb_dev_info->is_legacy = true;
  
- 	st = (struct kvm_steal_time __user *)ghc->hva;
--	if (!user_access_begin(st, sizeof(*st)))
--		return;
+-	ufshcd_rpm_get_sync(hba);
+ 	ret = ufshcd_query_attr_retry(hba, UPIU_QUERY_OPCODE_READ_ATTR,
+ 		QUERY_ATTR_IDN_MAX_HPB_SINGLE_CMD, 0, 0, &max_hpb_single_cmd);
+-	ufshcd_rpm_put_sync(hba);
 -
- 	/*
- 	 * Doing a TLB flush here, on the guest's behalf, can avoid
- 	 * expensive IPIs.
-@@ -3233,6 +3230,9 @@ static void record_steal_time(struct kvm
- 		u8 st_preempted = 0;
- 		int err = -EFAULT;
- 
-+		if (!user_access_begin(st, sizeof(*st)))
-+			return;
-+
- 		asm volatile("1: xchgb %0, %2\n"
- 			     "xor %1, %1\n"
- 			     "2:\n"
-@@ -3255,6 +3255,9 @@ static void record_steal_time(struct kvm
- 		if (!user_access_begin(st, sizeof(*st)))
- 			goto dirty;
- 	} else {
-+		if (!user_access_begin(st, sizeof(*st)))
-+			return;
-+
- 		unsafe_put_user(0, &st->preempted, out);
- 		vcpu->arch.st.preempted = 0;
- 	}
+ 	if (ret)
+ 		dev_err(hba->dev, "%s: idn: read max size of single hpb cmd query request failed",
+ 			__func__);
+-- 
+2.33.0
+
 
 
