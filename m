@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF8F5450F80
+	by mail.lfdr.de (Postfix) with ESMTP id 6329B450F7F
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:29:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242001AbhKOScD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:32:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36900 "EHLO mail.kernel.org"
+        id S241815AbhKOScB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:32:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240824AbhKOS3p (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240960AbhKOS3p (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:29:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F13276344B;
-        Mon, 15 Nov 2021 17:58:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAC536344C;
+        Mon, 15 Nov 2021 17:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999101;
-        bh=pHEm7tUF1dkso5ru07rRpKujM9nnoDPt0XNDZFwsXxY=;
+        s=korg; t=1636999104;
+        bh=5HfqOpzExPd1N9yhaGZw8WUFBfiAfCTIahArvNo9q0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SFAF35BRxVn1D0tQP7DClKzjOFyGLy17RhRWHHsDwp8bFkLvuvW3544kAod9pIOG6
-         4nS+ueG6jubDLZdCOn+jzOC/9GuHmnUaXKo5BiTYpYKOrAhCM0uXnITTlg/EtcfpOO
-         k4lNl8cLawEKwQ74VBjzsPg4BS4oTK5CNUAmev0U=
+        b=HD4yWGjcxxDrbU6UbdzDGirTOHlbrIlr6ItwcG92PumHd3hnx84RcA8exu7cWXioL
+         zgmjjHaTifFMnh0SyoznC+h8ghMmu9KnyQsZ1NI3hQu8xod9Qpr9zuXceG3uV8lfTc
+         mLSE4gHUFg+IgP2PBp7MyArgDA+4EPFbyuvB6gqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.14 143/849] signal: Remove the bogus sigkill_pending in ptrace_stop
-Date:   Mon, 15 Nov 2021 17:53:46 +0100
-Message-Id: <20211115165424.977156932@linuxfoundation.org>
+        stable@vger.kernel.org, Duc Nguyen <duc.nguyen.ub@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH 5.14 144/849] memory: renesas-rpc-if: Correct QSPI data transfer in Manual mode
+Date:   Mon, 15 Nov 2021 17:53:47 +0100
+Message-Id: <20211115165425.009779163@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,78 +41,273 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 7d613f9f72ec8f90ddefcae038fdae5adb8404b3 upstream.
+commit fff53a551db50f5edecaa0b29a64056ab8d2bbca upstream.
 
-The existence of sigkill_pending is a little silly as it is
-functionally a duplicate of fatal_signal_pending that is used in
-exactly one place.
+This patch fixes 2 problems:
+[1] The output warning logs and data loss when performing
+mount/umount then remount the device with jffs2 format.
+[2] The access width of SMWDR[0:1]/SMRDR[0:1] register is wrong.
 
-Checking for pending fatal signals and returning early in ptrace_stop
-is actively harmful.  It casues the ptrace_stop called by
-ptrace_signal to return early before setting current->exit_code.
-Later when ptrace_signal reads the signal number from
-current->exit_code is undefined, making it unpredictable what will
-happen.
+This is the sample warning logs when performing mount/umount then
+remount the device with jffs2 format:
+jffs2: jffs2_scan_inode_node(): CRC failed on node at 0x031c51d4:
+Read 0x00034e00, calculated 0xadb272a7
 
-Instead rely on the fact that schedule will not sleep if there is a
-pending signal that can awaken a task.
+The reason for issue [1] is that the writing data seems to
+get messed up.
+Data is only completed when the number of bytes is divisible by 4.
+If you only have 3 bytes of data left to write, 1 garbage byte
+is inserted after the end of the write stream.
+If you only have 2 bytes of data left to write, 2 bytes of '00'
+are added into the write stream.
+If you only have 1 byte of data left to write, 2 bytes of '00'
+are added into the write stream. 1 garbage byte is inserted after
+the end of the write stream.
 
-Removing the explict sigkill_pending test fixes fixes ptrace_signal
-when ptrace_stop does not stop because current->exit_code is always
-set to to signr.
+To solve problem [1], data must be written continuously in serial
+and the write stream ends when data is out.
 
-Cc: stable@vger.kernel.org
-Fixes: 3d749b9e676b ("ptrace: simplify ptrace_stop()->sigkill_pending() path")
-Fixes: 1a669c2f16d4 ("Add arch_ptrace_stop")
-Link: https://lkml.kernel.org/r/87pmsyx29t.fsf@disp2133
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Following HW manual 62.2.15, access to SMWDR0 register should be
+in the same size as the transfer size specified in the SPIDE[3:0]
+bits in the manual mode enable setting register (SMENR).
+Be sure to access from address 0.
+
+So, in 16-bit transfer (SPIDE[3:0]=b'1100), SMWDR0 should be
+accessed by 16-bit width.
+Similar to SMWDR1, SMDDR0/1 registers.
+In current code, SMWDR0 register is accessed by regmap_write()
+that only set up to do 32-bit width.
+
+To solve problem [2], data must be written 16-bit or 8-bit when
+transferring 1-byte or 2-byte.
+
+Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Duc Nguyen <duc.nguyen.ub@renesas.com>
+[wsa: refactored to use regmap only via reg_read/reg_write]
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Link: https://lore.kernel.org/r/20210922091007.5516-1-wsa+renesas@sang-engineering.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/signal.c |   18 ++++--------------
- 1 file changed, 4 insertions(+), 14 deletions(-)
+ drivers/memory/renesas-rpc-if.c |  113 +++++++++++++++++++++++++++-------------
+ include/memory/renesas-rpc-if.h |    1 
+ 2 files changed, 79 insertions(+), 35 deletions(-)
 
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2109,15 +2109,6 @@ static inline bool may_ptrace_stop(void)
- 	return true;
- }
+--- a/drivers/memory/renesas-rpc-if.c
++++ b/drivers/memory/renesas-rpc-if.c
+@@ -160,10 +160,62 @@ static const struct regmap_access_table
+ 	.n_yes_ranges	= ARRAY_SIZE(rpcif_volatile_ranges),
+ };
  
--/*
-- * Return non-zero if there is a SIGKILL that should be waking us up.
-- * Called with the siglock held.
-- */
--static bool sigkill_pending(struct task_struct *tsk)
--{
--	return sigismember(&tsk->pending.signal, SIGKILL) ||
--	       sigismember(&tsk->signal->shared_pending.signal, SIGKILL);
--}
++
++/*
++ * Custom accessor functions to ensure SMRDR0 and SMWDR0 are always accessed
++ * with proper width. Requires SMENR_SPIDE to be correctly set before!
++ */
++static int rpcif_reg_read(void *context, unsigned int reg, unsigned int *val)
++{
++	struct rpcif *rpc = context;
++
++	if (reg == RPCIF_SMRDR0 || reg == RPCIF_SMWDR0) {
++		u32 spide = readl(rpc->base + RPCIF_SMENR) & RPCIF_SMENR_SPIDE(0xF);
++
++		if (spide == 0x8) {
++			*val = readb(rpc->base + reg);
++			return 0;
++		} else if (spide == 0xC) {
++			*val = readw(rpc->base + reg);
++			return 0;
++		} else if (spide != 0xF) {
++			return -EILSEQ;
++		}
++	}
++
++	*val = readl(rpc->base + reg);
++	return 0;
++
++}
++
++static int rpcif_reg_write(void *context, unsigned int reg, unsigned int val)
++{
++	struct rpcif *rpc = context;
++
++	if (reg == RPCIF_SMRDR0 || reg == RPCIF_SMWDR0) {
++		u32 spide = readl(rpc->base + RPCIF_SMENR) & RPCIF_SMENR_SPIDE(0xF);
++
++		if (spide == 0x8) {
++			writeb(val, rpc->base + reg);
++			return 0;
++		} else if (spide == 0xC) {
++			writew(val, rpc->base + reg);
++			return 0;
++		} else if (spide != 0xF) {
++			return -EILSEQ;
++		}
++	}
++
++	writel(val, rpc->base + reg);
++	return 0;
++}
++
+ static const struct regmap_config rpcif_regmap_config = {
+ 	.reg_bits	= 32,
+ 	.val_bits	= 32,
+ 	.reg_stride	= 4,
++	.reg_read	= rpcif_reg_read,
++	.reg_write	= rpcif_reg_write,
+ 	.fast_io	= true,
+ 	.max_register	= RPCIF_PHYINT,
+ 	.volatile_table	= &rpcif_volatile_table,
+@@ -173,17 +225,15 @@ int rpcif_sw_init(struct rpcif *rpc, str
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct resource *res;
+-	void __iomem *base;
  
- /*
-  * This must be called with current->sighand->siglock held.
-@@ -2144,17 +2135,16 @@ static void ptrace_stop(int exit_code, i
- 		 * calling arch_ptrace_stop, so we must release it now.
- 		 * To preserve proper semantics, we must do this before
- 		 * any signal bookkeeping like checking group_stop_count.
--		 * Meanwhile, a SIGKILL could come in before we retake the
--		 * siglock.  That must prevent us from sleeping in TASK_TRACED.
--		 * So after regaining the lock, we must check for SIGKILL.
- 		 */
- 		spin_unlock_irq(&current->sighand->siglock);
- 		arch_ptrace_stop(exit_code, info);
- 		spin_lock_irq(&current->sighand->siglock);
--		if (sigkill_pending(current))
--			return;
+ 	rpc->dev = dev;
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "regs");
+-	base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(base))
+-		return PTR_ERR(base);
++	rpc->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(rpc->base))
++		return PTR_ERR(rpc->base);
+ 
+-	rpc->regmap = devm_regmap_init_mmio(&pdev->dev, base,
+-					    &rpcif_regmap_config);
++	rpc->regmap = devm_regmap_init(&pdev->dev, NULL, rpc, &rpcif_regmap_config);
+ 	if (IS_ERR(rpc->regmap)) {
+ 		dev_err(&pdev->dev,
+ 			"failed to init regmap for rpcif, error %ld\n",
+@@ -354,20 +404,16 @@ void rpcif_prepare(struct rpcif *rpc, co
+ 			nbytes = op->data.nbytes;
+ 		rpc->xferlen = nbytes;
+ 
+-		rpc->enable |= RPCIF_SMENR_SPIDE(rpcif_bits_set(rpc, nbytes)) |
+-			RPCIF_SMENR_SPIDB(rpcif_bit_size(op->data.buswidth));
++		rpc->enable |= RPCIF_SMENR_SPIDB(rpcif_bit_size(op->data.buswidth));
  	}
+ }
+ EXPORT_SYMBOL(rpcif_prepare);
  
-+	/*
-+	 * schedule() will not sleep if there is a pending signal that
-+	 * can awaken the task.
-+	 */
- 	set_special_state(TASK_TRACED);
+ int rpcif_manual_xfer(struct rpcif *rpc)
+ {
+-	u32 smenr, smcr, pos = 0, max = 4;
++	u32 smenr, smcr, pos = 0, max = rpc->bus_size == 2 ? 8 : 4;
+ 	int ret = 0;
  
- 	/*
+-	if (rpc->bus_size == 2)
+-		max = 8;
+-
+ 	pm_runtime_get_sync(rpc->dev);
+ 
+ 	regmap_update_bits(rpc->regmap, RPCIF_PHYCNT,
+@@ -378,37 +424,36 @@ int rpcif_manual_xfer(struct rpcif *rpc)
+ 	regmap_write(rpc->regmap, RPCIF_SMOPR, rpc->option);
+ 	regmap_write(rpc->regmap, RPCIF_SMDMCR, rpc->dummy);
+ 	regmap_write(rpc->regmap, RPCIF_SMDRENR, rpc->ddr);
++	regmap_write(rpc->regmap, RPCIF_SMADR, rpc->smadr);
+ 	smenr = rpc->enable;
+ 
+ 	switch (rpc->dir) {
+ 	case RPCIF_DATA_OUT:
+ 		while (pos < rpc->xferlen) {
+-			u32 nbytes = rpc->xferlen - pos;
+-			u32 data[2];
++			u32 bytes_left = rpc->xferlen - pos;
++			u32 nbytes, data[2];
+ 
+ 			smcr = rpc->smcr | RPCIF_SMCR_SPIE;
+-			if (nbytes > max) {
+-				nbytes = max;
++
++			/* nbytes may only be 1, 2, 4, or 8 */
++			nbytes = bytes_left >= max ? max : (1 << ilog2(bytes_left));
++			if (bytes_left > nbytes)
+ 				smcr |= RPCIF_SMCR_SSLKP;
+-			}
++
++			smenr |= RPCIF_SMENR_SPIDE(rpcif_bits_set(rpc, nbytes));
++			regmap_write(rpc->regmap, RPCIF_SMENR, smenr);
+ 
+ 			memcpy(data, rpc->buffer + pos, nbytes);
+-			if (nbytes > 4) {
++			if (nbytes == 8) {
+ 				regmap_write(rpc->regmap, RPCIF_SMWDR1,
+ 					     data[0]);
+ 				regmap_write(rpc->regmap, RPCIF_SMWDR0,
+ 					     data[1]);
+-			} else if (nbytes > 2) {
++			} else {
+ 				regmap_write(rpc->regmap, RPCIF_SMWDR0,
+ 					     data[0]);
+-			} else	{
+-				regmap_write(rpc->regmap, RPCIF_SMWDR0,
+-					     data[0] << 16);
+ 			}
+ 
+-			regmap_write(rpc->regmap, RPCIF_SMADR,
+-				     rpc->smadr + pos);
+-			regmap_write(rpc->regmap, RPCIF_SMENR, smenr);
+ 			regmap_write(rpc->regmap, RPCIF_SMCR, smcr);
+ 			ret = wait_msg_xfer_end(rpc);
+ 			if (ret)
+@@ -448,14 +493,16 @@ int rpcif_manual_xfer(struct rpcif *rpc)
+ 			break;
+ 		}
+ 		while (pos < rpc->xferlen) {
+-			u32 nbytes = rpc->xferlen - pos;
+-			u32 data[2];
++			u32 bytes_left = rpc->xferlen - pos;
++			u32 nbytes, data[2];
+ 
+-			if (nbytes > max)
+-				nbytes = max;
++			/* nbytes may only be 1, 2, 4, or 8 */
++			nbytes = bytes_left >= max ? max : (1 << ilog2(bytes_left));
+ 
+ 			regmap_write(rpc->regmap, RPCIF_SMADR,
+ 				     rpc->smadr + pos);
++			smenr &= ~RPCIF_SMENR_SPIDE(0xF);
++			smenr |= RPCIF_SMENR_SPIDE(rpcif_bits_set(rpc, nbytes));
+ 			regmap_write(rpc->regmap, RPCIF_SMENR, smenr);
+ 			regmap_write(rpc->regmap, RPCIF_SMCR,
+ 				     rpc->smcr | RPCIF_SMCR_SPIE);
+@@ -463,18 +510,14 @@ int rpcif_manual_xfer(struct rpcif *rpc)
+ 			if (ret)
+ 				goto err_out;
+ 
+-			if (nbytes > 4) {
++			if (nbytes == 8) {
+ 				regmap_read(rpc->regmap, RPCIF_SMRDR1,
+ 					    &data[0]);
+ 				regmap_read(rpc->regmap, RPCIF_SMRDR0,
+ 					    &data[1]);
+-			} else if (nbytes > 2) {
+-				regmap_read(rpc->regmap, RPCIF_SMRDR0,
+-					    &data[0]);
+-			} else	{
++			} else {
+ 				regmap_read(rpc->regmap, RPCIF_SMRDR0,
+ 					    &data[0]);
+-				data[0] >>= 16;
+ 			}
+ 			memcpy(rpc->buffer + pos, data, nbytes);
+ 
+--- a/include/memory/renesas-rpc-if.h
++++ b/include/memory/renesas-rpc-if.h
+@@ -59,6 +59,7 @@ struct rpcif_op {
+ 
+ struct rpcif {
+ 	struct device *dev;
++	void __iomem *base;
+ 	void __iomem *dirmap;
+ 	struct regmap *regmap;
+ 	struct reset_control *rstc;
 
 
