@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9912451448
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F540451257
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230471AbhKOUHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:07:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
+        id S244577AbhKOTfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:35:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344514AbhKOTYy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F3BB63277;
-        Mon, 15 Nov 2021 18:58:59 +0000 (UTC)
+        id S244627AbhKOTRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:17:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D679161B3A;
+        Mon, 15 Nov 2021 18:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002739;
-        bh=M2YtDN5c5DMIpf+rhEpGDTps8TZEA1RWaTDBl5L9Ey8=;
+        s=korg; t=1637000528;
+        bh=hGtE3FjcXtpIv9Tr8HrNibI0gaaZ/A411/jXa95PZjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xxo3yBfld2S2bzRhgBEwjap5koQJxj3MhAq1/5W9vM3s9dHLFwYjMz/hbh7c5hcqU
-         ELdN2qkxzdnoAQA3xYYRvknMCektGyVxhx9hPbEjDGvfvcZzMZwxoemPBPSe0xCkwj
-         CHbUpqgIiknGi0/Y+s7QreDAtvY57aY5DPxBxWrI=
+        b=gtIl4UF5fqGifVC1MAOKJBqo4OytJ+9oU6nRyBSdDEHjZAcI4JHzUdUQ2rGBR5Alc
+         PhGQll8zPPRwVL2V5l2xW/Lt6G7pYFlsIsUQpfqmch2cK1pOhHHmuynkv5PtKyojBT
+         7pwGShLxIJ2RHdXrpu7tgNnNp4niJWng9oP6pFqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 680/917] ALSA: oxfw: fix functional regression for Mackie Onyx 1640i in v5.14 or later
-Date:   Mon, 15 Nov 2021 18:02:55 +0100
-Message-Id: <20211115165451.955543607@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 693/849] rtc: rv3032: fix error handling in rv3032_clkout_set_rate()
+Date:   Mon, 15 Nov 2021 18:02:56 +0100
+Message-Id: <20211115165443.697028467@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,103 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit cddcd5472abb7b8a9c37ccbcf0908b79740a01b5 ]
+[ Upstream commit c3336b8ac6091df60a5c1049a8c685d0b947cc61 ]
 
-A user reports functional regression for Mackie Onyx 1640i that the device
-generates slow sound with ALSA oxfw driver which supports media clock
-recovery. Although the device is based on OXFW971 ASIC, it does not
-transfer isochronous packet with own event frequency as expected. The
-device seems to adjust event frequency according to events in received
-isochronous packets in the beginning of packet streaming. This is
-unknown quirk.
+Do not call rv3032_exit_eerd() if the enter function fails but don't
+forget to call the exit when the enter succeeds.
 
-This commit fixes the regression to turn the recovery off in driver
-side. As a result, nominal frequency is used in duplex packet streaming
-between device and driver. For stability of sampling rate in events of
-transferred isochronous packet, 4,000 isochronous packets are skipped
-in the beginning of packet streaming.
-
-Reference: https://github.com/takaswie/snd-firewire-improve/issues/38
-Fixes: 029ffc429440 ("ALSA: oxfw: perform sequence replay for media clock recovery")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20211028130325.45772-1-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 2eeaa532acca ("rtc: rv3032: Add a driver for Microcrystal RV-3032")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20211012101028.GT2083@kadam
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/oxfw/oxfw-stream.c | 7 ++++++-
- sound/firewire/oxfw/oxfw.c        | 8 ++++++++
- sound/firewire/oxfw/oxfw.h        | 5 +++++
- 3 files changed, 19 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-rv3032.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/firewire/oxfw/oxfw-stream.c b/sound/firewire/oxfw/oxfw-stream.c
-index fff18b5d4e052..f4a702def3979 100644
---- a/sound/firewire/oxfw/oxfw-stream.c
-+++ b/sound/firewire/oxfw/oxfw-stream.c
-@@ -9,7 +9,7 @@
- #include <linux/delay.h>
+diff --git a/drivers/rtc/rtc-rv3032.c b/drivers/rtc/rtc-rv3032.c
+index d63102d5cb1e4..1b62ed2f14594 100644
+--- a/drivers/rtc/rtc-rv3032.c
++++ b/drivers/rtc/rtc-rv3032.c
+@@ -617,11 +617,11 @@ static int rv3032_clkout_set_rate(struct clk_hw *hw, unsigned long rate,
  
- #define AVC_GENERIC_FRAME_MAXIMUM_BYTES	512
--#define READY_TIMEOUT_MS	200
-+#define READY_TIMEOUT_MS	600
+ 	ret = rv3032_enter_eerd(rv3032, &eerd);
+ 	if (ret)
+-		goto exit_eerd;
++		return ret;
  
- /*
-  * According to datasheet of Oxford Semiconductor:
-@@ -367,6 +367,11 @@ int snd_oxfw_stream_start_duplex(struct snd_oxfw *oxfw)
- 				// Just after changing sampling transfer frequency, many cycles are
- 				// skipped for packet transmission.
- 				tx_init_skip_cycles = 400;
-+			} else if (oxfw->quirks & SND_OXFW_QUIRK_VOLUNTARY_RECOVERY) {
-+				// It takes a bit time for target device to adjust event frequency
-+				// according to nominal event frequency in isochronous packets from
-+				// ALSA oxfw driver.
-+				tx_init_skip_cycles = 4000;
- 			} else {
- 				replay_seq = true;
- 			}
-diff --git a/sound/firewire/oxfw/oxfw.c b/sound/firewire/oxfw/oxfw.c
-index daf731364695b..b496f87841aec 100644
---- a/sound/firewire/oxfw/oxfw.c
-+++ b/sound/firewire/oxfw/oxfw.c
-@@ -25,6 +25,7 @@
- #define MODEL_SATELLITE		0x00200f
- #define MODEL_SCS1M		0x001000
- #define MODEL_DUET_FW		0x01dddd
-+#define MODEL_ONYX_1640I	0x001640
+ 	ret = regmap_write(rv3032->regmap, RV3032_CLKOUT1, hfd & 0xff);
+ 	if (ret)
+-		return ret;
++		goto exit_eerd;
  
- #define SPECIFIER_1394TA	0x00a02d
- #define VERSION_AVC		0x010001
-@@ -192,6 +193,13 @@ static int detect_quirks(struct snd_oxfw *oxfw, const struct ieee1394_device_id
- 		// OXFW971-based models may transfer events by blocking method.
- 		if (!(oxfw->quirks & SND_OXFW_QUIRK_JUMBO_PAYLOAD))
- 			oxfw->quirks |= SND_OXFW_QUIRK_BLOCKING_TRANSMISSION;
-+
-+		if (model == MODEL_ONYX_1640I) {
-+			//Unless receiving packets without NOINFO packet, the device transfers
-+			//mostly half of events in packets than expected.
-+			oxfw->quirks |= SND_OXFW_QUIRK_IGNORE_NO_INFO_PACKET |
-+					SND_OXFW_QUIRK_VOLUNTARY_RECOVERY;
-+		}
- 	}
- 
- 	return 0;
-diff --git a/sound/firewire/oxfw/oxfw.h b/sound/firewire/oxfw/oxfw.h
-index c13034f6c2ca5..d728e451a25c6 100644
---- a/sound/firewire/oxfw/oxfw.h
-+++ b/sound/firewire/oxfw/oxfw.h
-@@ -47,6 +47,11 @@ enum snd_oxfw_quirk {
- 	// the device to process audio data even if the value is invalid in a point of
- 	// IEC 61883-1/6.
- 	SND_OXFW_QUIRK_IGNORE_NO_INFO_PACKET = 0x10,
-+	// Loud Technologies Mackie Onyx 1640i seems to configure OXFW971 ASIC so that it decides
-+	// event frequency according to events in received isochronous packets. The device looks to
-+	// performs media clock recovery voluntarily. In the recovery, the packets with NO_INFO
-+	// are ignored, thus driver should transfer packets with timestamp.
-+	SND_OXFW_QUIRK_VOLUNTARY_RECOVERY = 0x20,
- };
- 
- /* This is an arbitrary number for convinience. */
+ 	ret = regmap_write(rv3032->regmap, RV3032_CLKOUT2, RV3032_CLKOUT2_OS |
+ 			    FIELD_PREP(RV3032_CLKOUT2_HFD_MSK, hfd >> 8));
 -- 
 2.33.0
 
