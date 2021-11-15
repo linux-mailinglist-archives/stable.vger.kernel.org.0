@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77FE9452451
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:34:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B301345244F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:34:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356667AbhKPBhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:37:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54772 "EHLO mail.kernel.org"
+        id S1356633AbhKPBhN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:37:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242945AbhKOSue (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243063AbhKOSue (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:50:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C26061507;
-        Mon, 15 Nov 2021 18:09:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1980619EA;
+        Mon, 15 Nov 2021 18:09:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999750;
-        bh=Gl4Xe7uU/xTaf++Ml296d66z5wC/FE2VWrA/FHOlJP0=;
+        s=korg; t=1636999753;
+        bh=nUuDPaL+NsG5FJ4et5bDrR/LFmn5uAUVu71eZxuj4aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wPujTLLZEa795cRMqFFoJ2lVQ/y9cj44MOeWycIyFyZZ1Mq3cpnAR/XBbOtznmXQ+
-         TNhB4jNJT+74TeO4x4HFTiXlj03621QT3U7uW+SaDFuORLtMmR7s52d2I8u5VTLAhC
-         j8/0TT4Xf4y/J3TsF46zbLk7S5Pm5Nf8G/etl2fc=
+        b=T73LciU1sO4EMnhOi1TDk6NxaDX7Y9XQrV1iBj1tIsq1D/cDVGFzdOhaLBXbfAGPV
+         SjBD8m3LEs2x0NiPz7hy9tIfMTIZSI7ZfTWO/llSuxWA0CA+og4mTomO/nkCoS1ncI
+         r29cMCeKgwpuBfhvbsP736eak8BvbPAOEn+kTGJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Gilad ben-Yossef <gilad@benyossef.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 410/849] media: dvb-frontends: mn88443x: Handle errors of clk_prepare_enable()
-Date:   Mon, 15 Nov 2021 17:58:13 +0100
-Message-Id: <20211115165434.134542624@linuxfoundation.org>
+Subject: [PATCH 5.14 411/849] crypto: ccree - avoid out-of-range warnings from clang
+Date:   Mon, 15 Nov 2021 17:58:14 +0100
+Message-Id: <20211115165434.164203186@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,78 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 69a10678e2fba3d182e78ea041f2d1b1a6058764 ]
+[ Upstream commit cfd6fb45cfaf46fa9547421d8da387dc9c7997d4 ]
 
-mn88443x_cmn_power_on() did not handle possible errors of
-clk_prepare_enable() and always finished successfully so that its caller
-mn88443x_probe() did not care about failed preparing/enabling of clocks
-as well.
+clang points out inconsistencies in the FIELD_PREP() invocation in
+this driver that result from the 'mask' being a 32-bit value:
 
-Add missed error handling in both mn88443x_cmn_power_on() and
-mn88443x_probe(). This required to change the return value of the former
-from "void" to "int".
+drivers/crypto/ccree/cc_driver.c:117:18: error: result of comparison of constant 18446744073709551615 with expression of type 'u32' (aka 'unsigned int') is always false [-Werror,-Wtautological-constant-out-of-range-compare]
+        cache_params |= FIELD_PREP(mask, val);
+                        ^~~~~~~~~~~~~~~~~~~~~
+include/linux/bitfield.h:94:3: note: expanded from macro 'FIELD_PREP'
+                __BF_FIELD_CHECK(_mask, 0ULL, _val, "FIELD_PREP: ");    \
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+include/linux/bitfield.h:52:28: note: expanded from macro '__BF_FIELD_CHECK'
+                BUILD_BUG_ON_MSG((_mask) > (typeof(_reg))~0ull,         \
+                ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Found by Linux Driver Verification project (linuxtesting.org).
+This does not happen in other places that just pass a constant here.
 
-Fixes: 0f408ce8941f ("media: dvb-frontends: add Socionext MN88443x ISDB-S/T demodulator driver")
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Work around the warnings by widening the type of the temporary variable.
+
+Fixes: 05c2a705917b ("crypto: ccree - rework cache parameters handling")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Gilad ben-Yossef <gilad@benyossef.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/mn88443x.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/crypto/ccree/cc_driver.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/dvb-frontends/mn88443x.c b/drivers/media/dvb-frontends/mn88443x.c
-index e4528784f8477..fff212c0bf3b5 100644
---- a/drivers/media/dvb-frontends/mn88443x.c
-+++ b/drivers/media/dvb-frontends/mn88443x.c
-@@ -204,11 +204,18 @@ struct mn88443x_priv {
- 	struct regmap *regmap_t;
- };
- 
--static void mn88443x_cmn_power_on(struct mn88443x_priv *chip)
-+static int mn88443x_cmn_power_on(struct mn88443x_priv *chip)
+diff --git a/drivers/crypto/ccree/cc_driver.c b/drivers/crypto/ccree/cc_driver.c
+index e599ac6dc162a..790fa9058a36d 100644
+--- a/drivers/crypto/ccree/cc_driver.c
++++ b/drivers/crypto/ccree/cc_driver.c
+@@ -103,7 +103,8 @@ MODULE_DEVICE_TABLE(of, arm_ccree_dev_of_match);
+ static void init_cc_cache_params(struct cc_drvdata *drvdata)
  {
-+	struct device *dev = &chip->client_s->dev;
- 	struct regmap *r_t = chip->regmap_t;
-+	int ret;
+ 	struct device *dev = drvdata_to_dev(drvdata);
+-	u32 cache_params, ace_const, val, mask;
++	u32 cache_params, ace_const, val;
++	u64 mask;
  
--	clk_prepare_enable(chip->mclk);
-+	ret = clk_prepare_enable(chip->mclk);
-+	if (ret) {
-+		dev_err(dev, "Failed to prepare and enable mclk: %d\n",
-+			ret);
-+		return ret;
-+	}
- 
- 	gpiod_set_value_cansleep(chip->reset_gpio, 1);
- 	usleep_range(100, 1000);
-@@ -222,6 +229,8 @@ static void mn88443x_cmn_power_on(struct mn88443x_priv *chip)
- 	} else {
- 		regmap_write(r_t, HIZSET3, 0x8f);
- 	}
-+
-+	return 0;
- }
- 
- static void mn88443x_cmn_power_off(struct mn88443x_priv *chip)
-@@ -738,7 +747,10 @@ static int mn88443x_probe(struct i2c_client *client,
- 	chip->fe.demodulator_priv = chip;
- 	i2c_set_clientdata(client, chip);
- 
--	mn88443x_cmn_power_on(chip);
-+	ret = mn88443x_cmn_power_on(chip);
-+	if (ret)
-+		goto err_i2c_t;
-+
- 	mn88443x_s_sleep(chip);
- 	mn88443x_t_sleep(chip);
- 
+ 	/* compute CC_AXIM_CACHE_PARAMS */
+ 	cache_params = cc_ioread(drvdata, CC_REG(AXIM_CACHE_PARAMS));
 -- 
 2.33.0
 
