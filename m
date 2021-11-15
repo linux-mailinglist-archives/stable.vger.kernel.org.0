@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C9E45142F
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E34D1451268
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349346AbhKOUHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:07:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S245267AbhKOTfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:35:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344462AbhKOTYo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4E6C60FE7;
-        Mon, 15 Nov 2021 18:58:06 +0000 (UTC)
+        id S244718AbhKOTRS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:17:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB80D611CC;
+        Mon, 15 Nov 2021 18:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002687;
-        bh=ThIBTi2ox4UbnXo97jyPoE78pIk3d3vdYghO7MTN24A=;
+        s=korg; t=1637000584;
+        bh=CNvbAcdhZ2PsHJMjtkKDF0kxQ3hi5jEBvy5Vup0evvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRltP5amE4CcjrygeqiXFM6TR9GzxgtrpGyiUlt8mgzSvLH2EDGG/QnfM4GnEcS2E
-         6+97NJf3ZBAKXT5VaFRlxrBZ2AppoEN+VTa7tgagjWWzl7Ct+iX6RBtPxxKP/KwMYW
-         fc0Nn18HUwz0ssbiWVNlP0TpSzCGGjxrll2PnpTw=
+        b=LGbUAMZ4UgjwcrqiLEZrVOA+7/9Oe1L13zZct5RLcrdkTpOwrCxLiiWm5ikIh+elG
+         ynCleGIDF3CXwLdFlesHjUs/38K7LJVu/Zl8q9PpEZZN39dqHoqbKm1/qY6tHumVN6
+         HkZk9247UfX/5ycaZNJX1txjfNe9l70YFZunU5gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wan Jiabing <wanjiabing@vivo.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 659/917] soc: qcom: apr: Add of_node_put() before return
-Date:   Mon, 15 Nov 2021 18:02:34 +0100
-Message-Id: <20211115165451.227434677@linuxfoundation.org>
+Subject: [PATCH 5.14 672/849] rtc: mcp795: Add SPI ID table
+Date:   Mon, 15 Nov 2021 18:02:35 +0100
+Message-Id: <20211115165443.007773081@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wan Jiabing <wanjiabing@vivo.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 72f1aa6205d84337b90b065f602a8fe190821781 ]
+[ Upstream commit 3109151c47343c80300177ec7704e0757064efdc ]
 
-Fix following coccicheck warning:
+Currently autoloading for SPI devices does not use the DT ID table, it uses
+SPI modalises. Supporting OF modalises is going to be difficult if not
+impractical, an attempt was made but has been reverted, so ensure that
+module autoloading works for this driver by adding an id_table listing the
+SPI IDs for everything.
 
-./drivers/soc/qcom/apr.c:485:1-23: WARNING: Function
-for_each_child_of_node should have of_node_put() before return
-
-Early exits from for_each_child_of_node should decrement the
-node reference counter.
-
-Fixes: 834735662602 ("soc: qcom: apr: Add avs/audio tracking functionality")
-Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211014083017.19714-1-wanjiabing@vivo.com
+Fixes: 96c8395e2166 ("spi: Revert modalias changes")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210927130240.33693-1-broonie@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/apr.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/rtc-mcp795.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/soc/qcom/apr.c b/drivers/soc/qcom/apr.c
-index 475a57b435b24..2e455d9e3d94a 100644
---- a/drivers/soc/qcom/apr.c
-+++ b/drivers/soc/qcom/apr.c
-@@ -321,12 +321,14 @@ static int of_apr_add_pd_lookups(struct device *dev)
- 						    1, &service_path);
- 		if (ret < 0) {
- 			dev_err(dev, "pdr service path missing: %d\n", ret);
-+			of_node_put(node);
- 			return ret;
- 		}
+diff --git a/drivers/rtc/rtc-mcp795.c b/drivers/rtc/rtc-mcp795.c
+index bad7792b6ca58..0d515b3df5710 100644
+--- a/drivers/rtc/rtc-mcp795.c
++++ b/drivers/rtc/rtc-mcp795.c
+@@ -430,12 +430,19 @@ static const struct of_device_id mcp795_of_match[] = {
+ MODULE_DEVICE_TABLE(of, mcp795_of_match);
+ #endif
  
- 		pds = pdr_add_lookup(apr->pdr, service_name, service_path);
- 		if (IS_ERR(pds) && PTR_ERR(pds) != -EALREADY) {
- 			dev_err(dev, "pdr add lookup failed: %ld\n", PTR_ERR(pds));
-+			of_node_put(node);
- 			return PTR_ERR(pds);
- 		}
- 	}
++static const struct spi_device_id mcp795_spi_ids[] = {
++	{ .name = "mcp795" },
++	{ }
++};
++MODULE_DEVICE_TABLE(spi, mcp795_spi_ids);
++
+ static struct spi_driver mcp795_driver = {
+ 		.driver = {
+ 				.name = "rtc-mcp795",
+ 				.of_match_table = of_match_ptr(mcp795_of_match),
+ 		},
+ 		.probe = mcp795_probe,
++		.id_table = mcp795_spi_ids,
+ };
+ 
+ module_spi_driver(mcp795_driver);
 -- 
 2.33.0
 
