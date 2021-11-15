@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FCC8450B53
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:18:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FCD6450E2E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236746AbhKORVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:21:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51570 "EHLO mail.kernel.org"
+        id S240739AbhKOSNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:13:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236933AbhKORTw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:19:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E49676326C;
-        Mon, 15 Nov 2021 17:15:02 +0000 (UTC)
+        id S240087AbhKOSFf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A335F63383;
+        Mon, 15 Nov 2021 17:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996503;
-        bh=bW/wRFZ+WQU98CRVxEIVs8da6OkmnBJEIDYWtEYCMQI=;
+        s=korg; t=1636998122;
+        bh=kENPKiesy+mIbpLTm461b4kGteZr4Li29eR0M6I9h5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gif0J7/VPVS43seKQFvwyvKgUpvTrCDlHbAfY1rIV6s0McHga5ona2WwbZbgKBVnJ
-         srM0hCP9x0yOh0KUfPyIhQKvULpgg9UrVQ+vSOreZ44zTslPjX7hh3jbA2Q9fV7NmQ
-         tnvHuUKX4Bh3KQK4Wv8TBFGpkYI0BJi+WrV3ywRU=
+        b=sOUosM9X0X4I2fUsXQJJSonP0j4qKKlnU9tQV6v9xt/w5RBsjZUHNsI43avi6TdIM
+         E7HBNARvvbm8UdRRn0pR6e9naUJR1W+W4PLpN0hqLuyTJrflLjfMasNUhMLTBtcgV/
+         avHHcoOIXHzQ784NMKRQ/LpRTBSG74feqnzclNcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Javier Martinez Canillas <javierm@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 163/355] PM: hibernate: Get block device exclusively in swsusp_check()
+Subject: [PATCH 5.10 362/575] tpm_tis_spi: Add missing SPI ID
 Date:   Mon, 15 Nov 2021 18:01:27 +0100
-Message-Id: <20211115165319.058340279@linuxfoundation.org>
+Message-Id: <20211115165356.328430192@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,98 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 39fbef4b0f77f9c89c8f014749ca533643a37c9f ]
+[ Upstream commit 7eba41fe8c7bb01ff3d4b757bd622375792bc720 ]
 
-The following kernel crash can be triggered:
+In commit c46ed2281bbe ("tpm_tis_spi: add missing SPI device ID entries")
+we added SPI IDs for all the DT aliases to handle the fact that we always
+use SPI modaliases to load modules even when probed via DT however the
+mentioned commit missed that the SPI and OF device ID entries did not
+match and were different and so DT nodes with compatible
+"tcg,tpm_tis-spi" will not match.  Add an extra ID for tpm_tis-spi
+rather than just fix the existing one since what's currently there is
+going to be better for anyone actually using SPI IDs to instantiate.
 
-[   89.266592] ------------[ cut here ]------------
-[   89.267427] kernel BUG at fs/buffer.c:3020!
-[   89.268264] invalid opcode: 0000 [#1] SMP KASAN PTI
-[   89.269116] CPU: 7 PID: 1750 Comm: kmmpd-loop0 Not tainted 5.10.0-862.14.0.6.x86_64-08610-gc932cda3cef4-dirty #20
-[   89.273169] RIP: 0010:submit_bh_wbc.isra.0+0x538/0x6d0
-[   89.277157] RSP: 0018:ffff888105ddfd08 EFLAGS: 00010246
-[   89.278093] RAX: 0000000000000005 RBX: ffff888124231498 RCX: ffffffffb2772612
-[   89.279332] RDX: 1ffff11024846293 RSI: 0000000000000008 RDI: ffff888124231498
-[   89.280591] RBP: ffff8881248cc000 R08: 0000000000000001 R09: ffffed1024846294
-[   89.281851] R10: ffff88812423149f R11: ffffed1024846293 R12: 0000000000003800
-[   89.283095] R13: 0000000000000001 R14: 0000000000000000 R15: ffff8881161f7000
-[   89.284342] FS:  0000000000000000(0000) GS:ffff88839b5c0000(0000) knlGS:0000000000000000
-[   89.285711] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   89.286701] CR2: 00007f166ebc01a0 CR3: 0000000435c0e000 CR4: 00000000000006e0
-[   89.287919] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   89.289138] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   89.290368] Call Trace:
-[   89.290842]  write_mmp_block+0x2ca/0x510
-[   89.292218]  kmmpd+0x433/0x9a0
-[   89.294902]  kthread+0x2dd/0x3e0
-[   89.296268]  ret_from_fork+0x22/0x30
-[   89.296906] Modules linked in:
-
-by running the following commands:
-
- 1. mkfs.ext4 -O mmp  /dev/sda -b 1024
- 2. mount /dev/sda /home/test
- 3. echo "/dev/sda" > /sys/power/resume
-
-That happens because swsusp_check() calls set_blocksize() on the
-target partition which confuses the file system:
-
-       Thread1                       Thread2
-mount /dev/sda /home/test
-get s_mmp_bh  --> has mapped flag
-start kmmpd thread
-				echo "/dev/sda" > /sys/power/resume
-				  resume_store
-				    software_resume
-				      swsusp_check
-				        set_blocksize
-					  truncate_inode_pages_range
-					    truncate_cleanup_page
-					      block_invalidatepage
-					        discard_buffer --> clean mapped flag
-write_mmp_block
-  submit_bh
-    submit_bh_wbc
-      BUG_ON(!buffer_mapped(bh))
-
-To address this issue, modify swsusp_check() to open the target block
-device with exclusive access.
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: c46ed2281bbe ("tpm_tis_spi: add missing SPI device ID entries")
+Fixes: 96c8395e2166 ("spi: Revert modalias changes")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/swap.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/char/tpm/tpm_tis_spi_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/power/swap.c b/kernel/power/swap.c
-index 0516c422206d8..d32cd03d5ff8c 100644
---- a/kernel/power/swap.c
-+++ b/kernel/power/swap.c
-@@ -1509,9 +1509,10 @@ end:
- int swsusp_check(void)
- {
- 	int error;
-+	void *holder;
- 
- 	hib_resume_bdev = blkdev_get_by_dev(swsusp_resume_device,
--					    FMODE_READ, NULL);
-+					    FMODE_READ | FMODE_EXCL, &holder);
- 	if (!IS_ERR(hib_resume_bdev)) {
- 		set_blocksize(hib_resume_bdev, PAGE_SIZE);
- 		clear_page(swsusp_header);
-@@ -1533,7 +1534,7 @@ int swsusp_check(void)
- 
- put:
- 		if (error)
--			blkdev_put(hib_resume_bdev, FMODE_READ);
-+			blkdev_put(hib_resume_bdev, FMODE_READ | FMODE_EXCL);
- 		else
- 			pr_debug("Image signature found, resuming\n");
- 	} else {
+diff --git a/drivers/char/tpm/tpm_tis_spi_main.c b/drivers/char/tpm/tpm_tis_spi_main.c
+index de4209003a448..d64bea3298a29 100644
+--- a/drivers/char/tpm/tpm_tis_spi_main.c
++++ b/drivers/char/tpm/tpm_tis_spi_main.c
+@@ -263,6 +263,7 @@ static const struct spi_device_id tpm_tis_spi_id[] = {
+ 	{ "st33htpm-spi", (unsigned long)tpm_tis_spi_probe },
+ 	{ "slb9670", (unsigned long)tpm_tis_spi_probe },
+ 	{ "tpm_tis_spi", (unsigned long)tpm_tis_spi_probe },
++	{ "tpm_tis-spi", (unsigned long)tpm_tis_spi_probe },
+ 	{ "cr50", (unsigned long)cr50_spi_probe },
+ 	{}
+ };
 -- 
 2.33.0
 
