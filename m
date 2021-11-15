@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E41450B50
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:18:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F19D7450B4F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:18:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236613AbhKORVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:21:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49076 "EHLO mail.kernel.org"
+        id S237388AbhKORVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:21:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237387AbhKORTd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:19:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C75186323F;
-        Mon, 15 Nov 2021 17:14:32 +0000 (UTC)
+        id S237390AbhKORTe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:19:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C3AD63241;
+        Mon, 15 Nov 2021 17:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996473;
-        bh=SE0nfVb64FzCN6ZedU6oblHizz/C0evfQvSEKRcfpLI=;
+        s=korg; t=1636996478;
+        bh=B/86YKx8L7UBdOuxRpf3/kFxvjX1iptSoBE/gberZXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BCcNmVkPOaQgZpgy5ILk3y0ufZCueEDUyLSDctpWz/PofZAHmG5K/kQ+LLtTDXfQp
-         hTenmqmQVS7uOCG8g01V0FWCuDF3rOE0LFadkLIwjznqOgkk80dFeX22/dS/Ll7L0H
-         n2tGmm5GEpYBWwL7D8EH5nAeHtWtONFQzZZ/PYuk=
+        b=Z2yTKemLdiqL44Y08PGzh4NZf17yBXT9z6VFgkvbG+2y2FtU76RIvHzkrC6Zmkuni
+         js6WNjW8qbTY+OSSwR6I1SezH04DCIrOPa/qrscsvX2Vz6VyzjX4IPJMBfA3QQjAaE
+         qRMWz/Mj9ebVLLMGs4fXNdvc8jfwspW5ll/zGa6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Lasse Collin <lasse.collin@tukaani.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 153/355] memstick: r592: Fix a UAF bug when removing the driver
-Date:   Mon, 15 Nov 2021 18:01:17 +0100
-Message-Id: <20211115165318.741210076@linuxfoundation.org>
+Subject: [PATCH 5.4 154/355] lib/xz: Avoid overlapping memcpy() with invalid input with in-place decompression
+Date:   Mon, 15 Nov 2021 18:01:18 +0100
+Message-Id: <20211115165318.771193242@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -40,78 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Lasse Collin <lasse.collin@tukaani.org>
 
-[ Upstream commit 738216c1953e802aa9f930c5d15b8f9092c847ff ]
+[ Upstream commit 83d3c4f22a36d005b55f44628f46cc0d319a75e8 ]
 
-In r592_remove(), the driver will free dma after freeing the host, which
-may cause a UAF bug.
+With valid files, the safety margin described in lib/decompress_unxz.c
+ensures that these buffers cannot overlap. But if the uncompressed size
+of the input is larger than the caller thought, which is possible when
+the input file is invalid/corrupt, the buffers can overlap. Obviously
+the result will then be garbage (and usually the decoder will return
+an error too) but no other harm will happen when such an over-run occurs.
 
-The following log reveals it:
+This change only affects uncompressed LZMA2 chunks and so this
+should have no effect on performance.
 
-[   45.361796 ] BUG: KASAN: use-after-free in r592_remove+0x269/0x350 [r592]
-[   45.364286 ] Call Trace:
-[   45.364472 ]  dump_stack_lvl+0xa8/0xd1
-[   45.364751 ]  print_address_description+0x87/0x3b0
-[   45.365137 ]  kasan_report+0x172/0x1c0
-[   45.365415 ]  ? r592_remove+0x269/0x350 [r592]
-[   45.365834 ]  ? r592_remove+0x269/0x350 [r592]
-[   45.366168 ]  __asan_report_load8_noabort+0x14/0x20
-[   45.366531 ]  r592_remove+0x269/0x350 [r592]
-[   45.378785 ]
-[   45.378903 ] Allocated by task 4674:
-[   45.379162 ]  ____kasan_kmalloc+0xb5/0xe0
-[   45.379455 ]  __kasan_kmalloc+0x9/0x10
-[   45.379730 ]  __kmalloc+0x150/0x280
-[   45.379984 ]  memstick_alloc_host+0x2a/0x190
-[   45.380664 ]
-[   45.380781 ] Freed by task 5509:
-[   45.381014 ]  kasan_set_track+0x3d/0x70
-[   45.381293 ]  kasan_set_free_info+0x23/0x40
-[   45.381635 ]  ____kasan_slab_free+0x10b/0x140
-[   45.381950 ]  __kasan_slab_free+0x11/0x20
-[   45.382241 ]  slab_free_freelist_hook+0x81/0x150
-[   45.382575 ]  kfree+0x13e/0x290
-[   45.382805 ]  memstick_free+0x1c/0x20
-[   45.383070 ]  device_release+0x9c/0x1d0
-[   45.383349 ]  kobject_put+0x2ef/0x4c0
-[   45.383616 ]  put_device+0x1f/0x30
-[   45.383865 ]  memstick_free_host+0x24/0x30
-[   45.384162 ]  r592_remove+0x242/0x350 [r592]
-[   45.384473 ]  pci_device_remove+0xa9/0x250
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/1634383581-11055-1-git-send-email-zheyuma97@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20211010213145.17462-2-xiang@kernel.org
+Signed-off-by: Lasse Collin <lasse.collin@tukaani.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/host/r592.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ lib/decompress_unxz.c |  2 +-
+ lib/xz/xz_dec_lzma2.c | 21 +++++++++++++++++++--
+ 2 files changed, 20 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/memstick/host/r592.c b/drivers/memstick/host/r592.c
-index d2ef46337191c..eaa2a94d18be4 100644
---- a/drivers/memstick/host/r592.c
-+++ b/drivers/memstick/host/r592.c
-@@ -837,15 +837,15 @@ static void r592_remove(struct pci_dev *pdev)
+diff --git a/lib/decompress_unxz.c b/lib/decompress_unxz.c
+index 25d59a95bd668..abea25310ac73 100644
+--- a/lib/decompress_unxz.c
++++ b/lib/decompress_unxz.c
+@@ -167,7 +167,7 @@
+  * memeq and memzero are not used much and any remotely sane implementation
+  * is fast enough. memcpy/memmove speed matters in multi-call mode, but
+  * the kernel image is decompressed in single-call mode, in which only
+- * memcpy speed can matter and only if there is a lot of uncompressible data
++ * memmove speed can matter and only if there is a lot of uncompressible data
+  * (LZMA2 stores uncompressible chunks in uncompressed form). Thus, the
+  * functions below should just be kept small; it's probably not worth
+  * optimizing for speed.
+diff --git a/lib/xz/xz_dec_lzma2.c b/lib/xz/xz_dec_lzma2.c
+index 156f26fdc4c91..dd80989ca5a6b 100644
+--- a/lib/xz/xz_dec_lzma2.c
++++ b/lib/xz/xz_dec_lzma2.c
+@@ -387,7 +387,14 @@ static void dict_uncompressed(struct dictionary *dict, struct xz_buf *b,
+ 
+ 		*left -= copy_size;
+ 
+-		memcpy(dict->buf + dict->pos, b->in + b->in_pos, copy_size);
++		/*
++		 * If doing in-place decompression in single-call mode and the
++		 * uncompressed size of the file is larger than the caller
++		 * thought (i.e. it is invalid input!), the buffers below may
++		 * overlap and cause undefined behavior with memcpy().
++		 * With valid inputs memcpy() would be fine here.
++		 */
++		memmove(dict->buf + dict->pos, b->in + b->in_pos, copy_size);
+ 		dict->pos += copy_size;
+ 
+ 		if (dict->full < dict->pos)
+@@ -397,7 +404,11 @@ static void dict_uncompressed(struct dictionary *dict, struct xz_buf *b,
+ 			if (dict->pos == dict->end)
+ 				dict->pos = 0;
+ 
+-			memcpy(b->out + b->out_pos, b->in + b->in_pos,
++			/*
++			 * Like above but for multi-call mode: use memmove()
++			 * to avoid undefined behavior with invalid input.
++			 */
++			memmove(b->out + b->out_pos, b->in + b->in_pos,
+ 					copy_size);
+ 		}
+ 
+@@ -421,6 +432,12 @@ static uint32_t dict_flush(struct dictionary *dict, struct xz_buf *b)
+ 		if (dict->pos == dict->end)
+ 			dict->pos = 0;
+ 
++		/*
++		 * These buffers cannot overlap even if doing in-place
++		 * decompression because in multi-call mode dict->buf
++		 * has been allocated by us in this file; it's not
++		 * provided by the caller like in single-call mode.
++		 */
+ 		memcpy(b->out + b->out_pos, dict->buf + dict->start,
+ 				copy_size);
  	}
- 	memstick_remove_host(dev->host);
- 
-+	if (dev->dummy_dma_page)
-+		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
-+			dev->dummy_dma_page_physical_address);
-+
- 	free_irq(dev->irq, dev);
- 	iounmap(dev->mmio);
- 	pci_release_regions(pdev);
- 	pci_disable_device(pdev);
- 	memstick_free_host(dev->host);
--
--	if (dev->dummy_dma_page)
--		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
--			dev->dummy_dma_page_physical_address);
- }
- 
- #ifdef CONFIG_PM_SLEEP
 -- 
 2.33.0
 
