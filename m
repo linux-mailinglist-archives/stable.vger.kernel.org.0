@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD29B450E80
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:13:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3345D450C31
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240618AbhKOSQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:16:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49920 "EHLO mail.kernel.org"
+        id S238368AbhKORf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:35:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240253AbhKOSH2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1C1761AA2;
-        Mon, 15 Nov 2021 17:43:58 +0000 (UTC)
+        id S237919AbhKORav (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:30:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BEE1632A7;
+        Mon, 15 Nov 2021 17:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998239;
-        bh=p7hYBl8uoaWoqAEBkT4Kalq/XBG9gtgi0SJeebrNEnY=;
+        s=korg; t=1636996831;
+        bh=eDZxpCt1WOpDYq0bZPxu9Xpki+yZvGVuHpbJc+APXJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EPsHES9VHDdLH+2TSiqH+RkKs9aNYEdR7n8cwX6D90P7aXPBnP44HsMPvBqh6gzkJ
-         1X6MFvDbLFtz6n3+XRTD21MLgVKg/Mfb4iRuFiOwl1wG1tHBBGNNJVWkBe+ceVHvLX
-         IHb/o8GLsEMHzC1h/iUWifd4PSq3PDPC8wRZJqyc=
+        b=1Boq6gpz8RaXydlR/ksjimLM+f84Jmx3AbIhS8NQ2K9D82vlPlZxItDLMfP0p0+Yc
+         02PzrnFgNZ9v4r5TlKbxnKuEw29Mu6n4ZlDoteZKPAfS/33KHEUYggEYCsIYuTSEUP
+         cd2CgitQ+qNhOzwis2pnFlLRmGRSa7ZI+l7i4T+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 439/575] ASoC: cs42l42: Defer probe if request_threaded_irq() returns EPROBE_DEFER
+Subject: [PATCH 5.4 240/355] s390/gmap: dont unconditionally call pte_unmap_unlock() in __gmap_zap()
 Date:   Mon, 15 Nov 2021 18:02:44 +0100
-Message-Id: <20211115165358.947870164@linuxfoundation.org>
+Message-Id: <20211115165321.509115561@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 0306988789d9d91a18ff70bd2bf165d3ae0ef1dd ]
+[ Upstream commit b159f94c86b43cf7e73e654bc527255b1f4eafc4 ]
 
-The driver can run without an interrupt so if devm_request_threaded_irq()
-failed, the probe() just carried on. But if this was EPROBE_DEFER the
-driver would continue without an interrupt instead of deferring to wait
-for the interrupt to become available.
+... otherwise we will try unlocking a spinlock that was never locked via a
+garbage pointer.
 
-Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20211015133619.4698-6-rf@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+At the time we reach this code path, we usually successfully looked up
+a PGSTE already; however, evil user space could have manipulated the VMA
+layout in the meantime and triggered removal of the page table.
+
+Fixes: 1e133ab296f3 ("s390/mm: split arch/s390/mm/pgtable.c")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210909162248.14969-3-david@redhat.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 5 +++--
+ arch/s390/mm/gmap.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index 8e44d0f34194e..191431868c678 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -1796,8 +1796,9 @@ static int cs42l42_i2c_probe(struct i2c_client *i2c_client,
- 			NULL, cs42l42_irq_thread,
- 			IRQF_ONESHOT | IRQF_TRIGGER_LOW,
- 			"cs42l42", cs42l42);
--
--	if (ret != 0)
-+	if (ret == -EPROBE_DEFER)
-+		goto err_disable;
-+	else if (ret != 0)
- 		dev_err(&i2c_client->dev,
- 			"Failed to request IRQ: %d\n", ret);
- 
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 4fa7a562c6fc1..5e5a4e1f0e6cf 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -684,9 +684,10 @@ void __gmap_zap(struct gmap *gmap, unsigned long gaddr)
+ 		vmaddr |= gaddr & ~PMD_MASK;
+ 		/* Get pointer to the page table entry */
+ 		ptep = get_locked_pte(gmap->mm, vmaddr, &ptl);
+-		if (likely(ptep))
++		if (likely(ptep)) {
+ 			ptep_zap_unused(gmap->mm, vmaddr, ptep, 0);
+-		pte_unmap_unlock(ptep, ptl);
++			pte_unmap_unlock(ptep, ptl);
++		}
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(__gmap_zap);
 -- 
 2.33.0
 
