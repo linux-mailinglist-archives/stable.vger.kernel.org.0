@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB0F4450AB6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 212AA450D9E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:57:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231819AbhKOROK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:14:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43424 "EHLO mail.kernel.org"
+        id S239180AbhKOR77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:59:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236635AbhKORMN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:12:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9331761BE5;
-        Mon, 15 Nov 2021 17:09:16 +0000 (UTC)
+        id S239199AbhKOR5m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:57:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB14760EBC;
+        Mon, 15 Nov 2021 17:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996157;
-        bh=pQb1psDP2g/e0zAvNWY0zjFnqwUsYoFMyKBpBLNkKQg=;
+        s=korg; t=1636997683;
+        bh=XJyp2o3NJbCWJGAcDoSTzvzP79UaDesOKzag2W7ehNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6JPawlYyHdUuQvowAYszWEYMVGg5vGbtj/J0bpq1Ta3EQJMZCV3dHb2pfR11VdgM
-         vFmQ3NSj3dDV//OcTfCYgnIWhqEf8ElTc1O9Vl/zkzZefHerPb+gbLYLtFuPA9gdnu
-         Mce8HEkgsKn3H/EZRb28oci9ETygN9ol5FjMCL1U=
+        b=fdk2XsNCqY1EsNSUkT7UhOh1ruHVBO4hNrceWRDDmHRq1tyauNL4VD4cz0MDbyysu
+         QERuFlAmB47ddsSsXH3dnvKEqYvpITrhHhLRXBCMd7LaAQfzLgF87eOLyEE9p/szM/
+         KnKJWdm3U95yy0fbz6ilUSMy6jH+eAl+4Q9dyL/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Zheyu Ma <zheyuma97@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 037/355] scsi: qla2xxx: Return -ENOMEM if kzalloc() fails
-Date:   Mon, 15 Nov 2021 17:59:21 +0100
-Message-Id: <20211115165314.745579930@linuxfoundation.org>
+Subject: [PATCH 5.10 237/575] iwlwifi: mvm: disable RX-diversity in powersave
+Date:   Mon, 15 Nov 2021 17:59:22 +0100
+Message-Id: <20211115165351.926176894@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 06634d5b6e923ed0d4772aba8def5a618f44c7fe ]
+[ Upstream commit e5322b9ab5f63536c41301150b7ce64605ce52cc ]
 
-The driver probing function should return < 0 for failure, otherwise
-kernel will treat value > 0 as success.
+Just like we have default SMPS mode as dynamic in powersave,
+we should not enable RX-diversity in powersave, to reduce
+power consumption when connected to a non-MIMO AP.
 
-Link: https://lore.kernel.org/r/1634522181-31166-1-git-send-email-zheyuma97@gmail.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211017113927.fc896bc5cdaa.I1d11da71b8a5cbe921a37058d5f578f1b14a2023@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/utils.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 8b68879058132..049a68c59c137 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -4066,7 +4066,7 @@ qla2x00_mem_alloc(struct qla_hw_data *ha, uint16_t req_len, uint16_t rsp_len,
- 					ql_dbg_pci(ql_dbg_init, ha->pdev,
- 					    0xe0ee, "%s: failed alloc dsd\n",
- 					    __func__);
--					return 1;
-+					return -ENOMEM;
- 				}
- 				ha->dif_bundle_kallocs++;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/utils.c b/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
+index 3123036978a59..caf38ef64d3ce 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
+@@ -741,6 +741,9 @@ bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm)
+ 
+ 	lockdep_assert_held(&mvm->mutex);
+ 
++	if (iwlmvm_mod_params.power_scheme != IWL_POWER_SCHEME_CAM)
++		return false;
++
+ 	if (num_of_ant(iwl_mvm_get_valid_rx_ant(mvm)) == 1)
+ 		return false;
  
 -- 
 2.33.0
