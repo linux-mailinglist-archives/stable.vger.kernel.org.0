@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A30B7450C2C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6B5D450EBF
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237783AbhKORfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:35:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45794 "EHLO mail.kernel.org"
+        id S241234AbhKOSTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:19:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237813AbhKOReR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:34:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B235263275;
-        Mon, 15 Nov 2021 17:22:26 +0000 (UTC)
+        id S240709AbhKOSNB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:13:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B57B63318;
+        Mon, 15 Nov 2021 17:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996947;
-        bh=t0gqTs8M758R77+mkJi6FJvTd8ONEL68KeBSCzTltEg=;
+        s=korg; t=1636998484;
+        bh=tbeSfVYlFf2HxaXqbUQJ/zFMIP2AIyjRpUVEK50cMvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gH5wqiLKyps6XnxxF2nSSOdNY1+zS7i7qdQHEJn1wySs+G3euHqqbWfs/NsaNesq4
-         ye8fPcXZhl+IHwVomhLPvkieztz3plM2V1AP58XHIjvoXxdJEozmvLe5CJ1phpkCOX
-         P8KAjGSS0dKnCV8DuK0+t6yiCQLUsxTnpfMJTL7E=
+        b=dy+H2KKjjJ9N/SXdU3V0XYwzn0skff+rn0uNfjHj/F7mrl1AfkW9E2NZ7TLzsIUdj
+         mhGcMNTL8cfBLHGUykWkEC1Fxzm5XVp8uU4zEIaBU0OHAk/Sfxt4mKrBJUsNIsOC1J
+         cfhucUgyNhDkr4TuTiaE3n9A+cwG2iy16oHfkMK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Vedang Patel <vedang.patel@intel.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 327/355] net/sched: sch_taprio: fix undefined behavior in ktime_mono_to_any
+Subject: [PATCH 5.10 526/575] arm64: pgtable: make __pte_to_phys/__phys_to_pte_val inline functions
 Date:   Mon, 15 Nov 2021 18:04:11 +0100
-Message-Id: <20211115165324.314630990@linuxfoundation.org>
+Message-Id: <20211115165401.857548697@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,136 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 6dc25401cba4d428328eade8ceae717633fdd702 ]
+[ Upstream commit c7c386fbc20262c1d911c615c65db6a58667d92c ]
 
-1) if q->tk_offset == TK_OFFS_MAX, then get_tcp_tstamp() calls
-   ktime_mono_to_any() with out-of-bound value.
+gcc warns about undefined behavior the vmalloc code when building
+with CONFIG_ARM64_PA_BITS_52, when the 'idx++' in the argument to
+__phys_to_pte_val() is evaluated twice:
 
-2) if q->tk_offset is changed in taprio_parse_clockid(),
-   taprio_get_time() might also call ktime_mono_to_any()
-   with out-of-bound value as sysbot found:
+mm/vmalloc.c: In function 'vmap_pfn_apply':
+mm/vmalloc.c:2800:58: error: operation on 'data->idx' may be undefined [-Werror=sequence-point]
+ 2800 |         *pte = pte_mkspecial(pfn_pte(data->pfns[data->idx++], data->prot));
+      |                                                 ~~~~~~~~~^~
+arch/arm64/include/asm/pgtable-types.h:25:37: note: in definition of macro '__pte'
+   25 | #define __pte(x)        ((pte_t) { (x) } )
+      |                                     ^
+arch/arm64/include/asm/pgtable.h:80:15: note: in expansion of macro '__phys_to_pte_val'
+   80 |         __pte(__phys_to_pte_val((phys_addr_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot))
+      |               ^~~~~~~~~~~~~~~~~
+mm/vmalloc.c:2800:30: note: in expansion of macro 'pfn_pte'
+ 2800 |         *pte = pte_mkspecial(pfn_pte(data->pfns[data->idx++], data->prot));
+      |                              ^~~~~~~
 
-UBSAN: array-index-out-of-bounds in kernel/time/timekeeping.c:908:27
-index 3 is out of range for type 'ktime_t *[3]'
-CPU: 1 PID: 25668 Comm: kworker/u4:0 Not tainted 5.15.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: bat_events batadv_iv_send_outstanding_bat_ogm_packet
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:151
- __ubsan_handle_out_of_bounds.cold+0x62/0x6c lib/ubsan.c:291
- ktime_mono_to_any+0x1d4/0x1e0 kernel/time/timekeeping.c:908
- get_tcp_tstamp net/sched/sch_taprio.c:322 [inline]
- get_packet_txtime net/sched/sch_taprio.c:353 [inline]
- taprio_enqueue_one+0x5b0/0x1460 net/sched/sch_taprio.c:420
- taprio_enqueue+0x3b1/0x730 net/sched/sch_taprio.c:485
- dev_qdisc_enqueue+0x40/0x300 net/core/dev.c:3785
- __dev_xmit_skb net/core/dev.c:3869 [inline]
- __dev_queue_xmit+0x1f6e/0x3630 net/core/dev.c:4194
- batadv_send_skb_packet+0x4a9/0x5f0 net/batman-adv/send.c:108
- batadv_iv_ogm_send_to_if net/batman-adv/bat_iv_ogm.c:393 [inline]
- batadv_iv_ogm_emit net/batman-adv/bat_iv_ogm.c:421 [inline]
- batadv_iv_send_outstanding_bat_ogm_packet+0x6d7/0x8e0 net/batman-adv/bat_iv_ogm.c:1701
- process_one_work+0x9b2/0x1690 kernel/workqueue.c:2298
- worker_thread+0x658/0x11f0 kernel/workqueue.c:2445
- kthread+0x405/0x4f0 kernel/kthread.c:327
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
+I have no idea why this never showed up earlier, but the safest
+workaround appears to be changing those macros into inline functions
+so the arguments get evaluated only once.
 
-Fixes: 7ede7b03484b ("taprio: make clock reference conversions easier")
-Fixes: 54002066100b ("taprio: Adjust timestamps for TCP packets")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Vedang Patel <vedang.patel@intel.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Link: https://lore.kernel.org/r/20211108180815.1822479-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Fixes: 75387b92635e ("arm64: handle 52-bit physical addresses in page table entries")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20211105075414.2553155-1-arnd@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c | 27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ arch/arm64/include/asm/pgtable.h | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index e14a66ce4884d..b268e61304515 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -94,18 +94,22 @@ static ktime_t sched_base_time(const struct sched_gate_list *sched)
- 	return ns_to_ktime(sched->base_time);
- }
- 
--static ktime_t taprio_get_time(struct taprio_sched *q)
-+static ktime_t taprio_mono_to_any(const struct taprio_sched *q, ktime_t mono)
- {
--	ktime_t mono = ktime_get();
-+	/* This pairs with WRITE_ONCE() in taprio_parse_clockid() */
-+	enum tk_offsets tk_offset = READ_ONCE(q->tk_offset);
- 
--	switch (q->tk_offset) {
-+	switch (tk_offset) {
- 	case TK_OFFS_MAX:
- 		return mono;
- 	default:
--		return ktime_mono_to_any(mono, q->tk_offset);
-+		return ktime_mono_to_any(mono, tk_offset);
- 	}
-+}
- 
--	return KTIME_MAX;
-+static ktime_t taprio_get_time(const struct taprio_sched *q)
+diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+index 10ffbc96ac31f..f3a70dc7c5942 100644
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -69,9 +69,15 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
+  * page table entry, taking care of 52-bit addresses.
+  */
+ #ifdef CONFIG_ARM64_PA_BITS_52
+-#define __pte_to_phys(pte)	\
+-	((pte_val(pte) & PTE_ADDR_LOW) | ((pte_val(pte) & PTE_ADDR_HIGH) << 36))
+-#define __phys_to_pte_val(phys)	(((phys) | ((phys) >> 36)) & PTE_ADDR_MASK)
++static inline phys_addr_t __pte_to_phys(pte_t pte)
 +{
-+	return taprio_mono_to_any(q, ktime_get());
- }
- 
- static void taprio_free_sched_cb(struct rcu_head *head)
-@@ -321,7 +325,7 @@ static ktime_t get_tcp_tstamp(struct taprio_sched *q, struct sk_buff *skb)
- 		return 0;
- 	}
- 
--	return ktime_mono_to_any(skb->skb_mstamp_ns, q->tk_offset);
-+	return taprio_mono_to_any(q, skb->skb_mstamp_ns);
- }
- 
- /* There are a few scenarios where we will have to modify the txtime from
-@@ -1342,6 +1346,7 @@ static int taprio_parse_clockid(struct Qdisc *sch, struct nlattr **tb,
- 		}
- 	} else if (tb[TCA_TAPRIO_ATTR_SCHED_CLOCKID]) {
- 		int clockid = nla_get_s32(tb[TCA_TAPRIO_ATTR_SCHED_CLOCKID]);
-+		enum tk_offsets tk_offset;
- 
- 		/* We only support static clockids and we don't allow
- 		 * for it to be modified after the first init.
-@@ -1356,22 +1361,24 @@ static int taprio_parse_clockid(struct Qdisc *sch, struct nlattr **tb,
- 
- 		switch (clockid) {
- 		case CLOCK_REALTIME:
--			q->tk_offset = TK_OFFS_REAL;
-+			tk_offset = TK_OFFS_REAL;
- 			break;
- 		case CLOCK_MONOTONIC:
--			q->tk_offset = TK_OFFS_MAX;
-+			tk_offset = TK_OFFS_MAX;
- 			break;
- 		case CLOCK_BOOTTIME:
--			q->tk_offset = TK_OFFS_BOOT;
-+			tk_offset = TK_OFFS_BOOT;
- 			break;
- 		case CLOCK_TAI:
--			q->tk_offset = TK_OFFS_TAI;
-+			tk_offset = TK_OFFS_TAI;
- 			break;
- 		default:
- 			NL_SET_ERR_MSG(extack, "Invalid 'clockid'");
- 			err = -EINVAL;
- 			goto out;
- 		}
-+		/* This pairs with READ_ONCE() in taprio_mono_to_any */
-+		WRITE_ONCE(q->tk_offset, tk_offset);
- 
- 		q->clockid = clockid;
- 	} else {
++	return (pte_val(pte) & PTE_ADDR_LOW) |
++		((pte_val(pte) & PTE_ADDR_HIGH) << 36);
++}
++static inline pteval_t __phys_to_pte_val(phys_addr_t phys)
++{
++	return (phys | (phys >> 36)) & PTE_ADDR_MASK;
++}
+ #else
+ #define __pte_to_phys(pte)	(pte_val(pte) & PTE_ADDR_MASK)
+ #define __phys_to_pte_val(phys)	(phys)
 -- 
 2.33.0
 
