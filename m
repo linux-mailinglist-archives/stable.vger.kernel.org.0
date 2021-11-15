@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CAB8450C07
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:31:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5AFB450E75
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237830AbhKOReO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:34:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46318 "EHLO mail.kernel.org"
+        id S239838AbhKOSP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:15:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237806AbhKORah (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:30:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42CEB63299;
-        Mon, 15 Nov 2021 17:19:55 +0000 (UTC)
+        id S240261AbhKOSH3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D2C0632B1;
+        Mon, 15 Nov 2021 17:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996795;
-        bh=K4OC+GFHNE+vC1MJC5EXizHinVBDZ0GzWi5GjwmikeI=;
+        s=korg; t=1636998247;
+        bh=iYj7LDWdnHCijr6UPFNlAeNoxf1Zj94NlfgUl4Bx+9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLNgqDhoXznlhKsWTtGOUZouTVLJhCXO7OunzkOXBrmz7ZHgGtWFfOAgnxnmqUDDZ
-         J+VRYCzlH6xg6KXi5gxFQE4E8oCmo3+Eku9XTbSIbGhmWfo9ait9MzcguVegN4YsIn
-         xapaqusnuGP8Sfd5LD4NhuUMLAC4Mz6/DkZja9q4=
+        b=fiITdJ9xF2qqg4xgR05mxWAIQnkb4B/dOOq5MxY/I//twK2WM07M/TOo1QY6sFix9
+         pZ8I1QYuOIVLbRFOgNISvLTHs7Ht6c2nNpbrjHIzVdEMgDs91leGII01YgoJqcNu1b
+         J0HSctpAYFNS4w15T9YnhKuAOs5My6Ax785HEi/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Amelie Delaunay <amelie.delaunay@st.com>,
+        linux-usb@vger.kernel.org,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 243/355] samples/kretprobes: Fix return value if register_kretprobe() failed
+Subject: [PATCH 5.10 442/575] usb: typec: STUSB160X should select REGMAP_I2C
 Date:   Mon, 15 Nov 2021 18:02:47 +0100
-Message-Id: <20211115165321.605344217@linuxfoundation.org>
+Message-Id: <20211115165359.047288444@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit f76fbbbb5061fe14824ba5807c44bd7400a6b4e1 ]
+[ Upstream commit 8ef1e58783b9f55daa4a865c7801dc75cbeb8260 ]
 
-Use the actual return value instead of always -1 if register_kretprobe()
-failed.
+REGMAP_I2C is not a user visible kconfig symbol so driver configs
+should not "depend on" it. They should depend on I2C and then
+select REGMAP_I2C.
 
-E.g. without this patch:
+If this worked, it was only because some other driver had set/enabled
+REGMAP_I2C.
 
- # insmod samples/kprobes/kretprobe_example.ko func=no_such_func
- insmod: ERROR: could not insert module samples/kprobes/kretprobe_example.ko: Operation not permitted
-
-With this patch:
-
- # insmod samples/kprobes/kretprobe_example.ko func=no_such_func
- insmod: ERROR: could not insert module samples/kprobes/kretprobe_example.ko: Unknown symbol in module
-
-Link: https://lkml.kernel.org/r/1635213091-24387-2-git-send-email-yangtiezhu@loongson.cn
-
-Fixes: 804defea1c02 ("Kprobes: move kprobe examples to samples/")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: da0cb6310094 ("usb: typec: add support for STUSB160x Type-C controller family")
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: Amelie Delaunay <amelie.delaunay@st.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-usb@vger.kernel.org
+Reviewed-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20211015013609.7300-1-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/kprobes/kretprobe_example.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/typec/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/samples/kprobes/kretprobe_example.c b/samples/kprobes/kretprobe_example.c
-index 186315ca88b3f..2701549ee7b3a 100644
---- a/samples/kprobes/kretprobe_example.c
-+++ b/samples/kprobes/kretprobe_example.c
-@@ -84,7 +84,7 @@ static int __init kretprobe_init(void)
- 	ret = register_kretprobe(&my_kretprobe);
- 	if (ret < 0) {
- 		pr_err("register_kretprobe failed, returned %d\n", ret);
--		return -1;
-+		return ret;
- 	}
- 	pr_info("Planted return probe at %s: %p\n",
- 			my_kretprobe.kp.symbol_name, my_kretprobe.kp.addr);
+diff --git a/drivers/usb/typec/Kconfig b/drivers/usb/typec/Kconfig
+index e7f120874c483..0d953c6805f0f 100644
+--- a/drivers/usb/typec/Kconfig
++++ b/drivers/usb/typec/Kconfig
+@@ -75,9 +75,9 @@ config TYPEC_TPS6598X
+ 
+ config TYPEC_STUSB160X
+ 	tristate "STMicroelectronics STUSB160x Type-C controller driver"
+-	depends on I2C
+-	depends on REGMAP_I2C
+ 	depends on USB_ROLE_SWITCH || !USB_ROLE_SWITCH
++	depends on I2C
++	select REGMAP_I2C
+ 	help
+ 	  Say Y or M here if your system has STMicroelectronics STUSB160x
+ 	  Type-C port controller.
 -- 
 2.33.0
 
