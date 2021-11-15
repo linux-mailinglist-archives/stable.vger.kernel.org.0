@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD1E452393
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 378AE45237C
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348107AbhKPB1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:27:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37516 "EHLO mail.kernel.org"
+        id S1353050AbhKPB0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:26:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243605AbhKOTGK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:06:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B61F063236;
-        Mon, 15 Nov 2021 18:16:33 +0000 (UTC)
+        id S243320AbhKOTCt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:02:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE18F63367;
+        Mon, 15 Nov 2021 18:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000194;
-        bh=Wqd5c32K1PC+q/kVSpCwS3AH13LwmPKy+aCGxgOQ814=;
+        s=korg; t=1637000103;
+        bh=zsq7psJ6ZX4x+Di67qG5RxX79HBFRTNYuxpHp2EnpUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GGFwKu4u9f4hAy6Kq5mg3QCvnq4zgzqSRXtRaxsj/0AvmbU9EJQf6azcYKgwp5Gs7
-         OwNQm1xytTihebI4zZ+taNXaKiUa8l+RhfLNrqx9xospKPTa7qeX5hZPRWRLgENZMw
-         ALbzFTTbYot3f8je2y1eInhzFXCBQ97v+KsTec20=
+        b=r9bWtIQYlpCNzxH0jO0uNPoPfYIw9bZoCZytxbSssTOQ+MpRAGm5a29VOPtrz0cUt
+         rXidcPPazAQSjS66Ice+7kr8m7A5jT6wUAls8Y539+BlZmdt/1SFeUsZhjiSVeUF5W
+         xnyw1J+oSWPmIu37bIizs2SEYQoLihRCYbGiojFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 538/849] selftests: net: bridge: update IGMP/MLD membership interval value
-Date:   Mon, 15 Nov 2021 18:00:21 +0100
-Message-Id: <20211115165438.460564131@linuxfoundation.org>
+Subject: [PATCH 5.14 539/849] crypto: pcrypt - Delay write to padata->info
+Date:   Mon, 15 Nov 2021 18:00:22 +0100
+Message-Id: <20211115165438.499842488@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,90 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit 34d7ecb3d4f772eb00ce1f7195ae30886ddf4d2e ]
+[ Upstream commit 68b6dea802cea0dbdd8bd7ccc60716b5a32a5d8a ]
 
-When I fixed IGMPv3/MLDv2 to use the bridge's multicast_membership_interval
-value which is chosen by user-space instead of calculating it based on
-multicast_query_interval and multicast_query_response_interval I forgot
-to update the selftests relying on that behaviour. Now we have to
-manually set the expected GMI value to perform the tests correctly and get
-proper results (similar to IGMPv2 behaviour).
+These three events can race when pcrypt is used multiple times in a
+template ("pcrypt(pcrypt(...))"):
 
-Fixes: fac3cb82a54a ("net: bridge: mcast: use multicast_membership_interval for IGMPv3")
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  1.  [taskA] The caller makes the crypto request via crypto_aead_encrypt()
+  2.  [kworkerB] padata serializes the inner pcrypt request
+  3.  [kworkerC] padata serializes the outer pcrypt request
+
+3 might finish before the call to crypto_aead_encrypt() returns in 1,
+resulting in two possible issues.
+
+First, a use-after-free of the crypto request's memory when, for
+example, taskA writes to the outer pcrypt request's padata->info in
+pcrypt_aead_enc() after kworkerC completes the request.
+
+Second, the outer pcrypt request overwrites the inner pcrypt request's
+return code with -EINPROGRESS, making a successful request appear to
+fail.  For instance, kworkerB writes the outer pcrypt request's
+padata->info in pcrypt_aead_done() and then taskA overwrites it
+in pcrypt_aead_enc().
+
+Avoid both situations by delaying the write of padata->info until after
+the inner crypto request's return code is checked.  This prevents the
+use-after-free by not touching the crypto request's memory after the
+next-inner crypto request is made, and stops padata->info from being
+overwritten.
+
+Fixes: 5068c7a883d16 ("crypto: pcrypt - Add pcrypt crypto parallelization wrapper")
+Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../testing/selftests/net/forwarding/bridge_igmp.sh  | 12 +++++++++---
- tools/testing/selftests/net/forwarding/bridge_mld.sh | 12 +++++++++---
- 2 files changed, 18 insertions(+), 6 deletions(-)
+ crypto/pcrypt.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/net/forwarding/bridge_igmp.sh b/tools/testing/selftests/net/forwarding/bridge_igmp.sh
-index 675eff45b0371..1162836f8f329 100755
---- a/tools/testing/selftests/net/forwarding/bridge_igmp.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_igmp.sh
-@@ -482,10 +482,15 @@ v3exc_timeout_test()
- 	local X=("192.0.2.20" "192.0.2.30")
+diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
+index d569c7ed6c800..9d10b846ccf73 100644
+--- a/crypto/pcrypt.c
++++ b/crypto/pcrypt.c
+@@ -78,12 +78,14 @@ static void pcrypt_aead_enc(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
  
- 	# GMI should be 3 seconds
--	ip link set dev br0 type bridge mcast_query_interval 100 mcast_query_response_interval 100
-+	ip link set dev br0 type bridge mcast_query_interval 100 \
-+					mcast_query_response_interval 100 \
-+					mcast_membership_interval 300
+-	padata->info = crypto_aead_encrypt(req);
++	ret = crypto_aead_encrypt(req);
  
- 	v3exclude_prepare $h1 $ALL_MAC $ALL_GROUP
--	ip link set dev br0 type bridge mcast_query_interval 500 mcast_query_response_interval 500
-+	ip link set dev br0 type bridge mcast_query_interval 500 \
-+					mcast_query_response_interval 500 \
-+					mcast_membership_interval 1500
-+
- 	$MZ $h1 -c 1 -b $ALL_MAC -B $ALL_GROUP -t ip "proto=2,p=$MZPKT_ALLOW2" -q
- 	sleep 3
- 	bridge -j -d -s mdb show dev br0 \
-@@ -517,7 +522,8 @@ v3exc_timeout_test()
- 	log_test "IGMPv3 group $TEST_GROUP exclude timeout"
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
  
- 	ip link set dev br0 type bridge mcast_query_interval 12500 \
--					mcast_query_response_interval 1000
-+					mcast_query_response_interval 1000 \
-+					mcast_membership_interval 26000
- 
- 	v3cleanup $swp1 $TEST_GROUP
++	padata->info = ret;
+ 	padata_do_serial(padata);
  }
-diff --git a/tools/testing/selftests/net/forwarding/bridge_mld.sh b/tools/testing/selftests/net/forwarding/bridge_mld.sh
-index ffdcfa87ca2ba..e2b9ff773c6b6 100755
---- a/tools/testing/selftests/net/forwarding/bridge_mld.sh
-+++ b/tools/testing/selftests/net/forwarding/bridge_mld.sh
-@@ -479,10 +479,15 @@ mldv2exc_timeout_test()
- 	local X=("2001:db8:1::20" "2001:db8:1::30")
  
- 	# GMI should be 3 seconds
--	ip link set dev br0 type bridge mcast_query_interval 100 mcast_query_response_interval 100
-+	ip link set dev br0 type bridge mcast_query_interval 100 \
-+					mcast_query_response_interval 100 \
-+					mcast_membership_interval 300
+@@ -123,12 +125,14 @@ static void pcrypt_aead_dec(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
  
- 	mldv2exclude_prepare $h1
--	ip link set dev br0 type bridge mcast_query_interval 500 mcast_query_response_interval 500
-+	ip link set dev br0 type bridge mcast_query_interval 500 \
-+					mcast_query_response_interval 500 \
-+					mcast_membership_interval 1500
-+
- 	$MZ $h1 -c 1 $MZPKT_ALLOW2 -q
- 	sleep 3
- 	bridge -j -d -s mdb show dev br0 \
-@@ -514,7 +519,8 @@ mldv2exc_timeout_test()
- 	log_test "MLDv2 group $TEST_GROUP exclude timeout"
+-	padata->info = crypto_aead_decrypt(req);
++	ret = crypto_aead_decrypt(req);
  
- 	ip link set dev br0 type bridge mcast_query_interval 12500 \
--					mcast_query_response_interval 1000
-+					mcast_query_response_interval 1000 \
-+					mcast_membership_interval 26000
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
  
- 	mldv2cleanup $swp1
++	padata->info = ret;
+ 	padata_do_serial(padata);
  }
+ 
 -- 
 2.33.0
 
