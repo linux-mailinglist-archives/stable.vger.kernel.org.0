@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 395954513F5
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19406451168
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:04:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348796AbhKOUAB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:00:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
+        id S242660AbhKOTHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:07:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344147AbhKOTXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6CF66363A;
-        Mon, 15 Nov 2021 18:52:48 +0000 (UTC)
+        id S243884AbhKOTEg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:04:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C846632AA;
+        Mon, 15 Nov 2021 18:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002369;
-        bh=5pllriLMsJyqD0CUjWP1Jgbm8esa7oPKn6wy0/9vCyY=;
+        s=korg; t=1637000144;
+        bh=jLx/TiqCWkq6M2IK5tjtNuEWhV933eY9CLLnZYAahz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MRdAf49f6ZlJu1s2a/e8UhQwDMBwvkTwRIUdi933oekf55vOCYVWlk6ka+El9TgoR
-         mZi3T2uWofvC4okmwImaQr4afJkx3ERR7K0hKfvP27LWs780gkqUJu0ZHymbwKyHnS
-         LkJJk7sYnwNagm/SFiV2tj8ZjdjdvOlBJw7G/Cfw=
+        b=Q8ESlapUk6gLSjgtcUmR6H2HcM3XGrN7lBJf4Cz0L1oimUBk9NtESXJaKURkCoj8s
+         USpkKn1C/XBlrsCuV5zk/4VeNX5XTbB5RcMLQfdvqVex3hf2dt2mFzUo+R5O/qoYhC
+         EgzBHM7OomDGzCPjyiU0FaPBkdoyj35yxRo6btYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 540/917] selftests/bpf: Fix fd cleanup in sk_lookup test
-Date:   Mon, 15 Nov 2021 18:00:35 +0100
-Message-Id: <20211115165447.063842740@linuxfoundation.org>
+Subject: [PATCH 5.14 553/849] ARM: dts: BCM5301X: Fix memory nodes names
+Date:   Mon, 15 Nov 2021 18:00:36 +0100
+Message-Id: <20211115165438.965562671@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +41,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit c3fc706e94f5653def2783ffcd809a38676b7551 ]
+[ Upstream commit c5e1df3276d7a500678da9453be31a66ad115150 ]
 
-Similar to the fix in commit:
-e31eec77e4ab ("bpf: selftests: Fix fd cleanup in get_branch_snapshot")
+Thix fixes:
+arch/arm/boot/dts/bcm4708-netgear-r6250.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
+arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
+arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 402653184]]}
+arch/arm/boot/dts/bcm4709-linksys-ea9200.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
+arch/arm/boot/dts/bcm4709-netgear-r7000.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
+arch/arm/boot/dts/bcm4709-netgear-r8000.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 134217728]]}
+arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728]]}
+arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728], [2281701376, 402653184]]}
+arch/arm/boot/dts/bcm53016-meraki-mr32.dt.yaml: /: memory: False schema does not allow {'reg': [[0, 134217728]], 'device_type': ['memory']}
+arch/arm/boot/dts/bcm94708.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728]]}
+arch/arm/boot/dts/bcm94709.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 134217728]]}
 
-We use designated initializer to set fds to -1 without breaking on
-future changes to MAX_SERVER constant denoting the array size.
-
-The particular close(0) occurs on non-reuseport tests, so it can be seen
-with -n 115/{2,3} but not 115/4. This can cause problems with future
-tests if they depend on BTF fd never being acquired as fd 0, breaking
-internal libbpf assumptions.
-
-Fixes: 0ab5539f8584 ("selftests/bpf: Tests for BPF_SK_LOOKUP attach point")
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20211028063501.2239335-8-memxor@gmail.com
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/sk_lookup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/bcm4708-netgear-r6250.dts       | 2 +-
+ arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts       | 2 +-
+ arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts | 2 +-
+ arch/arm/boot/dts/bcm4709-linksys-ea9200.dts      | 2 +-
+ arch/arm/boot/dts/bcm4709-netgear-r7000.dts       | 2 +-
+ arch/arm/boot/dts/bcm4709-netgear-r8000.dts       | 2 +-
+ arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts | 2 +-
+ arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts     | 2 +-
+ arch/arm/boot/dts/bcm53016-meraki-mr32.dts        | 2 +-
+ arch/arm/boot/dts/bcm94708.dts                    | 2 +-
+ arch/arm/boot/dts/bcm94709.dts                    | 2 +-
+ 11 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/sk_lookup.c b/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
-index aee41547e7f45..6db07401bc493 100644
---- a/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
-+++ b/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
-@@ -598,7 +598,7 @@ close:
+diff --git a/arch/arm/boot/dts/bcm4708-netgear-r6250.dts b/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
+index 61c7b137607e5..7900aac4f35a9 100644
+--- a/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
++++ b/arch/arm/boot/dts/bcm4708-netgear-r6250.dts
+@@ -20,7 +20,7 @@
+ 		bootargs = "console=ttyS0,115200 earlycon";
+ 	};
  
- static void run_lookup_prog(const struct test *t)
- {
--	int server_fds[MAX_SERVERS] = { -1 };
-+	int server_fds[] = { [0 ... MAX_SERVERS - 1] = -1 };
- 	int client_fd, reuse_conn_fd = -1;
- 	struct bpf_link *lookup_link;
- 	int i, err;
-@@ -1053,7 +1053,7 @@ static void run_sk_assign(struct test_sk_lookup *skel,
- 			  struct bpf_program *lookup_prog,
- 			  const char *remote_ip, const char *local_ip)
- {
--	int server_fds[MAX_SERVERS] = { -1 };
-+	int server_fds[] = { [0 ... MAX_SERVERS - 1] = -1 };
- 	struct bpf_sk_lookup ctx;
- 	__u64 server_cookie;
- 	int i, err;
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x08000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts b/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
+index 6c6bb7b17d27a..7546c8d07bcd7 100644
+--- a/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
++++ b/arch/arm/boot/dts/bcm4709-asus-rt-ac87u.dts
+@@ -19,7 +19,7 @@
+ 		bootargs = "console=ttyS0,115200";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x08000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts b/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
+index d29e7f80ea6aa..beae9eab9cb8c 100644
+--- a/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
++++ b/arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dts
+@@ -19,7 +19,7 @@
+ 		bootargs = "console=ttyS0,115200";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x18000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts b/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
+index 9b6887d477d86..7879f7d7d9c33 100644
+--- a/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
++++ b/arch/arm/boot/dts/bcm4709-linksys-ea9200.dts
+@@ -16,7 +16,7 @@
+ 		bootargs = "console=ttyS0,115200";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x08000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-netgear-r7000.dts b/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
+index 7989a53597d4f..56d309dbc6b0d 100644
+--- a/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
++++ b/arch/arm/boot/dts/bcm4709-netgear-r7000.dts
+@@ -19,7 +19,7 @@
+ 		bootargs = "console=ttyS0,115200";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x08000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-netgear-r8000.dts b/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
+index 87b655be674c5..184e3039aa864 100644
+--- a/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
++++ b/arch/arm/boot/dts/bcm4709-netgear-r8000.dts
+@@ -30,7 +30,7 @@
+ 		bootargs = "console=ttyS0,115200";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x08000000>;
+diff --git a/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts b/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts
+index f806be5da7237..c2a266a439d05 100644
+--- a/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts
++++ b/arch/arm/boot/dts/bcm4709-tplink-archer-c9-v1.dts
+@@ -15,7 +15,7 @@
+ 		bootargs = "console=ttyS0,115200 earlycon";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>;
+ 	};
+diff --git a/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts b/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
+index 452b8d0ab180e..b0d8a688141d3 100644
+--- a/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
++++ b/arch/arm/boot/dts/bcm47094-luxul-xwc-2000.dts
+@@ -16,7 +16,7 @@
+ 		bootargs = "earlycon";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>,
+ 		      <0x88000000 0x18000000>;
+diff --git a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
+index 3b978dc8997a4..612d61852bfb9 100644
+--- a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
++++ b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
+@@ -20,7 +20,7 @@
+ 		bootargs = " console=ttyS0,115200n8 earlycon";
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;
+ 		device_type = "memory";
+ 	};
+diff --git a/arch/arm/boot/dts/bcm94708.dts b/arch/arm/boot/dts/bcm94708.dts
+index 3d13e46c69494..d9eb2040b9631 100644
+--- a/arch/arm/boot/dts/bcm94708.dts
++++ b/arch/arm/boot/dts/bcm94708.dts
+@@ -38,7 +38,7 @@
+ 	model = "NorthStar SVK (BCM94708)";
+ 	compatible = "brcm,bcm94708", "brcm,bcm4708";
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>;
+ 	};
+diff --git a/arch/arm/boot/dts/bcm94709.dts b/arch/arm/boot/dts/bcm94709.dts
+index 5017b7b259cbe..618c812eef73e 100644
+--- a/arch/arm/boot/dts/bcm94709.dts
++++ b/arch/arm/boot/dts/bcm94709.dts
+@@ -38,7 +38,7 @@
+ 	model = "NorthStar SVK (BCM94709)";
+ 	compatible = "brcm,bcm94709", "brcm,bcm4709", "brcm,bcm4708";
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>;
+ 	};
 -- 
 2.33.0
 
