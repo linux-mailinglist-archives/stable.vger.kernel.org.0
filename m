@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB65F450E14
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68FC6450BC2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:26:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237996AbhKOSKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:10:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46102 "EHLO mail.kernel.org"
+        id S237755AbhKOR3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:29:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239959AbhKOSFL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:05:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE0B3632FB;
-        Mon, 15 Nov 2021 17:40:41 +0000 (UTC)
+        id S237849AbhKOR0d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:26:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 427E060F9C;
+        Mon, 15 Nov 2021 17:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998042;
-        bh=/jWpU+v8R8qSIf1moZIq2VW/GwaiC8r8t8GfNE1KrcE=;
+        s=korg; t=1636996637;
+        bh=eZAqm9bvl2NZYOtfH4C5RMtBchZenZQjw/pFwHipA+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZddffLsKy0Z0cNqFGPhBF52dDNd6kyBUo15C+o44pHYkYxa0ftk5BFDQvTMI0IOCb
-         3Vyz9wr9xH0le6g2sUJERbwt1nZj5l1kdxXnEFnPTyNrhr84GWVcjewqM9+YBNxD2R
-         xkVl1EYJC0NvpvQRPC/wAi7eONsNh32+Z0Qh1KtM=
+        b=z8r0OSLhdf7Bmxe1l9h+5/WVcytyoYiRYygR28NE92kZXIkJidcjj6Ib7M+2v9lh+
+         Xzz3EYWKTApTCDEm7jzm4iFBI/NXU3ebBvcBtDpnjJdeMjFLRTd8ayE7U2K7BInTxp
+         dJiy7RZdp1WZqb00PHHsALjxYQblXs4ekn1WPkSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Janis Schoetterl-Glausch <scgl@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 367/575] KVM: s390: Fix handle_sske page fault handling
-Date:   Mon, 15 Nov 2021 18:01:32 +0100
-Message-Id: <20211115165356.492060239@linuxfoundation.org>
+Subject: [PATCH 5.4 169/355] net: dsa: lantiq_gswip: serialize access to the PCE table
+Date:   Mon, 15 Nov 2021 18:01:33 +0100
+Message-Id: <20211115165319.255917034@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +42,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 85f517b29418158d3e6e90c3f0fc01b306d2f1a1 ]
+[ Upstream commit 49753a75b9a32de4c0393bb8d1e51ea223fda8e4 ]
 
-If handle_sske cannot set the storage key, because there is no
-page table entry or no present large page entry, it calls
-fixup_user_fault.
-However, currently, if the call succeeds, handle_sske returns
--EAGAIN, without having set the storage key.
-Instead, retry by continue'ing the loop without incrementing the
-address.
-The same issue in handle_pfmf was fixed by
-a11bdb1a6b78 ("KVM: s390: Fix pfmf and conditional skey emulation").
+Looking at the code, the GSWIP switch appears to hold bridging service
+structures (VLANs, FDBs, forwarding rules) in PCE table entries.
+Hardware access to the PCE table is non-atomic, and is comprised of
+several register reads and writes.
 
-Fixes: bd096f644319 ("KVM: s390: Add skey emulation fault handling")
-Signed-off-by: Janis Schoetterl-Glausch <scgl@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20211022152648.26536-1-scgl@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+These accesses are currently serialized by the rtnl_lock, but DSA is
+changing its driver API and that lock will no longer be held when
+calling ->port_fdb_add() and ->port_fdb_del().
+
+So this driver needs to serialize the access to the PCE table using its
+own locking scheme. This patch adds that.
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/priv.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/dsa/lantiq_gswip.c | 28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index cd74989ce0b02..3b1a498e58d25 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -397,6 +397,8 @@ static int handle_sske(struct kvm_vcpu *vcpu)
- 		mmap_read_unlock(current->mm);
- 		if (rc == -EFAULT)
- 			return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		if (rc == -EAGAIN)
-+			continue;
- 		if (rc < 0)
- 			return rc;
- 		start += PAGE_SIZE;
+diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
+index 60e36f46f8abe..d612ef8648baa 100644
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -274,6 +274,7 @@ struct gswip_priv {
+ 	int num_gphy_fw;
+ 	struct gswip_gphy_fw *gphy_fw;
+ 	u32 port_vlan_filter;
++	struct mutex pce_table_lock;
+ };
+ 
+ struct gswip_pce_table_entry {
+@@ -521,10 +522,14 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
+ 	u16 addr_mode = tbl->key_mode ? GSWIP_PCE_TBL_CTRL_OPMOD_KSRD :
+ 					GSWIP_PCE_TBL_CTRL_OPMOD_ADRD;
+ 
++	mutex_lock(&priv->pce_table_lock);
++
+ 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
+ 				     GSWIP_PCE_TBL_CTRL_BAS);
+-	if (err)
++	if (err) {
++		mutex_unlock(&priv->pce_table_lock);
+ 		return err;
++	}
+ 
+ 	gswip_switch_w(priv, tbl->index, GSWIP_PCE_TBL_ADDR);
+ 	gswip_switch_mask(priv, GSWIP_PCE_TBL_CTRL_ADDR_MASK |
+@@ -534,8 +539,10 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
+ 
+ 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
+ 				     GSWIP_PCE_TBL_CTRL_BAS);
+-	if (err)
++	if (err) {
++		mutex_unlock(&priv->pce_table_lock);
+ 		return err;
++	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(tbl->key); i++)
+ 		tbl->key[i] = gswip_switch_r(priv, GSWIP_PCE_TBL_KEY(i));
+@@ -551,6 +558,8 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
+ 	tbl->valid = !!(crtl & GSWIP_PCE_TBL_CTRL_VLD);
+ 	tbl->gmap = (crtl & GSWIP_PCE_TBL_CTRL_GMAP_MASK) >> 7;
+ 
++	mutex_unlock(&priv->pce_table_lock);
++
+ 	return 0;
+ }
+ 
+@@ -563,10 +572,14 @@ static int gswip_pce_table_entry_write(struct gswip_priv *priv,
+ 	u16 addr_mode = tbl->key_mode ? GSWIP_PCE_TBL_CTRL_OPMOD_KSWR :
+ 					GSWIP_PCE_TBL_CTRL_OPMOD_ADWR;
+ 
++	mutex_lock(&priv->pce_table_lock);
++
+ 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
+ 				     GSWIP_PCE_TBL_CTRL_BAS);
+-	if (err)
++	if (err) {
++		mutex_unlock(&priv->pce_table_lock);
+ 		return err;
++	}
+ 
+ 	gswip_switch_w(priv, tbl->index, GSWIP_PCE_TBL_ADDR);
+ 	gswip_switch_mask(priv, GSWIP_PCE_TBL_CTRL_ADDR_MASK |
+@@ -598,8 +611,12 @@ static int gswip_pce_table_entry_write(struct gswip_priv *priv,
+ 	crtl |= GSWIP_PCE_TBL_CTRL_BAS;
+ 	gswip_switch_w(priv, crtl, GSWIP_PCE_TBL_CTRL);
+ 
+-	return gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
+-				      GSWIP_PCE_TBL_CTRL_BAS);
++	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
++				     GSWIP_PCE_TBL_CTRL_BAS);
++
++	mutex_unlock(&priv->pce_table_lock);
++
++	return err;
+ }
+ 
+ /* Add the LAN port into a bridge with the CPU port by
+@@ -2020,6 +2037,7 @@ static int gswip_probe(struct platform_device *pdev)
+ 	priv->ds->priv = priv;
+ 	priv->ds->ops = &gswip_switch_ops;
+ 	priv->dev = dev;
++	mutex_init(&priv->pce_table_lock);
+ 	version = gswip_switch_r(priv, GSWIP_VERSION);
+ 
+ 	/* bring up the mdio bus */
 -- 
 2.33.0
 
