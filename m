@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47ADB452769
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:21:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B99A145277A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:23:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343924AbhKPCYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:24:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53206 "EHLO mail.kernel.org"
+        id S1344855AbhKPCZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:25:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237655AbhKORZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:25:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A81E63280;
-        Mon, 15 Nov 2021 17:17:46 +0000 (UTC)
+        id S236856AbhKORYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:24:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68519614C8;
+        Mon, 15 Nov 2021 17:18:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996667;
-        bh=3xAhBrSAzakV7nM07Mv4vLlEkr/sVAJCgA17UpJ1mGI=;
+        s=korg; t=1636996680;
+        bh=qp45ZSFt9Bb1J9yFtgyxRTmuRcK4kg/9VrHv3nQHTS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gn0XtnFdQzZZTzdzkOW7hQFY3rTsVMcEchZrwCZrFW+nB/La5I3S2MB3oq3tBI33U
-         I2C3umvBG8jNAWfmlU6sFXbiaUI6nJqE2NQFcnlWZB70ZcIJnUktesOJLD0DUuLuI9
-         d6NZOWF9CVLyOkibOugup1BKpiijMx8nMqDhBGxM=
+        b=1DvzUciEw0cXN8ogSHO9o8zIv3lmUl3nO+sUnCgsIgkYXUwLF3JlNFbW+d6Qmfk1n
+         jSoquItQFrDM12E19p+/wqo5XJ9GPJrew56ud1HHebWTZ8w75y8sl41DV8btL/9Xpm
+         CGnE1Xe1CHMLplYhM0bC3ZexRXYL2pXBe53Hdfno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <seckelmann@datto.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 224/355] ath10k: fix max antenna gain unit
-Date:   Mon, 15 Nov 2021 18:02:28 +0100
-Message-Id: <20211115165321.005584432@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
+        linux-block@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 228/355] block: ataflop: fix breakage introduced at blk-mq refactoring
+Date:   Mon, 15 Nov 2021 18:02:32 +0100
+Message-Id: <20211115165321.131919639@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -40,84 +41,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <seckelmann@datto.com>
+From: Michael Schmitz <schmitzmic@gmail.com>
 
-[ Upstream commit 0a491167fe0cf9f26062462de2a8688b96125d48 ]
+[ Upstream commit 86d46fdaa12ae5befc16b8d73fc85a3ca0399ea6 ]
 
-Most of the txpower for the ath10k firmware is stored as twicepower (0.5 dB
-steps). This isn't the case for max_antenna_gain - which is still expected
-by the firmware as dB.
+Refactoring of the Atari floppy driver when converting to blk-mq
+has broken the state machine in not-so-subtle ways:
 
-The firmware is converting it from dB to the internal (twicepower)
-representation when it calculates the limits of a channel. This can be seen
-in tpc_stats when configuring "12" as max_antenna_gain. Instead of the
-expected 12 (6 dB), the tpc_stats shows 24 (12 dB).
+finish_fdc() must be called when operations on the floppy device
+have completed. This is crucial in order to relase the ST-DMA
+lock, which protects against concurrent access to the ST-DMA
+controller by other drivers (some DMA related, most just related
+to device register access - broken beyond compare, I know).
 
-Tested on QCA9888 and IPQ4019 with firmware 10.4-3.5.3-00057.
+When rewriting the driver's old do_request() function, the fact
+that finish_fdc() was called only when all queued requests had
+completed appears to have been overlooked. Instead, the new
+request function calls finish_fdc() immediately after the last
+request has been queued. finish_fdc() executes a dummy seek after
+most requests, and this overwrites the state machine's interrupt
+hander that was set up to wait for completion of the read/write
+request just prior. To make matters worse, finish_fdc() is called
+before device interrupts are re-enabled, making certain that the
+read/write interupt is missed.
 
-Fixes: 02256930d9b8 ("ath10k: use proper tx power unit")
-Signed-off-by: Sven Eckelmann <seckelmann@datto.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20190611172131.6064-1-sven@narfation.org
+Shifting the finish_fdc() call into the read/write request
+completion handler ensures the driver waits for the request to
+actually complete. With a queue depth of 2, we won't see long
+request sequences, so calling finish_fdc() unconditionally just
+adds a little overhead for the dummy seeks, and keeps the code
+simple.
+
+While we're at it, kill ataflop_commit_rqs() which does nothing
+but run finish_fdc() unconditionally, again likely wiping out an
+in-flight request.
+
+Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
+Fixes: 6ec3938cff95 ("ataflop: convert to blk-mq")
+CC: linux-block@vger.kernel.org
+CC: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Link: https://lore.kernel.org/r/20211019061321.26425-1-schmitzmic@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 6 +++---
- drivers/net/wireless/ath/ath10k/wmi.h | 3 +++
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ drivers/block/ataflop.c | 18 +++---------------
+ 1 file changed, 3 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 603f817ae3a59..9daaacf789d60 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -1044,7 +1044,7 @@ static int ath10k_monitor_vdev_start(struct ath10k *ar, int vdev_id)
- 	arg.channel.min_power = 0;
- 	arg.channel.max_power = channel->max_power * 2;
- 	arg.channel.max_reg_power = channel->max_reg_power * 2;
--	arg.channel.max_antenna_gain = channel->max_antenna_gain * 2;
-+	arg.channel.max_antenna_gain = channel->max_antenna_gain;
+diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
+index bd7d3bb8b890b..ad4cf10749100 100644
+--- a/drivers/block/ataflop.c
++++ b/drivers/block/ataflop.c
+@@ -653,9 +653,6 @@ static inline void copy_buffer(void *from, void *to)
+ 		*p2++ = *p1++;
+ }
  
- 	reinit_completion(&ar->vdev_setup_done);
- 	reinit_completion(&ar->vdev_delete_done);
-@@ -1490,7 +1490,7 @@ static int ath10k_vdev_start_restart(struct ath10k_vif *arvif,
- 	arg.channel.min_power = 0;
- 	arg.channel.max_power = chandef->chan->max_power * 2;
- 	arg.channel.max_reg_power = chandef->chan->max_reg_power * 2;
--	arg.channel.max_antenna_gain = chandef->chan->max_antenna_gain * 2;
-+	arg.channel.max_antenna_gain = chandef->chan->max_antenna_gain;
+-  
+-  
+-
+ /* General Interrupt Handling */
  
- 	if (arvif->vdev_type == WMI_VDEV_TYPE_AP) {
- 		arg.ssid = arvif->u.ap.ssid;
-@@ -3149,7 +3149,7 @@ static int ath10k_update_channel_list(struct ath10k *ar)
- 			ch->min_power = 0;
- 			ch->max_power = channel->max_power * 2;
- 			ch->max_reg_power = channel->max_reg_power * 2;
--			ch->max_antenna_gain = channel->max_antenna_gain * 2;
-+			ch->max_antenna_gain = channel->max_antenna_gain;
- 			ch->reg_class_id = 0; /* FIXME */
+ static void (*FloppyIRQHandler)( int status ) = NULL;
+@@ -1225,6 +1222,7 @@ static void fd_rwsec_done1(int status)
+ 	}
+ 	else {
+ 		/* all sectors finished */
++		finish_fdc();
+ 		fd_end_request_cur(BLK_STS_OK);
+ 	}
+ 	return;
+@@ -1472,15 +1470,6 @@ static void setup_req_params( int drive )
+ 			ReqTrack, ReqSector, (unsigned long)ReqData ));
+ }
  
- 			/* FIXME: why use only legacy modes, why not any
-diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
-index 761bc4a7064df..de22396d085ce 100644
---- a/drivers/net/wireless/ath/ath10k/wmi.h
-+++ b/drivers/net/wireless/ath/ath10k/wmi.h
-@@ -2045,7 +2045,9 @@ struct wmi_channel {
- 	union {
- 		__le32 reginfo1;
- 		struct {
-+			/* note: power unit is 1 dBm */
- 			u8 antenna_max;
-+			/* note: power unit is 0.5 dBm */
- 			u8 max_tx_power;
- 		} __packed;
- 	} __packed;
-@@ -2065,6 +2067,7 @@ struct wmi_channel_arg {
- 	u32 min_power;
- 	u32 max_power;
- 	u32 max_reg_power;
-+	/* note: power unit is 1 dBm */
- 	u32 max_antenna_gain;
- 	u32 reg_class_id;
- 	enum wmi_phy_mode mode;
+-static void ataflop_commit_rqs(struct blk_mq_hw_ctx *hctx)
+-{
+-	spin_lock_irq(&ataflop_lock);
+-	atari_disable_irq(IRQ_MFP_FDC);
+-	finish_fdc();
+-	atari_enable_irq(IRQ_MFP_FDC);
+-	spin_unlock_irq(&ataflop_lock);
+-}
+-
+ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 				     const struct blk_mq_queue_data *bd)
+ {
+@@ -1488,6 +1477,8 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	int drive = floppy - unit;
+ 	int type = floppy->type;
+ 
++	DPRINT(("Queue request: drive %d type %d last %d\n", drive, type, bd->last));
++
+ 	spin_lock_irq(&ataflop_lock);
+ 	if (fd_request) {
+ 		spin_unlock_irq(&ataflop_lock);
+@@ -1547,8 +1538,6 @@ static blk_status_t ataflop_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	setup_req_params( drive );
+ 	do_fd_action( drive );
+ 
+-	if (bd->last)
+-		finish_fdc();
+ 	atari_enable_irq( IRQ_MFP_FDC );
+ 
+ out:
+@@ -1958,7 +1947,6 @@ static const struct block_device_operations floppy_fops = {
+ 
+ static const struct blk_mq_ops ataflop_mq_ops = {
+ 	.queue_rq = ataflop_queue_rq,
+-	.commit_rqs = ataflop_commit_rqs,
+ };
+ 
+ static struct kobject *floppy_find(dev_t dev, int *part, void *data)
 -- 
 2.33.0
 
