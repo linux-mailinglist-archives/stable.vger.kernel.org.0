@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AB9A450E77
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1123E450B87
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240398AbhKOSPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:15:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48396 "EHLO mail.kernel.org"
+        id S237214AbhKORZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:25:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237873AbhKOSHk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94ADD633A0;
-        Mon, 15 Nov 2021 17:45:19 +0000 (UTC)
+        id S237777AbhKORYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:24:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1F3963286;
+        Mon, 15 Nov 2021 17:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998320;
-        bh=Ox9GGarjKrJ43zzWDMJIOhOgpbbTPKCURK2YLUmFtjc=;
+        s=korg; t=1636996705;
+        bh=DbtiOiCLEsnKuUdPZWFWTy0CB/G5GaTeDk2npq8/nNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVrfF2Yq05zbQuNYlSQwNghrSOiP63eNw9Q7YnjmUXNH+Eq0I7w4fOgyrOT3YacVW
-         /HQV6NZ9HK7WuIuS5F76a2f91GG0yU+fgAL+Z998ImztEC/mk5rZcSULIAks5Fg+LH
-         xn93gMjiYZaPI4VHuTG0S9NuC4wBw73PwSz7hGao=
+        b=hRpmUDQcXdUhjRC7TbJrCnhRpbEOw7TUc6H/bANKZNNs82ZxYmCMGVKwqcGjvacv8
+         nFyDdzmXqH+yV0Ow0UkrR8dje3J8EvDZtvYSyNJvyf0SaQ7uqW0ezuROhFcgd82A/S
+         omi9u1Z89C45ufY8DpwVdZagA4vu4bZXSJdDsoIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Keerthy <j-keerthy@ti.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
+        Ladislav Michl <ladis@linux-mips.org>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        linux-omap@vger.kernel.org, Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 434/575] pinctrl: renesas: checker: Fix off-by-one bug in drive register check
-Date:   Mon, 15 Nov 2021 18:02:39 +0100
-Message-Id: <20211115165358.784783019@linuxfoundation.org>
+Subject: [PATCH 5.4 236/355] clocksource/drivers/timer-ti-dm: Select TIMER_OF
+Date:   Mon, 15 Nov 2021 18:02:40 +0100
+Message-Id: <20211115165321.385021610@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 28e7f8ff90583791a034d43b5d2e3fe394142e13 ]
+[ Upstream commit eda9a4f7af6ee47e9e131f20e4f8a41a97379293 ]
 
-The GENMASK(h, l) macro creates a contiguous bitmask starting at bit
-position @l and ending at position @h, inclusive.
+When building OMAP_DM_TIMER without TIMER_OF, there are orphan sections
+due to the use of TIMER_OF_DELCARE() without CONFIG_TIMER_OF. Select
+CONFIG_TIMER_OF when enaling OMAP_DM_TIMER:
 
-This did not trigger any error checks, as the individual register fields
-cover at most 3 of the 4 available bits.
+arm-linux-gnueabi-ld: warning: orphan section `__timer_of_table' from `drivers/clocksource/timer-ti-dm-systimer.o' being placed in section `__timer_of_table'
 
-Fixes: 08df16e07ad0a1ec ("pinctrl: sh-pfc: checker: Add drive strength register checks")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/8f82d6147fbe3367d4c83962480e97f58d9c96a2.1633615652.git.geert+renesas@glider.be
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202108282255.tkdt4ani-lkp@intel.com/
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Keerthy <j-keerthy@ti.com>
+Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Cc: Ladislav Michl <ladis@linux-mips.org>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: linux-omap@vger.kernel.org
+Fixes: 52762fbd1c47 ("clocksource/drivers/timer-ti-dm: Add clockevent and clocksource support")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210828175747.3777891-1-keescook@chromium.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/renesas/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clocksource/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pinctrl/renesas/core.c b/drivers/pinctrl/renesas/core.c
-index c528c124fb0e9..9d168b90cd281 100644
---- a/drivers/pinctrl/renesas/core.c
-+++ b/drivers/pinctrl/renesas/core.c
-@@ -890,7 +890,7 @@ static void __init sh_pfc_check_drive_reg(const struct sh_pfc_soc_info *info,
- 		if (!field->pin && !field->offset && !field->size)
- 			continue;
+diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+index 3bb5625504e2f..9bfe4c5af87e3 100644
+--- a/drivers/clocksource/Kconfig
++++ b/drivers/clocksource/Kconfig
+@@ -24,6 +24,7 @@ config I8253_LOCK
  
--		mask = GENMASK(field->offset + field->size, field->offset);
-+		mask = GENMASK(field->offset + field->size - 1, field->offset);
- 		if (mask & seen)
- 			sh_pfc_err("drive_reg 0x%x: field %u overlap\n",
- 				   drive->reg, i);
+ config OMAP_DM_TIMER
+ 	bool
++	select TIMER_OF
+ 
+ config CLKBLD_I8253
+ 	def_bool y if CLKSRC_I8253 || CLKEVT_I8253 || I8253_LOCK
 -- 
 2.33.0
 
