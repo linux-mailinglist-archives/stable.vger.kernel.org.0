@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0384C452253
+	by mail.lfdr.de (Postfix) with ESMTP id AA5B4452254
 	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:08:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377475AbhKPBK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:10:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
+        id S1345309AbhKPBLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:11:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245186AbhKOTTq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245185AbhKOTTq (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:19:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 814C663514;
-        Mon, 15 Nov 2021 18:29:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D611632D0;
+        Mon, 15 Nov 2021 18:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000994;
-        bh=B3IL7A0G24d4lar2WCAI1FTeW7+ftwuZOZ6GG5qyeJA=;
+        s=korg; t=1637000996;
+        bh=vkxcXT5tMPbc3Hl+2TUvOZTHfy5Xz2w8NuYtLlq2mE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f9/czjQ/ii1LPX8X7MKLdaQnDKteMt10w/eOc9Qh6Imv1fjD3zvSisMcemyJs5BzZ
-         HJwFlAoztJLcrM681PX3LcmB4SVAIlBj/0xN1T/vchxItQZtHPBm9/x0udCoTaP13k
-         wCD3Kq+5Gx249+I0qTEWMrGtVHxhIJH03bOgF6K8=
+        b=t3QfJb47o5s2xIpCBMeA4groE+Ghs7KlEEk49ILlxZefHPfLKQzQjyoj14pzNQp+6
+         fv6a1HxDCDoQEiAkx6nR1bhyVkWW+AHgt+m9MhvJ/A9ZPud82+SnaCobDX/Gu/Qk3x
+         qgPsSARYdYNigOyB2o8xcMp6pTuZj07L7XRqgtNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Gompa <ngompa13@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.15 005/917] Input: i8042 - Add quirk for Fujitsu Lifebook T725
-Date:   Mon, 15 Nov 2021 17:51:40 +0100
-Message-Id: <20211115165428.908475429@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 5.15 006/917] libata: fix read log timeout value
+Date:   Mon, 15 Nov 2021 17:51:41 +0100
+Message-Id: <20211115165428.940538662@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,54 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 16e28abb7290c4ca3b3a0f333ba067f34bb18c86 upstream.
+commit 68dbbe7d5b4fde736d104cbbc9a2fce875562012 upstream.
 
-Fujitsu Lifebook T725 laptop requires, like a few other similar
-models, the nomux and notimeout options to probe the touchpad
-properly.  This patch adds the corresponding quirk entries.
+Some ATA drives are very slow to respond to READ_LOG_EXT and
+READ_LOG_DMA_EXT commands issued from ata_dev_configure() when the
+device is revalidated right after resuming a system or inserting the
+ATA adapter driver (e.g. ahci). The default 5s timeout
+(ATA_EH_CMD_DFL_TIMEOUT) used for these commands is too short, causing
+errors during the device configuration. Ex:
 
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1191980
-Tested-by: Neal Gompa <ngompa13@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211103070019.13374-1-tiwai@suse.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+...
+ata9: SATA max UDMA/133 abar m524288@0x9d200000 port 0x9d200400 irq 209
+ata9: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
+ata9.00: ATA-9: XXX  XXXXXXXXXXXXXXX, XXXXXXXX, max UDMA/133
+ata9.00: qc timeout (cmd 0x2f)
+ata9.00: Read log page 0x00 failed, Emask 0x4
+ata9.00: Read log page 0x00 failed, Emask 0x40
+ata9.00: NCQ Send/Recv Log not supported
+ata9.00: Read log page 0x08 failed, Emask 0x40
+ata9.00: 27344764928 sectors, multi 16: LBA48 NCQ (depth 32), AA
+ata9.00: Read log page 0x00 failed, Emask 0x40
+ata9.00: ATA Identify Device Log not supported
+ata9.00: failed to set xfermode (err_mask=0x40)
+ata9: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
+ata9.00: configured for UDMA/133
+...
+
+The timeout error causes a soft reset of the drive link, followed in
+most cases by a successful revalidation as that give enough time to the
+drive to become fully ready to quickly process the read log commands.
+However, in some cases, this also fails resulting in the device being
+dropped.
+
+Fix this by using adding the ata_eh_revalidate_timeouts entries for the
+READ_LOG_EXT and READ_LOG_DMA_EXT commands. This defines a timeout
+increased to 15s, retriable one time.
+
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/ata/libata-eh.c |    8 ++++++++
+ include/linux/libata.h  |    2 +-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -273,6 +273,13 @@ static const struct dmi_system_id __init
- 		},
- 	},
- 	{
-+		/* Fujitsu Lifebook T725 laptop */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
-+		},
-+	},
-+	{
- 		/* Fujitsu Lifebook U745 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-@@ -841,6 +848,13 @@ static const struct dmi_system_id __init
- 		},
- 	},
- 	{
-+		/* Fujitsu Lifebook T725 laptop */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
-+		},
-+	},
-+	{
- 		/* Fujitsu U574 laptop */
- 		/* https://bugzilla.kernel.org/show_bug.cgi?id=69731 */
- 		.matches = {
+--- a/drivers/ata/libata-eh.c
++++ b/drivers/ata/libata-eh.c
+@@ -93,6 +93,12 @@ static const unsigned long ata_eh_identi
+ 	ULONG_MAX,
+ };
+ 
++static const unsigned long ata_eh_revalidate_timeouts[] = {
++	15000,	/* Some drives are slow to read log pages when waking-up */
++	15000,  /* combined time till here is enough even for media access */
++	ULONG_MAX,
++};
++
+ static const unsigned long ata_eh_flush_timeouts[] = {
+ 	15000,	/* be generous with flush */
+ 	15000,  /* ditto */
+@@ -129,6 +135,8 @@ static const struct ata_eh_cmd_timeout_e
+ ata_eh_cmd_timeout_table[ATA_EH_CMD_TIMEOUT_TABLE_SIZE] = {
+ 	{ .commands = CMDS(ATA_CMD_ID_ATA, ATA_CMD_ID_ATAPI),
+ 	  .timeouts = ata_eh_identify_timeouts, },
++	{ .commands = CMDS(ATA_CMD_READ_LOG_EXT, ATA_CMD_READ_LOG_DMA_EXT),
++	  .timeouts = ata_eh_revalidate_timeouts, },
+ 	{ .commands = CMDS(ATA_CMD_READ_NATIVE_MAX, ATA_CMD_READ_NATIVE_MAX_EXT),
+ 	  .timeouts = ata_eh_other_timeouts, },
+ 	{ .commands = CMDS(ATA_CMD_SET_MAX, ATA_CMD_SET_MAX_EXT),
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -394,7 +394,7 @@ enum {
+ 	/* This should match the actual table size of
+ 	 * ata_eh_cmd_timeout_table in libata-eh.c.
+ 	 */
+-	ATA_EH_CMD_TIMEOUT_TABLE_SIZE = 6,
++	ATA_EH_CMD_TIMEOUT_TABLE_SIZE = 7,
+ 
+ 	/* Horkage types. May be set by libata or controller on drives
+ 	   (some horkage may be drive/controller pair dependent */
 
 
