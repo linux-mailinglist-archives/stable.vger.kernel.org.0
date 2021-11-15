@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F60D451408
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DA6845118E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:07:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348895AbhKOUAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:00:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
+        id S243940AbhKOTJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:09:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344189AbhKOTYD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CDD46363B;
-        Mon, 15 Nov 2021 18:53:25 +0000 (UTC)
+        id S243913AbhKOTGc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:06:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D27D6325A;
+        Mon, 15 Nov 2021 18:16:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002406;
-        bh=zsq7psJ6ZX4x+Di67qG5RxX79HBFRTNYuxpHp2EnpUc=;
+        s=korg; t=1637000199;
+        bh=SnMBCV9epDvOhBtYv6e/IVrarHzOsuYFRhRR0KmZvvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDP22GFIpDS2FPxAmXdQ8UBLZA5sflCmiRKqasnDchSNHfCpP7TZf5tEjqzgKFYy6
-         9+D0a3juzuZd3TTcAseVJihfzyrsRwwYkjrkE0bbtjPT4tAIe3in078V/ySf6lIvbs
-         lH5hFpKFhjuFl/K+sDUjwDJcTmasO0+w9gPOZjqA=
+        b=fjyzZo43+1RRK1itliXXoddl8+1POvvwtD4vyC1XDNi3MHtOYf4HMLYkbnSkVoXlT
+         8IhAhD7InyfooizGjdGqliyYbnOe1qT+UhI6BLNnmmhKvMxtOB/P+KiXiCicfpd5CH
+         C+IqSvclUbW78h+DoEl2Y7cJhjumeeT+MQ1GhnGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
+        Anand Moon <linux.amoon@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 553/917] crypto: pcrypt - Delay write to padata->info
-Date:   Mon, 15 Nov 2021 18:00:48 +0100
-Message-Id: <20211115165447.546391008@linuxfoundation.org>
+Subject: [PATCH 5.14 566/849] arm64: dts: meson-g12a: Fix the pwm regulator supply properties
+Date:   Mon, 15 Nov 2021 18:00:49 +0100
+Message-Id: <20211115165439.394797616@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,83 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Anand Moon <linux.amoon@gmail.com>
 
-[ Upstream commit 68b6dea802cea0dbdd8bd7ccc60716b5a32a5d8a ]
+[ Upstream commit 085675117ecf5e02c4220698fd549024ec64ad2c ]
 
-These three events can race when pcrypt is used multiple times in a
-template ("pcrypt(pcrypt(...))"):
+After enabling CONFIG_REGULATOR_DEBUG=y we observe below debug logs.
+Changes help link VDDCPU pwm regulator to 12V regulator supply
+instead of dummy regulator.
 
-  1.  [taskA] The caller makes the crypto request via crypto_aead_encrypt()
-  2.  [kworkerB] padata serializes the inner pcrypt request
-  3.  [kworkerC] padata serializes the outer pcrypt request
+[   11.602281] pwm-regulator regulator-vddcpu: Looking up pwm-supply property
+               in node /regulator-vddcpu failed
+[   11.602344] VDDCPU: supplied by regulator-dummy
+[   11.602365] regulator-dummy: could not add device link regulator.11: -ENOENT
+[   11.602548] VDDCPU: 721 <--> 1022 mV at 1022 mV, enabled
 
-3 might finish before the call to crypto_aead_encrypt() returns in 1,
-resulting in two possible issues.
+Fixes: e9bc0765cc12 ("arm64: dts: meson-g12a: enable DVFS on G12A boards")
 
-First, a use-after-free of the crypto request's memory when, for
-example, taskA writes to the outer pcrypt request's padata->info in
-pcrypt_aead_enc() after kworkerC completes the request.
-
-Second, the outer pcrypt request overwrites the inner pcrypt request's
-return code with -EINPROGRESS, making a successful request appear to
-fail.  For instance, kworkerB writes the outer pcrypt request's
-padata->info in pcrypt_aead_done() and then taskA overwrites it
-in pcrypt_aead_enc().
-
-Avoid both situations by delaying the write of padata->info until after
-the inner crypto request's return code is checked.  This prevents the
-use-after-free by not touching the crypto request's memory after the
-next-inner crypto request is made, and stops padata->info from being
-overwritten.
-
-Fixes: 5068c7a883d16 ("crypto: pcrypt - Add pcrypt crypto parallelization wrapper")
-Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Anand Moon <linux.amoon@gmail.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20210919202918.3556-2-linux.amoon@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/pcrypt.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-g12a-sei510.dts  | 2 +-
+ arch/arm64/boot/dts/amlogic/meson-g12a-u200.dts    | 2 +-
+ arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
-index d569c7ed6c800..9d10b846ccf73 100644
---- a/crypto/pcrypt.c
-+++ b/crypto/pcrypt.c
-@@ -78,12 +78,14 @@ static void pcrypt_aead_enc(struct padata_priv *padata)
- {
- 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
- 	struct aead_request *req = pcrypt_request_ctx(preq);
-+	int ret;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12a-sei510.dts b/arch/arm64/boot/dts/amlogic/meson-g12a-sei510.dts
+index 81269ccc24968..d8838dde0f0f4 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12a-sei510.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-g12a-sei510.dts
+@@ -139,7 +139,7 @@
+ 		regulator-min-microvolt = <721000>;
+ 		regulator-max-microvolt = <1022000>;
  
--	padata->info = crypto_aead_encrypt(req);
-+	ret = crypto_aead_encrypt(req);
+-		vin-supply = <&dc_in>;
++		pwm-supply = <&dc_in>;
  
--	if (padata->info == -EINPROGRESS)
-+	if (ret == -EINPROGRESS)
- 		return;
+ 		pwms = <&pwm_AO_cd 1 1250 0>;
+ 		pwm-dutycycle-range = <100 0>;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12a-u200.dts b/arch/arm64/boot/dts/amlogic/meson-g12a-u200.dts
+index a26bfe72550fe..4b5d11e56364d 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12a-u200.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-g12a-u200.dts
+@@ -139,7 +139,7 @@
+ 		regulator-min-microvolt = <721000>;
+ 		regulator-max-microvolt = <1022000>;
  
-+	padata->info = ret;
- 	padata_do_serial(padata);
- }
+-		vin-supply = <&main_12v>;
++		pwm-supply = <&main_12v>;
  
-@@ -123,12 +125,14 @@ static void pcrypt_aead_dec(struct padata_priv *padata)
- {
- 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
- 	struct aead_request *req = pcrypt_request_ctx(preq);
-+	int ret;
+ 		pwms = <&pwm_AO_cd 1 1250 0>;
+ 		pwm-dutycycle-range = <100 0>;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts b/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts
+index 579f3d02d613e..b4e86196e3468 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-g12a-x96-max.dts
+@@ -139,7 +139,7 @@
+ 		regulator-min-microvolt = <721000>;
+ 		regulator-max-microvolt = <1022000>;
  
--	padata->info = crypto_aead_decrypt(req);
-+	ret = crypto_aead_decrypt(req);
+-		vin-supply = <&dc_in>;
++		pwm-supply = <&dc_in>;
  
--	if (padata->info == -EINPROGRESS)
-+	if (ret == -EINPROGRESS)
- 		return;
- 
-+	padata->info = ret;
- 	padata_do_serial(padata);
- }
- 
+ 		pwms = <&pwm_AO_cd 1 1250 0>;
+ 		pwm-dutycycle-range = <100 0>;
 -- 
 2.33.0
 
