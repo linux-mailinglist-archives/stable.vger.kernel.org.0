@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46243451F41
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71068451F30
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355844AbhKPAim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:38:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
+        id S1355967AbhKPAis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:38:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344116AbhKOTX0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D9B9632A7;
-        Mon, 15 Nov 2021 18:52:09 +0000 (UTC)
+        id S1344049AbhKOTXM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2615A63618;
+        Mon, 15 Nov 2021 18:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002330;
-        bh=yGanyxzd9iKm+a+2xm/PnxG+Kc/4Mq0xjuqjFm2D5WA=;
+        s=korg; t=1637002243;
+        bh=BwZJKnpZU/sNbF4AjNPmMWMJrsMVNqYH33obNIstlj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y8/k5lvDjnvjDh9Wp9yZM5weMqgkVq4GXLU0ZUcT7ZGJxIXLCSpCq9c7fYnutBsX5
-         0M27PI22RhOrw94xEQEdybmDR6rI3dcLXq31TWBdsfuwwcBJ52plaiiaiAMHjiKrkF
-         phUGb5VKgxrEi4tyy0CSdeZvUiz7k6O4ip3Tg0/Y=
+        b=0XlCQeIWWR0FwyrI/3+smyqFTEuw0mMb5CVDIqFMYe3tJ97dxX3SFsyOG4y17qRj1
+         QQ4MJikeZ1EV1huSF+7Ye2R/AaWcTtFNwKAAe9nExeg/5WLlR6vKHJkpazhPMr/3C8
+         EfKArtDDoAVsvm/8iRQEeihxelDGzh4zOAjD9Wps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 491/917] nbd: Fix use-after-free in pid_show
-Date:   Mon, 15 Nov 2021 17:59:46 +0100
-Message-Id: <20211115165445.428616635@linuxfoundation.org>
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 493/917] PM: hibernate: fix sparse warnings
+Date:   Mon, 15 Nov 2021 17:59:48 +0100
+Message-Id: <20211115165445.491312071@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,133 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-[ Upstream commit 0c98057be9efa32de78dbc4685fc73da9d71faa1 ]
+[ Upstream commit 01de5fcd8b1ac0ca28d2bb0921226a54fdd62684 ]
 
-I got issue as follows:
-[  263.886511] BUG: KASAN: use-after-free in pid_show+0x11f/0x13f
-[  263.888359] Read of size 4 at addr ffff8880bf0648c0 by task cat/746
-[  263.890479] CPU: 0 PID: 746 Comm: cat Not tainted 4.19.90-dirty #140
-[  263.893162] Call Trace:
-[  263.893509]  dump_stack+0x108/0x15f
-[  263.893999]  print_address_description+0xa5/0x372
-[  263.894641]  kasan_report.cold+0x236/0x2a8
-[  263.895696]  __asan_report_load4_noabort+0x25/0x30
-[  263.896365]  pid_show+0x11f/0x13f
-[  263.897422]  dev_attr_show+0x48/0x90
-[  263.898361]  sysfs_kf_seq_show+0x24d/0x4b0
-[  263.899479]  kernfs_seq_show+0x14e/0x1b0
-[  263.900029]  seq_read+0x43f/0x1150
-[  263.900499]  kernfs_fop_read+0xc7/0x5a0
-[  263.903764]  vfs_read+0x113/0x350
-[  263.904231]  ksys_read+0x103/0x270
-[  263.905230]  __x64_sys_read+0x77/0xc0
-[  263.906284]  do_syscall_64+0x106/0x360
-[  263.906797]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+When building the kernel with sparse enabled 'C=1' the following
+warnings shows up:
 
-Reproduce this issue as follows:
-1. nbd-server 8000 /tmp/disk
-2. nbd-client localhost 8000 /dev/nbd1
-3. cat /sys/block/nbd1/pid
-Then trigger use-after-free in pid_show.
+kernel/power/swap.c:390:29: warning: incorrect type in assignment (different base types)
+kernel/power/swap.c:390:29:    expected int ret
+kernel/power/swap.c:390:29:    got restricted blk_status_t
 
-Reason is after do step '2', nbd-client progress is already exit. So
-it's task_struct already freed.
-To solve this issue, revert part of 6521d39a64b3's modify and remove
-useless 'recv_task' member of nbd_device.
+This is due to function hib_wait_io() returns a 'blk_status_t' which is
+a bitwise u8. Commit 5416da01ff6e ("PM: hibernate: Remove
+blk_status_to_errno in hib_wait_io") seemed to have mixed up the return
+type. However, the 4e4cbee93d56 ("block: switch bios to blk_status_t")
+actually broke the behaviour by returning the wrong type.
 
-Fixes: 6521d39a64b3 ("nbd: Remove variable 'pid'")
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20211020073959.2679255-1-yebin10@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Rework so function hib_wait_io() returns a 'int' instead of
+'blk_status_t' and make sure to call function
+blk_status_to_errno(hb->error)' when returning from function
+hib_wait_io() a int gets returned.
+
+Fixes: 4e4cbee93d56 ("block: switch bios to blk_status_t")
+Fixes: 5416da01ff6e ("PM: hibernate: Remove blk_status_to_errno in hib_wait_io")
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ kernel/power/swap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 1183f7872b713..4f1b591c3a555 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -122,10 +122,10 @@ struct nbd_device {
- 	struct work_struct remove_work;
- 
- 	struct list_head list;
--	struct task_struct *task_recv;
- 	struct task_struct *task_setup;
- 
- 	unsigned long flags;
-+	pid_t pid; /* pid of nbd-client, if attached */
- 
- 	char *backend;
- };
-@@ -217,7 +217,7 @@ static ssize_t pid_show(struct device *dev,
- 	struct gendisk *disk = dev_to_disk(dev);
- 	struct nbd_device *nbd = (struct nbd_device *)disk->private_data;
- 
--	return sprintf(buf, "%d\n", task_pid_nr(nbd->task_recv));
-+	return sprintf(buf, "%d\n", nbd->pid);
+diff --git a/kernel/power/swap.c b/kernel/power/swap.c
+index 0aabc94125d6b..f3a1086f7cdb2 100644
+--- a/kernel/power/swap.c
++++ b/kernel/power/swap.c
+@@ -299,7 +299,7 @@ static int hib_submit_io(int op, int op_flags, pgoff_t page_off, void *addr,
+ 	return error;
  }
  
- static const struct device_attribute pid_attr = {
-@@ -329,7 +329,7 @@ static int nbd_set_size(struct nbd_device *nbd, loff_t bytesize,
- 	nbd->config->bytesize = bytesize;
- 	nbd->config->blksize_bits = __ffs(blksize);
- 
--	if (!nbd->task_recv)
-+	if (!nbd->pid)
- 		return 0;
- 
- 	if (nbd->config->flags & NBD_FLAG_SEND_TRIM) {
-@@ -1241,7 +1241,7 @@ static void nbd_config_put(struct nbd_device *nbd)
- 		if (test_and_clear_bit(NBD_RT_HAS_PID_FILE,
- 				       &config->runtime_flags))
- 			device_remove_file(disk_to_dev(nbd->disk), &pid_attr);
--		nbd->task_recv = NULL;
-+		nbd->pid = 0;
- 		if (test_and_clear_bit(NBD_RT_HAS_BACKEND_FILE,
- 				       &config->runtime_flags)) {
- 			device_remove_file(disk_to_dev(nbd->disk), &backend_attr);
-@@ -1282,7 +1282,7 @@ static int nbd_start_device(struct nbd_device *nbd)
- 	int num_connections = config->num_connections;
- 	int error = 0, i;
- 
--	if (nbd->task_recv)
-+	if (nbd->pid)
- 		return -EBUSY;
- 	if (!config->socks)
- 		return -EINVAL;
-@@ -1301,7 +1301,7 @@ static int nbd_start_device(struct nbd_device *nbd)
- 	}
- 
- 	blk_mq_update_nr_hw_queues(&nbd->tag_set, config->num_connections);
--	nbd->task_recv = current;
-+	nbd->pid = task_pid_nr(current);
- 
- 	nbd_parse_flags(nbd);
- 
-@@ -1557,8 +1557,8 @@ static int nbd_dbg_tasks_show(struct seq_file *s, void *unused)
+-static blk_status_t hib_wait_io(struct hib_bio_batch *hb)
++static int hib_wait_io(struct hib_bio_batch *hb)
  {
- 	struct nbd_device *nbd = s->private;
- 
--	if (nbd->task_recv)
--		seq_printf(s, "recv: %d\n", task_pid_nr(nbd->task_recv));
-+	if (nbd->pid)
-+		seq_printf(s, "recv: %d\n", nbd->pid);
- 
- 	return 0;
- }
-@@ -2135,7 +2135,7 @@ static int nbd_genl_reconfigure(struct sk_buff *skb, struct genl_info *info)
- 	mutex_lock(&nbd->config_lock);
- 	config = nbd->config;
- 	if (!test_bit(NBD_RT_BOUND, &config->runtime_flags) ||
--	    !nbd->task_recv) {
-+	    !nbd->pid) {
- 		dev_err(nbd_to_dev(nbd),
- 			"not configured, cannot reconfigure\n");
- 		ret = -EINVAL;
+ 	/*
+ 	 * We are relying on the behavior of blk_plug that a thread with
 -- 
 2.33.0
 
