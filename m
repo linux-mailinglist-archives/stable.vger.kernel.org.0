@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF3D04521B7
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:03:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D45345251F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:44:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345993AbhKPBGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:06:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44636 "EHLO mail.kernel.org"
+        id S1344492AbhKPBqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:46:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245424AbhKOTUc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAEC16352F;
-        Mon, 15 Nov 2021 18:34:30 +0000 (UTC)
+        id S241936AbhKOSZx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:25:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B83E96332F;
+        Mon, 15 Nov 2021 17:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001271;
-        bh=6sGY2gvl1x9VcPYW2Ihv0xET13XFCJUuqom+rxmNX9Y=;
+        s=korg; t=1636999000;
+        bh=vsF4fAH+G17NUr2Ci7d8v21vjL/lDVS3kInc5+yF8v0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KkpnI3T3NWgkbK0kJOkbwrS+GaPgR3ut6LdqbfXhxking+xj8gf0GPn8M7bXbwI5Y
-         c4FnnPYLzLxYnslxm4MDudliR3hvSmqZLDSkD0PaGbVVzpYkYmA06mVG+01BnHuLRf
-         8YoX1141W1oq5g4RYeM4cgEELC9r7msbPheNgG4E=
+        b=FxNXgpKCnlGwYacI1bgzH/fRkFbmBl62dh0fGT9AMDY8KarDRD8mOgzQiKxdrmJ3y
+         TN56adC/ZZIwo+nU9tXKfLoycZ4/eAvMNp/YRyi8Cps+3CwEz3kqVeIXDMkITnL3Rr
+         BElTjEOWHM/+KZzbQTIq3bQJZ6DnSMpcBDeBS1W0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.15 094/917] mwifiex: Try waking the firmware until we get an interrupt
+        stable@vger.kernel.org, Anton Lundin <glance@acc.umu.se>,
+        Corey Minyard <cminyard@mvista.com>, Stable@vger.kernel.org
+Subject: [PATCH 5.14 106/849] ipmi:watchdog: Set panic count to proper value on a panic
 Date:   Mon, 15 Nov 2021 17:53:09 +0100
-Message-Id: <20211115165431.936408803@linuxfoundation.org>
+Message-Id: <20211115165423.663364312@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,113 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Dreßler <verdre@v0yd.nl>
+From: Corey Minyard <cminyard@mvista.com>
 
-commit 8e3e59c31fea5de95ffc52c46f0c562c39f20c59 upstream.
+commit db05ddf7f321634c5659a0cf7ea56594e22365f7 upstream.
 
-It seems that the PCIe+USB firmware (latest version 15.68.19.p21) of the
-88W8897 card sometimes ignores or misses when we try to wake it up by
-writing to the firmware status register. This leads to the firmware
-wakeup timeout expiring and the driver resetting the card because we
-assume the firmware has hung up or crashed.
+You will get two decrements when the messages on a panic are sent, not
+one, since commit 2033f6858970 ("ipmi: Free receive messages when in an
+oops") was added, but the watchdog code had a bug where it didn't set
+the value properly.
 
-Turns out that the firmware actually didn't hang up, but simply "missed"
-our wakeup request and didn't send us an interrupt with an AWAKE event.
-
-Trying again to read the firmware status register after a short timeout
-usually makes the firmware wake up as expected, so add a small retry
-loop to mwifiex_pm_wakeup_card() that looks at the interrupt status to
-check whether the card woke up.
-
-The number of tries and timeout lengths for this were determined
-experimentally: The firmware usually takes about 500 us to wake up
-after we attempt to read the status register. In some cases where the
-firmware is very busy (for example while doing a bluetooth scan) it
-might even miss our requests for multiple milliseconds, which is why
-after 15 tries the waiting time gets increased to 10 ms. The maximum
-number of tries it took to wake the firmware when testing this was
-around 20, so a maximum number of 50 tries should give us plenty of
-safety margin.
-
-Here's a reproducer for those firmware wakeup failures I've found:
-
-1) Make sure wifi powersaving is enabled (iw dev wlp1s0 set power_save on)
-2) Connect to any wifi network (makes firmware go into wifi powersaving
-mode, not deep sleep)
-3) Make sure bluetooth is turned off (to ensure the firmware actually
-enters powersave mode and doesn't keep the radio active doing bluetooth
-stuff)
-4) To confirm that wifi powersaving is entered ping a device on the LAN,
-pings should be a few ms higher than without powersaving
-5) Run "while true; do iwconfig; sleep 0.0001; done", this wakes and
-suspends the firmware extremely often
-6) Wait until things explode, for me it consistently takes <5 minutes
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109681
-Cc: stable@vger.kernel.org
-Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211011133224.15561-3-verdre@v0yd.nl
+Reported-by: Anton Lundin <glance@acc.umu.se>
+Cc: <Stable@vger.kernel.org> # v5.4+
+Fixes: 2033f6858970 ("ipmi: Free receive messages when in an oops")
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/marvell/mwifiex/pcie.c |   28 +++++++++++++++++++++++-----
- 1 file changed, 23 insertions(+), 5 deletions(-)
+ drivers/char/ipmi/ipmi_watchdog.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/pcie.c
-+++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
-@@ -17,6 +17,7 @@
-  * this warranty disclaimer.
-  */
- 
-+#include <linux/iopoll.h>
- #include <linux/firmware.h>
- 
- #include "decl.h"
-@@ -647,11 +648,15 @@ static void mwifiex_delay_for_sleep_cook
- 			    "max count reached while accessing sleep cookie\n");
+--- a/drivers/char/ipmi/ipmi_watchdog.c
++++ b/drivers/char/ipmi/ipmi_watchdog.c
+@@ -497,7 +497,7 @@ static void panic_halt_ipmi_heartbeat(vo
+ 	msg.cmd = IPMI_WDOG_RESET_TIMER;
+ 	msg.data = NULL;
+ 	msg.data_len = 0;
+-	atomic_inc(&panic_done_count);
++	atomic_add(2, &panic_done_count);
+ 	rv = ipmi_request_supply_msgs(watchdog_user,
+ 				      (struct ipmi_addr *) &addr,
+ 				      0,
+@@ -507,7 +507,7 @@ static void panic_halt_ipmi_heartbeat(vo
+ 				      &panic_halt_heartbeat_recv_msg,
+ 				      1);
+ 	if (rv)
+-		atomic_dec(&panic_done_count);
++		atomic_sub(2, &panic_done_count);
  }
  
-+#define N_WAKEUP_TRIES_SHORT_INTERVAL 15
-+#define N_WAKEUP_TRIES_LONG_INTERVAL 35
-+
- /* This function wakes up the card by reading fw_status register. */
- static int mwifiex_pm_wakeup_card(struct mwifiex_adapter *adapter)
- {
- 	struct pcie_service_card *card = adapter->card;
- 	const struct mwifiex_pcie_card_reg *reg = card->pcie.reg;
-+	int retval;
- 
- 	mwifiex_dbg(adapter, EVENT,
- 		    "event: Wakeup device...\n");
-@@ -659,11 +664,24 @@ static int mwifiex_pm_wakeup_card(struct
- 	if (reg->sleep_cookie)
- 		mwifiex_pcie_dev_wakeup_delay(adapter);
- 
--	/* Accessing fw_status register will wakeup device */
--	if (mwifiex_write_reg(adapter, reg->fw_status, FIRMWARE_READY_PCIE)) {
--		mwifiex_dbg(adapter, ERROR,
--			    "Writing fw_status register failed\n");
--		return -1;
-+	/* The 88W8897 PCIe+USB firmware (latest version 15.68.19.p21) sometimes
-+	 * appears to ignore or miss our wakeup request, so we continue trying
-+	 * until we receive an interrupt from the card.
-+	 */
-+	if (read_poll_timeout(mwifiex_write_reg, retval,
-+			      READ_ONCE(adapter->int_status) != 0,
-+			      500, 500 * N_WAKEUP_TRIES_SHORT_INTERVAL,
-+			      false,
-+			      adapter, reg->fw_status, FIRMWARE_READY_PCIE)) {
-+		if (read_poll_timeout(mwifiex_write_reg, retval,
-+				      READ_ONCE(adapter->int_status) != 0,
-+				      10000, 10000 * N_WAKEUP_TRIES_LONG_INTERVAL,
-+				      false,
-+				      adapter, reg->fw_status, FIRMWARE_READY_PCIE)) {
-+			mwifiex_dbg(adapter, ERROR,
-+				    "Firmware didn't wake up\n");
-+			return -EIO;
-+		}
- 	}
- 
- 	if (reg->sleep_cookie) {
+ static struct ipmi_smi_msg panic_halt_smi_msg = {
+@@ -531,12 +531,12 @@ static void panic_halt_ipmi_set_timeout(
+ 	/* Wait for the messages to be free. */
+ 	while (atomic_read(&panic_done_count) != 0)
+ 		ipmi_poll_interface(watchdog_user);
+-	atomic_inc(&panic_done_count);
++	atomic_add(2, &panic_done_count);
+ 	rv = __ipmi_set_timeout(&panic_halt_smi_msg,
+ 				&panic_halt_recv_msg,
+ 				&send_heartbeat_now);
+ 	if (rv) {
+-		atomic_dec(&panic_done_count);
++		atomic_sub(2, &panic_done_count);
+ 		pr_warn("Unable to extend the watchdog timeout\n");
+ 	} else {
+ 		if (send_heartbeat_now)
 
 
