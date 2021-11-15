@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B98451085
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:47:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B2E3450D11
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:46:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242662AbhKOStx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:49:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51380 "EHLO mail.kernel.org"
+        id S237929AbhKORtP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:49:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242839AbhKOSqg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:46:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C8F963386;
-        Mon, 15 Nov 2021 18:07:07 +0000 (UTC)
+        id S238433AbhKORqk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:46:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E3F863316;
+        Mon, 15 Nov 2021 17:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999628;
-        bh=Idgu4DDNcl1FXQN6NTh07ooap8DRVzi2XKmEZ04Oi8Q=;
+        s=korg; t=1636997373;
+        bh=P3Yzc4zLBmByPQy+SlKsb7qPEDaDInBD0d95VbZ4HC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0mSig2Mmv/6E4RGDmQfIKeOl61AsvaxaCgFHhyhqfnaJYwrcaa4MK4VABxsRkSx1p
-         tQik2VOeaSfcoUUY0VaxANQwLblJVmE0x01aUi5ywSD44xF4pxzASYM8s4wdhL1gKG
-         hWd1IxjBVvm8v1QRyCq6HjThnHRzEWfAYnVQFhaY=
+        b=aXiQdL8z0tL7YJGgAfnR9QUP7xPOJW5DHFFTvJxeUB1WD/LGD1a6C4fDT4s9ttj4I
+         f35+7NAr3cVglu/Gu2EPIYiToFGGc/vJKAfjUzTvzYDA24hrep4wKDIegwqqXPCKN7
+         QUB0pCkj+KwLMJ17AjHoID9p9jsz4c+n3ZRny5T0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 367/849] ath11k: fix some sleeping in atomic bugs
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>,
+        Henrik Grimler <henrik@grimler.se>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCH 5.10 125/575] power: supply: max17042_battery: use VFSOC for capacity when no rsns
 Date:   Mon, 15 Nov 2021 17:57:30 +0100
-Message-Id: <20211115165432.649906719@linuxfoundation.org>
+Message-Id: <20211115165348.036898096@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,93 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Henrik Grimler <henrik@grimler.se>
 
-[ Upstream commit aadf7c81a0771b8f1c97dabca6a48bae1b387779 ]
+commit 223a3b82834f036a62aa831f67cbf1f1d644c6e2 upstream.
 
-The ath11k_dbring_bufs_replenish() and ath11k_dbring_fill_bufs()
-take a "gfp" parameter but they since they take spinlocks, the
-allocations they do have to be atomic.  This causes a bug because
-ath11k_dbring_buf_setup passes GFP_KERNEL for the gfp flags.
+On Galaxy S3 (i9300/i9305), which has the max17047 fuel gauge and no
+current sense resistor (rsns), the RepSOC register does not provide an
+accurate state of charge value. The reported value is wrong, and does
+not change over time. VFSOC however, which uses the voltage fuel gauge
+to determine the state of charge, always shows an accurate value.
 
-The fix is to use GFP_ATOMIC and remove the unused parameters.
+For devices without current sense, VFSOC is already used for the
+soc-alert (0x0003 is written to MiscCFG register), so with this change
+the source of the alert and the PROP_CAPACITY value match.
 
-Fixes: bd6478559e27 ("ath11k: Add direct buffer ring support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210812070434.GE31863@kili
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 359ab9f5b154 ("power_supply: Add MAX17042 Fuel Gauge Driver")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Suggested-by: Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>
+Signed-off-by: Henrik Grimler <henrik@grimler.se>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath11k/dbring.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/power/supply/max17042_battery.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dbring.c b/drivers/net/wireless/ath/ath11k/dbring.c
-index 5e1f5437b4185..fd98ba5b1130b 100644
---- a/drivers/net/wireless/ath/ath11k/dbring.c
-+++ b/drivers/net/wireless/ath/ath11k/dbring.c
-@@ -8,8 +8,7 @@
+--- a/drivers/power/supply/max17042_battery.c
++++ b/drivers/power/supply/max17042_battery.c
+@@ -316,7 +316,10 @@ static int max17042_get_property(struct
+ 		val->intval = data * 625 / 8;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+-		ret = regmap_read(map, MAX17042_RepSOC, &data);
++		if (chip->pdata->enable_current_sense)
++			ret = regmap_read(map, MAX17042_RepSOC, &data);
++		else
++			ret = regmap_read(map, MAX17042_VFSOC, &data);
+ 		if (ret < 0)
+ 			return ret;
  
- static int ath11k_dbring_bufs_replenish(struct ath11k *ar,
- 					struct ath11k_dbring *ring,
--					struct ath11k_dbring_element *buff,
--					gfp_t gfp)
-+					struct ath11k_dbring_element *buff)
- {
- 	struct ath11k_base *ab = ar->ab;
- 	struct hal_srng *srng;
-@@ -35,7 +34,7 @@ static int ath11k_dbring_bufs_replenish(struct ath11k *ar,
- 		goto err;
- 
- 	spin_lock_bh(&ring->idr_lock);
--	buf_id = idr_alloc(&ring->bufs_idr, buff, 0, ring->bufs_max, gfp);
-+	buf_id = idr_alloc(&ring->bufs_idr, buff, 0, ring->bufs_max, GFP_ATOMIC);
- 	spin_unlock_bh(&ring->idr_lock);
- 	if (buf_id < 0) {
- 		ret = -ENOBUFS;
-@@ -72,8 +71,7 @@ err:
- }
- 
- static int ath11k_dbring_fill_bufs(struct ath11k *ar,
--				   struct ath11k_dbring *ring,
--				   gfp_t gfp)
-+				   struct ath11k_dbring *ring)
- {
- 	struct ath11k_dbring_element *buff;
- 	struct hal_srng *srng;
-@@ -92,11 +90,11 @@ static int ath11k_dbring_fill_bufs(struct ath11k *ar,
- 	size = sizeof(*buff) + ring->buf_sz + align - 1;
- 
- 	while (num_remain > 0) {
--		buff = kzalloc(size, gfp);
-+		buff = kzalloc(size, GFP_ATOMIC);
- 		if (!buff)
- 			break;
- 
--		ret = ath11k_dbring_bufs_replenish(ar, ring, buff, gfp);
-+		ret = ath11k_dbring_bufs_replenish(ar, ring, buff);
- 		if (ret) {
- 			ath11k_warn(ar->ab, "failed to replenish db ring num_remain %d req_ent %d\n",
- 				    num_remain, req_entries);
-@@ -176,7 +174,7 @@ int ath11k_dbring_buf_setup(struct ath11k *ar,
- 	ring->hp_addr = ath11k_hal_srng_get_hp_addr(ar->ab, srng);
- 	ring->tp_addr = ath11k_hal_srng_get_tp_addr(ar->ab, srng);
- 
--	ret = ath11k_dbring_fill_bufs(ar, ring, GFP_KERNEL);
-+	ret = ath11k_dbring_fill_bufs(ar, ring);
- 
- 	return ret;
- }
-@@ -322,7 +320,7 @@ int ath11k_dbring_buffer_release_event(struct ath11k_base *ab,
- 		}
- 
- 		memset(buff, 0, size);
--		ath11k_dbring_bufs_replenish(ar, ring, buff, GFP_ATOMIC);
-+		ath11k_dbring_bufs_replenish(ar, ring, buff);
- 	}
- 
- 	spin_unlock_bh(&srng->lock);
--- 
-2.33.0
-
 
 
