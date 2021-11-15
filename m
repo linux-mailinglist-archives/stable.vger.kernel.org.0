@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 742DE451E70
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7028E451EB0
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355156AbhKPAgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:36:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
+        id S1355236AbhKPAhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:37:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344953AbhKOTZs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344952AbhKOTZs (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C079763263;
-        Mon, 15 Nov 2021 19:07:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F879633FB;
+        Mon, 15 Nov 2021 19:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003254;
-        bh=bpQbNlBDfYiGrDNLjJfu9EWC4GMElJxzaOPd2x4XDmw=;
+        s=korg; t=1637003256;
+        bh=YI6vuhFoBARpnvomaPXM4N40l3/JoAzU5yjJxvzhHYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hkOUZqH0JDdzWdBX5nzOO3Ba8FRD8pDHTJO+vAhrs4JrssBPjVa+NlMWOPl95i2jf
-         FsE2S66g9gPE5TkdNfhymoiABngVvtz8T0PRzyTTVv0+nC3fbCj3twtQUsd/iB3B+2
-         t9rIbQ0PRwkFIk9lAu6yn/Q1d/td39MdKgzSvaow=
+        b=FFeBGftqxaJsfDjMX1rZr/j02VfaemOAfO3+x0yAv20YWXAwK2SwgQVoQrqraRDDy
+         2xvNlEhSAYjzSO95OZvPqRruwDXNLQZwQdKmJyVWlDdYoccOCLk7rxdisN8uYgDynz
+         tnsjNyP2eWbq7cwVPoqFRQkBhjkLZuCvRmui4wiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 867/917] block: Hold invalidate_lock in BLKZEROOUT ioctl
-Date:   Mon, 15 Nov 2021 18:06:02 +0100
-Message-Id: <20211115165458.441677235@linuxfoundation.org>
+        Jan Kara <jack@suse.cz>, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 868/917] block: Hold invalidate_lock in BLKRESETZONE ioctl
+Date:   Mon, 15 Nov 2021 18:06:03 +0100
+Message-Id: <20211115165458.479820634@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,58 +43,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-commit 35e4c6c1a2fc2eb11b9306e95cda1fa06a511948 upstream.
+commit 86399ea071099ec8ee0a83ac9ad67f7df96a50ad upstream.
 
-When BLKZEROOUT ioctl and data read race, the data read leaves stale
-page cache. To avoid the stale page cache, hold invalidate_lock of the
-block device file mapping. The stale page cache is observed when
-blktests test case block/009 is modified to call "blkdiscard -z" command
-and repeated hundreds of times.
+When BLKRESETZONE ioctl and data read race, the data read leaves stale
+page cache. The commit e5113505904e ("block: Discard page cache of zone
+reset target range") added page cache truncation to avoid stale page
+cache after the ioctl. However, the stale page cache still can be read
+during the reset zone operation for the ioctl. To avoid the stale page
+cache completely, hold invalidate_lock of the block device file mapping.
 
-This patch can be applied back to the stable kernel version v5.15.y.
-Rework is required for older stable kernels.
-
-Fixes: 22dd6d356628 ("block: invalidate the page cache when issuing BLKZEROOUT")
+Fixes: e5113505904e ("block: Discard page cache of zone reset target range")
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Cc: stable@vger.kernel.org # v5.15
 Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20211109104723.835533-3-shinichiro.kawasaki@wdc.com
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20211111085238.942492-1-shinichiro.kawasaki@wdc.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/ioctl.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ block/blk-zoned.c |   15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -154,6 +154,7 @@ static int blk_ioctl_zeroout(struct bloc
- {
- 	uint64_t range[2];
- 	uint64_t start, end, len;
-+	struct inode *inode = bdev->bd_inode;
- 	int err;
+--- a/block/blk-zoned.c
++++ b/block/blk-zoned.c
+@@ -429,9 +429,10 @@ int blkdev_zone_mgmt_ioctl(struct block_
+ 		op = REQ_OP_ZONE_RESET;
  
- 	if (!(mode & FMODE_WRITE))
-@@ -176,12 +177,17 @@ static int blk_ioctl_zeroout(struct bloc
- 		return -EINVAL;
+ 		/* Invalidate the page cache, including dirty pages. */
++		filemap_invalidate_lock(bdev->bd_inode->i_mapping);
+ 		ret = blkdev_truncate_zone_range(bdev, mode, &zrange);
+ 		if (ret)
+-			return ret;
++			goto fail;
+ 		break;
+ 	case BLKOPENZONE:
+ 		op = REQ_OP_ZONE_OPEN;
+@@ -449,15 +450,9 @@ int blkdev_zone_mgmt_ioctl(struct block_
+ 	ret = blkdev_zone_mgmt(bdev, op, zrange.sector, zrange.nr_sectors,
+ 			       GFP_KERNEL);
  
- 	/* Invalidate the page cache, including dirty pages */
-+	filemap_invalidate_lock(inode->i_mapping);
- 	err = truncate_bdev_range(bdev, mode, start, end);
- 	if (err)
--		return err;
-+		goto fail;
- 
--	return blkdev_issue_zeroout(bdev, start >> 9, len >> 9, GFP_KERNEL,
--			BLKDEV_ZERO_NOUNMAP);
-+	err = blkdev_issue_zeroout(bdev, start >> 9, len >> 9, GFP_KERNEL,
-+				   BLKDEV_ZERO_NOUNMAP);
-+
+-	/*
+-	 * Invalidate the page cache again for zone reset: writes can only be
+-	 * direct for zoned devices so concurrent writes would not add any page
+-	 * to the page cache after/during reset. The page cache may be filled
+-	 * again due to concurrent reads though and dropping the pages for
+-	 * these is fine.
+-	 */
+-	if (!ret && cmd == BLKRESETZONE)
+-		ret = blkdev_truncate_zone_range(bdev, mode, &zrange);
 +fail:
-+	filemap_invalidate_unlock(inode->i_mapping);
-+	return err;
- }
++	if (cmd == BLKRESETZONE)
++		filemap_invalidate_unlock(bdev->bd_inode->i_mapping);
  
- static int put_ushort(unsigned short __user *argp, unsigned short val)
+ 	return ret;
+ }
 
 
