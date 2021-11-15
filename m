@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B9A64524D9
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C52D4524D7
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350872AbhKPBpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:45:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33230 "EHLO mail.kernel.org"
+        id S1347589AbhKPBpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:45:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241376AbhKOSTj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:19:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D6336325E;
-        Mon, 15 Nov 2021 17:51:59 +0000 (UTC)
+        id S241091AbhKOSSR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:18:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14B04633EE;
+        Mon, 15 Nov 2021 17:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998720;
-        bh=qBcTJ8oKwE8dUFEIHV/xvco0dzhXm5haIzim0tJRVHw=;
+        s=korg; t=1636998651;
+        bh=7LaR1zveDW8IephIMNi94imcq4uCBE/7US/ZLA8Lq1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XHAZMeEbT7YR7T+B8+36w9bk9MjB4yfuMwquRFnq0xt8O84l1R0GI7ycOhmJHKh8a
-         2E7OzQcV9SM5lCODAcdyg1BJWcUJoKotuhhquxnpO/Zb8dLEhqmzV6beSV1yAFdI9s
-         kiyCzF4l4wPpso1RCslCzxNYUft0fMj/dCsya6/k=
+        b=BWfQEgKuM/iZs63t/Jm+vgePzwNdds0KCYjah9QpiGzbkfo4thfK1uGb0bP3cKXKS
+         6aD0THqy6FIV9KxNVLGZpoCVtqLGSivC4HsUDmPEzsO7qqpWVkQTJmAAGETJFUawvb
+         +bcPAylKvkorqfRtw17k4FYRl4jjRTN2RpftVfmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Christoph Hellwig <hch@lst.de>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org,
-        syzbot+5516b30f5401d4dcbcae@syzkaller.appspotmail.com,
-        Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: [PATCH 5.14 009/849] scsi: core: Remove command size deduction from scsi_setup_scsi_cmnd()
-Date:   Mon, 15 Nov 2021 17:51:32 +0100
-Message-Id: <20211115165420.306521416@linuxfoundation.org>
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.14 011/849] scsi: lpfc: Fix FCP I/O flush functionality for TMF routines
+Date:   Mon, 15 Nov 2021 17:51:34 +0100
+Message-Id: <20211115165420.370577643@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -44,70 +40,215 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 703535e6ae1e94c89a9c1396b4c7b6b41160ef0c upstream.
+commit cd8a36a90babf958082b87bc6b4df5dd70901eba upstream.
 
-No need to deduce command size in scsi_setup_scsi_cmnd() anymore as
-appropriate checks have been added to scsi_fill_sghdr_rq() function and the
-cmd_len should never be zero here.  The code to do that wasn't correct
-anyway, as it used uninitialized cmd->cmnd, which caused a null-ptr-deref
-if the command size was zero as in the trace below. Fix this by removing
-the unneeded code.
+A prior patch inadvertently caused lpfc_sli_sum_iocb() to exclude counting
+of outstanding aborted I/Os and ABORT IOCBs.  Thus,
+lpfc_reset_flush_io_context() called from any TMF routine does not properly
+wait to flush all outstanding FCP IOCBs leading to a block layer crash on
+an invalid scsi_cmnd->request pointer.
 
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-CPU: 0 PID: 1822 Comm: repro Not tainted 5.15.0 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
-Call Trace:
- blk_mq_dispatch_rq_list+0x7c7/0x12d0
- __blk_mq_sched_dispatch_requests+0x244/0x380
- blk_mq_sched_dispatch_requests+0xf0/0x160
- __blk_mq_run_hw_queue+0xe8/0x160
- __blk_mq_delay_run_hw_queue+0x252/0x5d0
- blk_mq_run_hw_queue+0x1dd/0x3b0
- blk_mq_sched_insert_request+0x1ff/0x3e0
- blk_execute_rq_nowait+0x173/0x1e0
- blk_execute_rq+0x15c/0x540
- sg_io+0x97c/0x1370
- scsi_ioctl+0xe16/0x28e0
- sd_ioctl+0x134/0x170
- blkdev_ioctl+0x362/0x6e0
- block_ioctl+0xb0/0xf0
- vfs_ioctl+0xa7/0xf0
- do_syscall_64+0x3d/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
----[ end trace 8b086e334adef6d2 ]---
-Kernel panic - not syncing: Fatal exception
+  kernel BUG at ../block/blk-core.c:1489!
+  RIP: 0010:blk_requeue_request+0xaf/0xc0
+  ...
+  Call Trace:
+  <IRQ>
+  __scsi_queue_insert+0x90/0xe0 [scsi_mod]
+  blk_done_softirq+0x7e/0x90
+  __do_softirq+0xd2/0x280
+  irq_exit+0xd5/0xe0
+  do_IRQ+0x4c/0xd0
+  common_interrupt+0x87/0x87
+  </IRQ>
 
-Link: https://lore.kernel.org/r/20211103170659.22151-2-tadeusz.struk@linaro.org
-Fixes: 2ceda20f0a99 ("scsi: core: Move command size detection out of the fast path")
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: James E.J. Bottomley <jejb@linux.ibm.com>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Cc: <linux-scsi@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-Cc: <stable@vger.kernel.org> # 5.15, 5.14, 5.10
-Reported-by: syzbot+5516b30f5401d4dcbcae@syzkaller.appspotmail.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Fix by separating out the LPFC_IO_FCP, LPFC_IO_ON_TXCMPLQ,
+LPFC_DRIVER_ABORTED, and CMD_ABORT_XRI_CN || CMD_CLOSE_XRI_CN checks into a
+new lpfc_sli_validate_fcp_iocb_for_abort() routine when determining to
+build an ABORT iocb.
+
+Restore lpfc_reset_flush_io_context() functionality by including counting
+of outstanding aborted IOCBs and ABORT IOCBs in lpfc_sli_sum_iocb().
+
+Link: https://lore.kernel.org/r/20210910233159.115896-9-jsmart2021@gmail.com
+Fixes: e1364711359f ("scsi: lpfc: Fix illegal memory access on Abort IOCBs")
+Cc: <stable@vger.kernel.org> # v5.12+
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_lib.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c |  101 +++++++++++++++++++++++++++++++++----------
+ 1 file changed, 78 insertions(+), 23 deletions(-)
 
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1168,8 +1168,6 @@ static blk_status_t scsi_setup_scsi_cmnd
- 	}
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -11806,15 +11806,54 @@ lpfc_sli_hba_iocb_abort(struct lpfc_hba
+ }
  
- 	cmd->cmd_len = scsi_req(req)->cmd_len;
--	if (cmd->cmd_len == 0)
--		cmd->cmd_len = scsi_command_size(cmd->cmnd);
- 	cmd->cmnd = scsi_req(req)->cmd;
- 	cmd->transfersize = blk_rq_bytes(req);
- 	cmd->allowed = scsi_req(req)->retries;
+ /**
+- * lpfc_sli_validate_fcp_iocb - find commands associated with a vport or LUN
++ * lpfc_sli_validate_fcp_iocb_for_abort - filter iocbs appropriate for FCP aborts
++ * @iocbq: Pointer to iocb object.
++ * @vport: Pointer to driver virtual port object.
++ *
++ * This function acts as an iocb filter for functions which abort FCP iocbs.
++ *
++ * Return values
++ * -ENODEV, if a null iocb or vport ptr is encountered
++ * -EINVAL, if the iocb is not an FCP I/O, not on the TX cmpl queue, premarked as
++ *          driver already started the abort process, or is an abort iocb itself
++ * 0, passes criteria for aborting the FCP I/O iocb
++ **/
++static int
++lpfc_sli_validate_fcp_iocb_for_abort(struct lpfc_iocbq *iocbq,
++				     struct lpfc_vport *vport)
++{
++	IOCB_t *icmd = NULL;
++
++	/* No null ptr vports */
++	if (!iocbq || iocbq->vport != vport)
++		return -ENODEV;
++
++	/* iocb must be for FCP IO, already exists on the TX cmpl queue,
++	 * can't be premarked as driver aborted, nor be an ABORT iocb itself
++	 */
++	icmd = &iocbq->iocb;
++	if (!(iocbq->iocb_flag & LPFC_IO_FCP) ||
++	    !(iocbq->iocb_flag & LPFC_IO_ON_TXCMPLQ) ||
++	    (iocbq->iocb_flag & LPFC_DRIVER_ABORTED) ||
++	    (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
++	     icmd->ulpCommand == CMD_CLOSE_XRI_CN))
++		return -EINVAL;
++
++	return 0;
++}
++
++/**
++ * lpfc_sli_validate_fcp_iocb - validate commands associated with a SCSI target
+  * @iocbq: Pointer to driver iocb object.
+  * @vport: Pointer to driver virtual port object.
+  * @tgt_id: SCSI ID of the target.
+  * @lun_id: LUN ID of the scsi device.
+  * @ctx_cmd: LPFC_CTX_LUN/LPFC_CTX_TGT/LPFC_CTX_HOST
+  *
+- * This function acts as an iocb filter for functions which abort or count
+- * all FCP iocbs pending on a lun/SCSI target/SCSI host. It will return
++ * This function acts as an iocb filter for validating a lun/SCSI target/SCSI
++ * host.
++ *
++ * It will return
+  * 0 if the filtering criteria is met for the given iocb and will return
+  * 1 if the filtering criteria is not met.
+  * If ctx_cmd == LPFC_CTX_LUN, the function returns 0 only if the
+@@ -11833,22 +11872,8 @@ lpfc_sli_validate_fcp_iocb(struct lpfc_i
+ 			   lpfc_ctx_cmd ctx_cmd)
+ {
+ 	struct lpfc_io_buf *lpfc_cmd;
+-	IOCB_t *icmd = NULL;
+ 	int rc = 1;
+ 
+-	if (!iocbq || iocbq->vport != vport)
+-		return rc;
+-
+-	if (!(iocbq->iocb_flag & LPFC_IO_FCP) ||
+-	    !(iocbq->iocb_flag & LPFC_IO_ON_TXCMPLQ) ||
+-	      iocbq->iocb_flag & LPFC_DRIVER_ABORTED)
+-		return rc;
+-
+-	icmd = &iocbq->iocb;
+-	if (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
+-	    icmd->ulpCommand == CMD_CLOSE_XRI_CN)
+-		return rc;
+-
+ 	lpfc_cmd = container_of(iocbq, struct lpfc_io_buf, cur_iocbq);
+ 
+ 	if (lpfc_cmd->pCmd == NULL)
+@@ -11903,17 +11928,33 @@ lpfc_sli_sum_iocb(struct lpfc_vport *vpo
+ {
+ 	struct lpfc_hba *phba = vport->phba;
+ 	struct lpfc_iocbq *iocbq;
++	IOCB_t *icmd = NULL;
+ 	int sum, i;
++	unsigned long iflags;
+ 
+-	spin_lock_irq(&phba->hbalock);
++	spin_lock_irqsave(&phba->hbalock, iflags);
+ 	for (i = 1, sum = 0; i <= phba->sli.last_iotag; i++) {
+ 		iocbq = phba->sli.iocbq_lookup[i];
+ 
+-		if (lpfc_sli_validate_fcp_iocb (iocbq, vport, tgt_id, lun_id,
+-						ctx_cmd) == 0)
++		if (!iocbq || iocbq->vport != vport)
++			continue;
++		if (!(iocbq->iocb_flag & LPFC_IO_FCP) ||
++		    !(iocbq->iocb_flag & LPFC_IO_ON_TXCMPLQ))
++			continue;
++
++		/* Include counting outstanding aborts */
++		icmd = &iocbq->iocb;
++		if (icmd->ulpCommand == CMD_ABORT_XRI_CN ||
++		    icmd->ulpCommand == CMD_CLOSE_XRI_CN) {
++			sum++;
++			continue;
++		}
++
++		if (lpfc_sli_validate_fcp_iocb(iocbq, vport, tgt_id, lun_id,
++					       ctx_cmd) == 0)
+ 			sum++;
+ 	}
+-	spin_unlock_irq(&phba->hbalock);
++	spin_unlock_irqrestore(&phba->hbalock, iflags);
+ 
+ 	return sum;
+ }
+@@ -11980,7 +12021,11 @@ lpfc_sli_abort_fcp_cmpl(struct lpfc_hba
+  *
+  * This function sends an abort command for every SCSI command
+  * associated with the given virtual port pending on the ring
+- * filtered by lpfc_sli_validate_fcp_iocb function.
++ * filtered by lpfc_sli_validate_fcp_iocb_for_abort and then
++ * lpfc_sli_validate_fcp_iocb function.  The ordering for validation before
++ * submitting abort iocbs must be lpfc_sli_validate_fcp_iocb_for_abort
++ * followed by lpfc_sli_validate_fcp_iocb.
++ *
+  * When abort_cmd == LPFC_CTX_LUN, the function sends abort only to the
+  * FCP iocbs associated with lun specified by tgt_id and lun_id
+  * parameters
+@@ -12012,6 +12057,9 @@ lpfc_sli_abort_iocb(struct lpfc_vport *v
+ 	for (i = 1; i <= phba->sli.last_iotag; i++) {
+ 		iocbq = phba->sli.iocbq_lookup[i];
+ 
++		if (lpfc_sli_validate_fcp_iocb_for_abort(iocbq, vport))
++			continue;
++
+ 		if (lpfc_sli_validate_fcp_iocb(iocbq, vport, tgt_id, lun_id,
+ 					       abort_cmd) != 0)
+ 			continue;
+@@ -12044,7 +12092,11 @@ lpfc_sli_abort_iocb(struct lpfc_vport *v
+  *
+  * This function sends an abort command for every SCSI command
+  * associated with the given virtual port pending on the ring
+- * filtered by lpfc_sli_validate_fcp_iocb function.
++ * filtered by lpfc_sli_validate_fcp_iocb_for_abort and then
++ * lpfc_sli_validate_fcp_iocb function.  The ordering for validation before
++ * submitting abort iocbs must be lpfc_sli_validate_fcp_iocb_for_abort
++ * followed by lpfc_sli_validate_fcp_iocb.
++ *
+  * When taskmgmt_cmd == LPFC_CTX_LUN, the function sends abort only to the
+  * FCP iocbs associated with lun specified by tgt_id and lun_id
+  * parameters
+@@ -12082,6 +12134,9 @@ lpfc_sli_abort_taskmgmt(struct lpfc_vpor
+ 	for (i = 1; i <= phba->sli.last_iotag; i++) {
+ 		iocbq = phba->sli.iocbq_lookup[i];
+ 
++		if (lpfc_sli_validate_fcp_iocb_for_abort(iocbq, vport))
++			continue;
++
+ 		if (lpfc_sli_validate_fcp_iocb(iocbq, vport, tgt_id, lun_id,
+ 					       cmd) != 0)
+ 			continue;
 
 
