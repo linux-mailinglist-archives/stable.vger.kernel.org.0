@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 814F64522D0
+	by mail.lfdr.de (Postfix) with ESMTP id 37DA24522CF
 	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378646AbhKPBQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1378642AbhKPBQV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 20:16:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42974 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244469AbhKOTPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244470AbhKOTPE (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:15:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABD5F634C6;
-        Mon, 15 Nov 2021 18:21:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C0CB634C0;
+        Mon, 15 Nov 2021 18:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000478;
-        bh=gqq9KKE0mgn3BJBjd3CNbKBSkZd21PDpbod6pCjr/CA=;
+        s=korg; t=1637000481;
+        bh=ji5dLCwblGr5Eu07zARlCaYRqrv2zsmztEiA+7MAGRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pj4E3174VL7XxsogIzyg35i7TuXQCI/F8HPe5kd5FFYiLJY18Ja8QwiHxyLeigQql
-         FGt7z7UEdeSan3Rxh2AOX2tp9hBRSZj9h96uq+ON1k3LI8JPuiesX4BWM7hBC2HM65
-         MgckKdjyuuVStdm+OG7dC7xzUTOEoT0WDRg2/kOo=
+        b=JvSL7NqywwLmHybh2BPwzGS62pg0h140mimI7Fzh30qmqzi9oVE22lVfyYNAL2qgM
+         Qf+gzWiTzZEoRceuZ5JKP8MCGbg6PPkf6+8YvJtxg4zpRJ/UWCJmJxWS5YAVG2elSy
+         7xRO9H2YjLkKYCRBln869D1z0UV0nUK/Bv6H8W9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sandeep Maheswaram <quic_c_sanm@quicinc.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 641/849] phy: qcom-snps: Correct the FSEL_MASK
-Date:   Mon, 15 Nov 2021 18:02:04 +0100
-Message-Id: <20211115165441.968531035@linuxfoundation.org>
+Subject: [PATCH 5.14 642/849] phy: Sparx5 Eth SerDes: Fix return value check in sparx5_serdes_probe()
+Date:   Mon, 15 Nov 2021 18:02:05 +0100
+Message-Id: <20211115165441.998742417@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,38 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandeep Maheswaram <quic_c_sanm@quicinc.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit b475bf0ec40a2b13fb32ef62f5706576d5858460 ]
+[ Upstream commit b4dc97ab0a629eda8bda20d96ef47dac08a505d9 ]
 
-The FSEL_MASK which selects the refclock is defined incorrectly.
-It should be [4:6] not [5:7]. Due to this incorrect definition, the BIT(7)
-in USB2_PHY_USB_PHY_HS_PHY_CTRL_COMMON0 is reset which keeps PHY analog
-blocks ON during suspend.
-Fix this issue by correctly defining the FSEL_MASK.
+In case of error, the function devm_ioremap() returns NULL
+pointer not ERR_PTR(). The IS_ERR() test in the return value
+check should be replaced with NULL test.
 
-Fixes: 51e8114f80d0 ("phy: qcom-snps: Add SNPS USB PHY driver for QCOM based SOCs")
-Signed-off-by: Sandeep Maheswaram <quic_c_sanm@quicinc.com>
-Link: https://lore.kernel.org/r/1635135575-5668-1-git-send-email-quic_c_sanm@quicinc.com
+Fixes: 2ff8a1eeb5aa ("phy: Add Sparx5 ethernet serdes PHY driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210909072149.2934047-1-yangyingliang@huawei.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/phy/microchip/sparx5_serdes.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c b/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c
-index ae4bac024c7b1..7e61202aa234e 100644
---- a/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c
-+++ b/drivers/phy/qualcomm/phy-qcom-snps-femto-v2.c
-@@ -33,7 +33,7 @@
- 
- #define USB2_PHY_USB_PHY_HS_PHY_CTRL_COMMON0	(0x54)
- #define RETENABLEN				BIT(3)
--#define FSEL_MASK				GENMASK(7, 5)
-+#define FSEL_MASK				GENMASK(6, 4)
- #define FSEL_DEFAULT				(0x3 << 4)
- 
- #define USB2_PHY_USB_PHY_HS_PHY_CTRL_COMMON1	(0x58)
+diff --git a/drivers/phy/microchip/sparx5_serdes.c b/drivers/phy/microchip/sparx5_serdes.c
+index 4076580fc2cd9..ab1b0986aa671 100644
+--- a/drivers/phy/microchip/sparx5_serdes.c
++++ b/drivers/phy/microchip/sparx5_serdes.c
+@@ -2475,10 +2475,10 @@ static int sparx5_serdes_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 	}
+ 	iomem = devm_ioremap(priv->dev, iores->start, resource_size(iores));
+-	if (IS_ERR(iomem)) {
++	if (!iomem) {
+ 		dev_err(priv->dev, "Unable to get serdes registers: %s\n",
+ 			iores->name);
+-		return PTR_ERR(iomem);
++		return -ENOMEM;
+ 	}
+ 	for (idx = 0; idx < ARRAY_SIZE(sparx5_serdes_iomap); idx++) {
+ 		struct sparx5_serdes_io_resource *iomap = &sparx5_serdes_iomap[idx];
 -- 
 2.33.0
 
