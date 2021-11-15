@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E0C54523F3
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:32:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 133664523F8
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:32:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344997AbhKPBfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:35:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41370 "EHLO mail.kernel.org"
+        id S1350886AbhKPBfi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:35:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242116AbhKOSeV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:34:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB092610CA;
-        Mon, 15 Nov 2021 18:00:24 +0000 (UTC)
+        id S242341AbhKOSfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:35:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDFFB632D9;
+        Mon, 15 Nov 2021 18:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999225;
-        bh=W0ELrzJMxGLWNUf0TkqG30Vy8t8GwFJcoOZnhnjEX60=;
+        s=korg; t=1636999291;
+        bh=6XPr30Qa6htGATQEnJrk0YD7dgGT0l9kyX5Ji03LveA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lW+lCc79kjAS/MQ5efOEYYqKw29qI8xdVkI1wfEpBc6Rs07YMhAG+BJoJhAHvMR4s
-         YTH0xb2Xoo+BDSRqdvBHyCtPkz8Enln1SANE2zIVzZUP9f9dOocmwJRsjPJ00aoCdb
-         sYPh/IdwIHl7AUfPzHTaQQrIa/4fHYRnFdandgW4=
+        b=cWxkQA/bKWwjaBAlUfMdvKtG7Rg4Kz0l6VvkCIq0zwx2KDVH8OluvNHMdZMi3HC/s
+         UAYcJbdJlEqVGt2CmoUuC/+RPDlTmKvcu2BgLYUj2nk5bKjT4mQB1vzZuIhwlExqy7
+         ZrWmBxu5mEOMXA3K86OI+yFsd2q9H+hGGxU82IIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 222/849] crypto: aesni - check walk.nbytes instead of err
-Date:   Mon, 15 Nov 2021 17:55:05 +0100
-Message-Id: <20211115165427.726388984@linuxfoundation.org>
+Subject: [PATCH 5.14 243/849] media: uvcvideo: Return -EIO for control errors
+Date:   Mon, 15 Nov 2021 17:55:26 +0100
+Message-Id: <20211115165428.430798085@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,41 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit a2d3cbc80d2527b435154ff0f89b56ef4b84370f ]
+[ Upstream commit ffccdde5f0e17d2f0d788a9d831a027187890eaa ]
 
-In the code for xts_crypt(), we check for the err value returned by
-skcipher_walk_virt() and return from the function if it is non zero.
-However, skcipher_walk_virt() can set walk.nbytes to 0, which would cause
-us to call kernel_fpu_begin(), and then skip the kernel_fpu_end() call.
+The device is doing something unexpected with the control. Either because
+the protocol is not properly implemented or there has been a HW error.
 
-This patch checks for the walk.nbytes value instead, and returns if
-walk.nbytes is 0. This prevents us from calling kernel_fpu_begin() in
-the first place and also covers the case of having a non zero err value
-returned from skcipher_walk_virt().
+Fixes v4l2-compliance:
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Control ioctls (Input 0):
+                fail: v4l2-test-controls.cpp(448): s_ctrl returned an error (22)
+        test VIDIOC_G/S_CTRL: FAIL
+                fail: v4l2-test-controls.cpp(698): s_ext_ctrls returned an error (22)
+        test VIDIOC_G/S/TRY_EXT_CTRLS: FAIL
+
+Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/crypto/aesni-intel_glue.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/uvc/uvc_video.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/x86/crypto/aesni-intel_glue.c b/arch/x86/crypto/aesni-intel_glue.c
-index 0fc961bef299c..e09f4672dd382 100644
---- a/arch/x86/crypto/aesni-intel_glue.c
-+++ b/arch/x86/crypto/aesni-intel_glue.c
-@@ -866,7 +866,7 @@ static int xts_crypt(struct skcipher_request *req, bool encrypt)
- 		req = &subreq;
- 
- 		err = skcipher_walk_virt(&walk, req, false);
--		if (err)
-+		if (!walk.nbytes)
- 			return err;
- 	} else {
- 		tail = 0;
+diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
+index e16464606b140..9f37eaf28ce7e 100644
+--- a/drivers/media/usb/uvc/uvc_video.c
++++ b/drivers/media/usb/uvc/uvc_video.c
+@@ -115,6 +115,11 @@ int uvc_query_ctrl(struct uvc_device *dev, u8 query, u8 unit,
+ 	case 5: /* Invalid unit */
+ 	case 6: /* Invalid control */
+ 	case 7: /* Invalid Request */
++		/*
++		 * The firmware has not properly implemented
++		 * the control or there has been a HW error.
++		 */
++		return -EIO;
+ 	case 8: /* Invalid value within range */
+ 		return -EINVAL;
+ 	default: /* reserved or unknown */
 -- 
 2.33.0
 
