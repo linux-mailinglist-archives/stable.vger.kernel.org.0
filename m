@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D696451E42
+	by mail.lfdr.de (Postfix) with ESMTP id A0768451E44
 	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344010AbhKPAfb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:35:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
+        id S1349593AbhKPAfc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344776AbhKOTZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344780AbhKOTZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50185632BB;
-        Mon, 15 Nov 2021 19:04:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A720632BD;
+        Mon, 15 Nov 2021 19:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003042;
-        bh=Za4I7HrQYTzxsOoAXjDn67if9utOMtF6yh1X6233+2o=;
+        s=korg; t=1637003048;
+        bh=NC+wzlybJex9g/OS/RAGvYLTo3qb8dDyOL7roQ1BsOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=araUINmaU/q/Fjnog7CQygooIrr8d0/CqgM/CDyWS93cnSAtsaDkVp0CMaUbnj0+U
-         QdCxR/tA4heVl4jE+DU/oXPb6s5c+1tqseKXYov0XIdkBzJD7mCWpYGF3u9Q4sAThd
-         KgjsdS1wp4/qiAREy96QTx8iZxPznJh1AqDDDUa8=
+        b=XVcLim0Ttz/A2prG9+q5aUOet+DIkwR516SC/GyfXWt+Vg7A5mxLDDu29z7Rr3d9j
+         +w6jPrOsuQ0Ra+XlynP9JTxHTPFTv7w5Nv0tklvaTHZB7Pj15VGC9UZi+S//YjF4BY
+         zFFe82yIV3LKqdtQhD/b2HQoenst4qfGs/FQeKAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Andy Gospodarek <gospo@broadcom.com>,
+        stable@vger.kernel.org, Julia Lawall <julia.lawall@inria.fr>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 790/917] PCI: Do not enable AtomicOps on VFs
-Date:   Mon, 15 Nov 2021 18:04:45 +0100
-Message-Id: <20211115165455.748687431@linuxfoundation.org>
+Subject: [PATCH 5.15 791/917] cpufreq: intel_pstate: Clear HWP desired on suspend/shutdown and offline
+Date:   Mon, 15 Nov 2021 18:04:46 +0100
+Message-Id: <20211115165455.783621784@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,67 +40,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Selvin Xavier <selvin.xavier@broadcom.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 5ec0a6fcb60ea430f8ee7e0bec22db9b22f856d3 ]
+[ Upstream commit dbea75fe18f60e364de6d994fc938a24ba249d81 ]
 
-Host crashes when pci_enable_atomic_ops_to_root() is called for VFs with
-virtual buses. The virtual buses added to SR-IOV have bus->self set to NULL
-and host crashes due to this.
+Commit a365ab6b9dfb ("cpufreq: intel_pstate: Implement the
+->adjust_perf() callback") caused intel_pstate to use nonzero HWP
+desired values in certain usage scenarios, but it did not prevent
+them from being leaked into the confugirations in which HWP desired
+is expected to be 0.
 
-  PID: 4481   TASK: ffff89c6941b0000  CPU: 53  COMMAND: "bash"
-  ...
-   #3 [ffff9a9481713808] oops_end at ffffffffb9025cd6
-   #4 [ffff9a9481713828] page_fault_oops at ffffffffb906e417
-   #5 [ffff9a9481713888] exc_page_fault at ffffffffb9a0ad14
-   #6 [ffff9a94817138b0] asm_exc_page_fault at ffffffffb9c00ace
-      [exception RIP: pcie_capability_read_dword+28]
-      RIP: ffffffffb952fd5c  RSP: ffff9a9481713960  RFLAGS: 00010246
-      RAX: 0000000000000001  RBX: ffff89c6b1096000  RCX: 0000000000000000
-      RDX: ffff9a9481713990  RSI: 0000000000000024  RDI: 0000000000000000
-      RBP: 0000000000000080   R8: 0000000000000008   R9: ffff89c64341a2f8
-      R10: 0000000000000002  R11: 0000000000000000  R12: ffff89c648bab000
-      R13: 0000000000000000  R14: 0000000000000000  R15: ffff89c648bab0c8
-      ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
-   #7 [ffff9a9481713988] pci_enable_atomic_ops_to_root at ffffffffb95359a6
-   #8 [ffff9a94817139c0] bnxt_qplib_determine_atomics at ffffffffc08c1a33 [bnxt_re]
-   #9 [ffff9a94817139d0] bnxt_re_dev_init at ffffffffc08ba2d1 [bnxt_re]
+The failing scenarios are switching the driver from the passive
+mode to the active mode and starting a new kernel via kexec() while
+intel_pstate is running in the passive mode.
 
-Per PCIe r5.0, sec 9.3.5.10, the AtomicOp Requester Enable bit in Device
-Control 2 is reserved for VFs.  The PF value applies to all associated VFs.
+To address this issue, ensure that HWP desired will be cleared on
+offline and suspend/shutdown.
 
-Return -EINVAL if pci_enable_atomic_ops_to_root() is called for a VF.
-
-Link: https://lore.kernel.org/r/1631354585-16597-1-git-send-email-selvin.xavier@broadcom.com
-Fixes: 35f5ace5dea4 ("RDMA/bnxt_re: Enable global atomic ops if platform supports")
-Fixes: 430a23689dea ("PCI: Add pci_enable_atomic_ops_to_root()")
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
+Fixes: a365ab6b9dfb ("cpufreq: intel_pstate: Implement the ->adjust_perf() callback")
+Reported-by: Julia Lawall <julia.lawall@inria.fr>
+Tested-by: Julia Lawall <julia.lawall@inria.fr>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/cpufreq/intel_pstate.c | 32 ++++++++++++++++++++++++++++++--
+ 1 file changed, 30 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index ce2ab62b64cfa..a101faf3e88a9 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -3719,6 +3719,14 @@ int pci_enable_atomic_ops_to_root(struct pci_dev *dev, u32 cap_mask)
- 	struct pci_dev *bridge;
- 	u32 cap, ctl2;
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index fc7a429f22d33..dafa631582bac 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -999,9 +999,16 @@ static void intel_pstate_hwp_offline(struct cpudata *cpu)
+ 		 */
+ 		value &= ~GENMASK_ULL(31, 24);
+ 		value |= HWP_ENERGY_PERF_PREFERENCE(cpu->epp_cached);
+-		WRITE_ONCE(cpu->hwp_req_cached, value);
+ 	}
  
 +	/*
-+	 * Per PCIe r5.0, sec 9.3.5.10, the AtomicOp Requester Enable bit
-+	 * in Device Control 2 is reserved in VFs and the PF value applies
-+	 * to all associated VFs.
++	 * Clear the desired perf field in the cached HWP request value to
++	 * prevent nonzero desired values from being leaked into the active
++	 * mode.
 +	 */
-+	if (dev->is_virtfn)
-+		return -EINVAL;
++	value &= ~HWP_DESIRED_PERF(~0L);
++	WRITE_ONCE(cpu->hwp_req_cached, value);
 +
- 	if (!pci_is_pcie(dev))
- 		return -EINVAL;
+ 	value &= ~GENMASK_ULL(31, 0);
+ 	min_perf = HWP_LOWEST_PERF(READ_ONCE(cpu->hwp_cap_cached));
  
+@@ -2903,6 +2910,27 @@ static int intel_cpufreq_cpu_exit(struct cpufreq_policy *policy)
+ 	return intel_pstate_cpu_exit(policy);
+ }
+ 
++static int intel_cpufreq_suspend(struct cpufreq_policy *policy)
++{
++	intel_pstate_suspend(policy);
++
++	if (hwp_active) {
++		struct cpudata *cpu = all_cpu_data[policy->cpu];
++		u64 value = READ_ONCE(cpu->hwp_req_cached);
++
++		/*
++		 * Clear the desired perf field in MSR_HWP_REQUEST in case
++		 * intel_cpufreq_adjust_perf() is in use and the last value
++		 * written by it may not be suitable.
++		 */
++		value &= ~HWP_DESIRED_PERF(~0L);
++		wrmsrl_on_cpu(cpu->cpu, MSR_HWP_REQUEST, value);
++		WRITE_ONCE(cpu->hwp_req_cached, value);
++	}
++
++	return 0;
++}
++
+ static struct cpufreq_driver intel_cpufreq = {
+ 	.flags		= CPUFREQ_CONST_LOOPS,
+ 	.verify		= intel_cpufreq_verify_policy,
+@@ -2912,7 +2940,7 @@ static struct cpufreq_driver intel_cpufreq = {
+ 	.exit		= intel_cpufreq_cpu_exit,
+ 	.offline	= intel_cpufreq_cpu_offline,
+ 	.online		= intel_pstate_cpu_online,
+-	.suspend	= intel_pstate_suspend,
++	.suspend	= intel_cpufreq_suspend,
+ 	.resume		= intel_pstate_resume,
+ 	.update_limits	= intel_pstate_update_limits,
+ 	.name		= "intel_cpufreq",
 -- 
 2.33.0
 
