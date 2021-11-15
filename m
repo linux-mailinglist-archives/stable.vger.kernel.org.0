@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFB6E45132D
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34DC545132E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345022AbhKOTrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:47:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
+        id S1347792AbhKOTrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:47:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245425AbhKOTUc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2920C63538;
-        Mon, 15 Nov 2021 18:34:33 +0000 (UTC)
+        id S245442AbhKOTUd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74D7F61268;
+        Mon, 15 Nov 2021 18:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001273;
-        bh=Rp4OBe3MyHkPYABbpQ26nuV1w2l6NPQwMgdeHnGTGyM=;
+        s=korg; t=1637001279;
+        bh=Sqy0U/mJtaa9Wu2RRnegbHHjbEpgayJOZin4QfmRK2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=luAJp5K2e8emh/HnATJ84BnmZKcotODwstDJkknmW1NZII1lJLnkAQkdretzj2/R6
-         6Pg1JaiVbIEUH5XAfVvwLl5yofo0P7a0UO6QQfklStgTvv7z0W7G3sMbXk7MoDzCs1
-         +Gvr7/FHT4rqnvxl27Pi5DL4s24Hkw8/o4mnT4yA=
+        b=gidlwkO6i+XjSd+N6bR3hLG/gylVs9CwETOfJ5f1v16r2rIWS4+eh0aPyoPgG0IB3
+         Gq3+VCMLmCqBH5XOe24XoUs7bnp7ReEp2JDhIsyZhc16V1jk/hG5M/dpu+Rg9mnuKh
+         7czqXYfcKgdINhiDHet/6IB2anl2nPyNN1d/IwuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Reimar=20D=C3=B6ffinger?= <Reimar.Doeffinger@gmx.de>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 5.15 095/917] libata: fix checking of DMA state
-Date:   Mon, 15 Nov 2021 17:53:10 +0100
-Message-Id: <20211115165431.967949913@linuxfoundation.org>
+        stable@vger.kernel.org, Benjamin Li <benl@squareup.com>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.15 097/917] wcn36xx: handle connection loss indication
+Date:   Mon, 15 Nov 2021 17:53:12 +0100
+Message-Id: <20211115165432.032111489@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,39 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reimar Döffinger <Reimar.Doeffinger@gmx.de>
+From: Benjamin Li <benl@squareup.com>
 
-commit f971a85439bd25dc7b4d597cf5e4e8dc7ffc884b upstream.
+commit d6dbce453b19c64b96f3e927b10230f9a704b504 upstream.
 
-Checking if DMA is enabled should be done via the
-ata_dma_enabled helper function, since the init state
-0xff indicates disabled.
-This meant that ATA_CMD_READ_LOG_DMA_EXT was used and probed
-for before DMA was enabled, which caused hangs for some combinations
-of controllers and devices.
-It might also have caused it to be incorrectly disabled as broken,
-but there have been no reports of that.
+Firmware sends delete_sta_context_ind when it detects the AP has gone
+away in STA mode. Right now the handler for that indication only handles
+AP mode; fix it to also handle STA mode.
 
 Cc: stable@vger.kernel.org
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=195895
-Signed-off-by: Reimar Döffinger <Reimar.Doeffinger@gmx.de>
-Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Benjamin Li <benl@squareup.com>
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210901180606.11686-1-benl@squareup.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/wcn36xx/smd.c |   44 ++++++++++++++++++++++++---------
+ 1 file changed, 33 insertions(+), 11 deletions(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -2007,7 +2007,7 @@ unsigned int ata_read_log_page(struct at
+--- a/drivers/net/wireless/ath/wcn36xx/smd.c
++++ b/drivers/net/wireless/ath/wcn36xx/smd.c
+@@ -2623,30 +2623,52 @@ static int wcn36xx_smd_delete_sta_contex
+ 					      size_t len)
+ {
+ 	struct wcn36xx_hal_delete_sta_context_ind_msg *rsp = buf;
+-	struct wcn36xx_vif *tmp;
++	struct wcn36xx_vif *vif_priv;
++	struct ieee80211_vif *vif;
++	struct ieee80211_bss_conf *bss_conf;
+ 	struct ieee80211_sta *sta;
++	bool found = false;
  
- retry:
- 	ata_tf_init(dev, &tf);
--	if (dev->dma_mode && ata_id_has_read_log_dma_ext(dev->id) &&
-+	if (ata_dma_enabled(dev) && ata_id_has_read_log_dma_ext(dev->id) &&
- 	    !(dev->horkage & ATA_HORKAGE_NO_DMA_LOG)) {
- 		tf.command = ATA_CMD_READ_LOG_DMA_EXT;
- 		tf.protocol = ATA_PROT_DMA;
+ 	if (len != sizeof(*rsp)) {
+ 		wcn36xx_warn("Corrupted delete sta indication\n");
+ 		return -EIO;
+ 	}
+ 
+-	wcn36xx_dbg(WCN36XX_DBG_HAL, "delete station indication %pM index %d\n",
+-		    rsp->addr2, rsp->sta_id);
++	wcn36xx_dbg(WCN36XX_DBG_HAL,
++		    "delete station indication %pM index %d reason %d\n",
++		    rsp->addr2, rsp->sta_id, rsp->reason_code);
+ 
+-	list_for_each_entry(tmp, &wcn->vif_list, list) {
++	list_for_each_entry(vif_priv, &wcn->vif_list, list) {
+ 		rcu_read_lock();
+-		sta = ieee80211_find_sta(wcn36xx_priv_to_vif(tmp), rsp->addr2);
+-		if (sta)
+-			ieee80211_report_low_ack(sta, 0);
++		vif = wcn36xx_priv_to_vif(vif_priv);
++
++		if (vif->type == NL80211_IFTYPE_STATION) {
++			/* We could call ieee80211_find_sta too, but checking
++			 * bss_conf is clearer.
++			 */
++			bss_conf = &vif->bss_conf;
++			if (vif_priv->sta_assoc &&
++			    !memcmp(bss_conf->bssid, rsp->addr2, ETH_ALEN)) {
++				found = true;
++				wcn36xx_dbg(WCN36XX_DBG_HAL,
++					    "connection loss bss_index %d\n",
++					    vif_priv->bss_index);
++				ieee80211_connection_loss(vif);
++			}
++		} else {
++			sta = ieee80211_find_sta(vif, rsp->addr2);
++			if (sta) {
++				found = true;
++				ieee80211_report_low_ack(sta, 0);
++			}
++		}
++
+ 		rcu_read_unlock();
+-		if (sta)
++		if (found)
+ 			return 0;
+ 	}
+ 
+-	wcn36xx_warn("STA with addr %pM and index %d not found\n",
+-		     rsp->addr2,
+-		     rsp->sta_id);
++	wcn36xx_warn("BSS or STA with addr %pM not found\n", rsp->addr2);
+ 	return -ENOENT;
+ }
+ 
 
 
