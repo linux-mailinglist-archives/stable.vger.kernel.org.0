@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73565450DF7
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 366E8450B01
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:13:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239813AbhKOSJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:09:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
+        id S236921AbhKORQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:16:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239725AbhKOSEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:04:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D979A63273;
-        Mon, 15 Nov 2021 17:38:35 +0000 (UTC)
+        id S236932AbhKORPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:15:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64A6161C15;
+        Mon, 15 Nov 2021 17:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997916;
-        bh=SQUIl27+J9GshuXiioMTfQ3qYx8UPi7VAJfE5Hkkalg=;
+        s=korg; t=1636996306;
+        bh=y+M0CDoxqRUTAzlF3RvjbE5fPWu7c1FTBhFIt1JLHbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4H4dB9JCSZTHd+RefAB+ZGAvUC465VzVFvxMEdM6lNnS/8Xk6QQzJLbhL/MbdRn9
-         Wq7BX1t+AIyhVK068ht0pCZktMAdZfzwMQGX6hm80e0G5smsNOc/29cbYslzQ1JdOz
-         xtc+R1eDWww8Lg950H+SEK07xQsS5q2k+43Dp+nQ=
+        b=ktABSP9Kf0NDR3fM6jagZW8TDW/w2PpPq9nCPovexXF8VuCS1BgcY1JI5NbMjHPM+
+         OFL5EPgGtrdMzWPx0cQ8pfc9Owi+FNdT7pXEncAVMCKQroqlvUHKb6sZyNHGC4yW2o
+         kPCERV/tMiRI9Xlc4zIy0PTK2gdSYCJKF9/NoruQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 289/575] media: cxd2880-spi: Fix a null pointer dereference on error handling path
-Date:   Mon, 15 Nov 2021 18:00:14 +0100
-Message-Id: <20211115165353.778286142@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 091/355] can: j1939: j1939_tp_cmd_recv(): ignore abort message in the BAM transport
+Date:   Mon, 15 Nov 2021 18:00:15 +0100
+Message-Id: <20211115165316.745896063@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Zhang Changzhong <zhangchangzhong@huawei.com>
 
-[ Upstream commit 11b982e950d2138e90bd120501df10a439006ff8 ]
+commit c0f49d98006f2db3333b917caac65bce2af9865c upstream.
 
-Currently the null pointer check on dvb_spi->vcc_supply is inverted and
-this leads to only null values of the dvb_spi->vcc_supply being passed
-to the call of regulator_disable causing null pointer dereferences.
-Fix this by only calling regulator_disable if dvb_spi->vcc_supply is
-not null.
+This patch prevents BAM transport from being closed by receiving abort
+message, as specified in SAE-J1939-82 2015 (A.3.3 Row 4).
 
-Addresses-Coverity: ("Dereference after null check")
-
-Fixes: dcb014582101 ("media: cxd2880-spi: Fix an error handling path")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9d71dd0c7009 ("can: add support of SAE J1939 protocol")
+Link: https://lore.kernel.org/all/1635431907-15617-2-git-send-email-zhangchangzhong@huawei.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/spi/cxd2880-spi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/j1939/transport.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/spi/cxd2880-spi.c b/drivers/media/spi/cxd2880-spi.c
-index 93194f03764d2..11273be702b6e 100644
---- a/drivers/media/spi/cxd2880-spi.c
-+++ b/drivers/media/spi/cxd2880-spi.c
-@@ -618,7 +618,7 @@ fail_frontend:
- fail_attach:
- 	dvb_unregister_adapter(&dvb_spi->adapter);
- fail_adapter:
--	if (!dvb_spi->vcc_supply)
-+	if (dvb_spi->vcc_supply)
- 		regulator_disable(dvb_spi->vcc_supply);
- fail_regulator:
- 	kfree(dvb_spi);
--- 
-2.33.0
-
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -2065,6 +2065,12 @@ static void j1939_tp_cmd_recv(struct j19
+ 		break;
+ 
+ 	case J1939_ETP_CMD_ABORT: /* && J1939_TP_CMD_ABORT */
++		if (j1939_cb_is_broadcast(skcb)) {
++			netdev_err_once(priv->ndev, "%s: abort to broadcast (%02x), ignoring!\n",
++					__func__, skcb->addr.sa);
++			return;
++		}
++
+ 		if (j1939_tp_im_transmitter(skcb))
+ 			j1939_xtp_rx_abort(priv, skb, true);
+ 
 
 
