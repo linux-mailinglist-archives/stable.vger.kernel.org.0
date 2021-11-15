@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91B374522A9
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEBE24522BE
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350167AbhKPBPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:15:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43004 "EHLO mail.kernel.org"
+        id S1354533AbhKPBP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:15:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244262AbhKOTMQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:12:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 608FD63400;
-        Mon, 15 Nov 2021 18:19:54 +0000 (UTC)
+        id S244386AbhKOTOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:14:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BA29634B8;
+        Mon, 15 Nov 2021 18:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000394;
-        bh=vAwMGHO+K2kNv+dRoRSP0A9wrzpTrEvkYe+haWOfJys=;
+        s=korg; t=1637000426;
+        bh=Kb315VE26z33mFaA9+Vy/v4kc7EakvMWO1nTpfHe6EI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DtOKXKemUirMHWDcLXQrRg9t1AUtVCRRNDckHzNN5C4gEMoiJaSZ8AZcAg56cGoU/
-         mEoFE9eUJsM1yEwBTlR0O7wIaQTiAx5eMIoEyTbm4qNkq7pGzt5v5r4Xgy0kVxrl21
-         bX4XtzqBe4puByLMqa0/udMLT9+6zjUAKqh7dgNA=
+        b=MSNuqknolz87A1g6CE/AzHXPqa9IVdFEd7zXiqjbcXjVx/dyi9uW8X8MrVeOP+q4z
+         xGqal6xKnqGsD4i2+8HTtmYkG1Bp1amUSTRosoTwH70zKcWKgPM+SXuPFY9Gt7Te9z
+         ThOqBAFPAXWvEkAwO+frKE+ltyAN3pScdc8zGL4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rahul Tanwar <rtanwar@maxlinear.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 637/849] pinctrl: equilibrium: Fix function addition in multiple groups
-Date:   Mon, 15 Nov 2021 18:02:00 +0100
-Message-Id: <20211115165441.817519524@linuxfoundation.org>
+Subject: [PATCH 5.14 638/849] ASoC: topology: Fix stub for snd_soc_tplg_component_remove()
+Date:   Mon, 15 Nov 2021 18:02:01 +0100
+Message-Id: <20211115165441.854898481@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,47 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Tanwar <rtanwar@maxlinear.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 53b3947ddb7f309d1f611f8dc9bfd6ea9d699907 ]
+[ Upstream commit 1198ff12cbdd5f42c032cba1d96ebc7af8024cf9 ]
 
-Ignore the same function with multiple groups.
-Fix a typo in error print.
+When removing the index argument from snd_soc_topology_component_remove()
+commit a5b8f71c5477f (ASoC: topology: Remove multistep topology loading)
+forgot to update the stub for !SND_SOC_TOPOLOGY use, causing build failures
+for anything that tries to make use of it.
 
-Fixes: 1948d5c51dba ("pinctrl: Add pinmux & GPIO controller driver for a new SoC")
-Signed-off-by: Rahul Tanwar <rtanwar@maxlinear.com>
-Link: https://lore.kernel.org/r/20211020093815.20870-1-rtanwar@maxlinear.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: a5b8f71c5477f (ASoC: topology: Remove multistep topology loading)
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20211025154844.2342120-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-equilibrium.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ include/sound/soc-topology.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-equilibrium.c b/drivers/pinctrl/pinctrl-equilibrium.c
-index 38cc20fa9d5af..44e6973b2ea93 100644
---- a/drivers/pinctrl/pinctrl-equilibrium.c
-+++ b/drivers/pinctrl/pinctrl-equilibrium.c
-@@ -675,6 +675,11 @@ static int eqbr_build_functions(struct eqbr_pinctrl_drv_data *drvdata)
- 		return ret;
+diff --git a/include/sound/soc-topology.h b/include/sound/soc-topology.h
+index 4afd667e124c2..3e8a85e1e8094 100644
+--- a/include/sound/soc-topology.h
++++ b/include/sound/soc-topology.h
+@@ -188,8 +188,7 @@ int snd_soc_tplg_widget_bind_event(struct snd_soc_dapm_widget *w,
  
- 	for (i = 0; i < nr_funcs; i++) {
-+
-+		/* Ignore the same function with multiple groups */
-+		if (funcs[i].name == NULL)
-+			continue;
-+
- 		ret = pinmux_generic_add_function(drvdata->pctl_dev,
- 						  funcs[i].name,
- 						  funcs[i].groups,
-@@ -815,7 +820,7 @@ static int pinctrl_reg(struct eqbr_pinctrl_drv_data *drvdata)
+ #else
  
- 	ret = eqbr_build_functions(drvdata);
- 	if (ret) {
--		dev_err(dev, "Failed to build groups\n");
-+		dev_err(dev, "Failed to build functions\n");
- 		return ret;
- 	}
- 
+-static inline int snd_soc_tplg_component_remove(struct snd_soc_component *comp,
+-						u32 index)
++static inline int snd_soc_tplg_component_remove(struct snd_soc_component *comp)
+ {
+ 	return 0;
+ }
 -- 
 2.33.0
 
