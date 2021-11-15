@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F800451E26
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBD8F451E2E
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344565AbhKPAfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:35:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
+        id S1348673AbhKPAfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344618AbhKOTZH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD052636A3;
-        Mon, 15 Nov 2021 19:01:11 +0000 (UTC)
+        id S1344637AbhKOTZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05B2D63354;
+        Mon, 15 Nov 2021 19:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002872;
-        bh=MYJgA8nOfU5wFciEO+VjQWZOimo1eIo9xgFRUgbRBFU=;
+        s=korg; t=1637002880;
+        bh=M7Ejnyu+C91jtdf0w6kIO7mmSOv60oYyPFb91OywY8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ASnQXR7kjEnTXvybLGPEE+FiDuLFK+5ndVgBxQE1jnN+sIvcpyYkA9ir+4ct/WxKI
-         o+m8+dWwLwpMUXtz7IsT3XOFLIOXHosBfP/gKTdceZ1/BKygSgANDiKYWT+1kxlKn/
-         CUxI47v/w7UMlUv7rP2WO8Uq7gdx8uwQ3+0qCPVw=
+        b=vXplyhDX65P2RepElAu1ogltL6QD9hukxBaqwOaEVbUuiQeOu5U049mf8A/A8YQ1E
+         m/AwH59Z1U9B2QVNexfmyk9B4/E11p/FNVt/0wFwQlaR4hcuadPFKLnWqIAQgF2b6A
+         RSaV8A1m0a0HrIwN/Ud9gI6hw24+SdPegqhKkOEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 727/917] dmaengine: at_xdmac: call at_xdmac_axi_config() on resume path
-Date:   Mon, 15 Nov 2021 18:03:42 +0100
-Message-Id: <20211115165453.565542433@linuxfoundation.org>
+Subject: [PATCH 5.15 729/917] dmaengine: stm32-dma: fix stm32_dma_get_max_width
+Date:   Mon, 15 Nov 2021 18:03:44 +0100
+Message-Id: <20211115165453.636730032@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,108 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-[ Upstream commit fa5270ec2f2688d98a82895be7039b81c87d856c ]
+[ Upstream commit b20fd5fa310cbf7ec367f263a34382a24c4cee73 ]
 
-at_xdmac could be used on SoCs which supports backup mode (where most
-of the SoC power, including power to DMA controller, is closed at suspend
-time). Thus, on resume, the settings which were previously done need to be
-restored. Do the same for axi configuration.
+buf_addr parameter of stm32_dma_set_xfer_param function is a dma_addr_t.
+We only need to check the remainder of buf_addr/max_width, so, no need to
+use do_div and extra u64 addr. Use '%' instead.
 
-Fixes: f40566f220a1 ("dmaengine: at_xdmac: add AXI priority support and recommended settings")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/20211007111230.2331837-2-claudiu.beznea@microchip.com
+Fixes: e0ebdbdcb42a ("dmaengine: stm32-dma: take address into account when computing max width")
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/20211011094259.315023-3-amelie.delaunay@foss.st.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/at_xdmac.c | 51 ++++++++++++++++++++++--------------------
- 1 file changed, 27 insertions(+), 24 deletions(-)
+ drivers/dma/stm32-dma.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/dma/at_xdmac.c b/drivers/dma/at_xdmac.c
-index ab78e0f6afd70..c66ad5706cb5a 100644
---- a/drivers/dma/at_xdmac.c
-+++ b/drivers/dma/at_xdmac.c
-@@ -1926,6 +1926,30 @@ static void at_xdmac_free_chan_resources(struct dma_chan *chan)
- 	return;
- }
- 
-+static void at_xdmac_axi_config(struct platform_device *pdev)
-+{
-+	struct at_xdmac	*atxdmac = (struct at_xdmac *)platform_get_drvdata(pdev);
-+	bool dev_m2m = false;
-+	u32 dma_requests;
-+
-+	if (!atxdmac->layout->axi_config)
-+		return; /* Not supported */
-+
-+	if (!of_property_read_u32(pdev->dev.of_node, "dma-requests",
-+				  &dma_requests)) {
-+		dev_info(&pdev->dev, "controller in mem2mem mode.\n");
-+		dev_m2m = true;
-+	}
-+
-+	if (dev_m2m) {
-+		at_xdmac_write(atxdmac, AT_XDMAC_GCFG, AT_XDMAC_GCFG_M2M);
-+		at_xdmac_write(atxdmac, AT_XDMAC_GWAC, AT_XDMAC_GWAC_M2M);
-+	} else {
-+		at_xdmac_write(atxdmac, AT_XDMAC_GCFG, AT_XDMAC_GCFG_P2M);
-+		at_xdmac_write(atxdmac, AT_XDMAC_GWAC, AT_XDMAC_GWAC_P2M);
-+	}
-+}
-+
- #ifdef CONFIG_PM
- static int atmel_xdmac_prepare(struct device *dev)
+diff --git a/drivers/dma/stm32-dma.c b/drivers/dma/stm32-dma.c
+index 9063c727962ed..fdda916555ec5 100644
+--- a/drivers/dma/stm32-dma.c
++++ b/drivers/dma/stm32-dma.c
+@@ -270,7 +270,6 @@ static enum dma_slave_buswidth stm32_dma_get_max_width(u32 buf_len,
+ 						       u32 threshold)
  {
-@@ -1975,6 +1999,7 @@ static int atmel_xdmac_resume(struct device *dev)
- 	struct at_xdmac		*atxdmac = dev_get_drvdata(dev);
- 	struct at_xdmac_chan	*atchan;
- 	struct dma_chan		*chan, *_chan;
-+	struct platform_device	*pdev = container_of(dev, struct platform_device, dev);
- 	int			i;
- 	int ret;
+ 	enum dma_slave_buswidth max_width;
+-	u64 addr = buf_addr;
  
-@@ -1982,6 +2007,8 @@ static int atmel_xdmac_resume(struct device *dev)
- 	if (ret)
- 		return ret;
+ 	if (threshold == STM32_DMA_FIFO_THRESHOLD_FULL)
+ 		max_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+@@ -281,7 +280,7 @@ static enum dma_slave_buswidth stm32_dma_get_max_width(u32 buf_len,
+ 	       max_width > DMA_SLAVE_BUSWIDTH_1_BYTE)
+ 		max_width = max_width >> 1;
  
-+	at_xdmac_axi_config(pdev);
-+
- 	/* Clear pending interrupts. */
- 	for (i = 0; i < atxdmac->dma.chancnt; i++) {
- 		atchan = &atxdmac->chan[i];
-@@ -2007,30 +2034,6 @@ static int atmel_xdmac_resume(struct device *dev)
- }
- #endif /* CONFIG_PM_SLEEP */
+-	if (do_div(addr, max_width))
++	if (buf_addr % max_width)
+ 		max_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
  
--static void at_xdmac_axi_config(struct platform_device *pdev)
--{
--	struct at_xdmac	*atxdmac = (struct at_xdmac *)platform_get_drvdata(pdev);
--	bool dev_m2m = false;
--	u32 dma_requests;
--
--	if (!atxdmac->layout->axi_config)
--		return; /* Not supported */
--
--	if (!of_property_read_u32(pdev->dev.of_node, "dma-requests",
--				  &dma_requests)) {
--		dev_info(&pdev->dev, "controller in mem2mem mode.\n");
--		dev_m2m = true;
--	}
--
--	if (dev_m2m) {
--		at_xdmac_write(atxdmac, AT_XDMAC_GCFG, AT_XDMAC_GCFG_M2M);
--		at_xdmac_write(atxdmac, AT_XDMAC_GWAC, AT_XDMAC_GWAC_M2M);
--	} else {
--		at_xdmac_write(atxdmac, AT_XDMAC_GCFG, AT_XDMAC_GCFG_P2M);
--		at_xdmac_write(atxdmac, AT_XDMAC_GWAC, AT_XDMAC_GWAC_P2M);
--	}
--}
--
- static int at_xdmac_probe(struct platform_device *pdev)
- {
- 	struct at_xdmac	*atxdmac;
+ 	return max_width;
 -- 
 2.33.0
 
