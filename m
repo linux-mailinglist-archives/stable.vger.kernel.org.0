@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2533E450E9E
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:15:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41287450BE8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:28:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239862AbhKOSPq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:15:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49942 "EHLO mail.kernel.org"
+        id S237276AbhKORbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:31:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240258AbhKOSH2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B5126338F;
-        Mon, 15 Nov 2021 17:44:04 +0000 (UTC)
+        id S238003AbhKOR2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:28:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 558CB63265;
+        Mon, 15 Nov 2021 17:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998244;
-        bh=OJ1ILJK+87pTNiLHJ02o09z722IRbWP0CNx30TGm0A4=;
+        s=korg; t=1636996764;
+        bh=w4I72NaVzier+G1qKqZur8sRbYK3qmU1z98ZL0ueKjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RA8umwCy9a9nhWo/Kq2sTmW4iTj2sF79sWD7vld6r3/hfL5Kkps+UvWB/dB0HO1Vm
-         JanTLxTt9AXqCHxJVyqiwNBvHOKr2U16TmReSnLNKgs+QNB+unUHfEcWERFXFkZpPx
-         JBdcegMzvjQOgDHLLHbPzQiqihOhl0zIVxq8SaL4=
+        b=DfDN+6oum6ZJEu/IWdETINCjKQ3pGZjzaz5h3gWLK/kNuMUDywIMJm7OefsZ37sDR
+         /e89NCwOsZD7iIDPYiBoHmVjeNagT5QzOeNqv5UO374R5zu1OHbcBYAog+bxfo6FVu
+         QRsiT9Y/MYhFFZqwdXI1OuDTlTNeBiO8Z2SHOJJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
+        stable@vger.kernel.org, Jon Maxwell <jmaxwell37@gmail.com>,
+        Monir Zouaoui <Monir.Zouaoui@mail.schwarz>,
+        Simon Stier <simon.stier@mail.schwarz>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 441/575] soc: qcom: rpmhpd: Make power_on actually enable the domain
+Subject: [PATCH 5.4 242/355] tcp: dont free a FIN sk_buff in tcp_remove_empty_skb()
 Date:   Mon, 15 Nov 2021 18:02:46 +0100
-Message-Id: <20211115165359.014355722@linuxfoundation.org>
+Message-Id: <20211115165321.574323349@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,100 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Jon Maxwell <jmaxwell37@gmail.com>
 
-[ Upstream commit e3e56c050ab6e3f1bd811f0787f50709017543e4 ]
+[ Upstream commit cf12e6f9124629b18a6182deefc0315f0a73a199 ]
 
-The general expectation is that powering on a power-domain should make
-the power domain deliver some power, and if a specific performance state
-is needed further requests has to be made.
+v1: Implement a more general statement as recommended by Eric Dumazet. The
+sequence number will be advanced, so this check will fix the FIN case and
+other cases.
 
-But in contrast with other power-domain implementations (e.g. rpmpd) the
-RPMh does not have an interface to enable the power, so the driver has
-to vote for a particular corner (performance level) in rpmh_power_on().
+A customer reported sockets stuck in the CLOSING state. A Vmcore revealed that
+the write_queue was not empty as determined by tcp_write_queue_empty() but the
+sk_buff containing the FIN flag had been freed and the socket was zombied in
+that state. Corresponding pcaps show no FIN from the Linux kernel on the wire.
 
-But the corner is never initialized, so a typical request to simply
-enable the power domain would not actually turn on the hardware. Further
-more, when no more clients vote for a performance state (i.e. the
-aggregated vote is 0) the power domain would be turned off.
+Some instrumentation was added to the kernel and it was found that there is a
+timing window where tcp_sendmsg() can run after tcp_send_fin().
 
-Fix both of these issues by always voting for a corner with non-zero
-value, when the power domain is enabled.
+tcp_sendmsg() will hit an error, for example:
 
-The tracking of the lowest non-zero corner is performed to handle the
-corner case if there's ever a domain with a non-zero lowest corner, in
-which case both rpmh_power_on() and rpmh_rpmhpd_set_performance_state()
-would be allowed to use this lowest corner.
+1269 ▹       if (sk->sk_err || (sk->sk_shutdown & SEND_SHUTDOWN))↩
+1270 ▹       ▹       goto do_error;↩
 
-Fixes: 279b7e8a62cc ("soc: qcom: rpmhpd: Add RPMh power domain driver")
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20211005033732.2284447-1-bjorn.andersson@linaro.org
+tcp_remove_empty_skb() will then free the FIN sk_buff as "skb->len == 0". The
+TCP socket is now wedged in the FIN-WAIT-1 state because the FIN is never sent.
+
+If the other side sends a FIN packet the socket will transition to CLOSING and
+remain that way until the system is rebooted.
+
+Fix this by checking for the FIN flag in the sk_buff and don't free it if that
+is the case. Testing confirmed that fixed the issue.
+
+Fixes: fdfc5c8594c2 ("tcp: remove empty skb from write queue in error cases")
+Signed-off-by: Jon Maxwell <jmaxwell37@gmail.com>
+Reported-by: Monir Zouaoui <Monir.Zouaoui@mail.schwarz>
+Reported-by: Simon Stier <simon.stier@mail.schwarz>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/rpmhpd.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ net/ipv4/tcp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/rpmhpd.c b/drivers/soc/qcom/rpmhpd.c
-index e7cb40144f9b1..436ec79122ed2 100644
---- a/drivers/soc/qcom/rpmhpd.c
-+++ b/drivers/soc/qcom/rpmhpd.c
-@@ -30,6 +30,7 @@
-  * @active_only:	True if it represents an Active only peer
-  * @corner:		current corner
-  * @active_corner:	current active corner
-+ * @enable_corner:	lowest non-zero corner
-  * @level:		An array of level (vlvl) to corner (hlvl) mappings
-  *			derived from cmd-db
-  * @level_count:	Number of levels supported by the power domain. max
-@@ -47,6 +48,7 @@ struct rpmhpd {
- 	const bool	active_only;
- 	unsigned int	corner;
- 	unsigned int	active_corner;
-+	unsigned int	enable_corner;
- 	u32		level[RPMH_ARC_MAX_LEVELS];
- 	size_t		level_count;
- 	bool		enabled;
-@@ -295,13 +297,13 @@ static int rpmhpd_aggregate_corner(struct rpmhpd *pd, unsigned int corner)
- static int rpmhpd_power_on(struct generic_pm_domain *domain)
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 5c8d0fb498256..9f53d25e047e3 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -955,7 +955,7 @@ static int tcp_send_mss(struct sock *sk, int *size_goal, int flags)
+  */
+ static void tcp_remove_empty_skb(struct sock *sk, struct sk_buff *skb)
  {
- 	struct rpmhpd *pd = domain_to_rpmhpd(domain);
--	int ret = 0;
-+	unsigned int corner;
-+	int ret;
- 
- 	mutex_lock(&rpmhpd_lock);
- 
--	if (pd->corner)
--		ret = rpmhpd_aggregate_corner(pd, pd->corner);
--
-+	corner = max(pd->corner, pd->enable_corner);
-+	ret = rpmhpd_aggregate_corner(pd, corner);
- 	if (!ret)
- 		pd->enabled = true;
- 
-@@ -346,6 +348,10 @@ static int rpmhpd_set_performance_state(struct generic_pm_domain *domain,
- 		i--;
- 
- 	if (pd->enabled) {
-+		/* Ensure that the domain isn't turn off */
-+		if (i < pd->enable_corner)
-+			i = pd->enable_corner;
-+
- 		ret = rpmhpd_aggregate_corner(pd, i);
- 		if (ret)
- 			goto out;
-@@ -382,6 +388,10 @@ static int rpmhpd_update_level_mapping(struct rpmhpd *rpmhpd)
- 	for (i = 0; i < rpmhpd->level_count; i++) {
- 		rpmhpd->level[i] = buf[i];
- 
-+		/* Remember the first corner with non-zero level */
-+		if (!rpmhpd->level[rpmhpd->enable_corner] && rpmhpd->level[i])
-+			rpmhpd->enable_corner = i;
-+
- 		/*
- 		 * The AUX data may be zero padded.  These 0 valued entries at
- 		 * the end of the map must be ignored.
+-	if (skb && !skb->len) {
++	if (skb && TCP_SKB_CB(skb)->seq == TCP_SKB_CB(skb)->end_seq) {
+ 		tcp_unlink_write_queue(skb, sk);
+ 		if (tcp_write_queue_empty(sk))
+ 			tcp_chrono_stop(sk, TCP_CHRONO_BUSY);
 -- 
 2.33.0
 
