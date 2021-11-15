@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E624450CB0
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:39:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B5EC451015
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:38:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238283AbhKORmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:42:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57848 "EHLO mail.kernel.org"
+        id S242572AbhKOSl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:41:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237492AbhKORju (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:39:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93EA16326F;
-        Mon, 15 Nov 2021 17:26:07 +0000 (UTC)
+        id S242584AbhKOSit (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:38:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E5CA632E6;
+        Mon, 15 Nov 2021 18:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997168;
-        bh=XyEOQ2Uhi8Dk+Ki1OohyONEwrWz+HBmc9Y8BVNDNPoA=;
+        s=korg; t=1636999423;
+        bh=XlPWwDSBSAjUuVU7E2K8k4ivOtXtQoxJIestpEVm9rQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zB0/HN9axKQAINWVeUTyeIxEdRF+55ovOC+ICXbCvQ7lhRBF+joDAhA5c6aXfYUyT
-         Qo/sqsw+g8Qm4LSl2B4Pi/S/0zzRU/WfcqPKN/JXqJSwlHGumD83KxO7C1t1zHCDpJ
-         cyy69CzIbwtZ8voi2VKuo8gqZOReREAA72zO6WrI=
+        b=cr/ZZ51W25orjSZlSuFI8aVFO4r5BC4AVdKARDbQt+5RCOVeKnHR8UBpabgY+R44p
+         0rlMqK9Ui2NBj5DGsNtaHgy8JkizpscQrK8Bbiz1OvoZGWhErsTYGL+wsBgaWPahZY
+         dLwuRHxBGdoa6l9gtTSIzDGDw5QR+QYc915Wvcic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 050/575] ASoC: soc-core: fix null-ptr-deref in snd_soc_del_component_unlocked()
+Subject: [PATCH 5.14 292/849] mwl8k: Fix use-after-free in mwl8k_fw_state_machine()
 Date:   Mon, 15 Nov 2021 17:56:15 +0100
-Message-Id: <20211115165345.368459729@linuxfoundation.org>
+Message-Id: <20211115165430.144901649@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit c448b7aa3e66042fc0f849d9a0fb90d1af82e948 ]
+[ Upstream commit 257051a235c17e33782b6e24a4b17f2d7915aaec ]
 
-'component' is allocated in snd_soc_register_component(), but component->list
-is not initalized, this may cause snd_soc_del_component_unlocked() deref null
-ptr in the error handing case.
+When the driver fails to request the firmware, it calls its error
+handler. In the error handler, the driver detaches device from driver
+first before releasing the firmware, which can cause a use-after-free bug.
 
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-RIP: 0010:__list_del_entry_valid+0x81/0xf0
-Call Trace:
- snd_soc_del_component_unlocked+0x69/0x1b0 [snd_soc_core]
- snd_soc_add_component.cold+0x54/0x6c [snd_soc_core]
- snd_soc_register_component+0x70/0x90 [snd_soc_core]
- devm_snd_soc_register_component+0x5e/0xd0 [snd_soc_core]
- tas2552_probe+0x265/0x320 [snd_soc_tas2552]
- ? tas2552_component_probe+0x1e0/0x1e0 [snd_soc_tas2552]
- i2c_device_probe+0xa31/0xbe0
+Fix this by releasing firmware first.
 
-Fix by adding INIT_LIST_HEAD() to snd_soc_component_initialize().
+The following log reveals it:
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211009065840.3196239-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[    9.007301 ] BUG: KASAN: use-after-free in mwl8k_fw_state_machine+0x320/0xba0
+[    9.010143 ] Workqueue: events request_firmware_work_func
+[    9.010830 ] Call Trace:
+[    9.010830 ]  dump_stack_lvl+0xa8/0xd1
+[    9.010830 ]  print_address_description+0x87/0x3b0
+[    9.010830 ]  kasan_report+0x172/0x1c0
+[    9.010830 ]  ? mutex_unlock+0xd/0x10
+[    9.010830 ]  ? mwl8k_fw_state_machine+0x320/0xba0
+[    9.010830 ]  ? mwl8k_fw_state_machine+0x320/0xba0
+[    9.010830 ]  __asan_report_load8_noabort+0x14/0x20
+[    9.010830 ]  mwl8k_fw_state_machine+0x320/0xba0
+[    9.010830 ]  ? mwl8k_load_firmware+0x5f0/0x5f0
+[    9.010830 ]  request_firmware_work_func+0x172/0x250
+[    9.010830 ]  ? read_lock_is_recursive+0x20/0x20
+[    9.010830 ]  ? process_one_work+0x7a1/0x1100
+[    9.010830 ]  ? request_firmware_nowait+0x460/0x460
+[    9.010830 ]  ? __this_cpu_preempt_check+0x13/0x20
+[    9.010830 ]  process_one_work+0x9bb/0x1100
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1634356979-6211-1-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/marvell/mwl8k.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index e677422c10585..1332965968646 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -2454,6 +2454,7 @@ int snd_soc_component_initialize(struct snd_soc_component *component,
- 	INIT_LIST_HEAD(&component->dai_list);
- 	INIT_LIST_HEAD(&component->dobj_list);
- 	INIT_LIST_HEAD(&component->card_list);
-+	INIT_LIST_HEAD(&component->list);
- 	mutex_init(&component->io_mutex);
+diff --git a/drivers/net/wireless/marvell/mwl8k.c b/drivers/net/wireless/marvell/mwl8k.c
+index 3bf6571f41490..529e325498cdb 100644
+--- a/drivers/net/wireless/marvell/mwl8k.c
++++ b/drivers/net/wireless/marvell/mwl8k.c
+@@ -5800,8 +5800,8 @@ static void mwl8k_fw_state_machine(const struct firmware *fw, void *context)
+ fail:
+ 	priv->fw_state = FW_STATE_ERROR;
+ 	complete(&priv->firmware_loading_complete);
+-	device_release_driver(&priv->pdev->dev);
+ 	mwl8k_release_firmware(priv);
++	device_release_driver(&priv->pdev->dev);
+ }
  
- 	component->name = fmt_single_name(dev, &component->id);
+ #define MAX_RESTART_ATTEMPTS 1
 -- 
 2.33.0
 
