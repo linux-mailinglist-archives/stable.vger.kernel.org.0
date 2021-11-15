@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 174C94522F0
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:15:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9FB45266F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347915AbhKPBRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:17:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38232 "EHLO mail.kernel.org"
+        id S233910AbhKPCF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:05:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243335AbhKOTJM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:09:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F02263409;
-        Mon, 15 Nov 2021 18:18:13 +0000 (UTC)
+        id S239938AbhKOSFF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94EA4632F0;
+        Mon, 15 Nov 2021 17:40:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000294;
-        bh=PCh07qAK0il2Hiz5EjTkl+VlxldW13R1sXSI2z6PtXs=;
+        s=korg; t=1636998017;
+        bh=KyM1tyf9q898Go5lmCbmWuQMM/WPhi5IcUt4MD0wFXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYhqsdwynHmixTkaLbb2LBlz7hQ8av9dcSkdNp9WdrN5iNydokSVpLvaVrgtOoZVg
-         vfyIY7+c3uWdfXGtpSaiZbWxx86Yyz16Ytu9Owxgd6wf3YaND/eJSUQ414TaY0WYuf
-         XRzl8AWX6nweYBYSekjHTFKuS5dpgs7c6PkAflu4=
+        b=e2cDU7NCNOF0FAdw/1pgQuuulZmCZRaYJxS2TmGDOPsVReI9gOoBCQeFbGosvcYEF
+         isvrj10IF4taIJP5BJGU3ACN+DsjBdS8OWPvWYvWHjSESxT7lwOLxSChveP1pNv3ZN
+         6k3xvql0LLcBQ4XqN0S2ZoYEwhkm37YYbfqY4lFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Aswath Govindraju <a-govindraju@ti.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 565/849] arm64: dts: ti: j7200-main: Fix "bus-range" upto 256 bus number for PCIe
-Date:   Mon, 15 Nov 2021 18:00:48 +0100
-Message-Id: <20211115165439.361714103@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Stefan Bach <sfb@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 324/575] tcp: switch orphan_count to bare per-cpu counters
+Date:   Mon, 15 Nov 2021 18:00:49 +0100
+Message-Id: <20211115165355.013793941@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +42,372 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 8bb8429290c0043a78804ae48294b53f781ee426 ]
+[ Upstream commit 19757cebf0c5016a1f36f7fe9810a9f0b33c0832 ]
 
-commit 3276d9f53cf6 ("arm64: dts: ti: k3-j7200-main: Add PCIe device
-tree node") incorrectly added PCIe bus numbers from 0 to 15 (copy-paste
-from J721E node). Enable all the supported bus numbers from 0 to 255
-defined in PCIe spec here.
+Use of percpu_counter structure to track count of orphaned
+sockets is causing problems on modern hosts with 256 cpus
+or more.
 
-Fixes: 3276d9f53cf6 ("arm64: dts: ti: k3-j7200-main: Add PCIe device tree node")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20210915055358.19997-5-kishon@ti.com
+Stefan Bach reported a serious spinlock contention in real workloads,
+that I was able to reproduce with a netfilter rule dropping
+incoming FIN packets.
+
+    53.56%  server  [kernel.kallsyms]      [k] queued_spin_lock_slowpath
+            |
+            ---queued_spin_lock_slowpath
+               |
+                --53.51%--_raw_spin_lock_irqsave
+                          |
+                           --53.51%--__percpu_counter_sum
+                                     tcp_check_oom
+                                     |
+                                     |--39.03%--__tcp_close
+                                     |          tcp_close
+                                     |          inet_release
+                                     |          inet6_release
+                                     |          sock_close
+                                     |          __fput
+                                     |          ____fput
+                                     |          task_work_run
+                                     |          exit_to_usermode_loop
+                                     |          do_syscall_64
+                                     |          entry_SYSCALL_64_after_hwframe
+                                     |          __GI___libc_close
+                                     |
+                                      --14.48%--tcp_out_of_resources
+                                                tcp_write_timeout
+                                                tcp_retransmit_timer
+                                                tcp_write_timer_handler
+                                                tcp_write_timer
+                                                call_timer_fn
+                                                expire_timers
+                                                __run_timers
+                                                run_timer_softirq
+                                                __softirqentry_text_start
+
+As explained in commit cf86a086a180 ("net/dst: use a smaller percpu_counter
+batch for dst entries accounting"), default batch size is too big
+for the default value of tcp_max_orphans (262144).
+
+But even if we reduce batch sizes, there would still be cases
+where the estimated count of orphans is beyond the limit,
+and where tcp_too_many_orphans() has to call the expensive
+percpu_counter_sum_positive().
+
+One solution is to use plain per-cpu counters, and have
+a timer to periodically refresh this cache.
+
+Updating this cache every 100ms seems about right, tcp pressure
+state is not radically changing over shorter periods.
+
+percpu_counter was nice 15 years ago while hosts had less
+than 16 cpus, not anymore by current standards.
+
+v2: Fix the build issue for CONFIG_CRYPTO_DEV_CHELSIO_TLS=m,
+    reported by kernel test robot <lkp@intel.com>
+    Remove unused socket argument from tcp_too_many_orphans()
+
+Fixes: dd24c00191d5 ("net: Use a percpu_counter for orphan_count")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Stefan Bach <sfb@google.com>
+Cc: Neal Cardwell <ncardwell@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j7200-main.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../chelsio/inline_crypto/chtls/chtls_cm.c    |  2 +-
+ .../chelsio/inline_crypto/chtls/chtls_cm.h    |  2 +-
+ include/net/inet_connection_sock.h            |  2 +-
+ include/net/sock.h                            |  2 +-
+ include/net/tcp.h                             | 17 ++-------
+ net/dccp/dccp.h                               |  2 +-
+ net/dccp/proto.c                              | 14 ++-----
+ net/ipv4/inet_connection_sock.c               |  4 +-
+ net/ipv4/inet_hashtables.c                    |  2 +-
+ net/ipv4/proc.c                               |  2 +-
+ net/ipv4/tcp.c                                | 38 ++++++++++++++++---
+ 11 files changed, 49 insertions(+), 38 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-index 521a56316fa5c..874cba75e9a5a 100644
---- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-@@ -606,7 +606,7 @@
- 		clock-names = "fck";
- 		#address-cells = <3>;
- 		#size-cells = <2>;
--		bus-range = <0x0 0xf>;
-+		bus-range = <0x0 0xff>;
- 		cdns,no-bar-match-nbits = <64>;
- 		vendor-id = <0x104c>;
- 		device-id = <0xb00f>;
+diff --git a/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c b/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c
+index a262c949ed76b..d6b6ebb3f1ec7 100644
+--- a/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c
++++ b/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.c
+@@ -870,7 +870,7 @@ static void do_abort_syn_rcv(struct sock *child, struct sock *parent)
+ 		 * created only after 3 way handshake is done.
+ 		 */
+ 		sock_orphan(child);
+-		percpu_counter_inc((child)->sk_prot->orphan_count);
++		INC_ORPHAN_COUNT(child);
+ 		chtls_release_resources(child);
+ 		chtls_conn_done(child);
+ 	} else {
+diff --git a/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h b/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h
+index b1161bdeda4dc..f61ca657601ca 100644
+--- a/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h
++++ b/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h
+@@ -95,7 +95,7 @@ struct deferred_skb_cb {
+ #define WSCALE_OK(tp) ((tp)->rx_opt.wscale_ok)
+ #define TSTAMP_OK(tp) ((tp)->rx_opt.tstamp_ok)
+ #define SACK_OK(tp) ((tp)->rx_opt.sack_ok)
+-#define INC_ORPHAN_COUNT(sk) percpu_counter_inc((sk)->sk_prot->orphan_count)
++#define INC_ORPHAN_COUNT(sk) this_cpu_inc(*(sk)->sk_prot->orphan_count)
+ 
+ /* TLS SKB */
+ #define skb_ulp_tls_inline(skb)      (ULP_SKB_CB(skb)->ulp.tls.ofld)
+diff --git a/include/net/inet_connection_sock.h b/include/net/inet_connection_sock.h
+index aa92af3dd444d..0b1864a82d4ad 100644
+--- a/include/net/inet_connection_sock.h
++++ b/include/net/inet_connection_sock.h
+@@ -291,7 +291,7 @@ static inline void inet_csk_prepare_for_destroy_sock(struct sock *sk)
+ {
+ 	/* The below has to be done to allow calling inet_csk_destroy_sock */
+ 	sock_set_flag(sk, SOCK_DEAD);
+-	percpu_counter_inc(sk->sk_prot->orphan_count);
++	this_cpu_inc(*sk->sk_prot->orphan_count);
+ }
+ 
+ void inet_csk_destroy_sock(struct sock *sk);
+diff --git a/include/net/sock.h b/include/net/sock.h
+index cdca984f36305..6270d1d9436b0 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -1214,7 +1214,7 @@ struct proto {
+ 	unsigned int		useroffset;	/* Usercopy region offset */
+ 	unsigned int		usersize;	/* Usercopy region size */
+ 
+-	struct percpu_counter	*orphan_count;
++	unsigned int __percpu	*orphan_count;
+ 
+ 	struct request_sock_ops	*rsk_prot;
+ 	struct timewait_sock_ops *twsk_prot;
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index eff611da5780b..334b8d1b54429 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -48,7 +48,9 @@
+ 
+ extern struct inet_hashinfo tcp_hashinfo;
+ 
+-extern struct percpu_counter tcp_orphan_count;
++DECLARE_PER_CPU(unsigned int, tcp_orphan_count);
++int tcp_orphan_count_sum(void);
++
+ void tcp_time_wait(struct sock *sk, int state, int timeo);
+ 
+ #define MAX_TCP_HEADER	L1_CACHE_ALIGN(128 + MAX_HEADER)
+@@ -290,19 +292,6 @@ static inline bool tcp_out_of_memory(struct sock *sk)
+ 
+ void sk_forced_mem_schedule(struct sock *sk, int size);
+ 
+-static inline bool tcp_too_many_orphans(struct sock *sk, int shift)
+-{
+-	struct percpu_counter *ocp = sk->sk_prot->orphan_count;
+-	int orphans = percpu_counter_read_positive(ocp);
+-
+-	if (orphans << shift > sysctl_tcp_max_orphans) {
+-		orphans = percpu_counter_sum_positive(ocp);
+-		if (orphans << shift > sysctl_tcp_max_orphans)
+-			return true;
+-	}
+-	return false;
+-}
+-
+ bool tcp_check_oom(struct sock *sk, int shift);
+ 
+ 
+diff --git a/net/dccp/dccp.h b/net/dccp/dccp.h
+index c5c1d2b8045e8..5183e627468d8 100644
+--- a/net/dccp/dccp.h
++++ b/net/dccp/dccp.h
+@@ -48,7 +48,7 @@ extern bool dccp_debug;
+ 
+ extern struct inet_hashinfo dccp_hashinfo;
+ 
+-extern struct percpu_counter dccp_orphan_count;
++DECLARE_PER_CPU(unsigned int, dccp_orphan_count);
+ 
+ void dccp_time_wait(struct sock *sk, int state, int timeo);
+ 
+diff --git a/net/dccp/proto.c b/net/dccp/proto.c
+index 6d705d90c6149..548cf0135647d 100644
+--- a/net/dccp/proto.c
++++ b/net/dccp/proto.c
+@@ -42,8 +42,8 @@ DEFINE_SNMP_STAT(struct dccp_mib, dccp_statistics) __read_mostly;
+ 
+ EXPORT_SYMBOL_GPL(dccp_statistics);
+ 
+-struct percpu_counter dccp_orphan_count;
+-EXPORT_SYMBOL_GPL(dccp_orphan_count);
++DEFINE_PER_CPU(unsigned int, dccp_orphan_count);
++EXPORT_PER_CPU_SYMBOL_GPL(dccp_orphan_count);
+ 
+ struct inet_hashinfo dccp_hashinfo;
+ EXPORT_SYMBOL_GPL(dccp_hashinfo);
+@@ -1055,7 +1055,7 @@ adjudge_to_death:
+ 	bh_lock_sock(sk);
+ 	WARN_ON(sock_owned_by_user(sk));
+ 
+-	percpu_counter_inc(sk->sk_prot->orphan_count);
++	this_cpu_inc(dccp_orphan_count);
+ 
+ 	/* Have we already been destroyed by a softirq or backlog? */
+ 	if (state != DCCP_CLOSED && sk->sk_state == DCCP_CLOSED)
+@@ -1115,13 +1115,10 @@ static int __init dccp_init(void)
+ 
+ 	BUILD_BUG_ON(sizeof(struct dccp_skb_cb) >
+ 		     sizeof_field(struct sk_buff, cb));
+-	rc = percpu_counter_init(&dccp_orphan_count, 0, GFP_KERNEL);
+-	if (rc)
+-		goto out_fail;
+ 	inet_hashinfo_init(&dccp_hashinfo);
+ 	rc = inet_hashinfo2_init_mod(&dccp_hashinfo);
+ 	if (rc)
+-		goto out_free_percpu;
++		goto out_fail;
+ 	rc = -ENOBUFS;
+ 	dccp_hashinfo.bind_bucket_cachep =
+ 		kmem_cache_create("dccp_bind_bucket",
+@@ -1226,8 +1223,6 @@ out_free_bind_bucket_cachep:
+ 	kmem_cache_destroy(dccp_hashinfo.bind_bucket_cachep);
+ out_free_hashinfo2:
+ 	inet_hashinfo2_free_mod(&dccp_hashinfo);
+-out_free_percpu:
+-	percpu_counter_destroy(&dccp_orphan_count);
+ out_fail:
+ 	dccp_hashinfo.bhash = NULL;
+ 	dccp_hashinfo.ehash = NULL;
+@@ -1250,7 +1245,6 @@ static void __exit dccp_fini(void)
+ 	dccp_ackvec_exit();
+ 	dccp_sysctl_exit();
+ 	inet_hashinfo2_free_mod(&dccp_hashinfo);
+-	percpu_counter_destroy(&dccp_orphan_count);
+ }
+ 
+ module_init(dccp_init);
+diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+index 1dfa561e8f981..addd595bb3fe6 100644
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -892,7 +892,7 @@ void inet_csk_destroy_sock(struct sock *sk)
+ 
+ 	sk_refcnt_debug_release(sk);
+ 
+-	percpu_counter_dec(sk->sk_prot->orphan_count);
++	this_cpu_dec(*sk->sk_prot->orphan_count);
+ 
+ 	sock_put(sk);
+ }
+@@ -951,7 +951,7 @@ static void inet_child_forget(struct sock *sk, struct request_sock *req,
+ 
+ 	sock_orphan(child);
+ 
+-	percpu_counter_inc(sk->sk_prot->orphan_count);
++	this_cpu_inc(*sk->sk_prot->orphan_count);
+ 
+ 	if (sk->sk_protocol == IPPROTO_TCP && tcp_rsk(req)->tfo_listener) {
+ 		BUG_ON(rcu_access_pointer(tcp_sk(child)->fastopen_rsk) != req);
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index f3fd5c911ed09..e093847c334da 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -598,7 +598,7 @@ bool inet_ehash_nolisten(struct sock *sk, struct sock *osk, bool *found_dup_sk)
+ 	if (ok) {
+ 		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, 1);
+ 	} else {
+-		percpu_counter_inc(sk->sk_prot->orphan_count);
++		this_cpu_inc(*sk->sk_prot->orphan_count);
+ 		inet_sk_set_state(sk, TCP_CLOSE);
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 		inet_csk_destroy_sock(sk);
+diff --git a/net/ipv4/proc.c b/net/ipv4/proc.c
+index 8d5e1695b9aa8..80d13d8f982dc 100644
+--- a/net/ipv4/proc.c
++++ b/net/ipv4/proc.c
+@@ -53,7 +53,7 @@ static int sockstat_seq_show(struct seq_file *seq, void *v)
+ 	struct net *net = seq->private;
+ 	int orphans, sockets;
+ 
+-	orphans = percpu_counter_sum_positive(&tcp_orphan_count);
++	orphans = tcp_orphan_count_sum();
+ 	sockets = proto_sockets_allocated_sum_positive(&tcp_prot);
+ 
+ 	socket_seq_show(seq);
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 54230852e5f95..65eb0a523e3f5 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -280,8 +280,8 @@
+ #include <asm/ioctls.h>
+ #include <net/busy_poll.h>
+ 
+-struct percpu_counter tcp_orphan_count;
+-EXPORT_SYMBOL_GPL(tcp_orphan_count);
++DEFINE_PER_CPU(unsigned int, tcp_orphan_count);
++EXPORT_PER_CPU_SYMBOL_GPL(tcp_orphan_count);
+ 
+ long sysctl_tcp_mem[3] __read_mostly;
+ EXPORT_SYMBOL(sysctl_tcp_mem);
+@@ -2394,11 +2394,36 @@ void tcp_shutdown(struct sock *sk, int how)
+ }
+ EXPORT_SYMBOL(tcp_shutdown);
+ 
++int tcp_orphan_count_sum(void)
++{
++	int i, total = 0;
++
++	for_each_possible_cpu(i)
++		total += per_cpu(tcp_orphan_count, i);
++
++	return max(total, 0);
++}
++
++static int tcp_orphan_cache;
++static struct timer_list tcp_orphan_timer;
++#define TCP_ORPHAN_TIMER_PERIOD msecs_to_jiffies(100)
++
++static void tcp_orphan_update(struct timer_list *unused)
++{
++	WRITE_ONCE(tcp_orphan_cache, tcp_orphan_count_sum());
++	mod_timer(&tcp_orphan_timer, jiffies + TCP_ORPHAN_TIMER_PERIOD);
++}
++
++static bool tcp_too_many_orphans(int shift)
++{
++	return READ_ONCE(tcp_orphan_cache) << shift > sysctl_tcp_max_orphans;
++}
++
+ bool tcp_check_oom(struct sock *sk, int shift)
+ {
+ 	bool too_many_orphans, out_of_socket_memory;
+ 
+-	too_many_orphans = tcp_too_many_orphans(sk, shift);
++	too_many_orphans = tcp_too_many_orphans(shift);
+ 	out_of_socket_memory = tcp_out_of_memory(sk);
+ 
+ 	if (too_many_orphans)
+@@ -2508,7 +2533,7 @@ adjudge_to_death:
+ 	/* remove backlog if any, without releasing ownership. */
+ 	__release_sock(sk);
+ 
+-	percpu_counter_inc(sk->sk_prot->orphan_count);
++	this_cpu_inc(tcp_orphan_count);
+ 
+ 	/* Have we already been destroyed by a softirq or backlog? */
+ 	if (state != TCP_CLOSE && sk->sk_state == TCP_CLOSE)
+@@ -4145,7 +4170,10 @@ void __init tcp_init(void)
+ 		     sizeof_field(struct sk_buff, cb));
+ 
+ 	percpu_counter_init(&tcp_sockets_allocated, 0, GFP_KERNEL);
+-	percpu_counter_init(&tcp_orphan_count, 0, GFP_KERNEL);
++
++	timer_setup(&tcp_orphan_timer, tcp_orphan_update, TIMER_DEFERRABLE);
++	mod_timer(&tcp_orphan_timer, jiffies + TCP_ORPHAN_TIMER_PERIOD);
++
+ 	inet_hashinfo_init(&tcp_hashinfo);
+ 	inet_hashinfo2_init(&tcp_hashinfo, "tcp_listen_portaddr_hash",
+ 			    thash_entries, 21,  /* one slot per 2 MB*/
 -- 
 2.33.0
 
