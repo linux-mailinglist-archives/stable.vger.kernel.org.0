@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B513A4510A8
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:49:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23E3A450D03
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:45:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242447AbhKOSvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:51:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53408 "EHLO mail.kernel.org"
+        id S238836AbhKORrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:47:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243017AbhKOStJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:49:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42A42632A0;
-        Mon, 15 Nov 2021 18:08:30 +0000 (UTC)
+        id S238741AbhKORpS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:45:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F70A63306;
+        Mon, 15 Nov 2021 17:29:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999710;
-        bh=jZ5j3IIeFKevyECZ9SdkAnJzRNLg/HOwH9NDQyH5Cfw=;
+        s=korg; t=1636997353;
+        bh=jKFH5bXamRUQu87ZBD5aYIukyUi3KSHe9YIw/Q5tIEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wX18PCCtj9pu59qoRp0aqNOsprSrmNo71t9hdnbEKPzLFmVF/jvxu4dDDmxMmNsi+
-         T0gD07VpnOntGtJn3S3jV8naYzyGgfvvV7v6DIpT3HOPK50mT1SyuWrRypKy29oo/N
-         t60qaxpNRf6zrczDtw09gH90BkoptntWPSFht9LU=
+        b=e+nLYW4GnL7yBTUh6o+lJnEXw0tqY6t686j6DcIpVPq1IL0mIIY0W24EJHOWRft1t
+         PdzpXjsqR9w1FHUlmfZ5ya008H83B6JyGNC3fBEqz5hVtC4V3pGtpfd8ff6Is2R0wc
+         Re74FRcs0JWhMGBA0+pwNCPdh0ay2VAvOCRxaidA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Bee <knaerzche@gmail.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 352/849] drm: bridge: it66121: Fix return value it66121_probe
+        stable@vger.kernel.org, Benjamin Li <benl@squareup.com>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.10 110/575] wcn36xx: handle connection loss indication
 Date:   Mon, 15 Nov 2021 17:57:15 +0100
-Message-Id: <20211115165432.143667285@linuxfoundation.org>
+Message-Id: <20211115165347.463997322@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Bee <knaerzche@gmail.com>
+From: Benjamin Li <benl@squareup.com>
 
-[ Upstream commit f3bc07eba481942a246926c5b934199e7ccd567b ]
+commit d6dbce453b19c64b96f3e927b10230f9a704b504 upstream.
 
-Currently it66121_probe returns -EPROBE_DEFER if the there is no remote
-endpoint found in the device tree which doesn't seem helpful, since this
-is not going to change later and it is never checked if the next bridge
-has been initialized yet. It will fail in that case later while doing
-drm_bridge_attach for the next bridge in it66121_bridge_attach.
+Firmware sends delete_sta_context_ind when it detects the AP has gone
+away in STA mode. Right now the handler for that indication only handles
+AP mode; fix it to also handle STA mode.
 
-Since the bindings documentation for it66121 bridge driver states
-there has to be a remote endpoint defined, its safe to return -EINVAL
-in that case.
-This additonally adds a check, if the remote endpoint is enabled and
-returns -EPROBE_DEFER, if the remote bridge hasn't been initialized
-(yet).
-
-Fixes: 988156dc2fc9 ("drm: bridge: add it66121 driver")
-Signed-off-by: Alex Bee <knaerzche@gmail.com>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210918140420.231346-1-knaerzche@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Benjamin Li <benl@squareup.com>
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210901180606.11686-1-benl@squareup.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/bridge/ite-it66121.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/wcn36xx/smd.c |   44 ++++++++++++++++++++++++---------
+ 1 file changed, 33 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/ite-it66121.c b/drivers/gpu/drm/bridge/ite-it66121.c
-index 9dc41a7b91362..06b59b422c696 100644
---- a/drivers/gpu/drm/bridge/ite-it66121.c
-+++ b/drivers/gpu/drm/bridge/ite-it66121.c
-@@ -918,11 +918,23 @@ static int it66121_probe(struct i2c_client *client,
- 		return -EINVAL;
+--- a/drivers/net/wireless/ath/wcn36xx/smd.c
++++ b/drivers/net/wireless/ath/wcn36xx/smd.c
+@@ -2632,30 +2632,52 @@ static int wcn36xx_smd_delete_sta_contex
+ 					      size_t len)
+ {
+ 	struct wcn36xx_hal_delete_sta_context_ind_msg *rsp = buf;
+-	struct wcn36xx_vif *tmp;
++	struct wcn36xx_vif *vif_priv;
++	struct ieee80211_vif *vif;
++	struct ieee80211_bss_conf *bss_conf;
+ 	struct ieee80211_sta *sta;
++	bool found = false;
  
- 	ep = of_graph_get_remote_node(dev->of_node, 1, -1);
--	if (!ep)
--		return -EPROBE_DEFER;
-+	if (!ep) {
-+		dev_err(ctx->dev, "The endpoint is unconnected\n");
-+		return -EINVAL;
-+	}
+ 	if (len != sizeof(*rsp)) {
+ 		wcn36xx_warn("Corrupted delete sta indication\n");
+ 		return -EIO;
+ 	}
+ 
+-	wcn36xx_dbg(WCN36XX_DBG_HAL, "delete station indication %pM index %d\n",
+-		    rsp->addr2, rsp->sta_id);
++	wcn36xx_dbg(WCN36XX_DBG_HAL,
++		    "delete station indication %pM index %d reason %d\n",
++		    rsp->addr2, rsp->sta_id, rsp->reason_code);
+ 
+-	list_for_each_entry(tmp, &wcn->vif_list, list) {
++	list_for_each_entry(vif_priv, &wcn->vif_list, list) {
+ 		rcu_read_lock();
+-		sta = ieee80211_find_sta(wcn36xx_priv_to_vif(tmp), rsp->addr2);
+-		if (sta)
+-			ieee80211_report_low_ack(sta, 0);
++		vif = wcn36xx_priv_to_vif(vif_priv);
 +
-+	if (!of_device_is_available(ep)) {
-+		of_node_put(ep);
-+		dev_err(ctx->dev, "The remote device is disabled\n");
-+		return -ENODEV;
-+	}
++		if (vif->type == NL80211_IFTYPE_STATION) {
++			/* We could call ieee80211_find_sta too, but checking
++			 * bss_conf is clearer.
++			 */
++			bss_conf = &vif->bss_conf;
++			if (vif_priv->sta_assoc &&
++			    !memcmp(bss_conf->bssid, rsp->addr2, ETH_ALEN)) {
++				found = true;
++				wcn36xx_dbg(WCN36XX_DBG_HAL,
++					    "connection loss bss_index %d\n",
++					    vif_priv->bss_index);
++				ieee80211_connection_loss(vif);
++			}
++		} else {
++			sta = ieee80211_find_sta(vif, rsp->addr2);
++			if (sta) {
++				found = true;
++				ieee80211_report_low_ack(sta, 0);
++			}
++		}
++
+ 		rcu_read_unlock();
+-		if (sta)
++		if (found)
+ 			return 0;
+ 	}
  
- 	ctx->next_bridge = of_drm_find_bridge(ep);
- 	of_node_put(ep);
-+	if (!ctx->next_bridge) {
-+		dev_dbg(ctx->dev, "Next bridge not found, deferring probe\n");
-+		return -EPROBE_DEFER;
-+	}
+-	wcn36xx_warn("STA with addr %pM and index %d not found\n",
+-		     rsp->addr2,
+-		     rsp->sta_id);
++	wcn36xx_warn("BSS or STA with addr %pM not found\n", rsp->addr2);
+ 	return -ENOENT;
+ }
  
- 	if (!ctx->next_bridge)
- 		return -EPROBE_DEFER;
--- 
-2.33.0
-
 
 
