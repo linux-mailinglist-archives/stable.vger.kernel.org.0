@@ -2,44 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A1CD45251C
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72F924521CB
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241737AbhKPBqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:46:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36902 "EHLO mail.kernel.org"
+        id S1353579AbhKPBGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:06:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241916AbhKOSZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:25:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A5B963430;
-        Mon, 15 Nov 2021 17:56:18 +0000 (UTC)
+        id S245386AbhKOTU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D46563535;
+        Mon, 15 Nov 2021 18:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998978;
-        bh=QthVg+cX5YqHqcKa/7OPfLYph4F0VvrfwyH18m05D7A=;
+        s=korg; t=1637001226;
+        bh=+y278zBEDQ1fqVOLstLpNxijn85+NAhFtAVSAsQdi2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NsZTZOu3MAHj8VqbOcH53at6Kzi7DSfVZE5l99iSD7XEkpzZgMhjp6BHFF8o5lYqP
-         gp7JiyEyjVA29SNsiI7+ISzA5iav9kmJ1mBUT/EzfqgXJODgS81TRXjk416LWed/1U
-         d7Aeedab9p2W7NmVTSfVogqDs1rZHHlhrTFJo6OY=
+        b=EFkroiWG4+wGmS8FhpmwI7GrBBCwSPcSBUIQOe3ToWgM9kLbEIFyolbfojnECChI3
+         Y3S55vkws4BaGUixQlLeyqdDmAJV2RsPpRU8Kv5ubC61U7LgSzcGZ8rjhWtRho5bBm
+         XvAE40YgoKV45OHikBqjeA0p0CTkAnfk1BdMHXn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>, X86 ML <x86@kernel.org>,
-        Daniel Xu <dxu@dxuuu.xyz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Abhishek Sagar <sagar.abhishek@gmail.com>,
-        Andrii Nakryiko <andrii.nakryiko@gmail.com>,
-        Paul McKenney <paulmck@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.14 104/849] ia64: kprobes: Fix to pass correct trampoline address to the handler
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 092/917] PM: sleep: Do not let "syscore" devices runtime-suspend during system transitions
 Date:   Mon, 15 Nov 2021 17:53:07 +0100
-Message-Id: <20211115165423.600960114@linuxfoundation.org>
+Message-Id: <20211115165431.866728265@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,80 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit a7fe2378454cf46cd5e2776d05e72bbe8f0a468c upstream.
+commit 928265e3601cde78c7e0a3e518a93b27defed3b1 upstream.
 
-The following commit:
+There is no reason to allow "syscore" devices to runtime-suspend
+during system-wide PM transitions, because they are subject to the
+same possible failure modes as any other devices in that respect.
 
-   Commit e792ff804f49 ("ia64: kprobes: Use generic kretprobe trampoline handler")
+Accordingly, change device_prepare() and device_complete() to call
+pm_runtime_get_noresume() and pm_runtime_put(), respectively, for
+"syscore" devices too.
 
-Passed the wrong trampoline address to __kretprobe_trampoline_handler(): it
-passes the descriptor address instead of function entry address.
-
-Pass the right parameter.
-
-Also use correct symbol dereference function to get the function address
-from 'kretprobe_trampoline' - an IA64 special.
-
-Link: https://lkml.kernel.org/r/163163042696.489837.12551102356265354730.stgit@devnote2
-
-Fixes: e792ff804f49 ("ia64: kprobes: Use generic kretprobe trampoline handler")
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: X86 ML <x86@kernel.org>
-Cc: Daniel Xu <dxu@dxuuu.xyz>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Abhishek Sagar <sagar.abhishek@gmail.com>
-Cc: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Cc: Paul McKenney <paulmck@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 057d51a1268f ("Merge branch 'pm-sleep'")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/ia64/kernel/kprobes.c |    9 +++++----
+ drivers/base/power/main.c |    9 +++++----
  1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/arch/ia64/kernel/kprobes.c
-+++ b/arch/ia64/kernel/kprobes.c
-@@ -398,7 +398,8 @@ static void kretprobe_trampoline(void)
+--- a/drivers/base/power/main.c
++++ b/drivers/base/power/main.c
+@@ -1051,7 +1051,7 @@ static void device_complete(struct devic
+ 	const char *info = NULL;
  
- int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
- {
--	regs->cr_iip = __kretprobe_trampoline_handler(regs, kretprobe_trampoline, NULL);
-+	regs->cr_iip = __kretprobe_trampoline_handler(regs,
-+		dereference_function_descriptor(kretprobe_trampoline), NULL);
+ 	if (dev->power.syscore)
+-		return;
++		goto out;
+ 
+ 	device_lock(dev);
+ 
+@@ -1081,6 +1081,7 @@ static void device_complete(struct devic
+ 
+ 	device_unlock(dev);
+ 
++out:
+ 	pm_runtime_put(dev);
+ }
+ 
+@@ -1794,9 +1795,6 @@ static int device_prepare(struct device
+ 	int (*callback)(struct device *) = NULL;
+ 	int ret = 0;
+ 
+-	if (dev->power.syscore)
+-		return 0;
+-
  	/*
- 	 * By returning a non-zero value, we are telling
- 	 * kprobe_handler() that we don't want the post_handler
-@@ -414,7 +415,7 @@ void __kprobes arch_prepare_kretprobe(st
- 	ri->fp = NULL;
+ 	 * If a device's parent goes into runtime suspend at the wrong time,
+ 	 * it won't be possible to resume the device.  To prevent this we
+@@ -1805,6 +1803,9 @@ static int device_prepare(struct device
+ 	 */
+ 	pm_runtime_get_noresume(dev);
  
- 	/* Replace the return addr with trampoline addr */
--	regs->b0 = ((struct fnptr *)kretprobe_trampoline)->ip;
-+	regs->b0 = (unsigned long)dereference_function_descriptor(kretprobe_trampoline);
- }
++	if (dev->power.syscore)
++		return 0;
++
+ 	device_lock(dev);
  
- /* Check the instruction in the slot is break */
-@@ -902,14 +903,14 @@ static struct kprobe trampoline_p = {
- int __init arch_init_kprobes(void)
- {
- 	trampoline_p.addr =
--		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip;
-+		dereference_function_descriptor(kretprobe_trampoline);
- 	return register_kprobe(&trampoline_p);
- }
- 
- int __kprobes arch_trampoline_kprobe(struct kprobe *p)
- {
- 	if (p->addr ==
--		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip)
-+		dereference_function_descriptor(kretprobe_trampoline))
- 		return 1;
- 
- 	return 0;
+ 	dev->power.wakeup_path = false;
 
 
