@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F970451ECA
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA12451E4A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347141AbhKPAhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:37:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45224 "EHLO mail.kernel.org"
+        id S1354388AbhKPAfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344787AbhKOTZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344784AbhKOTZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B37B63327;
-        Mon, 15 Nov 2021 19:04:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B380636C7;
+        Mon, 15 Nov 2021 19:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003061;
-        bh=DBBQlRGGKcNTH9lwqZ9/8RTUFWhe5wO9et+EjbBSE6k=;
+        s=korg; t=1637003064;
+        bh=6uyj2ksn8jh958jNOjQMXDZ3WJRB1H63zstpoGPXMNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m5iPmoe4TOq0QT0LRNx3Dmk3fjN3oVFIn9OonkUew7Zlu5cofQ+mfquIQ8GoI/lLg
-         YCWXnJbnTDvIqrBasq506zM4Ezc3SPTIdytvoKueqvc5ZrW+uW3KHx5PnXOaAzFPRG
-         TFFr4uAI2EdQkcBmE/c4hRJ7n7FNTurARWs/k+EU=
+        b=CaDuGjHl3J1FmOV3kPlkJ0H0YDWiAM3Y6/upHRT5kiIhu0dz5cLHV01V8h1aW8xDZ
+         B5awAibZc363Ew8eGbEdjrE1Iw3iqzqEnCtTtOWthk1d3pXbvrQVvPQKhpegCrReJg
+         tDI49oH6PzxOzGOlVNvqChdT+cDtcGEiK9osaZv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 796/917] octeontx2-pf: select CONFIG_NET_DEVLINK
-Date:   Mon, 15 Nov 2021 18:04:51 +0100
-Message-Id: <20211115165455.965363850@linuxfoundation.org>
+Subject: [PATCH 5.15 797/917] ALSA: memalloc: Catch call with NULL snd_dma_buffer pointer
+Date:   Mon, 15 Nov 2021 18:04:52 +0100
+Message-Id: <20211115165455.998603907@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,45 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 9cbc3367968de69017a87a1118b62490ac1bdd0a ]
+[ Upstream commit dce9446192439eaac81c21f517325fb473735e53 ]
 
-The octeontx2 pf nic driver failsz to link when the devlink support
-is not reachable:
+Although we've covered all calls with NULL dma buffer pointer, so far,
+there may be still some else in the wild.  For catching such a case
+more easily, add a WARN_ON_ONCE() in snd_dma_get_ops().
 
-aarch64-linux-ld: drivers/net/ethernet/marvell/octeontx2/nic/otx2_devlink.o: in function `otx2_dl_mcam_count_get':
-otx2_devlink.c:(.text+0x10): undefined reference to `devlink_priv'
-aarch64-linux-ld: drivers/net/ethernet/marvell/octeontx2/nic/otx2_devlink.o: in function `otx2_dl_mcam_count_validate':
-otx2_devlink.c:(.text+0x50): undefined reference to `devlink_priv'
-aarch64-linux-ld: drivers/net/ethernet/marvell/octeontx2/nic/otx2_devlink.o: in function `otx2_dl_mcam_count_set':
-otx2_devlink.c:(.text+0xd0): undefined reference to `devlink_priv'
-aarch64-linux-ld: drivers/net/ethernet/marvell/octeontx2/nic/otx2_devlink.o: in function `otx2_devlink_info_get':
-otx2_devlink.c:(.text+0x150): undefined reference to `devlink_priv'
-
-This is already selected by the admin function driver, but not the
-actual nic, which might be built-in when the af driver is not.
-
-Fixes: 2da489432747 ("octeontx2-pf: devlink params support to set mcam entry count")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 37af81c5998f ("ALSA: core: Abstract memory alloc helpers")
+Link: https://lore.kernel.org/r/20211105102103.28148-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ sound/core/memalloc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/Kconfig b/drivers/net/ethernet/marvell/octeontx2/Kconfig
-index 3f982ccf2c85f..639893d870550 100644
---- a/drivers/net/ethernet/marvell/octeontx2/Kconfig
-+++ b/drivers/net/ethernet/marvell/octeontx2/Kconfig
-@@ -31,6 +31,7 @@ config NDC_DIS_DYNAMIC_CACHING
- config OCTEONTX2_PF
- 	tristate "Marvell OcteonTX2 NIC Physical Function driver"
- 	select OCTEONTX2_MBOX
-+	select NET_DEVLINK
- 	depends on (64BIT && COMPILE_TEST) || ARM64
- 	depends on PCI
- 	depends on PTP_1588_CLOCK_OPTIONAL
+diff --git a/sound/core/memalloc.c b/sound/core/memalloc.c
+index 0b8a1c3eae1b4..2d842982576bb 100644
+--- a/sound/core/memalloc.c
++++ b/sound/core/memalloc.c
+@@ -494,6 +494,8 @@ static const struct snd_malloc_ops *dma_ops[] = {
+ 
+ static const struct snd_malloc_ops *snd_dma_get_ops(struct snd_dma_buffer *dmab)
+ {
++	if (WARN_ON_ONCE(!dmab))
++		return NULL;
+ 	if (WARN_ON_ONCE(dmab->dev.type <= SNDRV_DMA_TYPE_UNKNOWN ||
+ 			 dmab->dev.type >= ARRAY_SIZE(dma_ops)))
+ 		return NULL;
 -- 
 2.33.0
 
