@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2568452394
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63343452395
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348870AbhKPB1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:27:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38776 "EHLO mail.kernel.org"
+        id S233767AbhKPB1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:27:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243863AbhKOTIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:08:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC812633F8;
-        Mon, 15 Nov 2021 18:17:24 +0000 (UTC)
+        id S243877AbhKOTIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:08:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6FFB633F6;
+        Mon, 15 Nov 2021 18:17:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000245;
-        bh=Zw90p/ZsdLRxko2E62WUIDtJM/Fhg1ws1f5Ep9Yi2X4=;
+        s=korg; t=1637000248;
+        bh=YEptAErsUe0yjwE4SFCRM6LKZ8yhvHh4Sy0ggxXKhwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rKlv7E/RRimslc9gdEgOEAr/8Q9Fki0d5794HvmCjxNsW5NvSltI3h+ZcPdDKE4MI
-         oPG10fo4J/tb6ONca59vLuyVdiumAARS0RAfEI58M+/kkF5VECIil7UMZc9IyN7jXB
-         LyRPBgl/ueCTpKU3MwZZpN4FgexgfT1v2s8c8a14=
+        b=pZZJ/t17kGTxdVGEbORQqqKZSWM1gy5q//kE+hz8RNddDSRUzqp5w723lKtGLQsuX
+         dUyWUf+H8QEfnuFgF5x/Y2GMDFCeneF3RkZ5zXBVcd496iAVUMGH0+vUGJhtQix8Yj
+         4j6e5xlqW3abEED0gFZ3QYqA8XZB+1EWrhvLEx1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 590/849] ASoC: SOF: topology: do not power down primary core during topology removal
-Date:   Mon, 15 Nov 2021 18:01:13 +0100
-Message-Id: <20211115165440.210662341@linuxfoundation.org>
+Subject: [PATCH 5.14 591/849] iio: st_pressure_spi: Add missing entries SPI to device ID table
+Date:   Mon, 15 Nov 2021 18:01:14 +0100
+Message-Id: <20211115165440.243755939@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -44,47 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit ec626334eaffe101df9ed79e161eba95124e64ad ]
+[ Upstream commit 03748d4e003c9f2ad3cd00e3e46f054dcad6b96d ]
 
-When removing the topology components, do not power down
-the primary core. Doing so will result in an IPC timeout
-when the SOF PCI device runtime suspends.
+Currently autoloading for SPI devices does not use the DT ID table, it uses
+SPI modalises. Supporting OF modalises is going to be difficult if not
+impractical, an attempt was made but has been reverted, so ensure that
+module autoloading works for this driver by adding SPI IDs for parts that
+only have a compatible listed.
 
-Fixes: 0dcdf84289fb ("ASoC: SOF: add a "core" parameter to widget loading functions")
-
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20211006104041.27183-1-peter.ujfalusi@linux.intel.com
+Fixes: 96c8395e2166 ("spi: Revert modalias changes")
 Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210927134153.12739-1-broonie@kernel.org
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/topology.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/iio/pressure/st_pressure_spi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/sound/soc/sof/topology.c b/sound/soc/sof/topology.c
-index cc9585bfa4e9f..1bb2dcf37ffe9 100644
---- a/sound/soc/sof/topology.c
-+++ b/sound/soc/sof/topology.c
-@@ -2598,6 +2598,15 @@ static int sof_widget_unload(struct snd_soc_component *scomp,
- 
- 		/* power down the pipeline schedule core */
- 		pipeline = swidget->private;
-+
-+		/*
-+		 * Runtime PM should still function normally if topology loading fails and
-+		 * it's components are unloaded. Do not power down the primary core so that the
-+		 * CTX_SAVE IPC can succeed during runtime suspend.
-+		 */
-+		if (pipeline->core == SOF_DSP_PRIMARY_CORE)
-+			break;
-+
- 		ret = snd_sof_dsp_core_power_down(sdev, 1 << pipeline->core);
- 		if (ret < 0)
- 			dev_err(scomp->dev, "error: powering down pipeline schedule core %d\n",
+diff --git a/drivers/iio/pressure/st_pressure_spi.c b/drivers/iio/pressure/st_pressure_spi.c
+index 8cf8cd3b4554a..51b3467bd724c 100644
+--- a/drivers/iio/pressure/st_pressure_spi.c
++++ b/drivers/iio/pressure/st_pressure_spi.c
+@@ -117,6 +117,10 @@ static const struct spi_device_id st_press_id_table[] = {
+ 	{ LPS33HW_PRESS_DEV_NAME },
+ 	{ LPS35HW_PRESS_DEV_NAME },
+ 	{ LPS22HH_PRESS_DEV_NAME },
++	{ "lps001wp-press" },
++	{ "lps25h-press", },
++	{ "lps331ap-press" },
++	{ "lps22hb-press" },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(spi, st_press_id_table);
 -- 
 2.33.0
 
