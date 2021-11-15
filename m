@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B2E452737
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:17:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97EFD4523F7
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:32:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244097AbhKPCUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:20:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52660 "EHLO mail.kernel.org"
+        id S1351551AbhKPBfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:35:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238460AbhKORiS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:38:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20C3861C15;
-        Mon, 15 Nov 2021 17:25:55 +0000 (UTC)
+        id S242342AbhKOSfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:35:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B69D3632D8;
+        Mon, 15 Nov 2021 18:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997156;
-        bh=xATrcSB3ks7Jk84LEgrIm8YL4TIZdirdskUhUDs/F0o=;
+        s=korg; t=1636999294;
+        bh=NDMXlhLTs42BUwBONK6GR9dWhwDi9WsFuvb1JSvyC1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=szEQZltWHjyXU3JT/QcKMs1v75AQ5khI+4J7vQ+0jEVrk2QDAu+D/uu9aa6nAEhm7
-         H1qsGmGwlrGKFYPnaUlBnvaMGJyS+ImU7kKcPtGuH3sLSqT6paM49GfNw0S09gku5b
-         LDQsYNfGMWVa3DEU6I0JYLNhnPwYHCId8xtgsaQM=
+        b=KnExGLB03Lqox83vuGRnKRvWL594pWaQ0k5Bbv5KOjeNwPxZ1CMJq2w1V+o/xrHeP
+         39u+K3CJ7XFk5e2RP6gOLT4nHlgmmO2My+S17pidA+fn36k05MqHLAcSWy7O+leCUr
+         dC8o6cI8aYFmSXtgILecmQJruZjVK+dzUHBowfws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Nehal Bakulchandra Shah <Nehal-Bakulchandra.shah@amd.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 002/575] usb: xhci: Enable runtime-pm by default on AMD Yellow Carp platform
+        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 244/849] media: uvcvideo: Set unique vdev name based in type
 Date:   Mon, 15 Nov 2021 17:55:27 +0100
-Message-Id: <20211115165343.672278274@linuxfoundation.org>
+Message-Id: <20211115165428.468574261@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nehal Bakulchandra Shah <Nehal-Bakulchandra.shah@amd.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit 660a92a59b9e831a0407e41ff62875656d30006e upstream.
+[ Upstream commit e3f60e7e1a2b451f538f9926763432249bcf39c4 ]
 
-AMD's Yellow Carp platform supports runtime power management for
-XHCI Controllers, so enable the same by default for all XHCI Controllers.
+All the entities must have a unique name. We can have a descriptive and
+unique name by appending the function and the entity->id.
 
-[ regrouped and aligned the PCI_DEVICE_ID definitions -Mathias]
+This is even resilent to multi chain devices.
 
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Nehal Bakulchandra Shah <Nehal-Bakulchandra.shah@amd.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211014121200.75433-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes v4l2-compliance:
+Media Controller ioctls:
+                fail: v4l2-test-media.cpp(205): v2_entity_names_set.find(key) != v2_entity_names_set.end()
+        test MEDIA_IOC_G_TOPOLOGY: FAIL
+                fail: v4l2-test-media.cpp(394): num_data_links != num_links
+	test MEDIA_IOC_ENUM_ENTITIES/LINKS: FAIL
+
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/media/usb/uvc/uvc_driver.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -64,6 +64,13 @@
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_2			0x43bb
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_1			0x43bc
-+#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_1		0x161a
-+#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_2		0x161b
-+#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_3		0x161d
-+#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_4		0x161e
-+#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_5		0x15d6
-+#define PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_6		0x15d7
-+
- #define PCI_DEVICE_ID_ASMEDIA_1042_XHCI			0x1042
- #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
- #define PCI_DEVICE_ID_ASMEDIA_1142_XHCI			0x1242
-@@ -312,6 +319,15 @@ static void xhci_pci_quirks(struct devic
- 	     pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_4))
- 		xhci->quirks |= XHCI_NO_SOFT_RETRY;
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 9a791d8ef200d..c4bc67024534a 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -2194,6 +2194,7 @@ int uvc_register_video_device(struct uvc_device *dev,
+ 			      const struct v4l2_file_operations *fops,
+ 			      const struct v4l2_ioctl_ops *ioctl_ops)
+ {
++	const char *name;
+ 	int ret;
  
-+	if (pdev->vendor == PCI_VENDOR_ID_AMD &&
-+	    (pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_1 ||
-+	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_2 ||
-+	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_3 ||
-+	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_4 ||
-+	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_5 ||
-+	    pdev->device == PCI_DEVICE_ID_AMD_YELLOW_CARP_XHCI_6))
-+		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
-+
- 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
- 		xhci_dbg_trace(xhci, trace_xhci_dbg_quirks,
- 				"QUIRK: Resetting on resume");
+ 	/* Initialize the video buffers queue. */
+@@ -2222,16 +2223,20 @@ int uvc_register_video_device(struct uvc_device *dev,
+ 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
+ 	default:
+ 		vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
++		name = "Video Capture";
+ 		break;
+ 	case V4L2_BUF_TYPE_VIDEO_OUTPUT:
+ 		vdev->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
++		name = "Video Output";
+ 		break;
+ 	case V4L2_BUF_TYPE_META_CAPTURE:
+ 		vdev->device_caps = V4L2_CAP_META_CAPTURE | V4L2_CAP_STREAMING;
++		name = "Metadata";
+ 		break;
+ 	}
+ 
+-	strscpy(vdev->name, dev->name, sizeof(vdev->name));
++	snprintf(vdev->name, sizeof(vdev->name), "%s %u", name,
++		 stream->header.bTerminalLink);
+ 
+ 	/*
+ 	 * Set the driver data before calling video_register_device, otherwise
+-- 
+2.33.0
+
 
 
