@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E1F4512C3
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 147FF4512C6
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347343AbhKOTjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:39:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
+        id S1347361AbhKOTjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245009AbhKOTSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 938896343A;
-        Mon, 15 Nov 2021 18:26:54 +0000 (UTC)
+        id S245010AbhKOTSW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00C7E63438;
+        Mon, 15 Nov 2021 18:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000815;
-        bh=f5sBHD256VAoyIEQDueybkX0f1CgCHoWj5BiHd5mBBY=;
+        s=korg; t=1637000817;
+        bh=LTGJYa28MS1I9l3cpM5GMtheOIB178jPguO/fGWMZdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ii/01UpOoKtrHWK4NCzqv2Aoj1BHS4jklMhM2hSTOLlS7p9ESz8o9USQnNqao1Vno
-         kZULpV8Q4aSi506wGwH73dLQP8BO2MLKPBILMXDBEM9j0rAilBr79Xjxii8pZYFo0r
-         Mn5OZJfrBPEpHHaMh7Khrzq/qwbNIU06XeOsrJWE=
+        b=YCfmq0FDluUNji3D/tJCi9fcGkyScAdapf2/TNFoaNzH1uSuL7aWFxF4dEt925Dx7
+         hBEx4gn5Gk3GLiFevTOP5qSJZJiLIImCmU69wp3Fw5gUD/6oxvpU9PfThf+KkIbJ6S
+         p8pCQhDIyJEJDLN98IuysgkcbshNJt52lLNht49o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anatolij Gustschin <agust@denx.de>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.14 802/849] dmaengine: bestcomm: fix system boot lockups
-Date:   Mon, 15 Nov 2021 18:04:45 +0100
-Message-Id: <20211115165447.366730941@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 803/849] net, neigh: Enable state migration between NUD_PERMANENT and NTF_USE
+Date:   Mon, 15 Nov 2021 18:04:46 +0100
+Message-Id: <20211115165447.398027401@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,130 +41,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anatolij Gustschin <agust@denx.de>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit adec566b05288f2787a1f88dbaf77ed8b0c644fa upstream.
+[ Upstream commit 3dc20f4762c62d3b3f0940644881ed818aa7b2f5 ]
 
-memset() and memcpy() on an MMIO region like here results in a
-lockup at startup on mpc5200 platform (since this first happens
-during probing of the ATA and Ethernet drivers). Use memset_io()
-and memcpy_toio() instead.
+Currently, it is not possible to migrate a neighbor entry between NUD_PERMANENT
+state and NTF_USE flag with a dynamic NUD state from a user space control plane.
+Similarly, it is not possible to add/remove NTF_EXT_LEARNED flag from an existing
+neighbor entry in combination with NTF_USE flag.
 
-Fixes: 2f9ea1bde0d1 ("bestcomm: core bestcomm support for Freescale MPC5200")
-Cc: stable@vger.kernel.org # v5.14+
-Signed-off-by: Anatolij Gustschin <agust@denx.de>
-Link: https://lore.kernel.org/r/20211014094012.21286-1-agust@denx.de
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is due to the latter directly calling into neigh_event_send() without any
+meta data updates as happening in __neigh_update(). Thus, to enable this use
+case, extend the latter with a NEIGH_UPDATE_F_USE flag where we break the
+NUD_PERMANENT state in particular so that a latter neigh_event_send() is able
+to re-resolve a neighbor entry.
+
+Before fix, NUD_PERMANENT -> NUD_* & NTF_USE:
+
+  # ./ip/ip n replace 192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a
+  # ./ip/ip n
+  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
+  [...]
+  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
+  # ./ip/ip n
+  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
+  [...]
+
+As can be seen, despite the admin-triggered replace, the entry remains in the
+NUD_PERMANENT state.
+
+After fix, NUD_PERMANENT -> NUD_* & NTF_USE:
+
+  # ./ip/ip n replace 192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a
+  # ./ip/ip n
+  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
+  [...]
+  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
+  # ./ip/ip n
+  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a extern_learn REACHABLE
+  [...]
+  # ./ip/ip n
+  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a extern_learn STALE
+  [...]
+  # ./ip/ip n replace 192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a
+  # ./ip/ip n
+  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
+  [...]
+
+After the fix, the admin-triggered replace switches to a dynamic state from
+the NTF_USE flag which triggered a new neighbor resolution. Likewise, we can
+transition back from there, if needed, into NUD_PERMANENT.
+
+Similar before/after behavior can be observed for below transitions:
+
+Before fix, NTF_USE -> NTF_USE | NTF_EXT_LEARNED -> NTF_USE:
+
+  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use
+  # ./ip/ip n
+  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
+  [...]
+  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
+  # ./ip/ip n
+  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
+  [...]
+
+After fix, NTF_USE -> NTF_USE | NTF_EXT_LEARNED -> NTF_USE:
+
+  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use
+  # ./ip/ip n
+  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
+  [...]
+  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
+  # ./ip/ip n
+  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a extern_learn REACHABLE
+  [...]
+  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use
+  # ./ip/ip n
+  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
+  [..]
+
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Roopa Prabhu <roopa@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/bestcomm/ata.c      |    2 +-
- drivers/dma/bestcomm/bestcomm.c |   22 +++++++++++-----------
- drivers/dma/bestcomm/fec.c      |    4 ++--
- drivers/dma/bestcomm/gen_bd.c   |    4 ++--
- 4 files changed, 16 insertions(+), 16 deletions(-)
+ include/net/neighbour.h |  1 +
+ net/core/neighbour.c    | 22 +++++++++++++---------
+ 2 files changed, 14 insertions(+), 9 deletions(-)
 
---- a/drivers/dma/bestcomm/ata.c
-+++ b/drivers/dma/bestcomm/ata.c
-@@ -133,7 +133,7 @@ void bcom_ata_reset_bd(struct bcom_task
- 	struct bcom_ata_var *var;
+diff --git a/include/net/neighbour.h b/include/net/neighbour.h
+index 990f9b1d17092..d5767e25509cc 100644
+--- a/include/net/neighbour.h
++++ b/include/net/neighbour.h
+@@ -253,6 +253,7 @@ static inline void *neighbour_priv(const struct neighbour *n)
+ #define NEIGH_UPDATE_F_OVERRIDE			0x00000001
+ #define NEIGH_UPDATE_F_WEAK_OVERRIDE		0x00000002
+ #define NEIGH_UPDATE_F_OVERRIDE_ISROUTER	0x00000004
++#define NEIGH_UPDATE_F_USE			0x10000000
+ #define NEIGH_UPDATE_F_EXT_LEARNED		0x20000000
+ #define NEIGH_UPDATE_F_ISROUTER			0x40000000
+ #define NEIGH_UPDATE_F_ADMIN			0x80000000
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index 077883f9f570b..704832723ab87 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -1221,7 +1221,7 @@ static void neigh_update_hhs(struct neighbour *neigh)
+ 				lladdr instead of overriding it
+ 				if it is different.
+ 	NEIGH_UPDATE_F_ADMIN	means that the change is administrative.
+-
++	NEIGH_UPDATE_F_USE	means that the entry is user triggered.
+ 	NEIGH_UPDATE_F_OVERRIDE_ISROUTER allows to override existing
+ 				NTF_ROUTER flag.
+ 	NEIGH_UPDATE_F_ISROUTER	indicates if the neighbour is known as
+@@ -1259,6 +1259,12 @@ static int __neigh_update(struct neighbour *neigh, const u8 *lladdr,
+ 		goto out;
  
- 	/* Reset all BD */
--	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
-+	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
+ 	ext_learn_change = neigh_update_ext_learned(neigh, flags, &notify);
++	if (flags & NEIGH_UPDATE_F_USE) {
++		new = old & ~NUD_PERMANENT;
++		neigh->nud_state = new;
++		err = 0;
++		goto out;
++	}
  
- 	tsk->index = 0;
- 	tsk->outdex = 0;
---- a/drivers/dma/bestcomm/bestcomm.c
-+++ b/drivers/dma/bestcomm/bestcomm.c
-@@ -95,7 +95,7 @@ bcom_task_alloc(int bd_count, int bd_siz
- 		tsk->bd = bcom_sram_alloc(bd_count * bd_size, 4, &tsk->bd_pa);
- 		if (!tsk->bd)
- 			goto error;
--		memset(tsk->bd, 0x00, bd_count * bd_size);
-+		memset_io(tsk->bd, 0x00, bd_count * bd_size);
+ 	if (!(new & NUD_VALID)) {
+ 		neigh_del_timer(neigh);
+@@ -1968,22 +1974,20 @@ static int neigh_add(struct sk_buff *skb, struct nlmsghdr *nlh,
  
- 		tsk->num_bd = bd_count;
- 		tsk->bd_size = bd_size;
-@@ -186,16 +186,16 @@ bcom_load_image(int task, u32 *task_imag
- 	inc = bcom_task_inc(task);
+ 	if (protocol)
+ 		neigh->protocol = protocol;
+-
+ 	if (ndm->ndm_flags & NTF_EXT_LEARNED)
+ 		flags |= NEIGH_UPDATE_F_EXT_LEARNED;
+-
+ 	if (ndm->ndm_flags & NTF_ROUTER)
+ 		flags |= NEIGH_UPDATE_F_ISROUTER;
++	if (ndm->ndm_flags & NTF_USE)
++		flags |= NEIGH_UPDATE_F_USE;
  
- 	/* Clear & copy */
--	memset(var, 0x00, BCOM_VAR_SIZE);
--	memset(inc, 0x00, BCOM_INC_SIZE);
-+	memset_io(var, 0x00, BCOM_VAR_SIZE);
-+	memset_io(inc, 0x00, BCOM_INC_SIZE);
- 
- 	desc_src = (u32 *)(hdr + 1);
- 	var_src = desc_src + hdr->desc_size;
- 	inc_src = var_src + hdr->var_size;
- 
--	memcpy(desc, desc_src, hdr->desc_size * sizeof(u32));
--	memcpy(var + hdr->first_var, var_src, hdr->var_size * sizeof(u32));
--	memcpy(inc, inc_src, hdr->inc_size * sizeof(u32));
-+	memcpy_toio(desc, desc_src, hdr->desc_size * sizeof(u32));
-+	memcpy_toio(var + hdr->first_var, var_src, hdr->var_size * sizeof(u32));
-+	memcpy_toio(inc, inc_src, hdr->inc_size * sizeof(u32));
- 
- 	return 0;
+-	if (ndm->ndm_flags & NTF_USE) {
++	err = __neigh_update(neigh, lladdr, ndm->ndm_state, flags,
++			     NETLINK_CB(skb).portid, extack);
++	if (!err && ndm->ndm_flags & NTF_USE) {
+ 		neigh_event_send(neigh, NULL);
+ 		err = 0;
+-	} else
+-		err = __neigh_update(neigh, lladdr, ndm->ndm_state, flags,
+-				     NETLINK_CB(skb).portid, extack);
+-
++	}
+ 	neigh_release(neigh);
+-
+ out:
+ 	return err;
  }
-@@ -302,13 +302,13 @@ static int bcom_engine_init(void)
- 		return -ENOMEM;
- 	}
- 
--	memset(bcom_eng->tdt, 0x00, tdt_size);
--	memset(bcom_eng->ctx, 0x00, ctx_size);
--	memset(bcom_eng->var, 0x00, var_size);
--	memset(bcom_eng->fdt, 0x00, fdt_size);
-+	memset_io(bcom_eng->tdt, 0x00, tdt_size);
-+	memset_io(bcom_eng->ctx, 0x00, ctx_size);
-+	memset_io(bcom_eng->var, 0x00, var_size);
-+	memset_io(bcom_eng->fdt, 0x00, fdt_size);
- 
- 	/* Copy the FDT for the EU#3 */
--	memcpy(&bcom_eng->fdt[48], fdt_ops, sizeof(fdt_ops));
-+	memcpy_toio(&bcom_eng->fdt[48], fdt_ops, sizeof(fdt_ops));
- 
- 	/* Initialize Task base structure */
- 	for (task=0; task<BCOM_MAX_TASKS; task++)
---- a/drivers/dma/bestcomm/fec.c
-+++ b/drivers/dma/bestcomm/fec.c
-@@ -140,7 +140,7 @@ bcom_fec_rx_reset(struct bcom_task *tsk)
- 	tsk->index = 0;
- 	tsk->outdex = 0;
- 
--	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
-+	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
- 
- 	/* Configure some stuff */
- 	bcom_set_task_pragma(tsk->tasknum, BCOM_FEC_RX_BD_PRAGMA);
-@@ -241,7 +241,7 @@ bcom_fec_tx_reset(struct bcom_task *tsk)
- 	tsk->index = 0;
- 	tsk->outdex = 0;
- 
--	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
-+	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
- 
- 	/* Configure some stuff */
- 	bcom_set_task_pragma(tsk->tasknum, BCOM_FEC_TX_BD_PRAGMA);
---- a/drivers/dma/bestcomm/gen_bd.c
-+++ b/drivers/dma/bestcomm/gen_bd.c
-@@ -142,7 +142,7 @@ bcom_gen_bd_rx_reset(struct bcom_task *t
- 	tsk->index = 0;
- 	tsk->outdex = 0;
- 
--	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
-+	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
- 
- 	/* Configure some stuff */
- 	bcom_set_task_pragma(tsk->tasknum, BCOM_GEN_RX_BD_PRAGMA);
-@@ -226,7 +226,7 @@ bcom_gen_bd_tx_reset(struct bcom_task *t
- 	tsk->index = 0;
- 	tsk->outdex = 0;
- 
--	memset(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
-+	memset_io(tsk->bd, 0x00, tsk->num_bd * tsk->bd_size);
- 
- 	/* Configure some stuff */
- 	bcom_set_task_pragma(tsk->tasknum, BCOM_GEN_TX_BD_PRAGMA);
+-- 
+2.33.0
+
 
 
