@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9554450AE7
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:13:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B641450DD3
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:06:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236798AbhKORPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:15:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51468 "EHLO mail.kernel.org"
+        id S240362AbhKOSIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:08:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236720AbhKOROq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:14:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F197161BFE;
-        Mon, 15 Nov 2021 17:11:10 +0000 (UTC)
+        id S239553AbhKOSBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:01:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 890E463342;
+        Mon, 15 Nov 2021 17:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996271;
-        bh=NrwkkLagD5MO00PjpOtsYK4+Fd1giyALE2GuUoM8tus=;
+        s=korg; t=1636997796;
+        bh=pL5zTXYfnwMHYoFlaB37jrlmitzf3D5hDVhTuLM/IOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdvBygkUa2AWXa3OtlLtYh/FkRdU5yukJWiH+tUovCxaG5dZ2PDI00PWvvdwz5MJ6
-         MTuuGeo3mYDTP1UTIuk47dOdsog0Yslr0e03UKMjS/72nx5yvbhOENobx/cqIFQnX4
-         A083I9CmGJPSMJ/oPFg8ryP0OJT/XxQWwbnShGik=
+        b=MzpA5SfkbeuNJz3e3uCWpzb8urXXn06sOSs2Kj2tSq8O9lczmirnqcfgWW+gu0FI5
+         tXSBqrsMCDGeNd6dvxXFuiwqqQpI4VHtOf4cNigKdUCzLdbIkS2pqKC5t2nhVuAu4n
+         2PmXIRapZEMK/fLx1xhyzi+rDOPatKB/QNHET4yg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Reimar=20D=C3=B6ffinger?= <Reimar.Doeffinger@gmx.de>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 5.4 079/355] libata: fix checking of DMA state
+        stable@vger.kernel.org, Mauri Sandberg <sandberg@mailfence.com>,
+        DENG Qingfang <dqfext@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 278/575] net: dsa: rtl8366rb: Fix off-by-one bug
 Date:   Mon, 15 Nov 2021 18:00:03 +0100
-Message-Id: <20211115165316.359094674@linuxfoundation.org>
+Message-Id: <20211115165353.383228453@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reimar Döffinger <Reimar.Doeffinger@gmx.de>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit f971a85439bd25dc7b4d597cf5e4e8dc7ffc884b upstream.
+[ Upstream commit 5f5f12f5d4b108399130bb5c11f07765851d9cdb ]
 
-Checking if DMA is enabled should be done via the
-ata_dma_enabled helper function, since the init state
-0xff indicates disabled.
-This meant that ATA_CMD_READ_LOG_DMA_EXT was used and probed
-for before DMA was enabled, which caused hangs for some combinations
-of controllers and devices.
-It might also have caused it to be incorrectly disabled as broken,
-but there have been no reports of that.
+The max VLAN number with non-4K VLAN activated is 15, and the
+range is 0..15. Not 16.
 
-Cc: stable@vger.kernel.org
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=195895
-Signed-off-by: Reimar Döffinger <Reimar.Doeffinger@gmx.de>
-Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The impact should be low since we by default have 4K VLAN and
+thus have 4095 VLANs to play with in this switch. There will
+not be a problem unless the code is rewritten to only use
+16 VLANs.
+
+Fixes: d8652956cf37 ("net: dsa: realtek-smi: Add Realtek SMI driver")
+Cc: Mauri Sandberg <sandberg@mailfence.com>
+Cc: DENG Qingfang <dqfext@gmail.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c |    2 +-
+ drivers/net/dsa/rtl8366rb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -2057,7 +2057,7 @@ unsigned int ata_read_log_page(struct at
+diff --git a/drivers/net/dsa/rtl8366rb.c b/drivers/net/dsa/rtl8366rb.c
+index cfe56960f44b9..12d7e5cd31974 100644
+--- a/drivers/net/dsa/rtl8366rb.c
++++ b/drivers/net/dsa/rtl8366rb.c
+@@ -1343,7 +1343,7 @@ static int rtl8366rb_set_mc_index(struct realtek_smi *smi, int port, int index)
  
- retry:
- 	ata_tf_init(dev, &tf);
--	if (dev->dma_mode && ata_id_has_read_log_dma_ext(dev->id) &&
-+	if (ata_dma_enabled(dev) && ata_id_has_read_log_dma_ext(dev->id) &&
- 	    !(dev->horkage & ATA_HORKAGE_NO_DMA_LOG)) {
- 		tf.command = ATA_CMD_READ_LOG_DMA_EXT;
- 		tf.protocol = ATA_PROT_DMA;
+ static bool rtl8366rb_is_vlan_valid(struct realtek_smi *smi, unsigned int vlan)
+ {
+-	unsigned int max = RTL8366RB_NUM_VLANS;
++	unsigned int max = RTL8366RB_NUM_VLANS - 1;
+ 
+ 	if (smi->vlan4k_enabled)
+ 		max = RTL8366RB_NUM_VIDS - 1;
+-- 
+2.33.0
+
 
 
