@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3F25451035
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF5B450CD8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242424AbhKOSog (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:44:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50176 "EHLO mail.kernel.org"
+        id S236846AbhKORof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:44:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242216AbhKOSme (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:42:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3F47632F5;
-        Mon, 15 Nov 2021 18:04:58 +0000 (UTC)
+        id S236810AbhKORlw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:41:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AD74632F2;
+        Mon, 15 Nov 2021 17:27:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999499;
-        bh=qBXhcfRIkT+gW40R/i3GsRWC5nKLP/VUTkqRaf1BxYg=;
+        s=korg; t=1636997244;
+        bh=/7y1QbQ3B+66AKkKDIdYwpAQZkf/TiziQek0eBIjwE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=op8QxQvhcB550hmy68mu1A970ACW9Cu+JZHmU25rM/4bemsXn9esLwNZXOKvc1tqG
-         myPtK/dqOgImRm+JiMvnVMKkrKPfTe3dczpvjnh4Y7F765T4LNYS+VXZDAisHrrJBF
-         5F2Ykh+jLsgIS6+e+jgpjQU6f7Ba5WNM0/r/u3ww=
+        b=FGfPOenPHZEI6F+d2ZHcPG18p9L/jVKcTknH2A87r+ehLd9sELYmLAMwUNbwuPSJm
+         w/ko/JaJg6Le0pehO+FezqU8DEGzBkZP+iWEq8DNSJri4ZfV2PG5cwqzvFMiVn6aSq
+         85l0iNo0JtPnp4dCT9821BhZjdD78ou69lOqWPOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@windriver.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Waiman Long <longman@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 286/849] locking/rwsem: Disable preemption for spinning region
+        stable@vger.kernel.org, stable@kernel.org,
+        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 044/575] ext4: ensure enough credits in ext4_ext_shift_path_extents
 Date:   Mon, 15 Nov 2021 17:56:09 +0100
-Message-Id: <20211115165429.948858608@linuxfoundation.org>
+Message-Id: <20211115165345.164445028@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,114 +40,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanfei Xu <yanfei.xu@windriver.com>
+From: yangerkun <yangerkun@huawei.com>
 
-[ Upstream commit 7cdacc5f52d68a9370f182c844b5b3e6cc975cc1 ]
+commit 4268496e48dc681cfa53b92357314b5d7221e625 upstream.
 
-The spinning region rwsem_spin_on_owner() should not be preempted,
-however the rwsem_down_write_slowpath() invokes it and don't disable
-preemption. Fix it by adding a pair of preempt_disable/enable().
+Like ext4_ext_rm_leaf, we can ensure that there are enough credits
+before every call that will consume credits.  As part of this fix we
+fold the functionality of ext4_access_path() into
+ext4_ext_shift_path_extents().  This change is needed as a preparation
+for the next bugfix patch.
 
-Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
-[peterz: Fix CONFIG_RWSEM_SPIN_ON_OWNER=n build]
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Waiman Long <longman@redhat.com>
-Link: https://lore.kernel.org/r/20211013134154.1085649-3-yanfei.xu@windriver.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20210903062748.4118886-3-yangerkun@huawei.com
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/locking/rwsem.c | 53 ++++++++++++++++++++++++------------------
- 1 file changed, 30 insertions(+), 23 deletions(-)
+ fs/ext4/extents.c |   49 +++++++++++++++----------------------------------
+ 1 file changed, 15 insertions(+), 34 deletions(-)
 
-diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
-index 16bfbb10c74d7..1d42c18736380 100644
---- a/kernel/locking/rwsem.c
-+++ b/kernel/locking/rwsem.c
-@@ -576,6 +576,24 @@ static inline bool rwsem_try_write_lock(struct rw_semaphore *sem,
- 	return true;
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -4971,36 +4971,6 @@ int ext4_get_es_cache(struct inode *inod
  }
  
-+/*
-+ * The rwsem_spin_on_owner() function returns the following 4 values
-+ * depending on the lock owner state.
-+ *   OWNER_NULL  : owner is currently NULL
-+ *   OWNER_WRITER: when owner changes and is a writer
-+ *   OWNER_READER: when owner changes and the new owner may be a reader.
-+ *   OWNER_NONSPINNABLE:
-+ *		   when optimistic spinning has to stop because either the
-+ *		   owner stops running, is unknown, or its timeslice has
-+ *		   been used up.
-+ */
-+enum owner_state {
-+	OWNER_NULL		= 1 << 0,
-+	OWNER_WRITER		= 1 << 1,
-+	OWNER_READER		= 1 << 2,
-+	OWNER_NONSPINNABLE	= 1 << 3,
-+};
-+
- #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
  /*
-  * Try to acquire write lock before the writer has been put on wait queue.
-@@ -631,23 +649,6 @@ static inline bool rwsem_can_spin_on_owner(struct rw_semaphore *sem)
- 	return ret;
- }
- 
--/*
-- * The rwsem_spin_on_owner() function returns the following 4 values
-- * depending on the lock owner state.
-- *   OWNER_NULL  : owner is currently NULL
-- *   OWNER_WRITER: when owner changes and is a writer
-- *   OWNER_READER: when owner changes and the new owner may be a reader.
-- *   OWNER_NONSPINNABLE:
-- *		   when optimistic spinning has to stop because either the
-- *		   owner stops running, is unknown, or its timeslice has
-- *		   been used up.
+- * ext4_access_path:
+- * Function to access the path buffer for marking it dirty.
+- * It also checks if there are sufficient credits left in the journal handle
+- * to update path.
 - */
--enum owner_state {
--	OWNER_NULL		= 1 << 0,
--	OWNER_WRITER		= 1 << 1,
--	OWNER_READER		= 1 << 2,
--	OWNER_NONSPINNABLE	= 1 << 3,
--};
- #define OWNER_SPINNABLE		(OWNER_NULL | OWNER_WRITER | OWNER_READER)
+-static int
+-ext4_access_path(handle_t *handle, struct inode *inode,
+-		struct ext4_ext_path *path)
+-{
+-	int credits, err;
+-
+-	if (!ext4_handle_valid(handle))
+-		return 0;
+-
+-	/*
+-	 * Check if need to extend journal credits
+-	 * 3 for leaf, sb, and inode plus 2 (bmap and group
+-	 * descriptor) for each block group; assume two block
+-	 * groups
+-	 */
+-	credits = ext4_writepage_trans_blocks(inode);
+-	err = ext4_datasem_ensure_credits(handle, inode, 7, credits, 0);
+-	if (err < 0)
+-		return err;
+-
+-	err = ext4_ext_get_access(handle, inode, path);
+-	return err;
+-}
+-
+-/*
+  * ext4_ext_shift_path_extents:
+  * Shift the extents of a path structure lying between path[depth].p_ext
+  * and EXT_LAST_EXTENT(path[depth].p_hdr), by @shift blocks. @SHIFT tells
+@@ -5014,6 +4984,7 @@ ext4_ext_shift_path_extents(struct ext4_
+ 	int depth, err = 0;
+ 	struct ext4_extent *ex_start, *ex_last;
+ 	bool update = false;
++	int credits, restart_credits;
+ 	depth = path->p_depth;
  
- static inline enum owner_state
-@@ -877,12 +878,11 @@ static inline bool rwsem_optimistic_spin(struct rw_semaphore *sem)
+ 	while (depth >= 0) {
+@@ -5023,13 +4994,23 @@ ext4_ext_shift_path_extents(struct ext4_
+ 				return -EFSCORRUPTED;
  
- static inline void clear_nonspinnable(struct rw_semaphore *sem) { }
+ 			ex_last = EXT_LAST_EXTENT(path[depth].p_hdr);
++			/* leaf + sb + inode */
++			credits = 3;
++			if (ex_start == EXT_FIRST_EXTENT(path[depth].p_hdr)) {
++				update = true;
++				/* extent tree + sb + inode */
++				credits = depth + 2;
++			}
  
--static inline int
-+static inline enum owner_state
- rwsem_spin_on_owner(struct rw_semaphore *sem)
- {
--	return 0;
-+	return OWNER_NONSPINNABLE;
- }
--#define OWNER_NULL	1
- #endif
+-			err = ext4_access_path(handle, inode, path + depth);
++			restart_credits = ext4_writepage_trans_blocks(inode);
++			err = ext4_datasem_ensure_credits(handle, inode, credits,
++					restart_credits, 0);
+ 			if (err)
+ 				goto out;
  
- /*
-@@ -1094,9 +1094,16 @@ wait:
- 		 * In this case, we attempt to acquire the lock again
- 		 * without sleeping.
- 		 */
--		if (wstate == WRITER_HANDOFF &&
--		    rwsem_spin_on_owner(sem) == OWNER_NULL)
--			goto trylock_again;
-+		if (wstate == WRITER_HANDOFF) {
-+			enum owner_state owner_state;
-+
-+			preempt_disable();
-+			owner_state = rwsem_spin_on_owner(sem);
-+			preempt_enable();
-+
-+			if (owner_state == OWNER_NULL)
-+				goto trylock_again;
-+		}
+-			if (ex_start == EXT_FIRST_EXTENT(path[depth].p_hdr))
+-				update = true;
++			err = ext4_ext_get_access(handle, inode, path + depth);
++			if (err)
++				goto out;
  
- 		/* Block until there are no active lockers. */
- 		for (;;) {
--- 
-2.33.0
-
+ 			while (ex_start <= ex_last) {
+ 				if (SHIFT == SHIFT_LEFT) {
+@@ -5060,7 +5041,7 @@ ext4_ext_shift_path_extents(struct ext4_
+ 		}
+ 
+ 		/* Update index too */
+-		err = ext4_access_path(handle, inode, path + depth);
++		err = ext4_ext_get_access(handle, inode, path + depth);
+ 		if (err)
+ 			goto out;
+ 
 
 
