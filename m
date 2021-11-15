@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 220EC451426
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 095B745142B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349066AbhKOUB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:01:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S232901AbhKOUCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:02:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344317AbhKOTYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344314AbhKOTYZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:24:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80AA863480;
-        Mon, 15 Nov 2021 18:55:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F8126365A;
+        Mon, 15 Nov 2021 18:55:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002528;
-        bh=ovgZw4AxAl+DUbPfNFb0Vyg026Jd87Xtg+3kKVsS9Mo=;
+        s=korg; t=1637002530;
+        bh=PGKd12ZXr6i5D7fP7h5LiPbv59K8nGaIUbPyXzB8cVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y79W1JGfMgTMpjxXxY+cqiNjZBtVFWLxh34ZMHIRtftkfo54QMIHb2WlRnQ/JdgD8
-         NnLYjkptarhhQCV1gRu8jNQl8GIrcW1V/JrFs0HFD49+PcJiitWVeswSGy+AOTPWoW
-         aV7JHdmdCaJz5YmZc9feyhX3HD5WOPOmRQNnxGBs=
+        b=GOJSDMvMmwAZizQo325LB4JWAYb34MrWrr2ESy70C5uMuC1mwsB4n8Iv24NJ1S0jb
+         S+R+9Kb31t9vjO0kZ6L1//Rh4PuOUCIC9cpWu5Mky/RhJLZ/ZxmJCpt1hEnLyCnUkx
+         b7VR/Zm9tQM65y+45Iod3q0b44y+WcCvxfg8n+BE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Stevens <stevensd@chromium.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 602/917] iommu/dma: Fix arch_sync_dma for map
-Date:   Mon, 15 Nov 2021 18:01:37 +0100
-Message-Id: <20211115165449.174936174@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 603/917] ALSA: hda: Reduce udelay() at SKL+ position reporting
+Date:   Mon, 15 Nov 2021 18:01:38 +0100
+Message-Id: <20211115165449.214964151@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,82 +40,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Stevens <stevensd@chromium.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 06e620345d544e559b2961cb5a676ec9c80c8950 ]
+[ Upstream commit 46243b85b0ec5d2cee7545e5ce18c015ce91957e ]
 
-When calling arch_sync_dma, we need to pass it the memory that's
-actually being used for dma. When using swiotlb bounce buffers, this is
-the bounce buffer. Move arch_sync_dma into the __iommu_dma_map_swiotlb
-helper, so it can use the bounce buffer address if necessary.
+The position reporting on Intel Skylake and later chips via
+azx_get_pos_skl() contains a udelay(20) call for the capture streams.
+A call for this alone doesn't sound too harmful.  However, as the
+pointer PCM ops is one of the hottest path in the PCM operations --
+especially for the timer-scheduled operations like PulseAudio -- such
+a delay hogs CPU usage significantly in the total performance.
 
-Now that iommu_dma_map_sg delegates to a function which takes care of
-architectural syncing in the untrusted device case, the call to
-iommu_dma_sync_sg_for_device can be moved so it only occurs for trusted
-devices. Doing the sync for untrusted devices before mapping never
-really worked, since it needs to be able to target swiotlb buffers.
+The code there was taken from the original code in ASoC SST Skylake
+driver blindly.  The udelay() is a workaround for the case where the
+reported position is behind the period boundary at the timing
+triggered from interrupts; applications often expect that the full
+data is available for the whole period when returned (and also that's
+the definition of the ALSA PCM period).
 
-This also moves the architectural sync to before the call to
-__iommu_dma_map, to guarantee that untrusted devices can't see stale
-data they shouldn't see.
+OTOH, HD-audio (legacy) driver has already some workarounds for the
+delayed position reporting due to its relatively large FIFO, such as
+the BDL position adjustment and the delayed period-elapsed call in the
+work.  That said, the udelay() is almost superfluous for HD-audio
+driver unlike SST, and we can drop the udelay().
 
-Fixes: 82612d66d51d ("iommu: Allow the iommu/dma api to use bounce buffers")
-Signed-off-by: David Stevens <stevensd@chromium.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20210929023300.335969-3-stevensd@google.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Though, the current code doesn't guarantee the full period readiness
+as mentioned in the above, but rather it checks the wallclock and
+detects the unexpected jump.  That's one missing piece, and the drop
+of udelay() needs a bit more sanity checks for the delayed handling.
+
+This patch implements those: the drop of udelay() call in
+azx_get_pos_skl() and the more proper check of hwptr in
+azx_position_ok().  The latter change is applied only for the case
+where the stream is running in the normal mode without
+no_period_wakeup flag.  When no_period_wakeup is set, it essentially
+ignores the period handling and rather concentrates only on the
+current position; which implies that we don't need to care about the
+period boundary at all.
+
+Fixes: f87e7f25893d ("ALSA: hda - Improved position reporting on SKL+")
+Reported-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210929072934.6809-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/dma-iommu.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ sound/pci/hda/hda_intel.c | 28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index c4d205b63c582..19bebacbf1780 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -593,6 +593,9 @@ static dma_addr_t __iommu_dma_map_swiotlb(struct device *dev, phys_addr_t phys,
- 		memset(padding_start, 0, padding_size);
- 	}
- 
-+	if (!coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC))
-+		arch_sync_dma_for_device(phys, org_size, dir);
-+
- 	iova = __iommu_dma_map(dev, phys, aligned_size, prot, dma_mask);
- 	if (iova == DMA_MAPPING_ERROR && is_swiotlb_buffer(dev, phys))
- 		swiotlb_tbl_unmap_single(dev, phys, org_size, dir, attrs);
-@@ -860,14 +863,9 @@ static dma_addr_t iommu_dma_map_page(struct device *dev, struct page *page,
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index b278706630fcb..95b9a615c47ca 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -638,13 +638,17 @@ static int azx_position_check(struct azx *chip, struct azx_dev *azx_dev)
+  * the update-IRQ timing.  The IRQ is issued before actually the
+  * data is processed.  So, we need to process it afterwords in a
+  * workqueue.
++ *
++ * Returns 1 if OK to proceed, 0 for delay handling, -1 for skipping update
+  */
+ static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev)
  {
- 	phys_addr_t phys = page_to_phys(page) + offset;
- 	bool coherent = dev_is_dma_coherent(dev);
--	dma_addr_t dma_handle;
+ 	struct snd_pcm_substream *substream = azx_dev->core.substream;
++	struct snd_pcm_runtime *runtime = substream->runtime;
+ 	int stream = substream->stream;
+ 	u32 wallclk;
+ 	unsigned int pos;
++	snd_pcm_uframes_t hwptr, target;
  
--	dma_handle = __iommu_dma_map_swiotlb(dev, phys, size, dma_get_mask(dev),
-+	return __iommu_dma_map_swiotlb(dev, phys, size, dma_get_mask(dev),
- 			coherent, dir, attrs);
--	if (!coherent && !(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
--	    dma_handle != DMA_MAPPING_ERROR)
--		arch_sync_dma_for_device(phys, size, dir);
--	return dma_handle;
+ 	wallclk = azx_readl(chip, WALLCLK) - azx_dev->core.start_wallclk;
+ 	if (wallclk < (azx_dev->core.period_wallclk * 2) / 3)
+@@ -681,6 +685,24 @@ static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev)
+ 		/* NG - it's below the first next period boundary */
+ 		return chip->bdl_pos_adj ? 0 : -1;
+ 	azx_dev->core.start_wallclk += wallclk;
++
++	if (azx_dev->core.no_period_wakeup)
++		return 1; /* OK, no need to check period boundary */
++
++	if (runtime->hw_ptr_base != runtime->hw_ptr_interrupt)
++		return 1; /* OK, already in hwptr updating process */
++
++	/* check whether the period gets really elapsed */
++	pos = bytes_to_frames(runtime, pos);
++	hwptr = runtime->hw_ptr_base + pos;
++	if (hwptr < runtime->status->hw_ptr)
++		hwptr += runtime->buffer_size;
++	target = runtime->hw_ptr_interrupt + runtime->period_size;
++	if (hwptr < target) {
++		/* too early wakeup, process it later */
++		return chip->bdl_pos_adj ? 0 : -1;
++	}
++
+ 	return 1; /* OK, it's fine */
  }
  
- static void iommu_dma_unmap_page(struct device *dev, dma_addr_t dma_handle,
-@@ -1012,12 +1010,12 @@ static int iommu_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 		goto out;
- 	}
+@@ -875,11 +897,7 @@ static unsigned int azx_get_pos_skl(struct azx *chip, struct azx_dev *azx_dev)
+ 	if (azx_dev->core.substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+ 		return azx_skl_get_dpib_pos(chip, azx_dev);
  
--	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
--		iommu_dma_sync_sg_for_device(dev, sg, nents, dir);
--
- 	if (dev_is_untrusted(dev))
- 		return iommu_dma_map_sg_swiotlb(dev, sg, nents, dir, attrs);
- 
-+	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
-+		iommu_dma_sync_sg_for_device(dev, sg, nents, dir);
-+
- 	/*
- 	 * Work out how much IOVA space we need, and align the segments to
- 	 * IOVA granules for the IOMMU driver to handle. With some clever
+-	/* For capture, we need to read posbuf, but it requires a delay
+-	 * for the possible boundary overlap; the read of DPIB fetches the
+-	 * actual posbuf
+-	 */
+-	udelay(20);
++	/* read of DPIB fetches the actual posbuf */
+ 	azx_skl_get_dpib_pos(chip, azx_dev);
+ 	return azx_get_pos_posbuf(chip, azx_dev);
+ }
 -- 
 2.33.0
 
