@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC7154521E5
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9371845249D
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:37:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376849AbhKPBHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:07:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S1356529AbhKPBk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:40:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245338AbhKOTUJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADB4C63349;
-        Mon, 15 Nov 2021 18:32:50 +0000 (UTC)
+        id S241365AbhKOS1q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:27:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFFCB63333;
+        Mon, 15 Nov 2021 17:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001171;
-        bh=c9e0JVzpYrCDaXhy2yfRx+e3NlUNzE9VIMxJ2XvqOZI=;
+        s=korg; t=1636999013;
+        bh=TbQ/2XRT61/Y54P7sZuYOGP/oLn2Hkxo8uUqDFLHkwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=izcS+5y7VIHDb3EkuDWbwfT/G6o+Z7hstEVoBAlm0OOB1rLx1pcMIX74XO/ozD9a0
-         0ZyMZ07eQKnqZFUbPNLn/pjxm1wsDdz7JZgSHMFtU91+e2fHNE6/FiTiUnRaVmpzhu
-         OjtDWDLmkXsQgPJV8OmuSrgKRlMgJDZxGp+eebeY=
+        b=iqGRefLD6u49YdsypH+irD1urP7HiyHBf6eI8ZqF6ynfCt8q0KKsyPeC+ZiCAPBhY
+         k3z7DjtxLuRIkdyp4Bpi/0dozWYW9ZLYtDweMQHhSo4c7uiG65l2++cecyl5R7RvNQ
+         157sjp+KfRAaPhBMJt7iY/UFE2KNycSQMR6aOgxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.15 087/917] HID: surface-hid: Use correct event registry for managing HID events
-Date:   Mon, 15 Nov 2021 17:53:02 +0100
-Message-Id: <20211115165431.705330265@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 101/849] KVM: VMX: Unregister posted interrupt wakeup handler on hardware unsetup
+Date:   Mon, 15 Nov 2021 17:53:04 +0100
+Message-Id: <20211115165423.506317966@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit dc0fd0acb6e0e8025a0a43ada54513b216254fac upstream.
+commit ec5a4919fa7b7d8c7a2af1c7e799b1fe4be84343 upstream.
 
-Until now, we have only ever seen the REG-category registry being used
-on devices addressed with target ID 2. In fact, we have only ever seen
-Surface Aggregator Module (SAM) HID devices with target ID 2. For those
-devices, the registry also has to be addressed with target ID 2.
+Unregister KVM's posted interrupt wakeup handler during unsetup so that a
+spurious interrupt that arrives after kvm_intel.ko is unloaded doesn't
+call into freed memory.
 
-Some devices, like the new Surface Laptop Studio, however, address their
-HID devices on target ID 1. As a result of this, any target ID 2
-commands time out. This includes event management commands addressed to
-the target ID 2 REG-category registry. For these devices, the registry
-has to be addressed via target ID 1 instead.
-
-We therefore assume that the target ID of the registry to be used
-depends on the target ID of the respective device. Implement this
-accordingly.
-
-Note that we currently allow the surface HID driver to only load against
-devices with target ID 2, so these timeouts are not happening (yet).
-This is just a preparation step before we allow the driver to load
-against all target IDs.
-
-Cc: stable@vger.kernel.org # 5.14+
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20211021130904.862610-3-luzmaximilian@gmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: bf9f6ac8d749 ("KVM: Update Posted-Interrupts Descriptor when vCPU is blocked")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211009001107.3936588-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/surface-hid/surface_hid.c         |    2 +-
- include/linux/surface_aggregator/controller.h |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kvm/vmx/vmx.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/surface-hid/surface_hid.c
-+++ b/drivers/hid/surface-hid/surface_hid.c
-@@ -209,7 +209,7 @@ static int surface_hid_probe(struct ssam
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7517,6 +7517,8 @@ static void vmx_migrate_timers(struct kv
  
- 	shid->notif.base.priority = 1;
- 	shid->notif.base.fn = ssam_hid_event_fn;
--	shid->notif.event.reg = SSAM_EVENT_REGISTRY_REG;
-+	shid->notif.event.reg = SSAM_EVENT_REGISTRY_REG(sdev->uid.target);
- 	shid->notif.event.id.target_category = sdev->uid.category;
- 	shid->notif.event.id.instance = sdev->uid.instance;
- 	shid->notif.event.mask = SSAM_EVENT_MASK_STRICT;
---- a/include/linux/surface_aggregator/controller.h
-+++ b/include/linux/surface_aggregator/controller.h
-@@ -792,8 +792,8 @@ enum ssam_event_mask {
- #define SSAM_EVENT_REGISTRY_KIP	\
- 	SSAM_EVENT_REGISTRY(SSAM_SSH_TC_KIP, 0x02, 0x27, 0x28)
+ static void hardware_unsetup(void)
+ {
++	kvm_set_posted_intr_wakeup_handler(NULL);
++
+ 	if (nested)
+ 		nested_vmx_hardware_unsetup();
  
--#define SSAM_EVENT_REGISTRY_REG \
--	SSAM_EVENT_REGISTRY(SSAM_SSH_TC_REG, 0x02, 0x01, 0x02)
-+#define SSAM_EVENT_REGISTRY_REG(tid)\
-+	SSAM_EVENT_REGISTRY(SSAM_SSH_TC_REG, tid, 0x01, 0x02)
+@@ -7844,8 +7846,6 @@ static __init int hardware_setup(void)
+ 		vmx_x86_ops.request_immediate_exit = __kvm_request_immediate_exit;
+ 	}
  
- /**
-  * enum ssam_event_notifier_flags - Flags for event notifiers.
+-	kvm_set_posted_intr_wakeup_handler(pi_wakeup_handler);
+-
+ 	kvm_mce_cap_supported |= MCG_LMCE_P;
+ 
+ 	if (pt_mode != PT_MODE_SYSTEM && pt_mode != PT_MODE_HOST_GUEST)
+@@ -7869,6 +7869,9 @@ static __init int hardware_setup(void)
+ 	r = alloc_kvm_area();
+ 	if (r)
+ 		nested_vmx_hardware_unsetup();
++
++	kvm_set_posted_intr_wakeup_handler(pi_wakeup_handler);
++
+ 	return r;
+ }
+ 
 
 
