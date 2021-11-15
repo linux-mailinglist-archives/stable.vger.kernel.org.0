@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 644384521A3
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:03:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F01D24521A0
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:03:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346161AbhKPBFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:05:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
+        id S1344391AbhKPBFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:05:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245463AbhKOTUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C3D46354B;
-        Mon, 15 Nov 2021 18:35:18 +0000 (UTC)
+        id S245476AbhKOTUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 384F563547;
+        Mon, 15 Nov 2021 18:35:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001319;
-        bh=g4NJTNerBoEZwFfv92TKPtyb5oRRHk+lF7F1AaKRcKE=;
+        s=korg; t=1637001324;
+        bh=HWVHav7Wau7I7mtp/CXh2mCwJm6QZoTBdntmFjuLZbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PXqSY5HVLYiwc3anvb5w/5T4NfuP++/TK4G9mN0FHekRRDlkx9aHGjrBXEdugrevb
-         RppKmgpSpN2xtp4fyOFihvN2DUbKwiqxzocZexz/C3PQcncyhl6GvJYRz6LeYO4pnR
-         Z9klL9m40YXJk2Hw3lDqDc6gzRX9wnNy5DYV4gJI=
+        b=dP9aPcDglIBLt5ci3BxQxP0EchGQgPJjGnG/4YEfQ45XNTLk9vB/iaRzN1k1UvxnL
+         qwYj6DN+j7t+fdAmeuceIQ9GP02eIS5yu+rLY/V/46fLhy6rEs6RBDRcfPOGPOHeNF
+         1XYKJ8imlB1Q2HHuLL+JFCFacwdsr7YO42l4qoT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.15 145/917] PCI: aardvark: Do not unmask unused interrupts
-Date:   Mon, 15 Nov 2021 17:54:00 +0100
-Message-Id: <20211115165433.679316271@linuxfoundation.org>
+Subject: [PATCH 5.15 147/917] PCI: aardvark: Fix configuring Reference clock
+Date:   Mon, 15 Nov 2021 17:54:02 +0100
+Message-Id: <20211115165433.743190192@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,15 +43,27 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit 1fb95d7d3c7a926b002fe8a6bd27a1cb428b46dc upstream.
+commit 46ef6090dbf590711cb12680b6eafde5fa21fe87 upstream.
 
-There are lot of undocumented interrupt bits. To prevent unwanted
-spurious interrupts, fix all *_ALL_MASK macros to define all interrupt
-bits, so that driver can properly mask all interrupts, including those
-which are undocumented.
+Commit 366697018c9a ("PCI: aardvark: Add PHY support") introduced
+configuration of PCIe Reference clock via PCIE_CORE_REF_CLK_REG register,
+but did it incorrectly.
 
-Link: https://lore.kernel.org/r/20211005180952.6812-8-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+PCIe Reference clock differential pair is routed from system board to
+endpoint card, so on CPU side it has output direction. Therefore it is
+required to enable transmitting and disable receiving.
+
+Default configuration according to Armada 3700 Functional Specifications is
+enabled receiver part and disabled transmitter.
+
+We need this change because otherwise PCIe Reference clock is configured to
+some undefined state when differential pair is used for both transmitting
+and receiving.
+
+Fix this by disabling receiver part.
+
+Link: https://lore.kernel.org/r/20211005180952.6812-6-kabel@kernel.org
+Fixes: 366697018c9a ("PCI: aardvark: Add PHY support")
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
@@ -59,35 +71,35 @@ Reviewed-by: Marek Behún <kabel@kernel.org>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -106,13 +106,13 @@
- #define     PCIE_ISR0_MSI_INT_PENDING		BIT(24)
- #define     PCIE_ISR0_INTX_ASSERT(val)		BIT(16 + (val))
- #define     PCIE_ISR0_INTX_DEASSERT(val)	BIT(20 + (val))
--#define	    PCIE_ISR0_ALL_MASK			GENMASK(26, 0)
-+#define     PCIE_ISR0_ALL_MASK			GENMASK(31, 0)
- #define PCIE_ISR1_REG				(CONTROL_BASE_ADDR + 0x48)
- #define PCIE_ISR1_MASK_REG			(CONTROL_BASE_ADDR + 0x4C)
- #define     PCIE_ISR1_POWER_STATE_CHANGE	BIT(4)
- #define     PCIE_ISR1_FLUSH			BIT(5)
- #define     PCIE_ISR1_INTX_ASSERT(val)		BIT(8 + (val))
--#define     PCIE_ISR1_ALL_MASK			GENMASK(11, 4)
-+#define     PCIE_ISR1_ALL_MASK			GENMASK(31, 0)
- #define PCIE_MSI_ADDR_LOW_REG			(CONTROL_BASE_ADDR + 0x50)
- #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
- #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
-@@ -240,7 +240,7 @@ enum {
- #define     PCIE_IRQ_MSI_INT2_DET		BIT(21)
- #define     PCIE_IRQ_RC_DBELL_DET		BIT(22)
- #define     PCIE_IRQ_EP_STATUS			BIT(23)
--#define     PCIE_IRQ_ALL_MASK			0xfff0fb
-+#define     PCIE_IRQ_ALL_MASK			GENMASK(31, 0)
- #define     PCIE_IRQ_ENABLE_INTS_MASK		PCIE_IRQ_CORE_INT
+@@ -99,6 +99,7 @@
+ #define     PCIE_CORE_CTRL2_MSI_ENABLE		BIT(10)
+ #define PCIE_CORE_REF_CLK_REG			(CONTROL_BASE_ADDR + 0x14)
+ #define     PCIE_CORE_REF_CLK_TX_ENABLE		BIT(1)
++#define     PCIE_CORE_REF_CLK_RX_ENABLE		BIT(2)
+ #define PCIE_MSG_LOG_REG			(CONTROL_BASE_ADDR + 0x30)
+ #define PCIE_ISR0_REG				(CONTROL_BASE_ADDR + 0x40)
+ #define PCIE_MSG_PM_PME_MASK			BIT(7)
+@@ -529,9 +530,15 @@ static void advk_pcie_setup_hw(struct ad
+ 	u32 reg;
+ 	int i;
  
- /* Transaction types */
+-	/* Enable TX */
++	/*
++	 * Configure PCIe Reference clock. Direction is from the PCIe
++	 * controller to the endpoint card, so enable transmitting of
++	 * Reference clock differential signal off-chip and disable
++	 * receiving off-chip differential signal.
++	 */
+ 	reg = advk_readl(pcie, PCIE_CORE_REF_CLK_REG);
+ 	reg |= PCIE_CORE_REF_CLK_TX_ENABLE;
++	reg &= ~PCIE_CORE_REF_CLK_RX_ENABLE;
+ 	advk_writel(pcie, reg, PCIE_CORE_REF_CLK_REG);
+ 
+ 	/* Set to Direct mode */
 
 
