@@ -2,176 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 710E24508E4
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 16:47:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E00345091E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 17:02:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232409AbhKOPu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 10:50:27 -0500
-Received: from mail-dm6nam12on2046.outbound.protection.outlook.com ([40.107.243.46]:9604
-        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S236762AbhKOPuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 10:50:24 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bIyZurm+ZOUoPrItSINmx0QBC4NctTkN4wRpGi5ViF6lPy4++IB6LHH0xWJuD6QGf+EmbLjGy9tT4/hN/Sd6iBYNN/LF7kznr2Klf8YtcYVWSgj7D6aA9SZSn64wyn3gcMm59SKPhS4HeHqpi8vf/kKSCv+aUmM67lMPF75VPr8KiqCLB8iufq2Xitm6No+sv9cfAy5IVw4WQ1b75bYBQYzhGmmHF/s44eeXgfwfDeagC0jS7AQC2FBDxNYSJgu0F/akIzOQpcp4qngSs4ZW+gJ1aS5mQHWsIXoOGa/kcto3ohRCD8SoDbCxmSD3PimkT83b9LVmEIQ1mrfHaXRhAA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=XYrtTdniao/rvPLnMSEknePvJBXQqTyal6MYwgGWzkY=;
- b=lvYj4458vToRz9e0Hkqr5JciJC1LEM+Sua21WlItFEESdcysyx6FpbGnafnX/rvpT35wB9UNlA5WtKYwzYAlmdLKMhyp478VXTxpAg83cgFQwW7PplHLzp/yqlIVPs9TyukZBAuSZ4zRvdiwQyZ26iwyFc3oWNHu6LJCS13a1jxVn3R0iwdCtXn5j6uTSh6TsM9c8ElXP4pdIEGiYrHrTUIj8kMvfreJH0KClFY7yCSESnNYGfGW3PlwTwap3ft+Bv0BwHN2gXbUokkJTm1sz1BTEceDTpwkJC07zCydTk7ba6AOgZ51IzuileiDQxH5vIYbWVK89WT8bzG9uhxSkw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=XYrtTdniao/rvPLnMSEknePvJBXQqTyal6MYwgGWzkY=;
- b=ACZHlv/hNK0TYl91VrKafV4O8khvyeMLHYd3VIWy/RAQCDWdGiBEYtO3a3dKVjAoF/4nfNcMauyP//3z4b3SV4ofERW3n+vwqz8R9c7U7nPxwRK5GRDYa2rRKnI4cXDpimNBhYmI6Q6GcYhA56MeQQbwWsXoLiirh+pznXZVVwE=
-Received: from SA0PR12MB4510.namprd12.prod.outlook.com (2603:10b6:806:94::8)
- by SN1PR12MB2366.namprd12.prod.outlook.com (2603:10b6:802:25::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4690.27; Mon, 15 Nov
- 2021 15:47:24 +0000
-Received: from SA0PR12MB4510.namprd12.prod.outlook.com
- ([fe80::7cbc:2454:74b9:f4ea]) by SA0PR12MB4510.namprd12.prod.outlook.com
- ([fe80::7cbc:2454:74b9:f4ea%7]) with mapi id 15.20.4690.027; Mon, 15 Nov 2021
- 15:47:24 +0000
-From:   "Limonciello, Mario" <Mario.Limonciello@amd.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Deucher, Alexander" <Alexander.Deucher@amd.com>
-Subject: RE: [PATCH v2] drm/amd/display: Look at firmware version to determine
- using dmub on dcn21
-Thread-Topic: [PATCH v2] drm/amd/display: Look at firmware version to
- determine using dmub on dcn21
-Thread-Index: AQHX2jafYBLJOwYPw0uNGQpEtcUQPawEu1OAgAAAGjA=
-Date:   Mon, 15 Nov 2021 15:47:24 +0000
-Message-ID: <SA0PR12MB4510EB1DC98B5156F8FCAFA8E2989@SA0PR12MB4510.namprd12.prod.outlook.com>
-References: <20211115153655.4870-1-mario.limonciello@amd.com>
- <YZKAs1rxuonK64kN@kroah.com>
-In-Reply-To: <YZKAs1rxuonK64kN@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_88914ebd-7e6c-4e12-a031-a9906be2db14_Enabled=true;
- MSIP_Label_88914ebd-7e6c-4e12-a031-a9906be2db14_SetDate=2021-11-15T15:47:23Z;
- MSIP_Label_88914ebd-7e6c-4e12-a031-a9906be2db14_Method=Standard;
- MSIP_Label_88914ebd-7e6c-4e12-a031-a9906be2db14_Name=AMD Official Use
- Only-AIP 2.0;
- MSIP_Label_88914ebd-7e6c-4e12-a031-a9906be2db14_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;
- MSIP_Label_88914ebd-7e6c-4e12-a031-a9906be2db14_ActionId=ef7c2325-c67e-4d22-8724-efeb93011fc0;
- MSIP_Label_88914ebd-7e6c-4e12-a031-a9906be2db14_ContentBits=1
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 274cce92-e69f-4f31-7a82-08d9a84f37ee
-x-ms-traffictypediagnostic: SN1PR12MB2366:
-x-microsoft-antispam-prvs: <SN1PR12MB236665CAC55BE829A6232149E2989@SN1PR12MB2366.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:227;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: gIvdMq4OQ+YyOtaES0rVxc+MmEM4usrfQYYImgvvk4iP+05yH+fggJNCqfGd0rGVEaT9iesu3zxmEvyqBlvy+Rncad9EL0bdDtmSP48QEvvuVPqzHjSTcjKhDQ/CB3v5YGT/m+0FNvDEHDunQNtmTEW23iGqaQLiz4mVSn/5GAH16n3lmDF9kA65WQtZFo/wOlul1Fj0NfAKOtvpDazuw93VHljiB4kx3kFsnuWZ9khAbtpUPo4NqTgvFHW6Xja6xdB+gaAW1JgMg6W10tomonZAcx4JQuo2Ugi89e2aM3/251uQ0OdkMTOpHgv55Q9YZdpIyft7QgC7EecanET7O3kVYK16aGoNlFC5qNmu+3k4cXNmi/PfUDq8ITLGR2pIThzsOJM/rFeMYPlb2kPJf9HQUIhq+MBfRLT9ahZsG2e1Dr96mLDLTKUy+H/ik8C7Pris3Pss8+4Sgo2OIxwnoZWwQJ9ossDsWhjO1UHSxFtScTZ3e9ofK5tuS7/LoWyoOYwa5FMaf/VU1hjW3akr3kGkPOnnc26/qVf6woqm1UePzM1FmIl6GSwNna4let/FgOM3PCf7viPDqW4GmValWHWIE1VVHCiM0Rw2UOe9YXJGJp8JasjTzV6d3fYbh4XEULYlcq2AxujaCVxbz4XEe8gSlhET85zMNAYBcM7rY5cBg7cb3lot4dEPj7aUHykYgUtv/YEw+rp3AqzxCvufV8sb4+HTFQRqNzWaGo+UtVlNIz63oedZQaPzMVAbGStGSGQvryht7KC6bzyJPe1dbIqg4Eu+tzzPRtebAgL3sOs=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR12MB4510.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(6506007)(122000001)(66946007)(316002)(966005)(508600001)(6916009)(8936002)(2906002)(83380400001)(33656002)(86362001)(54906003)(4326008)(38070700005)(45080400002)(71200400001)(5660300002)(53546011)(76116006)(26005)(7696005)(52536014)(8676002)(38100700002)(9686003)(55016002)(186003)(66556008)(66476007)(64756008)(66446008);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?SpMrQHYWI+DIkcnpkKgYnQiQbfMEDhDGITk6NbSe8oCaajtAuTfubTzni/F3?=
- =?us-ascii?Q?Plc9leMgpyKSjUEnUIMsr2l53EBGInZxY6CbbzSCLkWxIJJOIp/2GCDf/NT9?=
- =?us-ascii?Q?v5AATaWWJXfJ3URgFzp/VWWgGBX0tWiac4oly+h4BzcOQP4E5XhjxPT3QQw1?=
- =?us-ascii?Q?+ucz6NnXkGIVjba3pLOse6aMoFIRm1XUsHg5Bi7mN7CMAoRc+z/eP1f+7IVe?=
- =?us-ascii?Q?LSR1LC1M9Uh+mMxrv4e75aAz2s41YXImtFv4wv13VwIafqJX/k+44vcBiSlO?=
- =?us-ascii?Q?1OoHY+dn7oIBoaGw4neP6DmZlHouftuT/MUkvXMw0WGUVdcWK/6BCPI0s2xd?=
- =?us-ascii?Q?IHQvjGXp4UknfLAAEsQ3uRtOKRMKKuLnyEX3Z9wIL55Z+nhsGAETA8QXqmei?=
- =?us-ascii?Q?HEqn0NS0xxpWBsgvdLmcQ18TXzHK8NslsUWtoXwLzasKjxDJ7JL5OR1rZCcK?=
- =?us-ascii?Q?bXOzhRGTMDJP4eCT96nIPrljRgQ0OrwtTe7CbM8W7NSvm1Bp5jVm5z4x5Yru?=
- =?us-ascii?Q?0vpx+pIH08Pvr3VNNccSTYlsopX9eEyyRjvIecoE3XuYtI8hCCszTawgeevc?=
- =?us-ascii?Q?K8NgNXbYylk34DIjiozUV0MDgt09BpD1TziU2Sa1paeT0JvFhRtfH7TFpQtL?=
- =?us-ascii?Q?VBcuYTVJdtuRoHJInGrBPKqGNHjINVBvDeqPFWJmQMDTuLYvVNEGPLaU6Qh+?=
- =?us-ascii?Q?rd7mgxKKSM3YelmS/7nLVCq1/Lieuma9xdor1EtXwPMlHCal+6WkQY8424nt?=
- =?us-ascii?Q?jaTwqe/jpCpPEIO65N0zWxsiVodREjJe4S9jfNjwe2wYQljNv6sN+I7s2xDi?=
- =?us-ascii?Q?Up3cWMjDSruSbq3rzR/213+HGgJsIKRXxsr1pSi5K+y8BvvqNSq+aOYtA3sx?=
- =?us-ascii?Q?sgeMUC7HMCZ0yMFnPmyhBQ/uVGIS24q5/2Fnh9gxz7umBCVs5AAij/wuqHdU?=
- =?us-ascii?Q?WkVnn42pn7BVMSaYSvkF1dpgs0UMs0WKRdfsXF+1xVTsTD4zuIggHfLRpLK6?=
- =?us-ascii?Q?5jGZO9ZeUg9SETDj5n/oTHHIB/QpWeXGc+PO+pvMb7pTVhqtWmCmt5OCrAoF?=
- =?us-ascii?Q?sL4fr4NHwo/VNXN2uDg9NP7vrqsw4/VUsMWN0mnmgQOr/4Bn593Hf4ucCIE0?=
- =?us-ascii?Q?syYvgmYo5/oBFzsQakymvDyttjTQtlij7iZ9TwE7oiFUbDiE878wc3+tVGsI?=
- =?us-ascii?Q?Ubb/+oqsbaU6Ud2CByv0qOAsQjElbJiF4oPLHxCihaY1sGLRcT86PLVDydna?=
- =?us-ascii?Q?dH3HstzP/eSy5uR6lJ2lrFaZyDob0mi3mK/iPEBjbdT2/XgyBtk9Fod53qdR?=
- =?us-ascii?Q?tkSlCOSRdPuHOdsVw66oSNjqyyTR7ZCZOAH7i8Pr5PDx/bQfIVv1hPiw4ox6?=
- =?us-ascii?Q?XfLiu2j0l/CJaxFXpVpD+38RsPntadrvULOXihPcOt+LXh0/WGaUrc4hb0r/?=
- =?us-ascii?Q?cM8hrS6R5fp8Z7Vcnv1ewwk1586b4Ru/tH8C1f8T+9VBtWw24lUU7JGKum9h?=
- =?us-ascii?Q?b3+plARVuZRBnmUhRnLcJPnMKiDMpoPoetcN69NLGrKy2molaWnoPfDmkPYj?=
- =?us-ascii?Q?plFIPjhDPAFf509MVc7oT48EpDLPBybBKlfOXYVm/sBsY4Hlpop5xZNlMmJj?=
- =?us-ascii?Q?Jg=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S236420AbhKOQFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 11:05:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49148 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232263AbhKOQFJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 11:05:09 -0500
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A5B5C061746
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 08:02:13 -0800 (PST)
+Received: by mail-pg1-x534.google.com with SMTP id p17so14955902pgj.2
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 08:02:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=tivrXntTWIbCkVzZC4y1HIyO4FqKtX6bYEAzYxt9B4c=;
+        b=oWCc1n4tm5zCJxae3xkGIvL4qNO5jJQK2PhsxaekoUCUdhsyS7fg9L2yaSfdbujV6o
+         Nxst2ng8GqpnJQDUI63bIJ9xF+qaMBDWS8GZZ6aPcOTldEZM5rehKQwQnphbJz2UsHyt
+         VEiEBBs85fhJgJd4r6lseabO8YMZjqRaKncMOBiOVwBIu1Mujam77+cBPU1X303T/eNA
+         f4jYM1hLklyJnwCD4BJBnhFX1rkPuAGRZkO/m4okbBL/i6/JnjpAP82/ZWWkSfaFR+xY
+         r1NWO0EsdOZt6G/ek3HGZRAaKGon42iM9vQaiXnB8LBn52A3DXSZYYIzW1UCu3zHOHp0
+         GLBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=tivrXntTWIbCkVzZC4y1HIyO4FqKtX6bYEAzYxt9B4c=;
+        b=x0/hXX6muUBrzNHhUt+vQB96Yr7WE+U72ckomIErM4vYpFGyUC7fWNxiB2HMMy5/AU
+         50Pw2IG1To/xfZ15nBCfKjhq6JGizleh9CrCNv5BXyoLYY6pTSbtGkzG7Yo5ESvZzeEn
+         8Ek1oFjBrOe1N3gD9J+sJNwSmaTmSjZ2/dvLvJ9d5VLt32nG5kPFFM6wgN2/PKXVuAEY
+         tHeHS9UH1h8jujhHmCut4Q95eHw/1jc4fZbby4OjgSuhXiFQu1zaE7MsU7UhTFaTQaaY
+         yFsksRlaM2umP+GpJjLBjdpELZ26eaCfwBN45TxGqPp0hUs4eYCb3Nw5by9qerlwkS/w
+         ZGpA==
+X-Gm-Message-State: AOAM532mtJ40uyc1w+u2zA5/pNtFGP2ZHC74yEmND4x32aMCa4HH79TO
+        C3JM0Lk7i2lzdySWYanfF6s+wCjXTAp5xBOz
+X-Google-Smtp-Source: ABdhPJzwcqJ6KzoH1s6JCM7i7hqtm/wv2VNT0LxCOTZuK4dKTRSpry+DXx0j2CMmYHa146COp1uoBw==
+X-Received: by 2002:a63:bf45:: with SMTP id i5mr25148151pgo.161.1636992133191;
+        Mon, 15 Nov 2021 08:02:13 -0800 (PST)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id o2sm16331383pfu.206.2021.11.15.08.02.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Nov 2021 08:02:12 -0800 (PST)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     davem@davemloft.net
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Jon Maloy <jmaloy@redhat.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dmitry Vyukov <dvyukov@google.com>
+Subject: [PATCH v2] tipc: check for null after calling kmemdup
+Date:   Mon, 15 Nov 2021 08:01:43 -0800
+Message-Id: <20211115160143.5099-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.33.1
 MIME-Version: 1.0
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SA0PR12MB4510.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 274cce92-e69f-4f31-7a82-08d9a84f37ee
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Nov 2021 15:47:24.2012
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: l5oHdMFFU3nFg4xe0iJVRywRhCsgWat0yCBwh9BqQORD1Rs47ljTJHOXBe2HW83AGF0/wnS4BuWXtRs9MVjMXg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN1PR12MB2366
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[AMD Official Use Only]
+kmemdup can return a null pointer so need to check for it, otherwise
+the null key will be dereferenced later in tipc_crypto_key_xmit as
+can be seen in the trace [1].
 
-> -----Original Message-----
-> From: Greg KH <gregkh@linuxfoundation.org>
-> Sent: Monday, November 15, 2021 09:46
-> To: Limonciello, Mario <Mario.Limonciello@amd.com>
-> Cc: stable@vger.kernel.org; Deucher, Alexander
-> <Alexander.Deucher@amd.com>
-> Subject: Re: [PATCH v2] drm/amd/display: Look at firmware version to
-> determine using dmub on dcn21
->=20
-> On Mon, Nov 15, 2021 at 09:36:55AM -0600, Mario Limonciello wrote:
-> > commit 91adec9e0709 ("drm/amd/display: Look at firmware version to
-> > determine using dmub on dcn21")
-> >
-> > Newer DMUB firmware on Renoir and Green Sardine do not need to
-> disable
-> > dmcu and this actually causes problems with DP-C alt mode for a number =
-of
-> > machines.
-> >
-> > Backport the fix from this from hand modified backport because mainline
-> > switched to IP version checking which doesn't exist in linux-stable.
-> >
-> > BugLink:
-> https://nam11.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2Fgitla
-> b.freedesktop.org%2Fdrm%2Famd%2F-
-> %2Fissues%2F1772&amp;data=3D04%7C01%7Cmario.limonciello%40amd.com%
-> 7C6601c50631344fa7148208d9a84f050a%7C3dd8961fe4884e608e11a82d994e1
-> 83d%7C0%7C0%7C637725879609631767%7CUnknown%7CTWFpbGZsb3d8eyJ
-> WIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%
-> 7C3000&amp;sdata=3DjIGJARLqpAL6Vc6AyK8qVj1yZ7qFm5sXFj%2FerhoMEUc
-> %3D&amp;reserved=3D0
-> > BugLink:
-> https://nam11.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2Fgitla
-> b.freedesktop.org%2Fdrm%2Famd%2F-
-> %2Fissues%2F1735&amp;data=3D04%7C01%7Cmario.limonciello%40amd.com%
-> 7C6601c50631344fa7148208d9a84f050a%7C3dd8961fe4884e608e11a82d994e1
-> 83d%7C0%7C0%7C637725879609631767%7CUnknown%7CTWFpbGZsb3d8eyJ
-> WIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%
-> 7C3000&amp;sdata=3Dt8iG0MlBgncmZ5Py%2FhWuWBHMbSCCK%2BtFTV4faxcl
-> N3c%3D&amp;reserved=3D0
-> > Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-> > Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-> > ---
-> > Changes from v1->v2:
-> >  * Update commit message syntax for hand modified commit
-> >  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 9 ++++++++-
-> >  1 file changed, 8 insertions(+), 1 deletion(-)
->=20
-> What tree(s) are you wanting this backported to?
+Cc: Jon Maloy <jmaloy@redhat.com>
+Cc: Ying Xue <ying.xue@windriver.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: tipc-discussion@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org # 5.15, 5.14, 5.10
 
-5.13+
+[1] https://syzkaller.appspot.com/bug?id=bca180abb29567b189efdbdb34cbf7ba851c2a58
 
-Thanks,
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+---
+Changed in v2:
+- use tipc_aead_free() to free all crytpo tfm instances
+  that might have been allocated before the fail.
+---
+ net/tipc/crypto.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/net/tipc/crypto.c b/net/tipc/crypto.c
+index dc60c32bb70d..d293614d5fc6 100644
+--- a/net/tipc/crypto.c
++++ b/net/tipc/crypto.c
+@@ -597,6 +597,10 @@ static int tipc_aead_init(struct tipc_aead **aead, struct tipc_aead_key *ukey,
+ 	tmp->cloned = NULL;
+ 	tmp->authsize = TIPC_AES_GCM_TAG_SIZE;
+ 	tmp->key = kmemdup(ukey, tipc_aead_key_size(ukey), GFP_KERNEL);
++	if (!tmp->key) {
++		tipc_aead_free(&tmp->rcu);
++		return -ENOMEM;
++	}
+ 	memcpy(&tmp->salt, ukey->key + keylen, TIPC_AES_GCM_SALT_SIZE);
+ 	atomic_set(&tmp->users, 0);
+ 	atomic64_set(&tmp->seqno, 0);
+-- 
+2.33.1
+
