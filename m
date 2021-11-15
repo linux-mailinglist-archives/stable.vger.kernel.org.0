@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC54045136B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C80F545136E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348238AbhKOTvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:51:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1348248AbhKOTvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:51:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343524AbhKOTVQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B8DF635A4;
-        Mon, 15 Nov 2021 18:41:24 +0000 (UTC)
+        id S1343539AbhKOTVS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E7B363253;
+        Mon, 15 Nov 2021 18:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001685;
-        bh=Q+02j20E5URT8I7GlwHrWTkLn5Vyy7jLaEV8BTTVDz4=;
+        s=korg; t=1637001703;
+        bh=W2sKdewyPV9PQP86V6nhGK2UK6pyfd0OTLNFLBB7VoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJZcbVoTGJLDrYRfcdIfK+Z+LS+iOs5Z14H5F9SKUkGsFdczKmuyGUGUimgS9SLq/
-         3C28p54fmcc7ODOLl9G9h9u4LC5vJ+q43PKV52qDOCLuGtK5cuTnMKbmakS4oWqkCk
-         x/KTFOQEl14DXvytA6YXuK5n18ycOWfvQa71QFnI=
+        b=h6TeDmo5UxAyCkIBV0Dy1q/9GivQCYDFw6NcTMsyRslhs8d+kE5I5C7Qy07h0iN0k
+         3ZCBEPni1NimOGR75g5uyzqnCQ+OWG5wPBIAuWDszrrxL4fNQHNAs9rCv3yVhw0O+s
+         JYg/Qe4043Ixdoz0dRhxlgQ0R3K0kD27GHeWvx1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        David Yang <davidcomponentone@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 282/917] samples/bpf: Fix application of sizeof to pointer
-Date:   Mon, 15 Nov 2021 17:56:17 +0100
-Message-Id: <20211115165438.332613830@linuxfoundation.org>
+Subject: [PATCH 5.15 288/917] smackfs: use __GFP_NOFAIL for smk_cipso_doi()
+Date:   Mon, 15 Nov 2021 17:56:23 +0100
+Message-Id: <20211115165438.531542399@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,48 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Yang <davidcomponentone@gmail.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit b599015f044df53e93ad0a2957b615bc1a26bf73 ]
+[ Upstream commit f91488ee15bd3cac467e2d6a361fc2d34d1052ae ]
 
-The coccinelle check report:
-"./samples/bpf/xdp_redirect_cpu_user.c:397:32-38:
-ERROR: application of sizeof to pointer"
-Using the "strlen" to fix it.
+syzbot is reporting kernel panic at smk_cipso_doi() due to memory
+allocation fault injection [1]. The reason for need to use panic() was
+not explained. But since no fix was proposed for 18 months, for now
+let's use __GFP_NOFAIL for utilizing syzbot resource on other bugs.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: David Yang <davidcomponentone@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20211012111649.983253-1-davidcomponentone@gmail.com
+Link: https://syzkaller.appspot.com/bug?extid=89731ccb6fec15ce1c22 [1]
+Reported-by: syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdp_redirect_cpu_user.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ security/smack/smackfs.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/samples/bpf/xdp_redirect_cpu_user.c b/samples/bpf/xdp_redirect_cpu_user.c
-index 6e25fba64c72b..d84e6949007cc 100644
---- a/samples/bpf/xdp_redirect_cpu_user.c
-+++ b/samples/bpf/xdp_redirect_cpu_user.c
-@@ -325,7 +325,6 @@ int main(int argc, char **argv)
- 	int add_cpu = -1;
- 	int ifindex = -1;
- 	int *cpu, i, opt;
--	char *ifname;
- 	__u32 qsize;
- 	int n_cpus;
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 9d853c0e55b84..89989d28ffc55 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -693,9 +693,7 @@ static void smk_cipso_doi(void)
+ 		printk(KERN_WARNING "%s:%d remove rc = %d\n",
+ 		       __func__, __LINE__, rc);
  
-@@ -393,9 +392,8 @@ int main(int argc, char **argv)
- 				fprintf(stderr, "-d/--dev name too long\n");
- 				goto end_cpu;
- 			}
--			ifname = (char *)&ifname_buf;
--			safe_strncpy(ifname, optarg, sizeof(ifname));
--			ifindex = if_nametoindex(ifname);
-+			safe_strncpy(ifname_buf, optarg, strlen(ifname_buf));
-+			ifindex = if_nametoindex(ifname_buf);
- 			if (!ifindex)
- 				ifindex = strtoul(optarg, NULL, 0);
- 			if (!ifindex) {
+-	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL);
+-	if (doip == NULL)
+-		panic("smack:  Failed to initialize cipso DOI.\n");
++	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL | __GFP_NOFAIL);
+ 	doip->map.std = NULL;
+ 	doip->doi = smk_cipso_doi_value;
+ 	doip->type = CIPSO_V4_MAP_PASS;
 -- 
 2.33.0
 
