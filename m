@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EF2045101A
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:38:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3BD2450CB2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:39:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242144AbhKOSlf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:41:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46108 "EHLO mail.kernel.org"
+        id S238500AbhKORmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:42:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242591AbhKOSiw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:38:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D05E563298;
-        Mon, 15 Nov 2021 18:03:54 +0000 (UTC)
+        id S237760AbhKORju (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:39:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C18B63268;
+        Mon, 15 Nov 2021 17:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999435;
-        bh=Fau1OQwUdx84Bota/1F1I3XO8cxPI6wyi17DwlRsS9s=;
+        s=korg; t=1636997179;
+        bh=qxGmg5W9e4WsP8G/wxAKGRi0VtiilwCr/CQ8bla6RaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYWeHfv6dt8Z3NeUsnRtRWsEhQAy/o6asmcIVGctV0Pc/23d8dfUJzZX3K5P9Pbtj
-         OK9FD6SlDs4gayNKMoBkOOfN63WgOjKhKlyl9D8PAWiL5q7CfWuxDJ1uROs6r6pHrE
-         6Y9x4e+QrbEYNzShkA+RmIpgQYB9cImWVUmWrzzQ=
+        b=IiVOd0GHnRIjt/Fr2xebeRp+hp37G9EzSe/r93Dcg6BhqQLRNwD2DzQsxxBkZzxzn
+         w6dEfX3lA9joNpYR92rFGQbJ053JufkxViuhx/RYeXHwtYOlN5svnvnDZm0M5HDD8O
+         SqYeRnt72512rymJ4hTpeVxPobC1Q5/unH8L7ohU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Dmitry Bogdanov <d.bogdanov@yadro.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 296/849] drm/amdgpu/pm: properly handle sclk for profiling modes on vangogh
+Subject: [PATCH 5.10 054/575] scsi: qla2xxx: Fix unmap of already freed sgl
 Date:   Mon, 15 Nov 2021 17:56:19 +0100
-Message-Id: <20211115165430.270864907@linuxfoundation.org>
+Message-Id: <20211115165345.506528012@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,170 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Dmitry Bogdanov <d.bogdanov@yadro.com>
 
-[ Upstream commit 68e3871dcd6e547f6c47454492bc452356cb9eac ]
+[ Upstream commit 4a8f71014b4d56c4fb287607e844c0a9f68f46d9 ]
 
-When selecting between levels in the force performance levels interface
-sclk (gfxclk) was not set correctly for all levels.  Select the proper
-sclk settings for all levels.
+The sgl is freed in the target stack in target_release_cmd_kref() before
+calling qlt_free_cmd() but there is an unmap of sgl in qlt_free_cmd() that
+causes a panic if sgl is not yet DMA unmapped:
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1726
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+NIP dma_direct_unmap_sg+0xdc/0x180
+LR  dma_direct_unmap_sg+0xc8/0x180
+Call Trace:
+ ql_dbg_prefix+0x68/0xc0 [qla2xxx] (unreliable)
+ dma_unmap_sg_attrs+0x54/0xf0
+ qlt_unmap_sg.part.19+0x54/0x1c0 [qla2xxx]
+ qlt_free_cmd+0x124/0x1d0 [qla2xxx]
+ tcm_qla2xxx_release_cmd+0x4c/0xa0 [tcm_qla2xxx]
+ target_put_sess_cmd+0x198/0x370 [target_core_mod]
+ transport_generic_free_cmd+0x6c/0x1b0 [target_core_mod]
+ tcm_qla2xxx_complete_free+0x6c/0x90 [tcm_qla2xxx]
+
+The sgl may be left unmapped in error cases of response sending.  For
+instance, qlt_rdy_to_xfer() maps sgl and exits when session is being
+deleted keeping the sgl mapped.
+
+This patch removes use-after-free of the sgl and ensures that the sgl is
+unmapped for any command that was not sent to firmware.
+
+Link: https://lore.kernel.org/r/20211018122650.11846-1-d.bogdanov@yadro.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c  | 89 ++++++-------------
- 1 file changed, 29 insertions(+), 60 deletions(-)
+ drivers/scsi/qla2xxx/qla_target.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c
-index bcaaa086fc2fb..69fc009570a0b 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c
-@@ -1382,52 +1382,38 @@ static int vangogh_set_performance_level(struct smu_context *smu,
- 	uint32_t soc_mask, mclk_mask, fclk_mask;
- 	uint32_t vclk_mask = 0, dclk_mask = 0;
- 
-+	smu->cpu_actual_soft_min_freq = smu->cpu_default_soft_min_freq;
-+	smu->cpu_actual_soft_max_freq = smu->cpu_default_soft_max_freq;
-+
- 	switch (level) {
- 	case AMD_DPM_FORCED_LEVEL_HIGH:
--		smu->gfx_actual_hard_min_freq = smu->gfx_default_hard_min_freq;
-+		smu->gfx_actual_hard_min_freq = smu->gfx_default_soft_max_freq;
- 		smu->gfx_actual_soft_max_freq = smu->gfx_default_soft_max_freq;
- 
--		smu->cpu_actual_soft_min_freq = smu->cpu_default_soft_min_freq;
--		smu->cpu_actual_soft_max_freq = smu->cpu_default_soft_max_freq;
- 
- 		ret = vangogh_force_dpm_limit_value(smu, true);
-+		if (ret)
-+			return ret;
- 		break;
- 	case AMD_DPM_FORCED_LEVEL_LOW:
- 		smu->gfx_actual_hard_min_freq = smu->gfx_default_hard_min_freq;
--		smu->gfx_actual_soft_max_freq = smu->gfx_default_soft_max_freq;
--
--		smu->cpu_actual_soft_min_freq = smu->cpu_default_soft_min_freq;
--		smu->cpu_actual_soft_max_freq = smu->cpu_default_soft_max_freq;
-+		smu->gfx_actual_soft_max_freq = smu->gfx_default_hard_min_freq;
- 
- 		ret = vangogh_force_dpm_limit_value(smu, false);
-+		if (ret)
-+			return ret;
- 		break;
- 	case AMD_DPM_FORCED_LEVEL_AUTO:
- 		smu->gfx_actual_hard_min_freq = smu->gfx_default_hard_min_freq;
- 		smu->gfx_actual_soft_max_freq = smu->gfx_default_soft_max_freq;
- 
--		smu->cpu_actual_soft_min_freq = smu->cpu_default_soft_min_freq;
--		smu->cpu_actual_soft_max_freq = smu->cpu_default_soft_max_freq;
--
- 		ret = vangogh_unforce_dpm_levels(smu);
--		break;
--	case AMD_DPM_FORCED_LEVEL_PROFILE_STANDARD:
--		smu->gfx_actual_hard_min_freq = smu->gfx_default_hard_min_freq;
--		smu->gfx_actual_soft_max_freq = smu->gfx_default_soft_max_freq;
--
--		smu->cpu_actual_soft_min_freq = smu->cpu_default_soft_min_freq;
--		smu->cpu_actual_soft_max_freq = smu->cpu_default_soft_max_freq;
--
--		ret = smu_cmn_send_smc_msg_with_param(smu,
--					SMU_MSG_SetHardMinGfxClk,
--					VANGOGH_UMD_PSTATE_STANDARD_GFXCLK, NULL);
--		if (ret)
--			return ret;
--
--		ret = smu_cmn_send_smc_msg_with_param(smu,
--					SMU_MSG_SetSoftMaxGfxClk,
--					VANGOGH_UMD_PSTATE_STANDARD_GFXCLK, NULL);
- 		if (ret)
- 			return ret;
-+		break;
-+	case AMD_DPM_FORCED_LEVEL_PROFILE_STANDARD:
-+		smu->gfx_actual_hard_min_freq = VANGOGH_UMD_PSTATE_STANDARD_GFXCLK;
-+		smu->gfx_actual_soft_max_freq = VANGOGH_UMD_PSTATE_STANDARD_GFXCLK;
- 
- 		ret = vangogh_get_profiling_clk_mask(smu, level,
- 							&vclk_mask,
-@@ -1442,32 +1428,15 @@ static int vangogh_set_performance_level(struct smu_context *smu,
- 		vangogh_force_clk_levels(smu, SMU_SOCCLK, 1 << soc_mask);
- 		vangogh_force_clk_levels(smu, SMU_VCLK, 1 << vclk_mask);
- 		vangogh_force_clk_levels(smu, SMU_DCLK, 1 << dclk_mask);
--
- 		break;
- 	case AMD_DPM_FORCED_LEVEL_PROFILE_MIN_SCLK:
- 		smu->gfx_actual_hard_min_freq = smu->gfx_default_hard_min_freq;
--		smu->gfx_actual_soft_max_freq = smu->gfx_default_soft_max_freq;
--
--		smu->cpu_actual_soft_min_freq = smu->cpu_default_soft_min_freq;
--		smu->cpu_actual_soft_max_freq = smu->cpu_default_soft_max_freq;
--
--		ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetHardMinVcn,
--								VANGOGH_UMD_PSTATE_PEAK_DCLK, NULL);
--		if (ret)
--			return ret;
--
--		ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetSoftMaxVcn,
--								VANGOGH_UMD_PSTATE_PEAK_DCLK, NULL);
--		if (ret)
--			return ret;
-+		smu->gfx_actual_soft_max_freq = smu->gfx_default_hard_min_freq;
- 		break;
- 	case AMD_DPM_FORCED_LEVEL_PROFILE_MIN_MCLK:
- 		smu->gfx_actual_hard_min_freq = smu->gfx_default_hard_min_freq;
- 		smu->gfx_actual_soft_max_freq = smu->gfx_default_soft_max_freq;
- 
--		smu->cpu_actual_soft_min_freq = smu->cpu_default_soft_min_freq;
--		smu->cpu_actual_soft_max_freq = smu->cpu_default_soft_max_freq;
--
- 		ret = vangogh_get_profiling_clk_mask(smu, level,
- 							NULL,
- 							NULL,
-@@ -1480,29 +1449,29 @@ static int vangogh_set_performance_level(struct smu_context *smu,
- 		vangogh_force_clk_levels(smu, SMU_FCLK, 1 << fclk_mask);
- 		break;
- 	case AMD_DPM_FORCED_LEVEL_PROFILE_PEAK:
--		smu->gfx_actual_hard_min_freq = smu->gfx_default_hard_min_freq;
--		smu->gfx_actual_soft_max_freq = smu->gfx_default_soft_max_freq;
--
--		smu->cpu_actual_soft_min_freq = smu->cpu_default_soft_min_freq;
--		smu->cpu_actual_soft_max_freq = smu->cpu_default_soft_max_freq;
--
--		ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetHardMinGfxClk,
--				VANGOGH_UMD_PSTATE_PEAK_GFXCLK, NULL);
--		if (ret)
--			return ret;
-+		smu->gfx_actual_hard_min_freq = VANGOGH_UMD_PSTATE_PEAK_GFXCLK;
-+		smu->gfx_actual_soft_max_freq = VANGOGH_UMD_PSTATE_PEAK_GFXCLK;
- 
--		ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetSoftMaxGfxClk,
--				VANGOGH_UMD_PSTATE_PEAK_GFXCLK, NULL);
-+		ret = vangogh_set_peak_clock_by_device(smu);
- 		if (ret)
- 			return ret;
--
--		ret = vangogh_set_peak_clock_by_device(smu);
- 		break;
- 	case AMD_DPM_FORCED_LEVEL_MANUAL:
- 	case AMD_DPM_FORCED_LEVEL_PROFILE_EXIT:
- 	default:
--		break;
-+		return 0;
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index 8d4976725a75a..ebed14bed7835 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -3256,8 +3256,7 @@ int qlt_xmit_response(struct qla_tgt_cmd *cmd, int xmit_type,
+ 			"RESET-RSP online/active/old-count/new-count = %d/%d/%d/%d.\n",
+ 			vha->flags.online, qla2x00_reset_active(vha),
+ 			cmd->reset_count, qpair->chip_reset);
+-		spin_unlock_irqrestore(qpair->qp_lock_ptr, flags);
+-		return 0;
++		goto out_unmap_unlock;
  	}
+ 
+ 	/* Does F/W have an IOCBs for this request */
+@@ -3380,10 +3379,6 @@ int qlt_rdy_to_xfer(struct qla_tgt_cmd *cmd)
+ 	prm.sg = NULL;
+ 	prm.req_cnt = 1;
+ 
+-	/* Calculate number of entries and segments required */
+-	if (qlt_pci_map_calc_cnt(&prm) != 0)
+-		return -EAGAIN;
+-
+ 	if (!qpair->fw_started || (cmd->reset_count != qpair->chip_reset) ||
+ 	    (cmd->sess && cmd->sess->deleted)) {
+ 		/*
+@@ -3401,6 +3396,10 @@ int qlt_rdy_to_xfer(struct qla_tgt_cmd *cmd)
+ 		return 0;
+ 	}
+ 
++	/* Calculate number of entries and segments required */
++	if (qlt_pci_map_calc_cnt(&prm) != 0)
++		return -EAGAIN;
 +
-+	ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetHardMinGfxClk,
-+					      smu->gfx_actual_hard_min_freq, NULL);
-+	if (ret)
-+		return ret;
-+
-+	ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_SetSoftMaxGfxClk,
-+					      smu->gfx_actual_soft_max_freq, NULL);
-+	if (ret)
-+		return ret;
-+
- 	return ret;
- }
+ 	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
+ 	/* Does F/W have an IOCBs for this request */
+ 	res = qlt_check_reserve_free_req(qpair, prm.req_cnt);
+@@ -3805,9 +3804,6 @@ void qlt_free_cmd(struct qla_tgt_cmd *cmd)
+ 
+ 	BUG_ON(cmd->cmd_in_wq);
+ 
+-	if (cmd->sg_mapped)
+-		qlt_unmap_sg(cmd->vha, cmd);
+-
+ 	if (!cmd->q_full)
+ 		qlt_decr_num_pend_cmds(cmd->vha);
  
 -- 
 2.33.0
