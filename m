@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 113CA4510FB
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:54:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 181DC450D6B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:54:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243383AbhKOS5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:57:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59656 "EHLO mail.kernel.org"
+        id S238631AbhKOR5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:57:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243223AbhKOSzp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:55:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24A2F6347F;
-        Mon, 15 Nov 2021 18:11:17 +0000 (UTC)
+        id S239235AbhKOR4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:56:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BEF463329;
+        Mon, 15 Nov 2021 17:33:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999878;
-        bh=ZFO3A1aLs7UM3wgRW6/wf0hSRY6OOaENZhff+KKRNes=;
+        s=korg; t=1636997623;
+        bh=r5aRhNSwkqy0DGgrFIo4D4wyRlFHC3vlayN/tYCI0S0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ydgoIDfpNVNlFfKrKu3pYpSs6SoS6QGc0Z+lM1fEYhpegvhj5tCkzsTJ2elZH8WAP
-         jGxhKt2NCH6cXZzfE/3Hh0outJ5hvf9ZY3QqUUzkOgw9XBOftHKH9VFFaXstV6m1YU
-         bWNV67f/tI3BCcui1Qve/UpUwcoFrjtXwM2/mNVo=
+        b=IKp5v78tq3GdMBLBFePdr199M1t3/fn1wr3lEzW0aqntu+vjasrCaV7lHIjp/NjKk
+         fNZizLkGwcg1AeDPC40hQRyFApj7QAbt1/tvPUfAWYyvlgwsuHxEawnso9YpkTk3+H
+         FZzKxVXjvv4xpWfRB3URRlVcUwvdlduyQrYSB02Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 455/849] mt76: fix build error implicit enumeration conversion
-Date:   Mon, 15 Nov 2021 17:58:58 +0100
-Message-Id: <20211115165435.683794554@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 214/575] ACPI: battery: Accept charges over the design capacity as full
+Date:   Mon, 15 Nov 2021 17:58:59 +0100
+Message-Id: <20211115165351.119170886@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: André Almeida <andrealmeid@collabora.com>
 
-[ Upstream commit adedbc643f02f5a3193b8dcc5cfca97b4c988667 ]
+[ Upstream commit 2835f327bd1240508db2c89fe94a056faa53c49a ]
 
-drivers/net/wireless/mediatek/mt76/mt7915/mcu.c:114:10: error: implicit
-conversion from enumeration type 'enum mt76_cipher_type' to different
-enumeration type 'enum mcu_cipher_type' [-Werror,-Wenum-conversion]
-                return MT_CIPHER_NONE;
-                ~~~~~~ ^~~~~~~~~~~~~~
+Some buggy firmware and/or brand new batteries can support a charge that's
+slightly over the reported design capacity. In such cases, the kernel will
+report to userspace that the charging state of the battery is "Unknown",
+when in reality the battery charge is "Full", at least from the design
+capacity point of view. Make the fallback condition accepts capacities
+over the designed capacity so userspace knows that is full.
 
-drivers/net/wireless/mediatek/mt76/mt7921/mcu.c:114:10: error: implicit
-conversion from enumeration type 'enum mt76_cipher_type' to different
-enumeration type 'enum mcu_cipher_type' [-Werror,-Wenum-conversion]
-                return MT_CIPHER_NONE;
-                ~~~~~~ ^~~~~~~~~~~~~~
-
-Fixes: c368362c36d3 ("mt76: fix iv and CCMP header insertion")
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: André Almeida <andrealmeid@collabora.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 2 +-
- drivers/net/wireless/mediatek/mt76/mt7921/mcu.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/battery.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-index caf2033c5c17e..c08c7398f9b85 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-@@ -1201,7 +1201,7 @@ mt7915_mcu_sta_key_tlv(struct mt7915_sta *msta, struct sk_buff *skb,
- 		u8 cipher;
+diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+index 08ee1c7b12e00..e04352c1dc2ce 100644
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -174,7 +174,7 @@ static int acpi_battery_is_charged(struct acpi_battery *battery)
+ 		return 1;
  
- 		cipher = mt7915_mcu_get_cipher(key->cipher);
--		if (cipher == MT_CIPHER_NONE)
-+		if (cipher == MCU_CIPHER_NONE)
- 			return -EOPNOTSUPP;
+ 	/* fallback to using design values for broken batteries */
+-	if (battery->design_capacity == battery->capacity_now)
++	if (battery->design_capacity <= battery->capacity_now)
+ 		return 1;
  
- 		sec_key = &sec->key[0];
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-index 68840e55ede7a..8329b705c2ca2 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-@@ -620,7 +620,7 @@ mt7921_mcu_sta_key_tlv(struct mt7921_sta *msta, struct sk_buff *skb,
- 		u8 cipher;
- 
- 		cipher = mt7921_mcu_get_cipher(key->cipher);
--		if (cipher == MT_CIPHER_NONE)
-+		if (cipher == MCU_CIPHER_NONE)
- 			return -EOPNOTSUPP;
- 
- 		sec_key = &sec->key[0];
+ 	/* we don't do any sort of metric based on percentages */
 -- 
 2.33.0
 
