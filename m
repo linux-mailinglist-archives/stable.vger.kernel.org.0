@@ -2,33 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E829F4513EC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4128A4513D6
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348750AbhKOT7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:59:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
+        id S242231AbhKOT5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:57:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344117AbhKOTX0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1D8D63627;
-        Mon, 15 Nov 2021 18:52:12 +0000 (UTC)
+        id S1344051AbhKOTXM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E6446361E;
+        Mon, 15 Nov 2021 18:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002333;
-        bh=8UZlS5a/lRVH9pSvaVM+MtAJjuT4aSFB4dMrtFesmvE=;
+        s=korg; t=1637002245;
+        bh=MimB1u1ERmogR0XAsftBWay+11tQEunFPI51Vz5l+hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WtzmuoB+G4LgU+kNlNFr85br5sNK1NdU0zQMzqvTMeG6pd9uBLGexk4taoLmy3XJN
-         Syi13nijyMnIEmd0NfeX0FqUsN8s9/TxWOKukccEfEa8DSo2+I+YPED5tCOIqyVF1S
-         RI565R+Fky/JKYNOKLLXbKGMs23r6bBHQEzz5ZoI=
+        b=0BExGf2dCMXN3+2jc8IvVWCe1Fvl+SecdSe3w9lX60grCn9JRmYXbuXLqJX9lmJn+
+         LeDUE2O3ZwZ3o3p/wp2goGmrCr7TeseVUMv+6CLw+6wY86RmE+qSibiSmzAQQMOHND
+         XpuqGjIIwM/iJbNJq5bkzfpvCVkDA/d6yMp4nrAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 492/917] nvme-rdma: fix error code in nvme_rdma_setup_ctrl
-Date:   Mon, 15 Nov 2021 17:59:47 +0100
-Message-Id: <20211115165445.459120960@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Keerthy <j-keerthy@ti.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
+        Ladislav Michl <ladis@linux-mips.org>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        linux-omap@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 494/917] clocksource/drivers/timer-ti-dm: Select TIMER_OF
+Date:   Mon, 15 Nov 2021 17:59:49 +0100
+Message-Id: <20211115165445.522992427@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,41 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 09748122009aed7bfaa7acc33c10c083a4758322 ]
+[ Upstream commit eda9a4f7af6ee47e9e131f20e4f8a41a97379293 ]
 
-In case that icdoff is not zero or mandatory keyed sgls are not
-supported by the NVMe/RDMA target, we'll go to error flow but we'll
-return 0 to the caller. Fix it by returning an appropriate error code.
+When building OMAP_DM_TIMER without TIMER_OF, there are orphan sections
+due to the use of TIMER_OF_DELCARE() without CONFIG_TIMER_OF. Select
+CONFIG_TIMER_OF when enaling OMAP_DM_TIMER:
 
-Fixes: c66e2998c8ca ("nvme-rdma: centralize controller setup sequence")
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+arm-linux-gnueabi-ld: warning: orphan section `__timer_of_table' from `drivers/clocksource/timer-ti-dm-systimer.o' being placed in section `__timer_of_table'
+
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202108282255.tkdt4ani-lkp@intel.com/
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Keerthy <j-keerthy@ti.com>
+Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Cc: Ladislav Michl <ladis@linux-mips.org>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: linux-omap@vger.kernel.org
+Fixes: 52762fbd1c47 ("clocksource/drivers/timer-ti-dm: Add clockevent and clocksource support")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210828175747.3777891-1-keescook@chromium.org
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/rdma.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/clocksource/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 042c594bc57e2..0498801542eb6 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -1095,11 +1095,13 @@ static int nvme_rdma_setup_ctrl(struct nvme_rdma_ctrl *ctrl, bool new)
- 		return ret;
+diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+index 0f5e3983951a8..08f8cb944a2ac 100644
+--- a/drivers/clocksource/Kconfig
++++ b/drivers/clocksource/Kconfig
+@@ -24,6 +24,7 @@ config I8253_LOCK
  
- 	if (ctrl->ctrl.icdoff) {
-+		ret = -EOPNOTSUPP;
- 		dev_err(ctrl->ctrl.device, "icdoff is not supported!\n");
- 		goto destroy_admin;
- 	}
+ config OMAP_DM_TIMER
+ 	bool
++	select TIMER_OF
  
- 	if (!(ctrl->ctrl.sgls & (1 << 2))) {
-+		ret = -EOPNOTSUPP;
- 		dev_err(ctrl->ctrl.device,
- 			"Mandatory keyed sgls are not supported!\n");
- 		goto destroy_admin;
+ config CLKBLD_I8253
+ 	def_bool y if CLKSRC_I8253 || CLKEVT_I8253 || I8253_LOCK
 -- 
 2.33.0
 
