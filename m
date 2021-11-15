@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E11F5450B1B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:16:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE65451123
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231458AbhKORTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:19:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46616 "EHLO mail.kernel.org"
+        id S243405AbhKOTB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:01:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236718AbhKORQD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:16:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C091C63241;
-        Mon, 15 Nov 2021 17:12:23 +0000 (UTC)
+        id S243477AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:59:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CE946121F;
+        Mon, 15 Nov 2021 18:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996344;
-        bh=slfJfY+3ffGO/Q6cj+BtAX7ueoD3vzOF1Vc0SO9OFgs=;
+        s=korg; t=1637000007;
+        bh=WUOszUa6abMStEzb5VLy1TxoqPiX+++P2jKUYPXEycQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XOOgCmiwP7ZeVYJefDfG902UfAzNTjSmfUvGo9VsO3sUy5dKMk769aqPTFVXDcwlI
-         27cNSxgRSooE8BAMT2fx3GGdaOA+vdN2YZABVzMNKUtEDVQgkH40VwB9hPsfTDQshB
-         744KZRIl5+gh4bHu5nfeEnnBLyXLudLJKs/WRCLU=
+        b=DHBICv4DxS+nuRPxwrnas+SRx55uxZG0300ziUPXjOs1PJg/cwAGl/MHGwLjOs0E9
+         lHHJaGuYB7bs65uTMm0c9llm9CTie7C+H/R6XBs3Wl6ehFPBCb+ZqhC6okzapiTp9R
+         kI4oIRcvDc784bRyqwGgAvk8u6tDTFbxEjtL9MRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 062/355] btrfs: call btrfs_check_rw_degradable only if there is a missing device
-Date:   Mon, 15 Nov 2021 17:59:46 +0100
-Message-Id: <20211115165315.815465898@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 504/849] irq: mips: avoid nested irq_enter()
+Date:   Mon, 15 Nov 2021 17:59:47 +0100
+Message-Id: <20211115165437.332336962@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit 5c78a5e7aa835c4f08a7c90fe02d19f95a776f29 upstream.
+[ Upstream commit c65b52d02f6c1a06ddb20cba175ad49eccd6410d ]
 
-In open_ctree() in btrfs_check_rw_degradable() [1], we check each block
-group individually if at least the minimum number of devices is available
-for that profile. If all the devices are available, then we don't have to
-check degradable.
+As bcm6345_l1_irq_handle() is a chained irqchip handler, it will be
+invoked within the context of the root irqchip handler, which must have
+entered IRQ context already.
 
-[1]
-open_ctree()
-::
-3559 if (!sb_rdonly(sb) && !btrfs_check_rw_degradable(fs_info, NULL)) {
+When bcm6345_l1_irq_handle() calls arch/mips's do_IRQ() , this will nest
+another call to irq_enter(), and the resulting nested increment to
+`rcu_data.dynticks_nmi_nesting` will cause rcu_is_cpu_rrupt_from_idle()
+to fail to identify wakeups from idle, resulting in failure to preempt,
+and RCU stalls.
 
-Also before calling btrfs_check_rw_degradable() in open_ctee() at the
-line number shown below [2] we call btrfs_read_chunk_tree() and down to
-add_missing_dev() to record number of missing devices.
+Chained irqchip handlers must invoke IRQ handlers by way of thee core
+irqchip code, i.e. generic_handle_irq() or generic_handle_domain_irq()
+and should not call do_IRQ(), which is intended only for root irqchip
+handlers.
 
-[2]
-open_ctree()
-::
-3454         ret = btrfs_read_chunk_tree(fs_info);
+Fix bcm6345_l1_irq_handle() by calling generic_handle_irq() directly.
 
-btrfs_read_chunk_tree()
-  read_one_chunk() / read_one_dev()
-    add_missing_dev()
-
-So, check if there is any missing device before btrfs_check_rw_degradable()
-in open_ctree().
-
-Also, with this the mount command could save ~16ms.[3] in the most
-common case, that is no device is missing.
-
-[3]
- 1) * 16934.96 us | btrfs_check_rw_degradable [btrfs]();
-
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c7c42ec2baa1de7a ("irqchips/bmips: Add bcm6345-l1 interrupt controller")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/irqchip/irq-bcm6345-l1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3145,7 +3145,8 @@ retry_root_backup:
- 		goto fail_sysfs;
- 	}
- 
--	if (!sb_rdonly(sb) && !btrfs_check_rw_degradable(fs_info, NULL)) {
-+	if (!sb_rdonly(sb) && fs_info->fs_devices->missing_devices &&
-+	    !btrfs_check_rw_degradable(fs_info, NULL)) {
- 		btrfs_warn(fs_info,
- 		"writable mount is not allowed due to too many missing devices");
- 		goto fail_sysfs;
+diff --git a/drivers/irqchip/irq-bcm6345-l1.c b/drivers/irqchip/irq-bcm6345-l1.c
+index e3483789f4df3..1bd0621c4ce2a 100644
+--- a/drivers/irqchip/irq-bcm6345-l1.c
++++ b/drivers/irqchip/irq-bcm6345-l1.c
+@@ -140,7 +140,7 @@ static void bcm6345_l1_irq_handle(struct irq_desc *desc)
+ 		for_each_set_bit(hwirq, &pending, IRQS_PER_WORD) {
+ 			irq = irq_linear_revmap(intc->domain, base + hwirq);
+ 			if (irq)
+-				do_IRQ(irq);
++				generic_handle_irq(irq);
+ 			else
+ 				spurious_interrupt();
+ 		}
+-- 
+2.33.0
+
 
 
