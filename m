@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 459C045121F
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:27:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA1045143C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238594AbhKOTaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:30:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42638 "EHLO mail.kernel.org"
+        id S1349393AbhKOUHP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:07:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244457AbhKOTOP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:14:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CD47634C1;
-        Mon, 15 Nov 2021 18:21:06 +0000 (UTC)
+        id S1344470AbhKOTYo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2717F60C49;
+        Mon, 15 Nov 2021 18:58:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000467;
-        bh=Ot/PbKU1wjgsFOEOP++5SBFvEwNyesLSNiPzGCMTZNk=;
+        s=korg; t=1637002681;
+        bh=n3KGpCv4FK8rybNJAkCmWGM5rj0MiVAzcl0WzXGoQdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQWg5GAtnNVfsJt6oWubrqP7ngg1Mv5AMO8v3AeW2mWpOqaN/48nh+r7JD10zPETq
-         syXik1dqSOEGW2CXb/Vb/rqPnY8i0AiPMwKgaAFw59V3GjCf6SZ9tTw55WAOVkaOQm
-         HJPup8t02c7+0rHA282ZAi57wdYkCDO0goAnTycM=
+        b=TMb+OjdzURL9Ud+qVx4yRNLfw7ezmJlzvCug8MRvoUIeKM0QEalosW8mEdKCLsxTy
+         l2vm1FisW3ldgH8osaOak5zPBCsPSXg8BKN33nhHygczoTH7hbVyGfl0BnjLgiNba9
+         ctZ4cAMFjz21I1PXKl59kwJpNOptngxJ8UMgBCCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Guru Das Srinagesh <quic_gurus@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 669/849] rtc: ds1390: Add SPI ID table
+Subject: [PATCH 5.15 657/917] firmware: qcom_scm: Fix error retval in __qcom_scm_is_call_available()
 Date:   Mon, 15 Nov 2021 18:02:32 +0100
-Message-Id: <20211115165442.893874364@linuxfoundation.org>
+Message-Id: <20211115165451.152776499@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Guru Das Srinagesh <quic_gurus@quicinc.com>
 
-[ Upstream commit da87639d6312afb8855717c791768bf2d4ca8ac8 ]
+[ Upstream commit 38212b2a8a6fc4c3a6fa99d7445b833bedc9a67c ]
 
-Currently autoloading for SPI devices does not use the DT ID table, it uses
-SPI modalises. Supporting OF modalises is going to be difficult if not
-impractical, an attempt was made but has been reverted, so ensure that
-module autoloading works for this driver by adding an id_table listing the
-SPI IDs for everything.
+Since __qcom_scm_is_call_available() returns bool, have it return false
+instead of -EINVAL if an invalid SMC convention is detected.
 
-Fixes: 96c8395e2166 ("spi: Revert modalias changes")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210923194922.53386-3-broonie@kernel.org
+This fixes the Smatch static checker warning:
+
+	drivers/firmware/qcom_scm.c:255 __qcom_scm_is_call_available()
+	warn: signedness bug returning '(-22)'
+
+Fixes: 9d11af8b06a8 ("firmware: qcom_scm: Make __qcom_scm_is_call_available() return bool")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Guru Das Srinagesh <quic_gurus@quicinc.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/1633982414-28347-1-git-send-email-quic_gurus@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-ds1390.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/firmware/qcom_scm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-ds1390.c b/drivers/rtc/rtc-ds1390.c
-index 66fc8617d07ee..93ce72b9ae59e 100644
---- a/drivers/rtc/rtc-ds1390.c
-+++ b/drivers/rtc/rtc-ds1390.c
-@@ -219,12 +219,19 @@ static const struct of_device_id ds1390_of_match[] = {
- };
- MODULE_DEVICE_TABLE(of, ds1390_of_match);
+diff --git a/drivers/firmware/qcom_scm.c b/drivers/firmware/qcom_scm.c
+index 2ee97bab74409..27a64de919817 100644
+--- a/drivers/firmware/qcom_scm.c
++++ b/drivers/firmware/qcom_scm.c
+@@ -252,7 +252,7 @@ static bool __qcom_scm_is_call_available(struct device *dev, u32 svc_id,
+ 		break;
+ 	default:
+ 		pr_err("Unknown SMC convention being used\n");
+-		return -EINVAL;
++		return false;
+ 	}
  
-+static const struct spi_device_id ds1390_spi_ids[] = {
-+	{ .name = "ds1390" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(spi, ds1390_spi_ids);
-+
- static struct spi_driver ds1390_driver = {
- 	.driver = {
- 		.name	= "rtc-ds1390",
- 		.of_match_table = of_match_ptr(ds1390_of_match),
- 	},
- 	.probe	= ds1390_probe,
-+	.id_table = ds1390_spi_ids,
- };
- 
- module_spi_driver(ds1390_driver);
+ 	ret = qcom_scm_call(dev, &desc, &res);
 -- 
 2.33.0
 
