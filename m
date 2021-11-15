@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D7645130A
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:43:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0DC1451309
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:43:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244974AbhKOTpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:45:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
+        id S244918AbhKOTow (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:44:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245293AbhKOTT6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245294AbhKOTT6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:19:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A830B63215;
-        Mon, 15 Nov 2021 18:32:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 268AA610CA;
+        Mon, 15 Nov 2021 18:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001124;
-        bh=D3v0+mxK57xKnC0wg3ABahybZT2joCCHOzqiptJBP1s=;
+        s=korg; t=1637001129;
+        bh=YhB/1BDy6L+2kVb6aEi0dNj7qkaoAYMQtCKLo2xCgXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RiVHmy4E17qde3enf2RBGv17G0N30uYE6meoQ1Wqm+RGd0NCaKgUiuKC+RqpWr2t2
-         lKhXRTSx2GZpG9h3WSxdDeZn5jA1L85UFbY26PTmVCgLMCwhKyaJNeLcUGlXS+w3yZ
-         Wmv82elUUFChY51zMetGvWbon6Wq5U6m8/G6T7Mw=
+        b=zd0Ctjcxp4lUr+HcdYyiLh60873q+ld49HYyZjE2PFA+Igl20iRMKkRFg/cK9DJAI
+         LRyJAb+uavj4xPWxfj4SB4WSNnJZki1Itm/hgEu0zEtlGQx9GSCIHMCzDybWJgqrFs
+         Y6Ftns4Mz4CCqzRjjDM3rS/OQZ3VuNnQRuLmLbzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Stutte <jens@chianterastutte.eu>,
-        Guoqing Jiang <guoqing.jiang@linux.dev>,
-        Song Liu <songliubraving@fb.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 071/917] md/raid1: only allocate write behind bio for WriteMostly device
-Date:   Mon, 15 Nov 2021 17:52:46 +0100
-Message-Id: <20211115165431.170196266@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Rob Herring <robh@kernel.org>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 073/917] regulator: s5m8767: do not use reset value as DVS voltage if GPIO DVS is disabled
+Date:   Mon, 15 Nov 2021 17:52:48 +0100
+Message-Id: <20211115165431.237149677@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,44 +40,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@linux.dev>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit fd3b6975e9c11c4fa00965f82a0bfbb3b7b44101 upstream.
+commit b16bef60a9112b1e6daf3afd16484eb06e7ce792 upstream.
 
-Commit 6607cd319b6b91bff94e90f798a61c031650b514 ("raid1: ensure write
-behind bio has less than BIO_MAX_VECS sectors") tried to guarantee the
-size of behind bio is not bigger than BIO_MAX_VECS sectors.
+The driver and its bindings, before commit 04f9f068a619 ("regulator:
+s5m8767: Modify parsing method of the voltage table of buck2/3/4") were
+requiring to provide at least one safe/default voltage for DVS registers
+if DVS GPIO is not being enabled.
 
-Unfortunately the same calltrace still could happen since an array could
-enable write-behind without write mostly device.
+IOW, if s5m8767,pmic-buck2-uses-gpio-dvs is missing, the
+s5m8767,pmic-buck2-dvs-voltage should still be present and contain one
+voltage.
 
-To match the manpage of mdadm (which says "write-behind is only attempted
-on drives marked as write-mostly"), we need to check WriteMostly flag to
-avoid such unexpected behavior.
+This requirement was coming from driver behavior matching this condition
+(none of DVS GPIO is enabled): it was always initializing the DVS
+selector pins to 0 and keeping the DVS enable setting at reset value
+(enabled).  Therefore if none of DVS GPIO is enabled in devicetree,
+driver was configuring the first DVS voltage for buck[234].
 
-[1]. https://bugzilla.kernel.org/show_bug.cgi?id=213181#c25
+Mentioned commit 04f9f068a619 ("regulator: s5m8767: Modify parsing
+method of the voltage table of buck2/3/4") broke it because DVS voltage
+won't be parsed from devicetree if DVS GPIO is not enabled.  After the
+change, driver will configure bucks to use the register reset value as
+voltage which might have unpleasant effects.
 
-Cc: stable@vger.kernel.org # v5.12+
-Cc: Jens Stutte <jens@chianterastutte.eu>
-Reported-by: Jens Stutte <jens@chianterastutte.eu>
-Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix this by relaxing the bindings constrain: if DVS GPIO is not enabled
+in devicetree (therefore DVS voltage is also not parsed), explicitly
+disable it.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 04f9f068a619 ("regulator: s5m8767: Modify parsing method of the voltage table of buck2/3/4")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Message-Id: <20211008113723.134648-2-krzysztof.kozlowski@canonical.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/raid1.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt |   21 +++-------
+ drivers/regulator/s5m8767.c                                     |   21 ++++------
+ 2 files changed, 17 insertions(+), 25 deletions(-)
 
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -1496,7 +1496,7 @@ static void raid1_write_request(struct m
- 		if (!r1_bio->bios[i])
- 			continue;
+--- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
++++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
+@@ -13,6 +13,14 @@ common regulator binding documented in:
  
--		if (first_clone) {
-+		if (first_clone && test_bit(WriteMostly, &rdev->flags)) {
- 			/* do behind I/O ?
- 			 * Not if there are too many, or cannot
- 			 * allocate memory, or a reader on WriteMostly
+ 
+ Required properties of the main device node (the parent!):
++ - s5m8767,pmic-buck-ds-gpios: GPIO specifiers for three host gpio's used
++   for selecting GPIO DVS lines. It is one-to-one mapped to dvs gpio lines.
++
++ [1] If either of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
++     property is specified, then all the eight voltage values for the
++     's5m8767,pmic-buck[2/3/4]-dvs-voltage' should be specified.
++
++Optional properties of the main device node (the parent!):
+  - s5m8767,pmic-buck2-dvs-voltage: A set of 8 voltage values in micro-volt (uV)
+    units for buck2 when changing voltage using gpio dvs. Refer to [1] below
+    for additional information.
+@@ -25,19 +33,6 @@ Required properties of the main device n
+    units for buck4 when changing voltage using gpio dvs. Refer to [1] below
+    for additional information.
+ 
+- - s5m8767,pmic-buck-ds-gpios: GPIO specifiers for three host gpio's used
+-   for selecting GPIO DVS lines. It is one-to-one mapped to dvs gpio lines.
+-
+- [1] If none of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
+-     property is specified, the 's5m8767,pmic-buck[2/3/4]-dvs-voltage'
+-     property should specify atleast one voltage level (which would be a
+-     safe operating voltage).
+-
+-     If either of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
+-     property is specified, then all the eight voltage values for the
+-     's5m8767,pmic-buck[2/3/4]-dvs-voltage' should be specified.
+-
+-Optional properties of the main device node (the parent!):
+  - s5m8767,pmic-buck2-uses-gpio-dvs: 'buck2' can be controlled by gpio dvs.
+  - s5m8767,pmic-buck3-uses-gpio-dvs: 'buck3' can be controlled by gpio dvs.
+  - s5m8767,pmic-buck4-uses-gpio-dvs: 'buck4' can be controlled by gpio dvs.
+--- a/drivers/regulator/s5m8767.c
++++ b/drivers/regulator/s5m8767.c
+@@ -850,18 +850,15 @@ static int s5m8767_pmic_probe(struct pla
+ 	/* DS4 GPIO */
+ 	gpio_direction_output(pdata->buck_ds[2], 0x0);
+ 
+-	if (pdata->buck2_gpiodvs || pdata->buck3_gpiodvs ||
+-	   pdata->buck4_gpiodvs) {
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK2CTRL, 1 << 1,
+-				(pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK3CTRL, 1 << 1,
+-				(pdata->buck3_gpiodvs) ? (1 << 1) : (0 << 1));
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK4CTRL, 1 << 1,
+-				(pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
+-	}
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK2CTRL, 1 << 1,
++			   (pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK3CTRL, 1 << 1,
++			   (pdata->buck3_gpiodvs) ? (1 << 1) : (0 << 1));
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK4CTRL, 1 << 1,
++			   (pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
+ 
+ 	/* Initialize GPIO DVS registers */
+ 	for (i = 0; i < 8; i++) {
 
 
