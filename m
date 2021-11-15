@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F14FD451F06
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFC97451E0D
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352835AbhKPAiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:38:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
+        id S1353453AbhKPAe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:34:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344573AbhKOTZA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D603632FA;
-        Mon, 15 Nov 2021 19:00:09 +0000 (UTC)
+        id S1344494AbhKOTYw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC3B163496;
+        Mon, 15 Nov 2021 18:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002810;
-        bh=AELfT1njZFbc3agdN02nWIJajP09uI4oXMaPdeeTl0o=;
+        s=korg; t=1637002720;
+        bh=bXPZUQ1+zJ2VrSu3sHGFXyCNvVpfRl8lMWzzj+ExAWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0DApIObnLttQz6uIcGaOImyE981WljFZWy6gCQYi43t0+S7Fsm/Z93e1EeTjOpOp
-         8+dhP/AJkUeT6YwdoZewn6WgFxsCXj2Wu3MCtqEWsS3S10Hlf6U2PkEvoXFRVbNhdp
-         Y+JkvR41IwR9vMglrIXKyCchSe3FYGSfoXiR7CQo=
+        b=ps2CliQAaXG/k3p0UGljwIB8fB141Q84/DAl5PWBFSpTK7vGuYjD7HFyX6YUVR/f7
+         sdVsGITwzGKFHnrTKNMexv9ry+4lc0lys7iumPIy6/BZ+Vz8HuduSo0h8i53QRQRm4
+         0PfFILqhGnlm8Ebh/h5FJ7S5OQLzDF6hwvnleOiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nicolas Ferre <nicolas.ferre@microchip.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 672/917] clk: at91: clk-master: check if div or pres is zero
-Date:   Mon, 15 Nov 2021 18:02:47 +0100
-Message-Id: <20211115165451.679222385@linuxfoundation.org>
+Subject: [PATCH 5.15 673/917] clk: at91: clk-master: fix prescaler logic
+Date:   Mon, 15 Nov 2021 18:02:48 +0100
+Message-Id: <20211115165451.712443410@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -44,45 +44,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit c2910c00fee4cbb7b222d6e02846adef9ae4135a ]
+[ Upstream commit 0ef99f8202c5078a72c05af76bfaed2ea4daab19 ]
 
-Check if div or pres is zero before using it as argument for ffs().
-In case div is zero ffs() will return 0 and thus substracting from
-zero will lead to invalid values to be setup in registers.
+When prescaler value read from register is MASTER_PRES_MAX it means
+that the input clock will be divided by 3. Fix the code to reflect
+this.
 
 Fixes: 7a110b9107ed8 ("clk: at91: clk-master: re-factor master clock")
-Fixes: 75c88143f3b87 ("clk: at91: clk-master: add master clock support for SAMA7G5")
 Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20211011112719.3951784-9-claudiu.beznea@microchip.com
+Link: https://lore.kernel.org/r/20211011112719.3951784-11-claudiu.beznea@microchip.com
 Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/at91/clk-master.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/at91/clk-master.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/clk/at91/clk-master.c b/drivers/clk/at91/clk-master.c
-index a80427980bf73..2e410815a3405 100644
+index 2e410815a3405..04d0dd8385945 100644
 --- a/drivers/clk/at91/clk-master.c
 +++ b/drivers/clk/at91/clk-master.c
-@@ -280,7 +280,7 @@ static int clk_master_pres_set_rate(struct clk_hw *hw, unsigned long rate,
+@@ -309,7 +309,7 @@ static unsigned long clk_master_pres_recalc_rate(struct clk_hw *hw,
+ 	spin_unlock_irqrestore(master->lock, flags);
  
- 	else if (pres == 3)
- 		pres = MASTER_PRES_MAX;
--	else
-+	else if (pres)
- 		pres = ffs(pres) - 1;
- 
- 	spin_lock_irqsave(master->lock, flags);
-@@ -610,7 +610,7 @@ static int clk_sama7g5_master_set_rate(struct clk_hw *hw, unsigned long rate,
- 
- 	if (div == 3)
- 		div = MASTER_PRES_MAX;
--	else
-+	else if (div)
- 		div = ffs(div) - 1;
- 
- 	spin_lock_irqsave(master->lock, flags);
+ 	pres = (val >> master->layout->pres_shift) & MASTER_PRES_MASK;
+-	if (pres == 3 && characteristics->have_div3_pres)
++	if (pres == MASTER_PRES_MAX && characteristics->have_div3_pres)
+ 		pres = 3;
+ 	else
+ 		pres = (1 << pres);
 -- 
 2.33.0
 
