@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDFD1452670
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3962245264F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:01:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239417AbhKPCFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:05:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46098 "EHLO mail.kernel.org"
+        id S1346856AbhKPCEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:04:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239936AbhKOSFF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239937AbhKOSFF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:05:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10670632EE;
-        Mon, 15 Nov 2021 17:40:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD644632EF;
+        Mon, 15 Nov 2021 17:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998011;
-        bh=+2JM1QAu1Xx8tz7mPil1d/T/CVLsadDSqw1RKSTkYs0=;
+        s=korg; t=1636998014;
+        bh=c0Vl1iW08QAKhWfF0DMPi0A5aI4dq+Ixb5x8kC6zQ0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wjJVDraHT2DeuozO/iOKsPUTC8dvneg7yn30jsgJKVRTen5BxLn3Tv8c8UxWhLVC/
-         QDAHBk3R6sLoJ9zg2nJKr0W/nTUGhXrgdGTdmEmIb9liHX7KnbEp3DgNjGrjTJ9BXu
-         e7a3jcTVJ5g2fEKBHKVoQwz/fStWzBZF93RhVsNM=
+        b=O3nuBaqYuV+0mCxi3D7R4YxG2TZqfrgOD5fxKOwggWIhjURDaMSUQuZYVUb4kD1zn
+         Q9zbcn9nRTpB+fcXHV+GiBh+RdFzy54IZMWwgE9uNaxGcZtA+KZ6pDxIrEAVF0J0WW
+         oOe1pkD49A1WDJHphMHd19zXUkWo90vOCNbTwHQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
         Christian Borntraeger <borntraeger@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 354/575] s390/gmap: dont unconditionally call pte_unmap_unlock() in __gmap_zap()
-Date:   Mon, 15 Nov 2021 18:01:19 +0100
-Message-Id: <20211115165356.048300092@linuxfoundation.org>
+Subject: [PATCH 5.10 355/575] KVM: s390: pv: avoid double free of sida page
+Date:   Mon, 15 Nov 2021 18:01:20 +0100
+Message-Id: <20211115165356.083550828@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -42,45 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-[ Upstream commit b159f94c86b43cf7e73e654bc527255b1f4eafc4 ]
+[ Upstream commit d4074324b07a94a1fca476d452dfbb3a4e7bf656 ]
 
-... otherwise we will try unlocking a spinlock that was never locked via a
-garbage pointer.
+If kvm_s390_pv_destroy_cpu is called more than once, we risk calling
+free_page on a random page, since the sidad field is aliased with the
+gbea, which is not guaranteed to be zero.
 
-At the time we reach this code path, we usually successfully looked up
-a PGSTE already; however, evil user space could have manipulated the VMA
-layout in the meantime and triggered removal of the page table.
+This can happen, for example, if userspace calls the KVM_PV_DISABLE
+IOCTL, and it fails, and then userspace calls the same IOCTL again.
+This scenario is only possible if KVM has some serious bug or if the
+hardware is broken.
 
-Fixes: 1e133ab296f3 ("s390/mm: split arch/s390/mm/pgtable.c")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210909162248.14969-3-david@redhat.com
+The solution is to simply return successfully immediately if the vCPU
+was already non secure.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Fixes: 19e1227768863a1469797c13ef8fea1af7beac2c ("KVM: S390: protvirt: Introduce instruction data area bounce buffer")
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-Id: <20210920132502.36111-3-imbrenda@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/gmap.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/kvm/pv.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 64795d0349263..f2d19d40272cf 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -684,9 +684,10 @@ void __gmap_zap(struct gmap *gmap, unsigned long gaddr)
- 		vmaddr |= gaddr & ~PMD_MASK;
- 		/* Get pointer to the page table entry */
- 		ptep = get_locked_pte(gmap->mm, vmaddr, &ptl);
--		if (likely(ptep))
-+		if (likely(ptep)) {
- 			ptep_zap_unused(gmap->mm, vmaddr, ptep, 0);
--		pte_unmap_unlock(ptep, ptl);
-+			pte_unmap_unlock(ptep, ptl);
-+		}
- 	}
- }
- EXPORT_SYMBOL_GPL(__gmap_zap);
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index f5847f9dec7c9..74265304dd9cd 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -16,18 +16,17 @@
+ 
+ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+ {
+-	int cc = 0;
++	int cc;
+ 
+-	if (kvm_s390_pv_cpu_get_handle(vcpu)) {
+-		cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
+-				   UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
++	if (!kvm_s390_pv_cpu_get_handle(vcpu))
++		return 0;
++
++	cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu), UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
++
++	KVM_UV_EVENT(vcpu->kvm, 3, "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
++		     vcpu->vcpu_id, *rc, *rrc);
++	WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x", *rc, *rrc);
+ 
+-		KVM_UV_EVENT(vcpu->kvm, 3,
+-			     "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
+-			     vcpu->vcpu_id, *rc, *rrc);
+-		WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x",
+-			  *rc, *rrc);
+-	}
+ 	/* Intended memory leak for something that should never happen. */
+ 	if (!cc)
+ 		free_pages(vcpu->arch.pv.stor_base,
 -- 
 2.33.0
 
