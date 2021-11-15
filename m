@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5CFB451430
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D4034511AA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:10:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241876AbhKOUCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:02:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S244172AbhKOTM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:12:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344309AbhKOTYZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3D426365E;
-        Mon, 15 Nov 2021 18:55:42 +0000 (UTC)
+        id S244124AbhKOTKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:10:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39FAC6349F;
+        Mon, 15 Nov 2021 18:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002543;
-        bh=5tNJ7cn2V77si9hZuvtyH4t0dwIsYFYNiyA4DJomHtA=;
+        s=korg; t=1637000325;
+        bh=2HmUPyDs3060LsllgBth3gcpkGAkTP1Puee5FtiIpXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eblf+ywOhWGLnEyrI61EeDp6sYdu8zcY8ioqgLLTa3FS01Kk2Angh83g+pQp/fWqU
-         tmyeiCGh7av4bcn4ZXZ0EjgZfLHkbVEmbiUKPhYecHqMrBjwm/aEB7SxPC5W2KxoMO
-         aFKpQg29nT5QkntWkoafnfA1HBGQRN5gQyvX91X8=
+        b=Z6sHxjnMIVI8mgEWwAGiQYLV4fhXWMcPBFRMhDc8XF4WuHpyYeVqSgIzAm/0OSQd+
+         1EC7GWXiCgjvqzxdy4eh0WLBAdHGMv5eGI+TecjRw5en7CbE4T4e2RKc5yuXQ2gVye
+         kduV6R6kPhJqQs+dq27+Y//a+pLm5hP5MRZXpb1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Bean Huo <beanhuo@micron.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Alexandru Ardelean <ardeleanalex@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 608/917] scsi: ufs: core: Fix ufshcd_probe_hba() prototype to match the definition
+Subject: [PATCH 5.14 620/849] iio: buffer: Fix double-free in iio_buffers_alloc_sysfs_and_mask()
 Date:   Mon, 15 Nov 2021 18:01:43 +0100
-Message-Id: <20211115165449.407912089@linuxfoundation.org>
+Message-Id: <20211115165441.236315499@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bean Huo <beanhuo@micron.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 68444d73d6a5864ede12df6366bd6602e022ae5b ]
+[ Upstream commit 09776d9374e635b1580b3736c19b95b788fbaa85 ]
 
-Since commit 568dd9959611 ("scsi: ufs: Rename the second ufshcd_probe_hba()
-argument"), the second ufshcd_probe_hba() argument has been changed to
-init_dev_params.
+When __iio_buffer_alloc_sysfs_and_mask() failed, 'unwind_idx' should be
+set to 'i - 1' to prevent double-free when cleanup resources.
 
-Link: https://lore.kernel.org/r/20210929200640.828611-3-huobean@gmail.com
-Fixes: 568dd9959611 ("scsi: ufs: Rename the second ufshcd_probe_hba() argument")
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+BUG: KASAN: double-free or invalid-free in __iio_buffer_free_sysfs_and_mask+0x32/0xb0 [industrialio]
+Call Trace:
+ kfree+0x117/0x4c0
+ __iio_buffer_free_sysfs_and_mask+0x32/0xb0 [industrialio]
+ iio_buffers_alloc_sysfs_and_mask+0x60d/0x1570 [industrialio]
+ __iio_device_register+0x483/0x1a30 [industrialio]
+ ina2xx_probe+0x625/0x980 [ina2xx_adc]
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: ee708e6baacd ("iio: buffer: introduce support for attaching more IIO buffers")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20211013094923.2473-2-andriy.shevchenko@linux.intel.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 +-
+ drivers/iio/industrialio-buffer.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 41f2ff35f82b2..b02feb3ab7b56 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -223,7 +223,7 @@ static int ufshcd_eh_host_reset_handler(struct scsi_cmnd *cmd);
- static int ufshcd_clear_tm_cmd(struct ufs_hba *hba, int tag);
- static void ufshcd_hba_exit(struct ufs_hba *hba);
- static int ufshcd_clear_ua_wluns(struct ufs_hba *hba);
--static int ufshcd_probe_hba(struct ufs_hba *hba, bool async);
-+static int ufshcd_probe_hba(struct ufs_hba *hba, bool init_dev_params);
- static int ufshcd_setup_clocks(struct ufs_hba *hba, bool on);
- static int ufshcd_uic_hibern8_enter(struct ufs_hba *hba);
- static inline void ufshcd_add_delay_before_dme_cmd(struct ufs_hba *hba);
+diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
+index 2801f3a650760..1dfd10831f379 100644
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -1623,7 +1623,7 @@ int iio_buffers_alloc_sysfs_and_mask(struct iio_dev *indio_dev)
+ 		buffer = iio_dev_opaque->attached_buffers[i];
+ 		ret = __iio_buffer_alloc_sysfs_and_mask(buffer, indio_dev, i);
+ 		if (ret) {
+-			unwind_idx = i;
++			unwind_idx = i - 1;
+ 			goto error_unwind_sysfs_and_mask;
+ 		}
+ 	}
 -- 
 2.33.0
 
