@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9CD045125C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0629C451263
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346607AbhKOTfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:35:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
+        id S245171AbhKOTfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:35:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244660AbhKOTRJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:17:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97BA961B60;
-        Mon, 15 Nov 2021 18:22:39 +0000 (UTC)
+        id S244719AbhKOTRS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:17:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87234632BF;
+        Mon, 15 Nov 2021 18:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000560;
-        bh=PzPN2FZB3Fty/LXR98O+STeNEYLT4bJWkWHFBR5k/J0=;
+        s=korg; t=1637000587;
+        bh=+eXMQUbTK7EmfoH7qhPKf4mlY/tKwzD5uBt9so9pzys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QmCXx0ZHTsOysEW/O+ppJ0b34bVN/853CbRiwDw1ohynGtrTVgzye/G4sKZf9CU//
-         2uhenNlkIeGlVUxj0VoVgJrgri/LQMEORr4ErkVxoX7/MVJSmkX3MIHc0/s/ijFipL
-         hVR3GSZLt8qjnisFNRSweFHtePfUtQ4wPkDE5OBo=
+        b=wtq6jjIbi3AXJkmnbsIT5hrtft0dxomR5wzCyRHE5I+9nsAul3Cp74cCSByu52m6p
+         mn7RsR8bdNrnHkRGzv9+3CGtqanKEgcyEIe6CRxXnfK3uOenRic530R9U9/nwux6pX
+         Hd3aOFNwCw8S6VOcGehmfe6xNzeP4T2pIWGAdh30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 704/849] netfilter: nfnetlink_queue: fix OOB when mac header was cleared
-Date:   Mon, 15 Nov 2021 18:03:07 +0100
-Message-Id: <20211115165444.074872609@linuxfoundation.org>
+Subject: [PATCH 5.14 708/849] watchdog: f71808e_wdt: fix inaccurate report in WDIOC_GETTIMEOUT
+Date:   Mon, 15 Nov 2021 18:03:11 +0100
+Message-Id: <20211115165444.208197076@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,53 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-[ Upstream commit 5648b5e1169ff1d6d6a46c35c0b5fbebd2a5cbb2 ]
+[ Upstream commit 164483c735190775f29d0dcbac0363adc51a068d ]
 
-On 64bit platforms the MAC header is set to 0xffff on allocation and
-also when a helper like skb_unset_mac_header() is called.
+The fintek watchdog timer can configure timeouts of second granularity
+only up to 255 seconds. Beyond that, the timeout needs to be configured
+with minute granularity. WDIOC_GETTIMEOUT should report the actual
+timeout configured, not just echo back the timeout configured by the
+user. Do so.
 
-dev_parse_header may call skb_mac_header() which assumes valid mac offset:
-
- BUG: KASAN: use-after-free in eth_header_parse+0x75/0x90
- Read of size 6 at addr ffff8881075a5c05 by task nf-queue/1364
- Call Trace:
-  memcpy+0x20/0x60
-  eth_header_parse+0x75/0x90
-  __nfqnl_enqueue_packet+0x1a61/0x3380
-  __nf_queue+0x597/0x1300
-  nf_queue+0xf/0x40
-  nf_hook_slow+0xed/0x190
-  nf_hook+0x184/0x440
-  ip_output+0x1c0/0x2a0
-  nf_reinject+0x26f/0x700
-  nfqnl_recv_verdict+0xa16/0x18b0
-  nfnetlink_rcv_msg+0x506/0xe70
-
-The existing code only works if the skb has a mac header.
-
-Fixes: 2c38de4c1f8da7 ("netfilter: fix looped (broad|multi)cast's MAC handling")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 96cb4eb019ce ("watchdog: f71808e_wdt: new watchdog driver for Fintek F71808E and F71882FG")
+Suggested-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Link: https://lore.kernel.org/r/5e17960fe8cc0e3cb2ba53de4730b75d9a0f33d5.1628525954.git-series.a.fatoum@pengutronix.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nfnetlink_queue.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/f71808e_wdt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-index f774de0fc24f8..cd8da91fa3fe4 100644
---- a/net/netfilter/nfnetlink_queue.c
-+++ b/net/netfilter/nfnetlink_queue.c
-@@ -560,7 +560,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
- 		goto nla_put_failure;
+diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
+index f60beec1bbaea..f7d82d2619133 100644
+--- a/drivers/watchdog/f71808e_wdt.c
++++ b/drivers/watchdog/f71808e_wdt.c
+@@ -228,15 +228,17 @@ static int watchdog_set_timeout(int timeout)
  
- 	if (indev && entskb->dev &&
--	    entskb->mac_header != entskb->network_header) {
-+	    skb_mac_header_was_set(entskb)) {
- 		struct nfqnl_msg_packet_hw phw;
- 		int len;
+ 	mutex_lock(&watchdog.lock);
  
+-	watchdog.timeout = timeout;
+ 	if (timeout > 0xff) {
+ 		watchdog.timer_val = DIV_ROUND_UP(timeout, 60);
+ 		watchdog.minutes_mode = true;
++		timeout = watchdog.timer_val * 60;
+ 	} else {
+ 		watchdog.timer_val = timeout;
+ 		watchdog.minutes_mode = false;
+ 	}
+ 
++	watchdog.timeout = timeout;
++
+ 	mutex_unlock(&watchdog.lock);
+ 
+ 	return 0;
 -- 
 2.33.0
 
