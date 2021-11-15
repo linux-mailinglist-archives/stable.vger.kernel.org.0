@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23CB84513F0
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA3D6451163
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:04:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348773AbhKOT7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:59:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45396 "EHLO mail.kernel.org"
+        id S243693AbhKOTHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:07:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344140AbhKOTXa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40A7763634;
-        Mon, 15 Nov 2021 18:52:32 +0000 (UTC)
+        id S243743AbhKOTDs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:03:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B21C560296;
+        Mon, 15 Nov 2021 18:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002353;
-        bh=XOv0NfeQOrWKmthNwm8xguteh2t7tNc6NHAy9ZGB7n0=;
+        s=korg; t=1637000125;
+        bh=ullSF88pRmHb8GKVlCS8QDZvP6HPC3eQ+jDZ6fKOWcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IueGtSF0ZQbnlr93cwrcJX9PynO+PtBE3GwJfUXxRdJMMatJCZWrosXnxszCTynxb
-         4IHN18ETYOFErW6e4/O5z2J2hR9jh3ZjI2pkn0uQKZrZKjBAg4gb17muVTK8+vYkBJ
-         yI+7fqmDYfeBuWh921247X4uWiFG3kTR3Lvuez6M=
+        b=XQFGVZuq1IzYYS3KVJAcKH8kUKMRlPSww+C0fx7YnGZ7oNXnBLNM1Sd3K+EyMAWCc
+         2FLfwXyG5HMUhtBWU3Dj8P002fkrG3NkcP9hdc+tG4iLaObyNHNEynMdqChoohE/8E
+         lh5stjBGizOgeg+Yh9fIEMi7uQRWJcFrzj23DX0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 535/917] bpf: Avoid races in __bpf_prog_run() for 32bit arches
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 547/849] bpf: Fix propagation of bounds from 64-bit min/max into 32-bit and var_off.
 Date:   Mon, 15 Nov 2021 18:00:30 +0100
-Message-Id: <20211115165446.902697077@linuxfoundation.org>
+Message-Id: <20211115165438.764177109@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,217 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit f941eadd8d6d4ee2f8c9aeab8e1da5e647533a7d ]
+[ Upstream commit b9979db8340154526d9ab38a1883d6f6ba9b6d47 ]
 
-__bpf_prog_run() can run from non IRQ contexts, meaning
-it could be re entered if interrupted.
+Before this fix:
+166: (b5) if r2 <= 0x1 goto pc+22
+from 166 to 189: R2=invP(id=1,umax_value=1,var_off=(0x0; 0xffffffff))
 
-This calls for the irq safe variant of u64_stats_update_{begin|end},
-or risk a deadlock.
+After this fix:
+166: (b5) if r2 <= 0x1 goto pc+22
+from 166 to 189: R2=invP(id=1,umax_value=1,var_off=(0x0; 0x1))
 
-This patch is a nop on 64bit arches, fortunately.
+While processing BPF_JLE the reg_set_min_max() would set true_reg->umax_value = 1
+and call __reg_combine_64_into_32(true_reg).
 
-syzbot report:
+Without the fix it would not pass the condition:
+if (__reg64_bound_u32(reg->umin_value) && __reg64_bound_u32(reg->umax_value))
 
-WARNING: inconsistent lock state
-5.12.0-rc3-syzkaller #0 Not tainted
---------------------------------
-inconsistent {IN-SOFTIRQ-W} -> {SOFTIRQ-ON-W} usage.
-udevd/4013 [HC0[0]:SC0[0]:HE1:SE1] takes:
-ff7c9dec (&(&pstats->syncp)->seq){+.?.}-{0:0}, at: sk_filter include/linux/filter.h:867 [inline]
-ff7c9dec (&(&pstats->syncp)->seq){+.?.}-{0:0}, at: do_one_broadcast net/netlink/af_netlink.c:1468 [inline]
-ff7c9dec (&(&pstats->syncp)->seq){+.?.}-{0:0}, at: netlink_broadcast_filtered+0x27c/0x4fc net/netlink/af_netlink.c:1520
-{IN-SOFTIRQ-W} state was registered at:
-  lock_acquire.part.0+0xf0/0x41c kernel/locking/lockdep.c:5510
-  lock_acquire+0x6c/0x74 kernel/locking/lockdep.c:5483
-  do_write_seqcount_begin_nested include/linux/seqlock.h:520 [inline]
-  do_write_seqcount_begin include/linux/seqlock.h:545 [inline]
-  u64_stats_update_begin include/linux/u64_stats_sync.h:129 [inline]
-  bpf_prog_run_pin_on_cpu include/linux/filter.h:624 [inline]
-  bpf_prog_run_clear_cb+0x1bc/0x270 include/linux/filter.h:755
-  run_filter+0xa0/0x17c net/packet/af_packet.c:2031
-  packet_rcv+0xc0/0x3e0 net/packet/af_packet.c:2104
-  dev_queue_xmit_nit+0x2bc/0x39c net/core/dev.c:2387
-  xmit_one net/core/dev.c:3588 [inline]
-  dev_hard_start_xmit+0x94/0x518 net/core/dev.c:3609
-  sch_direct_xmit+0x11c/0x1f0 net/sched/sch_generic.c:313
-  qdisc_restart net/sched/sch_generic.c:376 [inline]
-  __qdisc_run+0x194/0x7f8 net/sched/sch_generic.c:384
-  qdisc_run include/net/pkt_sched.h:136 [inline]
-  qdisc_run include/net/pkt_sched.h:128 [inline]
-  __dev_xmit_skb net/core/dev.c:3795 [inline]
-  __dev_queue_xmit+0x65c/0xf84 net/core/dev.c:4150
-  dev_queue_xmit+0x14/0x18 net/core/dev.c:4215
-  neigh_resolve_output net/core/neighbour.c:1491 [inline]
-  neigh_resolve_output+0x170/0x228 net/core/neighbour.c:1471
-  neigh_output include/net/neighbour.h:510 [inline]
-  ip6_finish_output2+0x2e4/0x9fc net/ipv6/ip6_output.c:117
-  __ip6_finish_output net/ipv6/ip6_output.c:182 [inline]
-  __ip6_finish_output+0x164/0x3f8 net/ipv6/ip6_output.c:161
-  ip6_finish_output+0x2c/0xb0 net/ipv6/ip6_output.c:192
-  NF_HOOK_COND include/linux/netfilter.h:290 [inline]
-  ip6_output+0x74/0x294 net/ipv6/ip6_output.c:215
-  dst_output include/net/dst.h:448 [inline]
-  NF_HOOK include/linux/netfilter.h:301 [inline]
-  NF_HOOK include/linux/netfilter.h:295 [inline]
-  mld_sendpack+0x2a8/0x7e4 net/ipv6/mcast.c:1679
-  mld_send_cr net/ipv6/mcast.c:1975 [inline]
-  mld_ifc_timer_expire+0x1e8/0x494 net/ipv6/mcast.c:2474
-  call_timer_fn+0xd0/0x570 kernel/time/timer.c:1431
-  expire_timers kernel/time/timer.c:1476 [inline]
-  __run_timers kernel/time/timer.c:1745 [inline]
-  run_timer_softirq+0x2e4/0x384 kernel/time/timer.c:1758
-  __do_softirq+0x204/0x7ac kernel/softirq.c:345
-  do_softirq_own_stack include/asm-generic/softirq_stack.h:10 [inline]
-  invoke_softirq kernel/softirq.c:228 [inline]
-  __irq_exit_rcu+0x1d8/0x200 kernel/softirq.c:422
-  irq_exit+0x10/0x3c kernel/softirq.c:446
-  __handle_domain_irq+0xb4/0x120 kernel/irq/irqdesc.c:692
-  handle_domain_irq include/linux/irqdesc.h:176 [inline]
-  gic_handle_irq+0x84/0xac drivers/irqchip/irq-gic.c:370
-  __irq_svc+0x5c/0x94 arch/arm/kernel/entry-armv.S:205
-  debug_smp_processor_id+0x0/0x24 lib/smp_processor_id.c:53
-  rcu_read_lock_held_common kernel/rcu/update.c:108 [inline]
-  rcu_read_lock_sched_held+0x24/0x7c kernel/rcu/update.c:123
-  trace_lock_acquire+0x24c/0x278 include/trace/events/lock.h:13
-  lock_acquire+0x3c/0x74 kernel/locking/lockdep.c:5481
-  rcu_lock_acquire include/linux/rcupdate.h:267 [inline]
-  rcu_read_lock include/linux/rcupdate.h:656 [inline]
-  avc_has_perm_noaudit+0x6c/0x260 security/selinux/avc.c:1150
-  selinux_inode_permission+0x140/0x220 security/selinux/hooks.c:3141
-  security_inode_permission+0x44/0x60 security/security.c:1268
-  inode_permission.part.0+0x5c/0x13c fs/namei.c:521
-  inode_permission fs/namei.c:494 [inline]
-  may_lookup fs/namei.c:1652 [inline]
-  link_path_walk.part.0+0xd4/0x38c fs/namei.c:2208
-  link_path_walk fs/namei.c:2189 [inline]
-  path_lookupat+0x3c/0x1b8 fs/namei.c:2419
-  filename_lookup+0xa8/0x1a4 fs/namei.c:2453
-  user_path_at_empty+0x74/0x90 fs/namei.c:2733
-  do_readlinkat+0x5c/0x12c fs/stat.c:417
-  __do_sys_readlink fs/stat.c:450 [inline]
-  sys_readlink+0x24/0x28 fs/stat.c:447
-  ret_fast_syscall+0x0/0x2c arch/arm/mm/proc-v7.S:64
-  0x7eaa4974
-irq event stamp: 298277
-hardirqs last  enabled at (298277): [<802000d0>] no_work_pending+0x4/0x34
-hardirqs last disabled at (298276): [<8020c9b8>] do_work_pending+0x9c/0x648 arch/arm/kernel/signal.c:676
-softirqs last  enabled at (298216): [<8020167c>] __do_softirq+0x584/0x7ac kernel/softirq.c:372
-softirqs last disabled at (298201): [<8024dff4>] do_softirq_own_stack include/asm-generic/softirq_stack.h:10 [inline]
-softirqs last disabled at (298201): [<8024dff4>] invoke_softirq kernel/softirq.c:228 [inline]
-softirqs last disabled at (298201): [<8024dff4>] __irq_exit_rcu+0x1d8/0x200 kernel/softirq.c:422
+since umin_value == 0 at this point.
+Before commit 10bf4e83167c the umin was incorrectly ingored.
+The commit 10bf4e83167c fixed the correctness issue, but pessimized
+propagation of 64-bit min max into 32-bit min max and corresponding var_off.
 
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(&(&pstats->syncp)->seq);
-  <Interrupt>
-    lock(&(&pstats->syncp)->seq);
-
- *** DEADLOCK ***
-
-1 lock held by udevd/4013:
- #0: 82b09c5c (rcu_read_lock){....}-{1:2}, at: sk_filter_trim_cap+0x54/0x434 net/core/filter.c:139
-
-stack backtrace:
-CPU: 1 PID: 4013 Comm: udevd Not tainted 5.12.0-rc3-syzkaller #0
-Hardware name: ARM-Versatile Express
-Backtrace:
-[<81802550>] (dump_backtrace) from [<818027c4>] (show_stack+0x18/0x1c arch/arm/kernel/traps.c:252)
- r7:00000080 r6:600d0093 r5:00000000 r4:82b58344
-[<818027ac>] (show_stack) from [<81809e98>] (__dump_stack lib/dump_stack.c:79 [inline])
-[<818027ac>] (show_stack) from [<81809e98>] (dump_stack+0xb8/0xe8 lib/dump_stack.c:120)
-[<81809de0>] (dump_stack) from [<81804a00>] (print_usage_bug.part.0+0x228/0x230 kernel/locking/lockdep.c:3806)
- r7:86bcb768 r6:81a0326c r5:830f96a8 r4:86bcb0c0
-[<818047d8>] (print_usage_bug.part.0) from [<802bb1b8>] (print_usage_bug kernel/locking/lockdep.c:3776 [inline])
-[<818047d8>] (print_usage_bug.part.0) from [<802bb1b8>] (valid_state kernel/locking/lockdep.c:3818 [inline])
-[<818047d8>] (print_usage_bug.part.0) from [<802bb1b8>] (mark_lock_irq kernel/locking/lockdep.c:4021 [inline])
-[<818047d8>] (print_usage_bug.part.0) from [<802bb1b8>] (mark_lock.part.0+0xc34/0x136c kernel/locking/lockdep.c:4478)
- r10:83278fe8 r9:82c6d748 r8:00000000 r7:82c6d2d4 r6:00000004 r5:86bcb768
- r4:00000006
-[<802ba584>] (mark_lock.part.0) from [<802bc644>] (mark_lock kernel/locking/lockdep.c:4442 [inline])
-[<802ba584>] (mark_lock.part.0) from [<802bc644>] (mark_usage kernel/locking/lockdep.c:4391 [inline])
-[<802ba584>] (mark_lock.part.0) from [<802bc644>] (__lock_acquire+0x9bc/0x3318 kernel/locking/lockdep.c:4854)
- r10:86bcb768 r9:86bcb0c0 r8:00000001 r7:00040000 r6:0000075a r5:830f96a8
- r4:00000000
-[<802bbc88>] (__lock_acquire) from [<802bfb90>] (lock_acquire.part.0+0xf0/0x41c kernel/locking/lockdep.c:5510)
- r10:00000000 r9:600d0013 r8:00000000 r7:00000000 r6:828a2680 r5:828a2680
- r4:861e5bc8
-[<802bfaa0>] (lock_acquire.part.0) from [<802bff28>] (lock_acquire+0x6c/0x74 kernel/locking/lockdep.c:5483)
- r10:8146137c r9:00000000 r8:00000001 r7:00000000 r6:00000000 r5:00000000
- r4:ff7c9dec
-[<802bfebc>] (lock_acquire) from [<81381eb4>] (do_write_seqcount_begin_nested include/linux/seqlock.h:520 [inline])
-[<802bfebc>] (lock_acquire) from [<81381eb4>] (do_write_seqcount_begin include/linux/seqlock.h:545 [inline])
-[<802bfebc>] (lock_acquire) from [<81381eb4>] (u64_stats_update_begin include/linux/u64_stats_sync.h:129 [inline])
-[<802bfebc>] (lock_acquire) from [<81381eb4>] (__bpf_prog_run_save_cb include/linux/filter.h:727 [inline])
-[<802bfebc>] (lock_acquire) from [<81381eb4>] (bpf_prog_run_save_cb include/linux/filter.h:741 [inline])
-[<802bfebc>] (lock_acquire) from [<81381eb4>] (sk_filter_trim_cap+0x26c/0x434 net/core/filter.c:149)
- r10:a4095dd0 r9:ff7c9dd0 r8:e44be000 r7:8146137c r6:00000001 r5:8611ba80
- r4:00000000
-[<81381c48>] (sk_filter_trim_cap) from [<8146137c>] (sk_filter include/linux/filter.h:867 [inline])
-[<81381c48>] (sk_filter_trim_cap) from [<8146137c>] (do_one_broadcast net/netlink/af_netlink.c:1468 [inline])
-[<81381c48>] (sk_filter_trim_cap) from [<8146137c>] (netlink_broadcast_filtered+0x27c/0x4fc net/netlink/af_netlink.c:1520)
- r10:00000001 r9:833d6b1c r8:00000000 r7:8572f864 r6:8611ba80 r5:8698d800
- r4:8572f800
-[<81461100>] (netlink_broadcast_filtered) from [<81463e60>] (netlink_broadcast net/netlink/af_netlink.c:1544 [inline])
-[<81461100>] (netlink_broadcast_filtered) from [<81463e60>] (netlink_sendmsg+0x3d0/0x478 net/netlink/af_netlink.c:1925)
- r10:00000000 r9:00000002 r8:8698d800 r7:000000b7 r6:8611b900 r5:861e5f50
- r4:86aa3000
-[<81463a90>] (netlink_sendmsg) from [<81321f54>] (sock_sendmsg_nosec net/socket.c:654 [inline])
-[<81463a90>] (netlink_sendmsg) from [<81321f54>] (sock_sendmsg+0x3c/0x4c net/socket.c:674)
- r10:00000000 r9:861e5dd4 r8:00000000 r7:86570000 r6:00000000 r5:86570000
- r4:861e5f50
-[<81321f18>] (sock_sendmsg) from [<813234d0>] (____sys_sendmsg+0x230/0x29c net/socket.c:2350)
- r5:00000040 r4:861e5f50
-[<813232a0>] (____sys_sendmsg) from [<8132549c>] (___sys_sendmsg+0xac/0xe4 net/socket.c:2404)
- r10:00000128 r9:861e4000 r8:00000000 r7:00000000 r6:86570000 r5:861e5f50
- r4:00000000
-[<813253f0>] (___sys_sendmsg) from [<81325684>] (__sys_sendmsg net/socket.c:2433 [inline])
-[<813253f0>] (___sys_sendmsg) from [<81325684>] (__do_sys_sendmsg net/socket.c:2442 [inline])
-[<813253f0>] (___sys_sendmsg) from [<81325684>] (sys_sendmsg+0x58/0xa0 net/socket.c:2440)
- r8:80200224 r7:00000128 r6:00000000 r5:7eaa541c r4:86570000
-[<8132562c>] (sys_sendmsg) from [<80200060>] (ret_fast_syscall+0x0/0x2c arch/arm/mm/proc-v7.S:64)
-Exception stack(0x861e5fa8 to 0x861e5ff0)
-5fa0:                   00000000 00000000 0000000c 7eaa541c 00000000 00000000
-5fc0: 00000000 00000000 76fbf840 00000128 00000000 0000008f 7eaa541c 000563f8
-5fe0: 00056110 7eaa53e0 00036cec 76c9bf44
- r6:76fbf840 r5:00000000 r4:00000000
-
-Fixes: 492ecee892c2 ("bpf: enable program stats")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+Fixes: 10bf4e83167c ("bpf: Fix propagation of 32 bit unsigned bounds from 64 bit bounds")
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20211026214133.3114279-2-eric.dumazet@gmail.com
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20211101222153.78759-1-alexei.starovoitov@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/filter.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c                               | 2 +-
+ tools/testing/selftests/bpf/verifier/array_access.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/filter.h b/include/linux/filter.h
-index ef03ff34234d8..28391de6cc445 100644
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -613,13 +613,14 @@ static __always_inline u32 __bpf_prog_run(const struct bpf_prog *prog,
- 	if (static_branch_unlikely(&bpf_stats_enabled_key)) {
- 		struct bpf_prog_stats *stats;
- 		u64 start = sched_clock();
-+		unsigned long flags;
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 592b9b68cbd93..b9fb079559a6d 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1402,7 +1402,7 @@ static bool __reg64_bound_s32(s64 a)
  
- 		ret = dfunc(ctx, prog->insnsi, prog->bpf_func);
- 		stats = this_cpu_ptr(prog->stats);
--		u64_stats_update_begin(&stats->syncp);
-+		flags = u64_stats_update_begin_irqsave(&stats->syncp);
- 		stats->cnt++;
- 		stats->nsecs += sched_clock() - start;
--		u64_stats_update_end(&stats->syncp);
-+		u64_stats_update_end_irqrestore(&stats->syncp, flags);
- 	} else {
- 		ret = dfunc(ctx, prog->insnsi, prog->bpf_func);
- 	}
+ static bool __reg64_bound_u32(u64 a)
+ {
+-	return a > U32_MIN && a < U32_MAX;
++	return a >= U32_MIN && a <= U32_MAX;
+ }
+ 
+ static void __reg_combine_64_into_32(struct bpf_reg_state *reg)
+diff --git a/tools/testing/selftests/bpf/verifier/array_access.c b/tools/testing/selftests/bpf/verifier/array_access.c
+index 1b1c798e92489..1b138cd2b187d 100644
+--- a/tools/testing/selftests/bpf/verifier/array_access.c
++++ b/tools/testing/selftests/bpf/verifier/array_access.c
+@@ -186,7 +186,7 @@
+ 	},
+ 	.fixup_map_hash_48b = { 3 },
+ 	.errstr_unpriv = "R0 leaks addr",
+-	.errstr = "R0 unbounded memory access",
++	.errstr = "invalid access to map value, value_size=48 off=44 size=8",
+ 	.result_unpriv = REJECT,
+ 	.result = REJECT,
+ 	.flags = F_NEEDS_EFFICIENT_UNALIGNED_ACCESS,
 -- 
 2.33.0
 
