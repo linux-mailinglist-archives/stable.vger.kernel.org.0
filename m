@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4D46451462
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5582F4511BE
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:11:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349176AbhKOUE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:04:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
+        id S236810AbhKOTOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:14:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344339AbhKOTYc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81BFA63665;
-        Mon, 15 Nov 2021 18:56:06 +0000 (UTC)
+        id S244156AbhKOTLH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:11:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DC2B6120E;
+        Mon, 15 Nov 2021 18:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002566;
-        bh=rk5rpRFj1fLQeTIoA5iasSizulQBL7k5SqxUwypkusw=;
+        s=korg; t=1637000352;
+        bh=dEGP4LITW/muASRlsEeWsHD5e9oeK2uLVaypXlduXBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p34mCCxJxLPS/jQtJVwoPOwH+5T1GaMLuoQp1Ef+9X6XqQNyQyIF10p/z1dVX8QTy
-         6dkKF8Ibqf1mUEVMsU994UCXJypv/tPAPKXnUUU0Jy6Z2GetEIOnG6o8eVJi1j/5qZ
-         HFsIyC7I1FvjZeEVAhCapMXZ6JenIL+7eHdkzUBQ=
+        b=G/JU8zpZGFGAwo91hr3KC0rXfS61kCKXXbSdD6hfbqpBsWNPv/9bXiSXyLhs4AWZn
+         u8eiVnxF83XmXcXdxFmA7d0usU8MiqS/HCNQ5OQ2DJWynEk8NLocAV9XOEBzsKBNlv
+         scjdKbJ9+uF+p/a8k9kIFTQNcoDNG/YLxEQF1N6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 616/917] soc/tegra: Fix an error handling path in tegra_powergate_power_up()
-Date:   Mon, 15 Nov 2021 18:01:51 +0100
-Message-Id: <20211115165449.689261250@linuxfoundation.org>
+Subject: [PATCH 5.14 629/849] usb: dwc2: drd: reset current session before setting the new one
+Date:   Mon, 15 Nov 2021 18:01:52 +0100
+Message-Id: <20211115165441.546677450@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
 
-[ Upstream commit 986b5094708e508baa452a23ffe809870934a7df ]
+[ Upstream commit 1ad707f559f7cb12c64f3d7cb37f0b1ea27c1058 ]
 
-If an error occurs after a successful tegra_powergate_enable_clocks()
-call, it must be undone by a tegra_powergate_disable_clocks() call, as
-already done in the below and above error handling paths of this function.
+If role is changed without the "none" step, A- and B- valid session could
+be set at the same time. It is an issue.
+This patch resets A-session if role switch sets B-session, and resets
+B-session if role switch sets A-session.
+Then, it is possible to change the role without the "none" step.
 
-Update the 'goto' to branch at the correct place of the error handling
-path.
-
-Fixes: a38045121bf4 ("soc/tegra: pmc: Add generic PM domain support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: 17f934024e84 ("usb: dwc2: override PHY input signals with usb role switch support")
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/20211005095305.66397-4-amelie.delaunay@foss.st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/tegra/pmc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc2/drd.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/soc/tegra/pmc.c b/drivers/soc/tegra/pmc.c
-index 50091c4ec9481..a60e142ade344 100644
---- a/drivers/soc/tegra/pmc.c
-+++ b/drivers/soc/tegra/pmc.c
-@@ -782,7 +782,7 @@ static int tegra_powergate_power_up(struct tegra_powergate *pg,
+diff --git a/drivers/usb/dwc2/drd.c b/drivers/usb/dwc2/drd.c
+index 99672360f34b0..aa6eb76f64ddc 100644
+--- a/drivers/usb/dwc2/drd.c
++++ b/drivers/usb/dwc2/drd.c
+@@ -40,6 +40,7 @@ static int dwc2_ovr_avalid(struct dwc2_hsotg *hsotg, bool valid)
+ 	    (!valid && !(gotgctl & GOTGCTL_ASESVLD)))
+ 		return -EALREADY;
  
- 	err = reset_control_deassert(pg->reset);
- 	if (err)
--		goto powergate_off;
-+		goto disable_clks;
++	gotgctl &= ~GOTGCTL_BVALOVAL;
+ 	if (valid)
+ 		gotgctl |= GOTGCTL_AVALOVAL | GOTGCTL_VBVALOVAL;
+ 	else
+@@ -58,6 +59,7 @@ static int dwc2_ovr_bvalid(struct dwc2_hsotg *hsotg, bool valid)
+ 	    (!valid && !(gotgctl & GOTGCTL_BSESVLD)))
+ 		return -EALREADY;
  
- 	usleep_range(10, 20);
- 
++	gotgctl &= ~GOTGCTL_AVALOVAL;
+ 	if (valid)
+ 		gotgctl |= GOTGCTL_BVALOVAL | GOTGCTL_VBVALOVAL;
+ 	else
 -- 
 2.33.0
 
