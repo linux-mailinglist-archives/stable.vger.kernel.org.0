@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9754345240B
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B67845240A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354291AbhKPBfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1354358AbhKPBfu (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 20:35:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46084 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242417AbhKOSgr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:36:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FE8E6326C;
-        Mon, 15 Nov 2021 18:02:46 +0000 (UTC)
+        id S242426AbhKOSgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:36:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 461536326A;
+        Mon, 15 Nov 2021 18:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999367;
-        bh=8Ch3EU3UK83abFyDFxq8C9tda3V4GfTWuRtUmaB6dXM=;
+        s=korg; t=1636999372;
+        bh=U6fQnsNKbPTE11NFNlm0+xZgCeG7JwAaZO672gNR+qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o16OJqN2pU2bH6RgVp0F+0L9iuuZj42/+FzJDewueC4gcU4XumqUeGqIUzLvzipSv
-         iBL94DAVUOBkuwTmqHlyQrgAGlwDdOlhHklirA5ZD11YOY4Eql3dUz26uTJhn4sK8G
-         qfrmkDl/8wk7oEHGeAVVrubPwVBzp3vBCVy7plvQ=
+        b=sNilQAcCWwjP1CW3OsTkP1t8gQc+/OzdRCzcDw64LGU80JypeZQlWOM3Yq4F2sEZN
+         O5TEfQhnMMcayaJYJhcvVb16Q33feMzUmx6kQgbtv7ldrhw0g42iC4YHm3WpO06zis
+         1XuzEY07F4QdnhUTrCAI96gpgb0Fv8N0ldE4TFAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 271/849] mmc: moxart: Fix reference count leaks in moxart_probe
-Date:   Mon, 15 Nov 2021 17:55:54 +0100
-Message-Id: <20211115165429.412105624@linuxfoundation.org>
+Subject: [PATCH 5.14 273/849] ACPI: battery: Accept charges over the design capacity as full
+Date:   Mon, 15 Nov 2021 17:55:56 +0100
+Message-Id: <20211115165429.481770411@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,72 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: André Almeida <andrealmeid@collabora.com>
 
-[ Upstream commit 8105c2abbf36296bf38ca44f55ee45d160db476a ]
+[ Upstream commit 2835f327bd1240508db2c89fe94a056faa53c49a ]
 
-The issue happens in several error handling paths on two refcounted
-object related to the object "host" (dma_chan_rx, dma_chan_tx). In
-these paths, the function forgets to decrement one or both objects'
-reference count increased earlier by dma_request_chan(), causing
-reference count leaks.
+Some buggy firmware and/or brand new batteries can support a charge that's
+slightly over the reported design capacity. In such cases, the kernel will
+report to userspace that the charging state of the battery is "Unknown",
+when in reality the battery charge is "Full", at least from the design
+capacity point of view. Make the fallback condition accepts capacities
+over the designed capacity so userspace knows that is full.
 
-Fix it by balancing the refcounts of both objects in some error
-handling paths. In correspondence with the changes in moxart_probe(),
-IS_ERR() is replaced with IS_ERR_OR_NULL() in moxart_remove() as well.
-
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Link: https://lore.kernel.org/r/20211009041918.28419-1-xiongx18@fudan.edu.cn
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: André Almeida <andrealmeid@collabora.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/moxart-mmc.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/acpi/battery.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/moxart-mmc.c b/drivers/mmc/host/moxart-mmc.c
-index 6c9d38132f74c..7b9fcef490de7 100644
---- a/drivers/mmc/host/moxart-mmc.c
-+++ b/drivers/mmc/host/moxart-mmc.c
-@@ -621,6 +621,14 @@ static int moxart_probe(struct platform_device *pdev)
- 			ret = -EPROBE_DEFER;
- 			goto out;
- 		}
-+		if (!IS_ERR(host->dma_chan_tx)) {
-+			dma_release_channel(host->dma_chan_tx);
-+			host->dma_chan_tx = NULL;
-+		}
-+		if (!IS_ERR(host->dma_chan_rx)) {
-+			dma_release_channel(host->dma_chan_rx);
-+			host->dma_chan_rx = NULL;
-+		}
- 		dev_dbg(dev, "PIO mode transfer enabled\n");
- 		host->have_dma = false;
- 	} else {
-@@ -675,6 +683,10 @@ static int moxart_probe(struct platform_device *pdev)
- 	return 0;
+diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+index dae91f906cea9..8afa85d6eb6a7 100644
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -169,7 +169,7 @@ static int acpi_battery_is_charged(struct acpi_battery *battery)
+ 		return 1;
  
- out:
-+	if (!IS_ERR_OR_NULL(host->dma_chan_tx))
-+		dma_release_channel(host->dma_chan_tx);
-+	if (!IS_ERR_OR_NULL(host->dma_chan_rx))
-+		dma_release_channel(host->dma_chan_rx);
- 	if (mmc)
- 		mmc_free_host(mmc);
- 	return ret;
-@@ -687,9 +699,9 @@ static int moxart_remove(struct platform_device *pdev)
+ 	/* fallback to using design values for broken batteries */
+-	if (battery->design_capacity == battery->capacity_now)
++	if (battery->design_capacity <= battery->capacity_now)
+ 		return 1;
  
- 	dev_set_drvdata(&pdev->dev, NULL);
- 
--	if (!IS_ERR(host->dma_chan_tx))
-+	if (!IS_ERR_OR_NULL(host->dma_chan_tx))
- 		dma_release_channel(host->dma_chan_tx);
--	if (!IS_ERR(host->dma_chan_rx))
-+	if (!IS_ERR_OR_NULL(host->dma_chan_rx))
- 		dma_release_channel(host->dma_chan_rx);
- 	mmc_remove_host(mmc);
- 	mmc_free_host(mmc);
+ 	/* we don't do any sort of metric based on percentages */
 -- 
 2.33.0
 
