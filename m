@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3E8451E11
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A5C4451E12
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343955AbhKPAfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1354751AbhKPAfG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 19:35:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344532AbhKOTY4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344534AbhKOTY4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:24:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F41E56368A;
-        Mon, 15 Nov 2021 18:59:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACDB563490;
+        Mon, 15 Nov 2021 18:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002764;
-        bh=bvl7/2cFgDMnUQLxmYAhY/q5K98jcp/7S1Giu9g6djs=;
+        s=korg; t=1637002767;
+        bh=v+Q0hMj+CzyYjXFSdfpzCJ5UeoWx5JFwDBjYlUuOn4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eehXv1Eg1USmpmlsVWg+Oiq+fmTEcwBi7GqPdzypEDYuJVofEik6ep4s0yXFIbPVz
-         W4bxlJz6Wg7XEwIEFh+8NZMHcQYKt5+XNtwF0lOeuG7sjlzsGo2r59CirELqTH1iVE
-         GRcHPTuWbZTAywg6kk31p4HLDIGbzVuQ0sT4V0xw=
+        b=yM1IDkJLIPOnSEZ3ZZS6hRC84mZdo0t45LZhaz8FwqEaqQ1OGgtPXD3LozMliOhUl
+         uz7G1S2qw+sEOWSwcbb1x9c9bC16pmlOV+5NHKMkAdgI3Qtq0T4/2sVQLMF+Byz2A1
+         GWjM+/z7u6JdjNxIRPqcYri4gtLmTNJ9F7KLJdd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        Eli Cohen <elic@nvidia.com>,
         "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 688/917] virtio_ring: check desc == NULL when using indirect with packed
-Date:   Mon, 15 Nov 2021 18:03:03 +0100
-Message-Id: <20211115165452.224518951@linuxfoundation.org>
+Subject: [PATCH 5.15 689/917] vdpa/mlx5: Fix clearing of VIRTIO_NET_F_MAC feature bit
+Date:   Mon, 15 Nov 2021 18:03:04 +0100
+Message-Id: <20211115165452.256711711@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,61 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit fc6d70f40b3d0b3219e2026d05be0409695f620d ]
+[ Upstream commit ef76eb83a17e803a66b64ac95b36ae48b3d17c22 ]
 
-When using indirect with packed, we don't check for allocation failures.
-This patch checks that and fall back on direct.
+Cited patch in the fixes tag clears the features bit during reset.
+mlx5 vdpa device feature bits are static decided by device capabilities.
+These feature bits (including VIRTIO_NET_F_MAC) are initialized during
+device addition time.
 
-Fixes: 1ce9e6055fa0 ("virtio_ring: introduce packed ring support")
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20211020112323.67466-3-xuanzhuo@linux.alibaba.com
+Clearing features bit in reset callback cleared the VIRTIO_NET_F_MAC. Due
+to this, MAC address provided by the device is not honored.
+
+Fix it by not clearing the static feature bits during reset.
+
+Fixes: 0686082dbf7a ("vdpa: Add reset callback in vdpa_config_ops")
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Eli Cohen <elic@nvidia.com>
+Link: https://lore.kernel.org/r/20211026175519.87795-7-parav@nvidia.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_ring.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 3035bb6f54585..d1f47327f6cfe 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1065,6 +1065,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 
- 	head = vq->packed.next_avail_idx;
- 	desc = alloc_indirect_packed(total_sg, gfp);
-+	if (!desc)
-+		return -ENOMEM;
- 
- 	if (unlikely(vq->vq.num_free < 1)) {
- 		pr_debug("Can't add buf len 1 - avail = 0\n");
-@@ -1176,6 +1178,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
- 	unsigned int i, n, c, descs_used, err_idx;
- 	__le16 head_flags, flags;
- 	u16 head, id, prev, curr, avail_used_flags;
-+	int err;
- 
- 	START_USE(vq);
- 
-@@ -1191,9 +1194,14 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
- 
- 	BUG_ON(total_sg == 0);
- 
--	if (virtqueue_use_indirect(_vq, total_sg))
--		return virtqueue_add_indirect_packed(vq, sgs, total_sg,
--				out_sgs, in_sgs, data, gfp);
-+	if (virtqueue_use_indirect(_vq, total_sg)) {
-+		err = virtqueue_add_indirect_packed(vq, sgs, total_sg, out_sgs,
-+						    in_sgs, data, gfp);
-+		if (err != -ENOMEM)
-+			return err;
-+
-+		/* fall back on direct */
-+	}
- 
- 	head = vq->packed.next_avail_idx;
- 	avail_used_flags = vq->packed.avail_used_flags;
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index bd56de7484dcb..ae85d2dd6eb76 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -2192,7 +2192,6 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
+ 	clear_vqs_ready(ndev);
+ 	mlx5_vdpa_destroy_mr(&ndev->mvdev);
+ 	ndev->mvdev.status = 0;
+-	ndev->mvdev.mlx_features = 0;
+ 	memset(ndev->event_cbs, 0, sizeof(ndev->event_cbs));
+ 	ndev->mvdev.actual_features = 0;
+ 	++mvdev->generation;
 -- 
 2.33.0
 
