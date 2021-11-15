@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5437C450FA1
+	by mail.lfdr.de (Postfix) with ESMTP id 9D045450FA2
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:32:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239217AbhKOSfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:35:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42450 "EHLO mail.kernel.org"
+        id S241348AbhKOSfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:35:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240167AbhKOSbo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241031AbhKOSbo (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:31:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B22461BE2;
-        Mon, 15 Nov 2021 17:59:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 067CE61B53;
+        Mon, 15 Nov 2021 17:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999149;
-        bh=HW6nPutcWlloH/E9S97N7iUJ55IMUk7U5UMFPTKBaOY=;
+        s=korg; t=1636999152;
+        bh=X8vso3hW+mADoosQ2fCBZ32ykJZCSSZI2hJm/JV7pC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XS+86ZVV0ueEEy/WQHIk8sBPs/NL6u6fjSV1UFgOBJBfYdm5/5hUo2n2+mBmgDqOR
-         SlBG0LMN4zsaZaxcJikDOR1KM/7j/giRkWr3+vrFNS4UagXMHgTawOMy+1drRA62gZ
-         1OQvAX8pRxFLNu6TLZdDM7p0nUq/Trv6VicxB1Ss=
+        b=KElY2peQCn8dNJO8tL6mx4Nu+0i+6ici2P4gGKRusly1PNGEDuAdV6cOqCPnm2jWA
+         lsz4KVauVfGXa4IwSmlVLfD04tucra3g/Cc5mqpnxJRVUnT3tSpwztgwWrlFKuousu
+         w1ZQ/3lyDJAR38qm4c8474yUqL8h7+AZeCGNUkEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mihail Chindris <mihail.chindris@analog.com>,
-        Alexandru Ardelean <ardeleanalex@gmail.com>,
+        stable@vger.kernel.org, Pekka Korpinen <pekka.korpinen@iki.fi>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.14 194/849] drivers: iio: dac: ad5766: Fix dt property name
-Date:   Mon, 15 Nov 2021 17:54:37 +0100
-Message-Id: <20211115165426.756198460@linuxfoundation.org>
+Subject: [PATCH 5.14 195/849] iio: dac: ad5446: Fix ad5622_write() return value
+Date:   Mon, 15 Nov 2021 17:54:38 +0100
+Message-Id: <20211115165426.794987821@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,43 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mihail Chindris <mihail.chindris@analog.com>
+From: Pekka Korpinen <pekka.korpinen@iki.fi>
 
-commit d9de0fbdeb0103a204055efb69cb5cc8f5f12a6a upstream.
+commit 558df982d4ead9cac628153d0d7b60feae05ddc8 upstream.
 
-In the documentation the name for the property is
-output-range-microvolts which is a standard name, therefore this name
-must be used.
+On success i2c_master_send() returns the number of bytes written. The
+call from iio_write_channel_info(), however, expects the return value to
+be zero on success.
 
-Fixes: fd9373e41b9ba ("iio: dac: ad5766: add driver support for AD5766")
-Signed-off-by: Mihail Chindris <mihail.chindris@analog.com>
-Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
-Link: https://lore.kernel.org/r/20211007080035.2531-5-mihail.chindris@analog.com
+This bug causes incorrect consumption of the sysfs buffer in
+iio_write_channel_info(). When writing more than two characters to
+out_voltage0_raw, the ad5446 write handler is called multiple times
+causing unexpected behavior.
+
+Fixes: 3ec36a2cf0d5 ("iio:ad5446: Add support for I2C based DACs")
+Signed-off-by: Pekka Korpinen <pekka.korpinen@iki.fi>
+Link: https://lore.kernel.org/r/20210929185755.2384-1-pekka.korpinen@iki.fi
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/dac/ad5766.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iio/dac/ad5446.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/dac/ad5766.c
-+++ b/drivers/iio/dac/ad5766.c
-@@ -503,13 +503,13 @@ static int ad5766_get_output_range(struc
- 	int i, ret, min, max, tmp[2];
+--- a/drivers/iio/dac/ad5446.c
++++ b/drivers/iio/dac/ad5446.c
+@@ -531,8 +531,15 @@ static int ad5622_write(struct ad5446_st
+ {
+ 	struct i2c_client *client = to_i2c_client(st->dev);
+ 	__be16 data = cpu_to_be16(val);
++	int ret;
  
- 	ret = device_property_read_u32_array(&st->spi->dev,
--					     "output-range-voltage",
-+					     "output-range-microvolts",
- 					     tmp, 2);
- 	if (ret)
- 		return ret;
+-	return i2c_master_send(client, (char *)&data, sizeof(data));
++	ret = i2c_master_send(client, (char *)&data, sizeof(data));
++	if (ret < 0)
++		return ret;
++	if (ret != sizeof(data))
++		return -EIO;
++
++	return 0;
+ }
  
--	min = tmp[0] / 1000;
--	max = tmp[1] / 1000;
-+	min = tmp[0] / 1000000;
-+	max = tmp[1] / 1000000;
- 	for (i = 0; i < ARRAY_SIZE(ad5766_span_tbl); i++) {
- 		if (ad5766_span_tbl[i].min != min ||
- 		    ad5766_span_tbl[i].max != max)
+ /*
 
 
