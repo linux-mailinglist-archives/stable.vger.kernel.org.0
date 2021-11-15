@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 502FA452511
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA9645250F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242936AbhKPBql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:46:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36792 "EHLO mail.kernel.org"
+        id S240898AbhKPBqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:46:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238031AbhKOSZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238069AbhKOSZn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:25:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AEFBE60EE9;
-        Mon, 15 Nov 2021 17:56:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 809D16342D;
+        Mon, 15 Nov 2021 17:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998962;
-        bh=LPzTPIuI9zxJ6Z11Fof+pznqGVjbKGNie7uuwCUbjf4=;
+        s=korg; t=1636998965;
+        bh=f9esK1RasxQpv7R2BGTBm0dCNmIs2+CGy3MdlE5gK7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NRIL0Qzep/Xa6OMCMdHgN0eSTHzTJ1O+67TdhBE6/u+G24gijzKgL1N59Irz9Rs40
-         v2aGQ5mxSplNzgMeaVoeYkCDt0lmXO4p20wBIvWDvpcgW3+536kyZdOv3DaFljPmBO
-         uuMQzrbZBhdRLrilyhz5xeulxALrlCmjKehOPEcc=
+        b=x31BUbt51KN9mNPAgckKZ/NVdZ3Zk3BGJ8CyGLImjsOmWSvJsgf/Bpr1TNFHA0X/x
+         CluIn4t0OB1BV56CsV1OJ/iSHh6to6/Jj/p1FiDky3lvIFnU/S5KuWNOR5r0DAo9X7
+         UTvYJ3GmOG3YY8ZCBDSDmVo1XBuKhfouZuYvLi6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
         Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.14 125/849] wcn36xx: Fix HT40 capability for 2Ghz band
-Date:   Mon, 15 Nov 2021 17:53:28 +0100
-Message-Id: <20211115165424.330234360@linuxfoundation.org>
+Subject: [PATCH 5.14 126/849] wcn36xx: Fix tx_status mechanism
+Date:   Mon, 15 Nov 2021 17:53:29 +0100
+Message-Id: <20211115165424.362158551@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,35 +41,175 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Loic Poulain <loic.poulain@linaro.org>
 
-commit 960ae77f25631bbe4e3aafefe209b52e044baf31 upstream.
+commit a9e79b116cc4d0057e912be8f40b2c2e5bdc7c43 upstream.
 
-All wcn36xx controllers are supposed to support HT40 (and SGI40),
-This doubles the maximum bitrate/throughput with compatible APs.
+This change fix the TX ack mechanism in various ways:
 
-Tested with wcn3620 & wcn3680B.
+- For NO_ACK tagged packets, we don't need to wait for TX_ACK indication
+and so are not subject to the single packet ack limitation. So we don't
+have to stop the tx queue, and can call the tx status callback as soon
+as DMA transfer has completed.
+
+- Fix skb ownership/reference. Only start status indication timeout
+once the DMA transfer has been completed. This avoids the skb to be
+both referenced in the DMA tx ring and by the tx_ack_skb pointer,
+preventing any use-after-free or double-free.
+
+- This adds a sanity (paranoia?) check on the skb tx ack pointer.
+
+- Resume TX queue if TX status tagged packet TX fails.
 
 Cc: stable@vger.kernel.org
-Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
+Fixes: fdf21cc37149 ("wcn36xx: Add TX ack support")
 Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1634737133-22336-1-git-send-email-loic.poulain@linaro.org
+Link: https://lore.kernel.org/r/1634567281-28997-1-git-send-email-loic.poulain@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/wcn36xx/main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/wcn36xx/dxe.c  |   37 ++++++++++++--------------------
+ drivers/net/wireless/ath/wcn36xx/txrx.c |   31 +++++---------------------
+ 2 files changed, 21 insertions(+), 47 deletions(-)
 
---- a/drivers/net/wireless/ath/wcn36xx/main.c
-+++ b/drivers/net/wireless/ath/wcn36xx/main.c
-@@ -135,7 +135,9 @@ static struct ieee80211_supported_band w
- 		.cap =	IEEE80211_HT_CAP_GRN_FLD |
- 			IEEE80211_HT_CAP_SGI_20 |
- 			IEEE80211_HT_CAP_DSSSCCK40 |
--			IEEE80211_HT_CAP_LSIG_TXOP_PROT,
-+			IEEE80211_HT_CAP_LSIG_TXOP_PROT |
-+			IEEE80211_HT_CAP_SGI_40 |
-+			IEEE80211_HT_CAP_SUP_WIDTH_20_40,
- 		.ht_supported = true,
- 		.ampdu_factor = IEEE80211_HT_MAX_AMPDU_64K,
- 		.ampdu_density = IEEE80211_HT_MPDU_DENSITY_16,
+--- a/drivers/net/wireless/ath/wcn36xx/dxe.c
++++ b/drivers/net/wireless/ath/wcn36xx/dxe.c
+@@ -403,8 +403,21 @@ static void reap_tx_dxes(struct wcn36xx
+ 			dma_unmap_single(wcn->dev, ctl->desc->src_addr_l,
+ 					 ctl->skb->len, DMA_TO_DEVICE);
+ 			info = IEEE80211_SKB_CB(ctl->skb);
+-			if (!(info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS)) {
+-				/* Keep frame until TX status comes */
++			if (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS) {
++				if (info->flags & IEEE80211_TX_CTL_NO_ACK) {
++					info->flags |= IEEE80211_TX_STAT_NOACK_TRANSMITTED;
++					ieee80211_tx_status_irqsafe(wcn->hw, ctl->skb);
++				} else {
++					/* Wait for the TX ack indication or timeout... */
++					spin_lock(&wcn->dxe_lock);
++					if (WARN_ON(wcn->tx_ack_skb))
++						ieee80211_free_txskb(wcn->hw, wcn->tx_ack_skb);
++					wcn->tx_ack_skb = ctl->skb; /* Tracking ref */
++					mod_timer(&wcn->tx_ack_timer, jiffies + HZ / 10);
++					spin_unlock(&wcn->dxe_lock);
++				}
++				/* do not free, ownership transferred to mac80211 status cb */
++			} else {
+ 				ieee80211_free_txskb(wcn->hw, ctl->skb);
+ 			}
+ 
+@@ -426,7 +439,6 @@ static irqreturn_t wcn36xx_irq_tx_comple
+ {
+ 	struct wcn36xx *wcn = (struct wcn36xx *)dev;
+ 	int int_src, int_reason;
+-	bool transmitted = false;
+ 
+ 	wcn36xx_dxe_read_register(wcn, WCN36XX_DXE_INT_SRC_RAW_REG, &int_src);
+ 
+@@ -466,7 +478,6 @@ static irqreturn_t wcn36xx_irq_tx_comple
+ 		if (int_reason & (WCN36XX_CH_STAT_INT_DONE_MASK |
+ 				  WCN36XX_CH_STAT_INT_ED_MASK)) {
+ 			reap_tx_dxes(wcn, &wcn->dxe_tx_h_ch);
+-			transmitted = true;
+ 		}
+ 	}
+ 
+@@ -479,7 +490,6 @@ static irqreturn_t wcn36xx_irq_tx_comple
+ 					   WCN36XX_DXE_0_INT_CLR,
+ 					   WCN36XX_INT_MASK_CHAN_TX_L);
+ 
+-
+ 		if (int_reason & WCN36XX_CH_STAT_INT_ERR_MASK ) {
+ 			wcn36xx_dxe_write_register(wcn,
+ 						   WCN36XX_DXE_0_INT_ERR_CLR,
+@@ -507,25 +517,8 @@ static irqreturn_t wcn36xx_irq_tx_comple
+ 		if (int_reason & (WCN36XX_CH_STAT_INT_DONE_MASK |
+ 				  WCN36XX_CH_STAT_INT_ED_MASK)) {
+ 			reap_tx_dxes(wcn, &wcn->dxe_tx_l_ch);
+-			transmitted = true;
+-		}
+-	}
+-
+-	spin_lock(&wcn->dxe_lock);
+-	if (wcn->tx_ack_skb && transmitted) {
+-		struct ieee80211_tx_info *info = IEEE80211_SKB_CB(wcn->tx_ack_skb);
+-
+-		/* TX complete, no need to wait for 802.11 ack indication */
+-		if (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS &&
+-		    info->flags & IEEE80211_TX_CTL_NO_ACK) {
+-			info->flags |= IEEE80211_TX_STAT_NOACK_TRANSMITTED;
+-			del_timer(&wcn->tx_ack_timer);
+-			ieee80211_tx_status_irqsafe(wcn->hw, wcn->tx_ack_skb);
+-			wcn->tx_ack_skb = NULL;
+-			ieee80211_wake_queues(wcn->hw);
+ 		}
+ 	}
+-	spin_unlock(&wcn->dxe_lock);
+ 
+ 	return IRQ_HANDLED;
+ }
+--- a/drivers/net/wireless/ath/wcn36xx/txrx.c
++++ b/drivers/net/wireless/ath/wcn36xx/txrx.c
+@@ -502,10 +502,11 @@ int wcn36xx_start_tx(struct wcn36xx *wcn
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
+ 	struct wcn36xx_vif *vif_priv = NULL;
+ 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
+-	unsigned long flags;
+ 	bool is_low = ieee80211_is_data(hdr->frame_control);
+ 	bool bcast = is_broadcast_ether_addr(hdr->addr1) ||
+ 		is_multicast_ether_addr(hdr->addr1);
++	bool ack_ind = (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS) &&
++					!(info->flags & IEEE80211_TX_CTL_NO_ACK);
+ 	struct wcn36xx_tx_bd bd;
+ 	int ret;
+ 
+@@ -521,30 +522,16 @@ int wcn36xx_start_tx(struct wcn36xx *wcn
+ 
+ 	bd.dpu_rf = WCN36XX_BMU_WQ_TX;
+ 
+-	if (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS) {
++	if (unlikely(ack_ind)) {
+ 		wcn36xx_dbg(WCN36XX_DBG_DXE, "TX_ACK status requested\n");
+ 
+-		spin_lock_irqsave(&wcn->dxe_lock, flags);
+-		if (wcn->tx_ack_skb) {
+-			spin_unlock_irqrestore(&wcn->dxe_lock, flags);
+-			wcn36xx_warn("tx_ack_skb already set\n");
+-			return -EINVAL;
+-		}
+-
+-		wcn->tx_ack_skb = skb;
+-		spin_unlock_irqrestore(&wcn->dxe_lock, flags);
+-
+ 		/* Only one at a time is supported by fw. Stop the TX queues
+ 		 * until the ack status gets back.
+ 		 */
+ 		ieee80211_stop_queues(wcn->hw);
+ 
+-		/* TX watchdog if no TX irq or ack indication received  */
+-		mod_timer(&wcn->tx_ack_timer, jiffies + HZ / 10);
+-
+ 		/* Request ack indication from the firmware */
+-		if (!(info->flags & IEEE80211_TX_CTL_NO_ACK))
+-			bd.tx_comp = 1;
++		bd.tx_comp = 1;
+ 	}
+ 
+ 	/* Data frames served first*/
+@@ -558,14 +545,8 @@ int wcn36xx_start_tx(struct wcn36xx *wcn
+ 	bd.tx_bd_sign = 0xbdbdbdbd;
+ 
+ 	ret = wcn36xx_dxe_tx_frame(wcn, vif_priv, &bd, skb, is_low);
+-	if (ret && (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS)) {
+-		/* If the skb has not been transmitted,
+-		 * don't keep a reference to it.
+-		 */
+-		spin_lock_irqsave(&wcn->dxe_lock, flags);
+-		wcn->tx_ack_skb = NULL;
+-		spin_unlock_irqrestore(&wcn->dxe_lock, flags);
+-
++	if (unlikely(ret && ack_ind)) {
++		/* If the skb has not been transmitted, resume TX queue */
+ 		ieee80211_wake_queues(wcn->hw);
+ 	}
+ 
 
 
