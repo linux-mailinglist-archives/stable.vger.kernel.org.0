@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2719F4510A6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:49:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6443A450D23
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:49:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242845AbhKOSvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:51:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52898 "EHLO mail.kernel.org"
+        id S238013AbhKORv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:51:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242940AbhKOSsO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:48:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FAD563396;
-        Mon, 15 Nov 2021 18:07:41 +0000 (UTC)
+        id S238085AbhKORsj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:48:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8032E63309;
+        Mon, 15 Nov 2021 17:30:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999661;
-        bh=OdPxKY2c7kAht3iiLXBnSutzuDh+aocw/PFPwt6d29o=;
+        s=korg; t=1636997409;
+        bh=OrRmFCszA6mAXdgGst8rddDKVWyhmmFy0oiAvl9IAgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NTij1s3bcfSGTZ898GOuDB8UpP/khdeswjgkPowQizSnjiqDj4pF4ZGhP/uT9KZSV
-         tsdmfJP3PU2Cio3aGkiwO/FM9KUiVpFUKp++qL61DywCYKrGIMM4Y0AA1ty7eW6hSQ
-         Gh3cu37RC+M3K3QKCKmU4gXtIZHuLt7J+aCH2yQA=
+        b=ph9F69/EKfkokMWc6zogrwZIGtq0lFMPXhxWxg+QP5JHPDKhHYJ5BTaHh4m1spnBH
+         g9SvZXywwca31t6bqncQTV9BWRzJBnu+9gLC5WjwMW74OWGaqFT15PQjPn+72yyCfv
+         zGqLefi1q5QDbQqWzgtliqY/QDst1RiqMCvGFiFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+a6969ef522a36d3344c9@syzkaller.appspotmail.com
-Subject: [PATCH 5.14 378/849] media: em28xx: add missing em28xx_close_extension
-Date:   Mon, 15 Nov 2021 17:57:41 +0100
-Message-Id: <20211115165433.029680560@linuxfoundation.org>
+        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.10 137/575] ovl: fix use after free in struct ovl_aio_req
+Date:   Mon, 15 Nov 2021 17:57:42 +0100
+Message-Id: <20211115165348.436431223@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +39,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: yangerkun <yangerkun@huawei.com>
 
-[ Upstream commit 2c98b8a3458df03abdc6945bbef67ef91d181938 ]
+commit 9a254403760041528bc8f69fe2f5e1ef86950991 upstream.
 
-If em28xx dev has ->dev_next pointer, we need to delete ->dev_next list
-node from em28xx_extension_devlist on disconnect to avoid UAF bugs and
-corrupted list bugs, since driver frees this pointer on disconnect.
+Example for triggering use after free in a overlay on ext4 setup:
 
-Reported-and-tested-by: syzbot+a6969ef522a36d3344c9@syzkaller.appspotmail.com
+aio_read
+  ovl_read_iter
+    vfs_iter_read
+      ext4_file_read_iter
+        ext4_dio_read_iter
+          iomap_dio_rw -> -EIOCBQUEUED
+          /*
+	   * Here IO is completed in a separate thread,
+	   * ovl_aio_cleanup_handler() frees aio_req which has iocb embedded
+	   */
+          file_accessed(iocb->ki_filp); /**BOOM**/
 
-Fixes: 1a23f81b7dc3 ("V4L/DVB (9979): em28xx: move usb probe code to a proper place")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix by introducing a refcount in ovl_aio_req similarly to aio_kiocb.  This
+guarantees that iocb is only freed after vfs_read/write_iter() returns on
+underlying fs.
+
+Fixes: 2406a307ac7d ("ovl: implement async IO routines")
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Link: https://lore.kernel.org/r/20210930032228.3199690-3-yangerkun@huawei.com/
+Cc: <stable@vger.kernel.org> # v5.6
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/em28xx/em28xx-cards.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/overlayfs/file.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
-index c1e0dccb74088..948e22e29b42a 100644
---- a/drivers/media/usb/em28xx/em28xx-cards.c
-+++ b/drivers/media/usb/em28xx/em28xx-cards.c
-@@ -4139,8 +4139,11 @@ static void em28xx_usb_disconnect(struct usb_interface *intf)
+--- a/fs/overlayfs/file.c
++++ b/fs/overlayfs/file.c
+@@ -17,6 +17,7 @@
  
- 	em28xx_close_extension(dev);
+ struct ovl_aio_req {
+ 	struct kiocb iocb;
++	refcount_t ref;
+ 	struct kiocb *orig_iocb;
+ 	struct fd fd;
+ };
+@@ -257,6 +258,14 @@ static rwf_t ovl_iocb_to_rwf(int ifl)
+ 	return flags;
+ }
  
--	if (dev->dev_next)
-+	if (dev->dev_next) {
-+		em28xx_close_extension(dev->dev_next);
- 		em28xx_release_resources(dev->dev_next);
++static inline void ovl_aio_put(struct ovl_aio_req *aio_req)
++{
++	if (refcount_dec_and_test(&aio_req->ref)) {
++		fdput(aio_req->fd);
++		kmem_cache_free(ovl_aio_request_cachep, aio_req);
 +	}
++}
 +
- 	em28xx_release_resources(dev);
+ static void ovl_aio_cleanup_handler(struct ovl_aio_req *aio_req)
+ {
+ 	struct kiocb *iocb = &aio_req->iocb;
+@@ -273,8 +282,7 @@ static void ovl_aio_cleanup_handler(stru
+ 	}
  
- 	if (dev->dev_next) {
--- 
-2.33.0
-
+ 	orig_iocb->ki_pos = iocb->ki_pos;
+-	fdput(aio_req->fd);
+-	kmem_cache_free(ovl_aio_request_cachep, aio_req);
++	ovl_aio_put(aio_req);
+ }
+ 
+ static void ovl_aio_rw_complete(struct kiocb *iocb, long res, long res2)
+@@ -324,7 +332,9 @@ static ssize_t ovl_read_iter(struct kioc
+ 		aio_req->orig_iocb = iocb;
+ 		kiocb_clone(&aio_req->iocb, iocb, real.file);
+ 		aio_req->iocb.ki_complete = ovl_aio_rw_complete;
++		refcount_set(&aio_req->ref, 2);
+ 		ret = vfs_iocb_iter_read(real.file, &aio_req->iocb, iter);
++		ovl_aio_put(aio_req);
+ 		if (ret != -EIOCBQUEUED)
+ 			ovl_aio_cleanup_handler(aio_req);
+ 	}
+@@ -395,7 +405,9 @@ static ssize_t ovl_write_iter(struct kio
+ 		kiocb_clone(&aio_req->iocb, iocb, real.file);
+ 		aio_req->iocb.ki_flags = ifl;
+ 		aio_req->iocb.ki_complete = ovl_aio_rw_complete;
++		refcount_set(&aio_req->ref, 2);
+ 		ret = vfs_iocb_iter_write(real.file, &aio_req->iocb, iter);
++		ovl_aio_put(aio_req);
+ 		if (ret != -EIOCBQUEUED)
+ 			ovl_aio_cleanup_handler(aio_req);
+ 	}
 
 
