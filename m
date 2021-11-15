@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F95451FB4
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5776D451FB0
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345659AbhKPApD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44634 "EHLO mail.kernel.org"
+        id S1350505AbhKPApC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343751AbhKOTV5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343752AbhKOTV5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3280635DB;
-        Mon, 15 Nov 2021 18:45:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BC146339D;
+        Mon, 15 Nov 2021 18:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001934;
-        bh=q8Yep5WTdNkcF66996RbKQL6IHhHIQstIeFptdB/AB8=;
+        s=korg; t=1637001936;
+        bh=FJgi0X6NyIL0I6Kq38gj1W8prcVyVQSF2ax9B3/W0Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZqnlvulXl+rTTdWr1H5dHy6Inrq1IeXxPkBxjefAJm4Bo1ycS2EepwwEC+RMciWHp
-         hVt4l/i7Noq34e86CsrD/nLdhhNMZksofKOkimYZoDI5pEOplWwbuMW9OCOdZZlki/
-         oZ1oXk5yMyBnggxcuTRD+CclAAIZuRnDVje7MXAg=
+        b=TceV6O6p5BSJW6ug8ZG5c1ce+mXe18xwhQ98IgcPrqjOScin2TBhx7x+jjdjQk16b
+         +mXFtFaz54IOoI+4web9rHW7WNHLJGHFuc42+DckMDc9YmSmvB2BALm4KTr53nnE0O
+         2vCrTRcyS8AuhZEdOmHahatvSbxby0lkxEA2OV1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 375/917] drm/amdgpu: fix warning for overflow check
-Date:   Mon, 15 Nov 2021 17:57:50 +0100
-Message-Id: <20211115165441.475033177@linuxfoundation.org>
+Subject: [PATCH 5.15 376/917] libbpf: Fix skel_internal.h to set errno on loader retval < 0
+Date:   Mon, 15 Nov 2021 17:57:51 +0100
+Message-Id: <20211115165441.507146162@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,57 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-[ Upstream commit 335aea75b0d95518951cad7c4c676e6f1c02c150 ]
+[ Upstream commit e68ac0082787f4e8ee6ae5b19076ec7709ce715b ]
 
-The overflow check in amdgpu_bo_list_create() causes a warning with
-clang-14 on 64-bit architectures, since the limit can never be
-exceeded.
+When the loader indicates an internal error (result of a checked bpf
+system call), it returns the result in attr.test.retval. However, tests
+that rely on ASSERT_OK_PTR on NULL (returned from light skeleton) may
+miss that NULL denotes an error if errno is set to 0. This would result
+in skel pointer being NULL, while ASSERT_OK_PTR returning 1, leading to
+a SEGV on dereference of skel, because libbpf_get_error relies on the
+assumption that errno is always set in case of error for ptr == NULL.
 
-drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c:74:18: error: result of comparison of constant 256204778801521549 with expression of type 'unsigned int' is always false [-Werror,-Wtautological-constant-out-of-range-compare]
-        if (num_entries > (SIZE_MAX - sizeof(struct amdgpu_bo_list))
-            ~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In particular, this was observed for the ksyms_module test. When
+executed using `./test_progs -t ksyms`, prior tests manipulated errno
+and the test didn't crash when it failed at ksyms_module load, while
+using `./test_progs -t ksyms_module` crashed due to errno being
+untouched.
 
-The check remains useful for 32-bit architectures, so just avoid the
-warning by using size_t as the type for the count.
-
-Fixes: 920990cb080a ("drm/amdgpu: allocate the bo_list array after the list")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 67234743736a (libbpf: Generate loader program out of BPF ELF file.)
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210927145941.1383001-11-memxor@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c | 2 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ tools/lib/bpf/skel_internal.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-index 15c45b2a39835..714178f1b6c6e 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-@@ -61,7 +61,7 @@ static void amdgpu_bo_list_free(struct kref *ref)
- 
- int amdgpu_bo_list_create(struct amdgpu_device *adev, struct drm_file *filp,
- 			  struct drm_amdgpu_bo_list_entry *info,
--			  unsigned num_entries, struct amdgpu_bo_list **result)
-+			  size_t num_entries, struct amdgpu_bo_list **result)
- {
- 	unsigned last_entry = 0, first_userptr = num_entries;
- 	struct amdgpu_bo_list_entry *array;
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
-index c905a4cfc173d..044b41f0bfd9c 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.h
-@@ -61,7 +61,7 @@ int amdgpu_bo_create_list_entry_array(struct drm_amdgpu_bo_list_in *in,
- int amdgpu_bo_list_create(struct amdgpu_device *adev,
- 				 struct drm_file *filp,
- 				 struct drm_amdgpu_bo_list_entry *info,
--				 unsigned num_entries,
-+				 size_t num_entries,
- 				 struct amdgpu_bo_list **list);
- 
- static inline struct amdgpu_bo_list_entry *
+diff --git a/tools/lib/bpf/skel_internal.h b/tools/lib/bpf/skel_internal.h
+index b22b50c1b173e..9cf66702fa8dd 100644
+--- a/tools/lib/bpf/skel_internal.h
++++ b/tools/lib/bpf/skel_internal.h
+@@ -105,10 +105,12 @@ static inline int bpf_load_and_run(struct bpf_load_and_run_opts *opts)
+ 	err = skel_sys_bpf(BPF_PROG_RUN, &attr, sizeof(attr));
+ 	if (err < 0 || (int)attr.test.retval < 0) {
+ 		opts->errstr = "failed to execute loader prog";
+-		if (err < 0)
++		if (err < 0) {
+ 			err = -errno;
+-		else
++		} else {
+ 			err = (int)attr.test.retval;
++			errno = -err;
++		}
+ 		goto out;
+ 	}
+ 	err = 0;
 -- 
 2.33.0
 
