@@ -2,42 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D92F94521D6
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51A544521D7
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351151AbhKPBHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1352060AbhKPBHE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 20:07:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245369AbhKOTUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232852AbhKOTUS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:20:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91C8D63465;
-        Mon, 15 Nov 2021 18:33:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 250636334A;
+        Mon, 15 Nov 2021 18:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001203;
-        bh=RvhLvZ/ApkAe4kgJ3nlQ6+LY5y0knpUdvM3VTNWyh6I=;
+        s=korg; t=1637001205;
+        bh=Ad1HfrWZE2wvZQIdZBdlb/IcGyWLTaBmcq8k8RbNJbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vW0vpSjp4J6pcMJzQ4P5WVJRbyS7Cd7OJOQXYoZ0V0NOpieP59GzQlWCO5YtwMTOf
-         cb0OJg3E9EOqrEgIIUek212rjQye1X7h+qK13Q+/dXMqLO9yx9FQSxSr6TBcJ3jTo8
-         iNzrE6W+RmsAyGJ66B/JmL9wzOXqxKYQpLdn+IV4=
+        b=cOQnBY80DY3zZwuvJgtmTN99TmWSMSQFVhgiMeOywLURSW+2cttwwv20DzsP/P9L/
+         kh6KRPLVK9IXGiREHN7ZApQQJ7L5l2AmBhatzZgykIjNj9Xn3IBctXmXYSEu0hMSFM
+         57bDcEoRZCTlpV0O6QP3Az9NrJyCAhgALNCc2fs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
-        Angus Ainslie <angus@akkea.ca>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Karun Eagalapati <karun256@gmail.com>,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Martin Kepplinger <martink@posteo.de>,
-        Prameela Rani Garnepudi <prameela.j04cs@gmail.com>,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Siva Rebbagondla <siva8118@gmail.com>, netdev@vger.kernel.org
-Subject: [PATCH 5.15 101/917] rsi: Fix module dev_oper_mode parameter description
-Date:   Mon, 15 Nov 2021 17:53:16 +0100
-Message-Id: <20211115165432.177073614@linuxfoundation.org>
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andi Kleen <ak@linux.intel.com>
+Subject: [PATCH 5.15 102/917] perf/x86/intel/uncore: Support extra IMC channel on Ice Lake server
+Date:   Mon, 15 Nov 2021 17:53:17 +0100
+Message-Id: <20211115165432.216701852@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -49,95 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit 31f97cf9f0c31143a2a6fcc89c4a1286ce20157e upstream.
+commit 496a18f09374ad89b3ab4366019bc3975db90234 upstream.
 
-The module parameters are missing dev_oper_mode 12, BT classic alone,
-add it. Moreover, the parameters encode newlines, which ends up being
-printed malformed e.g. by modinfo, so fix that too.
+There are three channels on a Ice Lake server, but only two channels
+will ever be active. Current perf only enables two channels.
 
-However, the module parameter string is duplicated in both USB and SDIO
-modules and the dev_oper_mode mode enumeration in those module parameters
-is a duplicate of macros used by the driver. Furthermore, the enumeration
-is confusing.
+Support the extra IMC channel, which may be activated on some Ice Lake
+machines. For a non-activated channel, the SW can still access it. The
+write will be ignored by the HW. 0 is always returned for the reading.
 
-So, deduplicate the module parameter string and use __stringify() to
-encode the correct mode enumeration values into the module parameter
-string. Finally, replace 'Wi-Fi' with 'Wi-Fi alone' and 'BT' with
-'BT classic alone' to clarify what those modes really mean.
-
-Fixes: 898b255339310 ("rsi: add module parameter operating mode")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
-Cc: Angus Ainslie <angus@akkea.ca>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Karun Eagalapati <karun256@gmail.com>
-Cc: Martin Fuzzey <martin.fuzzey@flowbird.group>
-Cc: Martin Kepplinger <martink@posteo.de>
-Cc: Prameela Rani Garnepudi <prameela.j04cs@gmail.com>
-Cc: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Cc: Siva Rebbagondla <siva8118@gmail.com>
-Cc: netdev@vger.kernel.org
-Cc: <stable@vger.kernel.org> # 4.17+
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210916144245.10181-1-marex@denx.de
+Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore support")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1629991963-102621-2-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_sdio.c |    5 +----
- drivers/net/wireless/rsi/rsi_91x_usb.c  |    5 +----
- drivers/net/wireless/rsi/rsi_hal.h      |   11 +++++++++++
- 3 files changed, 13 insertions(+), 8 deletions(-)
+ arch/x86/events/intel/uncore_snbep.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/rsi/rsi_91x_sdio.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-@@ -24,10 +24,7 @@
- /* Default operating mode is wlan STA + BT */
- static u16 dev_oper_mode = DEV_OPMODE_STA_BT_DUAL;
- module_param(dev_oper_mode, ushort, 0444);
--MODULE_PARM_DESC(dev_oper_mode,
--		 "1[Wi-Fi], 4[BT], 8[BT LE], 5[Wi-Fi STA + BT classic]\n"
--		 "9[Wi-Fi STA + BT LE], 13[Wi-Fi STA + BT classic + BT LE]\n"
--		 "6[AP + BT classic], 14[AP + BT classic + BT LE]");
-+MODULE_PARM_DESC(dev_oper_mode, DEV_OPMODE_PARAM_DESC);
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -452,7 +452,7 @@
+ #define ICX_M3UPI_PCI_PMON_BOX_CTL		0xa0
  
- /**
-  * rsi_sdio_set_cmd52_arg() - This function prepares cmd 52 read/write arg.
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -25,10 +25,7 @@
- /* Default operating mode is wlan STA + BT */
- static u16 dev_oper_mode = DEV_OPMODE_STA_BT_DUAL;
- module_param(dev_oper_mode, ushort, 0444);
--MODULE_PARM_DESC(dev_oper_mode,
--		 "1[Wi-Fi], 4[BT], 8[BT LE], 5[Wi-Fi STA + BT classic]\n"
--		 "9[Wi-Fi STA + BT LE], 13[Wi-Fi STA + BT classic + BT LE]\n"
--		 "6[AP + BT classic], 14[AP + BT classic + BT LE]");
-+MODULE_PARM_DESC(dev_oper_mode, DEV_OPMODE_PARAM_DESC);
+ /* ICX IMC */
+-#define ICX_NUMBER_IMC_CHN			2
++#define ICX_NUMBER_IMC_CHN			3
+ #define ICX_IMC_MEM_STRIDE			0x4
  
- static int rsi_rx_urb_submit(struct rsi_hw *adapter, u8 ep_num, gfp_t flags);
- 
---- a/drivers/net/wireless/rsi/rsi_hal.h
-+++ b/drivers/net/wireless/rsi/rsi_hal.h
-@@ -28,6 +28,17 @@
- #define DEV_OPMODE_AP_BT		6
- #define DEV_OPMODE_AP_BT_DUAL		14
- 
-+#define DEV_OPMODE_PARAM_DESC		\
-+	__stringify(DEV_OPMODE_WIFI_ALONE)	"[Wi-Fi alone], "	\
-+	__stringify(DEV_OPMODE_BT_ALONE)	"[BT classic alone], "	\
-+	__stringify(DEV_OPMODE_BT_LE_ALONE)	"[BT LE alone], "	\
-+	__stringify(DEV_OPMODE_BT_DUAL)		"[BT classic + BT LE alone], " \
-+	__stringify(DEV_OPMODE_STA_BT)		"[Wi-Fi STA + BT classic], " \
-+	__stringify(DEV_OPMODE_STA_BT_LE)	"[Wi-Fi STA + BT LE], "	\
-+	__stringify(DEV_OPMODE_STA_BT_DUAL)	"[Wi-Fi STA + BT classic + BT LE], " \
-+	__stringify(DEV_OPMODE_AP_BT)		"[Wi-Fi AP + BT classic], "	\
-+	__stringify(DEV_OPMODE_AP_BT_DUAL)	"[Wi-Fi AP + BT classic + BT LE]"
-+
- #define FLASH_WRITE_CHUNK_SIZE		(4 * 1024)
- #define FLASH_SECTOR_SIZE		(4 * 1024)
- 
+ /* SPR */
+@@ -5463,7 +5463,7 @@ static struct intel_uncore_ops icx_uncor
+ static struct intel_uncore_type icx_uncore_imc = {
+ 	.name		= "imc",
+ 	.num_counters   = 4,
+-	.num_boxes	= 8,
++	.num_boxes	= 12,
+ 	.perf_ctr_bits	= 48,
+ 	.fixed_ctr_bits	= 48,
+ 	.fixed_ctr	= SNR_IMC_MMIO_PMON_FIXED_CTR,
 
 
