@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA1A64520BE
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:53:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7902C4520C8
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:54:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239330AbhKPA4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:56:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
+        id S1343752AbhKPA4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:56:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343556AbhKOTVU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA526632FC;
-        Mon, 15 Nov 2021 18:42:08 +0000 (UTC)
+        id S1343591AbhKOTVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01DC9635AE;
+        Mon, 15 Nov 2021 18:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001729;
-        bh=PtyTeq9XGQA96nbLvZkx5jb4VmyVuQQlTm3f44FQDDw=;
+        s=korg; t=1637001747;
+        bh=ZFGpsRX+Ecc6ty10iOns7NtkkZbx7rfn8KQotGc4V88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xYgnrugOnYzuWnoy6fOIRhuPtYCk4jz/cmluJCmPkEacmvyidubzDCZyiBCYl3KqT
-         AUmLQZAlaQEQlNUBLKD/caJQgWHzkZww8ukZS9iwJK3VlHUzvC5a9hNTdNPIdQj6Mz
-         N8qFVmG+ZkpvgpmuTB0qppWZ4lcpyA6M84p5k9IY=
+        b=LvIEat+eTZ5lIWEOdRZOoJaR+OTQvJN3rBRBT1QmakLwcwMsqrczIuwygSAO7kRP7
+         l6b1Vsn0+Fau6LMbT7j5clBMrHIF3PL8OK01/EepkTey2Y0JkdWJHOTMVKCpx/6J+R
+         ieO8S5qsKhPdec9ed8liq3DLaBT4IY4XLfmJei5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalesh Singh <kaleshsingh@google.com>,
-        kernel test robot <lkp@intel.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 271/917] tracing/cfi: Fix cmp_entries_* functions signature mismatch
-Date:   Mon, 15 Nov 2021 17:56:06 +0100
-Message-Id: <20211115165437.969687388@linuxfoundation.org>
+        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 272/917] mt76: mt7915: fix an off-by-one bound check
+Date:   Mon, 15 Nov 2021 17:56:07 +0100
+Message-Id: <20211115165438.002729037@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,132 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kalesh Singh <kaleshsingh@google.com>
+From: Ryder Lee <ryder.lee@mediatek.com>
 
-[ Upstream commit 7ce1bb83a14019f8c396d57ec704d19478747716 ]
+[ Upstream commit d45dac0732a287fc371a23f257cce04e65627947 ]
 
-If CONFIG_CFI_CLANG=y, attempting to read an event histogram will cause
-the kernel to panic due to failed CFI check.
+The bounds check on datalen is off-by-one, so fix it.
 
-    1. echo 'hist:keys=common_pid' >> events/sched/sched_switch/trigger
-    2. cat events/sched/sched_switch/hist
-    3. kernel panics on attempting to read hist
-
-This happens because the sort() function expects a generic
-int (*)(const void *, const void *) pointer for the compare function.
-To prevent this CFI failure, change tracing map cmp_entries_* function
-signatures to match this.
-
-Also, fix the build error reported by the kernel test robot [1].
-
-[1] https://lore.kernel.org/r/202110141140.zzi4dRh4-lkp@intel.com/
-
-Link: https://lkml.kernel.org/r/20211014045217.3265162-1-kaleshsingh@google.com
-
-Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/tracing_map.c | 40 ++++++++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 17 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/trace/tracing_map.c b/kernel/trace/tracing_map.c
-index d6bddb157ef20..39bb56d2dcbef 100644
---- a/kernel/trace/tracing_map.c
-+++ b/kernel/trace/tracing_map.c
-@@ -834,29 +834,35 @@ int tracing_map_init(struct tracing_map *map)
- 	return err;
- }
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+index 43960770a9af2..2f30047bd80f2 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+@@ -925,7 +925,7 @@ static void mt7915_check_he_obss_narrow_bw_ru_iter(struct wiphy *wiphy,
  
--static int cmp_entries_dup(const struct tracing_map_sort_entry **a,
--			   const struct tracing_map_sort_entry **b)
-+static int cmp_entries_dup(const void *A, const void *B)
- {
-+	const struct tracing_map_sort_entry *a, *b;
- 	int ret = 0;
+ 	elem = ieee80211_bss_get_elem(bss, WLAN_EID_EXT_CAPABILITY);
  
--	if (memcmp((*a)->key, (*b)->key, (*a)->elt->map->key_size))
-+	a = *(const struct tracing_map_sort_entry **)A;
-+	b = *(const struct tracing_map_sort_entry **)B;
-+
-+	if (memcmp(a->key, b->key, a->elt->map->key_size))
- 		ret = 1;
- 
- 	return ret;
- }
- 
--static int cmp_entries_sum(const struct tracing_map_sort_entry **a,
--			   const struct tracing_map_sort_entry **b)
-+static int cmp_entries_sum(const void *A, const void *B)
- {
- 	const struct tracing_map_elt *elt_a, *elt_b;
-+	const struct tracing_map_sort_entry *a, *b;
- 	struct tracing_map_sort_key *sort_key;
- 	struct tracing_map_field *field;
- 	tracing_map_cmp_fn_t cmp_fn;
- 	void *val_a, *val_b;
- 	int ret = 0;
- 
--	elt_a = (*a)->elt;
--	elt_b = (*b)->elt;
-+	a = *(const struct tracing_map_sort_entry **)A;
-+	b = *(const struct tracing_map_sort_entry **)B;
-+
-+	elt_a = a->elt;
-+	elt_b = b->elt;
- 
- 	sort_key = &elt_a->map->sort_key;
- 
-@@ -873,18 +879,21 @@ static int cmp_entries_sum(const struct tracing_map_sort_entry **a,
- 	return ret;
- }
- 
--static int cmp_entries_key(const struct tracing_map_sort_entry **a,
--			   const struct tracing_map_sort_entry **b)
-+static int cmp_entries_key(const void *A, const void *B)
- {
- 	const struct tracing_map_elt *elt_a, *elt_b;
-+	const struct tracing_map_sort_entry *a, *b;
- 	struct tracing_map_sort_key *sort_key;
- 	struct tracing_map_field *field;
- 	tracing_map_cmp_fn_t cmp_fn;
- 	void *val_a, *val_b;
- 	int ret = 0;
- 
--	elt_a = (*a)->elt;
--	elt_b = (*b)->elt;
-+	a = *(const struct tracing_map_sort_entry **)A;
-+	b = *(const struct tracing_map_sort_entry **)B;
-+
-+	elt_a = a->elt;
-+	elt_b = b->elt;
- 
- 	sort_key = &elt_a->map->sort_key;
- 
-@@ -989,10 +998,8 @@ static void sort_secondary(struct tracing_map *map,
- 			   struct tracing_map_sort_key *primary_key,
- 			   struct tracing_map_sort_key *secondary_key)
- {
--	int (*primary_fn)(const struct tracing_map_sort_entry **,
--			  const struct tracing_map_sort_entry **);
--	int (*secondary_fn)(const struct tracing_map_sort_entry **,
--			    const struct tracing_map_sort_entry **);
-+	int (*primary_fn)(const void *, const void *);
-+	int (*secondary_fn)(const void *, const void *);
- 	unsigned i, start = 0, n_sub = 1;
- 
- 	if (is_key(map, primary_key->field_idx))
-@@ -1061,8 +1068,7 @@ int tracing_map_sort_entries(struct tracing_map *map,
- 			     unsigned int n_sort_keys,
- 			     struct tracing_map_sort_entry ***sort_entries)
- {
--	int (*cmp_entries_fn)(const struct tracing_map_sort_entry **,
--			      const struct tracing_map_sort_entry **);
-+	int (*cmp_entries_fn)(const void *, const void *);
- 	struct tracing_map_sort_entry *sort_entry, **entries;
- 	int i, n_entries, ret;
- 
+-	if (!elem || elem->datalen < 10 ||
++	if (!elem || elem->datalen <= 10 ||
+ 	    !(elem->data[10] &
+ 	      WLAN_EXT_CAPA10_OBSS_NARROW_BW_RU_TOLERANCE_SUPPORT))
+ 		data->tolerated = false;
 -- 
 2.33.0
 
