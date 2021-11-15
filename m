@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4128A4513D6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEDDA4513CA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:54:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242231AbhKOT5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:57:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S233035AbhKOT40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:56:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344051AbhKOTXM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344052AbhKOTXM (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:23:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E6446361E;
-        Mon, 15 Nov 2021 18:50:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 739C8633B7;
+        Mon, 15 Nov 2021 18:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002245;
-        bh=MimB1u1ERmogR0XAsftBWay+11tQEunFPI51Vz5l+hc=;
+        s=korg; t=1637002256;
+        bh=vEppnY2qTR+GDJKuIXbpa1Slw+pd4d/WeTohcrcIYXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0BExGf2dCMXN3+2jc8IvVWCe1Fvl+SecdSe3w9lX60grCn9JRmYXbuXLqJX9lmJn+
-         LeDUE2O3ZwZ3o3p/wp2goGmrCr7TeseVUMv+6CLw+6wY86RmE+qSibiSmzAQQMOHND
-         XpuqGjIIwM/iJbNJq5bkzfpvCVkDA/d6yMp4nrAU=
+        b=K538r+N0fMpAYEH0Fi5RcS+m4JkwsOwkAo93JHTjmKlmzE/6rV5Fx/UpKkFBQK/YI
+         AH+JKGEKMFxgz0AITK3bAE86XuTrnNPjzrn4hmpUU7KBByXx/HDt9l8E5amhAObXzZ
+         qJghLguPuZeA/QwOwrE3lyNUstCXcK91cI3GuSCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Keerthy <j-keerthy@ti.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.co.uk>,
-        Ladislav Michl <ladis@linux-mips.org>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        linux-omap@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 494/917] clocksource/drivers/timer-ti-dm: Select TIMER_OF
-Date:   Mon, 15 Nov 2021 17:59:49 +0100
-Message-Id: <20211115165445.522992427@linuxfoundation.org>
+Subject: [PATCH 5.15 498/917] crypto: tcrypt - fix skcipher multi-buffer tests for 1420B blocks
+Date:   Mon, 15 Nov 2021 17:59:53 +0100
+Message-Id: <20211115165445.661961430@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -46,47 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-[ Upstream commit eda9a4f7af6ee47e9e131f20e4f8a41a97379293 ]
+[ Upstream commit 3ae88f676aa63366ffa9eebb8ae787c7e19f0c57 ]
 
-When building OMAP_DM_TIMER without TIMER_OF, there are orphan sections
-due to the use of TIMER_OF_DELCARE() without CONFIG_TIMER_OF. Select
-CONFIG_TIMER_OF when enaling OMAP_DM_TIMER:
+Commit ad6d66bcac77e ("crypto: tcrypt - include 1420 byte blocks in aead and skcipher benchmarks")
+mentions:
+> power-of-2 block size. So let's add 1420 bytes explicitly, and round
+> it up to the next blocksize multiple of the algo in question if it
+> does not support 1420 byte blocks.
+but misses updating skcipher multi-buffer tests.
 
-arm-linux-gnueabi-ld: warning: orphan section `__timer_of_table' from `drivers/clocksource/timer-ti-dm-systimer.o' being placed in section `__timer_of_table'
+Fix this by using the proper (rounded) input size.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202108282255.tkdt4ani-lkp@intel.com/
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
-Cc: Keerthy <j-keerthy@ti.com>
-Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Ladislav Michl <ladis@linux-mips.org>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: linux-omap@vger.kernel.org
-Fixes: 52762fbd1c47 ("clocksource/drivers/timer-ti-dm: Add clockevent and clocksource support")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210828175747.3777891-1-keescook@chromium.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: ad6d66bcac77e ("crypto: tcrypt - include 1420 byte blocks in aead and skcipher benchmarks")
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ crypto/tcrypt.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
-index 0f5e3983951a8..08f8cb944a2ac 100644
---- a/drivers/clocksource/Kconfig
-+++ b/drivers/clocksource/Kconfig
-@@ -24,6 +24,7 @@ config I8253_LOCK
+diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
+index 82b0400985a51..00149657a4bc1 100644
+--- a/crypto/tcrypt.c
++++ b/crypto/tcrypt.c
+@@ -1333,7 +1333,7 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
  
- config OMAP_DM_TIMER
- 	bool
-+	select TIMER_OF
+ 			if (bs > XBUFSIZE * PAGE_SIZE) {
+ 				pr_err("template (%u) too big for buffer (%lu)\n",
+-				       *b_size, XBUFSIZE * PAGE_SIZE);
++				       bs, XBUFSIZE * PAGE_SIZE);
+ 				goto out;
+ 			}
  
- config CLKBLD_I8253
- 	def_bool y if CLKSRC_I8253 || CLKEVT_I8253 || I8253_LOCK
+@@ -1386,8 +1386,7 @@ static void test_mb_skcipher_speed(const char *algo, int enc, int secs,
+ 				memset(cur->xbuf[p], 0xff, k);
+ 
+ 				skcipher_request_set_crypt(cur->req, cur->sg,
+-							   cur->sg, *b_size,
+-							   iv);
++							   cur->sg, bs, iv);
+ 			}
+ 
+ 			if (secs) {
 -- 
 2.33.0
 
