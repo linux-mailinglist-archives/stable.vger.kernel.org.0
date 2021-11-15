@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0898451327
+	by mail.lfdr.de (Postfix) with ESMTP id 562DC451326
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245073AbhKOTqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:46:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
+        id S233734AbhKOTqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:46:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245337AbhKOTUJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245339AbhKOTUJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:20:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CA6C63346;
-        Mon, 15 Nov 2021 18:32:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BE3363344;
+        Mon, 15 Nov 2021 18:32:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001168;
-        bh=85i5/CtCbdDbEoZ2C8eeuIruaYrkv5rpVAakvtNBd4g=;
+        s=korg; t=1637001173;
+        bh=BtdU/AhAQVKVAJVxlY/pIFBd6/zN2jJdWZx6fDtfBBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2h+ZOVn4vyAgCEjvqIMzoqoE1Nka/L8G2BJy2heabC4O5MiuCvhcOHe7EozrNnyli
-         PNmOETRr8JBGZXlESDJJTwDRR+rkR3wIRfGnvVj/LHtfKSwrG/vX8F23F4EuKnoJlv
-         7HmuDJvQ4gXOMHP0UXUz8i9Krf+9NMdfLTCUuBT8=
+        b=BUTjTw9PeEt27mxv8QeUkDeN9ajbM5a4nTNp/VqbupPaWsASnfar8W5DdrAQTVmC5
+         uVGpXRpV+kFCy+Df721lWQH1bWn+kF+buTb0v2TAULlfMCx+8Nov962J2TPPG+BuKj
+         7wiAlZ+VQiTlI7yAwCmsyeLJLoUTWLuDZDlPK/48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>
-Subject: [PATCH 5.15 086/917] mt76: mt7615: fix skb use-after-free on mac reset
-Date:   Mon, 15 Nov 2021 17:53:01 +0100
-Message-Id: <20211115165431.674528607@linuxfoundation.org>
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.15 088/917] HID: surface-hid: Allow driver matching for target ID 1 devices
+Date:   Mon, 15 Nov 2021 17:53:03 +0100
+Message-Id: <20211115165431.737100783@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -38,95 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit b5cd1fd6043bbb7c5810067b5f93f3016bfd8a6f upstream.
+commit ab5fe33925c6b03f646a1153771dab047548e4d8 upstream.
 
-When clearing all existing pending tx slots, mt76_tx_complete_skb needs to
-be used to free the skbs, to ensure that they are cleared from the status
-list as well.
+Until now we have only ever seen HID devices with target ID 2. The new
+Surface Laptop Studio however uses HID devices with target ID 1. Allow
+matching this driver to those as well.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Cc: stable@vger.kernel.org # 5.14+
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20211021130904.862610-4-luzmaximilian@gmail.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/mac.c |   45 ++++++++++++------------
- 1 file changed, 23 insertions(+), 22 deletions(-)
+ drivers/hid/surface-hid/surface_hid.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-@@ -1494,32 +1494,41 @@ out:
+--- a/drivers/hid/surface-hid/surface_hid.c
++++ b/drivers/hid/surface-hid/surface_hid.c
+@@ -230,7 +230,7 @@ static void surface_hid_remove(struct ss
  }
  
- static void
--mt7615_mac_tx_free_token(struct mt7615_dev *dev, u16 token)
-+mt7615_txwi_free(struct mt7615_dev *dev, struct mt76_txwi_cache *txwi)
- {
- 	struct mt76_dev *mdev = &dev->mt76;
--	struct mt76_txwi_cache *txwi;
- 	__le32 *txwi_data;
- 	u32 val;
- 	u8 wcid;
- 
--	trace_mac_tx_free(dev, token);
--	txwi = mt76_token_put(mdev, token);
--	if (!txwi)
--		return;
-+	mt7615_txp_skb_unmap(mdev, txwi);
-+	if (!txwi->skb)
-+		goto out;
- 
- 	txwi_data = (__le32 *)mt76_get_txwi_ptr(mdev, txwi);
- 	val = le32_to_cpu(txwi_data[1]);
- 	wcid = FIELD_GET(MT_TXD1_WLAN_IDX, val);
-+	mt76_tx_complete_skb(mdev, wcid, txwi->skb);
- 
--	mt7615_txp_skb_unmap(mdev, txwi);
--	if (txwi->skb) {
--		mt76_tx_complete_skb(mdev, wcid, txwi->skb);
--		txwi->skb = NULL;
--	}
--
-+out:
-+	txwi->skb = NULL;
- 	mt76_put_txwi(mdev, txwi);
- }
- 
-+static void
-+mt7615_mac_tx_free_token(struct mt7615_dev *dev, u16 token)
-+{
-+	struct mt76_dev *mdev = &dev->mt76;
-+	struct mt76_txwi_cache *txwi;
-+
-+	trace_mac_tx_free(dev, token);
-+	txwi = mt76_token_put(mdev, token);
-+	if (!txwi)
-+		return;
-+
-+	mt7615_txwi_free(dev, txwi);
-+}
-+
- static void mt7615_mac_tx_free(struct mt7615_dev *dev, struct sk_buff *skb)
- {
- 	struct mt7615_tx_free *free = (struct mt7615_tx_free *)skb->data;
-@@ -2026,16 +2035,8 @@ void mt7615_tx_token_put(struct mt7615_d
- 	int id;
- 
- 	spin_lock_bh(&dev->mt76.token_lock);
--	idr_for_each_entry(&dev->mt76.token, txwi, id) {
--		mt7615_txp_skb_unmap(&dev->mt76, txwi);
--		if (txwi->skb) {
--			struct ieee80211_hw *hw;
--
--			hw = mt76_tx_status_get_hw(&dev->mt76, txwi->skb);
--			ieee80211_free_txskb(hw, txwi->skb);
--		}
--		mt76_put_txwi(&dev->mt76, txwi);
--	}
-+	idr_for_each_entry(&dev->mt76.token, txwi, id)
-+		mt7615_txwi_free(dev, txwi);
- 	spin_unlock_bh(&dev->mt76.token_lock);
- 	idr_destroy(&dev->mt76.token);
- }
+ static const struct ssam_device_id surface_hid_match[] = {
+-	{ SSAM_SDEV(HID, 0x02, SSAM_ANY_IID, 0x00) },
++	{ SSAM_SDEV(HID, SSAM_ANY_TID, SSAM_ANY_IID, 0x00) },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(ssam, surface_hid_match);
 
 
