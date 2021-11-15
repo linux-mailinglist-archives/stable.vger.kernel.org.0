@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 182B4450EFC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:22:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64905450ED9
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241618AbhKOSXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:23:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33184 "EHLO mail.kernel.org"
+        id S237612AbhKOSUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:20:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241366AbhKOSTc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:19:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F66C6327C;
-        Mon, 15 Nov 2021 17:51:56 +0000 (UTC)
+        id S241087AbhKOSSR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:18:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EBF263236;
+        Mon, 15 Nov 2021 17:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998717;
-        bh=0pH9uIAL8bTEuS39SJd8GfiK60uXhb8Fs3WE7QGjqyY=;
+        s=korg; t=1636998648;
+        bh=1tBgXqd3AWsljtYHl6lckRgLf7xYsmE+Qrd1DrzwNgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XdzpISJOcNxmy4G0/SItrMBlUrmFLJzkdZ2WOq9HcAS2DDI5D6qJHfDuFxf+0glsu
-         2+az+jjnlQKS610K1RWCPqdMbZ6o/tZnRsZ4lu7N47D9xotEH1LCirnYkJEN2HHlG5
-         LwFMgNYuPe16ftI/CZxLOZNXYwheJFQ0AE9uhBms=
+        b=vXavwz+35Mt5IschnSrgULe3Je44+j0G6Gn/ResWD8j/OJ9TgNxNmFANsGGYGxklb
+         DHTRq67EtnllatFzVLwMbbsP/SLc4XeflwtnoNwp3GFaIHuY9oVFEWJZP1AQbV0LSo
+         niAHdfjr65qSs4UIf6/QQPJB0WhBPrWgrGhh6mEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.14 008/849] scsi: core: Avoid leaving shost->last_reset with stale value if EH does not run
-Date:   Mon, 15 Nov 2021 17:51:31 +0100
-Message-Id: <20211115165420.266400381@linuxfoundation.org>
+Subject: [PATCH 5.14 010/849] scsi: lpfc: Dont release final kref on Fport node while ABTS outstanding
+Date:   Mon, 15 Nov 2021 17:51:33 +0100
+Message-Id: <20211115165420.339019519@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,148 +40,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ewan D. Milne <emilne@redhat.com>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 5ae17501bc62a49b0b193dcce003f16375f16654 upstream.
+commit 982fc3965d1350d3332e04046b0e101006184ba9 upstream.
 
-The changes to issue the abort from the scmd->abort_work instead of the EH
-thread introduced a problem if eh_deadline is used.  If aborting the
-command(s) is successful, and there are never any scmds added to the
-shost->eh_cmd_q, there is no code path which will reset the ->last_reset
-value back to zero.
+In a rarely executed path, FLOGI failure, there is a refcounting error.  If
+FLOGI completed with an error, typically a timeout, the initial completion
+handler would remove the job reference. However, the job completion isn't
+the actual end of the job/exchange as the timeout usually initiates an
+ABTS, and upon that ABTS completion, a final completion is sent. The driver
+removes the reference again in the final completion. Thus the imbalance.
 
-The effect of this is that after a successful abort with no EH thread
-activity, a subsequent timeout, perhaps a long time later, might
-immediately be considered past a user-set eh_deadline time, and the host
-will be reset with no attempt at recovery.
+In the buggy cases, if there was a link bounce while the delayed response
+is outstanding, the fport node may be referenced again but there was no
+additional reference as it is already present. The delayed completion then
+occurs and removes the last reference freeing the node and causing issues
+in the link up processed that is using the node.
 
-Fix this by resetting ->last_reset back to zero in scmd_eh_abort_handler()
-if it is determined that the EH thread will not run to do this.
+Fix this scenario by removing the snippet that removed the reference in the
+initial FLOGI completion. The bad snippet was poorly trying to identify the
+FLOGI as OK to do so by realizing the node was not registered with either
+SCSI or NVMe transport.
 
-Thanks to Gopinath Marappan for investigating this problem.
-
-Link: https://lore.kernel.org/r/20211029194311.17504-2-emilne@redhat.com
-Fixes: e494f6a72839 ("[SCSI] improved eh timeout handler")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ewan D. Milne <emilne@redhat.com>
+Link: https://lore.kernel.org/r/20210910233159.115896-3-jsmart2021@gmail.com
+Fixes: 618e2ee146d4 ("scsi: lpfc: Fix FLOGI failure due to accessing a freed node")
+Cc: <stable@vger.kernel.org> # v5.13+
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hosts.c      |    1 +
- drivers/scsi/scsi_error.c |   25 +++++++++++++++++++++++++
- drivers/scsi/scsi_lib.c   |    1 +
- include/scsi/scsi_cmnd.h  |    2 +-
- include/scsi/scsi_host.h  |    1 +
- 5 files changed, 29 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_els.c     |   11 +++++------
+ drivers/scsi/lpfc/lpfc_hbadisc.c |   10 ++++++----
+ drivers/scsi/lpfc/lpfc_nvme.c    |    5 +++--
+ 3 files changed, 14 insertions(+), 12 deletions(-)
 
---- a/drivers/scsi/hosts.c
-+++ b/drivers/scsi/hosts.c
-@@ -388,6 +388,7 @@ struct Scsi_Host *scsi_host_alloc(struct
- 	shost->shost_state = SHOST_CREATED;
- 	INIT_LIST_HEAD(&shost->__devices);
- 	INIT_LIST_HEAD(&shost->__targets);
-+	INIT_LIST_HEAD(&shost->eh_abort_list);
- 	INIT_LIST_HEAD(&shost->eh_cmd_q);
- 	INIT_LIST_HEAD(&shost->starved_list);
- 	init_waitqueue_head(&shost->host_wait);
---- a/drivers/scsi/scsi_error.c
-+++ b/drivers/scsi/scsi_error.c
-@@ -135,6 +135,23 @@ static bool scsi_eh_should_retry_cmd(str
- 	return true;
- }
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -1056,9 +1056,10 @@ stop_rr_fcf_flogi:
  
-+static void scsi_eh_complete_abort(struct scsi_cmnd *scmd, struct Scsi_Host *shost)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(shost->host_lock, flags);
-+	list_del_init(&scmd->eh_entry);
-+	/*
-+	 * If the abort succeeds, and there is no further
-+	 * EH action, clear the ->last_reset time.
-+	 */
-+	if (list_empty(&shost->eh_abort_list) &&
-+	    list_empty(&shost->eh_cmd_q))
-+		if (shost->eh_deadline != -1)
-+			shost->last_reset = 0;
-+	spin_unlock_irqrestore(shost->host_lock, flags);
-+}
-+
- /**
-  * scmd_eh_abort_handler - Handle command aborts
-  * @work:	command to be aborted.
-@@ -152,6 +169,7 @@ scmd_eh_abort_handler(struct work_struct
- 		container_of(work, struct scsi_cmnd, abort_work.work);
- 	struct scsi_device *sdev = scmd->device;
- 	enum scsi_disposition rtn;
-+	unsigned long flags;
+ 		lpfc_printf_vlog(vport, KERN_WARNING, LOG_TRACE_EVENT,
+ 				 "0150 FLOGI failure Status:x%x/x%x "
+-				 "xri x%x TMO:x%x\n",
++				 "xri x%x TMO:x%x refcnt %d\n",
+ 				 irsp->ulpStatus, irsp->un.ulpWord[4],
+-				 cmdiocb->sli4_xritag, irsp->ulpTimeout);
++				 cmdiocb->sli4_xritag, irsp->ulpTimeout,
++				 kref_read(&ndlp->kref));
  
- 	if (scsi_host_eh_past_deadline(sdev->host)) {
- 		SCSI_LOG_ERROR_RECOVERY(3,
-@@ -175,12 +193,14 @@ scmd_eh_abort_handler(struct work_struct
- 				SCSI_LOG_ERROR_RECOVERY(3,
- 					scmd_printk(KERN_WARNING, scmd,
- 						    "retry aborted command\n"));
-+				scsi_eh_complete_abort(scmd, sdev->host);
- 				scsi_queue_insert(scmd, SCSI_MLQUEUE_EH_RETRY);
- 				return;
- 			} else {
- 				SCSI_LOG_ERROR_RECOVERY(3,
- 					scmd_printk(KERN_WARNING, scmd,
- 						    "finish aborted command\n"));
-+				scsi_eh_complete_abort(scmd, sdev->host);
- 				scsi_finish_command(scmd);
- 				return;
- 			}
-@@ -193,6 +213,9 @@ scmd_eh_abort_handler(struct work_struct
- 		}
- 	}
+ 		/* If this is not a loop open failure, bail out */
+ 		if (!(irsp->ulpStatus == IOSTAT_LOCAL_REJECT &&
+@@ -1119,12 +1120,12 @@ stop_rr_fcf_flogi:
+ 	/* FLOGI completes successfully */
+ 	lpfc_printf_vlog(vport, KERN_INFO, LOG_ELS,
+ 			 "0101 FLOGI completes successfully, I/O tag:x%x, "
+-			 "xri x%x Data: x%x x%x x%x x%x x%x x%x x%x\n",
++			 "xri x%x Data: x%x x%x x%x x%x x%x x%x x%x %d\n",
+ 			 cmdiocb->iotag, cmdiocb->sli4_xritag,
+ 			 irsp->un.ulpWord[4], sp->cmn.e_d_tov,
+ 			 sp->cmn.w2.r_a_tov, sp->cmn.edtovResolution,
+ 			 vport->port_state, vport->fc_flag,
+-			 sp->cmn.priority_tagging);
++			 sp->cmn.priority_tagging, kref_read(&ndlp->kref));
  
-+	spin_lock_irqsave(sdev->host->host_lock, flags);
-+	list_del_init(&scmd->eh_entry);
-+	spin_unlock_irqrestore(sdev->host->host_lock, flags);
- 	scsi_eh_scmd_add(scmd);
- }
+ 	if (sp->cmn.priority_tagging)
+ 		vport->vmid_flag |= LPFC_VMID_ISSUE_QFPA;
+@@ -1202,8 +1203,6 @@ flogifail:
+ 	phba->fcf.fcf_flag &= ~FCF_DISCOVERY;
+ 	spin_unlock_irq(&phba->hbalock);
  
-@@ -223,6 +246,8 @@ scsi_abort_command(struct scsi_cmnd *scm
- 	spin_lock_irqsave(shost->host_lock, flags);
- 	if (shost->eh_deadline != -1 && !shost->last_reset)
- 		shost->last_reset = jiffies;
-+	BUG_ON(!list_empty(&scmd->eh_entry));
-+	list_add_tail(&scmd->eh_entry, &shost->eh_abort_list);
- 	spin_unlock_irqrestore(shost->host_lock, flags);
+-	if (!(ndlp->fc4_xpt_flags & (SCSI_XPT_REGD | NVME_XPT_REGD)))
+-		lpfc_nlp_put(ndlp);
+ 	if (!lpfc_error_lost_link(irsp)) {
+ 		/* FLOGI failed, so just use loop map to make discovery list */
+ 		lpfc_disc_list_loopmap(vport);
+--- a/drivers/scsi/lpfc/lpfc_hbadisc.c
++++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
+@@ -4429,8 +4429,9 @@ lpfc_register_remote_port(struct lpfc_vp
+ 		fc_remote_port_rolechg(rport, rport_ids.roles);
  
- 	scmd->eh_eflags |= SCSI_EH_ABORT_SCHEDULED;
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1136,6 +1136,7 @@ void scsi_init_command(struct scsi_devic
- 	cmd->sense_buffer = buf;
- 	cmd->prot_sdb = prot;
- 	cmd->flags = flags;
-+	INIT_LIST_HEAD(&cmd->eh_entry);
- 	INIT_DELAYED_WORK(&cmd->abort_work, scmd_eh_abort_handler);
- 	cmd->jiffies_at_alloc = jiffies_at_alloc;
- 	cmd->retries = retries;
---- a/include/scsi/scsi_cmnd.h
-+++ b/include/scsi/scsi_cmnd.h
-@@ -68,7 +68,7 @@ struct scsi_pointer {
- struct scsi_cmnd {
- 	struct scsi_request req;
- 	struct scsi_device *device;
--	struct list_head eh_entry; /* entry for the host eh_cmd_q */
-+	struct list_head eh_entry; /* entry for the host eh_abort_list/eh_cmd_q */
- 	struct delayed_work abort_work;
+ 	lpfc_printf_vlog(ndlp->vport, KERN_INFO, LOG_NODE,
+-			 "3183 %s rport x%px DID x%x, role x%x\n",
+-			 __func__, rport, rport->port_id, rport->roles);
++			 "3183 %s rport x%px DID x%x, role x%x refcnt %d\n",
++			 __func__, rport, rport->port_id, rport->roles,
++			 kref_read(&ndlp->kref));
  
- 	struct rcu_head rcu;
---- a/include/scsi/scsi_host.h
-+++ b/include/scsi/scsi_host.h
-@@ -556,6 +556,7 @@ struct Scsi_Host {
+ 	if ((rport->scsi_target_id != -1) &&
+ 	    (rport->scsi_target_id < LPFC_MAX_TARGET)) {
+@@ -4455,8 +4456,9 @@ lpfc_unregister_remote_port(struct lpfc_
  
- 	struct mutex		scan_mutex;/* serialize scanning activity */
+ 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NODE,
+ 			 "3184 rport unregister x%06x, rport x%px "
+-			 "xptflg x%x\n",
+-			 ndlp->nlp_DID, rport, ndlp->fc4_xpt_flags);
++			 "xptflg x%x refcnt %d\n",
++			 ndlp->nlp_DID, rport, ndlp->fc4_xpt_flags,
++			 kref_read(&ndlp->kref));
  
-+	struct list_head	eh_abort_list;
- 	struct list_head	eh_cmd_q;
- 	struct task_struct    * ehandler;  /* Error recovery thread. */
- 	struct completion     * eh_action; /* Wait for specific actions on the
+ 	fc_remote_port_delete(rport);
+ 	lpfc_nlp_put(ndlp);
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -209,8 +209,9 @@ lpfc_nvme_remoteport_delete(struct nvme_
+ 	 * calling state machine to remove the node.
+ 	 */
+ 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME_DISC,
+-			"6146 remoteport delete of remoteport x%px\n",
+-			remoteport);
++			 "6146 remoteport delete of remoteport x%px, ndlp x%px "
++			 "DID x%x xflags x%x\n",
++			 remoteport, ndlp, ndlp->nlp_DID, ndlp->fc4_xpt_flags);
+ 	spin_lock_irq(&ndlp->lock);
+ 
+ 	/* The register rebind might have occurred before the delete
 
 
