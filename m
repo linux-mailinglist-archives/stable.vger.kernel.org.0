@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76F40450E4A
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31755450BFD
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:30:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240897AbhKOSOF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:14:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49946 "EHLO mail.kernel.org"
+        id S236498AbhKORc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:32:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240267AbhKOSH3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE71161A56;
-        Mon, 15 Nov 2021 17:44:15 +0000 (UTC)
+        id S237863AbhKORai (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:30:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38D15632A3;
+        Mon, 15 Nov 2021 17:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998256;
-        bh=na57w2dP2cfj3PikNItjOG4dNB14fGncxyIEFPOun18=;
+        s=korg; t=1636996820;
+        bh=Ft5spIUE9njj7hiEe3Zznwr1C/bl1i6GG9RYr9kwZhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hd4cxLgQpQx7vmV/4oZ1p9f9QxhTl78FjZ3RaFG0BuN12YoYx9gHG6caWovIBieLX
-         QReaE9K2hvBth/inUYCJSnaTupb73fpZ2CaR7gblJH4FaJohWUflCDWVeq4Yz9yZ6E
-         lpaK4bNYYbj8XS4WcGGOElGZ4rY+yQOTCm/upJi8=
+        b=kQ6oojrnH5MkmSSI3NvSM2N+LiWjp+clN3MI6EejHmTnp2D7i9OqT/8SDnS4uLMvj
+         z3/40tRAyt+t74XRt2vVbMF+/1l4twkgNUgrRTsjBSN/w3ZMsNlmk5FUl/34RGN1M9
+         bpHlDKgrSiMQwzrFIp4dlHC35MEazSwLi0ECxgoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 445/575] scsi: ufs: ufshcd-pltfrm: Fix memory leak due to probe defer
+Subject: [PATCH 5.4 246/355] libertas: Fix possible memory leak in probe and disconnect
 Date:   Mon, 15 Nov 2021 18:02:50 +0100
-Message-Id: <20211115165359.142624325@linuxfoundation.org>
+Message-Id: <20211115165321.699030741@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,83 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit b6ca770ae7f2c560a29bbd02c4e3d734fafaf804 ]
+[ Upstream commit 9692151e2fe7a326bafe99836fd1f20a2cc3a049 ]
 
-UFS drivers that probe defer will end up leaking memory allocated for clk
-and regulator names via kstrdup() because the structure that is holding
-this memory is allocated via devm_* variants which will be freed during
-probe defer but the names are never freed.
+I got memory leak as follows when doing fault injection test:
 
-Use same devm_* variant of kstrdup to free the memory allocated to name
-when driver probe defers.
-
-Kmemleak found around 11 leaks on Qualcomm Dragon Board RB5:
-
-unreferenced object 0xffff66f243fb2c00 (size 128):
-  comm "kworker/u16:0", pid 7, jiffies 4294893319 (age 94.848s)
+unreferenced object 0xffff88812c7d7400 (size 512):
+  comm "kworker/6:1", pid 176, jiffies 4295003332 (age 822.830s)
   hex dump (first 32 bytes):
-    63 6f 72 65 5f 63 6c 6b 00 76 69 72 74 75 61 6c  core_clk.virtual
-    2f 77 6f 72 6b 71 75 65 75 65 2f 73 63 73 69 5f  /workqueue/scsi_
-  backtrace:
-    [<000000006f788cd1>] slab_post_alloc_hook+0x88/0x410
-    [<00000000cfd1372b>] __kmalloc_track_caller+0x138/0x230
-    [<00000000a92ab17b>] kstrdup+0xb0/0x110
-    [<0000000037263ab6>] ufshcd_pltfrm_init+0x1a8/0x500
-    [<00000000a20a5caa>] ufs_qcom_probe+0x20/0x58
-    [<00000000a5e43067>] platform_probe+0x6c/0x118
-    [<00000000ef686e3f>] really_probe+0xc4/0x330
-    [<000000005b18792c>] __driver_probe_device+0x88/0x118
-    [<00000000a5d295e8>] driver_probe_device+0x44/0x158
-    [<000000007e83f58d>] __device_attach_driver+0xb4/0x128
-    [<000000004bfa4470>] bus_for_each_drv+0x68/0xd0
-    [<00000000b89a83bc>] __device_attach+0xec/0x170
-    [<00000000ada2beea>] device_initial_probe+0x14/0x20
-    [<0000000079921612>] bus_probe_device+0x9c/0xa8
-    [<00000000d268bf7c>] deferred_probe_work_func+0x90/0xd0
-    [<000000009ef64bfa>] process_one_work+0x29c/0x788
-unreferenced object 0xffff66f243fb2c80 (size 128):
-  comm "kworker/u16:0", pid 7, jiffies 4294893319 (age 94.848s)
-  hex dump (first 32 bytes):
-    62 75 73 5f 61 67 67 72 5f 63 6c 6b 00 00 00 00  bus_aggr_clk....
+    00 68 1e 04 81 88 ff ff 01 00 00 00 00 00 00 00  .h..............
     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
+    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
+    [<ffffffffa02c9873>] if_usb_probe+0x63/0x446 [usb8xxx]
+    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
+    [<ffffffff82b59630>] really_probe+0x190/0x480
+    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
+    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
+    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
+    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
+    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
+    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
+    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
+    [<ffffffff82b52e49>] device_add+0x829/0x1300
+    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
+    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
+    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
 
-With this patch no memory leaks are reported.
+cardp is missing being freed in the error handling path of the probe
+and the path of the disconnect, which will cause memory leak.
 
-Link: https://lore.kernel.org/r/20210914092214.6468-1-srinivas.kandagatla@linaro.org
-Fixes: aa4976130934 ("ufs: Add regulator enable support")
-Fixes: c6e79dacd86f ("ufs: Add clock initialization support")
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This patch adds the missing kfree().
+
+Fixes: 876c9d3aeb98 ("[PATCH] Marvell Libertas 8388 802.11b/g USB driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211020120345.2016045-3-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd-pltfrm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/marvell/libertas/if_usb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd-pltfrm.c b/drivers/scsi/ufs/ufshcd-pltfrm.c
-index 68ce209577eca..8c92d1bde64be 100644
---- a/drivers/scsi/ufs/ufshcd-pltfrm.c
-+++ b/drivers/scsi/ufs/ufshcd-pltfrm.c
-@@ -91,7 +91,7 @@ static int ufshcd_parse_clock_info(struct ufs_hba *hba)
+diff --git a/drivers/net/wireless/marvell/libertas/if_usb.c b/drivers/net/wireless/marvell/libertas/if_usb.c
+index 20436a289d5cd..5d6dc1dd050d4 100644
+--- a/drivers/net/wireless/marvell/libertas/if_usb.c
++++ b/drivers/net/wireless/marvell/libertas/if_usb.c
+@@ -292,6 +292,7 @@ err_add_card:
+ 	if_usb_reset_device(cardp);
+ dealloc:
+ 	if_usb_free(cardp);
++	kfree(cardp);
  
- 		clki->min_freq = clkfreq[i];
- 		clki->max_freq = clkfreq[i+1];
--		clki->name = kstrdup(name, GFP_KERNEL);
-+		clki->name = devm_kstrdup(dev, name, GFP_KERNEL);
- 		if (!strcmp(name, "ref_clk"))
- 			clki->keep_link_active = true;
- 		dev_dbg(dev, "%s: min %u max %u name %s\n", "freq-table-hz",
-@@ -127,7 +127,7 @@ static int ufshcd_populate_vreg(struct device *dev, const char *name,
- 	if (!vreg)
- 		return -ENOMEM;
+ error:
+ 	return r;
+@@ -316,6 +317,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
  
--	vreg->name = kstrdup(name, GFP_KERNEL);
-+	vreg->name = devm_kstrdup(dev, name, GFP_KERNEL);
+ 	/* Unlink and free urb */
+ 	if_usb_free(cardp);
++	kfree(cardp);
  
- 	snprintf(prop_name, MAX_PROP_SIZE, "%s-max-microamp", name);
- 	if (of_property_read_u32(np, prop_name, &vreg->max_uA)) {
+ 	usb_set_intfdata(intf, NULL);
+ 	usb_put_dev(interface_to_usbdev(intf));
 -- 
 2.33.0
 
