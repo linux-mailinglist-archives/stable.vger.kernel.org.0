@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A5C4451E12
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BDBC451E17
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354751AbhKPAfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:35:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S1355039AbhKPAfI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344534AbhKOTY4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACDB563490;
-        Mon, 15 Nov 2021 18:59:26 +0000 (UTC)
+        id S1344549AbhKOTY6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 590AD633D3;
+        Mon, 15 Nov 2021 18:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002767;
-        bh=v+Q0hMj+CzyYjXFSdfpzCJ5UeoWx5JFwDBjYlUuOn4w=;
+        s=korg; t=1637002769;
+        bh=O9q4rF7vZ/ggW0xuQrNhCBRkusau20MAP68fVLOK6u0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yM1IDkJLIPOnSEZ3ZZS6hRC84mZdo0t45LZhaz8FwqEaqQ1OGgtPXD3LozMliOhUl
-         uz7G1S2qw+sEOWSwcbb1x9c9bC16pmlOV+5NHKMkAdgI3Qtq0T4/2sVQLMF+Byz2A1
-         GWjM+/z7u6JdjNxIRPqcYri4gtLmTNJ9F7KLJdd4=
+        b=z8t/NR6PYVk5OufflIZrLyGGpbEFl+k2qOJej43grhBU0s+lq1fpiZBo+V7Pb60tY
+         tSfXi4T+XgmuMIK+iDfiQFSpHqEA4V+gsOfUXtAlnk/4M3+mL+nLZx7s1xMf+HB8qA
+         M/z03157N8BgUxFFQpPsSKxJ8zmQIHzKgBF3kQ2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        Eli Cohen <elic@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 689/917] vdpa/mlx5: Fix clearing of VIRTIO_NET_F_MAC feature bit
-Date:   Mon, 15 Nov 2021 18:03:04 +0100
-Message-Id: <20211115165452.256711711@linuxfoundation.org>
+Subject: [PATCH 5.15 690/917] mips: cm: Convert to bitfield API to fix out-of-bounds access
+Date:   Mon, 15 Nov 2021 18:03:05 +0100
+Message-Id: <20211115165452.290138356@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,43 +42,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit ef76eb83a17e803a66b64ac95b36ae48b3d17c22 ]
+[ Upstream commit 18b8f5b6fc53d097cadb94a93d8d6566ba88e389 ]
 
-Cited patch in the fixes tag clears the features bit during reset.
-mlx5 vdpa device feature bits are static decided by device capabilities.
-These feature bits (including VIRTIO_NET_F_MAC) are initialized during
-device addition time.
+mips_cm_error_report() extracts the cause and other cause from the error
+register using shifts.  This works fine for the former, as it is stored
+in the top bits, and the shift will thus remove all non-related bits.
+However, the latter is stored in the bottom bits, hence thus needs masking
+to get rid of non-related bits.  Without such masking, using it as an
+index into the cm2_causes[] array will lead to an out-of-bounds access,
+probably causing a crash.
 
-Clearing features bit in reset callback cleared the VIRTIO_NET_F_MAC. Due
-to this, MAC address provided by the device is not honored.
+Fix this by using FIELD_GET() instead.  Bite the bullet and convert all
+MIPS CM handling to the bitfield API, to improve readability and safety.
 
-Fix it by not clearing the static feature bits during reset.
-
-Fixes: 0686082dbf7a ("vdpa: Add reset callback in vdpa_config_ops")
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Reviewed-by: Eli Cohen <elic@nvidia.com>
-Link: https://lore.kernel.org/r/20211026175519.87795-7-parav@nvidia.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Fixes: 3885c2b463f6a236 ("MIPS: CM: Add support for reporting CM cache errors")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/mips/include/asm/mips-cm.h | 12 ++++++------
+ arch/mips/kernel/mips-cm.c      | 21 ++++++++++-----------
+ 2 files changed, 16 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index bd56de7484dcb..ae85d2dd6eb76 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -2192,7 +2192,6 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
- 	clear_vqs_ready(ndev);
- 	mlx5_vdpa_destroy_mr(&ndev->mvdev);
- 	ndev->mvdev.status = 0;
--	ndev->mvdev.mlx_features = 0;
- 	memset(ndev->event_cbs, 0, sizeof(ndev->event_cbs));
- 	ndev->mvdev.actual_features = 0;
- 	++mvdev->generation;
+diff --git a/arch/mips/include/asm/mips-cm.h b/arch/mips/include/asm/mips-cm.h
+index aeae2effa123d..23c67c0871b17 100644
+--- a/arch/mips/include/asm/mips-cm.h
++++ b/arch/mips/include/asm/mips-cm.h
+@@ -11,6 +11,7 @@
+ #ifndef __MIPS_ASM_MIPS_CM_H__
+ #define __MIPS_ASM_MIPS_CM_H__
+ 
++#include <linux/bitfield.h>
+ #include <linux/bitops.h>
+ #include <linux/errno.h>
+ 
+@@ -153,8 +154,8 @@ GCR_ACCESSOR_RO(32, 0x030, rev)
+ #define CM_GCR_REV_MINOR			GENMASK(7, 0)
+ 
+ #define CM_ENCODE_REV(major, minor) \
+-		(((major) << __ffs(CM_GCR_REV_MAJOR)) | \
+-		 ((minor) << __ffs(CM_GCR_REV_MINOR)))
++		(FIELD_PREP(CM_GCR_REV_MAJOR, major) | \
++		 FIELD_PREP(CM_GCR_REV_MINOR, minor))
+ 
+ #define CM_REV_CM2				CM_ENCODE_REV(6, 0)
+ #define CM_REV_CM2_5				CM_ENCODE_REV(7, 0)
+@@ -362,10 +363,10 @@ static inline int mips_cm_revision(void)
+ static inline unsigned int mips_cm_max_vp_width(void)
+ {
+ 	extern int smp_num_siblings;
+-	uint32_t cfg;
+ 
+ 	if (mips_cm_revision() >= CM_REV_CM3)
+-		return read_gcr_sys_config2() & CM_GCR_SYS_CONFIG2_MAXVPW;
++		return FIELD_GET(CM_GCR_SYS_CONFIG2_MAXVPW,
++				 read_gcr_sys_config2());
+ 
+ 	if (mips_cm_present()) {
+ 		/*
+@@ -373,8 +374,7 @@ static inline unsigned int mips_cm_max_vp_width(void)
+ 		 * number of VP(E)s, and if that ever changes then this will
+ 		 * need revisiting.
+ 		 */
+-		cfg = read_gcr_cl_config() & CM_GCR_Cx_CONFIG_PVPE;
+-		return (cfg >> __ffs(CM_GCR_Cx_CONFIG_PVPE)) + 1;
++		return FIELD_GET(CM_GCR_Cx_CONFIG_PVPE, read_gcr_cl_config()) + 1;
+ 	}
+ 
+ 	if (IS_ENABLED(CONFIG_SMP))
+diff --git a/arch/mips/kernel/mips-cm.c b/arch/mips/kernel/mips-cm.c
+index 90f1c3df1f0e4..b4f7d950c8468 100644
+--- a/arch/mips/kernel/mips-cm.c
++++ b/arch/mips/kernel/mips-cm.c
+@@ -221,8 +221,7 @@ static void mips_cm_probe_l2sync(void)
+ 	phys_addr_t addr;
+ 
+ 	/* L2-only sync was introduced with CM major revision 6 */
+-	major_rev = (read_gcr_rev() & CM_GCR_REV_MAJOR) >>
+-		__ffs(CM_GCR_REV_MAJOR);
++	major_rev = FIELD_GET(CM_GCR_REV_MAJOR, read_gcr_rev());
+ 	if (major_rev < 6)
+ 		return;
+ 
+@@ -306,13 +305,13 @@ void mips_cm_lock_other(unsigned int cluster, unsigned int core,
+ 	preempt_disable();
+ 
+ 	if (cm_rev >= CM_REV_CM3) {
+-		val = core << __ffs(CM3_GCR_Cx_OTHER_CORE);
+-		val |= vp << __ffs(CM3_GCR_Cx_OTHER_VP);
++		val = FIELD_PREP(CM3_GCR_Cx_OTHER_CORE, core) |
++		      FIELD_PREP(CM3_GCR_Cx_OTHER_VP, vp);
+ 
+ 		if (cm_rev >= CM_REV_CM3_5) {
+ 			val |= CM_GCR_Cx_OTHER_CLUSTER_EN;
+-			val |= cluster << __ffs(CM_GCR_Cx_OTHER_CLUSTER);
+-			val |= block << __ffs(CM_GCR_Cx_OTHER_BLOCK);
++			val |= FIELD_PREP(CM_GCR_Cx_OTHER_CLUSTER, cluster);
++			val |= FIELD_PREP(CM_GCR_Cx_OTHER_BLOCK, block);
+ 		} else {
+ 			WARN_ON(cluster != 0);
+ 			WARN_ON(block != CM_GCR_Cx_OTHER_BLOCK_LOCAL);
+@@ -342,7 +341,7 @@ void mips_cm_lock_other(unsigned int cluster, unsigned int core,
+ 		spin_lock_irqsave(&per_cpu(cm_core_lock, curr_core),
+ 				  per_cpu(cm_core_lock_flags, curr_core));
+ 
+-		val = core << __ffs(CM_GCR_Cx_OTHER_CORENUM);
++		val = FIELD_PREP(CM_GCR_Cx_OTHER_CORENUM, core);
+ 	}
+ 
+ 	write_gcr_cl_other(val);
+@@ -386,8 +385,8 @@ void mips_cm_error_report(void)
+ 	cm_other = read_gcr_error_mult();
+ 
+ 	if (revision < CM_REV_CM3) { /* CM2 */
+-		cause = cm_error >> __ffs(CM_GCR_ERROR_CAUSE_ERRTYPE);
+-		ocause = cm_other >> __ffs(CM_GCR_ERROR_MULT_ERR2ND);
++		cause = FIELD_GET(CM_GCR_ERROR_CAUSE_ERRTYPE, cm_error);
++		ocause = FIELD_GET(CM_GCR_ERROR_MULT_ERR2ND, cm_other);
+ 
+ 		if (!cause)
+ 			return;
+@@ -445,8 +444,8 @@ void mips_cm_error_report(void)
+ 		ulong core_id_bits, vp_id_bits, cmd_bits, cmd_group_bits;
+ 		ulong cm3_cca_bits, mcp_bits, cm3_tr_bits, sched_bit;
+ 
+-		cause = cm_error >> __ffs64(CM3_GCR_ERROR_CAUSE_ERRTYPE);
+-		ocause = cm_other >> __ffs(CM_GCR_ERROR_MULT_ERR2ND);
++		cause = FIELD_GET(CM3_GCR_ERROR_CAUSE_ERRTYPE, cm_error);
++		ocause = FIELD_GET(CM_GCR_ERROR_MULT_ERR2ND, cm_other);
+ 
+ 		if (!cause)
+ 			return;
 -- 
 2.33.0
 
