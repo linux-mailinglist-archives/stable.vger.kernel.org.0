@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC73C450EB7
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09A0A450C20
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241183AbhKOSSi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:18:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56286 "EHLO mail.kernel.org"
+        id S237842AbhKORfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:35:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240813AbhKOSNs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:13:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B88FC633CE;
-        Mon, 15 Nov 2021 17:48:37 +0000 (UTC)
+        id S238174AbhKORdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:33:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E147C63241;
+        Mon, 15 Nov 2021 17:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998518;
-        bh=Xr11rTh3oy0fAUWz65XuCVZ3X0ZIJ6i84cPoGNxsGOQ=;
+        s=korg; t=1636996897;
+        bh=iBn4D7zMtEq2IYTq2rxFZPleNsv6M8Ce5LQRTYgung4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNwnAdEr4oLUBXNHHwL2vmxW7nW1zV4Qt8JnDG2NH5qDtUXA4aRBanOuc43X1ch3l
-         jnFdkIcTwKFSvnXFPwRLNUBKizKTPRdpUHK4iLzKig1HN09Ka+KWQHO450nRyI2LbG
-         7faDaa7hxx7OuilaqDgWcKxkqnl8PJBxNkMn09RI=
+        b=L9SycpENcODszqHdYXMwOflRlhDAlXRDYlcytGmPap2KXMie3vuzphE9diKFeXhPa
+         WFyJ7Ev4GBuBBdKfSV/UgNdhJ2oNkq9ifPpkXlmQg0G2bURohYjn70xFRR4HQ0tNiw
+         GUYNO4GJktap12jiiFfFe1flZ+T2H14kNfHfAmDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 505/575] net: davinci_emac: Fix interrupt pacing disable
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 306/355] dmaengine: dmaengine_desc_callback_valid(): Check for `callback_result`
 Date:   Mon, 15 Nov 2021 18:03:50 +0100
-Message-Id: <20211115165401.158677457@linuxfoundation.org>
+Message-Id: <20211115165323.622129236@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Kiselev <bigunclemax@gmail.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit d52bcb47bdf971a59a2467975d2405fcfcb2fa19 ]
+[ Upstream commit e7e1e880b114ca640a2f280b0d5d38aed98f98c6 ]
 
-This patch allows to use 0 for `coal->rx_coalesce_usecs` param to
-disable rx irq coalescing.
+Before the `callback_result` callback was introduced drivers coded their
+invocation to the callback in a similar way to:
 
-Previously we could enable rx irq coalescing via ethtool
-(For ex: `ethtool -C eth0 rx-usecs 2000`) but we couldn't disable
-it because this part rejects 0 value:
+	if (cb->callback) {
+		spin_unlock(&dma->lock);
+		cb->callback(cb->callback_param);
+		spin_lock(&dma->lock);
+	}
 
-       if (!coal->rx_coalesce_usecs)
-               return -EINVAL;
+With the introduction of `callback_result` two helpers where introduced to
+transparently handle both types of callbacks. And drivers where updated to
+look like this:
 
-Fixes: 84da2658a619 ("TI DaVinci EMAC : Implement interrupt pacing functionality.")
-Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Link: https://lore.kernel.org/r/20211101152343.4193233-1-bigunclemax@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+	if (dmaengine_desc_callback_valid(cb)) {
+		spin_unlock(&dma->lock);
+		dmaengine_desc_callback_invoke(cb, ...);
+		spin_lock(&dma->lock);
+	}
+
+dmaengine_desc_callback_invoke() correctly handles both `callback_result`
+and `callback`. But we forgot to update the dmaengine_desc_callback_valid()
+function to check for `callback_result`. As a result DMA descriptors that
+use the `callback_result` rather than `callback` don't have their callback
+invoked by drivers that follow the pattern above.
+
+Fix this by checking for both `callback` and `callback_result` in
+dmaengine_desc_callback_valid().
+
+Fixes: f067025bc676 ("dmaengine: add support to provide error result from a DMA transation")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/20211023134101.28042-1-lars@metafoo.de
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/davinci_emac.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/dma/dmaengine.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/ti/davinci_emac.c b/drivers/net/ethernet/ti/davinci_emac.c
-index 03055c96f0760..ad5293571af4d 100644
---- a/drivers/net/ethernet/ti/davinci_emac.c
-+++ b/drivers/net/ethernet/ti/davinci_emac.c
-@@ -412,8 +412,20 @@ static int emac_set_coalesce(struct net_device *ndev,
- 	u32 int_ctrl, num_interrupts = 0;
- 	u32 prescale = 0, addnl_dvdr = 1, coal_intvl = 0;
+diff --git a/drivers/dma/dmaengine.h b/drivers/dma/dmaengine.h
+index 501c0b063f852..302f13efd35d9 100644
+--- a/drivers/dma/dmaengine.h
++++ b/drivers/dma/dmaengine.h
+@@ -168,7 +168,7 @@ dmaengine_desc_get_callback_invoke(struct dma_async_tx_descriptor *tx,
+ static inline bool
+ dmaengine_desc_callback_valid(struct dmaengine_desc_callback *cb)
+ {
+-	return (cb->callback) ? true : false;
++	return cb->callback || cb->callback_result;
+ }
  
--	if (!coal->rx_coalesce_usecs)
--		return -EINVAL;
-+	if (!coal->rx_coalesce_usecs) {
-+		priv->coal_intvl = 0;
-+
-+		switch (priv->version) {
-+		case EMAC_VERSION_2:
-+			emac_ctrl_write(EMAC_DM646X_CMINTCTRL, 0);
-+			break;
-+		default:
-+			emac_ctrl_write(EMAC_CTRL_EWINTTCNT, 0);
-+			break;
-+		}
-+
-+		return 0;
-+	}
- 
- 	coal_intvl = coal->rx_coalesce_usecs;
- 
+ #endif
 -- 
 2.33.0
 
