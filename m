@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B17C4520E0
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:54:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 171074520DA
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:54:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359300AbhKPA45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:56:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S1359261AbhKPA4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:56:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245672AbhKOTVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245677AbhKOTVA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C78CB63307;
-        Mon, 15 Nov 2021 18:39:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA1A363578;
+        Mon, 15 Nov 2021 18:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001545;
-        bh=p/IA2iKt52Z3pdaNhuOinkutgSIYR8hqCzI0OdvDL1Q=;
+        s=korg; t=1637001548;
+        bh=KxrF9qoE5kZVi++j8rzgQeIsVxV07q20Pd1Lmu1DxSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RW83hjVHsVb9NYFYnTJ9QwI6P+CF0FehJ0lPDf1WUSWeTqgmnzHgNYygC3wcEGRyM
-         5yKOGpFfL1EWjxz6FvRh5y8jsec3psFHBP8TLq7jYVd9aIcAL652W5DKL/aiwmj/nO
-         sm+lD4ntvzzRgnhBbvP7oXhaSD1XdWt+SxTTlyiU=
+        b=zjgWPcIHY1D2F9Ocg8nrOFjJVCKc6wWfBXY0TKLRfSN2zpV+hPouj/YaDYi9kBlvn
+         gMEEnTEl1BOYgKOgEGY0ekGl/i5cg0mo5GCnQU+7rzke9pm6wAPZgMPwrorBbEeyfw
+         zD9YJrikso5CQ0n0ctpE9ymZy3ku2COETzHnA2WM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        syzbot+4d3749e9612c2cfab956@syzkaller.appspotmail.com,
+        Rajat Asthana <rajatasthana4@gmail.com>,
+        Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 230/917] media: rcar-vin: Use user provided buffers when starting
-Date:   Mon, 15 Nov 2021 17:55:25 +0100
-Message-Id: <20211115165436.586425254@linuxfoundation.org>
+Subject: [PATCH 5.15 231/917] media: mceusb: return without resubmitting URB in case of -EPROTO error.
+Date:   Mon, 15 Nov 2021 17:55:26 +0100
+Message-Id: <20211115165436.619510431@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,51 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: Rajat Asthana <rajatasthana4@gmail.com>
 
-[ Upstream commit a5991c4e947153418f71f4689614b87ca0551b81 ]
+[ Upstream commit 476db72e521983ecb847e4013b263072bb1110fc ]
 
-When adding an internal scratch buffer to improve buffer handling when
-stopping it was also erroneously used when syncing at capture start.
-This led to that the first three buffers captured were always dropped
-as they were captured in the scratch buffer instead of in a buffer
-provided by the user.
+Syzkaller reported a warning called "rcu detected stall in dummy_timer".
 
-Allow the hardware to be given user provided buffers when preparing for
-capture in the stopped state. This still allows the driver to sync with
-the hardware and always completes the buffers to user-space in the
-correct order as no buffers are completed before the sync is complete.
-This change improves the driver as buffers are completed and given to
-the user three frames earlier than before.
+The error seems to be an error in mceusb_dev_recv(). In the case of
+-EPROTO error, the routine immediately resubmits the URB. Instead it
+should return without resubmitting URB.
 
-The change also fixes a warning produced by v4l2-compliance,
-
-    warn: v4l2-test-buffers.cpp(448): got sequence number 3, expected 0
-
-[hverkuil: fixed some typos in the Subject and the log message]
-
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: syzbot+4d3749e9612c2cfab956@syzkaller.appspotmail.com
+Signed-off-by: Rajat Asthana <rajatasthana4@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar-vin/rcar-dma.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/rc/mceusb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/rcar-vin/rcar-dma.c b/drivers/media/platform/rcar-vin/rcar-dma.c
-index f5f722ab1d4e8..520d044bfb8d5 100644
---- a/drivers/media/platform/rcar-vin/rcar-dma.c
-+++ b/drivers/media/platform/rcar-vin/rcar-dma.c
-@@ -904,7 +904,8 @@ static void rvin_fill_hw_slot(struct rvin_dev *vin, int slot)
- 				vin->format.sizeimage / 2;
- 			break;
- 		}
--	} else if (vin->state != RUNNING || list_empty(&vin->buf_list)) {
-+	} else if ((vin->state != STOPPED && vin->state != RUNNING) ||
-+		   list_empty(&vin->buf_list)) {
- 		vin->buf_hw[slot].buffer = NULL;
- 		vin->buf_hw[slot].type = FULL;
- 		phys_addr = vin->scratch_phys;
+diff --git a/drivers/media/rc/mceusb.c b/drivers/media/rc/mceusb.c
+index e03dd1f0144f0..137a71954aabf 100644
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -1386,6 +1386,7 @@ static void mceusb_dev_recv(struct urb *urb)
+ 	case -ECONNRESET:
+ 	case -ENOENT:
+ 	case -EILSEQ:
++	case -EPROTO:
+ 	case -ESHUTDOWN:
+ 		usb_unlink_urb(urb);
+ 		return;
 -- 
 2.33.0
 
