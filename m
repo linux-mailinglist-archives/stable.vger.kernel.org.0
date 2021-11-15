@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDBFE452390
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4832E452391
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379447AbhKPB1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:27:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38462 "EHLO mail.kernel.org"
+        id S1380134AbhKPB1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:27:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240765AbhKOTFp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:05:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2843633E5;
-        Mon, 15 Nov 2021 18:16:28 +0000 (UTC)
+        id S243575AbhKOTGJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:06:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2121E633DD;
+        Mon, 15 Nov 2021 18:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000189;
-        bh=B5JQf6jCMwswOKSRbpPx5oKX54SQ8nCH/fzmsPUa7X8=;
+        s=korg; t=1637000191;
+        bh=QBsdyln2SKZI/ZQfSg6Vcp1uXI6xlx8e+SspF8hZUi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzpSahq2hWwk4AqsUSS2xk3vt31YMmJJ/2AZDRtoZVW1sKtmjFhNyVoulpj4B+N4A
-         qPIVgXgBcXxSWWQVLJVzs4K/hcUJoMhgJp5BI83PvoupxGFxyTn4jIhtDfUIhuojdp
-         FoFggxPPMD+F74knLBZsIFIlAHFZ8Q+0ITFUfWVg=
+        b=V5T2hWNUJzONRGiJWY0hZSmqCEyk2/H3KgrX3Lt9qNrYObGYb9Fi9d8DrIx6/YdCX
+         9wZ45NNzp2XuLqonJelvfHEV8rEyTV4mUbaX1qhXY01yw3eZ7pJk0CeXuwgmKR+CDO
+         Q8StzgQs/0QVi/D11RQZITLct1L+0GDNoPCtv270=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Henrik Bjoernlund <henrik.bjoernlund@microchip.com>,
+        Ivan Vecera <ivecera@redhat.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 536/849] net: phylink: avoid mvneta warning when setting pause parameters
-Date:   Mon, 15 Nov 2021 18:00:19 +0100
-Message-Id: <20211115165438.396504525@linuxfoundation.org>
+Subject: [PATCH 5.14 537/849] net: bridge: fix uninitialized variables when BRIDGE_CFM is disabled
+Date:   Mon, 15 Nov 2021 18:00:20 +0100
+Message-Id: <20211115165438.429863173@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -41,42 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Ivan Vecera <ivecera@redhat.com>
 
-[ Upstream commit fd8d9731bcdfb22d28e45bce789bcb211c868c78 ]
+[ Upstream commit 829e050eea69c7442441b714b6f5b339b5b8c367 ]
 
-mvneta does not support asymetric pause modes, and it flags this by the
-lack of AsymPause in the supported field. When setting pause modes, we
-check that pause->rx_pause == pause->tx_pause, but only when pause
-autoneg is enabled. When pause autoneg is disabled, we still allow
-pause->rx_pause != pause->tx_pause, which is incorrect when the MAC
-does not support asymetric pause, and causes mvneta to issue a warning.
+Function br_get_link_af_size_filtered() calls br_cfm_{,peer}_mep_count()
+that return a count. When BRIDGE_CFM is not enabled these functions
+simply return -EOPNOTSUPP but do not modify count parameter and
+calling function then works with uninitialized variables.
+Modify these inline functions to return zero in count parameter.
 
-Fix this by removing the test for pause->autoneg, so we always check
-that pause->rx_pause == pause->tx_pause for network devices that do not
-support AsymPause.
-
-Fixes: 9525ae83959b ("phylink: add phylink infrastructure")
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: b6d0425b816e ("bridge: cfm: Netlink Notifications.")
+Cc: Henrik Bjoernlund <henrik.bjoernlund@microchip.com>
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phylink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/br_private.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
-index 6e96d7b7ee445..d18e4e76a5df4 100644
---- a/drivers/net/phy/phylink.c
-+++ b/drivers/net/phy/phylink.c
-@@ -1724,7 +1724,7 @@ int phylink_ethtool_set_pauseparam(struct phylink *pl,
- 		return -EOPNOTSUPP;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 7d3155283af93..f538fe3902da9 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -1594,11 +1594,13 @@ static inline int br_cfm_status_fill_info(struct sk_buff *skb,
  
- 	if (!phylink_test(pl->supported, Asym_Pause) &&
--	    !pause->autoneg && pause->rx_pause != pause->tx_pause)
-+	    pause->rx_pause != pause->tx_pause)
- 		return -EINVAL;
+ static inline int br_cfm_mep_count(struct net_bridge *br, u32 *count)
+ {
++	*count = 0;
+ 	return -EOPNOTSUPP;
+ }
  
- 	pause_state = 0;
+ static inline int br_cfm_peer_mep_count(struct net_bridge *br, u32 *count)
+ {
++	*count = 0;
+ 	return -EOPNOTSUPP;
+ }
+ #endif
 -- 
 2.33.0
 
