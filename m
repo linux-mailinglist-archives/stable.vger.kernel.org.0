@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83685450EA4
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D77C450C90
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:37:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240762AbhKOSRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:17:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49936 "EHLO mail.kernel.org"
+        id S238025AbhKORj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:39:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240693AbhKOSLr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:11:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76D04633C4;
-        Mon, 15 Nov 2021 17:47:39 +0000 (UTC)
+        id S238226AbhKORfM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:35:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F0F063267;
+        Mon, 15 Nov 2021 17:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998459;
+        s=korg; t=1636997016;
         bh=x8c3oIyx7mvFo0HRAFo9anyAyJ6HpuZ++qT4atRC9dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QvmwpeH+IldYThlyzLiPs+6HQzTMvvMNeBHgsW3rY5xkvvNyjfzUxZuRDyBFcHlIw
-         gwc3W8mtmPIb3i9ffEFTWPWNeRS5Kb7m2Tgq43Rb+VeEh9jtgCkQIRasSxY7K13DdE
-         +dp+Noq5XiyVkuFW+58nVIs43f16sRvI+41/r6ik=
+        b=lOhhAoPAKos3c66xw4ekyBWd4Vo7INBDYWK+fYuLKNDpIJe3NEjrajixnJjyV8+bg
+         T5SabcqLERPyK95cPCjm9/UICnLSPHfEQtiUTZzkPsdWciH2e7ThG2ZiKZfOL35HRe
+         l18sJB8Geft8EuhnxEvZhZHTMyuS0lSrIlpCeHBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jakub Kicinski <kuba@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 518/575] bonding: Fix a use-after-free problem when bond_sysfs_slave_add() failed
+Subject: [PATCH 5.4 319/355] bonding: Fix a use-after-free problem when bond_sysfs_slave_add() failed
 Date:   Mon, 15 Nov 2021 18:04:03 +0100
-Message-Id: <20211115165401.596328367@linuxfoundation.org>
+Message-Id: <20211115165324.041778687@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
