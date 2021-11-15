@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C80F545136E
+	by mail.lfdr.de (Postfix) with ESMTP id 5ADDD45136D
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348248AbhKOTvV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:51:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
+        id S1348245AbhKOTvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:51:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343539AbhKOTVS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E7B363253;
-        Mon, 15 Nov 2021 18:41:42 +0000 (UTC)
+        id S1343551AbhKOTVT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DBD0632FD;
+        Mon, 15 Nov 2021 18:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001703;
-        bh=W2sKdewyPV9PQP86V6nhGK2UK6pyfd0OTLNFLBB7VoU=;
+        s=korg; t=1637001716;
+        bh=xzBjlW1GAoVzxKZVkGz6oFK/TeaGbJh751oaVW3kHlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h6TeDmo5UxAyCkIBV0Dy1q/9GivQCYDFw6NcTMsyRslhs8d+kE5I5C7Qy07h0iN0k
-         3ZCBEPni1NimOGR75g5uyzqnCQ+OWG5wPBIAuWDszrrxL4fNQHNAs9rCv3yVhw0O+s
-         JYg/Qe4043Ixdoz0dRhxlgQ0R3K0kD27GHeWvx1Y=
+        b=GUNAUq9VwfN75dhT8xlK7tzc52sy86J94IYCHtKqtwFwTM8wSintZinY+/Bw2CQTK
+         Uz8F4K8o4XJtyYFzmsllw4N7AMEXfIpTUP7FKbGfoZAEqxWdpZ816uDNV4QHqXDfC0
+         6zLoRn0RbWfYa7DpjrKWZcyw/SzxRxBM+20ZNhgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Casey Schaufler <casey@schaufler-ca.com>,
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 288/917] smackfs: use __GFP_NOFAIL for smk_cipso_doi()
-Date:   Mon, 15 Nov 2021 17:56:23 +0100
-Message-Id: <20211115165438.531542399@linuxfoundation.org>
+Subject: [PATCH 5.15 293/917] gfs2: Cancel remote delete work asynchronously
+Date:   Mon, 15 Nov 2021 17:56:28 +0100
+Message-Id: <20211115165438.703441508@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,39 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit f91488ee15bd3cac467e2d6a361fc2d34d1052ae ]
+[ Upstream commit 486408d690e130c3adacf816754b97558d715f46 ]
 
-syzbot is reporting kernel panic at smk_cipso_doi() due to memory
-allocation fault injection [1]. The reason for need to use panic() was
-not explained. But since no fix was proposed for 18 months, for now
-let's use __GFP_NOFAIL for utilizing syzbot resource on other bugs.
+In gfs2_inode_lookup and gfs2_create_inode, we're calling
+gfs2_cancel_delete_work which currently cancels any remote delete work
+(delete_work_func) synchronously.  This means that if the work is
+currently running, it will wait for it to finish.  We're doing this to
+pevent a previous instance of an inode from having any influence on the
+next instance.
 
-Link: https://syzkaller.appspot.com/bug?extid=89731ccb6fec15ce1c22 [1]
-Reported-by: syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+However, delete_work_func uses gfs2_inode_lookup internally, and we can
+end up in a deadlock when delete_work_func gets interrupted at the wrong
+time.  For example,
+
+  (1) An inode's iopen glock has delete work queued, but the inode
+      itself has been evicted from the inode cache.
+
+  (2) The delete work is preempted before reaching gfs2_inode_lookup.
+
+  (3) Another process recreates the inode (gfs2_create_inode).  It tries
+      to cancel any outstanding delete work, which blocks waiting for
+      the ongoing delete work to finish.
+
+  (4) The delete work calls gfs2_inode_lookup, which blocks waiting for
+      gfs2_create_inode to instantiate and unlock the new inode =>
+      deadlock.
+
+It turns out that when the delete work notices that its inode has been
+re-instantiated, it will do nothing.  This means that it's safe to
+cancel the delete work asynchronously.  This prevents the kind of
+deadlock described above.
+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smackfs.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/gfs2/glock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index 9d853c0e55b84..89989d28ffc55 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -693,9 +693,7 @@ static void smk_cipso_doi(void)
- 		printk(KERN_WARNING "%s:%d remove rc = %d\n",
- 		       __func__, __LINE__, rc);
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index e0eaa9cf9fb6f..8ca89adf31a86 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -1919,7 +1919,7 @@ bool gfs2_queue_delete_work(struct gfs2_glock *gl, unsigned long delay)
  
--	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL);
--	if (doip == NULL)
--		panic("smack:  Failed to initialize cipso DOI.\n");
-+	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL | __GFP_NOFAIL);
- 	doip->map.std = NULL;
- 	doip->doi = smk_cipso_doi_value;
- 	doip->type = CIPSO_V4_MAP_PASS;
+ void gfs2_cancel_delete_work(struct gfs2_glock *gl)
+ {
+-	if (cancel_delayed_work_sync(&gl->gl_delete)) {
++	if (cancel_delayed_work(&gl->gl_delete)) {
+ 		clear_bit(GLF_PENDING_DELETE, &gl->gl_flags);
+ 		gfs2_glock_put(gl);
+ 	}
 -- 
 2.33.0
 
