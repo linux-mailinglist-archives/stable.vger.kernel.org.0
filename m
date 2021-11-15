@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 097AD450E9D
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:14:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A96C450BD9
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:27:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239642AbhKOSPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:15:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50072 "EHLO mail.kernel.org"
+        id S237909AbhKORas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:30:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240312AbhKOSHd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F24763305;
-        Mon, 15 Nov 2021 17:44:29 +0000 (UTC)
+        id S237991AbhKOR2d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:28:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10C0463288;
+        Mon, 15 Nov 2021 17:18:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998270;
-        bh=dEGP4LITW/muASRlsEeWsHD5e9oeK2uLVaypXlduXBU=;
+        s=korg; t=1636996737;
+        bh=2xiUDPSk7eaOobDjP8RKRY9EAk5gvii5lthun6PfrbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myJ/ngPy3d26quw+OqDjX34u149+hbz7btEVwvLowXhOa4AvCExg7mVYZUoDKjs0z
-         91n1vg9axbjh8jK+1jx4iW7nEsLfzfRoS444vp4gcT3fwMlTcf+7cyht3YRgSB8Id6
-         aJfQ1wBhZN2wuC5JMotVJuRZBJm5W/ZWNe//mjMQ=
+        b=fQAdYtpM0qKgROG+01GhD262IwdhipYuz1EfdVk4eQj5AUy9FuqykuvIEW9T4zQ9F
+         esbxl/ygzduoNNb20WPdyutPMdMeU8GjB/pwwDOz+DOcLxSceizE9CPJNK4bpy1+TC
+         IlB+O0QEgMqf+6te9gfcwv0N/aqapOIcVncXy768=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 449/575] usb: dwc2: drd: reset current session before setting the new one
+Subject: [PATCH 5.4 250/355] net: phylink: avoid mvneta warning when setting pause parameters
 Date:   Mon, 15 Nov 2021 18:02:54 +0100
-Message-Id: <20211115165359.277494223@linuxfoundation.org>
+Message-Id: <20211115165321.824412099@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 1ad707f559f7cb12c64f3d7cb37f0b1ea27c1058 ]
+[ Upstream commit fd8d9731bcdfb22d28e45bce789bcb211c868c78 ]
 
-If role is changed without the "none" step, A- and B- valid session could
-be set at the same time. It is an issue.
-This patch resets A-session if role switch sets B-session, and resets
-B-session if role switch sets A-session.
-Then, it is possible to change the role without the "none" step.
+mvneta does not support asymetric pause modes, and it flags this by the
+lack of AsymPause in the supported field. When setting pause modes, we
+check that pause->rx_pause == pause->tx_pause, but only when pause
+autoneg is enabled. When pause autoneg is disabled, we still allow
+pause->rx_pause != pause->tx_pause, which is incorrect when the MAC
+does not support asymetric pause, and causes mvneta to issue a warning.
 
-Fixes: 17f934024e84 ("usb: dwc2: override PHY input signals with usb role switch support")
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
-Link: https://lore.kernel.org/r/20211005095305.66397-4-amelie.delaunay@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by removing the test for pause->autoneg, so we always check
+that pause->rx_pause == pause->tx_pause for network devices that do not
+support AsymPause.
+
+Fixes: 9525ae83959b ("phylink: add phylink infrastructure")
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/drd.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/phy/phylink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/drd.c b/drivers/usb/dwc2/drd.c
-index 99672360f34b0..aa6eb76f64ddc 100644
---- a/drivers/usb/dwc2/drd.c
-+++ b/drivers/usb/dwc2/drd.c
-@@ -40,6 +40,7 @@ static int dwc2_ovr_avalid(struct dwc2_hsotg *hsotg, bool valid)
- 	    (!valid && !(gotgctl & GOTGCTL_ASESVLD)))
- 		return -EALREADY;
+diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
+index bf5bbb565cf5e..7be43a1eaefda 100644
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -1331,7 +1331,7 @@ int phylink_ethtool_set_pauseparam(struct phylink *pl,
+ 		return -EOPNOTSUPP;
  
-+	gotgctl &= ~GOTGCTL_BVALOVAL;
- 	if (valid)
- 		gotgctl |= GOTGCTL_AVALOVAL | GOTGCTL_VBVALOVAL;
- 	else
-@@ -58,6 +59,7 @@ static int dwc2_ovr_bvalid(struct dwc2_hsotg *hsotg, bool valid)
- 	    (!valid && !(gotgctl & GOTGCTL_BSESVLD)))
- 		return -EALREADY;
+ 	if (!phylink_test(pl->supported, Asym_Pause) &&
+-	    !pause->autoneg && pause->rx_pause != pause->tx_pause)
++	    pause->rx_pause != pause->tx_pause)
+ 		return -EINVAL;
  
-+	gotgctl &= ~GOTGCTL_AVALOVAL;
- 	if (valid)
- 		gotgctl |= GOTGCTL_BVALOVAL | GOTGCTL_VBVALOVAL;
- 	else
+ 	config->pause &= ~(MLO_PAUSE_AN | MLO_PAUSE_TXRX_MASK);
 -- 
 2.33.0
 
