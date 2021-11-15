@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF9645111B
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0BCE450B00
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:13:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243469AbhKOTBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:01:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59664 "EHLO mail.kernel.org"
+        id S236848AbhKORQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:16:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243480AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:59:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A973361AA5;
-        Mon, 15 Nov 2021 18:13:32 +0000 (UTC)
+        id S236938AbhKORPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:15:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DCE461C14;
+        Mon, 15 Nov 2021 17:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000013;
-        bh=M9W8ECSQIv7+V0E32wvWvnQRRQ6el4KhvAoCq1OnRns=;
+        s=korg; t=1636996309;
+        bh=KjnLQHTkAYs14/AajWgBYzfjAJOa8K0J5aYqscpfdzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jrKSULMfqA12UuZhtHxHKmTgS0lbKmkOxYSH5iZlcLkwZolta2IeOYV3+MlS4rJAP
-         vIisxHk3JccqAinafYH8w7R5qqWtYrrywsQB30EuDFQimn55HnSzlTf+0ZkWyWBAMd
-         WXGJZifPmF6BuXZ8Gs2DciR8DN5xDnMi/WUiGobw=
+        b=CJgD92mdcmFUXWBrGZhyg9mLn4KjBYM82nxvgPNFTLFfFvVXkr+Y1nFg5VqGpP/hP
+         yW9vThUY6BcfEUPFrcBLLzajFp42r7AWddU64yTX8kLQWsWqfede5TmAguW4bZEngm
+         k3Y2FmMbvM7kG7myPXSBLjIdvD9bte/gN7x/LcXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 506/849] ARM: 9142/1: kasan: work around LPAE build warning
+        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.4 065/355] hwmon: (pmbus/lm25066) Add offset coefficients
 Date:   Mon, 15 Nov 2021 17:59:49 +0100
-Message-Id: <20211115165437.403036110@linuxfoundation.org>
+Message-Id: <20211115165315.912373540@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +39,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Zev Weiss <zev@bewilderbeest.net>
 
-[ Upstream commit c2e6df3eaaf120cde5e7c3a70590dd82e427458a ]
+commit ae59dc455a78fb73034dd1fbb337d7e59c27cbd8 upstream.
 
-pgd_page_vaddr() returns an 'unsigned long' address, causing a warning
-with the memcpy() call in kasan_init():
+With the exception of the lm5066i, all the devices handled by this
+driver had been missing their offset ('b') coefficients for direct
+format readings.
 
-arch/arm/mm/kasan_init.c: In function 'kasan_init':
-include/asm-generic/pgtable-nop4d.h:44:50: error: passing argument 2 of '__memcpy' makes pointer from integer without a cast [-Werror=int-conversion]
-   44 | #define pgd_page_vaddr(pgd)                     ((unsigned long)(p4d_pgtable((p4d_t){ pgd })))
-      |                                                 ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      |                                                  |
-      |                                                  long unsigned int
-arch/arm/include/asm/string.h:58:45: note: in definition of macro 'memcpy'
-   58 | #define memcpy(dst, src, len) __memcpy(dst, src, len)
-      |                                             ^~~
-arch/arm/mm/kasan_init.c:229:16: note: in expansion of macro 'pgd_page_vaddr'
-  229 |                pgd_page_vaddr(*pgd_offset_k(KASAN_SHADOW_START)),
-      |                ^~~~~~~~~~~~~~
-arch/arm/include/asm/string.h:21:47: note: expected 'const void *' but argument is of type 'long unsigned int'
-   21 | extern void *__memcpy(void *dest, const void *src, __kernel_size_t n);
-      |                                   ~~~~~~~~~~~~^~~
-
-Avoid this by adding an explicit typecast.
-
-Link: https://lore.kernel.org/all/CACRpkdb3DMvof3-xdtss0Pc6KM36pJA-iy=WhvtNVnsDpeJ24Q@mail.gmail.com/
-
-Fixes: 5615f69bc209 ("ARM: 9016/2: Initialize the mapping of KASan shadow memory")
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 58615a94f6a1 ("hwmon: (pmbus/lm25066) Add support for LM25056")
+Fixes: e53e6497fc9f ("hwmon: (pmbus/lm25066) Refactor device specific coefficients")
+Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+Link: https://lore.kernel.org/r/20210928092242.30036-2-zev@bewilderbeest.net
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/kasan_init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/pmbus/lm25066.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/arch/arm/mm/kasan_init.c b/arch/arm/mm/kasan_init.c
-index 9c348042a7244..4b1619584b23c 100644
---- a/arch/arm/mm/kasan_init.c
-+++ b/arch/arm/mm/kasan_init.c
-@@ -226,7 +226,7 @@ void __init kasan_init(void)
- 	BUILD_BUG_ON(pgd_index(KASAN_SHADOW_START) !=
- 		     pgd_index(KASAN_SHADOW_END));
- 	memcpy(tmp_pmd_table,
--	       pgd_page_vaddr(*pgd_offset_k(KASAN_SHADOW_START)),
-+	       (void*)pgd_page_vaddr(*pgd_offset_k(KASAN_SHADOW_START)),
- 	       sizeof(tmp_pmd_table));
- 	set_pgd(&tmp_pgd_table[pgd_index(KASAN_SHADOW_START)],
- 		__pgd(__pa(tmp_pmd_table) | PMD_TYPE_TABLE | L_PGD_SWAPPER));
--- 
-2.33.0
-
+--- a/drivers/hwmon/pmbus/lm25066.c
++++ b/drivers/hwmon/pmbus/lm25066.c
+@@ -55,22 +55,27 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm25056] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 16296,
++			.b = 1343,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 13797,
++			.b = -1833,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 6726,
++			.b = -537,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 5501,
++			.b = -2908,
+ 			.R = -3,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 26882,
++			.b = -5646,
+ 			.R = -4,
+ 		},
+ 		[PSC_TEMPERATURE] = {
+@@ -82,26 +87,32 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm25066] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 22070,
++			.b = -1800,
+ 			.R = -2,
+ 		},
+ 		[PSC_VOLTAGE_OUT] = {
+ 			.m = 22070,
++			.b = -1800,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 13661,
++			.b = -5200,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 6852,
++			.b = -3100,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 736,
++			.b = -3300,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 369,
++			.b = -1900,
+ 			.R = -2,
+ 		},
+ 		[PSC_TEMPERATURE] = {
+@@ -111,26 +122,32 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm5064] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 4611,
++			.b = -642,
+ 			.R = -2,
+ 		},
+ 		[PSC_VOLTAGE_OUT] = {
+ 			.m = 4621,
++			.b = 423,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 10742,
++			.b = 1552,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 5456,
++			.b = 2118,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 1204,
++			.b = 8524,
+ 			.R = -3,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 612,
++			.b = 11202,
+ 			.R = -3,
+ 		},
+ 		[PSC_TEMPERATURE] = {
+@@ -140,26 +157,32 @@ static struct __coeff lm25066_coeff[6][P
+ 	[lm5066] = {
+ 		[PSC_VOLTAGE_IN] = {
+ 			.m = 4587,
++			.b = -1200,
+ 			.R = -2,
+ 		},
+ 		[PSC_VOLTAGE_OUT] = {
+ 			.m = 4587,
++			.b = -2400,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN] = {
+ 			.m = 10753,
++			.b = -1200,
+ 			.R = -2,
+ 		},
+ 		[PSC_CURRENT_IN_L] = {
+ 			.m = 5405,
++			.b = -600,
+ 			.R = -2,
+ 		},
+ 		[PSC_POWER] = {
+ 			.m = 1204,
++			.b = -6000,
+ 			.R = -3,
+ 		},
+ 		[PSC_POWER_L] = {
+ 			.m = 605,
++			.b = -8000,
+ 			.R = -3,
+ 		},
+ 		[PSC_TEMPERATURE] = {
 
 
