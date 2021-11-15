@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ABE4452200
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2BD4521DD
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238084AbhKPBHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:07:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
+        id S1376804AbhKPBHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:07:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245256AbhKOTTz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:19:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DC8A63521;
-        Mon, 15 Nov 2021 18:31:23 +0000 (UTC)
+        id S245367AbhKOTUM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 963C963464;
+        Mon, 15 Nov 2021 18:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001084;
-        bh=2MIv9LiFEFxPbAnq85xfdVyJ9L97Z+7EsPlNHKKOsfs=;
+        s=korg; t=1637001195;
+        bh=I3QvyV9lx6dCM4VucziVBQB8uN6qW5FH4aZq2qcDa38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sePEYwe5ycsRNzjsvziAMWvay4pNdWUY/yAc05NQUFUZC+vG1Vi6oW1luKShKpli6
-         aIDzlKemZEPrgdxmz1lPeoLwJ2ErqV0uwZeJSUhiSyVg3XWPI3aAZ7DVCCJqfE2j45
-         GD3Hqd4YLuqKIscWp74ElT/oQnj60qsm8V6I2iZ0=
+        b=xdOtAo364msPn8PN+TBF8DhsRLgpo/fCQiZVDnRetvqxtEXW4tVd1ANpf0fzZtH6j
+         n/H/SGSAS9nbDDKvNZJFmG6yFe7XoMGr/bZP8TygMG3jnSzuui/2cFjVQF0CBDVacf
+         IBtH7PmND5wnmRSSqRUEWqSfm+eB28jT4+Fxu0rE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shaoying Xu <shaoyi@amazon.com>,
+        stable@vger.kernel.org, stable@kernel.org,
+        yangerkun <yangerkun@huawei.com>, Jan Kara <jack@suse.cz>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.15 053/917] ext4: fix lazy initialization next schedule time computation in more granular unit
-Date:   Mon, 15 Nov 2021 17:52:28 +0100
-Message-Id: <20211115165430.567972602@linuxfoundation.org>
+Subject: [PATCH 5.15 054/917] ext4: ensure enough credits in ext4_ext_shift_path_extents
+Date:   Mon, 15 Nov 2021 17:52:29 +0100
+Message-Id: <20211115165430.599035773@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -39,58 +40,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaoying Xu <shaoyi@amazon.com>
+From: yangerkun <yangerkun@huawei.com>
 
-commit 39fec6889d15a658c3a3ebb06fd69d3584ddffd3 upstream.
+commit 4268496e48dc681cfa53b92357314b5d7221e625 upstream.
 
-Ext4 file system has default lazy inode table initialization setup once
-it is mounted. However, it has issue on computing the next schedule time
-that makes the timeout same amount in jiffies but different real time in
-secs if with various HZ values. Therefore, fix by measuring the current
-time in a more granular unit nanoseconds and make the next schedule time
-independent of the HZ value.
+Like ext4_ext_rm_leaf, we can ensure that there are enough credits
+before every call that will consume credits.  As part of this fix we
+fold the functionality of ext4_access_path() into
+ext4_ext_shift_path_extents().  This change is needed as a preparation
+for the next bugfix patch.
 
-Fixes: bfff68738f1c ("ext4: add support for lazy inode table initialization")
-Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210902164412.9994-2-shaoyi@amazon.com
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20210903062748.4118886-3-yangerkun@huawei.com
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ fs/ext4/extents.c |   49 +++++++++++++++----------------------------------
+ 1 file changed, 15 insertions(+), 34 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3263,9 +3263,9 @@ static int ext4_run_li_request(struct ex
- 	struct super_block *sb = elr->lr_super;
- 	ext4_group_t ngroups = EXT4_SB(sb)->s_groups_count;
- 	ext4_group_t group = elr->lr_next_group;
--	unsigned long timeout = 0;
- 	unsigned int prefetch_ios = 0;
- 	int ret = 0;
-+	u64 start_time;
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -4978,36 +4978,6 @@ int ext4_get_es_cache(struct inode *inod
+ }
  
- 	if (elr->lr_mode == EXT4_LI_MODE_PREFETCH_BBITMAP) {
- 		elr->lr_next_group = ext4_mb_prefetch(sb, group,
-@@ -3302,14 +3302,13 @@ static int ext4_run_li_request(struct ex
- 		ret = 1;
+ /*
+- * ext4_access_path:
+- * Function to access the path buffer for marking it dirty.
+- * It also checks if there are sufficient credits left in the journal handle
+- * to update path.
+- */
+-static int
+-ext4_access_path(handle_t *handle, struct inode *inode,
+-		struct ext4_ext_path *path)
+-{
+-	int credits, err;
+-
+-	if (!ext4_handle_valid(handle))
+-		return 0;
+-
+-	/*
+-	 * Check if need to extend journal credits
+-	 * 3 for leaf, sb, and inode plus 2 (bmap and group
+-	 * descriptor) for each block group; assume two block
+-	 * groups
+-	 */
+-	credits = ext4_writepage_trans_blocks(inode);
+-	err = ext4_datasem_ensure_credits(handle, inode, 7, credits, 0);
+-	if (err < 0)
+-		return err;
+-
+-	err = ext4_ext_get_access(handle, inode, path);
+-	return err;
+-}
+-
+-/*
+  * ext4_ext_shift_path_extents:
+  * Shift the extents of a path structure lying between path[depth].p_ext
+  * and EXT_LAST_EXTENT(path[depth].p_hdr), by @shift blocks. @SHIFT tells
+@@ -5021,6 +4991,7 @@ ext4_ext_shift_path_extents(struct ext4_
+ 	int depth, err = 0;
+ 	struct ext4_extent *ex_start, *ex_last;
+ 	bool update = false;
++	int credits, restart_credits;
+ 	depth = path->p_depth;
  
- 	if (!ret) {
--		timeout = jiffies;
-+		start_time = ktime_get_real_ns();
- 		ret = ext4_init_inode_table(sb, group,
- 					    elr->lr_timeout ? 0 : 1);
- 		trace_ext4_lazy_itable_init(sb, group);
- 		if (elr->lr_timeout == 0) {
--			timeout = (jiffies - timeout) *
--				EXT4_SB(elr->lr_super)->s_li_wait_mult;
--			elr->lr_timeout = timeout;
-+			elr->lr_timeout = nsecs_to_jiffies((ktime_get_real_ns() - start_time) *
-+				EXT4_SB(elr->lr_super)->s_li_wait_mult);
+ 	while (depth >= 0) {
+@@ -5030,13 +5001,23 @@ ext4_ext_shift_path_extents(struct ext4_
+ 				return -EFSCORRUPTED;
+ 
+ 			ex_last = EXT_LAST_EXTENT(path[depth].p_hdr);
++			/* leaf + sb + inode */
++			credits = 3;
++			if (ex_start == EXT_FIRST_EXTENT(path[depth].p_hdr)) {
++				update = true;
++				/* extent tree + sb + inode */
++				credits = depth + 2;
++			}
+ 
+-			err = ext4_access_path(handle, inode, path + depth);
++			restart_credits = ext4_writepage_trans_blocks(inode);
++			err = ext4_datasem_ensure_credits(handle, inode, credits,
++					restart_credits, 0);
+ 			if (err)
+ 				goto out;
+ 
+-			if (ex_start == EXT_FIRST_EXTENT(path[depth].p_hdr))
+-				update = true;
++			err = ext4_ext_get_access(handle, inode, path + depth);
++			if (err)
++				goto out;
+ 
+ 			while (ex_start <= ex_last) {
+ 				if (SHIFT == SHIFT_LEFT) {
+@@ -5067,7 +5048,7 @@ ext4_ext_shift_path_extents(struct ext4_
  		}
- 		elr->lr_next_sched = jiffies + elr->lr_timeout;
- 		elr->lr_next_group = group + 1;
+ 
+ 		/* Update index too */
+-		err = ext4_access_path(handle, inode, path + depth);
++		err = ext4_ext_get_access(handle, inode, path + depth);
+ 		if (err)
+ 			goto out;
+ 
 
 
