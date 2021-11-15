@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FF96450FED
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:36:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C33CB450FAA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:32:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241876AbhKOShp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:37:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42060 "EHLO mail.kernel.org"
+        id S241769AbhKOSfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:35:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242352AbhKOSfM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:35:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D17E611AF;
-        Mon, 15 Nov 2021 18:01:47 +0000 (UTC)
+        id S242074AbhKOSdQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:33:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 084DE63464;
+        Mon, 15 Nov 2021 18:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999308;
-        bh=YIDfyMe4cUL93m/SuX3dbGQJGasKYmJkLMRxBkNVSQE=;
+        s=korg; t=1636999219;
+        bh=VqO9UX80S7KII/tWuH8caqgUVnPtn1KRxFD1AbG4BM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e2OjYoQlLi7x4xT7+Qlqba+MJx52EDlX3ZskcQEOiiryj+lVWW6MqT3NpsC+0MWpM
-         fosiHoTiHJ5H9wSJpaE08VPcIaWO1j2sMGwki1vK+6grmOhJWp97nRnmPCXbUk69N+
-         hKUeWoza4RrwmQ42jjQUs/3e0usJ+/6uDfvWrE7I=
+        b=QjrKDGuv0aYzVSKJDMdGSYGknDlk0kfBM3Nl3xEj7l1PtS2LzGuBa1BvdwXn06Ypv
+         ZfKVG61h/QmppD/IrxHgNlscU4TGerWPeYFu6NCGi45oZqYhcM5e4Iaijvqtrfp4PQ
+         WNXMhGdYU2s3ftN5Cg6m7ZuSJTg8sqFC/Jj8ZMXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        syzbot+3f91de0b813cc3d19a80@syzkaller.appspotmail.com,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 216/849] locking/lockdep: Avoid RCU-induced noinstr fail
-Date:   Mon, 15 Nov 2021 17:54:59 +0100
-Message-Id: <20211115165427.522210002@linuxfoundation.org>
+Subject: [PATCH 5.14 220/849] smackfs: Fix use-after-free in netlbl_catmap_walk()
+Date:   Mon, 15 Nov 2021 17:55:03 +0100
+Message-Id: <20211115165427.665025649@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,32 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-[ Upstream commit ce0b9c805dd66d5e49fd53ec5415ae398f4c56e6 ]
+[ Upstream commit 0817534ff9ea809fac1322c5c8c574be8483ea57 ]
 
-vmlinux.o: warning: objtool: look_up_lock_class()+0xc7: call to rcu_read_lock_any_held() leaves .noinstr.text section
+Syzkaller reported use-after-free bug as described in [1]. The bug is
+triggered when smk_set_cipso() tries to free stale category bitmaps
+while there are concurrent reader(s) using the same bitmaps.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20210624095148.311980536@infradead.org
+Wait for RCU grace period to finish before freeing the category bitmaps
+in smk_set_cipso(). This makes sure that there are no more readers using
+the stale bitmaps and freeing them should be safe.
+
+[1] https://lore.kernel.org/netdev/000000000000a814c505ca657a4e@google.com/
+
+Reported-by: syzbot+3f91de0b813cc3d19a80@syzkaller.appspotmail.com
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/smack/smackfs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index bf1c00c881e48..8a509672a4cc9 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -888,7 +888,7 @@ look_up_lock_class(const struct lockdep_map *lock, unsigned int subclass)
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
- 		return NULL;
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 3a75d2a8f5178..9d853c0e55b84 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -831,6 +831,7 @@ static int smk_open_cipso(struct inode *inode, struct file *file)
+ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
+ 				size_t count, loff_t *ppos, int format)
+ {
++	struct netlbl_lsm_catmap *old_cat;
+ 	struct smack_known *skp;
+ 	struct netlbl_lsm_secattr ncats;
+ 	char mapcatset[SMK_CIPSOLEN];
+@@ -920,9 +921,11 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
  
--	hlist_for_each_entry_rcu(class, hash_head, hash_entry) {
-+	hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
- 		if (class->key == key) {
- 			/*
- 			 * Huh! same key, different name? Did someone trample
+ 	rc = smk_netlbl_mls(maplevel, mapcatset, &ncats, SMK_CIPSOLEN);
+ 	if (rc >= 0) {
+-		netlbl_catmap_free(skp->smk_netlabel.attr.mls.cat);
++		old_cat = skp->smk_netlabel.attr.mls.cat;
+ 		skp->smk_netlabel.attr.mls.cat = ncats.attr.mls.cat;
+ 		skp->smk_netlabel.attr.mls.lvl = ncats.attr.mls.lvl;
++		synchronize_rcu();
++		netlbl_catmap_free(old_cat);
+ 		rc = count;
+ 		/*
+ 		 * This mapping may have been cached, so clear the cache.
 -- 
 2.33.0
 
