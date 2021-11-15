@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA47A4513C3
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C89E451371
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245715AbhKOTzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:55:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45204 "EHLO mail.kernel.org"
+        id S241769AbhKOTzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:55:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344031AbhKOTXI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C87106361B;
-        Mon, 15 Nov 2021 18:50:37 +0000 (UTC)
+        id S1343949AbhKOTWb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:22:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07F7B63363;
+        Mon, 15 Nov 2021 18:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002238;
-        bh=+NudP2+8FtaGBahBMCZBFRurVUM7Gw0nAJc6OLcToYo=;
+        s=korg; t=1637002146;
+        bh=DdA0QretWp4k5PwhTyCRv9R5py7QCQlDtuhwqxPqFFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rXN8IHfoF/oOtrvb3pAiUbW8SJRW3FFwyWzc6xEY10jhww6CWrql0jB9ZebL3qmEh
-         kBWoAir8e2VUPxvcB7hlFakpCBi7+d2LtaGyIgfVjKDUH4pe+0juvsQmk63YeOYPKC
-         vhtS9FAwc4AEZPf66fSfzpmecDpi5Z7fMMK3BHIY=
+        b=c8OlW/D6IL9iLtFIKLcVz14EzeaCejiCtOAskAV7Yaz/g+YbwfD2abJsSeMh4MfaT
+         3EriCMDHG2hUlX0nW9YwLny4ioT+o6KywT8yTmv/h4h8U+3lMaixbWo44VMmysDnG0
+         BDmB0yowAn4SPFUfA7Ayam5RzfOirmEZTX5LnGI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 447/917] mmc: mxs-mmc: disable regulator on error and in the remove function
-Date:   Mon, 15 Nov 2021 17:59:02 +0100
-Message-Id: <20211115165443.938707664@linuxfoundation.org>
+        stable@vger.kernel.org, Bixuan Cui <cuibixuan@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        Hao Xu <haoxu@linux.alibaba.com>
+Subject: [PATCH 5.15 448/917] io-wq: Remove duplicate code in io_workqueue_create()
+Date:   Mon, 15 Nov 2021 17:59:03 +0100
+Message-Id: <20211115165443.969728103@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,53 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit ce5f6c2c9b0fcb4094f8e162cfd37fb4294204f7 ]
+[ Upstream commit 71e1cef2d794338cc7b979d4c6144e1dc12718b5 ]
 
-The 'reg_vmmc' regulator is enabled in the probe. It is never disabled.
-Neither in the error handling path of the probe nor in the remove
-function.
+While task_work_add() in io_workqueue_create() is true,
+then duplicate code is executed:
 
-Register a devm_action to disable it when needed.
+  -> clear_bit_unlock(0, &worker->create_state);
+  -> io_worker_release(worker);
+  -> atomic_dec(&acct->nr_running);
+  -> io_worker_ref_put(wq);
+  -> return false;
 
-Fixes: 4dc5a79f1350 ("mmc: mxs-mmc: enable regulator for mmc slot")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/4aadb3c97835f7b80f00819c3d549e6130384e67.1634365151.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+  -> clear_bit_unlock(0, &worker->create_state); // back to io_workqueue_create()
+  -> io_worker_release(worker);
+  -> kfree(worker);
+
+The io_worker_release() and clear_bit_unlock() are executed twice.
+
+Fixes: 3146cba99aa2 ("io-wq: make worker creation resilient against signals")
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Link: https://lore.kernel.org/r/20210911085847.34849-1-cuibixuan@huawei.com
+Reviwed-by: Hao Xu <haoxu@linux.alibaba.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mxs-mmc.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/io-wq.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mmc/host/mxs-mmc.c b/drivers/mmc/host/mxs-mmc.c
-index 947581de78601..8c3655d3be961 100644
---- a/drivers/mmc/host/mxs-mmc.c
-+++ b/drivers/mmc/host/mxs-mmc.c
-@@ -552,6 +552,11 @@ static const struct of_device_id mxs_mmc_dt_ids[] = {
- };
- MODULE_DEVICE_TABLE(of, mxs_mmc_dt_ids);
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 203c0e2a5dfae..5d189b24a8d4b 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -359,8 +359,10 @@ static bool io_queue_worker_create(struct io_worker *worker,
  
-+static void mxs_mmc_regulator_disable(void *regulator)
-+{
-+	regulator_disable(regulator);
-+}
-+
- static int mxs_mmc_probe(struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
-@@ -591,6 +596,11 @@ static int mxs_mmc_probe(struct platform_device *pdev)
- 				"Failed to enable vmmc regulator: %d\n", ret);
- 			goto out_mmc_free;
- 		}
-+
-+		ret = devm_add_action_or_reset(&pdev->dev, mxs_mmc_regulator_disable,
-+					       reg_vmmc);
-+		if (ret)
-+			goto out_mmc_free;
- 	}
+ 	init_task_work(&worker->create_work, func);
+ 	worker->create_index = acct->index;
+-	if (!task_work_add(wq->task, &worker->create_work, TWA_SIGNAL))
++	if (!task_work_add(wq->task, &worker->create_work, TWA_SIGNAL)) {
++		clear_bit_unlock(0, &worker->create_state);
+ 		return true;
++	}
+ 	clear_bit_unlock(0, &worker->create_state);
+ fail_release:
+ 	io_worker_release(worker);
+@@ -765,11 +767,8 @@ static void io_workqueue_create(struct work_struct *work)
+ 	struct io_worker *worker = container_of(work, struct io_worker, work);
+ 	struct io_wqe_acct *acct = io_wqe_get_acct(worker);
  
- 	ssp->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (!io_queue_worker_create(worker, acct, create_worker_cont)) {
+-		clear_bit_unlock(0, &worker->create_state);
+-		io_worker_release(worker);
++	if (!io_queue_worker_create(worker, acct, create_worker_cont))
+ 		kfree(worker);
+-	}
+ }
+ 
+ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
 -- 
 2.33.0
 
