@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DF6A4522D3
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A6B44522D8
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:14:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232983AbhKPBQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:16:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42220 "EHLO mail.kernel.org"
+        id S245052AbhKPBQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:16:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244511AbhKOTPH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244514AbhKOTPH (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:15:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A721563419;
-        Mon, 15 Nov 2021 18:21:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B501617E3;
+        Mon, 15 Nov 2021 18:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000515;
-        bh=xZTJjKTA08OtC3XG0DLSvnDkyOFtu4TnmMPf5RoDeK4=;
+        s=korg; t=1637000517;
+        bh=QqjWLStjKij775g6O1xDPIQFqTFFc+WLiwX0eXPoLWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RAgrKlVMkLTRrf+54f0N9MQphJX0esfPfLQkFrLzDmBFRVhYFZdTLC82QMbfFHz84
-         5g8PwOPJwKtsXSgDJeBljUWmbvxwY4uwWFC4KqOELgpgXiJQgT00orgsGDWNIem97p
-         RheuTWLG3J3/iAaHTjKBLtT3NNaUeYbJa/HKsKX8=
+        b=lRrPMlwlHTMgGbdlt3yndibqwpQVUndf7DFbxWEAZn7K/AHN1AZgm+Yz6bwtYNC4y
+         bBEWRJ5mnAYBxA3eNvjOz0DQv3c0e+almEY6retwPmk7dUuDZI/DnSCdolBMqJvTRl
+         JJnrXjUJLtxuI5qULmtS9qtI6FpwpffzfHsOghNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 689/849] PCI: uniphier: Serialize INTx masking/unmasking and fix the bit operation
-Date:   Mon, 15 Nov 2021 18:02:52 +0100
-Message-Id: <20211115165443.566810850@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 690/849] mtd: rawnand: arasan: Prevent an unsupported configuration
+Date:   Mon, 15 Nov 2021 18:02:53 +0100
+Message-Id: <20211115165443.596845680@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -42,98 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 4caab28a6215da5f3c1b505ff08810bc6acfe365 ]
+[ Upstream commit fc9e18f9e987ad46722dad53adab1c12148c213c ]
 
-The condition register PCI_RCV_INTX is used in irq_mask() and irq_unmask()
-callbacks. Accesses to register can occur at the same time without a lock.
-Add a lock into each callback to prevent the issue.
+Under the following conditions:
+* after rounding up by 4 the number of bytes to transfer (this is
+  related to the controller's internal constraints),
+* if this (rounded) amount of data is situated beyond the end of the
+  device,
+* and only in NV-DDR mode,
+the Arasan NAND controller timeouts.
 
-And INTX mask and unmask fields in PCL_RCV_INTX register should only be
-set/reset for each bit. Clearing by PCL_RCV_INTX_ALL_MASK should be
-removed.
+This currently can happen in a particular helper used when picking
+software ECC algorithms. Let's prevent this situation by refusing to use
+the NV-DDR interface with software engines.
 
-INTX status fields in PCL_RCV_INTX register only indicates each INTX
-interrupt status, so the handler can't clear by writing 1 to the field.
-The status is expected to be cleared by the interrupt origin.
-The ack function has no meaning, so should remove it.
-
-Suggested-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/1631924579-24567-1-git-send-email-hayashi.kunihiko@socionext.com
-Fixes: 7e6d5cd88a6f ("PCI: uniphier: Add UniPhier PCIe host controller support")
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Pali Rohár <pali@kernel.org>
-Acked-by: Marc Zyngier <maz@kernel.org>
+Fixes: 4edde6031458 ("mtd: rawnand: arasan: Support NV-DDR interface")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20211008163640.1753821-1-miquel.raynal@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-uniphier.c | 26 +++++++++-------------
- 1 file changed, 10 insertions(+), 16 deletions(-)
+ drivers/mtd/nand/raw/arasan-nand-controller.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/pci/controller/dwc/pcie-uniphier.c b/drivers/pci/controller/dwc/pcie-uniphier.c
-index 7e8bad3267701..5cf699dbee7ca 100644
---- a/drivers/pci/controller/dwc/pcie-uniphier.c
-+++ b/drivers/pci/controller/dwc/pcie-uniphier.c
-@@ -168,30 +168,21 @@ static void uniphier_pcie_irq_enable(struct uniphier_pcie_priv *priv)
- 	writel(PCL_RCV_INTX_ALL_ENABLE, priv->base + PCL_RCV_INTX);
- }
- 
--static void uniphier_pcie_irq_ack(struct irq_data *d)
--{
--	struct pcie_port *pp = irq_data_get_irq_chip_data(d);
--	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
--	struct uniphier_pcie_priv *priv = to_uniphier_pcie(pci);
--	u32 val;
--
--	val = readl(priv->base + PCL_RCV_INTX);
--	val &= ~PCL_RCV_INTX_ALL_STATUS;
--	val |= BIT(irqd_to_hwirq(d) + PCL_RCV_INTX_STATUS_SHIFT);
--	writel(val, priv->base + PCL_RCV_INTX);
--}
--
- static void uniphier_pcie_irq_mask(struct irq_data *d)
- {
- 	struct pcie_port *pp = irq_data_get_irq_chip_data(d);
- 	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
- 	struct uniphier_pcie_priv *priv = to_uniphier_pcie(pci);
-+	unsigned long flags;
- 	u32 val;
- 
-+	raw_spin_lock_irqsave(&pp->lock, flags);
+diff --git a/drivers/mtd/nand/raw/arasan-nand-controller.c b/drivers/mtd/nand/raw/arasan-nand-controller.c
+index 9cbcc698c64d8..53bd10738418b 100644
+--- a/drivers/mtd/nand/raw/arasan-nand-controller.c
++++ b/drivers/mtd/nand/raw/arasan-nand-controller.c
+@@ -973,6 +973,21 @@ static int anfc_setup_interface(struct nand_chip *chip, int target,
+ 		nvddr = nand_get_nvddr_timings(conf);
+ 		if (IS_ERR(nvddr))
+ 			return PTR_ERR(nvddr);
 +
- 	val = readl(priv->base + PCL_RCV_INTX);
--	val &= ~PCL_RCV_INTX_ALL_MASK;
- 	val |= BIT(irqd_to_hwirq(d) + PCL_RCV_INTX_MASK_SHIFT);
- 	writel(val, priv->base + PCL_RCV_INTX);
-+
-+	raw_spin_unlock_irqrestore(&pp->lock, flags);
- }
- 
- static void uniphier_pcie_irq_unmask(struct irq_data *d)
-@@ -199,17 +190,20 @@ static void uniphier_pcie_irq_unmask(struct irq_data *d)
- 	struct pcie_port *pp = irq_data_get_irq_chip_data(d);
- 	struct dw_pcie *pci = to_dw_pcie_from_pp(pp);
- 	struct uniphier_pcie_priv *priv = to_uniphier_pcie(pci);
-+	unsigned long flags;
- 	u32 val;
- 
-+	raw_spin_lock_irqsave(&pp->lock, flags);
-+
- 	val = readl(priv->base + PCL_RCV_INTX);
--	val &= ~PCL_RCV_INTX_ALL_MASK;
- 	val &= ~BIT(irqd_to_hwirq(d) + PCL_RCV_INTX_MASK_SHIFT);
- 	writel(val, priv->base + PCL_RCV_INTX);
-+
-+	raw_spin_unlock_irqrestore(&pp->lock, flags);
- }
- 
- static struct irq_chip uniphier_pcie_irq_chip = {
- 	.name = "PCI",
--	.irq_ack = uniphier_pcie_irq_ack,
- 	.irq_mask = uniphier_pcie_irq_mask,
- 	.irq_unmask = uniphier_pcie_irq_unmask,
- };
++		/*
++		 * The controller only supports data payload requests which are
++		 * a multiple of 4. In practice, most data accesses are 4-byte
++		 * aligned and this is not an issue. However, rounding up will
++		 * simply be refused by the controller if we reached the end of
++		 * the device *and* we are using the NV-DDR interface(!). In
++		 * this situation, unaligned data requests ending at the device
++		 * boundary will confuse the controller and cannot be performed.
++		 *
++		 * This is something that happens in nand_read_subpage() when
++		 * selecting software ECC support and must be avoided.
++		 */
++		if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT)
++			return -ENOTSUPP;
+ 	} else {
+ 		sdr = nand_get_sdr_timings(conf);
+ 		if (IS_ERR(sdr))
 -- 
 2.33.0
 
