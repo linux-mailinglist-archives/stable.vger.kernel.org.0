@@ -2,90 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0565451670
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 22:22:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8ACF4516B2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 22:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242093AbhKOVY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 16:24:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56248 "EHLO
+        id S244671AbhKOVkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 16:40:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353369AbhKOUzl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 15:55:41 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6BAEC0432ED;
-        Mon, 15 Nov 2021 12:47:47 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id np6-20020a17090b4c4600b001a90b011e06so864251pjb.5;
-        Mon, 15 Nov 2021 12:47:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=37iPORGZWTcbPqrckEZeI9K5Eg70KvF8yptSAflO4Uw=;
-        b=RXgsN+aOmT0tvd3MDXT6gExcbkqyWM5NKd/5m3diH8mIMI9/WsCSqcb0y3AlsaU/fe
-         gJXFPIH8n0E3OZ0SrNXjjfVOu1D+z+VH7lIlKVYihp0qMAgCKB7iXol4vds9hWF2hv5P
-         E0+E1x37UO63H31p+Zhm6imdXbJQ0WN7qA0XfTcqHjAETNkXFTVv5mNZUgqWNwv8UAAe
-         fpvh45SscJE22UUN8Ao0deyYMpASeupP4MsdYDKzswUaVG0FpP5poMgvcmWYTpE7UVQt
-         XIBmXZpqYmlgcVYYLMpWCH1SZjyxteY3aPuEXMlBb8gebjC+CmST318B1cFcJhsONIN6
-         u1iw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=37iPORGZWTcbPqrckEZeI9K5Eg70KvF8yptSAflO4Uw=;
-        b=RY84vFThyMs/brBbuhN5QzVC8BAjAXs+407ARSpqjHS0Bzlwy7QIxc7YyAH5sqabPt
-         6QHvllZnAHTNh4MLk2w58MuX5nthDUAcUYy+usnS2m+6T7sm1l5/T+cDFM+GCRArJHng
-         SI+Z33absaHXv3L8G+ACMzZqD/994DoBUHpDcVKal4nrmT5r59vaZpfS/bd9F+Q5C4Bg
-         MQjITz4FejfqH9dif4+Hs0Dmy2q8Z5/dD5QiXNPbsLMUz1N1NuUcs8BHCQT8PD5HnQNY
-         w6MsZAlK+znj+DZonDVmsZHU54/oexfbVi5orSzzCxXtwFGqcIyWEvfDkTygosgzG97m
-         q1KQ==
-X-Gm-Message-State: AOAM533TzfCAwoRbb37dH/WUYd8uPfz4f8qKPmzEBxfvjI7mpXVtGrZR
-        vdjbGILTeMGWvenfIwbhahLDOOKTASts6poWdwI=
-X-Google-Smtp-Source: ABdhPJya3JcZmZ+67ZgolK7IzkiairySucGFBYEMhzBIf74Vmy4XzQQ+HAMpmBUWkge4t5ohjhQ+cA==
-X-Received: by 2002:a17:902:e294:b0:143:86a8:c56d with SMTP id o20-20020a170902e29400b0014386a8c56dmr38666246plc.22.1637009266537;
-        Mon, 15 Nov 2021 12:47:46 -0800 (PST)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id m12sm12749224pfk.27.2021.11.15.12.47.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Nov 2021 12:47:45 -0800 (PST)
-Message-ID: <6192c771.1c69fb81.48c9.4359@mx.google.com>
-Date:   Mon, 15 Nov 2021 12:47:45 -0800 (PST)
-X-Google-Original-Date: Mon, 15 Nov 2021 20:47:44 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 000/575] 5.10.80-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S1349719AbhKOV2r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 16:28:47 -0500
+X-Greylist: delayed 527 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 15 Nov 2021 13:10:50 PST
+Received: from defensec.nl (markus.defensec.nl [IPv6:2001:985:d55d::123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00CA2C04318D
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 13:10:48 -0800 (PST)
+Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
+        by defensec.nl (Postfix) with ESMTPSA id D8B2CFC07DE;
+        Mon, 15 Nov 2021 22:01:23 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
+        s=default; t=1637010084;
+        bh=A6OsKbMGlKs/PRhZow1b3F+L7cUVLjmydEocv5Yo6h0=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=jUBci85URiGebm0MqE9lhbe/yxUaXoqet6YJBFFDBTc8ffOzUV9vCSYNoAdAwEj/3
+         dQz5tMl8ph9HnPpzw/OQzdIxOMLlxEF0wyLNBJ4fADAhhlmPA2X4fH4qLNyOueVryJ
+         4s4M9k1sSulivKzN2o+aMV6K4LJewC4I2ZFKfg3g=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     Alistair Delva <adelva@google.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Khazhismel Kumykov <khazhy@google.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Serge Hallyn <serge@hallyn.com>, Jens Axboe <axboe@kernel.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        "Cc: Android Kernel" <kernel-team@android.com>,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: Re: [PATCH] block: Check ADMIN before NICE for IOPRIO_CLASS_RT
+References: <20211115173850.3598768-1-adelva@google.com>
+        <CAFqZXNvVHv8Oje-WV6MWMF96kpR6epTsbc-jv-JF+YJw=55i1w@mail.gmail.com>
+        <CANDihLEFZAz8DwkkMGiDJnDMjxiUuSCanYsJtkRwa9RoyruLFA@mail.gmail.com>
+Date:   Mon, 15 Nov 2021 22:01:23 +0100
+In-Reply-To: <CANDihLEFZAz8DwkkMGiDJnDMjxiUuSCanYsJtkRwa9RoyruLFA@mail.gmail.com>
+        (Alistair Delva's message of "Mon, 15 Nov 2021 11:08:48 -0800")
+Message-ID: <87sfvxp1zw.fsf@defensec.nl>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 15 Nov 2021 17:55:25 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.80 release.
-> There are 575 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 17 Nov 2021 16:52:23 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.80-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Alistair Delva <adelva@google.com> writes:
 
-5.10.80-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+> On Mon, Nov 15, 2021 at 11:04 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>>
+>> On Mon, Nov 15, 2021 at 7:14 PM Alistair Delva <adelva@google.com> wrote:
+>> > Booting to Android userspace on 5.14 or newer triggers the following
+>> > SELinux denial:
+>> >
+>> > avc: denied { sys_nice } for comm="init" capability=23
+>> >      scontext=u:r:init:s0 tcontext=u:r:init:s0 tclass=capability
+>> >      permissive=0
+>> >
+>> > Init is PID 0 running as root, so it already has CAP_SYS_ADMIN. For
+>> > better compatibility with older SEPolicy, check ADMIN before NICE.
+>>
+>> But with this patch you in turn punish the new/better policies that
+>> try to avoid giving domains CAP_SYS_ADMIN unless necessary (using only
+>> the more granular capabilities wherever possible), which may now get a
+>> bogus sys_admin denial. IMHO the order is better as it is, as it
+>> motivates the "good" policy writing behavior - i.e. spelling out the
+>> capability permissions more explicitly and avoiding CAP_SYS_ADMIN.
+>>
+>> IOW, if you domain does CAP_SYS_NICE things, and you didn't explicitly
+>> grant it that (and instead rely on the CAP_SYS_ADMIN fallback), then
+>> the denial correctly flags it as an issue in your policy and
+>> encourages you to add that sys_nice permission to the domain. Then
+>> when one beautiful hypothetical day the CAP_SYS_ADMIN fallback is
+>> removed, your policy will be ready for that and things will keep
+>> working.
+>>
+>> Feel free to carry that patch downstream if patching the kernel is
+>> easier for you than fixing the policy, but for the upstream kernel
+>> this is just a step in the wrong direction.
+>
+> I'm personally fine with this position, but I am curious why "never
+> break userspace" doesn't apply to SELinux policies. At the end of the
+> day, booting 5.13 or older, we don't get a denial, and there's nothing
+> for the sysadmin to do. On 5.14 and newer, we get denials. This is a
+> common pattern we see each year: some new capability or permission is
+> required where it wasn't required before, and there's no compatibility
+> mechanism to grandfather in old policies. So, we have to touch
+> userspace. If this is just how things are, I can certainly update our
+> init.te definitions.
 
+User space is not broken? If you just ignore this AVC denial then it
+will pass on cap_sys_admin. In other words everything still works, you
+only get a AVC denial for cap_sys_nice now.
+
+>
+>> > Fixes: 9d3a39a5f1e4 ("block: grant IOPRIO_CLASS_RT to CAP_SYS_NICE")
+>> > Signed-off-by: Alistair Delva <adelva@google.com>
+>> > Cc: Khazhismel Kumykov <khazhy@google.com>
+>> > Cc: Bart Van Assche <bvanassche@acm.org>
+>> > Cc: Serge Hallyn <serge@hallyn.com>
+>> > Cc: Jens Axboe <axboe@kernel.dk>
+>> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> > Cc: Paul Moore <paul@paul-moore.com>
+>> > Cc: selinux@vger.kernel.org
+>> > Cc: linux-security-module@vger.kernel.org
+>> > Cc: kernel-team@android.com
+>> > Cc: stable@vger.kernel.org # v5.14+
+>> > ---
+>> >  block/ioprio.c | 2 +-
+>> >  1 file changed, 1 insertion(+), 1 deletion(-)
+>> >
+>> > diff --git a/block/ioprio.c b/block/ioprio.c
+>> > index 0e4ff245f2bf..4d59c559e057 100644
+>> > --- a/block/ioprio.c
+>> > +++ b/block/ioprio.c
+>> > @@ -69,7 +69,7 @@ int ioprio_check_cap(int ioprio)
+>> >
+>> >         switch (class) {
+>> >                 case IOPRIO_CLASS_RT:
+>> > -                       if (!capable(CAP_SYS_NICE) && !capable(CAP_SYS_ADMIN))
+>> > +                       if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_NICE))
+>> >                                 return -EPERM;
+>> >                         fallthrough;
+>> >                         /* rt has prio field too */
+>> > --
+>> > 2.34.0.rc1.387.gb447b232ab-goog
+>> >
+>>
+>> --
+>> Ondrej Mosnacek
+>> Software Engineer, Linux Security - SELinux kernel
+>> Red Hat, Inc.
+>>
+
+-- 
+gpg --locate-keys dominick.grift@defensec.nl
+Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+Dominick Grift
