@@ -2,106 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CBD045013C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 10:24:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E90F9450181
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 10:33:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237018AbhKOJ1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 04:27:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237611AbhKOJ1D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 04:27:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 081C463211;
-        Mon, 15 Nov 2021 09:24:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636968248;
-        bh=5a1yfWliqHyroChYn0d1Kl9ZhWMorOiL7YXR3oZikKQ=;
-        h=Subject:To:From:Date:From;
-        b=A5IYIOwzAX8r44gwQNC9wgfsFSGLpA5/rHM+Ej8MnoLMTKYWFanb50C1j5FlogaCU
-         tFYlxwnHt1AzAFJ4JJkdKOEcfyRUEUltUUh79QGO+qAC+W5UbOmCVSw6zmma4egWa6
-         8Gq91defNkasTYnrrtaUd/4NNQJN8ojkcCS+7q1k=
-Subject: patch "staging: r8188eu: Use kzalloc() with GFP_ATOMIC in atomic context" added to staging-linus
-To:     fmdefrancesco@gmail.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Nov 2021 10:23:50 +0100
-Message-ID: <163696823065139@kroah.com>
+        id S237514AbhKOJgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 04:36:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44094 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237629AbhKOJgM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 04:36:12 -0500
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 424CAC061746
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 01:33:06 -0800 (PST)
+Received: by mail-pj1-x102b.google.com with SMTP id h24so12328438pjq.2
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 01:33:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=s1hT8Yr4fx35Z7WrLlw8+kAPVV3Vt3GvUl0rS8XUZkQ=;
+        b=HKiA43mHiaEHClCcmvOe+mxXLF6xtw+b5ktMkA0ZI5aGj91KoFvn+CMBfwkiPaK5ju
+         TGL7Wls+EpCeMcCoUB7f90CZVjMglqEzjA5WawAwOTCdo+79Csq+mvypt0kD/Gy9hCjZ
+         vy+lqNTIONNNGXVOaroesiOFxgwO8HfrklccBLWUV3iu66EzQDXMX8eMB1wmwg6D4SDi
+         E2ryb8sxVIQp4cYbn1Qn3M4e5QQSKMpoQbG4niz9p6++0QJyX9Ha/ZpIvCPttusQmZ5g
+         5QTsTMJt7jzzDv3Oi0+dVk9Yg7PrQ3/whQCmH75sp4NHhuCWRCHhJ2GUMUeNvCW++jdX
+         Brmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=s1hT8Yr4fx35Z7WrLlw8+kAPVV3Vt3GvUl0rS8XUZkQ=;
+        b=lENbdANeX33qQufISyG7d56rBC0H90OFwOFHEPCxzoW9jz367LwtEAipgtlCKxnK7o
+         gdJC9hTei81n4xjsJSHW1puosqkl7pRR2hWzian3ApxWDt/QSSQTai24RXSEfS0VrsyS
+         1GMUlcUs+T6zr52g180i+U5Xd9DNU3lJK3DCRy+NIDhA92vlIsQFxPQTeXS9LIcZlIEH
+         7ozJsyKQ8AWy8bL9w0yUF2vfmMCSk4SvqsQwUyhCVyKl0UfEtlTyg1YNxTyqbwuQ6j61
+         ZCpyKcuTGH69nMC+38klXie57SX13c19y1GcsBatjRKbu2V/Otpdhk4eLQwlz1ZxEnkg
+         g5bg==
+X-Gm-Message-State: AOAM530qbg9wZ6lantXoF9NnjGsRQsqiftZYCpxs2DP4szKgHBY4NA3Y
+        MOz0SBxXuhQPu7jNVbaGg9sJ+E3IBhWrUZxz
+X-Google-Smtp-Source: ABdhPJzXziIeRt6q/nduWUn3BoBJPRcW2pxVH3gBsMz7EqiQu1BAUwtsexRPmUIeBf2ueuEcNK0qTA==
+X-Received: by 2002:a17:90b:155:: with SMTP id em21mr63853703pjb.12.1636968785654;
+        Mon, 15 Nov 2021 01:33:05 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f4sm14098054pfg.34.2021.11.15.01.33.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Nov 2021 01:33:05 -0800 (PST)
+Message-ID: <61922951.1c69fb81.fa530.8d13@mx.google.com>
+Date:   Mon, 15 Nov 2021 01:33:05 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.79-539-ge1c22b684563
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 209 runs,
+ 1 regressions (v5.10.79-539-ge1c22b684563)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.10 baseline: 209 runs, 1 regressions (v5.10.79-539-ge1c22=
+b684563)
 
-This is a note to let you know that I've just added the patch titled
+Regressions Summary
+-------------------
 
-    staging: r8188eu: Use kzalloc() with GFP_ATOMIC in atomic context
-
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
+platform    | arch | lab     | compiler | defconfig           | regressions
+------------+------+---------+----------+---------------------+------------
+imx7ulp-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1          =
 
 
-From c15a059f85de49c542e6ec2464967dd2b2aa18f6 Mon Sep 17 00:00:00 2001
-From: "Fabio M. De Francesco" <fmdefrancesco@gmail.com>
-Date: Mon, 1 Nov 2021 20:18:47 +0100
-Subject: staging: r8188eu: Use kzalloc() with GFP_ATOMIC in atomic context
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.79-539-ge1c22b684563/plan/baseline/
 
-Use the GFP_ATOMIC flag of kzalloc() with two memory allocation in
-report_del_sta_event(). This function is called while holding spinlocks,
-therefore it is not allowed to sleep. With the GFP_ATOMIC type flag, the
-allocation is high priority and must not sleep.
-
-This issue is detected by Smatch which emits the following warning:
-"drivers/staging/r8188eu/core/rtw_mlme_ext.c:6848 report_del_sta_event()
-warn: sleeping in atomic context".
-
-After the change, the post-commit hook output the following message:
-"CHECK: Prefer kzalloc(sizeof(*pcmd_obj)...) over
-kzalloc(sizeof(struct cmd_obj)...)".
-
-According to the above "CHECK", use the preferred style in the first
-kzalloc().
-
-Fixes: 79f712ea994d ("staging: r8188eu: Remove wrappers for kalloc() and kzalloc()")
-Fixes: 15865124feed ("staging: r8188eu: introduce new core dir for RTL8188eu driver")
-Signed-off-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
-Link: https://lore.kernel.org/r/20211101191847.6749-1-fmdefrancesco@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable <stable@vger.kernel.org>
----
- drivers/staging/r8188eu/core/rtw_mlme_ext.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/staging/r8188eu/core/rtw_mlme_ext.c b/drivers/staging/r8188eu/core/rtw_mlme_ext.c
-index 5b60e6df5f87..b4820ad2cee7 100644
---- a/drivers/staging/r8188eu/core/rtw_mlme_ext.c
-+++ b/drivers/staging/r8188eu/core/rtw_mlme_ext.c
-@@ -6847,12 +6847,12 @@ void report_del_sta_event(struct adapter *padapter, unsigned char *MacAddr, unsi
- 	struct mlme_ext_priv		*pmlmeext = &padapter->mlmeextpriv;
- 	struct cmd_priv *pcmdpriv = &padapter->cmdpriv;
- 
--	pcmd_obj = kzalloc(sizeof(struct cmd_obj), GFP_KERNEL);
-+	pcmd_obj = kzalloc(sizeof(*pcmd_obj), GFP_ATOMIC);
- 	if (!pcmd_obj)
- 		return;
- 
- 	cmdsz = (sizeof(struct stadel_event) + sizeof(struct C2HEvent_Header));
--	pevtcmd = kzalloc(cmdsz, GFP_KERNEL);
-+	pevtcmd = kzalloc(cmdsz, GFP_ATOMIC);
- 	if (!pevtcmd) {
- 		kfree(pcmd_obj);
- 		return;
--- 
-2.33.1
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.79-539-ge1c22b684563
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e1c22b684563234fb3a50eb9e537fe3806bdfab2 =
 
 
+
+Test Regressions
+---------------- =
+
+
+
+platform    | arch | lab     | compiler | defconfig           | regressions
+------------+------+---------+----------+---------------------+------------
+imx7ulp-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6191ee7975b58719eb335905
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.79-=
+539-ge1c22b684563/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
+vk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.79-=
+539-ge1c22b684563/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx7ulp-e=
+vk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6191ee7975b58719eb335=
+906
+        new failure (last pass: v5.10.79-162-g8fb515630122) =
+
+ =20
