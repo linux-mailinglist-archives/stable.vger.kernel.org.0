@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5322C450D46
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:51:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B53F4510AA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:49:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238788AbhKORxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:53:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35666 "EHLO mail.kernel.org"
+        id S238274AbhKOSwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:52:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238927AbhKORuk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:50:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E95C1632AA;
-        Mon, 15 Nov 2021 17:31:16 +0000 (UTC)
+        id S242814AbhKOSuT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:50:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F390D613A7;
+        Mon, 15 Nov 2021 18:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997477;
-        bh=xbBnIUX/zyaJx7lBhF4iyaKWUIKp0gzgpFILNaZqnwY=;
+        s=korg; t=1636999734;
+        bh=VtYf4l5+U5cuDlxkGU8QcXdHIFxr3Cd/T9k8AacZ7so=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvh/U99CQAnwX0ZPjyPk8idzXx83jL6oN7MD9VQgP79amLIPoletqWVqmV4d5Lj4p
-         xr8z9Kk1ScsufHFatsaVKUOXrKrMTbB88lwepboxtJejnebXLSIAILTIfkne0PCkdy
-         F+ekJZYLqUAWz27CH/MgXPSOne7lItLnrHMPMWi0=
+        b=EiCa7GChcuMdPvwMr2ebRMa+AqxZPnlSDKSJxxqKkvY7TIdl4GJLXVD8I5PXWQ4z7
+         ss9YL2ueermssSpx1z74SUKKaec9Wfg2cvdSEep5FyBwllG7TDLwdeok10lwUaPZEN
+         5pBwE0P2nUTmCO18PmbyA8G326+aNNkx7c/uxX9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Borislav Petkov <bp@suse.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 163/575] dma-buf: WARN on dmabuf release with pending attachments
+Subject: [PATCH 5.14 405/849] x86/insn: Use get_unaligned() instead of memcpy()
 Date:   Mon, 15 Nov 2021 17:58:08 +0100
-Message-Id: <20211115165349.353529710@linuxfoundation.org>
+Message-Id: <20211115165433.962955229@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +43,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Reddy <charante@codeaurora.org>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit f492283b157053e9555787262f058ae33096f568 ]
+[ Upstream commit f96b4675839b66168f5a07bf964dde6c2f1c4885 ]
 
-It is expected from the clients to follow the below steps on an imported
-dmabuf fd:
-a) dmabuf = dma_buf_get(fd) // Get the dmabuf from fd
-b) dma_buf_attach(dmabuf); // Clients attach to the dmabuf
-   o Here the kernel does some slab allocations, say for
-dma_buf_attachment and may be some other slab allocation in the
-dmabuf->ops->attach().
-c) Client may need to do dma_buf_map_attachment().
-d) Accordingly dma_buf_unmap_attachment() should be called.
-e) dma_buf_detach () // Clients detach to the dmabuf.
-   o Here the slab allocations made in b) are freed.
-f) dma_buf_put(dmabuf) // Can free the dmabuf if it is the last
-reference.
+Use get_unaligned() instead of memcpy() to access potentially unaligned
+memory, which, when accessed through a pointer, leads to undefined
+behavior. get_unaligned() describes much better what is happening there
+anyway even if memcpy() does the job.
 
-Now say an erroneous client failed at step c) above thus it directly
-called dma_buf_put(), step f) above. Considering that it may be the last
-reference to the dmabuf, buffer will be freed with pending attachments
-left to the dmabuf which can show up as the 'memory leak'. This should
-at least be reported as the WARN().
+In addition, since perf tool builds with -Werror, it would fire with:
 
-Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1627043468-16381-1-git-send-email-charante@codeaurora.org
-Signed-off-by: Christian König <christian.koenig@amd.com>
+  util/intel-pt-decoder/../../../arch/x86/lib/insn.c: In function '__insn_get_emulate_prefix':
+  tools/include/../include/asm-generic/unaligned.h:10:15: error: packed attribute is unnecessary [-Werror=packed]
+     10 |  const struct { type x; } __packed *__pptr = (typeof(__pptr))(ptr); \
+
+because -Werror=packed would complain if the packed attribute would have
+no effect on the layout of the structure.
+
+In this case, that is intentional so disable the warning only for that
+compilation unit.
+
+That part is Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+
+No functional changes.
+
+Fixes: 5ba1071f7554 ("x86/insn, tools/x86: Fix undefined behavior due to potential unaligned accesses")
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Link: https://lkml.kernel.org/r/YVSsIkj9Z29TyUjE@zn.tnic
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/dma-buf.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/lib/insn.c                    |  5 +++--
+ tools/arch/x86/lib/insn.c              |  5 +++--
+ tools/include/asm-generic/unaligned.h  | 23 +++++++++++++++++++++++
+ tools/perf/util/intel-pt-decoder/Build |  2 ++
+ 4 files changed, 31 insertions(+), 4 deletions(-)
+ create mode 100644 tools/include/asm-generic/unaligned.h
 
-diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-index 922416b3aaceb..93e9bf7382595 100644
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -79,6 +79,7 @@ static void dma_buf_release(struct dentry *dentry)
- 	if (dmabuf->resv == (struct dma_resv *)&dmabuf[1])
- 		dma_resv_fini(dmabuf->resv);
+diff --git a/arch/x86/lib/insn.c b/arch/x86/lib/insn.c
+index c565def611e24..55e371cc69fd5 100644
+--- a/arch/x86/lib/insn.c
++++ b/arch/x86/lib/insn.c
+@@ -13,6 +13,7 @@
+ #endif
+ #include <asm/inat.h> /*__ignore_sync_check__ */
+ #include <asm/insn.h> /* __ignore_sync_check__ */
++#include <asm/unaligned.h> /* __ignore_sync_check__ */
  
-+	WARN_ON(!list_empty(&dmabuf->attachments));
- 	module_put(dmabuf->owner);
- 	kfree(dmabuf->name);
- 	kfree(dmabuf);
+ #include <linux/errno.h>
+ #include <linux/kconfig.h>
+@@ -37,10 +38,10 @@
+ 	((insn)->next_byte + sizeof(t) + n <= (insn)->end_kaddr)
+ 
+ #define __get_next(t, insn)	\
+-	({ t r; memcpy(&r, insn->next_byte, sizeof(t)); insn->next_byte += sizeof(t); leXX_to_cpu(t, r); })
++	({ t r = get_unaligned((t *)(insn)->next_byte); (insn)->next_byte += sizeof(t); leXX_to_cpu(t, r); })
+ 
+ #define __peek_nbyte_next(t, insn, n)	\
+-	({ t r; memcpy(&r, (insn)->next_byte + n, sizeof(t)); leXX_to_cpu(t, r); })
++	({ t r = get_unaligned((t *)(insn)->next_byte + n); leXX_to_cpu(t, r); })
+ 
+ #define get_next(t, insn)	\
+ 	({ if (unlikely(!validate_next(t, insn, 0))) goto err_out; __get_next(t, insn); })
+diff --git a/tools/arch/x86/lib/insn.c b/tools/arch/x86/lib/insn.c
+index 797699462cd8e..8fd63a067308a 100644
+--- a/tools/arch/x86/lib/insn.c
++++ b/tools/arch/x86/lib/insn.c
+@@ -13,6 +13,7 @@
+ #endif
+ #include "../include/asm/inat.h" /* __ignore_sync_check__ */
+ #include "../include/asm/insn.h" /* __ignore_sync_check__ */
++#include "../include/asm-generic/unaligned.h" /* __ignore_sync_check__ */
+ 
+ #include <linux/errno.h>
+ #include <linux/kconfig.h>
+@@ -37,10 +38,10 @@
+ 	((insn)->next_byte + sizeof(t) + n <= (insn)->end_kaddr)
+ 
+ #define __get_next(t, insn)	\
+-	({ t r; memcpy(&r, insn->next_byte, sizeof(t)); insn->next_byte += sizeof(t); leXX_to_cpu(t, r); })
++	({ t r = get_unaligned((t *)(insn)->next_byte); (insn)->next_byte += sizeof(t); leXX_to_cpu(t, r); })
+ 
+ #define __peek_nbyte_next(t, insn, n)	\
+-	({ t r; memcpy(&r, (insn)->next_byte + n, sizeof(t)); leXX_to_cpu(t, r); })
++	({ t r = get_unaligned((t *)(insn)->next_byte + n); leXX_to_cpu(t, r); })
+ 
+ #define get_next(t, insn)	\
+ 	({ if (unlikely(!validate_next(t, insn, 0))) goto err_out; __get_next(t, insn); })
+diff --git a/tools/include/asm-generic/unaligned.h b/tools/include/asm-generic/unaligned.h
+new file mode 100644
+index 0000000000000..47387c607035e
+--- /dev/null
++++ b/tools/include/asm-generic/unaligned.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * Copied from the kernel sources to tools/perf/:
++ */
++
++#ifndef __TOOLS_LINUX_ASM_GENERIC_UNALIGNED_H
++#define __TOOLS_LINUX_ASM_GENERIC_UNALIGNED_H
++
++#define __get_unaligned_t(type, ptr) ({						\
++	const struct { type x; } __packed *__pptr = (typeof(__pptr))(ptr);	\
++	__pptr->x;								\
++})
++
++#define __put_unaligned_t(type, val, ptr) do {					\
++	struct { type x; } __packed *__pptr = (typeof(__pptr))(ptr);		\
++	__pptr->x = (val);							\
++} while (0)
++
++#define get_unaligned(ptr)	__get_unaligned_t(typeof(*(ptr)), (ptr))
++#define put_unaligned(val, ptr) __put_unaligned_t(typeof(*(ptr)), (val), (ptr))
++
++#endif /* __TOOLS_LINUX_ASM_GENERIC_UNALIGNED_H */
++
+diff --git a/tools/perf/util/intel-pt-decoder/Build b/tools/perf/util/intel-pt-decoder/Build
+index bc629359826fb..b41c2e9c6f887 100644
+--- a/tools/perf/util/intel-pt-decoder/Build
++++ b/tools/perf/util/intel-pt-decoder/Build
+@@ -18,3 +18,5 @@ CFLAGS_intel-pt-insn-decoder.o += -I$(OUTPUT)util/intel-pt-decoder
+ ifeq ($(CC_NO_CLANG), 1)
+   CFLAGS_intel-pt-insn-decoder.o += -Wno-override-init
+ endif
++
++CFLAGS_intel-pt-insn-decoder.o += -Wno-packed
 -- 
 2.33.0
 
