@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C33BA450AD4
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:12:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 879FB4510FC
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:55:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236850AbhKORO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:14:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46236 "EHLO mail.kernel.org"
+        id S237381AbhKOS5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:57:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236868AbhKORNz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:13:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12B9161C12;
-        Mon, 15 Nov 2021 17:10:31 +0000 (UTC)
+        id S243226AbhKOSzp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:55:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9C21633D2;
+        Mon, 15 Nov 2021 18:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996232;
-        bh=vC6aQkh4oaZK+bFIAgtdp7MUSkeKgCAWdjSnH+jsKRE=;
+        s=korg; t=1636999921;
+        bh=AdQqEOLmNElOdySDd8yyXF0jhgX3L/O5mXq0EN5UjiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xlMXC7c1Z+UAf9lxq/NjS5YrWOgC/WI0E1cDbD3VRk8jtKYDOV7o5PsdQXr0AqcVI
-         0DzQxYrqhWnI12NaHTc273Jz2ehBw4fGBREnURxXEUlEG6JnSh1t3wXQHkTVzZpOpi
-         SBzPKFchtaQZfjfXgqrfBBQWkG1giI9/Idz9tFXw=
+        b=GhH1k85zP2CKoLNLMSDRz1JE/FOdd5C99upS7Na6ZO0P8dULVZaA4xpHcFkQKFgUV
+         rgwJHPWfUBHvKrUEjYC7aCv8aCq9r5D1gabjD4xpU1QcOBxg5wcxJ/7ltabtjeaKsC
+         UtVWSIJvMY35fhSmhEyipOinXwxEW/OAqtBrYIQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Dinoff <fdinoff@google.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.4 032/355] fuse: fix page stealing
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 473/849] mt76: connac: fix possible NULL pointer dereference in mt76_connac_get_phy_mode_v2
 Date:   Mon, 15 Nov 2021 17:59:16 +0100
-Message-Id: <20211115165314.585807772@linuxfoundation.org>
+Message-Id: <20211115165436.284112620@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +39,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 712a951025c0667ff00b25afc360f74e639dfabe upstream.
+[ Upstream commit b5f2ba8a4c794e8349c0e30036352b9f685164c4 ]
 
-It is possible to trigger a crash by splicing anon pipe bufs to the fuse
-device.
+Fix the following NULL pointer dereference in mt76_connac_get_phy_mode_v2
+routine triggered on mt7663s device when sta is NULL
 
-The reason for this is that anon_pipe_buf_release() will reuse buf->page if
-the refcount is 1, but that page might have already been stolen and its
-flags modified (e.g. PG_lru added).
+[    5.490700] mt7663s mmc0:0001:1: N9 Firmware Version: 3.1.1, Build Time: 20200604161656
+[    5.490815] mt7663s mmc0:0001:1: Region number: 0x4
+[    5.490868] mt7663s mmc0:0001:1: Parsing tailer Region: 0
+[    5.496251] mt7663s mmc0:0001:1: Region 0, override_addr = 0x00118000
+[    5.496419] mt7663s mmc0:0001:1: Parsing tailer Region: 1
+[    5.624027] mt7663s mmc0:0001:1: Parsing tailer Region: 2
+[    5.656999] mt7663s mmc0:0001:1: Parsing tailer Region: 3
+[    5.671876] mt7663s mmc0:0001:1: override_addr = 0x00118000, option = 3
+[    9.358658] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[    9.358775] #PF: supervisor read access in kernel mode
+[    9.358831] #PF: error_code(0x0000) - not-present page
+[    9.358886] PGD 0 P4D 0
+[    9.358917] Oops: 0000 [#1] SMP
+[    9.358960] CPU: 0 PID: 235 Comm: NetworkManager Not tainted 5.15.0-rc4-kvm-02151-g39e333d657f4-dirty #769
+[    9.359057] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
+[    9.359150] RIP: 0010:mt76_connac_get_phy_mode_v2+0xc9/0x11c
+[    9.359473] RAX: 0000000000000013 RBX: 0000000000000000 RCX: 0000000000000027
+[    9.359546] RDX: ffff8881f9c17358 RSI: 0000000000000001 RDI: ffff8881f9c17350
+[    9.359624] RBP: ffff88810bac1ed4 R08: ffffffff822a4a48 R09: 0000000000000003
+[    9.359697] R10: ffffffff82234a60 R11: ffffffff82234a60 R12: ffff88810bac1eec
+[    9.359779] R13: 0000000000000000 R14: ffff88810bad1648 R15: ffff88810bac1eb8
+[    9.359859] FS:  00007f5f1e45bbc0(0000) GS:ffff8881f9c00000(0000) knlGS:0000000000000000
+[    9.359939] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    9.360003] CR2: 0000000000000000 CR3: 0000000105d5d000 CR4: 00000000000006b0
+[    9.360083] Call Trace:
+[    9.360116]  mt76_connac_mcu_uni_add_bss.cold+0x21/0x250
+[    9.360175]  ? schedule_preempt_disabled+0xa/0x10
+[    9.360232]  ? __mutex_lock.constprop.0+0x2ab/0x460
+[    9.360286]  mt7615_remove_interface+0x63/0x1d0
+[    9.360342]  drv_remove_interface+0x32/0xe0
+[    9.360385]  ieee80211_do_stop+0x5da/0x800
+[    9.360428]  ? dev_reset_queue+0x30/0x90
+[    9.360472]  ieee80211_stop+0x3b/0xb0
+[    9.360516]  __dev_close_many+0x7a/0xd0
+[    9.360559]  __dev_change_flags+0xd6/0x1f0
+[    9.360604]  dev_change_flags+0x21/0x60
+[    9.360648]  do_setlink+0x259/0xfb0
+[    9.360686]  ? __nla_validate_parse+0x51/0xb80
+[    9.360742]  __rtnl_newlink+0x5b3/0x960
+[    9.360785]  ? inet6_fill_ifla6_attrs+0x41d/0x470
+[    9.360841]  ? __kmalloc_track_caller+0x57/0x3c0
+[    9.360905]  ? netlink_trim+0x8a/0xb0
+[    9.360949]  ? skb_queue_tail+0x1b/0x50
 
-This happens in the unlikely case of fuse_dev_splice_write() getting around
-to calling pipe_buf_release() after a page has been stolen, added to the
-page cache and removed from the page cache.
-
-Fix by calling pipe_buf_release() right after the page was inserted into
-the page cache.  In this case the page has an elevated refcount so any
-release function will know that the page isn't reusable.
-
-Reported-by: Frank Dinoff <fdinoff@google.com>
-Link: https://lore.kernel.org/r/CAAmZXrsGg2xsP1CK+cbuEMumtrqdvD-NKnWzhNcvn71RV3c1yw@mail.gmail.com/
-Fixes: dd3bb14f44a6 ("fuse: support splice() writing to fuse device")
-Cc: <stable@vger.kernel.org> # v2.6.35
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 67aa27431c7f8 ("mt76: mt7921: rely on mt76_connac_mcu common library")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -839,6 +839,12 @@ static int fuse_try_move_page(struct fus
- 		goto out_put_old;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+index 98d233e24afcc..d25b50e769328 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+@@ -689,7 +689,7 @@ mt76_connac_get_phy_mode_v2(struct mt76_phy *mphy, struct ieee80211_vif *vif,
+ 		if (ht_cap->ht_supported)
+ 			mode |= PHY_TYPE_BIT_HT;
+ 
+-		if (he_cap->has_he)
++		if (he_cap && he_cap->has_he)
+ 			mode |= PHY_TYPE_BIT_HE;
+ 	} else if (band == NL80211_BAND_5GHZ) {
+ 		mode |= PHY_TYPE_BIT_OFDM;
+@@ -700,7 +700,7 @@ mt76_connac_get_phy_mode_v2(struct mt76_phy *mphy, struct ieee80211_vif *vif,
+ 		if (vht_cap->vht_supported)
+ 			mode |= PHY_TYPE_BIT_VHT;
+ 
+-		if (he_cap->has_he)
++		if (he_cap && he_cap->has_he)
+ 			mode |= PHY_TYPE_BIT_HE;
  	}
  
-+	/*
-+	 * Release while we have extra ref on stolen page.  Otherwise
-+	 * anon_pipe_buf_release() might think the page can be reused.
-+	 */
-+	pipe_buf_release(cs->pipe, buf);
-+
- 	get_page(newpage);
- 
- 	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
-@@ -2027,8 +2033,12 @@ static ssize_t fuse_dev_splice_write(str
- 
- 	pipe_lock(pipe);
- out_free:
--	for (idx = 0; idx < nbuf; idx++)
--		pipe_buf_release(pipe, &bufs[idx]);
-+	for (idx = 0; idx < nbuf; idx++) {
-+		struct pipe_buffer *buf = &bufs[idx];
-+
-+		if (buf->ops)
-+			pipe_buf_release(pipe, buf);
-+	}
- 	pipe_unlock(pipe);
- 
- 	kvfree(bufs);
+-- 
+2.33.0
+
 
 
