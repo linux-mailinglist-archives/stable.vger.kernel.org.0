@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F834450BCA
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:27:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 435B8450B7B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237506AbhKOR3q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:29:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50938 "EHLO mail.kernel.org"
+        id S237602AbhKORY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:24:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237850AbhKOR0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:26:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4ADDD619EC;
-        Mon, 15 Nov 2021 17:18:08 +0000 (UTC)
+        id S237651AbhKORXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:23:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3973D6120F;
+        Mon, 15 Nov 2021 17:18:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996688;
-        bh=uW1Z6WMCUWy/5QO2cc8QWmfz3awNB6pguTI/tNIMpQQ=;
+        s=korg; t=1636996691;
+        bh=6mSSn/xqljK7ibJ3H7VIvI+12LG/Piudv8Yll6ovQ6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMp9fxfSqNJo6R33M2Q3Y9/AL/SaYSyqYcm6WOPNA3Hyc/L06WVclY2w4jOt+WQv1
-         /l3RF9cDd5z35Qrz/kJPY8l/55yv89PO2nqeHPZZyXU0hMBAay0KD61dmSQsey87h7
-         GC4hKxpkBTQY+S0yf2SkpYRrtMdj7ADnU9un16zo=
+        b=v8TOYLDYkrEKLWvWJxgyg+Lw6fDz68RREhs4dqCSmSHJ1qZrS572wERzjVAcv/WKa
+         CktpDFkQF2ZH4boFiFMgg007LQVxZWVNOj4R0YJmVhd8kbhtpcdbPrTjw8yhZoqpau
+         YFhnevRE5pdNMJmg+ZMciA0nlCWZDTlnFg6PDcrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 231/355] rsi: stop thread firstly in rsi_91x_init() error handling
-Date:   Mon, 15 Nov 2021 18:02:35 +0100
-Message-Id: <20211115165321.228111461@linuxfoundation.org>
+Subject: [PATCH 5.4 232/355] mwifiex: Send DELBA requests according to spec
+Date:   Mon, 15 Nov 2021 18:02:36 +0100
+Message-Id: <20211115165321.259432954@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -41,59 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Jonas Dreßler <verdre@v0yd.nl>
 
-[ Upstream commit 515e7184bdf0a3ebf1757cc77fb046b4fe282189 ]
+[ Upstream commit cc8a8bc37466f79b24d972555237f3d591150602 ]
 
-When fail to init coex module, free 'common' and 'adapter' directly, but
-common->tx_thread which will access 'common' and 'adapter' is running at
-the same time. That will trigger the UAF bug.
+While looking at on-air packets using Wireshark, I noticed we're never
+setting the initiator bit when sending DELBA requests to the AP: While
+we set the bit on our del_ba_param_set bitmask, we forget to actually
+copy that bitmask over to the command struct, which means we never
+actually set the initiator bit.
 
-==================================================================
-BUG: KASAN: use-after-free in rsi_tx_scheduler_thread+0x50f/0x520 [rsi_91x]
-Read of size 8 at addr ffff8880076dc000 by task Tx-Thread/124777
-CPU: 0 PID: 124777 Comm: Tx-Thread Not tainted 5.15.0-rc5+ #19
-Call Trace:
- dump_stack_lvl+0xe2/0x152
- print_address_description.constprop.0+0x21/0x140
- ? rsi_tx_scheduler_thread+0x50f/0x520
- kasan_report.cold+0x7f/0x11b
- ? rsi_tx_scheduler_thread+0x50f/0x520
- rsi_tx_scheduler_thread+0x50f/0x520
-...
+Fix that and copy the bitmask over to the host_cmd_ds_11n_delba command
+struct.
 
-Freed by task 111873:
- kasan_save_stack+0x1b/0x40
- kasan_set_track+0x1c/0x30
- kasan_set_free_info+0x20/0x30
- __kasan_slab_free+0x109/0x140
- kfree+0x117/0x4c0
- rsi_91x_init+0x741/0x8a0 [rsi_91x]
- rsi_probe+0x9f/0x1750 [rsi_usb]
-
-Stop thread before free 'common' and 'adapter' to fix it.
-
-Fixes: 2108df3c4b18 ("rsi: add coex support")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
+Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
+Acked-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211015040335.1021546-1-william.xuanziyang@huawei.com
+Link: https://lore.kernel.org/r/20211016153244.24353-5-verdre@v0yd.nl
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/marvell/mwifiex/11n.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_main.c b/drivers/net/wireless/rsi/rsi_91x_main.c
-index aece1d3a6b055..441fda71f6289 100644
---- a/drivers/net/wireless/rsi/rsi_91x_main.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_main.c
-@@ -368,6 +368,7 @@ struct rsi_hw *rsi_91x_init(u16 oper_mode)
- 	if (common->coex_mode > 1) {
- 		if (rsi_coex_attach(common)) {
- 			rsi_dbg(ERR_ZONE, "Failed to init coex module\n");
-+			rsi_kill_thread(&common->tx_thread);
- 			goto err;
- 		}
- 	}
+diff --git a/drivers/net/wireless/marvell/mwifiex/11n.c b/drivers/net/wireless/marvell/mwifiex/11n.c
+index e435f801bc912..acbef9f1a83b6 100644
+--- a/drivers/net/wireless/marvell/mwifiex/11n.c
++++ b/drivers/net/wireless/marvell/mwifiex/11n.c
+@@ -657,14 +657,15 @@ int mwifiex_send_delba(struct mwifiex_private *priv, int tid, u8 *peer_mac,
+ 	uint16_t del_ba_param_set;
+ 
+ 	memset(&delba, 0, sizeof(delba));
+-	delba.del_ba_param_set = cpu_to_le16(tid << DELBA_TID_POS);
+ 
+-	del_ba_param_set = le16_to_cpu(delba.del_ba_param_set);
++	del_ba_param_set = tid << DELBA_TID_POS;
++
+ 	if (initiator)
+ 		del_ba_param_set |= IEEE80211_DELBA_PARAM_INITIATOR_MASK;
+ 	else
+ 		del_ba_param_set &= ~IEEE80211_DELBA_PARAM_INITIATOR_MASK;
+ 
++	delba.del_ba_param_set = cpu_to_le16(del_ba_param_set);
+ 	memcpy(&delba.peer_mac_addr, peer_mac, ETH_ALEN);
+ 
+ 	/* We don't wait for the response of this command */
 -- 
 2.33.0
 
