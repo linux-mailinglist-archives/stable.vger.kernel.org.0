@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA5F1450E6A
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7730B450BE6
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:28:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236841AbhKOSOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:14:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49920 "EHLO mail.kernel.org"
+        id S237161AbhKORbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:31:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237423AbhKOSHi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6572F63311;
-        Mon, 15 Nov 2021 17:44:48 +0000 (UTC)
+        id S238000AbhKOR2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:28:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E85966328E;
+        Mon, 15 Nov 2021 17:19:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998288;
-        bh=GR0fljt0G1elFmA68E1eDDmfb/3n6UJkx0cc6bf18js=;
+        s=korg; t=1636996756;
+        bh=K1VRQ02lCB5uLlXx7OOXa22QVW/Jkc27lzPNK0oRU/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OuOvJYI5GIKs7e8Q7Vg3jGdvhVNuLYjBezXHiLuM0f8JhHPMMA5S1T00YxaCCZ1it
-         1scZZpldRFWQ9JSMPHYHlWpcmrXBP7TDP0Xz+ORx/EocwAOuJZzDq5l1vWHjdktBn0
-         /FDf4dABvhmUAR8jenAnyAClKfDU4ZxsuHoqgGg0=
+        b=d660cMVd9v6kdg2HitExCoSYPETmxPRYFoSfq7/gMM5hu9RQYiP0UjxuHUlHHmIg9
+         fSAe/4Fobqy201hFEmNdOSsbpIuS1sna2pg7Wh+FQVZv33G6fpw0ByEsD0xRlekiYZ
+         J93kv7z4aUiQeo9o94NdxsddSnwwDv5Y+1gKWuJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anssi Hannula <anssi.hannula@bitwise.fi>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 456/575] serial: xilinx_uartps: Fix race condition causing stuck TX
+Subject: [PATCH 5.4 257/355] clk: mvebu: ap-cpu-clk: Fix a memory leak in error handling paths
 Date:   Mon, 15 Nov 2021 18:03:01 +0100
-Message-Id: <20211115165359.517643257@linuxfoundation.org>
+Message-Id: <20211115165322.055141552@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 88b20f84f0fe47409342669caf3e58a3fc64c316 ]
+[ Upstream commit af9617b419f77cf0b99702a7b2b0519da0d27715 ]
 
-xilinx_uartps .start_tx() clears TXEMPTY when enabling TXEMPTY to avoid
-any previous TXEVENT event asserting the UART interrupt. This clear
-operation is done immediately after filling the TX FIFO.
+If we exit the for_each_of_cpu_node loop early, the reference on the
+current node must be decremented, otherwise there is a leak.
 
-However, if the bytes inserted by cdns_uart_handle_tx() are consumed by
-the UART before the TXEMPTY is cleared, the clear operation eats the new
-TXEMPTY event as well, causing cdns_uart_isr() to never receive the
-TXEMPTY event. If there are bytes still queued in circbuf, TX will get
-stuck as they will never get transferred to FIFO (unless new bytes are
-queued to circbuf in which case .start_tx() is called again).
-
-While the racy missed TXEMPTY occurs fairly often with short data
-sequences (e.g. write 1 byte), in those cases circbuf is usually empty
-so no action on TXEMPTY would have been needed anyway. On the other
-hand, longer data sequences make the race much more unlikely as UART
-takes longer to consume the TX FIFO. Therefore it is rare for this race
-to cause visible issues in general.
-
-Fix the race by clearing the TXEMPTY bit in ISR *before* filling the
-FIFO.
-
-The TXEMPTY bit in ISR will only get asserted at the exact moment the
-TX FIFO *becomes* empty, so clearing the bit before filling FIFO does
-not cause an extra immediate assertion even if the FIFO is initially
-empty.
-
-This is hard to reproduce directly on a normal system, but inserting
-e.g. udelay(200) after cdns_uart_handle_tx(port), setting 4000000 baud,
-and then running "dd if=/dev/zero bs=128 of=/dev/ttyPS0 count=50"
-reliably reproduces the issue on my ZynqMP test system unless this fix
-is applied.
-
-Fixes: 85baf542d54e ("tty: xuartps: support 64 byte FIFO size")
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Link: https://lore.kernel.org/r/20211026102741.2910441-1-anssi.hannula@bitwise.fi
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f756e362d938 ("clk: mvebu: add CPU clock driver for Armada 7K/8K")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/545df946044fc1fc05a4217cdf0054be7a79e49e.1619161112.git.christophe.jaillet@wanadoo.fr
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/xilinx_uartps.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/mvebu/ap-cpu-clk.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
-index a9b1ee27183a7..b5a8afbc452ba 100644
---- a/drivers/tty/serial/xilinx_uartps.c
-+++ b/drivers/tty/serial/xilinx_uartps.c
-@@ -601,9 +601,10 @@ static void cdns_uart_start_tx(struct uart_port *port)
- 	if (uart_circ_empty(&port->state->xmit))
- 		return;
+diff --git a/drivers/clk/mvebu/ap-cpu-clk.c b/drivers/clk/mvebu/ap-cpu-clk.c
+index af5e5acad3706..bde4a7d6a1d33 100644
+--- a/drivers/clk/mvebu/ap-cpu-clk.c
++++ b/drivers/clk/mvebu/ap-cpu-clk.c
+@@ -256,12 +256,15 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
+ 		int cpu, err;
  
-+	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_ISR);
-+
- 	cdns_uart_handle_tx(port);
+ 		err = of_property_read_u32(dn, "reg", &cpu);
+-		if (WARN_ON(err))
++		if (WARN_ON(err)) {
++			of_node_put(dn);
+ 			return err;
++		}
  
--	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_ISR);
- 	/* Enable the TX Empty interrupt */
- 	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_IER);
- }
+ 		/* If cpu2 or cpu3 is enabled */
+ 		if (cpu & APN806_CLUSTER_NUM_MASK) {
+ 			nclusters = 2;
++			of_node_put(dn);
+ 			break;
+ 		}
+ 	}
+@@ -288,8 +291,10 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
+ 		int cpu, err;
+ 
+ 		err = of_property_read_u32(dn, "reg", &cpu);
+-		if (WARN_ON(err))
++		if (WARN_ON(err)) {
++			of_node_put(dn);
+ 			return err;
++		}
+ 
+ 		cluster_index = cpu & APN806_CLUSTER_NUM_MASK;
+ 		cluster_index >>= APN806_CLUSTER_NUM_OFFSET;
+@@ -301,6 +306,7 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
+ 		parent = of_clk_get(np, cluster_index);
+ 		if (IS_ERR(parent)) {
+ 			dev_err(dev, "Could not get the clock parent\n");
++			of_node_put(dn);
+ 			return -EINVAL;
+ 		}
+ 		parent_name =  __clk_get_name(parent);
+@@ -319,8 +325,10 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
+ 		init.parent_names = &parent_name;
+ 
+ 		ret = devm_clk_hw_register(dev, &ap_cpu_clk[cluster_index].hw);
+-		if (ret)
++		if (ret) {
++			of_node_put(dn);
+ 			return ret;
++		}
+ 		ap_cpu_data->hws[cluster_index] = &ap_cpu_clk[cluster_index].hw;
+ 	}
+ 
 -- 
 2.33.0
 
