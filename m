@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6443A450D23
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:49:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B643451099
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:48:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238013AbhKORv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:51:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35652 "EHLO mail.kernel.org"
+        id S243093AbhKOSuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:50:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238085AbhKORsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:48:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8032E63309;
-        Mon, 15 Nov 2021 17:30:08 +0000 (UTC)
+        id S242946AbhKOSsO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:48:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 387B763395;
+        Mon, 15 Nov 2021 18:07:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997409;
-        bh=OrRmFCszA6mAXdgGst8rddDKVWyhmmFy0oiAvl9IAgQ=;
+        s=korg; t=1636999664;
+        bh=gk9i/QMV6qjMsowELFGQHJlWlPx2evps556UGxorL5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ph9F69/EKfkokMWc6zogrwZIGtq0lFMPXhxWxg+QP5JHPDKhHYJ5BTaHh4m1spnBH
-         g9SvZXywwca31t6bqncQTV9BWRzJBnu+9gLC5WjwMW74OWGaqFT15PQjPn+72yyCfv
-         zGqLefi1q5QDbQqWzgtliqY/QDst1RiqMCvGFiFE=
+        b=zmiYLE/m9Ih3ZQs+6AHSE2p9OWyPpSdGLXMdwnXvDzM/u2cZnCMB1n8R6vbq5BDSt
+         +B9F7E9SSQp4BUn5GbI7l9dLTHCh40BTQX8iKo0p9lZqTmMxuXOC7kqipjVC0bzU4m
+         HHpwcvuT7rkqJTo9cpLdrykk9sS1MiVSb943pqno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.10 137/575] ovl: fix use after free in struct ovl_aio_req
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 379/849] media: meson-ge2d: Fix rotation parameter changes detection in ge2d_s_ctrl()
 Date:   Mon, 15 Nov 2021 17:57:42 +0100
-Message-Id: <20211115165348.436431223@linuxfoundation.org>
+Message-Id: <20211115165433.069177393@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,92 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 9a254403760041528bc8f69fe2f5e1ef86950991 upstream.
+[ Upstream commit 4b9e3e8af4b336eefca1f1ee535bc4b6734ed6aa ]
 
-Example for triggering use after free in a overlay on ext4 setup:
+There is likely a typo here. To be consistent, we should compare
+'fmt.height' with 'ctx->out.pix_fmt.height', not 'ctx->out.pix_fmt.width'.
 
-aio_read
-  ovl_read_iter
-    vfs_iter_read
-      ext4_file_read_iter
-        ext4_dio_read_iter
-          iomap_dio_rw -> -EIOCBQUEUED
-          /*
-	   * Here IO is completed in a separate thread,
-	   * ovl_aio_cleanup_handler() frees aio_req which has iocb embedded
-	   */
-          file_accessed(iocb->ki_filp); /**BOOM**/
+Instead of fixing the test, just remove it and copy 'fmt' unconditionally.
 
-Fix by introducing a refcount in ovl_aio_req similarly to aio_kiocb.  This
-guarantees that iocb is only freed after vfs_read/write_iter() returns on
-underlying fs.
-
-Fixes: 2406a307ac7d ("ovl: implement async IO routines")
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Link: https://lore.kernel.org/r/20210930032228.3199690-3-yangerkun@huawei.com/
-Cc: <stable@vger.kernel.org> # v5.6
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 59a635327ca7 ("media: meson: Add M2M driver for the Amlogic GE2D Accelerator Unit")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/file.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/media/platform/meson/ge2d/ge2d.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -17,6 +17,7 @@
+diff --git a/drivers/media/platform/meson/ge2d/ge2d.c b/drivers/media/platform/meson/ge2d/ge2d.c
+index a1393fefa8aea..9b1e973e78da3 100644
+--- a/drivers/media/platform/meson/ge2d/ge2d.c
++++ b/drivers/media/platform/meson/ge2d/ge2d.c
+@@ -779,11 +779,7 @@ static int ge2d_s_ctrl(struct v4l2_ctrl *ctrl)
+ 		 * If the rotation parameter changes the OUTPUT frames
+ 		 * parameters, take them in account
+ 		 */
+-		if (fmt.width != ctx->out.pix_fmt.width ||
+-		    fmt.height != ctx->out.pix_fmt.width ||
+-		    fmt.bytesperline > ctx->out.pix_fmt.bytesperline ||
+-		    fmt.sizeimage > ctx->out.pix_fmt.sizeimage)
+-			ctx->out.pix_fmt = fmt;
++		ctx->out.pix_fmt = fmt;
  
- struct ovl_aio_req {
- 	struct kiocb iocb;
-+	refcount_t ref;
- 	struct kiocb *orig_iocb;
- 	struct fd fd;
- };
-@@ -257,6 +258,14 @@ static rwf_t ovl_iocb_to_rwf(int ifl)
- 	return flags;
- }
- 
-+static inline void ovl_aio_put(struct ovl_aio_req *aio_req)
-+{
-+	if (refcount_dec_and_test(&aio_req->ref)) {
-+		fdput(aio_req->fd);
-+		kmem_cache_free(ovl_aio_request_cachep, aio_req);
-+	}
-+}
-+
- static void ovl_aio_cleanup_handler(struct ovl_aio_req *aio_req)
- {
- 	struct kiocb *iocb = &aio_req->iocb;
-@@ -273,8 +282,7 @@ static void ovl_aio_cleanup_handler(stru
+ 		break;
  	}
- 
- 	orig_iocb->ki_pos = iocb->ki_pos;
--	fdput(aio_req->fd);
--	kmem_cache_free(ovl_aio_request_cachep, aio_req);
-+	ovl_aio_put(aio_req);
- }
- 
- static void ovl_aio_rw_complete(struct kiocb *iocb, long res, long res2)
-@@ -324,7 +332,9 @@ static ssize_t ovl_read_iter(struct kioc
- 		aio_req->orig_iocb = iocb;
- 		kiocb_clone(&aio_req->iocb, iocb, real.file);
- 		aio_req->iocb.ki_complete = ovl_aio_rw_complete;
-+		refcount_set(&aio_req->ref, 2);
- 		ret = vfs_iocb_iter_read(real.file, &aio_req->iocb, iter);
-+		ovl_aio_put(aio_req);
- 		if (ret != -EIOCBQUEUED)
- 			ovl_aio_cleanup_handler(aio_req);
- 	}
-@@ -395,7 +405,9 @@ static ssize_t ovl_write_iter(struct kio
- 		kiocb_clone(&aio_req->iocb, iocb, real.file);
- 		aio_req->iocb.ki_flags = ifl;
- 		aio_req->iocb.ki_complete = ovl_aio_rw_complete;
-+		refcount_set(&aio_req->ref, 2);
- 		ret = vfs_iocb_iter_write(real.file, &aio_req->iocb, iter);
-+		ovl_aio_put(aio_req);
- 		if (ret != -EIOCBQUEUED)
- 			ovl_aio_cleanup_handler(aio_req);
- 	}
+-- 
+2.33.0
+
 
 
