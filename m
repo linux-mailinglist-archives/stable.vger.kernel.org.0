@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0071845242D
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:33:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DAC1452747
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:17:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242732AbhKPBgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:36:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46108 "EHLO mail.kernel.org"
+        id S1347179AbhKPCUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:20:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242430AbhKOSkx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:40:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C87761361;
-        Mon, 15 Nov 2021 18:04:48 +0000 (UTC)
+        id S238429AbhKORnE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:43:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB7AB6328D;
+        Mon, 15 Nov 2021 17:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999488;
-        bh=q9EQLU2WvniMgv8iRNNAQyvqK1PKtwk7Z9G6qUsx17Q=;
+        s=korg; t=1636997287;
+        bh=tSklQLeH8noyZTrFa4qQeEIxVA9LvVVGzV9h7cBqZt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ls32ZdJGXfl0Qf3nTINHqIt4JiCiuKmjLkxBH3yXAAQZ+HWaoLMk+yhhE+El/y1eu
-         LCE2nJS6HvmuANfH1HPpqDZR9sHcbFzZTTRwAIWxYF8aow46o1RUTcpJCBglZZDZHN
-         p0QiybkWrWvag1o73kn2yl4R+7Ou1whspPUHpi/w=
+        b=tSAgBjfJ930cXhqKzFCvciX6KPq96odDiKsJvZTYuFuUNVPcqIMqmDzXdIMWVMMKT
+         Yzyr0xnH6Gn5io58y3LFy+VgXfcQU3J36zUyf2yTfmQeXoNauvo+uwXRcyguc9DkVj
+         fohqMmQy7PYQhezo0GHkDlzYzQikksh3XN4gY1GE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Viktor Rosendahl <Viktor.Rosendahl@bmw.de>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 314/849] tools/latency-collector: Use correct size when writing queue_full_warning
-Date:   Mon, 15 Nov 2021 17:56:37 +0100
-Message-Id: <20211115165430.872626902@linuxfoundation.org>
+        stable@vger.kernel.org, Amit Engel <amit.engel@dell.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 076/575] nvmet-tcp: fix header digest verification
+Date:   Mon, 15 Nov 2021 17:56:41 +0100
+Message-Id: <20211115165346.262220289@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viktor Rosendahl <Viktor.Rosendahl@bmw.de>
+From: Amit Engel <amit.engel@dell.com>
 
-[ Upstream commit f604de20c0a47e0e9518940a1810193678c92fa8 ]
+[ Upstream commit 86aeda32b887cdaeb0f4b7bfc9971e36377181c7 ]
 
-queue_full_warning is a pointer, so it is wrong to use sizeof to calculate
-the number of characters of the string it points to. The effect is that we
-only print out the first few characters of the warning string.
+Pass the correct length to nvmet_tcp_verify_hdgst, which is the pdu
+header length.  This fixes a wrong behaviour where header digest
+verification passes although the digest is wrong.
 
-The correct way is to use strlen(). We don't need to add 1 to the strlen()
-because we don't want to write the terminating null character to stdout.
-
-Link: https://lkml.kernel.org/r/20211019160701.15587-1-Viktor.Rosendahl@bmw.de
-
-Link: https://lore.kernel.org/r/8fd4bb65ef3da67feac9ce3258cdbe9824752cf1.1629198502.git.jing.yangyang@zte.com.cn
-Link: https://lore.kernel.org/r/20211012025424.180781-1-davidcomponentone@gmail.com
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Viktor Rosendahl <Viktor.Rosendahl@bmw.de>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Amit Engel <amit.engel@dell.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/tracing/latency/latency-collector.c | 2 +-
+ drivers/nvme/target/tcp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/tracing/latency/latency-collector.c b/tools/tracing/latency/latency-collector.c
-index 3a2e6bb781a8c..59a7f2346eab4 100644
---- a/tools/tracing/latency/latency-collector.c
-+++ b/tools/tracing/latency/latency-collector.c
-@@ -1538,7 +1538,7 @@ static void tracing_loop(void)
- 				mutex_lock(&print_mtx);
- 				check_signals();
- 				write_or_die(fd_stdout, queue_full_warning,
--					     sizeof(queue_full_warning));
-+					     strlen(queue_full_warning));
- 				mutex_unlock(&print_mtx);
- 			}
- 			modified--;
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index b4ef7e9e8461f..58dc517fe8678 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -1084,7 +1084,7 @@ recv:
+ 	}
+ 
+ 	if (queue->hdr_digest &&
+-	    nvmet_tcp_verify_hdgst(queue, &queue->pdu, queue->offset)) {
++	    nvmet_tcp_verify_hdgst(queue, &queue->pdu, hdr->hlen)) {
+ 		nvmet_tcp_fatal_error(queue); /* fatal */
+ 		return -EPROTO;
+ 	}
 -- 
 2.33.0
 
