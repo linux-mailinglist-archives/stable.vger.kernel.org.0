@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD55B451277
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12B584512E2
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347540AbhKOTkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:40:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
+        id S1347544AbhKOTkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:40:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245157AbhKOTTg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245155AbhKOTTg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:19:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F24C9632D1;
-        Mon, 15 Nov 2021 18:29:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7B43634AE;
+        Mon, 15 Nov 2021 18:29:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000972;
-        bh=cMi7/WR0SzFjhWw9coJvUoHsGKU8YWx/WwqkhgiBMbo=;
+        s=korg; t=1637000975;
+        bh=QCH8uv6tbjYdRyEDMet5rpgQb0GJePIbyfcNBTQ+rvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hhHoob/swEhpltceIOFKwc1XpRaylWlJMgr6hkLZPGPAG4qZyAcn+whKnoaTmBkLJ
-         OmU8geHkSeqLnHMDI91jtQ0fdnoCLO2PpnhXMSs9OVeYNdRUGEjCJ6+MWvpqNiWZQo
-         Mw250M4kdTBgBkUoakTIn7A6lmD7uhex4A1tjZKU=
+        b=uuLEO/YI8TLu6EDuOziKOVuJLXzCt+lIIGt39+sv7+JXtuYA59qwE/FzooUWqGcgn
+         0E1KRzE4ddP6AFjnMIyWCDc5X7Oww0zwTovKaywPbdvJP1LN+Bdkf838+yrUpXttZO
+         RH+ZEQLPPM/lDxHt2NTWPJbOj/9lslNtPwoOsE8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Arun Easi <aeasi@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 013/917] scsi: qla2xxx: Fix crash in NVMe abort path
-Date:   Mon, 15 Nov 2021 17:51:48 +0100
-Message-Id: <20211115165429.187025452@linuxfoundation.org>
+Subject: [PATCH 5.15 014/917] scsi: qla2xxx: Fix kernel crash when accessing port_speed sysfs file
+Date:   Mon, 15 Nov 2021 17:51:49 +0100
+Message-Id: <20211115165429.216854068@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -44,34 +44,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arun Easi <aeasi@marvell.com>
 
-commit e6e22e6cc2962d3f3d71914b47f7fbc454670e8a upstream.
+commit 3ef68d4f0c9e7cb589ae8b70f07d77f528105331 upstream.
 
-System crash was seen when I/O was run against an NVMe target and aborts
-were occurring.
+Kernel crashes when accessing port_speed sysfs file.  The issue happens on
+a CNA when the local array was accessed beyond bounds. Fix this by changing
+the lookup.
 
-Crash stack is:
+BUG: unable to handle kernel paging request at 0000000000004000
+PGD 0 P4D 0
+Oops: 0000 [#1] SMP PTI
+CPU: 15 PID: 455213 Comm: sosreport Kdump: loaded Not tainted
+4.18.0-305.7.1.el8_4.x86_64 #1
+RIP: 0010:string_nocheck+0x12/0x70
+Code: 00 00 4c 89 e2 be 20 00 00 00 48 89 ef e8 86 9a 00 00 4c 01
+e3 eb 81 90 49 89 f2 48 89 ce 48 89 f8 48 c1 fe 30 66 85 f6 74 4f <44> 0f b6 0a
+45 84 c9 74 46 83 ee 01 41 b8 01 00 00 00 48 8d 7c 37
+RSP: 0018:ffffb5141c1afcf0 EFLAGS: 00010286
+RAX: ffff8bf4009f8000 RBX: ffff8bf4009f9000 RCX: ffff0a00ffffff04
+RDX: 0000000000004000 RSI: ffffffffffffffff RDI: ffff8bf4009f8000
+RBP: 0000000000004000 R08: 0000000000000001 R09: ffffb5141c1afb84
+R10: ffff8bf4009f9000 R11: ffffb5141c1afce6 R12: ffff0a00ffffff04
+R13: ffffffffc08e21aa R14: 0000000000001000 R15: ffffffffc08e21aa
+FS:  00007fc4ebfff700(0000) GS:ffff8c717f7c0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000004000 CR3: 000000edfdee6006 CR4: 00000000001706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+  string+0x40/0x50
+  vsnprintf+0x33c/0x520
+  scnprintf+0x4d/0x90
+  qla2x00_port_speed_show+0xb5/0x100 [qla2xxx]
+  dev_attr_show+0x1c/0x40
+  sysfs_kf_seq_show+0x9b/0x100
+  seq_read+0x153/0x410
+  vfs_read+0x91/0x140
+  ksys_read+0x4f/0xb0
+  do_syscall_64+0x5b/0x1a0
+  entry_SYSCALL_64_after_hwframe+0x65/0xca
 
-    -- relevant crash stack --
-    BUG: kernel NULL pointer dereference, address: 0000000000000010
-    :
-    #6 [ffffae1f8666bdd0] page_fault at ffffffffa740122e
-       [exception RIP: qla_nvme_abort_work+339]
-       RIP: ffffffffc0f592e3  RSP: ffffae1f8666be80  RFLAGS: 00010297
-       RAX: 0000000000000000  RBX: ffff9b581fc8af80  RCX: ffffffffc0f83bd0
-       RDX: 0000000000000001  RSI: ffff9b5839c6c7c8  RDI: 0000000008000000
-       RBP: ffff9b6832f85000   R8: ffffffffc0f68160   R9: ffffffffc0f70652
-       R10: ffffae1f862ffdc8  R11: 0000000000000300  R12: 000000000000010d
-       R13: 0000000000000000  R14: ffff9b5839cea000  R15: 0ffff9b583fab170
-       ORIG_RAX: ffffffffffffffff   CS: 0010  SS: 0018
-    #7 [ffffae1f8666be98] process_one_work at ffffffffa6aba184
-    #8 [ffffae1f8666bed8] worker_thread at ffffffffa6aba39d
-    #9 [ffffae1f8666bf10] kthread at ffffffffa6ac06ed
-
-The crash was due to a stale SRB structure access after it was aborted.
-Fix the issue by removing stale access.
-
-Link: https://lore.kernel.org/r/20210908164622.19240-5-njavali@marvell.com
-Fixes: 2cabf10dbbe3 ("scsi: qla2xxx: Fix hang on NVMe command timeouts")
+Link: https://lore.kernel.org/r/20210908164622.19240-7-njavali@marvell.com
+Fixes: 4910b524ac9e ("scsi: qla2xxx: Add support for setting port speed")
 Cc: stable@vger.kernel.org
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Arun Easi <aeasi@marvell.com>
@@ -79,50 +92,55 @@ Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_nvme.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_attr.c |   24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -228,6 +228,8 @@ static void qla_nvme_abort_work(struct w
- 	fc_port_t *fcport = sp->fcport;
- 	struct qla_hw_data *ha = fcport->vha->hw;
- 	int rval, abts_done_called = 1;
-+	bool io_wait_for_abort_done;
-+	uint32_t handle;
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -1868,6 +1868,18 @@ qla2x00_port_speed_store(struct device *
+ 	return strlen(buf);
+ }
  
- 	ql_dbg(ql_dbg_io, fcport->vha, 0xffff,
- 	       "%s called for sp=%p, hndl=%x on fcport=%p desc=%p deleted=%d\n",
-@@ -244,12 +246,20 @@ static void qla_nvme_abort_work(struct w
- 		goto out;
++static const struct {
++	u16 rate;
++	char *str;
++} port_speed_str[] = {
++	{ PORT_SPEED_4GB, "4" },
++	{ PORT_SPEED_8GB, "8" },
++	{ PORT_SPEED_16GB, "16" },
++	{ PORT_SPEED_32GB, "32" },
++	{ PORT_SPEED_64GB, "64" },
++	{ PORT_SPEED_10GB, "10" },
++};
++
+ static ssize_t
+ qla2x00_port_speed_show(struct device *dev, struct device_attribute *attr,
+     char *buf)
+@@ -1875,7 +1887,8 @@ qla2x00_port_speed_show(struct device *d
+ 	struct scsi_qla_host *vha = shost_priv(dev_to_shost(dev));
+ 	struct qla_hw_data *ha = vha->hw;
+ 	ssize_t rval;
+-	char *spd[7] = {"0", "0", "0", "4", "8", "16", "32"};
++	u16 i;
++	char *speed = "Unknown";
+ 
+ 	rval = qla2x00_get_data_rate(vha);
+ 	if (rval != QLA_SUCCESS) {
+@@ -1884,7 +1897,14 @@ qla2x00_port_speed_show(struct device *d
+ 		return -EINVAL;
  	}
  
-+	/*
-+	 * sp may not be valid after abort_command if return code is either
-+	 * SUCCESS or ERR_FROM_FW codes, so cache the value here.
-+	 */
-+	io_wait_for_abort_done = ql2xabts_wait_nvme &&
-+					QLA_ABTS_WAIT_ENABLED(sp);
-+	handle = sp->handle;
+-	return scnprintf(buf, PAGE_SIZE, "%s\n", spd[ha->link_data_rate]);
++	for (i = 0; i < ARRAY_SIZE(port_speed_str); i++) {
++		if (port_speed_str[i].rate != ha->link_data_rate)
++			continue;
++		speed = port_speed_str[i].str;
++		break;
++	}
 +
- 	rval = ha->isp_ops->abort_command(sp);
++	return scnprintf(buf, PAGE_SIZE, "%s\n", speed);
+ }
  
- 	ql_dbg(ql_dbg_io, fcport->vha, 0x212b,
- 	    "%s: %s command for sp=%p, handle=%x on fcport=%p rval=%x\n",
- 	    __func__, (rval != QLA_SUCCESS) ? "Failed to abort" : "Aborted",
--	    sp, sp->handle, fcport, rval);
-+	    sp, handle, fcport, rval);
- 
- 	/*
- 	 * If async tmf is enabled, the abort callback is called only on
-@@ -264,7 +274,7 @@ static void qla_nvme_abort_work(struct w
- 	 * are waited until ABTS complete. This kref is decreased
- 	 * at qla24xx_abort_sp_done function.
- 	 */
--	if (abts_done_called && ql2xabts_wait_nvme && QLA_ABTS_WAIT_ENABLED(sp))
-+	if (abts_done_called && io_wait_for_abort_done)
- 		return;
- out:
- 	/* kref_get was done before work was schedule. */
+ static ssize_t
 
 
