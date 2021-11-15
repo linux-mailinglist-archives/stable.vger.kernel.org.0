@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6FAD4513E0
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B544513E8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348286AbhKOT6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:58:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
+        id S1348738AbhKOT7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:59:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344109AbhKOTXX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA7276362A;
-        Mon, 15 Nov 2021 18:52:04 +0000 (UTC)
+        id S1344113AbhKOTXY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 821F36362B;
+        Mon, 15 Nov 2021 18:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002325;
-        bh=dO4Em7Otl80EnctTdADWwVVQuJMq6UvPT5Gx1yuNDcA=;
+        s=korg; t=1637002328;
+        bh=mO0fgc0I37F4CSj6sSfwAUB5W2K5JcVhunKiUDnqZ5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ofqafePvhSJqa7dcSPlaNBqAsI9MQk8WUiUMPaguv/SR+O5BEH6xZ5PPgHZJvD76B
-         ry2O3cmFQZArGmFjoEmkhDzXIlcMb5LmqvG/nh7VnBmgur/0I4wSWIPaPTVGQgcAV3
-         DjDj9efydgK4xsemMEgviMOiNljR6rqfINfoJWxk=
+        b=Tc2mmHE6QlItxzI1gfws30ZtqXZNXpBx8gbSwKvq4baWMZPwTUJnkmMu2qbBC+zl4
+         JkTwyFtNSqo9Ez2hTa6tet3z86jgnNx8hEuPiZs/2e/wR7fBDMy6i9gqcTDQbPfpFI
+         yTxV7nTsv/tDWNDGzglH97lqwcZkoUw076vAnmew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
+        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        Tim Gardner <tim.gardner@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 489/917] net: enetc: unmap DMA in enetc_send_cmd()
-Date:   Mon, 15 Nov 2021 17:59:44 +0100
-Message-Id: <20211115165445.367210100@linuxfoundation.org>
+Subject: [PATCH 5.15 490/917] phy: micrel: ksz8041nl: do not use power down mode
+Date:   Mon, 15 Nov 2021 17:59:45 +0100
+Message-Id: <20211115165445.398624607@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,90 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Gardner <tim.gardner@canonical.com>
+From: Stefan Agner <stefan@agner.ch>
 
-[ Upstream commit cd4bc63de774eee95e9bac26a565cd80e0fca421 ]
+[ Upstream commit 2641b62d2fab52648e34cdc6994b2eacde2d27c1 ]
 
-Coverity complains of a possible dereference of a null return value.
+Some Micrel KSZ8041NL PHY chips exhibit continuous RX errors after using
+the power down mode bit (0.11). If the PHY is taken out of power down
+mode in a certain temperature range, the PHY enters a weird state which
+leads to continuously reporting RX errors. In that state, the MAC is not
+able to receive or send any Ethernet frames and the activity LED is
+constantly blinking. Since Linux is using the suspend callback when the
+interface is taken down, ending up in that state can easily happen
+during a normal startup.
 
-   	5. returned_null: kzalloc returns NULL. [show details]
-   	6. var_assigned: Assigning: si_data = NULL return value from kzalloc.
-488        si_data = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
-489        cbd.length = cpu_to_le16(data_size);
-490
-491        dma = dma_map_single(&priv->si->pdev->dev, si_data,
-492                             data_size, DMA_FROM_DEVICE);
+Micrel confirmed the issue in errata DS80000700A [*], caused by abnormal
+clock recovery when using power down mode. Even the latest revision (A4,
+Revision ID 0x1513) seems to suffer that problem, and according to the
+errata is not going to be fixed.
 
-While this kzalloc() is unlikely to fail, I did notice that the function
-returned without unmapping si_data.
+Remove the suspend/resume callback to avoid using the power down mode
+completely.
 
-Fix this by refactoring the error paths and checking for kzalloc()
-failure.
+[*] https://ww1.microchip.com/downloads/en/DeviceDoc/80000700A.pdf
 
-Fixes: 888ae5a3952ba ("net: enetc: add tc flower psfp offload driver")
-Cc: Claudiu Manoil <claudiu.manoil@nxp.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org (open list)
-Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
-Acked-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Fixes: 1a5465f5d6a2 ("phy/micrel: Add suspend/resume support to Micrel PHYs")
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Acked-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/freescale/enetc/enetc_qos.c   | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/net/phy/micrel.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_qos.c b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-index 4577226d3c6ad..0536d2c76fbc4 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_qos.c
-@@ -486,14 +486,16 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
- 
- 	data_size = sizeof(struct streamid_data);
- 	si_data = kzalloc(data_size, __GFP_DMA | GFP_KERNEL);
-+	if (!si_data)
-+		return -ENOMEM;
- 	cbd.length = cpu_to_le16(data_size);
- 
- 	dma = dma_map_single(&priv->si->pdev->dev, si_data,
- 			     data_size, DMA_FROM_DEVICE);
- 	if (dma_mapping_error(&priv->si->pdev->dev, dma)) {
- 		netdev_err(priv->si->ndev, "DMA mapping failed!\n");
--		kfree(si_data);
--		return -ENOMEM;
-+		err = -ENOMEM;
-+		goto out;
- 	}
- 
- 	cbd.addr[0] = cpu_to_le32(lower_32_bits(dma));
-@@ -512,12 +514,10 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
- 
- 	err = enetc_send_cmd(priv->si, &cbd);
- 	if (err)
--		return -EINVAL;
-+		goto out;
- 
--	if (!enable) {
--		kfree(si_data);
--		return 0;
--	}
-+	if (!enable)
-+		goto out;
- 
- 	/* Enable the entry overwrite again incase space flushed by hardware */
- 	memset(&cbd, 0, sizeof(cbd));
-@@ -560,6 +560,10 @@ static int enetc_streamid_hw_set(struct enetc_ndev_priv *priv,
- 	}
- 
- 	err = enetc_send_cmd(priv->si, &cbd);
-+out:
-+	if (!dma_mapping_error(&priv->si->pdev->dev, dma))
-+		dma_unmap_single(&priv->si->pdev->dev, dma, data_size, DMA_FROM_DEVICE);
-+
- 	kfree(si_data);
- 
- 	return err;
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 643b1c1827a92..aec0fcefdccd6 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -1593,8 +1593,9 @@ static struct phy_driver ksphy_driver[] = {
+ 	.get_sset_count = kszphy_get_sset_count,
+ 	.get_strings	= kszphy_get_strings,
+ 	.get_stats	= kszphy_get_stats,
+-	.suspend	= genphy_suspend,
+-	.resume		= genphy_resume,
++	/* No suspend/resume callbacks because of errata DS80000700A,
++	 * receiver error following software power down.
++	 */
+ }, {
+ 	.phy_id		= PHY_ID_KSZ8041RNLI,
+ 	.phy_id_mask	= MICREL_PHY_ID_MASK,
 -- 
 2.33.0
 
