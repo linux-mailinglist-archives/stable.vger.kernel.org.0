@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BD10451033
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:41:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F25451035
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:41:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237387AbhKOSo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:44:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48442 "EHLO mail.kernel.org"
+        id S242424AbhKOSog (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:44:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242543AbhKOSma (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:42:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5190263292;
-        Mon, 15 Nov 2021 18:04:56 +0000 (UTC)
+        id S242216AbhKOSme (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:42:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3F47632F5;
+        Mon, 15 Nov 2021 18:04:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999496;
-        bh=ahQxha6ntwCF4KYuNlxlCj+wzXEmueobk5jXRawApFg=;
+        s=korg; t=1636999499;
+        bh=qBXhcfRIkT+gW40R/i3GsRWC5nKLP/VUTkqRaf1BxYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9c6Zu/R7vfJ84UTzEZO6aoJSNPrCODDBPxEllZNwB4SSS3TTHEFkckPvVNQrkDpJ
-         3bAdexGHLiZYhcda4lgMVWlubyGeZ0RzFCAjP+YC5SlaWuOv2Y64GCW6+4TJCgeSj6
-         JNIRoJqvsshM+ROHnnfoOOj6zH7rtpCO5ZPsHdes=
+        b=op8QxQvhcB550hmy68mu1A970ACW9Cu+JZHmU25rM/4bemsXn9esLwNZXOKvc1tqG
+         myPtK/dqOgImRm+JiMvnVMKkrKPfTe3dczpvjnh4Y7F765T4LNYS+VXZDAisHrrJBF
+         5F2Ykh+jLsgIS6+e+jgpjQU6f7Ba5WNM0/r/u3ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@windriver.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Waiman Long <longman@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 285/849] memstick: r592: Fix a UAF bug when removing the driver
-Date:   Mon, 15 Nov 2021 17:56:08 +0100
-Message-Id: <20211115165429.916383651@linuxfoundation.org>
+Subject: [PATCH 5.14 286/849] locking/rwsem: Disable preemption for spinning region
+Date:   Mon, 15 Nov 2021 17:56:09 +0100
+Message-Id: <20211115165429.948858608@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,78 +41,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Yanfei Xu <yanfei.xu@windriver.com>
 
-[ Upstream commit 738216c1953e802aa9f930c5d15b8f9092c847ff ]
+[ Upstream commit 7cdacc5f52d68a9370f182c844b5b3e6cc975cc1 ]
 
-In r592_remove(), the driver will free dma after freeing the host, which
-may cause a UAF bug.
+The spinning region rwsem_spin_on_owner() should not be preempted,
+however the rwsem_down_write_slowpath() invokes it and don't disable
+preemption. Fix it by adding a pair of preempt_disable/enable().
 
-The following log reveals it:
-
-[   45.361796 ] BUG: KASAN: use-after-free in r592_remove+0x269/0x350 [r592]
-[   45.364286 ] Call Trace:
-[   45.364472 ]  dump_stack_lvl+0xa8/0xd1
-[   45.364751 ]  print_address_description+0x87/0x3b0
-[   45.365137 ]  kasan_report+0x172/0x1c0
-[   45.365415 ]  ? r592_remove+0x269/0x350 [r592]
-[   45.365834 ]  ? r592_remove+0x269/0x350 [r592]
-[   45.366168 ]  __asan_report_load8_noabort+0x14/0x20
-[   45.366531 ]  r592_remove+0x269/0x350 [r592]
-[   45.378785 ]
-[   45.378903 ] Allocated by task 4674:
-[   45.379162 ]  ____kasan_kmalloc+0xb5/0xe0
-[   45.379455 ]  __kasan_kmalloc+0x9/0x10
-[   45.379730 ]  __kmalloc+0x150/0x280
-[   45.379984 ]  memstick_alloc_host+0x2a/0x190
-[   45.380664 ]
-[   45.380781 ] Freed by task 5509:
-[   45.381014 ]  kasan_set_track+0x3d/0x70
-[   45.381293 ]  kasan_set_free_info+0x23/0x40
-[   45.381635 ]  ____kasan_slab_free+0x10b/0x140
-[   45.381950 ]  __kasan_slab_free+0x11/0x20
-[   45.382241 ]  slab_free_freelist_hook+0x81/0x150
-[   45.382575 ]  kfree+0x13e/0x290
-[   45.382805 ]  memstick_free+0x1c/0x20
-[   45.383070 ]  device_release+0x9c/0x1d0
-[   45.383349 ]  kobject_put+0x2ef/0x4c0
-[   45.383616 ]  put_device+0x1f/0x30
-[   45.383865 ]  memstick_free_host+0x24/0x30
-[   45.384162 ]  r592_remove+0x242/0x350 [r592]
-[   45.384473 ]  pci_device_remove+0xa9/0x250
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/1634383581-11055-1-git-send-email-zheyuma97@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
+[peterz: Fix CONFIG_RWSEM_SPIN_ON_OWNER=n build]
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Waiman Long <longman@redhat.com>
+Link: https://lore.kernel.org/r/20211013134154.1085649-3-yanfei.xu@windriver.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/host/r592.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/locking/rwsem.c | 53 ++++++++++++++++++++++++------------------
+ 1 file changed, 30 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/memstick/host/r592.c b/drivers/memstick/host/r592.c
-index 615a83782e55d..7aba0fdeba177 100644
---- a/drivers/memstick/host/r592.c
-+++ b/drivers/memstick/host/r592.c
-@@ -839,15 +839,15 @@ static void r592_remove(struct pci_dev *pdev)
- 	}
- 	memstick_remove_host(dev->host);
- 
-+	if (dev->dummy_dma_page)
-+		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
-+			dev->dummy_dma_page_physical_address);
-+
- 	free_irq(dev->irq, dev);
- 	iounmap(dev->mmio);
- 	pci_release_regions(pdev);
- 	pci_disable_device(pdev);
- 	memstick_free_host(dev->host);
--
--	if (dev->dummy_dma_page)
--		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
--			dev->dummy_dma_page_physical_address);
+diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
+index 16bfbb10c74d7..1d42c18736380 100644
+--- a/kernel/locking/rwsem.c
++++ b/kernel/locking/rwsem.c
+@@ -576,6 +576,24 @@ static inline bool rwsem_try_write_lock(struct rw_semaphore *sem,
+ 	return true;
  }
  
- #ifdef CONFIG_PM_SLEEP
++/*
++ * The rwsem_spin_on_owner() function returns the following 4 values
++ * depending on the lock owner state.
++ *   OWNER_NULL  : owner is currently NULL
++ *   OWNER_WRITER: when owner changes and is a writer
++ *   OWNER_READER: when owner changes and the new owner may be a reader.
++ *   OWNER_NONSPINNABLE:
++ *		   when optimistic spinning has to stop because either the
++ *		   owner stops running, is unknown, or its timeslice has
++ *		   been used up.
++ */
++enum owner_state {
++	OWNER_NULL		= 1 << 0,
++	OWNER_WRITER		= 1 << 1,
++	OWNER_READER		= 1 << 2,
++	OWNER_NONSPINNABLE	= 1 << 3,
++};
++
+ #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
+ /*
+  * Try to acquire write lock before the writer has been put on wait queue.
+@@ -631,23 +649,6 @@ static inline bool rwsem_can_spin_on_owner(struct rw_semaphore *sem)
+ 	return ret;
+ }
+ 
+-/*
+- * The rwsem_spin_on_owner() function returns the following 4 values
+- * depending on the lock owner state.
+- *   OWNER_NULL  : owner is currently NULL
+- *   OWNER_WRITER: when owner changes and is a writer
+- *   OWNER_READER: when owner changes and the new owner may be a reader.
+- *   OWNER_NONSPINNABLE:
+- *		   when optimistic spinning has to stop because either the
+- *		   owner stops running, is unknown, or its timeslice has
+- *		   been used up.
+- */
+-enum owner_state {
+-	OWNER_NULL		= 1 << 0,
+-	OWNER_WRITER		= 1 << 1,
+-	OWNER_READER		= 1 << 2,
+-	OWNER_NONSPINNABLE	= 1 << 3,
+-};
+ #define OWNER_SPINNABLE		(OWNER_NULL | OWNER_WRITER | OWNER_READER)
+ 
+ static inline enum owner_state
+@@ -877,12 +878,11 @@ static inline bool rwsem_optimistic_spin(struct rw_semaphore *sem)
+ 
+ static inline void clear_nonspinnable(struct rw_semaphore *sem) { }
+ 
+-static inline int
++static inline enum owner_state
+ rwsem_spin_on_owner(struct rw_semaphore *sem)
+ {
+-	return 0;
++	return OWNER_NONSPINNABLE;
+ }
+-#define OWNER_NULL	1
+ #endif
+ 
+ /*
+@@ -1094,9 +1094,16 @@ wait:
+ 		 * In this case, we attempt to acquire the lock again
+ 		 * without sleeping.
+ 		 */
+-		if (wstate == WRITER_HANDOFF &&
+-		    rwsem_spin_on_owner(sem) == OWNER_NULL)
+-			goto trylock_again;
++		if (wstate == WRITER_HANDOFF) {
++			enum owner_state owner_state;
++
++			preempt_disable();
++			owner_state = rwsem_spin_on_owner(sem);
++			preempt_enable();
++
++			if (owner_state == OWNER_NULL)
++				goto trylock_again;
++		}
+ 
+ 		/* Block until there are no active lockers. */
+ 		for (;;) {
 -- 
 2.33.0
 
