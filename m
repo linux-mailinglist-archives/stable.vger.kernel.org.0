@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B1E8452088
+	by mail.lfdr.de (Postfix) with ESMTP id 78E26452089
 	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:52:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245658AbhKPAze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:55:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
+        id S1349956AbhKPAzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:55:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245687AbhKOTVD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245685AbhKOTVD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8888E6358F;
-        Mon, 15 Nov 2021 18:39:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DDE86358B;
+        Mon, 15 Nov 2021 18:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001564;
-        bh=qmmu+Z7ueqUZf2mPkdOMLMF8XFdHvd5LVBYbVFORez4=;
+        s=korg; t=1637001566;
+        bh=Yg6485zONVOhKeEM60PrE9n4QDWxXd0O/gKALd726mU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w8OX6EB0Tc2czSyMdqTWrdafAP9zZIz6CqF3ns/Hv/3zSGZ7x9xpAO4W9A8xUpVUD
-         nDaHDtR69cEL3WcbOxyOFqzWRzTsfn5QMWZcmdxMj6KNFDH6hIsfikgY2Hght69yb/
-         5e4m0Diz4il0hfcmjKuAzuZsX2br0UN/7d4Pj7YA=
+        b=I3rpSWNRMygVAElLqYfQimWeoeiDT3PjJ2UuZnDnIBkVnt7F7tFHlwvntAQj2mvn8
+         /WJ01Vo7qXTUY2yiTWwgx592Y98oeghuUxhF6V0Feb2fSMIjnZO8mb8Pd1vMlPHRHI
+         ZRWJQHvOuHVmMSHCxbg5orhRcTzdC+7NVe88PesQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 205/917] mwifiex: Properly initialize private structure on interface type changes
-Date:   Mon, 15 Nov 2021 17:55:00 +0100
-Message-Id: <20211115165435.745790640@linuxfoundation.org>
+Subject: [PATCH 5.15 206/917] spi: Check we have a spi_device_id for each DT compatible
+Date:   Mon, 15 Nov 2021 17:55:01 +0100
+Message-Id: <20211115165435.784069535@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,59 +39,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Dreßler <verdre@v0yd.nl>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit c606008b70627a2fc485732a53cc22f0f66d0981 ]
+[ Upstream commit 5fa6863ba69265cb7e45567d12614790ff26bd56 ]
 
-When creating a new virtual interface in mwifiex_add_virtual_intf(), we
-update our internal driver states like bss_type, bss_priority, bss_role
-and bss_mode to reflect the mode the firmware will be set to.
+Currently for SPI devices we use the spi_device_id for module autoloading
+even on systems using device tree, meaning that listing a compatible string
+in the of_match_table isn't enough to have the module for a SPI driver
+autoloaded.
 
-When switching virtual interface mode using
-mwifiex_init_new_priv_params() though, we currently only update bss_mode
-and bss_role. In order for the interface mode switch to actually work,
-we also need to update bss_type to its proper value, so do that.
+We attempted to fix this by generating OF based modaliases for devices
+instantiated from DT in 3ce6c9e2617e ("spi: add of_device_uevent_modalias
+support") but this meant we no longer reported spi_device_id based aliases
+which broke drivers such as spi-nor which don't list all the compatible
+strings they support directly for DT, and in at least that case it's not
+super practical to do so given the very large number of compatibles
+needed, much larger than the number spi_device_ids due to vendor strings.
+As a result fell back to using spi_device_id based modalises.
 
-This fixes a crash of the firmware (because the driver tries to execute
-commands that are invalid in AP mode) when switching from station mode
-to AP mode.
+Try to close the gap by printing a warning when a SPI driver has a DT
+compatible that won't be matched as a SPI device ID with the goal of having
+drivers provide both. Given fallback compatibles this check is going to be
+excessive but it should be robust which is probably more important here.
 
-Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210914195909.36035-9-verdre@v0yd.nl
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210921192149.50740-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/cfg80211.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/spi/spi.c | 41 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/cfg80211.c b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-index 93eb5f109949f..97f0f39364d67 100644
---- a/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-+++ b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-@@ -908,16 +908,20 @@ mwifiex_init_new_priv_params(struct mwifiex_private *priv,
- 	switch (type) {
- 	case NL80211_IFTYPE_STATION:
- 	case NL80211_IFTYPE_ADHOC:
--		priv->bss_role =  MWIFIEX_BSS_ROLE_STA;
-+		priv->bss_role = MWIFIEX_BSS_ROLE_STA;
-+		priv->bss_type = MWIFIEX_BSS_TYPE_STA;
- 		break;
- 	case NL80211_IFTYPE_P2P_CLIENT:
--		priv->bss_role =  MWIFIEX_BSS_ROLE_STA;
-+		priv->bss_role = MWIFIEX_BSS_ROLE_STA;
-+		priv->bss_type = MWIFIEX_BSS_TYPE_P2P;
- 		break;
- 	case NL80211_IFTYPE_P2P_GO:
--		priv->bss_role =  MWIFIEX_BSS_ROLE_UAP;
-+		priv->bss_role = MWIFIEX_BSS_ROLE_UAP;
-+		priv->bss_type = MWIFIEX_BSS_TYPE_P2P;
- 		break;
- 	case NL80211_IFTYPE_AP:
- 		priv->bss_role = MWIFIEX_BSS_ROLE_UAP;
-+		priv->bss_type = MWIFIEX_BSS_TYPE_UAP;
- 		break;
- 	default:
- 		mwifiex_dbg(adapter, ERROR,
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 926b68aa45d3e..2a2f41b6df685 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -451,6 +451,47 @@ int __spi_register_driver(struct module *owner, struct spi_driver *sdrv)
+ {
+ 	sdrv->driver.owner = owner;
+ 	sdrv->driver.bus = &spi_bus_type;
++
++	/*
++	 * For Really Good Reasons we use spi: modaliases not of:
++	 * modaliases for DT so module autoloading won't work if we
++	 * don't have a spi_device_id as well as a compatible string.
++	 */
++	if (sdrv->driver.of_match_table) {
++		const struct of_device_id *of_id;
++
++		for (of_id = sdrv->driver.of_match_table; of_id->compatible[0];
++		     of_id++) {
++			const char *of_name;
++
++			/* Strip off any vendor prefix */
++			of_name = strnchr(of_id->compatible,
++					  sizeof(of_id->compatible), ',');
++			if (of_name)
++				of_name++;
++			else
++				of_name = of_id->compatible;
++
++			if (sdrv->id_table) {
++				const struct spi_device_id *spi_id;
++
++				for (spi_id = sdrv->id_table; spi_id->name[0];
++				     spi_id++)
++					if (strcmp(spi_id->name, of_name) == 0)
++						break;
++
++				if (spi_id->name[0])
++					continue;
++			} else {
++				if (strcmp(sdrv->driver.name, of_name) == 0)
++					continue;
++			}
++
++			pr_warn("SPI driver %s has no spi_device_id for %s\n",
++				sdrv->driver.name, of_id->compatible);
++		}
++	}
++
+ 	return driver_register(&sdrv->driver);
+ }
+ EXPORT_SYMBOL_GPL(__spi_register_driver);
 -- 
 2.33.0
 
