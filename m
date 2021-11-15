@@ -2,40 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D46451FCC
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF75451FCD
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355209AbhKPApY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44626 "EHLO mail.kernel.org"
+        id S1345303AbhKPAp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343674AbhKOTVf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343675AbhKOTVf (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFACF6337A;
-        Mon, 15 Nov 2021 18:44:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23149635C7;
+        Mon, 15 Nov 2021 18:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001852;
-        bh=MG1n0PIoIf2//P4DiYG7iIX9mfWlhZk/uvKmNjDGJIk=;
+        s=korg; t=1637001857;
+        bh=w0VNj9JslHgBwYiJwXkxh6WEI9as2KDB553Bf0iquYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clYTYCxNpmApVrqIzbjq6dd8d3+tDtdfYoIRBsl3BPcma4IZr+TqM8QAg35hloCeu
-         0kvvEKpG5s7yzj7546nj0XoQ+PGAFVg8W+oeE+cK3FkEJiJpHNrUt5pgxiTGlBpUyb
-         28tPABVHvinCMD27R9bSrg31rp8h6ggM/HoEYbhw=
+        b=wBA+XdY99fKV/Z0OI3E1d8Cys8VNQAMBVJpm0+3XrVGqe4o6zluG3Enay9vu9+15I
+         zTbcX/kkY0LEKglXJwW4qYpx8fz4+GjzlAhdW9lNZElrShxL6oNB1Uyyj1vKyLNMNI
+         sORj1AVeQUUfbS7J0a/DfECxlhK3gIx8YihiwV0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Anson Jacob <Anson.Jacob@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Agustin Gutierrez <agustin.gutierrez@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 311/917] drm/amd/display: dcn20_resource_construct reduce scope of FPU enabled
-Date:   Mon, 15 Nov 2021 17:56:46 +0100
-Message-Id: <20211115165439.294855367@linuxfoundation.org>
+Subject: [PATCH 5.15 313/917] perf/x86/intel: Fix ICL/SPR INST_RETIRED.PREC_DIST encodings
+Date:   Mon, 15 Nov 2021 17:56:48 +0100
+Message-Id: <20211115165439.356500884@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -47,106 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Jacob <Anson.Jacob@amd.com>
+From: Stephane Eranian <eranian@google.com>
 
-[ Upstream commit bc39a69a2ac484e6575a958567c162ef56c9f278 ]
+[ Upstream commit 2de71ee153efa93099d2ab864acffeec70a8dcd5 ]
 
-Limit when FPU is enabled to only functions that does FPU operations for
-dcn20_resource_construct, which gets called during driver
-initialization.
+This patch fixes the encoding for INST_RETIRED.PREC_DIST as published by Intel
+(download.01.org/perfmon/) for Icelake. The official encoding
+is event code 0x00 umask 0x1, a change from Skylake where it was code 0xc0
+umask 0x1.
 
-Enabling FPU operation disables preemption.  Sleeping functions(mutex
-(un)lock, memory allocation using GFP_KERNEL, etc.) should not be called
-when preemption is disabled.
+With this patch applied it is possible to run:
+$ perf record -a -e cpu/event=0x00,umask=0x1/pp .....
 
-Fixes the following case caught by enabling
-CONFIG_DEBUG_ATOMIC_SLEEP in kernel config
-[    1.338434] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:281
-[    1.347395] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 197, name: systemd-udevd
-[    1.356356] CPU: 7 PID: 197 Comm: systemd-udevd Not tainted 5.13.0+ #3
-[    1.356358] Hardware name: System manufacturer System Product Name/PRIME X570-PRO, BIOS 3405 02/01/2021
-[    1.356360] Call Trace:
-[    1.356361]  dump_stack+0x6b/0x86
-[    1.356366]  ___might_sleep.cold+0x87/0x98
-[    1.356370]  __might_sleep+0x4b/0x80
-[    1.356372]  mutex_lock+0x21/0x50
-[    1.356376]  smu_get_uclk_dpm_states+0x3f/0x80 [amdgpu]
-[    1.356538]  pp_nv_get_uclk_dpm_states+0x35/0x50 [amdgpu]
-[    1.356711]  init_soc_bounding_box+0xf9/0x210 [amdgpu]
-[    1.356892]  ? create_object+0x20d/0x340
-[    1.356897]  ? dcn20_resource_construct+0x46f/0xd30 [amdgpu]
-[    1.357077]  dcn20_resource_construct+0x4b1/0xd30 [amdgpu]
-...
+Whereas before this would fail.
 
-Tested on: 5700XT (NAVI10 0x1002:0x731F 0x1DA2:0xE410 0xC1)
+To avoid problems with tools which may use the old code, we maintain the old
+encoding for Icelake.
 
-Cc: Christian König <christian.koenig@amd.com>
-Cc: Hersen Wu <hersenxs.wu@amd.com>
-Cc: Anson Jacob <Anson.Jacob@amd.com>
-Cc: Harry Wentland <harry.wentland@amd.com>
-
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Acked-by: Agustin Gutierrez <agustin.gutierrez@amd.com>
-Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Stephane Eranian <eranian@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20211014001214.2680534-1-eranian@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/dc/dcn20/dcn20_resource.c    | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ arch/x86/events/intel/core.c | 5 +++--
+ arch/x86/events/intel/ds.c   | 5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-index e3e01b17c164e..f2f258e70f9da 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-@@ -3668,16 +3668,22 @@ static bool init_soc_bounding_box(struct dc *dc,
- 			clock_limits_available = (status == PP_SMU_RESULT_OK);
- 		}
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index 9a044438072ba..bc3f97f834011 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -243,7 +243,8 @@ static struct extra_reg intel_skl_extra_regs[] __read_mostly = {
  
--		if (clock_limits_available && uclk_states_available && num_states)
-+		if (clock_limits_available && uclk_states_available && num_states) {
-+			DC_FP_START();
- 			dcn20_update_bounding_box(dc, loaded_bb, &max_clocks, uclk_states, num_states);
--		else if (clock_limits_available)
-+			DC_FP_END();
-+		} else if (clock_limits_available) {
-+			DC_FP_START();
- 			dcn20_cap_soc_clocks(loaded_bb, max_clocks);
-+			DC_FP_END();
-+		}
- 	}
+ static struct event_constraint intel_icl_event_constraints[] = {
+ 	FIXED_EVENT_CONSTRAINT(0x00c0, 0),	/* INST_RETIRED.ANY */
+-	FIXED_EVENT_CONSTRAINT(0x01c0, 0),	/* INST_RETIRED.PREC_DIST */
++	FIXED_EVENT_CONSTRAINT(0x01c0, 0),	/* old INST_RETIRED.PREC_DIST */
++	FIXED_EVENT_CONSTRAINT(0x0100, 0),	/* INST_RETIRED.PREC_DIST */
+ 	FIXED_EVENT_CONSTRAINT(0x003c, 1),	/* CPU_CLK_UNHALTED.CORE */
+ 	FIXED_EVENT_CONSTRAINT(0x0300, 2),	/* CPU_CLK_UNHALTED.REF */
+ 	FIXED_EVENT_CONSTRAINT(0x0400, 3),	/* SLOTS */
+@@ -288,7 +289,7 @@ static struct extra_reg intel_spr_extra_regs[] __read_mostly = {
  
- 	loaded_ip->max_num_otg = pool->base.res_cap->num_timing_generator;
- 	loaded_ip->max_num_dpp = pool->base.pipe_count;
-+	DC_FP_START();
- 	dcn20_patch_bounding_box(dc, loaded_bb);
--
-+	DC_FP_END();
- 	return true;
- }
+ static struct event_constraint intel_spr_event_constraints[] = {
+ 	FIXED_EVENT_CONSTRAINT(0x00c0, 0),	/* INST_RETIRED.ANY */
+-	FIXED_EVENT_CONSTRAINT(0x01c0, 0),	/* INST_RETIRED.PREC_DIST */
++	FIXED_EVENT_CONSTRAINT(0x0100, 0),	/* INST_RETIRED.PREC_DIST */
+ 	FIXED_EVENT_CONSTRAINT(0x003c, 1),	/* CPU_CLK_UNHALTED.CORE */
+ 	FIXED_EVENT_CONSTRAINT(0x0300, 2),	/* CPU_CLK_UNHALTED.REF */
+ 	FIXED_EVENT_CONSTRAINT(0x0400, 3),	/* SLOTS */
+diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
+index 8647713276a73..4dbb55a43dad2 100644
+--- a/arch/x86/events/intel/ds.c
++++ b/arch/x86/events/intel/ds.c
+@@ -923,7 +923,8 @@ struct event_constraint intel_skl_pebs_event_constraints[] = {
+ };
  
-@@ -3697,8 +3703,6 @@ static bool dcn20_resource_construct(
- 	enum dml_project dml_project_version =
- 			get_dml_project_version(ctx->asic_id.hw_internal_rev);
+ struct event_constraint intel_icl_pebs_event_constraints[] = {
+-	INTEL_FLAGS_UEVENT_CONSTRAINT(0x1c0, 0x100000000ULL),	/* INST_RETIRED.PREC_DIST */
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x01c0, 0x100000000ULL),	/* old INST_RETIRED.PREC_DIST */
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x0100, 0x100000000ULL),	/* INST_RETIRED.PREC_DIST */
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT(0x0400, 0x800000000ULL),	/* SLOTS */
  
--	DC_FP_START();
--
- 	ctx->dc_bios->regs = &bios_regs;
- 	pool->base.funcs = &dcn20_res_pool_funcs;
+ 	INTEL_PLD_CONSTRAINT(0x1cd, 0xff),			/* MEM_TRANS_RETIRED.LOAD_LATENCY */
+@@ -943,7 +944,7 @@ struct event_constraint intel_icl_pebs_event_constraints[] = {
+ };
  
-@@ -4047,12 +4051,10 @@ static bool dcn20_resource_construct(
- 		pool->base.oem_device = NULL;
- 	}
+ struct event_constraint intel_spr_pebs_event_constraints[] = {
+-	INTEL_FLAGS_UEVENT_CONSTRAINT(0x1c0, 0x100000000ULL),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x100, 0x100000000ULL),	/* INST_RETIRED.PREC_DIST */
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT(0x0400, 0x800000000ULL),
  
--	DC_FP_END();
- 	return true;
- 
- create_fail:
- 
--	DC_FP_END();
- 	dcn20_resource_destruct(pool);
- 
- 	return false;
+ 	INTEL_FLAGS_EVENT_CONSTRAINT(0xc0, 0xfe),
 -- 
 2.33.0
 
