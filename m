@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DA254526B0
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:07:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6FC04526AA
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:07:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346339AbhKPCKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:10:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40730 "EHLO mail.kernel.org"
+        id S237779AbhKPCJz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:09:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238125AbhKORyo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:54:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A5B8632B9;
-        Mon, 15 Nov 2021 17:32:55 +0000 (UTC)
+        id S238106AbhKORym (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:54:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62A2A632BA;
+        Mon, 15 Nov 2021 17:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997576;
-        bh=LuA1Ioty0p7m4NLfqNvuURt4xangfK27QVOJTs23rKU=;
+        s=korg; t=1636997582;
+        bh=E+r5NNwQiYIPCJrf9wG4ImreUwNweOvmKgyW6t1Z/sM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rjwz/BIxSW+f9yEjBEs7F53h2ZVZj3ITdkIh3+MQLL4rT9GwdPZumo/JNQyW1Ml9x
-         AykZMc8hJV+k12PcUPXdKYfus1/c1QaYpilkL4CluEgPNqG2iJ60iFJsuBanMqLRkG
-         9wayPO+ijc1nbphtQKXAyP/Nq9KtDg/48y9SFqmc=
+        b=l+0N4PJqVKhT0i3m8ugNpxgH+zV4FbAwq7zvNYODxKf+lj17h535vR/TDe2d1ndlx
+         d/rg3b5sFDzxYLAQzlVaGck0GUCw/FG55KyEPJup1PFYzmPbWh/pwmC5W/1XG0B1lI
+         0oaR9eAZ88mmynk2aJUC+H4fEaggJpYtbRHOcgIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-ia64@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Chris Down <chris@chrisdown.name>,
-        Paul Gortmaker <paul.gortmaker@windriver.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 199/575] ia64: dont do IA64_CMPXCHG_DEBUG without CONFIG_PRINTK
-Date:   Mon, 15 Nov 2021 17:58:44 +0100
-Message-Id: <20211115165350.589442470@linuxfoundation.org>
+        stable@vger.kernel.org, Zong-Zhe Yang <kevin_yang@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 200/575] rtw88: fix RX clock gate setting while fifo dump
+Date:   Mon, 15 Nov 2021 17:58:45 +0100
+Message-Id: <20211115165350.620916305@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -45,51 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Zong-Zhe Yang <kevin_yang@realtek.com>
 
-[ Upstream commit c15b5fc054c3d6c97e953617605235c5cb8ce979 ]
+[ Upstream commit c5a8e90730a322f236731fc347dd3afa5db5550e ]
 
-When CONFIG_PRINTK is not set, the CMPXCHG_BUGCHECK() macro calls
-_printk(), but _printk() is a static inline function, not available
-as an extern.
-Since the purpose of the macro is to print the BUGCHECK info,
-make this config option depend on PRINTK.
+When fw fifo dumps, RX clock gating should be disabled to avoid
+something unexpected. However, the register operation ran into
+a mistake. So, we fix it.
 
-Fixes multiple occurrences of this build error:
-
-../include/linux/printk.h:208:5: error: static declaration of '_printk' follows non-static declaration
-  208 | int _printk(const char *s, ...)
-      |     ^~~~~~~
-In file included from ../arch/ia64/include/asm/cmpxchg.h:5,
-../arch/ia64/include/uapi/asm/cmpxchg.h:146:28: note: previous declaration of '_printk' with type 'int(const char *, ...)'
-  146 |                 extern int _printk(const char *fmt, ...);
-
-Cc: linux-ia64@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Chris Down <chris@chrisdown.name>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210927111830.5354-1-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/Kconfig.debug | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtw88/fw.c  | 7 +++----
+ drivers/net/wireless/realtek/rtw88/reg.h | 1 +
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/ia64/Kconfig.debug b/arch/ia64/Kconfig.debug
-index 40ca23bd228d6..2ce008e2d1644 100644
---- a/arch/ia64/Kconfig.debug
-+++ b/arch/ia64/Kconfig.debug
-@@ -39,7 +39,7 @@ config DISABLE_VHPT
+diff --git a/drivers/net/wireless/realtek/rtw88/fw.c b/drivers/net/wireless/realtek/rtw88/fw.c
+index 0452630bcfacc..40bcfabd2d214 100644
+--- a/drivers/net/wireless/realtek/rtw88/fw.c
++++ b/drivers/net/wireless/realtek/rtw88/fw.c
+@@ -1421,12 +1421,10 @@ static void rtw_fw_read_fifo_page(struct rtw_dev *rtwdev, u32 offset, u32 size,
+ 	u32 i;
+ 	u16 idx = 0;
+ 	u16 ctl;
+-	u8 rcr;
  
- config IA64_DEBUG_CMPXCHG
- 	bool "Turn on compare-and-exchange bug checking (slow!)"
--	depends on DEBUG_KERNEL
-+	depends on DEBUG_KERNEL && PRINTK
- 	help
- 	  Selecting this option turns on bug checking for the IA-64
- 	  compare-and-exchange instructions.  This is slow!  Itaniums
+-	rcr = rtw_read8(rtwdev, REG_RCR + 2);
+ 	ctl = rtw_read16(rtwdev, REG_PKTBUF_DBG_CTRL) & 0xf000;
+ 	/* disable rx clock gate */
+-	rtw_write8(rtwdev, REG_RCR, rcr | BIT(3));
++	rtw_write32_set(rtwdev, REG_RCR, BIT_DISGCLK);
+ 
+ 	do {
+ 		rtw_write16(rtwdev, REG_PKTBUF_DBG_CTRL, start_pg | ctl);
+@@ -1445,7 +1443,8 @@ static void rtw_fw_read_fifo_page(struct rtw_dev *rtwdev, u32 offset, u32 size,
+ 
+ out:
+ 	rtw_write16(rtwdev, REG_PKTBUF_DBG_CTRL, ctl);
+-	rtw_write8(rtwdev, REG_RCR + 2, rcr);
++	/* restore rx clock gate */
++	rtw_write32_clr(rtwdev, REG_RCR, BIT_DISGCLK);
+ }
+ 
+ static void rtw_fw_read_fifo(struct rtw_dev *rtwdev, enum rtw_fw_fifo_sel sel,
+diff --git a/drivers/net/wireless/realtek/rtw88/reg.h b/drivers/net/wireless/realtek/rtw88/reg.h
+index aca3dbdc2d5a5..9088bfb2a3157 100644
+--- a/drivers/net/wireless/realtek/rtw88/reg.h
++++ b/drivers/net/wireless/realtek/rtw88/reg.h
+@@ -400,6 +400,7 @@
+ #define BIT_MFBEN		BIT(22)
+ #define BIT_DISCHKPPDLLEN	BIT(21)
+ #define BIT_PKTCTL_DLEN		BIT(20)
++#define BIT_DISGCLK		BIT(19)
+ #define BIT_TIM_PARSER_EN	BIT(18)
+ #define BIT_BC_MD_EN		BIT(17)
+ #define BIT_UC_MD_EN		BIT(16)
 -- 
 2.33.0
 
