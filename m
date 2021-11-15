@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21A144513A9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C5EA4513AA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348590AbhKOTyL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:54:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
+        id S1348598AbhKOTyP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:54:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343789AbhKOTWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343796AbhKOTWD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A760563392;
-        Mon, 15 Nov 2021 18:46:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67E46635E5;
+        Mon, 15 Nov 2021 18:46:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001983;
-        bh=cYrOYS1+KIfaOEpww6W/hCePkj8cZjnxveBQ64QIXSM=;
+        s=korg; t=1637001985;
+        bh=0oNsBUU3kljeFYbE87L3PM2wv2F72C/ERb29oBTfUTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zpjfOXG64+tSO4gognOEeeujKACRU8Jk108ThXw4RT7FQWeULcpp144I9GzC2Lut/
-         ttHwaSRwhd6hoFRf7mJrWtymjxIHlwmjS66DaBBGDjgk1VhP4vbqdJznOgVNse3sz6
-         sa+tYX2PpT3lD25PidiNIH2erq5W5/Zt9DvRAMhU=
+        b=Es+FfB9TT9mWgE2sL04UQTwXW5bYVkP0Pe5VlQl1MDUCNl6BV4ghjyfMumhkxbHqN
+         oOXuk0qH2WMolQtNYnZGLO+30Vc4Tv4eVkRTc2EnCKg3yR6CRHfuEW0WPC5Vb44pyc
+         Olg2jSUpOGonkvskYwQcEBZzzSnAWOKZxyV8vXG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuan-Ying Lee <kuan-ying.lee@mediatek.com>,
-        Will Deacon <will@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Yee Lee <yee.lee@mediatek.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 395/917] scs: Release kasan vmalloc poison in scs_free process
-Date:   Mon, 15 Nov 2021 17:58:10 +0100
-Message-Id: <20211115165442.165250296@linuxfoundation.org>
+        stable@vger.kernel.org, Punit Agrawal <punitagrawal@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 396/917] kprobes: Do not use local variable when creating debugfs file
+Date:   Mon, 15 Nov 2021 17:58:11 +0100
+Message-Id: <20211115165442.204682891@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,95 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yee Lee <yee.lee@mediatek.com>
+From: Punit Agrawal <punitagrawal@gmail.com>
 
-[ Upstream commit 528a4ab45300fa6283556d9b48e26b45a8aa15c4 ]
+[ Upstream commit 8f7262cd66699a4b02eb7549b35c81b2116aad95 ]
 
-Since scs allocation is moved to vmalloc region, the
-shadow stack is protected by kasan_posion_vmalloc.
-However, the vfree_atomic operation needs to access
-its context for scs_free process and causes kasan error
-as the dump info below.
+debugfs_create_file() takes a pointer argument that can be used during
+file operation callbacks (accessible via i_private in the inode
+structure). An obvious requirement is for the pointer to refer to
+valid memory when used.
 
-This patch Adds kasan_unpoison_vmalloc() before vfree_atomic,
-which aligns to the prior flow as using kmem_cache.
-The vmalloc region will go back posioned in the following
-vumap() operations.
+When creating the debugfs file to dynamically enable / disable
+kprobes, a pointer to local variable is passed to
+debugfs_create_file(); which will go out of scope when the init
+function returns. The reason this hasn't triggered random memory
+corruption is because the pointer is not accessed during the debugfs
+file callbacks.
 
- ==================================================================
- BUG: KASAN: vmalloc-out-of-bounds in llist_add_batch+0x60/0xd4
- Write of size 8 at addr ffff8000100b9000 by task kthreadd/2
+Since the enabled state is managed by the kprobes_all_disabled global
+variable, the local variable is not needed. Fix the incorrect (and
+unnecessary) usage of local variable during debugfs_file_create() by
+passing NULL instead.
 
- CPU: 0 PID: 2 Comm: kthreadd Not tainted 5.15.0-rc2-11681-g92477dd1faa6-dirty #1
- Hardware name: linux,dummy-virt (DT)
- Call trace:
-  dump_backtrace+0x0/0x43c
-  show_stack+0x1c/0x2c
-  dump_stack_lvl+0x68/0x84
-  print_address_description+0x80/0x394
-  kasan_report+0x180/0x1dc
-  __asan_report_store8_noabort+0x48/0x58
-  llist_add_batch+0x60/0xd4
-  vfree_atomic+0x60/0xe0
-  scs_free+0x1dc/0x1fc
-  scs_release+0xa4/0xd4
-  free_task+0x30/0xe4
-  __put_task_struct+0x1ec/0x2e0
-  delayed_put_task_struct+0x5c/0xa0
-  rcu_do_batch+0x62c/0x8a0
-  rcu_core+0x60c/0xc14
-  rcu_core_si+0x14/0x24
-  __do_softirq+0x19c/0x68c
-  irq_exit+0x118/0x2dc
-  handle_domain_irq+0xcc/0x134
-  gic_handle_irq+0x7c/0x1bc
-  call_on_irq_stack+0x40/0x70
-  do_interrupt_handler+0x78/0x9c
-  el1_interrupt+0x34/0x60
-  el1h_64_irq_handler+0x1c/0x2c
-  el1h_64_irq+0x78/0x7c
-  _raw_spin_unlock_irqrestore+0x40/0xcc
-  sched_fork+0x4f0/0xb00
-  copy_process+0xacc/0x3648
-  kernel_clone+0x168/0x534
-  kernel_thread+0x13c/0x1b0
-  kthreadd+0x2bc/0x400
-  ret_from_fork+0x10/0x20
+Link: https://lkml.kernel.org/r/163163031686.489837.4476867635937014973.stgit@devnote2
 
- Memory state around the buggy address:
-  ffff8000100b8f00: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
-  ffff8000100b8f80: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
- >ffff8000100b9000: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
-                    ^
-  ffff8000100b9080: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
-  ffff8000100b9100: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
- ==================================================================
-
-Suggested-by: Kuan-Ying Lee <kuan-ying.lee@mediatek.com>
-Acked-by: Will Deacon <will@kernel.org>
-Tested-by: Will Deacon <will@kernel.org>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Yee Lee <yee.lee@mediatek.com>
-Fixes: a2abe7cbd8fe ("scs: switch to vmapped shadow stacks")
-Link: https://lore.kernel.org/r/20210930081619.30091-1-yee.lee@mediatek.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: bf8f6e5b3e51 ("Kprobes: The ON/OFF knob thru debugfs")
+Signed-off-by: Punit Agrawal <punitagrawal@gmail.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/scs.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/kprobes.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/kernel/scs.c b/kernel/scs.c
-index e2a71fc82fa06..579841be88646 100644
---- a/kernel/scs.c
-+++ b/kernel/scs.c
-@@ -78,6 +78,7 @@ void scs_free(void *s)
- 		if (this_cpu_cmpxchg(scs_cache[i], 0, s) == NULL)
- 			return;
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 790a573bbe00c..1cf8bca1ea861 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -2809,13 +2809,12 @@ static const struct file_operations fops_kp = {
+ static int __init debugfs_kprobe_init(void)
+ {
+ 	struct dentry *dir;
+-	unsigned int value = 1;
  
-+	kasan_unpoison_vmalloc(s, SCS_SIZE);
- 	vfree_atomic(s);
- }
+ 	dir = debugfs_create_dir("kprobes", NULL);
  
+ 	debugfs_create_file("list", 0400, dir, NULL, &kprobes_fops);
+ 
+-	debugfs_create_file("enabled", 0600, dir, &value, &fops_kp);
++	debugfs_create_file("enabled", 0600, dir, NULL, &fops_kp);
+ 
+ 	debugfs_create_file("blacklist", 0400, dir, NULL,
+ 			    &kprobe_blacklist_fops);
 -- 
 2.33.0
 
