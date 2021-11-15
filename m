@@ -2,44 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC9594521E8
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:04:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCE88452510
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245619AbhKPBHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:07:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S238019AbhKPBqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:46:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245288AbhKOTT6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:19:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC67063459;
-        Mon, 15 Nov 2021 18:31:55 +0000 (UTC)
+        id S241604AbhKOSXb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:23:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4900A61AA9;
+        Mon, 15 Nov 2021 17:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001116;
-        bh=QthVg+cX5YqHqcKa/7OPfLYph4F0VvrfwyH18m05D7A=;
+        s=korg; t=1636998835;
+        bh=JDVrjrqnH60rkIX5NmkI30aZ50DuOZG36ekTEgbV/8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZeicu+3eOO9yjGXrs8cPUOYlKck/nU74uJW3CzQt9E219phUBPaLBSZF8qI6FrhN
-         6X2anqpIZNa6ivT04ejaLDuUL5wOqlSCslAIPBxmGi3MUvhg6GzleKrR6/l5nzGTKp
-         qV58TGIaZb3YXdIjUBvoR+QF+4oHJJ2yy8SY8t/M=
+        b=EJaZiN9qFvlRi3/b7X8Bw+OIbsDr0GE2mxOjelVTAaLQlxARe/qmLT4RxD+62GMN9
+         oxB1If9UF2laNFnGYcDLXIdRS6n5LN9KMVrDYTbPIQEkfH4e3/vzRG+4ePDgigTxMC
+         f3aRZgjoQAqvLx4j1uYJ79/6wTMYeii8Ar5629C4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>, X86 ML <x86@kernel.org>,
-        Daniel Xu <dxu@dxuuu.xyz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@alien8.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Abhishek Sagar <sagar.abhishek@gmail.com>,
-        Andrii Nakryiko <andrii.nakryiko@gmail.com>,
-        Paul McKenney <paulmck@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 068/917] ia64: kprobes: Fix to pass correct trampoline address to the handler
+        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 080/849] bpf: Prevent increasing bpf_jit_limit above max
 Date:   Mon, 15 Nov 2021 17:52:43 +0100
-Message-Id: <20211115165431.073019560@linuxfoundation.org>
+Message-Id: <20211115165422.765418824@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,80 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Lorenz Bauer <lmb@cloudflare.com>
 
-commit a7fe2378454cf46cd5e2776d05e72bbe8f0a468c upstream.
+[ Upstream commit fadb7ff1a6c2c565af56b4aacdd086b067eed440 ]
 
-The following commit:
+Restrict bpf_jit_limit to the maximum supported by the arch's JIT.
 
-   Commit e792ff804f49 ("ia64: kprobes: Use generic kretprobe trampoline handler")
-
-Passed the wrong trampoline address to __kretprobe_trampoline_handler(): it
-passes the descriptor address instead of function entry address.
-
-Pass the right parameter.
-
-Also use correct symbol dereference function to get the function address
-from 'kretprobe_trampoline' - an IA64 special.
-
-Link: https://lkml.kernel.org/r/163163042696.489837.12551102356265354730.stgit@devnote2
-
-Fixes: e792ff804f49 ("ia64: kprobes: Use generic kretprobe trampoline handler")
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: X86 ML <x86@kernel.org>
-Cc: Daniel Xu <dxu@dxuuu.xyz>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Abhishek Sagar <sagar.abhishek@gmail.com>
-Cc: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Cc: Paul McKenney <paulmck@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20211014142554.53120-4-lmb@cloudflare.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/kprobes.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ include/linux/filter.h     | 1 +
+ kernel/bpf/core.c          | 4 +++-
+ net/core/sysctl_net_core.c | 2 +-
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/ia64/kernel/kprobes.c
-+++ b/arch/ia64/kernel/kprobes.c
-@@ -398,7 +398,8 @@ static void kretprobe_trampoline(void)
+diff --git a/include/linux/filter.h b/include/linux/filter.h
+index 83b896044e79f..c227c45121d6a 100644
+--- a/include/linux/filter.h
++++ b/include/linux/filter.h
+@@ -1027,6 +1027,7 @@ extern int bpf_jit_enable;
+ extern int bpf_jit_harden;
+ extern int bpf_jit_kallsyms;
+ extern long bpf_jit_limit;
++extern long bpf_jit_limit_max;
  
- int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+ typedef void (*bpf_jit_fill_hole_t)(void *area, unsigned int size);
+ 
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index 4c0c0146f956c..2340d11737cca 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -524,6 +524,7 @@ int bpf_jit_enable   __read_mostly = IS_BUILTIN(CONFIG_BPF_JIT_DEFAULT_ON);
+ int bpf_jit_kallsyms __read_mostly = IS_BUILTIN(CONFIG_BPF_JIT_DEFAULT_ON);
+ int bpf_jit_harden   __read_mostly;
+ long bpf_jit_limit   __read_mostly;
++long bpf_jit_limit_max __read_mostly;
+ 
+ static void
+ bpf_prog_ksym_set_addr(struct bpf_prog *prog)
+@@ -817,7 +818,8 @@ u64 __weak bpf_jit_alloc_exec_limit(void)
+ static int __init bpf_jit_charge_init(void)
  {
--	regs->cr_iip = __kretprobe_trampoline_handler(regs, kretprobe_trampoline, NULL);
-+	regs->cr_iip = __kretprobe_trampoline_handler(regs,
-+		dereference_function_descriptor(kretprobe_trampoline), NULL);
- 	/*
- 	 * By returning a non-zero value, we are telling
- 	 * kprobe_handler() that we don't want the post_handler
-@@ -414,7 +415,7 @@ void __kprobes arch_prepare_kretprobe(st
- 	ri->fp = NULL;
- 
- 	/* Replace the return addr with trampoline addr */
--	regs->b0 = ((struct fnptr *)kretprobe_trampoline)->ip;
-+	regs->b0 = (unsigned long)dereference_function_descriptor(kretprobe_trampoline);
- }
- 
- /* Check the instruction in the slot is break */
-@@ -902,14 +903,14 @@ static struct kprobe trampoline_p = {
- int __init arch_init_kprobes(void)
- {
- 	trampoline_p.addr =
--		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip;
-+		dereference_function_descriptor(kretprobe_trampoline);
- 	return register_kprobe(&trampoline_p);
- }
- 
- int __kprobes arch_trampoline_kprobe(struct kprobe *p)
- {
- 	if (p->addr ==
--		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip)
-+		dereference_function_descriptor(kretprobe_trampoline))
- 		return 1;
- 
+ 	/* Only used as heuristic here to derive limit. */
+-	bpf_jit_limit = min_t(u64, round_up(bpf_jit_alloc_exec_limit() >> 2,
++	bpf_jit_limit_max = bpf_jit_alloc_exec_limit();
++	bpf_jit_limit = min_t(u64, round_up(bpf_jit_limit_max >> 2,
+ 					    PAGE_SIZE), LONG_MAX);
  	return 0;
+ }
+diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+index c8496c1142c9d..5f88526ad61cc 100644
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -419,7 +419,7 @@ static struct ctl_table net_core_table[] = {
+ 		.mode		= 0600,
+ 		.proc_handler	= proc_dolongvec_minmax_bpf_restricted,
+ 		.extra1		= &long_one,
+-		.extra2		= &long_max,
++		.extra2		= &bpf_jit_limit_max,
+ 	},
+ #endif
+ 	{
+-- 
+2.33.0
+
 
 
