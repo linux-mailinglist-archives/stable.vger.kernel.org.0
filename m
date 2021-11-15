@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFAA34514AC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:09:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B0874514A8
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:09:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349225AbhKOULx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:11:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
+        id S1348890AbhKOULg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:11:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344883AbhKOTZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344888AbhKOTZk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14147633ED;
-        Mon, 15 Nov 2021 19:06:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E882E633F1;
+        Mon, 15 Nov 2021 19:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003177;
-        bh=o2vNYiXQqL0DzCXCOJyEVsB4e/WMcKZ77Rb17LF1dX4=;
+        s=korg; t=1637003180;
+        bh=RVPesjfFaUpLuAjJj4MexMZO7Ju4/g9b/3mA5ZBD1+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AqIcACl2y8GmExMoa9eaL48+YY9H77ycktM6VIfhrt7rNMofxOZWTRB4ajBRjmQXw
-         C/Rw8puRHgv6mhRrzA3XHsmq6QfAGMA0lgjkArGkANfqE65UqVieEpZWXPLaNlaK6y
-         3CnsF6UcmKYJtk+LCYQsDEB+/MAmte1uD4x6Ic1Q=
+        b=hXoH766g8GzQ/LWkaGXd5kcgm1teeoNoxOjp1a8YDf/Wir49As29eo1z4l9m3vkF0
+         JHh5MSTwQcPkQanmaoF4fkb7DeskxWlIRDjCCWdgQodsxII7XTl4k8m0J5fadlre7F
+         Ul/eMXLlpQwCf4TZo9Xmi8+tiPYnXcdTyLb+WRKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 838/917] net: stmmac: allow a tc-taprio base-time of zero
-Date:   Mon, 15 Nov 2021 18:05:33 +0100
-Message-Id: <20211115165457.458894665@linuxfoundation.org>
+Subject: [PATCH 5.15 839/917] net: ethernet: ti: cpsw_ale: Fix access to un-initialized memory
+Date:   Mon, 15 Nov 2021 18:05:34 +0100
+Message-Id: <20211115165457.492438074@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,38 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit f64ab8e4f368f48afb08ae91928e103d17b235e9 ]
+[ Upstream commit 7a166854b4e24c57d56b3eba9fe1594985ee0a2c ]
 
-Commit fe28c53ed71d ("net: stmmac: fix taprio configuration when
-base_time is in the past") allowed some base time values in the past,
-but apparently not all, the base-time value of 0 (Jan 1st 1970) is still
-explicitly denied by the driver.
+It is spurious to allocate a bitmap without initializing it.
+So, better safe than sorry, initialize it to 0 at least to have some known
+values.
 
-Remove the bogus check.
+While at it, switch to the devm_bitmap_ API which is less verbose.
 
-Fixes: b60189e0392f ("net: stmmac: Integrate EST with TAPRIO scheduler API")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Kurt Kanzenbach <kurt@linutronix.de>
+Fixes: 4b41d3436796 ("net: ethernet: ti: cpsw: allow untagged traffic on host port")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/ti/cpsw_ale.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-index 8160087ee92f2..1c4ea0b1b845b 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-@@ -786,8 +786,6 @@ static int tc_setup_taprio(struct stmmac_priv *priv,
- 		goto disable;
- 	if (qopt->num_entries >= dep)
- 		return -EINVAL;
--	if (!qopt->base_time)
--		return -ERANGE;
- 	if (!qopt->cycle_time)
- 		return -ERANGE;
+diff --git a/drivers/net/ethernet/ti/cpsw_ale.c b/drivers/net/ethernet/ti/cpsw_ale.c
+index 0c75e0576ee1f..1ef0aaef5c61c 100644
+--- a/drivers/net/ethernet/ti/cpsw_ale.c
++++ b/drivers/net/ethernet/ti/cpsw_ale.c
+@@ -1299,10 +1299,8 @@ struct cpsw_ale *cpsw_ale_create(struct cpsw_ale_params *params)
+ 	if (!ale)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	ale->p0_untag_vid_mask =
+-		devm_kmalloc_array(params->dev, BITS_TO_LONGS(VLAN_N_VID),
+-				   sizeof(unsigned long),
+-				   GFP_KERNEL);
++	ale->p0_untag_vid_mask = devm_bitmap_zalloc(params->dev, VLAN_N_VID,
++						    GFP_KERNEL);
+ 	if (!ale->p0_untag_vid_mask)
+ 		return ERR_PTR(-ENOMEM);
  
 -- 
 2.33.0
