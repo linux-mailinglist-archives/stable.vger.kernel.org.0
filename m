@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5662745139C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B6B84513A4
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:53:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348512AbhKOTxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:53:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
+        id S1348563AbhKOTyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:54:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343679AbhKOTVg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:21:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17A3B63574;
-        Mon, 15 Nov 2021 18:44:21 +0000 (UTC)
+        id S1343705AbhKOTVi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:21:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B3EF635CF;
+        Mon, 15 Nov 2021 18:44:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001862;
-        bh=CBkFCTb5fZ55E+dx7DYJF8WEckb1MR7O8bN1kEYFPLk=;
+        s=korg; t=1637001891;
+        bh=jZ5j3IIeFKevyECZ9SdkAnJzRNLg/HOwH9NDQyH5Cfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jGM+DGojNfYC+VbpSvkcswlcHK3KoXMzMZaY3EmqxqB0bFQ+8xiBzQovdO8/1MPRj
-         SvrEkeOU1o1zTJSSn464//vN8f5y75DHdrX23gyunmVyppJTnuR8AiIsaVmbjTiYIb
-         UCcGMBJxZZn3MGLaep8Tj9Rb8dbmVSa/3dYCug6M=
+        b=rg0uUOnTo4zZvulstEpQDG0MykcNn5Ubb3Hk/V3bwRmeGtg2+P6xWdT8k8/MpsM5k
+         vsKbQ+hymijxGYv0dSR8wDzOxxu4rex5C2AS9ZfVUP88SqPxyJIR4Ny8VUsWeqJZgS
+         UfwTA9p44/0tEzpiwZS1UBqmq/DA9CIARTDsXoLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alex Bee <knaerzche@gmail.com>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 342/917] net: phylink: dont call netif_carrier_off() with NULL netdev
-Date:   Mon, 15 Nov 2021 17:57:17 +0100
-Message-Id: <20211115165440.346950122@linuxfoundation.org>
+Subject: [PATCH 5.15 343/917] drm: bridge: it66121: Fix return value it66121_probe
+Date:   Mon, 15 Nov 2021 17:57:18 +0100
+Message-Id: <20211115165440.379690957@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,40 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Alex Bee <knaerzche@gmail.com>
 
-[ Upstream commit cbcca2e3961eac736566ac13ef0d0bf6f0b764ec ]
+[ Upstream commit f3bc07eba481942a246926c5b934199e7ccd567b ]
 
-Dan Carpenter points out that we have a code path that permits a NULL
-netdev pointer to be passed to netif_carrier_off(), which will cause
-a kernel oops. In any case, we need to set pl->old_link_state to false
-to have the desired effect when there is no netdev present.
+Currently it66121_probe returns -EPROBE_DEFER if the there is no remote
+endpoint found in the device tree which doesn't seem helpful, since this
+is not going to change later and it is never checked if the next bridge
+has been initialized yet. It will fail in that case later while doing
+drm_bridge_attach for the next bridge in it66121_bridge_attach.
 
-Fixes: f97493657c63 ("net: phylink: add suspend/resume support")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Since the bindings documentation for it66121 bridge driver states
+there has to be a remote endpoint defined, its safe to return -EINVAL
+in that case.
+This additonally adds a check, if the remote endpoint is enabled and
+returns -EPROBE_DEFER, if the remote bridge hasn't been initialized
+(yet).
+
+Fixes: 988156dc2fc9 ("drm: bridge: add it66121 driver")
+Signed-off-by: Alex Bee <knaerzche@gmail.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210918140420.231346-1-knaerzche@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phylink.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/ite-it66121.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
-index 0a0abe8e4be0b..5a58c77d00022 100644
---- a/drivers/net/phy/phylink.c
-+++ b/drivers/net/phy/phylink.c
-@@ -1333,7 +1333,10 @@ void phylink_suspend(struct phylink *pl, bool mac_wol)
- 		 * but one would hope all packets have been sent. This
- 		 * also means phylink_resolve() will do nothing.
- 		 */
--		netif_carrier_off(pl->netdev);
-+		if (pl->netdev)
-+			netif_carrier_off(pl->netdev);
-+		else
-+			pl->old_link_state = false;
+diff --git a/drivers/gpu/drm/bridge/ite-it66121.c b/drivers/gpu/drm/bridge/ite-it66121.c
+index 9dc41a7b91362..06b59b422c696 100644
+--- a/drivers/gpu/drm/bridge/ite-it66121.c
++++ b/drivers/gpu/drm/bridge/ite-it66121.c
+@@ -918,11 +918,23 @@ static int it66121_probe(struct i2c_client *client,
+ 		return -EINVAL;
  
- 		/* We do not call mac_link_down() here as we want the
- 		 * link to remain up to receive the WoL packets.
+ 	ep = of_graph_get_remote_node(dev->of_node, 1, -1);
+-	if (!ep)
+-		return -EPROBE_DEFER;
++	if (!ep) {
++		dev_err(ctx->dev, "The endpoint is unconnected\n");
++		return -EINVAL;
++	}
++
++	if (!of_device_is_available(ep)) {
++		of_node_put(ep);
++		dev_err(ctx->dev, "The remote device is disabled\n");
++		return -ENODEV;
++	}
+ 
+ 	ctx->next_bridge = of_drm_find_bridge(ep);
+ 	of_node_put(ep);
++	if (!ctx->next_bridge) {
++		dev_dbg(ctx->dev, "Next bridge not found, deferring probe\n");
++		return -EPROBE_DEFER;
++	}
+ 
+ 	if (!ctx->next_bridge)
+ 		return -EPROBE_DEFER;
 -- 
 2.33.0
 
