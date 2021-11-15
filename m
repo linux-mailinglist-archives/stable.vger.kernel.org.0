@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 005C24525DE
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:57:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0789B4525D2
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:56:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232241AbhKPB7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:59:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49942 "EHLO mail.kernel.org"
+        id S1343782AbhKPB7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:59:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240446AbhKOSJq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240448AbhKOSJq (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:09:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BDB7633B9;
-        Mon, 15 Nov 2021 17:46:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 484E0633B7;
+        Mon, 15 Nov 2021 17:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998415;
-        bh=N51A8M4E4KpN+AgISpEgJ0kmxYPyBjNN1up9UZGqqPw=;
+        s=korg; t=1636998417;
+        bh=MmKejlUk1h1XpRkaHo0b7s+0uOcH78Ok4wRnpFwKOvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MiKIOyBfEyUzxAJhCwj06EPKKqIHDz+pVSGrqntljdc7BbP09TOtH/Z314Fi4xR4o
-         NWSW0YmaAPxHWA4Ldi0FfYps3O3T2MWoHgMap3UC3bcBjkIwNxWKMcSvCW8yF5vVxr
-         VKtdlrVRSXtiQPcJKURacsCIpzJ+bmqoUSuC+3d8=
+        b=nIBs0qRCsebLjPpeSyjAGdIHns3isJ/7JUKXS+mxgfnnw2gEmMpxaMK0dlRjSsp//
+         o24tOOyJqh48jX29PrFISEQFXj/VJFcNlRsB6S790V3LMm5/rmf480oLSxbz7yvQXo
+         C9xK9WImmOeAVfYUBlt9hB09z+x/FH1/7Yh7bJTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 468/575] rpmsg: Fix rpmsg_create_ept return when RPMSG config is not defined
-Date:   Mon, 15 Nov 2021 18:03:13 +0100
-Message-Id: <20211115165359.911974593@linuxfoundation.org>
+Subject: [PATCH 5.10 469/575] nfsd: dont alloc under spinlock in rpc_parse_scope_id
+Date:   Mon, 15 Nov 2021 18:03:14 +0100
+Message-Id: <20211115165359.943624527@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -42,36 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 537d3af1bee8ad1415fda9b622d1ea6d1ae76dfa ]
+[ Upstream commit 9b6e27d01adcec58e046c624874f8a124e8b07ec ]
 
-According to the description of the rpmsg_create_ept in rpmsg_core.c
-the function should return NULL on error.
+Dan Carpenter says:
 
-Fixes: 2c8a57088045 ("rpmsg: Provide function stubs for API")
-Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20210712123912.10672-1-arnaud.pouliquen@foss.st.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+  The patch d20c11d86d8f: "nfsd: Protect session creation and client
+  confirm using client_lock" from Jul 30, 2014, leads to the following
+  Smatch static checker warning:
+
+        net/sunrpc/addr.c:178 rpc_parse_scope_id()
+        warn: sleeping in atomic context
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: d20c11d86d8f ("nfsd: Protect session creation and client...")
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rpmsg.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/addr.c | 40 ++++++++++++++++++----------------------
+ 1 file changed, 18 insertions(+), 22 deletions(-)
 
-diff --git a/include/linux/rpmsg.h b/include/linux/rpmsg.h
-index 9fe156d1c018e..a68972b097b72 100644
---- a/include/linux/rpmsg.h
-+++ b/include/linux/rpmsg.h
-@@ -177,7 +177,7 @@ static inline struct rpmsg_endpoint *rpmsg_create_ept(struct rpmsg_device *rpdev
- 	/* This shouldn't be possible */
- 	WARN_ON(1);
+diff --git a/net/sunrpc/addr.c b/net/sunrpc/addr.c
+index 6e4dbd577a39f..d435bffc61999 100644
+--- a/net/sunrpc/addr.c
++++ b/net/sunrpc/addr.c
+@@ -162,8 +162,10 @@ static int rpc_parse_scope_id(struct net *net, const char *buf,
+ 			      const size_t buflen, const char *delim,
+ 			      struct sockaddr_in6 *sin6)
+ {
+-	char *p;
++	char p[IPV6_SCOPE_ID_LEN + 1];
+ 	size_t len;
++	u32 scope_id = 0;
++	struct net_device *dev;
  
--	return ERR_PTR(-ENXIO);
-+	return NULL;
+ 	if ((buf + buflen) == delim)
+ 		return 1;
+@@ -175,29 +177,23 @@ static int rpc_parse_scope_id(struct net *net, const char *buf,
+ 		return 0;
+ 
+ 	len = (buf + buflen) - delim - 1;
+-	p = kmemdup_nul(delim + 1, len, GFP_KERNEL);
+-	if (p) {
+-		u32 scope_id = 0;
+-		struct net_device *dev;
+-
+-		dev = dev_get_by_name(net, p);
+-		if (dev != NULL) {
+-			scope_id = dev->ifindex;
+-			dev_put(dev);
+-		} else {
+-			if (kstrtou32(p, 10, &scope_id) != 0) {
+-				kfree(p);
+-				return 0;
+-			}
+-		}
+-
+-		kfree(p);
+-
+-		sin6->sin6_scope_id = scope_id;
+-		return 1;
++	if (len > IPV6_SCOPE_ID_LEN)
++		return 0;
++
++	memcpy(p, delim + 1, len);
++	p[len] = 0;
++
++	dev = dev_get_by_name(net, p);
++	if (dev != NULL) {
++		scope_id = dev->ifindex;
++		dev_put(dev);
++	} else {
++		if (kstrtou32(p, 10, &scope_id) != 0)
++			return 0;
+ 	}
+ 
+-	return 0;
++	sin6->sin6_scope_id = scope_id;
++	return 1;
  }
  
- static inline int rpmsg_send(struct rpmsg_endpoint *ept, void *data, int len)
+ static size_t rpc_pton6(struct net *net, const char *buf, const size_t buflen,
 -- 
 2.33.0
 
