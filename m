@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93209450B64
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:21:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46690450E2C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237212AbhKORYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:24:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51640 "EHLO mail.kernel.org"
+        id S239868AbhKOSNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:13:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236941AbhKORTw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:19:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AF5F6326A;
-        Mon, 15 Nov 2021 17:15:00 +0000 (UTC)
+        id S240086AbhKOSFf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAB6D63380;
+        Mon, 15 Nov 2021 17:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996501;
-        bh=p9dDR6AKIpy4EKkEAOp0tCiEtQG88nQSrAduA0ytCi4=;
+        s=korg; t=1636998119;
+        bh=sKNoGjeUePsM8XpOm5zrx1MVzYmAnEF97eBkNuuylNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xl4zmF3hTNSMJ1k/SFA18Yesp/KJ5890ME70Gk+Ie0jygNQF4+l+pb+hj/GqtHML/
-         Vvo6Hbe8O32amctAM06dKp5yO9gcDqriSyPGRbUVW5OXMY9Ynh8RpfYNlXf7qrqQs1
-         ck5ylmcKhdsiciQCmVJAI41LFvUEFSIAytIzTYgs=
+        b=aHSh6e6LaWEMGY9HvHQbf+gM8ThJuKiMX0REA3Zwk+2GngPBTyQ1yVjGVcer9q3HB
+         qDqUv04GmdlbTvWr5d3GvdieffTzJXVkPnyQDIS9piLheYdzks6CM2/DAQHyIf/P2b
+         KtjdyohDnOgJsplGg1GcL0svj7orOLGA/6KdUsQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 162/355] nvme: drop scan_lock and always kick requeue list when removing namespaces
+        stable@vger.kernel.org, Hao Wu <hao.wu@rubrik.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 361/575] tpm: fix Atmel TPM crash caused by too frequent queries
 Date:   Mon, 15 Nov 2021 18:01:26 +0100
-Message-Id: <20211115165319.027060170@linuxfoundation.org>
+Message-Id: <20211115165356.290500898@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +40,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Hao Wu <hao.wu@rubrik.com>
 
-[ Upstream commit 2b81a5f015199f3d585ce710190a9e87714d3c1e ]
+[ Upstream commit 79ca6f74dae067681a779fd573c2eb59649989bc ]
 
-When reading the partition table on initial scan hits an I/O error the
-I/O will hang with the scan_mutex held:
+The Atmel TPM 1.2 chips crash with error
+`tpm_try_transmit: send(): error -62` since kernel 4.14.
+It is observed from the kernel log after running `tpm_sealdata -z`.
+The error thrown from the command is as follows
+```
+$ tpm_sealdata -z
+Tspi_Key_LoadKey failed: 0x00001087 - layer=tddl,
+code=0087 (135), I/O error
+```
 
-[<0>] do_read_cache_page+0x49b/0x790
-[<0>] read_part_sector+0x39/0xe0
-[<0>] read_lba+0xf9/0x1d0
-[<0>] efi_partition+0xf1/0x7f0
-[<0>] bdev_disk_changed+0x1ee/0x550
-[<0>] blkdev_get_whole+0x81/0x90
-[<0>] blkdev_get_by_dev+0x128/0x2e0
-[<0>] device_add_disk+0x377/0x3c0
-[<0>] nvme_mpath_set_live+0x130/0x1b0 [nvme_core]
-[<0>] nvme_mpath_add_disk+0x150/0x160 [nvme_core]
-[<0>] nvme_alloc_ns+0x417/0x950 [nvme_core]
-[<0>] nvme_validate_or_alloc_ns+0xe9/0x1e0 [nvme_core]
-[<0>] nvme_scan_work+0x168/0x310 [nvme_core]
-[<0>] process_one_work+0x231/0x420
+The issue was reproduced with the following Atmel TPM chip:
+```
+$ tpm_version
+T0  TPM 1.2 Version Info:
+  Chip Version:        1.2.66.1
+  Spec Level:          2
+  Errata Revision:     3
+  TPM Vendor ID:       ATML
+  TPM Version:         01010000
+  Manufacturer Info:   41544d4c
+```
 
-and trying to delete the controller will deadlock as it tries to grab
-the scan mutex:
+The root cause of the issue is due to the TPM calls to msleep()
+were replaced with usleep_range() [1], which reduces
+the actual timeout. Via experiments, it is observed that
+the original msleep(5) actually sleeps for 15ms.
+Because of a known timeout issue in Atmel TPM 1.2 chip,
+the shorter timeout than 15ms can cause the error described above.
 
-[<0>] nvme_mpath_clear_ctrl_paths+0x25/0x80 [nvme_core]
-[<0>] nvme_remove_namespaces+0x31/0xf0 [nvme_core]
-[<0>] nvme_do_delete_ctrl+0x4b/0x80 [nvme_core]
+A few further changes in kernel 4.16 [2] and 4.18 [3, 4] further
+reduced the timeout to less than 1ms. With experiments,
+the problematic timeout in the latest kernel is the one
+for `wait_for_tpm_stat`.
 
-As we're now properly ordering the namespace list there is no need to
-hold the scan_mutex in nvme_mpath_clear_ctrl_paths() anymore.
-And we always need to kick the requeue list as the path will be marked
-as unusable and I/O will be requeued _without_ a current path.
+To fix it, the patch reverts the timeout of `wait_for_tpm_stat`
+to 15ms for all Atmel TPM 1.2 chips, but leave it untouched
+for Ateml TPM 2.0 chip, and chips from other vendors.
+As explained above, the chosen 15ms timeout is
+the actual timeout before this issue introduced,
+thus the old value is used here.
+Particularly, TPM_ATML_TIMEOUT_WAIT_STAT_MIN is set to 14700us,
+TPM_ATML_TIMEOUT_WAIT_STAT_MIN is set to 15000us according to
+the existing TPM_TIMEOUT_RANGE_US (300us).
+The fixed has been tested in the system with the affected Atmel chip
+with no issues observed after boot up.
 
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[1] 9f3fc7bcddcb tpm: replace msleep() with usleep_range() in TPM
+1.2/2.0 generic drivers
+[2] cf151a9a44d5 tpm: reduce tpm polling delay in tpm_tis_core
+[3] 59f5a6b07f64 tpm: reduce poll sleep time in tpm_transmit()
+[4] 424eaf910c32 tpm: reduce polling time to usecs for even finer
+granularity
+
+Fixes: 9f3fc7bcddcb ("tpm: replace msleep() with usleep_range() in TPM 1.2/2.0 generic drivers")
+Link: https://patchwork.kernel.org/project/linux-integrity/patch/20200926223150.109645-1-hao.wu@rubrik.com/
+Signed-off-by: Hao Wu <hao.wu@rubrik.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/char/tpm/tpm_tis_core.c | 26 ++++++++++++++++++--------
+ drivers/char/tpm/tpm_tis_core.h |  4 ++++
+ include/linux/tpm.h             |  1 +
+ 3 files changed, 23 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 016a67fd41989..9f01af2f03e68 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -156,13 +156,12 @@ void nvme_mpath_clear_ctrl_paths(struct nvme_ctrl *ctrl)
+diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+index 69579efb247b3..b2659a4c40168 100644
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -48,6 +48,7 @@ static int wait_for_tpm_stat(struct tpm_chip *chip, u8 mask,
+ 		unsigned long timeout, wait_queue_head_t *queue,
+ 		bool check_cancel)
  {
- 	struct nvme_ns *ns;
- 
--	mutex_lock(&ctrl->scan_lock);
- 	down_read(&ctrl->namespaces_rwsem);
--	list_for_each_entry(ns, &ctrl->namespaces, list)
--		if (nvme_mpath_clear_current_path(ns))
--			kblockd_schedule_work(&ns->head->requeue_work);
-+	list_for_each_entry(ns, &ctrl->namespaces, list) {
-+		nvme_mpath_clear_current_path(ns);
-+		kblockd_schedule_work(&ns->head->requeue_work);
++	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
+ 	unsigned long stop;
+ 	long rc;
+ 	u8 status;
+@@ -80,8 +81,8 @@ again:
+ 		}
+ 	} else {
+ 		do {
+-			usleep_range(TPM_TIMEOUT_USECS_MIN,
+-				     TPM_TIMEOUT_USECS_MAX);
++			usleep_range(priv->timeout_min,
++				     priv->timeout_max);
+ 			status = chip->ops->status(chip);
+ 			if ((status & mask) == mask)
+ 				return 0;
+@@ -945,7 +946,22 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+ 	chip->timeout_b = msecs_to_jiffies(TIS_TIMEOUT_B_MAX);
+ 	chip->timeout_c = msecs_to_jiffies(TIS_TIMEOUT_C_MAX);
+ 	chip->timeout_d = msecs_to_jiffies(TIS_TIMEOUT_D_MAX);
++	priv->timeout_min = TPM_TIMEOUT_USECS_MIN;
++	priv->timeout_max = TPM_TIMEOUT_USECS_MAX;
+ 	priv->phy_ops = phy_ops;
++
++	rc = tpm_tis_read32(priv, TPM_DID_VID(0), &vendor);
++	if (rc < 0)
++		goto out_err;
++
++	priv->manufacturer_id = vendor;
++
++	if (priv->manufacturer_id == TPM_VID_ATML &&
++		!(chip->flags & TPM_CHIP_FLAG_TPM2)) {
++		priv->timeout_min = TIS_TIMEOUT_MIN_ATML;
++		priv->timeout_max = TIS_TIMEOUT_MAX_ATML;
 +	}
- 	up_read(&ctrl->namespaces_rwsem);
--	mutex_unlock(&ctrl->scan_lock);
- }
++
+ 	dev_set_drvdata(&chip->dev, priv);
  
- static bool nvme_path_is_disabled(struct nvme_ns *ns)
+ 	if (is_bsw()) {
+@@ -988,12 +1004,6 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+ 	if (rc)
+ 		goto out_err;
+ 
+-	rc = tpm_tis_read32(priv, TPM_DID_VID(0), &vendor);
+-	if (rc < 0)
+-		goto out_err;
+-
+-	priv->manufacturer_id = vendor;
+-
+ 	rc = tpm_tis_read8(priv, TPM_RID(0), &rid);
+ 	if (rc < 0)
+ 		goto out_err;
+diff --git a/drivers/char/tpm/tpm_tis_core.h b/drivers/char/tpm/tpm_tis_core.h
+index b2a3c6c72882d..3be24f221e32a 100644
+--- a/drivers/char/tpm/tpm_tis_core.h
++++ b/drivers/char/tpm/tpm_tis_core.h
+@@ -54,6 +54,8 @@ enum tis_defaults {
+ 	TIS_MEM_LEN = 0x5000,
+ 	TIS_SHORT_TIMEOUT = 750,	/* ms */
+ 	TIS_LONG_TIMEOUT = 2000,	/* 2 sec */
++	TIS_TIMEOUT_MIN_ATML = 14700,	/* usecs */
++	TIS_TIMEOUT_MAX_ATML = 15000,	/* usecs */
+ };
+ 
+ /* Some timeout values are needed before it is known whether the chip is
+@@ -98,6 +100,8 @@ struct tpm_tis_data {
+ 	wait_queue_head_t read_queue;
+ 	const struct tpm_tis_phy_ops *phy_ops;
+ 	unsigned short rng_quality;
++	unsigned int timeout_min; /* usecs */
++	unsigned int timeout_max; /* usecs */
+ };
+ 
+ struct tpm_tis_phy_ops {
+diff --git a/include/linux/tpm.h b/include/linux/tpm.h
+index 804a3f69bbd93..95c3069823f9b 100644
+--- a/include/linux/tpm.h
++++ b/include/linux/tpm.h
+@@ -262,6 +262,7 @@ enum tpm2_cc_attrs {
+ #define TPM_VID_INTEL    0x8086
+ #define TPM_VID_WINBOND  0x1050
+ #define TPM_VID_STM      0x104A
++#define TPM_VID_ATML     0x1114
+ 
+ enum tpm_chip_flags {
+ 	TPM_CHIP_FLAG_TPM2		= BIT(1),
 -- 
 2.33.0
 
