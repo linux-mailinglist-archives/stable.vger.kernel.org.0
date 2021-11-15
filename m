@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77AEF451F09
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:36:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6569451E0F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352871AbhKPAiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:38:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
+        id S1354731AbhKPAfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344520AbhKOTYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344519AbhKOTYy (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:24:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04FE263322;
-        Mon, 15 Nov 2021 18:59:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD901633A7;
+        Mon, 15 Nov 2021 18:59:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002750;
-        bh=SOoSpzREKN29T5NoK7DWwkcHIszVyimxW0AnHBQuNK4=;
+        s=korg; t=1637002753;
+        bh=8wV7+OBJV82c6b93Im8DGC8v6RjDnma5JVmqQY/tLaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKzKRgS493u7RM2am7fIMyNeGd+rYyQ2faXoV0SMB5D5Q9c0uaUzP15CBJ3sCu385
-         67RlWtGqEtHcKJ4XvOdhoQh0HbsC3XLN6tgdASsIqHgpPu3NK2g+ytf5APnqcCP5kz
-         N9OkapO4OvBepP9ORkWlIRXEVU1DR+dMMoKnNfz4=
+        b=Af1+qeMS07xwU+FCoAXZVJ1a5osz7BFUq8fQwKkfLYmk6gLh7H1wDXJAwXi/uNciJ
+         LcvKJKz+1BZmfiA/nWz91SfRKPqGe/KxsL0ZHpSLe+kmsJwQUa/Piz9MSlQAioNQyw
+         HYFaV3CFmqAFEjIGCCxD+JuMKogkAYTwClEEYSbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Haoyue Xu <xuhaoyue1@hisilicon.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 683/917] ASoC: cs42l42: Correct configuring of switch inversion from ts-inv
-Date:   Mon, 15 Nov 2021 18:02:58 +0100
-Message-Id: <20211115165452.060873867@linuxfoundation.org>
+Subject: [PATCH 5.15 684/917] RDMA/hns: Fix initial arm_st of CQ
+Date:   Mon, 15 Nov 2021 18:02:59 +0100
+Message-Id: <20211115165452.094772555@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,83 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Haoyue Xu <xuhaoyue1@hisilicon.com>
 
-[ Upstream commit 778a0cbef5fb76bf506f84938517bb77e7a1c478 ]
+[ Upstream commit 571fb4fb78a3bf0fcadbe65eca9ca4ccee885af4 ]
 
-The setting from the cirrus,ts-inv property should be applied to the
-TIP_SENSE_INV bit, as this is the one that actually affects the jack
-detect block. The TS_INV bit only swaps the meaning of the PLUG and
-UNPLUG interrupts and should always be 1 for the interrupts to have
-the normal meaning.
+We set the init CQ status to ARMED before. As a result, an unexpected CEQE
+would be reported. Therefore, the init CQ status should be set to no_armed
+rather than REG_NXT_CEQE.
 
-Due to some misunderstanding the driver had been implemented to
-configure the TS_INV bit based on the jack switch polarity. This made
-the interrupts behave the correct way around, but left the jack detect
-block, button detect and analogue circuits always interpreting an open
-switch as unplugged.
-
-The signal chain inside the codec is:
-
-SENSE pin -> TIP_SENSE_INV -> TS_INV -> (invert) -> interrupts
-                  |
-                  v
-             Jack detect,
-          button detect and
-            analog control
-
-As the TIP_SENSE_INV already performs the necessary inversion the
-TS_INV bit never needs to change. It must always be 1 to yield the
-expected interrupt behaviour.
-
-Some extra confusion has arisen because of the additional invert in the
-interrupt path, meaning that a value applied to the TS_INV bit produces
-the opposite effect of applying it to the TIP_SENSE_INV bit. The ts-inv
-property has therefore always had the opposite effect to what might be
-expected (0 = inverted, 1 = not inverted). To maintain the meaning of
-the ts-inv property it must be inverted when applied to TIP_SENSE_INV.
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
-Link: https://lore.kernel.org/r/20211028140902.11786-3-rf@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: a5073d6054f7 ("RDMA/hns: Add eq support of hip08")
+Link: https://lore.kernel.org/r/20211029095846.26732-1-liangwenpeng@huawei.com
+Signed-off-by: Haoyue Xu <xuhaoyue1@hisilicon.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index 6034e439d3132..762d9de73dbc2 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -1684,12 +1684,15 @@ static void cs42l42_setup_hs_type_detect(struct cs42l42_private *cs42l42)
- 			(1 << CS42L42_HS_CLAMP_DISABLE_SHIFT));
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index d5f3faa1627a4..8e5f0862896ee 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -3328,7 +3328,7 @@ static void hns_roce_v2_write_cqc(struct hns_roce_dev *hr_dev,
+ 	memset(cq_context, 0, sizeof(*cq_context));
  
- 	/* Enable the tip sense circuit */
-+	regmap_update_bits(cs42l42->regmap, CS42L42_TSENSE_CTL,
-+			   CS42L42_TS_INV_MASK, CS42L42_TS_INV_MASK);
-+
- 	regmap_update_bits(cs42l42->regmap, CS42L42_TIPSENSE_CTL,
- 			CS42L42_TIP_SENSE_CTRL_MASK |
- 			CS42L42_TIP_SENSE_INV_MASK |
- 			CS42L42_TIP_SENSE_DEBOUNCE_MASK,
- 			(3 << CS42L42_TIP_SENSE_CTRL_SHIFT) |
--			(0 << CS42L42_TIP_SENSE_INV_SHIFT) |
-+			(!cs42l42->ts_inv << CS42L42_TIP_SENSE_INV_SHIFT) |
- 			(2 << CS42L42_TIP_SENSE_DEBOUNCE_SHIFT));
- 
- 	/* Save the initial status of the tip sense */
-@@ -1733,10 +1736,6 @@ static int cs42l42_handle_device_data(struct device *dev,
- 		cs42l42->ts_inv = CS42L42_TS_INV_DIS;
- 	}
- 
--	regmap_update_bits(cs42l42->regmap, CS42L42_TSENSE_CTL,
--			CS42L42_TS_INV_MASK,
--			(cs42l42->ts_inv << CS42L42_TS_INV_SHIFT));
--
- 	ret = device_property_read_u32(dev, "cirrus,ts-dbnc-rise", &val);
- 	if (!ret) {
- 		switch (val) {
+ 	hr_reg_write(cq_context, CQC_CQ_ST, V2_CQ_STATE_VALID);
+-	hr_reg_write(cq_context, CQC_ARM_ST, REG_NXT_CEQE);
++	hr_reg_write(cq_context, CQC_ARM_ST, NO_ARMED);
+ 	hr_reg_write(cq_context, CQC_SHIFT, ilog2(hr_cq->cq_depth));
+ 	hr_reg_write(cq_context, CQC_CEQN, hr_cq->vector);
+ 	hr_reg_write(cq_context, CQC_CQN, hr_cq->cqn);
 -- 
 2.33.0
 
