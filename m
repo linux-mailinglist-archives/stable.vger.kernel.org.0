@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1A84451332
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65047451329
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347923AbhKOTso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:48:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
+        id S245172AbhKOTqq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:46:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245449AbhKOTUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6236963537;
-        Mon, 15 Nov 2021 18:34:46 +0000 (UTC)
+        id S245368AbhKOTUM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 744ED63460;
+        Mon, 15 Nov 2021 18:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001286;
-        bh=f9esK1RasxQpv7R2BGTBm0dCNmIs2+CGy3MdlE5gK7A=;
+        s=korg; t=1637001198;
+        bh=b6fcItTklQsN/ZPpPnRAkBWjlRbNKWlzd0HA6lNmv18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0MOrQObbv5Ih+gXZofzEY3UqfjZgkWxUTJpqTI5IVWogHQu98HK2/QgtIKrEqVQuf
-         hO9MvhfKHURVFIXYyiml2fG+KZtC4t9GZbJ9na5zPYJ/WI+/CNiZNTajxbJm+3820C
-         YOn20meeN7r5NR8V9XuQXUUDmh3qWprFEJyl/SP8=
+        b=MJuNUdCv9NCr36/ydx/K7p4KMtI4r2r2f8hrr8b8sojD0jzqwaYZdieZsgtjsW4lv
+         M22nbq0n/SnNCZcGm2H08VikW6pizXNN7ztZpTYsjXoKQgD2WMojbWm/iMrjFwgdn/
+         2cKmtUMV4OHKWBKIBvTMC/MyhYEb0a7MGWtBSXBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
         Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.15 090/917] wcn36xx: Fix tx_status mechanism
-Date:   Mon, 15 Nov 2021 17:53:05 +0100
-Message-Id: <20211115165431.802265004@linuxfoundation.org>
+Subject: [PATCH 5.15 091/917] wcn36xx: Fix (QoS) null data frame bitrate/modulation
+Date:   Mon, 15 Nov 2021 17:53:06 +0100
+Message-Id: <20211115165431.834414389@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,175 +41,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Loic Poulain <loic.poulain@linaro.org>
 
-commit a9e79b116cc4d0057e912be8f40b2c2e5bdc7c43 upstream.
+commit d3fd2c95c1c13ec217d43ebef3c61cfa00a6cd37 upstream.
 
-This change fix the TX ack mechanism in various ways:
+We observe unexpected connection drops with some APs due to
+non-acked mac80211 generated null data frames (keep-alive).
+After debugging and capture, we noticed that null frames are
+submitted at standard data bitrate and that the given APs are
+in trouble with that.
 
-- For NO_ACK tagged packets, we don't need to wait for TX_ACK indication
-and so are not subject to the single packet ack limitation. So we don't
-have to stop the tx queue, and can call the tx status callback as soon
-as DMA transfer has completed.
+After setting the null frame bitrate to control bitrate, all
+null frames are acked as expected and connection is maintained.
 
-- Fix skb ownership/reference. Only start status indication timeout
-once the DMA transfer has been completed. This avoids the skb to be
-both referenced in the DMA tx ring and by the tx_ack_skb pointer,
-preventing any use-after-free or double-free.
-
-- This adds a sanity (paranoia?) check on the skb tx ack pointer.
-
-- Resume TX queue if TX status tagged packet TX fails.
+Not sure if it's a requirement of the specification, but it seems
+the right thing to do anyway, null frames are mostly used for control
+purpose (power-saving, keep-alive...), and submitting them with
+a slower/simpler bitrate/modulation is more robust.
 
 Cc: stable@vger.kernel.org
-Fixes: fdf21cc37149 ("wcn36xx: Add TX ack support")
+Fixes: 512b191d9652 ("wcn36xx: Fix TX data path")
 Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1634567281-28997-1-git-send-email-loic.poulain@linaro.org
+Link: https://lore.kernel.org/r/1634560399-15290-1-git-send-email-loic.poulain@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/wcn36xx/dxe.c  |   37 ++++++++++++--------------------
- drivers/net/wireless/ath/wcn36xx/txrx.c |   31 +++++---------------------
- 2 files changed, 21 insertions(+), 47 deletions(-)
+ drivers/net/wireless/ath/wcn36xx/txrx.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/wireless/ath/wcn36xx/dxe.c
-+++ b/drivers/net/wireless/ath/wcn36xx/dxe.c
-@@ -403,8 +403,21 @@ static void reap_tx_dxes(struct wcn36xx
- 			dma_unmap_single(wcn->dev, ctl->desc->src_addr_l,
- 					 ctl->skb->len, DMA_TO_DEVICE);
- 			info = IEEE80211_SKB_CB(ctl->skb);
--			if (!(info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS)) {
--				/* Keep frame until TX status comes */
-+			if (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS) {
-+				if (info->flags & IEEE80211_TX_CTL_NO_ACK) {
-+					info->flags |= IEEE80211_TX_STAT_NOACK_TRANSMITTED;
-+					ieee80211_tx_status_irqsafe(wcn->hw, ctl->skb);
-+				} else {
-+					/* Wait for the TX ack indication or timeout... */
-+					spin_lock(&wcn->dxe_lock);
-+					if (WARN_ON(wcn->tx_ack_skb))
-+						ieee80211_free_txskb(wcn->hw, wcn->tx_ack_skb);
-+					wcn->tx_ack_skb = ctl->skb; /* Tracking ref */
-+					mod_timer(&wcn->tx_ack_timer, jiffies + HZ / 10);
-+					spin_unlock(&wcn->dxe_lock);
-+				}
-+				/* do not free, ownership transferred to mac80211 status cb */
-+			} else {
- 				ieee80211_free_txskb(wcn->hw, ctl->skb);
- 			}
- 
-@@ -426,7 +439,6 @@ static irqreturn_t wcn36xx_irq_tx_comple
- {
- 	struct wcn36xx *wcn = (struct wcn36xx *)dev;
- 	int int_src, int_reason;
--	bool transmitted = false;
- 
- 	wcn36xx_dxe_read_register(wcn, WCN36XX_DXE_INT_SRC_RAW_REG, &int_src);
- 
-@@ -466,7 +478,6 @@ static irqreturn_t wcn36xx_irq_tx_comple
- 		if (int_reason & (WCN36XX_CH_STAT_INT_DONE_MASK |
- 				  WCN36XX_CH_STAT_INT_ED_MASK)) {
- 			reap_tx_dxes(wcn, &wcn->dxe_tx_h_ch);
--			transmitted = true;
- 		}
- 	}
- 
-@@ -479,7 +490,6 @@ static irqreturn_t wcn36xx_irq_tx_comple
- 					   WCN36XX_DXE_0_INT_CLR,
- 					   WCN36XX_INT_MASK_CHAN_TX_L);
- 
--
- 		if (int_reason & WCN36XX_CH_STAT_INT_ERR_MASK ) {
- 			wcn36xx_dxe_write_register(wcn,
- 						   WCN36XX_DXE_0_INT_ERR_CLR,
-@@ -507,25 +517,8 @@ static irqreturn_t wcn36xx_irq_tx_comple
- 		if (int_reason & (WCN36XX_CH_STAT_INT_DONE_MASK |
- 				  WCN36XX_CH_STAT_INT_ED_MASK)) {
- 			reap_tx_dxes(wcn, &wcn->dxe_tx_l_ch);
--			transmitted = true;
--		}
--	}
--
--	spin_lock(&wcn->dxe_lock);
--	if (wcn->tx_ack_skb && transmitted) {
--		struct ieee80211_tx_info *info = IEEE80211_SKB_CB(wcn->tx_ack_skb);
--
--		/* TX complete, no need to wait for 802.11 ack indication */
--		if (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS &&
--		    info->flags & IEEE80211_TX_CTL_NO_ACK) {
--			info->flags |= IEEE80211_TX_STAT_NOACK_TRANSMITTED;
--			del_timer(&wcn->tx_ack_timer);
--			ieee80211_tx_status_irqsafe(wcn->hw, wcn->tx_ack_skb);
--			wcn->tx_ack_skb = NULL;
--			ieee80211_wake_queues(wcn->hw);
- 		}
- 	}
--	spin_unlock(&wcn->dxe_lock);
- 
- 	return IRQ_HANDLED;
- }
 --- a/drivers/net/wireless/ath/wcn36xx/txrx.c
 +++ b/drivers/net/wireless/ath/wcn36xx/txrx.c
-@@ -502,10 +502,11 @@ int wcn36xx_start_tx(struct wcn36xx *wcn
- 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
- 	struct wcn36xx_vif *vif_priv = NULL;
- 	struct ieee80211_tx_info *info = IEEE80211_SKB_CB(skb);
--	unsigned long flags;
- 	bool is_low = ieee80211_is_data(hdr->frame_control);
- 	bool bcast = is_broadcast_ether_addr(hdr->addr1) ||
- 		is_multicast_ether_addr(hdr->addr1);
-+	bool ack_ind = (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS) &&
-+					!(info->flags & IEEE80211_TX_CTL_NO_ACK);
- 	struct wcn36xx_tx_bd bd;
- 	int ret;
- 
-@@ -521,30 +522,16 @@ int wcn36xx_start_tx(struct wcn36xx *wcn
- 
- 	bd.dpu_rf = WCN36XX_BMU_WQ_TX;
- 
--	if (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS) {
-+	if (unlikely(ack_ind)) {
- 		wcn36xx_dbg(WCN36XX_DBG_DXE, "TX_ACK status requested\n");
- 
--		spin_lock_irqsave(&wcn->dxe_lock, flags);
--		if (wcn->tx_ack_skb) {
--			spin_unlock_irqrestore(&wcn->dxe_lock, flags);
--			wcn36xx_warn("tx_ack_skb already set\n");
--			return -EINVAL;
--		}
--
--		wcn->tx_ack_skb = skb;
--		spin_unlock_irqrestore(&wcn->dxe_lock, flags);
--
- 		/* Only one at a time is supported by fw. Stop the TX queues
- 		 * until the ack status gets back.
- 		 */
- 		ieee80211_stop_queues(wcn->hw);
- 
--		/* TX watchdog if no TX irq or ack indication received  */
--		mod_timer(&wcn->tx_ack_timer, jiffies + HZ / 10);
--
- 		/* Request ack indication from the firmware */
--		if (!(info->flags & IEEE80211_TX_CTL_NO_ACK))
--			bd.tx_comp = 1;
-+		bd.tx_comp = 1;
+@@ -429,6 +429,7 @@ static void wcn36xx_set_tx_data(struct w
+ 	if (ieee80211_is_any_nullfunc(hdr->frame_control)) {
+ 		/* Don't use a regular queue for null packet (no ampdu) */
+ 		bd->queue_id = WCN36XX_TX_U_WQ_ID;
++		bd->bd_rate = WCN36XX_BD_RATE_CTRL;
  	}
  
- 	/* Data frames served first*/
-@@ -558,14 +545,8 @@ int wcn36xx_start_tx(struct wcn36xx *wcn
- 	bd.tx_bd_sign = 0xbdbdbdbd;
- 
- 	ret = wcn36xx_dxe_tx_frame(wcn, vif_priv, &bd, skb, is_low);
--	if (ret && (info->flags & IEEE80211_TX_CTL_REQ_TX_STATUS)) {
--		/* If the skb has not been transmitted,
--		 * don't keep a reference to it.
--		 */
--		spin_lock_irqsave(&wcn->dxe_lock, flags);
--		wcn->tx_ack_skb = NULL;
--		spin_unlock_irqrestore(&wcn->dxe_lock, flags);
--
-+	if (unlikely(ret && ack_ind)) {
-+		/* If the skb has not been transmitted, resume TX queue */
- 		ieee80211_wake_queues(wcn->hw);
- 	}
- 
+ 	if (bcast) {
 
 
