@@ -2,92 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C859C4504C9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 13:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D7FC45051A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 14:12:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231483AbhKONBs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 08:01:48 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:53810 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231446AbhKONBc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 08:01:32 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 04AAB1FD68;
-        Mon, 15 Nov 2021 12:58:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1636981116; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=r9b85ixm3Wrr84TrrDkg6m5Yn89x2LHBBR5D3/ATIsU=;
-        b=cItDF4BLC9Q8h2MyTOTh1IMEeQHVI3vsKo3MRCGdleR+1vB4oa+5MAd0oAQe1P6PKq2lxf
-        UWHo+ZtzJB9dA+VoHVmlE2++lbMeFwr5QsPNGdYilc9wfw6pvXwYCxk1HRMLA+muAoQFRK
-        GnaLuM75i4oBfB1+LRpxx34vXPYxyNI=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S230157AbhKONPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 08:15:37 -0500
+Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:47438
+        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231706AbhKONOf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 08:14:35 -0500
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com [209.85.167.72])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id C9A05A3B88;
-        Mon, 15 Nov 2021 12:58:35 +0000 (UTC)
-Date:   Mon, 15 Nov 2021 13:58:34 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Alexey Makhalov <amakhalov@vmware.com>
-Cc:     Dennis Zhou <dennis@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "cl@linux.com" <cl@linux.com>,
-        "mm-commits@vger.kernel.org" <mm-commits@vger.kernel.org>,
-        "osalvador@suse.de" <osalvador@suse.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "tj@kernel.org" <tj@kernel.org>
-Subject: Re: + mm-fix-panic-in-__alloc_pages.patch added to -mm tree
-Message-ID: <YZJZes9Gz9fe7bCC@dhcp22.suse.cz>
-References: <20211108205031.UxDPHBZWa%akpm@linux-foundation.org>
- <YYozLsIECu0Jnv0p@dhcp22.suse.cz>
- <af7ab3ce-fed2-1ffc-13a8-f9acbd201841@redhat.com>
- <YYpTy9eXZucxuRO/@dhcp22.suse.cz>
- <YY6wZMcx/BeddUnH@fedora>
- <YZI5TEW2BkBjOtC1@dhcp22.suse.cz>
- <B8B7E3FA-6EAB-46B7-95EB-5A31395C8ADE@vmware.com>
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 6A7253F1AD
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 13:11:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1636981899;
+        bh=Ek/Fldzw6HQOPZj1XYTC44c+sdFSqm7+VnT8VkD8Rfw=;
+        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+         MIME-Version:Content-Type;
+        b=drAtQ3p+a8aqyMf0Bb1S9H0Fxbf/UDGo7qxusuX8Iwjzmk3Aut48tOe6Aty2e2N6Z
+         gYBNSJr47ZEhiS+V2cfb3sjU6Sl1Ab7CLztVkhzUkII7mP1m58WXA3wzUp/nwTmLGA
+         FhfavO12MeAAfFub1PBmtGb2roJ8oa9X5tJTE3YMfOdn0zDfVxxF+Kn33CIo4JGKhn
+         WvVJhaxDFJXHJ3k9ra5vZ9qCddVSi14tqBSmxBYN1/KP0/qOpLdhOus3NAaUCsgAQa
+         x+qmuhaCxcl6REge/haKJhVxHcLx9y63MXvPC+XXGt0TF8Q2nADXgQ8oKjJXWh0eEn
+         +vjXkRlmzCsNw==
+Received: by mail-lf1-f72.google.com with SMTP id s18-20020ac25c52000000b004016bab6a12so6726548lfp.21
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 05:11:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Ek/Fldzw6HQOPZj1XYTC44c+sdFSqm7+VnT8VkD8Rfw=;
+        b=pIF6U7aP6ploTu8Rv+kg9OWb7zO3QkepUfJD5QHgfNRxdXKwHm8kCA5ukNEopDIhDT
+         E94Fg4LrcRNJlJO2yHGb2ajsKrw5tG3Yel292XSd7o5Kg+yUNVPxrZ9KAOGvgTWduxVu
+         ptWvtcNMEJd4KTZsb2yOL8ll0Q3vwxHsDleEQuAKU9NNWbDHuOFClgQaK7riNrmId83h
+         3EJlK0VlYdWALzLgSujVhbieLv1Q89YBKGnN5EIDjey3zOT0E8VF4IgabNZZWJGpGi8f
+         iqlTiGdHp8eh/ifQUCLvWkM557GLsH69ywxRmfrle/gCTv64Q/LDTx868QWkpz+TpwnU
+         /YXw==
+X-Gm-Message-State: AOAM533oQ4HX0cj5wa8anf2mFHBhIBgNdnOQIhSBZBjchFd4aTfBlPoz
+        dbB/NK+BGCtLW/+X/zhArRd413U/Z2ragwko3iiCLkyG96n8cAW9jTVhH+PpE4M3dI0PfEhszd0
+        MEgeP5Zs8bDUtEjFEw3YH0E/XZ+9AwztTeA==
+X-Received: by 2002:a2e:8143:: with SMTP id t3mr38123511ljg.18.1636981898877;
+        Mon, 15 Nov 2021 05:11:38 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwEgeHAM0nYXXWQdsOhrhSNd86XLgS1t7Bl6YTvfQwwvZk1C4SUKQ+X8kW2UH5L8O81hyXlNA==
+X-Received: by 2002:a2e:8143:: with SMTP id t3mr38123497ljg.18.1636981898738;
+        Mon, 15 Nov 2021 05:11:38 -0800 (PST)
+Received: from krzk-bin.lan (89-77-68-124.dynamic.chello.pl. [89.77.68.124])
+        by smtp.gmail.com with ESMTPSA id p21sm1411254lfa.289.2021.11.15.05.11.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Nov 2021 05:11:38 -0800 (PST)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Paul Cercueil <paul@crapouillou.net>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] ARM: dts: exynos/i9100: Fix BCM4330 Bluetooth reset polarity
+Date:   Mon, 15 Nov 2021 14:11:33 +0100
+Message-Id: <163698188786.128367.17376497674811914207.b4-ty@canonical.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20211031234137.87070-1-paul@crapouillou.net>
+References: <20211031234137.87070-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <B8B7E3FA-6EAB-46B7-95EB-5A31395C8ADE@vmware.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon 15-11-21 11:04:16, Alexey Makhalov wrote:
-> Hi Michal,
+On Sun, 31 Oct 2021 23:41:36 +0000, Paul Cercueil wrote:
+> The reset GPIO was marked active-high, which is against what's specified
+> in the documentation. Mark the reset GPIO as active-low. With this
+> change, Bluetooth can now be used on the i9100.
 > 
-> > 
-> > I have asked several times for details about the specific setup that has
-> > led to the reported crash. Without much success so far. Reproduction
-> > steps would be the first step. That would allow somebody to work on this
-> > at least if Alexey doesn't have time to dive into this deeper.
-> > 
 > 
-> I didn’t know that repro steps are still not clear.
-> 
-> To reproduce the panic you need to have a system, where you can hot add
-> the CPU that belongs to memoryless NUMA node which is not present and onlined
-> yet. In other words, by hot adding CPU, you will add both CPU and NUMA node
-> at the same time.
 
-There seems to be something different in your setup because memory less
-nodes have reportedly worked on x86. I suspect something must be
-different in your setup. Maybe it is that you are adding a cpu that is
-outside of possible cpus intialized during boot time. Those should have
-their nodes initialized properly - at least per init_cpu_to_node. Your
-report doesn't really explain how the cpu is hotadded. Maybe you are
-trying to do something that has never been supported on x86.
+Applied, thanks!
 
-It would be really great if you can provide more information in the
-original email thread. E.g. boot time messges and then more details
-about the hotplug operation as well (e.g. which cpu, the node
-association, how it is injected to the guest etc.).
+[1/2] ARM: dts: exynos/i9100: Fix BCM4330 Bluetooth reset polarity
+      commit: 9cb6de45a006a9799ec399bce60d64b6d4fcc4af
+[2/2] ARM: dts: exynos/i9100: Use interrupt for BCM4330 host wakeup
+      commit: 8e14b530f8c90346eab43c7b59b03ff9fec7d171
 
-Thanks!
+Best regards,
 -- 
-Michal Hocko
-SUSE Labs
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
