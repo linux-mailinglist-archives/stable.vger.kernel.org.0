@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B74450EC5
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8975A450C8C
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:37:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241270AbhKOSTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:19:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55788 "EHLO mail.kernel.org"
+        id S237803AbhKORjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:39:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240965AbhKOSO0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:14:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03701611F0;
-        Mon, 15 Nov 2021 17:48:59 +0000 (UTC)
+        id S237979AbhKORfN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:35:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 799A760234;
+        Mon, 15 Nov 2021 17:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998540;
-        bh=/a7Z00H5PbfE8AV+PwW5T2qKvETJtxk1BR1xvqD4DAU=;
+        s=korg; t=1636997027;
+        bh=1c6xo6ur1zCt/RABEDEanKYB3hG29xvE5sHUynz05Cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+aX1OF3yfUbZFJQSEpd/YGJmCntGA4FML2W+WylzVstoDJpjCozqkiGrILY4eLUW
-         nsvWjF1NwzfXLxI531a36E1ucEYQd7qoAQkeDv3z5c6aAqph4Cw2Mx5Mvp4gHbRCn8
-         rDgEU8F/TXKn4/71g8VY2zG+S1R/dCuDq/0gWxQY=
+        b=tfZw7lVCrTDPQIdxALp35IKRcc7Uv2vqq0yL4LNOIpNJ2XCpsy5vBOgPpZO8SQdOC
+         TePaglDNaOyFn7O3S9EgSgJUeRmfA6l74anqCnWzh8h9cblyWyHsVeC9cf6JXnzrqP
+         N9FFeti/z4DuP+AnthZF7QoBCMnBydEwOu3WR/JQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 547/575] net, neigh: Enable state migration between NUD_PERMANENT and NTF_USE
+        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Roman Gushchin <guro@fb.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 348/355] mm, oom: do not trigger out_of_memory from the #PF
 Date:   Mon, 15 Nov 2021 18:04:32 +0100
-Message-Id: <20211115165402.599011827@linuxfoundation.org>
+Message-Id: <20211115165325.007641772@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,163 +49,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Michal Hocko <mhocko@suse.com>
 
-[ Upstream commit 3dc20f4762c62d3b3f0940644881ed818aa7b2f5 ]
+commit 60e2793d440a3ec95abb5d6d4fc034a4b480472d upstream.
 
-Currently, it is not possible to migrate a neighbor entry between NUD_PERMANENT
-state and NTF_USE flag with a dynamic NUD state from a user space control plane.
-Similarly, it is not possible to add/remove NTF_EXT_LEARNED flag from an existing
-neighbor entry in combination with NTF_USE flag.
+Any allocation failure during the #PF path will return with VM_FAULT_OOM
+which in turn results in pagefault_out_of_memory.  This can happen for 2
+different reasons.  a) Memcg is out of memory and we rely on
+mem_cgroup_oom_synchronize to perform the memcg OOM handling or b)
+normal allocation fails.
 
-This is due to the latter directly calling into neigh_event_send() without any
-meta data updates as happening in __neigh_update(). Thus, to enable this use
-case, extend the latter with a NEIGH_UPDATE_F_USE flag where we break the
-NUD_PERMANENT state in particular so that a latter neigh_event_send() is able
-to re-resolve a neighbor entry.
+The latter is quite problematic because allocation paths already trigger
+out_of_memory and the page allocator tries really hard to not fail
+allocations.  Anyway, if the OOM killer has been already invoked there
+is no reason to invoke it again from the #PF path.  Especially when the
+OOM condition might be gone by that time and we have no way to find out
+other than allocate.
 
-Before fix, NUD_PERMANENT -> NUD_* & NTF_USE:
+Moreover if the allocation failed and the OOM killer hasn't been invoked
+then we are unlikely to do the right thing from the #PF context because
+we have already lost the allocation context and restictions and
+therefore might oom kill a task from a different NUMA domain.
 
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
-  [...]
+This all suggests that there is no legitimate reason to trigger
+out_of_memory from pagefault_out_of_memory so drop it.  Just to be sure
+that no #PF path returns with VM_FAULT_OOM without allocation print a
+warning that this is happening before we restart the #PF.
 
-As can be seen, despite the admin-triggered replace, the entry remains in the
-NUD_PERMANENT state.
+[VvS: #PF allocation can hit into limit of cgroup v1 kmem controller.
+This is a local problem related to memcg, however, it causes unnecessary
+global OOM kills that are repeated over and over again and escalate into a
+real disaster.  This has been broken since kmem accounting has been
+introduced for cgroup v1 (3.8).  There was no kmem specific reclaim for
+the separate limit so the only way to handle kmem hard limit was to return
+with ENOMEM.  In upstream the problem will be fixed by removing the
+outdated kmem limit, however stable and LTS kernels cannot do it and are
+still affected.  This patch fixes the problem and should be backported
+into stable/LTS.]
 
-After fix, NUD_PERMANENT -> NUD_* & NTF_USE:
-
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a extern_learn REACHABLE
-  [...]
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a extern_learn STALE
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a PERMANENT
-  [...]
-
-After the fix, the admin-triggered replace switches to a dynamic state from
-the NTF_USE flag which triggered a new neighbor resolution. Likewise, we can
-transition back from there, if needed, into NUD_PERMANENT.
-
-Similar before/after behavior can be observed for below transitions:
-
-Before fix, NTF_USE -> NTF_USE | NTF_EXT_LEARNED -> NTF_USE:
-
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
-  [...]
-
-After fix, NTF_USE -> NTF_USE | NTF_EXT_LEARNED -> NTF_USE:
-
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use extern_learn
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a extern_learn REACHABLE
-  [...]
-  # ./ip/ip n replace 192.168.178.30 dev enp5s0 use
-  # ./ip/ip n
-  192.168.178.30 dev enp5s0 lladdr f4:8c:50:5e:71:9a REACHABLE
-  [..]
-
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Roopa Prabhu <roopa@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/f5fd8dd8-0ad4-c524-5f65-920b01972a42@virtuozzo.com
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/neighbour.h |  1 +
- net/core/neighbour.c    | 22 +++++++++++++---------
- 2 files changed, 14 insertions(+), 9 deletions(-)
+ mm/oom_kill.c |   22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
 
-diff --git a/include/net/neighbour.h b/include/net/neighbour.h
-index 990f9b1d17092..d5767e25509cc 100644
---- a/include/net/neighbour.h
-+++ b/include/net/neighbour.h
-@@ -253,6 +253,7 @@ static inline void *neighbour_priv(const struct neighbour *n)
- #define NEIGH_UPDATE_F_OVERRIDE			0x00000001
- #define NEIGH_UPDATE_F_WEAK_OVERRIDE		0x00000002
- #define NEIGH_UPDATE_F_OVERRIDE_ISROUTER	0x00000004
-+#define NEIGH_UPDATE_F_USE			0x10000000
- #define NEIGH_UPDATE_F_EXT_LEARNED		0x20000000
- #define NEIGH_UPDATE_F_ISROUTER			0x40000000
- #define NEIGH_UPDATE_F_ADMIN			0x80000000
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 01e243a578e9c..8eec7667aa761 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -1222,7 +1222,7 @@ static void neigh_update_hhs(struct neighbour *neigh)
- 				lladdr instead of overriding it
- 				if it is different.
- 	NEIGH_UPDATE_F_ADMIN	means that the change is administrative.
--
-+	NEIGH_UPDATE_F_USE	means that the entry is user triggered.
- 	NEIGH_UPDATE_F_OVERRIDE_ISROUTER allows to override existing
- 				NTF_ROUTER flag.
- 	NEIGH_UPDATE_F_ISROUTER	indicates if the neighbour is known as
-@@ -1260,6 +1260,12 @@ static int __neigh_update(struct neighbour *neigh, const u8 *lladdr,
- 		goto out;
- 
- 	ext_learn_change = neigh_update_ext_learned(neigh, flags, &notify);
-+	if (flags & NEIGH_UPDATE_F_USE) {
-+		new = old & ~NUD_PERMANENT;
-+		neigh->nud_state = new;
-+		err = 0;
-+		goto out;
-+	}
- 
- 	if (!(new & NUD_VALID)) {
- 		neigh_del_timer(neigh);
-@@ -1971,22 +1977,20 @@ static int neigh_add(struct sk_buff *skb, struct nlmsghdr *nlh,
- 
- 	if (protocol)
- 		neigh->protocol = protocol;
--
- 	if (ndm->ndm_flags & NTF_EXT_LEARNED)
- 		flags |= NEIGH_UPDATE_F_EXT_LEARNED;
--
- 	if (ndm->ndm_flags & NTF_ROUTER)
- 		flags |= NEIGH_UPDATE_F_ISROUTER;
-+	if (ndm->ndm_flags & NTF_USE)
-+		flags |= NEIGH_UPDATE_F_USE;
- 
--	if (ndm->ndm_flags & NTF_USE) {
-+	err = __neigh_update(neigh, lladdr, ndm->ndm_state, flags,
-+			     NETLINK_CB(skb).portid, extack);
-+	if (!err && ndm->ndm_flags & NTF_USE) {
- 		neigh_event_send(neigh, NULL);
- 		err = 0;
--	} else
--		err = __neigh_update(neigh, lladdr, ndm->ndm_state, flags,
--				     NETLINK_CB(skb).portid, extack);
--
-+	}
- 	neigh_release(neigh);
--
- out:
- 	return err;
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -1114,19 +1114,15 @@ bool out_of_memory(struct oom_control *o
  }
--- 
-2.33.0
-
+ 
+ /*
+- * The pagefault handler calls here because it is out of memory, so kill a
+- * memory-hogging task. If oom_lock is held by somebody else, a parallel oom
+- * killing is already in progress so do nothing.
++ * The pagefault handler calls here because some allocation has failed. We have
++ * to take care of the memcg OOM here because this is the only safe context without
++ * any locks held but let the oom killer triggered from the allocation context care
++ * about the global OOM.
+  */
+ void pagefault_out_of_memory(void)
+ {
+-	struct oom_control oc = {
+-		.zonelist = NULL,
+-		.nodemask = NULL,
+-		.memcg = NULL,
+-		.gfp_mask = 0,
+-		.order = 0,
+-	};
++	static DEFINE_RATELIMIT_STATE(pfoom_rs, DEFAULT_RATELIMIT_INTERVAL,
++				      DEFAULT_RATELIMIT_BURST);
+ 
+ 	if (mem_cgroup_oom_synchronize(true))
+ 		return;
+@@ -1134,8 +1130,6 @@ void pagefault_out_of_memory(void)
+ 	if (fatal_signal_pending(current))
+ 		return;
+ 
+-	if (!mutex_trylock(&oom_lock))
+-		return;
+-	out_of_memory(&oc);
+-	mutex_unlock(&oom_lock);
++	if (__ratelimit(&pfoom_rs))
++		pr_warn("Huh VM_FAULT_OOM leaked out to the #PF handler. Retrying PF\n");
+ }
 
 
