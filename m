@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4FD7450E78
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D230450B79
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240453AbhKOSPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:15:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48896 "EHLO mail.kernel.org"
+        id S237517AbhKORYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:24:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237871AbhKOSHk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D6FC633A3;
-        Mon, 15 Nov 2021 17:45:14 +0000 (UTC)
+        id S237650AbhKORXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:23:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E429063240;
+        Mon, 15 Nov 2021 17:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998314;
-        bh=ADHbm9tkL3dpj9g2koIZ4omVwSXINSycWEYnU9THtDk=;
+        s=korg; t=1636996694;
+        bh=H4icoZxf+aEi423UyqpTf4V9KTuK0B23P7wPlNXWHgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gno4iEcoRb+E+sNaUij4hBluNCPy7IgW30QQd4rclh8GeQtSj636Uq9Q0s4cZ2mcu
-         giuxC9VeDv/DT/jBvcpdCWtS+3b/eKv1NXC5Yqysd/7lUIFK06VlGu9Gtoz8Jc10PT
-         XcW/4s7okD45I4/ClkdvGtAECOhGDUN9eJ2+ymI8=
+        b=KMzgpsC3yHrDxKxKhmhirsaJR3MTJ6XYyVPPA0Ex6HR0oTZLzyCh9Z0QyEapQR2S7
+         w0oi+1CEjyA47jMC090W2h6XPpRZ1CxUFe/wI/uAJ9y+JSWY7ViAg8J/TK4QSu/8Dz
+         CSNA1bgOtxAJ6UaeHbWjzKwvhQ1Mi/zQw461j354=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Gromm <christian.gromm@microchip.com>,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 432/575] staging: most: dim2: do not double-register the same device
+Subject: [PATCH 5.4 233/355] phy: micrel: ksz8041nl: do not use power down mode
 Date:   Mon, 15 Nov 2021 18:02:37 +0100
-Message-Id: <20211115165358.722584878@linuxfoundation.org>
+Message-Id: <20211115165321.291580696@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,187 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+From: Stefan Agner <stefan@agner.ch>
 
-[ Upstream commit 2ab189164056b05474275bb40caa038a37713061 ]
+[ Upstream commit 2641b62d2fab52648e34cdc6994b2eacde2d27c1 ]
 
-Commit 723de0f9171e ("staging: most: remove device from interface
-structure") moved registration of driver-provided struct device to
-the most subsystem.
+Some Micrel KSZ8041NL PHY chips exhibit continuous RX errors after using
+the power down mode bit (0.11). If the PHY is taken out of power down
+mode in a certain temperature range, the PHY enters a weird state which
+leads to continuously reporting RX errors. In that state, the MAC is not
+able to receive or send any Ethernet frames and the activity LED is
+constantly blinking. Since Linux is using the suspend callback when the
+interface is taken down, ending up in that state can easily happen
+during a normal startup.
 
-Dim2 used to register the same struct device to provide a custom device
-attribute. This causes double-registration of the same struct device.
+Micrel confirmed the issue in errata DS80000700A [*], caused by abnormal
+clock recovery when using power down mode. Even the latest revision (A4,
+Revision ID 0x1513) seems to suffer that problem, and according to the
+errata is not going to be fixed.
 
-Fix that by moving the custom attribute to driver's dev_groups.
-This moves attribute to the platform_device object, which is a better
-location for platform-specific attributes anyway.
+Remove the suspend/resume callback to avoid using the power down mode
+completely.
 
-Fixes: 723de0f9171e ("staging: most: remove device from interface structure")
-Acked-by: Christian Gromm <christian.gromm@microchip.com>
-Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Link: https://lore.kernel.org/r/20211011061117.21435-1-nikita.yoush@cogentembedded.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[*] https://ww1.microchip.com/downloads/en/DeviceDoc/80000700A.pdf
+
+Fixes: 1a5465f5d6a2 ("phy/micrel: Add suspend/resume support to Micrel PHYs")
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Acked-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/most/dim2/Makefile |  2 +-
- drivers/staging/most/dim2/dim2.c   | 24 ++++++++-------
- drivers/staging/most/dim2/sysfs.c  | 49 ------------------------------
- drivers/staging/most/dim2/sysfs.h  | 11 -------
- 4 files changed, 14 insertions(+), 72 deletions(-)
- delete mode 100644 drivers/staging/most/dim2/sysfs.c
+ drivers/net/phy/micrel.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/most/dim2/Makefile b/drivers/staging/most/dim2/Makefile
-index 861adacf6c729..5f9612af3fa3c 100644
---- a/drivers/staging/most/dim2/Makefile
-+++ b/drivers/staging/most/dim2/Makefile
-@@ -1,4 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0
- obj-$(CONFIG_MOST_DIM2) += most_dim2.o
- 
--most_dim2-objs := dim2.o hal.o sysfs.o
-+most_dim2-objs := dim2.o hal.o
-diff --git a/drivers/staging/most/dim2/dim2.c b/drivers/staging/most/dim2/dim2.c
-index b34e3c130f53f..8c2f384233aab 100644
---- a/drivers/staging/most/dim2/dim2.c
-+++ b/drivers/staging/most/dim2/dim2.c
-@@ -115,7 +115,8 @@ struct dim2_platform_data {
- 	(((p)[1] == 0x18) && ((p)[2] == 0x05) && ((p)[3] == 0x0C) && \
- 	 ((p)[13] == 0x3C) && ((p)[14] == 0x00) && ((p)[15] == 0x0A))
- 
--bool dim2_sysfs_get_state_cb(void)
-+static ssize_t state_show(struct device *dev, struct device_attribute *attr,
-+			  char *buf)
- {
- 	bool state;
- 	unsigned long flags;
-@@ -124,9 +125,18 @@ bool dim2_sysfs_get_state_cb(void)
- 	state = dim_get_lock_state();
- 	spin_unlock_irqrestore(&dim_lock, flags);
- 
--	return state;
-+	return sysfs_emit(buf, "%s\n", state ? "locked" : "");
- }
- 
-+static DEVICE_ATTR_RO(state);
-+
-+static struct attribute *dim2_attrs[] = {
-+	&dev_attr_state.attr,
-+	NULL,
-+};
-+
-+ATTRIBUTE_GROUPS(dim2);
-+
- /**
-  * dimcb_on_error - callback from HAL to report miscommunication between
-  * HDM and HAL
-@@ -863,16 +873,8 @@ static int dim2_probe(struct platform_device *pdev)
- 		goto err_stop_thread;
- 	}
- 
--	ret = dim2_sysfs_probe(&dev->dev);
--	if (ret) {
--		dev_err(&pdev->dev, "failed to create sysfs attribute\n");
--		goto err_unreg_iface;
--	}
--
- 	return 0;
- 
--err_unreg_iface:
--	most_deregister_interface(&dev->most_iface);
- err_stop_thread:
- 	kthread_stop(dev->netinfo_task);
- err_shutdown_dim:
-@@ -895,7 +897,6 @@ static int dim2_remove(struct platform_device *pdev)
- 	struct dim2_hdm *dev = platform_get_drvdata(pdev);
- 	unsigned long flags;
- 
--	dim2_sysfs_destroy(&dev->dev);
- 	most_deregister_interface(&dev->most_iface);
- 	kthread_stop(dev->netinfo_task);
- 
-@@ -1079,6 +1080,7 @@ static struct platform_driver dim2_driver = {
- 	.driver = {
- 		.name = "hdm_dim2",
- 		.of_match_table = dim2_of_match,
-+		.dev_groups = dim2_groups,
- 	},
- };
- 
-diff --git a/drivers/staging/most/dim2/sysfs.c b/drivers/staging/most/dim2/sysfs.c
-deleted file mode 100644
-index c85b2cdcdca3d..0000000000000
---- a/drivers/staging/most/dim2/sysfs.c
-+++ /dev/null
-@@ -1,49 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- * sysfs.c - MediaLB sysfs information
-- *
-- * Copyright (C) 2015, Microchip Technology Germany II GmbH & Co. KG
-- */
--
--/* Author: Andrey Shvetsov <andrey.shvetsov@k2l.de> */
--
--#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--
--#include <linux/kernel.h>
--#include "sysfs.h"
--#include <linux/device.h>
--
--static ssize_t state_show(struct device *dev, struct device_attribute *attr,
--			  char *buf)
--{
--	bool state = dim2_sysfs_get_state_cb();
--
--	return sprintf(buf, "%s\n", state ? "locked" : "");
--}
--
--static DEVICE_ATTR_RO(state);
--
--static struct attribute *dev_attrs[] = {
--	&dev_attr_state.attr,
--	NULL,
--};
--
--static struct attribute_group dev_attr_group = {
--	.attrs = dev_attrs,
--};
--
--static const struct attribute_group *dev_attr_groups[] = {
--	&dev_attr_group,
--	NULL,
--};
--
--int dim2_sysfs_probe(struct device *dev)
--{
--	dev->groups = dev_attr_groups;
--	return device_register(dev);
--}
--
--void dim2_sysfs_destroy(struct device *dev)
--{
--	device_unregister(dev);
--}
-diff --git a/drivers/staging/most/dim2/sysfs.h b/drivers/staging/most/dim2/sysfs.h
-index 24277a17cff3d..09115cf4ed00e 100644
---- a/drivers/staging/most/dim2/sysfs.h
-+++ b/drivers/staging/most/dim2/sysfs.h
-@@ -16,15 +16,4 @@ struct medialb_bus {
- 	struct kobject kobj_group;
- };
- 
--struct device;
--
--int dim2_sysfs_probe(struct device *dev);
--void dim2_sysfs_destroy(struct device *dev);
--
--/*
-- * callback,
-- * must deliver MediaLB state as true if locked or false if unlocked
-- */
--bool dim2_sysfs_get_state_cb(void);
--
- #endif	/* DIM2_SYSFS_H */
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index f95bd1b0fb965..0b61d80ea3f8c 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -1040,8 +1040,9 @@ static struct phy_driver ksphy_driver[] = {
+ 	.get_sset_count = kszphy_get_sset_count,
+ 	.get_strings	= kszphy_get_strings,
+ 	.get_stats	= kszphy_get_stats,
+-	.suspend	= genphy_suspend,
+-	.resume		= genphy_resume,
++	/* No suspend/resume callbacks because of errata DS80000700A,
++	 * receiver error following software power down.
++	 */
+ }, {
+ 	.phy_id		= PHY_ID_KSZ8041RNLI,
+ 	.phy_id_mask	= MICREL_PHY_ID_MASK,
 -- 
 2.33.0
 
