@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFCAC451ECF
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 671B1451E4B
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348373AbhKPAhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:37:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
+        id S1354010AbhKPAff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:35:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344752AbhKOTZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7845636C0;
-        Mon, 15 Nov 2021 19:03:34 +0000 (UTC)
+        id S1344773AbhKOTZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F61D632BA;
+        Mon, 15 Nov 2021 19:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003015;
-        bh=8bDGvoSyHvDXo5J+QqQ8W/ecn5Z6tflt710eGK2CQQE=;
+        s=korg; t=1637003045;
+        bh=pxom9vosKScpUwhdgZI+48w0Pp+NciKsrG3hUVGrJ4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=teT/EIxh2/sVKoR1lkPNVmjnpe5neOrvyv3MxUsyLVQSnmnk9lOZeyIuKlsK87bUR
-         DKxfQsUgIHGNaN/UX4HMwl4FlqmW73JKbHN2NN1wZAJoBaLJqaWziQIXQdLbqZT5Yl
-         M1cd05c+NLZtKB/hISk2m3yEA1KOcBCoINs0CbPU=
+        b=MPViswDRGavTPE06Tf7BYQeK0PCYb72ou0xPe9JUZLFcePgyK+6D9xdSABf4BnJrT
+         rNRN/YwW6JQaHgAYioUxMNLyBld5sx4Yf141DWt8YL5bG85FQgERxg0rxIEU2mv0Dt
+         i7o87V+SEV+VyKU7f16Hi1MEmLYgPLtJBgFt7lpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po Liu <po.liu@nxp.com>,
-        Yangbo Lu <yangbo.lu@nxp.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Tony Brelinski <tony.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 772/917] net: dsa: felix: fix broken VLAN-tagged PTP under VLAN-aware bridge
-Date:   Mon, 15 Nov 2021 18:04:27 +0100
-Message-Id: <20211115165455.120441376@linuxfoundation.org>
+Subject: [PATCH 5.15 773/917] ice: Fix replacing VF hardware MAC to existing MAC filter
+Date:   Mon, 15 Nov 2021 18:04:28 +0100
+Message-Id: <20211115165455.153844055@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,181 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
 
-[ Upstream commit 92f62485b3715882cd397b0cbd80a96d179b86d6 ]
+[ Upstream commit ce572a5b88d5ca6737b5e23da9892792fd708ad3 ]
 
-Normally it is expected that the dsa_device_ops :: rcv() method finishes
-parsing the DSA tag and consumes it, then never looks at it again.
+VF was not able to change its hardware MAC address in case
+the new address was already present in the MAC filter list.
+Change the handling of VF add mac request to not return
+if requested MAC address is already present on the list
+and check if its hardware MAC needs to be updated in this case.
 
-But commit c0bcf537667c ("net: dsa: ocelot: add hardware timestamping
-support for Felix") added support for RX timestamping in a very
-unconventional way. On this switch, a partial timestamp is available in
-the DSA header, but the driver got away with not parsing that timestamp
-right away, but instead delayed that parsing for a little longer:
-
-dsa_switch_rcv():
-	nskb = cpu_dp->rcv(skb, dev); <------------- not here
-	-> ocelot_rcv()
-	...
-
-	skb = nskb;
-	skb_push(skb, ETH_HLEN);
-	skb->pkt_type = PACKET_HOST;
-	skb->protocol = eth_type_trans(skb, skb->dev);
-
-	...
-
-	if (dsa_skb_defer_rx_timestamp(p, skb)) <--- but here
-	-> felix_rxtstamp()
-		return 0;
-
-When in felix_rxtstamp(), this driver accounted for the fact that
-eth_type_trans() happened in the meanwhile, so it got a hold of the
-extraction header again by subtracting (ETH_HLEN + OCELOT_TAG_LEN) bytes
-from the current skb->data.
-
-This worked for quite some time but was quite fragile from the very
-beginning. Not to mention that having DSA tag parsing split in two
-different files, under different folders (net/dsa/tag_ocelot.c vs
-drivers/net/dsa/ocelot/felix.c) made it quite non-obvious for patches to
-come that they might break this.
-
-Finally, the blamed commit does the following: at the end of
-ocelot_rcv(), it checks whether the skb payload contains a VLAN header.
-If it does, and this port is under a VLAN-aware bridge, that VLAN ID
-might not be correct in the sense that the packet might have suffered
-VLAN rewriting due to TCAM rules (VCAP IS1). So we consume the VLAN ID
-from the skb payload using __skb_vlan_pop(), and take the classified
-VLAN ID from the DSA tag, and construct a hwaccel VLAN tag with the
-classified VLAN, and the skb payload is VLAN-untagged.
-
-The big problem is that __skb_vlan_pop() does:
-
-	memmove(skb->data + VLAN_HLEN, skb->data, 2 * ETH_ALEN);
-	__skb_pull(skb, VLAN_HLEN);
-
-aka it moves the Ethernet header 4 bytes to the right, and pulls 4 bytes
-from the skb headroom (effectively also moving skb->data, by definition).
-So for felix_rxtstamp()'s fragile logic, all bets are off now.
-Instead of having the "extraction" pointer point to the DSA header,
-it actually points to 4 bytes _inside_ the extraction header.
-Corollary, the last 4 bytes of the "extraction" header are in fact 4
-stale bytes of the destination MAC address from the Ethernet header,
-from prior to the __skb_vlan_pop() movement.
-
-So of course, RX timestamps are completely bogus when the system is
-configured in this way.
-
-The fix is actually very simple: just don't structure the code like that.
-For better or worse, the DSA PTP timestamping API does not offer a
-straightforward way for drivers to present their RX timestamps, but
-other drivers (sja1105) have established a simple mechanism to carry
-their RX timestamp from dsa_device_ops :: rcv() all the way to
-dsa_switch_ops :: port_rxtstamp() and even later. That mechanism is to
-simply save the partial timestamp to the skb->cb, and complete it later.
-
-Question: why don't we simply populate the skb's struct
-skb_shared_hwtstamps from ocelot_rcv(), and bother with this
-complication of propagating the timestamp to felix_rxtstamp()?
-
-Answer: dsa_switch_ops :: port_rxtstamp() answers the question whether
-PTP packets need sleepable context to retrieve the full RX timestamp.
-Currently felix_rxtstamp() answers "no, thanks" to that question, and
-calls ocelot_ptp_gettime64() from softirq atomic context. This is
-understandable, since Felix VSC9959 is a PCIe memory-mapped switch, so
-hardware access does not require sleeping. But the felix driver is
-preparing for the introduction of other switches where hardware access
-is over a slow bus like SPI or MDIO:
-https://lore.kernel.org/lkml/20210814025003.2449143-1-colin.foster@in-advantage.com/
-
-So I would like to keep this code structure, so the rework needed when
-that driver will need PTP support will be minimal (answer "yes, I need
-deferred context for this skb's RX timestamp", then the partial
-timestamp will still be found in the skb->cb.
-
-Fixes: ea440cd2d9b2 ("net: dsa: tag_ocelot: use VLAN information from tagging header when available")
-Reported-by: Po Liu <po.liu@nxp.com>
-Cc: Yangbo Lu <yangbo.lu@nxp.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ed4c068d46f6 ("ice: Enable ip link show on the PF to display VF unicast MAC(s)")
+Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/ocelot/felix.c | 9 +++------
- include/linux/dsa/ocelot.h     | 1 +
- net/dsa/tag_ocelot.c           | 3 +++
- 3 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/dsa/ocelot/felix.c b/drivers/net/dsa/ocelot/felix.c
-index 341236dcbdb47..6873d5a253afb 100644
---- a/drivers/net/dsa/ocelot/felix.c
-+++ b/drivers/net/dsa/ocelot/felix.c
-@@ -1368,12 +1368,12 @@ out:
- static bool felix_rxtstamp(struct dsa_switch *ds, int port,
- 			   struct sk_buff *skb, unsigned int type)
- {
--	u8 *extraction = skb->data - ETH_HLEN - OCELOT_TAG_LEN;
-+	u32 tstamp_lo = OCELOT_SKB_CB(skb)->tstamp_lo;
- 	struct skb_shared_hwtstamps *shhwtstamps;
- 	struct ocelot *ocelot = ds->priv;
--	u32 tstamp_lo, tstamp_hi;
- 	struct timespec64 ts;
--	u64 tstamp, val;
-+	u32 tstamp_hi;
-+	u64 tstamp;
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+index a827c6b653a38..9f5da506d8f4b 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+@@ -3762,6 +3762,7 @@ ice_vc_add_mac_addr(struct ice_vf *vf, struct ice_vsi *vsi,
+ 	struct device *dev = ice_pf_to_dev(vf->pf);
+ 	u8 *mac_addr = vc_ether_addr->addr;
+ 	enum ice_status status;
++	int ret = 0;
  
- 	/* If the "no XTR IRQ" workaround is in use, tell DSA to defer this skb
- 	 * for RX timestamping. Then free it, and poll for its copy through
-@@ -1388,9 +1388,6 @@ static bool felix_rxtstamp(struct dsa_switch *ds, int port,
- 	ocelot_ptp_gettime64(&ocelot->ptp_info, &ts);
- 	tstamp = ktime_set(ts.tv_sec, ts.tv_nsec);
+ 	/* device MAC already added */
+ 	if (ether_addr_equal(mac_addr, vf->dev_lan_addr.addr))
+@@ -3774,20 +3775,23 @@ ice_vc_add_mac_addr(struct ice_vf *vf, struct ice_vsi *vsi,
  
--	ocelot_xfh_get_rew_val(extraction, &val);
--	tstamp_lo = (u32)val;
+ 	status = ice_fltr_add_mac(vsi, mac_addr, ICE_FWD_TO_VSI);
+ 	if (status == ICE_ERR_ALREADY_EXISTS) {
+-		dev_err(dev, "MAC %pM already exists for VF %d\n", mac_addr,
++		dev_dbg(dev, "MAC %pM already exists for VF %d\n", mac_addr,
+ 			vf->vf_id);
+-		return -EEXIST;
++		/* don't return since we might need to update
++		 * the primary MAC in ice_vfhw_mac_add() below
++		 */
++		ret = -EEXIST;
+ 	} else if (status) {
+ 		dev_err(dev, "Failed to add MAC %pM for VF %d\n, error %s\n",
+ 			mac_addr, vf->vf_id, ice_stat_str(status));
+ 		return -EIO;
++	} else {
++		vf->num_mac++;
+ 	}
+ 
+ 	ice_vfhw_mac_add(vf, vc_ether_addr);
+ 
+-	vf->num_mac++;
 -
- 	tstamp_hi = tstamp >> 32;
- 	if ((tstamp & 0xffffffff) < tstamp_lo)
- 		tstamp_hi--;
-diff --git a/include/linux/dsa/ocelot.h b/include/linux/dsa/ocelot.h
-index 8ae999f587c48..289064b51fa9a 100644
---- a/include/linux/dsa/ocelot.h
-+++ b/include/linux/dsa/ocelot.h
-@@ -12,6 +12,7 @@
- struct ocelot_skb_cb {
- 	struct sk_buff *clone;
- 	unsigned int ptp_class; /* valid only for clones */
-+	u32 tstamp_lo;
- 	u8 ptp_cmd;
- 	u8 ts_id;
- };
-diff --git a/net/dsa/tag_ocelot.c b/net/dsa/tag_ocelot.c
-index 605b51ca69210..6e0518aa3a4d2 100644
---- a/net/dsa/tag_ocelot.c
-+++ b/net/dsa/tag_ocelot.c
-@@ -62,6 +62,7 @@ static struct sk_buff *ocelot_rcv(struct sk_buff *skb,
- 	struct dsa_port *dp;
- 	u8 *extraction;
- 	u16 vlan_tpid;
-+	u64 rew_val;
+-	return 0;
++	return ret;
+ }
  
- 	/* Revert skb->data by the amount consumed by the DSA master,
- 	 * so it points to the beginning of the frame.
-@@ -91,6 +92,7 @@ static struct sk_buff *ocelot_rcv(struct sk_buff *skb,
- 	ocelot_xfh_get_qos_class(extraction, &qos_class);
- 	ocelot_xfh_get_tag_type(extraction, &tag_type);
- 	ocelot_xfh_get_vlan_tci(extraction, &vlan_tci);
-+	ocelot_xfh_get_rew_val(extraction, &rew_val);
- 
- 	skb->dev = dsa_master_find_slave(netdev, 0, src_port);
- 	if (!skb->dev)
-@@ -104,6 +106,7 @@ static struct sk_buff *ocelot_rcv(struct sk_buff *skb,
- 
- 	dsa_default_offload_fwd_mark(skb);
- 	skb->priority = qos_class;
-+	OCELOT_SKB_CB(skb)->tstamp_lo = rew_val;
- 
- 	/* Ocelot switches copy frames unmodified to the CPU. However, it is
- 	 * possible for the user to request a VLAN modification through
+ /**
 -- 
 2.33.0
 
