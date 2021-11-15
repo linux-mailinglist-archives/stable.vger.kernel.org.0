@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 326FE450C37
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:32:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 849DC450C3A
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:33:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237707AbhKORft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:35:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45640 "EHLO mail.kernel.org"
+        id S237917AbhKORfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:35:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237480AbhKORcb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:32:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4D89632A8;
-        Mon, 15 Nov 2021 17:20:33 +0000 (UTC)
+        id S238064AbhKORcf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:32:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66A8D632B0;
+        Mon, 15 Nov 2021 17:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996834;
-        bh=pMCSECvJmYp7OjOX2yS00hoQUxaDJR21oxnGiGGWS+8=;
+        s=korg; t=1636996865;
+        bh=hez5oQVPSFGPapGDxet0O58mPzjLjxoOuyDKA05VivY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k4ktJyU2oA9eH+ahID3pSlL2Ir/Nv98Q3GxeFja6LP+mcDkqXD1JtY7o09exYACCc
-         s5Pd2keLbNfSO5OkyZBnZ2h0IayxmB+vfFd6tSaApPlNlYW3cjp5HYp2nGTKhQ3KpC
-         GaMHLfVs0/aW8jrvdguXacWCfnpEa5IGbJexx6/c=
+        b=fK3KHcN62BDWSdBUgG8OBMWRrkd4p8V3efmK/AMxqQPl1eGfWNObae2qPAGGIZcEh
+         NM2DgHfeUcTAEpnsu745Qwpt0ycH0iTZ7sqGEaHpQM63TJTf/aKPNRGg4jxOZFzoDT
+         06yHmrUYoHR5jeQdrGfz1fd6+OwDK/Gw8LDBd1uQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Vegard Nossum <vegard.nossum@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 277/355] RDMA/mlx4: Return missed an error if device doesnt support steering
-Date:   Mon, 15 Nov 2021 18:03:21 +0100
-Message-Id: <20211115165322.693323502@linuxfoundation.org>
+Subject: [PATCH 5.4 278/355] staging: ks7010: select CRYPTO_HASH/CRYPTO_MICHAEL_MIC
+Date:   Mon, 15 Nov 2021 18:03:22 +0100
+Message-Id: <20211115165322.725511481@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
 References: <20211115165313.549179499@linuxfoundation.org>
@@ -41,40 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Vegard Nossum <vegard.nossum@oracle.com>
 
-[ Upstream commit f4e56ec4452f48b8292dcf0e1c4bdac83506fb8b ]
+[ Upstream commit 9ca0e55e52c7b2a99f3c2051fc4bd1c63a061519 ]
 
-The error flow fixed in this patch is not possible because all kernel
-users of create QP interface check that device supports steering before
-set IB_QP_CREATE_NETIF_QP flag.
+Fix the following build/link errors:
 
-Fixes: c1c98501121e ("IB/mlx4: Add support for steerable IB UD QPs")
-Link: https://lore.kernel.org/r/91c61f6e60eb0240f8bbc321fda7a1d2986dd03c.1634023677.git.leonro@nvidia.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+  ld: drivers/staging/ks7010/ks_hostif.o: in function `michael_mic.constprop.0':
+  ks_hostif.c:(.text+0x95b): undefined reference to `crypto_alloc_shash'
+  ld: ks_hostif.c:(.text+0x97a): undefined reference to `crypto_shash_setkey'
+  ld: ks_hostif.c:(.text+0xa13): undefined reference to `crypto_shash_update'
+  ld: ks_hostif.c:(.text+0xa28): undefined reference to `crypto_shash_update'
+  ld: ks_hostif.c:(.text+0xa48): undefined reference to `crypto_shash_finup'
+  ld: ks_hostif.c:(.text+0xa6d): undefined reference to `crypto_destroy_tfm'
+
+Fixes: 8b523f20417d ("staging: ks7010: removed custom Michael MIC implementation.")
+Fixes: 3e5bc68fa5968 ("staging: ks7010: Fix build error")
+Fixes: a4961427e7494 ("Revert "staging: ks7010: Fix build error"")
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+Link: https://lore.kernel.org/r/20211011152941.12847-1-vegard.nossum@oracle.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/qp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/staging/ks7010/Kconfig | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
-index 17ce928e41bde..bca5358f3ef29 100644
---- a/drivers/infiniband/hw/mlx4/qp.c
-+++ b/drivers/infiniband/hw/mlx4/qp.c
-@@ -1149,8 +1149,10 @@ static int create_qp_common(struct ib_pd *pd, struct ib_qp_init_attr *init_attr,
- 			if (dev->steering_support ==
- 			    MLX4_STEERING_MODE_DEVICE_MANAGED)
- 				qp->flags |= MLX4_IB_QP_NETIF;
--			else
-+			else {
-+				err = -EINVAL;
- 				goto err;
-+			}
- 		}
- 
- 		err = set_kernel_sq_size(dev, &init_attr->cap, qp_type, qp);
+diff --git a/drivers/staging/ks7010/Kconfig b/drivers/staging/ks7010/Kconfig
+index 0987fdc2f70db..8ea6c09286798 100644
+--- a/drivers/staging/ks7010/Kconfig
++++ b/drivers/staging/ks7010/Kconfig
+@@ -5,6 +5,9 @@ config KS7010
+ 	select WIRELESS_EXT
+ 	select WEXT_PRIV
+ 	select FW_LOADER
++	select CRYPTO
++	select CRYPTO_HASH
++	select CRYPTO_MICHAEL_MIC
+ 	help
+ 	  This is a driver for KeyStream KS7010 based SDIO WIFI cards. It is
+ 	  found on at least later Spectec SDW-821 (FCC-ID "S2Y-WLAN-11G-K" only,
 -- 
 2.33.0
 
