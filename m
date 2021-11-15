@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF0C450AC3
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AAC3450DC9
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236330AbhKOROe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:14:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49400 "EHLO mail.kernel.org"
+        id S240328AbhKOSHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:07:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232473AbhKORM5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:12:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8A7D63238;
-        Mon, 15 Nov 2021 17:10:01 +0000 (UTC)
+        id S239515AbhKOSBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:01:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F0D963345;
+        Mon, 15 Nov 2021 17:36:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996202;
-        bh=hVirGNAM+IwRFxwFSJqDgKWbJuDQREgWjMEvmcDtHFY=;
+        s=korg; t=1636997801;
+        bh=4DndtlRSBiA4Tb3+XFDDzO74ya/d+9wX4l8eeH+yB/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vqGbjAuu9JgFxFs/rNK6akfO09v47jxzkw7iWBBvyigENgIxnWV5QrctqNderCIfO
-         dzr5eIEKdRH0mJiqBb9kso/cfvPoJN5yc8PQ45uwB0DMtFwmoEJTPS1YeKHQqAJdfy
-         vJm5GCLaYU6qOLUw1WQS94GgLhwQYbUf30/8vYh4=
+        b=DZhQd019MLLrCtu7nGKeBE97mmo++v6Nv+ytIBVK4eLO7bs9RgKEcfGQFCV2vENvU
+         CnM0FZk9vqOMDr7iWpORAZ4i5K2GPmjMZkhxt+39rdkCw/OX6IdEuLkFWEYm+WS1A/
+         P1/LxwjDGPx8vW+ZrLuphCX+/AQiCvq+WIKPQZ20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Walter Stoll <walter.stoll@duagon.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Hersen Wu <hersenxs.wu@amd.com>,
+        Anson Jacob <Anson.Jacob@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Agustin Gutierrez <agustin.gutierrez@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 053/355] watchdog: Fix OMAP watchdog early handling
-Date:   Mon, 15 Nov 2021 17:59:37 +0100
-Message-Id: <20211115165315.261440416@linuxfoundation.org>
+Subject: [PATCH 5.10 253/575] drm/amd/display: dcn20_resource_construct reduce scope of FPU enabled
+Date:   Mon, 15 Nov 2021 17:59:38 +0100
+Message-Id: <20211115165352.527602093@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +47,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Walter Stoll <walter.stoll@duagon.com>
+From: Anson Jacob <Anson.Jacob@amd.com>
 
-[ Upstream commit cd004d8299f1dc6cfa6a4eea8f94cb45eaedf070 ]
+[ Upstream commit bc39a69a2ac484e6575a958567c162ef56c9f278 ]
 
-TI's implementation does not service the watchdog even if the kernel
-command line parameter omap_wdt.early_enable is set to 1. This patch
-fixes the issue.
+Limit when FPU is enabled to only functions that does FPU operations for
+dcn20_resource_construct, which gets called during driver
+initialization.
 
-Signed-off-by: Walter Stoll <walter.stoll@duagon.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/88a8fe5229cd68fa0f1fd22f5d66666c1b7057a0.camel@duagon.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Enabling FPU operation disables preemption.  Sleeping functions(mutex
+(un)lock, memory allocation using GFP_KERNEL, etc.) should not be called
+when preemption is disabled.
+
+Fixes the following case caught by enabling
+CONFIG_DEBUG_ATOMIC_SLEEP in kernel config
+[    1.338434] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:281
+[    1.347395] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 197, name: systemd-udevd
+[    1.356356] CPU: 7 PID: 197 Comm: systemd-udevd Not tainted 5.13.0+ #3
+[    1.356358] Hardware name: System manufacturer System Product Name/PRIME X570-PRO, BIOS 3405 02/01/2021
+[    1.356360] Call Trace:
+[    1.356361]  dump_stack+0x6b/0x86
+[    1.356366]  ___might_sleep.cold+0x87/0x98
+[    1.356370]  __might_sleep+0x4b/0x80
+[    1.356372]  mutex_lock+0x21/0x50
+[    1.356376]  smu_get_uclk_dpm_states+0x3f/0x80 [amdgpu]
+[    1.356538]  pp_nv_get_uclk_dpm_states+0x35/0x50 [amdgpu]
+[    1.356711]  init_soc_bounding_box+0xf9/0x210 [amdgpu]
+[    1.356892]  ? create_object+0x20d/0x340
+[    1.356897]  ? dcn20_resource_construct+0x46f/0xd30 [amdgpu]
+[    1.357077]  dcn20_resource_construct+0x4b1/0xd30 [amdgpu]
+...
+
+Tested on: 5700XT (NAVI10 0x1002:0x731F 0x1DA2:0xE410 0xC1)
+
+Cc: Christian König <christian.koenig@amd.com>
+Cc: Hersen Wu <hersenxs.wu@amd.com>
+Cc: Anson Jacob <Anson.Jacob@amd.com>
+Cc: Harry Wentland <harry.wentland@amd.com>
+
+Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Acked-by: Agustin Gutierrez <agustin.gutierrez@amd.com>
+Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/omap_wdt.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ .../drm/amd/display/dc/dcn20/dcn20_resource.c    | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/watchdog/omap_wdt.c b/drivers/watchdog/omap_wdt.c
-index 9b91882fe3c41..6d7ccbc0b666c 100644
---- a/drivers/watchdog/omap_wdt.c
-+++ b/drivers/watchdog/omap_wdt.c
-@@ -268,8 +268,12 @@ static int omap_wdt_probe(struct platform_device *pdev)
- 			wdev->wdog.bootstatus = WDIOF_CARDRESET;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+index 5dbc290bcbe86..3121816546467 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -3754,16 +3754,22 @@ static bool init_soc_bounding_box(struct dc *dc,
+ 			clock_limits_available = (status == PP_SMU_RESULT_OK);
+ 		}
+ 
+-		if (clock_limits_available && uclk_states_available && num_states)
++		if (clock_limits_available && uclk_states_available && num_states) {
++			DC_FP_START();
+ 			dcn20_update_bounding_box(dc, loaded_bb, &max_clocks, uclk_states, num_states);
+-		else if (clock_limits_available)
++			DC_FP_END();
++		} else if (clock_limits_available) {
++			DC_FP_START();
+ 			dcn20_cap_soc_clocks(loaded_bb, max_clocks);
++			DC_FP_END();
++		}
  	}
  
--	if (!early_enable)
-+	if (early_enable) {
-+		omap_wdt_start(&wdev->wdog);
-+		set_bit(WDOG_HW_RUNNING, &wdev->wdog.status);
-+	} else {
- 		omap_wdt_disable(wdev);
-+	}
+ 	loaded_ip->max_num_otg = pool->base.res_cap->num_timing_generator;
+ 	loaded_ip->max_num_dpp = pool->base.pipe_count;
++	DC_FP_START();
+ 	dcn20_patch_bounding_box(dc, loaded_bb);
+-
++	DC_FP_END();
+ 	return true;
+ }
  
- 	ret = watchdog_register_device(&wdev->wdog);
- 	if (ret) {
+@@ -3783,8 +3789,6 @@ static bool dcn20_resource_construct(
+ 	enum dml_project dml_project_version =
+ 			get_dml_project_version(ctx->asic_id.hw_internal_rev);
+ 
+-	DC_FP_START();
+-
+ 	ctx->dc_bios->regs = &bios_regs;
+ 	pool->base.funcs = &dcn20_res_pool_funcs;
+ 
+@@ -4128,12 +4132,10 @@ static bool dcn20_resource_construct(
+ 		pool->base.oem_device = NULL;
+ 	}
+ 
+-	DC_FP_END();
+ 	return true;
+ 
+ create_fail:
+ 
+-	DC_FP_END();
+ 	dcn20_resource_destruct(pool);
+ 
+ 	return false;
 -- 
 2.33.0
 
