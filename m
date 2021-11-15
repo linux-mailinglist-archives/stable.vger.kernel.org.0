@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C23E450D95
+	by mail.lfdr.de (Postfix) with ESMTP id B7D0A450D97
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:56:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237328AbhKOR7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:59:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
+        id S237711AbhKOR7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:59:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238558AbhKOR5n (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239201AbhKOR5n (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 12:57:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE03D6332E;
-        Mon, 15 Nov 2021 17:34:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84F946332F;
+        Mon, 15 Nov 2021 17:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997700;
-        bh=i4HSOWNm6T1iBLSpeDPYv+YZBZRBzKZ+YvsnkS0WtB4=;
+        s=korg; t=1636997703;
+        bh=F5phTCbUu2jBJFtwR5mC9XkaTiQRJ0LmAorKjbsfZj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dZ/QoTWxQRzDz7bJZT57L5Z7AtSWOi2CQuBrnfJLFEiMCqLLYP2GYa/eA+Kop2RmR
-         Shq5NB36n6u3guhSrFM47HRjqTKeHYLc6ptdUizijIbNXrTBfI1HCK8wzBYoYQ3TeW
-         z+YRnpZPgRc5z4iy81bNK5HWOGrSemR6bjjbAgzQ=
+        b=RHYCfL2ptJcUZjP1u/9JT0Ns9H1IGxXsmWLw1vuCQDOsEcUtz2toB+6dcNHsBP/uv
+         OxPpiEoVG3dTJQfnIIr6wkbyCX/lA3Y1WwaaYx4dJ0BAn07I1IS0yoHTMM/3B5kqGm
+         KBh0YaiMO0zXXtkC5d6oNl6eRc7srehQ0iAfGMU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 243/575] gfs2: Fix glock_hash_walk bugs
-Date:   Mon, 15 Nov 2021 17:59:28 +0100
-Message-Id: <20211115165352.143750066@linuxfoundation.org>
+Subject: [PATCH 5.10 244/575] ARM: 9136/1: ARMv7-M uses BE-8, not BE-32
+Date:   Mon, 15 Nov 2021 17:59:29 +0100
+Message-Id: <20211115165352.183306531@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -40,84 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 7427f3bb49d81525b7dd1d0f7c5f6bbc752e6f0e ]
+[ Upstream commit 345dac33f58894a56d17b92a41be10e16585ceff ]
 
-So far, glock_hash_walk took a reference on each glock it iterated over, and it
-was the examiner's responsibility to drop those references.  Dropping the final
-reference to a glock can sleep and the examiners are called in a RCU critical
-section with spin locks held, so examiners that didn't need the extra reference
-had to drop it asynchronously via gfs2_glock_queue_put or similar.  This wasn't
-done correctly in thaw_glock which did call gfs2_glock_put, and not at all in
-dump_glock_func.
+When configuring the kernel for big-endian, we set either BE-8 or BE-32
+based on the CPU architecture level. Until linux-4.4, we did not have
+any ARMv7-M platform allowing big-endian builds, but now i.MX/Vybrid
+is in that category, adn we get a build error because of this:
 
-Change glock_hash_walk to not take glock references at all.  That way, the
-examiners that don't need them won't have to bother with slow asynchronous
-puts, and the examiners that do need references can take them themselves.
+arch/arm/kernel/module-plts.c: In function 'get_module_plt':
+arch/arm/kernel/module-plts.c:60:46: error: implicit declaration of function '__opcode_to_mem_thumb32' [-Werror=implicit-function-declaration]
 
-Reported-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+This comes down to picking the wrong default, ARMv7-M uses BE8
+like ARMv7-A does. Changing the default gets the kernel to compile
+and presumably works.
+
+https://lore.kernel.org/all/1455804123-2526139-2-git-send-email-arnd@arndb.de/
+
+Tested-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ arch/arm/mm/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index 533adcd480310..dd052101e2266 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -1885,10 +1885,10 @@ static void glock_hash_walk(glock_examiner examiner, const struct gfs2_sbd *sdp)
- 	do {
- 		rhashtable_walk_start(&iter);
- 
--		while ((gl = rhashtable_walk_next(&iter)) && !IS_ERR(gl))
--			if (gl->gl_name.ln_sbd == sdp &&
--			    lockref_get_not_dead(&gl->gl_lockref))
-+		while ((gl = rhashtable_walk_next(&iter)) && !IS_ERR(gl)) {
-+			if (gl->gl_name.ln_sbd == sdp)
- 				examiner(gl);
-+		}
- 
- 		rhashtable_walk_stop(&iter);
- 	} while (cond_resched(), gl == ERR_PTR(-EAGAIN));
-@@ -1930,7 +1930,6 @@ static void flush_delete_work(struct gfs2_glock *gl)
- 					   &gl->gl_delete, 0);
- 		}
- 	}
--	gfs2_glock_queue_work(gl, 0);
- }
- 
- void gfs2_flush_delete_work(struct gfs2_sbd *sdp)
-@@ -1947,10 +1946,10 @@ void gfs2_flush_delete_work(struct gfs2_sbd *sdp)
- 
- static void thaw_glock(struct gfs2_glock *gl)
- {
--	if (!test_and_clear_bit(GLF_FROZEN, &gl->gl_flags)) {
--		gfs2_glock_put(gl);
-+	if (!test_and_clear_bit(GLF_FROZEN, &gl->gl_flags))
-+		return;
-+	if (!lockref_get_not_dead(&gl->gl_lockref))
- 		return;
--	}
- 	set_bit(GLF_REPLY_PENDING, &gl->gl_flags);
- 	gfs2_glock_queue_work(gl, 0);
- }
-@@ -1966,9 +1965,12 @@ static void clear_glock(struct gfs2_glock *gl)
- 	gfs2_glock_remove_from_lru(gl);
- 
- 	spin_lock(&gl->gl_lockref.lock);
--	if (gl->gl_state != LM_ST_UNLOCKED)
--		handle_callback(gl, LM_ST_UNLOCKED, 0, false);
--	__gfs2_glock_queue_work(gl, 0);
-+	if (!__lockref_is_dead(&gl->gl_lockref)) {
-+		gl->gl_lockref.count++;
-+		if (gl->gl_state != LM_ST_UNLOCKED)
-+			handle_callback(gl, LM_ST_UNLOCKED, 0, false);
-+		__gfs2_glock_queue_work(gl, 0);
-+	}
- 	spin_unlock(&gl->gl_lockref.lock);
- }
+diff --git a/arch/arm/mm/Kconfig b/arch/arm/mm/Kconfig
+index 02692fbe2db5c..423a97dd2f57c 100644
+--- a/arch/arm/mm/Kconfig
++++ b/arch/arm/mm/Kconfig
+@@ -753,7 +753,7 @@ config CPU_BIG_ENDIAN
+ config CPU_ENDIAN_BE8
+ 	bool
+ 	depends on CPU_BIG_ENDIAN
+-	default CPU_V6 || CPU_V6K || CPU_V7
++	default CPU_V6 || CPU_V6K || CPU_V7 || CPU_V7M
+ 	help
+ 	  Support for the BE-8 (big-endian) mode on ARMv6 and ARMv7 processors.
  
 -- 
 2.33.0
