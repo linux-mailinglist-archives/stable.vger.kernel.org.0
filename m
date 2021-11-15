@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 790C1450D49
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:51:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A6304510AE
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:49:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238481AbhKORx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:53:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35660 "EHLO mail.kernel.org"
+        id S243030AbhKOSwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:52:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238924AbhKORul (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:50:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 362CF632A9;
-        Mon, 15 Nov 2021 17:31:11 +0000 (UTC)
+        id S242634AbhKOSuT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:50:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F313F603E9;
+        Mon, 15 Nov 2021 18:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997471;
-        bh=7ugmn2ADZpOBVa6zP15MhcEQnsDM1KId1UGi3WSJUo8=;
+        s=korg; t=1636999729;
+        bh=dXrUkQ66m5eTcPv3tew8F3frs8iCwhl2mRFukP1GSmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nULRe4lqu1Mogdg45oaXrWXcS3CUjqUy/sY2VJAy3ryFY6el1d4EcVY4YzlB1o/pb
-         cwUA0qjaKOz+GBmlO/OPypFRhUpxUHlXs0DGEkw263zQhckLFfe9AXnjWAKTy4pWVX
-         eBaK4mVc9P/zA1wl1BjBkmFpbNg4BbrGMOgjLTJw=
+        b=Ef/iP753+EwEJYhh/t+JGwoFFdhZUpqZDEd4c+bEAhvDihDnPQKrRbA0so/c9BmEM
+         9xrOrTjleuLDkjovf7Q8UQfzFt0BAoHfZG9y7VWEV5H41fRgIespjfTbhE1CQnFZal
+         7/kIaFYqoWXBP+pLid4HDzcqvFXj2JFJBpi4G5NU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 161/575] USB: chipidea: fix interrupt deadlock
+        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        =?UTF-8?q?Linus=20L=C3=BCssing?= <ll@simonwunderlich.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 403/849] ath9k: Fix potential interrupt storm on queue reset
 Date:   Mon, 15 Nov 2021 17:58:06 +0100
-Message-Id: <20211115165349.273797845@linuxfoundation.org>
+Message-Id: <20211115165433.891677759@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,105 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Linus Lüssing <ll@simonwunderlich.de>
 
-commit 9aaa81c3366e8393a62374e3a1c67c69edc07b8a upstream.
+[ Upstream commit 4925642d541278575ad1948c5924d71ffd57ef14 ]
 
-Chipidea core was calling the interrupt handler from non-IRQ context
-with interrupts enabled, something which can lead to a deadlock if
-there's an actual interrupt trying to take a lock that's already held
-(e.g. the controller lock in udc_irq()).
+In tests with two Lima boards from 8devices (QCA4531 based) on OpenWrt
+19.07 we could force a silent restart of a device with no serial
+output when we were sending a high amount of UDP traffic (iperf3 at 80
+MBit/s in both directions from external hosts, saturating the wifi and
+causing a load of about 4.5 to 6) and were then triggering an
+ath9k_queue_reset().
 
-Add a wrapper that can be used to fake interrupts instead of calling the
-handler directly.
+Further debugging showed that the restart was caused by the ath79
+watchdog. With disabled watchdog we could observe that the device was
+constantly going into ath_isr() interrupt handler and was returning
+early after the ATH_OP_HW_RESET flag test, without clearing any
+interrupts. Even though ath9k_queue_reset() calls
+ath9k_hw_kill_interrupts().
 
-Fixes: 3ecb3e09b042 ("usb: chipidea: Use extcon framework for VBUS and ID detect")
-Fixes: 876d4e1e8298 ("usb: chipidea: core: add wakeup support for extcon")
-Cc: Peter Chen <peter.chen@kernel.org>
-Cc: stable@vger.kernel.org      # 4.4
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211021083447.20078-1-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+With JTAG we could observe the following race condition:
+
+1) ath9k_queue_reset()
+   ...
+   -> ath9k_hw_kill_interrupts()
+   -> set_bit(ATH_OP_HW_RESET, &common->op_flags);
+   ...
+   <- returns
+
+      2) ath9k_tasklet()
+         ...
+         -> ath9k_hw_resume_interrupts()
+         ...
+         <- returns
+
+                 3) loops around:
+                    ...
+                    handle_int()
+                    -> ath_isr()
+                       ...
+                       -> if (test_bit(ATH_OP_HW_RESET,
+                                       &common->op_flags))
+                            return IRQ_HANDLED;
+
+                    x) ath_reset_internal():
+                       => never reached <=
+
+And in ath_isr() we would typically see the following interrupts /
+interrupt causes:
+
+* status: 0x00111030 or 0x00110030
+* async_cause: 2 (AR_INTR_MAC_IPQ)
+* sync_cause: 0
+
+So the ath9k_tasklet() reenables the ath9k interrupts
+through ath9k_hw_resume_interrupts() which ath9k_queue_reset() had just
+disabled. And ath_isr() then keeps firing because it returns IRQ_HANDLED
+without actually clearing the interrupt.
+
+To fix this IRQ storm also clear/disable the interrupts again when we
+are in reset state.
+
+Cc: Sven Eckelmann <sven@narfation.org>
+Cc: Simon Wunderlich <sw@simonwunderlich.de>
+Cc: Linus Lüssing <linus.luessing@c0d3.blue>
+Fixes: 872b5d814f99 ("ath9k: do not access hardware on IRQs during reset")
+Signed-off-by: Linus Lüssing <ll@simonwunderlich.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210914192515.9273-3-linus.luessing@c0d3.blue
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/core.c |   23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ drivers/net/wireless/ath/ath9k/main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/chipidea/core.c
-+++ b/drivers/usb/chipidea/core.c
-@@ -509,7 +509,7 @@ int hw_device_reset(struct ci_hdrc *ci)
- 	return 0;
- }
+diff --git a/drivers/net/wireless/ath/ath9k/main.c b/drivers/net/wireless/ath/ath9k/main.c
+index 139831539da37..98090e40e1cf4 100644
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -533,8 +533,10 @@ irqreturn_t ath_isr(int irq, void *dev)
+ 	ath9k_debug_sync_cause(sc, sync_cause);
+ 	status &= ah->imask;	/* discard unasked-for bits */
  
--static irqreturn_t ci_irq(int irq, void *data)
-+static irqreturn_t ci_irq_handler(int irq, void *data)
- {
- 	struct ci_hdrc *ci = data;
- 	irqreturn_t ret = IRQ_NONE;
-@@ -562,6 +562,15 @@ static irqreturn_t ci_irq(int irq, void
- 	return ret;
- }
+-	if (test_bit(ATH_OP_HW_RESET, &common->op_flags))
++	if (test_bit(ATH_OP_HW_RESET, &common->op_flags)) {
++		ath9k_hw_kill_interrupts(sc->sc_ah);
+ 		return IRQ_HANDLED;
++	}
  
-+static void ci_irq(struct ci_hdrc *ci)
-+{
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	ci_irq_handler(ci->irq, ci);
-+	local_irq_restore(flags);
-+}
-+
- static int ci_cable_notifier(struct notifier_block *nb, unsigned long event,
- 			     void *ptr)
- {
-@@ -571,7 +580,7 @@ static int ci_cable_notifier(struct noti
- 	cbl->connected = event;
- 	cbl->changed = true;
- 
--	ci_irq(ci->irq, ci);
-+	ci_irq(ci);
- 	return NOTIFY_DONE;
- }
- 
-@@ -612,7 +621,7 @@ static int ci_usb_role_switch_set(struct
- 	if (cable) {
- 		cable->changed = true;
- 		cable->connected = false;
--		ci_irq(ci->irq, ci);
-+		ci_irq(ci);
- 		spin_unlock_irqrestore(&ci->lock, flags);
- 		if (ci->wq && role != USB_ROLE_NONE)
- 			flush_workqueue(ci->wq);
-@@ -630,7 +639,7 @@ static int ci_usb_role_switch_set(struct
- 	if (cable) {
- 		cable->changed = true;
- 		cable->connected = true;
--		ci_irq(ci->irq, ci);
-+		ci_irq(ci);
- 	}
- 	spin_unlock_irqrestore(&ci->lock, flags);
- 	pm_runtime_put_sync(ci->dev);
-@@ -1166,7 +1175,7 @@ static int ci_hdrc_probe(struct platform
- 		}
- 	}
- 
--	ret = devm_request_irq(dev, ci->irq, ci_irq, IRQF_SHARED,
-+	ret = devm_request_irq(dev, ci->irq, ci_irq_handler, IRQF_SHARED,
- 			ci->platdata->name, ci);
- 	if (ret)
- 		goto stop;
-@@ -1287,11 +1296,11 @@ static void ci_extcon_wakeup_int(struct
- 
- 	if (!IS_ERR(cable_id->edev) && ci->is_otg &&
- 		(otgsc & OTGSC_IDIE) && (otgsc & OTGSC_IDIS))
--		ci_irq(ci->irq, ci);
-+		ci_irq(ci);
- 
- 	if (!IS_ERR(cable_vbus->edev) && ci->is_otg &&
- 		(otgsc & OTGSC_BSVIE) && (otgsc & OTGSC_BSVIS))
--		ci_irq(ci->irq, ci);
-+		ci_irq(ci);
- }
- 
- static int ci_controller_resume(struct device *dev)
+ 	/*
+ 	 * If there are no status bits set, then this interrupt was not
+-- 
+2.33.0
+
 
 
