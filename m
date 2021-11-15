@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CED6E4513EF
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 171A4451165
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:04:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348768AbhKOT7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:59:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45392 "EHLO mail.kernel.org"
+        id S240746AbhKOTH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:07:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344143AbhKOTXb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:23:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BAFF463637;
-        Mon, 15 Nov 2021 18:52:43 +0000 (UTC)
+        id S243840AbhKOTEM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:04:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8663B632A4;
+        Mon, 15 Nov 2021 18:15:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002364;
-        bh=ezAeIT62f/tVpCMZWeZOT3sGS3hN5GhHS8/eBchGXaY=;
+        s=korg; t=1637000139;
+        bh=TP1Rog+jgIzlkQphT+huCAY9Gyd6/pdDITwjealYgkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hW2yaSleruRtr6CP7zqXcPTdizXzV7i/U1hSe7aA0t+lom8rgktd6NJurcZ4rLZEo
-         t2jIWLFtKCBGY45GlV3L7Eft42wucb8gxWcdkPJ/PG04b9PpQA41bNlkxzE4X7hEvr
-         MplxTTJh7uewqmj5PCRlWUzUUDwlkCHEclV6/kC4=
+        b=BknmGaf3hqZZ8oDKGoLrdKgoRxe1tcOPcZwLPnqmAPJpsJzqD743BaJcjR5QTBaaJ
+         UzGWNsLggQ3+HQVLQSQlt4xA35+5C26kOWnnLCOXY6mjqvob54e1p62BjraEwGlPft
+         gmmiVX/Q9zGVWtLoG6dxXmGWpcbo8etuHdZx2cCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        Denis CIOCCA <denis.ciocca@st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Alexandru Ardelean <aardelean@deviqon.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 539/917] drm/amdgpu/gmc6: fix DMA mask from 44 to 40 bits
+Subject: [PATCH 5.14 551/849] iio: st_sensors: disable regulators after device unregistration
 Date:   Mon, 15 Nov 2021 18:00:34 +0100
-Message-Id: <20211115165447.032544139@linuxfoundation.org>
+Message-Id: <20211115165438.898585907@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +44,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Alexandru Ardelean <aardelean@deviqon.com>
 
-[ Upstream commit 403475be6d8b122c3e6b8a47e075926d7299e5ef ]
+[ Upstream commit 9f0b3e0cc0c88618aa9e5cecef747b1337ae0a5d ]
 
-The DMA mask on SI parts is 40 bits not 44.  Copy
-paste typo.
+Up until commit ea7e586bdd331 ("iio: st_sensors: move regulator retrieveal
+to core") only the ST pressure driver seems to have had any regulator
+disable. After that commit, the regulator handling was moved into the
+common st_sensors logic.
 
-Fixes: 244511f386ccb9 ("drm/amdgpu: simplify and cleanup setting the dma mask")
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1762
-Acked-by: Christian König <christian.koenig@amd.com>
-Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+In all instances of this regulator handling, the regulators were disabled
+before unregistering the IIO device.
+This can cause issues where the device would be powered down and still be
+available to userspace, allowing it to send invalid/garbage data.
+
+This change moves the st_sensors_power_disable() after the common probe
+functions. These common probe functions also handle unregistering the IIO
+device.
+
+Fixes: 774487611c949 ("iio: pressure-core: st: Provide support for the Vdd power supply")
+Fixes: ea7e586bdd331 ("iio: st_sensors: move regulator retrieveal to core")
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Denis CIOCCA <denis.ciocca@st.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
+Link: https://lore.kernel.org/r/20210823112204.243255-2-aardelean@deviqon.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gmc_v6_0.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/accel/st_accel_i2c.c       | 4 ++--
+ drivers/iio/accel/st_accel_spi.c       | 4 ++--
+ drivers/iio/gyro/st_gyro_i2c.c         | 4 ++--
+ drivers/iio/gyro/st_gyro_spi.c         | 4 ++--
+ drivers/iio/magnetometer/st_magn_i2c.c | 4 ++--
+ drivers/iio/magnetometer/st_magn_spi.c | 4 ++--
+ drivers/iio/pressure/st_pressure_i2c.c | 4 ++--
+ drivers/iio/pressure/st_pressure_spi.c | 4 ++--
+ 8 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v6_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v6_0.c
-index 0e81e03e9b498..0fe714f54cca9 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v6_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v6_0.c
-@@ -841,12 +841,12 @@ static int gmc_v6_0_sw_init(void *handle)
+diff --git a/drivers/iio/accel/st_accel_i2c.c b/drivers/iio/accel/st_accel_i2c.c
+index 95e305b88d5ed..02c823b93ecd4 100644
+--- a/drivers/iio/accel/st_accel_i2c.c
++++ b/drivers/iio/accel/st_accel_i2c.c
+@@ -194,10 +194,10 @@ static int st_accel_i2c_remove(struct i2c_client *client)
+ {
+ 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
  
- 	adev->gmc.mc_mask = 0xffffffffffULL;
+-	st_sensors_power_disable(indio_dev);
+-
+ 	st_accel_common_remove(indio_dev);
  
--	r = dma_set_mask_and_coherent(adev->dev, DMA_BIT_MASK(44));
-+	r = dma_set_mask_and_coherent(adev->dev, DMA_BIT_MASK(40));
- 	if (r) {
- 		dev_warn(adev->dev, "No suitable DMA available.\n");
- 		return r;
- 	}
--	adev->need_swiotlb = drm_need_swiotlb(44);
-+	adev->need_swiotlb = drm_need_swiotlb(40);
++	st_sensors_power_disable(indio_dev);
++
+ 	return 0;
+ }
  
- 	r = gmc_v6_0_init_microcode(adev);
- 	if (r) {
+diff --git a/drivers/iio/accel/st_accel_spi.c b/drivers/iio/accel/st_accel_spi.c
+index 83d3308ce5ccc..386ae18d5f269 100644
+--- a/drivers/iio/accel/st_accel_spi.c
++++ b/drivers/iio/accel/st_accel_spi.c
+@@ -143,10 +143,10 @@ static int st_accel_spi_remove(struct spi_device *spi)
+ {
+ 	struct iio_dev *indio_dev = spi_get_drvdata(spi);
+ 
+-	st_sensors_power_disable(indio_dev);
+-
+ 	st_accel_common_remove(indio_dev);
+ 
++	st_sensors_power_disable(indio_dev);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/iio/gyro/st_gyro_i2c.c b/drivers/iio/gyro/st_gyro_i2c.c
+index a25cc0379e163..3ed5779779465 100644
+--- a/drivers/iio/gyro/st_gyro_i2c.c
++++ b/drivers/iio/gyro/st_gyro_i2c.c
+@@ -106,10 +106,10 @@ static int st_gyro_i2c_remove(struct i2c_client *client)
+ {
+ 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+ 
+-	st_sensors_power_disable(indio_dev);
+-
+ 	st_gyro_common_remove(indio_dev);
+ 
++	st_sensors_power_disable(indio_dev);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/iio/gyro/st_gyro_spi.c b/drivers/iio/gyro/st_gyro_spi.c
+index 18d6a2aeda45a..c04bcf2518c11 100644
+--- a/drivers/iio/gyro/st_gyro_spi.c
++++ b/drivers/iio/gyro/st_gyro_spi.c
+@@ -110,10 +110,10 @@ static int st_gyro_spi_remove(struct spi_device *spi)
+ {
+ 	struct iio_dev *indio_dev = spi_get_drvdata(spi);
+ 
+-	st_sensors_power_disable(indio_dev);
+-
+ 	st_gyro_common_remove(indio_dev);
+ 
++	st_sensors_power_disable(indio_dev);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/iio/magnetometer/st_magn_i2c.c b/drivers/iio/magnetometer/st_magn_i2c.c
+index 3e23c117de8e1..6c93df6926a30 100644
+--- a/drivers/iio/magnetometer/st_magn_i2c.c
++++ b/drivers/iio/magnetometer/st_magn_i2c.c
+@@ -102,10 +102,10 @@ static int st_magn_i2c_remove(struct i2c_client *client)
+ {
+ 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+ 
+-	st_sensors_power_disable(indio_dev);
+-
+ 	st_magn_common_remove(indio_dev);
+ 
++	st_sensors_power_disable(indio_dev);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/iio/magnetometer/st_magn_spi.c b/drivers/iio/magnetometer/st_magn_spi.c
+index 03c0a737aba6e..4f52c3a21e3c2 100644
+--- a/drivers/iio/magnetometer/st_magn_spi.c
++++ b/drivers/iio/magnetometer/st_magn_spi.c
+@@ -96,10 +96,10 @@ static int st_magn_spi_remove(struct spi_device *spi)
+ {
+ 	struct iio_dev *indio_dev = spi_get_drvdata(spi);
+ 
+-	st_sensors_power_disable(indio_dev);
+-
+ 	st_magn_common_remove(indio_dev);
+ 
++	st_sensors_power_disable(indio_dev);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/iio/pressure/st_pressure_i2c.c b/drivers/iio/pressure/st_pressure_i2c.c
+index f0a5af314ceb8..8c26ff61e56ad 100644
+--- a/drivers/iio/pressure/st_pressure_i2c.c
++++ b/drivers/iio/pressure/st_pressure_i2c.c
+@@ -118,10 +118,10 @@ static int st_press_i2c_remove(struct i2c_client *client)
+ {
+ 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+ 
+-	st_sensors_power_disable(indio_dev);
+-
+ 	st_press_common_remove(indio_dev);
+ 
++	st_sensors_power_disable(indio_dev);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/iio/pressure/st_pressure_spi.c b/drivers/iio/pressure/st_pressure_spi.c
+index b48cf7d01cd74..8cf8cd3b4554a 100644
+--- a/drivers/iio/pressure/st_pressure_spi.c
++++ b/drivers/iio/pressure/st_pressure_spi.c
+@@ -102,10 +102,10 @@ static int st_press_spi_remove(struct spi_device *spi)
+ {
+ 	struct iio_dev *indio_dev = spi_get_drvdata(spi);
+ 
+-	st_sensors_power_disable(indio_dev);
+-
+ 	st_press_common_remove(indio_dev);
+ 
++	st_sensors_power_disable(indio_dev);
++
+ 	return 0;
+ }
+ 
 -- 
 2.33.0
 
