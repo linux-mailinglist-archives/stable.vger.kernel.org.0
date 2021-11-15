@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E793F4524E0
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65A4F4524E1
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:43:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357507AbhKPBqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:46:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60616 "EHLO mail.kernel.org"
+        id S1344761AbhKPBqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:46:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241224AbhKOSUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241251AbhKOSUc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 13:20:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 169F96331F;
-        Mon, 15 Nov 2021 17:52:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF4D5632B3;
+        Mon, 15 Nov 2021 17:52:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998739;
-        bh=5Czvmy/Z7GfcashVrKRSNfkfkMxcmrh7/KppuZzOj7c=;
+        s=korg; t=1636998742;
+        bh=yKn0b/xP2FvHRGArpVNKANQ3Xz0stDh3z7oelSZtWuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tmWQkBIjBYdRxSwhKMn9l+izs7x51eF0bfmEtwr3H8/ealwgtWUu99CV6ggH43waH
-         myiDJvtp33iT6bJgtRtnKn85SQXwEWUznklYUhW6/jeAbnVT3S6dYFdxOiDjeXsSay
-         cA33CGF8KK5q6yPtxGvttK08Mu+XDuBa+oGc2X08=
+        b=dEOszVMJ+QqVTxsDCGJpvaQvum6tyVw1SqLp3ml4eymuvCYMvMRIhkmfFyuW85yPZ
+         WlTqCS+P2YiXt5i/OJOSZDoQfhUvnYawiue5TMCwtuYxrZwrv8UeEOzHUeQpcPWJ0I
+         mFO3zclrTOc7EPSBBKB3JIRjqEYEj3dLWS2ZQUlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Austin Kim <austin.kim@lge.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.14 044/849] ALSA: synth: missing check for possible NULL after the call to kstrdup
-Date:   Mon, 15 Nov 2021 17:52:07 +0100
-Message-Id: <20211115165421.489324666@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.14 045/849] ALSA: PCM: Fix NULL dereference at mmap checks
+Date:   Mon, 15 Nov 2021 17:52:08 +0100
+Message-Id: <20211115165421.526116000@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,35 +38,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Austin Kim <austin.kim@lge.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d159037abbe3412285c271bdfb9cdf19e62678ff upstream.
+commit 8e537d5dec34cac746dd6abf6a83e5de3aa471fc upstream.
 
-If kcalloc() return NULL due to memory starvation, it is possible for
-kstrdup() to return NULL in similar case. So add null check after the call
-to kstrdup() is made.
+The recent refactoring of mmap handling caused Oops on some devices
+that don't use the standard memory allocations.  This patch addresses
+it by allowing snd_dma_buffer_mmap() helper to receive the NULL
+pointer dmab argument (and return an error appropriately).
 
-[ minor coding-style fix by tiwai ]
-
-Signed-off-by: Austin Kim <austin.kim@lge.com>
+Fixes: a202bd1ad86d ("ALSA: core: Move mmap handler into memalloc ops")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211109003742.GA5423@raspberrypi
+Link: https://lore.kernel.org/r/20211107163911.13534-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/synth/emux/emux.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/memalloc.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/sound/synth/emux/emux.c
-+++ b/sound/synth/emux/emux.c
-@@ -88,7 +88,7 @@ int snd_emux_register(struct snd_emux *e
- 	emu->name = kstrdup(name, GFP_KERNEL);
- 	emu->voices = kcalloc(emu->max_voices, sizeof(struct snd_emux_voice),
- 			      GFP_KERNEL);
--	if (emu->voices == NULL)
-+	if (emu->name == NULL || emu->voices == NULL)
- 		return -ENOMEM;
+--- a/sound/core/memalloc.c
++++ b/sound/core/memalloc.c
+@@ -135,8 +135,11 @@ EXPORT_SYMBOL(snd_dma_free_pages);
+ int snd_dma_buffer_mmap(struct snd_dma_buffer *dmab,
+ 			struct vm_area_struct *area)
+ {
+-	const struct snd_malloc_ops *ops = snd_dma_get_ops(dmab);
++	const struct snd_malloc_ops *ops;
  
- 	/* create soundfont list */
++	if (!dmab)
++		return -ENOENT;
++	ops = snd_dma_get_ops(dmab);
+ 	if (ops && ops->mmap)
+ 		return ops->mmap(dmab, area);
+ 	else
 
 
