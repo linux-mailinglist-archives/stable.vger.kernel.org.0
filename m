@@ -2,51 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C3B4514B6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:10:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0825E451273
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345755AbhKOUMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:12:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
+        id S1347496AbhKOTkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:40:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344908AbhKOTZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0B0C636E9;
-        Mon, 15 Nov 2021 19:06:41 +0000 (UTC)
+        id S245076AbhKOTTO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:19:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9515863504;
+        Mon, 15 Nov 2021 18:28:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003202;
-        bh=pppEKA1xdqr9mZaw9WCFjTzjBBLvrCTXY22vIoJ0THM=;
+        s=korg; t=1637000882;
+        bh=iGGd4E1h2Uh6tlEKDNe9A8wNi1d9um19ju5txNodZxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AbUAYk+fkSZ1sQs2GP4Hfhb+M2himCo+SxJa1MNMmIi26FTBlApHnDb0IrYbLNkq+
-         0m/vIEVSvCGmORJBh++T4O/bg1etgzHhMv15jHINkCaCugk5QHlWvM3SZzAGT+4swv
-         5OTTAGVYo6yKRSwF1XLsgT1IGdOqTAliFeGKBQwg=
+        b=Wu+AqMhE6mNYbP6xAFSBhJLOiTR0UJRpVF6i/WhsLOoztVbDWBvFnnuI24foR5zEB
+         RBeRRWCEkPpNme9QFiPKP0AojfJWsDHnifEclieQYNvBe6euf7zC6t0t/cfe3aZB3l
+         +kj/O6NLhi4g3VoPrHHL8sluQRO3q0f2M8plQxeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@redhat.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 815/917] perf bpf: Add missing free to bpf_event__print_bpf_prog_info()
-Date:   Mon, 15 Nov 2021 18:05:10 +0100
-Message-Id: <20211115165456.664905447@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.14 829/849] mtd: rawnand: mpc5121: Keep the driver compatible with on-die ECC engines
+Date:   Mon, 15 Nov 2021 18:05:12 +0100
+Message-Id: <20211115165448.274401898@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +38,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 88c42f4d6cb249eb68524282f8d4cc32f9059984 ]
+commit f9d8570b7fd6f4f08528ce2f5e39787a8a260cd6 upstream.
 
-If btf__new() is called then there needs to be a corresponding btf__free().
+Following the introduction of the generic ECC engine infrastructure, it
+was necessary to reorganize the code and move the ECC configuration in
+the ->attach_chip() hook. Failing to do that properly lead to a first
+series of fixes supposed to stabilize the situation. Unfortunately, this
+only fixed the use of software ECC engines, preventing any other kind of
+engine to be used, including on-die ones.
 
-Fixes: f8dfeae009effc0b ("perf bpf: Show more BPF program info in print_bpf_prog_info()")
-Signed-off-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: bpf@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20211106053733.3580931-2-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It is now time to (finally) fix the situation by ensuring that we still
+provide a default (eg. software ECC) but will still support different
+ECC engines such as on-die ECC engines if properly described in the
+device tree.
+
+There are no changes needed on the core side in order to do this, but we
+just need to leverage the logic there which allows:
+1- a subsystem default (set to Host engines in the raw NAND world)
+2- a driver specific default (here set to software ECC engines)
+3- any type of engine requested by the user (ie. described in the DT)
+
+As the raw NAND subsystem has not yet been fully converted to the ECC
+engine infrastructure, in order to provide a default ECC engine for this
+driver we need to set chip->ecc.engine_type *before* calling
+nand_scan(). During the initialization step, the core will consider this
+entry as the default engine for this driver. This value may of course
+be overloaded by the user if the usual DT properties are provided.
+
+Fixes: 6dd09f775b72 ("mtd: rawnand: mpc5121: Move the ECC initialization to ->attach_chip()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210928222258.199726-5-miquel.raynal@bootlin.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/bpf-event.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/mpc5121_nfc.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/util/bpf-event.c b/tools/perf/util/bpf-event.c
-index 1a7112a87736a..a410b3968b3af 100644
---- a/tools/perf/util/bpf-event.c
-+++ b/tools/perf/util/bpf-event.c
-@@ -576,7 +576,7 @@ void bpf_event__print_bpf_prog_info(struct bpf_prog_info *info,
- 		synthesize_bpf_prog_name(name, KSYM_NAME_LEN, info, btf, 0);
- 		fprintf(fp, "# bpf_prog_info %u: %s addr 0x%llx size %u\n",
- 			info->id, name, prog_addrs[0], prog_lens[0]);
--		return;
-+		goto out;
+--- a/drivers/mtd/nand/raw/mpc5121_nfc.c
++++ b/drivers/mtd/nand/raw/mpc5121_nfc.c
+@@ -605,9 +605,8 @@ static void mpc5121_nfc_free(struct devi
+ 
+ static int mpc5121_nfc_attach_chip(struct nand_chip *chip)
+ {
+-	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
+-
+-	if (chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
++	if (chip->ecc.engine_type == NAND_ECC_ENGINE_TYPE_SOFT &&
++	    chip->ecc.algo == NAND_ECC_ALGO_UNKNOWN)
+ 		chip->ecc.algo = NAND_ECC_ALGO_HAMMING;
+ 
+ 	return 0;
+@@ -772,6 +771,13 @@ static int mpc5121_nfc_probe(struct plat
+ 		goto error;
  	}
  
- 	fprintf(fp, "# bpf_prog_info %u:\n", info->id);
-@@ -586,4 +586,6 @@ void bpf_event__print_bpf_prog_info(struct bpf_prog_info *info,
- 		fprintf(fp, "# \tsub_prog %u: %s addr 0x%llx size %u\n",
- 			i, name, prog_addrs[i], prog_lens[i]);
- 	}
-+out:
-+	btf__free(btf);
- }
--- 
-2.33.0
-
++	/*
++	 * This driver assumes that the default ECC engine should be TYPE_SOFT.
++	 * Set ->engine_type before registering the NAND devices in order to
++	 * provide a driver specific default value.
++	 */
++	chip->ecc.engine_type = NAND_ECC_ENGINE_TYPE_SOFT;
++
+ 	/* Detect NAND chips */
+ 	retval = nand_scan(chip, be32_to_cpup(chips_no));
+ 	if (retval) {
 
 
