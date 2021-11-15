@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC954513E1
+	by mail.lfdr.de (Postfix) with ESMTP id C72224513E2
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348686AbhKOT7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:59:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S1348691AbhKOT7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:59:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344108AbhKOTXX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344107AbhKOTXX (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:23:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90A9263626;
-        Mon, 15 Nov 2021 18:51:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 234D563629;
+        Mon, 15 Nov 2021 18:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002320;
-        bh=T5MNaZ4jAR/A7mkMX7fZxokgB3jAysQmcBlb2B4Eugk=;
+        s=korg; t=1637002322;
+        bh=9XPeT6qZ5vpU1N0TdMKx++5I47YaQ2OzvEuKU7q2wbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tWhjx5devTXh7EfI5dBuLoRmXPvoQI8cisWosrV36iYS4nfLmKaBzEcVTjiC2w/qC
-         SLAUktKdTxfjyJjVuRxWByGSBjtYqbza1EamKPhI8LzdBO+JCOfJrAIFhlAFw9qllb
-         aA4SG6JH9fpGRCIFU4gW2tUE3z/OKXnmKU3tIu8s=
+        b=WyP6Fyps6jm8Bc56lCrQZ0kmuSB1HDD37UM2mB0fuutSf3cn68bFyGtuYWacEzeas
+         JhbpVd+A9oEpEPbhpRKhcCjzWA/WOQuczXY5RMCiNM0R1Lh74M8scuUl72X9q2eSAC
+         mJXasA1ccrmXuvpFsd3s4MQY2u8stNftpxXjIYx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Luca Coelho <luciano.coelho@intel.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 487/917] iwlwifi: pnvm: dont kmemdup() more than we have
-Date:   Mon, 15 Nov 2021 17:59:42 +0100
-Message-Id: <20211115165445.304998707@linuxfoundation.org>
+Subject: [PATCH 5.15 488/917] iwlwifi: pnvm: read EFI data only if long enough
+Date:   Mon, 15 Nov 2021 17:59:43 +0100
+Message-Id: <20211115165445.336527053@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,45 +43,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 0f892441d8c353144e3669b7991fa5fe0bd353e9 ]
+[ Upstream commit e864a77f51d0d8113b49cf7d030bc9dc911c8176 ]
 
-We shouldn't kmemdup() more data than we have, that might
-cause the code to crash. Fix that by updating the length
-before the kmemdup.
+If the data we get from EFI is not even long enough for
+the package struct we expect then ignore it entirely.
 
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: a1a6a4cf49ec ("iwlwifi: pnvm: implement reading PNVM from UEFI")
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20211016114029.ab0e64c3fba9.Ic6a3295fc384750b51b4270bf0b7d94984a139f2@changeid
+Link: https://lore.kernel.org/r/iwlwifi.20211016114029.33feba783518.I54a5cf33975d0330792b3d208b225d479e168f32@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/pnvm.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/fw/pnvm.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
-index dde22bdc87039..9b0eee53488ab 100644
+index 9b0eee53488ab..069fcbc46d2ba 100644
 --- a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
 +++ b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.c
-@@ -284,16 +284,15 @@ int iwl_pnvm_load(struct iwl_trans *trans,
+@@ -284,9 +284,13 @@ int iwl_pnvm_load(struct iwl_trans *trans,
  	/* First attempt to get the PNVM from BIOS */
  	package = iwl_uefi_get_pnvm(trans, &len);
  	if (!IS_ERR_OR_NULL(package)) {
-+		/* we need only the data */
-+		len -= sizeof(*package);
- 		data = kmemdup(package->data, len, GFP_KERNEL);
+-		/* we need only the data */
+-		len -= sizeof(*package);
+-		data = kmemdup(package->data, len, GFP_KERNEL);
++		if (len >= sizeof(*package)) {
++			/* we need only the data */
++			len -= sizeof(*package);
++			data = kmemdup(package->data, len, GFP_KERNEL);
++		} else {
++			data = NULL;
++		}
  
  		/* free package regardless of whether kmemdup succeeded */
  		kfree(package);
- 
--		if (data) {
--			/* we need only the data size */
--			len -= sizeof(*package);
-+		if (data)
- 			goto parse;
--		}
- 	}
- 
- 	/* If it's not available, try from the filesystem */
 -- 
 2.33.0
 
