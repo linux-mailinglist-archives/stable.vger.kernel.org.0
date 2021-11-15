@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7D724527A5
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:27:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D68D452676
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:02:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243500AbhKPC3v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:29:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47706 "EHLO mail.kernel.org"
+        id S1350836AbhKPCFn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:05:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237035AbhKORQM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:16:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D1C63246;
-        Mon, 15 Nov 2021 17:12:34 +0000 (UTC)
+        id S239585AbhKOSDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:03:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0E7A6334E;
+        Mon, 15 Nov 2021 17:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996355;
-        bh=iW7bRT3Q5oUIXLn4aRaqSRph6rITcwiUaTSvH7ilcwg=;
+        s=korg; t=1636997885;
+        bh=zPgemiYMLS9FW9uQAs6BaeEbjY5O+4QDfROo06PaKhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XlFM7GsJ3/1aaayemzBFMLBe9+/mJHsfe7nxRWWmwgb/t32WyXXh+HrLL+7rARNvq
-         HQquYzlYfmxfkTbNSFluniq4IBWS9jgQ4KSvDfOVK+xQQN56xKcCQ3D/IurPQNU+ky
-         Q80AAG2WtPRaBxzoAkzgYXlRUnGn66Xesq7VHPXM=
+        b=rU/TLaGAteySGeYvFjk07rpy3OwxQcvW0moBrf8IWhTSq9YxdYEyF9iZXo2bb9Pz9
+         IqO03QJS3ps0I+chXkkrgyFI6cBQ5H1UDKAn9XNdNsw2YEwRP92ZvqD7MHK0gQAtty
+         eCIXXEdeDwQ5RfYlZaxwi4oI0gmT9TZuGwiYh9HE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 110/355] USB: iowarrior: fix control-message timeouts
-Date:   Mon, 15 Nov 2021 18:00:34 +0100
-Message-Id: <20211115165317.364490410@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 310/575] crypto: qat - disregard spurious PFVF interrupts
+Date:   Mon, 15 Nov 2021 18:00:35 +0100
+Message-Id: <20211115165354.509249993@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,55 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-commit 79a4479a17b83310deb0b1a2a274fe5be12d2318 upstream.
+[ Upstream commit 18fcba469ba5359c1de7e3fb16f7b9e8cd1b8e02 ]
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+Upon receiving a PFVF message, check if the interrupt bit is set in the
+message. If it is not, that means that the interrupt was probably
+triggered by a collision. In this case, disregard the message and
+re-enable the interrupts.
 
-Use the common control-message timeout define for the five-second
-timeout and drop the driver-specific one.
-
-Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
-Cc: stable@vger.kernel.org      # 2.6.21
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211025115159.4954-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/iowarrior.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 6 ++++++
+ drivers/crypto/qat/qat_common/adf_vf_isr.c    | 6 ++++++
+ 2 files changed, 12 insertions(+)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -99,10 +99,6 @@ struct iowarrior {
- /*    globals   */
- /*--------------*/
+diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+index a5bd77d0f0487..d7ca222f0df18 100644
+--- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
++++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+@@ -205,6 +205,11 @@ void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
  
--/*
-- *  USB spec identifies 5 second timeouts.
-- */
--#define GET_TIMEOUT 5
- #define USB_REQ_GET_REPORT  0x01
- //#if 0
- static int usb_get_report(struct usb_device *dev,
-@@ -114,7 +110,7 @@ static int usb_get_report(struct usb_dev
- 			       USB_DIR_IN | USB_TYPE_CLASS |
- 			       USB_RECIP_INTERFACE, (type << 8) + id,
- 			       inter->desc.bInterfaceNumber, buf, size,
--			       GET_TIMEOUT*HZ);
-+			       USB_CTRL_GET_TIMEOUT);
- }
- //#endif
+ 	/* Read message from the VF */
+ 	msg = ADF_CSR_RD(pmisc_addr, hw_data->get_pf2vf_offset(vf_nr));
++	if (!(msg & ADF_VF2PF_INT)) {
++		dev_info(&GET_DEV(accel_dev),
++			 "Spurious VF2PF interrupt, msg %X. Ignored\n", msg);
++		goto out;
++	}
  
-@@ -129,7 +125,7 @@ static int usb_set_report(struct usb_int
- 			       USB_TYPE_CLASS | USB_RECIP_INTERFACE,
- 			       (type << 8) + id,
- 			       intf->cur_altsetting->desc.bInterfaceNumber, buf,
--			       size, HZ);
-+			       size, 1000);
- }
+ 	/* To ACK, clear the VF2PFINT bit */
+ 	msg &= ~ADF_VF2PF_INT;
+@@ -288,6 +293,7 @@ void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
+ 	if (resp && adf_iov_putmsg(accel_dev, resp, vf_nr))
+ 		dev_err(&GET_DEV(accel_dev), "Failed to send response to VF\n");
  
- /*---------------------*/
++out:
+ 	/* re-enable interrupt on PF from this VF */
+ 	adf_enable_vf2pf_interrupts(accel_dev, (1 << vf_nr));
+ 	return;
+diff --git a/drivers/crypto/qat/qat_common/adf_vf_isr.c b/drivers/crypto/qat/qat_common/adf_vf_isr.c
+index 024401ec9d1ae..fa1b3a94155cc 100644
+--- a/drivers/crypto/qat/qat_common/adf_vf_isr.c
++++ b/drivers/crypto/qat/qat_common/adf_vf_isr.c
+@@ -79,6 +79,11 @@ static void adf_pf2vf_bh_handler(void *data)
+ 
+ 	/* Read the message from PF */
+ 	msg = ADF_CSR_RD(pmisc_bar_addr, hw_data->get_pf2vf_offset(0));
++	if (!(msg & ADF_PF2VF_INT)) {
++		dev_info(&GET_DEV(accel_dev),
++			 "Spurious PF2VF interrupt, msg %X. Ignored\n", msg);
++		goto out;
++	}
+ 
+ 	if (!(msg & ADF_PF2VF_MSGORIGIN_SYSTEM))
+ 		/* Ignore legacy non-system (non-kernel) PF2VF messages */
+@@ -127,6 +132,7 @@ static void adf_pf2vf_bh_handler(void *data)
+ 	msg &= ~ADF_PF2VF_INT;
+ 	ADF_CSR_WR(pmisc_bar_addr, hw_data->get_pf2vf_offset(0), msg);
+ 
++out:
+ 	/* Re-enable PF2VF interrupts */
+ 	adf_enable_pf2vf_interrupts(accel_dev);
+ 	return;
+-- 
+2.33.0
+
 
 
