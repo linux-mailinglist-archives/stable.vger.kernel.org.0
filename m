@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4EEF452221
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:07:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 766C745252D
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350426AbhKPBKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:10:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
+        id S1352049AbhKPBrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:47:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244916AbhKOTSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5D126342D;
-        Mon, 15 Nov 2021 18:25:30 +0000 (UTC)
+        id S240836AbhKOSQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:16:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B167633EA;
+        Mon, 15 Nov 2021 17:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000731;
-        bh=bp8XQciujjx2tduNWt7kp6MnhtEOcBX9budyB4cej3w=;
+        s=korg; t=1636998627;
+        bh=a7OMn0YFCZkpcYS/A6FAT4bxPuZiIcShRV1DyD0NRis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t1/XOUFgM/1k5rhAimDFXIPjoqqRF1cDFeDOpfst1T/w9jVBBipO3U3RdGnnGVTRo
-         KsS3zRtclh2ZcMjOTppY32SQCFZm/oz2ZNtuDzh8ZkW7zpMljGyd3f/sBiPuNIeMUO
-         uw1pTvdLLu4MCak7TIp43syFOWr6oUY02PGCC8r8=
+        b=yVNQGU96V5ZRK8MsiSU7iImQxFdcrcNm4wKMMPTdH47aXjYt/YcmFoD+HIskJJCew
+         +WcKNdKv87FqAZdSC2gU+1rDMHrmFy/L02WyQ+wX3KJU3NVLi9418N0GsF972O7q+Z
+         Je2dXhGluIiYfmI+4qi7l2DWgQMIGX5CyHjYXY4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
-        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 770/849] drm/i915/fb: Fix rounding error in subsampled plane size calculation
-Date:   Mon, 15 Nov 2021 18:04:13 +0100
-Message-Id: <20211115165446.309483174@linuxfoundation.org>
+Subject: [PATCH 5.10 535/575] vsock: prevent unnecessary refcnt inc for nonblocking connect
+Date:   Mon, 15 Nov 2021 18:04:20 +0100
+Message-Id: <20211115165402.177569284@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Imre Deak <imre.deak@intel.com>
+From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
 
-[ Upstream commit 90ab96f3872eae816f4e07deaa77322a91237960 ]
+[ Upstream commit c7cd82b90599fa10915f41e3dd9098a77d0aa7b6 ]
 
-For NV12 FBs with odd main surface tile-row height the CCS surface
-height was incorrectly calculated 1 less than the actual value. Fix this
-by rounding up the result of divison. For consistency do the same for
-the CCS surface width calculation.
+Currently vosck_connect() increments sock refcount for nonblocking
+socket each time it's called, which can lead to memory leak if
+it's called multiple times because connect timeout function decrements
+sock refcount only once.
 
-Fixes: b3e57bccd68a ("drm/i915/tgl: Gen-12 render decompression")
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Reviewed-by: Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211026225105.2783797-2-imre.deak@intel.com
-(cherry picked from commit 2ee5ef9c934ad26376c9282171e731e6c0339815)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes it by making vsock_connect() return -EALREADY immediately when
+sock state is already SS_CONNECTING.
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_fb.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/vmw_vsock/af_vsock.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_fb.c b/drivers/gpu/drm/i915/display/intel_fb.c
-index c60a81a81c09c..c6413c5409420 100644
---- a/drivers/gpu/drm/i915/display/intel_fb.c
-+++ b/drivers/gpu/drm/i915/display/intel_fb.c
-@@ -172,8 +172,9 @@ static void intel_fb_plane_dims(const struct intel_framebuffer *fb, int color_pl
- 
- 	intel_fb_plane_get_subsampling(&main_hsub, &main_vsub, &fb->base, main_plane);
- 	intel_fb_plane_get_subsampling(&hsub, &vsub, &fb->base, color_plane);
--	*w = fb->base.width / main_hsub / hsub;
--	*h = fb->base.height / main_vsub / vsub;
-+
-+	*w = DIV_ROUND_UP(fb->base.width, main_hsub * hsub);
-+	*h = DIV_ROUND_UP(fb->base.height, main_vsub * vsub);
- }
- 
- static u32 intel_adjust_tile_offset(int *x, int *y,
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 326250513570e..7fe36dbcbe187 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1279,6 +1279,8 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
+ 		 * non-blocking call.
+ 		 */
+ 		err = -EALREADY;
++		if (flags & O_NONBLOCK)
++			goto out;
+ 		break;
+ 	default:
+ 		if ((sk->sk_state == TCP_LISTEN) ||
 -- 
 2.33.0
 
