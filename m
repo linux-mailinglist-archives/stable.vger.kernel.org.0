@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E9F6450CD5
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:41:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAF3545103E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:42:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237286AbhKORoc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:44:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57860 "EHLO mail.kernel.org"
+        id S242096AbhKOSpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:45:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237058AbhKORly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:41:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26D6A632FB;
-        Mon, 15 Nov 2021 17:27:29 +0000 (UTC)
+        id S238066AbhKOSmq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:42:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 050AD632FD;
+        Mon, 15 Nov 2021 18:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997249;
-        bh=yEhwxwhZR3+nwaMvzKJKR28jKlABA332O8um+9J1pwg=;
+        s=korg; t=1636999504;
+        bh=/df6E/pzX0/vPDpg042wquEswSft4/w11//V6dS6SPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E+K3HHFuuscjgNhDl4rOkRqL+YMe5ukMBtLZVRvB9lU+1LXAveFfCs5UGa9i2ibdZ
-         J6EgD9+FCX6iRh8e6ykdmBPtlpYXOoX+vcfbF+ETGzkHwKlQNf2PCii1/Mnf1CynFT
-         +ilTW1VEJFVQYSJUcX3uYyoi0nlc1EiA00w8vXcY=
+        b=oCh/olKwW2nVbt9fuLS96G2z3Q4ljZkuIst2qVWyVBURkQaeo9us++/PF9Vmqlsl2
+         pPzXtV7ZI9yCavfx7SbGG1lAfWBQR5QTfJ7h9+rhlruVdU0rJWdXVOVrNg76RgkMTx
+         eHeBP1Z03/9AyZMc8cyKpsKthz5Ati4JUONgKhZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Dinoff <fdinoff@google.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.10 046/575] fuse: fix page stealing
+        stable@vger.kernel.org, Lasse Collin <lasse.collin@tukaani.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 288/849] lib/xz: Validate the value before assigning it to an enum variable
 Date:   Mon, 15 Nov 2021 17:56:11 +0100
-Message-Id: <20211115165345.230292968@linuxfoundation.org>
+Message-Id: <20211115165430.018613138@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Lasse Collin <lasse.collin@tukaani.org>
 
-commit 712a951025c0667ff00b25afc360f74e639dfabe upstream.
+[ Upstream commit 4f8d7abaa413c34da9d751289849dbfb7c977d05 ]
 
-It is possible to trigger a crash by splicing anon pipe bufs to the fuse
-device.
+This might matter, for example, if the underlying type of enum xz_check
+was a signed char. In such a case the validation wouldn't have caught an
+unsupported header. I don't know if this problem can occur in the kernel
+on any arch but it's still good to fix it because some people might copy
+the XZ code to their own projects from Linux instead of the upstream
+XZ Embedded repository.
 
-The reason for this is that anon_pipe_buf_release() will reuse buf->page if
-the refcount is 1, but that page might have already been stolen and its
-flags modified (e.g. PG_lru added).
+This change may increase the code size by a few bytes. An alternative
+would have been to use an unsigned int instead of enum xz_check but
+using an enumeration looks cleaner.
 
-This happens in the unlikely case of fuse_dev_splice_write() getting around
-to calling pipe_buf_release() after a page has been stolen, added to the
-page cache and removed from the page cache.
-
-Fix by calling pipe_buf_release() right after the page was inserted into
-the page cache.  In this case the page has an elevated refcount so any
-release function will know that the page isn't reusable.
-
-Reported-by: Frank Dinoff <fdinoff@google.com>
-Link: https://lore.kernel.org/r/CAAmZXrsGg2xsP1CK+cbuEMumtrqdvD-NKnWzhNcvn71RV3c1yw@mail.gmail.com/
-Fixes: dd3bb14f44a6 ("fuse: support splice() writing to fuse device")
-Cc: <stable@vger.kernel.org> # v2.6.35
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20211010213145.17462-3-xiang@kernel.org
+Signed-off-by: Lasse Collin <lasse.collin@tukaani.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ lib/xz/xz_dec_stream.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -851,6 +851,12 @@ static int fuse_try_move_page(struct fus
- 		goto out_put_old;
- 	}
- 
-+	/*
-+	 * Release while we have extra ref on stolen page.  Otherwise
-+	 * anon_pipe_buf_release() might think the page can be reused.
-+	 */
-+	pipe_buf_release(cs->pipe, buf);
+diff --git a/lib/xz/xz_dec_stream.c b/lib/xz/xz_dec_stream.c
+index fea86deaaa01d..683570b93a8c4 100644
+--- a/lib/xz/xz_dec_stream.c
++++ b/lib/xz/xz_dec_stream.c
+@@ -402,12 +402,12 @@ static enum xz_ret dec_stream_header(struct xz_dec *s)
+ 	 * we will accept other check types too, but then the check won't
+ 	 * be verified and a warning (XZ_UNSUPPORTED_CHECK) will be given.
+ 	 */
++	if (s->temp.buf[HEADER_MAGIC_SIZE + 1] > XZ_CHECK_MAX)
++		return XZ_OPTIONS_ERROR;
 +
- 	get_page(newpage);
+ 	s->check_type = s->temp.buf[HEADER_MAGIC_SIZE + 1];
  
- 	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
-@@ -2035,8 +2041,12 @@ static ssize_t fuse_dev_splice_write(str
- 
- 	pipe_lock(pipe);
- out_free:
--	for (idx = 0; idx < nbuf; idx++)
--		pipe_buf_release(pipe, &bufs[idx]);
-+	for (idx = 0; idx < nbuf; idx++) {
-+		struct pipe_buffer *buf = &bufs[idx];
-+
-+		if (buf->ops)
-+			pipe_buf_release(pipe, buf);
-+	}
- 	pipe_unlock(pipe);
- 
- 	kvfree(bufs);
+ #ifdef XZ_DEC_ANY_CHECK
+-	if (s->check_type > XZ_CHECK_MAX)
+-		return XZ_OPTIONS_ERROR;
+-
+ 	if (s->check_type > XZ_CHECK_CRC32)
+ 		return XZ_UNSUPPORTED_CHECK;
+ #else
+-- 
+2.33.0
+
 
 
