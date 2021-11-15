@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF6214527AD
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:27:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7697C45238F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242289AbhKPCaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:30:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50536 "EHLO mail.kernel.org"
+        id S1348489AbhKPB1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:27:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235145AbhKORQx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:16:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA12D63256;
-        Mon, 15 Nov 2021 17:12:50 +0000 (UTC)
+        id S243889AbhKOTEg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:04:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D283563381;
+        Mon, 15 Nov 2021 18:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996371;
-        bh=wFMUeH1FDA87z3CGgGJ9U3yq3OQ7CrXInZWnOAy9wXQ=;
+        s=korg; t=1637000155;
+        bh=aJTjp7Ku+2Br8wp9uCCFVdZxi92EyVIzEBzFtN4TnSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VHDmnGZQS5/5pfbaeWF7BlNBByry146KowPY1wLzdjp2kyeS5Yvp11URpg4uRga9Y
-         GNjOjv4xeQMMjMrmRPNbeAQoYks2OqHwkyOV2nW4z0O4MN8KT8uW8+F3Uk81stATuT
-         5zfo/35kXIXYt05gu+rFyLW9ChuHFl00ZXdaUvwc=
+        b=bGB2kJk9FFDMUkvlhRpFoLr1d35f8FlrHL46fUqdECZ+ZQdX3IARwe3/7SEMlQrOL
+         g165jZu5cDFVPieHAqvmITvuaCGH0oqdSes9jLn1BHIqD+Y4m6fKUVyVU/uZo3j+cx
+         5nG05ZRCRgUq+u8bXZNbF1Ys7hJQa6q7Kf+cuvHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Jackie Liu <liuyun01@kylinos.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 116/355] Bluetooth: sco: Fix lock_sock() blockage by memcpy_from_msg()
+Subject: [PATCH 5.14 557/849] ARM: s3c: irq-s3c24xx: Fix return value check for s3c24xx_init_intc()
 Date:   Mon, 15 Nov 2021 18:00:40 +0100
-Message-Id: <20211115165317.561104921@linuxfoundation.org>
+Message-Id: <20211115165439.105462914@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,93 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jackie Liu <liuyun01@kylinos.cn>
 
-[ Upstream commit 99c23da0eed4fd20cae8243f2b51e10e66aa0951 ]
+[ Upstream commit 2aa717473ce96c93ae43a5dc8c23cedc8ce7dd9f ]
 
-The sco_send_frame() also takes lock_sock() during memcpy_from_msg()
-call that may be endlessly blocked by a task with userfaultd
-technique, and this will result in a hung task watchdog trigger.
+The s3c24xx_init_intc() returns an error pointer upon failure, not NULL.
+let's add an error pointer check in s3c24xx_handle_irq.
 
-Just like the similar fix for hci_sock_sendmsg() in commit
-92c685dc5de0 ("Bluetooth: reorganize functions..."), this patch moves
-the  memcpy_from_msg() out of lock_sock() for addressing the hang.
+s3c_intc[0] is not NULL or ERR, we can simplify the code.
 
-This should be the last piece for fixing CVE-2021-3640 after a few
-already queued fixes.
-
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 1f629b7a3ced ("ARM: S3C24XX: transform irq handling into a declarative form")
+Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+Link: https://lore.kernel.org/r/20210901123557.1043953-1-liu.yun@linux.dev
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ arch/arm/mach-s3c/irq-s3c24xx.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 1915943bb646a..cc5a1d2545679 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -280,7 +280,8 @@ static int sco_connect(struct hci_dev *hdev, struct sock *sk)
- 	return err;
- }
- 
--static int sco_send_frame(struct sock *sk, struct msghdr *msg, int len)
-+static int sco_send_frame(struct sock *sk, void *buf, int len,
-+			  unsigned int msg_flags)
+diff --git a/arch/arm/mach-s3c/irq-s3c24xx.c b/arch/arm/mach-s3c/irq-s3c24xx.c
+index 0c631c14a8172..53081505e3976 100644
+--- a/arch/arm/mach-s3c/irq-s3c24xx.c
++++ b/arch/arm/mach-s3c/irq-s3c24xx.c
+@@ -362,11 +362,25 @@ static inline int s3c24xx_handle_intc(struct s3c_irq_intc *intc,
+ static asmlinkage void __exception_irq_entry s3c24xx_handle_irq(struct pt_regs *regs)
  {
- 	struct sco_conn *conn = sco_pi(sk)->conn;
- 	struct sk_buff *skb;
-@@ -292,15 +293,11 @@ static int sco_send_frame(struct sock *sk, struct msghdr *msg, int len)
+ 	do {
+-		if (likely(s3c_intc[0]))
+-			if (s3c24xx_handle_intc(s3c_intc[0], regs, 0))
+-				continue;
++		/*
++		 * For platform based machines, neither ERR nor NULL can happen here.
++		 * The s3c24xx_handle_irq() will be set as IRQ handler iff this succeeds:
++		 *
++		 *    s3c_intc[0] = s3c24xx_init_intc()
++		 *
++		 * If this fails, the next calls to s3c24xx_init_intc() won't be executed.
++		 *
++		 * For DT machine, s3c_init_intc_of() could set the IRQ handler without
++		 * setting s3c_intc[0] only if it was called with num_ctrl=0. There is no
++		 * such code path, so again the s3c_intc[0] will have a valid pointer if
++		 * set_handle_irq() is called.
++		 *
++		 * Therefore in s3c24xx_handle_irq(), the s3c_intc[0] is always something.
++		 */
++		if (s3c24xx_handle_intc(s3c_intc[0], regs, 0))
++			continue;
  
- 	BT_DBG("sk %p len %d", sk, len);
- 
--	skb = bt_skb_send_alloc(sk, len, msg->msg_flags & MSG_DONTWAIT, &err);
-+	skb = bt_skb_send_alloc(sk, len, msg_flags & MSG_DONTWAIT, &err);
- 	if (!skb)
- 		return err;
- 
--	if (memcpy_from_msg(skb_put(skb, len), msg, len)) {
--		kfree_skb(skb);
--		return -EFAULT;
--	}
--
-+	memcpy(skb_put(skb, len), buf, len);
- 	hci_send_sco(conn->hcon, skb);
- 
- 	return len;
-@@ -714,6 +711,7 @@ static int sco_sock_sendmsg(struct socket *sock, struct msghdr *msg,
- 			    size_t len)
- {
- 	struct sock *sk = sock->sk;
-+	void *buf;
- 	int err;
- 
- 	BT_DBG("sock %p, sk %p", sock, sk);
-@@ -725,14 +723,24 @@ static int sco_sock_sendmsg(struct socket *sock, struct msghdr *msg,
- 	if (msg->msg_flags & MSG_OOB)
- 		return -EOPNOTSUPP;
- 
-+	buf = kmalloc(len, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	if (memcpy_from_msg(buf, msg, len)) {
-+		kfree(buf);
-+		return -EFAULT;
-+	}
-+
- 	lock_sock(sk);
- 
- 	if (sk->sk_state == BT_CONNECTED)
--		err = sco_send_frame(sk, msg, len);
-+		err = sco_send_frame(sk, buf, len, msg->msg_flags);
- 	else
- 		err = -ENOTCONN;
- 
- 	release_sock(sk);
-+	kfree(buf);
- 	return err;
- }
+-		if (s3c_intc[2])
++		if (!IS_ERR_OR_NULL(s3c_intc[2]))
+ 			if (s3c24xx_handle_intc(s3c_intc[2], regs, 64))
+ 				continue;
  
 -- 
 2.33.0
