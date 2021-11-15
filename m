@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3B324513C9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:54:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3739A4513D4
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343934AbhKOT4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:56:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45392 "EHLO mail.kernel.org"
+        id S1347293AbhKOT4t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:56:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344054AbhKOTXM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344059AbhKOTXM (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:23:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0808633BC;
-        Mon, 15 Nov 2021 18:51:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4711463454;
+        Mon, 15 Nov 2021 18:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002264;
-        bh=1srJoXs98ztI5OSn27Zssx/V/2oItZpf/I5+Vr7ygU8=;
+        s=korg; t=1637002266;
+        bh=blodhIHFC8tOY9X//jl/GQPqkYAtWROkyMRhJtL8LNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+wy6b/YzzysHEVVfwMMzXqA81Y5LY2ilnNsgsCRpdbzg6/LKayZ2BXbPJitrzN5A
-         7/pD801G3IrD4JjcrHFcHHvjD1AanxDLIottubpA6oTD8J8i2em5QFxMOrWKgv8ZyR
-         mje5t9M4i7oSgo85O4Uj3h5uGehY2wtYfk/Jh/jo=
+        b=eMXd698zDzC/3JQYfQOXt79+0ziVoVcK3o+sNthqguQqcALd16bfaIqvafjpigN6g
+         prbI9M6l7hAfhsLHTTZALaZgMUUSP8h6rTUaTQ13Wyp/5NhSfWZ1FNje6WnX2xTSwX
+         sC4ZoIzu0ZeQyyzGSp++pHPiel0ZG0lTHrgOSyJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Mauricio=20V=C3=A1squez?= <mauricio@kinvolk.io>,
+        stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
         Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 501/917] libbpf: Fix memory leak in btf__dedup()
-Date:   Mon, 15 Nov 2021 17:59:56 +0100
-Message-Id: <20211115165445.759234614@linuxfoundation.org>
+Subject: [PATCH 5.15 502/917] bpftool: Avoid leaking the JSON writer prepared for program metadata
+Date:   Mon, 15 Nov 2021 17:59:57 +0100
+Message-Id: <20211115165445.790114514@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,38 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauricio Vásquez <mauricio@kinvolk.io>
+From: Quentin Monnet <quentin@isovalent.com>
 
-[ Upstream commit 1000298c76830bc291358e98e8fa5baa3baa9b3a ]
+[ Upstream commit e89ef634f81c9d90e1824ab183721f3b361472e6 ]
 
-Free btf_dedup if btf_ensure_modifiable() returns error.
+Bpftool creates a new JSON object for writing program metadata in plain
+text mode, regardless of metadata being present or not. Then this writer
+is freed if any metadata has been found and printed, but it leaks
+otherwise. We cannot destroy the object unconditionally, because the
+destructor prints an undesirable line break. Instead, make sure the
+writer is created only after we have found program metadata to print.
 
-Fixes: 919d2b1dbb07 ("libbpf: Allow modification of BTF and add btf__add_str API")
-Signed-off-by: Mauricio Vásquez <mauricio@kinvolk.io>
+Found with valgrind.
+
+Fixes: aff52e685eb3 ("bpftool: Support dumping metadata")
+Signed-off-by: Quentin Monnet <quentin@isovalent.com>
 Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20211022202035.48868-1-mauricio@kinvolk.io
+Link: https://lore.kernel.org/bpf/20211022094743.11052-1-quentin@isovalent.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/btf.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/bpf/bpftool/prog.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
-index 77dc24d58302d..bf8c8676d68e5 100644
---- a/tools/lib/bpf/btf.c
-+++ b/tools/lib/bpf/btf.c
-@@ -2914,8 +2914,10 @@ int btf__dedup(struct btf *btf, struct btf_ext *btf_ext,
- 		return libbpf_err(-EINVAL);
- 	}
+diff --git a/tools/bpf/bpftool/prog.c b/tools/bpf/bpftool/prog.c
+index 9c3e343b7d872..fe59404e87046 100644
+--- a/tools/bpf/bpftool/prog.c
++++ b/tools/bpf/bpftool/prog.c
+@@ -308,18 +308,12 @@ static void show_prog_metadata(int fd, __u32 num_maps)
+ 		if (printed_header)
+ 			jsonw_end_object(json_wtr);
+ 	} else {
+-		json_writer_t *btf_wtr = jsonw_new(stdout);
++		json_writer_t *btf_wtr;
+ 		struct btf_dumper d = {
+ 			.btf = btf,
+-			.jw = btf_wtr,
+ 			.is_plain_text = true,
+ 		};
  
--	if (btf_ensure_modifiable(btf))
--		return libbpf_err(-ENOMEM);
-+	if (btf_ensure_modifiable(btf)) {
-+		err = -ENOMEM;
-+		goto done;
-+	}
+-		if (!btf_wtr) {
+-			p_err("jsonw alloc failed");
+-			goto out_free;
+-		}
+-
+ 		for (i = 0; i < vlen; i++, vsi++) {
+ 			t_var = btf__type_by_id(btf, vsi->type);
+ 			name = btf__name_by_offset(btf, t_var->name_off);
+@@ -329,6 +323,14 @@ static void show_prog_metadata(int fd, __u32 num_maps)
  
- 	err = btf_dedup_prep(d);
- 	if (err) {
+ 			if (!printed_header) {
+ 				printf("\tmetadata:");
++
++				btf_wtr = jsonw_new(stdout);
++				if (!btf_wtr) {
++					p_err("jsonw alloc failed");
++					goto out_free;
++				}
++				d.jw = btf_wtr,
++
+ 				printed_header = true;
+ 			}
+ 
 -- 
 2.33.0
 
