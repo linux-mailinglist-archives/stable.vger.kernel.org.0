@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A4BC452560
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:47:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C84045222E
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358200AbhKPBuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:50:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56274 "EHLO mail.kernel.org"
+        id S1346903AbhKPBKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:10:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240726AbhKOSQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:16:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F1A7632AA;
-        Mon, 15 Nov 2021 17:50:11 +0000 (UTC)
+        id S245049AbhKOTSi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6026A634F7;
+        Mon, 15 Nov 2021 18:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998612;
-        bh=tkMHConzsAV732kxPz1J4UTMzPaWKtcZUIuMrUyCARA=;
+        s=korg; t=1637000848;
+        bh=wkIfv2jH8IxmaO6C+zXuyqF3zwBT4qblZ0rFJEf+Kkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MdYrlnyiWWdiF3e6AvdBVaW9eb2ULoeLSNlPUOF1c+3a2qNKKc2emhCd9g9yIIVH+
-         8gejoD8XBjszQrdoR8rDWUcXbOiwmuRzZKT3uf3199JIiLGhoKaWxQPGORRYKZtaU4
-         YJTs7nFpKG49S9HK4BBq/L9EmD1DVnyJUFE8HT10=
+        b=pOxgytqLu3tuPIAujFkvIT0MtkfPA773tud+rxL6Xt8VB0ya3zBDg2s5NUME1wjNB
+         Dw5AdxbJj3oK6T+72Vlmob4dn/sV0xBUF0C6VCDcIRb8hfD2DPZYo7IHQaNKLh83Sj
+         hTh8JvtiwWB0eNSl/I71KXUamV/SUlQkTtmOHrbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Antonio Terceiro <antonio.terceiro@linaro.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Sebastian Andrzej Siewior <sebastian@breakpoint.cc>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Klaus Kudielka <klaus.kudielka@gmail.com>,
-        Matthias Klose <doko@debian.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.10 540/575] ARM: 9156/1: drop cc-option fallbacks for architecture selection
+        stable@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 782/849] net/smc: fix sk_refcnt underflow on linkdown and fallback
 Date:   Mon, 15 Nov 2021 18:04:25 +0100
-Message-Id: <20211115165402.358339467@linuxfoundation.org>
+Message-Id: <20211115165446.700180669@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,103 +42,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dust Li <dust.li@linux.alibaba.com>
 
-commit 418ace9992a7647c446ed3186df40cf165b67298 upstream.
+[ Upstream commit e5d5aadcf3cd59949316df49c27cb21788d7efe4 ]
 
-Naresh and Antonio ran into a build failure with latest Debian
-armhf compilers, with lots of output like
+We got the following WARNING when running ab/nginx
+test with RDMA link flapping (up-down-up).
+The reason is when smc_sock fallback and at linkdown
+happens simultaneously, we may got the following situation:
 
- tmp/ccY3nOAs.s:2215: Error: selected processor does not support `cpsid i' in ARM mode
+__smc_lgr_terminate()
+ --> smc_conn_kill()
+    --> smc_close_active_abort()
+           smc_sock->sk_state = SMC_CLOSED
+           sock_put(smc_sock)
 
-As it turns out, $(cc-option) fails early here when the FPU is not
-selected before CPU architecture is selected, as the compiler
-option check runs before enabling -msoft-float, which causes
-a problem when testing a target architecture level without an FPU:
+smc_sock was set to SMC_CLOSED and sock_put() been called
+when terminate the link group. But later application call
+close() on the socket, then we got:
 
-cc1: error: '-mfloat-abi=hard': selected architecture lacks an FPU
+__smc_release():
+    if (smc_sock->fallback)
+        smc_sock->sk_state = SMC_CLOSED
+        sock_put(smc_sock)
 
-Passing e.g. -march=armv6k+fp in place of -march=armv6k would avoid this
-issue, but the fallback logic is already broken because all supported
-compilers (gcc-5 and higher) are much more recent than these options,
-and building with -march=armv5t as a fallback no longer works.
+Again we set the smc_sock to CLOSED through it's already
+in CLOSED state, and double put the refcnt, so the following
+warning happens:
 
-The best way forward that I see is to just remove all the checks, which
-also has the nice side-effect of slightly improving the startup time for
-'make'.
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 5 PID: 860 at lib/refcount.c:28 refcount_warn_saturate+0x8d/0xf0
+Modules linked in:
+CPU: 5 PID: 860 Comm: nginx Not tainted 5.10.46+ #403
+Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 8c24b4c 04/01/2014
+RIP: 0010:refcount_warn_saturate+0x8d/0xf0
+Code: 05 5c 1e b5 01 01 e8 52 25 bc ff 0f 0b c3 80 3d 4f 1e b5 01 00 75 ad 48
 
-The -mtune=marvell-f option was apparently never supported by any mainline
-compiler, and the custom Codesourcery gcc build that did support is
-now too old to build kernels, so just use -mtune=xscale unconditionally
-for those.
+RSP: 0018:ffffc90000527e50 EFLAGS: 00010286
+RAX: 0000000000000026 RBX: ffff8881300df2c0 RCX: 0000000000000027
+RDX: 0000000000000000 RSI: ffff88813bd58040 RDI: ffff88813bd58048
+RBP: 0000000000000000 R08: 0000000000000003 R09: 0000000000000001
+R10: ffff8881300df2c0 R11: ffffc90000527c78 R12: ffff8881300df340
+R13: ffff8881300df930 R14: ffff88810b3dad80 R15: ffff8881300df4f8
+FS:  00007f739de8fb80(0000) GS:ffff88813bd40000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000a01b008 CR3: 0000000111b64003 CR4: 00000000003706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ smc_release+0x353/0x3f0
+ __sock_release+0x3d/0xb0
+ sock_close+0x11/0x20
+ __fput+0x93/0x230
+ task_work_run+0x65/0xa0
+ exit_to_user_mode_prepare+0xf9/0x100
+ syscall_exit_to_user_mode+0x27/0x190
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-This should be safe to apply on all stable kernels, and will be required
-in order to keep building them with gcc-11 and higher.
+This patch adds check in __smc_release() to make
+sure we won't do an extra sock_put() and set the
+socket to CLOSED when its already in CLOSED state.
 
-Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=996419
-
-Reported-by: Antonio Terceiro <antonio.terceiro@linaro.org>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reported-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
-Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Tested-by: Klaus Kudielka <klaus.kudielka@gmail.com>
-Cc: Matthias Klose <doko@debian.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 51f1de79ad8e (net/smc: replace sock_put worker by socket refcounting)
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Makefile |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ net/smc/af_smc.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -60,15 +60,15 @@ KBUILD_CFLAGS	+= $(call cc-option,-fno-i
- # Note that GCC does not numerically define an architecture version
- # macro, but instead defines a whole series of macros which makes
- # testing for a specific architecture or later rather impossible.
--arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m -Wa,-march=armv7-m
--arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
--arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6,-march=armv5t -Wa$(comma)-march=armv6)
-+arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m
-+arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 -march=armv7-a
-+arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 -march=armv6
- # Only override the compiler option if ARMv6. The ARMv6K extensions are
- # always available in ARMv7
- ifeq ($(CONFIG_CPU_32v6),y)
--arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6k,-march=armv5t -Wa$(comma)-march=armv6k)
-+arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 -march=armv6k
- endif
--arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5te,-march=armv4t)
-+arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 -march=armv5te
- arch-$(CONFIG_CPU_32v4T)	=-D__LINUX_ARM_ARCH__=4 -march=armv4t
- arch-$(CONFIG_CPU_32v4)		=-D__LINUX_ARM_ARCH__=4 -march=armv4
- arch-$(CONFIG_CPU_32v3)		=-D__LINUX_ARM_ARCH__=3 -march=armv3m
-@@ -82,7 +82,7 @@ tune-$(CONFIG_CPU_ARM720T)	=-mtune=arm7t
- tune-$(CONFIG_CPU_ARM740T)	=-mtune=arm7tdmi
- tune-$(CONFIG_CPU_ARM9TDMI)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM940T)	=-mtune=arm9tdmi
--tune-$(CONFIG_CPU_ARM946E)	=$(call cc-option,-mtune=arm9e,-mtune=arm9tdmi)
-+tune-$(CONFIG_CPU_ARM946E)	=-mtune=arm9e
- tune-$(CONFIG_CPU_ARM920T)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM922T)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM925T)	=-mtune=arm9tdmi
-@@ -90,11 +90,11 @@ tune-$(CONFIG_CPU_ARM926T)	=-mtune=arm9t
- tune-$(CONFIG_CPU_FA526)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_SA110)	=-mtune=strongarm110
- tune-$(CONFIG_CPU_SA1100)	=-mtune=strongarm1100
--tune-$(CONFIG_CPU_XSCALE)	=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
--tune-$(CONFIG_CPU_XSC3)		=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
--tune-$(CONFIG_CPU_FEROCEON)	=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
--tune-$(CONFIG_CPU_V6)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
--tune-$(CONFIG_CPU_V6K)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
-+tune-$(CONFIG_CPU_XSCALE)	=-mtune=xscale
-+tune-$(CONFIG_CPU_XSC3)		=-mtune=xscale
-+tune-$(CONFIG_CPU_FEROCEON)	=-mtune=xscale
-+tune-$(CONFIG_CPU_V6)		=-mtune=arm1136j-s
-+tune-$(CONFIG_CPU_V6K)		=-mtune=arm1136j-s
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 78b663dbfa1f9..32c1c7ce856d3 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -148,14 +148,18 @@ static int __smc_release(struct smc_sock *smc)
+ 		sock_set_flag(sk, SOCK_DEAD);
+ 		sk->sk_shutdown |= SHUTDOWN_MASK;
+ 	} else {
+-		if (sk->sk_state != SMC_LISTEN && sk->sk_state != SMC_INIT)
+-			sock_put(sk); /* passive closing */
+-		if (sk->sk_state == SMC_LISTEN) {
+-			/* wake up clcsock accept */
+-			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
++		if (sk->sk_state != SMC_CLOSED) {
++			if (sk->sk_state != SMC_LISTEN &&
++			    sk->sk_state != SMC_INIT)
++				sock_put(sk); /* passive closing */
++			if (sk->sk_state == SMC_LISTEN) {
++				/* wake up clcsock accept */
++				rc = kernel_sock_shutdown(smc->clcsock,
++							  SHUT_RDWR);
++			}
++			sk->sk_state = SMC_CLOSED;
++			sk->sk_state_change(sk);
+ 		}
+-		sk->sk_state = SMC_CLOSED;
+-		sk->sk_state_change(sk);
+ 		smc_restore_fallback_changes(smc);
+ 	}
  
- # Evaluate tune cc-option calls now
- tune-y := $(tune-y)
+-- 
+2.33.0
+
 
 
