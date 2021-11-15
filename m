@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E84814514A9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:09:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9F884514A4
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:09:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348953AbhKOULq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:11:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45408 "EHLO mail.kernel.org"
+        id S1345787AbhKOUL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:11:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344893AbhKOTZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344886AbhKOTZk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8AE5636DC;
-        Mon, 15 Nov 2021 19:06:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8329E633F3;
+        Mon, 15 Nov 2021 19:06:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003164;
-        bh=SXpQl//cSzbQ+JqKvV+gLM4SyzCJrP/Vt0cswMvhN00=;
+        s=korg; t=1637003167;
+        bh=cUCufqyCkoUxfzYzIIFRB0ZfOKROhjkk/iWzbPfhXW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zo1RMsnNA2EjWtd7nzqEC/BLyM8RJAEMQ7M4KtkcXSA7EaWkgAMqlutwE3GqG+Ztc
-         3JMuvBlit5INkMPveaRq3uOQJ9Teeeff20151o+nP2RlyN2jgdZvN9BX4fWp6eM9Sm
-         zuKIDqb2fc3Q7WaePkBFSsgtelqvZtwd2wv9EwRo=
+        b=rSTTWzpDDnu6V9boPxK7nidNkQBI1lomsYbVbJcY5dIvbiDcqqQiuz9khutTepqZ7
+         HJem35BhmtQiO7y0kqogMPhQ23R37G8LmgEtUETDy5k7p/yMDplOlLTUMBJTHXPRwx
+         4AYgfQyujTkZfar1zzIqgWwvndp9XMvoJvF6GHmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Guangbin Huang <huangguangbin2@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 834/917] net: hns3: fix ROCE base interrupt vector initialization bug
-Date:   Mon, 15 Nov 2021 18:05:29 +0100
-Message-Id: <20211115165457.327518138@linuxfoundation.org>
+Subject: [PATCH 5.15 835/917] net: hns3: fix pfc packet number incorrect after querying pfc parameters
+Date:   Mon, 15 Nov 2021 18:05:30 +0100
+Message-Id: <20211115165457.359070102@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,105 +43,220 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jie Wang <wangjie125@huawei.com>
 
-[ Upstream commit beb27ca451a57a1c0e52b5268703f3c3173c1f8c ]
+[ Upstream commit 0b653a81a26d66ffe526a54c2177e24fb1400301 ]
 
-Currently, NIC init ROCE interrupt vector with MSIX interrupt. But ROCE use
-pci_irq_vector() to get interrupt vector, which adds the relative interrupt
-vector again and gets wrong interrupt vector.
+Currently, driver will send command to firmware to query pfc packet number
+when user uses dcb tool to get pfc parameters. However, the periodic
+service task will also periodically query and record MAC statistics,
+including pfc packet number.
 
-So fixes it by assign relative interrupt vector to ROCE instead of MSIX
-interrupt vector and delete the unused struct member base_msi_vector
-declaration of hclgevf_dev.
+As the hardware registers of statistics is cleared after reading, it will
+cause pfc packet number of MAC statistics are not correct after using dcb
+tool to get pfc parameters.
 
-Fixes: 46a3df9f9718 ("net: hns3: Add HNS3 Acceleration Engine & Compatibility Layer Support")
+To fix this problem, when user uses dcb tool to get pfc parameters, driver
+updates MAC statistics firstly and then get pfc packet number from MAC
+statistics.
+
+Fixes: 64fd2300fcc1 ("net: hns3: add support for querying pfc puase packets statistic")
 Signed-off-by: Jie Wang <wangjie125@huawei.com>
 Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c   | 6 +-----
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h   | 2 --
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 5 +----
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h | 2 --
- 4 files changed, 2 insertions(+), 13 deletions(-)
+ .../hisilicon/hns3/hns3pf/hclge_dcb.c         | 18 ++---
+ .../hisilicon/hns3/hns3pf/hclge_main.c        |  4 +-
+ .../hisilicon/hns3/hns3pf/hclge_main.h        |  4 ++
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.c | 68 +++++++++----------
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_tm.h |  4 +-
+ 5 files changed, 48 insertions(+), 50 deletions(-)
 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+index 91cb578f56b80..90013c131e949 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+@@ -286,28 +286,24 @@ err_out:
+ 
+ static int hclge_ieee_getpfc(struct hnae3_handle *h, struct ieee_pfc *pfc)
+ {
+-	u64 requests[HNAE3_MAX_TC], indications[HNAE3_MAX_TC];
+ 	struct hclge_vport *vport = hclge_get_vport(h);
+ 	struct hclge_dev *hdev = vport->back;
+ 	int ret;
+-	u8 i;
+ 
+ 	memset(pfc, 0, sizeof(*pfc));
+ 	pfc->pfc_cap = hdev->pfc_max;
+ 	pfc->pfc_en = hdev->tm_info.pfc_en;
+ 
+-	ret = hclge_pfc_tx_stats_get(hdev, requests);
+-	if (ret)
++	ret = hclge_mac_update_stats(hdev);
++	if (ret) {
++		dev_err(&hdev->pdev->dev,
++			"failed to update MAC stats, ret = %d.\n", ret);
+ 		return ret;
++	}
+ 
+-	ret = hclge_pfc_rx_stats_get(hdev, indications);
+-	if (ret)
+-		return ret;
++	hclge_pfc_tx_stats_get(hdev, pfc->requests);
++	hclge_pfc_rx_stats_get(hdev, pfc->indications);
+ 
+-	for (i = 0; i < HCLGE_MAX_TC_NUM; i++) {
+-		pfc->requests[i] = requests[i];
+-		pfc->indications[i] = indications[i];
+-	}
+ 	return 0;
+ }
+ 
 diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index d891390d492f6..ffd85cd297ef3 100644
+index ffd85cd297ef3..66c407d0d507e 100644
 --- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
 +++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -2498,7 +2498,7 @@ static int hclge_init_roce_base_info(struct hclge_vport *vport)
- 	if (hdev->num_msi < hdev->num_nic_msi + hdev->num_roce_msi)
- 		return -EINVAL;
+@@ -26,8 +26,6 @@
+ #include "hclge_devlink.h"
  
--	roce->rinfo.base_vector = hdev->roce_base_vector;
-+	roce->rinfo.base_vector = hdev->num_nic_msi;
+ #define HCLGE_NAME			"hclge"
+-#define HCLGE_STATS_READ(p, offset) (*(u64 *)((u8 *)(p) + (offset)))
+-#define HCLGE_MAC_STATS_FIELD_OFF(f) (offsetof(struct hclge_mac_stats, f))
  
- 	roce->rinfo.netdev = nic->kinfo.netdev;
- 	roce->rinfo.roce_io_base = hdev->hw.io_base;
-@@ -2534,10 +2534,6 @@ static int hclge_init_msi(struct hclge_dev *hdev)
- 	hdev->num_msi = vectors;
- 	hdev->num_msi_left = vectors;
+ #define HCLGE_BUF_SIZE_UNIT	256U
+ #define HCLGE_BUF_MUL_BY	2
+@@ -548,7 +546,7 @@ static int hclge_mac_query_reg_num(struct hclge_dev *hdev, u32 *desc_num)
+ 	return 0;
+ }
  
--	hdev->base_msi_vector = pdev->irq;
--	hdev->roce_base_vector = hdev->base_msi_vector +
--				hdev->num_nic_msi;
--
- 	hdev->vector_status = devm_kcalloc(&pdev->dev, hdev->num_msi,
- 					   sizeof(u16), GFP_KERNEL);
- 	if (!hdev->vector_status) {
+-static int hclge_mac_update_stats(struct hclge_dev *hdev)
++int hclge_mac_update_stats(struct hclge_dev *hdev)
+ {
+ 	u32 desc_num;
+ 	int ret;
 diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
-index 69cd8f87b4c86..9111b8c84d786 100644
+index 9111b8c84d786..2fa6e14c96e5b 100644
 --- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
 +++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.h
-@@ -876,12 +876,10 @@ struct hclge_dev {
- 	u16 num_msi;
- 	u16 num_msi_left;
- 	u16 num_msi_used;
--	u32 base_msi_vector;
- 	u16 *vector_status;
- 	int *vector_irq;
- 	u16 num_nic_msi;	/* Num of nic vectors for this PF */
- 	u16 num_roce_msi;	/* Num of roce vectors for this PF */
--	int roce_base_vector;
+@@ -824,6 +824,9 @@ struct hclge_vf_vlan_cfg {
+ 		(y) = (_k_ ^ ~_v_) & (_k_); \
+ 	} while (0)
  
- 	unsigned long service_timer_period;
- 	unsigned long service_timer_previous;
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index cf00ad7bb881f..4cf34f1693544 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2557,7 +2557,7 @@ static int hclgevf_init_roce_base_info(struct hclgevf_dev *hdev)
- 	    hdev->num_msi_left == 0)
- 		return -EINVAL;
++#define HCLGE_MAC_STATS_FIELD_OFF(f) (offsetof(struct hclge_mac_stats, f))
++#define HCLGE_STATS_READ(p, offset) (*(u64 *)((u8 *)(p) + (offset)))
++
+ #define HCLGE_MAC_TNL_LOG_SIZE	8
+ #define HCLGE_VPORT_NUM 256
+ struct hclge_dev {
+@@ -1136,4 +1139,5 @@ void hclge_inform_vf_promisc_info(struct hclge_vport *vport);
+ int hclge_dbg_dump_rst_info(struct hclge_dev *hdev, char *buf, int len);
+ int hclge_push_vf_link_status(struct hclge_vport *vport);
+ int hclge_enable_vport_vlan_filter(struct hclge_vport *vport, bool request_en);
++int hclge_mac_update_stats(struct hclge_dev *hdev);
+ #endif
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+index 95074e91a8466..a50e2edbf4a0f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+@@ -113,50 +113,50 @@ static int hclge_shaper_para_calc(u32 ir, u8 shaper_level,
+ 	return 0;
+ }
  
--	roce->rinfo.base_vector = hdev->roce_base_vector;
-+	roce->rinfo.base_vector = hdev->roce_base_msix_offset;
- 
- 	roce->rinfo.netdev = nic->kinfo.netdev;
- 	roce->rinfo.roce_io_base = hdev->hw.io_base;
-@@ -2823,9 +2823,6 @@ static int hclgevf_init_msi(struct hclgevf_dev *hdev)
- 	hdev->num_msi = vectors;
- 	hdev->num_msi_left = vectors;
- 
--	hdev->base_msi_vector = pdev->irq;
--	hdev->roce_base_vector = pdev->irq + hdev->roce_base_msix_offset;
+-static int hclge_pfc_stats_get(struct hclge_dev *hdev,
+-			       enum hclge_opcode_type opcode, u64 *stats)
+-{
+-	struct hclge_desc desc[HCLGE_TM_PFC_PKT_GET_CMD_NUM];
+-	int ret, i, j;
 -
- 	hdev->vector_status = devm_kcalloc(&pdev->dev, hdev->num_msi,
- 					   sizeof(u16), GFP_KERNEL);
- 	if (!hdev->vector_status) {
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
-index 28288d7e33032..4bd922b475012 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
-@@ -308,8 +308,6 @@ struct hclgevf_dev {
- 	u16 num_nic_msix;	/* Num of nic vectors for this VF */
- 	u16 num_roce_msix;	/* Num of roce vectors for this VF */
- 	u16 roce_base_msix_offset;
--	int roce_base_vector;
--	u32 base_msi_vector;
- 	u16 *vector_status;
- 	int *vector_irq;
+-	if (!(opcode == HCLGE_OPC_QUERY_PFC_RX_PKT_CNT ||
+-	      opcode == HCLGE_OPC_QUERY_PFC_TX_PKT_CNT))
+-		return -EINVAL;
+-
+-	for (i = 0; i < HCLGE_TM_PFC_PKT_GET_CMD_NUM - 1; i++) {
+-		hclge_cmd_setup_basic_desc(&desc[i], opcode, true);
+-		desc[i].flag |= cpu_to_le16(HCLGE_CMD_FLAG_NEXT);
+-	}
+-
+-	hclge_cmd_setup_basic_desc(&desc[i], opcode, true);
++static const u16 hclge_pfc_tx_stats_offset[] = {
++	HCLGE_MAC_STATS_FIELD_OFF(mac_tx_pfc_pri0_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_tx_pfc_pri1_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_tx_pfc_pri2_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_tx_pfc_pri3_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_tx_pfc_pri4_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_tx_pfc_pri5_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_tx_pfc_pri6_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_tx_pfc_pri7_pkt_num)
++};
  
+-	ret = hclge_cmd_send(&hdev->hw, desc, HCLGE_TM_PFC_PKT_GET_CMD_NUM);
+-	if (ret)
+-		return ret;
++static const u16 hclge_pfc_rx_stats_offset[] = {
++	HCLGE_MAC_STATS_FIELD_OFF(mac_rx_pfc_pri0_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_rx_pfc_pri1_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_rx_pfc_pri2_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_rx_pfc_pri3_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_rx_pfc_pri4_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_rx_pfc_pri5_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_rx_pfc_pri6_pkt_num),
++	HCLGE_MAC_STATS_FIELD_OFF(mac_rx_pfc_pri7_pkt_num)
++};
+ 
+-	for (i = 0; i < HCLGE_TM_PFC_PKT_GET_CMD_NUM; i++) {
+-		struct hclge_pfc_stats_cmd *pfc_stats =
+-				(struct hclge_pfc_stats_cmd *)desc[i].data;
++static void hclge_pfc_stats_get(struct hclge_dev *hdev, bool tx, u64 *stats)
++{
++	const u16 *offset;
++	int i;
+ 
+-		for (j = 0; j < HCLGE_TM_PFC_NUM_GET_PER_CMD; j++) {
+-			u32 index = i * HCLGE_TM_PFC_PKT_GET_CMD_NUM + j;
++	if (tx)
++		offset = hclge_pfc_tx_stats_offset;
++	else
++		offset = hclge_pfc_rx_stats_offset;
+ 
+-			if (index < HCLGE_MAX_TC_NUM)
+-				stats[index] =
+-					le64_to_cpu(pfc_stats->pkt_num[j]);
+-		}
+-	}
+-	return 0;
++	for (i = 0; i < HCLGE_MAX_TC_NUM; i++)
++		stats[i] = HCLGE_STATS_READ(&hdev->mac_stats, offset[i]);
+ }
+ 
+-int hclge_pfc_rx_stats_get(struct hclge_dev *hdev, u64 *stats)
++void hclge_pfc_rx_stats_get(struct hclge_dev *hdev, u64 *stats)
+ {
+-	return hclge_pfc_stats_get(hdev, HCLGE_OPC_QUERY_PFC_RX_PKT_CNT, stats);
++	hclge_pfc_stats_get(hdev, false, stats);
+ }
+ 
+-int hclge_pfc_tx_stats_get(struct hclge_dev *hdev, u64 *stats)
++void hclge_pfc_tx_stats_get(struct hclge_dev *hdev, u64 *stats)
+ {
+-	return hclge_pfc_stats_get(hdev, HCLGE_OPC_QUERY_PFC_TX_PKT_CNT, stats);
++	hclge_pfc_stats_get(hdev, true, stats);
+ }
+ 
+ int hclge_mac_pause_en_cfg(struct hclge_dev *hdev, bool tx, bool rx)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+index 2ee9b795f71dc..1db7f40b45255 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.h
+@@ -228,8 +228,8 @@ int hclge_tm_dwrr_cfg(struct hclge_dev *hdev);
+ int hclge_tm_init_hw(struct hclge_dev *hdev, bool init);
+ int hclge_mac_pause_en_cfg(struct hclge_dev *hdev, bool tx, bool rx);
+ int hclge_pause_addr_cfg(struct hclge_dev *hdev, const u8 *mac_addr);
+-int hclge_pfc_rx_stats_get(struct hclge_dev *hdev, u64 *stats);
+-int hclge_pfc_tx_stats_get(struct hclge_dev *hdev, u64 *stats);
++void hclge_pfc_rx_stats_get(struct hclge_dev *hdev, u64 *stats);
++void hclge_pfc_tx_stats_get(struct hclge_dev *hdev, u64 *stats);
+ int hclge_tm_qs_shaper_cfg(struct hclge_vport *vport, int max_tx_rate);
+ int hclge_tm_get_qset_num(struct hclge_dev *hdev, u16 *qset_num);
+ int hclge_tm_get_pri_num(struct hclge_dev *hdev, u8 *pri_num);
 -- 
 2.33.0
 
