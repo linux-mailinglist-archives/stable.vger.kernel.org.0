@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7863B450B09
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:14:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9115451115
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232428AbhKORRO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:17:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51468 "EHLO mail.kernel.org"
+        id S243124AbhKOTBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:01:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236979AbhKORPr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:15:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AECD463232;
-        Mon, 15 Nov 2021 17:12:07 +0000 (UTC)
+        id S243478AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:59:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FF3960FE7;
+        Mon, 15 Nov 2021 18:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996328;
-        bh=xuKghyu3dRJc5aXyDQvUELmEzX+5XmcpLoALyb4/FiQ=;
+        s=korg; t=1637000015;
+        bh=rSKTAnT0EGQV08ZjXD6iEHYkZq+ShRp0M2iuP+buSUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LFJ95CAHoFJQHmyhnLrtyU88/+pOKSPA59NfDd+VATz7Ke7aPu7LzLellVueLw3Ts
-         d5X5NgoSHwaApgwDm1rqe0VHZoQJ/bO4hGYYWRrmfgvsk2sLaGhV0UwcwwhZz/3DCd
-         Y01Rn5MFGA2mxwAIhnyQL9qPoPrgvvDUvlaVKgkY=
+        b=x3Xai85WqUt9kVMh3ZGuQFpdcsUGzsjgWZ9miPsSMo9wxxsV4LMxUWdaDAS3ETwnl
+         0riyOqZ9Y2B/I2YtJzGB7xElX0MAdSzT88oUE6NFEX4DF8nMO+QLqrC2OPsGhljCPl
+         NPYJ+CcBOrdHeZALTkL9wZr2vmaGapKWpnEWkcqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Rob Herring <robh@kernel.org>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 066/355] regulator: s5m8767: do not use reset value as DVS voltage if GPIO DVS is disabled
+        Abinaya Kalaiselvan <akalaise@codeaurora.org>,
+        Jouni Malinen <jouni@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 507/849] ath10k: fix module load regression with iram-recovery feature
 Date:   Mon, 15 Nov 2021 17:59:50 +0100
-Message-Id: <20211115165315.944543926@linuxfoundation.org>
+Message-Id: <20211115165437.436403843@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,113 +42,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Abinaya Kalaiselvan <akalaise@codeaurora.org>
 
-commit b16bef60a9112b1e6daf3afd16484eb06e7ce792 upstream.
+[ Upstream commit 6f8c8bf4c7c9be1c42088689fd4370e06b46608a ]
 
-The driver and its bindings, before commit 04f9f068a619 ("regulator:
-s5m8767: Modify parsing method of the voltage table of buck2/3/4") were
-requiring to provide at least one safe/default voltage for DVS registers
-if DVS GPIO is not being enabled.
+Commit 9af7c32ceca8 ("ath10k: add target IRAM recovery feature support")
+introduced a new firmware feature flag ATH10K_FW_FEATURE_IRAM_RECOVERY. But
+this caused ath10k_pci module load to fail if ATH10K_FW_CRASH_DUMP_RAM_DATA bit
+was not enabled in the ath10k coredump_mask module parameter:
 
-IOW, if s5m8767,pmic-buck2-uses-gpio-dvs is missing, the
-s5m8767,pmic-buck2-dvs-voltage should still be present and contain one
-voltage.
+[ 2209.328190] ath10k_pci 0000:02:00.0: qca9984/qca9994 hw1.0 target 0x01000000 chip_id 0x00000000 sub 168c:cafe
+[ 2209.434414] ath10k_pci 0000:02:00.0: kconfig debug 1 debugfs 1 tracing 1 dfs 1 testmode 1
+[ 2209.547191] ath10k_pci 0000:02:00.0: firmware ver 10.4-3.9.0.2-00099 api 5 features no-p2p,mfp,peer-flow-ctrl,btcoex-param,allows-mesh-bcast,no-ps,peer-fixed-rate,iram-recovery crc32 cbade90a
+[ 2210.896485] ath10k_pci 0000:02:00.0: board_file api 1 bmi_id 0:1 crc32 a040efc2
+[ 2213.603339] ath10k_pci 0000:02:00.0: failed to copy target iram contents: -12
+[ 2213.839027] ath10k_pci 0000:02:00.0: could not init core (-12)
+[ 2213.933910] ath10k_pci 0000:02:00.0: could not probe fw (-12)
 
-This requirement was coming from driver behavior matching this condition
-(none of DVS GPIO is enabled): it was always initializing the DVS
-selector pins to 0 and keeping the DVS enable setting at reset value
-(enabled).  Therefore if none of DVS GPIO is enabled in devicetree,
-driver was configuring the first DVS voltage for buck[234].
+And by default coredump_mask does not have ATH10K_FW_CRASH_DUMP_RAM_DATA
+enabled so anyone using a firmware with iram-recovery feature would fail. To my
+knowledge only QCA9984 firmwares starting from release 10.4-3.9.0.2-00099
+enabled the feature.
 
-Mentioned commit 04f9f068a619 ("regulator: s5m8767: Modify parsing
-method of the voltage table of buck2/3/4") broke it because DVS voltage
-won't be parsed from devicetree if DVS GPIO is not enabled.  After the
-change, driver will configure bucks to use the register reset value as
-voltage which might have unpleasant effects.
+The reason for regression was that ath10k_core_copy_target_iram() used
+ath10k_coredump_get_mem_layout() to get the memory layout, but when
+ATH10K_FW_CRASH_DUMP_RAM_DATA was disabled it would get just NULL and bail out
+with an error.
 
-Fix this by relaxing the bindings constrain: if DVS GPIO is not enabled
-in devicetree (therefore DVS voltage is also not parsed), explicitly
-disable it.
+While looking at all this I noticed another bug: if CONFIG_DEV_COREDUMP is
+disabled but the firmware has iram-recovery enabled the module load fails with
+similar error messages. I fixed that by returning 0 from
+ath10k_core_copy_target_iram() when _ath10k_coredump_get_mem_layout() returns
+NULL.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 04f9f068a619 ("regulator: s5m8767: Modify parsing method of the voltage table of buck2/3/4")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Message-Id: <20211008113723.134648-2-krzysztof.kozlowski@canonical.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tested-on: QCA9984 hw2.0 PCI 10.4-3.9.0.2-00139
+
+Fixes: 9af7c32ceca8 ("ath10k: add target IRAM recovery feature support")
+Signed-off-by: Abinaya Kalaiselvan <akalaise@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211020075054.23061-1-kvalo@codeaurora.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt |   21 +++-------
- drivers/regulator/s5m8767.c                                     |   21 ++++------
- 2 files changed, 17 insertions(+), 25 deletions(-)
+ drivers/net/wireless/ath/ath10k/core.c     | 11 +++++++++--
+ drivers/net/wireless/ath/ath10k/coredump.c | 11 ++++++++---
+ drivers/net/wireless/ath/ath10k/coredump.h |  7 +++++++
+ 3 files changed, 24 insertions(+), 5 deletions(-)
 
---- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-+++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-@@ -13,6 +13,14 @@ common regulator binding documented in:
+diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
+index 2f9be182fbfbb..64c7145b51a2e 100644
+--- a/drivers/net/wireless/ath/ath10k/core.c
++++ b/drivers/net/wireless/ath/ath10k/core.c
+@@ -2690,9 +2690,16 @@ static int ath10k_core_copy_target_iram(struct ath10k *ar)
+ 	int i, ret;
+ 	u32 len, remaining_len;
  
+-	hw_mem = ath10k_coredump_get_mem_layout(ar);
++	/* copy target iram feature must work also when
++	 * ATH10K_FW_CRASH_DUMP_RAM_DATA is disabled, so
++	 * _ath10k_coredump_get_mem_layout() to accomplist that
++	 */
++	hw_mem = _ath10k_coredump_get_mem_layout(ar);
+ 	if (!hw_mem)
+-		return -ENOMEM;
++		/* if CONFIG_DEV_COREDUMP is disabled we get NULL, then
++		 * just silently disable the feature by doing nothing
++		 */
++		return 0;
  
- Required properties of the main device node (the parent!):
-+ - s5m8767,pmic-buck-ds-gpios: GPIO specifiers for three host gpio's used
-+   for selecting GPIO DVS lines. It is one-to-one mapped to dvs gpio lines.
+ 	for (i = 0; i < hw_mem->region_table.size; i++) {
+ 		tmp = &hw_mem->region_table.regions[i];
+diff --git a/drivers/net/wireless/ath/ath10k/coredump.c b/drivers/net/wireless/ath/ath10k/coredump.c
+index 7eb72290a925c..55e7e11d06d94 100644
+--- a/drivers/net/wireless/ath/ath10k/coredump.c
++++ b/drivers/net/wireless/ath/ath10k/coredump.c
+@@ -1447,11 +1447,17 @@ static u32 ath10k_coredump_get_ramdump_size(struct ath10k *ar)
+ 
+ const struct ath10k_hw_mem_layout *ath10k_coredump_get_mem_layout(struct ath10k *ar)
+ {
+-	int i;
+-
+ 	if (!test_bit(ATH10K_FW_CRASH_DUMP_RAM_DATA, &ath10k_coredump_mask))
+ 		return NULL;
+ 
++	return _ath10k_coredump_get_mem_layout(ar);
++}
++EXPORT_SYMBOL(ath10k_coredump_get_mem_layout);
 +
-+ [1] If either of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
-+     property is specified, then all the eight voltage values for the
-+     's5m8767,pmic-buck[2/3/4]-dvs-voltage' should be specified.
++const struct ath10k_hw_mem_layout *_ath10k_coredump_get_mem_layout(struct ath10k *ar)
++{
++	int i;
 +
-+Optional properties of the main device node (the parent!):
-  - s5m8767,pmic-buck2-dvs-voltage: A set of 8 voltage values in micro-volt (uV)
-    units for buck2 when changing voltage using gpio dvs. Refer to [1] below
-    for additional information.
-@@ -25,19 +33,6 @@ Required properties of the main device n
-    units for buck4 when changing voltage using gpio dvs. Refer to [1] below
-    for additional information.
+ 	if (WARN_ON(ar->target_version == 0))
+ 		return NULL;
  
-- - s5m8767,pmic-buck-ds-gpios: GPIO specifiers for three host gpio's used
--   for selecting GPIO DVS lines. It is one-to-one mapped to dvs gpio lines.
--
-- [1] If none of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
--     property is specified, the 's5m8767,pmic-buck[2/3/4]-dvs-voltage'
--     property should specify atleast one voltage level (which would be a
--     safe operating voltage).
--
--     If either of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
--     property is specified, then all the eight voltage values for the
--     's5m8767,pmic-buck[2/3/4]-dvs-voltage' should be specified.
--
--Optional properties of the main device node (the parent!):
-  - s5m8767,pmic-buck2-uses-gpio-dvs: 'buck2' can be controlled by gpio dvs.
-  - s5m8767,pmic-buck3-uses-gpio-dvs: 'buck3' can be controlled by gpio dvs.
-  - s5m8767,pmic-buck4-uses-gpio-dvs: 'buck4' can be controlled by gpio dvs.
---- a/drivers/regulator/s5m8767.c
-+++ b/drivers/regulator/s5m8767.c
-@@ -851,18 +851,15 @@ static int s5m8767_pmic_probe(struct pla
- 	/* DS4 GPIO */
- 	gpio_direction_output(pdata->buck_ds[2], 0x0);
+@@ -1464,7 +1470,6 @@ const struct ath10k_hw_mem_layout *ath10k_coredump_get_mem_layout(struct ath10k
  
--	if (pdata->buck2_gpiodvs || pdata->buck3_gpiodvs ||
--	   pdata->buck4_gpiodvs) {
--		regmap_update_bits(s5m8767->iodev->regmap_pmic,
--				S5M8767_REG_BUCK2CTRL, 1 << 1,
--				(pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
--		regmap_update_bits(s5m8767->iodev->regmap_pmic,
--				S5M8767_REG_BUCK3CTRL, 1 << 1,
--				(pdata->buck3_gpiodvs) ? (1 << 1) : (0 << 1));
--		regmap_update_bits(s5m8767->iodev->regmap_pmic,
--				S5M8767_REG_BUCK4CTRL, 1 << 1,
--				(pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
--	}
-+	regmap_update_bits(s5m8767->iodev->regmap_pmic,
-+			   S5M8767_REG_BUCK2CTRL, 1 << 1,
-+			   (pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
-+	regmap_update_bits(s5m8767->iodev->regmap_pmic,
-+			   S5M8767_REG_BUCK3CTRL, 1 << 1,
-+			   (pdata->buck3_gpiodvs) ? (1 << 1) : (0 << 1));
-+	regmap_update_bits(s5m8767->iodev->regmap_pmic,
-+			   S5M8767_REG_BUCK4CTRL, 1 << 1,
-+			   (pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
+ 	return NULL;
+ }
+-EXPORT_SYMBOL(ath10k_coredump_get_mem_layout);
  
- 	/* Initialize GPIO DVS registers */
- 	for (i = 0; i < 8; i++) {
+ struct ath10k_fw_crash_data *ath10k_coredump_new(struct ath10k *ar)
+ {
+diff --git a/drivers/net/wireless/ath/ath10k/coredump.h b/drivers/net/wireless/ath/ath10k/coredump.h
+index 42404e246e0e9..240d705150888 100644
+--- a/drivers/net/wireless/ath/ath10k/coredump.h
++++ b/drivers/net/wireless/ath/ath10k/coredump.h
+@@ -176,6 +176,7 @@ int ath10k_coredump_register(struct ath10k *ar);
+ void ath10k_coredump_unregister(struct ath10k *ar);
+ void ath10k_coredump_destroy(struct ath10k *ar);
+ 
++const struct ath10k_hw_mem_layout *_ath10k_coredump_get_mem_layout(struct ath10k *ar);
+ const struct ath10k_hw_mem_layout *ath10k_coredump_get_mem_layout(struct ath10k *ar);
+ 
+ #else /* CONFIG_DEV_COREDUMP */
+@@ -214,6 +215,12 @@ ath10k_coredump_get_mem_layout(struct ath10k *ar)
+ 	return NULL;
+ }
+ 
++static inline const struct ath10k_hw_mem_layout *
++_ath10k_coredump_get_mem_layout(struct ath10k *ar)
++{
++	return NULL;
++}
++
+ #endif /* CONFIG_DEV_COREDUMP */
+ 
+ #endif /* _COREDUMP_H_ */
+-- 
+2.33.0
+
 
 
