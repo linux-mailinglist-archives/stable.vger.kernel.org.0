@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17D33451FDE
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E313451FDA
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352872AbhKPApk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
+        id S1349932AbhKPApi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343825AbhKOTWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343827AbhKOTWJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02D6A635EB;
-        Mon, 15 Nov 2021 18:46:43 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70480635ED;
+        Mon, 15 Nov 2021 18:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002004;
-        bh=dXrUkQ66m5eTcPv3tew8F3frs8iCwhl2mRFukP1GSmI=;
+        s=korg; t=1637002006;
+        bh=QpGi9pmWDoQWDWTiPXW1eevR+tAtIcUVVaVpg/+oFXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTlymRMwzvSaAht3qVdUtaRmIjSp+tmCEAcPqhYldYGSMwa0D8+l4aJXpFm6YfyHj
-         8SFVQkB9oAjoO+rYtDlqnaQCFNh/raMlIJl2+md7AVO7GJyi8D+3Uxxo2uWogKbi/k
-         508arvMUuks2bgeWaGUiTSWMr8FCt56q/AAhVONQ=
+        b=bWiVQZz8w6Ay/IDNcVEjxoSQAI+3V5oHunRgskn3peupBzi/5B0uOrR9G/z+sfLQO
+         YQwPgGPYOBMQDi/8Mad02fCShX7CDLnlIXJcm6WFuJQwJugpTnVj1FodixYik4fSa7
+         HTBg3ogNWAHG2X5vkverAecQaSF6nomm4p3DBagE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <ll@simonwunderlich.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        Quentin Perret <qperret@google.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 402/917] ath9k: Fix potential interrupt storm on queue reset
-Date:   Mon, 15 Nov 2021 17:58:17 +0100
-Message-Id: <20211115165442.420005418@linuxfoundation.org>
+Subject: [PATCH 5.15 403/917] PM: EM: Fix inefficient states detection
+Date:   Mon, 15 Nov 2021 17:58:18 +0100
+Message-Id: <20211115165442.453254519@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,94 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <ll@simonwunderlich.de>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-[ Upstream commit 4925642d541278575ad1948c5924d71ffd57ef14 ]
+[ Upstream commit aa1a43262ad5df010768f69530fa179ff81651d3 ]
 
-In tests with two Lima boards from 8devices (QCA4531 based) on OpenWrt
-19.07 we could force a silent restart of a device with no serial
-output when we were sending a high amount of UDP traffic (iperf3 at 80
-MBit/s in both directions from external hosts, saturating the wifi and
-causing a load of about 4.5 to 6) and were then triggering an
-ath9k_queue_reset().
+Currently, a debug message is printed if an inefficient state is detected
+in the Energy Model. Unfortunately, it won't detect if the first state is
+inefficient or if two successive states are. Fix this behavior.
 
-Further debugging showed that the restart was caused by the ath79
-watchdog. With disabled watchdog we could observe that the device was
-constantly going into ath_isr() interrupt handler and was returning
-early after the ATH_OP_HW_RESET flag test, without clearing any
-interrupts. Even though ath9k_queue_reset() calls
-ath9k_hw_kill_interrupts().
-
-With JTAG we could observe the following race condition:
-
-1) ath9k_queue_reset()
-   ...
-   -> ath9k_hw_kill_interrupts()
-   -> set_bit(ATH_OP_HW_RESET, &common->op_flags);
-   ...
-   <- returns
-
-      2) ath9k_tasklet()
-         ...
-         -> ath9k_hw_resume_interrupts()
-         ...
-         <- returns
-
-                 3) loops around:
-                    ...
-                    handle_int()
-                    -> ath_isr()
-                       ...
-                       -> if (test_bit(ATH_OP_HW_RESET,
-                                       &common->op_flags))
-                            return IRQ_HANDLED;
-
-                    x) ath_reset_internal():
-                       => never reached <=
-
-And in ath_isr() we would typically see the following interrupts /
-interrupt causes:
-
-* status: 0x00111030 or 0x00110030
-* async_cause: 2 (AR_INTR_MAC_IPQ)
-* sync_cause: 0
-
-So the ath9k_tasklet() reenables the ath9k interrupts
-through ath9k_hw_resume_interrupts() which ath9k_queue_reset() had just
-disabled. And ath_isr() then keeps firing because it returns IRQ_HANDLED
-without actually clearing the interrupt.
-
-To fix this IRQ storm also clear/disable the interrupts again when we
-are in reset state.
-
-Cc: Sven Eckelmann <sven@narfation.org>
-Cc: Simon Wunderlich <sw@simonwunderlich.de>
-Cc: Linus Lüssing <linus.luessing@c0d3.blue>
-Fixes: 872b5d814f99 ("ath9k: do not access hardware on IRQs during reset")
-Signed-off-by: Linus Lüssing <ll@simonwunderlich.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210914192515.9273-3-linus.luessing@c0d3.blue
+Fixes: 27871f7a8a34 (PM: Introduce an Energy Model management framework)
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Reviewed-by: Quentin Perret <qperret@google.com>
+Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/power/energy_model.c | 23 ++++++++---------------
+ 1 file changed, 8 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/main.c b/drivers/net/wireless/ath/ath9k/main.c
-index 139831539da37..98090e40e1cf4 100644
---- a/drivers/net/wireless/ath/ath9k/main.c
-+++ b/drivers/net/wireless/ath/ath9k/main.c
-@@ -533,8 +533,10 @@ irqreturn_t ath_isr(int irq, void *dev)
- 	ath9k_debug_sync_cause(sc, sync_cause);
- 	status &= ah->imask;	/* discard unasked-for bits */
+diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
+index a332ccd829e24..97e62469a6b32 100644
+--- a/kernel/power/energy_model.c
++++ b/kernel/power/energy_model.c
+@@ -107,8 +107,7 @@ static void em_debug_remove_pd(struct device *dev) {}
+ static int em_create_perf_table(struct device *dev, struct em_perf_domain *pd,
+ 				int nr_states, struct em_data_callback *cb)
+ {
+-	unsigned long opp_eff, prev_opp_eff = ULONG_MAX;
+-	unsigned long power, freq, prev_freq = 0;
++	unsigned long power, freq, prev_freq = 0, prev_cost = ULONG_MAX;
+ 	struct em_perf_state *table;
+ 	int i, ret;
+ 	u64 fmax;
+@@ -153,27 +152,21 @@ static int em_create_perf_table(struct device *dev, struct em_perf_domain *pd,
  
--	if (test_bit(ATH_OP_HW_RESET, &common->op_flags))
-+	if (test_bit(ATH_OP_HW_RESET, &common->op_flags)) {
-+		ath9k_hw_kill_interrupts(sc->sc_ah);
- 		return IRQ_HANDLED;
-+	}
+ 		table[i].power = power;
+ 		table[i].frequency = prev_freq = freq;
+-
+-		/*
+-		 * The hertz/watts efficiency ratio should decrease as the
+-		 * frequency grows on sane platforms. But this isn't always
+-		 * true in practice so warn the user if a higher OPP is more
+-		 * power efficient than a lower one.
+-		 */
+-		opp_eff = freq / power;
+-		if (opp_eff >= prev_opp_eff)
+-			dev_dbg(dev, "EM: hertz/watts ratio non-monotonically decreasing: em_perf_state %d >= em_perf_state%d\n",
+-					i, i - 1);
+-		prev_opp_eff = opp_eff;
+ 	}
  
- 	/*
- 	 * If there are no status bits set, then this interrupt was not
+ 	/* Compute the cost of each performance state. */
+ 	fmax = (u64) table[nr_states - 1].frequency;
+-	for (i = 0; i < nr_states; i++) {
++	for (i = nr_states - 1; i >= 0; i--) {
+ 		unsigned long power_res = em_scale_power(table[i].power);
+ 
+ 		table[i].cost = div64_u64(fmax * power_res,
+ 					  table[i].frequency);
++		if (table[i].cost >= prev_cost) {
++			dev_dbg(dev, "EM: OPP:%lu is inefficient\n",
++				table[i].frequency);
++		} else {
++			prev_cost = table[i].cost;
++		}
+ 	}
+ 
+ 	pd->table = table;
 -- 
 2.33.0
 
