@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93163450EB6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5537450C45
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:34:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241155AbhKOSSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:18:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55790 "EHLO mail.kernel.org"
+        id S238402AbhKORg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:36:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240730AbhKOSNL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:13:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97F5163319;
-        Mon, 15 Nov 2021 17:48:23 +0000 (UTC)
+        id S238292AbhKOReT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:34:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50D04632BA;
+        Mon, 15 Nov 2021 17:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998504;
-        bh=pFD30HIN3XYFHfF5XT7ysc+tEdoB8I4SQ+esXSwLkQU=;
+        s=korg; t=1636996966;
+        bh=ydl7419buwuTiF4nnMfcj7C1WMCbbwNPIVLyPGyTEus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AuEcJf2uHtmUxwX/pk7SUcvdxVk217CIrO+XRM6ugyl3eMp6LGas34E0i6WEq9u5j
-         D8e9odFSyNg6DuqCP2+rp9f7PvucSk+ZiKQKrFhIXA6PIUr/wARZgaHBWG6vyi2VAc
-         xY9T0GgcbcVm2xLoBtZ1RmcyQO8Nffa7EeFLvFwc=
+        b=AUFPBEbnfMM7n0Bj01eZIYCzP4bvIFhfZq5A/4GnoBuyhktaaj1Oz3PNjWGz6FI06
+         XW61bMF5tEBXP6V7fMn5vgJ0ezjflARIhAhoVWTAHZgDtPkOArbFLDlK/amzCxOnzh
+         2ytOK3HEqIZnd1TctH3s5lxzmLJ/c1uFEsG4kZ5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 532/575] net: hns3: fix kernel crash when unload VF while it is being reset
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.4 333/355] ARM: 9155/1: fix early early_iounmap()
 Date:   Mon, 15 Nov 2021 18:04:17 +0100
-Message-Id: <20211115165402.065048457@linuxfoundation.org>
+Message-Id: <20211115165324.510272318@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,105 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufeng Mo <moyufeng@huawei.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-[ Upstream commit e140c7983e3054be0652bf914f4454f16c5520b0 ]
+commit 0d08e7bf0d0d1a29aff7b16ef516f7415eb1aa05 upstream.
 
-When fully configure VLANs for a VF, then unload the VF while
-triggering a reset to PF, will cause a kernel crash because the
-irq is already uninit.
+Currently __set_fixmap() bails out with a warning when called in early boot
+from early_iounmap(). Fix it, and while at it, make the comment a bit easier
+to understand.
 
-[ 293.177579] ------------[ cut here ]------------
-[ 293.183502] kernel BUG at drivers/pci/msi.c:352!
-[ 293.189547] Internal error: Oops - BUG: 0 [#1] SMP
-......
-[ 293.390124] Workqueue: hclgevf hclgevf_service_task [hclgevf]
-[ 293.402627] pstate: 80c00009 (Nzcv daif +PAN +UAO)
-[ 293.414324] pc : free_msi_irqs+0x19c/0x1b8
-[ 293.425429] lr : free_msi_irqs+0x18c/0x1b8
-[ 293.436545] sp : ffff00002716fbb0
-[ 293.446950] x29: ffff00002716fbb0 x28: 0000000000000000
-[ 293.459519] x27: 0000000000000000 x26: ffff45b91ea16b00
-[ 293.472183] x25: 0000000000000000 x24: ffffa587b08f4700
-[ 293.484717] x23: ffffc591ac30e000 x22: ffffa587b08f8428
-[ 293.497190] x21: ffffc591ac30e300 x20: 0000000000000000
-[ 293.509594] x19: ffffa58a062a8300 x18: 0000000000000000
-[ 293.521949] x17: 0000000000000000 x16: ffff45b91dcc3f48
-[ 293.534013] x15: 0000000000000000 x14: 0000000000000000
-[ 293.545883] x13: 0000000000000040 x12: 0000000000000228
-[ 293.557508] x11: 0000000000000020 x10: 0000000000000040
-[ 293.568889] x9 : ffff45b91ea1e190 x8 : ffffc591802d0000
-[ 293.580123] x7 : ffffc591802d0148 x6 : 0000000000000120
-[ 293.591190] x5 : ffffc591802d0000 x4 : 0000000000000000
-[ 293.602015] x3 : 0000000000000000 x2 : 0000000000000000
-[ 293.612624] x1 : 00000000000004a4 x0 : ffffa58a1e0c6b80
-[ 293.623028] Call trace:
-[ 293.630340] free_msi_irqs+0x19c/0x1b8
-[ 293.638849] pci_disable_msix+0x118/0x140
-[ 293.647452] pci_free_irq_vectors+0x20/0x38
-[ 293.656081] hclgevf_uninit_msi+0x44/0x58 [hclgevf]
-[ 293.665309] hclgevf_reset_rebuild+0x1ac/0x2e0 [hclgevf]
-[ 293.674866] hclgevf_reset+0x358/0x400 [hclgevf]
-[ 293.683545] hclgevf_reset_service_task+0xd0/0x1b0 [hclgevf]
-[ 293.693325] hclgevf_service_task+0x4c/0x2e8 [hclgevf]
-[ 293.702307] process_one_work+0x1b0/0x448
-[ 293.710034] worker_thread+0x54/0x468
-[ 293.717331] kthread+0x134/0x138
-[ 293.724114] ret_from_fork+0x10/0x18
-[ 293.731324] Code: f940b000 b4ffff00 a903e7b8 f90017b6 (d4210000)
-
-This patch fixes the problem by waiting for the VF reset done
-while unloading the VF.
-
-Fixes: e2cb1dec9779 ("net: hns3: Add HNS3 VF HCL(Hardware Compatibility Layer) Support")
-Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: b089c31c519c ("ARM: 8667/3: Fix memory attribute inconsistencies when using fixmap")
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c | 5 +++++
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h | 2 ++
- 2 files changed, 7 insertions(+)
+ arch/arm/mm/mmu.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index a47f23f27a11c..e27af38f6b161 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2887,7 +2887,10 @@ static void hclgevf_uninit_client_instance(struct hnae3_client *client,
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -415,9 +415,9 @@ void __set_fixmap(enum fixed_addresses i
+ 		     FIXADDR_END);
+ 	BUG_ON(idx >= __end_of_fixed_addresses);
  
- 	/* un-init roce, if it exists */
- 	if (hdev->roce_client) {
-+		while (test_bit(HCLGEVF_STATE_RST_HANDLING, &hdev->state))
-+			msleep(HCLGEVF_WAIT_RESET_DONE);
- 		clear_bit(HCLGEVF_STATE_ROCE_REGISTERED, &hdev->state);
-+
- 		hdev->roce_client->ops->uninit_instance(&hdev->roce, 0);
- 		hdev->roce_client = NULL;
- 		hdev->roce.client = NULL;
-@@ -2896,6 +2899,8 @@ static void hclgevf_uninit_client_instance(struct hnae3_client *client,
- 	/* un-init nic/unic, if this was not called by roce client */
- 	if (client->ops->uninit_instance && hdev->nic_client &&
- 	    client->type != HNAE3_CLIENT_ROCE) {
-+		while (test_bit(HCLGEVF_STATE_RST_HANDLING, &hdev->state))
-+			msleep(HCLGEVF_WAIT_RESET_DONE);
- 		clear_bit(HCLGEVF_STATE_NIC_REGISTERED, &hdev->state);
+-	/* we only support device mappings until pgprot_kernel has been set */
++	/* We support only device mappings before pgprot_kernel is set. */
+ 	if (WARN_ON(pgprot_val(prot) != pgprot_val(FIXMAP_PAGE_IO) &&
+-		    pgprot_val(pgprot_kernel) == 0))
++		    pgprot_val(prot) && pgprot_val(pgprot_kernel) == 0))
+ 		return;
  
- 		client->ops->uninit_instance(&hdev->nic, 0);
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
-index 526a62f970466..c9b0fa5e8589d 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.h
-@@ -106,6 +106,8 @@
- #define HCLGEVF_VF_RST_ING		0x07008
- #define HCLGEVF_VF_RST_ING_BIT		BIT(16)
- 
-+#define HCLGEVF_WAIT_RESET_DONE		100
-+
- #define HCLGEVF_RSS_IND_TBL_SIZE		512
- #define HCLGEVF_RSS_SET_BITMAP_MSK	0xffff
- #define HCLGEVF_RSS_KEY_SIZE		40
--- 
-2.33.0
-
+ 	if (pgprot_val(prot))
 
 
