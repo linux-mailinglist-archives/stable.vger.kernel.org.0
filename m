@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 777DE45260D
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:59:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47ADB452769
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:21:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240164AbhKPCBl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:01:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46106 "EHLO mail.kernel.org"
+        id S1343924AbhKPCYf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:24:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240149AbhKOSGA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:06:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB1D963388;
-        Mon, 15 Nov 2021 17:43:09 +0000 (UTC)
+        id S237655AbhKORZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:25:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A81E63280;
+        Mon, 15 Nov 2021 17:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998190;
-        bh=tbtY4UP8vsYl02+GyaB09PmCnCezu0hEOx0kXslO1sk=;
+        s=korg; t=1636996667;
+        bh=3xAhBrSAzakV7nM07Mv4vLlEkr/sVAJCgA17UpJ1mGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pENdqzsJh4wEPxTg+Cu2cj88Fp9bQK5XMBN0Zcyjn7vma9cFfqBNeMVALqzCwaB9p
-         llWfBI/9LakFDPEX6AHhZ+hA6Uvq4qs8Hu5szQHfyNy931v6/SUVjvap8djTM54W8I
-         aq/iTT84NksBA5nqbgegemgmgPbE6pB6Imfi9bYY=
+        b=gn0XtnFdQzZZTzdzkOW7hQFY3rTsVMcEchZrwCZrFW+nB/La5I3S2MB3oq3tBI33U
+         I2C3umvBG8jNAWfmlU6sFXbiaUI6nJqE2NQFcnlWZB70ZcIJnUktesOJLD0DUuLuI9
+         d6NZOWF9CVLyOkibOugup1BKpiijMx8nMqDhBGxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Waiman Long <longman@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Sven Eckelmann <seckelmann@datto.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 420/575] powerpc: Refactor is_kvm_guest() declaration to new header
-Date:   Mon, 15 Nov 2021 18:02:25 +0100
-Message-Id: <20211115165358.285392556@linuxfoundation.org>
+Subject: [PATCH 5.4 224/355] ath10k: fix max antenna gain unit
+Date:   Mon, 15 Nov 2021 18:02:28 +0100
+Message-Id: <20211115165321.005584432@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,102 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+From: Sven Eckelmann <seckelmann@datto.com>
 
-[ Upstream commit 92cc6bf01c7f4c5cfefd1963985c0064687ebeda ]
+[ Upstream commit 0a491167fe0cf9f26062462de2a8688b96125d48 ]
 
-Only code/declaration movement, in anticipation of doing a KVM-aware
-vcpu_is_preempted(). No additional changes.
+Most of the txpower for the ath10k firmware is stored as twicepower (0.5 dB
+steps). This isn't the case for max_antenna_gain - which is still expected
+by the firmware as dB.
 
-Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201202050456.164005-2-srikar@linux.vnet.ibm.com
+The firmware is converting it from dB to the internal (twicepower)
+representation when it calculates the limits of a channel. This can be seen
+in tpc_stats when configuring "12" as max_antenna_gain. Instead of the
+expected 12 (6 dB), the tpc_stats shows 24 (12 dB).
+
+Tested on QCA9888 and IPQ4019 with firmware 10.4-3.5.3-00057.
+
+Fixes: 02256930d9b8 ("ath10k: use proper tx power unit")
+Signed-off-by: Sven Eckelmann <seckelmann@datto.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20190611172131.6064-1-sven@narfation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/firmware.h  |  6 ------
- arch/powerpc/include/asm/kvm_guest.h | 15 +++++++++++++++
- arch/powerpc/include/asm/kvm_para.h  |  2 +-
- arch/powerpc/kernel/firmware.c       |  1 +
- arch/powerpc/platforms/pseries/smp.c |  1 +
- 5 files changed, 18 insertions(+), 7 deletions(-)
- create mode 100644 arch/powerpc/include/asm/kvm_guest.h
+ drivers/net/wireless/ath/ath10k/mac.c | 6 +++---
+ drivers/net/wireless/ath/ath10k/wmi.h | 3 +++
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/firmware.h b/arch/powerpc/include/asm/firmware.h
-index 0b295bdb201e8..aa6a5ef5d4830 100644
---- a/arch/powerpc/include/asm/firmware.h
-+++ b/arch/powerpc/include/asm/firmware.h
-@@ -134,12 +134,6 @@ extern int ibm_nmi_interlock_token;
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 603f817ae3a59..9daaacf789d60 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -1044,7 +1044,7 @@ static int ath10k_monitor_vdev_start(struct ath10k *ar, int vdev_id)
+ 	arg.channel.min_power = 0;
+ 	arg.channel.max_power = channel->max_power * 2;
+ 	arg.channel.max_reg_power = channel->max_reg_power * 2;
+-	arg.channel.max_antenna_gain = channel->max_antenna_gain * 2;
++	arg.channel.max_antenna_gain = channel->max_antenna_gain;
  
- extern unsigned int __start___fw_ftr_fixup, __stop___fw_ftr_fixup;
+ 	reinit_completion(&ar->vdev_setup_done);
+ 	reinit_completion(&ar->vdev_delete_done);
+@@ -1490,7 +1490,7 @@ static int ath10k_vdev_start_restart(struct ath10k_vif *arvif,
+ 	arg.channel.min_power = 0;
+ 	arg.channel.max_power = chandef->chan->max_power * 2;
+ 	arg.channel.max_reg_power = chandef->chan->max_reg_power * 2;
+-	arg.channel.max_antenna_gain = chandef->chan->max_antenna_gain * 2;
++	arg.channel.max_antenna_gain = chandef->chan->max_antenna_gain;
  
--#if defined(CONFIG_PPC_PSERIES) || defined(CONFIG_KVM_GUEST)
--bool is_kvm_guest(void);
--#else
--static inline bool is_kvm_guest(void) { return false; }
--#endif
--
- #ifdef CONFIG_PPC_PSERIES
- void pseries_probe_fw_features(void);
- #else
-diff --git a/arch/powerpc/include/asm/kvm_guest.h b/arch/powerpc/include/asm/kvm_guest.h
-new file mode 100644
-index 0000000000000..d2c946dbbd2c0
---- /dev/null
-+++ b/arch/powerpc/include/asm/kvm_guest.h
-@@ -0,0 +1,15 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (C) 2020 IBM Corporation
-+ */
-+
-+#ifndef _ASM_POWERPC_KVM_GUEST_H_
-+#define _ASM_POWERPC_KVM_GUEST_H_
-+
-+#if defined(CONFIG_PPC_PSERIES) || defined(CONFIG_KVM_GUEST)
-+bool is_kvm_guest(void);
-+#else
-+static inline bool is_kvm_guest(void) { return false; }
-+#endif
-+
-+#endif /* _ASM_POWERPC_KVM_GUEST_H_ */
-diff --git a/arch/powerpc/include/asm/kvm_para.h b/arch/powerpc/include/asm/kvm_para.h
-index 744612054c94c..abe1b5e82547b 100644
---- a/arch/powerpc/include/asm/kvm_para.h
-+++ b/arch/powerpc/include/asm/kvm_para.h
-@@ -8,7 +8,7 @@
- #ifndef __POWERPC_KVM_PARA_H__
- #define __POWERPC_KVM_PARA_H__
+ 	if (arvif->vdev_type == WMI_VDEV_TYPE_AP) {
+ 		arg.ssid = arvif->u.ap.ssid;
+@@ -3149,7 +3149,7 @@ static int ath10k_update_channel_list(struct ath10k *ar)
+ 			ch->min_power = 0;
+ 			ch->max_power = channel->max_power * 2;
+ 			ch->max_reg_power = channel->max_reg_power * 2;
+-			ch->max_antenna_gain = channel->max_antenna_gain * 2;
++			ch->max_antenna_gain = channel->max_antenna_gain;
+ 			ch->reg_class_id = 0; /* FIXME */
  
--#include <asm/firmware.h>
-+#include <asm/kvm_guest.h>
- 
- #include <uapi/asm/kvm_para.h>
- 
-diff --git a/arch/powerpc/kernel/firmware.c b/arch/powerpc/kernel/firmware.c
-index fe48d319d490e..5f48e5ad24cdd 100644
---- a/arch/powerpc/kernel/firmware.c
-+++ b/arch/powerpc/kernel/firmware.c
-@@ -14,6 +14,7 @@
- #include <linux/of.h>
- 
- #include <asm/firmware.h>
-+#include <asm/kvm_guest.h>
- 
- #ifdef CONFIG_PPC64
- unsigned long powerpc_firmware_features __read_mostly;
-diff --git a/arch/powerpc/platforms/pseries/smp.c b/arch/powerpc/platforms/pseries/smp.c
-index 624e80b00eb18..7be7094075ab5 100644
---- a/arch/powerpc/platforms/pseries/smp.c
-+++ b/arch/powerpc/platforms/pseries/smp.c
-@@ -42,6 +42,7 @@
- #include <asm/plpar_wrappers.h>
- #include <asm/code-patching.h>
- #include <asm/svm.h>
-+#include <asm/kvm_guest.h>
- 
- #include "pseries.h"
- 
+ 			/* FIXME: why use only legacy modes, why not any
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index 761bc4a7064df..de22396d085ce 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -2045,7 +2045,9 @@ struct wmi_channel {
+ 	union {
+ 		__le32 reginfo1;
+ 		struct {
++			/* note: power unit is 1 dBm */
+ 			u8 antenna_max;
++			/* note: power unit is 0.5 dBm */
+ 			u8 max_tx_power;
+ 		} __packed;
+ 	} __packed;
+@@ -2065,6 +2067,7 @@ struct wmi_channel_arg {
+ 	u32 min_power;
+ 	u32 max_power;
+ 	u32 max_reg_power;
++	/* note: power unit is 1 dBm */
+ 	u32 max_antenna_gain;
+ 	u32 reg_class_id;
+ 	enum wmi_phy_mode mode;
 -- 
 2.33.0
 
