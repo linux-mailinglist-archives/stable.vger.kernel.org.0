@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 316D545239A
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D41145264D
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:01:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351042AbhKPB1a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:27:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39116 "EHLO mail.kernel.org"
+        id S233168AbhKPCEg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:04:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244017AbhKOTIX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:08:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC79F6349A;
-        Mon, 15 Nov 2021 18:17:35 +0000 (UTC)
+        id S239922AbhKOSFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:05:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7076763367;
+        Mon, 15 Nov 2021 17:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000256;
-        bh=susqupJ+Dygupq88Lp3tGxosSgZU+Qn+gXubyF3rN+4=;
+        s=korg; t=1636998006;
+        bh=ZQEOpU2re+L/9ZtWRKD72+apNd2Xm3lKOAi+ZI6mTXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOj5YVoZsVJePQjAR4G0E2zkQhI94YW/etmvKcI/qwwma8GVvR/7ktl3zcIJph9I2
-         yrhGlBj+/wgD6AFHoiSqlodlwCIR0VC5EGZkC1sm/lpi2yE8YPhCCx3d9ziHwknwpD
-         ll0drstLpn9aRSgPlJCbT/ZvOcQQa95qxgGWxWyc=
+        b=QbPDxoxA6YUyivE8cOGtOMM/Dhtt9g2+3eRqXfk6pocKoFXAgtwCuNzBn+3Jp/AJ1
+         hh5d9aGuLeo721T+jEM9fFMqHb9gbQ7p0OV0EJkr/3cqeIyu+x2f68kthNxVcWgUuN
+         2wQNgJvpnWbG5NN+zfnupBXgTxIw27EIdC3ZxkzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Evgeny Vereshchagin <evvers@ya.ru>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 594/849] clk: at91: check pmc node status before registering syscore ops
+Subject: [PATCH 5.10 352/575] libbpf: Fix overflow in BTF sanity checks
 Date:   Mon, 15 Nov 2021 18:01:17 +0100
-Message-Id: <20211115165440.346513132@linuxfoundation.org>
+Message-Id: <20211115165355.966615658@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clément Léger <clement.leger@bootlin.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit c405f5c15e9f6094f2fa1658e73e56f3058e2122 ]
+[ Upstream commit 5245dafe3d49efba4d3285cf27ee1cc1eeafafc6 ]
 
-Currently, at91 pmc driver always register the syscore_ops whatever
-the status of the pmc node that has been found. When set as secure
-and disabled, the pmc should not be accessed or this will generate
-abort exceptions.
-To avoid this, add a check on node availability before registering
-the syscore operations.
+btf_header's str_off+str_len or type_off+type_len can overflow as they
+are u32s. This will lead to bypassing the sanity checks during BTF
+parsing, resulting in crashes afterwards. Fix by using 64-bit signed
+integers for comparison.
 
-Signed-off-by: Clément Léger <clement.leger@bootlin.com>
-Link: https://lore.kernel.org/r/20210913082633.110168-1-clement.leger@bootlin.com
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Fixes: b3b02eac33ed ("clk: at91: Add sama5d2 suspend/resume")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: d8123624506c ("libbpf: Fix BTF data layout checks and allow empty BTF")
+Reported-by: Evgeny Vereshchagin <evvers@ya.ru>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20211023003157.726961-1-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/at91/pmc.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ tools/lib/bpf/btf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/at91/pmc.c b/drivers/clk/at91/pmc.c
-index 20ee9dccee787..b40035b011d0a 100644
---- a/drivers/clk/at91/pmc.c
-+++ b/drivers/clk/at91/pmc.c
-@@ -267,6 +267,11 @@ static int __init pmc_register_ops(void)
- 	if (!np)
- 		return -ENODEV;
+diff --git a/tools/lib/bpf/btf.c b/tools/lib/bpf/btf.c
+index c8c751265e23a..c15eb14a711e5 100644
+--- a/tools/lib/bpf/btf.c
++++ b/tools/lib/bpf/btf.c
+@@ -210,12 +210,12 @@ static int btf_parse_hdr(struct btf *btf)
+ 	}
  
-+	if (!of_device_is_available(np)) {
-+		of_node_put(np);
-+		return -ENODEV;
-+	}
-+
- 	pmcreg = device_node_to_regmap(np);
- 	of_node_put(np);
- 	if (IS_ERR(pmcreg))
+ 	meta_left = btf->raw_size - sizeof(*hdr);
+-	if (meta_left < hdr->str_off + hdr->str_len) {
++	if (meta_left < (long long)hdr->str_off + hdr->str_len) {
+ 		pr_debug("Invalid BTF total size:%u\n", btf->raw_size);
+ 		return -EINVAL;
+ 	}
+ 
+-	if (hdr->type_off + hdr->type_len > hdr->str_off) {
++	if ((long long)hdr->type_off + hdr->type_len > hdr->str_off) {
+ 		pr_debug("Invalid BTF data sections layout: type data at %u + %u, strings data at %u + %u\n",
+ 			 hdr->type_off, hdr->type_len, hdr->str_off, hdr->str_len);
+ 		return -EINVAL;
 -- 
 2.33.0
 
