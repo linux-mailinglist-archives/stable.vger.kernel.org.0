@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C89E451371
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E924845136F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:52:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241769AbhKOTzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:55:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
+        id S245526AbhKOTzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:55:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343949AbhKOTWb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:22:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07F7B63363;
-        Mon, 15 Nov 2021 18:49:05 +0000 (UTC)
+        id S1344011AbhKOTXI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71E1863617;
+        Mon, 15 Nov 2021 18:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002146;
-        bh=DdA0QretWp4k5PwhTyCRv9R5py7QCQlDtuhwqxPqFFA=;
+        s=korg; t=1637002223;
+        bh=Uju4LvldQFnsqgDjeq0LvcXc1x+dsSiROmENSpYHVuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c8OlW/D6IL9iLtFIKLcVz14EzeaCejiCtOAskAV7Yaz/g+YbwfD2abJsSeMh4MfaT
-         3EriCMDHG2hUlX0nW9YwLny4ioT+o6KywT8yTmv/h4h8U+3lMaixbWo44VMmysDnG0
-         BDmB0yowAn4SPFUfA7Ayam5RzfOirmEZTX5LnGI0=
+        b=tA1uB+ReZjrJBHal4i2tdCRJt5pvSeHaFZVY10Jv7lmQ98XibXos5Wzaey+ZkA3gA
+         Wl8uFVE+LMl7RL3mmIyzteGmAKm/pc0JBLh8pwBJ++x6Bnu44KRuM8UcbeXDaU9jT5
+         fJWH8vl4zwePHFTSvacbn5X8D2vOWUA/h4k1zhsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bixuan Cui <cuibixuan@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        Hao Xu <haoxu@linux.alibaba.com>
-Subject: [PATCH 5.15 448/917] io-wq: Remove duplicate code in io_workqueue_create()
-Date:   Mon, 15 Nov 2021 17:59:03 +0100
-Message-Id: <20211115165443.969728103@linuxfoundation.org>
+        stable@vger.kernel.org, Tor Vic <torvic9@mailbox.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 451/917] platform/x86: thinkpad_acpi: Fix bitwise vs. logical warning
+Date:   Mon, 15 Nov 2021 17:59:06 +0100
+Message-Id: <20211115165444.070244035@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,64 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 71e1cef2d794338cc7b979d4c6144e1dc12718b5 ]
+[ Upstream commit fd96e35ea7b95f1e216277805be89d66e4ae962d ]
 
-While task_work_add() in io_workqueue_create() is true,
-then duplicate code is executed:
+A new warning in clang points out a use of bitwise OR with boolean
+expressions in this driver:
 
-  -> clear_bit_unlock(0, &worker->create_state);
-  -> io_worker_release(worker);
-  -> atomic_dec(&acct->nr_running);
-  -> io_worker_ref_put(wq);
-  -> return false;
+drivers/platform/x86/thinkpad_acpi.c:9061:11: error: use of bitwise '|' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
+        else if ((strlencmp(cmd, "level disengaged") == 0) |
+                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                                           ||
+drivers/platform/x86/thinkpad_acpi.c:9061:11: note: cast one or both operands to int to silence this warning
+1 error generated.
 
-  -> clear_bit_unlock(0, &worker->create_state); // back to io_workqueue_create()
-  -> io_worker_release(worker);
-  -> kfree(worker);
+This should clearly be a logical OR so change it to fix the warning.
 
-The io_worker_release() and clear_bit_unlock() are executed twice.
-
-Fixes: 3146cba99aa2 ("io-wq: make worker creation resilient against signals")
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Link: https://lore.kernel.org/r/20210911085847.34849-1-cuibixuan@huawei.com
-Reviwed-by: Hao Xu <haoxu@linux.alibaba.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: fe98a52ce754 ("ACPI: thinkpad-acpi: add sysfs support to fan subdriver")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1476
+Reported-by: Tor Vic <torvic9@mailbox.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20211018182537.2316800-1-nathan@kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io-wq.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 203c0e2a5dfae..5d189b24a8d4b 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -359,8 +359,10 @@ static bool io_queue_worker_create(struct io_worker *worker,
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 50ff04c84650c..27595aba214d9 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -9145,7 +9145,7 @@ static int fan_write_cmd_level(const char *cmd, int *rc)
  
- 	init_task_work(&worker->create_work, func);
- 	worker->create_index = acct->index;
--	if (!task_work_add(wq->task, &worker->create_work, TWA_SIGNAL))
-+	if (!task_work_add(wq->task, &worker->create_work, TWA_SIGNAL)) {
-+		clear_bit_unlock(0, &worker->create_state);
- 		return true;
-+	}
- 	clear_bit_unlock(0, &worker->create_state);
- fail_release:
- 	io_worker_release(worker);
-@@ -765,11 +767,8 @@ static void io_workqueue_create(struct work_struct *work)
- 	struct io_worker *worker = container_of(work, struct io_worker, work);
- 	struct io_wqe_acct *acct = io_wqe_get_acct(worker);
- 
--	if (!io_queue_worker_create(worker, acct, create_worker_cont)) {
--		clear_bit_unlock(0, &worker->create_state);
--		io_worker_release(worker);
-+	if (!io_queue_worker_create(worker, acct, create_worker_cont))
- 		kfree(worker);
--	}
- }
- 
- static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
+ 	if (strlencmp(cmd, "level auto") == 0)
+ 		level = TP_EC_FAN_AUTO;
+-	else if ((strlencmp(cmd, "level disengaged") == 0) |
++	else if ((strlencmp(cmd, "level disengaged") == 0) ||
+ 			(strlencmp(cmd, "level full-speed") == 0))
+ 		level = TP_EC_FAN_FULLSPEED;
+ 	else if (sscanf(cmd, "level %d", &level) != 1)
 -- 
 2.33.0
 
