@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C975450E84
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:13:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 737E0450B7F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:22:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239618AbhKOSQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:16:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50072 "EHLO mail.kernel.org"
+        id S236498AbhKORZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:25:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239431AbhKOSHo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:07:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CCC0633A8;
-        Mon, 15 Nov 2021 17:45:25 +0000 (UTC)
+        id S237639AbhKORXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:23:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55E7F63241;
+        Mon, 15 Nov 2021 17:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998325;
-        bh=jGL8/FxCHHhcBqMUVLx8jz6mtFdPIlHDc/aDqj+M9CY=;
+        s=korg; t=1636996707;
+        bh=7erEOay1acck7TIAS+dFokqbJDK72/3mljr9YHxdieI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KEMiaxrhzFyPS3mZicKYoXIVoeWNhlhO+W7YH88H/d6GNVWA6m8BiWck72MubmtoR
-         6puCdQ4H1HeTUvjrny380ASFXQB1CqNRshdC9i33Gc6fucuqN9FoyYrSd4GMkjiowb
-         dpWWgSTfl++vrliw2mrmRieB7ePKtIHCnrcEsYzo=
+        b=hOBffIZE3aQpDwOzIDbdG5u1Xj2ZDSCohuZ5siXoVHc+kQMR6fb5/X/JJPytOcV8x
+         T2Gz6NA+0C4sBelwiOYKLvkJA3MkgPEs5OzcXtHsZ6bOqNECsRksvQlK8vUusyXZmi
+         ibuKfrjZ8DUsaV0v7qVmydBBMJ1b4OHzM0hh/D24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Olivier Moysan <olivier.moysan@foss.st.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jessica Zhang <jesszhan@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 436/575] ARM: dts: stm32: fix SAI sub nodes register range
+Subject: [PATCH 5.4 237/355] drm/msm: Fix potential NULL dereference in DPU SSPP
 Date:   Mon, 15 Nov 2021 18:02:41 +0100
-Message-Id: <20211115165358.853291887@linuxfoundation.org>
+Message-Id: <20211115165321.415975112@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,100 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Moysan <olivier.moysan@foss.st.com>
+From: Jessica Zhang <jesszhan@codeaurora.org>
 
-[ Upstream commit 6f87a74d31277f0896dcf8c0850ec14bde03c423 ]
+[ Upstream commit 8bf71a5719b6cc5b6ba358096081e5d50ea23ab6 ]
 
-The STM32 SAI subblocks registers offsets are in the range
-0x0004 (SAIx_CR1) to 0x0020 (SAIx_DR).
-The corresponding range length is 0x20 instead of 0x1c.
-Change reg property accordingly.
+Move initialization of sblk in _sspp_subblk_offset() after NULL check to
+avoid potential NULL pointer dereference.
 
-Fixes: 5afd65c3a060 ("ARM: dts: stm32: add sai support on stm32mp157c")
-
-Signed-off-by: Olivier Moysan <olivier.moysan@foss.st.com>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jessica Zhang <jesszhan@codeaurora.org>
+Link: https://lore.kernel.org/r/20211020175733.3379-1-jesszhan@codeaurora.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp151.dtsi | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp151.dtsi b/arch/arm/boot/dts/stm32mp151.dtsi
-index b479016fef008..7a0ef01de969e 100644
---- a/arch/arm/boot/dts/stm32mp151.dtsi
-+++ b/arch/arm/boot/dts/stm32mp151.dtsi
-@@ -811,7 +811,7 @@
- 				#sound-dai-cells = <0>;
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c
+index 4f8b813aab810..8256f06218d0f 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c
+@@ -137,11 +137,13 @@ static int _sspp_subblk_offset(struct dpu_hw_pipe *ctx,
+ 		u32 *idx)
+ {
+ 	int rc = 0;
+-	const struct dpu_sspp_sub_blks *sblk = ctx->cap->sblk;
++	const struct dpu_sspp_sub_blks *sblk;
  
- 				compatible = "st,stm32-sai-sub-a";
--				reg = <0x4 0x1c>;
-+				reg = <0x4 0x20>;
- 				clocks = <&rcc SAI1_K>;
- 				clock-names = "sai_ck";
- 				dmas = <&dmamux1 87 0x400 0x01>;
-@@ -821,7 +821,7 @@
- 			sai1b: audio-controller@4400a024 {
- 				#sound-dai-cells = <0>;
- 				compatible = "st,stm32-sai-sub-b";
--				reg = <0x24 0x1c>;
-+				reg = <0x24 0x20>;
- 				clocks = <&rcc SAI1_K>;
- 				clock-names = "sai_ck";
- 				dmas = <&dmamux1 88 0x400 0x01>;
-@@ -842,7 +842,7 @@
- 			sai2a: audio-controller@4400b004 {
- 				#sound-dai-cells = <0>;
- 				compatible = "st,stm32-sai-sub-a";
--				reg = <0x4 0x1c>;
-+				reg = <0x4 0x20>;
- 				clocks = <&rcc SAI2_K>;
- 				clock-names = "sai_ck";
- 				dmas = <&dmamux1 89 0x400 0x01>;
-@@ -852,7 +852,7 @@
- 			sai2b: audio-controller@4400b024 {
- 				#sound-dai-cells = <0>;
- 				compatible = "st,stm32-sai-sub-b";
--				reg = <0x24 0x1c>;
-+				reg = <0x24 0x20>;
- 				clocks = <&rcc SAI2_K>;
- 				clock-names = "sai_ck";
- 				dmas = <&dmamux1 90 0x400 0x01>;
-@@ -873,7 +873,7 @@
- 			sai3a: audio-controller@4400c004 {
- 				#sound-dai-cells = <0>;
- 				compatible = "st,stm32-sai-sub-a";
--				reg = <0x04 0x1c>;
-+				reg = <0x04 0x20>;
- 				clocks = <&rcc SAI3_K>;
- 				clock-names = "sai_ck";
- 				dmas = <&dmamux1 113 0x400 0x01>;
-@@ -883,7 +883,7 @@
- 			sai3b: audio-controller@4400c024 {
- 				#sound-dai-cells = <0>;
- 				compatible = "st,stm32-sai-sub-b";
--				reg = <0x24 0x1c>;
-+				reg = <0x24 0x20>;
- 				clocks = <&rcc SAI3_K>;
- 				clock-names = "sai_ck";
- 				dmas = <&dmamux1 114 0x400 0x01>;
-@@ -1250,7 +1250,7 @@
- 			sai4a: audio-controller@50027004 {
- 				#sound-dai-cells = <0>;
- 				compatible = "st,stm32-sai-sub-a";
--				reg = <0x04 0x1c>;
-+				reg = <0x04 0x20>;
- 				clocks = <&rcc SAI4_K>;
- 				clock-names = "sai_ck";
- 				dmas = <&dmamux1 99 0x400 0x01>;
-@@ -1260,7 +1260,7 @@
- 			sai4b: audio-controller@50027024 {
- 				#sound-dai-cells = <0>;
- 				compatible = "st,stm32-sai-sub-b";
--				reg = <0x24 0x1c>;
-+				reg = <0x24 0x20>;
- 				clocks = <&rcc SAI4_K>;
- 				clock-names = "sai_ck";
- 				dmas = <&dmamux1 100 0x400 0x01>;
+-	if (!ctx)
++	if (!ctx || !ctx->cap || !ctx->cap->sblk)
+ 		return -EINVAL;
+ 
++	sblk = ctx->cap->sblk;
++
+ 	switch (s_id) {
+ 	case DPU_SSPP_SRC:
+ 		*idx = sblk->src_blk.base;
+@@ -404,7 +406,7 @@ static void _dpu_hw_sspp_setup_scaler3(struct dpu_hw_pipe *ctx,
+ 
+ 	(void)pe;
+ 	if (_sspp_subblk_offset(ctx, DPU_SSPP_SCALER_QSEED3, &idx) || !sspp
+-		|| !scaler3_cfg || !ctx || !ctx->cap || !ctx->cap->sblk)
++		|| !scaler3_cfg)
+ 		return;
+ 
+ 	dpu_hw_setup_scaler3(&ctx->hw, scaler3_cfg, idx,
 -- 
 2.33.0
 
