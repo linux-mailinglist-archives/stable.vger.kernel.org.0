@@ -2,119 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32AB745004F
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 09:53:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C56C34500EA
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 10:13:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229944AbhKOI42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 03:56:28 -0500
-Received: from pegase2.c-s.fr ([93.17.235.10]:47751 "EHLO pegase2.c-s.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229999AbhKOI4Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 03:56:25 -0500
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-        by localhost (Postfix) with ESMTP id 4Ht2zF0qR0z9sSH;
-        Mon, 15 Nov 2021 09:53:29 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id whCArfjl7wVR; Mon, 15 Nov 2021 09:53:29 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase2.c-s.fr (Postfix) with ESMTP id 4Ht2zD726Yz9sSB;
-        Mon, 15 Nov 2021 09:53:28 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id D817C8B767;
-        Mon, 15 Nov 2021 09:53:28 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id kuNXKDjQbMwa; Mon, 15 Nov 2021 09:53:28 +0100 (CET)
-Received: from PO20335.IDSI0.si.c-s.fr (unknown [172.25.230.108])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id AB2368B763;
-        Mon, 15 Nov 2021 09:53:28 +0100 (CET)
-Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
-        by PO20335.IDSI0.si.c-s.fr (8.16.1/8.16.1) with ESMTPS id 1AF8rJTO135062
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Mon, 15 Nov 2021 09:53:19 +0100
-Received: (from chleroy@localhost)
-        by PO20335.IDSI0.si.c-s.fr (8.16.1/8.16.1/Submit) id 1AF8rDA2135046;
-        Mon, 15 Nov 2021 09:53:13 +0100
-X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-To:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        "Christopher M . Riedl" <cmr@bluescreens.de>,
-        stable@vger.kernel.org, Finn Thain <fthain@linux-m68k.org>,
-        Stan Johnson <userm57@yahoo.com>
-Subject: [PATCH] powerpc/signal32: Fix sigset_t copy
-Date:   Mon, 15 Nov 2021 09:52:55 +0100
-Message-Id: <99ef38d61c0eb3f79c68942deb0c35995a93a777.1636966353.git.christophe.leroy@csgroup.eu>
-X-Mailer: git-send-email 2.31.1
+        id S230364AbhKOJQP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 04:16:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39348 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230280AbhKOJQJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 04:16:09 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14BA0C061746
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 01:13:08 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id n85so14453820pfd.10
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 01:13:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=PA+MeCpzT3mZ+hoLKXbZjMcc6caueOexzw7Js4KbNd0=;
+        b=xXgh5IEcbWiSjS5C462LSpoSeLCe8tgZXFsqGFJoIEhtJCJcy3vwO6EIYyOSY6yfZj
+         vdfZq1/W28J0HZ5INYOzxMQkJgM7w5jHM1c9uZjGfY+dv0u7jaFD1KjsmGW8keki6kzP
+         iL77tQIGZR4ShmoOgZYlDRgI8A6JETZkf94SIVayp+78lEgnJyjIIl58JNICyhPjhhbq
+         UX1oBafAnDVIkZZBjN6FNmO01XjSHmfVL0tFZyE1OJxZCQftv+q5kBQshMIF+HmBu+U1
+         2DhPE4dX2pz05m8mSZMNaGx6B/W4HqIPd8KHKPgMY3pw8DbYAy7UiMtNSW9S4YnbBhDH
+         5ZbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=PA+MeCpzT3mZ+hoLKXbZjMcc6caueOexzw7Js4KbNd0=;
+        b=0umurrvgQN0yy5veKJfb1rCeSm3mHgcSRxOYTOo0WwzS/75Nao2jdO3kT7cCCz5W9q
+         5Z5eCiL7CRvUhCDxKLJxWE9ZKIPyyO+lFf2cL2DGGWM2rz5eLvzV8vcC99kChtwkH7aV
+         DwqlTbDX6oS0N5qUgbh2iwSbrUxHaMDidtkRwI7z2qaEmxALOdDaYNh1+Nhz7Kv1qh2l
+         nE4ZTcJZoihUj0O8BqT4ndhg1J+zuCkw9/sAi4UHMcLAByECLoJv/cNDaKP+p93bRiQ/
+         s4EBhZ28okl4TIdIXYuskoYfXTLqfKt562vKYc2MZRYvtK7xZvAVN3bW5XMG2litORxe
+         hzMQ==
+X-Gm-Message-State: AOAM530P/aM7ED5OevYUu8B9eKW1dAFS68Y6FHhyVM0iW25XZpgLdxoa
+        rPHXiFW6WrvTOuRSel4yQU8mTiPvJRtdyvzT
+X-Google-Smtp-Source: ABdhPJyugn9Ur0oBXlF7YIcEsfbM4XhDSJCDh/i6rq8WfFl6m1Blwps6l8g+iameJ8AakCJ22m8D4w==
+X-Received: by 2002:a63:491:: with SMTP id 139mr23708241pge.285.1636967587369;
+        Mon, 15 Nov 2021 01:13:07 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h23sm14092536pfn.109.2021.11.15.01.13.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Nov 2021 01:13:07 -0800 (PST)
+Message-ID: <619224a3.1c69fb81.80a64.9070@mx.google.com>
+Date:   Mon, 15 Nov 2021 01:13:07 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1636966371; l=2320; s=20211009; h=from:subject:message-id; bh=fZPpiXO4Sl6nxpscgwKm8fGE1QxieiimfErqhQs2Q+0=; b=TT/pMU/Kq2uF3azjX28nUSpUIgSMS0xTw5bIAlmU6r8XXTX6cgtMMfJeiBoecUExwC+wtaPTO6QR ZcZmSuwmCCg5PGuf9U6ykT6ALCuF0Ceo3fSyyQ8fVhj/5gwRtMVM
-X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.255-191-g525eee50f7f8
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 160 runs,
+ 1 regressions (v4.14.255-191-g525eee50f7f8)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The conversion from __copy_from_user() to __get_user() by
-commit d3ccc9781560 ("powerpc/signal: Use __get_user() to copy
-sigset_t") introduced a regression in __get_user_sigset() for
-powerpc/32. The bug was subsequently moved into
-unsafe_get_user_sigset().
+stable-rc/queue/4.14 baseline: 160 runs, 1 regressions (v4.14.255-191-g525e=
+ee50f7f8)
 
-The bug is due to the copied 64 bit value being truncated to
-32 bits while being assigned to dst->sig[0]
+Regressions Summary
+-------------------
 
-The regression was reported by users of the Xorg packages distributed in
-Debian/powerpc --
-
-    "The symptoms are that the fb screen goes blank, with the backlight
-    remaining on and no errors logged in /var/log; wdm (or startx) run
-    with no effect (I tried logging in in the blind, with no effect).
-    And they are hard to kill, requiring 'kill -KILL ...'"
-
-Fix the regression by copying each word of the sigset, not only the
-first one.
-
-__get_user_sigset() was tentatively optimised to copy 64 bits at once
-in order to minimise KUAP unlock/lock impact, but the unsafe variant
-doesn't suffer that, so it can just copy words.
-
-Cc: Christopher M. Riedl <cmr@bluescreens.de>
-Fixes: 887f3ceb51cd ("powerpc/signal32: Convert do_setcontext[_tm]() to user access block")
-Cc: stable@vger.kernel.org
-Reported-by: Finn Thain <fthain@linux-m68k.org>
-Reported-and-tested-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- arch/powerpc/kernel/signal.h | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/arch/powerpc/kernel/signal.h b/arch/powerpc/kernel/signal.h
-index 1f07317964e4..618aeccdf691 100644
---- a/arch/powerpc/kernel/signal.h
-+++ b/arch/powerpc/kernel/signal.h
-@@ -25,8 +25,14 @@ static inline int __get_user_sigset(sigset_t *dst, const sigset_t __user *src)
- 
- 	return __get_user(dst->sig[0], (u64 __user *)&src->sig[0]);
- }
--#define unsafe_get_user_sigset(dst, src, label) \
--	unsafe_get_user((dst)->sig[0], (u64 __user *)&(src)->sig[0], label)
-+#define unsafe_get_user_sigset(dst, src, label) do {			\
-+	sigset_t *__dst = dst;						\
-+	const sigset_t __user *__src = src;				\
-+	int i;								\
-+									\
-+	for (i = 0; i < _NSIG_WORDS; i++)				\
-+		unsafe_get_user(__dst->sig[i], &__src->sig[i], label);	\
-+} while (0)
- 
- #ifdef CONFIG_VSX
- extern unsigned long copy_vsx_to_user(void __user *to,
--- 
-2.31.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.255-191-g525eee50f7f8/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.255-191-g525eee50f7f8
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      525eee50f7f80cf1a0bbfd39b673fab7096b4537 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/6191eaa85402d0d05b3358ec
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.255=
+-191-g525eee50f7f8/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.255=
+-191-g525eee50f7f8/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6191eaa85402d0d=
+05b3358ef
+        new failure (last pass: v4.14.255-69-g8d7a2e8287ccf)
+        2 lines
+
+    2021-11-15T05:05:25.474263  [   20.284332] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-11-15T05:05:25.521794  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/100
+    2021-11-15T05:05:25.531550  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
