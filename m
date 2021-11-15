@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28B47451498
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:08:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B6DB4512B9
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344110AbhKOUKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:10:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
+        id S1347238AbhKOTjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344824AbhKOTZe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:25:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1928636D3;
-        Mon, 15 Nov 2021 19:05:01 +0000 (UTC)
+        id S244991AbhKOTST (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AD09634E8;
+        Mon, 15 Nov 2021 18:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003102;
-        bh=TcJ7AiaNecV+3m7Jzk2zabrpiQ4cAPopNcGnF4w6h9Q=;
+        s=korg; t=1637000787;
+        bh=Dhp3BJ2GwnWDqF5Y9kUk8zMGnF7gZgqJ0rp8i4g7Vo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TIqUMYdHFABOqEUXnfPiz5BdPpjqdNm9Yf8rhBm08EKhfEqLJn9vAzB3bnpYHP0ss
-         DfhvmhREM11Qjat5ILJtF5W52gzxBhO7XAG3rXaa9v3g3G7lpI4KXgjNErDtmYixiq
-         19vy9CkqjT1lQ1PgPV3hQ8Bwm11oeRNS77R9L7dI=
+        b=JBvyKlySAu4kvd+1XYBoGhVeLAzZxL7fKXWCvTO01du16BcsD+41qB5x2jWZLMQ5B
+         6ra7UmUZ72/VNci4EVwC70C68SjSJwauxK/jSzxqlIML1iqGWcylFeWz+XywveiBhV
+         tG8dCI/SU0tq2hBtRpxvNueDkMvkCe4497fEDXEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Christoph Hellwig <hch@lst.de>,
-        Jackie Liu <liuyun01@kylinos.cn>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 779/917] scsi: bsg: Fix errno when scsi_bsg_register_queue() fails
-Date:   Mon, 15 Nov 2021 18:04:34 +0100
-Message-Id: <20211115165455.353020514@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Tony Luck <tony.luck@intel.com>
+Subject: [PATCH 5.14 792/849] x86/mce: Add errata workaround for Skylake SKX37
+Date:   Mon, 15 Nov 2021 18:04:35 +0100
+Message-Id: <20211115165447.037723800@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Dave Jones <davej@codemonkey.org.uk>
 
-[ Upstream commit 5f7cf82c1d7373fcf9e1062f5654efd5fa2b9211 ]
+commit e629fc1407a63dbb748f828f9814463ffc2a0af0 upstream.
 
-When the value of error is printed, it will always be 0. We should print
-the correct error code when scsi_bsg_register_queue() fails.
+Errata SKX37 is word-for-word identical to the other errata listed in
+this workaround.   I happened to notice this after investigating a CMCI
+storm on a Skylake host.  While I can't confirm this was the root cause,
+spurious corrected errors does sound like a likely suspect.
 
-Link: https://lore.kernel.org/r/20211022010201.426746-1-liu.yun@linux.dev
-Fixes: ead09dd3aed5 ("scsi: bsg: Simplify device registration")
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2976908e4198 ("x86/mce: Do not log spurious corrected mce errors")
+Signed-off-by: Dave Jones <davej@codemonkey.org.uk>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20211029205759.GA7385@codemonkey.org.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_sysfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/cpu/mce/intel.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index a35841b34bfd9..8bb79ccc9a8b5 100644
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -1388,6 +1388,7 @@ int scsi_sysfs_add_sdev(struct scsi_device *sdev)
- 			 * We're treating error on bsg register as non-fatal, so
- 			 * pretend nothing went wrong.
- 			 */
-+			error = PTR_ERR(sdev->bsg_dev);
- 			sdev_printk(KERN_INFO, sdev,
- 				    "Failed to register bsg queue, errno=%d\n",
- 				    error);
--- 
-2.33.0
-
+--- a/arch/x86/kernel/cpu/mce/intel.c
++++ b/arch/x86/kernel/cpu/mce/intel.c
+@@ -547,12 +547,13 @@ bool intel_filter_mce(struct mce *m)
+ {
+ 	struct cpuinfo_x86 *c = &boot_cpu_data;
+ 
+-	/* MCE errata HSD131, HSM142, HSW131, BDM48, and HSM142 */
++	/* MCE errata HSD131, HSM142, HSW131, BDM48, HSM142 and SKX37 */
+ 	if ((c->x86 == 6) &&
+ 	    ((c->x86_model == INTEL_FAM6_HASWELL) ||
+ 	     (c->x86_model == INTEL_FAM6_HASWELL_L) ||
+ 	     (c->x86_model == INTEL_FAM6_BROADWELL) ||
+-	     (c->x86_model == INTEL_FAM6_HASWELL_G)) &&
++	     (c->x86_model == INTEL_FAM6_HASWELL_G) ||
++	     (c->x86_model == INTEL_FAM6_SKYLAKE_X)) &&
+ 	    (m->bank == 0) &&
+ 	    ((m->status & 0xa0000000ffffffff) == 0x80000000000f0005))
+ 		return true;
 
 
