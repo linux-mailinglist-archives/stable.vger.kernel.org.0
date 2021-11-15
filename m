@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB04D451EBD
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A08451EC0
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:34:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344633AbhKPAhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:37:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45222 "EHLO mail.kernel.org"
+        id S1355284AbhKPAhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:37:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344894AbhKOTZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344889AbhKOTZk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9328636DF;
-        Mon, 15 Nov 2021 19:06:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1711633F4;
+        Mon, 15 Nov 2021 19:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003175;
-        bh=cx/URazu15VIIopSlbPy6ZcloJxLoH9o7jGc4o9BHdM=;
+        s=korg; t=1637003183;
+        bh=u0icdYJ45LQjWgQk2LjTFuEl35kUkLLRO8J9kdJUUjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0bB1DCXqpqUP/G72Pttut3JsslZJAcEX31lubsNhkx9tJdraJRq5zMtVryMd1F6Y
-         Fg4lV15dFaOcaJAj1xJT6qb9TfOfOaZjS+Yf7u3jXDMAEzPqpvxQOqlvkgfn242Xyi
-         p/Uwh4/INKvk5i5m2N2iB5i4qCvXY2CdJbHkrWqU=
+        b=VEy6qOQWm/GNW69do3IsjIwi3PpiM5iydOjYrIfiiysVD90kni1owAiqSHT/RfDKf
+         BK36xmyPDzu3DIhkVcN5C/0kYkZIgN/y/6j6+fGC9nFbChIJ4MIIFeQCpT98F7kWLr
+         M4z1UwsivfUYostiTz6S/+nfrChQWDgMeEzf+jM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 837/917] net: hns3: allow configure ETS bandwidth of all TCs
-Date:   Mon, 15 Nov 2021 18:05:32 +0100
-Message-Id: <20211115165457.424853922@linuxfoundation.org>
+Subject: [PATCH 5.15 840/917] net: marvell: mvpp2: Fix wrong SerDes reconfiguration order
+Date:   Mon, 15 Nov 2021 18:05:35 +0100
+Message-Id: <20211115165457.523194633@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,64 +42,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit 688db0c7a4a69ddc8b8143a1cac01eb20082a3aa ]
+[ Upstream commit bb7bbb6e36474933540c24ae1f1ad651b843981f ]
 
-Currently, driver only allow configuring ETS bandwidth of TCs according
-to the max TC number queried from firmware. However, the hardware actually
-supports 8 TCs and users may need to configure ETS bandwidth of all TCs,
-so remove the restriction.
+Commit bfe301ebbc94 ("net: mvpp2: convert to use
+mac_prepare()/mac_finish()") introduced a bug wherein it leaves the MAC
+RESET register asserted after mac_finish(), due to wrong order of
+function calls.
 
-Fixes: 330baff5423b ("net: hns3: add ETS TC weight setting in SSU module")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Before it was:
+  .mac_config()
+    mvpp22_mode_reconfigure()
+      assert reset
+    mvpp2_xlg_config()
+      deassert reset
+
+Now it is:
+  .mac_prepare()
+  .mac_config()
+    mvpp2_xlg_config()
+      deassert reset
+  .mac_finish()
+    mvpp2_xlg_config()
+      assert reset
+
+Obviously this is wrong.
+
+This bug is triggered when phylink tries to change the PHY interface
+mode from a GMAC mode (sgmii, 1000base-x, 2500base-x) to XLG mode
+(10gbase-r, xaui). The XLG mode does not work since reset is left
+asserted. Only after
+  ifconfig down && ifconfig up
+is called will the XLG mode work.
+
+Move the call to mvpp22_mode_reconfigure() to .mac_prepare()
+implementation. Since some of the subsequent functions need to know
+whether the interface is being changed, we unfortunately also need to
+pass around the new interface mode before setting port->phy_interface.
+
+Fixes: bfe301ebbc94 ("net: mvpp2: convert to use mac_prepare()/mac_finish()")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c | 2 +-
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c  | 9 +--------
- 2 files changed, 2 insertions(+), 9 deletions(-)
+ .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 38 ++++++++++---------
+ 1 file changed, 20 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-index 90013c131e949..375ebf105a9aa 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-@@ -129,7 +129,7 @@ static int hclge_ets_sch_mode_validate(struct hclge_dev *hdev,
- 	u32 total_ets_bw = 0;
- 	u8 i;
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index d5c92e43f89e6..d74d4966b13fc 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -1605,7 +1605,7 @@ static void mvpp22_gop_fca_set_periodic_timer(struct mvpp2_port *port)
+ 	mvpp22_gop_fca_enable_periodic(port, true);
+ }
  
--	for (i = 0; i < hdev->tc_max; i++) {
-+	for (i = 0; i < HNAE3_MAX_TC; i++) {
- 		switch (ets->tc_tsa[i]) {
- 		case IEEE_8021QAZ_TSA_STRICT:
- 			if (hdev->tm_info.tc_info[i].tc_sch_mode !=
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-index a50e2edbf4a0f..429652a8cde16 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
-@@ -1123,7 +1123,6 @@ static int hclge_tm_pri_tc_base_dwrr_cfg(struct hclge_dev *hdev)
- 
- static int hclge_tm_ets_tc_dwrr_cfg(struct hclge_dev *hdev)
+-static int mvpp22_gop_init(struct mvpp2_port *port)
++static int mvpp22_gop_init(struct mvpp2_port *port, phy_interface_t interface)
  {
--#define DEFAULT_TC_WEIGHT	1
- #define DEFAULT_TC_OFFSET	14
+ 	struct mvpp2 *priv = port->priv;
+ 	u32 val;
+@@ -1613,7 +1613,7 @@ static int mvpp22_gop_init(struct mvpp2_port *port)
+ 	if (!priv->sysctrl_base)
+ 		return 0;
  
- 	struct hclge_ets_tc_weight_cmd *ets_weight;
-@@ -1136,13 +1135,7 @@ static int hclge_tm_ets_tc_dwrr_cfg(struct hclge_dev *hdev)
- 	for (i = 0; i < HNAE3_MAX_TC; i++) {
- 		struct hclge_pg_info *pg_info;
+-	switch (port->phy_interface) {
++	switch (interface) {
+ 	case PHY_INTERFACE_MODE_RGMII:
+ 	case PHY_INTERFACE_MODE_RGMII_ID:
+ 	case PHY_INTERFACE_MODE_RGMII_RXID:
+@@ -1743,15 +1743,15 @@ static void mvpp22_gop_setup_irq(struct mvpp2_port *port)
+  * lanes by the physical layer. This is why configurations like
+  * "PPv2 (2500BaseX) - COMPHY (2500SGMII)" are valid.
+  */
+-static int mvpp22_comphy_init(struct mvpp2_port *port)
++static int mvpp22_comphy_init(struct mvpp2_port *port,
++			      phy_interface_t interface)
+ {
+ 	int ret;
  
--		ets_weight->tc_weight[i] = DEFAULT_TC_WEIGHT;
--
--		if (!(hdev->hw_tc_map & BIT(i)))
--			continue;
--
--		pg_info =
--			&hdev->tm_info.pg_info[hdev->tm_info.tc_info[i].pgid];
-+		pg_info = &hdev->tm_info.pg_info[hdev->tm_info.tc_info[i].pgid];
- 		ets_weight->tc_weight[i] = pg_info->tc_dwrr[i];
+ 	if (!port->comphy)
+ 		return 0;
+ 
+-	ret = phy_set_mode_ext(port->comphy, PHY_MODE_ETHERNET,
+-			       port->phy_interface);
++	ret = phy_set_mode_ext(port->comphy, PHY_MODE_ETHERNET, interface);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -2172,7 +2172,8 @@ static void mvpp22_pcs_reset_assert(struct mvpp2_port *port)
+ 	writel(val & ~MVPP22_XPCS_CFG0_RESET_DIS, xpcs + MVPP22_XPCS_CFG0);
+ }
+ 
+-static void mvpp22_pcs_reset_deassert(struct mvpp2_port *port)
++static void mvpp22_pcs_reset_deassert(struct mvpp2_port *port,
++				      phy_interface_t interface)
+ {
+ 	struct mvpp2 *priv = port->priv;
+ 	void __iomem *mpcs, *xpcs;
+@@ -2184,7 +2185,7 @@ static void mvpp22_pcs_reset_deassert(struct mvpp2_port *port)
+ 	mpcs = priv->iface_base + MVPP22_MPCS_BASE(port->gop_id);
+ 	xpcs = priv->iface_base + MVPP22_XPCS_BASE(port->gop_id);
+ 
+-	switch (port->phy_interface) {
++	switch (interface) {
+ 	case PHY_INTERFACE_MODE_10GBASER:
+ 		val = readl(mpcs + MVPP22_MPCS_CLK_RESET);
+ 		val |= MAC_CLK_RESET_MAC | MAC_CLK_RESET_SD_RX |
+@@ -4529,7 +4530,8 @@ static int mvpp2_poll(struct napi_struct *napi, int budget)
+ 	return rx_done;
+ }
+ 
+-static void mvpp22_mode_reconfigure(struct mvpp2_port *port)
++static void mvpp22_mode_reconfigure(struct mvpp2_port *port,
++				    phy_interface_t interface)
+ {
+ 	u32 ctrl3;
+ 
+@@ -4540,18 +4542,18 @@ static void mvpp22_mode_reconfigure(struct mvpp2_port *port)
+ 	mvpp22_pcs_reset_assert(port);
+ 
+ 	/* comphy reconfiguration */
+-	mvpp22_comphy_init(port);
++	mvpp22_comphy_init(port, interface);
+ 
+ 	/* gop reconfiguration */
+-	mvpp22_gop_init(port);
++	mvpp22_gop_init(port, interface);
+ 
+-	mvpp22_pcs_reset_deassert(port);
++	mvpp22_pcs_reset_deassert(port, interface);
+ 
+ 	if (mvpp2_port_supports_xlg(port)) {
+ 		ctrl3 = readl(port->base + MVPP22_XLG_CTRL3_REG);
+ 		ctrl3 &= ~MVPP22_XLG_CTRL3_MACMODESELECT_MASK;
+ 
+-		if (mvpp2_is_xlg(port->phy_interface))
++		if (mvpp2_is_xlg(interface))
+ 			ctrl3 |= MVPP22_XLG_CTRL3_MACMODESELECT_10G;
+ 		else
+ 			ctrl3 |= MVPP22_XLG_CTRL3_MACMODESELECT_GMAC;
+@@ -4559,7 +4561,7 @@ static void mvpp22_mode_reconfigure(struct mvpp2_port *port)
+ 		writel(ctrl3, port->base + MVPP22_XLG_CTRL3_REG);
  	}
  
+-	if (mvpp2_port_supports_xlg(port) && mvpp2_is_xlg(port->phy_interface))
++	if (mvpp2_port_supports_xlg(port) && mvpp2_is_xlg(interface))
+ 		mvpp2_xlg_max_rx_size_set(port);
+ 	else
+ 		mvpp2_gmac_max_rx_size_set(port);
+@@ -4579,7 +4581,7 @@ static void mvpp2_start_dev(struct mvpp2_port *port)
+ 	mvpp2_interrupts_enable(port);
+ 
+ 	if (port->priv->hw_version >= MVPP22)
+-		mvpp22_mode_reconfigure(port);
++		mvpp22_mode_reconfigure(port, port->phy_interface);
+ 
+ 	if (port->phylink) {
+ 		phylink_start(port->phylink);
+@@ -6477,6 +6479,9 @@ static int mvpp2__mac_prepare(struct phylink_config *config, unsigned int mode,
+ 			mvpp22_gop_mask_irq(port);
+ 
+ 			phy_power_off(port->comphy);
++
++			/* Reconfigure the serdes lanes */
++			mvpp22_mode_reconfigure(port, interface);
+ 		}
+ 	}
+ 
+@@ -6531,9 +6536,6 @@ static int mvpp2_mac_finish(struct phylink_config *config, unsigned int mode,
+ 	    port->phy_interface != interface) {
+ 		port->phy_interface = interface;
+ 
+-		/* Reconfigure the serdes lanes */
+-		mvpp22_mode_reconfigure(port);
+-
+ 		/* Unmask interrupts */
+ 		mvpp22_gop_unmask_irq(port);
+ 	}
+@@ -6960,7 +6962,7 @@ static int mvpp2_port_probe(struct platform_device *pdev,
+ 	 * driver does this, we can remove this code.
+ 	 */
+ 	if (port->comphy) {
+-		err = mvpp22_comphy_init(port);
++		err = mvpp22_comphy_init(port, port->phy_interface);
+ 		if (err == 0)
+ 			phy_power_off(port->comphy);
+ 	}
 -- 
 2.33.0
 
