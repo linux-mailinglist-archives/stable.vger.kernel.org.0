@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC51451E62
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C93E451E64
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:33:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345195AbhKPAfx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1345011AbhKPAfx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 19:35:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344863AbhKOTZh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344860AbhKOTZh (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:25:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FE30633E2;
-        Mon, 15 Nov 2021 19:05:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78143633EC;
+        Mon, 15 Nov 2021 19:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637003145;
-        bh=GdLprI4WU8Ew+RSklB+cf5vA1BQe4CmMAA4yj7FDGvc=;
+        s=korg; t=1637003148;
+        bh=bp8XQciujjx2tduNWt7kp6MnhtEOcBX9budyB4cej3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIQrp29XaerTpT3QaoyKPPbKO/NY9du4HzjV1R1R2oFYbVX7TeV2z80Vyaf5A91Zw
-         /kPuZFdlca93+ov/pocFF+8nBLjpqszaJjaE7izEsKzanBTcNt0O5odFd528gaAdmC
-         daNgcfVA/3UCgq6+RbdRLEhPNm8Cf74IwqO7MYsY=
+        b=aSVYCROKv+HzV1hxgU7AWG7tUmbXwDuIjTLGH0De+3I5SyTHNapb13NeYnL6oIE5T
+         o6+UpdW9aA0pgNROtMQHBwTSjjm1w6MVnp98HKVtRHNOtMhtSmlkwnTk/Ncbinf2hV
+         AQ9gH5q8z2o4iJ9hEYsdZDL3ZyKOHbR2u9odZuuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
+        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 827/917] gve: Fix off by one in gve_tx_timeout()
-Date:   Mon, 15 Nov 2021 18:05:22 +0100
-Message-Id: <20211115165457.096442417@linuxfoundation.org>
+Subject: [PATCH 5.15 828/917] drm/i915/fb: Fix rounding error in subsampled plane size calculation
+Date:   Mon, 15 Nov 2021 18:05:23 +0100
+Message-Id: <20211115165457.130186600@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,35 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit 1c360cc1cc883fbdf0a258b4df376571fbeac5ee ]
+[ Upstream commit 90ab96f3872eae816f4e07deaa77322a91237960 ]
 
-The priv->ntfy_blocks[] has "priv->num_ntfy_blks" elements so this >
-needs to be >= to prevent an off by one bug.  The priv->ntfy_blocks[]
-array is allocated in gve_alloc_notify_blocks().
+For NV12 FBs with odd main surface tile-row height the CCS surface
+height was incorrectly calculated 1 less than the actual value. Fix this
+by rounding up the result of divison. For consistency do the same for
+the CCS surface width calculation.
 
-Fixes: 87a7f321bb6a ("gve: Recover from queue stall due to missed IRQ")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: b3e57bccd68a ("drm/i915/tgl: Gen-12 render decompression")
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211026225105.2783797-2-imre.deak@intel.com
+(cherry picked from commit 2ee5ef9c934ad26376c9282171e731e6c0339815)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/google/gve/gve_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/display/intel_fb.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
-index 8c996e72748d2..959352fceead7 100644
---- a/drivers/net/ethernet/google/gve/gve_main.c
-+++ b/drivers/net/ethernet/google/gve/gve_main.c
-@@ -1132,7 +1132,7 @@ static void gve_tx_timeout(struct net_device *dev, unsigned int txqueue)
- 		goto reset;
+diff --git a/drivers/gpu/drm/i915/display/intel_fb.c b/drivers/gpu/drm/i915/display/intel_fb.c
+index c60a81a81c09c..c6413c5409420 100644
+--- a/drivers/gpu/drm/i915/display/intel_fb.c
++++ b/drivers/gpu/drm/i915/display/intel_fb.c
+@@ -172,8 +172,9 @@ static void intel_fb_plane_dims(const struct intel_framebuffer *fb, int color_pl
  
- 	ntfy_idx = gve_tx_idx_to_ntfy(priv, txqueue);
--	if (ntfy_idx > priv->num_ntfy_blks)
-+	if (ntfy_idx >= priv->num_ntfy_blks)
- 		goto reset;
+ 	intel_fb_plane_get_subsampling(&main_hsub, &main_vsub, &fb->base, main_plane);
+ 	intel_fb_plane_get_subsampling(&hsub, &vsub, &fb->base, color_plane);
+-	*w = fb->base.width / main_hsub / hsub;
+-	*h = fb->base.height / main_vsub / vsub;
++
++	*w = DIV_ROUND_UP(fb->base.width, main_hsub * hsub);
++	*h = DIV_ROUND_UP(fb->base.height, main_vsub * vsub);
+ }
  
- 	block = &priv->ntfy_blocks[ntfy_idx];
+ static u32 intel_adjust_tile_offset(int *x, int *y,
 -- 
 2.33.0
 
