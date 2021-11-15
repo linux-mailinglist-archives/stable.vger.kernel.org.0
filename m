@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73EE74512E0
+	by mail.lfdr.de (Postfix) with ESMTP id 2AEC34512DF
 	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347533AbhKOTkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:40:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
+        id S1347529AbhKOTkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:40:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245140AbhKOTTc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245141AbhKOTTc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:19:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBE7061549;
-        Mon, 15 Nov 2021 18:28:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79D9461545;
+        Mon, 15 Nov 2021 18:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000940;
-        bh=VOpEUYT7XfCuSTWtvSm253tVXWEbJz5MI/Bx2JMBAOM=;
+        s=korg; t=1637000942;
+        bh=5dY26stGzssEDVsXBZRXTULPoknLwBQkpiVg/rsA0y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wkiVY9LBXK6YJH9MH3NcECQlWsYwgoO/WxGkvdZ2qisbhaXjYBcy2I5idonXfRpwC
-         YuCdBaihpTgei0cRriHNwf9tH+Bd7ZNMIfuRmRZzQ3vnucRrYJyqiZINRfrQcijJRO
-         ZsDuqDbpBvjUJIFa6RHkKgLq7Qf4jv02uolvSKsE=
+        b=ir8R8n8b+i5dO8j8pINYa1LEhONk97z07jHGO2XI1TWLP1CbAFBArzOEIBszoATUi
+         AoJ7BfOQ9ajmBDn0HwR6wtWQIUR5onXu6dGYN/AWD4GTiKdIWIlZhrsI6+8f6Z23yK
+         rQSHBN9JhKkvl2OD6ObPo1wcyi8GIi1JBLQXSEBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.14 818/849] s390/cio: check the subchannel validity for dev_busid
-Date:   Mon, 15 Nov 2021 18:05:01 +0100
-Message-Id: <20211115165447.906281371@linuxfoundation.org>
+Subject: [PATCH 5.14 819/849] s390/tape: fix timer initialization in tape_std_assign()
+Date:   Mon, 15 Nov 2021 18:05:02 +0100
+Message-Id: <20211115165447.937872492@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,37 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-commit a4751f157c194431fae9e9c493f456df8272b871 upstream.
+commit 213fca9e23b59581c573d558aa477556f00b8198 upstream.
 
-Check the validity of subchanel before reading other fields in
-the schib.
+commit 9c6c273aa424 ("timer: Remove init_timer_on_stack() in favor
+of timer_setup_on_stack()") changed the timer setup from
+init_timer_on_stack(() to timer_setup(), but missed to change the
+mod_timer() call. And while at it, use msecs_to_jiffies() instead
+of the open coded timeout calculation.
 
-Fixes: d3683c055212 ("s390/cio: add dev_busid sysfs entry for each subchannel")
-CC: <stable@vger.kernel.org>
-Reported-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Link: https://lore.kernel.org/r/20211105154451.847288-1-vneethv@linux.ibm.com
+Cc: stable@vger.kernel.org
+Fixes: 9c6c273aa424 ("timer: Remove init_timer_on_stack() in favor of timer_setup_on_stack()")
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/cio/css.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/char/tape_std.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -437,8 +437,8 @@ static ssize_t dev_busid_show(struct dev
- 	struct subchannel *sch = to_subchannel(dev);
- 	struct pmcw *pmcw = &sch->schib.pmcw;
+--- a/drivers/s390/char/tape_std.c
++++ b/drivers/s390/char/tape_std.c
+@@ -53,7 +53,6 @@ int
+ tape_std_assign(struct tape_device *device)
+ {
+ 	int                  rc;
+-	struct timer_list    timeout;
+ 	struct tape_request *request;
  
--	if ((pmcw->st == SUBCHANNEL_TYPE_IO ||
--	     pmcw->st == SUBCHANNEL_TYPE_MSG) && pmcw->dnv)
-+	if ((pmcw->st == SUBCHANNEL_TYPE_IO && pmcw->dnv) ||
-+	    (pmcw->st == SUBCHANNEL_TYPE_MSG && pmcw->w))
- 		return sysfs_emit(buf, "0.%x.%04x\n", sch->schid.ssid,
- 				  pmcw->dev);
- 	else
+ 	request = tape_alloc_request(2, 11);
+@@ -70,7 +69,7 @@ tape_std_assign(struct tape_device *devi
+ 	 * So we set up a timeout for this call.
+ 	 */
+ 	timer_setup(&request->timer, tape_std_assign_timeout, 0);
+-	mod_timer(&timeout, jiffies + 2 * HZ);
++	mod_timer(&request->timer, jiffies + msecs_to_jiffies(2000));
+ 
+ 	rc = tape_do_io_interruptible(device, request);
+ 
 
 
