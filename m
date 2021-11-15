@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16731450D16
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:46:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 524AC450D3D
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:50:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237448AbhKORtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:49:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57926 "EHLO mail.kernel.org"
+        id S236279AbhKORxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:53:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238684AbhKORrF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:47:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BA6363299;
-        Mon, 15 Nov 2021 17:29:43 +0000 (UTC)
+        id S237339AbhKORtL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:49:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 837056331B;
+        Mon, 15 Nov 2021 17:30:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997384;
-        bh=kYp81w3g/KtyltFfpbFBBt9D268HH73qAO/kwUuEHBw=;
+        s=korg; t=1636997434;
+        bh=VagDsuLMYB1CQmQZYDBu1Fqsi3E2jcxLkbieHvGT51s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/pyIiZfGpo440o/oTN3cPAc3azjdLZS37SAZR369PFltU/kvvfuN7+g5by5Yu2EY
-         GhX1f/h1wSXaLiCLzqL22aiEoEj+N4EWtXmFPokx2bpUh4aPJigcl/OC8ec1HaMCfm
-         ky9I5W8VLrP9gjNi5limHTFGWFM6fkddNjojaCHI=
+        b=J1VCecAdT9ZRYCpja5Yiy8//cWGJe4SHX/dsjeTEpVl+GT2col3g1flPaAnhpLnZl
+         Yw0rEs22jgP5iKOfPt76CdyO+do0CzzonAyE17ByjKrqxey3oiMjpN22UhBKVHtVru
+         CG9Svq+V4OeTZZCjcpHbjKfuu9VlDMfwwZUxCuaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Martin Fuzzey <martin.fuzzey@flowbird.group>,
         Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.10 111/575] rsi: fix occasional initialisation failure with BT coex
-Date:   Mon, 15 Nov 2021 17:57:16 +0100
-Message-Id: <20211115165347.506439996@linuxfoundation.org>
+Subject: [PATCH 5.10 113/575] rsi: fix rate mask set leading to P2P failure
+Date:   Mon, 15 Nov 2021 17:57:18 +0100
+Message-Id: <20211115165347.574321475@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -42,110 +42,292 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-commit 9b14ed6e11b72dd4806535449ca6c6962cb2369d upstream.
+commit b515d097053a71d624e0c5840b42cd4caa653941 upstream.
 
-When BT coexistence is enabled (eg oper mode 13, which is the default)
-the initialisation on startup sometimes silently fails.
+P2P client mode was only working the first time.
+On subsequent connection attempts the group was successfully created but
+no data was sent (no transmitted data packets were seen with a sniffer).
 
-In a normal initialisation we see
-	usb 1-1.3: Product: Wireless USB Network Module
-	usb 1-1.3: Manufacturer: Redpine Signals, Inc.
-	usb 1-1.3: SerialNumber: 000000000001
-	rsi_91x: rsi_probe: Initialized os intf ops
-	rsi_91x: rsi_load_9116_firmware: Loading chunk 0
-	rsi_91x: rsi_load_9116_firmware: Loading chunk 1
-	rsi_91x: rsi_load_9116_firmware: Loading chunk 2
-	rsi_91x: Max Stations Allowed = 1
+The reason for this was that the hardware was being configured in fixed
+rate mode with rate RSI_RATE_1 (1Mbps) which is not valid in the 5GHz band.
 
-But sometimes the last log is missing and the wlan net device is
-not created.
+In P2P mode wpa_supplicant uses NL80211_CMD_SET_TX_BITRATE_MASK to disallow
+the 11b rates in the 2.4GHz band which updated common->fixedrate_mask.
 
-Running a userspace loop that resets the hardware via a GPIO shows the
-problem occurring ~5/100 resets.
+rsi_set_min_rate() then used the fixedrate_mask to calculate the minimum
+allowed rate, or 0xffff = auto if none was found.
+However that calculation did not account for the different rate sets
+allowed in the different bands leading to the error.
 
-The problem does not occur in oper mode 1 (wifi only).
+Fixing set_min_rate() would result in 6Mb/s being used all the time
+which is not what we want either.
 
-Adding logs shows that the initialisation state machine requests a MAC
-reset via rsi_send_reset_mac() but the firmware does not reply, leading
-to the initialisation sequence being incomplete.
+The reason the problem did not occur on the first connection is that
+rsi_mac80211_set_rate_mask() only updated the fixedrate_mask for
+the *current* band. When it was called that was still 2.4GHz as the
+switch is done later. So the when set_min_rate() was subsequently
+called after the switch to 5GHz it still had a mask of zero, leading
+to defaulting to auto mode.
 
-Fix this by delaying attaching the BT adapter until the wifi
-initialisation has completed.
+Fix this by differentiating the case of a single rate being
+requested, in which case the hardware will be used in fixed rate
+mode with just that rate, and multiple rates being requested,
+in which case we remain in auto mode but the firmware rate selection
+algorithm is configured with a restricted set of rates.
 
-With this applied I have done > 300 reset loops with no errors.
-
-Fixes: 716b840c7641 ("rsi: handle BT traffic in driver")
+Fixes: dad0d04fa7ba ("rsi: Add RS9113 wireless driver")
 Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
 CC: stable@vger.kernel.org
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1630337206-12410-2-git-send-email-martin.fuzzey@flowbird.group
+Link: https://lore.kernel.org/r/1630337206-12410-4-git-send-email-martin.fuzzey@flowbird.group
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_main.c |   16 +++++++++++++---
- drivers/net/wireless/rsi/rsi_91x_mgmt.c |    3 +++
- drivers/net/wireless/rsi/rsi_main.h     |    2 ++
- 3 files changed, 18 insertions(+), 3 deletions(-)
+ drivers/net/wireless/rsi/rsi_91x_hal.c      |    8 +--
+ drivers/net/wireless/rsi/rsi_91x_mac80211.c |   74 ++++++++--------------------
+ drivers/net/wireless/rsi/rsi_91x_mgmt.c     |   21 +++++--
+ drivers/net/wireless/rsi/rsi_main.h         |   12 +++-
+ 4 files changed, 50 insertions(+), 65 deletions(-)
 
---- a/drivers/net/wireless/rsi/rsi_91x_main.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_main.c
-@@ -211,9 +211,10 @@ int rsi_read_pkt(struct rsi_common *comm
- 			bt_pkt_type = frame_desc[offset + BT_RX_PKT_TYPE_OFST];
- 			if (bt_pkt_type == BT_CARD_READY_IND) {
- 				rsi_dbg(INFO_ZONE, "BT Card ready recvd\n");
--				if (rsi_bt_ops.attach(common, &g_proto_ops))
--					rsi_dbg(ERR_ZONE,
--						"Failed to attach BT module\n");
-+				if (common->fsm_state == FSM_MAC_INIT_DONE)
-+					rsi_attach_bt(common);
-+				else
-+					common->bt_defer_attach = true;
- 			} else {
- 				if (common->bt_adapter)
- 					rsi_bt_ops.recv_pkt(common->bt_adapter,
-@@ -278,6 +279,15 @@ void rsi_set_bt_context(void *priv, void
- }
- #endif
+--- a/drivers/net/wireless/rsi/rsi_91x_hal.c
++++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
+@@ -214,15 +214,17 @@ int rsi_prepare_data_desc(struct rsi_com
+ 			RSI_WIFI_DATA_Q);
+ 	data_desc->header_len = ieee80211_size;
  
-+void rsi_attach_bt(struct rsi_common *common)
-+{
-+#ifdef CONFIG_RSI_COEX
-+	if (rsi_bt_ops.attach(common, &g_proto_ops))
-+		rsi_dbg(ERR_ZONE,
-+			"Failed to attach BT module\n");
-+#endif
-+}
+-	if (common->min_rate != RSI_RATE_AUTO) {
++	if (common->rate_config[common->band].fixed_enabled) {
+ 		/* Send fixed rate */
++		u16 fixed_rate = common->rate_config[common->band].fixed_hw_rate;
 +
+ 		data_desc->frame_info = cpu_to_le16(RATE_INFO_ENABLE);
+-		data_desc->rate_info = cpu_to_le16(common->min_rate);
++		data_desc->rate_info = cpu_to_le16(fixed_rate);
+ 
+ 		if (conf_is_ht40(&common->priv->hw->conf))
+ 			data_desc->bbp_info = cpu_to_le16(FULL40M_ENABLE);
+ 
+-		if ((common->vif_info[0].sgi) && (common->min_rate & 0x100)) {
++		if (common->vif_info[0].sgi && (fixed_rate & 0x100)) {
+ 		       /* Only MCS rates */
+ 			data_desc->rate_info |=
+ 				cpu_to_le16(ENABLE_SHORTGI_RATE);
+--- a/drivers/net/wireless/rsi/rsi_91x_mac80211.c
++++ b/drivers/net/wireless/rsi/rsi_91x_mac80211.c
+@@ -510,7 +510,6 @@ static int rsi_mac80211_add_interface(st
+ 	if ((vif->type == NL80211_IFTYPE_AP) ||
+ 	    (vif->type == NL80211_IFTYPE_P2P_GO)) {
+ 		rsi_send_rx_filter_frame(common, DISALLOW_BEACONS);
+-		common->min_rate = RSI_RATE_AUTO;
+ 		for (i = 0; i < common->max_stations; i++)
+ 			common->stations[i].sta = NULL;
+ 	}
+@@ -1211,20 +1210,32 @@ static int rsi_mac80211_set_rate_mask(st
+ 				      struct ieee80211_vif *vif,
+ 				      const struct cfg80211_bitrate_mask *mask)
+ {
++	const unsigned int mcs_offset = ARRAY_SIZE(rsi_rates);
+ 	struct rsi_hw *adapter = hw->priv;
+ 	struct rsi_common *common = adapter->priv;
+-	enum nl80211_band band = hw->conf.chandef.chan->band;
++	int i;
+ 
+ 	mutex_lock(&common->mutex);
+-	common->fixedrate_mask[band] = 0;
+ 
+-	if (mask->control[band].legacy == 0xfff) {
+-		common->fixedrate_mask[band] =
+-			(mask->control[band].ht_mcs[0] << 12);
+-	} else {
+-		common->fixedrate_mask[band] =
+-			mask->control[band].legacy;
++	for (i = 0; i < ARRAY_SIZE(common->rate_config); i++) {
++		struct rsi_rate_config *cfg = &common->rate_config[i];
++		u32 bm;
++
++		bm = mask->control[i].legacy | (mask->control[i].ht_mcs[0] << mcs_offset);
++		if (hweight32(bm) == 1) { /* single rate */
++			int rate_index = ffs(bm) - 1;
++
++			if (rate_index < mcs_offset)
++				cfg->fixed_hw_rate = rsi_rates[rate_index].hw_value;
++			else
++				cfg->fixed_hw_rate = rsi_mcsrates[rate_index - mcs_offset];
++			cfg->fixed_enabled = true;
++		} else {
++			cfg->configured_mask = bm;
++			cfg->fixed_enabled = false;
++		}
+ 	}
++
+ 	mutex_unlock(&common->mutex);
+ 
+ 	return 0;
+@@ -1361,46 +1372,6 @@ void rsi_indicate_pkt_to_os(struct rsi_c
+ 	ieee80211_rx_irqsafe(hw, skb);
+ }
+ 
+-static void rsi_set_min_rate(struct ieee80211_hw *hw,
+-			     struct ieee80211_sta *sta,
+-			     struct rsi_common *common)
+-{
+-	u8 band = hw->conf.chandef.chan->band;
+-	u8 ii;
+-	u32 rate_bitmap;
+-	bool matched = false;
+-
+-	common->bitrate_mask[band] = sta->supp_rates[band];
+-
+-	rate_bitmap = (common->fixedrate_mask[band] & sta->supp_rates[band]);
+-
+-	if (rate_bitmap & 0xfff) {
+-		/* Find out the min rate */
+-		for (ii = 0; ii < ARRAY_SIZE(rsi_rates); ii++) {
+-			if (rate_bitmap & BIT(ii)) {
+-				common->min_rate = rsi_rates[ii].hw_value;
+-				matched = true;
+-				break;
+-			}
+-		}
+-	}
+-
+-	common->vif_info[0].is_ht = sta->ht_cap.ht_supported;
+-
+-	if ((common->vif_info[0].is_ht) && (rate_bitmap >> 12)) {
+-		for (ii = 0; ii < ARRAY_SIZE(rsi_mcsrates); ii++) {
+-			if ((rate_bitmap >> 12) & BIT(ii)) {
+-				common->min_rate = rsi_mcsrates[ii];
+-				matched = true;
+-				break;
+-			}
+-		}
+-	}
+-
+-	if (!matched)
+-		common->min_rate = 0xffff;
+-}
+-
  /**
-  * rsi_91x_init() - This function initializes os interface operations.
-  * @oper_mode: One of DEV_OPMODE_*.
+  * rsi_mac80211_sta_add() - This function notifies driver about a peer getting
+  *			    connected.
+@@ -1499,9 +1470,9 @@ static int rsi_mac80211_sta_add(struct i
+ 
+ 	if ((vif->type == NL80211_IFTYPE_STATION) ||
+ 	    (vif->type == NL80211_IFTYPE_P2P_CLIENT)) {
+-		rsi_set_min_rate(hw, sta, common);
++		common->bitrate_mask[common->band] = sta->supp_rates[common->band];
++		common->vif_info[0].is_ht = sta->ht_cap.ht_supported;
+ 		if (sta->ht_cap.ht_supported) {
+-			common->vif_info[0].is_ht = true;
+ 			common->bitrate_mask[NL80211_BAND_2GHZ] =
+ 					sta->supp_rates[NL80211_BAND_2GHZ];
+ 			if ((sta->ht_cap.cap & IEEE80211_HT_CAP_SGI_20) ||
+@@ -1575,7 +1546,6 @@ static int rsi_mac80211_sta_remove(struc
+ 		bss->qos = sta->wme;
+ 		common->bitrate_mask[NL80211_BAND_2GHZ] = 0;
+ 		common->bitrate_mask[NL80211_BAND_5GHZ] = 0;
+-		common->min_rate = 0xffff;
+ 		common->vif_info[0].is_ht = false;
+ 		common->vif_info[0].sgi = false;
+ 		common->vif_info[0].seq_start = 0;
 --- a/drivers/net/wireless/rsi/rsi_91x_mgmt.c
 +++ b/drivers/net/wireless/rsi/rsi_91x_mgmt.c
-@@ -2071,6 +2071,9 @@ static int rsi_handle_ta_confirm_type(st
- 				if (common->reinit_hw) {
- 					complete(&common->wlan_init_completion);
- 				} else {
-+					if (common->bt_defer_attach)
-+						rsi_attach_bt(common);
+@@ -276,7 +276,7 @@ static void rsi_set_default_parameters(s
+ 	common->channel_width = BW_20MHZ;
+ 	common->rts_threshold = IEEE80211_MAX_RTS_THRESHOLD;
+ 	common->channel = 1;
+-	common->min_rate = 0xffff;
++	memset(&common->rate_config, 0, sizeof(common->rate_config));
+ 	common->fsm_state = FSM_CARD_NOT_READY;
+ 	common->iface_down = true;
+ 	common->endpoint = EP_2GHZ_20MHZ;
+@@ -1314,7 +1314,7 @@ static int rsi_send_auto_rate_request(st
+ 	u8 band = hw->conf.chandef.chan->band;
+ 	u8 num_supported_rates = 0;
+ 	u8 rate_table_offset, rate_offset = 0;
+-	u32 rate_bitmap;
++	u32 rate_bitmap, configured_rates;
+ 	u16 *selected_rates, min_rate;
+ 	bool is_ht = false, is_sgi = false;
+ 	u16 frame_len = sizeof(struct rsi_auto_rate);
+@@ -1364,6 +1364,10 @@ static int rsi_send_auto_rate_request(st
+ 			is_sgi = true;
+ 	}
+ 
++	/* Limit to any rates administratively configured by cfg80211 */
++	configured_rates = common->rate_config[band].configured_mask ?: 0xffffffff;
++	rate_bitmap &= configured_rates;
 +
- 					return rsi_mac80211_attach(common);
- 				}
- 			}
+ 	if (band == NL80211_BAND_2GHZ) {
+ 		if ((rate_bitmap == 0) && (is_ht))
+ 			min_rate = RSI_RATE_MCS0;
+@@ -1389,10 +1393,13 @@ static int rsi_send_auto_rate_request(st
+ 	num_supported_rates = jj;
+ 
+ 	if (is_ht) {
+-		for (ii = 0; ii < ARRAY_SIZE(mcs); ii++)
+-			selected_rates[jj++] = mcs[ii];
+-		num_supported_rates += ARRAY_SIZE(mcs);
+-		rate_offset += ARRAY_SIZE(mcs);
++		for (ii = 0; ii < ARRAY_SIZE(mcs); ii++) {
++			if (configured_rates & BIT(ii + ARRAY_SIZE(rsi_rates))) {
++				selected_rates[jj++] = mcs[ii];
++				num_supported_rates++;
++				rate_offset++;
++			}
++		}
+ 	}
+ 
+ 	sort(selected_rates, jj, sizeof(u16), &rsi_compare, NULL);
+@@ -1482,7 +1489,7 @@ void rsi_inform_bss_status(struct rsi_co
+ 					      qos_enable,
+ 					      aid, sta_id,
+ 					      vif);
+-		if (common->min_rate == 0xffff)
++		if (!common->rate_config[common->band].fixed_enabled)
+ 			rsi_send_auto_rate_request(common, sta, sta_id, vif);
+ 		if (opmode == RSI_OPMODE_STA &&
+ 		    !(assoc_cap & WLAN_CAPABILITY_PRIVACY) &&
 --- a/drivers/net/wireless/rsi/rsi_main.h
 +++ b/drivers/net/wireless/rsi/rsi_main.h
-@@ -320,6 +320,7 @@ struct rsi_common {
- 	struct ieee80211_vif *roc_vif;
+@@ -61,6 +61,7 @@ enum RSI_FSM_STATES {
+ extern u32 rsi_zone_enabled;
+ extern __printf(2, 3) void rsi_dbg(u32 zone, const char *fmt, ...);
  
- 	bool eapol4_confirm;
-+	bool bt_defer_attach;
- 	void *bt_adapter;
++#define RSI_MAX_BANDS			2
+ #define RSI_MAX_VIFS                    3
+ #define NUM_EDCA_QUEUES                 4
+ #define IEEE80211_ADDR_LEN              6
+@@ -230,6 +231,12 @@ struct rsi_9116_features {
+ 	u32 ps_options;
+ };
  
- 	struct cfg80211_scan_request *hwscan;
-@@ -401,5 +402,6 @@ struct rsi_host_intf_ops {
++struct rsi_rate_config {
++	u32 configured_mask;	/* configured by mac80211 bits 0-11=legacy 12+ mcs */
++	u16 fixed_hw_rate;
++	bool fixed_enabled;
++};
++
+ struct rsi_common {
+ 	struct rsi_hw *priv;
+ 	struct vif_priv vif_info[RSI_MAX_VIFS];
+@@ -255,8 +262,8 @@ struct rsi_common {
+ 	u8 channel_width;
  
- enum rsi_host_intf rsi_get_host_intf(void *priv);
- void rsi_set_bt_context(void *priv, void *bt_context);
-+void rsi_attach_bt(struct rsi_common *common);
+ 	u16 rts_threshold;
+-	u16 bitrate_mask[2];
+-	u32 fixedrate_mask[2];
++	u32 bitrate_mask[RSI_MAX_BANDS];
++	struct rsi_rate_config rate_config[RSI_MAX_BANDS];
  
- #endif
+ 	u8 rf_reset;
+ 	struct transmit_q_stats tx_stats;
+@@ -277,7 +284,6 @@ struct rsi_common {
+ 	u8 mac_id;
+ 	u8 radio_id;
+ 	u16 rate_pwr[20];
+-	u16 min_rate;
+ 
+ 	/* WMM algo related */
+ 	u8 selected_qnum;
 
 
