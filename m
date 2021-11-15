@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED4B9452191
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:02:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E60E245247C
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:36:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346063AbhKPBF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:05:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
+        id S1353848AbhKPBjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:39:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245539AbhKOTUn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15EA163274;
-        Mon, 15 Nov 2021 18:36:26 +0000 (UTC)
+        id S241320AbhKOSb0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:31:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44C53632D2;
+        Mon, 15 Nov 2021 17:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001387;
-        bh=gZ/OdphLe12+OAp6ggMXDHN/GRtG9Rp+jXEap6KF+vA=;
+        s=korg; t=1636999120;
+        bh=cNGNPRZo9efANS2M+9NmsUSmfBuu1DU1RRBAgezUS+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tHlzpK+bvImkl2gIc6CT75+kTkiayEG9V6opeD8s3twpGJSOppbfVWIxeiTf0Ah8h
-         sOhBPaJYTow2QwLsY25WU1yRztDd90Xn1iChCYWlwsaecetfQoEf/ydlsKWWVFGfL9
-         xSsJbCemsQSn/jDaBMp6xnLNzeJ8xSW7bPfpXueA=
+        b=OZMENFXvZBPRt3RaNFqSbvrINfQOw05XsGhMiqlOrEyvQg0FtBNu4u3dR9b5OVilD
+         mdeUZZX/3xi1gMA00BtXy9avCzihFR1X9I72wxHwdp5nzUpQEbwfD27CqbaJj9PILv
+         eKEAzd6oT4s8/12EpfZ2ueKq44cDpWEr99oEeqj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.15 172/917] serial: 8250: fix racy uartclk update
+        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.14 184/849] cifs: To match file servers, make sure the server hostname matches
 Date:   Mon, 15 Nov 2021 17:54:27 +0100
-Message-Id: <20211115165434.608510639@linuxfoundation.org>
+Message-Id: <20211115165426.400782546@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,88 +39,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Shyam Prasad N <sprasad@microsoft.com>
 
-commit 211cde4f5817dc88ef7f8f2fa286e57fbf14c8ee upstream.
+commit 7be3248f313930ff3d3436d4e9ddbe9fccc1f541 upstream.
 
-Commit 868f3ee6e452 ("serial: 8250: Add 8250 port clock update method")
-added a hack to support SoCs where the UART reference clock can
-change behind the back of the driver but failed to add the proper
-locking.
+We generally rely on a bunch of factors to differentiate between servers.
+For example, IP address, port etc.
 
-First, make sure to take a reference to the tty struct to avoid
-dereferencing a NULL pointer if the clock change races with a hangup.
+For certain server types (like Azure), it is important to make sure
+that the server hostname matches too, even if the both hostnames currently
+resolve to the same IP address.
 
-Second, the termios semaphore must be held during the update to prevent
-a racing termios change.
-
-Fixes: 868f3ee6e452 ("serial: 8250: Add 8250 port clock update method")
-Fixes: c8dff3aa8241 ("serial: 8250: Skip uninitialized TTY port baud rate update")
-Cc: stable@vger.kernel.org      # 5.9
-Cc: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Tested-by: Serge Semin <fancer.lancer@gmail.com>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211015111422.1027-2-johan@kernel.org
+Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ fs/cifs/connect.c    |   19 +++++++++++--------
+ fs/cifs/fs_context.c |    8 ++++++++
+ fs/cifs/fs_context.h |    1 +
+ 3 files changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 66374704747e..e4dd82fd7c2a 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -2696,21 +2696,32 @@ static unsigned int serial8250_get_baud_rate(struct uart_port *port,
- void serial8250_update_uartclk(struct uart_port *port, unsigned int uartclk)
- {
- 	struct uart_8250_port *up = up_to_u8250p(port);
-+	struct tty_port *tport = &port->state->port;
- 	unsigned int baud, quot, frac = 0;
- 	struct ktermios *termios;
-+	struct tty_struct *tty;
- 	unsigned long flags;
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -795,7 +795,6 @@ static void clean_demultiplex_info(struc
+ 		 */
+ 	}
  
--	mutex_lock(&port->state->port.mutex);
-+	tty = tty_port_tty_get(tport);
-+	if (!tty) {
-+		mutex_lock(&tport->mutex);
-+		port->uartclk = uartclk;
-+		mutex_unlock(&tport->mutex);
-+		return;
+-	kfree(server->hostname);
+ 	kfree(server);
+ 
+ 	length = atomic_dec_return(&tcpSesAllocCount);
+@@ -1236,6 +1235,9 @@ static int match_server(struct TCP_Serve
+ 	if (!net_eq(cifs_net_ns(server), current->nsproxy->net_ns))
+ 		return 0;
+ 
++	if (strcasecmp(server->hostname, ctx->server_hostname))
++		return 0;
++
+ 	if (!match_address(server, addr,
+ 			   (struct sockaddr *)&ctx->srcaddr))
+ 		return 0;
+@@ -1337,6 +1339,7 @@ cifs_put_tcp_session(struct TCP_Server_I
+ 	kfree(server->session_key.response);
+ 	server->session_key.response = NULL;
+ 	server->session_key.len = 0;
++	kfree(server->hostname);
+ 
+ 	task = xchg(&server->tsk, NULL);
+ 	if (task)
+@@ -1362,14 +1365,15 @@ cifs_get_tcp_session(struct smb3_fs_cont
+ 		goto out_err;
+ 	}
+ 
++	tcp_ses->hostname = kstrdup(ctx->server_hostname, GFP_KERNEL);
++	if (!tcp_ses->hostname) {
++		rc = -ENOMEM;
++		goto out_err;
 +	}
 +
-+	down_write(&tty->termios_rwsem);
-+	mutex_lock(&tport->mutex);
+ 	tcp_ses->ops = ctx->ops;
+ 	tcp_ses->vals = ctx->vals;
+ 	cifs_set_net_ns(tcp_ses, get_net(current->nsproxy->net_ns));
+-	tcp_ses->hostname = extract_hostname(ctx->UNC);
+-	if (IS_ERR(tcp_ses->hostname)) {
+-		rc = PTR_ERR(tcp_ses->hostname);
+-		goto out_err_crypto_release;
+-	}
  
- 	if (port->uartclk == uartclk)
- 		goto out_lock;
+ 	tcp_ses->conn_id = atomic_inc_return(&tcpSesNextId);
+ 	tcp_ses->noblockcnt = ctx->rootfs;
+@@ -1498,8 +1502,7 @@ out_err_crypto_release:
  
- 	port->uartclk = uartclk;
+ out_err:
+ 	if (tcp_ses) {
+-		if (!IS_ERR(tcp_ses->hostname))
+-			kfree(tcp_ses->hostname);
++		kfree(tcp_ses->hostname);
+ 		if (tcp_ses->ssocket)
+ 			sock_release(tcp_ses->ssocket);
+ 		kfree(tcp_ses);
+--- a/fs/cifs/fs_context.c
++++ b/fs/cifs/fs_context.c
+@@ -332,6 +332,7 @@ smb3_fs_context_dup(struct smb3_fs_conte
+ 	DUP_CTX_STR(mount_options);
+ 	DUP_CTX_STR(username);
+ 	DUP_CTX_STR(password);
++	DUP_CTX_STR(server_hostname);
+ 	DUP_CTX_STR(UNC);
+ 	DUP_CTX_STR(source);
+ 	DUP_CTX_STR(domainname);
+@@ -470,6 +471,11 @@ smb3_parse_devname(const char *devname,
+ 	if (!pos)
+ 		return -EINVAL;
  
--	if (!tty_port_initialized(&port->state->port))
-+	if (!tty_port_initialized(tport))
- 		goto out_lock;
++	/* record the server hostname */
++	ctx->server_hostname = kstrndup(devname + 2, pos - devname - 2, GFP_KERNEL);
++	if (!ctx->server_hostname)
++		return -ENOMEM;
++
+ 	/* skip past delimiter */
+ 	++pos;
  
--	termios = &port->state->port.tty->termios;
-+	termios = &tty->termios;
- 
- 	baud = serial8250_get_baud_rate(port, termios, NULL);
- 	quot = serial8250_get_divisor(port, baud, &frac);
-@@ -2727,7 +2738,9 @@ void serial8250_update_uartclk(struct uart_port *port, unsigned int uartclk)
- 	serial8250_rpm_put(up);
- 
- out_lock:
--	mutex_unlock(&port->state->port.mutex);
-+	mutex_unlock(&tport->mutex);
-+	up_write(&tty->termios_rwsem);
-+	tty_kref_put(tty);
- }
- EXPORT_SYMBOL_GPL(serial8250_update_uartclk);
- 
--- 
-2.33.1
-
+@@ -1510,6 +1516,8 @@ smb3_cleanup_fs_context_contents(struct
+ 	ctx->username = NULL;
+ 	kfree_sensitive(ctx->password);
+ 	ctx->password = NULL;
++	kfree(ctx->server_hostname);
++	ctx->server_hostname = NULL;
+ 	kfree(ctx->UNC);
+ 	ctx->UNC = NULL;
+ 	kfree(ctx->source);
+--- a/fs/cifs/fs_context.h
++++ b/fs/cifs/fs_context.h
+@@ -169,6 +169,7 @@ struct smb3_fs_context {
+ 	char *password;
+ 	char *domainname;
+ 	char *source;
++	char *server_hostname;
+ 	char *UNC;
+ 	char *nodename;
+ 	char *iocharset;  /* local code page for mapping to and from Unicode */
 
 
