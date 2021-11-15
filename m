@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E100945114E
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:02:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D22154513DB
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243771AbhKOTD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:03:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35160 "EHLO mail.kernel.org"
+        id S1347853AbhKOT5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:57:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237760AbhKOTA4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:00:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07A43632B4;
-        Mon, 15 Nov 2021 18:14:18 +0000 (UTC)
+        id S1344092AbhKOTXW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0063363472;
+        Mon, 15 Nov 2021 18:51:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000059;
-        bh=fa/Byx/jJp0ciwcwRiGlcavl8k6kZl0YqorzghPFiWU=;
+        s=korg; t=1637002293;
+        bh=UxQqafP2iEoFfUVpJbLDbkyteGP6ArFOWDBsgr6dihY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZVpA4MCgp8vyY9pB/hYNi5gPGukk5BagYEvoDOvaykmXFu5MssyqgrbYzCXDmk2/
-         sXMyW7hSptkFAzO6Y8Oy3JBwkRZU+XnHkZNuPIpN92bNV9frReL72buB8C2puNCs1O
-         MAjhivH5lkwTsqSzrbEY2RpPBO6ZxpI6dmyFD9DU=
+        b=dRrmDcBeFFH1qriKMjSrHiwYHC6voX8bjthhAH51VX+hFz13OKCrUa6tQJxrwg0Ri
+         z4Km5VPnsHL4exqdNDESjeQXxJiNcnt0DiXI5KJbssnCPhHc93dAbTE+B7GujcY/6J
+         uLxZxt9FU66+eJYEegzPOg95vAAscx90Ppxr7HN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Li <benl@squareup.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 522/849] wcn36xx: add proper DMA memory barriers in rx path
-Date:   Mon, 15 Nov 2021 18:00:05 +0100
-Message-Id: <20211115165437.936351538@linuxfoundation.org>
+Subject: [PATCH 5.15 511/917] KVM: s390: pv: avoid double free of sida page
+Date:   Mon, 15 Nov 2021 18:00:06 +0100
+Message-Id: <20211115165446.091735172@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Li <benl@squareup.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-[ Upstream commit 9bfe38e064af5decba2ffce66a2958ab8b10eaa4 ]
+[ Upstream commit d4074324b07a94a1fca476d452dfbb3a4e7bf656 ]
 
-This is essentially exactly following the dma_wmb()/dma_rmb() usage
-instructions in Documentation/memory-barriers.txt.
+If kvm_s390_pv_destroy_cpu is called more than once, we risk calling
+free_page on a random page, since the sidad field is aliased with the
+gbea, which is not guaranteed to be zero.
 
-The theoretical races here are:
+This can happen, for example, if userspace calls the KVM_PV_DISABLE
+IOCTL, and it fails, and then userspace calls the same IOCTL again.
+This scenario is only possible if KVM has some serious bug or if the
+hardware is broken.
 
-1. DXE (the DMA Transfer Engine in the Wi-Fi subsystem) seeing the
-dxe->ctrl & WCN36xx_DXE_CTRL_VLD write before the dxe->dst_addr_l
-write, thus performing DMA into the wrong address.
+The solution is to simply return successfully immediately if the vCPU
+was already non secure.
 
-2. CPU reading dxe->dst_addr_l before DXE unsets dxe->ctrl &
-WCN36xx_DXE_CTRL_VLD. This should generally be harmless since DXE
-doesn't write dxe->dst_addr_l (no risk of freeing the wrong skb).
-
-Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
-Signed-off-by: Benjamin Li <benl@squareup.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211023001528.3077822-1-benl@squareup.com
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Fixes: 19e1227768863a1469797c13ef8fea1af7beac2c ("KVM: S390: protvirt: Introduce instruction data area bounce buffer")
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-Id: <20210920132502.36111-3-imbrenda@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wcn36xx/dxe.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/s390/kvm/pv.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wcn36xx/dxe.c b/drivers/net/wireless/ath/wcn36xx/dxe.c
-index 0e0bbcd11300b..aff04ef662663 100644
---- a/drivers/net/wireless/ath/wcn36xx/dxe.c
-+++ b/drivers/net/wireless/ath/wcn36xx/dxe.c
-@@ -606,6 +606,10 @@ static int wcn36xx_rx_handle_packets(struct wcn36xx *wcn,
- 	dxe = ctl->desc;
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index c8841f476e913..0a854115100b4 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -16,18 +16,17 @@
  
- 	while (!(READ_ONCE(dxe->ctrl) & WCN36xx_DXE_CTRL_VLD)) {
-+		/* do not read until we own DMA descriptor */
-+		dma_rmb();
-+
-+		/* read/modify DMA descriptor */
- 		skb = ctl->skb;
- 		dma_addr = dxe->dst_addr_l;
- 		ret = wcn36xx_dxe_fill_skb(wcn->dev, ctl, GFP_ATOMIC);
-@@ -616,9 +620,15 @@ static int wcn36xx_rx_handle_packets(struct wcn36xx *wcn,
- 			dma_unmap_single(wcn->dev, dma_addr, WCN36XX_PKT_SIZE,
- 					DMA_FROM_DEVICE);
- 			wcn36xx_rx_skb(wcn, skb);
--		} /* else keep old skb not submitted and use it for rx DMA */
-+		}
-+		/* else keep old skb not submitted and reuse it for rx DMA
-+		 * (dropping the packet that it contained)
-+		 */
+ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+ {
+-	int cc = 0;
++	int cc;
  
-+		/* flush descriptor changes before re-marking as valid */
-+		dma_wmb();
- 		dxe->ctrl = ctrl;
+-	if (kvm_s390_pv_cpu_get_handle(vcpu)) {
+-		cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
+-				   UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
++	if (!kvm_s390_pv_cpu_get_handle(vcpu))
++		return 0;
 +
- 		ctl = ctl->next;
- 		dxe = ctl->desc;
- 	}
++	cc = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu), UVC_CMD_DESTROY_SEC_CPU, rc, rrc);
++
++	KVM_UV_EVENT(vcpu->kvm, 3, "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
++		     vcpu->vcpu_id, *rc, *rrc);
++	WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x", *rc, *rrc);
+ 
+-		KVM_UV_EVENT(vcpu->kvm, 3,
+-			     "PROTVIRT DESTROY VCPU %d: rc %x rrc %x",
+-			     vcpu->vcpu_id, *rc, *rrc);
+-		WARN_ONCE(cc, "protvirt destroy cpu failed rc %x rrc %x",
+-			  *rc, *rrc);
+-	}
+ 	/* Intended memory leak for something that should never happen. */
+ 	if (!cc)
+ 		free_pages(vcpu->arch.pv.stor_base,
 -- 
 2.33.0
 
