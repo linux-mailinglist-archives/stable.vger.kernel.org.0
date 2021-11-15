@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A21C7452770
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:22:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD3454522B0
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:13:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237899AbhKPCZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:25:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53172 "EHLO mail.kernel.org"
+        id S1345699AbhKPBPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:15:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237471AbhKORYu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:24:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCC8D63283;
-        Mon, 15 Nov 2021 17:17:49 +0000 (UTC)
+        id S243596AbhKOTMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:12:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE91E634AF;
+        Mon, 15 Nov 2021 18:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996670;
-        bh=7IcZfBjUKltYjlbSxAUUm/t9fmDHrBNMuG8f4NLKptI=;
+        s=korg; t=1637000406;
+        bh=p/bBHOzMnYHbXloJE5bVdMu+tYIQkFKk6pqC4oMgdXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7IhQ4MwjxsibJAfyhLaS6tvVMsi14UoPYfkD17BU/KlIQo8RMVKzwuihAfg+URV7
-         153B6VhW8FwLwZyYPL4/mz+GUVq8V+luYjmqS+6K+fIRD0lQ/neF+n7P+6NYbxd4eU
-         9iekqDynMKSYe83KsDx/KfN9DeUXpnEv8DehYWt0=
+        b=hPAfZQlnMv1J91RUu7UE2+LTudT1C8EV0GHB1VvaosPE+I7//POZ/IL4pnprlSuUD
+         g+cWYSXg14/QQRBA/6lBx6g9BE8gbbsp9ODUUf9jwzxRtdX4qU2GCdGO4yQojW5vXr
+         99K98dKpDtJiVHcREFtoEFJST0QYjaQ5XLoFWHGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anel Orazgaliyeva <anelkz@amazon.de>,
-        Aman Priyadarshi <apeureka@amazon.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 207/355] cpuidle: Fix kobject memory leaks in error paths
-Date:   Mon, 15 Nov 2021 18:02:11 +0100
-Message-Id: <20211115165320.466726675@linuxfoundation.org>
+Subject: [PATCH 5.14 649/849] powerpc/nohash: Fix __ptep_set_access_flags() and ptep_set_wrprotect()
+Date:   Mon, 15 Nov 2021 18:02:12 +0100
+Message-Id: <20211115165442.219531237@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +41,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anel Orazgaliyeva <anelkz@amazon.de>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit e5f5a66c9aa9c331da5527c2e3fd9394e7091e01 ]
+[ Upstream commit b1b93cb7e794e914787bf7d9936b57a149cdee4f ]
 
-Commit c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
-fixes the cleanup of kobjects; however, it removes kfree() calls
-altogether, leading to memory leaks.
+Commit 26973fa5ac0e ("powerpc/mm: use pte helpers in generic code")
+changed those two functions to use pte helpers to determine which
+bits to clear and which bits to set.
 
-Fix those and also defer the initialization of dev->kobj_dev until
-after the error check, so that we do not end up with a dangling
-pointer.
+This change was based on the assumption that bits to be set/cleared
+are always the same and can be determined by applying the pte
+manipulation helpers on __pte(0).
 
-Fixes: c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
-Signed-off-by: Anel Orazgaliyeva <anelkz@amazon.de>
-Suggested-by: Aman Priyadarshi <apeureka@amazon.de>
-[ rjw: Subject edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+But on platforms like book3e, the bits depend on whether the page
+is a user page or not.
+
+For the time being it more or less works because of _PAGE_EXEC being
+used for user pages only and exec right being set at all time on
+kernel page. But following patch will clean that and output of
+pte_mkexec() will depend on the page being a user or kernel page.
+
+Instead of trying to make an even more complicated helper where bits
+would become dependent on the final pte value, come back to a more
+static situation like before commit 26973fa5ac0e ("powerpc/mm: use
+pte helpers in generic code"), by introducing an 8xx specific
+version of __ptep_set_access_flags() and ptep_set_wrprotect().
+
+Fixes: 26973fa5ac0e ("powerpc/mm: use pte helpers in generic code")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/922bdab3a220781bae2360ff3dd5adb7fe4d34f1.1635226743.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/sysfs.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/nohash/32/pgtable.h | 17 +++++++--------
+ arch/powerpc/include/asm/nohash/32/pte-8xx.h | 22 ++++++++++++++++++++
+ 2 files changed, 30 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
-index f8747322b3c70..e591f56f98c03 100644
---- a/drivers/cpuidle/sysfs.c
-+++ b/drivers/cpuidle/sysfs.c
-@@ -481,6 +481,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
- 					   &kdev->kobj, "state%d", i);
- 		if (ret) {
- 			kobject_put(&kobj->kobj);
-+			kfree(kobj);
- 			goto error_state;
- 		}
- 		cpuidle_add_s2idle_attr_group(kobj);
-@@ -612,6 +613,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
- 				   &kdev->kobj, "driver");
- 	if (ret) {
- 		kobject_put(&kdrv->kobj);
-+		kfree(kdrv);
- 		return ret;
- 	}
+diff --git a/arch/powerpc/include/asm/nohash/32/pgtable.h b/arch/powerpc/include/asm/nohash/32/pgtable.h
+index f06ae00f2a65e..ac0a5ff48c3ad 100644
+--- a/arch/powerpc/include/asm/nohash/32/pgtable.h
++++ b/arch/powerpc/include/asm/nohash/32/pgtable.h
+@@ -306,30 +306,29 @@ static inline pte_t ptep_get_and_clear(struct mm_struct *mm, unsigned long addr,
+ }
  
-@@ -698,7 +700,6 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 	if (!kdev)
- 		return -ENOMEM;
- 	kdev->dev = dev;
--	dev->kobj_dev = kdev;
+ #define __HAVE_ARCH_PTEP_SET_WRPROTECT
++#ifndef ptep_set_wrprotect
+ static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr,
+ 				      pte_t *ptep)
+ {
+-	unsigned long clr = ~pte_val(pte_wrprotect(__pte(~0)));
+-	unsigned long set = pte_val(pte_wrprotect(__pte(0)));
+-
+-	pte_update(mm, addr, ptep, clr, set, 0);
++	pte_update(mm, addr, ptep, _PAGE_RW, 0, 0);
+ }
++#endif
  
- 	init_completion(&kdev->kobj_unregister);
++#ifndef __ptep_set_access_flags
+ static inline void __ptep_set_access_flags(struct vm_area_struct *vma,
+ 					   pte_t *ptep, pte_t entry,
+ 					   unsigned long address,
+ 					   int psize)
+ {
+-	pte_t pte_set = pte_mkyoung(pte_mkdirty(pte_mkwrite(pte_mkexec(__pte(0)))));
+-	pte_t pte_clr = pte_mkyoung(pte_mkdirty(pte_mkwrite(pte_mkexec(__pte(~0)))));
+-	unsigned long set = pte_val(entry) & pte_val(pte_set);
+-	unsigned long clr = ~pte_val(entry) & ~pte_val(pte_clr);
++	unsigned long set = pte_val(entry) &
++			    (_PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_RW | _PAGE_EXEC);
+ 	int huge = psize > mmu_virtual_psize ? 1 : 0;
  
-@@ -706,9 +707,11 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 				   "cpuidle");
- 	if (error) {
- 		kobject_put(&kdev->kobj);
-+		kfree(kdev);
- 		return error;
- 	}
+-	pte_update(vma->vm_mm, address, ptep, clr, set, huge);
++	pte_update(vma->vm_mm, address, ptep, 0, set, huge);
  
-+	dev->kobj_dev = kdev;
- 	kobject_uevent(&kdev->kobj, KOBJ_ADD);
+ 	flush_tlb_page(vma, address);
+ }
++#endif
  
- 	return 0;
+ static inline int pte_young(pte_t pte)
+ {
+diff --git a/arch/powerpc/include/asm/nohash/32/pte-8xx.h b/arch/powerpc/include/asm/nohash/32/pte-8xx.h
+index fcc48d590d888..1a89ebdc3acc9 100644
+--- a/arch/powerpc/include/asm/nohash/32/pte-8xx.h
++++ b/arch/powerpc/include/asm/nohash/32/pte-8xx.h
+@@ -136,6 +136,28 @@ static inline pte_t pte_mkhuge(pte_t pte)
+ 
+ #define pte_mkhuge pte_mkhuge
+ 
++static inline pte_basic_t pte_update(struct mm_struct *mm, unsigned long addr, pte_t *p,
++				     unsigned long clr, unsigned long set, int huge);
++
++static inline void ptep_set_wrprotect(struct mm_struct *mm, unsigned long addr, pte_t *ptep)
++{
++	pte_update(mm, addr, ptep, 0, _PAGE_RO, 0);
++}
++#define ptep_set_wrprotect ptep_set_wrprotect
++
++static inline void __ptep_set_access_flags(struct vm_area_struct *vma, pte_t *ptep,
++					   pte_t entry, unsigned long address, int psize)
++{
++	unsigned long set = pte_val(entry) & (_PAGE_DIRTY | _PAGE_ACCESSED | _PAGE_EXEC);
++	unsigned long clr = ~pte_val(entry) & _PAGE_RO;
++	int huge = psize > mmu_virtual_psize ? 1 : 0;
++
++	pte_update(vma->vm_mm, address, ptep, clr, set, huge);
++
++	flush_tlb_page(vma, address);
++}
++#define __ptep_set_access_flags __ptep_set_access_flags
++
+ static inline unsigned long pgd_leaf_size(pgd_t pgd)
+ {
+ 	if (pgd_val(pgd) & _PMD_PAGE_8M)
 -- 
 2.33.0
 
