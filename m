@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B1F45214F
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:01:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5538452489
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:36:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346465AbhKPBDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:03:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
+        id S233822AbhKPBjb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:39:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245596AbhKOTUu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:20:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22E8E6326D;
-        Mon, 15 Nov 2021 18:37:52 +0000 (UTC)
+        id S241958AbhKOSbm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:31:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E51DD61AFF;
+        Mon, 15 Nov 2021 17:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001473;
-        bh=/eAyvJcOIIskG6EktApnuPDSLl0zARuaaGExkp6GUy0=;
+        s=korg; t=1636999144;
+        bh=HWVHav7Wau7I7mtp/CXh2mCwJm6QZoTBdntmFjuLZbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NYTfeuUxd8hqwIq024i19hBlaI8GQzsj/GgOppRkyQ+w++VavhIGNL6+3+fMGoDTI
-         eUt4dFCZ1Wipp4tbEmFj0EZHzMFx/UXlKmB5wVQGBh/iLU4vWj7VyabS+m+qZk/Pqe
-         HdSglafzh+I3bXdhf+/DIT3NpkVoDt86/eVkYorY=
+        b=gptt5tJBtmSp8tk889m0MmPsHr+kuZ5A06A1tJShNaLzHuESTeWtHDyeyIUYiFNUV
+         ZyTa2sLOnOarJ+WjsjchIM4OJW6brntUvDnawm92QdOGVxsErzIOzOb3t+S99cg5z1
+         SAEAXx88mJm+GVxL1teK3H2vMbSaI5i7ZnF4GsnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bransilav Rankov <branislav.rankov@arm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 5.15 162/917] coresight: trbe: Defer the probe on offline CPUs
-Date:   Mon, 15 Nov 2021 17:54:17 +0100
-Message-Id: <20211115165434.262028387@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.14 175/849] PCI: aardvark: Fix configuring Reference clock
+Date:   Mon, 15 Nov 2021 17:54:18 +0100
+Message-Id: <20211115165426.094957280@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
-References: <20211115165428.722074685@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,106 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit a08025b3fe56185290a1ea476581f03ca733f967 upstream.
+commit 46ef6090dbf590711cb12680b6eafde5fa21fe87 upstream.
 
-If a CPU is offline during the driver init, we could end up causing
-a kernel crash trying to register the coresight device for the TRBE
-instance. The trbe_cpudata for the TRBE instance is initialized only
-when it is probed. Otherwise, we could end up dereferencing a NULL
-cpudata->drvdata.
+Commit 366697018c9a ("PCI: aardvark: Add PHY support") introduced
+configuration of PCIe Reference clock via PCIE_CORE_REF_CLK_REG register,
+but did it incorrectly.
 
-e.g:
+PCIe Reference clock differential pair is routed from system board to
+endpoint card, so on CPU side it has output direction. Therefore it is
+required to enable transmitting and disable receiving.
 
-[    0.149999] coresight ete0: CPU0: ete v1.1 initialized
-[    0.149999] coresight-etm4x ete_1: ETM arch init failed
-[    0.149999] coresight-etm4x: probe of ete_1 failed with error -22
-[    0.150085] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000050
-[    0.150085] Mem abort info:
-[    0.150085]   ESR = 0x96000005
-[    0.150085]   EC = 0x25: DABT (current EL), IL = 32 bits
-[    0.150085]   SET = 0, FnV = 0
-[    0.150085]   EA = 0, S1PTW = 0
-[    0.150085] Data abort info:
-[    0.150085]   ISV = 0, ISS = 0x00000005
-[    0.150085]   CM = 0, WnR = 0
-[    0.150085] [0000000000000050] user address but active_mm is swapper
-[    0.150085] Internal error: Oops: 96000005 [#1] PREEMPT SMP
-[    0.150085] Modules linked in:
-[    0.150085] Hardware name: FVP Base RevC (DT)
-[    0.150085] pstate: 00800009 (nzcv daif -PAN +UAO -TCO BTYPE=--)
-[    0.150155] pc : arm_trbe_register_coresight_cpu+0x74/0x144
-[    0.150155] lr : arm_trbe_register_coresight_cpu+0x48/0x144
-  ...
+Default configuration according to Armada 3700 Functional Specifications is
+enabled receiver part and disabled transmitter.
 
-[    0.150237] Call trace:
-[    0.150237]  arm_trbe_register_coresight_cpu+0x74/0x144
-[    0.150237]  arm_trbe_device_probe+0x1c0/0x2d8
-[    0.150259]  platform_drv_probe+0x94/0xbc
-[    0.150259]  really_probe+0x1bc/0x4a8
-[    0.150266]  driver_probe_device+0x7c/0xb8
-[    0.150266]  device_driver_attach+0x6c/0xac
-[    0.150266]  __driver_attach+0xc4/0x148
-[    0.150266]  bus_for_each_dev+0x7c/0xc8
-[    0.150266]  driver_attach+0x24/0x30
-[    0.150266]  bus_add_driver+0x100/0x1e0
-[    0.150266]  driver_register+0x78/0x110
-[    0.150266]  __platform_driver_register+0x44/0x50
-[    0.150266]  arm_trbe_init+0x28/0x84
-[    0.150266]  do_one_initcall+0x94/0x2bc
-[    0.150266]  do_initcall_level+0xa4/0x158
-[    0.150266]  do_initcalls+0x54/0x94
-[    0.150319]  do_basic_setup+0x24/0x30
-[    0.150319]  kernel_init_freeable+0xe8/0x14c
-[    0.150319]  kernel_init+0x14/0x18c
-[    0.150319]  ret_from_fork+0x10/0x30
-[    0.150319] Code: f94012c8 b0004ce2 9134a442 52819801 (f9402917)
-[    0.150319] ---[ end trace d23e0cfe5098535e ]---
-[    0.150346] Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+We need this change because otherwise PCIe Reference clock is configured to
+some undefined state when differential pair is used for both transmitting
+and receiving.
 
-Fix this by skipping the step, if we are unable to probe the CPU.
+Fix this by disabling receiver part.
 
-Fixes: 3fbf7f011f24 ("coresight: sink: Add TRBE driver")
-Reported-by: Bransilav Rankov <branislav.rankov@arm.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: stable <stable@vger.kernel.org>
-Tested-by: Branislav Rankov <branislav.rankov@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Link: https://lore.kernel.org/r/20211014142238.2221248-1-suzuki.poulose@arm.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20211005180952.6812-6-kabel@kernel.org
+Fixes: 366697018c9a ("PCI: aardvark: Add PHY support")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-trbe.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/hwtracing/coresight/coresight-trbe.c
-+++ b/drivers/hwtracing/coresight/coresight-trbe.c
-@@ -869,6 +869,10 @@ static void arm_trbe_register_coresight_
- 	if (WARN_ON(trbe_csdev))
- 		return;
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -99,6 +99,7 @@
+ #define     PCIE_CORE_CTRL2_MSI_ENABLE		BIT(10)
+ #define PCIE_CORE_REF_CLK_REG			(CONTROL_BASE_ADDR + 0x14)
+ #define     PCIE_CORE_REF_CLK_TX_ENABLE		BIT(1)
++#define     PCIE_CORE_REF_CLK_RX_ENABLE		BIT(2)
+ #define PCIE_MSG_LOG_REG			(CONTROL_BASE_ADDR + 0x30)
+ #define PCIE_ISR0_REG				(CONTROL_BASE_ADDR + 0x40)
+ #define PCIE_MSG_PM_PME_MASK			BIT(7)
+@@ -529,9 +530,15 @@ static void advk_pcie_setup_hw(struct ad
+ 	u32 reg;
+ 	int i;
  
-+	/* If the TRBE was not probed on the CPU, we shouldn't be here */
-+	if (WARN_ON(!cpudata->drvdata))
-+		return;
-+
- 	dev = &cpudata->drvdata->pdev->dev;
- 	desc.name = devm_kasprintf(dev, GFP_KERNEL, "trbe%d", cpu);
- 	if (!desc.name)
-@@ -950,7 +954,9 @@ static int arm_trbe_probe_coresight(stru
- 		return -ENOMEM;
+-	/* Enable TX */
++	/*
++	 * Configure PCIe Reference clock. Direction is from the PCIe
++	 * controller to the endpoint card, so enable transmitting of
++	 * Reference clock differential signal off-chip and disable
++	 * receiving off-chip differential signal.
++	 */
+ 	reg = advk_readl(pcie, PCIE_CORE_REF_CLK_REG);
+ 	reg |= PCIE_CORE_REF_CLK_TX_ENABLE;
++	reg &= ~PCIE_CORE_REF_CLK_RX_ENABLE;
+ 	advk_writel(pcie, reg, PCIE_CORE_REF_CLK_REG);
  
- 	for_each_cpu(cpu, &drvdata->supported_cpus) {
--		smp_call_function_single(cpu, arm_trbe_probe_cpu, drvdata, 1);
-+		/* If we fail to probe the CPU, let us defer it to hotplug callbacks */
-+		if (smp_call_function_single(cpu, arm_trbe_probe_cpu, drvdata, 1))
-+			continue;
- 		if (cpumask_test_cpu(cpu, &drvdata->supported_cpus))
- 			arm_trbe_register_coresight_cpu(drvdata, cpu);
- 		if (cpumask_test_cpu(cpu, &drvdata->supported_cpus))
+ 	/* Set to Direct mode */
 
 
