@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E18450C64
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:35:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31430450C9D
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:38:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236855AbhKORiG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:38:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57864 "EHLO mail.kernel.org"
+        id S238514AbhKORlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:41:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237428AbhKORhF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:37:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A914632D1;
-        Mon, 15 Nov 2021 17:24:48 +0000 (UTC)
+        id S237936AbhKORiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:38:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31A9D632D8;
+        Mon, 15 Nov 2021 17:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997088;
-        bh=zrP1fMiL4EkmIYviH4eDJE3lL7Ob4cut+qjpIzUvB/g=;
+        s=korg; t=1636997119;
+        bh=asKNJVXTWJsmdjle9L8YwZOF5Cjk6wVaH6GvTdwnvA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0G5YHAdwVHfN7Zx+ezXqARZ/lSLU1v/49pjRkt2qv1vwHck/gbGdHyxse8JyiqgRT
-         lGB6Ikq1oaqNjdtTUWEjaU6WMdEaYIL+IdIhHx3UhkXV7NkUC3YjPJqmeKULDw8aar
-         IHL3lBjogJYE4yazLGezqpva3CIIOUO6JCKo/NJM=
+        b=sgUMD/kld74Ln/mvKgD+DD+/LAbi82S8IycZbcA/jjmHaYlZc6vR4yOoolrl79ZqA
+         c/47uh3X6jcaD0jKnP/T7D1tuQUtrP89Ypmr+LkJn8WiY0Go7P1Vs9aObh7wK8M6Ie
+         ccDp61gwuuemnMlzsl6GWJy5pjHdtN3moeJf3a7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Todd Kjos <tkjos@google.com>,
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        kernel test robot <lkp@intel.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
         Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.10 004/575] binder: use cred instead of task for selinux checks
-Date:   Mon, 15 Nov 2021 17:55:29 +0100
-Message-Id: <20211115165343.756485904@linuxfoundation.org>
+Subject: [PATCH 5.10 005/575] binder: use cred instead of task for getsecid
+Date:   Mon, 15 Nov 2021 17:55:30 +0100
+Message-Id: <20211115165343.790464393@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -43,296 +44,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Todd Kjos <tkjos@google.com>
 
-commit 52f88693378a58094c538662ba652aff0253c4fe upstream.
+commit 4d5b5539742d2554591751b4248b0204d20dcc9d upstream.
 
-Since binder was integrated with selinux, it has passed
-'struct task_struct' associated with the binder_proc
-to represent the source and target of transactions.
-The conversion of task to SID was then done in the hook
-implementations. It turns out that there are race conditions
-which can result in an incorrect security context being used.
+Use the 'struct cred' saved at binder_open() to lookup
+the security ID via security_cred_getsecid(). This
+ensures that the security context that opened binder
+is the one used to generate the secctx.
 
-Fix by using the 'struct cred' saved during binder_open and pass
-it to the selinux subsystem.
-
-Cc: stable@vger.kernel.org # 5.14 (need backport for earlier stables)
-Fixes: 79af73079d75 ("Add security hooks to binder and implement the hooks for SELinux.")
-Suggested-by: Jann Horn <jannh@google.com>
+Cc: stable@vger.kernel.org # 5.4+
+Fixes: ec74136ded79 ("binder: create node flag to request sender's security context")
 Signed-off-by: Todd Kjos <tkjos@google.com>
+Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
 Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c      |   12 ++++++------
- include/linux/lsm_hook_defs.h |   14 +++++++-------
- include/linux/lsm_hooks.h     |   14 +++++++-------
- include/linux/security.h      |   28 ++++++++++++++--------------
- security/security.c           |   14 +++++++-------
- security/selinux/hooks.c      |   36 +++++++++++++++---------------------
- 6 files changed, 56 insertions(+), 62 deletions(-)
+ drivers/android/binder.c |    2 +-
+ include/linux/security.h |    5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
 --- a/drivers/android/binder.c
 +++ b/drivers/android/binder.c
-@@ -2443,7 +2443,7 @@ static int binder_translate_binder(struc
- 		ret = -EINVAL;
- 		goto done;
- 	}
--	if (security_binder_transfer_binder(proc->tsk, target_proc->tsk)) {
-+	if (security_binder_transfer_binder(proc->cred, target_proc->cred)) {
- 		ret = -EPERM;
- 		goto done;
- 	}
-@@ -2489,7 +2489,7 @@ static int binder_translate_handle(struc
- 				  proc->pid, thread->pid, fp->handle);
- 		return -EINVAL;
- 	}
--	if (security_binder_transfer_binder(proc->tsk, target_proc->tsk)) {
-+	if (security_binder_transfer_binder(proc->cred, target_proc->cred)) {
- 		ret = -EPERM;
- 		goto done;
- 	}
-@@ -2577,7 +2577,7 @@ static int binder_translate_fd(u32 fd, b
- 		ret = -EBADF;
- 		goto err_fget;
- 	}
--	ret = security_binder_transfer_file(proc->tsk, target_proc->tsk, file);
-+	ret = security_binder_transfer_file(proc->cred, target_proc->cred, file);
- 	if (ret < 0) {
- 		ret = -EPERM;
- 		goto err_security;
-@@ -2975,8 +2975,8 @@ static void binder_transaction(struct bi
- 			return_error_line = __LINE__;
- 			goto err_invalid_target_handle;
- 		}
--		if (security_binder_transaction(proc->tsk,
--						target_proc->tsk) < 0) {
-+		if (security_binder_transaction(proc->cred,
-+						target_proc->cred) < 0) {
+@@ -3102,7 +3102,7 @@ static void binder_transaction(struct bi
+ 		u32 secid;
+ 		size_t added_size;
+ 
+-		security_task_getsecid(proc->tsk, &secid);
++		security_cred_getsecid(proc->cred, &secid);
+ 		ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
+ 		if (ret) {
  			return_error = BR_FAILED_REPLY;
- 			return_error_param = -EPERM;
- 			return_error_line = __LINE__;
-@@ -4918,7 +4918,7 @@ static int binder_ioctl_set_ctx_mgr(stru
- 		ret = -EBUSY;
- 		goto out;
- 	}
--	ret = security_binder_set_context_mgr(proc->tsk);
-+	ret = security_binder_set_context_mgr(proc->cred);
- 	if (ret < 0)
- 		goto out;
- 	if (uid_valid(context->binder_context_mgr_uid)) {
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -26,13 +26,13 @@
-  *   #undef LSM_HOOK
-  * };
-  */
--LSM_HOOK(int, 0, binder_set_context_mgr, struct task_struct *mgr)
--LSM_HOOK(int, 0, binder_transaction, struct task_struct *from,
--	 struct task_struct *to)
--LSM_HOOK(int, 0, binder_transfer_binder, struct task_struct *from,
--	 struct task_struct *to)
--LSM_HOOK(int, 0, binder_transfer_file, struct task_struct *from,
--	 struct task_struct *to, struct file *file)
-+LSM_HOOK(int, 0, binder_set_context_mgr, const struct cred *mgr)
-+LSM_HOOK(int, 0, binder_transaction, const struct cred *from,
-+	 const struct cred *to)
-+LSM_HOOK(int, 0, binder_transfer_binder, const struct cred *from,
-+	 const struct cred *to)
-+LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
-+	 const struct cred *to, struct file *file)
- LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
- 	 unsigned int mode)
- LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1288,22 +1288,22 @@
-  *
-  * @binder_set_context_mgr:
-  *	Check whether @mgr is allowed to be the binder context manager.
-- *	@mgr contains the task_struct for the task being registered.
-+ *	@mgr contains the struct cred for the current binder process.
-  *	Return 0 if permission is granted.
-  * @binder_transaction:
-  *	Check whether @from is allowed to invoke a binder transaction call
-  *	to @to.
-- *	@from contains the task_struct for the sending task.
-- *	@to contains the task_struct for the receiving task.
-+ *	@from contains the struct cred for the sending process.
-+ *	@to contains the struct cred for the receiving process.
-  * @binder_transfer_binder:
-  *	Check whether @from is allowed to transfer a binder reference to @to.
-- *	@from contains the task_struct for the sending task.
-- *	@to contains the task_struct for the receiving task.
-+ *	@from contains the struct cred for the sending process.
-+ *	@to contains the struct cred for the receiving process.
-  * @binder_transfer_file:
-  *	Check whether @from is allowed to transfer @file to @to.
-- *	@from contains the task_struct for the sending task.
-+ *	@from contains the struct cred for the sending process.
-  *	@file contains the struct file being transferred.
-- *	@to contains the task_struct for the receiving task.
-+ *	@to contains the struct cred for the receiving process.
-  *
-  * @ptrace_access_check:
-  *	Check permission before allowing the current process to trace the
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -254,13 +254,13 @@ extern int security_init(void);
- extern int early_security_init(void);
- 
- /* Security operations */
--int security_binder_set_context_mgr(struct task_struct *mgr);
--int security_binder_transaction(struct task_struct *from,
--				struct task_struct *to);
--int security_binder_transfer_binder(struct task_struct *from,
--				    struct task_struct *to);
--int security_binder_transfer_file(struct task_struct *from,
--				  struct task_struct *to, struct file *file);
-+int security_binder_set_context_mgr(const struct cred *mgr);
-+int security_binder_transaction(const struct cred *from,
-+				const struct cred *to);
-+int security_binder_transfer_binder(const struct cred *from,
-+				    const struct cred *to);
-+int security_binder_transfer_file(const struct cred *from,
-+				  const struct cred *to, struct file *file);
- int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
- int security_ptrace_traceme(struct task_struct *parent);
- int security_capget(struct task_struct *target,
-@@ -493,25 +493,25 @@ static inline int early_security_init(vo
- 	return 0;
+@@ -1003,6 +1003,11 @@ static inline void security_transfer_cre
+ {
  }
  
--static inline int security_binder_set_context_mgr(struct task_struct *mgr)
-+static inline int security_binder_set_context_mgr(const struct cred *mgr)
++static inline void security_cred_getsecid(const struct cred *c, u32 *secid)
++{
++	*secid = 0;
++}
++
+ static inline int security_kernel_act_as(struct cred *cred, u32 secid)
  {
  	return 0;
- }
- 
--static inline int security_binder_transaction(struct task_struct *from,
--					      struct task_struct *to)
-+static inline int security_binder_transaction(const struct cred *from,
-+					      const struct cred *to)
- {
- 	return 0;
- }
- 
--static inline int security_binder_transfer_binder(struct task_struct *from,
--						  struct task_struct *to)
-+static inline int security_binder_transfer_binder(const struct cred *from,
-+						  const struct cred *to)
- {
- 	return 0;
- }
- 
--static inline int security_binder_transfer_file(struct task_struct *from,
--						struct task_struct *to,
-+static inline int security_binder_transfer_file(const struct cred *from,
-+						const struct cred *to,
- 						struct file *file)
- {
- 	return 0;
---- a/security/security.c
-+++ b/security/security.c
-@@ -723,25 +723,25 @@ static void __init lsm_early_task(struct
- 
- /* Security operations */
- 
--int security_binder_set_context_mgr(struct task_struct *mgr)
-+int security_binder_set_context_mgr(const struct cred *mgr)
- {
- 	return call_int_hook(binder_set_context_mgr, 0, mgr);
- }
- 
--int security_binder_transaction(struct task_struct *from,
--				struct task_struct *to)
-+int security_binder_transaction(const struct cred *from,
-+				const struct cred *to)
- {
- 	return call_int_hook(binder_transaction, 0, from, to);
- }
- 
--int security_binder_transfer_binder(struct task_struct *from,
--				    struct task_struct *to)
-+int security_binder_transfer_binder(const struct cred *from,
-+				    const struct cred *to)
- {
- 	return call_int_hook(binder_transfer_binder, 0, from, to);
- }
- 
--int security_binder_transfer_file(struct task_struct *from,
--				  struct task_struct *to, struct file *file)
-+int security_binder_transfer_file(const struct cred *from,
-+				  const struct cred *to, struct file *file)
- {
- 	return call_int_hook(binder_transfer_file, 0, from, to, file);
- }
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2004,22 +2004,19 @@ static inline u32 open_file_to_av(struct
- 
- /* Hook functions begin here. */
- 
--static int selinux_binder_set_context_mgr(struct task_struct *mgr)
-+static int selinux_binder_set_context_mgr(const struct cred *mgr)
- {
--	u32 mysid = current_sid();
--	u32 mgrsid = task_sid(mgr);
--
- 	return avc_has_perm(&selinux_state,
--			    mysid, mgrsid, SECCLASS_BINDER,
-+			    current_sid(), cred_sid(mgr), SECCLASS_BINDER,
- 			    BINDER__SET_CONTEXT_MGR, NULL);
- }
- 
--static int selinux_binder_transaction(struct task_struct *from,
--				      struct task_struct *to)
-+static int selinux_binder_transaction(const struct cred *from,
-+				      const struct cred *to)
- {
- 	u32 mysid = current_sid();
--	u32 fromsid = task_sid(from);
--	u32 tosid = task_sid(to);
-+	u32 fromsid = cred_sid(from);
-+	u32 tosid = cred_sid(to);
- 	int rc;
- 
- 	if (mysid != fromsid) {
-@@ -2030,27 +2027,24 @@ static int selinux_binder_transaction(st
- 			return rc;
- 	}
- 
--	return avc_has_perm(&selinux_state,
--			    fromsid, tosid, SECCLASS_BINDER, BINDER__CALL,
--			    NULL);
-+	return avc_has_perm(&selinux_state, fromsid, tosid,
-+			    SECCLASS_BINDER, BINDER__CALL, NULL);
- }
- 
--static int selinux_binder_transfer_binder(struct task_struct *from,
--					  struct task_struct *to)
-+static int selinux_binder_transfer_binder(const struct cred *from,
-+					  const struct cred *to)
- {
--	u32 fromsid = task_sid(from);
--	u32 tosid = task_sid(to);
--
- 	return avc_has_perm(&selinux_state,
--			    fromsid, tosid, SECCLASS_BINDER, BINDER__TRANSFER,
-+			    cred_sid(from), cred_sid(to),
-+			    SECCLASS_BINDER, BINDER__TRANSFER,
- 			    NULL);
- }
- 
--static int selinux_binder_transfer_file(struct task_struct *from,
--					struct task_struct *to,
-+static int selinux_binder_transfer_file(const struct cred *from,
-+					const struct cred *to,
- 					struct file *file)
- {
--	u32 sid = task_sid(to);
-+	u32 sid = cred_sid(to);
- 	struct file_security_struct *fsec = selinux_file(file);
- 	struct dentry *dentry = file->f_path.dentry;
- 	struct inode_security_struct *isec;
 
 
