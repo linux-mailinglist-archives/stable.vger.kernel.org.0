@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE87E450D9C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:57:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DDB9451126
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232323AbhKOR7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:59:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40768 "EHLO mail.kernel.org"
+        id S243438AbhKOTBc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:01:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239195AbhKOR5m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:57:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFA8B63333;
-        Mon, 15 Nov 2021 17:34:53 +0000 (UTC)
+        id S243131AbhKOS5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:57:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A445B6348E;
+        Mon, 15 Nov 2021 18:12:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997694;
-        bh=DoRprvbnDyIA6J56UPBpUzJjowORUXnaEgFu3zG+Pqw=;
+        s=korg; t=1636999952;
+        bh=SIcsGbCXFI9C5pfWF98kf3KsDj8Gge2BjHzu+lHXedI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGfeTuZ+s6tLSQE/iLY7bEPnHojnDEBw0UEqEhyF0L5RzviWEDeOVUsYQVyl/413Z
-         hRZ4IXDxZxgjuuj5ivLrHC5plSVT+gaZj1/0sxAeVqrwCg1ztXzWY50fMcOhw6jXe0
-         etDl5raH/pWMTFP+SrPhnuWTwoc3bjIIfoxgLFCk=
+        b=kAEz8wffnRVw1lvAPBZrcjGIS3SyTqOmGKylAa/9xc2XgZtR3YLI6DQz6VhtgokGq
+         eKpKiGFyLUQWwCqCF0Is1fsx+SYcvgKg8P/eMD4RHvAsE/pXkp8Rg0RHiSAyuN4Dsp
+         YLtKxR4PWUydUKZjruvznIBAeAMX/gfTkM4Es/Ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 241/575] net: dsa: lantiq_gswip: serialize access to the PCE table
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 483/849] nbd: Fix use-after-free in pid_show
 Date:   Mon, 15 Nov 2021 17:59:26 +0100
-Message-Id: <20211115165352.073816222@linuxfoundation.org>
+Message-Id: <20211115165436.618715905@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,119 +40,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 49753a75b9a32de4c0393bb8d1e51ea223fda8e4 ]
+[ Upstream commit 0c98057be9efa32de78dbc4685fc73da9d71faa1 ]
 
-Looking at the code, the GSWIP switch appears to hold bridging service
-structures (VLANs, FDBs, forwarding rules) in PCE table entries.
-Hardware access to the PCE table is non-atomic, and is comprised of
-several register reads and writes.
+I got issue as follows:
+[  263.886511] BUG: KASAN: use-after-free in pid_show+0x11f/0x13f
+[  263.888359] Read of size 4 at addr ffff8880bf0648c0 by task cat/746
+[  263.890479] CPU: 0 PID: 746 Comm: cat Not tainted 4.19.90-dirty #140
+[  263.893162] Call Trace:
+[  263.893509]  dump_stack+0x108/0x15f
+[  263.893999]  print_address_description+0xa5/0x372
+[  263.894641]  kasan_report.cold+0x236/0x2a8
+[  263.895696]  __asan_report_load4_noabort+0x25/0x30
+[  263.896365]  pid_show+0x11f/0x13f
+[  263.897422]  dev_attr_show+0x48/0x90
+[  263.898361]  sysfs_kf_seq_show+0x24d/0x4b0
+[  263.899479]  kernfs_seq_show+0x14e/0x1b0
+[  263.900029]  seq_read+0x43f/0x1150
+[  263.900499]  kernfs_fop_read+0xc7/0x5a0
+[  263.903764]  vfs_read+0x113/0x350
+[  263.904231]  ksys_read+0x103/0x270
+[  263.905230]  __x64_sys_read+0x77/0xc0
+[  263.906284]  do_syscall_64+0x106/0x360
+[  263.906797]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-These accesses are currently serialized by the rtnl_lock, but DSA is
-changing its driver API and that lock will no longer be held when
-calling ->port_fdb_add() and ->port_fdb_del().
+Reproduce this issue as follows:
+1. nbd-server 8000 /tmp/disk
+2. nbd-client localhost 8000 /dev/nbd1
+3. cat /sys/block/nbd1/pid
+Then trigger use-after-free in pid_show.
 
-So this driver needs to serialize the access to the PCE table using its
-own locking scheme. This patch adds that.
+Reason is after do step '2', nbd-client progress is already exit. So
+it's task_struct already freed.
+To solve this issue, revert part of 6521d39a64b3's modify and remove
+useless 'recv_task' member of nbd_device.
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6521d39a64b3 ("nbd: Remove variable 'pid'")
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20211020073959.2679255-1-yebin10@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/lantiq_gswip.c | 28 +++++++++++++++++++++++-----
- 1 file changed, 23 insertions(+), 5 deletions(-)
+ drivers/block/nbd.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
-index 4d23a7aba7961..f54e7f48b0dd7 100644
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -274,6 +274,7 @@ struct gswip_priv {
- 	int num_gphy_fw;
- 	struct gswip_gphy_fw *gphy_fw;
- 	u32 port_vlan_filter;
-+	struct mutex pce_table_lock;
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 99ab58b877f8c..6d7e181d3ed1f 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -122,11 +122,11 @@ struct nbd_device {
+ 	struct work_struct remove_work;
+ 
+ 	struct list_head list;
+-	struct task_struct *task_recv;
+ 	struct task_struct *task_setup;
+ 
+ 	struct completion *destroy_complete;
+ 	unsigned long flags;
++	pid_t pid; /* pid of nbd-client, if attached */
+ 
+ 	char *backend;
  };
+@@ -218,7 +218,7 @@ static ssize_t pid_show(struct device *dev,
+ 	struct gendisk *disk = dev_to_disk(dev);
+ 	struct nbd_device *nbd = (struct nbd_device *)disk->private_data;
  
- struct gswip_pce_table_entry {
-@@ -521,10 +522,14 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
- 	u16 addr_mode = tbl->key_mode ? GSWIP_PCE_TBL_CTRL_OPMOD_KSRD :
- 					GSWIP_PCE_TBL_CTRL_OPMOD_ADRD;
+-	return sprintf(buf, "%d\n", task_pid_nr(nbd->task_recv));
++	return sprintf(buf, "%d\n", nbd->pid);
+ }
  
-+	mutex_lock(&priv->pce_table_lock);
-+
- 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
- 				     GSWIP_PCE_TBL_CTRL_BAS);
--	if (err)
-+	if (err) {
-+		mutex_unlock(&priv->pce_table_lock);
- 		return err;
-+	}
+ static const struct device_attribute pid_attr = {
+@@ -362,7 +362,7 @@ static int nbd_set_size(struct nbd_device *nbd, loff_t bytesize,
+ 	nbd->config->bytesize = bytesize;
+ 	nbd->config->blksize_bits = __ffs(blksize);
  
- 	gswip_switch_w(priv, tbl->index, GSWIP_PCE_TBL_ADDR);
- 	gswip_switch_mask(priv, GSWIP_PCE_TBL_CTRL_ADDR_MASK |
-@@ -534,8 +539,10 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
+-	if (!nbd->task_recv)
++	if (!nbd->pid)
+ 		return 0;
  
- 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
- 				     GSWIP_PCE_TBL_CTRL_BAS);
--	if (err)
-+	if (err) {
-+		mutex_unlock(&priv->pce_table_lock);
- 		return err;
-+	}
+ 	if (nbd->config->flags & NBD_FLAG_SEND_TRIM) {
+@@ -1274,7 +1274,7 @@ static void nbd_config_put(struct nbd_device *nbd)
+ 		if (test_and_clear_bit(NBD_RT_HAS_PID_FILE,
+ 				       &config->runtime_flags))
+ 			device_remove_file(disk_to_dev(nbd->disk), &pid_attr);
+-		nbd->task_recv = NULL;
++		nbd->pid = 0;
+ 		if (test_and_clear_bit(NBD_RT_HAS_BACKEND_FILE,
+ 				       &config->runtime_flags)) {
+ 			device_remove_file(disk_to_dev(nbd->disk), &backend_attr);
+@@ -1315,7 +1315,7 @@ static int nbd_start_device(struct nbd_device *nbd)
+ 	int num_connections = config->num_connections;
+ 	int error = 0, i;
  
- 	for (i = 0; i < ARRAY_SIZE(tbl->key); i++)
- 		tbl->key[i] = gswip_switch_r(priv, GSWIP_PCE_TBL_KEY(i));
-@@ -551,6 +558,8 @@ static int gswip_pce_table_entry_read(struct gswip_priv *priv,
- 	tbl->valid = !!(crtl & GSWIP_PCE_TBL_CTRL_VLD);
- 	tbl->gmap = (crtl & GSWIP_PCE_TBL_CTRL_GMAP_MASK) >> 7;
+-	if (nbd->task_recv)
++	if (nbd->pid)
+ 		return -EBUSY;
+ 	if (!config->socks)
+ 		return -EINVAL;
+@@ -1334,7 +1334,7 @@ static int nbd_start_device(struct nbd_device *nbd)
+ 	}
  
-+	mutex_unlock(&priv->pce_table_lock);
-+
+ 	blk_mq_update_nr_hw_queues(&nbd->tag_set, config->num_connections);
+-	nbd->task_recv = current;
++	nbd->pid = task_pid_nr(current);
+ 
+ 	nbd_parse_flags(nbd);
+ 
+@@ -1590,8 +1590,8 @@ static int nbd_dbg_tasks_show(struct seq_file *s, void *unused)
+ {
+ 	struct nbd_device *nbd = s->private;
+ 
+-	if (nbd->task_recv)
+-		seq_printf(s, "recv: %d\n", task_pid_nr(nbd->task_recv));
++	if (nbd->pid)
++		seq_printf(s, "recv: %d\n", nbd->pid);
+ 
  	return 0;
  }
- 
-@@ -563,10 +572,14 @@ static int gswip_pce_table_entry_write(struct gswip_priv *priv,
- 	u16 addr_mode = tbl->key_mode ? GSWIP_PCE_TBL_CTRL_OPMOD_KSWR :
- 					GSWIP_PCE_TBL_CTRL_OPMOD_ADWR;
- 
-+	mutex_lock(&priv->pce_table_lock);
-+
- 	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
- 				     GSWIP_PCE_TBL_CTRL_BAS);
--	if (err)
-+	if (err) {
-+		mutex_unlock(&priv->pce_table_lock);
- 		return err;
-+	}
- 
- 	gswip_switch_w(priv, tbl->index, GSWIP_PCE_TBL_ADDR);
- 	gswip_switch_mask(priv, GSWIP_PCE_TBL_CTRL_ADDR_MASK |
-@@ -598,8 +611,12 @@ static int gswip_pce_table_entry_write(struct gswip_priv *priv,
- 	crtl |= GSWIP_PCE_TBL_CTRL_BAS;
- 	gswip_switch_w(priv, crtl, GSWIP_PCE_TBL_CTRL);
- 
--	return gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
--				      GSWIP_PCE_TBL_CTRL_BAS);
-+	err = gswip_switch_r_timeout(priv, GSWIP_PCE_TBL_CTRL,
-+				     GSWIP_PCE_TBL_CTRL_BAS);
-+
-+	mutex_unlock(&priv->pce_table_lock);
-+
-+	return err;
- }
- 
- /* Add the LAN port into a bridge with the CPU port by
-@@ -2040,6 +2057,7 @@ static int gswip_probe(struct platform_device *pdev)
- 	priv->ds->priv = priv;
- 	priv->ds->ops = &gswip_switch_ops;
- 	priv->dev = dev;
-+	mutex_init(&priv->pce_table_lock);
- 	version = gswip_switch_r(priv, GSWIP_VERSION);
- 
- 	/* bring up the mdio bus */
+@@ -2177,7 +2177,7 @@ static int nbd_genl_reconfigure(struct sk_buff *skb, struct genl_info *info)
+ 	mutex_lock(&nbd->config_lock);
+ 	config = nbd->config;
+ 	if (!test_bit(NBD_RT_BOUND, &config->runtime_flags) ||
+-	    !nbd->task_recv) {
++	    !nbd->pid) {
+ 		dev_err(nbd_to_dev(nbd),
+ 			"not configured, cannot reconfigure\n");
+ 		ret = -EINVAL;
 -- 
 2.33.0
 
