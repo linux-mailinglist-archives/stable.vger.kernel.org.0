@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 701A045238A
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:24:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25FBB4527B2
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:27:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356512AbhKPB1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:27:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35162 "EHLO mail.kernel.org"
+        id S243412AbhKPCaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:30:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243895AbhKOTEg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:04:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA08D633D8;
-        Mon, 15 Nov 2021 18:16:05 +0000 (UTC)
+        id S237108AbhKORRU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:17:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC87863248;
+        Mon, 15 Nov 2021 17:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000166;
-        bh=kX9qPz486d5pSD8NUiCPOqNCNmjC974MtgQk1rSeZm0=;
+        s=korg; t=1636996385;
+        bh=TvRybkmIZXm5b4fBW021zIQSsdc2mgGpABjth/Mi2s0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iFmyL1ti2Gmw0EugAjY4dAUDu8bAe0Gi9t3+fuBv+jnKAP59gJ9hRQ+VqBggvQXUA
-         sw40v3J2heeenxznIlrUQAlHUTq98p97Bgj9RJI+3tXUzxMhKUNd9JiGZTQaEK9paH
-         pn/OlpueDugQ6Mjpe8J1YNXm/uPDraWqBb15xNuE=
+        b=jtIZovQaA1ftVQ02wgE1VvBhsFgWETn+3zGb1lzAaCyiJpeWhRr9a9OvVqRQTz57k
+         j2OKbcRbf1zpH4ZD5pbNepgsiK7x8e+IWCeWQ/qj7lUZSWbYq3leiH5TWlEnq05sSa
+         7awgMKdscXq/JDchQLT8OUKQVW2V7geDO/60dcRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 560/849] ARM: dts: qcom: msm8974: Add xo_board reference clock to DSI0 PHY
-Date:   Mon, 15 Nov 2021 18:00:43 +0100
-Message-Id: <20211115165439.203063116@linuxfoundation.org>
+Subject: [PATCH 5.4 120/355] MIPS: lantiq: dma: add small delay after reset
+Date:   Mon, 15 Nov 2021 18:00:44 +0100
+Message-Id: <20211115165317.696734143@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit 8ccecf6c710b8c048eecc65709640642e5357d6e ]
+[ Upstream commit c12aa581f6d5e80c3c3675ab26a52c2b3b62f76e ]
 
-According to YAML validation, and for a future patchset putting this
-xo_board reference clock to use as VCO reference parent, add the missing
-clock to dsi_phy0.
+Reading the DMA registers immediately after the reset causes
+Data Bus Error. Adding a small delay fixes this issue.
 
-Fixes: 5a9fc531f6ec ("ARM: dts: msm8974: add display support")
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20210830175739.143401-1-marijn.suijten@somainline.org
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-msm8974.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/lantiq/xway/dma.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/boot/dts/qcom-msm8974.dtsi b/arch/arm/boot/dts/qcom-msm8974.dtsi
-index db4c06bf7888b..96722172b0643 100644
---- a/arch/arm/boot/dts/qcom-msm8974.dtsi
-+++ b/arch/arm/boot/dts/qcom-msm8974.dtsi
-@@ -1580,8 +1580,8 @@
- 				#phy-cells = <0>;
- 				qcom,dsi-phy-index = <0>;
+diff --git a/arch/mips/lantiq/xway/dma.c b/arch/mips/lantiq/xway/dma.c
+index aeb1b989cd4ee..24c6267f78698 100644
+--- a/arch/mips/lantiq/xway/dma.c
++++ b/arch/mips/lantiq/xway/dma.c
+@@ -11,6 +11,7 @@
+ #include <linux/export.h>
+ #include <linux/spinlock.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/err.h>
  
--				clocks = <&mmcc MDSS_AHB_CLK>;
--				clock-names = "iface";
-+				clocks = <&mmcc MDSS_AHB_CLK>, <&xo_board>;
-+				clock-names = "iface", "ref";
- 			};
- 		};
+ #include <lantiq_soc.h>
+@@ -221,6 +222,8 @@ ltq_dma_init(struct platform_device *pdev)
+ 	clk_enable(clk);
+ 	ltq_dma_w32_mask(0, DMA_RESET, LTQ_DMA_CTRL);
+ 
++	usleep_range(1, 10);
++
+ 	/* disable all interrupts */
+ 	ltq_dma_w32(0, LTQ_DMA_IRNEN);
  
 -- 
 2.33.0
