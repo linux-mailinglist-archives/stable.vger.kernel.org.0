@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00633450EC2
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE520450C43
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:34:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241265AbhKOSTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:19:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53202 "EHLO mail.kernel.org"
+        id S237915AbhKORgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:36:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240934AbhKOSOV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:14:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 972A260EB2;
-        Mon, 15 Nov 2021 17:48:51 +0000 (UTC)
+        id S236531AbhKOReX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:34:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03414632C1;
+        Mon, 15 Nov 2021 17:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998532;
-        bh=b5MBXIdU5oHHx0eN6Cg+idtyVMUM06/+xb+yWVIy34w=;
+        s=korg; t=1636996980;
+        bh=3pV8mBb0vsq6nsesCXf5cm9uFXJKGrfcd3ic3In95jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FDo4rDQZFhtiLkcOfVZEM2IY2roev0iHh+kG/9xY8WwjSu4OpzQzQItTh0xX+qrY0
-         xDPF0D37RLh8W2M40WDhzt2H4rANbru4hvZsStG/DV/wTLLZnmWgi1jWtE6SXZH2Ny
-         +X4Jr8uGkcaUIta/FlvXtsQMefy/nK3iPvVJ/qrA=
+        b=tIFTrRWWb0bGUWNNIweKP7AjlH6Q4Vd2eVDdu5diyUUneYnTPAskhUve+waa1vCZc
+         KsbyH7lUTSfYPP5gcEV08YqZiWBMd+KStfRaHruNvf/OqMDD1Ua9WN1orm5cl7yKT7
+         Ql7VJPckGycIu8mKL5hJXW7xCncq8JvQfFUmhObc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 536/575] net/smc: fix sk_refcnt underflow on linkdown and fallback
-Date:   Mon, 15 Nov 2021 18:04:21 +0100
-Message-Id: <20211115165402.215161607@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Light Hsieh <light.hsieh@mediatek.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.4 338/355] f2fs: should use GFP_NOFS for directory inodes
+Date:   Mon, 15 Nov 2021 18:04:22 +0100
+Message-Id: <20211115165324.675915017@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,110 +41,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dust Li <dust.li@linux.alibaba.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit e5d5aadcf3cd59949316df49c27cb21788d7efe4 ]
+commit 92d602bc7177325e7453189a22e0c8764ed3453e upstream.
 
-We got the following WARNING when running ab/nginx
-test with RDMA link flapping (up-down-up).
-The reason is when smc_sock fallback and at linkdown
-happens simultaneously, we may got the following situation:
+We use inline_dentry which requires to allocate dentry page when adding a link.
+If we allow to reclaim memory from filesystem, we do down_read(&sbi->cp_rwsem)
+twice by f2fs_lock_op(). I think this should be okay, but how about stopping
+the lockdep complaint [1]?
 
-__smc_lgr_terminate()
- --> smc_conn_kill()
-    --> smc_close_active_abort()
-           smc_sock->sk_state = SMC_CLOSED
-           sock_put(smc_sock)
+f2fs_create()
+ - f2fs_lock_op()
+ - f2fs_do_add_link()
+  - __f2fs_find_entry
+   - f2fs_get_read_data_page()
+   -> kswapd
+    - shrink_node
+     - f2fs_evict_inode
+      - f2fs_lock_op()
 
-smc_sock was set to SMC_CLOSED and sock_put() been called
-when terminate the link group. But later application call
-close() on the socket, then we got:
+[1]
 
-__smc_release():
-    if (smc_sock->fallback)
-        smc_sock->sk_state = SMC_CLOSED
-        sock_put(smc_sock)
+fs_reclaim
+){+.+.}-{0:0}
+:
+kswapd0:        lock_acquire+0x114/0x394
+kswapd0:        __fs_reclaim_acquire+0x40/0x50
+kswapd0:        prepare_alloc_pages+0x94/0x1ec
+kswapd0:        __alloc_pages_nodemask+0x78/0x1b0
+kswapd0:        pagecache_get_page+0x2e0/0x57c
+kswapd0:        f2fs_get_read_data_page+0xc0/0x394
+kswapd0:        f2fs_find_data_page+0xa4/0x23c
+kswapd0:        find_in_level+0x1a8/0x36c
+kswapd0:        __f2fs_find_entry+0x70/0x100
+kswapd0:        f2fs_do_add_link+0x84/0x1ec
+kswapd0:        f2fs_mkdir+0xe4/0x1e4
+kswapd0:        vfs_mkdir+0x110/0x1c0
+kswapd0:        do_mkdirat+0xa4/0x160
+kswapd0:        __arm64_sys_mkdirat+0x24/0x34
+kswapd0:        el0_svc_common.llvm.17258447499513131576+0xc4/0x1e8
+kswapd0:        do_el0_svc+0x28/0xa0
+kswapd0:        el0_svc+0x24/0x38
+kswapd0:        el0_sync_handler+0x88/0xec
+kswapd0:        el0_sync+0x1c0/0x200
+kswapd0:
+-> #1
+(
+&sbi->cp_rwsem
+){++++}-{3:3}
+:
+kswapd0:        lock_acquire+0x114/0x394
+kswapd0:        down_read+0x7c/0x98
+kswapd0:        f2fs_do_truncate_blocks+0x78/0x3dc
+kswapd0:        f2fs_truncate+0xc8/0x128
+kswapd0:        f2fs_evict_inode+0x2b8/0x8b8
+kswapd0:        evict+0xd4/0x2f8
+kswapd0:        iput+0x1c0/0x258
+kswapd0:        do_unlinkat+0x170/0x2a0
+kswapd0:        __arm64_sys_unlinkat+0x4c/0x68
+kswapd0:        el0_svc_common.llvm.17258447499513131576+0xc4/0x1e8
+kswapd0:        do_el0_svc+0x28/0xa0
+kswapd0:        el0_svc+0x24/0x38
+kswapd0:        el0_sync_handler+0x88/0xec
+kswapd0:        el0_sync+0x1c0/0x200
 
-Again we set the smc_sock to CLOSED through it's already
-in CLOSED state, and double put the refcnt, so the following
-warning happens:
-
-refcount_t: underflow; use-after-free.
-WARNING: CPU: 5 PID: 860 at lib/refcount.c:28 refcount_warn_saturate+0x8d/0xf0
-Modules linked in:
-CPU: 5 PID: 860 Comm: nginx Not tainted 5.10.46+ #403
-Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 8c24b4c 04/01/2014
-RIP: 0010:refcount_warn_saturate+0x8d/0xf0
-Code: 05 5c 1e b5 01 01 e8 52 25 bc ff 0f 0b c3 80 3d 4f 1e b5 01 00 75 ad 48
-
-RSP: 0018:ffffc90000527e50 EFLAGS: 00010286
-RAX: 0000000000000026 RBX: ffff8881300df2c0 RCX: 0000000000000027
-RDX: 0000000000000000 RSI: ffff88813bd58040 RDI: ffff88813bd58048
-RBP: 0000000000000000 R08: 0000000000000003 R09: 0000000000000001
-R10: ffff8881300df2c0 R11: ffffc90000527c78 R12: ffff8881300df340
-R13: ffff8881300df930 R14: ffff88810b3dad80 R15: ffff8881300df4f8
-FS:  00007f739de8fb80(0000) GS:ffff88813bd40000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000000a01b008 CR3: 0000000111b64003 CR4: 00000000003706e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- smc_release+0x353/0x3f0
- __sock_release+0x3d/0xb0
- sock_close+0x11/0x20
- __fput+0x93/0x230
- task_work_run+0x65/0xa0
- exit_to_user_mode_prepare+0xf9/0x100
- syscall_exit_to_user_mode+0x27/0x190
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-This patch adds check in __smc_release() to make
-sure we won't do an extra sock_put() and set the
-socket to CLOSED when its already in CLOSED state.
-
-Fixes: 51f1de79ad8e (net/smc: replace sock_put worker by socket refcounting)
-Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: bdbc90fa55af ("f2fs: don't put dentry page in pagecache into highmem")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Light Hsieh <light.hsieh@mediatek.com>
+Tested-by: Light Hsieh <light.hsieh@mediatek.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/af_smc.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ fs/f2fs/inode.c |    2 +-
+ fs/f2fs/namei.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index cc2af94e74507..cfb5b9be0569d 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -146,14 +146,18 @@ static int __smc_release(struct smc_sock *smc)
- 		sock_set_flag(sk, SOCK_DEAD);
- 		sk->sk_shutdown |= SHUTDOWN_MASK;
- 	} else {
--		if (sk->sk_state != SMC_LISTEN && sk->sk_state != SMC_INIT)
--			sock_put(sk); /* passive closing */
--		if (sk->sk_state == SMC_LISTEN) {
--			/* wake up clcsock accept */
--			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
-+		if (sk->sk_state != SMC_CLOSED) {
-+			if (sk->sk_state != SMC_LISTEN &&
-+			    sk->sk_state != SMC_INIT)
-+				sock_put(sk); /* passive closing */
-+			if (sk->sk_state == SMC_LISTEN) {
-+				/* wake up clcsock accept */
-+				rc = kernel_sock_shutdown(smc->clcsock,
-+							  SHUT_RDWR);
-+			}
-+			sk->sk_state = SMC_CLOSED;
-+			sk->sk_state_change(sk);
- 		}
--		sk->sk_state = SMC_CLOSED;
--		sk->sk_state_change(sk);
- 		smc_restore_fallback_changes(smc);
- 	}
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -455,7 +455,7 @@ make_now:
+ 		inode->i_op = &f2fs_dir_inode_operations;
+ 		inode->i_fop = &f2fs_dir_operations;
+ 		inode->i_mapping->a_ops = &f2fs_dblock_aops;
+-		inode_nohighmem(inode);
++		mapping_set_gfp_mask(inode->i_mapping, GFP_NOFS);
+ 	} else if (S_ISLNK(inode->i_mode)) {
+ 		if (file_is_encrypt(inode))
+ 			inode->i_op = &f2fs_encrypted_symlink_inode_operations;
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -679,7 +679,7 @@ static int f2fs_mkdir(struct inode *dir,
+ 	inode->i_op = &f2fs_dir_inode_operations;
+ 	inode->i_fop = &f2fs_dir_operations;
+ 	inode->i_mapping->a_ops = &f2fs_dblock_aops;
+-	inode_nohighmem(inode);
++	mapping_set_gfp_mask(inode->i_mapping, GFP_NOFS);
  
--- 
-2.33.0
-
+ 	set_inode_flag(inode, FI_INC_LINK);
+ 	f2fs_lock_op(sbi);
 
 
