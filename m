@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1778745112A
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:59:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CFB9450B13
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:16:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243614AbhKOTBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:01:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34356 "EHLO mail.kernel.org"
+        id S236407AbhKORRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:17:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243490AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:59:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD79C633DA;
-        Mon, 15 Nov 2021 18:13:42 +0000 (UTC)
+        id S237016AbhKORQB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:16:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 715F46323F;
+        Mon, 15 Nov 2021 17:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000023;
-        bh=C9kJ6GWlo/roEIsnh50MarW2fDWfuLopZfLR7c4rbAc=;
+        s=korg; t=1636996339;
+        bh=88fEqXZU4BwNbyM5NCF+1otnSinxSG1Z5ZrzXyALbrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ddCiXM4vVz+04Cq9anvxjg3FZXIon7JNPhIAUY8ydFEnDaMDK/eAJSPyS+i4iDOOF
-         2E/7tajuB8bjjAjsuGtG8iInk653cBCL6uE+0eAvgXcpHLNGzCMR3kLHMWZJ8oqJ5f
-         N2jEu986qKMTmqc8COZmcymiqtQ2tBvabu0ksNgs=
+        b=Yg9I1Qpts9QIGsW1Swkd3p3/eiLCzNUD7MS2gp0jIxqzpjCl+/LME6Z6gEvn8wCUb
+         nrHJ7Nqq+J1KSIvAsG/fASxyRQzG4vU/8jxFB39cQsi6Df6DQSbGTNhqP05gwVo6LX
+         JNpK4eVc1cG1hhm0Ywg4VAkYmodl3yLuOlk1MIZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Wu <hao.wu@rubrik.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 510/849] tpm: fix Atmel TPM crash caused by too frequent queries
-Date:   Mon, 15 Nov 2021 17:59:53 +0100
-Message-Id: <20211115165437.533626087@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 070/355] ath6kl: fix division by zero in send path
+Date:   Mon, 15 Nov 2021 17:59:54 +0100
+Message-Id: <20211115165316.070790362@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,170 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Wu <hao.wu@rubrik.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 79ca6f74dae067681a779fd573c2eb59649989bc ]
+commit c1b9ca365deae667192be9fe24db244919971234 upstream.
 
-The Atmel TPM 1.2 chips crash with error
-`tpm_try_transmit: send(): error -62` since kernel 4.14.
-It is observed from the kernel log after running `tpm_sealdata -z`.
-The error thrown from the command is as follows
-```
-$ tpm_sealdata -z
-Tspi_Key_LoadKey failed: 0x00001087 - layer=tddl,
-code=0087 (135), I/O error
-```
+Add the missing endpoint max-packet sanity check to probe() to avoid
+division by zero in ath10k_usb_hif_tx_sg() in case a malicious device
+has broken descriptors (or when doing descriptor fuzz testing).
 
-The issue was reproduced with the following Atmel TPM chip:
-```
-$ tpm_version
-T0  TPM 1.2 Version Info:
-  Chip Version:        1.2.66.1
-  Spec Level:          2
-  Errata Revision:     3
-  TPM Vendor ID:       ATML
-  TPM Version:         01010000
-  Manufacturer Info:   41544d4c
-```
+Note that USB core will reject URBs submitted for endpoints with zero
+wMaxPacketSize but that drivers doing packet-size calculations still
+need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
+endpoint descriptors with maxpacket=0")).
 
-The root cause of the issue is due to the TPM calls to msleep()
-were replaced with usleep_range() [1], which reduces
-the actual timeout. Via experiments, it is observed that
-the original msleep(5) actually sleeps for 15ms.
-Because of a known timeout issue in Atmel TPM 1.2 chip,
-the shorter timeout than 15ms can cause the error described above.
-
-A few further changes in kernel 4.16 [2] and 4.18 [3, 4] further
-reduced the timeout to less than 1ms. With experiments,
-the problematic timeout in the latest kernel is the one
-for `wait_for_tpm_stat`.
-
-To fix it, the patch reverts the timeout of `wait_for_tpm_stat`
-to 15ms for all Atmel TPM 1.2 chips, but leave it untouched
-for Ateml TPM 2.0 chip, and chips from other vendors.
-As explained above, the chosen 15ms timeout is
-the actual timeout before this issue introduced,
-thus the old value is used here.
-Particularly, TPM_ATML_TIMEOUT_WAIT_STAT_MIN is set to 14700us,
-TPM_ATML_TIMEOUT_WAIT_STAT_MIN is set to 15000us according to
-the existing TPM_TIMEOUT_RANGE_US (300us).
-The fixed has been tested in the system with the affected Atmel chip
-with no issues observed after boot up.
-
-[1] 9f3fc7bcddcb tpm: replace msleep() with usleep_range() in TPM
-1.2/2.0 generic drivers
-[2] cf151a9a44d5 tpm: reduce tpm polling delay in tpm_tis_core
-[3] 59f5a6b07f64 tpm: reduce poll sleep time in tpm_transmit()
-[4] 424eaf910c32 tpm: reduce polling time to usecs for even finer
-granularity
-
-Fixes: 9f3fc7bcddcb ("tpm: replace msleep() with usleep_range() in TPM 1.2/2.0 generic drivers")
-Link: https://patchwork.kernel.org/project/linux-integrity/patch/20200926223150.109645-1-hao.wu@rubrik.com/
-Signed-off-by: Hao Wu <hao.wu@rubrik.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9cbee358687e ("ath6kl: add full USB support")
+Cc: stable@vger.kernel.org      # 3.5
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211027080819.6675-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_tis_core.c | 26 ++++++++++++++++++--------
- drivers/char/tpm/tpm_tis_core.h |  4 ++++
- include/linux/tpm.h             |  1 +
- 3 files changed, 23 insertions(+), 8 deletions(-)
+ drivers/net/wireless/ath/ath6kl/usb.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
-index 69579efb247b3..b2659a4c40168 100644
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -48,6 +48,7 @@ static int wait_for_tpm_stat(struct tpm_chip *chip, u8 mask,
- 		unsigned long timeout, wait_queue_head_t *queue,
- 		bool check_cancel)
- {
-+	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
- 	unsigned long stop;
- 	long rc;
- 	u8 status;
-@@ -80,8 +81,8 @@ again:
+--- a/drivers/net/wireless/ath/ath6kl/usb.c
++++ b/drivers/net/wireless/ath/ath6kl/usb.c
+@@ -340,6 +340,11 @@ static int ath6kl_usb_setup_pipe_resourc
+ 				   le16_to_cpu(endpoint->wMaxPacketSize),
+ 				   endpoint->bInterval);
  		}
- 	} else {
- 		do {
--			usleep_range(TPM_TIMEOUT_USECS_MIN,
--				     TPM_TIMEOUT_USECS_MAX);
-+			usleep_range(priv->timeout_min,
-+				     priv->timeout_max);
- 			status = chip->ops->status(chip);
- 			if ((status & mask) == mask)
- 				return 0;
-@@ -945,7 +946,22 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
- 	chip->timeout_b = msecs_to_jiffies(TIS_TIMEOUT_B_MAX);
- 	chip->timeout_c = msecs_to_jiffies(TIS_TIMEOUT_C_MAX);
- 	chip->timeout_d = msecs_to_jiffies(TIS_TIMEOUT_D_MAX);
-+	priv->timeout_min = TPM_TIMEOUT_USECS_MIN;
-+	priv->timeout_max = TPM_TIMEOUT_USECS_MAX;
- 	priv->phy_ops = phy_ops;
 +
-+	rc = tpm_tis_read32(priv, TPM_DID_VID(0), &vendor);
-+	if (rc < 0)
-+		goto out_err;
++		/* Ignore broken descriptors. */
++		if (usb_endpoint_maxp(endpoint) == 0)
++			continue;
 +
-+	priv->manufacturer_id = vendor;
-+
-+	if (priv->manufacturer_id == TPM_VID_ATML &&
-+		!(chip->flags & TPM_CHIP_FLAG_TPM2)) {
-+		priv->timeout_min = TIS_TIMEOUT_MIN_ATML;
-+		priv->timeout_max = TIS_TIMEOUT_MAX_ATML;
-+	}
-+
- 	dev_set_drvdata(&chip->dev, priv);
+ 		urbcount = 0;
  
- 	if (is_bsw()) {
-@@ -988,12 +1004,6 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
- 	if (rc)
- 		goto out_err;
- 
--	rc = tpm_tis_read32(priv, TPM_DID_VID(0), &vendor);
--	if (rc < 0)
--		goto out_err;
--
--	priv->manufacturer_id = vendor;
--
- 	rc = tpm_tis_read8(priv, TPM_RID(0), &rid);
- 	if (rc < 0)
- 		goto out_err;
-diff --git a/drivers/char/tpm/tpm_tis_core.h b/drivers/char/tpm/tpm_tis_core.h
-index b2a3c6c72882d..3be24f221e32a 100644
---- a/drivers/char/tpm/tpm_tis_core.h
-+++ b/drivers/char/tpm/tpm_tis_core.h
-@@ -54,6 +54,8 @@ enum tis_defaults {
- 	TIS_MEM_LEN = 0x5000,
- 	TIS_SHORT_TIMEOUT = 750,	/* ms */
- 	TIS_LONG_TIMEOUT = 2000,	/* 2 sec */
-+	TIS_TIMEOUT_MIN_ATML = 14700,	/* usecs */
-+	TIS_TIMEOUT_MAX_ATML = 15000,	/* usecs */
- };
- 
- /* Some timeout values are needed before it is known whether the chip is
-@@ -98,6 +100,8 @@ struct tpm_tis_data {
- 	wait_queue_head_t read_queue;
- 	const struct tpm_tis_phy_ops *phy_ops;
- 	unsigned short rng_quality;
-+	unsigned int timeout_min; /* usecs */
-+	unsigned int timeout_max; /* usecs */
- };
- 
- struct tpm_tis_phy_ops {
-diff --git a/include/linux/tpm.h b/include/linux/tpm.h
-index aa11fe323c56b..12d827734686d 100644
---- a/include/linux/tpm.h
-+++ b/include/linux/tpm.h
-@@ -269,6 +269,7 @@ enum tpm2_cc_attrs {
- #define TPM_VID_INTEL    0x8086
- #define TPM_VID_WINBOND  0x1050
- #define TPM_VID_STM      0x104A
-+#define TPM_VID_ATML     0x1114
- 
- enum tpm_chip_flags {
- 	TPM_CHIP_FLAG_TPM2		= BIT(1),
--- 
-2.33.0
-
+ 		pipe_num =
 
 
