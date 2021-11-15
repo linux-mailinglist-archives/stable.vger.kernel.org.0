@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14571451DFE
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9CEB451E02
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:32:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344569AbhKPAel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:34:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45394 "EHLO mail.kernel.org"
+        id S1351703AbhKPAes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:34:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233514AbhKOTYL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344236AbhKOTYL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:24:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 304406363C;
-        Mon, 15 Nov 2021 18:54:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 050D163645;
+        Mon, 15 Nov 2021 18:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002450;
-        bh=EvSXTu1vphkyQ+YKSs94SRYGn86hQWjVrD6x7mQyOqI=;
+        s=korg; t=1637002453;
+        bh=pj/EPA4p4QARvQXsM/wTSZzcIH5BEW0FtvfHfw1X9TQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Em6UqhZWE6xZgV7HSKmlxluNjEv58y+rohC9zCGY3OolXDxwtMoFhZJ6Y/8eNxrLz
-         e0dLIspjIMXI8X2ExU/ejRf7nSsDJ0TbiAMX1xTmbiv/4rsK0eKpWKVXplr8tCi7vr
-         +j6A7gvXTgua/sOPnFfSYCB4AR+c3w+AXACUBl7I=
+        b=a1CPg+8hH2uvNO0ubo1pGT1qQkk4HHoYl9WpC22aEIWclQBNlQ4MiQz9OmaecbJJX
+         gXZI00CH2AC41IDt9OjDIvzjCKvNHsYUmYRuogSvtT7KBAt2AGPR7oPXbhr1+xXg96
+         V2RJiDdpbVI6CeIZN6H5o95xIEafLMHFG4gIJl5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Ajish Koshy <Ajish.Koshy@microchip.com>,
+        Viswas G <Viswas.G@microchip.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 572/917] clk: mvebu: ap-cpu-clk: Fix a memory leak in error handling paths
-Date:   Mon, 15 Nov 2021 18:01:07 +0100
-Message-Id: <20211115165448.172999548@linuxfoundation.org>
+Subject: [PATCH 5.15 573/917] scsi: pm80xx: Fix lockup in outbound queue management
+Date:   Mon, 15 Nov 2021 18:01:08 +0100
+Message-Id: <20211115165448.213440659@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,75 +42,231 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Ajish Koshy <Ajish.Koshy@microchip.com>
 
-[ Upstream commit af9617b419f77cf0b99702a7b2b0519da0d27715 ]
+[ Upstream commit b27a40534ef76a22628a5c12f98ea489823a8ba5 ]
 
-If we exit the for_each_of_cpu_node loop early, the reference on the
-current node must be decremented, otherwise there is a leak.
+Commit 1f02beff224e ("scsi: pm80xx: Remove global lock from outbound queue
+processing") introduced a lock per outbound queue. Prior to that change the
+driver was using a global lock for all outbound queues.
 
-Fixes: f756e362d938 ("clk: mvebu: add CPU clock driver for Armada 7K/8K")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/545df946044fc1fc05a4217cdf0054be7a79e49e.1619161112.git.christophe.jaillet@wanadoo.fr
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+While processing the I/O responses and events the driver takes the outbound
+queue spinlock and is supposed to release it in pm8001_ccb_task_free_done()
+before calling command done(). Since the older code was using a global
+lock, pm8001_ccb_task_free_done() was releasing the global spin lock. The
+change that split the lock per outbound queue did not consider this and
+pm8001_ccb_task_free_done() was still releasing the global lock.
+
+Link: https://lore.kernel.org/r/20210906170404.5682-3-Ajish.Koshy@microchip.com
+Fixes: 1f02beff224e ("scsi: pm80xx: Remove global lock from outbound queue processing")
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Ajish Koshy <Ajish.Koshy@microchip.com>
+Signed-off-by: Viswas G <Viswas.G@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mvebu/ap-cpu-clk.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/scsi/pm8001/pm8001_sas.h |  3 +-
+ drivers/scsi/pm8001/pm80xx_hwi.c | 53 ++++++++++++++++++++++++++------
+ 2 files changed, 45 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/clk/mvebu/ap-cpu-clk.c b/drivers/clk/mvebu/ap-cpu-clk.c
-index 08ba59ec3fb17..71bdd7c3ff034 100644
---- a/drivers/clk/mvebu/ap-cpu-clk.c
-+++ b/drivers/clk/mvebu/ap-cpu-clk.c
-@@ -256,12 +256,15 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
- 		int cpu, err;
+diff --git a/drivers/scsi/pm8001/pm8001_sas.h b/drivers/scsi/pm8001/pm8001_sas.h
+index 62d08b535a4b6..e18f2b60371db 100644
+--- a/drivers/scsi/pm8001/pm8001_sas.h
++++ b/drivers/scsi/pm8001/pm8001_sas.h
+@@ -457,6 +457,7 @@ struct outbound_queue_table {
+ 	__le32			producer_index;
+ 	u32			consumer_idx;
+ 	spinlock_t		oq_lock;
++	unsigned long		lock_flags;
+ };
+ struct pm8001_hba_memspace {
+ 	void __iomem  		*memvirtaddr;
+@@ -738,9 +739,7 @@ pm8001_ccb_task_free_done(struct pm8001_hba_info *pm8001_ha,
+ {
+ 	pm8001_ccb_task_free(pm8001_ha, task, ccb, ccb_idx);
+ 	smp_mb(); /*in order to force CPU ordering*/
+-	spin_unlock(&pm8001_ha->lock);
+ 	task->task_done(task);
+-	spin_lock(&pm8001_ha->lock);
+ }
  
- 		err = of_property_read_u32(dn, "reg", &cpu);
--		if (WARN_ON(err))
-+		if (WARN_ON(err)) {
-+			of_node_put(dn);
- 			return err;
-+		}
+ #endif
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index 6ffe17b849ae8..ed02e1aaf868c 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -2379,7 +2379,8 @@ static void mpi_ssp_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
  
- 		/* If cpu2 or cpu3 is enabled */
- 		if (cpu & APN806_CLUSTER_NUM_MASK) {
- 			nclusters = 2;
-+			of_node_put(dn);
- 			break;
+ /*See the comments for mpi_ssp_completion */
+ static void
+-mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
++mpi_sata_completion(struct pm8001_hba_info *pm8001_ha,
++		struct outbound_queue_table *circularQ, void *piomb)
+ {
+ 	struct sas_task *t;
+ 	struct pm8001_ccb_info *ccb;
+@@ -2616,7 +2617,11 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 				IO_OPEN_CNX_ERROR_IT_NEXUS_LOSS);
+ 			ts->resp = SAS_TASK_UNDELIVERED;
+ 			ts->stat = SAS_QUEUE_FULL;
++			spin_unlock_irqrestore(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
++			spin_lock_irqsave(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			return;
+ 		}
+ 		break;
+@@ -2632,7 +2637,11 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 				IO_OPEN_CNX_ERROR_IT_NEXUS_LOSS);
+ 			ts->resp = SAS_TASK_UNDELIVERED;
+ 			ts->stat = SAS_QUEUE_FULL;
++			spin_unlock_irqrestore(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
++			spin_lock_irqsave(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			return;
+ 		}
+ 		break;
+@@ -2656,7 +2665,11 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 				IO_OPEN_CNX_ERROR_STP_RESOURCES_BUSY);
+ 			ts->resp = SAS_TASK_UNDELIVERED;
+ 			ts->stat = SAS_QUEUE_FULL;
++			spin_unlock_irqrestore(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
++			spin_lock_irqsave(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			return;
+ 		}
+ 		break;
+@@ -2727,7 +2740,11 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 					IO_DS_NON_OPERATIONAL);
+ 			ts->resp = SAS_TASK_UNDELIVERED;
+ 			ts->stat = SAS_QUEUE_FULL;
++			spin_unlock_irqrestore(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
++			spin_lock_irqsave(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			return;
+ 		}
+ 		break;
+@@ -2747,7 +2764,11 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 					IO_DS_IN_ERROR);
+ 			ts->resp = SAS_TASK_UNDELIVERED;
+ 			ts->stat = SAS_QUEUE_FULL;
++			spin_unlock_irqrestore(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
++			spin_lock_irqsave(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			return;
+ 		}
+ 		break;
+@@ -2785,12 +2806,17 @@ mpi_sata_completion(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
+ 	} else {
+ 		spin_unlock_irqrestore(&t->task_state_lock, flags);
++		spin_unlock_irqrestore(&circularQ->oq_lock,
++				circularQ->lock_flags);
+ 		pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
++		spin_lock_irqsave(&circularQ->oq_lock,
++				circularQ->lock_flags);
+ 	}
+ }
+ 
+ /*See the comments for mpi_ssp_completion */
+-static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
++static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha,
++		struct outbound_queue_table *circularQ, void *piomb)
+ {
+ 	struct sas_task *t;
+ 	struct task_status_struct *ts;
+@@ -2890,7 +2916,11 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 				IO_OPEN_CNX_ERROR_IT_NEXUS_LOSS);
+ 			ts->resp = SAS_TASK_COMPLETE;
+ 			ts->stat = SAS_QUEUE_FULL;
++			spin_unlock_irqrestore(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
++			spin_lock_irqsave(&circularQ->oq_lock,
++					circularQ->lock_flags);
+ 			return;
+ 		}
+ 		break;
+@@ -3002,7 +3032,11 @@ static void mpi_sata_event(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 		pm8001_ccb_task_free(pm8001_ha, t, ccb, tag);
+ 	} else {
+ 		spin_unlock_irqrestore(&t->task_state_lock, flags);
++		spin_unlock_irqrestore(&circularQ->oq_lock,
++				circularQ->lock_flags);
+ 		pm8001_ccb_task_free_done(pm8001_ha, t, ccb, tag);
++		spin_lock_irqsave(&circularQ->oq_lock,
++				circularQ->lock_flags);
+ 	}
+ }
+ 
+@@ -3902,7 +3936,8 @@ static int ssp_coalesced_comp_resp(struct pm8001_hba_info *pm8001_ha,
+  * @pm8001_ha: our hba card information
+  * @piomb: IO message buffer
+  */
+-static void process_one_iomb(struct pm8001_hba_info *pm8001_ha, void *piomb)
++static void process_one_iomb(struct pm8001_hba_info *pm8001_ha,
++		struct outbound_queue_table *circularQ, void *piomb)
+ {
+ 	__le32 pHeader = *(__le32 *)piomb;
+ 	u32 opc = (u32)((le32_to_cpu(pHeader)) & 0xFFF);
+@@ -3944,11 +3979,11 @@ static void process_one_iomb(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 		break;
+ 	case OPC_OUB_SATA_COMP:
+ 		pm8001_dbg(pm8001_ha, MSG, "OPC_OUB_SATA_COMP\n");
+-		mpi_sata_completion(pm8001_ha, piomb);
++		mpi_sata_completion(pm8001_ha, circularQ, piomb);
+ 		break;
+ 	case OPC_OUB_SATA_EVENT:
+ 		pm8001_dbg(pm8001_ha, MSG, "OPC_OUB_SATA_EVENT\n");
+-		mpi_sata_event(pm8001_ha, piomb);
++		mpi_sata_event(pm8001_ha, circularQ, piomb);
+ 		break;
+ 	case OPC_OUB_SSP_EVENT:
+ 		pm8001_dbg(pm8001_ha, MSG, "OPC_OUB_SSP_EVENT\n");
+@@ -4117,7 +4152,6 @@ static int process_oq(struct pm8001_hba_info *pm8001_ha, u8 vec)
+ 	void *pMsg1 = NULL;
+ 	u8 bc;
+ 	u32 ret = MPI_IO_STATUS_FAIL;
+-	unsigned long flags;
+ 	u32 regval;
+ 
+ 	if (vec == (pm8001_ha->max_q_num - 1)) {
+@@ -4134,7 +4168,7 @@ static int process_oq(struct pm8001_hba_info *pm8001_ha, u8 vec)
  		}
  	}
-@@ -288,8 +291,10 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
- 		int cpu, err;
- 
- 		err = of_property_read_u32(dn, "reg", &cpu);
--		if (WARN_ON(err))
-+		if (WARN_ON(err)) {
-+			of_node_put(dn);
- 			return err;
-+		}
- 
- 		cluster_index = cpu & APN806_CLUSTER_NUM_MASK;
- 		cluster_index >>= APN806_CLUSTER_NUM_OFFSET;
-@@ -301,6 +306,7 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
- 		parent = of_clk_get(np, cluster_index);
- 		if (IS_ERR(parent)) {
- 			dev_err(dev, "Could not get the clock parent\n");
-+			of_node_put(dn);
- 			return -EINVAL;
+ 	circularQ = &pm8001_ha->outbnd_q_tbl[vec];
+-	spin_lock_irqsave(&circularQ->oq_lock, flags);
++	spin_lock_irqsave(&circularQ->oq_lock, circularQ->lock_flags);
+ 	do {
+ 		/* spurious interrupt during setup if kexec-ing and
+ 		 * driver doing a doorbell access w/ the pre-kexec oq
+@@ -4145,7 +4179,8 @@ static int process_oq(struct pm8001_hba_info *pm8001_ha, u8 vec)
+ 		ret = pm8001_mpi_msg_consume(pm8001_ha, circularQ, &pMsg1, &bc);
+ 		if (MPI_IO_STATUS_SUCCESS == ret) {
+ 			/* process the outbound message */
+-			process_one_iomb(pm8001_ha, (void *)(pMsg1 - 4));
++			process_one_iomb(pm8001_ha, circularQ,
++						(void *)(pMsg1 - 4));
+ 			/* free the message from the outbound circular buffer */
+ 			pm8001_mpi_msg_free_set(pm8001_ha, pMsg1,
+ 							circularQ, bc);
+@@ -4160,7 +4195,7 @@ static int process_oq(struct pm8001_hba_info *pm8001_ha, u8 vec)
+ 				break;
  		}
- 		parent_name =  __clk_get_name(parent);
-@@ -319,8 +325,10 @@ static int ap_cpu_clock_probe(struct platform_device *pdev)
- 		init.parent_names = &parent_name;
- 
- 		ret = devm_clk_hw_register(dev, &ap_cpu_clk[cluster_index].hw);
--		if (ret)
-+		if (ret) {
-+			of_node_put(dn);
- 			return ret;
-+		}
- 		ap_cpu_data->hws[cluster_index] = &ap_cpu_clk[cluster_index].hw;
- 	}
+ 	} while (1);
+-	spin_unlock_irqrestore(&circularQ->oq_lock, flags);
++	spin_unlock_irqrestore(&circularQ->oq_lock, circularQ->lock_flags);
+ 	return ret;
+ }
  
 -- 
 2.33.0
