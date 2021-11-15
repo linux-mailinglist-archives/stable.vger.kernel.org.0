@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2EC445145C
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BEF451458
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:05:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348187AbhKOUEF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 15:04:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45126 "EHLO mail.kernel.org"
+        id S232829AbhKOUCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:02:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344252AbhKOTYN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:24:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C544263657;
-        Mon, 15 Nov 2021 18:54:38 +0000 (UTC)
+        id S1344262AbhKOTYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:24:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8286763655;
+        Mon, 15 Nov 2021 18:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002479;
-        bh=DQ0i8PqimY1w6+qIllmuwTvk9wuit1mUHuouyYfBbyI=;
+        s=korg; t=1637002482;
+        bh=PCh07qAK0il2Hiz5EjTkl+VlxldW13R1sXSI2z6PtXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aEWZcp3aK9Rp7/Y8Zs2TnNeBaQulufzAc6BmUDmaZMkP37LpSDRct7QQy0hXTFp8q
-         ekQcGR34j65E+4bDNunBGpgh0VhCiRx7huIWNH8jxl3lzT+k7AsJzdZ+C2sJTKOPVd
-         Mnl0bwG/jHLvmTkJ2X4mOCWZqCleJSRdqdnyJVJs=
+        b=wVFqUmQlwVboeBsohFmjrdvhuWmHpGBnsQMPDFmBAa9Zo62MlQs3bURE3ZpAKgiKd
+         NlcG5TdF5ZQyUm4Y9UCoqz7M6Xgo5wasgQWVe+RghnMVvlbl5pKFCYIwsxT05b6g3E
+         iRY37mrZwFrHJdCxjs8cX0Q3kTQkgq//gc9epuZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
         Aswath Govindraju <a-govindraju@ti.com>,
         Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 582/917] arm64: dts: ti: j7200-main: Fix "vendor-id"/"device-id" properties of pcie node
-Date:   Mon, 15 Nov 2021 18:01:17 +0100
-Message-Id: <20211115165448.506664336@linuxfoundation.org>
+Subject: [PATCH 5.15 583/917] arm64: dts: ti: j7200-main: Fix "bus-range" upto 256 bus number for PCIe
+Date:   Mon, 15 Nov 2021 18:01:18 +0100
+Message-Id: <20211115165448.537604197@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -42,37 +42,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit 0d553792726a61ced760422e74ea67552ac69cdb ]
+[ Upstream commit 8bb8429290c0043a78804ae48294b53f781ee426 ]
 
 commit 3276d9f53cf6 ("arm64: dts: ti: k3-j7200-main: Add PCIe device
-tree node") incorrectly added "vendor-id" and "device-id" as 16-bit
-properties though both of them are 32-bit properties. Fix it here.
+tree node") incorrectly added PCIe bus numbers from 0 to 15 (copy-paste
+from J721E node). Enable all the supported bus numbers from 0 to 255
+defined in PCIe spec here.
 
 Fixes: 3276d9f53cf6 ("arm64: dts: ti: k3-j7200-main: Add PCIe device tree node")
 Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
 Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20210915055358.19997-4-kishon@ti.com
+Link: https://lore.kernel.org/r/20210915055358.19997-5-kishon@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j7200-main.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/ti/k3-j7200-main.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-index e8a41d09b45f2..521a56316fa5c 100644
+index 521a56316fa5c..874cba75e9a5a 100644
 --- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
 +++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-@@ -608,8 +608,8 @@
+@@ -606,7 +606,7 @@
+ 		clock-names = "fck";
+ 		#address-cells = <3>;
  		#size-cells = <2>;
- 		bus-range = <0x0 0xf>;
+-		bus-range = <0x0 0xf>;
++		bus-range = <0x0 0xff>;
  		cdns,no-bar-match-nbits = <64>;
--		vendor-id = /bits/ 16 <0x104c>;
--		device-id = /bits/ 16 <0xb00f>;
-+		vendor-id = <0x104c>;
-+		device-id = <0xb00f>;
- 		msi-map = <0x0 &gic_its 0x0 0x10000>;
- 		dma-coherent;
- 		ranges = <0x01000000 0x0 0x18001000  0x00 0x18001000  0x0 0x0010000>,
+ 		vendor-id = <0x104c>;
+ 		device-id = <0xb00f>;
 -- 
 2.33.0
 
