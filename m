@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D82F45236F
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:23:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A8245267E
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349964AbhKPB0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:26:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34524 "EHLO mail.kernel.org"
+        id S1343939AbhKPCFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:05:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243181AbhKOTAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:00:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B69061882;
-        Mon, 15 Nov 2021 18:13:53 +0000 (UTC)
+        id S239551AbhKOSBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:01:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 706466325D;
+        Mon, 15 Nov 2021 17:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000033;
-        bh=AVW31n9fzhRQNes/25i+9GEMvMYh2gqpgZHO63OX+mA=;
+        s=korg; t=1636997817;
+        bh=UzLVZL2eGi7IrDPb6b5TLs+bdsLrCfiJjU6qiR0uJdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BCykNLju/FH/ZVZWpfkmEvr7L+s8uYFDq4evt5mTWrBSiqZdj1uM5EtBeaIZ5i/t1
-         hSIqi5V/+DfSYQbdsUzHFm7iWL9DqRNW2wDLmhX2YWth7AvQz2RlamRZct7TLNW5QI
-         +gKkw1+Cmg4ySwHP2854QCb/jfBDXld5saUWgEDI=
+        b=E9Op5a3MVugdiK+zTi/kg6wVMgtmFrb3Ma2QO+zWx0FBjigVTTL28kxHvBVhYCqji
+         KR7CLHn1gPkJanMU0m1hrzmVxMARE+w/yTKjZo7jfbBMBhTtbgTTvFcYZWam+woSRk
+         ZjrdiqFaGSvOg+rViMku47XrMiCcEpkTxMD2fYHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Hainke <vincent@systemli.org>,
-        Felix Fietkau <nbd@nbd.name>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 496/849] mt76: mt7615: mt7622: fix ibss and meshpoint
+Subject: [PATCH 5.10 254/575] selftests/core: fix conflicting types compile error for close_range()
 Date:   Mon, 15 Nov 2021 17:59:39 +0100
-Message-Id: <20211115165437.064745622@linuxfoundation.org>
+Message-Id: <20211115165352.560858957@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Hainke <vincent@systemli.org>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 753453afacc0243bd45de45e34218a8d17493e8f ]
+[ Upstream commit f35dcaa0a8a29188ed61083d153df1454cf89d08 ]
 
-commit 7f4b7920318b ("mt76: mt7615: add ibss support") introduced IBSS
-and commit f4ec7fdf7f83 ("mt76: mt7615: enable support for mesh")
-meshpoint support.
+close_range() test type conflicts with close_range() library call in
+x86_64-linux-gnu/bits/unistd_ext.h. Fix it by changing the name to
+core_close_range().
 
-Both used in the "get_omac_idx"-function:
+gcc -g -I../../../../usr/include/    close_range_test.c  -o ../tools/testing/selftests/core/close_range_test
+In file included from close_range_test.c:16:
+close_range_test.c:57:6: error: conflicting types for ‘close_range’; have ‘void(struct __test_metadata *)’
+   57 | TEST(close_range)
+      |      ^~~~~~~~~~~
+../kselftest_harness.h:181:21: note: in definition of macro ‘__TEST_IMPL’
+  181 |         static void test_name(struct __test_metadata *_metadata); \
+      |                     ^~~~~~~~~
+close_range_test.c:57:1: note: in expansion of macro ‘TEST’
+   57 | TEST(close_range)
+      | ^~~~
+In file included from /usr/include/unistd.h:1204,
+                 from close_range_test.c:13:
+/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:56:12: note: previous declaration of ‘close_range’ with type ‘int(unsigned int,  unsigned int,  int)’
+   56 | extern int close_range (unsigned int __fd, unsigned int __max_fd,
+      |            ^~~~~~~~~~~
 
-	if (~mask & BIT(HW_BSSID_0))
-		return HW_BSSID_0;
-
-With commit d8d59f66d136 ("mt76: mt7615: support 16 interfaces") the
-ibss and meshpoint mode should "prefer hw bssid slot 1-3". However,
-with that change the ibss or meshpoint mode will not send any beacon on
-the mt7622 wifi anymore. Devices were still able to exchange data but
-only if a bssid already existed. Two mt7622 devices will never be able
-to communicate.
-
-This commits reverts the preferation of slot 1-3 for ibss and
-meshpoint. Only NL80211_IFTYPE_STATION will still prefer slot 1-3.
-
-Tested on Banana Pi R64.
-
-Fixes: d8d59f66d136 ("mt76: mt7615: support 16 interfaces")
-Signed-off-by: Nick Hainke <vincent@systemli.org>
-Acked-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211007225725.2615-1-vincent@systemli.org
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/core/close_range_test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-index dada43d6d879e..51260a669d166 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-@@ -135,8 +135,6 @@ static int get_omac_idx(enum nl80211_iftype type, u64 mask)
- 	int i;
+diff --git a/tools/testing/selftests/core/close_range_test.c b/tools/testing/selftests/core/close_range_test.c
+index 575b391ddc78d..0a26795842f6f 100644
+--- a/tools/testing/selftests/core/close_range_test.c
++++ b/tools/testing/selftests/core/close_range_test.c
+@@ -33,7 +33,7 @@ static inline int sys_close_range(unsigned int fd, unsigned int max_fd,
+ #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+ #endif
  
- 	switch (type) {
--	case NL80211_IFTYPE_MESH_POINT:
--	case NL80211_IFTYPE_ADHOC:
- 	case NL80211_IFTYPE_STATION:
- 		/* prefer hw bssid slot 1-3 */
- 		i = get_free_idx(mask, HW_BSSID_1, HW_BSSID_3);
-@@ -160,6 +158,8 @@ static int get_omac_idx(enum nl80211_iftype type, u64 mask)
- 			return HW_BSSID_0;
- 
- 		break;
-+	case NL80211_IFTYPE_ADHOC:
-+	case NL80211_IFTYPE_MESH_POINT:
- 	case NL80211_IFTYPE_MONITOR:
- 	case NL80211_IFTYPE_AP:
- 		/* ap uses hw bssid 0 and ext bssid */
+-TEST(close_range)
++TEST(core_close_range)
+ {
+ 	int i, ret;
+ 	int open_fds[101];
 -- 
 2.33.0
 
