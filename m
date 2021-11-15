@@ -2,140 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA59345177D
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 23:30:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 826C0451781
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 23:30:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346496AbhKOW3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 17:29:44 -0500
-Received: from mga11.intel.com ([192.55.52.93]:18278 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348206AbhKOWSQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 17:18:16 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10169"; a="231002595"
-X-IronPort-AV: E=Sophos;i="5.87,237,1631602800"; 
-   d="scan'208";a="231002595"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Nov 2021 14:15:20 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,237,1631602800"; 
-   d="scan'208";a="645040431"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.199])
-  by fmsmga001.fm.intel.com with ESMTP; 15 Nov 2021 14:15:18 -0800
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     <gregkh@linuxfoundation.org>, <stern@rowland.harvard.edu>,
-        kishon@ti.com
-Cc:     hdegoede@redhat.com, chris.chiu@canonical.com,
-        linux-usb@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] usb: hub: Fix usb enumeration issue due to address0 race
-Date:   Tue, 16 Nov 2021 00:16:30 +0200
-Message-Id: <20211115221630.871204-1-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S1349105AbhKOWaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 17:30:01 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:59324 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352482AbhKOWUs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 17:20:48 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 812081C0B76; Mon, 15 Nov 2021 23:17:31 +0100 (CET)
+Date:   Mon, 15 Nov 2021 23:17:30 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 000/575] 5.10.80-rc1 review
+Message-ID: <20211115221730.GA22123@duo.ucw.cz>
+References: <20211115165343.579890274@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
+Content-Disposition: inline
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-xHC hardware can only have one slot in default state with address 0
-waiting for a unique address at a time, otherwise "undefined behavior
-may occur" according to xhci spec 5.4.3.4
 
-The address0_mutex exists to prevent this across both xhci roothubs.
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If hub_port_init() fails, it may unlock the mutex and exit with a xhci
-slot in default state. If the other xhci roothub calls hub_port_init()
-at this point we end up with two slots in default state.
+Hi!
 
-Make sure the address0_mutex protects the slot default state across
-hub_port_init() retries, until slot is addressed or disabled.
+> This is the start of the stable review cycle for the 5.10.80 release.
+> There are 575 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-Note, one known minor case is not fixed by this patch.
-If device needs to be reset during resume, but fails all hub_port_init()
-retries in usb_reset_and_verify_device(), then it's possible the slot is
-still left in default state when address0_mutex is unlocked.
+CIP testing did not find any problems here:
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
----
- drivers/usb/core/hub.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+5.10.y
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 86658a81d284..00c3506324e4 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -4700,8 +4700,6 @@ hub_port_init(struct usb_hub *hub, struct usb_device *udev, int port1,
- 	if (oldspeed == USB_SPEED_LOW)
- 		delay = HUB_LONG_RESET_TIME;
- 
--	mutex_lock(hcd->address0_mutex);
--
- 	/* Reset the device; full speed may morph to high speed */
- 	/* FIXME a USB 2.0 device may morph into SuperSpeed on reset. */
- 	retval = hub_port_reset(hub, port1, udev, delay, false);
-@@ -5016,7 +5014,6 @@ hub_port_init(struct usb_hub *hub, struct usb_device *udev, int port1,
- 		hub_port_disable(hub, port1, 0);
- 		update_devnum(udev, devnum);	/* for disconnect processing */
- 	}
--	mutex_unlock(hcd->address0_mutex);
- 	return retval;
- }
- 
-@@ -5246,6 +5243,9 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 		unit_load = 100;
- 
- 	status = 0;
-+
-+	mutex_lock(hcd->address0_mutex);
-+
- 	for (i = 0; i < PORT_INIT_TRIES; i++) {
- 
- 		/* reallocate for each attempt, since references
-@@ -5282,6 +5282,8 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 		if (status < 0)
- 			goto loop;
- 
-+		mutex_unlock(hcd->address0_mutex);
-+
- 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
- 			msleep(2000);
- 
-@@ -5370,6 +5372,7 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 
- loop_disable:
- 		hub_port_disable(hub, port1, 1);
-+		mutex_lock(hcd->address0_mutex);
- loop:
- 		usb_ep0_reinit(udev);
- 		release_devnum(udev);
-@@ -5396,6 +5399,8 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 	}
- 
- done:
-+	mutex_unlock(hcd->address0_mutex);
-+
- 	hub_port_disable(hub, port1, 1);
- 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
- 		if (status != -ENOTCONN && status != -ENODEV)
-@@ -5915,6 +5920,8 @@ static int usb_reset_and_verify_device(struct usb_device *udev)
- 	bos = udev->bos;
- 	udev->bos = NULL;
- 
-+	mutex_lock(hcd->address0_mutex);
-+
- 	for (i = 0; i < PORT_INIT_TRIES; ++i) {
- 
- 		/* ep0 maxpacket size may change; let the HCD know about it.
-@@ -5924,6 +5931,7 @@ static int usb_reset_and_verify_device(struct usb_device *udev)
- 		if (ret >= 0 || ret == -ENOTCONN || ret == -ENODEV)
- 			break;
- 	}
-+	mutex_unlock(hcd->address0_mutex);
- 
- 	if (ret < 0)
- 		goto re_enumerate;
--- 
-2.25.1
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
+Best regards,
+                                                                Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--17pEHd4RhPHOinZp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYZLcegAKCRAw5/Bqldv6
+8kZvAJ9j/yG9Mu4JVXlNN4O4r79pyT/Q3QCeKrMepS7Zw/9Zh3iwOKkpAzoRtNk=
+=tljm
+-----END PGP SIGNATURE-----
+
+--17pEHd4RhPHOinZp--
