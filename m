@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E9414526C4
+	by mail.lfdr.de (Postfix) with ESMTP id 4CE8A4526C3
 	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:07:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346533AbhKPCKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:10:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40780 "EHLO mail.kernel.org"
+        id S239159AbhKPCKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:10:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239163AbhKOR7Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239032AbhKOR7Q (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 12:59:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C7B563339;
-        Mon, 15 Nov 2021 17:36:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 680BC6333E;
+        Mon, 15 Nov 2021 17:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997767;
-        bh=cSQEfKgv4nS1/Qapj+YTuh2FvONOfMDmZUpmcF+Kn7s=;
+        s=korg; t=1636997769;
+        bh=zW/uAth4hdUmwYKnPqItx3iAib2PBMo8tVg/dKonihg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S79VwYEG5lBlDkSZuUbKGsENpd/V7DWXMiyfVpzYPhxekUkESerFfkDirqg9ZVQnr
-         RebFp9aLKubjsnufpAdhOEz/HMu2P4FkT4cviKoG9Oz7pmB7EVe1XU+JUpz5dblW0g
-         2T9knHhMIs66HtDzCg+Av3/aTqg6Gw17+FBy0/YQ=
+        b=KvwcFuOKPengXHNWEeGtH0YaPx4gG5pj+mAkj4DsYYHaa4v9so4UJEl1CFdPSMOnu
+         WOqWeSTp73iHlRHfuQ3ys1oQZasbxFKZlhOtRq/aAWbMZwWvHhoSKSwWKI+gGP0a6i
+         Qk2PnOJzxDHAPnS46otS/e1nNAGE07bHK7pk2NQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Iago Toral Quiroga <itoral@igalia.com>,
-        Melissa Wen <mwen@igalia.com>,
-        Melissa Wen <melissa.srw@gmail.com>,
+        stable@vger.kernel.org, Yuntao Liu <liuyuntao10@huawei.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 268/575] drm/v3d: fix wait for TMU write combiner flush
-Date:   Mon, 15 Nov 2021 17:59:53 +0100
-Message-Id: <20211115165353.042894474@linuxfoundation.org>
+Subject: [PATCH 5.10 269/575] virtio-gpu: fix possible memory allocation failure
+Date:   Mon, 15 Nov 2021 17:59:54 +0100
+Message-Id: <20211115165353.075689326@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
 References: <20211115165343.579890274@linuxfoundation.org>
@@ -41,46 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Iago Toral Quiroga <itoral@igalia.com>
+From: liuyuntao <liuyuntao10@huawei.com>
 
-[ Upstream commit e4f868191138975f2fdf2f37c11318b47db4acc9 ]
+[ Upstream commit 5bd4f20de8acad37dbb3154feb34dbc36d506c02 ]
 
-The hardware sets the TMUWCF bit back to 0 when the TMU write
-combiner flush completes so we should be checking for that instead
-of the L2TFLS bit.
+When kmem_cache_zalloc in virtio_gpu_get_vbuf fails, it will return
+an error code. But none of its callers checks this error code, and
+a core dump will take place.
 
-v2 (Melissa Wen):
-  - Add Signed-off-by and Fixes tags.
-  - Change the error message for the timeout to be more clear.
+Considering many of its callers can't handle such error, I add
+a __GFP_NOFAIL flag when calling kmem_cache_zalloc to make sure
+it won't fail, and delete those unused error handlings.
 
-Fixes spurious Vulkan CTS failures in:
-dEQP-VK.binding_model.descriptorset_random.*
-
-Fixes: d223f98f02099 ("drm/v3d: Add support for compute shader dispatch.")
-Signed-off-by: Iago Toral Quiroga <itoral@igalia.com>
-Reviewed-by: Melissa Wen <mwen@igalia.com>
-Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210915100507.3945-1-itoral@igalia.com
+Fixes: dc5698e80cf724 ("Add virtio gpu driver.")
+Signed-off-by: Yuntao Liu <liuyuntao10@huawei.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20210828104321.3410312-1-liuyuntao10@huawei.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/v3d/v3d_gem.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/v3d/v3d_gem.c b/drivers/gpu/drm/v3d/v3d_gem.c
-index 182c586525eb8..64fe63c1938f5 100644
---- a/drivers/gpu/drm/v3d/v3d_gem.c
-+++ b/drivers/gpu/drm/v3d/v3d_gem.c
-@@ -195,8 +195,8 @@ v3d_clean_caches(struct v3d_dev *v3d)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 07945ca238e2d..5e40fa0f5e8f2 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -91,9 +91,7 @@ virtio_gpu_get_vbuf(struct virtio_gpu_device *vgdev,
+ {
+ 	struct virtio_gpu_vbuffer *vbuf;
  
- 	V3D_CORE_WRITE(core, V3D_CTL_L2TCACTL, V3D_L2TCACTL_TMUWCF);
- 	if (wait_for(!(V3D_CORE_READ(core, V3D_CTL_L2TCACTL) &
--		       V3D_L2TCACTL_L2TFLS), 100)) {
--		DRM_ERROR("Timeout waiting for L1T write combiner flush\n");
-+		       V3D_L2TCACTL_TMUWCF), 100)) {
-+		DRM_ERROR("Timeout waiting for TMU write combiner flush\n");
- 	}
+-	vbuf = kmem_cache_zalloc(vgdev->vbufs, GFP_KERNEL);
+-	if (!vbuf)
+-		return ERR_PTR(-ENOMEM);
++	vbuf = kmem_cache_zalloc(vgdev->vbufs, GFP_KERNEL | __GFP_NOFAIL);
  
- 	mutex_lock(&v3d->cache_clean_lock);
+ 	BUG_ON(size > MAX_INLINE_CMD_SIZE ||
+ 	       size < sizeof(struct virtio_gpu_ctrl_hdr));
+@@ -147,10 +145,6 @@ static void *virtio_gpu_alloc_cmd_resp(struct virtio_gpu_device *vgdev,
+ 
+ 	vbuf = virtio_gpu_get_vbuf(vgdev, cmd_size,
+ 				   resp_size, resp_buf, cb);
+-	if (IS_ERR(vbuf)) {
+-		*vbuffer_p = NULL;
+-		return ERR_CAST(vbuf);
+-	}
+ 	*vbuffer_p = vbuf;
+ 	return (struct virtio_gpu_command *)vbuf->buf;
+ }
 -- 
 2.33.0
 
