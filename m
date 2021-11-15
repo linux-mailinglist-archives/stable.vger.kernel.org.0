@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 879FB4510FC
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:55:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BA23450AD1
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:12:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237381AbhKOS5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:57:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59674 "EHLO mail.kernel.org"
+        id S231967AbhKORO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:14:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243226AbhKOSzp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:55:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9C21633D2;
-        Mon, 15 Nov 2021 18:12:00 +0000 (UTC)
+        id S236870AbhKORNz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:13:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB71F61B73;
+        Mon, 15 Nov 2021 17:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999921;
-        bh=AdQqEOLmNElOdySDd8yyXF0jhgX3L/O5mXq0EN5UjiA=;
+        s=korg; t=1636996235;
+        bh=Ko5D5mV1DDGZ+ZCRNSmh6+HpGcoSQ6mZgJejfpXHfCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GhH1k85zP2CKoLNLMSDRz1JE/FOdd5C99upS7Na6ZO0P8dULVZaA4xpHcFkQKFgUV
-         rgwJHPWfUBHvKrUEjYC7aCv8aCq9r5D1gabjD4xpU1QcOBxg5wcxJ/7ltabtjeaKsC
-         UtVWSIJvMY35fhSmhEyipOinXwxEW/OAqtBrYIQM=
+        b=cfq3iunW3CEqhYhCJQYoNLgoLpgr78hBw93TV70gzC7jVNJPHQVGoXBfzxltUebjz
+         gC2hk6X8ZrsbtnlHrKLlO4mIvdNlCfUQzTu6tivV6hsVzRIYO7ESr5+AW1sW6Gk5gV
+         2QX3AqB2gXvk0ltsRu6T7vVn2sCJQ80ZwX7qlPiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 473/849] mt76: connac: fix possible NULL pointer dereference in mt76_connac_get_phy_mode_v2
-Date:   Mon, 15 Nov 2021 17:59:16 +0100
-Message-Id: <20211115165436.284112620@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Subject: [PATCH 5.4 033/355] x86/sme: Use #define USE_EARLY_PGTABLE_L5 in mem_encrypt_identity.c
+Date:   Mon, 15 Nov 2021 17:59:17 +0100
+Message-Id: <20211115165314.618636869@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,89 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-[ Upstream commit b5f2ba8a4c794e8349c0e30036352b9f685164c4 ]
+commit e7d445ab26db833d6640d4c9a08bee176777cc82 upstream.
 
-Fix the following NULL pointer dereference in mt76_connac_get_phy_mode_v2
-routine triggered on mt7663s device when sta is NULL
+When runtime support for converting between 4-level and 5-level pagetables
+was added to the kernel, the SME code that built pagetables was updated
+to use the pagetable functions, e.g. p4d_offset(), etc., in order to
+simplify the code. However, the use of the pagetable functions in early
+boot code requires the use of the USE_EARLY_PGTABLE_L5 #define in order to
+ensure that the proper definition of pgtable_l5_enabled() is used.
 
-[    5.490700] mt7663s mmc0:0001:1: N9 Firmware Version: 3.1.1, Build Time: 20200604161656
-[    5.490815] mt7663s mmc0:0001:1: Region number: 0x4
-[    5.490868] mt7663s mmc0:0001:1: Parsing tailer Region: 0
-[    5.496251] mt7663s mmc0:0001:1: Region 0, override_addr = 0x00118000
-[    5.496419] mt7663s mmc0:0001:1: Parsing tailer Region: 1
-[    5.624027] mt7663s mmc0:0001:1: Parsing tailer Region: 2
-[    5.656999] mt7663s mmc0:0001:1: Parsing tailer Region: 3
-[    5.671876] mt7663s mmc0:0001:1: override_addr = 0x00118000, option = 3
-[    9.358658] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[    9.358775] #PF: supervisor read access in kernel mode
-[    9.358831] #PF: error_code(0x0000) - not-present page
-[    9.358886] PGD 0 P4D 0
-[    9.358917] Oops: 0000 [#1] SMP
-[    9.358960] CPU: 0 PID: 235 Comm: NetworkManager Not tainted 5.15.0-rc4-kvm-02151-g39e333d657f4-dirty #769
-[    9.359057] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
-[    9.359150] RIP: 0010:mt76_connac_get_phy_mode_v2+0xc9/0x11c
-[    9.359473] RAX: 0000000000000013 RBX: 0000000000000000 RCX: 0000000000000027
-[    9.359546] RDX: ffff8881f9c17358 RSI: 0000000000000001 RDI: ffff8881f9c17350
-[    9.359624] RBP: ffff88810bac1ed4 R08: ffffffff822a4a48 R09: 0000000000000003
-[    9.359697] R10: ffffffff82234a60 R11: ffffffff82234a60 R12: ffff88810bac1eec
-[    9.359779] R13: 0000000000000000 R14: ffff88810bad1648 R15: ffff88810bac1eb8
-[    9.359859] FS:  00007f5f1e45bbc0(0000) GS:ffff8881f9c00000(0000) knlGS:0000000000000000
-[    9.359939] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    9.360003] CR2: 0000000000000000 CR3: 0000000105d5d000 CR4: 00000000000006b0
-[    9.360083] Call Trace:
-[    9.360116]  mt76_connac_mcu_uni_add_bss.cold+0x21/0x250
-[    9.360175]  ? schedule_preempt_disabled+0xa/0x10
-[    9.360232]  ? __mutex_lock.constprop.0+0x2ab/0x460
-[    9.360286]  mt7615_remove_interface+0x63/0x1d0
-[    9.360342]  drv_remove_interface+0x32/0xe0
-[    9.360385]  ieee80211_do_stop+0x5da/0x800
-[    9.360428]  ? dev_reset_queue+0x30/0x90
-[    9.360472]  ieee80211_stop+0x3b/0xb0
-[    9.360516]  __dev_close_many+0x7a/0xd0
-[    9.360559]  __dev_change_flags+0xd6/0x1f0
-[    9.360604]  dev_change_flags+0x21/0x60
-[    9.360648]  do_setlink+0x259/0xfb0
-[    9.360686]  ? __nla_validate_parse+0x51/0xb80
-[    9.360742]  __rtnl_newlink+0x5b3/0x960
-[    9.360785]  ? inet6_fill_ifla6_attrs+0x41d/0x470
-[    9.360841]  ? __kmalloc_track_caller+0x57/0x3c0
-[    9.360905]  ? netlink_trim+0x8a/0xb0
-[    9.360949]  ? skb_queue_tail+0x1b/0x50
+Without the #define, pgtable_l5_enabled() is #defined as
+cpu_feature_enabled(X86_FEATURE_LA57). In early boot, the CPU features
+have not yet been discovered and populated, so pgtable_l5_enabled() will
+return false even when 5-level paging is enabled. This causes the SME code
+to always build 4-level pagetables to perform the in-place encryption.
+If 5-level paging is enabled, switching to the SME pagetables results in
+a page-fault that kills the boot.
 
-Fixes: 67aa27431c7f8 ("mt76: mt7921: rely on mt76_connac_mcu common library")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Adding the #define results in pgtable_l5_enabled() using the
+__pgtable_l5_enabled variable set in early boot and the SME code building
+pagetables for the proper paging level.
+
+Fixes: aad983913d77 ("x86/mm/encrypt: Simplify sme_populate_pgd() and sme_populate_pgd_large()")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org> # 4.18.x
+Link: https://lkml.kernel.org/r/2cb8329655f5c753905812d951e212022a480475.1634318656.git.thomas.lendacky@amd.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/mm/mem_encrypt_identity.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-index 98d233e24afcc..d25b50e769328 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-@@ -689,7 +689,7 @@ mt76_connac_get_phy_mode_v2(struct mt76_phy *mphy, struct ieee80211_vif *vif,
- 		if (ht_cap->ht_supported)
- 			mode |= PHY_TYPE_BIT_HT;
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -27,6 +27,15 @@
+ #undef CONFIG_PARAVIRT_XXL
+ #undef CONFIG_PARAVIRT_SPINLOCKS
  
--		if (he_cap->has_he)
-+		if (he_cap && he_cap->has_he)
- 			mode |= PHY_TYPE_BIT_HE;
- 	} else if (band == NL80211_BAND_5GHZ) {
- 		mode |= PHY_TYPE_BIT_OFDM;
-@@ -700,7 +700,7 @@ mt76_connac_get_phy_mode_v2(struct mt76_phy *mphy, struct ieee80211_vif *vif,
- 		if (vht_cap->vht_supported)
- 			mode |= PHY_TYPE_BIT_VHT;
- 
--		if (he_cap->has_he)
-+		if (he_cap && he_cap->has_he)
- 			mode |= PHY_TYPE_BIT_HE;
- 	}
- 
--- 
-2.33.0
-
++/*
++ * This code runs before CPU feature bits are set. By default, the
++ * pgtable_l5_enabled() function uses bit X86_FEATURE_LA57 to determine if
++ * 5-level paging is active, so that won't work here. USE_EARLY_PGTABLE_L5
++ * is provided to handle this situation and, instead, use a variable that
++ * has been set by the early boot code.
++ */
++#define USE_EARLY_PGTABLE_L5
++
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+ #include <linux/mem_encrypt.h>
 
 
