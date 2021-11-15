@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5A8245267E
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:03:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02746452374
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:23:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343939AbhKPCFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:05:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46098 "EHLO mail.kernel.org"
+        id S1351319AbhKPB0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:26:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239551AbhKOSBT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:01:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 706466325D;
-        Mon, 15 Nov 2021 17:36:57 +0000 (UTC)
+        id S243397AbhKOTB0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:01:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 498F16334F;
+        Mon, 15 Nov 2021 18:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997817;
-        bh=UzLVZL2eGi7IrDPb6b5TLs+bdsLrCfiJjU6qiR0uJdk=;
+        s=korg; t=1637000081;
+        bh=L3dFY3TP+siecby4MlbYFax8fmlSuUWGc6RejfOBtWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9Op5a3MVugdiK+zTi/kg6wVMgtmFrb3Ma2QO+zWx0FBjigVTTL28kxHvBVhYCqji
-         KR7CLHn1gPkJanMU0m1hrzmVxMARE+w/yTKjZo7jfbBMBhTtbgTTvFcYZWam+woSRk
-         ZjrdiqFaGSvOg+rViMku47XrMiCcEpkTxMD2fYHc=
+        b=nowNlOwomyfnKm0HSngpi8/QpVyzeK/tYBwDz5K0Om9D9jvrZp+5MQ9wYbAGZghKk
+         quOqjHMaPDssqMN9J7hHCo8Aj8/8QhGLlwDWgJOEe/L4oEmGknHw0NdAuaT4oJhNRs
+         kwOWymUVhIY8T/nTzRqjiVrthh53gI60cUdJGz7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 254/575] selftests/core: fix conflicting types compile error for close_range()
-Date:   Mon, 15 Nov 2021 17:59:39 +0100
-Message-Id: <20211115165352.560858957@linuxfoundation.org>
+Subject: [PATCH 5.14 498/849] s390/gmap: dont unconditionally call pte_unmap_unlock() in __gmap_zap()
+Date:   Mon, 15 Nov 2021 17:59:41 +0100
+Message-Id: <20211115165437.124952354@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit f35dcaa0a8a29188ed61083d153df1454cf89d08 ]
+[ Upstream commit b159f94c86b43cf7e73e654bc527255b1f4eafc4 ]
 
-close_range() test type conflicts with close_range() library call in
-x86_64-linux-gnu/bits/unistd_ext.h. Fix it by changing the name to
-core_close_range().
+... otherwise we will try unlocking a spinlock that was never locked via a
+garbage pointer.
 
-gcc -g -I../../../../usr/include/    close_range_test.c  -o ../tools/testing/selftests/core/close_range_test
-In file included from close_range_test.c:16:
-close_range_test.c:57:6: error: conflicting types for ‘close_range’; have ‘void(struct __test_metadata *)’
-   57 | TEST(close_range)
-      |      ^~~~~~~~~~~
-../kselftest_harness.h:181:21: note: in definition of macro ‘__TEST_IMPL’
-  181 |         static void test_name(struct __test_metadata *_metadata); \
-      |                     ^~~~~~~~~
-close_range_test.c:57:1: note: in expansion of macro ‘TEST’
-   57 | TEST(close_range)
-      | ^~~~
-In file included from /usr/include/unistd.h:1204,
-                 from close_range_test.c:13:
-/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:56:12: note: previous declaration of ‘close_range’ with type ‘int(unsigned int,  unsigned int,  int)’
-   56 | extern int close_range (unsigned int __fd, unsigned int __max_fd,
-      |            ^~~~~~~~~~~
+At the time we reach this code path, we usually successfully looked up
+a PGSTE already; however, evil user space could have manipulated the VMA
+layout in the meantime and triggered removal of the page table.
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 1e133ab296f3 ("s390/mm: split arch/s390/mm/pgtable.c")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210909162248.14969-3-david@redhat.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/core/close_range_test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/mm/gmap.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/core/close_range_test.c b/tools/testing/selftests/core/close_range_test.c
-index 575b391ddc78d..0a26795842f6f 100644
---- a/tools/testing/selftests/core/close_range_test.c
-+++ b/tools/testing/selftests/core/close_range_test.c
-@@ -33,7 +33,7 @@ static inline int sys_close_range(unsigned int fd, unsigned int max_fd,
- #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
- #endif
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index b6b56cd4ca644..9023bf3ced89b 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -690,9 +690,10 @@ void __gmap_zap(struct gmap *gmap, unsigned long gaddr)
  
--TEST(close_range)
-+TEST(core_close_range)
- {
- 	int i, ret;
- 	int open_fds[101];
+ 		/* Get pointer to the page table entry */
+ 		ptep = get_locked_pte(gmap->mm, vmaddr, &ptl);
+-		if (likely(ptep))
++		if (likely(ptep)) {
+ 			ptep_zap_unused(gmap->mm, vmaddr, ptep, 0);
+-		pte_unmap_unlock(ptep, ptl);
++			pte_unmap_unlock(ptep, ptl);
++		}
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(__gmap_zap);
 -- 
 2.33.0
 
