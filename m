@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15B4A450D05
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:45:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0E6145107F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:46:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238696AbhKORrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:47:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58628 "EHLO mail.kernel.org"
+        id S242252AbhKOStg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:49:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238743AbhKORpS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:45:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1E466330C;
-        Mon, 15 Nov 2021 17:29:18 +0000 (UTC)
+        id S242832AbhKOSqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:46:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9B6763295;
+        Mon, 15 Nov 2021 18:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997359;
-        bh=eajIuobfbs5aY/C3Q8dSjCf3Ko6DnXwHvuvfvoHM2uc=;
+        s=korg; t=1636999614;
+        bh=6hUbhkYV+TZcDVKEtkEzGn1X+v2vGSdrTB4OdUF0GFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XZ4tnqUN/jap32w0dYvd2W0N0gffZ3D6jXv3LkYk2iIvQb1q+ZsCRgQrHhRINuhBg
-         BIt8neNFCMsUSklgPNtVS7f4e5bOGy2gDnjrMLLhRPQSPGGiaLdHPk6NFsRkg17cjo
-         D5sP//xpdZz7ytrDEMi3tXWKjfAaOTsT0tjpJrlM=
+        b=uFoVD5Ofymj171Q/V4TeUKZvkVEp8yOwhj6C/fiOFfMrKTJO43EKzHmp8yjUtRbsf
+         yw9C3ZgwCy+j8bAy6p0pKXXpDrsntlKe6X++T5wXd5jkII2gnpZ6y+4D/gqLj2W2nh
+         WCMU55wWxoT6BmEMnWzwgzYON9gzc8wmXa3xYTHU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Maciej Rozycki <macro@orcam.me.uk>, linux-mips@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.10 120/575] signal/mips: Update (_save|_restore)_fp_context to fail with -EFAULT
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 362/849] rxrpc: Fix _usecs_to_jiffies() by using usecs_to_jiffies()
 Date:   Mon, 15 Nov 2021 17:57:25 +0100
-Message-Id: <20211115165347.837820916@linuxfoundation.org>
+Message-Id: <20211115165432.482828714@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 95bf9d646c3c3f95cb0be7e703b371db8da5be68 upstream.
+[ Upstream commit acde891c243c1ed85b19d4d5042bdf00914f5739 ]
 
-When an instruction to save or restore a register from the stack fails
-in _save_fp_context or _restore_fp_context return with -EFAULT.  This
-change was made to r2300_fpu.S[1] but it looks like it got lost with
-the introduction of EX2[2].  This is also what the other implementation
-of _save_fp_context and _restore_fp_context in r4k_fpu.S does, and
-what is needed for the callers to be able to handle the error.
+Directly using _usecs_to_jiffies() might be unsafe, so it's
+better to use usecs_to_jiffies() instead.
+Because we can see that the result of _usecs_to_jiffies()
+could be larger than MAX_JIFFY_OFFSET values without the
+check of the input.
 
-Furthermore calling do_exit(SIGSEGV) from bad_stack is wrong because
-it does not terminate the entire process it just terminates a single
-thread.
-
-As the changed code was the only caller of arch/mips/kernel/syscall.c:bad_stack
-remove the problematic and now unused helper function.
-
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Maciej Rozycki <macro@orcam.me.uk>
-Cc: linux-mips@vger.kernel.org
-[1] 35938a00ba86 ("MIPS: Fix ISA I FP sigcontext access violation handling")
-[2] f92722dc4545 ("MIPS: Correct MIPS I FP sigcontext layout")
-Cc: stable@vger.kernel.org
-Fixes: f92722dc4545 ("MIPS: Correct MIPS I FP sigcontext layout")
-Acked-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Link: https://lkml.kernel.org/r/20211020174406.17889-5-ebiederm@xmission.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c410bf01933e ("Fix the excessive initial retransmission timeout")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/r2300_fpu.S |    4 ++--
- arch/mips/kernel/syscall.c   |    9 ---------
- 2 files changed, 2 insertions(+), 11 deletions(-)
+ net/rxrpc/rtt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/mips/kernel/r2300_fpu.S
-+++ b/arch/mips/kernel/r2300_fpu.S
-@@ -29,8 +29,8 @@
- #define EX2(a,b)						\
- 9:	a,##b;							\
- 	.section __ex_table,"a";				\
--	PTR	9b,bad_stack;					\
--	PTR	9b+4,bad_stack;					\
-+	PTR	9b,fault;					\
-+	PTR	9b+4,fault;					\
- 	.previous
+diff --git a/net/rxrpc/rtt.c b/net/rxrpc/rtt.c
+index 4e565eeab4260..be61d6f5be8d1 100644
+--- a/net/rxrpc/rtt.c
++++ b/net/rxrpc/rtt.c
+@@ -22,7 +22,7 @@ static u32 rxrpc_rto_min_us(struct rxrpc_peer *peer)
  
- 	.set	mips1
---- a/arch/mips/kernel/syscall.c
-+++ b/arch/mips/kernel/syscall.c
-@@ -240,12 +240,3 @@ SYSCALL_DEFINE3(cachectl, char *, addr,
+ static u32 __rxrpc_set_rto(const struct rxrpc_peer *peer)
  {
- 	return -ENOSYS;
+-	return _usecs_to_jiffies((peer->srtt_us >> 3) + peer->rttvar_us);
++	return usecs_to_jiffies((peer->srtt_us >> 3) + peer->rttvar_us);
  }
--
--/*
-- * If we ever come here the user sp is bad.  Zap the process right away.
-- * Due to the bad stack signaling wouldn't work.
-- */
--asmlinkage void bad_stack(void)
--{
--	do_exit(SIGSEGV);
--}
+ 
+ static u32 rxrpc_bound_rto(u32 rto)
+-- 
+2.33.0
+
 
 
