@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 766B5450B63
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:21:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28C55450E00
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237854AbhKORYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:24:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51568 "EHLO mail.kernel.org"
+        id S240457AbhKOSJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:09:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236999AbhKORTw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:19:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A73256326D;
-        Mon, 15 Nov 2021 17:15:05 +0000 (UTC)
+        id S239834AbhKOSEx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:04:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD28F6335A;
+        Mon, 15 Nov 2021 17:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996506;
-        bh=rdP6oZ9XMgYml/iKLXdHxrHtOiiEdxENziJOiT9jMm8=;
+        s=korg; t=1636997958;
+        bh=rVq5/5E3wP+pz8ZtSj+6qMfWCjEYWpTapgDJawHaDzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SxYisRJEO7G1OPnHTcc0ecbC5nAv3YvNafPENC4YBjT2S6rujhsVWA17bQXtXaOJB
-         4cxQ4WpPhTwRs1DwqnDeMgpXetVFaaFvEEpSCAisabHo3rhRSq035svAzzy6/gsB1X
-         oZiG2M913oByTA8fLX8+T9u6nCQ+bofx6Q0usZT8=
+        b=EeGuHTJhtnHce8m4KoNShDs2RdugPRaS54Nm21Rz48KryseOJ6tc1lcZ2SYUyNbhY
+         6jpPo0M28sliJOfMbjp/t1VxILnBTonoPsSsVQ7obQkrhvu7XHbRZHboHGX0IC81w0
+         6AzTi96hq6gerSEatem0LtOFWycJpZNj7WbpkV2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 137/355] media: imx: set a media_device bus_info string
-Date:   Mon, 15 Nov 2021 18:01:01 +0100
-Message-Id: <20211115165318.229996808@linuxfoundation.org>
+Subject: [PATCH 5.10 337/575] rsi: stop thread firstly in rsi_91x_init() error handling
+Date:   Mon, 15 Nov 2021 18:01:02 +0100
+Message-Id: <20211115165355.452676751@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Kepplinger <martin.kepplinger@puri.sm>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit 6d0d779b212c27293d9ccb4da092ff0ccb6efa39 ]
+[ Upstream commit 515e7184bdf0a3ebf1757cc77fb046b4fe282189 ]
 
-Some tools like v4l2-compliance let users select a media device based
-on the bus_info string which can be quite convenient. Use a unique
-string for that.
+When fail to init coex module, free 'common' and 'adapter' directly, but
+common->tx_thread which will access 'common' and 'adapter' is running at
+the same time. That will trigger the UAF bug.
 
-This also fixes the following v4l2-compliance warning:
-warn: v4l2-test-media.cpp(52): empty bus_info
+==================================================================
+BUG: KASAN: use-after-free in rsi_tx_scheduler_thread+0x50f/0x520 [rsi_91x]
+Read of size 8 at addr ffff8880076dc000 by task Tx-Thread/124777
+CPU: 0 PID: 124777 Comm: Tx-Thread Not tainted 5.15.0-rc5+ #19
+Call Trace:
+ dump_stack_lvl+0xe2/0x152
+ print_address_description.constprop.0+0x21/0x140
+ ? rsi_tx_scheduler_thread+0x50f/0x520
+ kasan_report.cold+0x7f/0x11b
+ ? rsi_tx_scheduler_thread+0x50f/0x520
+ rsi_tx_scheduler_thread+0x50f/0x520
+...
 
-Signed-off-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Freed by task 111873:
+ kasan_save_stack+0x1b/0x40
+ kasan_set_track+0x1c/0x30
+ kasan_set_free_info+0x20/0x30
+ __kasan_slab_free+0x109/0x140
+ kfree+0x117/0x4c0
+ rsi_91x_init+0x741/0x8a0 [rsi_91x]
+ rsi_probe+0x9f/0x1750 [rsi_usb]
+
+Stop thread before free 'common' and 'adapter' to fix it.
+
+Fixes: 2108df3c4b18 ("rsi: add coex support")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211015040335.1021546-1-william.xuanziyang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx-media-dev-common.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/rsi/rsi_91x_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/media/imx/imx-media-dev-common.c b/drivers/staging/media/imx/imx-media-dev-common.c
-index 66b505f7e8dff..137e414cda186 100644
---- a/drivers/staging/media/imx/imx-media-dev-common.c
-+++ b/drivers/staging/media/imx/imx-media-dev-common.c
-@@ -373,6 +373,8 @@ struct imx_media_dev *imx_media_dev_init(struct device *dev,
- 	imxmd->v4l2_dev.notify = imx_media_notify;
- 	strscpy(imxmd->v4l2_dev.name, "imx-media",
- 		sizeof(imxmd->v4l2_dev.name));
-+	snprintf(imxmd->md.bus_info, sizeof(imxmd->md.bus_info),
-+		 "platform:%s", dev_name(imxmd->md.dev));
- 
- 	media_device_init(&imxmd->md);
- 
+diff --git a/drivers/net/wireless/rsi/rsi_91x_main.c b/drivers/net/wireless/rsi/rsi_91x_main.c
+index 0a2f8b4f447bd..8c638cfeac52f 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_main.c
++++ b/drivers/net/wireless/rsi/rsi_91x_main.c
+@@ -369,6 +369,7 @@ struct rsi_hw *rsi_91x_init(u16 oper_mode)
+ 	if (common->coex_mode > 1) {
+ 		if (rsi_coex_attach(common)) {
+ 			rsi_dbg(ERR_ZONE, "Failed to init coex module\n");
++			rsi_kill_thread(&common->tx_thread);
+ 			goto err;
+ 		}
+ 	}
 -- 
 2.33.0
 
