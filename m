@@ -2,42 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DE964512CB
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B98F34512D3
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347409AbhKOTju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:39:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
+        id S1347463AbhKOTj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245045AbhKOTS1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 973306327F;
-        Mon, 15 Nov 2021 18:27:25 +0000 (UTC)
+        id S245062AbhKOTTH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:19:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3BE4634FE;
+        Mon, 15 Nov 2021 18:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000846;
-        bh=y3InPMtUyPmHRcapFzmmuoJhtc2+4cQnidVJlPKDHPc=;
+        s=korg; t=1637000866;
+        bh=EWZZMqDChEVRE6v3Fj1Wm/O2D7CsSJLOusrws6Z3K/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+tH0rYkBa4uEO3vNBoGQa0CsSHfJqVOiCJpenV8a8Q/e8tz4xXWv2F3UHWJ7+6Xg
-         J3sFSHe9jhNzs+xp2AKJI9pnQVAk7UhaHrdYzkfp759+sHx9xZ3WI0RRkBxWxtVFj2
-         LGcMmg3/vHx4rd5/xqIsz8PL3ZJno064Zo29o0FQ=
+        b=CoVaKO61snu36aDb1VisQzec+stZVhxsjQaa0kTcCKHpLVKX9nCnAzPVhLrxm1vwm
+         zb8J6R1EYX1WTXoFCwOTnQPL/hslDgBBupqflHs2cJoX2SmKgQFBAboZLMTXXvGaSF
+         ZKHjz705Zb7AvJikWS0jKOvbgleD5EZqaqNnaGlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Roman Gushchin <guro@fb.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.14 813/849] mm, oom: do not trigger out_of_memory from the #PF
-Date:   Mon, 15 Nov 2021 18:04:56 +0100
-Message-Id: <20211115165447.745876326@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.14 815/849] video: backlight: Drop maximum brightness override for brightness zero
+Date:   Mon, 15 Nov 2021 18:04:58 +0100
+Message-Id: <20211115165447.811723643@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -49,102 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Hocko <mhocko@suse.com>
+From: Marek Vasut <marex@denx.de>
 
-commit 60e2793d440a3ec95abb5d6d4fc034a4b480472d upstream.
+commit 33a5471f8da976bf271a1ebbd6b9d163cb0cb6aa upstream.
 
-Any allocation failure during the #PF path will return with VM_FAULT_OOM
-which in turn results in pagefault_out_of_memory.  This can happen for 2
-different reasons.  a) Memcg is out of memory and we rely on
-mem_cgroup_oom_synchronize to perform the memcg OOM handling or b)
-normal allocation fails.
+The note in c2adda27d202f ("video: backlight: Add of_find_backlight helper
+in backlight.c") says that gpio-backlight uses brightness as power state.
+This has been fixed since in ec665b756e6f7 ("backlight: gpio-backlight:
+Correct initial power state handling") and other backlight drivers do not
+require this workaround. Drop the workaround.
 
-The latter is quite problematic because allocation paths already trigger
-out_of_memory and the page allocator tries really hard to not fail
-allocations.  Anyway, if the OOM killer has been already invoked there
-is no reason to invoke it again from the #PF path.  Especially when the
-OOM condition might be gone by that time and we have no way to find out
-other than allocate.
+This fixes the case where e.g. pwm-backlight can perfectly well be set to
+brightness 0 on boot in DT, which without this patch leads to the display
+brightness to be max instead of off.
 
-Moreover if the allocation failed and the OOM killer hasn't been invoked
-then we are unlikely to do the right thing from the #PF context because
-we have already lost the allocation context and restictions and
-therefore might oom kill a task from a different NUMA domain.
-
-This all suggests that there is no legitimate reason to trigger
-out_of_memory from pagefault_out_of_memory so drop it.  Just to be sure
-that no #PF path returns with VM_FAULT_OOM without allocation print a
-warning that this is happening before we restart the #PF.
-
-[VvS: #PF allocation can hit into limit of cgroup v1 kmem controller.
-This is a local problem related to memcg, however, it causes unnecessary
-global OOM kills that are repeated over and over again and escalate into a
-real disaster.  This has been broken since kmem accounting has been
-introduced for cgroup v1 (3.8).  There was no kmem specific reclaim for
-the separate limit so the only way to handle kmem hard limit was to return
-with ENOMEM.  In upstream the problem will be fixed by removing the
-outdated kmem limit, however stable and LTS kernels cannot do it and are
-still affected.  This patch fixes the problem and should be backported
-into stable/LTS.]
-
-Link: https://lkml.kernel.org/r/f5fd8dd8-0ad4-c524-5f65-920b01972a42@virtuozzo.com
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: c2adda27d202f ("video: backlight: Add of_find_backlight helper in backlight.c")
+Cc: <stable@vger.kernel.org> # 5.4+
+Cc: <stable@vger.kernel.org> # 4.19.x: ec665b756e6f7: backlight: gpio-backlight: Correct initial power state handling
+Signed-off-by: Marek Vasut <marex@denx.de>
+Acked-by: Noralf Trønnes <noralf@tronnes.org>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/oom_kill.c |   22 ++++++++--------------
- 1 file changed, 8 insertions(+), 14 deletions(-)
+ drivers/video/backlight/backlight.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/mm/oom_kill.c
-+++ b/mm/oom_kill.c
-@@ -1119,19 +1119,15 @@ bool out_of_memory(struct oom_control *o
- }
+--- a/drivers/video/backlight/backlight.c
++++ b/drivers/video/backlight/backlight.c
+@@ -688,12 +688,6 @@ static struct backlight_device *of_find_
+ 			of_node_put(np);
+ 			if (!bd)
+ 				return ERR_PTR(-EPROBE_DEFER);
+-			/*
+-			 * Note: gpio_backlight uses brightness as
+-			 * power state during probe
+-			 */
+-			if (!bd->props.brightness)
+-				bd->props.brightness = bd->props.max_brightness;
+ 		}
+ 	}
  
- /*
-- * The pagefault handler calls here because it is out of memory, so kill a
-- * memory-hogging task. If oom_lock is held by somebody else, a parallel oom
-- * killing is already in progress so do nothing.
-+ * The pagefault handler calls here because some allocation has failed. We have
-+ * to take care of the memcg OOM here because this is the only safe context without
-+ * any locks held but let the oom killer triggered from the allocation context care
-+ * about the global OOM.
-  */
- void pagefault_out_of_memory(void)
- {
--	struct oom_control oc = {
--		.zonelist = NULL,
--		.nodemask = NULL,
--		.memcg = NULL,
--		.gfp_mask = 0,
--		.order = 0,
--	};
-+	static DEFINE_RATELIMIT_STATE(pfoom_rs, DEFAULT_RATELIMIT_INTERVAL,
-+				      DEFAULT_RATELIMIT_BURST);
- 
- 	if (mem_cgroup_oom_synchronize(true))
- 		return;
-@@ -1139,8 +1135,6 @@ void pagefault_out_of_memory(void)
- 	if (fatal_signal_pending(current))
- 		return;
- 
--	if (!mutex_trylock(&oom_lock))
--		return;
--	out_of_memory(&oc);
--	mutex_unlock(&oom_lock);
-+	if (__ratelimit(&pfoom_rs))
-+		pr_warn("Huh VM_FAULT_OOM leaked out to the #PF handler. Retrying PF\n");
- }
 
 
