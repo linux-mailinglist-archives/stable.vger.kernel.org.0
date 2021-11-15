@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD338451DD6
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:31:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 653BE451DCF
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:31:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347262AbhKPAeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:34:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
+        id S1345706AbhKPAeL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:34:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343905AbhKOTWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343910AbhKOTWY (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D9DD63602;
-        Mon, 15 Nov 2021 18:48:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2714D63603;
+        Mon, 15 Nov 2021 18:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637002113;
-        bh=0dxWu/VuRqyfzH7wNde602N0vf7ElPbN+0WzjLy/mu0=;
+        s=korg; t=1637002116;
+        bh=9pPerbehqC6kt+NUjCdEae89pMNvRT6x2OzqoxRqx5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=asCQgWt6tBXxYrgkSSD9YcliV8dA7t0qaRMSjQZT59x0LLaY9O04GCzk+lgq1jQot
-         NOS9ipFoozKIvXnPwDc557tqL0KPNiMmca5gCj50sNuaaTsRU7dkE66F+GB0z/4fck
-         hpwBNtfAh+bOAvn5VUYcbZuvIUd3z6QDduHA2Yt8=
+        b=tacTZTZHO9i78fH5ZxQxx6xmOl/8BL8NW5yV5OS2uQO7LPE9Ye35HWIzMKArsFpD9
+         4YnNIoMjnSb8Vi/forIeqXlVv8x2jQD1/NV2a+opHVEpIKk+dAl+IPR10501eZnSV3
+         ap8zN9EGJzdMghfyTMLzn7obUexwtpjwj5jZZENI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jackie Liu <liuyun01@kylinos.cn>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 442/917] net: stream: dont purge sk_error_queue in sk_stream_kill_queues()
-Date:   Mon, 15 Nov 2021 17:58:57 +0100
-Message-Id: <20211115165443.767087158@linuxfoundation.org>
+Subject: [PATCH 5.15 443/917] thermal/drivers/qcom/lmh: make QCOM_LMH depends on QCOM_SCM
+Date:   Mon, 15 Nov 2021 17:58:58 +0100
+Message-Id: <20211115165443.800371557@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -41,66 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Jackie Liu <liuyun01@kylinos.cn>
 
-[ Upstream commit 24bcbe1cc69fa52dc4f7b5b2456678ed464724d8 ]
+[ Upstream commit 9e5a4fb8423081d0efbf165c71c7f4abdf5f918c ]
 
-sk_stream_kill_queues() can be called on close when there are
-still outstanding skbs to transmit. Those skbs may try to queue
-notifications to the error queue (e.g. timestamps).
-If sk_stream_kill_queues() purges the queue without taking
-its lock the queue may get corrupted, and skbs leaked.
+Without QCOM_SCM, build failed, avoid like below:
 
-This shows up as a warning about an rmem leak:
+aarch64-linux-gnu-ld: Unexpected GOT/PLT entries detected!
+aarch64-linux-gnu-ld: Unexpected run-time procedure linkages detected!
+aarch64-linux-gnu-ld: drivers/thermal/qcom/lmh.o: in function `lmh_probe':
+/data/arm/workspace/kernel-build/linux/build/../drivers/thermal/qcom/lmh.c:141: undefined reference to `qcom_scm_lmh_dcvsh_available'
+aarch64-linux-gnu-ld: /data/arm/workspace/kernel-build/linux/build/../drivers/thermal/qcom/lmh.c:144: undefined reference to `qcom_scm_lmh_dcvsh'
+aarch64-linux-gnu-ld: /data/arm/workspace/kernel-build/linux/build/../drivers/thermal/qcom/lmh.c:149: undefined reference to `qcom_scm_lmh_dcvsh'
+aarch64-linux-gnu-ld: /data/arm/workspace/kernel-build/linux/build/../drivers/thermal/qcom/lmh.c:154: undefined reference to `qcom_scm_lmh_dcvsh'
+aarch64-linux-gnu-ld: /data/arm/workspace/kernel-build/linux/build/../drivers/thermal/qcom/lmh.c:159: undefined reference to `qcom_scm_lmh_dcvsh'
+aarch64-linux-gnu-ld: /data/arm/workspace/kernel-build/linux/build/../drivers/thermal/qcom/lmh.c:166: undefined reference to `qcom_scm_lmh_profile_change'
+aarch64-linux-gnu-ld: /data/arm/workspace/kernel-build/linux/build/../drivers/thermal/qcom/lmh.c:173: undefined reference to `qcom_scm_lmh_dcvsh'
+aarch64-linux-gnu-ld: /data/arm/workspace/kernel-build/linux/build/../drivers/thermal/qcom/lmh.c:180: undefined reference to `qcom_scm_lmh_dcvsh'
+aarch64-linux-gnu-ld: /data/arm/workspace/kernel-build/linux/build/../drivers/thermal/qcom/lmh.c:187: undefined reference to `qcom_scm_lmh_dcvsh'
+make[1]: *** [/data/arm/workspace/kernel-build/linux/Makefile:1183: vmlinux] Error 1
+make[1]: Leaving directory '/data/arm/workspace/kernel-build/linux/build'
+make: *** [Makefile:219: __sub-make] Error 2
+make: Leaving directory '/data/arm/workspace/kernel-build/linux'
 
-WARNING: CPU: 24 PID: 0 at net/ipv4/af_inet.c:154 inet_sock_destruct+0x...
-
-The leak is always a multiple of 0x300 bytes (the value is in
-%rax on my builds, so RAX: 0000000000000300). 0x300 is truesize of
-an empty sk_buff. Indeed if we dump the socket state at the time
-of the warning the sk_error_queue is often (but not always)
-corrupted. The ->next pointer points back at the list head,
-but not the ->prev pointer. Indeed we can find the leaked skb
-by scanning the kernel memory for something that looks like
-an skb with ->sk = socket in question, and ->truesize = 0x300.
-The contents of ->cb[] of the skb confirms the suspicion that
-it is indeed a timestamp notification (as generated in
-__skb_complete_tx_timestamp()).
-
-Removing purging of sk_error_queue should be okay, since
-inet_sock_destruct() does it again once all socket refs
-are gone. Eric suggests this may cause sockets that go
-thru disconnect() to maintain notifications from the
-previous incarnations of the socket, but that should be
-okay since the race was there anyway, and disconnect()
-is not exactly dependable.
-
-Thanks to Jonathan Lemon and Omar Sandoval for help at various
-stages of tracing the issue.
-
-Fixes: cb9eff097831 ("net: new user space API for time stamping of incoming and outgoing packets")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 53bca371cdf7 ("thermal/drivers/qcom: Add support for LMh driver")
+Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+Link: https://lore.kernel.org/r/20211009015853.3509559-1-liu.yun@linux.dev
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/stream.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/thermal/qcom/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/stream.c b/net/core/stream.c
-index 4f1d4aa5fb38d..a166a32b411fa 100644
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -195,9 +195,6 @@ void sk_stream_kill_queues(struct sock *sk)
- 	/* First the read buffer. */
- 	__skb_queue_purge(&sk->sk_receive_queue);
+diff --git a/drivers/thermal/qcom/Kconfig b/drivers/thermal/qcom/Kconfig
+index 7d942f71e5328..bfd889422dd32 100644
+--- a/drivers/thermal/qcom/Kconfig
++++ b/drivers/thermal/qcom/Kconfig
+@@ -34,7 +34,7 @@ config QCOM_SPMI_TEMP_ALARM
  
--	/* Next, the error queue. */
--	__skb_queue_purge(&sk->sk_error_queue);
--
- 	/* Next, the write queue. */
- 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
- 
+ config QCOM_LMH
+ 	tristate "Qualcomm Limits Management Hardware"
+-	depends on ARCH_QCOM
++	depends on ARCH_QCOM && QCOM_SCM
+ 	help
+ 	  This enables initialization of Qualcomm limits management
+ 	  hardware(LMh). LMh allows for hardware-enforced mitigation for cpus based on
 -- 
 2.33.0
 
