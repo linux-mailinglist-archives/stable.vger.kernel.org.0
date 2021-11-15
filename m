@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD297451FC2
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEA1F451FBB
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:42:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354537AbhKPApM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:45:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44634 "EHLO mail.kernel.org"
+        id S244968AbhKPApH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:45:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343795AbhKOTWD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343797AbhKOTWD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:22:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 961F3635E4;
-        Mon, 15 Nov 2021 18:46:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B033635E6;
+        Mon, 15 Nov 2021 18:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001991;
-        bh=wHZ/FgomGfQII1R8Qa0m9P4Ay/Hc604RDfQFD7LVcM4=;
+        s=korg; t=1637001994;
+        bh=ff0XAZ8LJ4eTBpkOons/Zk0B6vwBGcVO0EjAoZR9LM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XmX1Wcovxfw2rOf9a003e41LA5PHlfWVlPiA55kssV4FQ/WCNykYdcuXeSTJkX/Bq
-         vNAW8xAMTHwkOszuZPpfLU9WT0NNE+uDBhoFybrMdMtFfQmzET8Eq+jlwcHcZyaoW4
-         wM0kHBhbzLVe4d9u0K1Iruymz8DhSHqwg9XS6F34=
+        b=h3TmsFnjQ2pis4MxpUJCqhmnk3raR07IPN5xok68HUMQAARqXxvEgCYpT3BIcJJA+
+         DYhZbDdp5+WeUkLt1/n/9zcui7GZwG4UQcd/pdlKWeQnABS7fKXMpPCZa7fNFv5JDn
+         OLA/cLhi2ZM0pPo+OYRWOyr++c/uhf8PZBLCoDhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Kees Cook <keescook@chromium.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 397/917] crypto: ecc - fix CRYPTO_DEFAULT_RNG dependency
-Date:   Mon, 15 Nov 2021 17:58:12 +0100
-Message-Id: <20211115165442.239844597@linuxfoundation.org>
+Subject: [PATCH 5.15 398/917] drm: fb_helper: fix CONFIG_FB dependency
+Date:   Mon, 15 Nov 2021 17:58:13 +0100
+Message-Id: <20211115165442.269470552@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,46 +43,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 38aa192a05f22f9778f9420e630f0322525ef12e ]
+[ Upstream commit 606b102876e3741851dfb09d53f3ee57f650a52c ]
 
-The ecc.c file started out as part of the ECDH algorithm but got
-moved out into a standalone module later. It does not build without
-CRYPTO_DEFAULT_RNG, so now that other modules are using it as well we
-can run into this link error:
+With CONFIG_FB=m and CONFIG_DRM=y, we get a link error in the fb helper:
 
-aarch64-linux-ld: ecc.c:(.text+0xfc8): undefined reference to `crypto_default_rng'
-aarch64-linux-ld: ecc.c:(.text+0xff4): undefined reference to `crypto_put_default_rng'
+aarch64-linux-ld: drivers/gpu/drm/drm_fb_helper.o: in function `drm_fb_helper_alloc_fbi':
+(.text+0x10cc): undefined reference to `framebuffer_alloc'
 
-Move the 'select CRYPTO_DEFAULT_RNG' statement into the correct symbol.
+Tighten the dependency so it is only allowed in the case that DRM can
+link against FB.
 
-Fixes: 0d7a78643f69 ("crypto: ecrdsa - add EC-RDSA (GOST 34.10) algorithm")
-Fixes: 4e6602916bc6 ("crypto: ecdsa - Add support for ECDSA signature verification")
+Fixes: f611b1e7624c ("drm: Avoid circular dependencies for CONFIG_FB")
+Link: https://lore.kernel.org/all/20210721152211.2706171-1-arnd@kernel.org/
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210927142816.2069269-1-arnd@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/Kconfig | 2 +-
+ drivers/gpu/drm/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/crypto/Kconfig b/crypto/Kconfig
-index 536df4b6b825c..285f82647d2b7 100644
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -233,12 +233,12 @@ config CRYPTO_DH
- 
- config CRYPTO_ECC
- 	tristate
-+	select CRYPTO_RNG_DEFAULT
- 
- config CRYPTO_ECDH
- 	tristate "ECDH algorithm"
- 	select CRYPTO_ECC
- 	select CRYPTO_KPP
--	select CRYPTO_RNG_DEFAULT
- 	help
- 	  Generic implementation of the ECDH algorithm
- 
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index cea777ae7fb92..9199f53861cac 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -103,7 +103,7 @@ config DRM_DEBUG_DP_MST_TOPOLOGY_REFS
+ config DRM_FBDEV_EMULATION
+ 	bool "Enable legacy fbdev support for your modesetting driver"
+ 	depends on DRM
+-	depends on FB
++	depends on FB=y || FB=DRM
+ 	select DRM_KMS_HELPER
+ 	select FB_CFB_FILLRECT
+ 	select FB_CFB_COPYAREA
 -- 
 2.33.0
 
