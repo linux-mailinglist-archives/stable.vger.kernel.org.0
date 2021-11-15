@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B7E74524A0
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:37:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD7334521AA
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:03:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380800AbhKPBkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:40:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36786 "EHLO mail.kernel.org"
+        id S241216AbhKPBGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:06:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241368AbhKOS1q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:27:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0E5663435;
-        Mon, 15 Nov 2021 17:57:00 +0000 (UTC)
+        id S245452AbhKOTUe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:20:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EA356353D;
+        Mon, 15 Nov 2021 18:34:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999021;
-        bh=qlmn6Bgw0UqFDSuKTeL9xceGwLBTOC+lDycFXeBxUDI=;
+        s=korg; t=1637001294;
+        bh=3rWkvLQMX4G20KChSH47VaCpvUP56uJTMo/FwsC88jQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KPHWJGieOHZSsOBjZQM53+xVmCEdwp0bS7NqUnwUYplr5Og9bKNroabaA1wQRIl4a
-         Z4fE06mSHUJA2zm0Q7Abf/uvg8QsRw9HPyBDxc7Ax1bTWKsVximBaR6FxdGVA8O8Cv
-         LbI3FKMTlyoBkVtFslrlZ+ekxmvPFiAOu4xKDz/4=
+        b=PSSRngio2CXxc5+zrSRvM9j/zSGBjt+ithN4DuGeErmzxZrDNjNRksFFyX5Aqf8nW
+         QVzkyZQavBxRxWpPzA0+SJkmVFNnFk2twZhMNEr15DHs1Uy7q6O40HsFFyzkN/2Sbm
+         raMGF1cXUuCAZMm5BMbywHDmlKm1/r/Owew/RdB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
-        Li Yang <leoyang.li@nxp.com>
-Subject: [PATCH 5.14 148/849] soc: fsl: dpio: use the combined functions to protect critical zone
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 136/917] ifb: fix building without CONFIG_NET_CLS_ACT
 Date:   Mon, 15 Nov 2021 17:53:51 +0100
-Message-Id: <20211115165425.145712222@linuxfoundation.org>
+Message-Id: <20211115165433.380288151@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,87 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Li <Meng.Li@windriver.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit dc7e5940aad6641bd5ab33ea8b21c4b3904d989f upstream.
+commit 7444d706be31753f65052c7f6325fc8470cc1789 upstream.
 
-In orininal code, use 2 function spin_lock() and local_irq_save() to
-protect the critical zone. But when enable the kernel debug config,
-there are below inconsistent lock state detected.
-================================
-WARNING: inconsistent lock state
-5.10.63-yocto-standard #1 Not tainted
---------------------------------
-inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
-lock_torture_wr/226 [HC0[0]:SC1[5]:HE1:SE0] takes:
-ffff002005b2dd80 (&p->access_spinlock){+.?.}-{3:3}, at: qbman_swp_enqueue_multiple_mem_back+0x44/0x270
-{SOFTIRQ-ON-W} state was registered at:
-  lock_acquire.part.0+0xf8/0x250
-  lock_acquire+0x68/0x84
-  _raw_spin_lock+0x68/0x90
-  qbman_swp_enqueue_multiple_mem_back+0x44/0x270
-  ......
-  cryptomgr_test+0x38/0x60
-  kthread+0x158/0x164
-  ret_from_fork+0x10/0x38
-irq event stamp: 4498
-hardirqs last  enabled at (4498): [<ffff800010fcf980>] _raw_spin_unlock_irqrestore+0x90/0xb0
-hardirqs last disabled at (4497): [<ffff800010fcffc4>] _raw_spin_lock_irqsave+0xd4/0xe0
-softirqs last  enabled at (4458): [<ffff8000100108c4>] __do_softirq+0x674/0x724
-softirqs last disabled at (4465): [<ffff80001005b2a4>] __irq_exit_rcu+0x190/0x19c
+The driver no longer depends on this option, but it fails to
+build if it's disabled because the skb->tc_skip_classify is
+hidden behind an #ifdef:
 
-other info that might help us debug this:
- Possible unsafe locking scenario:
-       CPU0
-       ----
-  lock(&p->access_spinlock);
-  <Interrupt>
-    lock(&p->access_spinlock);
- *** DEADLOCK ***
+drivers/net/ifb.c:81:8: error: no member named 'tc_skip_classify' in 'struct sk_buff'
+                skb->tc_skip_classify = 1;
 
-So, in order to avoid deadlock, use the combined functions
-spin_lock_irqsave/spin_unlock_irqrestore() to protect critical zone.
+Use the same #ifdef around the assignment.
 
-Fixes: 3b2abda7d28c ("soc: fsl: dpio: Replace QMAN array mode with ring mode enqueue")
-Cc: stable@vger.kernel.org
-Signed-off-by: Meng Li <Meng.Li@windriver.com>
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Fixes: 046178e726c2 ("ifb: Depend on netfilter alternatively to tc")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/fsl/dpio/qbman-portal.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/net/ifb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/soc/fsl/dpio/qbman-portal.c
-+++ b/drivers/soc/fsl/dpio/qbman-portal.c
-@@ -732,8 +732,7 @@ int qbman_swp_enqueue_multiple_mem_back(
- 	int i, num_enqueued = 0;
- 	unsigned long irq_flags;
+--- a/drivers/net/ifb.c
++++ b/drivers/net/ifb.c
+@@ -76,7 +76,9 @@ static void ifb_ri_tasklet(struct taskle
  
--	spin_lock(&s->access_spinlock);
--	local_irq_save(irq_flags);
-+	spin_lock_irqsave(&s->access_spinlock, irq_flags);
+ 	while ((skb = __skb_dequeue(&txp->tq)) != NULL) {
+ 		skb->redirected = 0;
++#ifdef CONFIG_NET_CLS_ACT
+ 		skb->tc_skip_classify = 1;
++#endif
  
- 	half_mask = (s->eqcr.pi_ci_mask>>1);
- 	full_mask = s->eqcr.pi_ci_mask;
-@@ -744,8 +743,7 @@ int qbman_swp_enqueue_multiple_mem_back(
- 		s->eqcr.available = qm_cyc_diff(s->eqcr.pi_ring_size,
- 					eqcr_ci, s->eqcr.ci);
- 		if (!s->eqcr.available) {
--			local_irq_restore(irq_flags);
--			spin_unlock(&s->access_spinlock);
-+			spin_unlock_irqrestore(&s->access_spinlock, irq_flags);
- 			return 0;
- 		}
- 	}
-@@ -784,8 +782,7 @@ int qbman_swp_enqueue_multiple_mem_back(
- 	dma_wmb();
- 	qbman_write_register(s, QBMAN_CINH_SWP_EQCR_PI,
- 				(QB_RT_BIT)|(s->eqcr.pi)|s->eqcr.pi_vb);
--	local_irq_restore(irq_flags);
--	spin_unlock(&s->access_spinlock);
-+	spin_unlock_irqrestore(&s->access_spinlock, irq_flags);
- 
- 	return num_enqueued;
- }
+ 		u64_stats_update_begin(&txp->tsync);
+ 		txp->tx_packets++;
 
 
