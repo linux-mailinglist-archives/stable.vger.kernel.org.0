@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E903245208B
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:52:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60147452094
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 01:52:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345756AbhKPAzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 19:55:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
+        id S1345324AbhKPAzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 19:55:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245720AbhKOTVF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245733AbhKOTVF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:21:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0237163287;
-        Mon, 15 Nov 2021 18:40:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8CC363288;
+        Mon, 15 Nov 2021 18:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637001608;
-        bh=U6fQnsNKbPTE11NFNlm0+xZgCeG7JwAaZO672gNR+qs=;
+        s=korg; t=1637001616;
+        bh=nnoI8PKTNJPb58Rsneu+k3K8BYiYVFKucbDiQSgEg9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VEUiCdYzBz2Ivn9mldFtBKKss5UAwxHj8KIc6q2J5pa+gWEC2DcD+KHs4oaCSoosm
-         vln6Daf/9lYFE5CnfGP76HLCKduPeRXJAWs+uMkW++W0YuFI5n+i4PmGLbzL6KzeeB
-         rSlXEZmNQnaUGAk6aTgzIB01qNFY/ceO8i28/744=
+        b=aieq6oJk3efVrELkxoJJBIjQcjU00eUZr30OT3MvAKm1ly4bSxu0ujQqwwI7IJpBq
+         hXU7G9M5bcAdtT+ut94GWpmaH6zWO7QKz//BCJo/Cif27NLj9U8OTgBpgnmbq8jWt/
+         5niGbw9fGKPSUK4pRPo92j0oCQAfxcamLh7cM6Jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, youling <youling257@gmail.com>,
+        Yifan Zhang <yifan1.zhang@amd.com>,
+        James Zhu <James.Zhu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 254/917] ACPI: battery: Accept charges over the design capacity as full
-Date:   Mon, 15 Nov 2021 17:55:49 +0100
-Message-Id: <20211115165437.397894404@linuxfoundation.org>
+Subject: [PATCH 5.15 257/917] drm/amdkfd: fix resume error when iommu disabled in Picasso
+Date:   Mon, 15 Nov 2021 17:55:52 +0100
+Message-Id: <20211115165437.509025737@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -43,39 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: André Almeida <andrealmeid@collabora.com>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-[ Upstream commit 2835f327bd1240508db2c89fe94a056faa53c49a ]
+[ Upstream commit 6f4b590aae217da16cfa44039a2abcfb209137ab ]
 
-Some buggy firmware and/or brand new batteries can support a charge that's
-slightly over the reported design capacity. In such cases, the kernel will
-report to userspace that the charging state of the battery is "Unknown",
-when in reality the battery charge is "Full", at least from the design
-capacity point of view. Make the fallback condition accepts capacities
-over the designed capacity so userspace knows that is full.
+When IOMMU disabled in sbios and kfd in iommuv2 path,
+IOMMU resume failure blocks system resume. Don't allow kfd to
+use iommu v2 when iommu is disabled.
 
-Signed-off-by: André Almeida <andrealmeid@collabora.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: youling <youling257@gmail.com>
+Tested-by: youling <youling257@gmail.com>
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Reviewed-by: James Zhu <James.Zhu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/battery.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index dae91f906cea9..8afa85d6eb6a7 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -169,7 +169,7 @@ static int acpi_battery_is_charged(struct acpi_battery *battery)
- 		return 1;
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+index a6afacc3b10cd..88c483f699894 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -916,6 +916,7 @@ bool kgd2kfd_device_init(struct kfd_dev *kfd,
+ 	kfd_double_confirm_iommu_support(kfd);
  
- 	/* fallback to using design values for broken batteries */
--	if (battery->design_capacity == battery->capacity_now)
-+	if (battery->design_capacity <= battery->capacity_now)
- 		return 1;
- 
- 	/* we don't do any sort of metric based on percentages */
+ 	if (kfd_iommu_device_init(kfd)) {
++		kfd->use_iommu_v2 = false;
+ 		dev_err(kfd_device, "Error initializing iommuv2\n");
+ 		goto device_iommu_error;
+ 	}
 -- 
 2.33.0
 
