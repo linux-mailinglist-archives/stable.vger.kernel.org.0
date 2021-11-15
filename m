@@ -2,37 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B11B2450CFD
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:44:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35B0A451075
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:46:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238668AbhKORrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:47:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57916 "EHLO mail.kernel.org"
+        id S232239AbhKOStQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:49:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238597AbhKORpF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:45:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 871FE63301;
-        Mon, 15 Nov 2021 17:29:04 +0000 (UTC)
+        id S242817AbhKOSq0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:46:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FB476339D;
+        Mon, 15 Nov 2021 18:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997345;
-        bh=FA/whSKfc6AZFZ5AtqYBKN0cEkCT0RM2sc268UDraj0=;
+        s=korg; t=1636999605;
+        bh=vqyGbOdGO/ysyLk+d9EPBo84834nVWtweDJPqQX0Qf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c0julkH/958GGjgV7UDMPCs7xcVpi5/tFCD4jsYgV/8y1YWNxvLC1Q6tXeMYncGGv
-         mweVjx2ElhYjtSJjpg+uGChRKLUrZOppN9jxOvgzB2qbtb7svkfFPpz9yywiUallCg
-         y2OyeNGsaXobrBfQiAOHJ586GLyPokTJ4NJXKLdM=
+        b=GYK9hJNjO2PS/AMfmzz3OrClEvKOi8HdLcXcYPEZBXdwyOH3XezUOiwvA4rZz9MbS
+         LLdpadookJlrp/wHOJLeICBeW/V0EN6Wm5GwA4xbvL7Sj9aWLRY9vDWir6QEQcU1FE
+         s39lwDBXtD9JgaumLQ40MudshHbrQ2Y2TqFh4VDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        Guo Ren <guoren@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Jisheng Zhang <jszhang@kernel.org>,
+        Abaci <abaci@linux.alibaba.com>,
+        Michael Wang <yun.wang@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 082/575] rds: stop using dmapool
-Date:   Mon, 15 Nov 2021 17:56:47 +0100
-Message-Id: <20211115165346.481910735@linuxfoundation.org>
+Subject: [PATCH 5.14 325/849] ftrace: do CPU checking after preemption disabled
+Date:   Mon, 15 Nov 2021 17:56:48 +0100
+Message-Id: <20211115165431.231469268@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,430 +62,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: 王贇 <yun.wang@linux.alibaba.com>
 
-[ Upstream commit 42f2611cc1738b201701e717246e11e86bef4e1e ]
+[ Upstream commit d33cc657372366a8959f099c619a208b4c5dc664 ]
 
-RDMA ULPs should only perform DMA through the ib_dma_* API instead of
-using the hidden dma_device directly.  In addition using the dma coherent
-API family that dmapool is a part of can be very ineffcient on plaforms
-that are not DMA coherent.  Switch to use slab allocations and the
-ib_dma_* APIs instead.
+With CONFIG_DEBUG_PREEMPT we observed reports like:
 
-Link: https://lore.kernel.org/r/20201106181941.1878556-6-hch@lst.de
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+  BUG: using smp_processor_id() in preemptible
+  caller is perf_ftrace_function_call+0x6f/0x2e0
+  CPU: 1 PID: 680 Comm: a.out Not tainted
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x8d/0xcf
+   check_preemption_disabled+0x104/0x110
+   ? optimize_nops.isra.7+0x230/0x230
+   ? text_poke_bp_batch+0x9f/0x310
+   perf_ftrace_function_call+0x6f/0x2e0
+   ...
+   __text_poke+0x5/0x620
+   text_poke_bp_batch+0x9f/0x310
+
+This telling us the CPU could be changed after task is preempted, and
+the checking on CPU before preemption will be invalid.
+
+Since now ftrace_test_recursion_trylock() will help to disable the
+preemption, this patch just do the checking after trylock() to address
+the issue.
+
+Link: https://lkml.kernel.org/r/54880691-5fe2-33e7-d12f-1fa6136f5183@linux.alibaba.com
+
+CC: Steven Rostedt <rostedt@goodmis.org>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Miroslav Benes <mbenes@suse.cz>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Jisheng Zhang <jszhang@kernel.org>
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/ib.c      |  10 ----
- net/rds/ib.h      |   6 ---
- net/rds/ib_cm.c   | 128 ++++++++++++++++++++++++++++------------------
- net/rds/ib_recv.c |  18 +++++--
- net/rds/ib_send.c |   8 +++
- 5 files changed, 101 insertions(+), 69 deletions(-)
+ kernel/trace/trace_event_perf.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/rds/ib.c b/net/rds/ib.c
-index deecbdcdae84e..24c9a9005a6fb 100644
---- a/net/rds/ib.c
-+++ b/net/rds/ib.c
-@@ -30,7 +30,6 @@
-  * SOFTWARE.
-  *
-  */
--#include <linux/dmapool.h>
- #include <linux/kernel.h>
- #include <linux/in.h>
- #include <linux/if.h>
-@@ -108,7 +107,6 @@ static void rds_ib_dev_free(struct work_struct *work)
- 		rds_ib_destroy_mr_pool(rds_ibdev->mr_1m_pool);
- 	if (rds_ibdev->pd)
- 		ib_dealloc_pd(rds_ibdev->pd);
--	dma_pool_destroy(rds_ibdev->rid_hdrs_pool);
+diff --git a/kernel/trace/trace_event_perf.c b/kernel/trace/trace_event_perf.c
+index 03be4435d103f..50cd5a1a7ab4a 100644
+--- a/kernel/trace/trace_event_perf.c
++++ b/kernel/trace/trace_event_perf.c
+@@ -441,13 +441,13 @@ perf_ftrace_function_call(unsigned long ip, unsigned long parent_ip,
+ 	if (!rcu_is_watching())
+ 		return;
  
- 	list_for_each_entry_safe(i_ipaddr, i_next, &rds_ibdev->ipaddr_list, list) {
- 		list_del(&i_ipaddr->list);
-@@ -191,14 +189,6 @@ static int rds_ib_add_one(struct ib_device *device)
- 		rds_ibdev->pd = NULL;
- 		goto put_dev;
- 	}
--	rds_ibdev->rid_hdrs_pool = dma_pool_create(device->name,
--						   device->dma_device,
--						   sizeof(struct rds_header),
--						   L1_CACHE_BYTES, 0);
--	if (!rds_ibdev->rid_hdrs_pool) {
--		ret = -ENOMEM;
--		goto put_dev;
--	}
- 
- 	rds_ibdev->mr_1m_pool =
- 		rds_ib_create_mr_pool(rds_ibdev, RDS_IB_MR_1M_POOL);
-diff --git a/net/rds/ib.h b/net/rds/ib.h
-index c23a11d9ad362..2ba71102b1f1f 100644
---- a/net/rds/ib.h
-+++ b/net/rds/ib.h
-@@ -246,7 +246,6 @@ struct rds_ib_device {
- 	struct list_head	conn_list;
- 	struct ib_device	*dev;
- 	struct ib_pd		*pd;
--	struct dma_pool		*rid_hdrs_pool; /* RDS headers DMA pool */
- 	u8			odp_capable:1;
- 
- 	unsigned int		max_mrs;
-@@ -380,11 +379,6 @@ int rds_ib_cm_handle_connect(struct rdma_cm_id *cm_id,
- int rds_ib_cm_initiate_connect(struct rdma_cm_id *cm_id, bool isv6);
- void rds_ib_cm_connect_complete(struct rds_connection *conn,
- 				struct rdma_cm_event *event);
--struct rds_header **rds_dma_hdrs_alloc(struct ib_device *ibdev,
--				       struct dma_pool *pool,
--				       dma_addr_t **dma_addrs, u32 num_hdrs);
--void rds_dma_hdrs_free(struct dma_pool *pool, struct rds_header **hdrs,
--		       dma_addr_t *dma_addrs, u32 num_hdrs);
- 
- #define rds_ib_conn_error(conn, fmt...) \
- 	__rds_ib_conn_error(conn, KERN_WARNING "RDS/IB: " fmt)
-diff --git a/net/rds/ib_cm.c b/net/rds/ib_cm.c
-index b36b60668b1da..f5cbe963cd8f7 100644
---- a/net/rds/ib_cm.c
-+++ b/net/rds/ib_cm.c
-@@ -30,7 +30,6 @@
-  * SOFTWARE.
-  *
-  */
--#include <linux/dmapool.h>
- #include <linux/kernel.h>
- #include <linux/in.h>
- #include <linux/slab.h>
-@@ -441,42 +440,87 @@ static inline void ibdev_put_vector(struct rds_ib_device *rds_ibdev, int index)
- 	rds_ibdev->vector_load[index]--;
- }
- 
-+static void rds_dma_hdr_free(struct ib_device *dev, struct rds_header *hdr,
-+		dma_addr_t dma_addr, enum dma_data_direction dir)
-+{
-+	ib_dma_unmap_single(dev, dma_addr, sizeof(*hdr), dir);
-+	kfree(hdr);
-+}
-+
-+static struct rds_header *rds_dma_hdr_alloc(struct ib_device *dev,
-+		dma_addr_t *dma_addr, enum dma_data_direction dir)
-+{
-+	struct rds_header *hdr;
-+
-+	hdr = kzalloc_node(sizeof(*hdr), GFP_KERNEL, ibdev_to_node(dev));
-+	if (!hdr)
-+		return NULL;
-+
-+	*dma_addr = ib_dma_map_single(dev, hdr, sizeof(*hdr),
-+				      DMA_BIDIRECTIONAL);
-+	if (ib_dma_mapping_error(dev, *dma_addr)) {
-+		kfree(hdr);
-+		return NULL;
-+	}
-+
-+	return hdr;
-+}
-+
-+/* Free the DMA memory used to store struct rds_header.
-+ *
-+ * @dev: the RDS IB device
-+ * @hdrs: pointer to the array storing DMA memory pointers
-+ * @dma_addrs: pointer to the array storing DMA addresses
-+ * @num_hdars: number of headers to free.
-+ */
-+static void rds_dma_hdrs_free(struct rds_ib_device *dev,
-+		struct rds_header **hdrs, dma_addr_t *dma_addrs, u32 num_hdrs,
-+		enum dma_data_direction dir)
-+{
-+	u32 i;
-+
-+	for (i = 0; i < num_hdrs; i++)
-+		rds_dma_hdr_free(dev->dev, hdrs[i], dma_addrs[i], dir);
-+	kvfree(hdrs);
-+	kvfree(dma_addrs);
-+}
-+
-+
- /* Allocate DMA coherent memory to be used to store struct rds_header for
-  * sending/receiving packets.  The pointers to the DMA memory and the
-  * associated DMA addresses are stored in two arrays.
-  *
-- * @ibdev: the IB device
-- * @pool: the DMA memory pool
-+ * @dev: the RDS IB device
-  * @dma_addrs: pointer to the array for storing DMA addresses
-  * @num_hdrs: number of headers to allocate
-  *
-  * It returns the pointer to the array storing the DMA memory pointers.  On
-  * error, NULL pointer is returned.
-  */
--struct rds_header **rds_dma_hdrs_alloc(struct ib_device *ibdev,
--				       struct dma_pool *pool,
--				       dma_addr_t **dma_addrs, u32 num_hdrs)
-+static struct rds_header **rds_dma_hdrs_alloc(struct rds_ib_device *dev,
-+		dma_addr_t **dma_addrs, u32 num_hdrs,
-+		enum dma_data_direction dir)
- {
- 	struct rds_header **hdrs;
- 	dma_addr_t *hdr_daddrs;
- 	u32 i;
- 
- 	hdrs = kvmalloc_node(sizeof(*hdrs) * num_hdrs, GFP_KERNEL,
--			     ibdev_to_node(ibdev));
-+			     ibdev_to_node(dev->dev));
- 	if (!hdrs)
- 		return NULL;
- 
- 	hdr_daddrs = kvmalloc_node(sizeof(*hdr_daddrs) * num_hdrs, GFP_KERNEL,
--				   ibdev_to_node(ibdev));
-+				   ibdev_to_node(dev->dev));
- 	if (!hdr_daddrs) {
- 		kvfree(hdrs);
- 		return NULL;
- 	}
- 
- 	for (i = 0; i < num_hdrs; i++) {
--		hdrs[i] = dma_pool_zalloc(pool, GFP_KERNEL, &hdr_daddrs[i]);
-+		hdrs[i] = rds_dma_hdr_alloc(dev->dev, &hdr_daddrs[i], dir);
- 		if (!hdrs[i]) {
--			rds_dma_hdrs_free(pool, hdrs, hdr_daddrs, i);
-+			rds_dma_hdrs_free(dev, hdrs, hdr_daddrs, i, dir);
- 			return NULL;
- 		}
- 	}
-@@ -485,24 +529,6 @@ struct rds_header **rds_dma_hdrs_alloc(struct ib_device *ibdev,
- 	return hdrs;
- }
- 
--/* Free the DMA memory used to store struct rds_header.
-- *
-- * @pool: the DMA memory pool
-- * @hdrs: pointer to the array storing DMA memory pointers
-- * @dma_addrs: pointer to the array storing DMA addresses
-- * @num_hdars: number of headers to free.
-- */
--void rds_dma_hdrs_free(struct dma_pool *pool, struct rds_header **hdrs,
--		       dma_addr_t *dma_addrs, u32 num_hdrs)
--{
--	u32 i;
+-	if ((unsigned long)ops->private != smp_processor_id())
+-		return;
 -
--	for (i = 0; i < num_hdrs; i++)
--		dma_pool_free(pool, hdrs[i], dma_addrs[i]);
--	kvfree(hdrs);
--	kvfree(dma_addrs);
--}
--
- /*
-  * This needs to be very careful to not leave IS_ERR pointers around for
-  * cleanup to trip over.
-@@ -516,7 +542,6 @@ static int rds_ib_setup_qp(struct rds_connection *conn)
- 	struct rds_ib_device *rds_ibdev;
- 	unsigned long max_wrs;
- 	int ret, fr_queue_space;
--	struct dma_pool *pool;
+ 	bit = ftrace_test_recursion_trylock(ip, parent_ip);
+ 	if (bit < 0)
+ 		return;
+ 
++	if ((unsigned long)ops->private != smp_processor_id())
++		goto out;
++
+ 	event = container_of(ops, struct perf_event, ftrace_ops);
  
  	/*
- 	 * It's normal to see a null device if an incoming connection races
-@@ -612,25 +637,26 @@ static int rds_ib_setup_qp(struct rds_connection *conn)
- 		goto recv_cq_out;
- 	}
- 
--	pool = rds_ibdev->rid_hdrs_pool;
--	ic->i_send_hdrs = rds_dma_hdrs_alloc(dev, pool, &ic->i_send_hdrs_dma,
--					     ic->i_send_ring.w_nr);
-+	ic->i_send_hdrs = rds_dma_hdrs_alloc(rds_ibdev, &ic->i_send_hdrs_dma,
-+					     ic->i_send_ring.w_nr,
-+					     DMA_TO_DEVICE);
- 	if (!ic->i_send_hdrs) {
- 		ret = -ENOMEM;
- 		rdsdebug("DMA send hdrs alloc failed\n");
- 		goto qp_out;
- 	}
- 
--	ic->i_recv_hdrs = rds_dma_hdrs_alloc(dev, pool, &ic->i_recv_hdrs_dma,
--					     ic->i_recv_ring.w_nr);
-+	ic->i_recv_hdrs = rds_dma_hdrs_alloc(rds_ibdev, &ic->i_recv_hdrs_dma,
-+					     ic->i_recv_ring.w_nr,
-+					     DMA_FROM_DEVICE);
- 	if (!ic->i_recv_hdrs) {
- 		ret = -ENOMEM;
- 		rdsdebug("DMA recv hdrs alloc failed\n");
- 		goto send_hdrs_dma_out;
- 	}
- 
--	ic->i_ack = dma_pool_zalloc(pool, GFP_KERNEL,
--				    &ic->i_ack_dma);
-+	ic->i_ack = rds_dma_hdr_alloc(rds_ibdev->dev, &ic->i_ack_dma,
-+				      DMA_TO_DEVICE);
- 	if (!ic->i_ack) {
- 		ret = -ENOMEM;
- 		rdsdebug("DMA ack header alloc failed\n");
-@@ -666,18 +692,19 @@ sends_out:
- 	vfree(ic->i_sends);
- 
- ack_dma_out:
--	dma_pool_free(pool, ic->i_ack, ic->i_ack_dma);
-+	rds_dma_hdr_free(rds_ibdev->dev, ic->i_ack, ic->i_ack_dma,
-+			 DMA_TO_DEVICE);
- 	ic->i_ack = NULL;
- 
- recv_hdrs_dma_out:
--	rds_dma_hdrs_free(pool, ic->i_recv_hdrs, ic->i_recv_hdrs_dma,
--			  ic->i_recv_ring.w_nr);
-+	rds_dma_hdrs_free(rds_ibdev, ic->i_recv_hdrs, ic->i_recv_hdrs_dma,
-+			  ic->i_recv_ring.w_nr, DMA_FROM_DEVICE);
- 	ic->i_recv_hdrs = NULL;
- 	ic->i_recv_hdrs_dma = NULL;
- 
- send_hdrs_dma_out:
--	rds_dma_hdrs_free(pool, ic->i_send_hdrs, ic->i_send_hdrs_dma,
--			  ic->i_send_ring.w_nr);
-+	rds_dma_hdrs_free(rds_ibdev, ic->i_send_hdrs, ic->i_send_hdrs_dma,
-+			  ic->i_send_ring.w_nr, DMA_TO_DEVICE);
- 	ic->i_send_hdrs = NULL;
- 	ic->i_send_hdrs_dma = NULL;
- 
-@@ -1110,29 +1137,30 @@ void rds_ib_conn_path_shutdown(struct rds_conn_path *cp)
- 		}
- 
- 		if (ic->rds_ibdev) {
--			struct dma_pool *pool;
--
--			pool = ic->rds_ibdev->rid_hdrs_pool;
--
- 			/* then free the resources that ib callbacks use */
- 			if (ic->i_send_hdrs) {
--				rds_dma_hdrs_free(pool, ic->i_send_hdrs,
-+				rds_dma_hdrs_free(ic->rds_ibdev,
-+						  ic->i_send_hdrs,
- 						  ic->i_send_hdrs_dma,
--						  ic->i_send_ring.w_nr);
-+						  ic->i_send_ring.w_nr,
-+						  DMA_TO_DEVICE);
- 				ic->i_send_hdrs = NULL;
- 				ic->i_send_hdrs_dma = NULL;
- 			}
- 
- 			if (ic->i_recv_hdrs) {
--				rds_dma_hdrs_free(pool, ic->i_recv_hdrs,
-+				rds_dma_hdrs_free(ic->rds_ibdev,
-+						  ic->i_recv_hdrs,
- 						  ic->i_recv_hdrs_dma,
--						  ic->i_recv_ring.w_nr);
-+						  ic->i_recv_ring.w_nr,
-+						  DMA_FROM_DEVICE);
- 				ic->i_recv_hdrs = NULL;
- 				ic->i_recv_hdrs_dma = NULL;
- 			}
- 
- 			if (ic->i_ack) {
--				dma_pool_free(pool, ic->i_ack, ic->i_ack_dma);
-+				rds_dma_hdr_free(ic->rds_ibdev->dev, ic->i_ack,
-+						 ic->i_ack_dma, DMA_TO_DEVICE);
- 				ic->i_ack = NULL;
- 			}
- 		} else {
-diff --git a/net/rds/ib_recv.c b/net/rds/ib_recv.c
-index 3cffcec5fb371..6fdedd9dbbc28 100644
---- a/net/rds/ib_recv.c
-+++ b/net/rds/ib_recv.c
-@@ -662,10 +662,16 @@ static void rds_ib_send_ack(struct rds_ib_connection *ic, unsigned int adv_credi
- 	seq = rds_ib_get_ack(ic);
- 
- 	rdsdebug("send_ack: ic %p ack %llu\n", ic, (unsigned long long) seq);
-+
-+	ib_dma_sync_single_for_cpu(ic->rds_ibdev->dev, ic->i_ack_dma,
-+				   sizeof(*hdr), DMA_TO_DEVICE);
- 	rds_message_populate_header(hdr, 0, 0, 0);
- 	hdr->h_ack = cpu_to_be64(seq);
- 	hdr->h_credit = adv_credits;
- 	rds_message_make_checksum(hdr);
-+	ib_dma_sync_single_for_device(ic->rds_ibdev->dev, ic->i_ack_dma,
-+				      sizeof(*hdr), DMA_TO_DEVICE);
-+
- 	ic->i_ack_queued = jiffies;
- 
- 	ret = ib_post_send(ic->i_cm_id->qp, &ic->i_ack_wr, NULL);
-@@ -845,6 +851,7 @@ static void rds_ib_process_recv(struct rds_connection *conn,
- 	struct rds_ib_connection *ic = conn->c_transport_data;
- 	struct rds_ib_incoming *ibinc = ic->i_ibinc;
- 	struct rds_header *ihdr, *hdr;
-+	dma_addr_t dma_addr = ic->i_recv_hdrs_dma[recv - ic->i_recvs];
- 
- 	/* XXX shut down the connection if port 0,0 are seen? */
- 
-@@ -863,6 +870,8 @@ static void rds_ib_process_recv(struct rds_connection *conn,
- 
- 	ihdr = ic->i_recv_hdrs[recv - ic->i_recvs];
- 
-+	ib_dma_sync_single_for_cpu(ic->rds_ibdev->dev, dma_addr,
-+				   sizeof(*ihdr), DMA_FROM_DEVICE);
- 	/* Validate the checksum. */
- 	if (!rds_message_verify_checksum(ihdr)) {
- 		rds_ib_conn_error(conn, "incoming message "
-@@ -870,7 +879,7 @@ static void rds_ib_process_recv(struct rds_connection *conn,
- 		       "forcing a reconnect\n",
- 		       &conn->c_faddr);
- 		rds_stats_inc(s_recv_drop_bad_checksum);
--		return;
-+		goto done;
- 	}
- 
- 	/* Process the ACK sequence which comes with every packet */
-@@ -899,7 +908,7 @@ static void rds_ib_process_recv(struct rds_connection *conn,
- 		 */
- 		rds_ib_frag_free(ic, recv->r_frag);
- 		recv->r_frag = NULL;
--		return;
-+		goto done;
- 	}
- 
- 	/*
-@@ -933,7 +942,7 @@ static void rds_ib_process_recv(struct rds_connection *conn,
- 		    hdr->h_dport != ihdr->h_dport) {
- 			rds_ib_conn_error(conn,
- 				"fragment header mismatch; forcing reconnect\n");
--			return;
-+			goto done;
- 		}
- 	}
- 
-@@ -965,6 +974,9 @@ static void rds_ib_process_recv(struct rds_connection *conn,
- 
- 		rds_inc_put(&ibinc->ii_inc);
- 	}
-+done:
-+	ib_dma_sync_single_for_device(ic->rds_ibdev->dev, dma_addr,
-+				      sizeof(*ihdr), DMA_FROM_DEVICE);
- }
- 
- void rds_ib_recv_cqe_handler(struct rds_ib_connection *ic,
-diff --git a/net/rds/ib_send.c b/net/rds/ib_send.c
-index dfe778220657a..92b4a8689aae7 100644
---- a/net/rds/ib_send.c
-+++ b/net/rds/ib_send.c
-@@ -638,6 +638,10 @@ int rds_ib_xmit(struct rds_connection *conn, struct rds_message *rm,
- 		send->s_sge[0].length = sizeof(struct rds_header);
- 		send->s_sge[0].lkey = ic->i_pd->local_dma_lkey;
- 
-+		ib_dma_sync_single_for_cpu(ic->rds_ibdev->dev,
-+					   ic->i_send_hdrs_dma[pos],
-+					   sizeof(struct rds_header),
-+					   DMA_TO_DEVICE);
- 		memcpy(ic->i_send_hdrs[pos], &rm->m_inc.i_hdr,
- 		       sizeof(struct rds_header));
- 
-@@ -688,6 +692,10 @@ int rds_ib_xmit(struct rds_connection *conn, struct rds_message *rm,
- 			adv_credits = 0;
- 			rds_ib_stats_inc(s_ib_tx_credit_updates);
- 		}
-+		ib_dma_sync_single_for_device(ic->rds_ibdev->dev,
-+					      ic->i_send_hdrs_dma[pos],
-+					      sizeof(struct rds_header),
-+					      DMA_TO_DEVICE);
- 
- 		if (prev)
- 			prev->s_wr.next = &send->s_wr;
 -- 
 2.33.0
 
