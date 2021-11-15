@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEA44451193
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:07:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B15EB451194
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:07:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243183AbhKOTJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232678AbhKOTJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Nov 2021 14:09:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38250 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243400AbhKOTHc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:07:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD80E633F4;
-        Mon, 15 Nov 2021 18:17:14 +0000 (UTC)
+        id S243639AbhKOTHi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:07:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59A2C633F2;
+        Mon, 15 Nov 2021 18:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000235;
-        bh=CdI08ViV6BvG1YXh6LB3amNdngiUBTB8LPRQeIAyfvg=;
+        s=korg; t=1637000237;
+        bh=WCUOC4xj9O4y5q+F0HpRVftJrg7HIY95Bgy4/VkkGcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nxVBiAeiGzpE6m5U9loZEcZNYW9oW1D7RahxMl3tCqPoiynxivVQ++FQ9wh/Di5AO
-         sCVyBSaz5YLHrRlwul2BL5l9dLBj9LpF1yOkOGhBuQRCe1895mN0tDlOLJAj89Jbhl
-         uruppo2StClKMqWT6hcXhLj5ki6nB+1PBDF31O/E=
+        b=CUFmHy9V+SM+0LNCfFLFyIpWjzh5/TRR0otQ/hI3x0AvCvi2UOCkV/KKIBUgr7hhp
+         ymdZcaoLVYS3apfzudtRYz71tUpSWgLH1RtolUWVybtIOMNGYEzJVMj6N+DK4HwWeM
+         OcMJ5yFyR7cG7bBVrBds/BpSYl0LMNC090qIgg7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Saxena <sumit.saxena@broadcom.com>,
+        stable@vger.kernel.org, Changyuan Lyu <changyuanl@google.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Igor Pylypiv <ipylypiv@google.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 586/849] scsi: megaraid_sas: Fix concurrent access to ISR between IRQ polling and real interrupt
-Date:   Mon, 15 Nov 2021 18:01:09 +0100
-Message-Id: <20211115165440.075540650@linuxfoundation.org>
+Subject: [PATCH 5.14 587/849] scsi: pm80xx: Fix misleading log statement in pm8001_mpi_get_nvmd_resp()
+Date:   Mon, 15 Nov 2021 18:01:10 +0100
+Message-Id: <20211115165440.107963922@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -40,71 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumit Saxena <sumit.saxena@broadcom.com>
+From: Igor Pylypiv <ipylypiv@google.com>
 
-[ Upstream commit e7dcc514a49e74051b869697d5ab0370f6301d57 ]
+[ Upstream commit 4084a7235d38311a77c86ba69ba849bd787db87b ]
 
-IRQ polling thread calls ISR after enable_irq() to handle any missed I/O
-completion. The atomic flag "in_used" was added to have the synchronization
-between the IRQ polling thread and the interrupt context. There is a bug
-around it leading to a race condition.
+pm8001_mpi_get_nvmd_resp() handles a GET_NVMD_DATA response, not a
+SET_NVMD_DATA response, as the log statement implies.
 
-Below is the sequence:
-
- - IRQ polling thread accesses ISR, fetches the reply descriptor.
-
- - Real interrupt arrives and pre-empts polling thread (enable_irq() is
-   already called).
-
- - Interrupt context picks the same reply descriptor as fetched by polling
-   thread, processes it, and exits.
-
- - Polling thread resumes and processes the descriptor which is already
-   processed by interrupt thread leads to kernel crash.
-
-Setting the "in_used" flag before fetching the reply descriptor ensures
-synchronized access to ISR.
-
-Link: https://www.spinics.net/lists/linux-scsi/msg159440.html
-Link: https://lore.kernel.org/r/20210929124022.24605-2-sumit.saxena@broadcom.com
-Fixes: 9bedd36e9146 ("scsi: megaraid_sas: Handle missing interrupts while re-enabling IRQs")
-Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Fixes: 1f889b58716a ("scsi: pm80xx: Fix pm8001_mpi_get_nvmd_resp() race condition")
+Link: https://lore.kernel.org/r/20210929025847.646999-1-ipylypiv@google.com
+Reviewed-by: Changyuan Lyu <changyuanl@google.com>
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Igor Pylypiv <ipylypiv@google.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_fusion.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-index 06399c026a8d5..1ff2198583a71 100644
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -3530,6 +3530,9 @@ complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex,
- 	if (atomic_read(&instance->adprecovery) == MEGASAS_HW_CRITICAL_ERROR)
- 		return IRQ_HANDLED;
- 
-+	if (irq_context && !atomic_add_unless(&irq_context->in_used, 1, 1))
-+		return 0;
-+
- 	desc = fusion->reply_frames_desc[MSIxIndex] +
- 				fusion->last_reply_idx[MSIxIndex];
- 
-@@ -3540,11 +3543,11 @@ complete_cmd_fusion(struct megasas_instance *instance, u32 MSIxIndex,
- 	reply_descript_type = reply_desc->ReplyFlags &
- 		MPI2_RPY_DESCRIPT_FLAGS_TYPE_MASK;
- 
--	if (reply_descript_type == MPI2_RPY_DESCRIPT_FLAGS_UNUSED)
-+	if (reply_descript_type == MPI2_RPY_DESCRIPT_FLAGS_UNUSED) {
-+		if (irq_context)
-+			atomic_dec(&irq_context->in_used);
- 		return IRQ_NONE;
--
--	if (irq_context && !atomic_add_unless(&irq_context->in_used, 1, 1))
--		return 0;
-+	}
- 
- 	num_completed = 0;
- 
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index 17c0f26e683a9..bdbbd7b9988dc 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -3169,7 +3169,7 @@ pm8001_mpi_get_nvmd_resp(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 	 * fw_control_context->usrAddr
+ 	 */
+ 	complete(pm8001_ha->nvmd_completion);
+-	pm8001_dbg(pm8001_ha, MSG, "Set nvm data complete!\n");
++	pm8001_dbg(pm8001_ha, MSG, "Get nvmd data complete!\n");
+ 	ccb->task = NULL;
+ 	ccb->ccb_tag = 0xFFFFFFFF;
+ 	pm8001_tag_free(pm8001_ha, tag);
 -- 
 2.33.0
 
