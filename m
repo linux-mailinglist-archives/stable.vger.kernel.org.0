@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6B5D450EBF
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:17:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11507450C4B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:34:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241234AbhKOSTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:19:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53202 "EHLO mail.kernel.org"
+        id S231458AbhKORhM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:37:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240709AbhKOSNB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:13:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B57B63318;
-        Mon, 15 Nov 2021 17:48:04 +0000 (UTC)
+        id S237805AbhKOReR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:34:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9012E632B3;
+        Mon, 15 Nov 2021 17:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636998484;
-        bh=tbeSfVYlFf2HxaXqbUQJ/zFMIP2AIyjRpUVEK50cMvI=;
+        s=korg; t=1636996950;
+        bh=Q188tE+CFIfiwEELCFPdM1wmlgjeC6KOrGZlMsUFjpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dy+H2KKjjJ9N/SXdU3V0XYwzn0skff+rn0uNfjHj/F7mrl1AfkW9E2NZ7TLzsIUdj
-         mhGcMNTL8cfBLHGUykWkEC1Fxzm5XVp8uU4zEIaBU0OHAk/Sfxt4mKrBJUsNIsOC1J
-         cfhucUgyNhDkr4TuTiaE3n9A+cwG2iy16oHfkMK0=
+        b=t2XzknEqpQKVI56Fur3CWsdWoWOvV0fwEt7/AT2rKGz34JnTTZapWEwulXDIqn7KN
+         uUVeAyTEP3moxSvyybjEctH6+ZkHHCt6UXxJb139FIETFdYEUKfdaNFes1sqQCneS4
+         nJCQpdLfxNFh6w6robHde4pVgknQWI5iiILrZjIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 526/575] arm64: pgtable: make __pte_to_phys/__phys_to_pte_val inline functions
-Date:   Mon, 15 Nov 2021 18:04:11 +0100
-Message-Id: <20211115165401.857548697@linuxfoundation.org>
+Subject: [PATCH 5.4 328/355] net: hns3: allow configure ETS bandwidth of all TCs
+Date:   Mon, 15 Nov 2021 18:04:12 +0100
+Message-Id: <20211115165324.347100472@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-[ Upstream commit c7c386fbc20262c1d911c615c65db6a58667d92c ]
+[ Upstream commit 688db0c7a4a69ddc8b8143a1cac01eb20082a3aa ]
 
-gcc warns about undefined behavior the vmalloc code when building
-with CONFIG_ARM64_PA_BITS_52, when the 'idx++' in the argument to
-__phys_to_pte_val() is evaluated twice:
+Currently, driver only allow configuring ETS bandwidth of TCs according
+to the max TC number queried from firmware. However, the hardware actually
+supports 8 TCs and users may need to configure ETS bandwidth of all TCs,
+so remove the restriction.
 
-mm/vmalloc.c: In function 'vmap_pfn_apply':
-mm/vmalloc.c:2800:58: error: operation on 'data->idx' may be undefined [-Werror=sequence-point]
- 2800 |         *pte = pte_mkspecial(pfn_pte(data->pfns[data->idx++], data->prot));
-      |                                                 ~~~~~~~~~^~
-arch/arm64/include/asm/pgtable-types.h:25:37: note: in definition of macro '__pte'
-   25 | #define __pte(x)        ((pte_t) { (x) } )
-      |                                     ^
-arch/arm64/include/asm/pgtable.h:80:15: note: in expansion of macro '__phys_to_pte_val'
-   80 |         __pte(__phys_to_pte_val((phys_addr_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot))
-      |               ^~~~~~~~~~~~~~~~~
-mm/vmalloc.c:2800:30: note: in expansion of macro 'pfn_pte'
- 2800 |         *pte = pte_mkspecial(pfn_pte(data->pfns[data->idx++], data->prot));
-      |                              ^~~~~~~
-
-I have no idea why this never showed up earlier, but the safest
-workaround appears to be changing those macros into inline functions
-so the arguments get evaluated only once.
-
-Cc: Matthew Wilcox <willy@infradead.org>
-Fixes: 75387b92635e ("arm64: handle 52-bit physical addresses in page table entries")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211105075414.2553155-1-arnd@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 330baff5423b ("net: hns3: add ETS TC weight setting in SSU module")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/pgtable.h | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c  | 9 +--------
+ 2 files changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 10ffbc96ac31f..f3a70dc7c5942 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -69,9 +69,15 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
-  * page table entry, taking care of 52-bit addresses.
-  */
- #ifdef CONFIG_ARM64_PA_BITS_52
--#define __pte_to_phys(pte)	\
--	((pte_val(pte) & PTE_ADDR_LOW) | ((pte_val(pte) & PTE_ADDR_HIGH) << 36))
--#define __phys_to_pte_val(phys)	(((phys) | ((phys) >> 36)) & PTE_ADDR_MASK)
-+static inline phys_addr_t __pte_to_phys(pte_t pte)
-+{
-+	return (pte_val(pte) & PTE_ADDR_LOW) |
-+		((pte_val(pte) & PTE_ADDR_HIGH) << 36);
-+}
-+static inline pteval_t __phys_to_pte_val(phys_addr_t phys)
-+{
-+	return (phys | (phys >> 36)) & PTE_ADDR_MASK;
-+}
- #else
- #define __pte_to_phys(pte)	(pte_val(pte) & PTE_ADDR_MASK)
- #define __phys_to_pte_val(phys)	(phys)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+index 9076605403a74..bb22d91f6e53e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+@@ -124,7 +124,7 @@ static int hclge_ets_validate(struct hclge_dev *hdev, struct ieee_ets *ets,
+ 	if (ret)
+ 		return ret;
+ 
+-	for (i = 0; i < hdev->tc_max; i++) {
++	for (i = 0; i < HNAE3_MAX_TC; i++) {
+ 		switch (ets->tc_tsa[i]) {
+ 		case IEEE_8021QAZ_TSA_STRICT:
+ 			if (hdev->tm_info.tc_info[i].tc_sch_mode !=
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+index d98f0e2ec7aa3..8448607742a6b 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_tm.c
+@@ -974,7 +974,6 @@ static int hclge_tm_pri_tc_base_dwrr_cfg(struct hclge_dev *hdev)
+ 
+ static int hclge_tm_ets_tc_dwrr_cfg(struct hclge_dev *hdev)
+ {
+-#define DEFAULT_TC_WEIGHT	1
+ #define DEFAULT_TC_OFFSET	14
+ 
+ 	struct hclge_ets_tc_weight_cmd *ets_weight;
+@@ -987,13 +986,7 @@ static int hclge_tm_ets_tc_dwrr_cfg(struct hclge_dev *hdev)
+ 	for (i = 0; i < HNAE3_MAX_TC; i++) {
+ 		struct hclge_pg_info *pg_info;
+ 
+-		ets_weight->tc_weight[i] = DEFAULT_TC_WEIGHT;
+-
+-		if (!(hdev->hw_tc_map & BIT(i)))
+-			continue;
+-
+-		pg_info =
+-			&hdev->tm_info.pg_info[hdev->tm_info.tc_info[i].pgid];
++		pg_info = &hdev->tm_info.pg_info[hdev->tm_info.tc_info[i].pgid];
+ 		ets_weight->tc_weight[i] = pg_info->tc_dwrr[i];
+ 	}
+ 
 -- 
 2.33.0
 
