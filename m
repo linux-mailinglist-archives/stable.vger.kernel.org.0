@@ -2,33 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9494512E6
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 334D44512ED
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347554AbhKOTkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:40:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44608 "EHLO mail.kernel.org"
+        id S1347578AbhKOTk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:40:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245179AbhKOTTq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245184AbhKOTTq (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Nov 2021 14:19:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBB2C6350F;
-        Mon, 15 Nov 2021 18:29:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B55363509;
+        Mon, 15 Nov 2021 18:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000991;
-        bh=Xl9CXrdLPgcEC7lELflZA9TbHN8aE1cpmesjhxmrT6s=;
+        s=korg; t=1637000999;
+        bh=ykfntNMGx+jWRPwefqc1P5PJw2kiV1YB2oIUGAHgz+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HPYNKSnUzcA71e3wl92oeecj23ws1SlnX8fAltoPSxMNcKdPgJRFb5zBVApgqd+It
-         Ol8M5yCt5qxs8mcgQ47V15dasUQ+oQfLA/LiA+SNmu++T1EfdGu4jE02dZeodOZDPB
-         H3SMEBPpble9W/AhHr7YbWi2Ffu2MWLeiBEnh0Mw=
+        b=IwStAnlMcds+k48m17zKEOZSURn2qcI9huWj+Pd8QyiwjKpiu0tIup5Vqq2d/sFRf
+         J0qpflYNUarXMvNenf9K/2cKwnGDJwof+/lLT9kpSKv5k6KQ/tzN3/zQV9h5HPle9c
+         m4X6YbXSvxqqIw0dv8mQORaIsm5knmPcpTSIVbyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phoenix Huang <phoenix@emc.com.tw>,
-        Yufei Du <yufeidu@cs.unc.edu>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.15 004/917] Input: elantench - fix misreporting trackpoint coordinates
-Date:   Mon, 15 Nov 2021 17:51:39 +0100
-Message-Id: <20211115165428.878072157@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 007/917] ocfs2: fix data corruption on truncate
+Date:   Mon, 15 Nov 2021 17:51:42 +0100
+Message-Id: <20211115165428.973317827@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
 References: <20211115165428.722074685@linuxfoundation.org>
@@ -40,45 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phoenix Huang <phoenix@emc.com.tw>
+From: Jan Kara <jack@suse.cz>
 
-commit be896bd3b72b44126c55768f14c22a8729b0992e upstream.
+commit 839b63860eb3835da165642923120d305925561d upstream.
 
-Some firmwares occasionally report bogus data from trackpoint, with X or Y
-displacement being too large (outside of [-127, 127] range). Let's drop such
-packets so that we do not generate jumps.
+Patch series "ocfs2: Truncate data corruption fix".
 
-Signed-off-by: Phoenix Huang <phoenix@emc.com.tw>
-Tested-by: Yufei Du <yufeidu@cs.unc.edu>
-Link: https://lore.kernel.org/r/20210729010940.5752-1-phoenix@emc.com.tw
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
+corruption after conversion from inline format") didn't fix all the data
+corruption issues the customer started observing after 6dbf7bb55598
+("fs: Don't invalidate page buffers in block_write_full_page()") This
+time I have tracked them down to two bugs in ocfs2 truncation code.
+
+One bug (truncating page cache before clearing tail cluster and setting
+i_size) could cause data corruption even before 6dbf7bb55598, but before
+that commit it needed a race with page fault, after 6dbf7bb55598 it
+started to be pretty deterministic.
+
+Another bug (zeroing pages beyond old i_size) used to be harmless
+inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598
+in combination with the first bug it resulted in deterministic data
+corruption.
+
+Although fixing only the first problem is needed to stop data
+corruption, I've fixed both issues to make the code more robust.
+
+This patch (of 2):
+
+ocfs2_truncate_file() did unmap invalidate page cache pages before
+zeroing partial tail cluster and setting i_size.  Thus some pages could
+be left (and likely have left if the cluster zeroing happened) in the
+page cache beyond i_size after truncate finished letting user possibly
+see stale data once the file was extended again.  Also the tail cluster
+zeroing was not guaranteed to finish before truncate finished causing
+possible stale data exposure.  The problem started to be particularly
+easy to hit after commit 6dbf7bb55598 "fs: Don't invalidate page buffers
+in block_write_full_page()" stopped invalidation of pages beyond i_size
+from page writeback path.
+
+Fix these problems by unmapping and invalidating pages in the page cache
+after the i_size is reduced and tail cluster is zeroed out.
+
+Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
+Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
+Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/mouse/elantech.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ fs/ocfs2/file.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -517,6 +517,19 @@ static void elantech_report_trackpoint(s
- 	case 0x16008020U:
- 	case 0x26800010U:
- 	case 0x36808000U:
-+
-+		/*
-+		 * This firmware misreport coordinates for trackpoint
-+		 * occasionally. Discard packets outside of [-127, 127] range
-+		 * to prevent cursor jumps.
-+		 */
-+		if (packet[4] == 0x80 || packet[5] == 0x80 ||
-+		    packet[1] >> 7 == packet[4] >> 7 ||
-+		    packet[2] >> 7 == packet[5] >> 7) {
-+			elantech_debug("discarding packet [%6ph]\n", packet);
-+			break;
-+
-+		}
- 		x = packet[4] - (int)((packet[1]^0x80) << 1);
- 		y = (int)((packet[2]^0x80) << 1) - packet[5];
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -476,10 +476,11 @@ int ocfs2_truncate_file(struct inode *in
+ 	 * greater than page size, so we have to truncate them
+ 	 * anyway.
+ 	 */
+-	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
+-	truncate_inode_pages(inode->i_mapping, new_i_size);
  
+ 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
++		unmap_mapping_range(inode->i_mapping,
++				    new_i_size + PAGE_SIZE - 1, 0, 1);
++		truncate_inode_pages(inode->i_mapping, new_i_size);
+ 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
+ 					       i_size_read(inode), 1);
+ 		if (status)
+@@ -498,6 +499,9 @@ int ocfs2_truncate_file(struct inode *in
+ 		goto bail_unlock_sem;
+ 	}
+ 
++	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
++	truncate_inode_pages(inode->i_mapping, new_i_size);
++
+ 	status = ocfs2_commit_truncate(osb, inode, di_bh);
+ 	if (status < 0) {
+ 		mlog_errno(status);
 
 
