@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5FD94512DE
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3364A4514A7
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:09:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347526AbhKOTkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:40:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
+        id S1349380AbhKOUMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:12:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245142AbhKOTTc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:19:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8137E61AE2;
-        Mon, 15 Nov 2021 18:29:10 +0000 (UTC)
+        id S1344903AbhKOTZl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:25:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C399636E1;
+        Mon, 15 Nov 2021 19:06:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000951;
-        bh=+vQac5DWKi1pa05+IgBHfABNq7vmxx5daGIOovDSs7c=;
+        s=korg; t=1637003191;
+        bh=hIItPzpPOxlzT1mxOSXXFrbBaapcpnlpkKMStKkLOA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B1GB2ThKNDG1+sXfj4CWO5lLaI3H8tXTmmJbziFs379MfS/JtIVH4O9w3LPbQaFMB
-         6gb9d0remQ8hoJOtoKV+S4e2lnUwtuIcdqqDLUtB3loPWM7PEV7iydYqAbHEd9Vzq5
-         8ktaYlrRwbOMt52Nio48gxWztmlUfrhxYitKdn6g=
+        b=xuL0VEheJQgRE6XYkMTDmeXlgi5uTV5tiiEc+FtosjR3sTCoyH7+/YVm0CzCeQNV4
+         nvox7Htxqi6rVacRtXeOMZx+GwbyToDZL+y8P1FsHLPto5eR47SowICF1qxFZLss8T
+         YPv1ZucpB5aQ+awOF3aHMoeu55WtcCGcb+NM8T9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.14 822/849] remoteproc: elf_loader: Fix loading segment when is_iomem true
-Date:   Mon, 15 Nov 2021 18:05:05 +0100
-Message-Id: <20211115165448.045438510@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 811/917] can: etas_es58x: es58x_rx_err_msg(): fix memory leak in error path
+Date:   Mon, 15 Nov 2021 18:05:06 +0100
+Message-Id: <20211115165456.510851871@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-commit 24acbd9dc934f5d9418a736c532d3970a272063e upstream.
+[ Upstream commit d9447f768bc8c60623e4bb3ce65b8f4654d33a50 ]
 
-It seems luckliy work on i.MX platform, but it is wrong.
-Need use memcpy_toio, not memcpy_fromio.
+In es58x_rx_err_msg(), if can->do_set_mode() fails, the function
+directly returns without calling netif_rx(skb). This means that the
+skb previously allocated by alloc_can_err_skb() is not freed. In other
+terms, this is a memory leak.
 
-Fixes: 40df0a91b2a5 ("remoteproc: add is_iomem to da_to_va")
-Tested-by: Dong Aisheng <aisheng.dong@nxp.com> (i.MX8MQ)
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dong Aisheng <aisheng.dong@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210910090621.3073540-2-peng.fan@oss.nxp.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch simply removes the return statement in the error branch and
+let the function continue.
+
+Issue was found with GCC -fanalyzer, please follow the link below for
+details.
+
+Fixes: 8537257874e9 ("can: etas_es58x: add core support for ETAS ES58X CAN USB interfaces")
+Link: https://lore.kernel.org/all/20211026180740.1953265-1-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/remoteproc_elf_loader.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/usb/etas_es58x/es58x_core.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/remoteproc/remoteproc_elf_loader.c
-+++ b/drivers/remoteproc/remoteproc_elf_loader.c
-@@ -220,7 +220,7 @@ int rproc_elf_load_segments(struct rproc
- 		/* put the segment where the remote processor expects it */
- 		if (filesz) {
- 			if (is_iomem)
--				memcpy_fromio(ptr, (void __iomem *)(elf_data + offset), filesz);
-+				memcpy_toio((void __iomem *)ptr, elf_data + offset, filesz);
- 			else
- 				memcpy(ptr, elf_data + offset, filesz);
+diff --git a/drivers/net/can/usb/etas_es58x/es58x_core.c b/drivers/net/can/usb/etas_es58x/es58x_core.c
+index 96a13c770e4a1..24627ab146261 100644
+--- a/drivers/net/can/usb/etas_es58x/es58x_core.c
++++ b/drivers/net/can/usb/etas_es58x/es58x_core.c
+@@ -664,7 +664,7 @@ int es58x_rx_err_msg(struct net_device *netdev, enum es58x_err error,
+ 	struct can_device_stats *can_stats = &can->can_stats;
+ 	struct can_frame *cf = NULL;
+ 	struct sk_buff *skb;
+-	int ret;
++	int ret = 0;
+ 
+ 	if (!netif_running(netdev)) {
+ 		if (net_ratelimit())
+@@ -823,8 +823,6 @@ int es58x_rx_err_msg(struct net_device *netdev, enum es58x_err error,
+ 			can->state = CAN_STATE_BUS_OFF;
+ 			can_bus_off(netdev);
+ 			ret = can->do_set_mode(netdev, CAN_MODE_STOP);
+-			if (ret)
+-				return ret;
  		}
+ 		break;
+ 
+@@ -881,7 +879,7 @@ int es58x_rx_err_msg(struct net_device *netdev, enum es58x_err error,
+ 					ES58X_EVENT_BUSOFF, timestamp);
+ 	}
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /**
+-- 
+2.33.0
+
 
 
