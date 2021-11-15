@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8474450BE9
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:28:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0D0A450E6F
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:12:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238025AbhKORbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:31:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50940 "EHLO mail.kernel.org"
+        id S239763AbhKOSPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 13:15:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237992AbhKOR2d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:28:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A05786326A;
-        Mon, 15 Nov 2021 17:19:07 +0000 (UTC)
+        id S240316AbhKOSHe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:07:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 815D06339D;
+        Mon, 15 Nov 2021 17:44:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996748;
-        bh=LbtfJxVw5J2ou5RSUK4eQ9EBcue+ThouKW02Wug48dI=;
+        s=korg; t=1636998281;
+        bh=85Dx+LBCmITm6And2dGz+YvWANuINploqFr4YK2xFRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HN8WSXn3g8IPKkymo+jyk0IoFLORIJ1usz/VdDQTj2Uu0dKrhYkjJV6PTAzVDKGbw
-         C2Meuf07DGhxyvU53yf9NMSBNq9CxEJTP27Jdn22IbCU3hRyEwGbyBTVP9EmH0y+e5
-         8l/AJcI3KC1KHTV3T2Mo7tmLYTTODWGG5i47DqBo=
+        b=J2D4G4SVnfVnixjviUAxGz+FHw1kcZF4Z0LgfrNPlMf9VOIh5T22nK9thamSqXeSp
+         fcjq5DwDIaJkM/NO+a+IXORG9zSZpEv8JW3HobCntI+y7gThDUoSL1B9pspm8flevw
+         hadCpBcZVUuTYxYeR5umDZUfBjMyc9XW6xmXjb+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abdul Haleem <abdhalee@in.ibm.com>,
-        Vaishnavi Bhat <vaish123@in.ibm.com>,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        Dany Madden <drt@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 254/355] ibmvnic: dont stop queue in xmit
+        stable@vger.kernel.org,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 453/575] phy: qcom-qusb2: Fix a memory leak on probe
 Date:   Mon, 15 Nov 2021 18:02:58 +0100
-Message-Id: <20211115165321.960800692@linuxfoundation.org>
+Message-Id: <20211115165359.420236947@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-[ Upstream commit 8878e46fcfd46b19964bd90e13b25dd94cbfc9be ]
+[ Upstream commit bf7ffcd0069d30e2e7ba2b827f08c89f471cd1f3 ]
 
-If adapter's resetting bit is on, discard the packet but don't stop the
-transmit queue - instead leave that to the reset code. With this change,
-it is possible that we may get several calls to ibmvnic_xmit() that simply
-discard packets and return.
+On success nvmem_cell_read() returns a pointer to a dynamically allocated
+buffer, and therefore it shall be freed after usage.
 
-But if we stop the queue here, we might end up doing so just after
-__ibmvnic_open() started the queues (during a hard/soft reset) and before
-the ->resetting bit was cleared. If that happens, there will be no one to
-restart queue and transmissions will be blocked indefinitely.
+The issue is reported by kmemleak:
 
-This can cause a TIMEOUT reset and with auto priority failover enabled,
-an unnecessary FAILOVER reset to less favored backing device and then a
-FAILOVER back to the most favored backing device. If we hit the window
-repeatedly, we can get stuck in a loop of TIMEOUT, FAILOVER, FAILOVER
-resets leaving the adapter unusable for extended periods of time.
+  # cat /sys/kernel/debug/kmemleak
+  unreferenced object 0xffff3b3803e4b280 (size 128):
+    comm "kworker/u16:1", pid 107, jiffies 4294892861 (age 94.120s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+      00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    backtrace:
+      [<000000007739afdc>] __kmalloc+0x27c/0x41c
+      [<0000000071c0fbf8>] nvmem_cell_read+0x40/0xe0
+      [<00000000e803ef1f>] qusb2_phy_init+0x258/0x5bc
+      [<00000000fc81fcfa>] phy_init+0x70/0x110
+      [<00000000e3d48a57>] dwc3_core_soft_reset+0x4c/0x234
+      [<0000000027d1dbd4>] dwc3_core_init+0x68/0x990
+      [<000000001965faf9>] dwc3_probe+0x4f4/0x730
+      [<000000002f7617ca>] platform_probe+0x74/0xf0
+      [<00000000a2576cac>] really_probe+0xc4/0x470
+      [<00000000bc77f2c5>] __driver_probe_device+0x11c/0x190
+      [<00000000130db71f>] driver_probe_device+0x48/0x110
+      [<0000000019f36c2b>] __device_attach_driver+0xa4/0x140
+      [<00000000e5812ff7>]  bus_for_each_drv+0x84/0xe0
+      [<00000000f4bac574>] __device_attach+0xe4/0x1c0
+      [<00000000d3beb631>] device_initial_probe+0x20/0x30
+      [<000000008019b9db>] bus_probe_device+0xa4/0xb0
 
-Fixes: 7f5b030830fe ("ibmvnic: Free skb's in cases of failure in transmit")
-Reported-by: Abdul Haleem <abdhalee@in.ibm.com>
-Reported-by: Vaishnavi Bhat <vaish123@in.ibm.com>
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Reviewed-by: Dany Madden <drt@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ca04d9d3e1b1 ("phy: qcom-qusb2: New driver for QUSB2 PHY on Qcom chips")
+Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210922233548.2150244-1-vladimir.zapolskiy@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/phy/qualcomm/phy-qcom-qusb2.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index cfe7229593ead..059eaa13e2c6d 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1462,8 +1462,6 @@ static netdev_tx_t ibmvnic_xmit(struct sk_buff *skb, struct net_device *netdev)
- 	netdev_tx_t ret = NETDEV_TX_OK;
+diff --git a/drivers/phy/qualcomm/phy-qcom-qusb2.c b/drivers/phy/qualcomm/phy-qcom-qusb2.c
+index 557547dabfd50..f531043ec3deb 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qusb2.c
++++ b/drivers/phy/qualcomm/phy-qcom-qusb2.c
+@@ -474,7 +474,7 @@ static void qusb2_phy_set_tune2_param(struct qusb2_phy *qphy)
+ {
+ 	struct device *dev = &qphy->phy->dev;
+ 	const struct qusb2_phy_cfg *cfg = qphy->cfg;
+-	u8 *val;
++	u8 *val, hstx_trim;
  
- 	if (test_bit(0, &adapter->resetting)) {
--		if (!netif_subqueue_stopped(netdev, skb))
--			netif_stop_subqueue(netdev, queue_num);
- 		dev_kfree_skb_any(skb);
+ 	/* efuse register is optional */
+ 	if (!qphy->cell)
+@@ -488,7 +488,13 @@ static void qusb2_phy_set_tune2_param(struct qusb2_phy *qphy)
+ 	 * set while configuring the phy.
+ 	 */
+ 	val = nvmem_cell_read(qphy->cell, NULL);
+-	if (IS_ERR(val) || !val[0]) {
++	if (IS_ERR(val)) {
++		dev_dbg(dev, "failed to read a valid hs-tx trim value\n");
++		return;
++	}
++	hstx_trim = val[0];
++	kfree(val);
++	if (!hstx_trim) {
+ 		dev_dbg(dev, "failed to read a valid hs-tx trim value\n");
+ 		return;
+ 	}
+@@ -496,12 +502,10 @@ static void qusb2_phy_set_tune2_param(struct qusb2_phy *qphy)
+ 	/* Fused TUNE1/2 value is the higher nibble only */
+ 	if (cfg->update_tune1_with_efuse)
+ 		qusb2_write_mask(qphy->base, cfg->regs[QUSB2PHY_PORT_TUNE1],
+-				 val[0] << HSTX_TRIM_SHIFT,
+-				 HSTX_TRIM_MASK);
++				 hstx_trim << HSTX_TRIM_SHIFT, HSTX_TRIM_MASK);
+ 	else
+ 		qusb2_write_mask(qphy->base, cfg->regs[QUSB2PHY_PORT_TUNE2],
+-				 val[0] << HSTX_TRIM_SHIFT,
+-				 HSTX_TRIM_MASK);
++				 hstx_trim << HSTX_TRIM_SHIFT, HSTX_TRIM_MASK);
+ }
  
- 		tx_send_failed++;
+ static int qusb2_phy_set_mode(struct phy *phy,
 -- 
 2.33.0
 
