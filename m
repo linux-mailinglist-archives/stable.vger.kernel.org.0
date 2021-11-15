@@ -2,32 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 906BA451271
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:40:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BD24512CD
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:41:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347435AbhKOTjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:39:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44630 "EHLO mail.kernel.org"
+        id S1347416AbhKOTju (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:39:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245041AbhKOTS0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:18:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8252E6343E;
-        Mon, 15 Nov 2021 18:27:20 +0000 (UTC)
+        id S245044AbhKOTS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:18:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3C3463436;
+        Mon, 15 Nov 2021 18:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000841;
-        bh=FhDj2qmlp4sEQeKTiBY4rMRGioPgNjfxpCu/e0qgShU=;
+        s=korg; t=1637000843;
+        bh=lKuoYC8M2aumsmWpirMLSxztT3UFHkNs5zbLFzuKtYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r/eodQJ7ghyZiqMm4v/rHA4DgtQ0JiR1Ed6zezkj59iZEPwBvHWPutNz0etAo4tVd
-         3VaCo2rJyRSGe8g9cQsIP+zVw67y0BJMNMOmBNRMbiUWQI1SSCxBV3oSXCXDNceXcz
-         u+RUvTi3VtH/7BEt1FkSaj6yh5juwl+I1V5WCpaU=
+        b=FDNyVUOPnomzwjv0q96xrtXrE1FWFyyD4SrDwsrvnHM+7wCtdHPSShqjOcJPKts1P
+         +AhqkCs+BAz7sbfdqpGY3pzZg0yFynl1z4756vZYAmG68ReZnLXQKzmseqKfRawEAR
+         SBMJc45DlFN/YUlZ/AEexuW8im0TBXUvV1XzBHa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Black <daniel@mariadb.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.14 811/849] io-wq: serialize hash clear with wakeup
-Date:   Mon, 15 Nov 2021 18:04:54 +0100
-Message-Id: <20211115165447.679794362@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Roman Gushchin <guro@fb.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.14 812/849] mm, oom: pagefault_out_of_memory: dont force global OOM for dying tasks
+Date:   Mon, 15 Nov 2021 18:04:55 +0100
+Message-Id: <20211115165447.712181759@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
 References: <20211115165419.961798833@linuxfoundation.org>
@@ -39,90 +49,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit d3e3c102d107bb84251455a298cf475f24bab995 upstream.
+commit 0b28179a6138a5edd9d82ad2687c05b3773c387b upstream.
 
-We need to ensure that we serialize the stalled and hash bits with the
-wait_queue wait handler, or we could be racing with someone modifying
-the hashed state after we find it busy, but before we then give up and
-wait for it to be cleared. This can cause random delays or stalls when
-handling buffered writes for many files, where some of these files cause
-hash collisions between the worker threads.
+Patch series "memcg: prohibit unconditional exceeding the limit of dying tasks", v3.
 
-Cc: stable@vger.kernel.org
-Reported-by: Daniel Black <daniel@mariadb.org>
-Fixes: e941894eae31 ("io-wq: make buffered file write hashed work map per-ctx")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Memory cgroup charging allows killed or exiting tasks to exceed the hard
+limit.  It can be misused and allowed to trigger global OOM from inside
+a memcg-limited container.  On the other hand if memcg fails allocation,
+called from inside #PF handler it triggers global OOM from inside
+pagefault_out_of_memory().
+
+To prevent these problems this patchset:
+ (a) removes execution of out_of_memory() from
+     pagefault_out_of_memory(), becasue nobody can explain why it is
+     necessary.
+ (b) allow memcg to fail allocation of dying/killed tasks.
+
+This patch (of 3):
+
+Any allocation failure during the #PF path will return with VM_FAULT_OOM
+which in turn results in pagefault_out_of_memory which in turn executes
+out_out_memory() and can kill a random task.
+
+An allocation might fail when the current task is the oom victim and
+there are no memory reserves left.  The OOM killer is already handled at
+the page allocator level for the global OOM and at the charging level
+for the memcg one.  Both have much more information about the scope of
+allocation/charge request.  This means that either the OOM killer has
+been invoked properly and didn't lead to the allocation success or it
+has been skipped because it couldn't have been invoked.  In both cases
+triggering it from here is pointless and even harmful.
+
+It makes much more sense to let the killed task die rather than to wake
+up an eternally hungry oom-killer and send him to choose a fatter victim
+for breakfast.
+
+Link: https://lkml.kernel.org/r/0828a149-786e-7c06-b70a-52d086818ea3@virtuozzo.com
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Suggested-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io-wq.c |   19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ mm/oom_kill.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -401,9 +401,10 @@ static inline unsigned int io_get_work_h
- 	return work->flags >> IO_WQ_HASH_SHIFT;
- }
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -1136,6 +1136,9 @@ void pagefault_out_of_memory(void)
+ 	if (mem_cgroup_oom_synchronize(true))
+ 		return;
  
--static void io_wait_on_hash(struct io_wqe *wqe, unsigned int hash)
-+static bool io_wait_on_hash(struct io_wqe *wqe, unsigned int hash)
- {
- 	struct io_wq *wq = wqe->wq;
-+	bool ret = false;
- 
- 	spin_lock_irq(&wq->hash->wait.lock);
- 	if (list_empty(&wqe->wait.entry)) {
-@@ -411,9 +412,11 @@ static void io_wait_on_hash(struct io_wq
- 		if (!test_bit(hash, &wq->hash->map)) {
- 			__set_current_state(TASK_RUNNING);
- 			list_del_init(&wqe->wait.entry);
-+			ret = true;
- 		}
- 	}
- 	spin_unlock_irq(&wq->hash->wait.lock);
-+	return ret;
- }
- 
- /*
-@@ -474,14 +477,21 @@ static struct io_wq_work *io_get_next_wo
- 	}
- 
- 	if (stall_hash != -1U) {
-+		bool unstalled;
++	if (fatal_signal_pending(current))
++		return;
 +
- 		/*
- 		 * Set this before dropping the lock to avoid racing with new
- 		 * work being added and clearing the stalled bit.
- 		 */
- 		wqe->flags |= IO_WQE_FLAG_STALLED;
- 		raw_spin_unlock(&wqe->lock);
--		io_wait_on_hash(wqe, stall_hash);
-+		unstalled = io_wait_on_hash(wqe, stall_hash);
- 		raw_spin_lock(&wqe->lock);
-+		if (unstalled) {
-+			wqe->flags &= ~IO_WQE_FLAG_STALLED;
-+			if (wq_has_sleeper(&wqe->wq->hash->wait))
-+				wake_up(&wqe->wq->hash->wait);
-+		}
- 	}
- 
- 	return NULL;
-@@ -562,11 +572,14 @@ get_next:
- 				io_wqe_enqueue(wqe, linked);
- 
- 			if (hash != -1U && !next_hashed) {
-+				/* serialize hash clear with wake_up() */
-+				spin_lock_irq(&wq->hash->wait.lock);
- 				clear_bit(hash, &wq->hash->map);
-+				wqe->flags &= ~IO_WQE_FLAG_STALLED;
-+				spin_unlock_irq(&wq->hash->wait.lock);
- 				if (wq_has_sleeper(&wq->hash->wait))
- 					wake_up(&wq->hash->wait);
- 				raw_spin_lock_irq(&wqe->lock);
--				wqe->flags &= ~IO_WQE_FLAG_STALLED;
- 				/* skip unnecessary unlock-lock wqe->lock */
- 				if (!work)
- 					goto get_next;
+ 	if (!mutex_trylock(&oom_lock))
+ 		return;
+ 	out_of_memory(&oc);
 
 
