@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DF10451113
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B72E1450A9E
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:09:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238229AbhKOTA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:00:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33082 "EHLO mail.kernel.org"
+        id S236659AbhKORMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:12:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243481AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 13:59:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E087163494;
-        Mon, 15 Nov 2021 18:13:07 +0000 (UTC)
+        id S232572AbhKORLj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:11:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 009D961BF6;
+        Mon, 15 Nov 2021 17:08:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636999988;
-        bh=nJN+TsdqJfQK67Uf7jXTTWFVG8lLgeSpUz+HJUdBQzc=;
+        s=korg; t=1636996123;
+        bh=q0jGak/NRehD1qVDWhAZK0D2pBU5If3tGL/5vGOSwfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSrlyqwt6OdNwKNHs7bxTY4QomGlzeFKqTYeWRGCe/Wzghi9IZQvBxlf8CaTB0gnC
-         SPZ+L+M3BGaaN5gf83fspYQqY/fkOBThYDdTOmjKKHKl6iW5NeqZ2yHvV4oIMmBYj4
-         siVYTUBc0m3J+JKbCq1hm55xXtqlbDskQ2IXKTv4=
+        b=bHoYAZjNEJaYsoPVDcMAKYnh8A4RG/5peZLXFEEYPj64T0vmDMkqVLDJNv06AgTpO
+         hl3o83ILOlJqVuYn1txCd6JNyFxOe3Nn5ggrV1rgdk9f2IgxNRXAgFi4vIg90s3XUC
+         Ns8mg2JZ+AHQLlcRzXOX/NjgQmRXALPLRQytSPfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
-        Eric-SY Chang <Eric-SY.Chang@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 464/849] mt76: mt7921: report HE MU radiotap
-Date:   Mon, 15 Nov 2021 17:59:07 +0100
-Message-Id: <20211115165435.981548936@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 024/355] ALSA: hda/realtek: Add quirk for HP EliteBook 840 G7 mute LED
+Date:   Mon, 15 Nov 2021 17:59:08 +0100
+Message-Id: <20211115165314.328578031@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
+References: <20211115165313.549179499@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,187 +40,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 4fee32153ab62356aeea9d152d8f33a5fd3a0086 ]
+commit c058493df7edcef8f48c1494d9a84218519f966b upstream.
 
-Report HE MU/BF radiotap.
+The mute and micmute LEDs don't work on HP EliteBook 840 G7. The same
+quirk for other HP laptops can let LEDs work, so apply it.
 
-That fixed HE MU packets dropped by mac80211 because they are missing the
-ieee80211_radiotap_he_mu header.
-
-Fixes: 163f4d22c118d ("mt76: mt7921: add MAC support")
-Co-developed-by: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
-Co-developed-by: Eric-SY Chang <Eric-SY.Chang@mediatek.com>
-Signed-off-by: Eric-SY Chang <Eric-SY.Chang@mediatek.com>
-Tested-by: Eric-SY Chang <Eric-SY.Chang@mediatek.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211110144033.118451-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/wireless/mediatek/mt76/mt7921/mac.c   | 65 ++++++++++++++++---
- .../net/wireless/mediatek/mt76/mt7921/mac.h   |  8 +++
- 2 files changed, 65 insertions(+), 8 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-index f4714b0f6e5c4..8a16f3f4d5253 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-@@ -180,12 +180,56 @@ mt7921_mac_decode_he_radiotap_ru(struct mt76_rx_status *status,
- 				      IEEE80211_RADIOTAP_HE_DATA2_RU_OFFSET);
- }
- 
-+static void
-+mt7921_mac_decode_he_mu_radiotap(struct sk_buff *skb,
-+				 struct mt76_rx_status *status,
-+				 __le32 *rxv)
-+{
-+	static const struct ieee80211_radiotap_he_mu mu_known = {
-+		.flags1 = HE_BITS(MU_FLAGS1_SIG_B_MCS_KNOWN) |
-+			  HE_BITS(MU_FLAGS1_SIG_B_DCM_KNOWN) |
-+			  HE_BITS(MU_FLAGS1_CH1_RU_KNOWN) |
-+			  HE_BITS(MU_FLAGS1_SIG_B_SYMS_USERS_KNOWN) |
-+			  HE_BITS(MU_FLAGS1_SIG_B_COMP_KNOWN),
-+		.flags2 = HE_BITS(MU_FLAGS2_BW_FROM_SIG_A_BW_KNOWN) |
-+			  HE_BITS(MU_FLAGS2_PUNC_FROM_SIG_A_BW_KNOWN),
-+	};
-+	struct ieee80211_radiotap_he_mu *he_mu = NULL;
-+
-+	he_mu = skb_push(skb, sizeof(mu_known));
-+	memcpy(he_mu, &mu_known, sizeof(mu_known));
-+
-+#define MU_PREP(f, v)	le16_encode_bits(v, IEEE80211_RADIOTAP_HE_MU_##f)
-+
-+	he_mu->flags1 |= MU_PREP(FLAGS1_SIG_B_MCS, status->rate_idx);
-+	if (status->he_dcm)
-+		he_mu->flags1 |= MU_PREP(FLAGS1_SIG_B_DCM, status->he_dcm);
-+
-+	he_mu->flags2 |= MU_PREP(FLAGS2_BW_FROM_SIG_A_BW, status->bw) |
-+			 MU_PREP(FLAGS2_SIG_B_SYMS_USERS,
-+				 le32_get_bits(rxv[2], MT_CRXV_HE_NUM_USER));
-+
-+	he_mu->ru_ch1[0] = FIELD_GET(MT_CRXV_HE_RU0, cpu_to_le32(rxv[3]));
-+
-+	if (status->bw >= RATE_INFO_BW_40) {
-+		he_mu->flags1 |= HE_BITS(MU_FLAGS1_CH2_RU_KNOWN);
-+		he_mu->ru_ch2[0] =
-+			FIELD_GET(MT_CRXV_HE_RU1, cpu_to_le32(rxv[3]));
-+	}
-+
-+	if (status->bw >= RATE_INFO_BW_80) {
-+		he_mu->ru_ch1[1] =
-+			FIELD_GET(MT_CRXV_HE_RU2, cpu_to_le32(rxv[3]));
-+		he_mu->ru_ch2[1] =
-+			FIELD_GET(MT_CRXV_HE_RU3, cpu_to_le32(rxv[3]));
-+	}
-+}
-+
- static void
- mt7921_mac_decode_he_radiotap(struct sk_buff *skb,
- 			      struct mt76_rx_status *status,
- 			      __le32 *rxv, u32 phy)
- {
--	/* TODO: struct ieee80211_radiotap_he_mu */
- 	static const struct ieee80211_radiotap_he known = {
- 		.data1 = HE_BITS(DATA1_DATA_MCS_KNOWN) |
- 			 HE_BITS(DATA1_DATA_DCM_KNOWN) |
-@@ -193,6 +237,7 @@ mt7921_mac_decode_he_radiotap(struct sk_buff *skb,
- 			 HE_BITS(DATA1_CODING_KNOWN) |
- 			 HE_BITS(DATA1_LDPC_XSYMSEG_KNOWN) |
- 			 HE_BITS(DATA1_DOPPLER_KNOWN) |
-+			 HE_BITS(DATA1_SPTL_REUSE_KNOWN) |
- 			 HE_BITS(DATA1_BSS_COLOR_KNOWN),
- 		.data2 = HE_BITS(DATA2_GI_KNOWN) |
- 			 HE_BITS(DATA2_TXBF_KNOWN) |
-@@ -207,9 +252,12 @@ mt7921_mac_decode_he_radiotap(struct sk_buff *skb,
- 
- 	he->data3 = HE_PREP(DATA3_BSS_COLOR, BSS_COLOR, rxv[14]) |
- 		    HE_PREP(DATA3_LDPC_XSYMSEG, LDPC_EXT_SYM, rxv[2]);
-+	he->data4 = HE_PREP(DATA4_SU_MU_SPTL_REUSE, SR_MASK, rxv[11]);
- 	he->data5 = HE_PREP(DATA5_PE_DISAMBIG, PE_DISAMBIG, rxv[2]) |
- 		    le16_encode_bits(ltf_size,
- 				     IEEE80211_RADIOTAP_HE_DATA5_LTF_SIZE);
-+	if (cpu_to_le32(rxv[0]) & MT_PRXV_TXBF)
-+		he->data5 |= HE_BITS(DATA5_TXBF);
- 	he->data6 = HE_PREP(DATA6_TXOP, TXOP_DUR, rxv[14]) |
- 		    HE_PREP(DATA6_DOPPLER, DOPPLER, rxv[14]);
- 
-@@ -217,8 +265,7 @@ mt7921_mac_decode_he_radiotap(struct sk_buff *skb,
- 	case MT_PHY_TYPE_HE_SU:
- 		he->data1 |= HE_BITS(DATA1_FORMAT_SU) |
- 			     HE_BITS(DATA1_UL_DL_KNOWN) |
--			     HE_BITS(DATA1_BEAM_CHANGE_KNOWN) |
--			     HE_BITS(DATA1_SPTL_REUSE_KNOWN);
-+			     HE_BITS(DATA1_BEAM_CHANGE_KNOWN);
- 
- 		he->data3 |= HE_PREP(DATA3_BEAM_CHANGE, BEAM_CHNG, rxv[14]) |
- 			     HE_PREP(DATA3_UL_DL, UPLINK, rxv[2]);
-@@ -232,17 +279,15 @@ mt7921_mac_decode_he_radiotap(struct sk_buff *skb,
- 		break;
- 	case MT_PHY_TYPE_HE_MU:
- 		he->data1 |= HE_BITS(DATA1_FORMAT_MU) |
--			     HE_BITS(DATA1_UL_DL_KNOWN) |
--			     HE_BITS(DATA1_SPTL_REUSE_KNOWN);
-+			     HE_BITS(DATA1_UL_DL_KNOWN);
- 
- 		he->data3 |= HE_PREP(DATA3_UL_DL, UPLINK, rxv[2]);
--		he->data4 |= HE_PREP(DATA4_SU_MU_SPTL_REUSE, SR_MASK, rxv[11]);
-+		he->data4 |= HE_PREP(DATA4_MU_STA_ID, MU_AID, rxv[7]);
- 
- 		mt7921_mac_decode_he_radiotap_ru(status, he, rxv);
- 		break;
- 	case MT_PHY_TYPE_HE_TB:
- 		he->data1 |= HE_BITS(DATA1_FORMAT_TRIG) |
--			     HE_BITS(DATA1_SPTL_REUSE_KNOWN) |
- 			     HE_BITS(DATA1_SPTL_REUSE2_KNOWN) |
- 			     HE_BITS(DATA1_SPTL_REUSE3_KNOWN) |
- 			     HE_BITS(DATA1_SPTL_REUSE4_KNOWN);
-@@ -606,9 +651,13 @@ int mt7921_mac_fill_rx(struct mt7921_dev *dev, struct sk_buff *skb)
- 
- 	mt7921_mac_assoc_rssi(dev, skb);
- 
--	if (rxv && status->flag & RX_FLAG_RADIOTAP_HE)
-+	if (rxv && status->flag & RX_FLAG_RADIOTAP_HE) {
- 		mt7921_mac_decode_he_radiotap(skb, status, rxv, mode);
- 
-+		if (status->flag & RX_FLAG_RADIOTAP_HE_MU)
-+			mt7921_mac_decode_he_mu_radiotap(skb, status, rxv);
-+	}
-+
- 	if (!status->wcid || !ieee80211_is_data_qos(fc))
- 		return 0;
- 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.h b/drivers/net/wireless/mediatek/mt76/mt7921/mac.h
-index 3af67fac213df..f0194c8780372 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.h
-@@ -116,6 +116,7 @@ enum rx_pkt_type {
- #define MT_PRXV_TX_DCM			BIT(4)
- #define MT_PRXV_TX_ER_SU_106T		BIT(5)
- #define MT_PRXV_NSTS			GENMASK(9, 7)
-+#define MT_PRXV_TXBF			BIT(10)
- #define MT_PRXV_HT_AD_CODE		BIT(11)
- #define MT_PRXV_FRAME_MODE		GENMASK(14, 12)
- #define MT_PRXV_SGI			GENMASK(16, 15)
-@@ -138,8 +139,15 @@ enum rx_pkt_type {
- #define MT_CRXV_HE_LTF_SIZE		GENMASK(18, 17)
- #define MT_CRXV_HE_LDPC_EXT_SYM		BIT(20)
- #define MT_CRXV_HE_PE_DISAMBIG		BIT(23)
-+#define MT_CRXV_HE_NUM_USER		GENMASK(30, 24)
- #define MT_CRXV_HE_UPLINK		BIT(31)
- 
-+#define MT_CRXV_HE_RU0			GENMASK(7, 0)
-+#define MT_CRXV_HE_RU1			GENMASK(15, 8)
-+#define MT_CRXV_HE_RU2			GENMASK(23, 16)
-+#define MT_CRXV_HE_RU3			GENMASK(31, 24)
-+#define MT_CRXV_HE_MU_AID		GENMASK(30, 20)
-+
- #define MT_CRXV_HE_SR_MASK		GENMASK(11, 8)
- #define MT_CRXV_HE_SR1_MASK		GENMASK(16, 12)
- #define MT_CRXV_HE_SR2_MASK             GENMASK(20, 17)
--- 
-2.33.0
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8104,6 +8104,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x861f, "HP Elite Dragonfly G1", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
++	SND_PCI_QUIRK(0x103c, 0x8728, "HP EliteBook 840 G7", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8760, "HP", ALC285_FIXUP_HP_MUTE_LED),
 
 
