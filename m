@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07FC1450AAD
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:10:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 819CD450D9B
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:57:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232148AbhKORMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 12:12:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45158 "EHLO mail.kernel.org"
+        id S238687AbhKOR7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 12:59:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236536AbhKORM2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:12:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55E0161452;
-        Mon, 15 Nov 2021 17:09:32 +0000 (UTC)
+        id S239198AbhKOR5m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 12:57:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C50C260F38;
+        Mon, 15 Nov 2021 17:34:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636996172;
-        bh=fgW7IZ0V+TaDrxPJYsD4H4Awxt+nUIrh1fRJjTlfW18=;
+        s=korg; t=1636997697;
+        bh=MMazxAV7PO/kMsDmIWerrt5q+fB4BzEy63MLdftmtB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yFI+vsVJMGu4Dw6+JdhCzh/tIcbfuIIXd1NBSbaP7vbbdL8T5WDv0zc23pdxlhdM3
-         YdnNEkEvM/jDCKDBlN4XovKHYsLNWUJ91iH3MaMaT143mUzTSlPU7gaRDa2oq2QOEB
-         UMwv5ApZEYAVnHorIpIkh5HHDE90SLtuwN6b6yRE=
+        b=vRB/gpYxKP+e6smcZZVdcbri/v1Zk2sQWlkZwBaoAeBL/3PSqmlP4kCzUfzXr8xXU
+         GF1H/CbESrWfYiFbwFqhDH9FSh11XepYyDuxbCEbWoKP64PiBuQQkaf+zskA6L+BOj
+         cQXAolCH+fCZbkkmzuTDz4806JuY6yrLMGatC0oY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikko Perttunen <mperttunen@nvidia.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 043/355] reset: tegra-bpmp: Handle errors in BPMP response
+Subject: [PATCH 5.10 242/575] gfs2: Cancel remote delete work asynchronously
 Date:   Mon, 15 Nov 2021 17:59:27 +0100
-Message-Id: <20211115165314.943849440@linuxfoundation.org>
+Message-Id: <20211115165352.109274537@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-References: <20211115165313.549179499@linuxfoundation.org>
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+References: <20211115165343.579890274@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikko Perttunen <mperttunen@nvidia.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit c045ceb5a145d2a9a4bf33cbc55185ddf99f60ab ]
+[ Upstream commit 486408d690e130c3adacf816754b97558d715f46 ]
 
-The return value from tegra_bpmp_transfer indicates the success or
-failure of the IPC transaction with BPMP. If the transaction
-succeeded, we also need to check the actual command's result code.
-Add code to do this.
+In gfs2_inode_lookup and gfs2_create_inode, we're calling
+gfs2_cancel_delete_work which currently cancels any remote delete work
+(delete_work_func) synchronously.  This means that if the work is
+currently running, it will wait for it to finish.  We're doing this to
+pevent a previous instance of an inode from having any influence on the
+next instance.
 
-Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
-Link: https://lore.kernel.org/r/20210915085517.1669675-2-mperttunen@nvidia.com
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+However, delete_work_func uses gfs2_inode_lookup internally, and we can
+end up in a deadlock when delete_work_func gets interrupted at the wrong
+time.  For example,
+
+  (1) An inode's iopen glock has delete work queued, but the inode
+      itself has been evicted from the inode cache.
+
+  (2) The delete work is preempted before reaching gfs2_inode_lookup.
+
+  (3) Another process recreates the inode (gfs2_create_inode).  It tries
+      to cancel any outstanding delete work, which blocks waiting for
+      the ongoing delete work to finish.
+
+  (4) The delete work calls gfs2_inode_lookup, which blocks waiting for
+      gfs2_create_inode to instantiate and unlock the new inode =>
+      deadlock.
+
+It turns out that when the delete work notices that its inode has been
+re-instantiated, it will do nothing.  This means that it's safe to
+cancel the delete work asynchronously.  This prevents the kind of
+deadlock described above.
+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/tegra/reset-bpmp.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/gfs2/glock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/reset/tegra/reset-bpmp.c b/drivers/reset/tegra/reset-bpmp.c
-index 24d3395964cc4..4c5bba52b1059 100644
---- a/drivers/reset/tegra/reset-bpmp.c
-+++ b/drivers/reset/tegra/reset-bpmp.c
-@@ -20,6 +20,7 @@ static int tegra_bpmp_reset_common(struct reset_controller_dev *rstc,
- 	struct tegra_bpmp *bpmp = to_tegra_bpmp(rstc);
- 	struct mrq_reset_request request;
- 	struct tegra_bpmp_message msg;
-+	int err;
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 03c3407c8e26f..533adcd480310 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -1911,7 +1911,7 @@ bool gfs2_queue_delete_work(struct gfs2_glock *gl, unsigned long delay)
  
- 	memset(&request, 0, sizeof(request));
- 	request.cmd = command;
-@@ -30,7 +31,13 @@ static int tegra_bpmp_reset_common(struct reset_controller_dev *rstc,
- 	msg.tx.data = &request;
- 	msg.tx.size = sizeof(request);
- 
--	return tegra_bpmp_transfer(bpmp, &msg);
-+	err = tegra_bpmp_transfer(bpmp, &msg);
-+	if (err)
-+		return err;
-+	if (msg.rx.ret)
-+		return -EINVAL;
-+
-+	return 0;
- }
- 
- static int tegra_bpmp_reset_module(struct reset_controller_dev *rstc,
+ void gfs2_cancel_delete_work(struct gfs2_glock *gl)
+ {
+-	if (cancel_delayed_work_sync(&gl->gl_delete)) {
++	if (cancel_delayed_work(&gl->gl_delete)) {
+ 		clear_bit(GLF_PENDING_DELETE, &gl->gl_flags);
+ 		gfs2_glock_put(gl);
+ 	}
 -- 
 2.33.0
 
