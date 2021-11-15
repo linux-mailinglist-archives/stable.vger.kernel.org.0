@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29199451167
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 20:04:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 395954513F5
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 21:04:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237885AbhKOTHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 14:07:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35150 "EHLO mail.kernel.org"
+        id S1348796AbhKOUAB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 15:00:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243883AbhKOTEg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 14:04:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 804F461BE5;
-        Mon, 15 Nov 2021 18:15:41 +0000 (UTC)
+        id S1344147AbhKOTXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 14:23:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6CF66363A;
+        Mon, 15 Nov 2021 18:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637000142;
-        bh=2TARd9Pa7IBP8gqX8A44EfTF4/tLMr7ZZANko+ANx74=;
+        s=korg; t=1637002369;
+        bh=5pllriLMsJyqD0CUjWP1Jgbm8esa7oPKn6wy0/9vCyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9KfVGFcANLyGuthqsmj6YFoaZnJNE/F9WdSkBDky00c/qn4ScL99mbCtnIkhKFfT
-         FZTxt9i6AlrwHB/sXWFzlFrZhLUkd/hnHoZakTvqlm0jXGa3YNYl2DTWwbr7tEZYHe
-         4irf98NayaKuDeWwiUj1kUgkJfsQTZpCtuDF6bRQ=
+        b=MRdAf49f6ZlJu1s2a/e8UhQwDMBwvkTwRIUdi933oekf55vOCYVWlk6ka+El9TgoR
+         mZi3T2uWofvC4okmwImaQr4afJkx3ERR7K0hKfvP27LWs780gkqUJu0ZHymbwKyHnS
+         LkJJk7sYnwNagm/SFiV2tj8ZjdjdvOlBJw7G/Cfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junji Wei <weijunji@bytedance.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 552/849] RDMA/rxe: Fix wrong port_cap_flags
+Subject: [PATCH 5.15 540/917] selftests/bpf: Fix fd cleanup in sk_lookup test
 Date:   Mon, 15 Nov 2021 18:00:35 +0100
-Message-Id: <20211115165438.931437960@linuxfoundation.org>
+Message-Id: <20211115165447.063842740@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-References: <20211115165419.961798833@linuxfoundation.org>
+In-Reply-To: <20211115165428.722074685@linuxfoundation.org>
+References: <20211115165428.722074685@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junji Wei <weijunji@bytedance.com>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-[ Upstream commit dcd3f985b20ffcc375f82ca0ca9f241c7025eb5e ]
+[ Upstream commit c3fc706e94f5653def2783ffcd809a38676b7551 ]
 
-The port->attr.port_cap_flags should be set to enum
-ib_port_capability_mask_bits in ib_mad.h, not
-RDMA_CORE_CAP_PROT_ROCE_UDP_ENCAP.
+Similar to the fix in commit:
+e31eec77e4ab ("bpf: selftests: Fix fd cleanup in get_branch_snapshot")
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20210831083223.65797-1-weijunji@bytedance.com
-Signed-off-by: Junji Wei <weijunji@bytedance.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+We use designated initializer to set fds to -1 without breaking on
+future changes to MAX_SERVER constant denoting the array size.
+
+The particular close(0) occurs on non-reuseport tests, so it can be seen
+with -n 115/{2,3} but not 115/4. This can cause problems with future
+tests if they depend on BTF fd never being acquired as fd 0, breaking
+internal libbpf assumptions.
+
+Fixes: 0ab5539f8584 ("selftests/bpf: Tests for BPF_SK_LOOKUP attach point")
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Jakub Sitnicki <jakub@cloudflare.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Link: https://lore.kernel.org/bpf/20211028063501.2239335-8-memxor@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_param.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/bpf/prog_tests/sk_lookup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_param.h b/drivers/infiniband/sw/rxe/rxe_param.h
-index 742e6ec93686c..b5a70cbe94aac 100644
---- a/drivers/infiniband/sw/rxe/rxe_param.h
-+++ b/drivers/infiniband/sw/rxe/rxe_param.h
-@@ -113,7 +113,7 @@ enum rxe_device_param {
- /* default/initial rxe port parameters */
- enum rxe_port_param {
- 	RXE_PORT_GID_TBL_LEN		= 1024,
--	RXE_PORT_PORT_CAP_FLAGS		= RDMA_CORE_CAP_PROT_ROCE_UDP_ENCAP,
-+	RXE_PORT_PORT_CAP_FLAGS		= IB_PORT_CM_SUP,
- 	RXE_PORT_MAX_MSG_SZ		= 0x800000,
- 	RXE_PORT_BAD_PKEY_CNTR		= 0,
- 	RXE_PORT_QKEY_VIOL_CNTR		= 0,
+diff --git a/tools/testing/selftests/bpf/prog_tests/sk_lookup.c b/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
+index aee41547e7f45..6db07401bc493 100644
+--- a/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
++++ b/tools/testing/selftests/bpf/prog_tests/sk_lookup.c
+@@ -598,7 +598,7 @@ close:
+ 
+ static void run_lookup_prog(const struct test *t)
+ {
+-	int server_fds[MAX_SERVERS] = { -1 };
++	int server_fds[] = { [0 ... MAX_SERVERS - 1] = -1 };
+ 	int client_fd, reuse_conn_fd = -1;
+ 	struct bpf_link *lookup_link;
+ 	int i, err;
+@@ -1053,7 +1053,7 @@ static void run_sk_assign(struct test_sk_lookup *skel,
+ 			  struct bpf_program *lookup_prog,
+ 			  const char *remote_ip, const char *local_ip)
+ {
+-	int server_fds[MAX_SERVERS] = { -1 };
++	int server_fds[] = { [0 ... MAX_SERVERS - 1] = -1 };
+ 	struct bpf_sk_lookup ctx;
+ 	__u64 server_cookie;
+ 	int i, err;
 -- 
 2.33.0
 
