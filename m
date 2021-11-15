@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C9A9450DA3
-	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 18:58:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5E29451118
+	for <lists+stable@lfdr.de>; Mon, 15 Nov 2021 19:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237861AbhKOSAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 13:00:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39650 "EHLO mail.kernel.org"
+        id S243465AbhKOTBI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 14:01:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239388AbhKOR6b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Nov 2021 12:58:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75D7860EFE;
-        Mon, 15 Nov 2021 17:35:25 +0000 (UTC)
+        id S243486AbhKOS7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 13:59:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37F6E60C49;
+        Mon, 15 Nov 2021 18:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1636997726;
-        bh=mu5fg9tannO9mpNdoAYG+qO218C8foEct7l+6i7jQXU=;
+        s=korg; t=1636999985;
+        bh=7Oa2YBDwtyfLKTLhzm80IhvRQ76tnVZgWzt0QREhhOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VnDFdgMg7q1kZCvEXL5FNAarXTwH/froySiLde4s5Vm1TBMLmSP1vUG6zriWE7pUM
-         fAXJTDBIbm74nCgfSM0exa+0Hd72BcX5y+CBwYHRdt4PWOgn1aJoSboH9SQ8hf+gPr
-         Ffqeh8MHSt3d4lumLYvOD289R0lEWwaGfGp4vSIQ=
+        b=msSoHG+UT8S63ikyS6qa8X337dryzoSugCakKjbJptayPvy2Lov2w/B8aatMsGFnG
+         amdFKLE3mLJI/oZ1S71v5XnAboaa0HG9RFO/IrHA3Hsa6fTzIXxHR6VZHJpiZJhaYY
+         UJmpeoMSsOQn9iFDp4CvcWzYvorUtsazXcWR2fOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Feng <fengli@smartx.com>,
-        Xiao Ni <xni@redhat.com>, Song Liu <songliubraving@fb.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 220/575] md: update superblock after changing rdev flags in state_store
-Date:   Mon, 15 Nov 2021 17:59:05 +0100
-Message-Id: <20211115165351.318274386@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 463/849] mt76: overwrite default reg_ops if necessary
+Date:   Mon, 15 Nov 2021 17:59:06 +0100
+Message-Id: <20211115165435.951111343@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
-References: <20211115165343.579890274@linuxfoundation.org>
+In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
+References: <20211115165419.961798833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +39,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Ni <xni@redhat.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 8b9e2291e355a0eafdd5b1e21a94a6659f24b351 ]
+[ Upstream commit f6e1f59885dae5a2553f8bbd328be2cb1c80ccb2 ]
 
-When the in memory flag is changed, we need to persist the change in the
-rdev superblock flags. This is needed for "writemostly" and "failfast".
+Introduce mt76_register_debugfs_fops routine in order to
+define per-driver regs file operations and make sure the
+device is up before reading or writing its registers
 
-Reviewed-by: Li Feng <fengli@smartx.com>
-Signed-off-by: Xiao Ni <xni@redhat.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 1d8efc741df8 ("mt76: mt7921: introduce Runtime PM support")
+Fixes: de5ff3c9d1a2 ("mt76: mt7615: introduce pm_power_save delayed work")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/debugfs.c  | 10 ++++---
+ drivers/net/wireless/mediatek/mt76/mt76.h     |  8 ++++-
+ .../wireless/mediatek/mt76/mt7615/debugfs.c   | 29 ++++++++++++++++++-
+ .../wireless/mediatek/mt76/mt7921/debugfs.c   | 28 +++++++++++++++++-
+ 4 files changed, 68 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index f16f190546ef3..7871e7dcd4836 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -3024,7 +3024,11 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
- 	 *  -write_error - clears WriteErrorSeen
- 	 *  {,-}failfast - set/clear FailFast
- 	 */
+diff --git a/drivers/net/wireless/mediatek/mt76/debugfs.c b/drivers/net/wireless/mediatek/mt76/debugfs.c
+index fa48cc3a7a8f7..ad97308c78534 100644
+--- a/drivers/net/wireless/mediatek/mt76/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/debugfs.c
+@@ -116,8 +116,11 @@ static int mt76_read_rate_txpower(struct seq_file *s, void *data)
+ 	return 0;
+ }
+ 
+-struct dentry *mt76_register_debugfs(struct mt76_dev *dev)
++struct dentry *
++mt76_register_debugfs_fops(struct mt76_dev *dev,
++			   const struct file_operations *ops)
+ {
++	const struct file_operations *fops = ops ? ops : &fops_regval;
+ 	struct dentry *dir;
+ 
+ 	dir = debugfs_create_dir("mt76", dev->hw->wiphy->debugfsdir);
+@@ -126,8 +129,7 @@ struct dentry *mt76_register_debugfs(struct mt76_dev *dev)
+ 
+ 	debugfs_create_u8("led_pin", 0600, dir, &dev->led_pin);
+ 	debugfs_create_u32("regidx", 0600, dir, &dev->debugfs_reg);
+-	debugfs_create_file_unsafe("regval", 0600, dir, dev,
+-				   &fops_regval);
++	debugfs_create_file_unsafe("regval", 0600, dir, dev, fops);
+ 	debugfs_create_file_unsafe("napi_threaded", 0600, dir, dev,
+ 				   &fops_napi_threaded);
+ 	debugfs_create_blob("eeprom", 0400, dir, &dev->eeprom);
+@@ -140,4 +142,4 @@ struct dentry *mt76_register_debugfs(struct mt76_dev *dev)
+ 
+ 	return dir;
+ }
+-EXPORT_SYMBOL_GPL(mt76_register_debugfs);
++EXPORT_SYMBOL_GPL(mt76_register_debugfs_fops);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
+index 25c5ceef52577..4d01fd85283df 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -869,7 +869,13 @@ struct mt76_phy *mt76_alloc_phy(struct mt76_dev *dev, unsigned int size,
+ int mt76_register_phy(struct mt76_phy *phy, bool vht,
+ 		      struct ieee80211_rate *rates, int n_rates);
+ 
+-struct dentry *mt76_register_debugfs(struct mt76_dev *dev);
++struct dentry *mt76_register_debugfs_fops(struct mt76_dev *dev,
++					  const struct file_operations *ops);
++static inline struct dentry *mt76_register_debugfs(struct mt76_dev *dev)
++{
++	return mt76_register_debugfs_fops(dev, NULL);
++}
 +
-+	struct mddev *mddev = rdev->mddev;
- 	int err = -EINVAL;
-+	bool need_update_sb = false;
+ int mt76_queues_read(struct seq_file *s, void *data);
+ void mt76_seq_puts_array(struct seq_file *file, const char *str,
+ 			 s8 *val, int len);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c
+index cb4659771fd97..bda22ca0bd714 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/debugfs.c
+@@ -2,6 +2,33 @@
+ 
+ #include "mt7615.h"
+ 
++static int
++mt7615_reg_set(void *data, u64 val)
++{
++	struct mt7615_dev *dev = data;
 +
- 	if (cmd_match(buf, "faulty") && rdev->mddev->pers) {
- 		md_error(rdev->mddev, rdev);
- 		if (test_bit(Faulty, &rdev->flags))
-@@ -3039,7 +3043,6 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
- 		if (rdev->raid_disk >= 0)
- 			err = -EBUSY;
- 		else {
--			struct mddev *mddev = rdev->mddev;
- 			err = 0;
- 			if (mddev_is_clustered(mddev))
- 				err = md_cluster_ops->remove_disk(mddev, rdev);
-@@ -3056,10 +3059,12 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
- 	} else if (cmd_match(buf, "writemostly")) {
- 		set_bit(WriteMostly, &rdev->flags);
- 		mddev_create_serial_pool(rdev->mddev, rdev, false);
-+		need_update_sb = true;
- 		err = 0;
- 	} else if (cmd_match(buf, "-writemostly")) {
- 		mddev_destroy_serial_pool(rdev->mddev, rdev, false);
- 		clear_bit(WriteMostly, &rdev->flags);
-+		need_update_sb = true;
- 		err = 0;
- 	} else if (cmd_match(buf, "blocked")) {
- 		set_bit(Blocked, &rdev->flags);
-@@ -3085,9 +3090,11 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
- 		err = 0;
- 	} else if (cmd_match(buf, "failfast")) {
- 		set_bit(FailFast, &rdev->flags);
-+		need_update_sb = true;
- 		err = 0;
- 	} else if (cmd_match(buf, "-failfast")) {
- 		clear_bit(FailFast, &rdev->flags);
-+		need_update_sb = true;
- 		err = 0;
- 	} else if (cmd_match(buf, "-insync") && rdev->raid_disk >= 0 &&
- 		   !test_bit(Journal, &rdev->flags)) {
-@@ -3166,6 +3173,8 @@ state_store(struct md_rdev *rdev, const char *buf, size_t len)
- 		clear_bit(ExternalBbl, &rdev->flags);
- 		err = 0;
- 	}
-+	if (need_update_sb)
-+		md_update_sb(mddev, 1);
- 	if (!err)
- 		sysfs_notify_dirent_safe(rdev->sysfs_state);
- 	return err ? err : len;
++	mt7615_mutex_acquire(dev);
++	mt76_wr(dev, dev->mt76.debugfs_reg, val);
++	mt7615_mutex_release(dev);
++
++	return 0;
++}
++
++static int
++mt7615_reg_get(void *data, u64 *val)
++{
++	struct mt7615_dev *dev = data;
++
++	mt7615_mutex_acquire(dev);
++	*val = mt76_rr(dev, dev->mt76.debugfs_reg);
++	mt7615_mutex_release(dev);
++
++	return 0;
++}
++
++DEFINE_DEBUGFS_ATTRIBUTE(fops_regval, mt7615_reg_get, mt7615_reg_set,
++			 "0x%08llx\n");
++
+ static int
+ mt7615_radar_pattern_set(void *data, u64 val)
+ {
+@@ -506,7 +533,7 @@ int mt7615_init_debugfs(struct mt7615_dev *dev)
+ {
+ 	struct dentry *dir;
+ 
+-	dir = mt76_register_debugfs(&dev->mt76);
++	dir = mt76_register_debugfs_fops(&dev->mt76, &fops_regval);
+ 	if (!dir)
+ 		return -ENOMEM;
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
+index 77468bdae460b..4c89c4ac8031a 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
+@@ -4,6 +4,32 @@
+ #include "mt7921.h"
+ #include "eeprom.h"
+ 
++static int
++mt7921_reg_set(void *data, u64 val)
++{
++	struct mt7921_dev *dev = data;
++
++	mt7921_mutex_acquire(dev);
++	mt76_wr(dev, dev->mt76.debugfs_reg, val);
++	mt7921_mutex_release(dev);
++
++	return 0;
++}
++
++static int
++mt7921_reg_get(void *data, u64 *val)
++{
++	struct mt7921_dev *dev = data;
++
++	mt7921_mutex_acquire(dev);
++	*val = mt76_rr(dev, dev->mt76.debugfs_reg);
++	mt7921_mutex_release(dev);
++
++	return 0;
++}
++
++DEFINE_DEBUGFS_ATTRIBUTE(fops_regval, mt7921_reg_get, mt7921_reg_set,
++			 "0x%08llx\n");
+ static int
+ mt7921_fw_debug_set(void *data, u64 val)
+ {
+@@ -373,7 +399,7 @@ int mt7921_init_debugfs(struct mt7921_dev *dev)
+ {
+ 	struct dentry *dir;
+ 
+-	dir = mt76_register_debugfs(&dev->mt76);
++	dir = mt76_register_debugfs_fops(&dev->mt76, &fops_regval);
+ 	if (!dir)
+ 		return -ENOMEM;
+ 
 -- 
 2.33.0
 
