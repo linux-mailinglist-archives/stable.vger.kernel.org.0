@@ -2,85 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F9FD45318D
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 12:57:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F0C453199
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 13:01:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235614AbhKPMAB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 07:00:01 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:56786 "EHLO
+        id S235736AbhKPMCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 07:02:14 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:57084 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235569AbhKPMAA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 07:00:00 -0500
+        with ESMTP id S235623AbhKPMCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 07:02:11 -0500
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 9176C1C0B76; Tue, 16 Nov 2021 12:57:02 +0100 (CET)
-Date:   Tue, 16 Nov 2021 12:57:01 +0100
-From:   Pavel Machek <pavel@ucw.cz>
+        id 8D55E1C0BA2; Tue, 16 Nov 2021 12:59:13 +0100 (CET)
+Date:   Tue, 16 Nov 2021 12:59:12 +0100
+From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Paul Crowley <paulcrowley@google.com>,
-        Eric Biggers <ebiggers@google.com>,
+        Alagu Sankar <alagusankar@silex-india.com>,
+        Erik Stromdahl <erik.stromdahl@gmail.com>,
+        Fabio Estevam <festevam@denx.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 182/575] fscrypt: allow 256-bit master keys with
- AES-256-XTS
-Message-ID: <20211116115701.GA24252@amd>
+Subject: Re: [PATCH 5.10 187/575] ath10k: high latency fixes for beacon buffer
+Message-ID: <20211116115912.GA24443@amd>
 References: <20211115165343.579890274@linuxfoundation.org>
- <20211115165349.993529752@linuxfoundation.org>
+ <20211115165350.173331894@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
+        protocol="application/pgp-signature"; boundary="FL5UXtIhxfXey3p5"
 Content-Disposition: inline
-In-Reply-To: <20211115165349.993529752@linuxfoundation.org>
+In-Reply-To: <20211115165350.173331894@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---C7zPtVaVf+AK4Oqc
+--FL5UXtIhxfXey3p5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> From: Eric Biggers <ebiggers@google.com>
+> From: Alagu Sankar <alagusankar@silex-india.com>
 >=20
-> [ Upstream commit 7f595d6a6cdc336834552069a2e0a4f6d4756ddf ]
+> [ Upstream commit e263bdab9c0e8025fb7f41f153709a9cda51f6b6 ]
 >=20
-> fscrypt currently requires a 512-bit master key when AES-256-XTS is
-> used, since AES-256-XTS keys are 512-bit and fscrypt requires that the
-> master key be at least as long any key that will be derived from it.
+> Beacon buffer for high latency devices does not use DMA. other similar
+> buffer allocation methods in the driver have already been modified for
+> high latency path. Fix the beacon buffer allocation left out in the
+> earlier high latency changes.
 
-Quoting Eric Biggers <ebiggers@kernel.org>
+There's GFP_KERNEL vs. GFP_ATOMIC confusion here:
 
-I don't expect any problem with backporting this, but I don't see how
-this
-follows the stable kernel rules
-(Documentation/process/stable-kernel-rules.rst).
-I don't see what distinguishes this patch from ones that don't get
-picked up by
-AUTOSEL; it seems pretty arbitrary to me.
+> @@ -5466,10 +5470,17 @@ static int ath10k_add_interface(struct ieee80211_=
+hw *hw,
+>  	if (vif->type =3D=3D NL80211_IFTYPE_ADHOC ||
+>  	    vif->type =3D=3D NL80211_IFTYPE_MESH_POINT ||
+>  	    vif->type =3D=3D NL80211_IFTYPE_AP) {
+> -		arvif->beacon_buf =3D dma_alloc_coherent(ar->dev,
+> -						       IEEE80211_MAX_FRAME_LEN,
+> -						       &arvif->beacon_paddr,
+> -						       GFP_ATOMIC);
+> +		if (ar->bus_param.dev_type =3D=3D ATH10K_DEV_TYPE_HL) {
+> +			arvif->beacon_buf =3D kmalloc(IEEE80211_MAX_FRAME_LEN,
+> +						    GFP_KERNEL);
+> +			arvif->beacon_paddr =3D (dma_addr_t)arvif->beacon_buf;
+> +		} else {
+> +			arvif->beacon_buf =3D
+> +				dma_alloc_coherent(ar->dev,
+> +						   IEEE80211_MAX_FRAME_LEN,
+> +						   &arvif->beacon_paddr,
+> +						   GFP_ATOMIC);
+> +		}
+>  		if (!arvif->beacon_buf) {
+>  			ret =3D -ENOMEM;
+>  			ath10k_warn(ar, "failed to allocate beacon
+>  	buffer: %d\n",
 
-- Eric
-
-And I agree, this should not be in stable.
+I'd expect both allocations to use same GFP_ flags.
 
 Best regards,
 								Pavel
-							=09
 --=20
-http://www.livejournal.com/~pavelmachek
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---C7zPtVaVf+AK4Oqc
+--FL5UXtIhxfXey3p5
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAmGTnI0ACgkQMOfwapXb+vJalQCfSPdVD69rmCuKPbLhW6TugkEG
-4GwAoLNAzaV4Z/fqbrn0hOXmG+fPu8sb
-=MNHP
+iEUEARECAAYFAmGTnRAACgkQMOfwapXb+vLjLgCfQipfkKHQFgW+4mRTmd/TPkV1
+XRYAmKggzhcpRiX0C19G7ZOnL3iTgWM=
+=EftE
 -----END PGP SIGNATURE-----
 
---C7zPtVaVf+AK4Oqc--
+--FL5UXtIhxfXey3p5--
