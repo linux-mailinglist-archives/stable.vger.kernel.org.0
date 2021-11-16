@@ -2,95 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F22C453A6C
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:51:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 641E0453A6F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:51:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240166AbhKPTws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 14:52:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57644 "EHLO
+        id S240185AbhKPTwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 14:52:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231550AbhKPTwr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 14:52:47 -0500
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24571C061570;
-        Tue, 16 Nov 2021 11:49:50 -0800 (PST)
-Received: by mail-pf1-x430.google.com with SMTP id n85so363586pfd.10;
-        Tue, 16 Nov 2021 11:49:50 -0800 (PST)
+        with ESMTP id S231550AbhKPTwx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 14:52:53 -0500
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B9EC0613B9
+        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 11:49:55 -0800 (PST)
+Received: by mail-pg1-x52e.google.com with SMTP id r5so106920pgi.6
+        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 11:49:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=Kv3IYPiX5SnYfnO5a8CoHQzGWqarVJmmBtF2EGunec4=;
-        b=k5zq7Qiwv0sVC50+hDQiqrw4Tbz2EWbNn2UkoGAK1kGG3XGGOvaN5FNSSvKe0pot2H
-         7mH2K4F8xYJJBcDOr8MWaBkwrE02YMFngxvZDW+1eDLGjlLCKl1ogvGFdmW4EeqsGIsN
-         9bAzF6SxpuHWFq9F/0nXxVkBcU7+IQiLj9HJqCchOses3LeI/tYBs7qEstaFGYDCaFCx
-         AGN2vxRNC9jUirj1Yj1CulD9XKSZ7Cm7YJ2OPRZL3Ln7SIfRFjE/4VIDTuJFz/5NG9+h
-         OxtPD0Zda046oicqBpXgMwmZZBU2VIJIU6TC1+dtT2GzGw0K+dBNX4f94HmBZsWtDUMk
-         5Z9g==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=1d6/4k5Xcz2WFm9nCRFeDJrzrjmhoF9/g0I0hUKV8pA=;
+        b=sTwLG0pWMuBOOVjl+wSvqj3tml5Dl7m3E6DH/8o+1Nwtrvyh9qzmg9a9tv0ZjU5c4Z
+         z5GqT9K5+N00bFphQqf4G8myI1O3gUtlzP/49rvG0pS7foXqCgJmgxDGHQRq4EJiKrpx
+         +rCBe+mS26F8JGd/f7I08SDbQSEuVZTa/g/eVDQe6gbPiI/VFN4I3j104CteK8RqxzOO
+         Hz8+Wy9zypCa2YeC2voYTCAoWOchLHzj2iJJcjBY/OQGQokNKvzB0IIMQNtc/GKDuMZi
+         FaihGiRosbHe/uq9KyOq8pDaCGxXsk6gYUMvm0/oCG6AGtqXlHFX2f99xUA0c+krcDNc
+         CcqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Kv3IYPiX5SnYfnO5a8CoHQzGWqarVJmmBtF2EGunec4=;
-        b=N+YIepe5yDobTBXHEoEzcjCbaAyqCOOPfQ2m3H2o15hLTCiFKGG/HIdSTAFC26euVo
-         kLAmlBzMoGPTzztpnDAy7W7pFPPyCUJXlmOmpfzbGCqcDpHf1dvZd1iDy9V3LxnWOJ2r
-         uga7nqQD00t8+WmRqA0yXxgDJ7fZWfAYLgX2/5a3bTiPDyxKWQqmzBpEItx9hxbz7X6S
-         XeAfm+MB3YGYHAQ5GF80zHH5ziCmpcrk1Q+Bwitlkz1jr9+y25DZ0CLztfGPMK0czpGr
-         6iKAnXKAuGAa6GRbgIQqfJKEJFWV0QulHeg+b4YHHcExQzdxu9UfTHXB0Vx2fSQ0k9bK
-         7sCg==
-X-Gm-Message-State: AOAM531YEqRvZ/LVkabjKdZKxFghu8lMY7jFa14TJ5kc1tujP7sgAN5r
-        oZckHAG3l3m1BRLxFc7qG3nnpBFbxSM=
-X-Google-Smtp-Source: ABdhPJz/299ps5UDV4MwfXmvLFU8iVY0AeCO9Q1Tw5i26ajanZMCI++YiOR+pVK5FZgrFAsPSrpb3A==
-X-Received: by 2002:aa7:888d:0:b0:47c:128b:ee57 with SMTP id z13-20020aa7888d000000b0047c128bee57mr1601114pfe.81.1637092189307;
-        Tue, 16 Nov 2021 11:49:49 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id rj8sm3375066pjb.0.2021.11.16.11.49.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 16 Nov 2021 11:49:48 -0800 (PST)
-Subject: Re: [PATCH 5.10 000/578] 5.10.80-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20211116142545.607076484@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <63702e31-15eb-6c5e-7f9b-96617afefbdb@gmail.com>
-Date:   Tue, 16 Nov 2021 11:49:47 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=1d6/4k5Xcz2WFm9nCRFeDJrzrjmhoF9/g0I0hUKV8pA=;
+        b=pZ2tXMPBLkt+cmgD7Zl7BrhH4eFaPPs0Uy7wIhoYm48XFkX7VQ3Eu/Hi0DbhZFDw9g
+         OZ5h/S0KRcuGmtCuapxuKfbpHwFpTSCUwpeXRrJoyxlrWPskbzEBt2j1gY5dFJUGv7jI
+         6HGpfnorjinhrXWsv11pJtu/te74fFKCmpaHb95O02/sdxT6aJChkwSQAZ73j8XNw3oG
+         r/uI3P4syrBRxhyXX2iNaQFSgSNPrImxGXuFATqGmLTweJCmzOLkgHKkgTgRDAewP0fm
+         00AysFVjaYv7QKDkhPXzcKMbwqE5x82mLiSytaDQjTNBRdfFrApjZANevkFa6u8RX1n+
+         5pHw==
+X-Gm-Message-State: AOAM5301FcdX2qJy3euCEatb/fMqrem3WYp2NL/1siEjhdOIcJNv14GH
+        UF5Ipd0FuPQ2sm9ab4xEUkSfRMn5cAn9Ikzb
+X-Google-Smtp-Source: ABdhPJz6x+D/nb09U/nIb3XJRfW+2d4kQ57elzFJX8IIZAOO/jIHu8RW3vfIOb4Jb+Tmkg8hX0Y8gA==
+X-Received: by 2002:a63:804a:: with SMTP id j71mr1094906pgd.472.1637092194895;
+        Tue, 16 Nov 2021 11:49:54 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m12sm16689269pfk.27.2021.11.16.11.49.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Nov 2021 11:49:54 -0800 (PST)
+Message-ID: <61940b62.1c69fb81.48c9.f00c@mx.google.com>
+Date:   Tue, 16 Nov 2021 11:49:54 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20211116142545.607076484@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.14
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.14.18-857-gc5cf53eecb90b
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.14 baseline: 132 runs,
+ 1 regressions (v5.14.18-857-gc5cf53eecb90b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/16/21 7:00 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.80 release.
-> There are 578 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 18 Nov 2021 14:24:22 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.80-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/queue/5.14 baseline: 132 runs, 1 regressions (v5.14.18-857-gc5cf5=
+3eecb90b)
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Regressions Summary
+-------------------
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
+nel/v5.14.18-857-gc5cf53eecb90b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.14
+  Describe: v5.14.18-857-gc5cf53eecb90b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c5cf53eecb90be18439ead17423d407e3eb31bd1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/6193d36a23d4971c833358fd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.18-=
+857-gc5cf53eecb90b/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-bea=
+gle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.18-=
+857-gc5cf53eecb90b/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-bea=
+gle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6193d36a23d4971c83335=
+8fe
+        failing since 23 days (last pass: v5.14.14-64-gb66eb77f69e4, first =
+fail: v5.14.14-124-g710e5bbf51e3) =
+
+ =20
