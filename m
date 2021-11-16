@@ -2,74 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0591C452F79
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:47:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74DBF452F7C
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:49:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234386AbhKPKuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 05:50:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45370 "EHLO
+        id S234341AbhKPKv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 05:51:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234313AbhKPKuc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 05:50:32 -0500
-Received: from mail-vk1-xa31.google.com (mail-vk1-xa31.google.com [IPv6:2607:f8b0:4864:20::a31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C3FBC061570;
-        Tue, 16 Nov 2021 02:47:35 -0800 (PST)
-Received: by mail-vk1-xa31.google.com with SMTP id q21so2411456vkn.2;
-        Tue, 16 Nov 2021 02:47:35 -0800 (PST)
+        with ESMTP id S234313AbhKPKvs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 05:51:48 -0500
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D0CC061570
+        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 02:48:51 -0800 (PST)
+Received: by mail-pl1-x631.google.com with SMTP id y8so11576014plg.1
+        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 02:48:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=N0F3X87qqLjtSlIy5Oj7v9TIEoZnHN4xn+PiZgIR73k=;
-        b=jyH5OwR//ESuY2WLwA/4wBB0tyu7nEDnnHPVwrFCbCe43HQ1QZsoYn3INpMckM5POq
-         0jkt7nFioOFrFi1x+L/hZydsP/aeuPv+QmJ/MEGNXuFNfdNFqoVkPkpBHT32fAROWp2z
-         4uDATRKRfFFHHCRW6kzOs/hwjrNKSp3cA7ESTMrXcW5Yv9BrrUN2Hy3IXGmASDhrqXTQ
-         QmvA2xj0FYq1Js4JykfqNUgfCazweVVeVvI2Bd/VDWLuDZRb0/F06sgSWIWShjZB2cxS
-         YnaFgfoP6pH/ai5Y7MyFkdpHexa78W07HvutVMsuSZViwvsk8QvXdt8lDBYZqGNZSorg
-         95MQ==
+        h=from:to:cc:subject:date:message-id;
+        bh=ft3960Gcyu760DPw25fLOC4PWwYA5oMTpbiLIMJESzw=;
+        b=m4MJCbxi0h0HeVeAXK1Ol+RCD9ZwTuUquW5M3TblBMKnTsPeDFnPp9+q7VDO/DjiVT
+         2VudlZzhYbsGIEsU095e+Hh3TzCHaLAuNKyjRQkuRI8BK4cZ2dogAHVo1uIuPfxRh7U4
+         SZy1UuD5GU7Lq8XvXTrQXMGbJF7yC7FC3Z2W9/Mu8MCKF5loXlU/cTnmlRQ7VbYHY9ii
+         1WvJVGY0HkPXId6PGgwXgEWMSIT0SLJxUbIh/UJq/aLiIzoYwoRThaHxBE61HA+Wmo4N
+         oSb3N1zCTzFavCxopYGbSDpvh5oqRddaDOdU2sY8/Db1ub4L8bWZIcpWPT1BdnAZeSG3
+         oLbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=N0F3X87qqLjtSlIy5Oj7v9TIEoZnHN4xn+PiZgIR73k=;
-        b=6E29HH3X1H1K244SZxtFHFNCejZe0BR/foqj+yY6GxU0OhomUjMdUKxnG5bh/7dorH
-         Nln1QnD+vUXRWZ8bSL1tloGTbnN8ylIOtU1hWSxg/ln/pYB5/ijScWn4PrbXmPKttS/Z
-         McBBmed7AYWnl27s6UGc5sYuoegmkAZfQaEJuA+ZL/DoHuODbVRFfWCEHc6Lc3meIOiu
-         GVvy0KWJ9GwR+OgV4Z9rCdldPC1viEbJOeoLU6NFRUIcdcq63DmEUMbn2k0cuIWFJQaY
-         +E0mQsV/TJ2Doh7LLtoz7m5XGdJduw5fX1hCqsHMv19e+6i3a4ouWUt8zNPvu4BIek4D
-         HTNg==
-X-Gm-Message-State: AOAM5334lH2+kscxKZ1mWsqkVNWpH5HWFJnEZ6sAlAPh8e8uI6tVnOpN
-        ukfc4axIfA2IDlsTNoJlN7k1B8s0CUoD5r3ieQ==
-X-Google-Smtp-Source: ABdhPJxsR3E2mWHsYyQx7VDQmEj5mWtqN51EqLPWP8YZTg8kiealzynpu3tvt4pN3gPZa7DEDLk1kaRdJLTeZD3WkZQ=
-X-Received: by 2002:a05:6122:214e:: with SMTP id m14mr48370785vkd.19.1637059654211;
- Tue, 16 Nov 2021 02:47:34 -0800 (PST)
-MIME-Version: 1.0
-References: <20211104180130.3825416-1-maz@kernel.org> <87ilx64ued.ffs@tglx>
- <CALjTZvag6ex6bhAgJ_rJOfai8GgZQfWesdV=FiMrwEaXhVVVeQ@mail.gmail.com> <YZOKV6z+6pDjjvcl@kroah.com>
-In-Reply-To: <YZOKV6z+6pDjjvcl@kroah.com>
-From:   Rui Salvaterra <rsalvaterra@gmail.com>
-Date:   Tue, 16 Nov 2021 10:47:23 +0000
-Message-ID: <CALjTZvaeujHJw-EV1Y=+npjXzYFiiQ9sbu6tE6do63F9R4dRqg@mail.gmail.com>
-Subject: Re: [PATCH 0/2] PCI: MSI: Deal with devices lying about their masking capability
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>, linux-pci@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        kernel-team@android.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=ft3960Gcyu760DPw25fLOC4PWwYA5oMTpbiLIMJESzw=;
+        b=gLOg8QZEoPLZ6oy/L2LNoWRlrg8YkSnR2R7s5lgy+WefDZqwa3ANwDy3vgFJhahzTp
+         lRq6svTo2puUD1O7jV94NekWexUJY5M+Tuv8Cegtv6EKwzRDUOnS/N9+GbbTQ5bp1x9n
+         srzoWmw2ynyM8e84VlEjXLPxgJ/3917dVuKv/S/jmSZdcmI0jMhLFtx55QLTUoR5H5Fx
+         Rn98L5c7zv7IbNu4AHVgvWKdNOASAwcNXli2vls58KHxqmH4+Ka2qe86GvnTR8MThIkq
+         r3O6sFeHMcIuA4b6LHc5YGrMQb+frJANMtgnl3P6z+RsJ+/9XeHKIhmn7t5qbJY+9mCJ
+         yQLg==
+X-Gm-Message-State: AOAM533rnu1ov7ODBbAZQIOtUTI1pi5WNzdqOjTkZrf+qG7j3jMmQ9bR
+        nCF96cS82m25e8G7z3AX2/Q=
+X-Google-Smtp-Source: ABdhPJyQX7W3xJhuHgtNi8fTD1EA2rY0THC8BJZSSEcu1a2fiaesb/Cpk+pnFPMNhSfnpCKWKqY/kA==
+X-Received: by 2002:a17:902:a717:b0:142:76bc:da69 with SMTP id w23-20020a170902a71700b0014276bcda69mr44372752plq.12.1637059731322;
+        Tue, 16 Nov 2021 02:48:51 -0800 (PST)
+Received: from lenovo.spreadtrum.com ([117.18.48.102])
+        by smtp.gmail.com with ESMTPSA id p2sm2024375pja.55.2021.11.16.02.48.47
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 16 Nov 2021 02:48:51 -0800 (PST)
+From:   Orson Zhai <orsonzhai@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     Sasha Levin <sashal@kernel.org>, Can Guo <cang@codeaurora.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Adrian Hunter <adrian.hunter@intel.com>, orson.zhai@gmail.com,
+        Orson Zhai <orson.zhai@unisoc.com>
+Subject: [PATCH 0/2] scsi/ufs: Cherry-pick 2 fixes for null pointer into 5.4.y only 
+Date:   Tue, 16 Nov 2021 18:48:29 +0800
+Message-Id: <1637059711-11746-1-git-send-email-orsonzhai@gmail.com>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Greg,
+From: Orson Zhai <orson.zhai@unisoc.com>
 
-On Tue, 16 Nov 2021 at 10:39, Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> What is the git commit ids of these changes in Linus's tree?
+Hi Greg,
 
-2226667a145d ("PCI/MSI: Deal with devices lying about their MSI mask
-capability")
-f21082fb20db ("PCI: Add MSI masking quirk for Nvidia ION AHCI")
+Following 2 patches were merged into 5.10.y but not in 5.4.y.
+We've found kernel crashes on our devices with 5.4 stable caused by missing them.
+
+Please feel free to add them into the stable queue for 5.4.y if no issue.
 
 Thanks,
-Rui
+Orson
+
+Adrian Hunter (1):
+  scsi: ufs: Fix interrupt error message for shared interrupts
+
+Jaegeuk Kim (1):
+  scsi: ufs: Fix tm request when non-fatal error happens
+
+ drivers/scsi/ufs/ufshcd.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+-- 
+2.7.4
+
