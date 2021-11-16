@@ -2,82 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5943C452F77
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:47:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0591C452F79
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:47:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234383AbhKPKuH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 05:50:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53526 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234313AbhKPKuH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 05:50:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E270461BFE;
-        Tue, 16 Nov 2021 10:47:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637059630;
-        bh=gggbqcgtep2pRaIYdWKpHfoah2S3o4LpdcTJQwZgqFA=;
-        h=Subject:To:Cc:From:Date:From;
-        b=1OYhM0QthG7X+LKvbsmZ7gFhUJKQYPMI51+om1gj/bdJ6cklG1th8OCV/hxA/Qo/A
-         YMliglOOJ4d+vm230QqOHKUoqheK+131Smhz6cZ3+ga0svlpFcmkQPHuGLW4JEEFh8
-         GbD4fMfquHfGPSrEKb+iq9RsiTVHHYT0P0ZWwouY=
-Subject: FAILED: patch "[PATCH] parisc/entry: fix trace test in syscall exit path" failed to apply to 4.4-stable tree
-To:     svens@stackframe.org, deller@gmx.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 16 Nov 2021 11:46:55 +0100
-Message-ID: <1637059615108224@kroah.com>
+        id S234386AbhKPKuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 05:50:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45370 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234313AbhKPKuc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 05:50:32 -0500
+Received: from mail-vk1-xa31.google.com (mail-vk1-xa31.google.com [IPv6:2607:f8b0:4864:20::a31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C3FBC061570;
+        Tue, 16 Nov 2021 02:47:35 -0800 (PST)
+Received: by mail-vk1-xa31.google.com with SMTP id q21so2411456vkn.2;
+        Tue, 16 Nov 2021 02:47:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=N0F3X87qqLjtSlIy5Oj7v9TIEoZnHN4xn+PiZgIR73k=;
+        b=jyH5OwR//ESuY2WLwA/4wBB0tyu7nEDnnHPVwrFCbCe43HQ1QZsoYn3INpMckM5POq
+         0jkt7nFioOFrFi1x+L/hZydsP/aeuPv+QmJ/MEGNXuFNfdNFqoVkPkpBHT32fAROWp2z
+         4uDATRKRfFFHHCRW6kzOs/hwjrNKSp3cA7ESTMrXcW5Yv9BrrUN2Hy3IXGmASDhrqXTQ
+         QmvA2xj0FYq1Js4JykfqNUgfCazweVVeVvI2Bd/VDWLuDZRb0/F06sgSWIWShjZB2cxS
+         YnaFgfoP6pH/ai5Y7MyFkdpHexa78W07HvutVMsuSZViwvsk8QvXdt8lDBYZqGNZSorg
+         95MQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=N0F3X87qqLjtSlIy5Oj7v9TIEoZnHN4xn+PiZgIR73k=;
+        b=6E29HH3X1H1K244SZxtFHFNCejZe0BR/foqj+yY6GxU0OhomUjMdUKxnG5bh/7dorH
+         Nln1QnD+vUXRWZ8bSL1tloGTbnN8ylIOtU1hWSxg/ln/pYB5/ijScWn4PrbXmPKttS/Z
+         McBBmed7AYWnl27s6UGc5sYuoegmkAZfQaEJuA+ZL/DoHuODbVRFfWCEHc6Lc3meIOiu
+         GVvy0KWJ9GwR+OgV4Z9rCdldPC1viEbJOeoLU6NFRUIcdcq63DmEUMbn2k0cuIWFJQaY
+         +E0mQsV/TJ2Doh7LLtoz7m5XGdJduw5fX1hCqsHMv19e+6i3a4ouWUt8zNPvu4BIek4D
+         HTNg==
+X-Gm-Message-State: AOAM5334lH2+kscxKZ1mWsqkVNWpH5HWFJnEZ6sAlAPh8e8uI6tVnOpN
+        ukfc4axIfA2IDlsTNoJlN7k1B8s0CUoD5r3ieQ==
+X-Google-Smtp-Source: ABdhPJxsR3E2mWHsYyQx7VDQmEj5mWtqN51EqLPWP8YZTg8kiealzynpu3tvt4pN3gPZa7DEDLk1kaRdJLTeZD3WkZQ=
+X-Received: by 2002:a05:6122:214e:: with SMTP id m14mr48370785vkd.19.1637059654211;
+ Tue, 16 Nov 2021 02:47:34 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20211104180130.3825416-1-maz@kernel.org> <87ilx64ued.ffs@tglx>
+ <CALjTZvag6ex6bhAgJ_rJOfai8GgZQfWesdV=FiMrwEaXhVVVeQ@mail.gmail.com> <YZOKV6z+6pDjjvcl@kroah.com>
+In-Reply-To: <YZOKV6z+6pDjjvcl@kroah.com>
+From:   Rui Salvaterra <rsalvaterra@gmail.com>
+Date:   Tue, 16 Nov 2021 10:47:23 +0000
+Message-ID: <CALjTZvaeujHJw-EV1Y=+npjXzYFiiQ9sbu6tE6do63F9R4dRqg@mail.gmail.com>
+Subject: Re: [PATCH 0/2] PCI: MSI: Deal with devices lying about their masking capability
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        kernel-team@android.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi, Greg,
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Tue, 16 Nov 2021 at 10:39, Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> What is the git commit ids of these changes in Linus's tree?
 
-thanks,
+2226667a145d ("PCI/MSI: Deal with devices lying about their MSI mask
+capability")
+f21082fb20db ("PCI: Add MSI masking quirk for Nvidia ION AHCI")
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 3ec18fc7831e7d79e2d536dd1f3bc0d3ba425e8a Mon Sep 17 00:00:00 2001
-From: Sven Schnelle <svens@stackframe.org>
-Date: Sat, 13 Nov 2021 20:41:17 +0100
-Subject: [PATCH] parisc/entry: fix trace test in syscall exit path
-
-commit 8779e05ba8aa ("parisc: Fix ptrace check on syscall return")
-fixed testing of TI_FLAGS. This uncovered a bug in the test mask.
-syscall_restore_rfi is only used when the kernel needs to exit to
-usespace with single or block stepping and the recovery counter
-enabled. The test however used _TIF_SYSCALL_TRACE_MASK, which
-includes a lot of bits that shouldn't be tested here.
-
-Fix this by using TIF_SINGLESTEP and TIF_BLOCKSTEP directly.
-
-I encountered this bug by enabling syscall tracepoints. Both in qemu and
-on real hardware. As soon as i enabled the tracepoint (sys_exit_read,
-but i guess it doesn't really matter which one), i got random page
-faults in userspace almost immediately.
-
-Signed-off-by: Sven Schnelle <svens@stackframe.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
-
-diff --git a/arch/parisc/kernel/entry.S b/arch/parisc/kernel/entry.S
-index 57944d6f9ebb..88c188a965d8 100644
---- a/arch/parisc/kernel/entry.S
-+++ b/arch/parisc/kernel/entry.S
-@@ -1805,7 +1805,7 @@ syscall_restore:
- 
- 	/* Are we being ptraced? */
- 	LDREG	TASK_TI_FLAGS(%r1),%r19
--	ldi	_TIF_SYSCALL_TRACE_MASK,%r2
-+	ldi	_TIF_SINGLESTEP|_TIF_BLOCKSTEP,%r2
- 	and,COND(=)	%r19,%r2,%r0
- 	b,n	syscall_restore_rfi
- 
-
+Thanks,
+Rui
