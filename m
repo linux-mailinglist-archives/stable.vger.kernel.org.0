@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A32452F8D
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:55:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 350EA452F8F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:55:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234428AbhKPK57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 05:57:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54456 "EHLO mail.kernel.org"
+        id S232622AbhKPK6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 05:58:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234430AbhKPK55 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 05:57:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FE1361BE3;
-        Tue, 16 Nov 2021 10:55:00 +0000 (UTC)
+        id S234430AbhKPK6C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 05:58:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 643DC61BE3;
+        Tue, 16 Nov 2021 10:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637060101;
-        bh=FGKMIppK+pJbFiwES4HAB2zCnqwCCHeeV6H+dkhfEz8=;
+        s=korg; t=1637060105;
+        bh=GPmdvKHhMIcIFwEXRqqj4FpmPF3oOiNm43FZnOlu8Rw=;
         h=Subject:To:Cc:From:Date:From;
-        b=Num9Z2Aa53nhXr/LbaCg7DaSn5R5U6h+IORyd+JNplQPOcw1BK+vGHgqLYUfgQPDu
-         1S/GfXUs+WKVjQOclYMZzaytSoPCQ4O7x/yXaIBFCXduIbVCl5d8EHXBiB8hddtQ37
-         n3e7SgbHo+h3d5s292KORNdD4+MTVOmmLRC7QaX0=
-Subject: FAILED: patch "[PATCH] x86/sev: Make the #VC exception stacks part of the default" failed to apply to 4.4-stable tree
+        b=O2x/Wr/NaWcbsWfPWBlTKXX7kRHCngQlfVMQnAH35OmTT/Kg46msOUyoP7bokLbrs
+         WST0fHfz5HqKSaTjtIsMKFCLga7bUek0n5HRpCmFYI8h+P50sNc+r4v/tEhFyQU6fL
+         ZMWYLUcXTnVM2tctX64Wx+aQKrlIw27YNt/h6PHE=
+Subject: FAILED: patch "[PATCH] x86/sev: Make the #VC exception stacks part of the default" failed to apply to 4.9-stable tree
 To:     bp@suse.de, brijesh.singh@amd.com, thomas.lendacky@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 16 Nov 2021 11:54:49 +0100
-Message-ID: <1637060089118219@kroah.com>
+Date:   Tue, 16 Nov 2021 11:54:50 +0100
+Message-ID: <1637060090202179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
