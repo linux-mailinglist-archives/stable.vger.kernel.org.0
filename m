@@ -2,200 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E77DD452F82
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:51:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C991452F88
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:54:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234415AbhKPKyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 05:54:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46186 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234398AbhKPKyJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 05:54:09 -0500
-Received: from dvalin.narfation.org (dvalin.narfation.org [IPv6:2a00:17d8:100::8b1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C52EC061570
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 02:51:12 -0800 (PST)
-From:   Simon Wunderlich <sw@simonwunderlich.de>
-To:     stable@vger.kernel.org
-Cc:     Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com,
-        "David S . Miller" <davem@davemloft.net>,
-        Sven Eckelmann <sven@narfation.org>
-Subject: [PATCH 4.4] net: batman-adv: fix error handling
-Date:   Tue, 16 Nov 2021 11:50:28 +0100
-Message-Id: <20211116105028.188548-1-sw@simonwunderlich.de>
-X-Mailer: git-send-email 2.30.2
+        id S234414AbhKPK5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 05:57:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54340 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234377AbhKPK5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 05:57:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DFFD61BE3;
+        Tue, 16 Nov 2021 10:54:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637060088;
+        bh=iF6xBi8UOPUFeQCK8m3e5lJkCdqiTeB/ZS+hHGoueCc=;
+        h=Subject:To:Cc:From:Date:From;
+        b=N91Lpm/6sfbKgKOBzAIRg+wGYuI+XjNH+CGM8jhUlNMDh1Gb2bzUVw/KdxaemftjR
+         6HkN0IOrbsL45AjG1VErMo9ypVC2wtiKAIi9fpnTJlbI1tIzl9BGRwpgp78FFNDXbS
+         K1WvUOcAu+86OEU0Ct95HpM8tz7a3VMHDyt3orzE=
+Subject: FAILED: patch "[PATCH] x86/sev: Make the #VC exception stacks part of the default" failed to apply to 5.15-stable tree
+To:     bp@suse.de, brijesh.singh@amd.com, thomas.lendacky@amd.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 16 Nov 2021 11:54:46 +0100
+Message-ID: <1637060086211132@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 6f68cd634856f8ca93bafd623ba5357e0f648c68 upstream.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
-in wrong error handling in batadv_mesh_init().
+thanks,
 
-Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
-of any batadv_*_init() calls failure. This approach may work well, when
-there is some kind of indicator, which can tell which parts of batadv are
-initialized; but there isn't any.
+greg k-h
 
-All written above lead to cleaning up uninitialized fields. Even if we hide
-ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
-GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
+------------------ original commit in Linus's tree ------------------
 
-To fix these bugs we can unwind batadv_*_init() calls one by one.
-It is good approach for 2 reasons: 1) It fixes bugs on error handling
-path 2) It improves the performance, since we won't call unneeded
-batadv_*_free() functions.
+From 541ac97186d9ea88491961a46284de3603c914fd Mon Sep 17 00:00:00 2001
+From: Borislav Petkov <bp@suse.de>
+Date: Fri, 1 Oct 2021 21:41:20 +0200
+Subject: [PATCH] x86/sev: Make the #VC exception stacks part of the default
+ stacks storage
 
-So, this patch makes all batadv_*_init() clean up all allocated memory
-before returning with an error to no call correspoing batadv_*_free()
-and open-codes batadv_mesh_free() with proper order to avoid touching
-uninitialized fields.
+The size of the exception stacks was increased by the commit in Fixes,
+resulting in stack sizes greater than a page in size. The #VC exception
+handling was only mapping the first (bottom) page, resulting in an
+SEV-ES guest failing to boot.
 
-Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
-Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[ bp: 4.4 backport: Drop batadv_v_mesh_{init,free} which are not there yet. ]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
----
-Submission according to the request in
-https://lore.kernel.org/all/163559888490194@kroah.com/
+Make the #VC exception stacks part of the default exception stacks
+storage and allocate them with a CONFIG_AMD_MEM_ENCRYPT=y .config. Map
+them only when a SEV-ES guest has been detected.
 
- net/batman-adv/bridge_loop_avoidance.c |  8 +++--
- net/batman-adv/main.c                  | 44 +++++++++++++++++++-------
- net/batman-adv/network-coding.c        |  4 ++-
- net/batman-adv/translation-table.c     |  4 ++-
- 4 files changed, 44 insertions(+), 16 deletions(-)
+Rip out the custom VC stacks mapping and storage code.
 
-diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
-index 1267cbb1a329..5e59a6ecae42 100644
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -1346,10 +1346,14 @@ int batadv_bla_init(struct batadv_priv *bat_priv)
- 		return 0;
+ [ bp: Steal and adapt Tom's commit message. ]
+
+Fixes: 7fae4c24a2b8 ("x86: Increase exception stack sizes")
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
+Tested-by: Brijesh Singh <brijesh.singh@amd.com>
+Link: https://lkml.kernel.org/r/YVt1IMjIs7pIZTRR@zn.tnic
+
+diff --git a/arch/x86/include/asm/cpu_entry_area.h b/arch/x86/include/asm/cpu_entry_area.h
+index 3d52b094850a..dd5ea1bdf04c 100644
+--- a/arch/x86/include/asm/cpu_entry_area.h
++++ b/arch/x86/include/asm/cpu_entry_area.h
+@@ -10,6 +10,12 @@
  
- 	bat_priv->bla.claim_hash = batadv_hash_new(128);
--	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.claim_hash)
-+		return -ENOMEM;
+ #ifdef CONFIG_X86_64
  
--	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
-+	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.backbone_hash) {
-+		batadv_hash_destroy(bat_priv->bla.claim_hash);
- 		return -ENOMEM;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
- 				   &batadv_claim_hash_lock_class_key);
-diff --git a/net/batman-adv/main.c b/net/batman-adv/main.c
-index 88cea5154113..8ba7b86579d4 100644
---- a/net/batman-adv/main.c
-+++ b/net/batman-adv/main.c
-@@ -159,24 +159,34 @@ int batadv_mesh_init(struct net_device *soft_iface)
- 	INIT_HLIST_HEAD(&bat_priv->softif_vlan_list);
- 
- 	ret = batadv_originator_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_orig;
-+	}
- 
- 	ret = batadv_tt_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_tt;
-+	}
- 
- 	ret = batadv_bla_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_bla;
-+	}
- 
- 	ret = batadv_dat_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_dat;
-+	}
- 
- 	ret = batadv_nc_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_nc;
-+	}
- 
- 	batadv_gw_init(bat_priv);
- 	batadv_mcast_init(bat_priv);
-@@ -186,8 +196,18 @@ int batadv_mesh_init(struct net_device *soft_iface)
- 
- 	return 0;
- 
--err:
--	batadv_mesh_free(soft_iface);
-+err_nc:
-+	batadv_dat_free(bat_priv);
-+err_dat:
-+	batadv_bla_free(bat_priv);
-+err_bla:
-+	batadv_tt_free(bat_priv);
-+err_tt:
-+	batadv_originator_free(bat_priv);
-+err_orig:
-+	batadv_purge_outstanding_packets(bat_priv, NULL);
-+	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++#define VC_EXCEPTION_STKSZ	EXCEPTION_STKSZ
++#else
++#define VC_EXCEPTION_STKSZ	0
++#endif
 +
- 	return ret;
+ /* Macro to enforce the same ordering and stack sizes */
+ #define ESTACKS_MEMBERS(guardsize, optional_stack_size)		\
+ 	char	DF_stack_guard[guardsize];			\
+@@ -28,7 +34,7 @@
+ 
+ /* The exception stacks' physical storage. No guard pages required */
+ struct exception_stacks {
+-	ESTACKS_MEMBERS(0, 0)
++	ESTACKS_MEMBERS(0, VC_EXCEPTION_STKSZ)
+ };
+ 
+ /* The effective cpu entry area mapping with guard pages. */
+diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
+index 53a6837d354b..4d0d1c2b65e1 100644
+--- a/arch/x86/kernel/sev.c
++++ b/arch/x86/kernel/sev.c
+@@ -46,16 +46,6 @@ static struct ghcb __initdata *boot_ghcb;
+ struct sev_es_runtime_data {
+ 	struct ghcb ghcb_page;
+ 
+-	/* Physical storage for the per-CPU IST stack of the #VC handler */
+-	char ist_stack[EXCEPTION_STKSZ] __aligned(PAGE_SIZE);
+-
+-	/*
+-	 * Physical storage for the per-CPU fall-back stack of the #VC handler.
+-	 * The fall-back stack is used when it is not safe to switch back to the
+-	 * interrupted stack in the #VC entry code.
+-	 */
+-	char fallback_stack[EXCEPTION_STKSZ] __aligned(PAGE_SIZE);
+-
+ 	/*
+ 	 * Reserve one page per CPU as backup storage for the unencrypted GHCB.
+ 	 * It is needed when an NMI happens while the #VC handler uses the real
+@@ -99,27 +89,6 @@ DEFINE_STATIC_KEY_FALSE(sev_es_enable_key);
+ /* Needed in vc_early_forward_exception */
+ void do_early_exception(struct pt_regs *regs, int trapnr);
+ 
+-static void __init setup_vc_stacks(int cpu)
+-{
+-	struct sev_es_runtime_data *data;
+-	struct cpu_entry_area *cea;
+-	unsigned long vaddr;
+-	phys_addr_t pa;
+-
+-	data = per_cpu(runtime_data, cpu);
+-	cea  = get_cpu_entry_area(cpu);
+-
+-	/* Map #VC IST stack */
+-	vaddr = CEA_ESTACK_BOT(&cea->estacks, VC);
+-	pa    = __pa(data->ist_stack);
+-	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
+-
+-	/* Map VC fall-back stack */
+-	vaddr = CEA_ESTACK_BOT(&cea->estacks, VC2);
+-	pa    = __pa(data->fallback_stack);
+-	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
+-}
+-
+ static __always_inline bool on_vc_stack(struct pt_regs *regs)
+ {
+ 	unsigned long sp = regs->sp;
+@@ -787,7 +756,6 @@ void __init sev_es_init_vc_handling(void)
+ 	for_each_possible_cpu(cpu) {
+ 		alloc_runtime_data(cpu);
+ 		init_ghcb(cpu);
+-		setup_vc_stacks(cpu);
+ 	}
+ 
+ 	sev_es_setup_play_dead();
+diff --git a/arch/x86/mm/cpu_entry_area.c b/arch/x86/mm/cpu_entry_area.c
+index f5e1e60c9095..6c2f1b76a0b6 100644
+--- a/arch/x86/mm/cpu_entry_area.c
++++ b/arch/x86/mm/cpu_entry_area.c
+@@ -110,6 +110,13 @@ static void __init percpu_setup_exception_stacks(unsigned int cpu)
+ 	cea_map_stack(NMI);
+ 	cea_map_stack(DB);
+ 	cea_map_stack(MCE);
++
++	if (IS_ENABLED(CONFIG_AMD_MEM_ENCRYPT)) {
++		if (cc_platform_has(CC_ATTR_GUEST_STATE_ENCRYPT)) {
++			cea_map_stack(VC);
++			cea_map_stack(VC2);
++		}
++	}
  }
- 
-diff --git a/net/batman-adv/network-coding.c b/net/batman-adv/network-coding.c
-index 91de807a8f03..9317d872b9c0 100644
---- a/net/batman-adv/network-coding.c
-+++ b/net/batman-adv/network-coding.c
-@@ -159,8 +159,10 @@ int batadv_nc_mesh_init(struct batadv_priv *bat_priv)
- 				   &batadv_nc_coding_hash_lock_class_key);
- 
- 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
--	if (!bat_priv->nc.decoding_hash)
-+	if (!bat_priv->nc.decoding_hash) {
-+		batadv_hash_destroy(bat_priv->nc.coding_hash);
- 		goto err;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
- 				   &batadv_nc_decoding_hash_lock_class_key);
-diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
-index 5f976485e8c6..1ad90267064d 100644
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -3833,8 +3833,10 @@ int batadv_tt_init(struct batadv_priv *bat_priv)
- 		return ret;
- 
- 	ret = batadv_tt_global_init(bat_priv);
--	if (ret < 0)
-+	if (ret < 0) {
-+		batadv_tt_local_table_free(bat_priv);
- 		return ret;
-+	}
- 
- 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
- 				     batadv_tt_tvlv_unicast_handler_v1,
--- 
-2.30.2
+ #else
+ static inline void percpu_setup_exception_stacks(unsigned int cpu)
 
