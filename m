@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 435134539D4
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:06:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 612634539D2
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:06:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239816AbhKPTIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 14:08:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51502 "EHLO mail.kernel.org"
+        id S239824AbhKPTII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 14:08:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239806AbhKPTHy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 14:07:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9609263222;
-        Tue, 16 Nov 2021 19:04:56 +0000 (UTC)
+        id S239827AbhKPTIA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 14:08:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11FAA61391;
+        Tue, 16 Nov 2021 19:05:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637089497;
-        bh=MzswqOuO59AuIEIyicsuwY0a0qJpbQ5Sc2+LIyhsAjI=;
+        s=k20201202; t=1637089503;
+        bh=cnE1MXGiLmPpRtN/cnvdTU1sq0u1ItfQ4UaqvApuf0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HwHNhikpyZEDvqjLHpgrDZZoF8blFQ732xTCUIviiVKeCRG3aVtKH4KowyPYZkzW/
-         GvZR8TRAWUOYiL9pxJr85iRyj86lNCnV1IaL/ivPRP4frw7q+3Y48nGhUelzaICNBn
-         DxZTY4HV/5yjbHg+qsBFNG1sDnk21g80+HD3JkQJrOFC7U53NBRliKp2SGmlzgQmmV
-         fR35bodVDpg/gUfDM/Vk3K4a+3l0hzcVNi+h2Ybmg42qGxN7YOgiz1B0F7MZO/nFv/
-         g8rBF05PZdUES96kAagqifzUrZsSFAxmfGESp0vwT/Cjz8/cqqryMNTpavSou3gWA2
-         I07GrBIo+H0xg==
+        b=EoKJg5qTljSmo5+Ij2dNJSi2vKNBg56PVK7r2+nCjoLIi6l0zaqY1db/66gmq5zu8
+         phRatpkd0jEib/XM2CQY0NO+J4i0EQNrhAg5BlfN0H7h7785rN0FtYNnqsK86L3k+N
+         w6HRl/jVV11Co7RELGoDNN/oFIEA+bBHMQ51/ufBgfa5tGBrF9eCjVWOjXna4ZSTsb
+         fCVUVdO1ktQkfs6EarHsasxtzmCGcRgZDniWhYSGJpuM8zWWGw5P6h6qIQzb26ypnW
+         YPq+4S30IV/mZPF/ZxSK185cVFZFLCXT5yuIyLyBjjtn5wQxV6JLsp/zfRLibrL0TR
+         0L8vLUheFSWLA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>, thomas.petazzoni@bootlin.com,
-        bhelgaas@google.com, linux-pci@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 06/65] PCI: aardvark: Fix link training
-Date:   Tue, 16 Nov 2021 14:03:26 -0500
-Message-Id: <20211116190443.2418144-6-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>, Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>, daniel.vetter@ffwll.ch,
+        willy@infradead.org, penguin-kernel@i-love.sakura.ne.jp,
+        geert+renesas@glider.be, xiyuyang19@fudan.edu.cn,
+        linux@roeck-us.net, thunder.leizhen@huawei.com,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 07/65] fbdev: fbmem: Fix double free of 'fb_info->pixmap.addr'
+Date:   Tue, 16 Nov 2021 14:03:27 -0500
+Message-Id: <20211116190443.2418144-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211116190443.2418144-1-sashal@kernel.org>
 References: <20211116190443.2418144-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,317 +45,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit f76b36d40beee0a13aa8f6aa011df0d7cbbb8a7f ]
+[ Upstream commit 2c0c19b681d5a331b53aab0d170f72a87c7bff12 ]
 
-Fix multiple link training issues in aardvark driver. The main reason of
-these issues was misunderstanding of what certain registers do, since their
-names and comments were misleading: before commit 96be36dbffac ("PCI:
-aardvark: Replace custom macros by standard linux/pci_regs.h macros"), the
-pci-aardvark.c driver used custom macros for accessing standard PCIe Root
-Bridge registers, and misleading comments did not help to understand what
-the code was really doing.
+savagefb and some other drivers call kfree to free 'info->pixmap.addr'
+even after calling unregister_framebuffer, which may cause double free.
 
-After doing more tests and experiments I've come to the conclusion that the
-SPEED_GEN register in aardvark sets the PCIe revision / generation
-compliance and forces maximal link speed. Both GEN3 and GEN2 values set the
-read-only PCI_EXP_FLAGS_VERS bits (PCIe capabilities version of Root
-Bridge) to value 2, while GEN1 value sets PCI_EXP_FLAGS_VERS to 1, which
-matches with PCI Express specifications revisions 3, 2 and 1 respectively.
-Changing SPEED_GEN also sets the read-only bits PCI_EXP_LNKCAP_SLS and
-PCI_EXP_LNKCAP2_SLS to corresponding speed.
+Fix this by setting 'fb_info->pixmap.addr' to NULL after kfree in
+unregister_framebuffer.
 
-(Note that PCI Express rev 1 specification does not define PCI_EXP_LNKCAP2
- and PCI_EXP_LNKCTL2 registers and when SPEED_GEN is set to GEN1 (which
- also sets PCI_EXP_FLAGS_VERS set to 1), lspci cannot access
- PCI_EXP_LNKCAP2 and PCI_EXP_LNKCTL2 registers.)
+The following log reveals it:
 
-Changing PCIe link speed can be done via PCI_EXP_LNKCTL2_TLS bits of
-PCI_EXP_LNKCTL2 register. Armada 3700 Functional Specifications says that
-the default value of PCI_EXP_LNKCTL2_TLS is based on SPEED_GEN value, but
-tests showed that the default value is always 8.0 GT/s, independently of
-speed set by SPEED_GEN. So after setting SPEED_GEN, we must also set value
-in PCI_EXP_LNKCTL2 register via PCI_EXP_LNKCTL2_TLS bits.
+[   37.318872] BUG: KASAN: double-free or invalid-free in kfree+0x13e/0x290
+[   37.319369]
+[   37.320803] Call Trace:
+[   37.320992]  dump_stack_lvl+0xa8/0xd1
+[   37.321274]  print_address_description+0x87/0x3b0
+[   37.321632]  ? kfree+0x13e/0x290
+[   37.321879]  ? kfree+0x13e/0x290
+[   37.322126]  ? kfree+0x13e/0x290
+[   37.322374]  kasan_report_invalid_free+0x58/0x90
+[   37.322724]  ____kasan_slab_free+0x123/0x140
+[   37.323049]  __kasan_slab_free+0x11/0x20
+[   37.323347]  slab_free_freelist_hook+0x81/0x150
+[   37.323689]  ? savagefb_remove+0xa1/0xc0 [savagefb]
+[   37.324066]  kfree+0x13e/0x290
+[   37.324304]  savagefb_remove+0xa1/0xc0 [savagefb]
+[   37.324655]  pci_device_remove+0xa9/0x250
+[   37.324959]  ? pci_device_probe+0x7d0/0x7d0
+[   37.325273]  device_release_driver_internal+0x4f7/0x7a0
+[   37.325666]  driver_detach+0x1e8/0x2c0
+[   37.325952]  bus_remove_driver+0x134/0x290
+[   37.326262]  ? sysfs_remove_groups+0x97/0xb0
+[   37.326584]  driver_unregister+0x77/0xa0
+[   37.326883]  pci_unregister_driver+0x2c/0x1c0
+[   37.336124]
+[   37.336245] Allocated by task 5465:
+[   37.336507]  ____kasan_kmalloc+0xb5/0xe0
+[   37.336801]  __kasan_kmalloc+0x9/0x10
+[   37.337069]  kmem_cache_alloc_trace+0x12b/0x220
+[   37.337405]  register_framebuffer+0x3f3/0xa00
+[   37.337731]  foo_register_framebuffer+0x3b/0x50 [savagefb]
+[   37.338136]
+[   37.338255] Freed by task 5475:
+[   37.338492]  kasan_set_track+0x3d/0x70
+[   37.338774]  kasan_set_free_info+0x23/0x40
+[   37.339081]  ____kasan_slab_free+0x10b/0x140
+[   37.339399]  __kasan_slab_free+0x11/0x20
+[   37.339694]  slab_free_freelist_hook+0x81/0x150
+[   37.340034]  kfree+0x13e/0x290
+[   37.340267]  do_unregister_framebuffer+0x21c/0x3d0
+[   37.340624]  unregister_framebuffer+0x23/0x40
+[   37.340950]  savagefb_remove+0x45/0xc0 [savagefb]
+[   37.341302]  pci_device_remove+0xa9/0x250
+[   37.341603]  device_release_driver_internal+0x4f7/0x7a0
+[   37.341990]  driver_detach+0x1e8/0x2c0
+[   37.342272]  bus_remove_driver+0x134/0x290
+[   37.342577]  driver_unregister+0x77/0xa0
+[   37.342873]  pci_unregister_driver+0x2c/0x1c0
+[   37.343196]  cleanup_module+0x15/0x1c [savagefb]
+[   37.343543]  __se_sys_delete_module+0x398/0x490
+[   37.343881]  __x64_sys_delete_module+0x56/0x60
+[   37.344221]  do_syscall_64+0x4d/0xc0
+[   37.344492]  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Triggering PCI_EXP_LNKCTL_RL bit immediately after setting LINK_TRAINING_EN
-bit actually doesn't do anything. Tests have shown that a delay is needed
-after enabling LINK_TRAINING_EN bit. As triggering PCI_EXP_LNKCTL_RL
-currently does nothing, remove it.
-
-Commit 43fc679ced18 ("PCI: aardvark: Improve link training") introduced
-code which sets SPEED_GEN register based on negotiated link speed from
-PCI_EXP_LNKSTA_CLS bits of PCI_EXP_LNKSTA register. This code was added to
-fix detection of Compex WLE900VX (Atheros QCA9880) WiFi GEN1 PCIe cards, as
-otherwise these cards were "invisible" on PCIe bus (probably because they
-crashed). But apparently more people reported the same issues with these
-cards also with other PCIe controllers [1] and I was able to reproduce this
-issue also with other "noname" WiFi cards based on Atheros QCA9890 chip
-(with the same PCI vendor/device ids as Atheros QCA9880). So this is not an
-issue in aardvark but rather an issue in Atheros QCA98xx chips. Also, this
-issue only exists if the kernel is compiled with PCIe ASPM support, and a
-generic workaround for this is to change PCIe Bridge to 2.5 GT/s link speed
-via PCI_EXP_LNKCTL2_TLS_2_5GT bits in PCI_EXP_LNKCTL2 register [2], before
-triggering PCI_EXP_LNKCTL_RL bit. This workaround also works when SPEED_GEN
-is set to value GEN2 (5 GT/s). So remove this hack completely in the
-aardvark driver and always set SPEED_GEN to value from 'max-link-speed' DT
-property. Fix for Atheros QCA98xx chips is handled separately by patch [2].
-
-These two things (code for triggering PCI_EXP_LNKCTL_RL bit and changing
-SPEED_GEN value) also explain why commit 6964494582f5 ("PCI: aardvark:
-Train link immediately after enabling training") somehow fixed detection of
-those problematic Compex cards with Atheros chips: if triggering link
-retraining (via PCI_EXP_LNKCTL_RL bit) was done immediately after enabling
-link training (via LINK_TRAINING_EN), it did nothing. If there was a
-specific delay, aardvark HW already initialized PCIe link and therefore
-triggering link retraining caused the above issue. Compex cards triggered
-link down event and disappeared from the PCIe bus.
-
-Commit f4c7d053d7f7 ("PCI: aardvark: Wait for endpoint to be ready before
-training link") added 100ms sleep before calling 'Start link training'
-command and explained that it is a requirement of PCI Express
-specification. But the code after this 100ms sleep was not doing 'Start
-link training', rather it triggered PCI_EXP_LNKCTL_RL bit via PCIe Root
-Bridge to put link into Recovery state.
-
-The required delay after fundamental reset is already done in function
-advk_pcie_wait_for_link() which also checks whether PCIe link is up.
-So after removing the code which triggers PCI_EXP_LNKCTL_RL bit on PCIe
-Root Bridge, there is no need to wait 100ms again. Remove the extra
-msleep() call and update comment about the delay required by the PCI
-Express specification.
-
-According to Marvell Armada 3700 Functional Specifications, Link training
-should be enabled via aardvark register LINK_TRAINING_EN after selecting
-PCIe generation and x1 lane. There is no need to disable it prior resetting
-card via PERST# signal. This disabling code was introduced in commit
-5169a9851daa ("PCI: aardvark: Issue PERST via GPIO") as a workaround for
-some Atheros cards. It turns out that this also is Atheros specific issue
-and affects any PCIe controller, not only aardvark. Moreover this Atheros
-issue was triggered by juggling with PCI_EXP_LNKCTL_RL, LINK_TRAINING_EN
-and SPEED_GEN bits interleaved with sleeps. Now, after removing triggering
-PCI_EXP_LNKCTL_RL, there is no need to explicitly disable LINK_TRAINING_EN
-bit. So remove this code too. The problematic Compex cards described in
-previous git commits are correctly detected in advk_pcie_train_link()
-function even after applying all these changes.
-
-Note that with this patch, and also prior this patch, some NVMe disks which
-support PCIe GEN3 with 8 GT/s speed are negotiated only at the lowest link
-speed 2.5 GT/s, independently of SPEED_GEN value. After manually triggering
-PCI_EXP_LNKCTL_RL bit (e.g. from userspace via setpci), these NVMe disks
-change link speed to 5 GT/s when SPEED_GEN was configured to GEN2. This
-issue first needs to be properly investigated. I will send a fix in the
-future.
-
-On the other hand, some other GEN2 PCIe cards with 5 GT/s speed are
-autonomously by HW autonegotiated at full 5 GT/s speed without need of any
-software interaction.
-
-Armada 3700 Functional Specifications describes the following steps for
-link training: set SPEED_GEN to GEN2, enable LINK_TRAINING_EN, poll until
-link training is complete, trigger PCI_EXP_LNKCTL_RL, poll until signal
-rate is 5 GT/s, poll until link training is complete, enable ASPM L0s.
-
-The requirement for triggering PCI_EXP_LNKCTL_RL can be explained by the
-need to achieve 5 GT/s speed (as changing link speed is done by throw to
-recovery state entered by PCI_EXP_LNKCTL_RL) or maybe as a part of enabling
-ASPM L0s (but in this case ASPM L0s should have been enabled prior
-PCI_EXP_LNKCTL_RL).
-
-It is unknown why the original pci-aardvark.c driver was triggering
-PCI_EXP_LNKCTL_RL bit before waiting for the link to be up. This does not
-align with neither PCIe base specifications nor with Armada 3700 Functional
-Specification. (Note that in older versions of aardvark, this bit was
-called incorrectly PCIE_CORE_LINK_TRAINING, so this may be the reason.)
-
-It is also unknown why Armada 3700 Functional Specification says that it is
-needed to trigger PCI_EXP_LNKCTL_RL for GEN2 mode, as according to PCIe
-base specification 5 GT/s speed negotiation is supposed to be entirely
-autonomous, even if initial speed is 2.5 GT/s.
-
-[1] - https://lore.kernel.org/linux-pci/87h7l8axqp.fsf@toke.dk/
-[2] - https://lore.kernel.org/linux-pci/20210326124326.21163-1-pali@kernel.org/
-
-Link: https://lore.kernel.org/r/20211005180952.6812-12-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1633848148-29747-1-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 117 ++++++++------------------
- 1 file changed, 34 insertions(+), 83 deletions(-)
+ drivers/video/fbdev/core/fbmem.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 596ebcfcc82dc..c4ce8a6c4168a 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -257,11 +257,6 @@ static inline u32 advk_readl(struct advk_pcie *pcie, u64 reg)
- 	return readl(pcie->base + reg);
- }
- 
--static inline u16 advk_read16(struct advk_pcie *pcie, u64 reg)
--{
--	return advk_readl(pcie, (reg & ~0x3)) >> ((reg & 0x3) * 8);
--}
--
- static int advk_pcie_link_up(struct advk_pcie *pcie)
+diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
+index 7420d2c16e47e..826175ad88a2f 100644
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1702,8 +1702,11 @@ static void do_unregister_framebuffer(struct fb_info *fb_info)
  {
- 	u32 val, ltssm_state;
-@@ -299,23 +294,9 @@ static void advk_pcie_wait_for_retrain(struct advk_pcie *pcie)
- 
- static void advk_pcie_issue_perst(struct advk_pcie *pcie)
- {
--	u32 reg;
--
- 	if (!pcie->reset_gpio)
- 		return;
- 
--	/*
--	 * As required by PCI Express spec (PCI Express Base Specification, REV.
--	 * 4.0 PCI Express, February 19 2014, 6.6.1 Conventional Reset) a delay
--	 * for at least 100ms after de-asserting PERST# signal is needed before
--	 * link training is enabled. So ensure that link training is disabled
--	 * prior de-asserting PERST# signal to fulfill that PCI Express spec
--	 * requirement.
--	 */
--	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
--	reg &= ~LINK_TRAINING_EN;
--	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
--
- 	/* 10ms delay is needed for some cards */
- 	dev_info(&pcie->pdev->dev, "issuing PERST via reset GPIO for 10ms\n");
- 	gpiod_set_value_cansleep(pcie->reset_gpio, 1);
-@@ -323,53 +304,46 @@ static void advk_pcie_issue_perst(struct advk_pcie *pcie)
- 	gpiod_set_value_cansleep(pcie->reset_gpio, 0);
- }
- 
--static int advk_pcie_train_at_gen(struct advk_pcie *pcie, int gen)
-+static void advk_pcie_train_link(struct advk_pcie *pcie)
- {
--	int ret, neg_gen;
-+	struct device *dev = &pcie->pdev->dev;
- 	u32 reg;
-+	int ret;
- 
--	/* Setup link speed */
-+	/*
-+	 * Setup PCIe rev / gen compliance based on device tree property
-+	 * 'max-link-speed' which also forces maximal link speed.
-+	 */
- 	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
- 	reg &= ~PCIE_GEN_SEL_MSK;
--	if (gen == 3)
-+	if (pcie->link_gen == 3)
- 		reg |= SPEED_GEN_3;
--	else if (gen == 2)
-+	else if (pcie->link_gen == 2)
- 		reg |= SPEED_GEN_2;
- 	else
- 		reg |= SPEED_GEN_1;
- 	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
- 
- 	/*
--	 * Enable link training. This is not needed in every call to this
--	 * function, just once suffices, but it does not break anything either.
-+	 * Set maximal link speed value also into PCIe Link Control 2 register.
-+	 * Armada 3700 Functional Specification says that default value is based
-+	 * on SPEED_GEN but tests showed that default value is always 8.0 GT/s.
- 	 */
-+	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKCTL2);
-+	reg &= ~PCI_EXP_LNKCTL2_TLS;
-+	if (pcie->link_gen == 3)
-+		reg |= PCI_EXP_LNKCTL2_TLS_8_0GT;
-+	else if (pcie->link_gen == 2)
-+		reg |= PCI_EXP_LNKCTL2_TLS_5_0GT;
-+	else
-+		reg |= PCI_EXP_LNKCTL2_TLS_2_5GT;
-+	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKCTL2);
+ 	unlink_framebuffer(fb_info);
+ 	if (fb_info->pixmap.addr &&
+-	    (fb_info->pixmap.flags & FB_PIXMAP_DEFAULT))
++	    (fb_info->pixmap.flags & FB_PIXMAP_DEFAULT)) {
+ 		kfree(fb_info->pixmap.addr);
++		fb_info->pixmap.addr = NULL;
++	}
 +
-+	/* Enable link training after selecting PCIe generation */
- 	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
- 	reg |= LINK_TRAINING_EN;
- 	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
- 
--	/*
--	 * Start link training immediately after enabling it.
--	 * This solves problems for some buggy cards.
--	 */
--	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKCTL);
--	reg |= PCI_EXP_LNKCTL_RL;
--	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKCTL);
--
--	ret = advk_pcie_wait_for_link(pcie);
--	if (ret)
--		return ret;
--
--	reg = advk_read16(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKSTA);
--	neg_gen = reg & PCI_EXP_LNKSTA_CLS;
--
--	return neg_gen;
--}
--
--static void advk_pcie_train_link(struct advk_pcie *pcie)
--{
--	struct device *dev = &pcie->pdev->dev;
--	int neg_gen = -1, gen;
--
- 	/*
- 	 * Reset PCIe card via PERST# signal. Some cards are not detected
- 	 * during link training when they are in some non-initial state.
-@@ -380,41 +354,18 @@ static void advk_pcie_train_link(struct advk_pcie *pcie)
- 	 * PERST# signal could have been asserted by pinctrl subsystem before
- 	 * probe() callback has been called or issued explicitly by reset gpio
- 	 * function advk_pcie_issue_perst(), making the endpoint going into
--	 * fundamental reset. As required by PCI Express spec a delay for at
--	 * least 100ms after such a reset before link training is needed.
--	 */
--	msleep(PCI_PM_D3COLD_WAIT);
--
--	/*
--	 * Try link training at link gen specified by device tree property
--	 * 'max-link-speed'. If this fails, iteratively train at lower gen.
--	 */
--	for (gen = pcie->link_gen; gen > 0; --gen) {
--		neg_gen = advk_pcie_train_at_gen(pcie, gen);
--		if (neg_gen > 0)
--			break;
--	}
--
--	if (neg_gen < 0)
--		goto err;
--
--	/*
--	 * After successful training if negotiated gen is lower than requested,
--	 * train again on negotiated gen. This solves some stability issues for
--	 * some buggy gen1 cards.
-+	 * fundamental reset. As required by PCI Express spec (PCI Express
-+	 * Base Specification, REV. 4.0 PCI Express, February 19 2014, 6.6.1
-+	 * Conventional Reset) a delay for at least 100ms after such a reset
-+	 * before sending a Configuration Request to the device is needed.
-+	 * So wait until PCIe link is up. Function advk_pcie_wait_for_link()
-+	 * waits for link at least 900ms.
- 	 */
--	if (neg_gen < gen) {
--		gen = neg_gen;
--		neg_gen = advk_pcie_train_at_gen(pcie, gen);
--	}
--
--	if (neg_gen == gen) {
--		dev_info(dev, "link up at gen %i\n", gen);
--		return;
--	}
--
--err:
--	dev_err(dev, "link never came up\n");
-+	ret = advk_pcie_wait_for_link(pcie);
-+	if (ret < 0)
-+		dev_err(dev, "link never came up\n");
-+	else
-+		dev_info(dev, "link up\n");
- }
- 
- /*
+ 	fb_destroy_modelist(&fb_info->modelist);
+ 	registered_fb[fb_info->node] = NULL;
+ 	num_registered_fb--;
 -- 
 2.33.0
 
