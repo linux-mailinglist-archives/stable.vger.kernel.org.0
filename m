@@ -2,137 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FAFE453A25
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:26:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56032453A35
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:33:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239919AbhKPT3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 14:29:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52418 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229663AbhKPT3n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 14:29:43 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF736C061570
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 11:26:45 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id u17so44635plg.9
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 11:26:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=QXIMOa6emC+Il7AiZs3u9BLHYF1gpzIwuhkZy38xQWI=;
-        b=0Z+FJKNTQ2V8i2iv1OKoCKwGsJytl7gKiWmeUm5uVMPgJhHsw8hahLFprTQDO517oN
-         uO56S7gQOSoAYuJUEUCPGbz1412Fs4igY/NXShHa5LkDxvnScct0FPHoailA632TI5Nb
-         rsrShq/wXMRGgaqIiiUALQBUQhMBGh9gGtLPWlgANARlZezBzyPlIB2tJo1konHc8f2/
-         E/Ng34kJ0LFSh8Do/nkeD/Gqh0naMkvLUeI52USBHuROHQy+m23BeAJ74c+PzLs8BCAz
-         gJjnHvn1QAP3iYjbPJAHx7zXT7M1Rm5T3UKDoWLXY+U5q8aVOIAATEurHCM40/J4uzNC
-         8D7Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=QXIMOa6emC+Il7AiZs3u9BLHYF1gpzIwuhkZy38xQWI=;
-        b=H4n9A9pR3Yewgnis7hqajC5rakiVHcUOtq6lHJ3hQZhUJvtQ4jEz7PcU7fpWq8JUdJ
-         M9+SoKtgxOmPYft2jka0Gq1qmkzwXmWIUSOxyxdd/ZfG4+N85oQJP7hyof6+8ubOCIdH
-         YVCG0aI2Yg0JKG/CDUsiC6eI74NZJuEv1kJaEqfVicX/8f1ujwCXB382HGmCb3sdrGvk
-         qHYURkaxtGq5QEIU9zGQn1rKj7wxMtW6HxwlrIR5QFbemhIXU90yTqctSwuzffLKtC0p
-         4tzjccT++QSUOEFMgnm2JxQP9kWQrCuF9inuzcNyokfHVgOrZTjA9BIRg1237rnbBpPT
-         d5cg==
-X-Gm-Message-State: AOAM532OPlnczqodohIcqZ5AMoqsUElSYisWoYLpnAYHdDDZHuKxSXKM
-        6tB86DHErAMkpc5Glkfj+ZT9OnkhdA0oMppb
-X-Google-Smtp-Source: ABdhPJwq6KHNTFjjjo4Zf1uEOBYf4I9JE3flWah2lCFWqpj2Xr/ZOWsYpEYgvdl0nGASJZt+FOZrqw==
-X-Received: by 2002:a17:90b:128d:: with SMTP id fw13mr1825101pjb.50.1637090805171;
-        Tue, 16 Nov 2021 11:26:45 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k1sm20515868pfu.31.2021.11.16.11.26.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Nov 2021 11:26:44 -0800 (PST)
-Message-ID: <619405f4.1c69fb81.ec08a.a66e@mx.google.com>
-Date:   Tue, 16 Nov 2021 11:26:44 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S240018AbhKPTfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 14:35:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57564 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240003AbhKPTfa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 14:35:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D01CF619EC;
+        Tue, 16 Nov 2021 19:32:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637091153;
+        bh=68wjAV21qLXiQKL7SZDYBLt94SebE1SFnj7Xh9wy44k=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=gr1CdqkLLKyhDwoYPEk6OC+wCnKcKdBqXwR92slWtdckhKuqiZYxKF4jWKleSgbcA
+         zzr8Bpapbx5v5sF5S+YJ9W4wx71s0MvUSeB8JZSeafLDJT91vr13bgoFG+O/rqB5Q1
+         b2YFwymBfmdVrodf1uGK29+G9ImAyKjdEcw/pSdpSrMu3sZ3QYC7nQpcRzh3DhR4Gh
+         /y9OzzZVGkKhNThRMCP9sUG9tJaImcthOdbWsSjGf9Zxj335uf8talSeP+98lnos52
+         6Z+qZ42uz/r7s4XY8vtHQ5MVPVDBG3vYkOQj5qNnEDVsdJIxApOQCVW1Jg52rGVucy
+         z6VyjHuDmy64w==
+Date:   Tue, 16 Nov 2021 11:32:32 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>
+Cc:     Jon Maloy <jmaloy@redhat.com>, Ying Xue <ying.xue@windriver.com>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dmitry Vyukov <dvyukov@google.com>
+Subject: Re: [PATCH] tipc: check for null after calling kmemdup
+Message-ID: <20211116113232.45eceecf@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <997876b6-39b4-64f0-648a-8b042b03a3a8@linaro.org>
+References: <20211111205916.37899-1-tadeusz.struk@linaro.org>
+        <0f144d68-37c8-1e4a-1516-a3a572f06f8f@redhat.com>
+        <20211112201332.601b8646@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        <997876b6-39b4-64f0-648a-8b042b03a3a8@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.255-199-g8804eb789518
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.14 baseline: 76 runs,
- 1 regressions (v4.14.255-199-g8804eb789518)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 76 runs, 1 regressions (v4.14.255-199-g8804e=
-b789518)
+On Fri, 12 Nov 2021 21:42:11 -0800 Tadeusz Struk wrote:
+> On 11/12/21 20:13, Jakub Kicinski wrote:
+>  [...]  
+> >> Acked-by: Jon Maloy<jmaloy@redhat.com>  
+> > Hm, shouldn't we free all the tfm entries here?  
+> 
+> Right, I think we just need to call tipc_aead_free(&tmp->rcu);
+> here and return an error.
 
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.255-199-g8804eb789518/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.255-199-g8804eb789518
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8804eb7895185b1e849798e9e66c3b357fcf7bdb =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6193cb4e29ae3c080e335908
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.255=
--199-g8804eb789518/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.255=
--199-g8804eb789518/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6193cb4f29ae3c0=
-80e33590b
-        new failure (last pass: v4.14.255-199-g28b3349e45595)
-        2 lines
-
-    2021-11-16T15:16:09.074788  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/103
-    2021-11-16T15:16:09.101280  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-11-16T15:16:09.110775  [   19.886474] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>
-    2021-11-16T15:16:09.111033  + set +x   =
-
- =20
+Would be good to get an ack From Jon or Ying on that one.
