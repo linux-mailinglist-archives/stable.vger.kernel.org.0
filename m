@@ -2,90 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 675BC4529FA
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 06:46:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14515452A04
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 06:48:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233971AbhKPFsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 00:48:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60134 "EHLO
+        id S236918AbhKPFvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 00:51:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236431AbhKPFs2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 00:48:28 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD21C06BA94;
-        Mon, 15 Nov 2021 19:54:07 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id gb13-20020a17090b060d00b001a674e2c4a8so1631721pjb.4;
-        Mon, 15 Nov 2021 19:54:07 -0800 (PST)
+        with ESMTP id S236569AbhKPFuf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 00:50:35 -0500
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 467D7C07AF5E
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 20:08:34 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id y8so10796076plg.1
+        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 20:08:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=uXbfw/izal149Gz5yqwKVpenNb0MrLQ7PVdG9ilARhI=;
-        b=Lu/wvcRI5AXNv6tsBujJhaL/4L2p9/BLilOlq2zJyp5Gst02OMemQYFNKJn5C+AoyF
-         iiJsLcczKZHir7jVHsiZmw/EQLNT3PXaes8OeX5ox2S9s0T0HGV1bZoTYvbl0XfwViDg
-         p+9BwpIpDnQI2WH38MpDOpZun3GNaVY/xXZ3fVXjv3D6U7Gwe4yOfoBJ5MygWnRHMjjf
-         8QYyewUgmhYqzsL4NuH3d6E3a2XxKTxrxY9zIHTcR1ljNw/Lo2WF/qp7ZEyRyPIgrN7Q
-         yZH9v/S0CzTB79mVJ548ElH3drHEjTdkxlFKgnMFqCGdadjUrx9YXSCz7ljUihr6jEpt
-         6j5A==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qkDSKsv6BSvOJkFy/5yEDruP87D9RVKIF/b2aFob3XA=;
+        b=4Cq+TE53iDrKtKBd7Pjdt09m6oPjcda0+ywYU80wAoGTsX3n4IQ39Z3snMdjW8itq+
+         HJ8h36rQJWw7u0Ee/CN65aIhwpGrAY7JIr+llnbgpzzAsihbALFVVR/BnpGjE7esBySG
+         4JeCXLu/pXGR/T67s7M5Yrv/GU82DmECpfMqKiGncUrivOfOWB4QtU1ES/jV0kbUzJMS
+         LNkifydUFXsDDb8Qa3yieDtqCpfXA4tHl+qUmT7LgFCofRZrsnGGpqISOqxFeIF+RTkl
+         TpmQ5e8+t+WNGvP9RXfV9A5kDwjY44srKQQXfgaWQ64W94npZieNkFZ7gxGugjV/lnWj
+         AW0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=uXbfw/izal149Gz5yqwKVpenNb0MrLQ7PVdG9ilARhI=;
-        b=aM4NJk9Q/H1u8dp/dMm2Xnl1MqY78fQ6FXC1FozT+lmVKZ/DsQM8aeGZs1tb7HO44a
-         dtMtpOyIwln82TSm66dvCYITiN7+A0J+1ouHdrrfWg7nI1COuPeAStlqkh5h+nTArLR7
-         5dZok1xuxM14GZ/RnDx/SZoqf4hdUaSXdmkgZTMK6uymYsYPKsQthy/TCwl6WjCAXY+c
-         3rW6M2YNFHu+rw1d0/J2a7ReE/i7tWqgrSOOJ2xi8+kDQCEHY30NKXl6xFPdnXW/QdOn
-         /vq4mIscojjnJWbSsuonWKFYu0ThQ4Ux3jNu8/jZP1gxx4Ug3xQ5vj0wl/oCFWr0+mJQ
-         itQA==
-X-Gm-Message-State: AOAM5336/XrSYlOQo0OKYdykWQp3XIbE0BxmUxPCrd4HNSlCnbM9ci6w
-        84t8psHZY4VQ2htnk1W03/69Uam80FSqbC9pd4Q=
-X-Google-Smtp-Source: ABdhPJymZx6pXQY24wSlQVstcliQQQBRNaUYIOsBenM2qkd8z5cfw7qK0Un+zHO12V0ANPtye45Meg==
-X-Received: by 2002:a17:90a:b105:: with SMTP id z5mr68883616pjq.64.1637034846642;
-        Mon, 15 Nov 2021 19:54:06 -0800 (PST)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
-        by smtp.gmail.com with ESMTPSA id i67sm16628105pfg.189.2021.11.15.19.54.01
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qkDSKsv6BSvOJkFy/5yEDruP87D9RVKIF/b2aFob3XA=;
+        b=zUa+D0XDnem2tqbST9wvr9Dy2TvUBsZ/3D8Gq/VRw04g/hNEYDb1j1rnOSi7t4fBD7
+         8J4izwkSF3QO6vcJ508G+0rg3sNWcHwIr9WrqjnrM0qM+GT69Lc93QWnZ88F1o3EZymB
+         D5/m8tntZqSqeYPjwyOHChlnDoO+hLxgXjFhhnEI/X1cLeU2V1vEPstxU09jETZQNEAB
+         lHxAPM1MV+xTnru2tpNFVqIje/+lpV2GTD/X2ds6BjKJ6Hh+/kh5dPalhwO2uUrpSeof
+         Q99M4R6X11Mog5xcYVzEUH8UCb17gkynOhKXOpnVWk9R7YxbraMpoE7D1uO1G/KLcB5b
+         79Ag==
+X-Gm-Message-State: AOAM530ZF3ZmkcLj1yF7+mGFaZTH9Ipta50RDumEUVPah21R+33AGVfV
+        1ZdW1VW0+lNrpCmKLuKc8cBuibVXamD6MaQB
+X-Google-Smtp-Source: ABdhPJyFmNdj4cfhwZWl6VuCwRYzJCje+BbqDsbfFvOzgaLCdTLK85bEhz804cR8DmbRXSbox+KDmA==
+X-Received: by 2002:a17:90b:3144:: with SMTP id ip4mr73258607pjb.153.1637035713637;
+        Mon, 15 Nov 2021 20:08:33 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q10sm863904pjd.0.2021.11.15.20.08.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Nov 2021 19:54:05 -0800 (PST)
-Message-ID: <61932b5d.1c69fb81.d235.1c67@mx.google.com>
-Date:   Mon, 15 Nov 2021 19:54:05 -0800 (PST)
-X-Google-Original-Date: Tue, 16 Nov 2021 03:53:59 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20211115165419.961798833@linuxfoundation.org>
-Subject: RE: [PATCH 5.14 000/849] 5.14.19-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        Mon, 15 Nov 2021 20:08:33 -0800 (PST)
+Message-ID: <61932ec1.1c69fb81.ffa3f.4243@mx.google.com>
+Date:   Mon, 15 Nov 2021 20:08:33 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.217-253-g58c021f04873
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.19.y baseline: 134 runs,
+ 2 regressions (v4.19.217-253-g58c021f04873)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 15 Nov 2021 17:51:23 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.14.19 release.
-> There are 849 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 17 Nov 2021 16:52:23 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.19-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+stable-rc/linux-4.19.y baseline: 134 runs, 2 regressions (v4.19.217-253-g58=
+c021f04873)
 
-5.14.19-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+Regressions Summary
+-------------------
 
+platform   | arch | lab          | compiler | defconfig             | regre=
+ssions
+-----------+------+--------------+----------+-----------------------+------=
+------
+da850-lcdk | arm  | lab-baylibre | gcc-10   | davinci_all_defconfig | 2    =
+      =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.217-253-g58c021f04873/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.217-253-g58c021f04873
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      58c021f04873993621346aa9a6b57e87cde83668 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch | lab          | compiler | defconfig             | regre=
+ssions
+-----------+------+--------------+----------+-----------------------+------=
+------
+da850-lcdk | arm  | lab-baylibre | gcc-10   | davinci_all_defconfig | 2    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/6192f442a851541286335909
+
+  Results:     4 PASS, 2 FAIL, 0 SKIP
+  Full config: davinci_all_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+17-253-g58c021f04873/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline=
+-da850-lcdk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+17-253-g58c021f04873/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline=
+-da850-lcdk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/6192f442a851541=
+28633590d
+        new failure (last pass: v4.19.217-70-g46d7612c5aae)
+        3 lines
+
+    2021-11-15T23:58:43.895287  kern  :alert : BUG: Bad page state in proce=
+ss swapper  pfn:c3400
+    2021-11-15T23:58:43.895529  kern  :alert : raw: 00000000 00000100 00000=
+200 00000000 00000004 0000000a ffffff7f 00000000
+    2021-11-15T23:58:43.895671  kern  :alert : page dumped because: nonzero=
+ mapcount
+    2021-11-15T23:58:43.954031  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dale=
+rt RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D3>   =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6192f442a851541=
+28633590e
+        new failure (last pass: v4.19.217-70-g46d7612c5aae)
+        2 lines
+
+    2021-11-15T23:58:44.090930  kern  :emerg : page:c6f51000 count:0 mapcou=
+nt:-128 mapping:00000000 index:0x4
+    2021-11-15T23:58:44.091198  kern  :emerg : flags: 0x0()
+    2021-11-15T23:58:44.167010  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Deme=
+rg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>
+    2021-11-15T23:58:44.167287  + set +x
+    2021-11-15T23:58:44.167427  <8><LAVA_SIGNAL_ENDRUN 0_dmesg 1081334_1.5.=
+2.4.1>   =
+
+ =20
