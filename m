@@ -2,153 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14515452A04
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 06:48:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4533F452A06
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 06:48:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236918AbhKPFvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 00:51:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33148 "EHLO
+        id S236880AbhKPFvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 00:51:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236569AbhKPFuf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 00:50:35 -0500
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 467D7C07AF5E
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 20:08:34 -0800 (PST)
-Received: by mail-pl1-x630.google.com with SMTP id y8so10796076plg.1
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 20:08:34 -0800 (PST)
+        with ESMTP id S236895AbhKPFuw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 00:50:52 -0500
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD21CC07AF6F;
+        Mon, 15 Nov 2021 20:16:53 -0800 (PST)
+Received: by mail-lf1-x12b.google.com with SMTP id c32so49544250lfv.4;
+        Mon, 15 Nov 2021 20:16:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=qkDSKsv6BSvOJkFy/5yEDruP87D9RVKIF/b2aFob3XA=;
-        b=4Cq+TE53iDrKtKBd7Pjdt09m6oPjcda0+ywYU80wAoGTsX3n4IQ39Z3snMdjW8itq+
-         HJ8h36rQJWw7u0Ee/CN65aIhwpGrAY7JIr+llnbgpzzAsihbALFVVR/BnpGjE7esBySG
-         4JeCXLu/pXGR/T67s7M5Yrv/GU82DmECpfMqKiGncUrivOfOWB4QtU1ES/jV0kbUzJMS
-         LNkifydUFXsDDb8Qa3yieDtqCpfXA4tHl+qUmT7LgFCofRZrsnGGpqISOqxFeIF+RTkl
-         TpmQ5e8+t+WNGvP9RXfV9A5kDwjY44srKQQXfgaWQ64W94npZieNkFZ7gxGugjV/lnWj
-         AW0w==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=tj2K3jSiGWH1FMb04NTt49avhaO6LiWgdXeAiKO0RXQ=;
+        b=m+m10IXZOfOVR3GJb0QDfHXOQwUuYZdz9nMsbTKZhs0hh8XRQ2QxgwnQE/VO+FcbTs
+         lCAJLC25KkE79IIacO1nTn4g5df8s2YCv/qMrKsG2LU0idfNrTF1EEANhmWXBs4w++7Y
+         3uObe2uhJx0OXR/HY5w5/IU4aWx+9562mkmPAbIcTsT3HjyHg0CBE7RRlqzhjGvClGXZ
+         KhgRaF41jhASaCPZM2BeYfrO5H7KZEOH06I5KIQCiFM9OWUOYnmMzFqYBPWY3q+aDxzM
+         yXoD1rLik341l4dre6KJctwOsteQZqi6OZQbw/Pdm4OGtip8C5ICx2WLE8jYguWExLu+
+         G4CQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=qkDSKsv6BSvOJkFy/5yEDruP87D9RVKIF/b2aFob3XA=;
-        b=zUa+D0XDnem2tqbST9wvr9Dy2TvUBsZ/3D8Gq/VRw04g/hNEYDb1j1rnOSi7t4fBD7
-         8J4izwkSF3QO6vcJ508G+0rg3sNWcHwIr9WrqjnrM0qM+GT69Lc93QWnZ88F1o3EZymB
-         D5/m8tntZqSqeYPjwyOHChlnDoO+hLxgXjFhhnEI/X1cLeU2V1vEPstxU09jETZQNEAB
-         lHxAPM1MV+xTnru2tpNFVqIje/+lpV2GTD/X2ds6BjKJ6Hh+/kh5dPalhwO2uUrpSeof
-         Q99M4R6X11Mog5xcYVzEUH8UCb17gkynOhKXOpnVWk9R7YxbraMpoE7D1uO1G/KLcB5b
-         79Ag==
-X-Gm-Message-State: AOAM530ZF3ZmkcLj1yF7+mGFaZTH9Ipta50RDumEUVPah21R+33AGVfV
-        1ZdW1VW0+lNrpCmKLuKc8cBuibVXamD6MaQB
-X-Google-Smtp-Source: ABdhPJyFmNdj4cfhwZWl6VuCwRYzJCje+BbqDsbfFvOzgaLCdTLK85bEhz804cR8DmbRXSbox+KDmA==
-X-Received: by 2002:a17:90b:3144:: with SMTP id ip4mr73258607pjb.153.1637035713637;
-        Mon, 15 Nov 2021 20:08:33 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q10sm863904pjd.0.2021.11.15.20.08.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Nov 2021 20:08:33 -0800 (PST)
-Message-ID: <61932ec1.1c69fb81.ffa3f.4243@mx.google.com>
-Date:   Mon, 15 Nov 2021 20:08:33 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=tj2K3jSiGWH1FMb04NTt49avhaO6LiWgdXeAiKO0RXQ=;
+        b=gXOf4RBlDCfbGRQ4UMUI87LUkmKTdZU1GzvVyvpCFtKKRystRjMC6LxLgYAvwKLkw+
+         ExYrUC5kTyKbj8KxiRiS9xOjuGXON0s2g8rRVCRTClZorBA1mfFejEzfb4f8C9LONxwg
+         QJpp5JfbOMhEoLeacHM29H9Jt0B17wAJ5Gewt8mSYLZn2K965Li4fQRJZt35E4cBWMtX
+         oQNDd49O8AxoseMtVXa0uAAFjibzLmq1cidMfn6V16efvg/Wkubs3wrRApUwXf3pFRJx
+         etKmq8sw6cXNNtNYmEXCFCZwAZTpugKK20r0QLPttU6ogtB/q1zCGT9PjXT/5RjnAkgz
+         SUHA==
+X-Gm-Message-State: AOAM530O4wwlYfZXXDRVIq9v18tfLUh5TVCRTQntkGEPxrc+aDcU1b2d
+        093M9NhRef3cLxktAjAEBiu5yyYwoWQ=
+X-Google-Smtp-Source: ABdhPJxW/ws02JUvdtZZ5oXaJn+Ug43HkLKFSyKlZp4QiG1JN7DShwT/dtu5SXvmOE47SAlUIdPU4A==
+X-Received: by 2002:a05:6512:3a8d:: with SMTP id q13mr3621131lfu.73.1637036211439;
+        Mon, 15 Nov 2021 20:16:51 -0800 (PST)
+Received: from [172.28.2.233] ([46.61.204.60])
+        by smtp.gmail.com with ESMTPSA id v19sm1700371ljg.8.2021.11.15.20.16.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 15 Nov 2021 20:16:50 -0800 (PST)
+Message-ID: <0e94dae1-dd77-861d-1e13-856cb1b145d2@gmail.com>
+Date:   Tue, 16 Nov 2021 07:16:49 +0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.217-253-g58c021f04873
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.19.y baseline: 134 runs,
- 2 regressions (v4.19.217-253-g58c021f04873)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.0
+Subject: Re: [PATCH] net: dpaa2-eth: fix use-after-free in dpaa2_eth_remove
+Content-Language: en-US
+To:     Jakub Kicinski <kuba@kernel.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     ioana.ciornei@nxp.com, davem@davemloft.net, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20211113172013.19959-1-paskripkin@gmail.com>
+ <20211115080817.GE27562@kadam>
+ <20211115172722.6a582623@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+From:   Pavel Skripkin <paskripkin@gmail.com>
+In-Reply-To: <20211115172722.6a582623@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 134 runs, 2 regressions (v4.19.217-253-g58=
-c021f04873)
+On 11/16/21 04:27, Jakub Kicinski wrote:
+> I'd ignore that path, it's just special casing that's supposed to keep
+> the driver-visible API sane. Nobody should be touching netdev past
+> free_netdev(). Actually if you can it'd be interesting to add checks
+> for using whatever netdev_priv(ndev) returned past free_netdev(ndev).
+> 
+> Most UAFs that come to mind from the past were people doing something
+> like:
+> 
+> 	struct my_priv *mine = netdev_priv(ndev);
+> 
+> 	netdev_unregister(ndev);
+> 	free_netdev(ndev);
+> 
+> 	free(mine->bla); /* UAF, free_netdev() frees the priv */
+> 
+I've implemented this checker couple of months ago. The latest smatch 
+(v1.72) should warn about this type of bugs. All reported bugs are fixed 
+already :)
 
-Regressions Summary
--------------------
-
-platform   | arch | lab          | compiler | defconfig             | regre=
-ssions
------------+------+--------------+----------+-----------------------+------=
-------
-da850-lcdk | arm  | lab-baylibre | gcc-10   | davinci_all_defconfig | 2    =
-      =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.217-253-g58c021f04873/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.217-253-g58c021f04873
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      58c021f04873993621346aa9a6b57e87cde83668 =
-
-
-
-Test Regressions
----------------- =
+My checker warns about using priv pointer after free_netdev() and 
+free_candev() calls. There are a few more wrappers like 
+free_sja1000dev(), so it worth to add them to check list too. Will add 
+them today later
 
 
+Important thing, that there are complex situations like
 
-platform   | arch | lab          | compiler | defconfig             | regre=
-ssions
------------+------+--------------+----------+-----------------------+------=
-------
-da850-lcdk | arm  | lab-baylibre | gcc-10   | davinci_all_defconfig | 2    =
-      =
+	struct priv *priv = get_priv_from_smth(smth);
 
+	free_netdev(priv->netdev);
+	clean_up_priv(priv);
 
-  Details:     https://kernelci.org/test/plan/id/6192f442a851541286335909
-
-  Results:     4 PASS, 2 FAIL, 0 SKIP
-  Full config: davinci_all_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-17-253-g58c021f04873/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline=
--da850-lcdk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-17-253-g58c021f04873/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline=
--da850-lcdk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+and for now I have no idea how to handle it (ex: ems_usb_disconnect).
 
 
 
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/6192f442a851541=
-28633590d
-        new failure (last pass: v4.19.217-70-g46d7612c5aae)
-        3 lines
 
-    2021-11-15T23:58:43.895287  kern  :alert : BUG: Bad page state in proce=
-ss swapper  pfn:c3400
-    2021-11-15T23:58:43.895529  kern  :alert : raw: 00000000 00000100 00000=
-200 00000000 00000004 0000000a ffffff7f 00000000
-    2021-11-15T23:58:43.895671  kern  :alert : page dumped because: nonzero=
- mapcount
-    2021-11-15T23:58:43.954031  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dale=
-rt RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D3>   =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6192f442a851541=
-28633590e
-        new failure (last pass: v4.19.217-70-g46d7612c5aae)
-        2 lines
-
-    2021-11-15T23:58:44.090930  kern  :emerg : page:c6f51000 count:0 mapcou=
-nt:-128 mapping:00000000 index:0x4
-    2021-11-15T23:58:44.091198  kern  :emerg : flags: 0x0()
-    2021-11-15T23:58:44.167010  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Deme=
-rg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>
-    2021-11-15T23:58:44.167287  + set +x
-    2021-11-15T23:58:44.167427  <8><LAVA_SIGNAL_ENDRUN 0_dmesg 1081334_1.5.=
-2.4.1>   =
-
- =20
+With regards,
+Pavel Skripkin
