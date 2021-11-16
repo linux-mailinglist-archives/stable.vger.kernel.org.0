@@ -2,110 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0A145330C
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 14:42:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F6CA453325
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 14:47:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236781AbhKPNpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 08:45:33 -0500
-Received: from mout.gmx.net ([212.227.17.22]:52079 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236924AbhKPNoA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 08:44:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1637070055;
-        bh=nSsxstMFbDZcIOBwXnzEYeyZxarp8YK6zVfDpztqX/s=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
-        b=Mo0i0IakG8STxchN9yOvA4Lan7tsKfGi3mN/Axjarqm3at0BxSxejntcy+b7DGtZZ
-         6l8aLWV8uSrDIRTJSmpR/MM+BGldCDYdtEmT82AGEDpSFELvqNIh32+OvJRIEVHePI
-         MnJ4A2YGbYSazlgsTQNIKvmfE+Par9IA/HyXlG6w=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from ls3530 ([92.116.177.193]) by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MVeMG-1nEVQw3kBQ-00RXr4; Tue, 16
- Nov 2021 14:40:54 +0100
-Date:   Tue, 16 Nov 2021 14:40:21 +0100
-From:   Helge Deller <deller@gmx.de>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Sven Schnelle <svens@stackframe.org>
-Subject: [PATCH][stable] parisc/entry: fix trace test in syscall exit path
-Message-ID: <YZO0xTfo0ZwzTQs+@ls3530>
+        id S236771AbhKPNud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 08:50:33 -0500
+Received: from smtpout2.mo529.mail-out.ovh.net ([79.137.123.220]:34463 "EHLO
+        smtpout2.mo529.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232201AbhKPNub (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 08:50:31 -0500
+X-Greylist: delayed 423 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Nov 2021 08:50:31 EST
+Received: from mxplan5.mail.ovh.net (unknown [10.108.20.10])
+        by mo529.mail-out.ovh.net (Postfix) with ESMTPS id 7AE36CBDABAD;
+        Tue, 16 Nov 2021 14:40:28 +0100 (CET)
+Received: from kaod.org (37.59.142.102) by DAG4EX1.mxp5.local (172.16.2.31)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.20; Tue, 16 Nov
+ 2021 14:40:27 +0100
+Authentication-Results: garm.ovh; auth=pass (GARM-102R004ba902aba-7469-4690-932b-30ee350104e4,
+                    BFAEB7FE3C4E2C4D96001007C3BA12B7689A693E) smtp.auth=clg@kaod.org
+X-OVh-ClientIp: 129.41.46.1
+From:   =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>
+To:     <linuxppc-dev@lists.ozlabs.org>
+CC:     Michael Ellerman <mpe@ellerman.id.au>, Greg Kurz <groug@kaod.org>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Marc Zyngier <maz@kernel.org>, <stable@vger.kernel.org>
+Subject: [PATCH] powerpc/xive: Change IRQ domain to a tree domain
+Date:   Tue, 16 Nov 2021 14:40:22 +0100
+Message-ID: <20211116134022.420412-1-clg@kaod.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Provags-ID: V03:K1:XZjnO6+5ZpcQDp5vcf2tiTIVDME6JBsg/QLPBFJczQ+HYiFVzPx
- s2ujwqbaa6Qg5/14A/E9mW+PwJFA8tNsAcw7zDUvx7YXWa8Un+vG9nqCOTkqU4b/aB7zMi3
- xY+tG0HA1q0I+E9Uh5wdN/w5sl+BTDnkfXeW2CnBWDj9CGes4459E2u4OjjPAFe8LoHD31C
- /sJZynpjB6orctnZtnPRA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:QEi9uyc03Jo=:JmZL2w52Ziak/EqOsO9QGi
- e5Ysf2U0rysLbLJFyBrEJE9oXzqYAaKLkSK3lI+H1+TMnJYBr3C0tzuWdlf+0ffeo4D/9tRuR
- OOlrbaqAiyiKKQX5R3MqsLS/8vyTVhgTxK09VC+1QOeSUbWzF+i1L6yXTDpEc1u6fEy0TuNC5
- QdDGGLZID32/KdNSfojk4ykpBMWOTTn1Fz2P6e7bOwtY/FpXBizDccrpqpCpGPjG+mWW4pmD7
- cJY9qnYxEu4pOUVE4IkfZKXEeNAK5riNmAyngzBKFYNcj6MEvUYr+0XmSgQaCDF12bcLVjVk4
- y6Fp107IGgfhAd4OtNgu84qVotC6ZaK8sbdHdrG/dy62dEaz/pZZwMoFiLrIyJCRDq9L/oxaR
- ufUg8ssDqupKaQ+oOCWioO/MOA5CWVD0oxTZPfyZZJ6R1ioJvPmbrQGXncO1c7dF+lq+PB20U
- 5guhGbZmVcLH42F0DwRP8waFV8iKZ+DNmASG2aWfbYgxGVm7wRW9FHQ80IGNOaSQTQx3vgYk5
- hxpO1PqCLUzTZoV1UHXS0BE9C5v9j4hp8uoCpaqLef57LQU7OJCVFjLfY74+EJtPINwsPM6Qi
- nDnwgxU56lIWkkdQw0+P6K1z42bPdLMhMMoHRrGUgya1eu5Lib67dZgVBl+iD5M8f2bhcMrj1
- hg1lA03GsbUazvmNH6G6tmLBE4oDjNfjFC4cStBM7V6rg88tyaGKCo9GXEV87U+E0zeDQxZxL
- +OEodRFG8ljuBazQbCxT25FUY7di5Hm4YGrNOjfcMHzCsKikPYn/fKCv0wKa7WIpqBk5DpClQ
- ESj5Bf7k4dhHRjJyjdcZCsk+GUlUZg7HR3+HNn2Gbuyzl3Pe4O/bOYFPQAekemCZYgqZ/Y5cI
- YeirAu0Srhk/HXYOylrHd1a/LdO23xpJ2cc45B6Wkngw4tpBbZsIbfcDeO86H7wB5NQE0SZxp
- ZrWdNq5ypG7m3QboQjWBM55kHQtN9ApfRnx87A2v2h7HLhEokCxFLd3SNqHJtDLzy72VwGlY/
- k9N4EgDzfWr9C2ucI1DwImGBD+kqVuqIBST2QGGVh5xh95rEa5CfrutTKByDizaOkhIUtwuwm
- 4rZIilyRA/YHrY=
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [37.59.142.102]
+X-ClientProxiedBy: DAG7EX2.mxp5.local (172.16.2.62) To DAG4EX1.mxp5.local
+ (172.16.2.31)
+X-Ovh-Tracer-GUID: 8a1d5da2-01c1-4648-a552-ae3e5b97b2ab
+X-Ovh-Tracer-Id: 13027787825618848550
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvuddrfedvgdehgecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvffufffkofggtgfgihesthekredtredtjeenucfhrhhomhepveorughrihgtucfnvgcuifhorghtvghruceotghlgheskhgrohgurdhorhhgqeenucggtffrrghtthgvrhhnpeefvdeutddvieekkeeuhfekudejjefggffghfetgfelgfevveefgefhvdegtdelveenucfkpheptddrtddrtddrtddpfeejrdehledrudegvddruddtvdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphhouhhtpdhhvghlohepmhigphhlrghnhedrmhgrihhlrdhovhhhrdhnvghtpdhinhgvtheptddrtddrtddrtddpmhgrihhlfhhrohhmpegtlhhgsehkrghougdrohhrghdprhgtphhtthhopegtlhhgsehkrghougdrohhrgh
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please apply this patch to the stable kernels up to v5.15.
+Commit 4f86a06e2d6e ("irqdomain: Make normal and nomap irqdomains
+exclusive") introduced an IRQ_DOMAIN_FLAG_NO_MAP flag to isolate the
+'nomap' domains still in use under the powerpc arch. With this new
+flag, the revmap_tree of the IRQ domain is not used anymore. This
+change broke the support of shared LSIs [1] in the XIVE driver because
+it was relying on a lookup in the revmap_tree to query previously
+mapped interrupts. Linux now creates two distinct IRQ mappings on the
+same HW IRQ which can lead to unexpected behavior in the drivers.
 
-It's basically upstream commit 3ec18fc7831e7d79e2d536dd1f3bc0d3ba425e8a,
-adjusted so that it applies to the stable kernels.
+The XIVE IRQ domain is not a direct mapping domain and its HW IRQ
+interrupt number space is rather large : 1M/socket on POWER9 and
+POWER10, change the XIVE driver to use a 'tree' domain type instead.
 
-It requires that upstream commit 8779e05ba8aaffec1829872ef9774a71f44f6580
-is applied before, which shouldn't be a problem as it was tagged for
-stable series in the original commmit already.
+[1] For instance, a linux KVM guest with virtio-rng and virtio-balloon
+    devices.
 
-Thanks,
-Helge
-=2D-------
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org # v5.14+
+Fixes: 4f86a06e2d6e ("irqdomain: Make normal and nomap irqdomains exclusive")
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+---
 
-From: Sven Schnelle <svens@stackframe.org>
-Date: Sat, 13 Nov 2021 20:41:17 +0100
-Subject: [PATCH] parisc/entry: fix trace test in syscall exit path
+ Marc,
 
-Upstream commit: 3ec18fc7831e7d79e2d536dd1f3bc0d3ba425e8a
+ The Fixes tag is there because the patch in question revealed that
+ something was broken in XIVE. genirq is not in cause. However, I
+ don't know for PS3 and Cell. May be less critical for now. 
+ 
+ arch/powerpc/sysdev/xive/common.c | 3 +--
+ arch/powerpc/sysdev/xive/Kconfig  | 1 -
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-commit 8779e05ba8aa ("parisc: Fix ptrace check on syscall return")
-fixed testing of TI_FLAGS. This uncovered a bug in the test mask.
-syscall_restore_rfi is only used when the kernel needs to exit to
-usespace with single or block stepping and the recovery counter
-enabled. The test however used _TIF_SYSCALL_TRACE_MASK, which
-includes a lot of bits that shouldn't be tested here.
-
-Fix this by using TIF_SINGLESTEP and TIF_BLOCKSTEP directly.
-
-I encountered this bug by enabling syscall tracepoints. Both in qemu and
-on real hardware. As soon as i enabled the tracepoint (sys_exit_read,
-but i guess it doesn't really matter which one), i got random page
-faults in userspace almost immediately.
-
-Signed-off-by: Sven Schnelle <svens@stackframe.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
-
-diff --git a/arch/parisc/kernel/entry.S b/arch/parisc/kernel/entry.S
-index 2716e58b498b..437c8d31f390 100644
-=2D-- a/arch/parisc/kernel/entry.S
-+++ b/arch/parisc/kernel/entry.S
-@@ -1835,7 +1835,7 @@ syscall_restore:
-
- 	/* Are we being ptraced? */
- 	LDREG	TI_FLAGS-THREAD_SZ_ALGN-FRAME_SIZE(%r30),%r19
--	ldi	_TIF_SYSCALL_TRACE_MASK,%r2
-+	ldi	_TIF_SINGLESTEP|_TIF_BLOCKSTEP,%r2
- 	and,COND(=3D)	%r19,%r2,%r0
- 	b,n	syscall_restore_rfi
+diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
+index fed6fd16c8f4..9d0f0fe25598 100644
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -1536,8 +1536,7 @@ static const struct irq_domain_ops xive_irq_domain_ops = {
+ 
+ static void __init xive_init_host(struct device_node *np)
+ {
+-	xive_irq_domain = irq_domain_add_nomap(np, XIVE_MAX_IRQ,
+-					       &xive_irq_domain_ops, NULL);
++	xive_irq_domain = irq_domain_add_tree(np, &xive_irq_domain_ops, NULL);
+ 	if (WARN_ON(xive_irq_domain == NULL))
+ 		return;
+ 	irq_set_default_host(xive_irq_domain);
+diff --git a/arch/powerpc/sysdev/xive/Kconfig b/arch/powerpc/sysdev/xive/Kconfig
+index 97796c6b63f0..785c292d104b 100644
+--- a/arch/powerpc/sysdev/xive/Kconfig
++++ b/arch/powerpc/sysdev/xive/Kconfig
+@@ -3,7 +3,6 @@ config PPC_XIVE
+ 	bool
+ 	select PPC_SMP_MUXED_IPI
+ 	select HARDIRQS_SW_RESEND
+-	select IRQ_DOMAIN_NOMAP
+ 
+ config PPC_XIVE_NATIVE
+ 	bool
+-- 
+2.31.1
 
