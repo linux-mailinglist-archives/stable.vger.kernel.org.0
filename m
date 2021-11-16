@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83D0F4539F7
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:18:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 933EC4539FA
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:18:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239861AbhKPTU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 14:20:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53710 "EHLO mail.kernel.org"
+        id S239878AbhKPTU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 14:20:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229663AbhKPTUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 14:20:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68A506322C;
-        Tue, 16 Nov 2021 19:17:57 +0000 (UTC)
+        id S239873AbhKPTU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 14:20:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D661E63223;
+        Tue, 16 Nov 2021 19:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637090278;
-        bh=pJvfaUrErvbkJy1Pyta/U5BnafakH527rjx1wndzuxg=;
+        s=k20201202; t=1637090279;
+        bh=EjfK6ywtkTbYiXTxOr4yEkJELrvwgwMVwqnEQgNPO2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iE64KSyn7noGPkoF1jRRKUMRa5F7TNG2Yxe2ycvKiYv7DBs132D8KW7jvPXO1Qve4
-         kvrXzvYF/UwG9mIygLCuywWD02n4yvefHlU7o+PsOP9fB+/zIE3ewBB8a1a5YkSvo4
-         FDz3F7PcIRr3jGn+Pr2f/9iyjV5/G9aKJi4lhRoAXETwaRaSmd//lohDCD/MowW/du
-         0x4BCvYZBzS4XeD2Q6Cifphje5Sz8wIvRXOJmVGn/Uk+Dis/2KUUeaynpHsdUPKtKG
-         tSj25NbVqo06XMaQVoltcD/23BHlPKkrdI1cJOsQA0bW5CRPcyKnMSGUYQk4SS+xsv
-         Buz4bYw5kgb8g==
+        b=frWfIpfU8B8hdkehcTUBtDi0OnSNOB/Kx9yM4kvNjk0KQY6XP2Q4N/+wyYk453KVB
+         qKPWbovxQmJnL5hkSZ78JlgSCKz8hkfog2Y3udhiAz6b1orNHa5g0GeBwrWj8MU+f/
+         gObcCeD9SXptakUNFJFu1FwXYyNCs6us0dDhqXaelLJhY0EgxC4mGKHH6SLytM+oTA
+         +p7TSvdz14QHPT25mEfOSCoZkWkBp8exNTz2nuJ9Il5cHJdJYtTFNmJJ4qxrB75NZa
+         dPpWzEMfNBn8LTQ6753Sg2CxnpOv82xgEq8+Mg0cf/ZAJGCEfq6Avw18ut9jJhJgOZ
+         UxkF/T+6gpiCg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marco Elver <elver@google.com>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, kasan-dev@googlegroups.com
-Subject: [PATCH AUTOSEL 5.15 02/65] kcsan: test: Fix flaky test case
-Date:   Tue, 16 Nov 2021 14:16:47 -0500
-Message-Id: <20211116191754.2419097-2-sashal@kernel.org>
+Cc:     =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, jingoohan1@gmail.com,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 03/65] backlight: Propagate errors from get_brightness()
+Date:   Tue, 16 Nov 2021 14:16:48 -0500
+Message-Id: <20211116191754.2419097-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211116191754.2419097-1-sashal@kernel.org>
 References: <20211116191754.2419097-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,85 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Thomas Weißschuh <linux@weissschuh.net>
 
-[ Upstream commit ade3a58b2d40555701143930ead3d44d0b52ca9e ]
+[ Upstream commit 563edf85ce18a90dd0a7b39e279a691d937205f6 ]
 
-If CONFIG_KCSAN_REPORT_VALUE_CHANGE_ONLY=n, then we may also see data
-races between the writers only. If we get unlucky and never capture a
-read-write data race, but only the write-write data races, then the
-test_no_value_change* test cases may incorrectly fail.
+backlight.h documents "struct backlight_ops->get_brightness()" to return
+a negative errno on failure.
 
-The second problem is that the initial value needs to be reset, as
-otherwise we might actually observe a value change at the start.
+So far these errors have not been handled in the backlight core.
+This leads to negative values being exposed through sysfs although only
+positive values are documented to be reported.
 
-Fix it by also looking for the write-write data races, and resetting the
-value to what will be written.
-
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kcsan/kcsan_test.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/video/backlight/backlight.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/kcsan/kcsan_test.c b/kernel/kcsan/kcsan_test.c
-index dc55fd5a36fcc..ada4a7a403b8d 100644
---- a/kernel/kcsan/kcsan_test.c
-+++ b/kernel/kcsan/kcsan_test.c
-@@ -488,17 +488,24 @@ static void test_concurrent_races(struct kunit *test)
- __no_kcsan
- static void test_novalue_change(struct kunit *test)
- {
--	const struct expect_report expect = {
-+	const struct expect_report expect_rw = {
- 		.access = {
- 			{ test_kernel_write_nochange, &test_var, sizeof(test_var), KCSAN_ACCESS_WRITE },
- 			{ test_kernel_read, &test_var, sizeof(test_var), 0 },
- 		},
- 	};
-+	const struct expect_report expect_ww = {
-+		.access = {
-+			{ test_kernel_write_nochange, &test_var, sizeof(test_var), KCSAN_ACCESS_WRITE },
-+			{ test_kernel_write_nochange, &test_var, sizeof(test_var), KCSAN_ACCESS_WRITE },
-+		},
-+	};
- 	bool match_expect = false;
+diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
+index 537fe1b376ad7..4658cfb75aa28 100644
+--- a/drivers/video/backlight/backlight.c
++++ b/drivers/video/backlight/backlight.c
+@@ -292,10 +292,13 @@ static ssize_t actual_brightness_show(struct device *dev,
+ 	struct backlight_device *bd = to_backlight_device(dev);
  
-+	test_kernel_write_nochange(); /* Reset value. */
- 	begin_test_checks(test_kernel_write_nochange, test_kernel_read);
- 	do {
--		match_expect = report_matches(&expect);
-+		match_expect = report_matches(&expect_rw) || report_matches(&expect_ww);
- 	} while (!end_test_checks(match_expect));
- 	if (IS_ENABLED(CONFIG_KCSAN_REPORT_VALUE_CHANGE_ONLY))
- 		KUNIT_EXPECT_FALSE(test, match_expect);
-@@ -513,17 +520,24 @@ static void test_novalue_change(struct kunit *test)
- __no_kcsan
- static void test_novalue_change_exception(struct kunit *test)
- {
--	const struct expect_report expect = {
-+	const struct expect_report expect_rw = {
- 		.access = {
- 			{ test_kernel_write_nochange_rcu, &test_var, sizeof(test_var), KCSAN_ACCESS_WRITE },
- 			{ test_kernel_read, &test_var, sizeof(test_var), 0 },
- 		},
- 	};
-+	const struct expect_report expect_ww = {
-+		.access = {
-+			{ test_kernel_write_nochange_rcu, &test_var, sizeof(test_var), KCSAN_ACCESS_WRITE },
-+			{ test_kernel_write_nochange_rcu, &test_var, sizeof(test_var), KCSAN_ACCESS_WRITE },
-+		},
-+	};
- 	bool match_expect = false;
+ 	mutex_lock(&bd->ops_lock);
+-	if (bd->ops && bd->ops->get_brightness)
+-		rc = sprintf(buf, "%d\n", bd->ops->get_brightness(bd));
+-	else
++	if (bd->ops && bd->ops->get_brightness) {
++		rc = bd->ops->get_brightness(bd);
++		if (rc >= 0)
++			rc = sprintf(buf, "%d\n", rc);
++	} else {
+ 		rc = sprintf(buf, "%d\n", bd->props.brightness);
++	}
+ 	mutex_unlock(&bd->ops_lock);
  
-+	test_kernel_write_nochange_rcu(); /* Reset value. */
- 	begin_test_checks(test_kernel_write_nochange_rcu, test_kernel_read);
- 	do {
--		match_expect = report_matches(&expect);
-+		match_expect = report_matches(&expect_rw) || report_matches(&expect_ww);
- 	} while (!end_test_checks(match_expect));
- 	KUNIT_EXPECT_TRUE(test, match_expect);
+ 	return rc;
+@@ -381,9 +384,18 @@ ATTRIBUTE_GROUPS(bl_device);
+ void backlight_force_update(struct backlight_device *bd,
+ 			    enum backlight_update_reason reason)
+ {
++	int brightness;
++
+ 	mutex_lock(&bd->ops_lock);
+-	if (bd->ops && bd->ops->get_brightness)
+-		bd->props.brightness = bd->ops->get_brightness(bd);
++	if (bd->ops && bd->ops->get_brightness) {
++		brightness = bd->ops->get_brightness(bd);
++		if (brightness >= 0)
++			bd->props.brightness = brightness;
++		else
++			dev_err(&bd->dev,
++				"Could not update brightness from device: %pe\n",
++				ERR_PTR(brightness));
++	}
+ 	mutex_unlock(&bd->ops_lock);
+ 	backlight_generate_event(bd, reason);
  }
 -- 
 2.33.0
