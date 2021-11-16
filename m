@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 933EC4539FA
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:18:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0DF14539FD
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:18:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239878AbhKPTU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 14:20:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53800 "EHLO mail.kernel.org"
+        id S239938AbhKPTVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 14:21:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239873AbhKPTU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 14:20:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D661E63223;
-        Tue, 16 Nov 2021 19:17:58 +0000 (UTC)
+        id S239873AbhKPTVC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 14:21:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6711863220;
+        Tue, 16 Nov 2021 19:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637090279;
-        bh=EjfK6ywtkTbYiXTxOr4yEkJELrvwgwMVwqnEQgNPO2Q=;
+        s=k20201202; t=1637090284;
+        bh=StF9zvIyiI8CbHePB2sRe3ydWwyn5ypRVDzxRXBi2dE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=frWfIpfU8B8hdkehcTUBtDi0OnSNOB/Kx9yM4kvNjk0KQY6XP2Q4N/+wyYk453KVB
-         qKPWbovxQmJnL5hkSZ78JlgSCKz8hkfog2Y3udhiAz6b1orNHa5g0GeBwrWj8MU+f/
-         gObcCeD9SXptakUNFJFu1FwXYyNCs6us0dDhqXaelLJhY0EgxC4mGKHH6SLytM+oTA
-         +p7TSvdz14QHPT25mEfOSCoZkWkBp8exNTz2nuJ9Il5cHJdJYtTFNmJJ4qxrB75NZa
-         dPpWzEMfNBn8LTQ6753Sg2CxnpOv82xgEq8+Mg0cf/ZAJGCEfq6Avw18ut9jJhJgOZ
-         UxkF/T+6gpiCg==
+        b=g9BbynV/nzZCGY+kAeg5+egq79sKFig/v9cLiOzyi9dpG9XqDxmI2FKTMyBcSSxxL
+         rT9Bk4F1ZwR53BW7l8hCPu3uR7w2i3uzJdNORxf2qR/dbG6JEgbDbC5VANXZgPweEF
+         TRsuqkVYZF/HFuH8B49g6FkHEtlrNpfJ/9IEXalUCuN54VdRPUhVHFStepHqkVCBc/
+         8GPai/ZcYWu6pt/nI8cHVnHfGx/s5RNHg2lGWpdCaL5zBMQxWingVVdSXddCgSdYZy
+         2kJzQulC6IYnRwv9iIRT3Jz8EOPkcCA/RXkjoz0Cu07Zb9RJS/W71E2UGrUTuMp5Yc
+         Y7jX0h6or2KyQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, jingoohan1@gmail.com,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 03/65] backlight: Propagate errors from get_brightness()
-Date:   Tue, 16 Nov 2021 14:16:48 -0500
-Message-Id: <20211116191754.2419097-3-sashal@kernel.org>
+Cc:     Yang Li <yang.lee@linux.alibaba.com>,
+        Abaci Robot <abaci@linux.alibaba.com>,
+        "J . Bruce Fields" <bfields@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, bfields@fieldses.org,
+        chuck.lever@oracle.com, trond.myklebust@hammerspace.com,
+        anna.schumaker@netapp.com, davem@davemloft.net, kuba@kernel.org,
+        colin.king@intel.com, neilb@suse.de, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 04/65] UNRPC: Return specific error code on kmalloc failure
+Date:   Tue, 16 Nov 2021 14:16:49 -0500
+Message-Id: <20211116191754.2419097-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211116191754.2419097-1-sashal@kernel.org>
 References: <20211116191754.2419097-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,67 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Yang Li <yang.lee@linux.alibaba.com>
 
-[ Upstream commit 563edf85ce18a90dd0a7b39e279a691d937205f6 ]
+[ Upstream commit 458032fcfa91c8714859b1f01b9ac7dccea5d6cd ]
 
-backlight.h documents "struct backlight_ops->get_brightness()" to return
-a negative errno on failure.
+Although the callers of this function only care about whether the
+return value is null or not, we should still give a rigorous
+error code.
 
-So far these errors have not been handled in the backlight core.
-This leads to negative values being exposed through sysfs although only
-positive values are documented to be reported.
+Smatch tool warning:
+net/sunrpc/auth_gss/svcauth_gss.c:784 gss_write_verf() warn: returning
+-1 instead of -ENOMEM is sloppy
 
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+No functional change, just more standardized.
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/backlight.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ net/sunrpc/auth_gss/svcauth_gss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
-index 537fe1b376ad7..4658cfb75aa28 100644
---- a/drivers/video/backlight/backlight.c
-+++ b/drivers/video/backlight/backlight.c
-@@ -292,10 +292,13 @@ static ssize_t actual_brightness_show(struct device *dev,
- 	struct backlight_device *bd = to_backlight_device(dev);
+diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
+index 1f2817195549b..b87565b64928d 100644
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -781,7 +781,7 @@ gss_write_verf(struct svc_rqst *rqstp, struct gss_ctx *ctx_id, u32 seq)
+ 	svc_putnl(rqstp->rq_res.head, RPC_AUTH_GSS);
+ 	xdr_seq = kmalloc(4, GFP_KERNEL);
+ 	if (!xdr_seq)
+-		return -1;
++		return -ENOMEM;
+ 	*xdr_seq = htonl(seq);
  
- 	mutex_lock(&bd->ops_lock);
--	if (bd->ops && bd->ops->get_brightness)
--		rc = sprintf(buf, "%d\n", bd->ops->get_brightness(bd));
--	else
-+	if (bd->ops && bd->ops->get_brightness) {
-+		rc = bd->ops->get_brightness(bd);
-+		if (rc >= 0)
-+			rc = sprintf(buf, "%d\n", rc);
-+	} else {
- 		rc = sprintf(buf, "%d\n", bd->props.brightness);
-+	}
- 	mutex_unlock(&bd->ops_lock);
- 
- 	return rc;
-@@ -381,9 +384,18 @@ ATTRIBUTE_GROUPS(bl_device);
- void backlight_force_update(struct backlight_device *bd,
- 			    enum backlight_update_reason reason)
- {
-+	int brightness;
-+
- 	mutex_lock(&bd->ops_lock);
--	if (bd->ops && bd->ops->get_brightness)
--		bd->props.brightness = bd->ops->get_brightness(bd);
-+	if (bd->ops && bd->ops->get_brightness) {
-+		brightness = bd->ops->get_brightness(bd);
-+		if (brightness >= 0)
-+			bd->props.brightness = brightness;
-+		else
-+			dev_err(&bd->dev,
-+				"Could not update brightness from device: %pe\n",
-+				ERR_PTR(brightness));
-+	}
- 	mutex_unlock(&bd->ops_lock);
- 	backlight_generate_event(bd, reason);
- }
+ 	iov.iov_base = xdr_seq;
 -- 
 2.33.0
 
