@@ -2,136 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC7F4527F2
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:48:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 487184527D1
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 03:44:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356112AbhKPCuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 21:50:52 -0500
-Received: from condef-06.nifty.com ([202.248.20.71]:29260 "EHLO
-        condef-06.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357224AbhKPCsv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 21:48:51 -0500
-X-Greylist: delayed 460 seconds by postgrey-1.27 at vger.kernel.org; Mon, 15 Nov 2021 21:48:50 EST
-Received: from conssluserg-06.nifty.com ([10.126.8.85])by condef-06.nifty.com with ESMTP id 1AG2a0cN030162
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 11:36:00 +0900
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177]) (authenticated)
-        by conssluserg-06.nifty.com with ESMTP id 1AG2ZVw4001708
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 11:35:32 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-06.nifty.com 1AG2ZVw4001708
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1637030132;
-        bh=w9ucYvmbJK2UcVWkC87lt9IyQEuDcwA3LqTtmfKqN3Q=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=bWNbNyJfJM/L7B+XvXSDdHBvfhIKFaG5iFdmulhLjy/tP5QuAlgBC8MTA+QiD6jum
-         4qxq6lbq0lSwZxouJ0FWB4R/9nVhPnVAiWmSVYH4SCLPMksQcWYmptvc91pqz971Xd
-         2quY/xCFN3KKyWxILvTXzN39ac5aSPKv55SEIMPpqXWY4+6fWHEIrsA7jQ93UfEBX3
-         qzTjxkUis/Fhs0OvyPvhIUjeHQ9zqpOfsbpDrdSg8vr8FHO5E6BYzZklUpVd7JQkhm
-         TSfD5sy85cGZciQLYPFogkGzoMc4wmiV39RXE4XziG8YFD5+TVXWCNGOVAW8q6ri4S
-         oMbPJN17LdPGQ==
-X-Nifty-SrcIP: [209.85.210.177]
-Received: by mail-pf1-f177.google.com with SMTP id g18so16704069pfk.5
-        for <stable@vger.kernel.org>; Mon, 15 Nov 2021 18:35:32 -0800 (PST)
-X-Gm-Message-State: AOAM530AAApM07Pvp+unsb3YvFJSM84oSMpVSgJ9XnSqJLIA815rIHVa
-        Bl52d4i//Vz74bBXOHXAmBBY2M14eoL80SgUb5Y=
-X-Google-Smtp-Source: ABdhPJx5o1jMUsFsuyYZeLm4uxP75CoLFptJwOvPzkyGmWz8BGY8IqE6l6bCatY2qp+ZzdYYZeEqV4maZGLNZ7kv4yY=
-X-Received: by 2002:a65:530d:: with SMTP id m13mr2629803pgq.128.1637030131310;
- Mon, 15 Nov 2021 18:35:31 -0800 (PST)
+        id S241632AbhKPCq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 21:46:58 -0500
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:43857 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238468AbhKPCpB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 21:45:01 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R681e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0Uwnk90a_1637030514;
+Received: from e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Uwnk90a_1637030514)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 16 Nov 2021 10:42:02 +0800
+From:   Gao Xiang <hsiangkao@linux.alibaba.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     linux-erofs@lists.ozlabs.org, Yue Hu <huyue2@yulong.com>,
+        Gao Xiang <xiang@kernel.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH 4.19.y 1/2] erofs: remove the occupied parameter from z_erofs_pagevec_enqueue()
+Date:   Tue, 16 Nov 2021 10:41:52 +0800
+Message-Id: <20211116024153.245131-1-hsiangkao@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.4
+In-Reply-To: <1636983460149191@kroah.com>
+References: <1636983460149191@kroah.com>
 MIME-Version: 1.0
-References: <163697999651153@kroah.com>
-In-Reply-To: <163697999651153@kroah.com>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Tue, 16 Nov 2021 11:34:54 +0900
-X-Gmail-Original-Message-ID: <CAK7LNARBgWYht7bCcp3iYWdt=B-1zfnP0f0D4Utfmt3SgyipYQ@mail.gmail.com>
-Message-ID: <CAK7LNARBgWYht7bCcp3iYWdt=B-1zfnP0f0D4Utfmt3SgyipYQ@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] MIPS: fix *-pkg builds for loongson2ef
- platform" failed to apply to 5.14-stable tree
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Jason Self <jason@bluehome.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Yue Hu <huyue2@yulong.com>
 
-On Mon, Nov 15, 2021 at 9:40 PM <gregkh@linuxfoundation.org> wrote:
->
->
-> The patch below does not apply to the 5.14-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+commit 7dea3de7d384f4c8156e8bd93112ba6db1eb276c upstream.
 
+No any behavior to variable occupied in z_erofs_attach_page() which
+is only caller to z_erofs_pagevec_enqueue().
 
-I fixed the conflict, and just submitted it as:
+Link: https://lore.kernel.org/r/20210419102623.2015-1-zbestahu@gmail.com
+Signed-off-by: Yue Hu <huyue2@yulong.com>
+Reviewed-by: Gao Xiang <xiang@kernel.org>
+Signed-off-by: Gao Xiang <xiang@kernel.org>
+[ Gao Xiang: handle 4.19 codebase conflicts manually. ]
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+---
+Gao Xiang: Same to 5.4.y and 5.10.y, apply this trivial cleanup as well.
 
-   [PATCH stable 5.14.y] MIPS: fix *-pkg builds for loongson2ef platform
+ drivers/staging/erofs/unzip_pagevec.h | 5 +----
+ drivers/staging/erofs/unzip_vle.c     | 4 +---
+ 2 files changed, 2 insertions(+), 7 deletions(-)
 
-Thanks.
-
-
-
-
-> thanks,
->
-> greg k-h
->
-> ------------------ original commit in Linus's tree ------------------
->
-> From 0706f74f719e6e72c3a862ab2990796578fa73cc Mon Sep 17 00:00:00 2001
-> From: Masahiro Yamada <masahiroy@kernel.org>
-> Date: Wed, 10 Nov 2021 00:01:45 +0900
-> Subject: [PATCH] MIPS: fix *-pkg builds for loongson2ef platform
->
-> Since commit 805b2e1d427a ("kbuild: include Makefile.compiler only when
-> compiler is needed"), package builds for the loongson2f platform fail.
->
->   $ make ARCH=mips CROSS_COMPILE=mips64-linux- lemote2f_defconfig bindeb-pkg
->     [ snip ]
->   sh ./scripts/package/builddeb
->   arch/mips/loongson2ef//Platform:36: *** only binutils >= 2.20.2 have needed option -mfix-loongson2f-nop.  Stop.
->   cp: cannot stat '': No such file or directory
->   make[5]: *** [scripts/Makefile.package:87: intdeb-pkg] Error 1
->   make[4]: *** [Makefile:1558: intdeb-pkg] Error 2
->   make[3]: *** [debian/rules:13: binary-arch] Error 2
->   dpkg-buildpackage: error: debian/rules binary subprocess returned exit status 2
->   make[2]: *** [scripts/Makefile.package:83: bindeb-pkg] Error 2
->   make[1]: *** [Makefile:1558: bindeb-pkg] Error 2
->   make: *** [Makefile:350: __build_one_by_one] Error 2
->
-> The reason is because "make image_name" fails.
->
->   $ make ARCH=mips CROSS_COMPILE=mips64-linux- image_name
->   arch/mips/loongson2ef//Platform:36: *** only binutils >= 2.20.2 have needed option -mfix-loongson2f-nop.  Stop.
->
-> In general, adding $(error ...) in the parse stage is troublesome,
-> and it is pointless to check toolchains even if we are not building
-> anything. Do not include Kbuild.platform in such cases.
->
-> Fixes: 805b2e1d427a ("kbuild: include Makefile.compiler only when compiler is needed")
-> Reported-by: Jason Self <jason@bluehome.net>
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
->
-> diff --git a/arch/mips/Makefile b/arch/mips/Makefile
-> index ea3cd080a1c7..f7b58da2f388 100644
-> --- a/arch/mips/Makefile
-> +++ b/arch/mips/Makefile
-> @@ -254,7 +254,9 @@ endif
->  #
->  # Board-dependent options and extra files
->  #
-> +ifdef need-compiler
->  include $(srctree)/arch/mips/Kbuild.platforms
-> +endif
->
->  ifdef CONFIG_PHYSICAL_START
->  load-y                                 = $(CONFIG_PHYSICAL_START)
->
-
-
+diff --git a/drivers/staging/erofs/unzip_pagevec.h b/drivers/staging/erofs/unzip_pagevec.h
+index 23856ba2742d..64724dd1e04e 100644
+--- a/drivers/staging/erofs/unzip_pagevec.h
++++ b/drivers/staging/erofs/unzip_pagevec.h
+@@ -117,10 +117,8 @@ static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
+ static inline bool
+ z_erofs_pagevec_ctor_enqueue(struct z_erofs_pagevec_ctor *ctor,
+ 			     struct page *page,
+-			     enum z_erofs_page_type type,
+-			     bool *occupied)
++			     enum z_erofs_page_type type)
+ {
+-	*occupied = false;
+ 	if (unlikely(ctor->next == NULL && type))
+ 		if (ctor->index + 1 == ctor->nr)
+ 			return false;
+@@ -135,7 +133,6 @@ z_erofs_pagevec_ctor_enqueue(struct z_erofs_pagevec_ctor *ctor,
+ 	/* should remind that collector->next never equal to 1, 2 */
+ 	if (type == (uintptr_t)ctor->next) {
+ 		ctor->next = page;
+-		*occupied = true;
+ 	}
+ 
+ 	ctor->pages[ctor->index++] =
+diff --git a/drivers/staging/erofs/unzip_vle.c b/drivers/staging/erofs/unzip_vle.c
+index 0f1558c6747e..48c21a4d5dc8 100644
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -234,7 +234,6 @@ static int z_erofs_vle_work_add_page(
+ 	enum z_erofs_page_type type)
+ {
+ 	int ret;
+-	bool occupied;
+ 
+ 	/* give priority for the compressed data storage */
+ 	if (builder->role >= Z_EROFS_VLE_WORK_PRIMARY &&
+@@ -242,8 +241,7 @@ static int z_erofs_vle_work_add_page(
+ 		try_to_reuse_as_compressed_page(builder, page))
+ 		return 0;
+ 
+-	ret = z_erofs_pagevec_ctor_enqueue(&builder->vector,
+-		page, type, &occupied);
++	ret = z_erofs_pagevec_ctor_enqueue(&builder->vector, page, type);
+ 	builder->work->vcnt += (unsigned)ret;
+ 
+ 	return ret ? 0 : -EAGAIN;
 -- 
-Best Regards
-Masahiro Yamada
+2.24.4
+
