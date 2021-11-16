@@ -2,102 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B5B1453A57
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:42:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F22C453A6C
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:51:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240118AbhKPTpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 14:45:39 -0500
-Received: from smtp-relay-canonical-1.canonical.com ([185.125.188.121]:45330
-        "EHLO smtp-relay-canonical-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239957AbhKPTpi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 14:45:38 -0500
-Received: from mussarela.. (201-43-193-232.dsl.telesp.net.br [201.43.193.232])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id 6DFB8419B8;
-        Tue, 16 Nov 2021 19:42:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1637091760;
-        bh=kzcLOjg5kb6IxTXUpScjR66bWU9pWYlU9H7WOk3tx/A=;
-        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-         MIME-Version;
-        b=kVwnQp1tWDcIeL3p45+jAHOR5xj+YeQOkEfCx2+Kd6T+S0p+alTZVFmGxuT+6eFT/
-         WvSi+9Ow/reSL2Z+g+4ClF3joGmSU4bufxT65P/I0dFF5Rd1mq6HbtoILs22hb61A8
-         dnwt15r0DWt80L6zsjrpNSOoHSvLLV68XnhHIqkUxdAw4S56+kdeZsEWo9/itZnOD8
-         nXjvpC3GS4197Va0j7ysc2tX/+us/J482VIocB96s2/0w/Vq+pCY7BGmI+W0/hoS3c
-         +iPmP7BDHhY2JE0vTY5jJP0xxLsegrgRrUsKASjO9UR8vL/bgsJFX1GJ0i7SYfb1xD
-         x5apY399xYhqA==
-From:   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-To:     kernel-team@lists.ubuntu.com
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Hao Sun <sunhao.th@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Mimi Zohar <zohar@linux.ibm.com>, stable@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [SRU Focal/Bionic] vfs: check fd has read access in kernel_read_file_from_fd()
-Date:   Tue, 16 Nov 2021 16:42:17 -0300
-Message-Id: <20211116194217.481966-3-cascardo@canonical.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211116194217.481966-1-cascardo@canonical.com>
-References: <20211116194217.481966-1-cascardo@canonical.com>
+        id S240166AbhKPTws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 14:52:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57644 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231550AbhKPTwr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 14:52:47 -0500
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24571C061570;
+        Tue, 16 Nov 2021 11:49:50 -0800 (PST)
+Received: by mail-pf1-x430.google.com with SMTP id n85so363586pfd.10;
+        Tue, 16 Nov 2021 11:49:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Kv3IYPiX5SnYfnO5a8CoHQzGWqarVJmmBtF2EGunec4=;
+        b=k5zq7Qiwv0sVC50+hDQiqrw4Tbz2EWbNn2UkoGAK1kGG3XGGOvaN5FNSSvKe0pot2H
+         7mH2K4F8xYJJBcDOr8MWaBkwrE02YMFngxvZDW+1eDLGjlLCKl1ogvGFdmW4EeqsGIsN
+         9bAzF6SxpuHWFq9F/0nXxVkBcU7+IQiLj9HJqCchOses3LeI/tYBs7qEstaFGYDCaFCx
+         AGN2vxRNC9jUirj1Yj1CulD9XKSZ7Cm7YJ2OPRZL3Ln7SIfRFjE/4VIDTuJFz/5NG9+h
+         OxtPD0Zda046oicqBpXgMwmZZBU2VIJIU6TC1+dtT2GzGw0K+dBNX4f94HmBZsWtDUMk
+         5Z9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Kv3IYPiX5SnYfnO5a8CoHQzGWqarVJmmBtF2EGunec4=;
+        b=N+YIepe5yDobTBXHEoEzcjCbaAyqCOOPfQ2m3H2o15hLTCiFKGG/HIdSTAFC26euVo
+         kLAmlBzMoGPTzztpnDAy7W7pFPPyCUJXlmOmpfzbGCqcDpHf1dvZd1iDy9V3LxnWOJ2r
+         uga7nqQD00t8+WmRqA0yXxgDJ7fZWfAYLgX2/5a3bTiPDyxKWQqmzBpEItx9hxbz7X6S
+         XeAfm+MB3YGYHAQ5GF80zHH5ziCmpcrk1Q+Bwitlkz1jr9+y25DZ0CLztfGPMK0czpGr
+         6iKAnXKAuGAa6GRbgIQqfJKEJFWV0QulHeg+b4YHHcExQzdxu9UfTHXB0Vx2fSQ0k9bK
+         7sCg==
+X-Gm-Message-State: AOAM531YEqRvZ/LVkabjKdZKxFghu8lMY7jFa14TJ5kc1tujP7sgAN5r
+        oZckHAG3l3m1BRLxFc7qG3nnpBFbxSM=
+X-Google-Smtp-Source: ABdhPJz/299ps5UDV4MwfXmvLFU8iVY0AeCO9Q1Tw5i26ajanZMCI++YiOR+pVK5FZgrFAsPSrpb3A==
+X-Received: by 2002:aa7:888d:0:b0:47c:128b:ee57 with SMTP id z13-20020aa7888d000000b0047c128bee57mr1601114pfe.81.1637092189307;
+        Tue, 16 Nov 2021 11:49:49 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id rj8sm3375066pjb.0.2021.11.16.11.49.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 16 Nov 2021 11:49:48 -0800 (PST)
+Subject: Re: [PATCH 5.10 000/578] 5.10.80-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20211116142545.607076484@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <63702e31-15eb-6c5e-7f9b-96617afefbdb@gmail.com>
+Date:   Tue, 16 Nov 2021 11:49:47 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211116142545.607076484@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+On 11/16/21 7:00 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.80 release.
+> There are 578 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 18 Nov 2021 14:24:22 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.80-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-BugLink: https://bugs.launchpad.net/bugs/1950644
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-commit 032146cda85566abcd1c4884d9d23e4e30a07e9a upstream.
-
-If we open a file without read access and then pass the fd to a syscall
-whose implementation calls kernel_read_file_from_fd(), we get a warning
-from __kernel_read():
-
-        if (WARN_ON_ONCE(!(file->f_mode & FMODE_READ)))
-
-This currently affects both finit_module() and kexec_file_load(), but it
-could affect other syscalls in the future.
-
-Link: https://lkml.kernel.org/r/20211007220110.600005-1-willy@infradead.org
-Fixes: b844f0ecbc56 ("vfs: define kernel_copy_file_from_fd()")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reported-by: Hao Sun <sunhao.th@gmail.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Mimi Zohar <zohar@linux.ibm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-(cherry picked from commit 0f218ba4c8aac7041cd8b81a5a893b0d121e6316 linux-5.4.y)
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
----
- fs/exec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/exec.c b/fs/exec.c
-index eeba096e8a38..006f7fb40b96 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1000,7 +1000,7 @@ int kernel_read_file_from_fd(int fd, void **buf, loff_t *size, loff_t max_size,
- 	struct fd f = fdget(fd);
- 	int ret = -EBADF;
- 
--	if (!f.file)
-+	if (!f.file || !(f.file->f_mode & FMODE_READ))
- 		goto out;
- 
- 	ret = kernel_read_file(f.file, buf, size, max_size, id);
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.32.0
-
+Florian
