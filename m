@@ -2,135 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD3FF452EC6
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:13:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AD05452EEB
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:21:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233907AbhKPKQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 05:16:05 -0500
-Received: from mail-ua1-f45.google.com ([209.85.222.45]:41775 "EHLO
-        mail-ua1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233908AbhKPKPe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 05:15:34 -0500
-Received: by mail-ua1-f45.google.com with SMTP id p37so39534907uae.8;
-        Tue, 16 Nov 2021 02:12:37 -0800 (PST)
+        id S234086AbhKPKYd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 05:24:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39250 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234035AbhKPKY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 05:24:27 -0500
+Received: from mail-ua1-x929.google.com (mail-ua1-x929.google.com [IPv6:2607:f8b0:4864:20::929])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F04AC061766;
+        Tue, 16 Nov 2021 02:21:30 -0800 (PST)
+Received: by mail-ua1-x929.google.com with SMTP id ay21so41211137uab.12;
+        Tue, 16 Nov 2021 02:21:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hUo41dA8J9XxTRrnTRH8PmjQf1ZA/nli+HzNQ39/Nrw=;
+        b=mfvlRT+G+C0joXUKIQIV1pisFDOl6ozAExFYU0X57hIxjfPz26ZfvvaaIfzp2JZUZi
+         jGYt3BI5NEuAk4ounMGlvrod4Q0UzR+XHlib+6/71AistsL+bQAXagjjcSHW/iWsbuRa
+         QhxSeMQJQH1NmH1U5FUEgG5aWEcS4kH78oLzdGMOKdPPdHJr5YaUwOEJ2Z6mj6HxT1NC
+         3XowRYcPBDAGvAYMM4txOqoBTPM36NXmfU9J+wPGhpeZtM6jZV9EtNmw27h0MyWH9gUw
+         lYcieDrZRmLPiP+hjrP9eNQ4aRi5wOw0OivT+w6/oCmW+S0ZbbGIc/mWux6BudJNdOso
+         de0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=1nds6uFGqbyvPuDVHazG3SNcBfSR72giETk/vmz+pug=;
-        b=RriKkQWzi0EBTz0xvH9Ni30eaFUiTpNrgalTGM0JifrEo75OfiJ8vfhZNITor+zqGl
-         siWdxT5/OGb9oUfe9CwvcXACzAsC6xwaX+aCugF0wMUgYRFDOUicjCns3m2Fu2tVjj2Q
-         /MttW0GQ3xiVYr6P6q/rY8ylS2qisl7bNBBky40a3QMmbVnlZb4Vlh0El692HOxbfzxq
-         QB6ua94+xawuEpEKyakb2W2itZfsbawXm1nK9e7iS1pg+LeYMVFa3Edc/ZfBXEtps6qe
-         N0+OaFWpO3dgs82am4C6BdrYMfz6LibAHoe11wLhJYdup+8Sd2vR6xj9PmYYa2FJQKD3
-         HIMg==
-X-Gm-Message-State: AOAM533IlQmnVtpI2Y09bbT2gqPPUjkK/wTnpl3P8bG3tBn8z6gdAO3r
-        Nv9LCFzJZUSq+UTM7vPg+QeVYPBkgEE9TQ==
-X-Google-Smtp-Source: ABdhPJwAG93rfedsTIAAzZWhezNyGxWGUMIOvObdjtJl49PzNS5ybwfim+Q1dcTdlhXbj+9tMa6ukQ==
-X-Received: by 2002:a67:ee88:: with SMTP id n8mr53242798vsp.58.1637057556636;
-        Tue, 16 Nov 2021 02:12:36 -0800 (PST)
-Received: from mail-ua1-f52.google.com (mail-ua1-f52.google.com. [209.85.222.52])
-        by smtp.gmail.com with ESMTPSA id d128sm10313957vsd.20.2021.11.16.02.12.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 16 Nov 2021 02:12:35 -0800 (PST)
-Received: by mail-ua1-f52.google.com with SMTP id n6so24630571uak.1;
-        Tue, 16 Nov 2021 02:12:35 -0800 (PST)
-X-Received: by 2002:a05:6102:1354:: with SMTP id j20mr53829461vsl.41.1637057554823;
- Tue, 16 Nov 2021 02:12:34 -0800 (PST)
+        bh=hUo41dA8J9XxTRrnTRH8PmjQf1ZA/nli+HzNQ39/Nrw=;
+        b=YqQ3S4lWyL6HQtK4LsEIQAlawaHvsibsf51O2VczYkBFFMK9umdEt153wrj8SbheLB
+         w4u7UjHb3ULFguknbsJanjXEqz1RoOAmwTEwy7BA7UcZTpbWtpOW9o1znrx4RGcvLqpN
+         ml7Q7i5DtUsZjXNcBSCpF58xLznDDx/chyuctFD+LDeG0N0ExJn08TLMxwlFSyhab4JU
+         iy7QmyLAw2wNFoEtjdrX2Ll0KZBcuDyYGftBIHCDrG/tJjjg08GzyiHn79u1luVyCkJf
+         ES/Pi9meYphXmzLJK7+P444DrSYdxVVvPNAvL8/8tUhj3NvpYlCRT832zze1YkvVR38/
+         VqXA==
+X-Gm-Message-State: AOAM532a1OWqxiQYgUG9HmpvpHsMihFjW598kunTXmWm4zG22p6DwjM5
+        E2gGqBzpHOZfd2PH008kiu5F+NL0R4Glhi444Q==
+X-Google-Smtp-Source: ABdhPJw0BIDe3UgX4EYtJQwZmqUk7ZARIQehiSa5nAZZi5z6pOodwsCQENmcw5LDkYTf4QVmDrKhzsb4P+ypLdBhAz4=
+X-Received: by 2002:ab0:2498:: with SMTP id i24mr9317458uan.18.1637058089320;
+ Tue, 16 Nov 2021 02:21:29 -0800 (PST)
 MIME-Version: 1.0
-References: <20211115165428.722074685@linuxfoundation.org> <CA+G9fYtFOnKQ4=3-4rUTfVM-fPno1KyTga1ZAFA2OoqNvcnAUg@mail.gmail.com>
- <CA+G9fYuF1F-9TAwgR9ik_qjFqQvp324FJwFJbYForA_iRexZjg@mail.gmail.com>
- <YZNwcylQcKVlZDlO@kroah.com> <dabc323f-b0e1-8c9f-1035-c48349a0eff4@nvidia.com>
-In-Reply-To: <dabc323f-b0e1-8c9f-1035-c48349a0eff4@nvidia.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Tue, 16 Nov 2021 11:12:23 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdXG2Y-rwPtBw1PsGckk3MLRQvn6Xht6ts2RkW7Zkx=w2w@mail.gmail.com>
-Message-ID: <CAMuHMdXG2Y-rwPtBw1PsGckk3MLRQvn6Xht6ts2RkW7Zkx=w2w@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/917] 5.15.3-rc1 review
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Vladis Dronov <vdronov@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+References: <20211104180130.3825416-1-maz@kernel.org> <87ilx64ued.ffs@tglx>
+In-Reply-To: <87ilx64ued.ffs@tglx>
+From:   Rui Salvaterra <rsalvaterra@gmail.com>
+Date:   Tue, 16 Nov 2021 10:21:18 +0000
+Message-ID: <CALjTZvag6ex6bhAgJ_rJOfai8GgZQfWesdV=FiMrwEaXhVVVeQ@mail.gmail.com>
+Subject: Re: [PATCH 0/2] PCI: MSI: Deal with devices lying about their masking capability
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     Marc Zyngier <maz@kernel.org>, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        kernel-team@android.com, stable@vger.kernel.org,
+        gregkh@linuxfoundation.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jon,
+Hi, Thomas,
 
-On Tue, Nov 16, 2021 at 10:23 AM Jon Hunter <jonathanh@nvidia.com> wrote:
-> On 16/11/2021 08:48, Greg Kroah-Hartman wrote:
-> > On Tue, Nov 16, 2021 at 02:09:44PM +0530, Naresh Kamboju wrote:
-> >> On Tue, 16 Nov 2021 at 12:06, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
-> >>>
-> >>> On Tue, 16 Nov 2021 at 00:03, Greg Kroah-Hartman
-> >>> <gregkh@linuxfoundation.org> wrote:
-> >>>>
-> >>>> This is the start of the stable review cycle for the 5.15.3 release.
-> >>>> There are 917 patches in this series, all will be posted as a response
-> >>>> to this one.  If anyone has any issues with these being applied, please
-> >>>> let me know.
-> >>>>
-> >>>> Responses should be made by Wed, 17 Nov 2021 16:52:23 +0000.
-> >>>> Anything received after that time might be too late.
-> >>>>
-> >>>> The whole patch series can be found in one patch at:
-> >>>>          https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.3-rc1.gz
-> >>>> or in the git tree and branch at:
-> >>>>          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> >>>> and the diffstat can be found below.
-> >>>>
-> >>>> thanks,
-> >>>>
-> >>>> greg k-h
-> >>>
-> >>>
-> >>
-> >> Regression found on arm64 juno-r2 / qemu.
-> >> Following kernel crash reported on stable-rc 5.15.
-> >>
-> >> Anders bisected this kernel crash and found the first bad commit,
-> >>
-> >> Herbert Xu <herbert@gondor.apana.org.au>
-> >>     crypto: api - Fix built-in testing dependency failures
-
-That's commit adad556efcdd ("crypto: api - Fix built-in testing
-dependency failures")
-
-> I am seeing the same for Tegra as well and bisect is pointing to the
-> above for me too.
-> > Is this also an issue on 5.16-rc1?
+On Fri, 5 Nov 2021 at 13:14, Thomas Gleixner <tglx@linutronix.de> wrote:
 >
-> I have not observed the same issue for 5.16-rc1.
+> On Thu, Nov 04 2021 at 18:01, Marc Zyngier wrote:
+> > Rui reported[1] that his Nvidia ION system stopped working with 5.15,
+> > with the AHCI device failing to get any MSI. A rapid investigation
+> > revealed that although the device doesn't advertise MSI masking, it
+> > actually needs it. Quality hardware indeed.
+> >
+> > Anyway, the couple of patches below are an attempt at dealing with the
+> > issue in a more or less generic way.
+> >
+> > [1] https://lore.kernel.org/r/CALjTZvbzYfBuLB+H=fj2J+9=DxjQ2Uqcy0if_PvmJ-nU-qEgkg@mail.gmail.com
+> >
+> > Marc Zyngier (2):
+> >   PCI: MSI: Deal with devices lying about their MSI mask capability
+> >   PCI: Add MSI masking quirk for Nvidia ION AHCI
+> >
+> >  drivers/pci/msi.c    | 3 +++
+> >  drivers/pci/quirks.c | 6 ++++++
+> >  include/linux/pci.h  | 2 ++
+> >  3 files changed, 11 insertions(+)
+>
+> Groan.
+>
+> Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 
-Following the "Fixes: adad556efcdd" chain:
+Just a reminder, to make sure this doesn't fall through the cracks.
+It's already in 5.16, but needs to be backported to 5.15. I'm not
+seeing it in Greg's 5.15 stable queue yet.
 
-cad439fc040efe5f ("crypto: api - Do not create test larvals if manager
-is disabled")
-beaaaa37c664e9af ("crypto: api - Fix boot-up crash when crypto manager
-is disabled")
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Thanks,
+Rui
