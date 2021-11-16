@@ -2,154 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93DD84522F6
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:15:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C76E45231E
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245227AbhKPBRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:17:05 -0500
-Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:42434 "EHLO
-        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1377955AbhKPBNi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 20:13:38 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UwmImHY_1637025037;
-Received: from e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0UwmImHY_1637025037)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 16 Nov 2021 09:10:40 +0800
-From:   Gao Xiang <hsiangkao@linux.alibaba.com>
+        id S233731AbhKPBTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:19:54 -0500
+Received: from szxga01-in.huawei.com ([45.249.212.187]:14747 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348155AbhKPBRc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 20:17:32 -0500
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.57])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HtShX30j0zZd5h;
+        Tue, 16 Nov 2021 09:12:12 +0800 (CST)
+Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Tue, 16 Nov 2021 09:14:33 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.15; Tue, 16 Nov 2021 09:14:32 +0800
+Subject: Re: [PATCH 5.10 000/575] 5.10.80-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     linux-erofs@lists.ozlabs.org,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Chao Yu <chao@kernel.org>
-Subject: [PATCH 5.4.y 2/2] erofs: fix unsafe pagevec reuse of hooked pclusters
-Date:   Tue, 16 Nov 2021 09:10:35 +0800
-Message-Id: <20211116011035.124503-2-hsiangkao@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20211116011035.124503-1-hsiangkao@linux.alibaba.com>
-References: <163698346111096@kroah.com>
- <20211116011035.124503-1-hsiangkao@linux.alibaba.com>
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20211115165343.579890274@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <f0e2e2ba-459a-9bef-573e-96d4416f838a@huawei.com>
+Date:   Tue, 16 Nov 2021 09:14:31 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211115165343.579890274@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ kwepemm600013.china.huawei.com (7.193.23.68)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 86432a6dca9bed79111990851df5756d3eb5f57c upstream.
 
-There are pclusters in runtime marked with Z_EROFS_PCLUSTER_TAIL
-before actual I/O submission. Thus, the decompression chain can be
-extended if the following pcluster chain hooks such tail pcluster.
 
-As the related comment mentioned, if some page is made of a hooked
-pcluster and another followed pcluster, it can be reused for in-place
-I/O (since I/O should be submitted anyway):
- _______________________________________________________________
-|  tail (partial) page |          head (partial) page           |
-|_____PRIMARY_HOOKED___|____________PRIMARY_FOLLOWED____________|
+On 2021/11/16 0:55, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.80 release.
+> There are 575 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 17 Nov 2021 16:52:23 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.80-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-However, it's by no means safe to reuse as pagevec since if such
-PRIMARY_HOOKED pclusters finally move into bypass chain without I/O
-submission. It's somewhat hard to reproduce with LZ4 and I just found
-it (general protection fault) by ro_fsstressing a LZMA image for long
-time.
+Tested on arm64 and x86 for 5.10.80-rc1,
 
-I'm going to actively clean up related code together with multi-page
-folio adaption in the next few months. Let's address it directly for
-easier backporting for now.
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.10.y
+Version: 5.10.80-rc1
+Commit: 498eb27d1093fbde123a46948f9aef0a7dd41950
+Compiler: gcc version 7.3.0 (GCC)
 
-Call trace for reference:
-  z_erofs_decompress_pcluster+0x10a/0x8a0 [erofs]
-  z_erofs_decompress_queue.isra.36+0x3c/0x60 [erofs]
-  z_erofs_runqueue+0x5f3/0x840 [erofs]
-  z_erofs_readahead+0x1e8/0x320 [erofs]
-  read_pages+0x91/0x270
-  page_cache_ra_unbounded+0x18b/0x240
-  filemap_get_pages+0x10a/0x5f0
-  filemap_read+0xa9/0x330
-  new_sync_read+0x11b/0x1a0
-  vfs_read+0xf1/0x190
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9020
+passed: 9020
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-Link: https://lore.kernel.org/r/20211103182006.4040-1-xiang@kernel.org
-Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
-Cc: <stable@vger.kernel.org> # 4.19+
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
----
- fs/erofs/zdata.c | 13 +++++++------
- fs/erofs/zpvec.h | 13 ++++++++++---
- 2 files changed, 17 insertions(+), 9 deletions(-)
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9020
+passed: 9020
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-diff --git a/fs/erofs/zdata.c b/fs/erofs/zdata.c
-index f784feaeb819..fdd18c250811 100644
---- a/fs/erofs/zdata.c
-+++ b/fs/erofs/zdata.c
-@@ -288,8 +288,8 @@ static inline bool z_erofs_try_inplace_io(struct z_erofs_collector *clt,
- 
- /* callers must be with collection lock held */
- static int z_erofs_attach_page(struct z_erofs_collector *clt,
--			       struct page *page,
--			       enum z_erofs_page_type type)
-+			       struct page *page, enum z_erofs_page_type type,
-+			       bool pvec_safereuse)
- {
- 	int ret;
- 
-@@ -299,9 +299,9 @@ static int z_erofs_attach_page(struct z_erofs_collector *clt,
- 	    z_erofs_try_inplace_io(clt, page))
- 		return 0;
- 
--	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type);
-+	ret = z_erofs_pagevec_enqueue(&clt->vector, page, type,
-+				      pvec_safereuse);
- 	clt->cl->vcnt += (unsigned int)ret;
--
- 	return ret ? 0 : -EAGAIN;
- }
- 
-@@ -652,14 +652,15 @@ static int z_erofs_do_read_page(struct z_erofs_decompress_frontend *fe,
- 		tight &= (clt->mode >= COLLECT_PRIMARY_FOLLOWED);
- 
- retry:
--	err = z_erofs_attach_page(clt, page, page_type);
-+	err = z_erofs_attach_page(clt, page, page_type,
-+				  clt->mode >= COLLECT_PRIMARY_FOLLOWED);
- 	/* should allocate an additional staging page for pagevec */
- 	if (err == -EAGAIN) {
- 		struct page *const newpage =
- 			__stagingpage_alloc(pagepool, GFP_NOFS);
- 
- 		err = z_erofs_attach_page(clt, newpage,
--					  Z_EROFS_PAGE_TYPE_EXCLUSIVE);
-+					  Z_EROFS_PAGE_TYPE_EXCLUSIVE, true);
- 		if (!err)
- 			goto retry;
- 	}
-diff --git a/fs/erofs/zpvec.h b/fs/erofs/zpvec.h
-index a38c52610367..6a20b2c3a24c 100644
---- a/fs/erofs/zpvec.h
-+++ b/fs/erofs/zpvec.h
-@@ -107,11 +107,18 @@ static inline void z_erofs_pagevec_ctor_init(struct z_erofs_pagevec_ctor *ctor,
- 
- static inline bool z_erofs_pagevec_enqueue(struct z_erofs_pagevec_ctor *ctor,
- 					   struct page *page,
--					   enum z_erofs_page_type type)
-+					   enum z_erofs_page_type type,
-+					   bool pvec_safereuse)
- {
--	if (!ctor->next && type)
--		if (ctor->index + 1 == ctor->nr)
-+	if (!ctor->next) {
-+		/* some pages cannot be reused as pvec safely without I/O */
-+		if (type == Z_EROFS_PAGE_TYPE_EXCLUSIVE && !pvec_safereuse)
-+			type = Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED;
-+
-+		if (type != Z_EROFS_PAGE_TYPE_EXCLUSIVE &&
-+		    ctor->index + 1 == ctor->nr)
- 			return false;
-+	}
- 
- 	if (ctor->index >= ctor->nr)
- 		z_erofs_pagevec_ctor_pagedown(ctor, false);
--- 
-2.24.4
-
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
