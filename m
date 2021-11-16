@@ -2,65 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDD06452C9A
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 09:22:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE373452CAB
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 09:24:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231887AbhKPIZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 03:25:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38704 "EHLO mail.kernel.org"
+        id S231859AbhKPI1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 03:27:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231869AbhKPIZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 03:25:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 106FF63217;
-        Tue, 16 Nov 2021 08:22:25 +0000 (UTC)
+        id S231949AbhKPI0x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 03:26:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A29361B49;
+        Tue, 16 Nov 2021 08:23:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637050946;
-        bh=EwREHC3TsutkeJecn1dBhlG4iOj7S7tQGLDl8TYyHVM=;
+        s=korg; t=1637051036;
+        bh=OVXwhI5lQeFB2cyFD7EtpBMvt7F+BFfPHdqIKI8FKiY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YdWuqBP8YLewcu4YPstnTgoLdY1tGHCJfow5Oy8r93TVQRYw1pQGeUDStUG8Fa+6X
-         75XoIhOwiY/VWFrvWtCqRLPzxRFHEDZI9RN/BR1Ggrp/d5y5+ohRTagVEq9Lu+3yym
-         61di6r8yZVj7tLUpon4QObWBfShq/Gne+qMb03Tc=
-Date:   Tue, 16 Nov 2021 09:22:24 +0100
+        b=YENtCLsHCGiCxkEqr+4qPeXGQiR7ecaoKexg9WM4O9gpLETpV/G4Eb1RS4kohz7U3
+         Jn0bTF/vbZb3NeJD8NTQ/3rTg+qwXgoiaoBmj2r77i0KiHoX4Q5ApfD4XGNWXoxgZ6
+         LhqqKLG3r9cgSRypfbVmoj1izC+SNRqjbVaOg1x4=
+Date:   Tue, 16 Nov 2021 09:23:54 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc:     stern@rowland.harvard.edu, kishon@ti.com, hdegoede@redhat.com,
-        chris.chiu@canonical.com, linux-usb@vger.kernel.org,
+To:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Taniya Das <tdas@codeaurora.org>,
+        linux-arm-msm@vger.kernel.org, linux-clk@vger.kernel.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH] usb: hub: Fix usb enumeration issue due to address0 race
-Message-ID: <YZNqQBd+pcXBQuAp@kroah.com>
-References: <20211115221630.871204-1-mathias.nyman@linux.intel.com>
+Subject: Re: [PATCH] clk: qcom: regmap-mux: fix parent clock lookup
+Message-ID: <YZNqmpUXiub29QyU@kroah.com>
+References: <20211115233407.1046179-1-dmitry.baryshkov@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211115221630.871204-1-mathias.nyman@linux.intel.com>
+In-Reply-To: <20211115233407.1046179-1-dmitry.baryshkov@linaro.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 16, 2021 at 12:16:30AM +0200, Mathias Nyman wrote:
-> xHC hardware can only have one slot in default state with address 0
-> waiting for a unique address at a time, otherwise "undefined behavior
-> may occur" according to xhci spec 5.4.3.4
+On Tue, Nov 16, 2021 at 02:34:07AM +0300, Dmitry Baryshkov wrote:
+> The function mux_get_parent() uses qcom_find_src_index() to find the
+> parent clock index, which is incorrect: qcom_find_src_index() uses src
+> enum for the lookup, while mux_get_parent() should use cfg field (which
+> corresponds to the register value). Add qcom_find_cfg_index() function
+> doing this kind of lookup and use it for mux parent lookup.
 > 
-> The address0_mutex exists to prevent this across both xhci roothubs.
-> 
-> If hub_port_init() fails, it may unlock the mutex and exit with a xhci
-> slot in default state. If the other xhci roothub calls hub_port_init()
-> at this point we end up with two slots in default state.
-> 
-> Make sure the address0_mutex protects the slot default state across
-> hub_port_init() retries, until slot is addressed or disabled.
-> 
-> Note, one known minor case is not fixed by this patch.
-> If device needs to be reset during resume, but fails all hub_port_init()
-> retries in usb_reset_and_verify_device(), then it's possible the slot is
-> still left in default state when address0_mutex is unlocked.
-> 
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+> Fixes: df964016490b ("clk: qcom: add parent map for regmap mux")
+> Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-What commit id does this "fix"?
 
-thanks,
+<formletter>
 
-greg k-h
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
+
+</formletter>
