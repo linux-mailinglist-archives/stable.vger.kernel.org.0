@@ -2,129 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43EE6452E39
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 10:41:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8586452E4B
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 10:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233317AbhKPJnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 04:43:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35642 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233149AbhKPJnv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 04:43:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC57A61263;
-        Tue, 16 Nov 2021 09:40:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637055654;
-        bh=qvJ2MmqdefIgR7a3kOTYk8TVyPCF90+hq0kPO35l50Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Y1ypC7GcpCmpNOnu64uHb9tEFRZhyvFqDIkpEVubYvF34VMEiwx/mf+JDjWYD1MMX
-         4ZuGRK65u6OGiC4zSet3nynYOelrs+09y46wrGFxp6VmWOT8VrvT7vMjvXtzWLAYSy
-         CafvRJjadZ2n/S2XHwRzRUU2YAZMR80eA2kzuU/KkHC6dX82lOtpGxp/c9wsdHCUxW
-         OQ1cY1gyzRAoqZ3022Xu0GTttowb8qkp3DeywgWzt6AETK+ovAwSSndR7rmmMf4OzD
-         4f2Srx1SvYynHOdnFMO8Pnk4HGUUx7leHS2yG0X8Im5eGk2OQP68OL2oGV5s/CUN1x
-         xa2brdP3nTVeA==
-Date:   Tue, 16 Nov 2021 10:40:50 +0100
-From:   Christian Brauner <brauner@kernel.org>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     linux-fsdevel@vger.kernel.org,
-        Seth Forshee <seth.forshee@digitalocean.com>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [PATCH 1/2] fs: handle circular mappings correctly
-Message-ID: <20211116094050.bt3k5oaye6sm2ar7@wittgenstein>
-References: <20211109145713.1868404-1-brauner@kernel.org>
+        id S233466AbhKPJrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 04:47:22 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:39164 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233392AbhKPJrV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 04:47:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1637055864;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TUrHH0FE+UhMCMP4XCeZVHo5kb/MulSzwtpsVjUnBJg=;
+        b=CyGV9GHadGyfPP6LdcoqjwY+LcOUqvVQQPU5KieR9npdbq0LGpxnG9drDb25M91oq+cg3Q
+        MyEWuSj9WU9RlTXblu7HEXVI+3VS615n1wJBrVYywe4Sy5xMhU5EaMa71jiknyRUtfA+aC
+        zCsGiwWlo6a/gmCNl40GrKeYNRKKlcY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-79-c1rrBeZgMcmwZX0Vqdb2cg-1; Tue, 16 Nov 2021 04:44:21 -0500
+X-MC-Unique: c1rrBeZgMcmwZX0Vqdb2cg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1AF601015DA2;
+        Tue, 16 Nov 2021 09:44:20 +0000 (UTC)
+Received: from [10.39.192.245] (unknown [10.39.192.245])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B30325C1D5;
+        Tue, 16 Nov 2021 09:44:18 +0000 (UTC)
+Message-ID: <b455d273-ef5e-bc78-ac31-2543499324b6@redhat.com>
+Date:   Tue, 16 Nov 2021 10:44:17 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20211109145713.1868404-1-brauner@kernel.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [PATCH v2] KVM: x86: Fix uninitialized eoi_exit_bitmap usage in
+ vcpu_load_eoi_exitmap()
+Content-Language: en-US
+To:     =?UTF-8?B?6buE5LmQ?= <huangle1@jd.com>,
+        "vkuznets@redhat.com" <vkuznets@redhat.com>
+Cc:     "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <62115b277dab49ea97da5633f8522daf@jd.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <62115b277dab49ea97da5633f8522daf@jd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 09, 2021 at 03:57:12PM +0100, Christian Brauner wrote:
-> From: Christian Brauner <christian.brauner@ubuntu.com>
+On 11/15/21 15:08, 黄乐 wrote:
+> In vcpu_load_eoi_exitmap(), currently the eoi_exit_bitmap[4] array is
+> initialized only when Hyper-V context is available, in other path it is
+> just passed to kvm_x86_ops.load_eoi_exitmap() directly from on the stack,
+> which would cause unexpected interrupt delivery/handling issues, e.g. an
+> *old* linux kernel that relies on PIT to do clock calibration on KVM might
+> randomly fail to boot.
 > 
-> When calling setattr_prepare() to determine the validity of the attributes the
-> ia_{g,u}id fields contain the value that will be written to inode->i_{g,u}id.
-> When the {g,u}id attribute of the file isn't altered and the caller's fs{g,u}id
-> matches the current {g,u}id attribute the attribute change is allowed.
+> Fix it by passing ioapic_handled_vectors to load_eoi_exitmap() when Hyper-V
+> context is not available.
 > 
-> The value in ia_{g,u}id does already account for idmapped mounts and will have
-> taken the relevant idmapping into account. So in order to verify that the
-> {g,u}id attribute isn't changed we simple need to compare the ia_{g,u}id value
-> against the inode's i_{g,u}id value.
-> 
-> This only has any meaning for idmapped mounts as idmapping helpers are
-> idempotent without them. And for idmapped mounts this really only has a meaning
-> when circular idmappings are used, i.e. mappings where e.g. id 1000 is mapped
-> to id 1001 and id 1001 is mapped to id 1000. Such ciruclar mappings can e.g. be
-> useful when sharing the same home directory between multiple users at the same
-> time.
-> 
-> As an example consider a directory with two files: /source/file1 owned by
-> {g,u}id 1000 and /source/file2 owned by {g,u}id 1001. Assume we create an
-> idmapped mount at /target with an idmapping that maps files owned by {g,u}id
-> 1000 to being owned by {g,u}id 1001 and files owned by {g,u}id 1001 to being
-> owned by {g,u}id 1000. In effect, the idmapped mount at /target switches the
-> ownership of /source/file1 and source/file2, i.e. /target/file1 will be owned
-> by {g,u}id 1001 and /target/file2 will be owned by {g,u}id 1000.
-> 
-> This means that a user with fs{g,u}id 1000 must be allowed to setattr
-> /target/file2 from {g,u}id 1000 to {g,u}id 1000. Similar, a user with fs{g,u}id
-> 1001 must be allowed to setattr /target/file1 from {g,u}id 1001 to {g,u}id
-> 1001. Conversely, a user with fs{g,u}id 1000 must fail to setattr /target/file1
-> from {g,u}id 1001 to {g,u}id 1000. And a user with fs{g,u}id 1001 must fail to
-> setattr /target/file2 from {g,u}id 1000 to {g,u}id 1000. Both cases must fail
-> with EPERM for non-capable callers.
-> 
-> Before this patch we could end up denying legitimate attribute changes and
-> allowing invalid attribute changes when circular mappings are used. To even get
-> into this situation the caller must've been privileged both to create that
-> mapping and to create that idmapped mount.
-> 
-> This hasn't been seen in the wild anywhere but came up when expanding the
-> testsuite during work on a series of hardening patches. All idmapped fstests
-> pass without any regressions and we add new tests to verify the behavior of
-> circular mappings.
-> 
-> Fixes: 2f221d6f7b88 ("attr: handle idmapped mounts")
-> Cc: Seth Forshee <seth.forshee@digitalocean.com>
-> Cc: Christoph Hellwig <hch@lst.de>
-> Cc: Al Viro <viro@zeniv.linux.org.uk>
+> Fixes: f2bc14b69c38 ("KVM: x86: hyper-v: Prepare to meet unallocated Hyper-V context")
 > Cc: stable@vger.kernel.org
-> CC: linux-fsdevel@vger.kernel.org
-> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+> Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+> Signed-off-by: Huang Le <huangle1@jd.com>
 > ---
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index dc7eb5fddfd3..26466f94e31a 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -9547,12 +9547,16 @@ static void vcpu_load_eoi_exitmap(struct kvm_vcpu *vcpu)
+>   	if (!kvm_apic_hw_enabled(vcpu->arch.apic))
+>   		return;
+>   
+> -	if (to_hv_vcpu(vcpu))
+> +	if (to_hv_vcpu(vcpu)) {
+>   		bitmap_or((ulong *)eoi_exit_bitmap,
+>   			  vcpu->arch.ioapic_handled_vectors,
+>   			  to_hv_synic(vcpu)->vec_bitmap, 256);
+> +		static_call(kvm_x86_load_eoi_exitmap)(vcpu, eoi_exit_bitmap);
+> +		return;
+> +	}
+>   
+> -	static_call(kvm_x86_load_eoi_exitmap)(vcpu, eoi_exit_bitmap);
+> +	static_call(kvm_x86_load_eoi_exitmap)(
+> +		vcpu, (u64 *)vcpu->arch.ioapic_handled_vectors);
+>   }
+>   
+>   void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
+> 
 
-Christoph, can you take a look, by any chance? I'd like to get this to
-Linus this week.
+Queued, thanks.
 
->  fs/attr.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/fs/attr.c b/fs/attr.c
-> index 473d21b3a86d..66899b6e9bd8 100644
-> --- a/fs/attr.c
-> +++ b/fs/attr.c
-> @@ -35,7 +35,7 @@ static bool chown_ok(struct user_namespace *mnt_userns,
->  		     kuid_t uid)
->  {
->  	kuid_t kuid = i_uid_into_mnt(mnt_userns, inode);
-> -	if (uid_eq(current_fsuid(), kuid) && uid_eq(uid, kuid))
-> +	if (uid_eq(current_fsuid(), kuid) && uid_eq(uid, inode->i_uid))
->  		return true;
->  	if (capable_wrt_inode_uidgid(mnt_userns, inode, CAP_CHOWN))
->  		return true;
-> @@ -62,7 +62,7 @@ static bool chgrp_ok(struct user_namespace *mnt_userns,
->  {
->  	kgid_t kgid = i_gid_into_mnt(mnt_userns, inode);
->  	if (uid_eq(current_fsuid(), i_uid_into_mnt(mnt_userns, inode)) &&
-> -	    (in_group_p(gid) || gid_eq(gid, kgid)))
-> +	    (in_group_p(gid) || gid_eq(gid, inode->i_gid)))
->  		return true;
->  	if (capable_wrt_inode_uidgid(mnt_userns, inode, CAP_CHOWN))
->  		return true;
-> 
-> base-commit: 8bb7eca972ad531c9b149c0a51ab43a417385813
-> -- 
-> 2.30.2
-> 
+Paolo
+
