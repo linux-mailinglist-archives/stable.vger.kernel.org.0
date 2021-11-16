@@ -2,87 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9478B452D1E
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 09:49:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B09F2452DBD
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 10:18:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232395AbhKPIvw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 03:51:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44598 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232161AbhKPIvu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 03:51:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEAA561101;
-        Tue, 16 Nov 2021 08:48:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637052533;
-        bh=egbGIYFi4v7cS2x4F9uQ5GOy67VTqb9Lor5GYwZqQg0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RIT3UCz6MSHfBlhXrQ1JxWe6CFiGH/GMV0/KGuFuM9tIeE+clcqeCI+sZmwgKr0uL
-         oYmGz2WtAodo028GvwCXbXHmOuZ/atP2MNrAEoG/GIwX6ML2thkSXXyAg1cGvCKMlu
-         WxpKH1vT5dlBTuwszq1poSFjXpdoLai39CW0Ljg8=
-Date:   Tue, 16 Nov 2021 09:48:51 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        linux-kernel@vger.kernel.org, shuah@kernel.org,
-        f.fainelli@gmail.com, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, linux@roeck-us.net,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Vladis Dronov <vdronov@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
-Subject: Re: [PATCH 5.15 000/917] 5.15.3-rc1 review
-Message-ID: <YZNwcylQcKVlZDlO@kroah.com>
-References: <20211115165428.722074685@linuxfoundation.org>
- <CA+G9fYtFOnKQ4=3-4rUTfVM-fPno1KyTga1ZAFA2OoqNvcnAUg@mail.gmail.com>
- <CA+G9fYuF1F-9TAwgR9ik_qjFqQvp324FJwFJbYForA_iRexZjg@mail.gmail.com>
+        id S232784AbhKPJUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 04:20:08 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:41392 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232764AbhKPJUH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 04:20:07 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id D81CD212BA;
+        Tue, 16 Nov 2021 09:17:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1637054229; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=AIbvDzruXDpiz6o3C+vMRbbHQk4h/5m45mBuGjw+Bc4=;
+        b=vPXOYsZ+YGsdnTvLdoviWTzMHpBOs8vIr1ssujT58Xu4bpxz0lXV3v5OTE7y3I6P/lnoEC
+        WcFwW5YORxz7jMShxLrwdrGPzmtLxE987oPrx61ukpfz5CCSvtlhcqMpbabYjNgIVPERXQ
+        ahh2LtMWmUAL3sSkf/LiekhW+FAapsc=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id A452DA3B83;
+        Tue, 16 Nov 2021 09:17:09 +0000 (UTC)
+Date:   Tue, 16 Nov 2021 10:17:07 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Alexey Makhalov <amakhalov@vmware.com>
+Cc:     Dennis Zhou <dennis@kernel.org>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>,
+        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
+        Christoph Lameter <cl@linux.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
+Message-ID: <YZN3ExwL7BiDS5nj@dhcp22.suse.cz>
+References: <908909e0-4815-b580-7ff5-d824d36a141c@redhat.com>
+ <20211108202325.20304-1-amakhalov@vmware.com>
+ <2e191db3-286f-90c6-bf96-3f89891e9926@gmail.com>
+ <YYqstfX8PSGDfWsn@dhcp22.suse.cz>
+ <YYrGpn/52HaLCAyo@fedora>
+ <YYrSC7vtSQXz652a@dhcp22.suse.cz>
+ <BAE95F0C-FAA7-40C6-A0D6-5049B1207A27@vmware.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+G9fYuF1F-9TAwgR9ik_qjFqQvp324FJwFJbYForA_iRexZjg@mail.gmail.com>
+In-Reply-To: <BAE95F0C-FAA7-40C6-A0D6-5049B1207A27@vmware.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 16, 2021 at 02:09:44PM +0530, Naresh Kamboju wrote:
-> On Tue, 16 Nov 2021 at 12:06, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
-> >
-> > On Tue, 16 Nov 2021 at 00:03, Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > This is the start of the stable review cycle for the 5.15.3 release.
-> > > There are 917 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > >
-> > > Responses should be made by Wed, 17 Nov 2021 16:52:23 +0000.
-> > > Anything received after that time might be too late.
-> > >
-> > > The whole patch series can be found in one patch at:
-> > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.3-rc1.gz
-> > > or in the git tree and branch at:
-> > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> > > and the diffstat can be found below.
-> > >
-> > > thanks,
-> > >
-> > > greg k-h
-> >
-> >
-> 
-> Regression found on arm64 juno-r2 / qemu.
-> Following kernel crash reported on stable-rc 5.15.
-> 
-> Anders bisected this kernel crash and found the first bad commit,
-> 
-> Herbert Xu <herbert@gondor.apana.org.au>
->    crypto: api - Fix built-in testing dependency failures
+On Tue 16-11-21 01:31:44, Alexey Makhalov wrote:
+[...]
+> diff --git a/drivers/acpi/acpi_processor.c b/drivers/acpi/acpi_processor.c
+> index 6737b1cbf..bbc1a70d5 100644
+> --- a/drivers/acpi/acpi_processor.c
+> +++ b/drivers/acpi/acpi_processor.c
+> @@ -200,6 +200,10 @@ static int acpi_processor_hotadd_init(struct acpi_processor *pr)
+>          * gets online for the first time.
+>          */
+>         pr_info("CPU%d has been hot-added\n", pr->id);
+> +       {
+> +               int nid = cpu_to_node(pr->id);
+> +               printk("%s:%d cpu %d, node %d, online %d, ndata %p\n", __FUNCTION__, __LINE__, pr->id, nid, node_online(nid), NODE_DATA(nid));
+> +       }
+>         pr->flags.need_hotplug_init = 1;
 
-Is this also an issue on 5.16-rc1?
+OK, IIUC you are adding a processor which is outside of
+possible_cpu_mask and that means that the node is not allocated for such
+a future to be hotplugged cpu and its memory node. init_cpu_to_node
+would have done that initialization otherwise. I think you want to talk
+to x86 maintainers and people who have introduced a support for
+memoryless nodes for x86.
 
-thanks,
-
-greg k-h
+To me it seems like you are trying to use a functionality that has
+never been properly implemented. I do not remember how other acpi based
+architectures handle this and maybe we need a generic solution and that
+would bring up the node as soon as a new cpu is hot added.
+-- 
+Michal Hocko
+SUSE Labs
