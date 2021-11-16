@@ -2,212 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73FCB453A70
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:52:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4374453A7C
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:58:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233481AbhKPTzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 14:55:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36458 "EHLO mail.kernel.org"
+        id S231550AbhKPUBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 15:01:16 -0500
+Received: from phobos.denx.de ([85.214.62.61]:59888 "EHLO phobos.denx.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231550AbhKPTzX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 14:55:23 -0500
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S239956AbhKPUBP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 15:01:15 -0500
+Received: from [IPv6:::1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DEDD61BBD;
-        Tue, 16 Nov 2021 19:52:25 +0000 (UTC)
-Date:   Tue, 16 Nov 2021 14:52:23 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     <gregkh@linuxfoundation.org>
-Cc:     paulburton@google.com, joelaf@google.com, mingo@redhat.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] tracing: Resize tgid_map to pid_max, not
- PID_MAX_DEFAULT" failed to apply to 4.14-stable tree
-Message-ID: <20211116145223.651cd5bd@gandalf.local.home>
-In-Reply-To: <162635653777192@kroah.com>
-References: <162635653777192@kroah.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        (Authenticated sender: marex@denx.de)
+        by phobos.denx.de (Postfix) with ESMTPSA id 76A1182C88;
+        Tue, 16 Nov 2021 20:58:16 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+        s=phobos-20191101; t=1637092696;
+        bh=Ufochh4U7Of4ts3b6uAVj71FbT1mTO3mTz5yS4g4Jy4=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=ZG5P4TKzrA1RJd3Y1vDINBiO0qILf4A+FTjlmRvfTNEn4cxA+cfxrIuOUf9sq7IZb
+         6pt7GutB8wbEC1PwO0g9lh3xWBRw7WqDaIhANiyIBGPDxSmxa8NRTdu0/PKYWod47u
+         +MJg1zcdidOg7LkKNvk/vBldRlhNL1bwU8q8Xboc85vUYa7p6RZs54hz4bpza7MolM
+         F7Spj63/5gvY0lxLiP0dPUvl1Q4tLJrEDlDMQflXq2zDqZrAZG+Whp43E3VOGc9nVF
+         nJ5fwbhlmoPZoky8VaLDkU1r+mxAvNEy0seu1nkuqUGpo8KL7fmEfMLuSwlfzhtsn0
+         +Rti2Sp7jSy9Q==
+Subject: Re: [PATCH] Bluetooth: btusb: Add support for TP-Link UB500 Adapter
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Szabolcs Sipos <labuwx@balfug.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        linux-stable <stable@vger.kernel.org>
+References: <aa3f6986-1e9b-4aaa-e498-fd99385f4063@denx.de>
+ <YWPrSHGbno3dODKr@kroah.com>
+ <62685363-e1b3-bc97-431e-a7c8faccb78d@balfug.com>
+ <YZP6CL+CDMyzQ6aA@kroah.com>
+From:   Marek Vasut <marex@denx.de>
+Message-ID: <5931c469-c0bf-4e93-e7e3-443b5ca60fb3@denx.de>
+Date:   Tue, 16 Nov 2021 20:58:15 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <YZP6CL+CDMyzQ6aA@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This was in my queue for some time. But I finally got around to testing it.
+On 11/16/21 7:35 PM, Greg Kroah-Hartman wrote:
+> On Tue, Nov 16, 2021 at 06:41:08PM +0100, Szabolcs Sipos wrote:
+>> On 10/11/21 09:44, Greg Kroah-Hartman wrote:
+>>> On Sun, Oct 10, 2021 at 10:59:06PM +0200, Marek Vasut wrote:
+>>>> Hello everyone,
+>>>>
+>>>> The following new device USB ID has landed in linux-next recently:
+>>>>
+>>>> 4fd6d4907961 ("Bluetooth: btusb: Add support for TP-Link UB500 Adapter")
+>>>>
+>>>> It would be nice if it could be backported to stable. I verified it works on
+>>>> 5.14.y as a simple cherry-pick .
+>>>
+>>> A patch needs to be in Linus's tree before we can add it to the stable
+>>> releases.  Please let us know when it gets there and we will be glad to
+>>> pick it up.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>
+>> Hello Greg,
+>>
+>> The patch has reached Linus's tree:
+>> 4fd6d4907961 ("Bluetooth: btusb: Add support for TP-Link UB500 Adapter")
+>>
+>> Could you please add it to stable (5.15.y)?
+> 
+> I will queue it up for the next set of kernels after the current ones are
+> released.
 
--- Steve
+btw while you're bringing it up, is there some sure-fire method I can 
+use to verify the patch is in Linus tree, besides having a separate 
+checkout of that tree ?
 
-
-
------------------- original commit in Linus's tree ------------------
-
->From 4030a6e6a6a4a42ff8c18414c9e0c93e24cc70b8 Mon Sep 17 00:00:00 2001
-From: Paul Burton <paulburton@google.com>
-Date: Thu, 1 Jul 2021 10:24:07 -0700
-Subject: [PATCH] tracing: Resize tgid_map to pid_max, not PID_MAX_DEFAULT
-
-Currently tgid_map is sized at PID_MAX_DEFAULT entries, which means that
-on systems where pid_max is configured higher than PID_MAX_DEFAULT the
-ftrace record-tgid option doesn't work so well. Any tasks with PIDs
-higher than PID_MAX_DEFAULT are simply not recorded in tgid_map, and
-don't show up in the saved_tgids file.
-
-In particular since systemd v243 & above configure pid_max to its
-highest possible 1<<22 value by default on 64 bit systems this renders
-the record-tgids option of little use.
-
-Increase the size of tgid_map to the configured pid_max instead,
-allowing it to cover the full range of PIDs up to the maximum value of
-PID_MAX_LIMIT if the system is configured that way.
-
-On 64 bit systems with pid_max == PID_MAX_LIMIT this will increase the
-size of tgid_map from 256KiB to 16MiB. Whilst this 64x increase in
-memory overhead sounds significant 64 bit systems are presumably best
-placed to accommodate it, and since tgid_map is only allocated when the
-record-tgid option is actually used presumably the user would rather it
-spends sufficient memory to actually record the tgids they expect.
-
-The size of tgid_map could also increase for CONFIG_BASE_SMALL=y
-configurations, but these seem unlikely to be systems upon which people
-are both configuring a large pid_max and running ftrace with record-tgid
-anyway.
-
-Of note is that we only allocate tgid_map once, the first time that the
-record-tgid option is enabled. Therefore its size is only set once, to
-the value of pid_max at the time the record-tgid option is first
-enabled. If a user increases pid_max after that point, the saved_tgids
-file will not contain entries for any tasks with pids beyond the earlier
-value of pid_max.
-
-Link: https://lkml.kernel.org/r/20210701172407.889626-2-paulburton@google.com
-
-Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joel Fernandes <joelaf@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Paul Burton <paulburton@google.com>
-[ Fixed comment coding style ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-
-Index: linux-test.git/kernel/trace/trace.c
-===================================================================
---- linux-test.git.orig/kernel/trace/trace.c
-+++ linux-test.git/kernel/trace/trace.c
-@@ -1723,8 +1723,15 @@ void tracing_reset_all_online_cpus(void)
- 	}
- }
- 
-+/*
-+ * The tgid_map array maps from pid to tgid; i.e. the value stored at index i
-+ * is the tgid last observed corresponding to pid=i.
-+ */
- static int *tgid_map;
- 
-+/* The maximum valid index into tgid_map. */
-+static size_t tgid_map_max;
-+
- #define SAVED_CMDLINES_DEFAULT 128
- #define NO_CMDLINE_MAP UINT_MAX
- static arch_spinlock_t trace_cmdline_lock = __ARCH_SPIN_LOCK_UNLOCKED;
-@@ -1996,24 +2003,41 @@ void trace_find_cmdline(int pid, char co
- 	preempt_enable();
- }
- 
-+static int *trace_find_tgid_ptr(int pid)
-+{
-+	/*
-+	 * Pairs with the smp_store_release in set_tracer_flag() to ensure that
-+	 * if we observe a non-NULL tgid_map then we also observe the correct
-+	 * tgid_map_max.
-+	 */
-+	int *map = smp_load_acquire(&tgid_map);
-+
-+	if (unlikely(!map || pid > tgid_map_max))
-+		return NULL;
-+
-+	return &map[pid];
-+}
-+
- int trace_find_tgid(int pid)
- {
--	if (unlikely(!tgid_map || !pid || pid > PID_MAX_DEFAULT))
--		return 0;
-+	int *ptr = trace_find_tgid_ptr(pid);
- 
--	return tgid_map[pid];
-+	return ptr ? *ptr : 0;
- }
- 
- static int trace_save_tgid(struct task_struct *tsk)
- {
-+	int *ptr;
-+
- 	/* treat recording of idle task as a success */
- 	if (!tsk->pid)
- 		return 1;
- 
--	if (unlikely(!tgid_map || tsk->pid > PID_MAX_DEFAULT))
-+	ptr = trace_find_tgid_ptr(tsk->pid);
-+	if (!ptr)
- 		return 0;
- 
--	tgid_map[tsk->pid] = tsk->tgid;
-+	*ptr = tsk->tgid;
- 	return 1;
- }
- 
-@@ -4353,6 +4377,8 @@ int trace_keep_overwrite(struct tracer *
- 
- int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
- {
-+	int *map;
-+
- 	if ((mask == TRACE_ITER_RECORD_TGID) ||
- 	    (mask == TRACE_ITER_RECORD_CMD))
- 		lockdep_assert_held(&event_mutex);
-@@ -4375,9 +4401,19 @@ int set_tracer_flag(struct trace_array *
- 		trace_event_enable_cmd_record(enabled);
- 
- 	if (mask == TRACE_ITER_RECORD_TGID) {
--		if (!tgid_map)
--			tgid_map = kzalloc((PID_MAX_DEFAULT + 1) * sizeof(*tgid_map),
--					   GFP_KERNEL);
-+		if (!tgid_map) {
-+			tgid_map_max = pid_max;
-+			map = kzalloc((tgid_map_max + 1) * sizeof(*tgid_map),
-+				      GFP_KERNEL);
-+
-+			/*
-+			 * Pairs with smp_load_acquire() in
-+			 * trace_find_tgid_ptr() to ensure that if it observes
-+			 * the tgid_map we just allocated then it also observes
-+			 * the corresponding tgid_map_max value.
-+			 */
-+			smp_store_release(&tgid_map, map);
-+		}
- 		if (!tgid_map) {
- 			tr->trace_flags &= ~TRACE_ITER_RECORD_TGID;
- 			return -ENOMEM;
-@@ -4752,18 +4788,14 @@ static void *saved_tgids_next(struct seq
- {
- 	int pid = ++(*pos);
- 
--	if (pid > PID_MAX_DEFAULT)
--		return NULL;
--
--	return &tgid_map[pid];
-+	return trace_find_tgid_ptr(pid);
- }
- 
- static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
- {
--	if (!tgid_map || *pos > PID_MAX_DEFAULT)
--		return NULL;
-+	int pid = *pos;
- 
--	return &tgid_map[*pos];
-+	return trace_find_tgid_ptr(pid);
- }
- 
- static void saved_tgids_stop(struct seq_file *m, void *v)
+I usually have both Linus tree as origin and next in one git tree, so I 
+was wondering if there is a recommended way to avoid mistakes like the 
+one I made above (and checking at git.kernel.org apparently also has its 
+downsides).
