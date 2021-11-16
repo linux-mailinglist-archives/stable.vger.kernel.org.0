@@ -2,129 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CEE5453924
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 19:04:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCEE4453949
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 19:16:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239262AbhKPSHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 13:07:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33500 "EHLO
+        id S239340AbhKPSTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 13:19:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236111AbhKPSHd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 13:07:33 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9600CC061570
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 10:04:36 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id b68so94493pfg.11
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 10:04:36 -0800 (PST)
+        with ESMTP id S239318AbhKPSTE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 13:19:04 -0500
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5F49C061746
+        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 10:16:07 -0800 (PST)
+Received: by mail-pj1-x102c.google.com with SMTP id n15-20020a17090a160f00b001a75089daa3so2997265pja.1
+        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 10:16:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=C4iDp++Q57Jo9mIUlq9CNmeZlQbDcLVc07qD3SmNh+E=;
-        b=ovFLAFehDfhtVmmrw866qqCACMJv6hPOFSwson5EieL0glLdAYQW6ublCz0+L+5ZGe
-         WSENBtALvXWYWqKtD/VXK3iOiwFN9Sq6PuJoABe8gmfoMrk9L/ZdbmHfvytouPmTqMzs
-         W8IBBFcJGzXlDSJqYX0dIBIxth52azholCgJC0npOJTGqZR5FywYcHzgHf+juTioFbeF
-         QIARRsfGHhb+jNY9PzayTdSrVm3OlxzbK3hnkRNWR+pK3+0jDyN8YY1CUi3z+r6VH2pn
-         DmRJPcqRo9Y4S/+KDYgP91ACqbC2nY3/cmarhIyn9xEsX9Zw0+ChfBcR/QniZYO7nMnH
-         G99w==
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jZwVIrUtt66FvkTYvH2h4rOOrPwYYNizZZ68EuMUgBw=;
+        b=ecCi+3H53VF27o66R95NXZnJLqToFP6UPKVKFDj0YaRXB/RSuRb+mgk/Hqzc2lxRhD
+         QD7/orHAhcq2SlU/HtnFNLhSUdKFFyV1/LRBpYv5JIh1u/q8tF1ed8ZHlAmRw4pe21o5
+         vDhDtAkkMID7ceMXENJ+zUxyjVtqZg22wQ1hc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=C4iDp++Q57Jo9mIUlq9CNmeZlQbDcLVc07qD3SmNh+E=;
-        b=7ffX3oPEWWONzW7rQnMzzb56sBcqkVFWlghMf74zsIKdswRFGi2dLwcD4WIf0ycr7c
-         kIdLmbrzFoOeRNp/Qx0OAKkYZUri+RSTHpb1P9CcFdeKsvvsNRYGHZV072YpSem6mzth
-         j29sJNZJS4aOQniv0bD2cr8TQn20SN3ynrQzF7BPR7vD2P61sQGsxnx+8/CkRPLkRzru
-         iDK0AZtXzDT7Vhq/tEaSTBCOt9siQ+W9YHnFRyF2wq24++2+mGFNI/vOQygyZN548DAp
-         gkqlU1HIbD6QfhNL7vyY+5tjSs5C1h31I0DQH1IQ5q8Yntpd1OJ1X7QajtbkqaXmROzS
-         LQYw==
-X-Gm-Message-State: AOAM5313PWvgr/Xvdqbb9SBrOYBcDNawFBoB+jzkv3ryGzq+V/ZemP9D
-        IN2b9k6Qp+44B5bU8zm45hpe5n++Lzp4Ts1i
-X-Google-Smtp-Source: ABdhPJzIuKOzHz5HnOSRLodL3L44DnCg5eGEfv+jBnVwPzOKzul9LdZZ5LsPjmF0Bq/nb93CxXK/Ag==
-X-Received: by 2002:a62:b606:0:b0:47b:e32f:9ca with SMTP id j6-20020a62b606000000b0047be32f09camr41557826pff.57.1637085873962;
-        Tue, 16 Nov 2021 10:04:33 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v14sm18934667pff.199.2021.11.16.10.04.33
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jZwVIrUtt66FvkTYvH2h4rOOrPwYYNizZZ68EuMUgBw=;
+        b=6LNw8tPeFgDc5mrzzGE7SBGLwLWUwh3CBns0iVU8V7k86AfCxuGtUsXPLAUHZOI3/N
+         yAol/PHDa41QWmcfVSHi+p3j0+FFKJped3/BRuMPWO0WpW8+dmwJ//0MMN9t4O5K62Hc
+         5W98XG3WFVEUHWGG5EMWAQaKLqjq9AidS49fOmM8Wx555NnQs6r13P2qrG5hcJbwmixR
+         ot9k5EQTMhtA10/yGA0Qn4HIFspJ/0r5Nd0b4BnbFGseNP9M4EGZic8akttaLNLxlp+9
+         n99K1IhC9BcFKXb7g7rgQiu6j9t3uAgooFH83PO6vvqonCp0BQmhKAIAvBCPn1Yh7lW9
+         61Jg==
+X-Gm-Message-State: AOAM532REB6lph9AgtSjsJgxmdWnSeWzZXbpznPqCp+7pM8+MtyMPnHd
+        SQRGy1qLzpRSZbIuamZlLAdXVoRGUqiO6Q==
+X-Google-Smtp-Source: ABdhPJxCE1msMxKhPNjRopniMrwQqm91A1A8Fz9sAnrkiGY+2lB8N/PQviwa4bKwlFNhGo70T1pD6Q==
+X-Received: by 2002:a17:90a:a083:: with SMTP id r3mr1299426pjp.55.1637086567311;
+        Tue, 16 Nov 2021 10:16:07 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id k6sm575416pjt.14.2021.11.16.10.16.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Nov 2021 10:04:33 -0800 (PST)
-Message-ID: <6193f2b1.1c69fb81.6858c.6f33@mx.google.com>
-Date:   Tue, 16 Nov 2021 10:04:33 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 16 Nov 2021 10:16:06 -0800 (PST)
+From:   Kees Cook <keescook@chromium.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Kees Cook <keescook@chromium.org>, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org, Anton Vorontsov <anton@enomsg.org>,
+        Colin Cross <ccross@android.com>,
+        Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org
+Subject: [PATCH] Revert "mark pstore-blk as broken"
+Date:   Tue, 16 Nov 2021 10:15:59 -0800
+Message-Id: <20211116181559.3975566-1-keescook@chromium.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.14.18-854-gdcb732e73327
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.14 baseline: 133 runs,
- 1 regressions (v5.14.18-854-gdcb732e73327)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=817; h=from:subject; bh=0GcyUqnzth9aOQtAkuCBec83+pRmmuCDo+1R3cjV9uk=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBhk/VfTIYSW380RAAY7SEI0Q0t90crm0ZHl+mhTfAs cQxRNkmJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYZP1XwAKCRCJcvTf3G3AJr7VD/ 4nHpwyYGst9SCigK4WFnSp+MCI+9zL+t4UCfdIqDcMz/XluArydZXgzO6TU18k/MTrdhuD7pio7T+0 9rV0xtpI43n1qNdKgIDuHTbu1PqDm2z8BhX+xgIZxnUnEP9rtAJyWq7tB/ThDtHzM6+mht3HJAwY9r ll3Ft2BC2GdM2YVW1biN9DLRWzETY34ctG5OJW7O4z9DlPoLGCRec9o4xz4JyK+gmowN9rQAPrYUmd 2XNVgYLebFwfVkhkwHsLotyvBU2YGfuh9Yz535x2Q8Ks9Fedzp9zvER7ltt2ubxylyAKv/CnbPiEaM Y0CHbJHFIwiKN/wyfNMglq48mMLZ0CQ+Ji/6AUeXnVj4zh5yxFcDMHm4g5Tx6x/ApSBnQ81fJiulQ6 HhpIkW5S2K6YcbWK1iO2LrQR61AcebRvG+iU5d95D8+c3Pg3aHUo9n6BDI7flDA/SmXHVjWQP5bKCO 2wLOzhaU9kuWLu6j/9C3HAmYAr1ovxaBiBPCFrPyTRhpuvHMS/JbKLM7V69jOPb+xMxMrE/TzcZSlK sQaoyBW6bXUhlziKfBn96R/wUHYkmxHmBKOM9sRcv78gkLQO7pB9yhrdtCLCA9EOWPHiof8WjrSvXa 0E2XlIDowb+1elXiT7aKvTpBtkes56xzrrHRHWxkkYoYAOFYlN+n7EUnwJkw==
+X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 133 runs, 1 regressions (v5.14.18-854-gdcb73=
-2e73327)
+This reverts commit d07f3b081ee632268786601f55e1334d1f68b997.
 
-Regressions Summary
--------------------
+pstore-blk was fixed to avoid the unwanted APIs in commit 7bb9557b48fc
+("pstore/blk: Use the normal block device I/O path"), which landed in
+the same release as the commit adding BROKEN.
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ fs/pstore/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
+diff --git a/fs/pstore/Kconfig b/fs/pstore/Kconfig
+index 328da35da390..8adabde685f1 100644
+--- a/fs/pstore/Kconfig
++++ b/fs/pstore/Kconfig
+@@ -173,7 +173,6 @@ config PSTORE_BLK
+ 	tristate "Log panic/oops to a block device"
+ 	depends on PSTORE
+ 	depends on BLOCK
+-	depends on BROKEN
+ 	select PSTORE_ZONE
+ 	default n
+ 	help
+-- 
+2.30.2
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.18-854-gdcb732e73327/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.18-854-gdcb732e73327
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      dcb732e733274da1ff7568d0563edd229b26b404 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6193bec642866b8dfc3358f3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.18-=
-854-gdcb732e73327/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.18-=
-854-gdcb732e73327/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6193bec742866b8dfc335=
-8f4
-        failing since 22 days (last pass: v5.14.14-64-gb66eb77f69e4, first =
-fail: v5.14.14-124-g710e5bbf51e3) =
-
- =20
