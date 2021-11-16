@@ -2,145 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3030B452F7D
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:49:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E77DD452F82
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:51:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234304AbhKPKwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 05:52:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45724 "EHLO
+        id S234415AbhKPKyP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 05:54:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234313AbhKPKwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 05:52:05 -0500
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27913C061746
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 02:49:08 -0800 (PST)
-Received: by mail-pg1-x530.google.com with SMTP id r23so1364594pgu.13
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 02:49:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=9md8a1aLAFQgFA+cts5xRlXwM6EHVaLa/gL7qBkqXYY=;
-        b=V7hW6yV5UL0gv9PzTmsp0Ksd2af7QacOnp14PQalJVtkND222wj9fhoWqxHkFlNZuR
-         Jw08xqqN2ia9hg9oH0xVUYj/EUyRsOERePiHgN4WKGY+RCAWtAMqLQAtjHmaG5l1zxjW
-         oHO/NqBrjR2MxtOYOh4HIFIWaSfMdnphOBcrpV/rJIRkag23/ja6x2v52V2E25xxvvPK
-         suQKmCfXlwPwy3bd4Sl+wd0zev/ixFjcud+DOeTHKN1D8QW+8KPQptWuR9KC7zJIO6X0
-         Ezvd+67uFcNecctwG4/WWXU39tZg1hy+1RFqFiHAeeexMxN9Dt6ztz0gDnBkztwltJlj
-         wCKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=9md8a1aLAFQgFA+cts5xRlXwM6EHVaLa/gL7qBkqXYY=;
-        b=3ddPTVaQGkE7M3Gl/zz96xs29K/CZROcLwheQvbGPk6D5TbfayUDurMFklx6DLFN3q
-         z697N1TxI3VE004hC7n2el9Ng5MS0m0ePkJ62qC16j3C1V4H+awgOPqFQBsPuM4wUnhZ
-         QN3EgldvrLYVsM/Sa3IS9uStcsVQ9PSVNEdoNlnAGJIU69nXeXEoD3yiATagzLGfKpkO
-         2JV9LSZe0vUOCSkY8AXkbZBNfaD70F5rIj5CJckaBSShFzN4bbI5zJZS0YqrUoECH2TL
-         0FZzcAX8eiZW8KOdzauG46BpJQhSevRG6gDgVZTDb1JRmj7hhHShO1RNlLvL5nu1D2hB
-         JROg==
-X-Gm-Message-State: AOAM531RezlYuDe1mGjUu3TEok54dtNgUEsIWA2Wmz88vA1uMEJUpkPz
-        IF0tuBGcxoNfj0sqFs9Dg7g=
-X-Google-Smtp-Source: ABdhPJyYRC8MnXKF9pKHev/a4gTvvv+MZPS8jsolGojmEVYri7A8MHBLn0yhrSvat0Flh4DzRJYigg==
-X-Received: by 2002:a05:6a00:1349:b0:4a0:2f9:e3ab with SMTP id k9-20020a056a00134900b004a002f9e3abmr39466961pfu.80.1637059747743;
-        Tue, 16 Nov 2021 02:49:07 -0800 (PST)
-Received: from lenovo.spreadtrum.com ([117.18.48.102])
-        by smtp.gmail.com with ESMTPSA id p2sm2024375pja.55.2021.11.16.02.49.03
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Nov 2021 02:49:07 -0800 (PST)
-From:   Orson Zhai <orsonzhai@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     Sasha Levin <sashal@kernel.org>, Can Guo <cang@codeaurora.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Adrian Hunter <adrian.hunter@intel.com>, orson.zhai@gmail.com,
-        Orson Zhai <orson.zhai@unisoc.com>
-Subject: [PATCH 2/2] scsi: ufs: Fix tm request when non-fatal error happens
-Date:   Tue, 16 Nov 2021 18:48:31 +0800
-Message-Id: <1637059711-11746-3-git-send-email-orsonzhai@gmail.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1637059711-11746-1-git-send-email-orsonzhai@gmail.com>
-References: <1637059711-11746-1-git-send-email-orsonzhai@gmail.com>
+        with ESMTP id S234398AbhKPKyJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 05:54:09 -0500
+Received: from dvalin.narfation.org (dvalin.narfation.org [IPv6:2a00:17d8:100::8b1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C52EC061570
+        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 02:51:12 -0800 (PST)
+From:   Simon Wunderlich <sw@simonwunderlich.de>
+To:     stable@vger.kernel.org
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com,
+        "David S . Miller" <davem@davemloft.net>,
+        Sven Eckelmann <sven@narfation.org>
+Subject: [PATCH 4.4] net: batman-adv: fix error handling
+Date:   Tue, 16 Nov 2021 11:50:28 +0100
+Message-Id: <20211116105028.188548-1-sw@simonwunderlich.de>
+X-Mailer: git-send-email 2.30.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit eeb1b55b6e25c5f7265ff45cd050f3bc2cc423a4 ]
+commit 6f68cd634856f8ca93bafd623ba5357e0f648c68 upstream.
 
-When non-fatal error like line-reset happens, ufshcd_err_handler() starts
-to abort tasks by ufshcd_try_to_abort_task(). When it tries to issue a task
-management request, we hit two warnings:
+Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
+in wrong error handling in batadv_mesh_init().
 
-WARNING: CPU: 7 PID: 7 at block/blk-core.c:630 blk_get_request+0x68/0x70
-WARNING: CPU: 4 PID: 157 at block/blk-mq-tag.c:82 blk_mq_get_tag+0x438/0x46c
+Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
+of any batadv_*_init() calls failure. This approach may work well, when
+there is some kind of indicator, which can tell which parts of batadv are
+initialized; but there isn't any.
 
-After fixing the above warnings we hit another tm_cmd timeout which may be
-caused by unstable controller state:
+All written above lead to cleaning up uninitialized fields. Even if we hide
+ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
+GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
 
-__ufshcd_issue_tm_cmd: task management cmd 0x80 timed-out
+To fix these bugs we can unwind batadv_*_init() calls one by one.
+It is good approach for 2 reasons: 1) It fixes bugs on error handling
+path 2) It improves the performance, since we won't call unneeded
+batadv_*_free() functions.
 
-Then, ufshcd_err_handler() enters full reset, and kernel gets stuck. It
-turned out ufshcd_print_trs() printed too many messages on console which
-requires CPU locks. Likewise hba->silence_err_logs, we need to avoid too
-verbose messages. This is actually not an error case.
+So, this patch makes all batadv_*_init() clean up all allocated memory
+before returning with an error to no call correspoing batadv_*_free()
+and open-codes batadv_mesh_free() with proper order to avoid touching
+uninitialized fields.
 
-Change-Id: I8a422b1f0e3152191f576548cc371a1a41115f59
-Link: https://lore.kernel.org/r/20210107185316.788815-3-jaegeuk@kernel.org
-Fixes: 69a6c269c097 ("scsi: ufs: Use blk_{get,put}_request() to allocate and free TMFs")
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Orson Zhai <orson.zhai@unisoc.com>
+Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
+Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[ bp: 4.4 backport: Drop batadv_v_mesh_{init,free} which are not there yet. ]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+Submission according to the request in
+https://lore.kernel.org/all/163559888490194@kroah.com/
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index a5d4ee6..4004506 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4748,7 +4748,8 @@ ufshcd_transfer_rsp_status(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
- 		break;
- 	} /* end of switch */
+ net/batman-adv/bridge_loop_avoidance.c |  8 +++--
+ net/batman-adv/main.c                  | 44 +++++++++++++++++++-------
+ net/batman-adv/network-coding.c        |  4 ++-
+ net/batman-adv/translation-table.c     |  4 ++-
+ 4 files changed, 44 insertions(+), 16 deletions(-)
+
+diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
+index 1267cbb1a329..5e59a6ecae42 100644
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -1346,10 +1346,14 @@ int batadv_bla_init(struct batadv_priv *bat_priv)
+ 		return 0;
  
--	if ((host_byte(result) != DID_OK) && !hba->silence_err_logs)
-+	if ((host_byte(result) != DID_OK) &&
-+	    (host_byte(result) != DID_REQUEUE) && !hba->silence_err_logs)
- 		ufshcd_print_trs(hba, 1 << lrbp->task_tag, true);
- 	return result;
- }
-@@ -5661,9 +5662,13 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
- 		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
- 	}
+ 	bat_priv->bla.claim_hash = batadv_hash_new(128);
+-	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.claim_hash)
++		return -ENOMEM;
  
--	if (enabled_intr_status && retval == IRQ_NONE) {
--		dev_err(hba->dev, "%s: Unhandled interrupt 0x%08x\n",
--					__func__, intr_status);
-+	if (enabled_intr_status && retval == IRQ_NONE &&
-+				!ufshcd_eh_in_progress(hba)) {
-+		dev_err(hba->dev, "%s: Unhandled interrupt 0x%08x (0x%08x, 0x%08x)\n",
-+					__func__,
-+					intr_status,
-+					hba->ufs_stats.last_intr_status,
-+					enabled_intr_status);
- 		ufshcd_dump_regs(hba, 0, UFSHCI_REG_SPACE_SIZE, "host_regs: ");
- 	}
+-	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
++	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.backbone_hash) {
++		batadv_hash_destroy(bat_priv->bla.claim_hash);
+ 		return -ENOMEM;
++	}
  
-@@ -5705,7 +5710,10 @@ static int __ufshcd_issue_tm_cmd(struct ufs_hba *hba,
- 	/*
- 	 * blk_get_request() is used here only to get a free tag.
- 	 */
--	req = blk_get_request(q, REQ_OP_DRV_OUT, BLK_MQ_REQ_RESERVED);
-+	req = blk_get_request(q, REQ_OP_DRV_OUT, 0);
-+	if (IS_ERR(req))
-+		return PTR_ERR(req);
+ 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
+ 				   &batadv_claim_hash_lock_class_key);
+diff --git a/net/batman-adv/main.c b/net/batman-adv/main.c
+index 88cea5154113..8ba7b86579d4 100644
+--- a/net/batman-adv/main.c
++++ b/net/batman-adv/main.c
+@@ -159,24 +159,34 @@ int batadv_mesh_init(struct net_device *soft_iface)
+ 	INIT_HLIST_HEAD(&bat_priv->softif_vlan_list);
+ 
+ 	ret = batadv_originator_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_orig;
++	}
+ 
+ 	ret = batadv_tt_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_tt;
++	}
+ 
+ 	ret = batadv_bla_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_bla;
++	}
+ 
+ 	ret = batadv_dat_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_dat;
++	}
+ 
+ 	ret = batadv_nc_mesh_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_nc;
++	}
+ 
+ 	batadv_gw_init(bat_priv);
+ 	batadv_mcast_init(bat_priv);
+@@ -186,8 +196,18 @@ int batadv_mesh_init(struct net_device *soft_iface)
+ 
+ 	return 0;
+ 
+-err:
+-	batadv_mesh_free(soft_iface);
++err_nc:
++	batadv_dat_free(bat_priv);
++err_dat:
++	batadv_bla_free(bat_priv);
++err_bla:
++	batadv_tt_free(bat_priv);
++err_tt:
++	batadv_originator_free(bat_priv);
++err_orig:
++	batadv_purge_outstanding_packets(bat_priv, NULL);
++	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
 +
- 	req->end_io_data = &wait;
- 	ufshcd_hold(hba, false);
+ 	return ret;
+ }
  
+diff --git a/net/batman-adv/network-coding.c b/net/batman-adv/network-coding.c
+index 91de807a8f03..9317d872b9c0 100644
+--- a/net/batman-adv/network-coding.c
++++ b/net/batman-adv/network-coding.c
+@@ -159,8 +159,10 @@ int batadv_nc_mesh_init(struct batadv_priv *bat_priv)
+ 				   &batadv_nc_coding_hash_lock_class_key);
+ 
+ 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
+-	if (!bat_priv->nc.decoding_hash)
++	if (!bat_priv->nc.decoding_hash) {
++		batadv_hash_destroy(bat_priv->nc.coding_hash);
+ 		goto err;
++	}
+ 
+ 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
+ 				   &batadv_nc_decoding_hash_lock_class_key);
+diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
+index 5f976485e8c6..1ad90267064d 100644
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -3833,8 +3833,10 @@ int batadv_tt_init(struct batadv_priv *bat_priv)
+ 		return ret;
+ 
+ 	ret = batadv_tt_global_init(bat_priv);
+-	if (ret < 0)
++	if (ret < 0) {
++		batadv_tt_local_table_free(bat_priv);
+ 		return ret;
++	}
+ 
+ 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
+ 				     batadv_tt_tvlv_unicast_handler_v1,
 -- 
-2.7.4
+2.30.2
 
