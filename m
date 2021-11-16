@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3DBA4539CB
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:06:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 029F24539CE
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 20:06:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239830AbhKPTIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 14:08:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51418 "EHLO mail.kernel.org"
+        id S239632AbhKPTIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 14:08:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239755AbhKPTHv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 14:07:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE73F63241;
-        Tue, 16 Nov 2021 19:04:52 +0000 (UTC)
+        id S239799AbhKPTHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 14:07:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C6FD63220;
+        Tue, 16 Nov 2021 19:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637089494;
-        bh=StF9zvIyiI8CbHePB2sRe3ydWwyn5ypRVDzxRXBi2dE=;
+        s=k20201202; t=1637089495;
+        bh=Z6Uu3/lxleToi8v48/ve0WJ0Gv6bbt8UPwTOOJiZvhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DxjKHO14BvbFdU9Hm3UCZqrGVetxQdYaZBLkcT9qNsyBxO/q68Luaf876UOMCaCpJ
-         U/yfLs5yB1AjlBDR3cj/+sXRJOZncvGmvqj5kg8XGUHrgLJHP3HBrOyNpxUYr9OYTW
-         UkTh8yUkru8PmrPkMoUR5Fo64CnCppvEF9L5FFgNTWhfiLCfeoGVSYE2GAPCgenFKE
-         JD4QG6mOFyBb+M7p9L7hd+fQlv8RH4q0vjVoC8o+6Lx8kVNnk1FNNWReTXeL8yH07I
-         IDO3Sa+2BIgkoWrslVyzn9PxRqL8L6GVNV1B4WB6Z6Nwgdpz/obKPnwfUggHdDgekx
-         d2Jvq+mCy60rg==
+        b=GroHuMO6MIIfmHDA8rWfjKS5IDX2HOc3p82rNsuxgbY0R5aa4Hfp0s649lV6D5Akr
+         DzwYdAFH3w5qGWJCf0sMQ2mqRoRU+aSw48DypnHPc4fZqD4KCQRr/PJe0z0gnXgQQA
+         HI4bDyXhjYdvt9tE3QQB5mrlEsz4K1MkLSXjhYuXjtRyMbyS8Uzv5PSBHdE1UONwyT
+         L+ZMPZq0flg3bZVO91ZxhSmX2PSzHKc8KuGeguRZV74H52NUz9+kgigfGBUtnEJkkR
+         K0deD/BYnPuYEDVsJktHkacz0EqjCp0fSz4cQ9UJ2bsOCQEdUxLYTZv1bfFNaVjNes
+         w5G58FUTVrn9g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Li <yang.lee@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        "J . Bruce Fields" <bfields@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
-        bfields@fieldses.org, chuck.lever@oracle.com, davem@davemloft.net,
-        kuba@kernel.org, colin.king@intel.com, neilb@suse.de,
-        linux-nfs@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 04/65] UNRPC: Return specific error code on kmalloc failure
-Date:   Tue, 16 Nov 2021 14:03:24 -0500
-Message-Id: <20211116190443.2418144-4-sashal@kernel.org>
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>, anna.schumaker@netapp.com,
+        linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 05/65] NFS: Fix up nfs_ctx_key_to_expire()
+Date:   Tue, 16 Nov 2021 14:03:25 -0500
+Message-Id: <20211116190443.2418144-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211116190443.2418144-1-sashal@kernel.org>
 References: <20211116190443.2418144-1-sashal@kernel.org>
@@ -47,41 +42,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 458032fcfa91c8714859b1f01b9ac7dccea5d6cd ]
+[ Upstream commit ca05cbae2a0468e5d78e9b4605936a8bf5da328b ]
 
-Although the callers of this function only care about whether the
-return value is null or not, we should still give a rigorous
-error code.
+If the cached credential exists but doesn't have any expiration callback
+then exit early.
+Fix up atomicity issues when replacing the credential with a new one
+since the existing code could lead to refcount leaks.
 
-Smatch tool warning:
-net/sunrpc/auth_gss/svcauth_gss.c:784 gss_write_verf() warn: returning
--1 instead of -ENOMEM is sloppy
-
-No functional change, just more standardized.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/auth_gss/svcauth_gss.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/inode.c         |  4 ++--
+ fs/nfs/write.c         | 41 ++++++++++++++++++++++++++++-------------
+ include/linux/nfs_fs.h |  2 +-
+ 3 files changed, 31 insertions(+), 16 deletions(-)
 
-diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
-index 1f2817195549b..b87565b64928d 100644
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -781,7 +781,7 @@ gss_write_verf(struct svc_rqst *rqstp, struct gss_ctx *ctx_id, u32 seq)
- 	svc_putnl(rqstp->rq_res.head, RPC_AUTH_GSS);
- 	xdr_seq = kmalloc(4, GFP_KERNEL);
- 	if (!xdr_seq)
--		return -1;
-+		return -ENOMEM;
- 	*xdr_seq = htonl(seq);
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index 853213b3a2095..4f45281c47cfb 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -1024,7 +1024,7 @@ struct nfs_open_context *alloc_nfs_open_context(struct dentry *dentry,
+ 		ctx->cred = get_cred(filp->f_cred);
+ 	else
+ 		ctx->cred = get_current_cred();
+-	ctx->ll_cred = NULL;
++	rcu_assign_pointer(ctx->ll_cred, NULL);
+ 	ctx->state = NULL;
+ 	ctx->mode = f_mode;
+ 	ctx->flags = 0;
+@@ -1063,7 +1063,7 @@ static void __put_nfs_open_context(struct nfs_open_context *ctx, int is_sync)
+ 	put_cred(ctx->cred);
+ 	dput(ctx->dentry);
+ 	nfs_sb_deactive(sb);
+-	put_rpccred(ctx->ll_cred);
++	put_rpccred(rcu_dereference_protected(ctx->ll_cred, 1));
+ 	kfree(ctx->mdsthreshold);
+ 	kfree_rcu(ctx, rcu_head);
+ }
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index eae9bf1140417..773ea2c8504d6 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -1246,7 +1246,7 @@ nfs_key_timeout_notify(struct file *filp, struct inode *inode)
+ 	struct nfs_open_context *ctx = nfs_file_open_context(filp);
  
- 	iov.iov_base = xdr_seq;
+ 	if (nfs_ctx_key_to_expire(ctx, inode) &&
+-	    !ctx->ll_cred)
++	    !rcu_access_pointer(ctx->ll_cred))
+ 		/* Already expired! */
+ 		return -EACCES;
+ 	return 0;
+@@ -1258,23 +1258,38 @@ nfs_key_timeout_notify(struct file *filp, struct inode *inode)
+ bool nfs_ctx_key_to_expire(struct nfs_open_context *ctx, struct inode *inode)
+ {
+ 	struct rpc_auth *auth = NFS_SERVER(inode)->client->cl_auth;
+-	struct rpc_cred *cred = ctx->ll_cred;
++	struct rpc_cred *cred, *new, *old = NULL;
+ 	struct auth_cred acred = {
+ 		.cred = ctx->cred,
+ 	};
++	bool ret = false;
+ 
+-	if (cred && !cred->cr_ops->crmatch(&acred, cred, 0)) {
+-		put_rpccred(cred);
+-		ctx->ll_cred = NULL;
+-		cred = NULL;
+-	}
+-	if (!cred)
+-		cred = auth->au_ops->lookup_cred(auth, &acred, 0);
+-	if (!cred || IS_ERR(cred))
++	rcu_read_lock();
++	cred = rcu_dereference(ctx->ll_cred);
++	if (cred && !(cred->cr_ops->crkey_timeout &&
++		      cred->cr_ops->crkey_timeout(cred)))
++		goto out;
++	rcu_read_unlock();
++
++	new = auth->au_ops->lookup_cred(auth, &acred, 0);
++	if (new == cred) {
++		put_rpccred(new);
+ 		return true;
+-	ctx->ll_cred = cred;
+-	return !!(cred->cr_ops->crkey_timeout &&
+-		  cred->cr_ops->crkey_timeout(cred));
++	}
++	if (IS_ERR_OR_NULL(new)) {
++		new = NULL;
++		ret = true;
++	} else if (new->cr_ops->crkey_timeout &&
++		   new->cr_ops->crkey_timeout(new))
++		ret = true;
++
++	rcu_read_lock();
++	old = rcu_dereference_protected(xchg(&ctx->ll_cred,
++					     RCU_INITIALIZER(new)), 1);
++out:
++	rcu_read_unlock();
++	put_rpccred(old);
++	return ret;
+ }
+ 
+ /*
+diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
+index b9a8b925db430..9b75448ce0df8 100644
+--- a/include/linux/nfs_fs.h
++++ b/include/linux/nfs_fs.h
+@@ -81,7 +81,7 @@ struct nfs_open_context {
+ 	fl_owner_t flock_owner;
+ 	struct dentry *dentry;
+ 	const struct cred *cred;
+-	struct rpc_cred *ll_cred;	/* low-level cred - use to check for expiry */
++	struct rpc_cred __rcu *ll_cred;	/* low-level cred - use to check for expiry */
+ 	struct nfs4_state *state;
+ 	fmode_t mode;
+ 
 -- 
 2.33.0
 
