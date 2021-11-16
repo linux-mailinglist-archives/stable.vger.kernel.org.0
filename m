@@ -2,79 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F651452F44
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:39:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82797452F48
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:41:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234276AbhKPKmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 05:42:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
+        id S234278AbhKPKmw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 05:42:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234225AbhKPKmS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 05:42:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40E6660F44;
-        Tue, 16 Nov 2021 10:39:21 +0000 (UTC)
+        id S234126AbhKPKmw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 05:42:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AC7F613AC;
+        Tue, 16 Nov 2021 10:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637059161;
-        bh=Z5iHw+w8oH4MPY4bjNaPg/2EisAuwLYk6quGUMb8h5w=;
+        s=korg; t=1637059195;
+        bh=XuSaCqE1nhjoL0CrlGLFu0tkK3MNnpJGYFxS6WQ6Dmo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FVUqoSggFfTMFLvR3e7sTpK2GhlHJ10iIkwrmaWMXdgduH83h6GI2E3hYTdMawSws
-         60NSsge4jzhtKPZ2mIZoN542kTK+vBYtb8zWtAZqV+pDvkx/ZzGmGnR0o6fmxf4YkC
-         Jh3uMTfHiRUqEcJYl8wgh4MZW7sppKnMTZpedNMI=
-Date:   Tue, 16 Nov 2021 11:39:19 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Rui Salvaterra <rsalvaterra@gmail.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>, linux-pci@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        kernel-team@android.com, stable@vger.kernel.org
-Subject: Re: [PATCH 0/2] PCI: MSI: Deal with devices lying about their
- masking capability
-Message-ID: <YZOKV6z+6pDjjvcl@kroah.com>
-References: <20211104180130.3825416-1-maz@kernel.org>
- <87ilx64ued.ffs@tglx>
- <CALjTZvag6ex6bhAgJ_rJOfai8GgZQfWesdV=FiMrwEaXhVVVeQ@mail.gmail.com>
+        b=vAKKI2pKS5JWgOA4kjyydScgaT7t84f+Ij80pF7cdp/wwNoFi6pxH1SNvEQ0ZSs1B
+         omkPruc4rrDjOHiW97k5Vb6NmZxQqtlrLB+ajkQvIbP8w3v5ZpgnTzvmyLr6GVQbUU
+         /6VrOOu8qD8kYQ80LGtNNjHNpmx78mIup+IYqSfw=
+Date:   Tue, 16 Nov 2021 11:39:52 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+Cc:     Jon Hunter <jonathanh@nvidia.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Vladis Dronov <vdronov@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.15 000/917] 5.15.3-rc1 review
+Message-ID: <YZOKeFT8NGenpbsU@kroah.com>
+References: <20211115165428.722074685@linuxfoundation.org>
+ <CA+G9fYtFOnKQ4=3-4rUTfVM-fPno1KyTga1ZAFA2OoqNvcnAUg@mail.gmail.com>
+ <CA+G9fYuF1F-9TAwgR9ik_qjFqQvp324FJwFJbYForA_iRexZjg@mail.gmail.com>
+ <YZNwcylQcKVlZDlO@kroah.com>
+ <dabc323f-b0e1-8c9f-1035-c48349a0eff4@nvidia.com>
+ <CAMuHMdXG2Y-rwPtBw1PsGckk3MLRQvn6Xht6ts2RkW7Zkx=w2w@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CALjTZvag6ex6bhAgJ_rJOfai8GgZQfWesdV=FiMrwEaXhVVVeQ@mail.gmail.com>
+In-Reply-To: <CAMuHMdXG2Y-rwPtBw1PsGckk3MLRQvn6Xht6ts2RkW7Zkx=w2w@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 16, 2021 at 10:21:18AM +0000, Rui Salvaterra wrote:
-> Hi, Thomas,
+On Tue, Nov 16, 2021 at 11:12:23AM +0100, Geert Uytterhoeven wrote:
+> Hi Jon,
 > 
-> On Fri, 5 Nov 2021 at 13:14, Thomas Gleixner <tglx@linutronix.de> wrote:
-> >
-> > On Thu, Nov 04 2021 at 18:01, Marc Zyngier wrote:
-> > > Rui reported[1] that his Nvidia ION system stopped working with 5.15,
-> > > with the AHCI device failing to get any MSI. A rapid investigation
-> > > revealed that although the device doesn't advertise MSI masking, it
-> > > actually needs it. Quality hardware indeed.
-> > >
-> > > Anyway, the couple of patches below are an attempt at dealing with the
-> > > issue in a more or less generic way.
-> > >
-> > > [1] https://lore.kernel.org/r/CALjTZvbzYfBuLB+H=fj2J+9=DxjQ2Uqcy0if_PvmJ-nU-qEgkg@mail.gmail.com
-> > >
-> > > Marc Zyngier (2):
-> > >   PCI: MSI: Deal with devices lying about their MSI mask capability
-> > >   PCI: Add MSI masking quirk for Nvidia ION AHCI
-> > >
-> > >  drivers/pci/msi.c    | 3 +++
-> > >  drivers/pci/quirks.c | 6 ++++++
-> > >  include/linux/pci.h  | 2 ++
-> > >  3 files changed, 11 insertions(+)
-> >
-> > Groan.
-> >
-> > Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+> On Tue, Nov 16, 2021 at 10:23 AM Jon Hunter <jonathanh@nvidia.com> wrote:
+> > On 16/11/2021 08:48, Greg Kroah-Hartman wrote:
+> > > On Tue, Nov 16, 2021 at 02:09:44PM +0530, Naresh Kamboju wrote:
+> > >> On Tue, 16 Nov 2021 at 12:06, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> > >>>
+> > >>> On Tue, 16 Nov 2021 at 00:03, Greg Kroah-Hartman
+> > >>> <gregkh@linuxfoundation.org> wrote:
+> > >>>>
+> > >>>> This is the start of the stable review cycle for the 5.15.3 release.
+> > >>>> There are 917 patches in this series, all will be posted as a response
+> > >>>> to this one.  If anyone has any issues with these being applied, please
+> > >>>> let me know.
+> > >>>>
+> > >>>> Responses should be made by Wed, 17 Nov 2021 16:52:23 +0000.
+> > >>>> Anything received after that time might be too late.
+> > >>>>
+> > >>>> The whole patch series can be found in one patch at:
+> > >>>>          https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.3-rc1.gz
+> > >>>> or in the git tree and branch at:
+> > >>>>          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> > >>>> and the diffstat can be found below.
+> > >>>>
+> > >>>> thanks,
+> > >>>>
+> > >>>> greg k-h
+> > >>>
+> > >>>
+> > >>
+> > >> Regression found on arm64 juno-r2 / qemu.
+> > >> Following kernel crash reported on stable-rc 5.15.
+> > >>
+> > >> Anders bisected this kernel crash and found the first bad commit,
+> > >>
+> > >> Herbert Xu <herbert@gondor.apana.org.au>
+> > >>     crypto: api - Fix built-in testing dependency failures
 > 
-> Just a reminder, to make sure this doesn't fall through the cracks.
-> It's already in 5.16, but needs to be backported to 5.15. I'm not
-> seeing it in Greg's 5.15 stable queue yet.
+> That's commit adad556efcdd ("crypto: api - Fix built-in testing
+> dependency failures")
+> 
+> > I am seeing the same for Tegra as well and bisect is pointing to the
+> > above for me too.
+> > > Is this also an issue on 5.16-rc1?
+> >
+> > I have not observed the same issue for 5.16-rc1.
+> 
+> Following the "Fixes: adad556efcdd" chain:
+> 
+> cad439fc040efe5f ("crypto: api - Do not create test larvals if manager
+> is disabled")
+> beaaaa37c664e9af ("crypto: api - Fix boot-up crash when crypto manager
+> is disabled")
 
-What is the git commit ids of these changes in Linus's tree?
+Argh, yes, I didn't run my "check for fixes for patches in the queue"
+script which would have caught these.  I'll go queue these up and a few
+others that it just caught...
 
 thanks,
 
