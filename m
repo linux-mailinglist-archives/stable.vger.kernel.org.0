@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74DBF452F7C
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:49:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 049CE452F7E
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:49:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234341AbhKPKv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 05:51:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45660 "EHLO
+        id S234313AbhKPKwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 05:52:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234313AbhKPKvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 05:51:48 -0500
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D0CC061570
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 02:48:51 -0800 (PST)
-Received: by mail-pl1-x631.google.com with SMTP id y8so11576014plg.1
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 02:48:51 -0800 (PST)
+        with ESMTP id S234325AbhKPKwF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 05:52:05 -0500
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 767C4C061570
+        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 02:49:01 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id n26so13185825pff.3
+        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 02:49:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id;
-        bh=ft3960Gcyu760DPw25fLOC4PWwYA5oMTpbiLIMJESzw=;
-        b=m4MJCbxi0h0HeVeAXK1Ol+RCD9ZwTuUquW5M3TblBMKnTsPeDFnPp9+q7VDO/DjiVT
-         2VudlZzhYbsGIEsU095e+Hh3TzCHaLAuNKyjRQkuRI8BK4cZ2dogAHVo1uIuPfxRh7U4
-         SZy1UuD5GU7Lq8XvXTrQXMGbJF7yC7FC3Z2W9/Mu8MCKF5loXlU/cTnmlRQ7VbYHY9ii
-         1WvJVGY0HkPXId6PGgwXgEWMSIT0SLJxUbIh/UJq/aLiIzoYwoRThaHxBE61HA+Wmo4N
-         oSb3N1zCTzFavCxopYGbSDpvh5oqRddaDOdU2sY8/Db1ub4L8bWZIcpWPT1BdnAZeSG3
-         oLbQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=+ubYjqdvkqE78QDA/znztFhltIrAjEQ86b9eBrLM2LE=;
+        b=q7+wL343vAdlQBCXH0jLHz3oVoKKCUVMqZ0JeuNSEA8wN8rar7Fru/MatkkTyo9NSM
+         AO0aypEiRxb/uEWSgxhfip7XaGeE7WibuQb1Y82Wd7pCR+xbVC0qjfDSMjNmEwwGydJV
+         ONBd43Fi/MHRPyF9CTEbYmWHHQhV4M4QgsOFZ+xgojPdfCr9D3r0hgyAvI5zv3G/vVUI
+         3wxjLtc3km4fmBHRgmlqXtsBfcwzs16KxkPw1huBAN23XfXb537Rxdw0VZS2e4yndQXC
+         YFOs8zdzPj3XIk2lEv2u1eBnU4Y8+VMXs7c0yZfJOZS26VFL9bbkAznQ0kfeZMLfSUMd
+         f/Rw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=ft3960Gcyu760DPw25fLOC4PWwYA5oMTpbiLIMJESzw=;
-        b=gLOg8QZEoPLZ6oy/L2LNoWRlrg8YkSnR2R7s5lgy+WefDZqwa3ANwDy3vgFJhahzTp
-         lRq6svTo2puUD1O7jV94NekWexUJY5M+Tuv8Cegtv6EKwzRDUOnS/N9+GbbTQ5bp1x9n
-         srzoWmw2ynyM8e84VlEjXLPxgJ/3917dVuKv/S/jmSZdcmI0jMhLFtx55QLTUoR5H5Fx
-         Rn98L5c7zv7IbNu4AHVgvWKdNOASAwcNXli2vls58KHxqmH4+Ka2qe86GvnTR8MThIkq
-         r3O6sFeHMcIuA4b6LHc5YGrMQb+frJANMtgnl3P6z+RsJ+/9XeHKIhmn7t5qbJY+9mCJ
-         yQLg==
-X-Gm-Message-State: AOAM533rnu1ov7ODBbAZQIOtUTI1pi5WNzdqOjTkZrf+qG7j3jMmQ9bR
-        nCF96cS82m25e8G7z3AX2/Q=
-X-Google-Smtp-Source: ABdhPJyQX7W3xJhuHgtNi8fTD1EA2rY0THC8BJZSSEcu1a2fiaesb/Cpk+pnFPMNhSfnpCKWKqY/kA==
-X-Received: by 2002:a17:902:a717:b0:142:76bc:da69 with SMTP id w23-20020a170902a71700b0014276bcda69mr44372752plq.12.1637059731322;
-        Tue, 16 Nov 2021 02:48:51 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=+ubYjqdvkqE78QDA/znztFhltIrAjEQ86b9eBrLM2LE=;
+        b=6p13Mkk7OKjcgGqZOcN7wdjJRoxAN84E/MPLitJ8cCeIMGNFd9onyefEmAkHWW9M0Y
+         G3imRH4mqPa235NM0+kg/SaeCWF0p88rp0yv4U90Jc6Nv+odpS5q0Ww1Jg4D+uAEt1Q/
+         bHKegJKM5IrnNfITONJHhEjTgV69vUkbQFhQ5oDO/sUEAx4KqhxZA+GUyUgGaHdJKYov
+         VqShbaXSZUKyRF/QGxrqpwqLVCcGDQ5Eq3RpEIGCLEmKQclk2PA4JYcTcWfxwolfSFjW
+         NoKvwWM+LmA7g9P4Uq+HsSH9eki9/A2RVyPr+AWx/sDT8CQAyKn7mjVcGDJ6z/gpt7mK
+         eEpA==
+X-Gm-Message-State: AOAM53151ycmN3Bzw+FYMySJ2cjxTxVZUU90o16+CJb2+M2HRMEBtegK
+        f2Yyvv6tMTkb/gS5xec3xMk=
+X-Google-Smtp-Source: ABdhPJz6EbeguKjmfLV1R238sI7ugRdnPNKZogLectgrt06SIoPMqM0ji1rHrvyIsEpM7yuPXy/tlA==
+X-Received: by 2002:aa7:8019:0:b0:44d:d761:6f79 with SMTP id j25-20020aa78019000000b0044dd7616f79mr40041804pfi.3.1637059741007;
+        Tue, 16 Nov 2021 02:49:01 -0800 (PST)
 Received: from lenovo.spreadtrum.com ([117.18.48.102])
-        by smtp.gmail.com with ESMTPSA id p2sm2024375pja.55.2021.11.16.02.48.47
+        by smtp.gmail.com with ESMTPSA id p2sm2024375pja.55.2021.11.16.02.48.56
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 16 Nov 2021 02:48:51 -0800 (PST)
+        Tue, 16 Nov 2021 02:49:00 -0800 (PST)
 From:   Orson Zhai <orsonzhai@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
@@ -54,35 +55,48 @@ Cc:     Sasha Levin <sashal@kernel.org>, Can Guo <cang@codeaurora.org>,
         Avri Altman <avri.altman@wdc.com>,
         Adrian Hunter <adrian.hunter@intel.com>, orson.zhai@gmail.com,
         Orson Zhai <orson.zhai@unisoc.com>
-Subject: [PATCH 0/2] scsi/ufs: Cherry-pick 2 fixes for null pointer into 5.4.y only 
-Date:   Tue, 16 Nov 2021 18:48:29 +0800
-Message-Id: <1637059711-11746-1-git-send-email-orsonzhai@gmail.com>
+Subject: [PATCH 1/2] scsi: ufs: Fix interrupt error message for shared interrupts
+Date:   Tue, 16 Nov 2021 18:48:30 +0800
+Message-Id: <1637059711-11746-2-git-send-email-orsonzhai@gmail.com>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1637059711-11746-1-git-send-email-orsonzhai@gmail.com>
+References: <1637059711-11746-1-git-send-email-orsonzhai@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Orson Zhai <orson.zhai@unisoc.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-Hi Greg,
+[ Upstream commit 6337f58cec030b34ced435b3d9d7d29d63c96e36 ]
 
-Following 2 patches were merged into 5.10.y but not in 5.4.y.
-We've found kernel crashes on our devices with 5.4 stable caused by missing them.
+The interrupt might be shared, in which case it is not an error for the
+interrupt handler to be called when the interrupt status is zero, so don't
+print the message unless there was enabled interrupt status.
 
-Please feel free to add them into the stable queue for 5.4.y if no issue.
+Change-Id: Ic18aa63b43d9479a62e8e664a73e70380669b109
+Link: https://lore.kernel.org/r/20200811133936.19171-1-adrian.hunter@intel.com
+Fixes: 9333d7757348 ("scsi: ufs: Fix irq return code")
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Orson Zhai <orson.zhai@unisoc.com>
+---
+ drivers/scsi/ufs/ufshcd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Orson
-
-Adrian Hunter (1):
-  scsi: ufs: Fix interrupt error message for shared interrupts
-
-Jaegeuk Kim (1):
-  scsi: ufs: Fix tm request when non-fatal error happens
-
- drivers/scsi/ufs/ufshcd.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
-
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 24396f4..a5d4ee6 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -5661,7 +5661,7 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
+ 		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
+ 	}
+ 
+-	if (retval == IRQ_NONE) {
++	if (enabled_intr_status && retval == IRQ_NONE) {
+ 		dev_err(hba->dev, "%s: Unhandled interrupt 0x%08x\n",
+ 					__func__, intr_status);
+ 		ufshcd_dump_regs(hba, 0, UFSHCI_REG_SPACE_SIZE, "host_regs: ");
 -- 
 2.7.4
 
