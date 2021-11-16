@@ -2,78 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EA28452CFF
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 09:37:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A31B452D05
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 09:40:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232146AbhKPIks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 03:40:48 -0500
-Received: from mga04.intel.com ([192.55.52.120]:20502 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231863AbhKPIks (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 03:40:48 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10169"; a="232371497"
-X-IronPort-AV: E=Sophos;i="5.87,238,1631602800"; 
-   d="scan'208";a="232371497"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Nov 2021 00:37:51 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,238,1631602800"; 
-   d="scan'208";a="645391943"
-Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.199]) ([10.237.72.199])
-  by fmsmga001.fm.intel.com with ESMTP; 16 Nov 2021 00:37:49 -0800
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stern@rowland.harvard.edu, kishon@ti.com, hdegoede@redhat.com,
-        chris.chiu@canonical.com, linux-usb@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20211115221630.871204-1-mathias.nyman@linux.intel.com>
- <YZNqQBd+pcXBQuAp@kroah.com>
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: Re: [PATCH] usb: hub: Fix usb enumeration issue due to address0 race
-Message-ID: <dd32d4ab-dff9-0080-7911-5e1931af5c3e@linux.intel.com>
-Date:   Tue, 16 Nov 2021 10:39:18 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.8.1
+        id S232339AbhKPIm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 03:42:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44002 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232336AbhKPImx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 03:42:53 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7163C061570
+        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 00:39:56 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id z5so24406294edd.3
+        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 00:39:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=29oqjmL46qhcPK7GumgLq+DG8d/OcnmM7sBa267LNJc=;
+        b=HONPxPc4fpua+nyA5KACQL975ArZH3/eBZ5dZY+p2HgPVPrzmmke+3HJWO2fCuuPVf
+         l6f/AdcurSlwQitjA8g/mqh5lMP6Ad7Y2yKDZ3KPIDSx/M9xUBEV1QmMbD9uzAlXdMnm
+         2Pq6zA92NLyZGraUjpKEnUeaXM8JEomRJRcxIk3CjGNzoDdCiIAeukpjfz5e9+dKV+1c
+         y0luK2d9szpkwic7PL+e/BbeLQ3eEvF2IkQeSyDfW6u4WlVuDTNraMytYMqlRCrUgZwX
+         LHmEkcCL8WrLlzzguwmU1M1g+DuVFytZ6yvWZ9Fyz1Mm+5z2F+fz+/KOCsQkakBVfK4r
+         /1Hg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=29oqjmL46qhcPK7GumgLq+DG8d/OcnmM7sBa267LNJc=;
+        b=B1KsoQG/DckR6XSN2rwJcABqTJwpvDlRDcO9XaxypfuCOHpzIM++B119Lvh+Qu29Y6
+         XDeRsRZBZaa/N4flJ2b680Bcyvwd113LWaRidT32hWf0Fi/r0WR53jD2S5wJmv4EyK2C
+         AWPU3J+kNgrXMmTON77K3UhuRbTO4rssSJbsSab+5jV51yshOyQ+shm5REJEUPqeZ28x
+         w0uHa96qTbHyMM1tP4/Hn2WUuncx68gKNi9mOTdm/CrEZwzaK8nSMkVlRFD9ghnyB3hg
+         /76yMl+yuM4ayzzh9DKdIHwKKsnjycRq5QrCvCg+KX79vfKkwaUb2h2qUfsXXT9DZ0Hf
+         IfJg==
+X-Gm-Message-State: AOAM530Lbe7bkJHoaU9nKa9hA3EEzUAYTTO/sllD0cKDqDOoDFX+ZU3i
+        K4bBEvgrrD/uO7sCMN2eCNGdAh9jTsw+d2lVEUiC3A==
+X-Google-Smtp-Source: ABdhPJzw2cpdURyncHf4l37gZdIW9qTyoDRpERcWbGarQ+ldN+Qh5JZMa2Mv6dpFTys9HHv83+R10ncImdIENaH1IUM=
+X-Received: by 2002:a17:906:7955:: with SMTP id l21mr8006801ejo.6.1637051995253;
+ Tue, 16 Nov 2021 00:39:55 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <YZNqQBd+pcXBQuAp@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20211115165428.722074685@linuxfoundation.org> <CA+G9fYtFOnKQ4=3-4rUTfVM-fPno1KyTga1ZAFA2OoqNvcnAUg@mail.gmail.com>
+In-Reply-To: <CA+G9fYtFOnKQ4=3-4rUTfVM-fPno1KyTga1ZAFA2OoqNvcnAUg@mail.gmail.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 16 Nov 2021 14:09:44 +0530
+Message-ID: <CA+G9fYuF1F-9TAwgR9ik_qjFqQvp324FJwFJbYForA_iRexZjg@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/917] 5.15.3-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Vladis Dronov <vdronov@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 16.11.2021 10.22, Greg KH wrote:
-> On Tue, Nov 16, 2021 at 12:16:30AM +0200, Mathias Nyman wrote:
->> xHC hardware can only have one slot in default state with address 0
->> waiting for a unique address at a time, otherwise "undefined behavior
->> may occur" according to xhci spec 5.4.3.4
->>
->> The address0_mutex exists to prevent this across both xhci roothubs.
->>
->> If hub_port_init() fails, it may unlock the mutex and exit with a xhci
->> slot in default state. If the other xhci roothub calls hub_port_init()
->> at this point we end up with two slots in default state.
->>
->> Make sure the address0_mutex protects the slot default state across
->> hub_port_init() retries, until slot is addressed or disabled.
->>
->> Note, one known minor case is not fixed by this patch.
->> If device needs to be reset during resume, but fails all hub_port_init()
->> retries in usb_reset_and_verify_device(), then it's possible the slot is
->> still left in default state when address0_mutex is unlocked.
->>
->> Cc: <stable@vger.kernel.org>
->> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-> 
-> What commit id does this "fix"?
-> 
+On Tue, 16 Nov 2021 at 12:06, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+>
+> On Tue, 16 Nov 2021 at 00:03, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.15.3 release.
+> > There are 917 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Wed, 17 Nov 2021 16:52:23 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.3-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+>
+>
 
-Looks like original cause could be:
-638139eb95d2 ("usb: hub: allow to process more usb hub events in parallel")
+Regression found on arm64 juno-r2 / qemu.
+Following kernel crash reported on stable-rc 5.15.
 
-which was partially fixed in 4.7 by:
-feb26ac31a2a ("usb: core: hub: hub_port_init lock controller instead of bus")
+Anders bisected this kernel crash and found the first bad commit,
 
-And now improved by this patch 
+Herbert Xu <herbert@gondor.apana.org.au>
+   crypto: api - Fix built-in testing dependency failures
 
--Mathias
+
+>
+> metadata:
+>   git branch: linux-5.15.y
+>   git repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+>   git commit: ff5232812521d01d1ddfd8f36559a9cf83fea928
+>   git describe: v5.15.2-918-gff5232812521
+>   make_kernelversion: 5.15.3-rc1
+>   kernel-config: https://builds.tuxbuild.com/20yUV5tYmCSzjklEffg3Dhkbdzi/config
+>
+> Kernel crash log:
+> -----------------
+> [    1.178361] kvm [1]: Hyp mode initialized successfully
+> [    1.184780] Unable to handle kernel NULL pointer dereference at
+> virtual address 000000000000019b
+> [    1.193599] Mem abort info:
+> [    1.196394]   ESR = 0x96000044
+> [    1.199458]   EC = 0x25: DABT (current EL), IL = 32 bits
+> [    1.204786]   SET = 0, FnV = 0
+> [    1.207848]   EA = 0, S1PTW = 0
+> [    1.210998]   FSC = 0x04: level 0 translation fault
+> [    1.215889] Data abort info:
+> [    1.218777]   ISV = 0, ISS = 0x00000044
+> [    1.222623]   CM = 0, WnR = 1
+> [    1.225605] [000000000000019b] user address but active_mm is swapper
+> [    1.231979] Internal error: Oops: 96000044 [#1] PREEMPT SMP
+> [    1.237559] Modules linked in:
+> [    1.240617] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.15.3-rc1 #1
+> [    1.246894] Hardware name: ARM Juno development board (r2) (DT)
+> [    1.252820] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+> [    1.259793] pc : crypto_register_alg+0x88/0xe4
+> [    1.264246] lr : crypto_register_alg+0x78/0xe4
+> [    1.268694] sp : ffff800012b9bce0
+> [    1.272008] x29: ffff800012b9bce0 x28: 0000000000000000 x27: ffff800012644c80
+> [    1.279162] x26: ffff000820d95480 x25: ffff000820d96000 x24: ffff800012644d3a
+> [    1.286313] x23: ffff800012644cba x22: 0000000000000000 x21: ffff800012742518
+> [    1.293463] x20: 0000000000000000 x19: ffffffffffffffef x18: ffffffffffffffff
+> [    1.300614] x17: 000000000000003f x16: 0000000000000010 x15: ffff000800844a1c
+> [    1.307765] x14: 0000000000000001 x13: 293635326168732c x12: 2973656128636263
+> [    1.314916] x11: 0000000000000010 x10: 0101010101010101 x9 : ffff80001054b5a8
+> [    1.322066] x8 : 7f7f7f7f7f7f7f7f x7 : fefefefefeff6462 x6 : 0000808080808080
+> [    1.329217] x5 : 0000000000000000 x4 : 8080808080800000 x3 : 0000000000000000
+> [    1.336367] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff800012742518
+> [    1.343517] Call trace:
+> [    1.345962]  crypto_register_alg+0x88/0xe4
+> [    1.350062]  crypto_register_skcipher+0x80/0x9c
+> [    1.354600]  simd_skcipher_create_compat+0x19c/0x1d0
+> [    1.359572]  cpu_feature_match_AES_init+0x9c/0xdc
+> [    1.364284]  do_one_initcall+0x50/0x2b0
+> [    1.368125]  kernel_init_freeable+0x250/0x2d8
+> [    1.372488]  kernel_init+0x30/0x140
+> [    1.375981]  ret_from_fork+0x10/0x20
+> [    1.379562] Code: 2a0003f6 710002df aa1503e0 1a9fd7e1 (3906b261)
+> [    1.385667] ---[ end trace a032e96fc9ec202d ]---
+> [    1.390350] Kernel panic - not syncing: Attempted to kill init!
+> exitcode=0x0000000b
+> [    1.398018] SMP: stopping secondary CPUs
+> [    1.401947] Kernel Offset: disabled
+> [    1.405434] CPU features: 0x10001871,00000846
+> [    1.409794] Memory Limit: none
+> [    1.412849] ---[ end Kernel panic - not syncing: Attempted to kill
+> init! exitcode=0x0000000b ]---
+>
+>
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>
+> build link:
+> -----------
+> https://builds.tuxbuild.com/20yUV5tYmCSzjklEffg3Dhkbdzi/build.log
+>
+> build config:
+> -------------
+> https://builds.tuxbuild.com/20yUV5tYmCSzjklEffg3Dhkbdzi/config
+
+- Naresh
