@@ -2,100 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B132545232C
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:18:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06AB345245A
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 02:34:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230154AbhKPBVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Nov 2021 20:21:03 -0500
-Received: from szxga01-in.huawei.com ([45.249.212.187]:31872 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232849AbhKPBTL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Nov 2021 20:19:11 -0500
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HtSgR0rH3zcbN7;
-        Tue, 16 Nov 2021 09:11:15 +0800 (CST)
-Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Tue, 16 Nov 2021 09:16:09 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.15; Tue, 16 Nov 2021 09:16:08 +0800
-Subject: Re: [PATCH 5.4 000/355] 5.4.160-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20211115165313.549179499@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <ecd6b872-4e82-50c4-eefb-aec9379ce9a7@huawei.com>
-Date:   Tue, 16 Nov 2021 09:16:07 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1356563AbhKPBha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Nov 2021 20:37:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47886 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1379111AbhKPBaU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Nov 2021 20:30:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BE9461027;
+        Tue, 16 Nov 2021 01:27:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637026043;
+        bh=ejw5DSWAYfxDZtzp+bb98cqbsDSFko0lVTF/qo2BNRc=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=vPQ+taYLxWguYZM3jINyxjIM/C9a3YUpZHGdjnoPQk6yeKqdwGAYyXZjsDvEaQMCX
+         JYuDzjr2SO8We1pypuVN4ODETQ2rAZYH6u/sfPJqhHKBRbvtfMETmXfwQDuPpDUNQn
+         LFWR3wTCij5Rh/rlBuPjMBMCz/HVvPkQNOrbES6pB/F6F/KQYdp0G44GxkiX4EJG/t
+         trTu3e75st7o93p+TkApscEetp2J44UcptAaTmlAKF5OmdsT4XOa2FmgRxlyuba7XK
+         gltlKEUxmwpXvxPJnPi1jumLGDv+vGMA+IALJph1FZXaX+9Fe/9XEk4+uKWqeLaAA6
+         8DXZTKPo/JIHQ==
+Date:   Mon, 15 Nov 2021 17:27:22 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     Pavel Skripkin <paskripkin@gmail.com>, ioana.ciornei@nxp.com,
+        davem@davemloft.net, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] net: dpaa2-eth: fix use-after-free in dpaa2_eth_remove
+Message-ID: <20211115172722.6a582623@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20211115080817.GE27562@kadam>
+References: <20211113172013.19959-1-paskripkin@gmail.com>
+        <20211115080817.GE27562@kadam>
 MIME-Version: 1.0
-In-Reply-To: <20211115165313.549179499@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemm600013.china.huawei.com (7.193.23.68)
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/11/16 0:58, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.160 release.
-> There are 355 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Mon, 15 Nov 2021 11:08:17 +0300 Dan Carpenter wrote:
+> > @Dan, is there a smatch checker for straigthforward use after free bugs?
+> > Like acessing pointer after free was called? I think, adding
+> > free_netdev() to check list might be good idea
+> > 
+> > I've skimmed througth smatch source and didn't find one, so can you,
+> > please, point out to it if it exists.  
 > 
-> Responses should be made by Wed, 17 Nov 2021 16:52:23 +0000.
-> Anything received after that time might be too late.
+> It's check_free_strict.c.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.160-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+> It does cross function analysis but free_netdev() is tricky because it
+> doesn't free directly, it just drops the reference count.  Also it
+> delays freeing in the NETREG_UNREGISTERING path so this check might
+> cause false positives?
+
+I'd ignore that path, it's just special casing that's supposed to keep
+the driver-visible API sane. Nobody should be touching netdev past
+free_netdev(). Actually if you can it'd be interesting to add checks
+for using whatever netdev_priv(ndev) returned past free_netdev(ndev).
+
+Most UAFs that come to mind from the past were people doing something
+like:
+
+	struct my_priv *mine = netdev_priv(ndev);
+
+	netdev_unregister(ndev);
+	free_netdev(ndev);
+
+	free(mine->bla); /* UAF, free_netdev() frees the priv */
+
+> I'll add free_netdev() to the list of free
+> functions and test it overnight tonight.
 > 
-> thanks,
-> 
-> greg k-h
-> 
+> 	register_free_hook("free_netdev", &match_free, 0);
 
-Tested on arm64 and x86 for 5.4.160-rc1,
-
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.160-rc1
-Commit: f365aef38d8d52a2a8290c32251df98437038572
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9016
-passed: 9016
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9016
-passed: 9016
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
