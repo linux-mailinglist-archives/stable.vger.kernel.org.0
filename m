@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41A28452F6F
+	by mail.lfdr.de (Postfix) with ESMTP id 8A459452F70
 	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:46:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234360AbhKPKtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 05:49:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53304 "EHLO mail.kernel.org"
+        id S232866AbhKPKtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 05:49:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232866AbhKPKtf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 05:49:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 170BB61BFB;
-        Tue, 16 Nov 2021 10:46:37 +0000 (UTC)
+        id S234287AbhKPKti (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 05:49:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D278761BFE;
+        Tue, 16 Nov 2021 10:46:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637059598;
-        bh=daI/Zpzu+i5KCqgkhJLrN+7hhP3WBPvnOdVm8X3LHiA=;
+        s=korg; t=1637059601;
+        bh=sVqm1h3f6uYqpyQof8OgzFmzMlrw7/TH3y7oLbgoIDg=;
         h=Subject:To:Cc:From:Date:From;
-        b=G+qd6Aa+VuDu7KUcCflggwPx3AdlcHF53+yrM8pgS/icE8nYO2i9sPNvMPLJVGOnV
-         OBJNFJ9M29aFWV3Lfkqk0ysXgYY9FJ5ppMMvhUA4xrgSRKuHZg+Nf5CjmQHt1sejbT
-         /59aQ++CoLx/+BL8eG20g7MyFdA1aCt0/3UTXfKk=
-Subject: FAILED: patch "[PATCH] parisc/entry: fix trace test in syscall exit path" failed to apply to 5.15-stable tree
+        b=S9I1iWIS7wzbMqEXtV70W4uoSoTEJ6oskVhy72MWaFJIhFaXdchUKrigLiuNSGfJ8
+         UPWz9n9bneADODDDCeYjl36V0VE7X6E+cL3Cuyhoy+mHKsM2mi+LSFVNMxOUMEviQt
+         Q7S5PNa1MVq8RA/Qcrsv2hNZw9CFxKgJu5Afyz7I=
+Subject: FAILED: patch "[PATCH] parisc/entry: fix trace test in syscall exit path" failed to apply to 5.14-stable tree
 To:     svens@stackframe.org, deller@gmx.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 16 Nov 2021 11:46:36 +0100
-Message-ID: <1637059596175242@kroah.com>
+Date:   Tue, 16 Nov 2021 11:46:39 +0100
+Message-ID: <163705959922911@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
