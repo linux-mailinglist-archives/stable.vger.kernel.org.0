@@ -2,137 +2,230 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10C39453B88
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 22:17:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 216AA453B96
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 22:25:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229753AbhKPVUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 16:20:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49488 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229532AbhKPVUt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 16:20:49 -0500
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF717C061570
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 13:17:51 -0800 (PST)
-Received: by mail-pg1-x531.google.com with SMTP id r132so273549pgr.9
-        for <stable@vger.kernel.org>; Tue, 16 Nov 2021 13:17:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ga+fFJn/fhBdu09jJHauzCEPefgC+ZAFG/IRJyq8IZg=;
-        b=ByjVs/36ttGG0X/WdPWUxd4IgUr8fuToiJIZqZnCDCmiHgFgPSSN7iDPuegq7ySsGw
-         ewDInFKhcbBy/JftoG7Bb33eu346uSpGbqNlLWX/KRNHu0b2SdTkyz3hWpGYpP3L04SE
-         Qm/48zoTFU6xzpBz7aT/fGWIrXfBMAkaQvCNUaCo0hyor2Gzc+x5WM0cYhAEvXOMHCNt
-         u4m03okmLXsfna6nd9cPMqygSwCkBNcBJcGIrK7dIoF34LpMFFiVy0kllJdJYnb3NSjJ
-         YikogsTB7kNl8bqS5PYP0wt8nIo1lPHecsYS3a/2BCKHPkS7csWFDhSF+Jdh+4RMiX7K
-         kKiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ga+fFJn/fhBdu09jJHauzCEPefgC+ZAFG/IRJyq8IZg=;
-        b=jhzKf9s8rtjYPKZS2B1ek36LdUl2xe9bVByO1bNlBuPxc5SkEtC8M2qfvSE8EO6IPH
-         nuQ/hq1KZDi8lnDeUNl9FfHnUBeQ+zaPeNIkbUMo3bWwB4lTwBfm/CzOHC7WsHQg8lMS
-         /n+oKDW8leb2OYkO8XVVP7tcGRFgiSv9DMaN3f4eRwpwyp4mP7sl7TxtKvmF4BFw3BWO
-         65bR3rVDjuLzg/i8Ryitrwkn8k16xApOxyJjw14KdVvfi/zdeDvivGMaVjhYsea6g5hN
-         jRiXD2Sgq03UxzI4/xv3ZnDllIz1nKLiLB/di6wc2uWhu2/HrCM2ZPJ+i2q2UJJhq0ok
-         nt9g==
-X-Gm-Message-State: AOAM531G6zEJ4clOhCBxeINP9jL+OL+2baOjO7kESFkBlkf/SMR5ZSJy
-        rVaHGglHuW/eJm2uFBpY10kf9v4gVq08hRLy
-X-Google-Smtp-Source: ABdhPJzXCPJlg4IiDjHKakONR1HbpQeBIOjJL52+u2bglfOs2YhM0fmgIlBAjHe6SbLHUYnrTJboCg==
-X-Received: by 2002:a63:9142:: with SMTP id l63mr1518981pge.384.1637097471163;
-        Tue, 16 Nov 2021 13:17:51 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o9sm10140577pfh.37.2021.11.16.13.17.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Nov 2021 13:17:50 -0800 (PST)
-Message-ID: <61941ffe.1c69fb81.80445.e5a7@mx.google.com>
-Date:   Tue, 16 Nov 2021 13:17:50 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S229821AbhKPV2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 16:28:13 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:55162 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229605AbhKPV2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Nov 2021 16:28:13 -0500
+Date:   Tue, 16 Nov 2021 21:25:13 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1637097914;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=5nxUrK/hTSDv6R/0wGYisup3X3LUWG1GgdUO+2f8fwE=;
+        b=Ubas76CGF44ySGXKpCXPuSMV+NroD8jvIqUWJNjf/n/LaEQ4Za7lzH7lAx2SuwGD7BKVTJ
+        trOzZn7Bl91tj8WZp+VEocZU0gaJT4vXMnew3CxrxXN2yJ8gccigO6lCGYeXaAnoqLiNDA
+        jYK2RYLFYrujSAYh8RFRkWC9qX8/EaVZBuqY82t66w9V4p6MIDcEn3dbxJL0upnZ/xZ8Y+
+        ikUKZ14JWZaktL8EZ8ywiMTejeljwkAwHKGBhKkM8fyACLdIN2tegVsOyvGKIt/hh0DJ0m
+        kgbC7hDT83JuPcKgSPeDfYYW6FX3C962Xn/zX4I5Zc/z1jVFwPY5GiE7NyGAHQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1637097914;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=5nxUrK/hTSDv6R/0wGYisup3X3LUWG1GgdUO+2f8fwE=;
+        b=34KDUw1o+oFgFlPussrsI4iKylROsqomJUI8gfBhb3KfKh7G+TegQMayzGWdqNdlLB4CK2
+        uock7EvweU7XKpDw==
+From:   "tip-bot2 for Reinette Chatre" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/sgx: Fix free page accounting
+Cc:     stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: =?utf-8?q?=3Ca95a40743bbd3f795b465f30922dde7f1ea9e0eb=2E16370?=
+ =?utf-8?q?04094=2Egit=2Ereinette=2Echatre=40intel=2Ecom=3E?=
+References: =?utf-8?q?=3Ca95a40743bbd3f795b465f30922dde7f1ea9e0eb=2E163700?=
+ =?utf-8?q?4094=2Egit=2Ereinette=2Echatre=40intel=2Ecom=3E?=
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.255-200-g9ac4e6b250bf
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.14.y baseline: 77 runs,
- 1 regressions (v4.14.255-200-g9ac4e6b250bf)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <163709791320.414.3161205179225001373.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 77 runs, 1 regressions (v4.14.255-200-g9ac=
-4e6b250bf)
+The following commit has been merged into the x86/urgent branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     ac5d272a0ad0419f52e08c91953356e32b075af7
+Gitweb:        https://git.kernel.org/tip/ac5d272a0ad0419f52e08c91953356e32b075af7
+Author:        Reinette Chatre <reinette.chatre@intel.com>
+AuthorDate:    Mon, 15 Nov 2021 11:29:04 -08:00
+Committer:     Dave Hansen <dave.hansen@linux.intel.com>
+CommitterDate: Tue, 16 Nov 2021 11:17:43 -08:00
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+x86/sgx: Fix free page accounting
+
+The SGX driver maintains a single global free page counter,
+sgx_nr_free_pages, that reflects the number of free pages available
+across all NUMA nodes. Correspondingly, a list of free pages is
+associated with each NUMA node and sgx_nr_free_pages is updated
+every time a page is added or removed from any of the free page
+lists. The main usage of sgx_nr_free_pages is by the reclaimer
+that runs when it (sgx_nr_free_pages) goes below a watermark
+to ensure that there are always some free pages available to, for
+example, support efficient page faults.
+
+With sgx_nr_free_pages accessed and modified from a few places
+it is essential to ensure that these accesses are done safely but
+this is not the case. sgx_nr_free_pages is read without any
+protection and updated with inconsistent protection by any one
+of the spin locks associated with the individual NUMA nodes.
+For example:
+
+      CPU_A                                 CPU_B
+      -----                                 -----
+ spin_lock(&nodeA->lock);              spin_lock(&nodeB->lock);
+ ...                                   ...
+ sgx_nr_free_pages--;  /* NOT SAFE */  sgx_nr_free_pages--;
+
+ spin_unlock(&nodeA->lock);            spin_unlock(&nodeB->lock);
+
+Since sgx_nr_free_pages may be protected by different spin locks
+while being modified from different CPUs, the following scenario
+is possible:
+
+      CPU_A                                CPU_B
+      -----                                -----
+{sgx_nr_free_pages = 100}
+ spin_lock(&nodeA->lock);              spin_lock(&nodeB->lock);
+ sgx_nr_free_pages--;                  sgx_nr_free_pages--;
+ /* LOAD sgx_nr_free_pages = 100 */    /* LOAD sgx_nr_free_pages = 100 */
+ /* sgx_nr_free_pages--          */    /* sgx_nr_free_pages--          */
+ /* STORE sgx_nr_free_pages = 99 */    /* STORE sgx_nr_free_pages = 99 */
+ spin_unlock(&nodeA->lock);            spin_unlock(&nodeB->lock);
+
+In the above scenario, sgx_nr_free_pages is decremented from two CPUs
+but instead of sgx_nr_free_pages ending with a value that is two less
+than it started with, it was only decremented by one while the number
+of free pages were actually reduced by two. The consequence of
+sgx_nr_free_pages not being protected is that its value may not
+accurately reflect the actual number of free pages on the system,
+impacting the availability of free pages in support of many flows.
+
+The problematic scenario is when the reclaimer does not run because it
+believes there to be sufficient free pages while any attempt to allocate
+a page fails because there are no free pages available. In the SGX driver
+the reclaimer's watermark is only 32 pages so after encountering the
+above example scenario 32 times a user space hang is possible when there
+are no more free pages because of repeated page faults caused by no
+free pages made available.
+
+The following flow was encountered:
+asm_exc_page_fault
+ ...
+   sgx_vma_fault()
+     sgx_encl_load_page()
+       sgx_encl_eldu() // Encrypted page needs to be loaded from backing
+                       // storage into newly allocated SGX memory page
+         sgx_alloc_epc_page() // Allocate a page of SGX memory
+           __sgx_alloc_epc_page() // Fails, no free SGX memory
+           ...
+           if (sgx_should_reclaim(SGX_NR_LOW_PAGES)) // Wake reclaimer
+             wake_up(&ksgxd_waitq);
+           return -EBUSY; // Return -EBUSY giving reclaimer time to run
+       return -EBUSY;
+     return -EBUSY;
+   return VM_FAULT_NOPAGE;
+
+The reclaimer is triggered in above flow with the following code:
+
+static bool sgx_should_reclaim(unsigned long watermark)
+{
+        return sgx_nr_free_pages < watermark &&
+               !list_empty(&sgx_active_page_list);
+}
+
+In the problematic scenario there were no free pages available yet the
+value of sgx_nr_free_pages was above the watermark. The allocation of
+SGX memory thus always failed because of a lack of free pages while no
+free pages were made available because the reclaimer is never started
+because of sgx_nr_free_pages' incorrect value. The consequence was that
+user space kept encountering VM_FAULT_NOPAGE that caused the same
+address to be accessed repeatedly with the same result.
+
+Change the global free page counter to an atomic type that
+ensures simultaneous updates are done safely. While doing so, move
+the updating of the variable outside of the spin lock critical
+section to which it does not belong.
+
+Cc: stable@vger.kernel.org
+Fixes: 901ddbb9ecf5 ("x86/sgx: Add a basic NUMA allocation scheme to sgx_alloc_epc_page()")
+Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
+Link: https://lkml.kernel.org/r/a95a40743bbd3f795b465f30922dde7f1ea9e0eb.1637004094.git.reinette.chatre@intel.com
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ arch/x86/kernel/cpu/sgx/main.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.255-200-g9ac4e6b250bf/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.255-200-g9ac4e6b250bf
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9ac4e6b250bf3282bac9e3b94f1f5a6937611f24 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6193e5ab3e96a92b453358fb
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-55-200-g9ac4e6b250bf/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-=
-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-55-200-g9ac4e6b250bf/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-=
-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6193e5ab3e96a92=
-b453358fe
-        failing since 2 days (last pass: v4.14.255, first fail: v4.14.255-5=
-4-gb6f4d599e1d3)
-        2 lines
-
-    2021-11-16T17:08:35.908085  [   20.237731] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-16T17:08:35.949305  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/106
-    2021-11-16T17:08:35.958453  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
+index 63d3de0..8471a8b 100644
+--- a/arch/x86/kernel/cpu/sgx/main.c
++++ b/arch/x86/kernel/cpu/sgx/main.c
+@@ -28,8 +28,7 @@ static DECLARE_WAIT_QUEUE_HEAD(ksgxd_waitq);
+ static LIST_HEAD(sgx_active_page_list);
+ static DEFINE_SPINLOCK(sgx_reclaimer_lock);
+ 
+-/* The free page list lock protected variables prepend the lock. */
+-static unsigned long sgx_nr_free_pages;
++static atomic_long_t sgx_nr_free_pages = ATOMIC_LONG_INIT(0);
+ 
+ /* Nodes with one or more EPC sections. */
+ static nodemask_t sgx_numa_mask;
+@@ -403,14 +402,15 @@ skip:
+ 
+ 		spin_lock(&node->lock);
+ 		list_add_tail(&epc_page->list, &node->free_page_list);
+-		sgx_nr_free_pages++;
+ 		spin_unlock(&node->lock);
++		atomic_long_inc(&sgx_nr_free_pages);
+ 	}
+ }
+ 
+ static bool sgx_should_reclaim(unsigned long watermark)
+ {
+-	return sgx_nr_free_pages < watermark && !list_empty(&sgx_active_page_list);
++	return atomic_long_read(&sgx_nr_free_pages) < watermark &&
++	       !list_empty(&sgx_active_page_list);
+ }
+ 
+ static int ksgxd(void *p)
+@@ -471,9 +471,9 @@ static struct sgx_epc_page *__sgx_alloc_epc_page_from_node(int nid)
+ 
+ 	page = list_first_entry(&node->free_page_list, struct sgx_epc_page, list);
+ 	list_del_init(&page->list);
+-	sgx_nr_free_pages--;
+ 
+ 	spin_unlock(&node->lock);
++	atomic_long_dec(&sgx_nr_free_pages);
+ 
+ 	return page;
+ }
+@@ -625,9 +625,9 @@ void sgx_free_epc_page(struct sgx_epc_page *page)
+ 	spin_lock(&node->lock);
+ 
+ 	list_add_tail(&page->list, &node->free_page_list);
+-	sgx_nr_free_pages++;
+ 
+ 	spin_unlock(&node->lock);
++	atomic_long_inc(&sgx_nr_free_pages);
+ }
+ 
+ static bool __init sgx_setup_epc_section(u64 phys_addr, u64 size,
