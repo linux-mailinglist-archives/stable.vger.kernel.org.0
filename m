@@ -2,119 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82797452F48
-	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:41:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A28452F6F
+	for <lists+stable@lfdr.de>; Tue, 16 Nov 2021 11:46:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234278AbhKPKmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Nov 2021 05:42:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51540 "EHLO mail.kernel.org"
+        id S234360AbhKPKtl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Nov 2021 05:49:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234126AbhKPKmw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Nov 2021 05:42:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AC7F613AC;
-        Tue, 16 Nov 2021 10:39:54 +0000 (UTC)
+        id S232866AbhKPKtf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Nov 2021 05:49:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 170BB61BFB;
+        Tue, 16 Nov 2021 10:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637059195;
-        bh=XuSaCqE1nhjoL0CrlGLFu0tkK3MNnpJGYFxS6WQ6Dmo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vAKKI2pKS5JWgOA4kjyydScgaT7t84f+Ij80pF7cdp/wwNoFi6pxH1SNvEQ0ZSs1B
-         omkPruc4rrDjOHiW97k5Vb6NmZxQqtlrLB+ajkQvIbP8w3v5ZpgnTzvmyLr6GVQbUU
-         /6VrOOu8qD8kYQ80LGtNNjHNpmx78mIup+IYqSfw=
-Date:   Tue, 16 Nov 2021 11:39:52 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     Jon Hunter <jonathanh@nvidia.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Vladis Dronov <vdronov@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.15 000/917] 5.15.3-rc1 review
-Message-ID: <YZOKeFT8NGenpbsU@kroah.com>
-References: <20211115165428.722074685@linuxfoundation.org>
- <CA+G9fYtFOnKQ4=3-4rUTfVM-fPno1KyTga1ZAFA2OoqNvcnAUg@mail.gmail.com>
- <CA+G9fYuF1F-9TAwgR9ik_qjFqQvp324FJwFJbYForA_iRexZjg@mail.gmail.com>
- <YZNwcylQcKVlZDlO@kroah.com>
- <dabc323f-b0e1-8c9f-1035-c48349a0eff4@nvidia.com>
- <CAMuHMdXG2Y-rwPtBw1PsGckk3MLRQvn6Xht6ts2RkW7Zkx=w2w@mail.gmail.com>
+        s=korg; t=1637059598;
+        bh=daI/Zpzu+i5KCqgkhJLrN+7hhP3WBPvnOdVm8X3LHiA=;
+        h=Subject:To:Cc:From:Date:From;
+        b=G+qd6Aa+VuDu7KUcCflggwPx3AdlcHF53+yrM8pgS/icE8nYO2i9sPNvMPLJVGOnV
+         OBJNFJ9M29aFWV3Lfkqk0ysXgYY9FJ5ppMMvhUA4xrgSRKuHZg+Nf5CjmQHt1sejbT
+         /59aQ++CoLx/+BL8eG20g7MyFdA1aCt0/3UTXfKk=
+Subject: FAILED: patch "[PATCH] parisc/entry: fix trace test in syscall exit path" failed to apply to 5.15-stable tree
+To:     svens@stackframe.org, deller@gmx.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 16 Nov 2021 11:46:36 +0100
+Message-ID: <1637059596175242@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdXG2Y-rwPtBw1PsGckk3MLRQvn6Xht6ts2RkW7Zkx=w2w@mail.gmail.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 16, 2021 at 11:12:23AM +0100, Geert Uytterhoeven wrote:
-> Hi Jon,
-> 
-> On Tue, Nov 16, 2021 at 10:23 AM Jon Hunter <jonathanh@nvidia.com> wrote:
-> > On 16/11/2021 08:48, Greg Kroah-Hartman wrote:
-> > > On Tue, Nov 16, 2021 at 02:09:44PM +0530, Naresh Kamboju wrote:
-> > >> On Tue, 16 Nov 2021 at 12:06, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
-> > >>>
-> > >>> On Tue, 16 Nov 2021 at 00:03, Greg Kroah-Hartman
-> > >>> <gregkh@linuxfoundation.org> wrote:
-> > >>>>
-> > >>>> This is the start of the stable review cycle for the 5.15.3 release.
-> > >>>> There are 917 patches in this series, all will be posted as a response
-> > >>>> to this one.  If anyone has any issues with these being applied, please
-> > >>>> let me know.
-> > >>>>
-> > >>>> Responses should be made by Wed, 17 Nov 2021 16:52:23 +0000.
-> > >>>> Anything received after that time might be too late.
-> > >>>>
-> > >>>> The whole patch series can be found in one patch at:
-> > >>>>          https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.3-rc1.gz
-> > >>>> or in the git tree and branch at:
-> > >>>>          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> > >>>> and the diffstat can be found below.
-> > >>>>
-> > >>>> thanks,
-> > >>>>
-> > >>>> greg k-h
-> > >>>
-> > >>>
-> > >>
-> > >> Regression found on arm64 juno-r2 / qemu.
-> > >> Following kernel crash reported on stable-rc 5.15.
-> > >>
-> > >> Anders bisected this kernel crash and found the first bad commit,
-> > >>
-> > >> Herbert Xu <herbert@gondor.apana.org.au>
-> > >>     crypto: api - Fix built-in testing dependency failures
-> 
-> That's commit adad556efcdd ("crypto: api - Fix built-in testing
-> dependency failures")
-> 
-> > I am seeing the same for Tegra as well and bisect is pointing to the
-> > above for me too.
-> > > Is this also an issue on 5.16-rc1?
-> >
-> > I have not observed the same issue for 5.16-rc1.
-> 
-> Following the "Fixes: adad556efcdd" chain:
-> 
-> cad439fc040efe5f ("crypto: api - Do not create test larvals if manager
-> is disabled")
-> beaaaa37c664e9af ("crypto: api - Fix boot-up crash when crypto manager
-> is disabled")
 
-Argh, yes, I didn't run my "check for fixes for patches in the queue"
-script which would have caught these.  I'll go queue these up and a few
-others that it just caught...
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 3ec18fc7831e7d79e2d536dd1f3bc0d3ba425e8a Mon Sep 17 00:00:00 2001
+From: Sven Schnelle <svens@stackframe.org>
+Date: Sat, 13 Nov 2021 20:41:17 +0100
+Subject: [PATCH] parisc/entry: fix trace test in syscall exit path
+
+commit 8779e05ba8aa ("parisc: Fix ptrace check on syscall return")
+fixed testing of TI_FLAGS. This uncovered a bug in the test mask.
+syscall_restore_rfi is only used when the kernel needs to exit to
+usespace with single or block stepping and the recovery counter
+enabled. The test however used _TIF_SYSCALL_TRACE_MASK, which
+includes a lot of bits that shouldn't be tested here.
+
+Fix this by using TIF_SINGLESTEP and TIF_BLOCKSTEP directly.
+
+I encountered this bug by enabling syscall tracepoints. Both in qemu and
+on real hardware. As soon as i enabled the tracepoint (sys_exit_read,
+but i guess it doesn't really matter which one), i got random page
+faults in userspace almost immediately.
+
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+
+diff --git a/arch/parisc/kernel/entry.S b/arch/parisc/kernel/entry.S
+index 57944d6f9ebb..88c188a965d8 100644
+--- a/arch/parisc/kernel/entry.S
++++ b/arch/parisc/kernel/entry.S
+@@ -1805,7 +1805,7 @@ syscall_restore:
+ 
+ 	/* Are we being ptraced? */
+ 	LDREG	TASK_TI_FLAGS(%r1),%r19
+-	ldi	_TIF_SYSCALL_TRACE_MASK,%r2
++	ldi	_TIF_SINGLESTEP|_TIF_BLOCKSTEP,%r2
+ 	and,COND(=)	%r19,%r2,%r0
+ 	b,n	syscall_restore_rfi
+ 
+
