@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 079D3454814
+	by mail.lfdr.de (Postfix) with ESMTP id 508D8454815
 	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 15:04:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234184AbhKQOGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 09:06:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60426 "EHLO mail.kernel.org"
+        id S237029AbhKQOGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 09:06:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234903AbhKQOGJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Nov 2021 09:06:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEC3861B54;
-        Wed, 17 Nov 2021 14:03:10 +0000 (UTC)
+        id S238015AbhKQOGM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Nov 2021 09:06:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E6C46139F;
+        Wed, 17 Nov 2021 14:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637157791;
-        bh=nPbUgHyzoPaXlvnfkGLCYSlDzZYQ1TfQKPiueD1u1jE=;
+        s=korg; t=1637157793;
+        bh=Pa0o9Pv9e04ki5KNrwgf0GTjXkEgWo+VF4OmzRhbAac=;
         h=Subject:To:From:Date:From;
-        b=FLYe/Pxn8Mbd3cyjvmgi2ej2FWF4JWtFLodQ8RKtj0ox4/ROIxfR/8Hca3lK9lN1+
-         RWZ8B2VX5KZRGc1LCVJbA4SfVGtMOTrVjidvmjAxDBbJp/DHleaZByXKtFTyWP8ut2
-         qM5yGdBpLeFlUnzFGP9fU/QanyPwGUPyoazFLBZU=
-Subject: patch "usb: dwc3: gadget: Check for L1/L2/U3 for Start Transfer" added to usb-linus
+        b=aw0jQnlO4Yy97nqGoyk50mEg9lKc5O/Itat9b4rDC1kl0nRMlDCAi7A1N2im8Nj2l
+         tfaxmjNlClTslYrT8rbSXUeqEOOCpnIH78AyRg30jRllLcnqGdunCNK2SO7z8WhiOH
+         FdD6AclcW+u8MD4wpyqcvdCcOcymkJjcf9dc4b9M=
+Subject: patch "usb: dwc3: gadget: Ignore NoStream after End Transfer" added to usb-linus
 To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 17 Nov 2021 15:03:06 +0100
-Message-ID: <16371577863471@kroah.com>
+Message-ID: <163715778662178@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc3: gadget: Check for L1/L2/U3 for Start Transfer
+    usb: dwc3: gadget: Ignore NoStream after End Transfer
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,66 +51,62 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 63c4c320ccf77074ffe9019ac596603133c1b517 Mon Sep 17 00:00:00 2001
+From d74dc3e9f58c28689cef1faccf918e06587367d3 Mon Sep 17 00:00:00 2001
 From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Date: Mon, 25 Oct 2021 16:35:06 -0700
-Subject: usb: dwc3: gadget: Check for L1/L2/U3 for Start Transfer
+Date: Mon, 25 Oct 2021 16:21:10 -0700
+Subject: usb: dwc3: gadget: Ignore NoStream after End Transfer
 
-The programming guide noted that the driver needs to verify if the link
-state is in U0 before executing the Start Transfer command. If it's not
-in U0, the driver needs to perform remote wakeup. This is not accurate.
-If the link state is in U1/U2, then the controller will not respond to
-link recovery request from DCTL.ULSTCHNGREQ. The Start Transfer command
-will trigger a link recovery if it is in U1/U2. A clarification will be
-added to the programming guide for all controller versions.
+The End Transfer command from a stream endpoint will generate a NoStream
+event, and we should ignore it. Currently we set the flag
+DWC3_EP_IGNORE_NEXT_NOSTREAM to track this prior to sending the command,
+and it will be cleared on the next stream event. However, a stream event
+may be generated before the End Transfer command completion and
+prematurely clear the flag. Fix this by setting the flag on End Transfer
+completion instead.
 
-The current implementation shouldn't cause any functional issue. It may
-occasionally report an invalid time out warning from failed link
-recovery request. The driver will still go ahead with the Start Transfer
-command if the remote wakeup fails. The new change only initiates remote
-wakeup where it is needed, which is when the link state is in L1/L2/U3.
-
-Fixes: c36d8e947a56 ("usb: dwc3: gadget: put link to U0 before Start Transfer")
+Fixes: 140ca4cfea8a ("usb: dwc3: gadget: Handle stream transfers")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/05b4a5fbfbd0863fc9b1d7af934a366219e3d0b4.1635204761.git.Thinh.Nguyen@synopsys.com
+Link: https://lore.kernel.org/r/cee1253af4c3600edb878d11c9c08b040817ae23.1635203975.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/gadget.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 3d6f4adaa15a..daa8f8548a2e 100644
+index 23de2a5a40d6..3d6f4adaa15a 100644
 --- a/drivers/usb/dwc3/gadget.c
 +++ b/drivers/usb/dwc3/gadget.c
-@@ -310,13 +310,24 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned int cmd,
- 	if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
- 		int link_state;
+@@ -3352,6 +3352,14 @@ static void dwc3_gadget_endpoint_command_complete(struct dwc3_ep *dep,
+ 	if (cmd != DWC3_DEPCMD_ENDTRANSFER)
+ 		return;
  
-+		/*
-+		 * Initiate remote wakeup if the link state is in U3 when
-+		 * operating in SS/SSP or L1/L2 when operating in HS/FS. If the
-+		 * link state is in U1/U2, no remote wakeup is needed. The Start
-+		 * Transfer command will initiate the link recovery.
-+		 */
- 		link_state = dwc3_gadget_get_link_state(dwc);
--		if (link_state == DWC3_LINK_STATE_U1 ||
--		    link_state == DWC3_LINK_STATE_U2 ||
--		    link_state == DWC3_LINK_STATE_U3) {
-+		switch (link_state) {
-+		case DWC3_LINK_STATE_U2:
-+			if (dwc->gadget->speed >= USB_SPEED_SUPER)
-+				break;
++	/*
++	 * The END_TRANSFER command will cause the controller to generate a
++	 * NoStream Event, and it's not due to the host DP NoStream rejection.
++	 * Ignore the next NoStream event.
++	 */
++	if (dep->stream_capable)
++		dep->flags |= DWC3_EP_IGNORE_NEXT_NOSTREAM;
 +
-+			fallthrough;
-+		case DWC3_LINK_STATE_U3:
- 			ret = __dwc3_gadget_wakeup(dwc);
- 			dev_WARN_ONCE(dwc->dev, ret, "wakeup failed --> %d\n",
- 					ret);
-+			break;
- 		}
- 	}
+ 	dep->flags &= ~DWC3_EP_END_TRANSFER_PENDING;
+ 	dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
+ 	dwc3_gadget_ep_cleanup_cancelled_requests(dep);
+@@ -3574,14 +3582,6 @@ static void dwc3_stop_active_transfer(struct dwc3_ep *dep, bool force,
+ 	WARN_ON_ONCE(ret);
+ 	dep->resource_index = 0;
  
+-	/*
+-	 * The END_TRANSFER command will cause the controller to generate a
+-	 * NoStream Event, and it's not due to the host DP NoStream rejection.
+-	 * Ignore the next NoStream event.
+-	 */
+-	if (dep->stream_capable)
+-		dep->flags |= DWC3_EP_IGNORE_NEXT_NOSTREAM;
+-
+ 	if (!interrupt)
+ 		dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
+ 	else
 -- 
 2.34.0
 
