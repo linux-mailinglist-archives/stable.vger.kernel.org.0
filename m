@@ -2,105 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CE8454E9B
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 21:33:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43DE9454E88
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 21:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232117AbhKQUgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 15:36:54 -0500
-Received: from ofcsgdbm.dwd.de ([141.38.3.245]:42431 "EHLO ofcsgdbm.dwd.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231720AbhKQUgy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Nov 2021 15:36:54 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by ofcsg2dn1.dwd.de (Postfix) with ESMTP id 4HvZDn4VBvz20NB
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 20:25:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=dwd.de; h=
-        content-type:content-type:mime-version:references:message-id
-        :in-reply-to:subject:subject:from:from:date:date:received
-        :received:received:received:received:received:received:received;
-         s=dwd-csg20210107; t=1637180729; x=1638390330; bh=absRaF0AyRWFE
-        rHHsQuG9VvtLc2L1whYYXeUbE+o7Nw=; b=1M+1JRYESFeBsA5nELYZl0PeERIwy
-        W0LL8BUsRzJB38tILKA3vdMYvglbv5QlY4lEkG5wmSMJ9xZyjqxORuK63XBTJD0D
-        OwRRjcXujHNliaLdc13eruDJc7mr/ikc+piPKTJobeR6fq6VccLoa5PpBZH+ihWE
-        IHqRwCmk3LTIBz/33d+mKnBo96rdviZg2plbYlHLpVsrIE9IGEunW/8PJzLyAP1R
-        pZPI6IwyFKQyEBxLYoYeJIELA2PCbpCwY1al8Ko/Ad2MOfe5WCRZ2JSthTSZmg5w
-        ZmFTXadwE9UJdRgNuLVHwULvaVz2y3/Si3u/ta1/5xQ0pHtWpsvgjKhtg==
-X-Virus-Scanned: by amavisd-new at csg.dwd.de
-Received: from ofcsg2cteh1.dwd.de ([172.30.232.65])
-        by localhost (ofcsg2dn1.dwd.de [172.30.232.24]) (amavisd-new, port 10024)
-        with ESMTP id KQV4gfa4qUQV for <stable@vger.kernel.org>;
-        Wed, 17 Nov 2021 20:25:29 +0000 (UTC)
-Received: from ofcsg2cteh1.dwd.de (unknown [127.0.0.1])
-        by DDEI (Postfix) with SMTP id 697D5C900D83
-        for <root@ofcsg2dn1.dwd.de>; Wed, 17 Nov 2021 20:25:29 +0000 (UTC)
-Received: from ofcsg2cteh1.dwd.de (unknown [127.0.0.1])
-        by DDEI (Postfix) with ESMTP id 861C5C9025E4
-        for <root@ofcsg2dn1.dwd.de>; Wed, 17 Nov 2021 20:25:13 +0000 (UTC)
-X-DDEI-TLS-USAGE: Unused
-Received: from ofcsgdbm.dwd.de (unknown [172.30.232.24])
-        by ofcsg2cteh1.dwd.de (Postfix) with ESMTP
-        for <root@ofcsg2dn1.dwd.de>; Wed, 17 Nov 2021 20:25:13 +0000 (UTC)
-Received: from ofcsgdbm.dwd.de by localhost (Postfix XFORWARD proxy);
- Wed, 17 Nov 2021 20:25:13 -0000
-Received: from ofcsg2dvf2.dwd.de (ofcsg2dvf2.dwd.de [172.30.232.11])
-        by ofcsg2dn1.dwd.de (Postfix) with ESMTPS id 4HvZDT3PVjz1xn8;
-        Wed, 17 Nov 2021 20:25:13 +0000 (UTC)
-Received: from ofmailhub.dwd.de (ofmailhub.dwd.de [141.38.39.196])
-        by ofcsg2dvf2.dwd.de  with ESMTP id 1AHKPCI1009217-1AHKPCI2009217;
-        Wed, 17 Nov 2021 20:25:12 GMT
-Received: from diagnostix.dwd.de (diagnostix.dwd.de [141.38.44.45])
-        by ofmailhub.dwd.de (Postfix) with ESMTP id CA467E27A3;
-        Wed, 17 Nov 2021 20:25:12 +0000 (UTC)
-Date:   Wed, 17 Nov 2021 20:25:12 +0000 (GMT)
-From:   Holger Kiehl <Holger.Kiehl@dwd.de>
+        id S231453AbhKQUaV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 15:30:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54662 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230461AbhKQUaV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 15:30:21 -0500
+Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CD59C061570
+        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 12:27:22 -0800 (PST)
+Received: from [IPv6:::1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: marex@denx.de)
+        by phobos.denx.de (Postfix) with ESMTPSA id B6BC481761;
+        Wed, 17 Nov 2021 21:27:18 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+        s=phobos-20191101; t=1637180839;
+        bh=E6OHKbLIfVxAnyWlhjaxbLPSxsh5Vtrn9miSH8gfCv0=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=Tv3huxwUnYbs7zv11zAOYLQkmovB725OMWh5TAYKHwU6+BWwG0TKcZy/ddyMCvqKb
+         dKoYXYBl6Nvsy8OeG6tRIjIt6Byz0hIpuOtFqrVRBF5SjrePyiqONp5KmqZCZB59a1
+         MBNJ1lkxGr+nbKUiaSDFyMmtm8mS7Qe3UFSisL5AdJOnW4QQpIgovNCeeDYAmHWzyN
+         inJb6I4C33ctOuZZLEukPMz5KEbv0p5pkh/iS+Acq/0vPenzu8kMOVxdR0ZHAyRtYS
+         hyVPULhjp0YS2TRecKHyHy4zaBZzP2xwdB1ixRFT/ANhgv5nG2qpmf5FHwox11zP/c
+         jJ8TOhWdfQGGg==
+Subject: Re: [PATCH] Bluetooth: btusb: Add support for TP-Link UB500 Adapter
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.15 000/923] 5.15.3-rc3 review
-In-Reply-To: <20211117101657.463560063@linuxfoundation.org>
-Message-ID: <413ef3-c782-be14-da3-da86ed14a210@diagnostix.dwd.de>
-References: <20211117101657.463560063@linuxfoundation.org>
+Cc:     Szabolcs Sipos <labuwx@balfug.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-stable <stable@vger.kernel.org>
+References: <aa3f6986-1e9b-4aaa-e498-fd99385f4063@denx.de>
+ <YWPrSHGbno3dODKr@kroah.com>
+ <62685363-e1b3-bc97-431e-a7c8faccb78d@balfug.com>
+ <YZP6CL+CDMyzQ6aA@kroah.com> <5931c469-c0bf-4e93-e7e3-443b5ca60fb3@denx.de>
+ <YZSixJVYJxE7COuy@kroah.com>
+From:   Marek Vasut <marex@denx.de>
+Message-ID: <182bce57-8a46-9631-3ecf-7eb7a89593ce@denx.de>
+Date:   Wed, 17 Nov 2021 21:27:17 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-FE-Policy-ID: 2:2:1:SYSTEM
-X-TMASE-Version: DDEI-5.1-8.6.1018-26536.002
-X-TMASE-Result: 10--7.389900-10.000000
-X-TMASE-MatchedRID: VfovoVrt/oaWfDtBOz4q26HggtOWAEvR69aS+7/zbj9lEv6AItKWF3YY
-        S0IdBFk7zEIp4VT5Da6LQ60xZ6J3CUQb08eHfFUFMy+jMkhCdFZ02ZC6RJyIuLqq6rvK6xTaDNE
-        KwYdREu7kLeKnzPvnhtj/F/70C6zbgl5Rdh8uTQFi8FpcLW8dYAD4keG7QhHm5k47RFlilVSETM
-        jf6aTOJ0XgvWQOMaft4c9hRRd5/qT4kBiMXhevoceuFL5UpINxV447DNvw38bNmo0PmpP6e56ba
-        /D5x6cp4vM1YF6AJbYUBfgS1SLQ+AtuKBGekqUpIG4YlbCDECtruV6hT84yE1iwJprBIi4pPo4F
-        3xl8padOoNGWodxsd8Pw8mkzWoCMdp34Uj9JQqN+3BndfXUhXQ==
-X-TMASE-SNAP-Result: 1.821001.0001-0-1-22:0,33:0,34:0-0
-X-TMASE-INERTIA: 0-0;;;;
-X-DDEI-PROCESSED-RESULT: Safe
+In-Reply-To: <YZSixJVYJxE7COuy@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-
-On Wed, 17 Nov 2021, Greg Kroah-Hartman wrote:
-
-> This is the start of the stable review cycle for the 5.15.3 release.
-> There are 923 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 11/17/21 7:35 AM, Greg Kroah-Hartman wrote:
+> On Tue, Nov 16, 2021 at 08:58:15PM +0100, Marek Vasut wrote:
+>> On 11/16/21 7:35 PM, Greg Kroah-Hartman wrote:
+>>> On Tue, Nov 16, 2021 at 06:41:08PM +0100, Szabolcs Sipos wrote:
+>>>> On 10/11/21 09:44, Greg Kroah-Hartman wrote:
+>>>>> On Sun, Oct 10, 2021 at 10:59:06PM +0200, Marek Vasut wrote:
+>>>>>> Hello everyone,
+>>>>>>
+>>>>>> The following new device USB ID has landed in linux-next recently:
+>>>>>>
+>>>>>> 4fd6d4907961 ("Bluetooth: btusb: Add support for TP-Link UB500 Adapter")
+>>>>>>
+>>>>>> It would be nice if it could be backported to stable. I verified it works on
+>>>>>> 5.14.y as a simple cherry-pick .
+>>>>>
+>>>>> A patch needs to be in Linus's tree before we can add it to the stable
+>>>>> releases.  Please let us know when it gets there and we will be glad to
+>>>>> pick it up.
+>>>>>
+>>>>> thanks,
+>>>>>
+>>>>> greg k-h
+>>>>
+>>>> Hello Greg,
+>>>>
+>>>> The patch has reached Linus's tree:
+>>>> 4fd6d4907961 ("Bluetooth: btusb: Add support for TP-Link UB500 Adapter")
+>>>>
+>>>> Could you please add it to stable (5.15.y)?
+>>>
+>>> I will queue it up for the next set of kernels after the current ones are
+>>> released.
+>>
+>> btw while you're bringing it up, is there some sure-fire method I can use to
+>> verify the patch is in Linus tree, besides having a separate checkout of
+>> that tree ?
 > 
-> Responses should be made by Fri, 19 Nov 2021 10:14:52 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.3-rc3.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-On a Deskmini X300 with a AMD APU 5700G this does not boot (rc1+rc2 also
-do not boot). As Scott Bruce already noticed, if one removes
-c3fc9d9e8f2dc518a8ce3c77f833a11b47865944 "x86: Fix __get_wchan() for
-!STACKTRACE" it boots.
+> Without the tree/branch checked out?  Not that I know of, sorry.
 
-Holger
+I have a local checkout of Linus tree, except I also have other remotes 
+in it, that's what I meant.
+
+>> I usually have both Linus tree as origin and next in one git tree, so I was
+>> wondering if there is a recommended way to avoid mistakes like the one I
+>> made above (and checking at git.kernel.org apparently also has its
+>> downsides).
+> 
+> Having both in one git tree is fine.  Just switch between branches (one
+> that tracks Linus's and one that tracks linux-next) and you can see what
+> is happening in each of them.
+
+I can do some "git log linus/master | grep the-commit" , but that does 
+not seem to be the most efficient approach, or is it ?
+
+> There's other "tricks" to see if patches have been added to branches by
+> adding them to a branch and then rebasing and seeing the end result, but
+> those get tricky to try to explain in simple emails...
+
+Some sort of git-cherry-pick and git-rebase ?
+
+All right
