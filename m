@@ -2,137 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4433C4546CB
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 14:02:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFEF24546F1
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 14:09:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237352AbhKQNFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 08:05:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36390 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237224AbhKQNFA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 08:05:00 -0500
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 781B6C061570
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 05:02:02 -0800 (PST)
-Received: by mail-pl1-x630.google.com with SMTP id p18so2071119plf.13
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 05:02:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hFyULO5X2dcUowPhIaJB/8P9zcL+2+kFyXZK6pO4OVw=;
-        b=6Nattf4dRpueZ3MxTrurnj1LfkoL7ahmbUc0jdrE4m0FREfLOkjdk7w6QI+TlwIFrd
-         zOtSZbL8KkdERAvleksqRYI2VKQyN4JdDGpdweCb/h6aGG5hPBRM8oyKLk5BPQUnrmZR
-         0E9645caXibdwRn9LlAH1i1sONjFrV3L7iQ42cya8AF16hNczxfQlfrtJ+duVmjmA2AY
-         hS57+B5Ys6AsrXxGwzUF+arzEcktsX4t/mr8H+1jHxUiWpaFsc0cJq2NfwH7orSgeDOx
-         Jz3VrKdhRUuqm5BU4GiDlOB4fmwl0Z6D9du118I3Zajxnq/3aWjl9hl1Bq2BsXTtiZdV
-         CNPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hFyULO5X2dcUowPhIaJB/8P9zcL+2+kFyXZK6pO4OVw=;
-        b=ZauFKiOVBXpyeoS5RKewfahYrF1uvmyaKvMIebq2lYjASCGWw+5wlT7FSAQuoIF42P
-         78nEwtUgPG1mjM2qwp0Jk0Oz6w4GQJPStr4gD0plxLuEtq45LI6MOterQWEnBxJLxks5
-         t554XRVho9+Gfohq1a6MfdVYz6Z9db1fwdmUdsAzAafuzEzPGkv0QivcEpX2ATl7KKwc
-         jvkyWgpe7keAfzz98mqzaLpPJGwf4pm9BuTW2KsEnrbcHBTX6w2nbzT2KYcNluiVcDjq
-         6RWKZ+qRZnSTkFqvwrfIs7SVP+uNWxpEUFHFaWiVV6ddpItzQagZTTiVytT8rkaPOuhJ
-         wrBw==
-X-Gm-Message-State: AOAM532crzge6l+AHEQNSCm6QP+0ILtdDeJiCxzl80aoR7vJUTsI8DaV
-        ObOqUOPE8F/DumBKH+hDtM7Rv+BhbOuy0SyH
-X-Google-Smtp-Source: ABdhPJwf4I4iZj95T3PKopBdlqxzaT+vvHQW1g2X38XGteP6Hstd/XggQ/zpNJ23IgSB0Rx1aD85rg==
-X-Received: by 2002:a17:902:d50d:b0:141:ea03:5193 with SMTP id b13-20020a170902d50d00b00141ea035193mr55196718plg.89.1637154121740;
-        Wed, 17 Nov 2021 05:02:01 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p43sm11704863pfw.4.2021.11.17.05.02.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Nov 2021 05:02:01 -0800 (PST)
-Message-ID: <6194fd49.1c69fb81.64ae3.2c26@mx.google.com>
-Date:   Wed, 17 Nov 2021 05:02:01 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S232830AbhKQNMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 08:12:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35272 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231922AbhKQNMG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Nov 2021 08:12:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F11FC60E8E;
+        Wed, 17 Nov 2021 13:09:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637154547;
+        bh=eB8PPsgiPJ9/SaAajvJ35gAWOIDJ0PFRVbaq3N1meJA=;
+        h=Subject:To:From:Date:From;
+        b=0ma/FU2fGykdaL8vyk0QqznIM4mQVemBgrc3335AWN6l0HORw/hrmquEuZm43xsD3
+         i3Nk9YwvjGzkaOH2TKl4J9sVR7YhJPrcyplAoOYceWl5Vn9tvK5L/5S11UjS25f12T
+         KIMbRlBo83IF2whdoSujAqOqxJaAZHHO2InaEf5g=
+Subject: patch "staging: greybus: Add missing rwsem around snd_ctl_remove() calls" added to staging-linus
+To:     tiwai@suse.de, gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 17 Nov 2021 14:09:04 +0100
+Message-ID: <16371545445113@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.292-113-gf2c0456872466
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.4 baseline: 56 runs,
- 1 regressions (v4.4.292-113-gf2c0456872466)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 56 runs, 1 regressions (v4.4.292-113-gf2c0456=
-872466)
 
-Regressions Summary
--------------------
+This is a note to let you know that I've just added the patch titled
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+    staging: greybus: Add missing rwsem around snd_ctl_remove() calls
+
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From ffcf7ae90f4489047d7b076539ba207024dea5f6 Mon Sep 17 00:00:00 2001
+From: Takashi Iwai <tiwai@suse.de>
+Date: Tue, 16 Nov 2021 08:20:27 +0100
+Subject: staging: greybus: Add missing rwsem around snd_ctl_remove() calls
+
+snd_ctl_remove() has to be called with card->controls_rwsem held (when
+called after the card instantiation).  This patch adds the missing
+rwsem calls around it.
+
+Fixes: 510e340efe0c ("staging: greybus: audio: Add helper APIs for dynamic audio modules")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20211116072027.18466-1-tiwai@suse.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ drivers/staging/greybus/audio_helper.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/greybus/audio_helper.c b/drivers/staging/greybus/audio_helper.c
+index 1ed4772d2771..843760675876 100644
+--- a/drivers/staging/greybus/audio_helper.c
++++ b/drivers/staging/greybus/audio_helper.c
+@@ -192,7 +192,11 @@ int gbaudio_remove_component_controls(struct snd_soc_component *component,
+ 				      unsigned int num_controls)
+ {
+ 	struct snd_card *card = component->card->snd_card;
++	int err;
+ 
+-	return gbaudio_remove_controls(card, component->dev, controls,
+-				       num_controls, component->name_prefix);
++	down_write(&card->controls_rwsem);
++	err = gbaudio_remove_controls(card, component->dev, controls,
++				      num_controls, component->name_prefix);
++	up_write(&card->controls_rwsem);
++	return err;
+ }
+-- 
+2.34.0
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.292-113-gf2c0456872466/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.292-113-gf2c0456872466
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f2c045687246661e2d280c1809fbe3b09eceae59 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6194c246eb2325037133590c
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-1=
-13-gf2c0456872466/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-1=
-13-gf2c0456872466/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6194c246eb23250=
-37133590f
-        failing since 0 day (last pass: v4.4.292-113-ge9a92f80c735, first f=
-ail: v4.4.292-113-g643cfcb15c40)
-        2 lines
-
-    2021-11-17T08:49:57.122591  [   19.440063] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-17T08:49:57.166674  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/120
-    2021-11-17T08:49:57.176418  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
