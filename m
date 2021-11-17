@@ -2,89 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93C6745510E
-	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 00:20:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A75F045512A
+	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 00:31:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241565AbhKQXXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 18:23:41 -0500
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:26806 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239894AbhKQXXi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 18:23:38 -0500
+        id S241613AbhKQXet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 18:34:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39748 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240122AbhKQXer (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 18:34:47 -0500
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 919BFC061570
+        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 15:31:48 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id o6-20020a17090a0a0600b001a64b9a11aeso3947511pjo.3
+        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 15:31:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1637191240; x=1668727240;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ZE9SIgTL+Wxoq7/4dH4765g3Cf380Fcb/0+EcXT1Ea0=;
-  b=ZJyqdQIHXXYQgEJvLaE2+3Mfbp3gPWIumOjUNp4rGG7expIXUDGipyQV
-   ezJVIazD7enkpXTDLmfrLuUDSHc1fbegpGcFwFEwpdJj058eGCKo4ImGq
-   5jr7DXo/5Hft8MABNj0jF59FQDTM4DYbjRAo2+4z+fxbs7XXeTyBnFSDY
-   M=;
-X-IronPort-AV: E=Sophos;i="5.87,243,1631577600"; 
-   d="scan'208";a="152802226"
-Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-pdx-2b-5a09360d.us-west-2.amazon.com) ([10.43.8.2])
-  by smtp-border-fw-2101.iad2.amazon.com with ESMTP; 17 Nov 2021 23:20:39 +0000
-Received: from EX13MTAUEE002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
-        by email-inbound-relay-pdx-2b-5a09360d.us-west-2.amazon.com (Postfix) with ESMTPS id BA29B41AA4;
-        Wed, 17 Nov 2021 23:20:37 +0000 (UTC)
-Received: from EX13D14UEE003.ant.amazon.com (10.43.62.11) by
- EX13MTAUEE002.ant.amazon.com (10.43.62.24) with Microsoft SMTP Server (TLS)
- id 15.0.1497.26; Wed, 17 Nov 2021 23:20:37 +0000
-Received: from EX13MTAUEE002.ant.amazon.com (10.43.62.24) by
- EX13D14UEE003.ant.amazon.com (10.43.62.11) with Microsoft SMTP Server (TLS)
- id 15.0.1497.26; Wed, 17 Nov 2021 23:20:37 +0000
-Received: from dev-dsk-shaoyi-2b-c0ca772a.us-west-2.amazon.com (172.22.152.76)
- by mail-relay.amazon.com (10.43.62.224) with Microsoft SMTP Server id
- 15.0.1497.26 via Frontend Transport; Wed, 17 Nov 2021 23:20:37 +0000
-Received: by dev-dsk-shaoyi-2b-c0ca772a.us-west-2.amazon.com (Postfix, from userid 13116433)
-        id 0D29441AC1; Wed, 17 Nov 2021 23:20:36 +0000 (UTC)
-Date:   Wed, 17 Nov 2021 23:20:36 +0000
-From:   Shaoying Xu <shaoyi@amazon.com>
-To:     Greg KH <greg@kroah.com>
-CC:     <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.4] ext4: fix lazy initialization next schedule time
- computation in more granular unit
-Message-ID: <20211117232036.GA14594@amazon.com>
-References: <20211115214212.GA18940@amazon.com> <YZVDshkxnSxnIdfq@kroah.com>
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qxU4hzjpWjhE4zVeasorJSrrowCWmKhNB0flkzQ+nQk=;
+        b=3ZOX8FHXkd/L03EKgYQi2P84ers0XPx+heSNS1IPJCRdOj0stl/jhdSo7MOQZRpYKB
+         ZLuep7dDyQD+sevX1FNqihagMMn/wf+dp/6B5Ez8fBPJ8BrugMg0e3KlH71aCvLZBBEE
+         6tLAaO3Mh7rDZdJLkMIl2pV6XQhpth/WRpSovDhS0lt9ncwSPzo+QyOCpF/QBnsgIdMp
+         T+n2+sYvrxEQEv2BtFql2Bhmkuy2SXRs22RdAyZj2mP7IU96sl9Hq0TeDVBsZ9tm37yc
+         GP5YzUCaA4N5vAlnOkSGeHNv5u8/kaTcocOzDKewlCQaW7r9RF0FGAkH95qNH8sjlzpX
+         WfaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qxU4hzjpWjhE4zVeasorJSrrowCWmKhNB0flkzQ+nQk=;
+        b=OOw109DEiApHfIaa/FLuUNSjSbNAF4PjArtEU1BjbHcY4CtOtFq+Uta1nEjoUU1rO6
+         U6/Ok+WBbGAruCZb19iv8We6g32yvFpXj9uoyDurbnRmjvm8c4TUeY5CqyxLKP/LbUFe
+         6SmgH7adrFlBzTuski3E/gC86d3SwwQOZrKBrQV8Ml9KGwI2HJtpUZwSqj9r4Fm0EWoE
+         P/T7GXT3df3TZW5tQnGmFPsZBfCPMCmWsN+olF1SLyxbTFhUKlrXMMkOEZfs4fIt7LnP
+         9pdLuKQ96ewcKi3AKuE4B6+kgdLPR3txy7/oUP9bo9zgCZNrTYBUMPGwLhRgF/WgA92J
+         GdoQ==
+X-Gm-Message-State: AOAM533D+JbP9WWWToHMcYPVgl76ta/HkpFVWXDqebZ6XBQSMU15ZVib
+        kFgIV79KCZtC7yRv7WvQ5b9um/zuupzBQKnm
+X-Google-Smtp-Source: ABdhPJwiu/dlSCxC7y7peKxQfQ509gTsPS7bsD5EPhp9q+L/glbnxEZhAGSg7ui5AqxGa0cAAG+MjQ==
+X-Received: by 2002:a17:903:2093:b0:142:7dff:f7de with SMTP id d19-20020a170903209300b001427dfff7demr60813695plc.75.1637191908012;
+        Wed, 17 Nov 2021 15:31:48 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s3sm676613pjk.41.2021.11.17.15.31.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Nov 2021 15:31:47 -0800 (PST)
+Message-ID: <619590e3.1c69fb81.774b8.3b72@mx.google.com>
+Date:   Wed, 17 Nov 2021 15:31:47 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <YZVDshkxnSxnIdfq@kroah.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.292-113-g6228095756d3
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.4 baseline: 101 runs,
+ 1 regressions (v4.4.292-113-g6228095756d3)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thank you! Can the patch also be added to kernel 4.19 and 4.14 please? 
+stable-rc/queue/4.4 baseline: 101 runs, 1 regressions (v4.4.292-113-g622809=
+5756d3)
 
-On Wed, Nov 17, 2021 at 07:02:26PM +0100, Greg KH wrote:
-> CAUTION: This email originated from outside of the organization. Do not click links or open attachments unless you can confirm the sender and know the content is safe.
-> 
-> 
-> 
-> On Mon, Nov 15, 2021 at 09:42:12PM +0000, Shaoying Xu wrote:
-> > commit 39fec6889d15a658c3a3ebb06fd69d3584ddffd3 upstream.
-> >
-> > Ext4 file system has default lazy inode table initialization setup once
-> > it is mounted. However, it has issue on computing the next schedule time
-> > that makes the timeout same amount in jiffies but different real time in
-> > secs if with various HZ values. Therefore, fix by measuring the current
-> > time in a more granular unit nanoseconds and make the next schedule time
-> > independent of the HZ value.
-> >
-> > Fixes: bfff68738f1c ("ext4: add support for lazy inode table initialization")
-> > Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-> > Link: https://lore.kernel.org/r/20210902164412.9994-2-shaoyi@amazon.com
-> > Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-> > ---
-> > Member lr_sbi was removed from the struct ext4_li_request since kernel 5.9
-> > so the way to access s_li_wait_mult was also changed. To adapt to the old
-> > kernel versions, adjust the upstream fix by following the old ext4_li_request
-> > strucutre.
-> 
-> Now queued up, thanks.
-> 
-> greg k-h
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.292-113-g6228095756d3/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.292-113-g6228095756d3
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6228095756d3a74fa31d885ba454436e02778fb0 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/619556da4c126213823358df
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-1=
+13-g6228095756d3/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-1=
+13-g6228095756d3/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619556da4c12621=
+3823358e2
+        failing since 1 day (last pass: v4.4.292-113-ge9a92f80c735, first f=
+ail: v4.4.292-113-g643cfcb15c40)
+        2 lines
+
+    2021-11-17T19:23:50.648386  [   19.471343] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-11-17T19:23:50.698498  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/123
+    2021-11-17T19:23:50.708646  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-11-17T19:23:50.727523  [   19.553375] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
