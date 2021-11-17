@@ -2,134 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 784DB454CA8
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 18:58:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E728454CAD
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 18:59:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232728AbhKQSBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 13:01:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50172 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236569AbhKQSBO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Nov 2021 13:01:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 176BD61283;
-        Wed, 17 Nov 2021 17:58:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637171895;
-        bh=3uMyTN+tYokF3Y9uxBXXociR+C7cv+nS9BgfTzHqOrI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pJldTi5HJl4/RAbADfGI1NxIhDmun42nJk4GDf4A13ZCm2S1lubPsdkMP3NibdYrS
-         Yvh/xJ/OebUk7fhaeX5DJR2jfL20IThHzEelM/oKdj900D8g4PsPKMS1IJC1K+mHiM
-         Mp+rE1eEqrb+sZl+6iHqjT1qhDe5464Hiw+h45OE=
-Date:   Wed, 17 Nov 2021 18:58:13 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Orson Zhai <orsonzhai@gmail.com>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        Can Guo <cang@codeaurora.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Adrian Hunter <adrian.hunter@intel.com>, orson.zhai@gmail.com,
-        Orson Zhai <orson.zhai@unisoc.com>
-Subject: Re: [PATCH 2/2] scsi: ufs: Fix tm request when non-fatal error
- happens
-Message-ID: <YZVCtaw22NLBEdc1@kroah.com>
-References: <1637059711-11746-1-git-send-email-orsonzhai@gmail.com>
- <1637059711-11746-3-git-send-email-orsonzhai@gmail.com>
+        id S238192AbhKQSCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 13:02:31 -0500
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:60889 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229678AbhKQSCa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 13:02:30 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 3C9893200495;
+        Wed, 17 Nov 2021 12:59:31 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Wed, 17 Nov 2021 12:59:31 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=B6QJljxm7uzt3IXxjjtyp53154b
+        TTTeBAHyw6WLUca4=; b=ZHzJaqRdxbU0UIgqg955qhMluomLTegju6ZO1zGc1Eq
+        /S1kZe2O76bHuqwJNgWhp/Gpz6RPQ+Uu+2tTMwD+QRhEMyixePDbVSihFOd3SxW/
+        /7tV5og6A46BazYtJbESGIBf9obcSy3mFpMQQZA3+cP+pKs+ec2G3qxvIqRkQ8/S
+        j4EFeHmG7eCikHIarR0+FA2BW8y+xMdWa5/GvBDwIQKPcbtEjEqq2KAbKjQ8Rf7H
+        nT9hav7xH9ajuCFLFH6ic0Tw4Trx49G1x/tjubgAEzrDwuU1CgEoZszlLrpV1poW
+        ts5QQ3XC5lY/eZsOSsbWS+rlBHIMGwetD+UO35x6WWA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=B6QJlj
+        xm7uzt3IXxjjtyp53154bTTTeBAHyw6WLUca4=; b=kqbn2JztIWPGUf4nRG6IlQ
+        VxvMpDRTwlEnoCxXGmV74sgK/PrflM5TwEszZj0onzGjINJH4/ZW02fayRYs+l9P
+        MbnD4HLembJZsTmVAPd9foJJ0axqXYvkFIcR+3l+UkWXPOqq1syvvFlzyJJN6bHz
+        QFUK2QNIZ8dLlULjl+TLEp+JiGPsw2lZX0hf5B4HoMO8Bb5zMCSGJqxsTq7hhJT4
+        6nWaZC4pZYHNKVWf72xs+dI/RDbyDVDeeh9qRYkY+zWZHCKpgJTOUAJoMEdJjSRV
+        1gon2XHjcf47xJurL2cX3fTUzQX1ZwlDvq0MUyIwaIyPGSQnW8tBPABNJMtEegCQ
+        ==
+X-ME-Sender: <xms:AkOVYaw1I1abWxf9nc9KdTfXbftdZhtytrh3QqB1oCvd04rIuYbh7g>
+    <xme:AkOVYWR-vDl3CtP_L97p4KEygFbkyLEw9m9Zyn3vNUxNg6s8kZpnqhtC0Nurk0ivY
+    3kCPyFvN8TkOA>
+X-ME-Received: <xmr:AkOVYcUAYCJrkLAVS8g2enas4pP5LdHLu-vczRzmL9YtDC5SL59G9793RPOXJPwAf1FPNkyS53aQWyzZDgQaX3GyQ5L_wDRN>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrfeeggddutdduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeehvedvje
+    egfeektdeitdeikeetkeekveelhedtieehkeekkeeiueehvdfftdfgveenucffohhmrghi
+    nheplhhinhhugidqmhhiphhsrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:AkOVYQi-ELTJfKAdJqjeMxHF_XVl65MfLLilRjkiOsPC1THpSkK8Bw>
+    <xmx:AkOVYcDdfxFepePBtZr8LXTU3kkwZ_FQBlz_DXfg65tPQ_9c_wIYdA>
+    <xmx:AkOVYRKHksIjCegq_auP15d-_jEx0syz0tE4-gS0swjLhrB3iHLzcQ>
+    <xmx:AkOVYfPiwLViOXuikuitfEVI57wJQw925QoRezxGu_0TCI2DGoMxDA>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 17 Nov 2021 12:59:30 -0500 (EST)
+Date:   Wed, 17 Nov 2021 18:59:20 +0100
+From:   Greg KH <greg@kroah.com>
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 5.4] MIPS: Fix assembly error from MIPSr2 code used
+ within MIPS_ISA_ARCH_LEVEL
+Message-ID: <YZVC+Fm9DriBcgbT@kroah.com>
+References: <alpine.DEB.2.21.2111152316210.19625@angie.orcam.me.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1637059711-11746-3-git-send-email-orsonzhai@gmail.com>
+In-Reply-To: <alpine.DEB.2.21.2111152316210.19625@angie.orcam.me.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 16, 2021 at 06:48:31PM +0800, Orson Zhai wrote:
-> From: Jaegeuk Kim <jaegeuk@kernel.org>
+On Mon, Nov 15, 2021 at 11:23:50PM +0000, Maciej W. Rozycki wrote:
+> Fix assembly errors like:
 > 
-> [ Upstream commit eeb1b55b6e25c5f7265ff45cd050f3bc2cc423a4 ]
+> {standard input}: Assembler messages:
+> {standard input}:287: Error: opcode not supported on this processor: mips3 (mips3) `dins $10,$7,32,32'
+> {standard input}:680: Error: opcode not supported on this processor: mips3 (mips3) `dins $10,$7,32,32'
+> {standard input}:1274: Error: opcode not supported on this processor: mips3 (mips3) `dins $12,$9,32,32'
+> {standard input}:2175: Error: opcode not supported on this processor: mips3 (mips3) `dins $10,$7,32,32'
+> make[1]: *** [scripts/Makefile.build:277: mm/highmem.o] Error 1
 > 
-> When non-fatal error like line-reset happens, ufshcd_err_handler() starts
-> to abort tasks by ufshcd_try_to_abort_task(). When it tries to issue a task
-> management request, we hit two warnings:
+> with code produced from `__cmpxchg64' for MIPS64r2 CPU configurations 
+> using CONFIG_32BIT and CONFIG_PHYS_ADDR_T_64BIT.
 > 
-> WARNING: CPU: 7 PID: 7 at block/blk-core.c:630 blk_get_request+0x68/0x70
-> WARNING: CPU: 4 PID: 157 at block/blk-mq-tag.c:82 blk_mq_get_tag+0x438/0x46c
+> This is due to MIPS_ISA_ARCH_LEVEL downgrading the assembly architecture 
+> to `r4000' i.e. MIPS III for MIPS64r2 configurations, while there is a 
+> block of code containing a DINS MIPS64r2 instruction conditionalized on 
+> MIPS_ISA_REV >= 2 within the scope of the downgrade.
 > 
-> After fixing the above warnings we hit another tm_cmd timeout which may be
-> caused by unstable controller state:
+> The assembly architecture override code pattern has been put there for 
+> LL/SC instructions, so that code compiles for configurations that select 
+> a processor to build for that does not support these instructions while 
+> still providing run-time support for processors that do, dynamically 
+> switched by non-constant `cpu_has_llsc'.  It went in with linux-mips.org 
+> commit aac8aa7717a2 ("Enable a suitable ISA for the assembler around 
+> ll/sc so that code builds even for processors that don't support the 
+> instructions. Plus minor formatting fixes.") back in 2005.
 > 
-> __ufshcd_issue_tm_cmd: task management cmd 0x80 timed-out
+> Fix the problem by wrapping these instructions along with the adjacent 
+> SYNC instructions only, following the practice established with commit 
+> cfd54de3b0e4 ("MIPS: Avoid move psuedo-instruction whilst using 
+> MIPS_ISA_LEVEL") and commit 378ed6f0e3c5 ("MIPS: Avoid using .set mips0 
+> to restore ISA").  Strictly speaking the SYNC instructions do not have 
+> to be wrapped as they are only used as a Loongson3 erratum workaround, 
+> so they will be enabled in the assembler by default, but do this so as 
+> to keep code consistent with other places.
 > 
-> Then, ufshcd_err_handler() enters full reset, and kernel gets stuck. It
-> turned out ufshcd_print_trs() printed too many messages on console which
-> requires CPU locks. Likewise hba->silence_err_logs, we need to avoid too
-> verbose messages. This is actually not an error case.
-> 
-> Change-Id: I8a422b1f0e3152191f576548cc371a1a41115f59
-> Link: https://lore.kernel.org/r/20210107185316.788815-3-jaegeuk@kernel.org
-> Fixes: 69a6c269c097 ("scsi: ufs: Use blk_{get,put}_request() to allocate and free TMFs")
-> Reviewed-by: Can Guo <cang@codeaurora.org>
-> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-> Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> Signed-off-by: Orson Zhai <orson.zhai@unisoc.com>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+> Fixes: c7e2d71dda7a ("MIPS: Fix set_pte() for Netlogic XLR using cmpxchg64()")
+> Cc: stable@vger.kernel.org # v5.1+
 > ---
->  drivers/scsi/ufs/ufshcd.c | 18 +++++++++++++-----
->  1 file changed, 13 insertions(+), 5 deletions(-)
+> Hi,
 > 
-> diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-> index a5d4ee6..4004506 100644
-> --- a/drivers/scsi/ufs/ufshcd.c
-> +++ b/drivers/scsi/ufs/ufshcd.c
-> @@ -4748,7 +4748,8 @@ ufshcd_transfer_rsp_status(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
->  		break;
->  	} /* end of switch */
->  
-> -	if ((host_byte(result) != DID_OK) && !hba->silence_err_logs)
-> +	if ((host_byte(result) != DID_OK) &&
-> +	    (host_byte(result) != DID_REQUEUE) && !hba->silence_err_logs)
->  		ufshcd_print_trs(hba, 1 << lrbp->task_tag, true);
->  	return result;
->  }
-> @@ -5661,9 +5662,13 @@ static irqreturn_t ufshcd_intr(int irq, void *__hba)
->  		intr_status = ufshcd_readl(hba, REG_INTERRUPT_STATUS);
->  	}
->  
-> -	if (enabled_intr_status && retval == IRQ_NONE) {
-> -		dev_err(hba->dev, "%s: Unhandled interrupt 0x%08x\n",
-> -					__func__, intr_status);
-> +	if (enabled_intr_status && retval == IRQ_NONE &&
-> +				!ufshcd_eh_in_progress(hba)) {
-> +		dev_err(hba->dev, "%s: Unhandled interrupt 0x%08x (0x%08x, 0x%08x)\n",
-> +					__func__,
-> +					intr_status,
-> +					hba->ufs_stats.last_intr_status,
-> +					enabled_intr_status);
->  		ufshcd_dump_regs(hba, 0, UFSHCI_REG_SPACE_SIZE, "host_regs: ");
->  	}
->  
-> @@ -5705,7 +5710,10 @@ static int __ufshcd_issue_tm_cmd(struct ufs_hba *hba,
->  	/*
->  	 * blk_get_request() is used here only to get a free tag.
->  	 */
-> -	req = blk_get_request(q, REQ_OP_DRV_OUT, BLK_MQ_REQ_RESERVED);
-> +	req = blk_get_request(q, REQ_OP_DRV_OUT, 0);
-> +	if (IS_ERR(req))
-> +		return PTR_ERR(req);
-> +
->  	req->end_io_data = &wait;
->  	ufshcd_hold(hba, false);
->  
-> -- 
-> 2.7.4
-> 
+>  This is a version of commit a923a2676e60 for 5.4-stable and before (where 
+> the SYNC instructions mentioned in the description have not been added yet 
+> and hence the merge conflict).  No functional change, just a mechanical 
+> update.  Verified to build.  Please apply.
 
-This commit does not build :(
-
-Did you test it?
-
-Please fix up and resend AFTER testing it.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
