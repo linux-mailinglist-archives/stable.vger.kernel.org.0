@@ -2,134 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC0E454E07
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 20:38:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A29AD454E1F
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 20:44:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231272AbhKQTl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 14:41:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43800 "EHLO
+        id S239923AbhKQTrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 14:47:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229678AbhKQTl1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 14:41:27 -0500
-Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E16B0C061764
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 11:38:28 -0800 (PST)
-Received: by mail-pl1-x64a.google.com with SMTP id m17-20020a170902db1100b001421cb34857so1653105plx.15
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 11:38:28 -0800 (PST)
+        with ESMTP id S232079AbhKQTrX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 14:47:23 -0500
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CE9BC061570
+        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 11:44:24 -0800 (PST)
+Received: by mail-pj1-x102c.google.com with SMTP id v23so3166158pjr.5
+        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 11:44:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=vNIuXBteNkTcaESUx4SfgLhD0CMWa6CfwiyimngrrLk=;
-        b=g8Rh3vZSu7yMZjhk33znZxzdH2tMXoZy1NbrUfwij3DPN0Du+eI8bHTYWDhkjV/uDn
-         CLH/i8hyssGzxyjCiwmAVQWBdSulmf+0WDQhfjpcFhkQ7kHsbE8zCdL514DwjW0GSO1i
-         q/XAsldvXRKG0L9d9IhFBFv9xGwCtjGGYX/UdGm9AmTt9T61apSv1K2+EcQ0sHKKnNFm
-         GHnp4L7NhsbCXqSO2e2dz5/Szsvv+oNr02RvNCjqH8QRGLvHDBf8n4cCV6nIayg+FD1f
-         sX5ZfxHiY+ZJdmOimk+J+yL8d1OR3g8wQTpTTwGemxOg/soCKZcoog3gpzIhgVJ0692J
-         MGTQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HY2M2hPT1ZoSBBxkdP3j9VHufO1T1TPUJgp137au8as=;
+        b=PhfS/N0CgdNRYR3ByfNEOrpRDU8FnfNxaXemtaXvptFI72bOUoYfmAPbG9KXb7SbsT
+         Zod/byHVWjTE2tA5OoK2sAGYyY2e+1kOdZDLkWVcMXk2Vcn8rUjWiv3fxhnkJFhleLlD
+         oJIxh9dHNYNKQXT6HCGGuhfUIcDELRycY5DzHVWfJu8PpUGCsgtHRYY8/khEPmvhcH/v
+         X6pVmB/6CsY33AAUzxlKGKRlZzlVFmw1RjJSrFt8Hc/S8yVKbbHhC4t+sOSfz+9iEVkt
+         bheZdyctjVDoRy6RMNEGggFCmxGx7eh6zvrqUbxtyoz9LAkw+RzNGTjZJO4PBeiyhY3t
+         iuEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=vNIuXBteNkTcaESUx4SfgLhD0CMWa6CfwiyimngrrLk=;
-        b=VQOdvLZ0oHsHcRuho4SCauVKhq8I98jRLtEtigdP63lBdYpHLc1gqeG6lDGbLl+t43
-         uyLWy7WFjL+kufjeafdoT8Nulqnb4vvJgZ4HU9nz6jZQQrp22DdTk8nuzMVzQABdQ76N
-         gSiyUfFkE+EZSXGd5bBgXIBvYvK/fFgJ8y9ukhx9V+z82RbunJvsEoVz/CNulVcQKPui
-         comtv/OpnPRiFGtqSQnQh9cVf8qohha4j00HOucxbDjIlLKdTVaFL44urr0JkwatsCB1
-         J5wJ6mPubB/HFWwS1J1S+9sgou6o3vu08bvU9Ay4Qk8grIupm0UuEs9jZflWsztyASN9
-         FCnQ==
-X-Gm-Message-State: AOAM531QMqzOco6++PqLBVVWBgm6dCerwbycY1kKk/NslR+ngaO0Dtnx
-        Rv0Ap5AR3no/I5CE++X+N5LvAUelw6MF0I4sMA==
-X-Google-Smtp-Source: ABdhPJwKAP41N61uzvfkBbQYTcD4/ulbuSfavUCjZ5PZjL21wsVn8PMCZREVGmc8XeHp9qvTGqBvIb795H6PFrRb8Q==
-X-Received: from almasrymina.svl.corp.google.com ([2620:15c:2cd:202:ab13:f492:fd91:a37d])
- (user=almasrymina job=sendgmr) by 2002:a17:902:a9cb:b0:143:d9ad:d154 with
- SMTP id b11-20020a170902a9cb00b00143d9add154mr11356115plr.6.1637177908287;
- Wed, 17 Nov 2021 11:38:28 -0800 (PST)
-Date:   Wed, 17 Nov 2021 11:38:24 -0800
-Message-Id: <20211117193825.378528-1-almasrymina@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.34.0.rc2.393.gf8c9666880-goog
-Subject: [PATCH v2] hugetlb, userfaultfd: Fix reservation restore on
- userfaultfd error
-From:   Mina Almasry <almasrymina@google.com>
-To:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Mina Almasry <almasrymina@google.com>, Wei Xu <weixugc@google.com>,
-        stable@vger.kernel.org, James Houghton <jthoughton@google.com>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HY2M2hPT1ZoSBBxkdP3j9VHufO1T1TPUJgp137au8as=;
+        b=JyFj87afBAdGJ2gg3vq5WW4+BftLIaycSr7nFJO3/3/kHpJWRw8itXEPJ2DXAzxqCz
+         0N3n2je6qnpMvA6BYbD/EelgEWd0PpHBnTR+EAh1HIaueIyAcVpudQo22lh0QrLyDl8f
+         jhcVJFs5nWh8/j6LFsteGbERrR930AfZbNYSsFGNwPOl2bUrtnU51UFgxE8mkPg57Y0D
+         DVrQtYOVSDk9QxuPAtS/2BOlLigICiYBf5B3LNLAk3yz8161XNJTHKMDJtcDm2Mkxf8I
+         KKQzSlxQoDZi3mCZF5iF4ZMB4PL5WSsmYpsd6t+qHuw5Ky/ecxyAjiO1OTluX2cGrMOw
+         /Peg==
+X-Gm-Message-State: AOAM531FbIez3jXjuAaZrKegEBAsGtpFhGwgPN/q8DYMLZb1E6GQTRoW
+        zYFWcfGzxOnCx07TWSVJekYPIOcE1UbDBvSQ
+X-Google-Smtp-Source: ABdhPJwG6p4lgad7bqeigPUx0Y7m95QBr+4NPVmT+1D4mYYj6Yx7+sJpOP0kZUPFDjIb9wzuuN7FEw==
+X-Received: by 2002:a17:902:8544:b0:142:66e7:afbb with SMTP id d4-20020a170902854400b0014266e7afbbmr59378068plo.62.1637178263880;
+        Wed, 17 Nov 2021 11:44:23 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s207sm396043pgs.78.2021.11.17.11.44.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Nov 2021 11:44:23 -0800 (PST)
+Message-ID: <61955b97.1c69fb81.9fa5b.1d1d@mx.google.com>
+Date:   Wed, 17 Nov 2021 11:44:23 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.217-250-gcb36871725fe
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.19 baseline: 137 runs,
+ 1 regressions (v4.19.217-250-gcb36871725fe)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently in the is_continue case in hugetlb_mcopy_atomic_pte(), if we
-bail out using "goto out_release_unlock;" in the cases where idx >=
-size, or !huge_pte_none(), the code will detect that new_pagecache_page
-== false, and so call restore_reserve_on_error().
-In this case I see restore_reserve_on_error() delete the reservation,
-and the following call to remove_inode_hugepages() will increment
-h->resv_hugepages causing a 100% reproducible leak.
+stable-rc/queue/4.19 baseline: 137 runs, 1 regressions (v4.19.217-250-gcb36=
+871725fe)
 
-We should treat the is_continue case similar to adding a page into the
-pagecache and set new_pagecache_page to true, to indicate that there is
-no reservation to restore on the error path, and we need not call
-restore_reserve_on_error().  Rename new_pagecache_page to
-page_in_pagecache to make that clear.
+Regressions Summary
+-------------------
 
-Cc: Wei Xu <weixugc@google.com>
-
-Cc: stable@vger.kernel.org
-
-Fixes: c7b1850dfb41 ("hugetlb: don't pass page cache pages to restore_reserve_on_error")
-Signed-off-by: Mina Almasry <almasrymina@google.com>
-Reported-by: James Houghton <jthoughton@google.com>
-
-
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-Changes in v2:
-- Renamed new_pagecache_page to page_in_pagecache
-- Removed unnecessary comment after the name update.
-- Cc: stable
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.217-250-gcb36871725fe/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.217-250-gcb36871725fe
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      cb36871725feaa959a56052629e1700354b17b93 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- mm/hugetlb.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index e09159c957e3..e7ebc4b355cf 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5734,13 +5734,14 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 	int ret = -ENOMEM;
- 	struct page *page;
- 	int writable;
--	bool new_pagecache_page = false;
-+	bool page_in_pagecache = false;
 
- 	if (is_continue) {
- 		ret = -EFAULT;
- 		page = find_lock_page(mapping, idx);
- 		if (!page)
- 			goto out;
-+		page_in_pagecache = true;
- 	} else if (!*pagep) {
- 		/* If a page already exists, then it's UFFDIO_COPY for
- 		 * a non-missing case. Return -EEXIST.
-@@ -5828,7 +5829,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 		ret = huge_add_to_page_cache(page, mapping, idx);
- 		if (ret)
- 			goto out_release_nounlock;
--		new_pagecache_page = true;
-+		page_in_pagecache = true;
- 	}
+  Details:     https://kernelci.org/test/plan/id/6195226125f84ed05a33591b
 
- 	ptl = huge_pte_lockptr(h, dst_mm, dst_pte);
-@@ -5892,7 +5893,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 	if (vm_shared || is_continue)
- 		unlock_page(page);
- out_release_nounlock:
--	if (!new_pagecache_page)
-+	if (!page_in_pagecache)
- 		restore_reserve_on_error(h, dst_vma, dst_addr, page);
- 	put_page(page);
- 	goto out;
---
-2.34.0.rc2.393.gf8c9666880-goog
+  Results:     5 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.217=
+-250-gcb36871725fe/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.217=
+-250-gcb36871725fe/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6195226125f84ed=
+05a33591e
+        failing since 2 days (last pass: v4.19.217-72-gf6a03fda7e567, first=
+ fail: v4.19.217-85-g1a2f6a289a70)
+        2 lines
+
+    2021-11-17T15:40:03.925106  <8>[   21.131622] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-11-17T15:40:03.973341  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/99
+    2021-11-17T15:40:03.982368  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-11-17T15:40:03.997712  <8>[   21.205902] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
