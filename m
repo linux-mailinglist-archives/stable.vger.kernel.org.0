@@ -2,56 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 954B6454DDB
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 20:28:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCC0E454E07
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 20:38:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240477AbhKQTbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 14:31:03 -0500
-Received: from mail-oi1-f171.google.com ([209.85.167.171]:39690 "EHLO
-        mail-oi1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240484AbhKQTa5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 14:30:57 -0500
-Received: by mail-oi1-f171.google.com with SMTP id bf8so8653937oib.6
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 11:27:58 -0800 (PST)
+        id S231272AbhKQTl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 14:41:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43800 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229678AbhKQTl1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 14:41:27 -0500
+Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E16B0C061764
+        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 11:38:28 -0800 (PST)
+Received: by mail-pl1-x64a.google.com with SMTP id m17-20020a170902db1100b001421cb34857so1653105plx.15
+        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 11:38:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=vNIuXBteNkTcaESUx4SfgLhD0CMWa6CfwiyimngrrLk=;
+        b=g8Rh3vZSu7yMZjhk33znZxzdH2tMXoZy1NbrUfwij3DPN0Du+eI8bHTYWDhkjV/uDn
+         CLH/i8hyssGzxyjCiwmAVQWBdSulmf+0WDQhfjpcFhkQ7kHsbE8zCdL514DwjW0GSO1i
+         q/XAsldvXRKG0L9d9IhFBFv9xGwCtjGGYX/UdGm9AmTt9T61apSv1K2+EcQ0sHKKnNFm
+         GHnp4L7NhsbCXqSO2e2dz5/Szsvv+oNr02RvNCjqH8QRGLvHDBf8n4cCV6nIayg+FD1f
+         sX5ZfxHiY+ZJdmOimk+J+yL8d1OR3g8wQTpTTwGemxOg/soCKZcoog3gpzIhgVJ0692J
+         MGTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=4zR+RBqMppddldx1ndt6CmUISY3RYtRtHi1YRkA5dRs=;
-        b=ihzwb1Mp9FoUtxM+hhknhWIO9aui04Z4piaAOrZwC/bND1DpHIedGKi+AcOZNoOlqY
-         VqpgpB84UutON1LxFzB3XxnQpO6LjUIVKCRXv0eMdnEl9qRjgSSdwqCm/R4QCPOKujcK
-         tH7tMrL7yqNUw41+3Z99ICGMeQvlMMAYzLqqN9qbdwF8FR3p9WBujaqB0bsmKg58QZh3
-         uOGFfnx0Lq6eJ6G3V1WhEN6+W/gQZ+7shzZ4kbGJASGv44gj5ZtBRMN8+D6jG/7agrzt
-         mhNP5BNywSFUs537etEv3qxarL48jzzy0jsJi+eWCzQTyrJiMBAFmfJYXtfX3/cvWzPz
-         aDjg==
-X-Gm-Message-State: AOAM532o8W+yhSCa8VnY6p3/v1LJLWP85bIBz1O397bWowAqPJrcD4Ba
-        /KqKa6/3bTBhwmy91mwBuxu2/yHIwA3q2eHKjJWICg4IIz8=
-X-Google-Smtp-Source: ABdhPJwHXOa28xrzBhttGE5tvrADUmcug3RvisSlRNTatey01fcGUEI7m8pb0ZWJ2Tsv9vfkxjLdcI9h8Er69SzrE/Q=
-X-Received: by 2002:a05:6808:14c3:: with SMTP id f3mr2102533oiw.51.1637177278479;
- Wed, 17 Nov 2021 11:27:58 -0800 (PST)
-MIME-Version: 1.0
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Wed, 17 Nov 2021 20:27:47 +0100
-Message-ID: <CAJZ5v0hXOYk4=hH_tgi8H-h1gJRsxB8znHgyah_SdiO68Kz+-w@mail.gmail.com>
-Subject: Inclusion request for mainline commit d3c4b6f64ad356c0d9ddbcf73fa471e6a841cc5c
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Stable <stable@vger.kernel.org>
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=vNIuXBteNkTcaESUx4SfgLhD0CMWa6CfwiyimngrrLk=;
+        b=VQOdvLZ0oHsHcRuho4SCauVKhq8I98jRLtEtigdP63lBdYpHLc1gqeG6lDGbLl+t43
+         uyLWy7WFjL+kufjeafdoT8Nulqnb4vvJgZ4HU9nz6jZQQrp22DdTk8nuzMVzQABdQ76N
+         gSiyUfFkE+EZSXGd5bBgXIBvYvK/fFgJ8y9ukhx9V+z82RbunJvsEoVz/CNulVcQKPui
+         comtv/OpnPRiFGtqSQnQh9cVf8qohha4j00HOucxbDjIlLKdTVaFL44urr0JkwatsCB1
+         J5wJ6mPubB/HFWwS1J1S+9sgou6o3vu08bvU9Ay4Qk8grIupm0UuEs9jZflWsztyASN9
+         FCnQ==
+X-Gm-Message-State: AOAM531QMqzOco6++PqLBVVWBgm6dCerwbycY1kKk/NslR+ngaO0Dtnx
+        Rv0Ap5AR3no/I5CE++X+N5LvAUelw6MF0I4sMA==
+X-Google-Smtp-Source: ABdhPJwKAP41N61uzvfkBbQYTcD4/ulbuSfavUCjZ5PZjL21wsVn8PMCZREVGmc8XeHp9qvTGqBvIb795H6PFrRb8Q==
+X-Received: from almasrymina.svl.corp.google.com ([2620:15c:2cd:202:ab13:f492:fd91:a37d])
+ (user=almasrymina job=sendgmr) by 2002:a17:902:a9cb:b0:143:d9ad:d154 with
+ SMTP id b11-20020a170902a9cb00b00143d9add154mr11356115plr.6.1637177908287;
+ Wed, 17 Nov 2021 11:38:28 -0800 (PST)
+Date:   Wed, 17 Nov 2021 11:38:24 -0800
+Message-Id: <20211117193825.378528-1-almasrymina@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.34.0.rc2.393.gf8c9666880-goog
+Subject: [PATCH v2] hugetlb, userfaultfd: Fix reservation restore on
+ userfaultfd error
+From:   Mina Almasry <almasrymina@google.com>
+To:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Mina Almasry <almasrymina@google.com>, Wei Xu <weixugc@google.com>,
+        stable@vger.kernel.org, James Houghton <jthoughton@google.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg et al,
+Currently in the is_continue case in hugetlb_mcopy_atomic_pte(), if we
+bail out using "goto out_release_unlock;" in the cases where idx >=
+size, or !huge_pte_none(), the code will detect that new_pagecache_page
+== false, and so call restore_reserve_on_error().
+In this case I see restore_reserve_on_error() delete the reservation,
+and the following call to remove_inode_hugepages() will increment
+h->resv_hugepages causing a 100% reproducible leak.
 
-Please include the following mainline commit:
+We should treat the is_continue case similar to adding a page into the
+pagecache and set new_pagecache_page to true, to indicate that there is
+no reservation to restore on the error path, and we need not call
+restore_reserve_on_error().  Rename new_pagecache_page to
+page_in_pagecache to make that clear.
 
-commit d3c4b6f64ad356c0d9ddbcf73fa471e6a841cc5c
-Author: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Date:   Wed Sep 29 18:31:25 2021 +0200
+Cc: Wei Xu <weixugc@google.com>
 
-   ACPICA: Avoid evaluating methods too early during system resume
+Cc: stable@vger.kernel.org
 
-into all applicable -stable series.
+Fixes: c7b1850dfb41 ("hugetlb: don't pass page cache pages to restore_reserve_on_error")
+Signed-off-by: Mina Almasry <almasrymina@google.com>
+Reported-by: James Houghton <jthoughton@google.com>
 
-It fixes resume from suspend-to-RAM on multiple systems.
 
-Thanks!
+---
+
+Changes in v2:
+- Renamed new_pagecache_page to page_in_pagecache
+- Removed unnecessary comment after the name update.
+- Cc: stable
+---
+ mm/hugetlb.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index e09159c957e3..e7ebc4b355cf 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5734,13 +5734,14 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
+ 	int ret = -ENOMEM;
+ 	struct page *page;
+ 	int writable;
+-	bool new_pagecache_page = false;
++	bool page_in_pagecache = false;
+
+ 	if (is_continue) {
+ 		ret = -EFAULT;
+ 		page = find_lock_page(mapping, idx);
+ 		if (!page)
+ 			goto out;
++		page_in_pagecache = true;
+ 	} else if (!*pagep) {
+ 		/* If a page already exists, then it's UFFDIO_COPY for
+ 		 * a non-missing case. Return -EEXIST.
+@@ -5828,7 +5829,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
+ 		ret = huge_add_to_page_cache(page, mapping, idx);
+ 		if (ret)
+ 			goto out_release_nounlock;
+-		new_pagecache_page = true;
++		page_in_pagecache = true;
+ 	}
+
+ 	ptl = huge_pte_lockptr(h, dst_mm, dst_pte);
+@@ -5892,7 +5893,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
+ 	if (vm_shared || is_continue)
+ 		unlock_page(page);
+ out_release_nounlock:
+-	if (!new_pagecache_page)
++	if (!page_in_pagecache)
+ 		restore_reserve_on_error(h, dst_vma, dst_addr, page);
+ 	put_page(page);
+ 	goto out;
+--
+2.34.0.rc2.393.gf8c9666880-goog
