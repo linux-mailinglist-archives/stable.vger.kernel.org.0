@@ -2,137 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF1EE4547A1
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 14:40:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2366454813
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 15:04:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237668AbhKQNnN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 08:43:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45410 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232544AbhKQNnN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 08:43:13 -0500
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1224EC061570
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 05:40:15 -0800 (PST)
-Received: by mail-pg1-x534.google.com with SMTP id r5so2289898pgi.6
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 05:40:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=8EqMmWEm+YZsu7epTEQ+OBkPJq2yo7FjOHnna0Oyeiw=;
-        b=jccggDpl84k/L80X2dz4UICUuVH4uVR1MgbjeP9oYGEneA2Q4Z/Yb7Ro4FWcMziI/k
-         siBMsxq+nQ1V/ybkgK6/kz1lUBopzcxs+p3wDX1XPVhqWc42M/8GijxZNTzqODSewovR
-         4zx/dLNZLIGc3azGm2WRIHqIXptiUeY9M6z/fdXLTCL3kwfaMDMqRfsEVL0C8ewgtEnG
-         LIirmgGIThZ4AHEI5KXvX7i8N4SpSLcdeeRIQYfZDdUHMqYpY+9+gl/PbjWY7p2DIEcV
-         aP9ydoEZGX0/lg++AoGGWoOUq5gx+kX5QbuxTGk5jHcQh2lexDNthEXtcvxLGQ7SNsWv
-         sLDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=8EqMmWEm+YZsu7epTEQ+OBkPJq2yo7FjOHnna0Oyeiw=;
-        b=Ebm7n+sospcHzUMtlphVCKIABDDMb5aeg21WYVAkagyVnNvNypt9qq47IMWU4OgADX
-         a919UrKyIy6VvC2XpXwx1h2cpQEl8n0NqZizGIrWtcHB3++xW8jzLXFoR4NDgBJIugdw
-         HdtExulfpu2nBwFuIDuXGiI1+Lb27+2GJS9kxuheTW+sMRbzqe3u65rmsEyNNhb87qlx
-         SiF1lyHj5h5NVl18aHdCWudjydl+/9A83ZqWF7MAbvgcWDvfFrhcIK+2DB3jyoD9cGB/
-         moUlQMfwzbKvVCOA1R6bEeWtmxtWWkLR/ciHvhG6dwz5x2p9nusj2IVESqtWFGRFMDGU
-         sdpA==
-X-Gm-Message-State: AOAM533pWMoPm0Bp/e6aSkEWr7/33KcU8QaC5DCtB2hYxcUFhEdViBBc
-        dvlBgQLSS05lhi1kA+w5u4IGFISezNtLG/a+
-X-Google-Smtp-Source: ABdhPJy0D3KOH3UHU3zHYZLPUPHJUeXXg3CSvKgwlDskq87jlceSe4YpcYlDnGLzPIcUgrxJKw9TVQ==
-X-Received: by 2002:a62:1d09:0:b0:4a2:82d7:17a5 with SMTP id d9-20020a621d09000000b004a282d717a5mr36234187pfd.64.1637156414450;
-        Wed, 17 Nov 2021 05:40:14 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d9sm17736837pgd.40.2021.11.17.05.40.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Nov 2021 05:40:14 -0800 (PST)
-Message-ID: <6195063e.1c69fb81.41d25.2c17@mx.google.com>
-Date:   Wed, 17 Nov 2021 05:40:14 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S237001AbhKQOGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 09:06:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60392 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238089AbhKQOGG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Nov 2021 09:06:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD061613AC;
+        Wed, 17 Nov 2021 14:03:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637157788;
+        bh=v2ROQ6ToJl0l+smko6lhx94UwHX6HqypQlXuQnQalmA=;
+        h=Subject:To:From:Date:From;
+        b=V7nQKBBhUKPd3fyuy3uvN9Aq3SFVu+lM/UX5HCIvTaRvTQwbKBA+sQGdIgb7ngJzv
+         HhvTf76u6sewCqb+wcQRdRd93STilB42jRwYR2d1gkRMOwNBuSqJdBD3OzE1RiL3lB
+         TV7YjXVnuWCujDgKEFxL8ETMDyCV/uOAmH0+36AQ=
+Subject: patch "usb: dwc3: core: Revise GHWPARAMS9 offset" added to usb-linus
+To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 17 Nov 2021 15:03:05 +0100
+Message-ID: <163715778598190@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.217-250-g8d9f0f1c26ce
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 111 runs,
- 1 regressions (v4.19.217-250-g8d9f0f1c26ce)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 111 runs, 1 regressions (v4.19.217-250-g8d9f=
-0f1c26ce)
 
-Regressions Summary
--------------------
+This is a note to let you know that I've just added the patch titled
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+    usb: dwc3: core: Revise GHWPARAMS9 offset
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 250fdabec6ffcaf895c5e0dedca62706ef10d8f6 Mon Sep 17 00:00:00 2001
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Date: Mon, 25 Oct 2021 16:15:32 -0700
+Subject: usb: dwc3: core: Revise GHWPARAMS9 offset
+
+During our predesign phase for DWC_usb32, the GHWPARAMS9 register offset
+was 0xc680. We revised our final design, and the GHWPARAMS9 offset is
+now moved to 0xc6e8 on release.
+
+Fixes: 16710380d3aa ("usb: dwc3: Capture new capability register GHWPARAMS9")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/1541737108266a97208ff827805be1f32852590c.1635202893.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ drivers/usb/dwc3/core.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index 620c8d3914d7..5c491d0a19d7 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -143,7 +143,7 @@
+ #define DWC3_GHWPARAMS8		0xc600
+ #define DWC3_GUCTL3		0xc60c
+ #define DWC3_GFLADJ		0xc630
+-#define DWC3_GHWPARAMS9		0xc680
++#define DWC3_GHWPARAMS9		0xc6e0
+ 
+ /* Device Registers */
+ #define DWC3_DCFG		0xc700
+-- 
+2.34.0
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.217-250-g8d9f0f1c26ce/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.217-250-g8d9f0f1c26ce
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8d9f0f1c26ce8b774edfc5f15c5afe362134ef3e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6194cab8f03b7e7d4a3358ec
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.217=
--250-g8d9f0f1c26ce/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.217=
--250-g8d9f0f1c26ce/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6194cab8f03b7e7=
-d4a3358ef
-        failing since 2 days (last pass: v4.19.217-72-gf6a03fda7e567, first=
- fail: v4.19.217-85-g1a2f6a289a70)
-        2 lines
-
-    2021-11-17T09:26:01.548658  <8>[   21.269409] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-17T09:26:01.592738  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/110
-    2021-11-17T09:26:01.601949  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
