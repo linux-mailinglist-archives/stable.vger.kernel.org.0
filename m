@@ -2,112 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4415454257
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 09:07:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31E3F45434D
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 10:07:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234394AbhKQIKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 03:10:50 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:44151 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234390AbhKQIKu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 03:10:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1637136471;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=XjV5fBqhy8BbrVmQuut3sNPg0t9OqFdRt53NVLlK0gc=;
-        b=OJESRqU+USF+KjmVULkMEDfzwq8RPny/lzmoigzyoX0ZF4LZqB0tLulrtcKKzukDlfYi52
-        yQnwl0VHHEbpPwvpyr1eTL7HJAG2eU/pB4sa7Xo9uwC2z7eDn1VxrHfVFFTexDj7tVLigV
-        AZlGJnSXo7dghCyjekIIWpZo00150ZE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-204-LmHRSOnbP_6tqwOBgDc4uw-1; Wed, 17 Nov 2021 03:07:46 -0500
-X-MC-Unique: LmHRSOnbP_6tqwOBgDc4uw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B9E2B1023F4D;
-        Wed, 17 Nov 2021 08:07:45 +0000 (UTC)
-Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4B7C71F45B;
-        Wed, 17 Nov 2021 08:07:45 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     seanjc@google.com, stable@vger.kernel.org
-Subject: [PATCH] KVM: x86: check PIR even for vCPUs with disabled APICv
-Date:   Wed, 17 Nov 2021 03:07:44 -0500
-Message-Id: <20211117080744.995111-1-pbonzini@redhat.com>
+        id S234802AbhKQJKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 04:10:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51870 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234800AbhKQJKD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Nov 2021 04:10:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A9E261BF5;
+        Wed, 17 Nov 2021 09:07:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637140025;
+        bh=jSFeocSlc6IofAObidh4I1D1bgngavZHyAu2iZpsyoY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Jn4SfpFEs22vvlVgwGhLZ//4vz0X5kRnla9/eATJkG9nK4IO9dkdV8ljTXTjVbTAn
+         L86XZkse3ajqEpWtBzJwC/sYyczw3tyJGhInWqtHCGstuiUIxspWz3oVXnDWrqLnfZ
+         ocPhkfrUVvaIztlNKo1I/DzKb+EgZtbvIovegi6uOU6QMeiIxyLi30/mr2p+djUKCy
+         vzDVHKPf9hEd0RDvUTlMvpBSOJgv7oyaG7CsA7XHyjTpUu2MUjqTffSD0IAuCsvRK9
+         i6va3OVYU5uLgtx9IV9RelIlvCkmFqE7T+A1vIOeYKVV47yZDVQ4L4u9+5C6awNTpg
+         mNwrB3OGjSYNA==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1mnGtz-00075Z-Bb; Wed, 17 Nov 2021 10:06:47 +0100
+Date:   Wed, 17 Nov 2021 10:06:47 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ilia Sergachev <silia@ethz.ch>,
+        Karol Gugala <kgugala@antmicro.com>,
+        Mateusz Holenko <mholenko@antmicro.com>,
+        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Filip Kokosinski <fkokosinski@antmicro.com>,
+        Stafford Horne <shorne@gmail.com>
+Subject: Re: [PATCH 1/3] serial: liteuart: fix compile testing
+Message-ID: <YZTGJzJcQ3oIEsGy@hovoldconsulting.com>
+References: <20211115133745.11445-1-johan@kernel.org>
+ <20211115133745.11445-2-johan@kernel.org>
+ <CAHp75VeGinEWv0BuAsrHtif2b1p26uUEmSRqG4_y76vDdvNKAw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHp75VeGinEWv0BuAsrHtif2b1p26uUEmSRqG4_y76vDdvNKAw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-After fixing the handling of POSTED_INTR_WAKEUP_VECTOR for vCPUs with
-disabled APICv, take care of POSTED_INTR_VECTOR.  The IRTE for an assigned
-device can trigger a POSTED_INTR_VECTOR even if APICv is disabled on the
-vCPU that receives it.  In that case, the interrupt will just cause a
-vmexit and leave the ON bit set together with the PIR bit corresponding
-to the interrupt.
+On Tue, Nov 16, 2021 at 05:44:14PM +0200, Andy Shevchenko wrote:
+> On Mon, Nov 15, 2021 at 3:44 PM Johan Hovold <johan@kernel.org> wrote:
+> >
+> > Allow the liteuart driver to be compile tested by fixing the broken
+> > Kconfig dependencies.
+> 
+> ...
+> 
+> >  config SERIAL_LITEUART
+> >         tristate "LiteUART serial port support"
+> > +       depends on LITEX || COMPILE_TEST
+> >         depends on HAS_IOMEM
+> > -       depends on OF || COMPILE_TEST
+> > -       depends on LITEX
+> 
+> > +       depends on OF
+> 
+> AFAICS this is optional and prevents compile testing in some cases.
 
-Right now, the interrupt would not be delivered until APICv is re-enabled.
-However, fixing this is just a matter of always doing the PIR->IRR
-synchronization, even if the vCPU does not have APICv enabled.
+Yeah, you're right; that clause should stay. I'll send a v2. Thanks.
 
-This is not a problem for performance, or if anything it is an
-improvement.  static_call_cond will elide the function call if APICv is
-not present or disabled, or if (as is the case for AMD hardware) it does
-not require a sync_pir_to_irr callback.  And in the common case where
-kvm_vcpu_apicv_active(vcpu) is true, one fewer check has to be performed.
+> >         select SERIAL_CORE
+> >         help
+> >           This driver is for the FPGA-based LiteUART serial controller from LiteX
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- arch/x86/kvm/x86.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index dcefb1485362..eda86378dcff 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -4445,8 +4445,7 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
- static int kvm_vcpu_ioctl_get_lapic(struct kvm_vcpu *vcpu,
- 				    struct kvm_lapic_state *s)
- {
--	if (kvm_vcpu_apicv_active(vcpu))
--		static_call(kvm_x86_sync_pir_to_irr)(vcpu);
-+	static_call_cond(kvm_x86_sync_pir_to_irr)(vcpu);
- 
- 	return kvm_apic_get_state(vcpu, s);
- }
-@@ -9645,8 +9644,7 @@ static void vcpu_scan_ioapic(struct kvm_vcpu *vcpu)
- 	if (irqchip_split(vcpu->kvm))
- 		kvm_scan_ioapic_routes(vcpu, vcpu->arch.ioapic_handled_vectors);
- 	else {
--		if (kvm_vcpu_apicv_active(vcpu))
--			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
-+		static_call_cond(kvm_x86_sync_pir_to_irr)(vcpu);
- 		if (ioapic_in_kernel(vcpu->kvm))
- 			kvm_ioapic_scan_entry(vcpu, vcpu->arch.ioapic_handled_vectors);
- 	}
-@@ -9919,10 +9917,12 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
- 
- 	/*
- 	 * This handles the case where a posted interrupt was
--	 * notified with kvm_vcpu_kick.
-+	 * notified with kvm_vcpu_kick.  Assigned devices can
-+	 * use the POSTED_INTR_VECTOR even if APICv is disabled,
-+	 * so do it even if !kvm_vcpu_apicv_active(vcpu).
- 	 */
--	if (kvm_lapic_enabled(vcpu) && kvm_vcpu_apicv_active(vcpu))
--		static_call(kvm_x86_sync_pir_to_irr)(vcpu);
-+	if (kvm_lapic_enabled(vcpu))
-+		static_call_cond(kvm_x86_sync_pir_to_irr)(vcpu);
- 
- 	if (kvm_vcpu_exit_request(vcpu)) {
- 		vcpu->mode = OUTSIDE_GUEST_MODE;
--- 
-2.27.0
-
+Johan
