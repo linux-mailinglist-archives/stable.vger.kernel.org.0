@@ -2,150 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A0D454961
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 15:56:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E64E4454981
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 16:01:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231276AbhKQO72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 09:59:28 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:50294 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230376AbhKQO72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 09:59:28 -0500
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 1DA9D1FD29;
-        Wed, 17 Nov 2021 14:56:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1637160988; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ULWNdZT5zgP0fGwSkrNsSz9dUlbgfDC0raAB8lnTGyI=;
-        b=dXap3i/LQ8rKcslEtGg3eDHrpA+kh2arhleCPnxMCEFMEmJvxZPtc5Y4hXuMOOsVjWeQrZ
-        SwSNDvGpdRaedbk2swj1E7/RoMp7JhsITJc6Zq8A57tsONAIvqlBEllGKFb7Z+1FwEAS5n
-        iwB3Yi7aRJWknEbNMafeXKrZgkIjYBI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1637160988;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ULWNdZT5zgP0fGwSkrNsSz9dUlbgfDC0raAB8lnTGyI=;
-        b=XBZz+jynCQc4WHLxeddgiEnZnFQCoHNbVvuxARUyir+hA0eFAvujhJLphALvrv8Dw3AxuE
-        luduUBUnHChlnlAw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id DF74313AAD;
-        Wed, 17 Nov 2021 14:56:27 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id pGqBNRsYlWHDAgAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Wed, 17 Nov 2021 14:56:27 +0000
-Message-ID: <926ff1f6-2255-4e94-3a24-4fc78260f27d@suse.de>
-Date:   Wed, 17 Nov 2021 15:56:27 +0100
+        id S230159AbhKQPEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 10:04:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36266 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232549AbhKQPEK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 10:04:10 -0500
+Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 335C0C061570
+        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 07:01:12 -0800 (PST)
+Received: by mail-ot1-x333.google.com with SMTP id h19-20020a9d3e53000000b0056547b797b2so5217741otg.4
+        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 07:01:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:subject:message-id:mime-version
+         :content-disposition;
+        bh=OWHywtuFQCjoEmwV1z89S63Hz9h2RM/SbBR5Glvbp+E=;
+        b=A1Z7I2n4rAVdq/qowK+SekEZOMYEySqpDoDC9UCGuyoz4vnjw6+04C/3Kw2a+4Tc8N
+         +a4u3+wIzgkCk8uV/DC5ymCEywWT4w63f/izQdHOR1J2l/5FAzTGHtDTR4Nzag2UIXpD
+         eQPph6oZFarfoshULuaU4P4x3FCsQW2uSIPBsjlR/26N+KR2jHgmrS40HbC7yf9so8tz
+         8z464nxEtsYFKY2TDqJTnFbWhfjeLV7aEn8Km/sG/wnvlvf1Sj8OMq06LbjmMZTjfyBd
+         lCVxxU45dk6oz5XzqwM3gJPNwmC83LhuHbv5wb9vCTTdq9ys5QMQzJoxtq/kDAhaVdNS
+         8Cng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:subject:message-id
+         :mime-version:content-disposition;
+        bh=OWHywtuFQCjoEmwV1z89S63Hz9h2RM/SbBR5Glvbp+E=;
+        b=MjsDIwUW2gtPK7HATWVY7qI8sThSACGu187JvlY+vHNv6Q7ZeQyxOZj05TFc1VEeno
+         pMmQGhh4RyWjk0xB62FlbZS9XhQaqrzbs4A7nEBGk3I2XjnPCXWNZh7wwT9jamBZwF+g
+         G9Qf9is/2w7xLxufL+6ZO4Fbh3GBdjOViLW7yCD6bJxwEKA2fv2evDV6BwSeHhc9Kxu4
+         YHHaKRHrw7OTslYvC3Pe0W8jmeQA+9fPYr9UGgyvMc78ouHOSYQcbQswDDF41Dx3ZrFs
+         7en8Ica5Q08yrSFes4q8wnpNsteGOGn3rYiikZXso4iPNqjaQRmpn0iEEKpIBJN+Nl72
+         6vMQ==
+X-Gm-Message-State: AOAM530Jtk+T4/hlXsV3X6nE1rOGSZF5wiuEuW+8wiwl8cc1XWl0Hesl
+        gMi2mwcLCIVYIgQasGufqt9PsvNoypY=
+X-Google-Smtp-Source: ABdhPJz9CbMaFiQ0Cd4GLrN++CNDcMPSuxc9qGJ5FaEsFIKzUidcKIf2uMTGSLkdSXvQD4pofCIbqw==
+X-Received: by 2002:a05:6830:3155:: with SMTP id c21mr13986843ots.183.1637161271241;
+        Wed, 17 Nov 2021 07:01:11 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id bq5sm1488878oib.55.2021.11.17.07.01.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Nov 2021 07:01:10 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 17 Nov 2021 07:01:09 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Subject: s390 build failures in v4.9.y.queue, v4.14.y.queue
+Message-ID: <20211117150109.GA222117@roeck-us.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH] drm/format-helper: Fix dst computation in
- drm_fb_xrgb8888_to_rgb888_dstclip()
-Content-Language: en-US
-To:     Hector Martin <marcan@marcan.st>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-References: <20211117142206.197575-1-marcan@marcan.st>
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-In-Reply-To: <20211117142206.197575-1-marcan@marcan.st>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------8vBjnha6aQYVQUWNP8QSQK2i"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------8vBjnha6aQYVQUWNP8QSQK2i
-Content-Type: multipart/mixed; boundary="------------WtMvvewvWP9vwKls04kxjvwh";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Hector Martin <marcan@marcan.st>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@linux.ie>,
- Daniel Vetter <daniel@ffwll.ch>
-Cc: stable@vger.kernel.org, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org
-Message-ID: <926ff1f6-2255-4e94-3a24-4fc78260f27d@suse.de>
-Subject: Re: [PATCH] drm/format-helper: Fix dst computation in
- drm_fb_xrgb8888_to_rgb888_dstclip()
-References: <20211117142206.197575-1-marcan@marcan.st>
-In-Reply-To: <20211117142206.197575-1-marcan@marcan.st>
+Hi,
 
---------------WtMvvewvWP9vwKls04kxjvwh
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+I see the following build failure in v4.9.y and v4.14.y stable queues.
 
-SGkNCg0KQW0gMTcuMTEuMjEgdW0gMTU6MjIgc2NocmllYiBIZWN0b3IgTWFydGluOg0KPiBU
-aGUgZHN0IHBvaW50ZXIgd2FzIGJlaW5nIGFkdmFuY2VkIGJ5IHRoZSBjbGlwIHdpZHRoLCBu
-b3QgdGhlIGZ1bGwgbGluZQ0KPiBzdHJpZGUsIHJlc3VsdGluZyBpbiBjb3JydXB0aW9uLiBU
-aGUgY2xpcCBvZmZzZXQgd2FzIGFsc28gY2FsY3VsYXRlZA0KPiBpbmNvcnJlY3RseS4NCj4g
-DQo+IENjOiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQo+IFNpZ25lZC1vZmYtYnk6IEhlY3Rv
-ciBNYXJ0aW4gPG1hcmNhbkBtYXJjYW4uc3Q+DQoNClRoYW5rcyBmb3IgeW91ciBwYXRjaCwg
-YnV0IHlvdSdyZSBwcm9iYWJseSBvbiB0aGUgd3JvbmcgYnJhbmNoLiBXZSANCnJld3JvdGUg
-dGhpcyBjb2RlIHJlY2VudGx5IGFuZCBmaXhlZCB0aGUgaXNzdWUgaW4gZHJtLW1pc2MtbmV4
-dC4gWzFdWzJdDQoNCklmIGFueXRoaW5nLCB0aGlzIHBhdGNoIGNvdWxkIGdvIGludG8gc3Rh
-YmxlLiBJZiBhbnlvbmUgd2FudHMgdG8gbWVyZ2UgDQppdCB0aGVyZSwgdGhlbg0KDQpBY2tl
-ZC1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+DQoNCkJlc3Qg
-cmVnYXJkcw0KVGhvbWFzDQoNClsxXSANCmh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2RyaS1k
-ZXZlbC8yMDIxMTExMDEwMzcwMi4zNzQtNS10emltbWVybWFubkBzdXNlLmRlLw0KWzJdIA0K
-aHR0cHM6Ly9jZ2l0LmZyZWVkZXNrdG9wLm9yZy9kcm0vZHJtLW1pc2MvY29tbWl0Lz9pZD01
-M2JjMjA5OGQyYjZjY2ZmMjVmZTEzZjkzNDVjYmI1YzBlZjM0YTk5DQoNCj4gLS0tDQo+ICAg
-ZHJpdmVycy9ncHUvZHJtL2RybV9mb3JtYXRfaGVscGVyLmMgfCA0ICsrLS0NCj4gICAxIGZp
-bGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQ0KPiANCj4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9kcm1fZm9ybWF0X2hlbHBlci5jIGIvZHJpdmVy
-cy9ncHUvZHJtL2RybV9mb3JtYXRfaGVscGVyLmMNCj4gaW5kZXggZTY3NjkyMTQyMmI4Li4x
-MmJjNmI0NWU5NWIgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9kcm1fZm9ybWF0
-X2hlbHBlci5jDQo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fZm9ybWF0X2hlbHBlci5j
-DQo+IEBAIC0zNjYsMTIgKzM2NiwxMiBAQCB2b2lkIGRybV9mYl94cmdiODg4OF90b19yZ2I4
-ODhfZHN0Y2xpcCh2b2lkIF9faW9tZW0gKmRzdCwgdW5zaWduZWQgaW50IGRzdF9waXRjaA0K
-PiAgIAkJcmV0dXJuOw0KPiAgIA0KPiAgIAl2YWRkciArPSBjbGlwX29mZnNldChjbGlwLCBm
-Yi0+cGl0Y2hlc1swXSwgc2l6ZW9mKHUzMikpOw0KPiAtCWRzdCArPSBjbGlwX29mZnNldChj
-bGlwLCBkc3RfcGl0Y2gsIHNpemVvZih1MTYpKTsNCj4gKwlkc3QgKz0gY2xpcF9vZmZzZXQo
-Y2xpcCwgZHN0X3BpdGNoLCAzKTsNCj4gICAJZm9yICh5ID0gMDsgeSA8IGxpbmVzOyB5Kysp
-IHsNCj4gICAJCWRybV9mYl94cmdiODg4OF90b19yZ2I4ODhfbGluZShkYnVmLCB2YWRkciwg
-bGluZXBpeGVscyk7DQo+ICAgCQltZW1jcHlfdG9pbyhkc3QsIGRidWYsIGRzdF9sZW4pOw0K
-PiAgIAkJdmFkZHIgKz0gZmItPnBpdGNoZXNbMF07DQo+IC0JCWRzdCArPSBkc3RfbGVuOw0K
-PiArCQlkc3QgKz0gZHN0X3BpdGNoOw0KPiAgIAl9DQo+ICAgDQo+ICAgCWtmcmVlKGRidWYp
-Ow0KPiANCg0KLS0gDQpUaG9tYXMgWmltbWVybWFubg0KR3JhcGhpY3MgRHJpdmVyIERldmVs
-b3Blcg0KU1VTRSBTb2Z0d2FyZSBTb2x1dGlvbnMgR2VybWFueSBHbWJIDQpNYXhmZWxkc3Ry
-LiA1LCA5MDQwOSBOw7xybmJlcmcsIEdlcm1hbnkNCihIUkIgMzY4MDksIEFHIE7DvHJuYmVy
-ZykNCkdlc2Now6RmdHNmw7xocmVyOiBJdm8gVG90ZXYNCg==
+arch/s390/mm/gmap.c: In function '__gmap_zap':
+arch/s390/mm/gmap.c:665:9: error: implicit declaration of function 'vma_lookup'
 
---------------WtMvvewvWP9vwKls04kxjvwh--
+In v4.14.y, there is an additional failure:
 
---------------8vBjnha6aQYVQUWNP8QSQK2i
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+arch/s390/mm/pgtable.c: In function 'pgste_perform_essa':
+arch/s390/mm/pgtable.c:910:8: error: implicit declaration of function 'vma_lookup'
 
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmGVGBsFAwAAAAAACgkQlh/E3EQov+AH
-CQ//fGP23yvUugjceBxuGQTRrE2FzitmwCqi11IDCu/rVArqcX2nJdY8lplyHCxEGhOBFmaWGCmw
-qbrklvJLXNrsTtbgwt7ErQfhOiopH8cJ9jHwT2DgFHQWb1Qfvuua8cfD19c1mG30uG6j+jah/RkI
-1zd6V3w5LpjDxx8eP7B0yq0lLjvzlwAmk0RPFoj8Eq/CC6SDKF56Tb4K3J6tLkS7wE4CeTmDEauq
-0iwBgvbKpW034NoSaX7sh3HaTUyZD0JUa98vaA1QH4NRbJfTo0qBf6V+/xVw2wBSn2nbj429j/AH
-71s5/vcYXoBEMGu5JiTpeaFYDHNV6j8gfPXFjWSq8/pi32/eppH8pcxMUmQyfyLVrn1Wu8FX73v8
-2dipo/FLrpW1pUyCFNhR6qvISTw+mmTVvRZxqPPh++YNGys7CUuwJCW58LPVytAmBMH1TZZXyObr
-4U06vN9URHHpq7M4cNCq0JaobS+mRdEpqPn7BWIjPGcTUXCRfDJAGsGKE3AJvIlMtJciiQSr/lVB
-F//XUam1NqgLla+WXrJHOTzlOxbI2E/DzwCl3u3DSObaaWdw8P0OeswM9/qx1FTjp3ZRGXSa4KRL
-hMBbeLso8cRyhxaN/V/pNL5+O8Yze3brwCT4k+OQK1q4LJhpLZ0Hr6PCGcv9vQkVevC48aIukiKb
-D7U=
-=V3eb
------END PGP SIGNATURE-----
-
---------------8vBjnha6aQYVQUWNP8QSQK2i--
+Guenter
