@@ -2,118 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43DE9454E88
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 21:27:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49EDD454E8C
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 21:29:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231453AbhKQUaV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 15:30:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54662 "EHLO
+        id S230461AbhKQUcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 15:32:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230461AbhKQUaV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 15:30:21 -0500
-Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CD59C061570
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 12:27:22 -0800 (PST)
-Received: from [IPv6:::1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id B6BC481761;
-        Wed, 17 Nov 2021 21:27:18 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1637180839;
-        bh=E6OHKbLIfVxAnyWlhjaxbLPSxsh5Vtrn9miSH8gfCv0=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=Tv3huxwUnYbs7zv11zAOYLQkmovB725OMWh5TAYKHwU6+BWwG0TKcZy/ddyMCvqKb
-         dKoYXYBl6Nvsy8OeG6tRIjIt6Byz0hIpuOtFqrVRBF5SjrePyiqONp5KmqZCZB59a1
-         MBNJ1lkxGr+nbKUiaSDFyMmtm8mS7Qe3UFSisL5AdJOnW4QQpIgovNCeeDYAmHWzyN
-         inJb6I4C33ctOuZZLEukPMz5KEbv0p5pkh/iS+Acq/0vPenzu8kMOVxdR0ZHAyRtYS
-         hyVPULhjp0YS2TRecKHyHy4zaBZzP2xwdB1ixRFT/ANhgv5nG2qpmf5FHwox11zP/c
-         jJ8TOhWdfQGGg==
-Subject: Re: [PATCH] Bluetooth: btusb: Add support for TP-Link UB500 Adapter
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Szabolcs Sipos <labuwx@balfug.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-stable <stable@vger.kernel.org>
-References: <aa3f6986-1e9b-4aaa-e498-fd99385f4063@denx.de>
- <YWPrSHGbno3dODKr@kroah.com>
- <62685363-e1b3-bc97-431e-a7c8faccb78d@balfug.com>
- <YZP6CL+CDMyzQ6aA@kroah.com> <5931c469-c0bf-4e93-e7e3-443b5ca60fb3@denx.de>
- <YZSixJVYJxE7COuy@kroah.com>
-From:   Marek Vasut <marex@denx.de>
-Message-ID: <182bce57-8a46-9631-3ecf-7eb7a89593ce@denx.de>
-Date:   Wed, 17 Nov 2021 21:27:17 +0100
+        with ESMTP id S232078AbhKQUcH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 15:32:07 -0500
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1220C061570;
+        Wed, 17 Nov 2021 12:29:08 -0800 (PST)
+Received: by mail-oi1-x22f.google.com with SMTP id 7so8941713oip.12;
+        Wed, 17 Nov 2021 12:29:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=l2c/Mo1vnDLVFgGYS+avexQqPx6Mzci3ar4zKnAbiR4=;
+        b=mKdGecS8HQtyreL9XLvbh+pBuvhXx6VFllmWySale3mrOGaW6U0JuVz6aM+3jSr847
+         KMkVVtWAhrdDVgVbQ9ApCeseBvIj4KarApgv42VFgEMbkgWV++Li7IxOLwk9z6/rhb5g
+         joBaya2Jd5Eb9bW+yzqy7n8SVTihO8HKvolG1pknKrzVv6JY83FJCLl7zbVRMcH/wWDn
+         BtSMloJst4YlXUi9UPeILNO9ZeMLD0JsI9lmoG8hBguj5XyRnyZiUXtbciFLildNht2x
+         e6aiaFvIZkpi+F1K3MLp3d89m39mjUq277/kwUMN8ZVpX+/Xj0ZvWKFvakdIrCF/2Tl+
+         Cwxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=l2c/Mo1vnDLVFgGYS+avexQqPx6Mzci3ar4zKnAbiR4=;
+        b=Moq6IPAL8ucbMFTQH8PVi5YW3uwdFNTd08detVWXWdU6BFeyzFUd58W2aP62WvMIZF
+         VQsLyCpd2hBu1OLVJqXtfZ8tenyvn49ka7K+NGokKUwshG9BGF9xTSTbwAcX7QYijX2u
+         R2REWejMKoUSpDmmGxey3ylEeBqP4rMkk9ZCDYHKLwBmwXoHG3pfgGtiN+TzFYIJZ4Bp
+         Z3//ZI8VFkE+Wxj/oQhveJFmR0t+if1CtBDNbZqjuHFYorUHyXJ17Wd4+YdydG3H6AFx
+         L6cpEUHmZbb/ZCwbz4Q9s6hCaie9lzF2TVq2tCvt7Ir9FkMIEeVDA1Fufv6a1u/0sByK
+         7eHw==
+X-Gm-Message-State: AOAM531/Hx84vD6XHdNr0xFimV3IN4ecmGShsoK8JoEVv6XTvTHaQ/IM
+        Vn5NlwFm35JzcUxg/TMYRi3RpBLtYSg=
+X-Google-Smtp-Source: ABdhPJyj31JG2MY4d1T0MDP1XfV3MhwCecGO8wItWGkEq69uxIeU+BXXQboDn2Bb/PTZ242M3hdkTw==
+X-Received: by 2002:a05:6808:bc2:: with SMTP id o2mr2500319oik.115.1637180947857;
+        Wed, 17 Nov 2021 12:29:07 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id n23sm199838oic.26.2021.11.17.12.29.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 17 Nov 2021 12:29:06 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH 5.10 000/569] 5.10.80-rc4 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+References: <20211117144602.341592498@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <97dfe80b-1847-2326-8fca-fc4318d115f7@roeck-us.net>
+Date:   Wed, 17 Nov 2021 12:29:04 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <YZSixJVYJxE7COuy@kroah.com>
+In-Reply-To: <20211117144602.341592498@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
-X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/17/21 7:35 AM, Greg Kroah-Hartman wrote:
-> On Tue, Nov 16, 2021 at 08:58:15PM +0100, Marek Vasut wrote:
->> On 11/16/21 7:35 PM, Greg Kroah-Hartman wrote:
->>> On Tue, Nov 16, 2021 at 06:41:08PM +0100, Szabolcs Sipos wrote:
->>>> On 10/11/21 09:44, Greg Kroah-Hartman wrote:
->>>>> On Sun, Oct 10, 2021 at 10:59:06PM +0200, Marek Vasut wrote:
->>>>>> Hello everyone,
->>>>>>
->>>>>> The following new device USB ID has landed in linux-next recently:
->>>>>>
->>>>>> 4fd6d4907961 ("Bluetooth: btusb: Add support for TP-Link UB500 Adapter")
->>>>>>
->>>>>> It would be nice if it could be backported to stable. I verified it works on
->>>>>> 5.14.y as a simple cherry-pick .
->>>>>
->>>>> A patch needs to be in Linus's tree before we can add it to the stable
->>>>> releases.  Please let us know when it gets there and we will be glad to
->>>>> pick it up.
->>>>>
->>>>> thanks,
->>>>>
->>>>> greg k-h
->>>>
->>>> Hello Greg,
->>>>
->>>> The patch has reached Linus's tree:
->>>> 4fd6d4907961 ("Bluetooth: btusb: Add support for TP-Link UB500 Adapter")
->>>>
->>>> Could you please add it to stable (5.15.y)?
->>>
->>> I will queue it up for the next set of kernels after the current ones are
->>> released.
->>
->> btw while you're bringing it up, is there some sure-fire method I can use to
->> verify the patch is in Linus tree, besides having a separate checkout of
->> that tree ?
+Hi Greg,
+
+On 11/17/21 6:46 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.80 release.
+> There are 569 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Without the tree/branch checked out?  Not that I know of, sorry.
-
-I have a local checkout of Linus tree, except I also have other remotes 
-in it, that's what I meant.
-
->> I usually have both Linus tree as origin and next in one git tree, so I was
->> wondering if there is a recommended way to avoid mistakes like the one I
->> made above (and checking at git.kernel.org apparently also has its
->> downsides).
+> Responses should be made by Fri, 19 Nov 2021 14:44:50 +0000.
+> Anything received after that time might be too late.
 > 
-> Having both in one git tree is fine.  Just switch between branches (one
-> that tracks Linus's and one that tracks linux-next) and you can see what
-> is happening in each of them.
 
-I can do some "git log linus/master | grep the-commit" , but that does 
-not seem to be the most efficient approach, or is it ?
+You were correct, v5.10.y also needs commit 19221e3083020 ("soc/tegra:
+pmc: Fix imbalanced clock disabling in error code path") to fix the
+following build warning.
 
-> There's other "tricks" to see if patches have been added to branches by
-> adding them to a branch and then rebasing and seeing the end result, but
-> those get tricky to try to explain in simple emails...
+drivers/soc/tegra/pmc.c: In function 'tegra_powergate_power_up':
+drivers/soc/tegra/pmc.c:726:1: warning: label 'powergate_off' defined but not used [-Wunused-label]
+   726 | powergate_off:
 
-Some sort of git-cherry-pick and git-rebase ?
-
-All right
+Guenter
