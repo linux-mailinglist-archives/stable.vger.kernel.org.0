@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E22B4454817
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 15:04:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65F2D454818
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 15:04:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236982AbhKQOGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 09:06:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60536 "EHLO mail.kernel.org"
+        id S236978AbhKQOGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 09:06:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236978AbhKQOGU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Nov 2021 09:06:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78EDD6139F;
-        Wed, 17 Nov 2021 14:03:21 +0000 (UTC)
+        id S237037AbhKQOGX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Nov 2021 09:06:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D5DF6139F;
+        Wed, 17 Nov 2021 14:03:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637157802;
-        bh=WTw6d28/oKJN74Vqe5thMAibUFmHNIryFHzxMo9dy/U=;
+        s=korg; t=1637157804;
+        bh=1UdgZ7NcHJlERj5KdGwNujaSKdliU73ToHYQgy7P8Gk=;
         h=Subject:To:From:Date:From;
-        b=g9P6rBYjU/Mc7ghclFOPrlTNN6SVQz982wuCjLGyN27+dPozUp/07EILSiL7RQFeW
-         0D7cz63JNp74nXUArV5WBvAdkgdFB/WUhGY9A3RIEjz/dBlEQy2rd7cc5qSxlf3ukd
-         ndI+R07TF+zzkrFcnd2JCKSeKfJsSVB51mhbBA9o=
-Subject: patch "usb: xhci: tegra: Check padctrl interrupt presence in device tree" added to usb-linus
-To:     digetx@gmail.com, gregkh@linuxfoundation.org, kwizart@gmail.com,
-        stable@vger.kernel.org, thomas.graichen@gmail.com,
-        treding@nvidia.com
+        b=rJmXc0fMqGzArofdRHWMaYwHYmNLJlvCX8Wfs6kUb0ViNPhJd+5gjUrnGgFe06E9E
+         GVuKnsr3cQS5oW9WV3Hs5C1EuJvQ1NEcObGGuWJFt8MF/r/zxd7P5SVIVz/aj4D1Pj
+         7SU0vN26wgTWntDfO2AeLQh2QKx0Pmm9sjnJ7E84=
+Subject: patch "usb: dwc3: gadget: Fix null pointer exception" added to usb-linus
+To:     albertccwang@google.com, gregkh@linuxfoundation.org,
+        quic_jackp@quicinc.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 17 Nov 2021 15:03:08 +0100
-Message-ID: <1637157788221157@kroah.com>
+Date:   Wed, 17 Nov 2021 15:03:09 +0100
+Message-ID: <16371577895199@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: xhci: tegra: Check padctrl interrupt presence in device tree
+    usb: dwc3: gadget: Fix null pointer exception
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -52,114 +51,52 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 51f2246158f686c881859f4b620f831f06e296e1 Mon Sep 17 00:00:00 2001
-From: Dmitry Osipenko <digetx@gmail.com>
-Date: Mon, 8 Nov 2021 01:44:55 +0300
-Subject: usb: xhci: tegra: Check padctrl interrupt presence in device tree
+From 26288448120b28af1dfd85a6fa6b6d55a16c7f2f Mon Sep 17 00:00:00 2001
+From: Albert Wang <albertccwang@google.com>
+Date: Tue, 9 Nov 2021 17:26:42 +0800
+Subject: usb: dwc3: gadget: Fix null pointer exception
 
-Older device-trees don't specify padctrl interrupt and xhci-tegra driver
-now fails to probe with -EINVAL using those device-trees. Check interrupt
-presence and keep runtime PM disabled if it's missing to fix the trouble.
+In the endpoint interrupt functions
+dwc3_gadget_endpoint_transfer_in_progress() and
+dwc3_gadget_endpoint_trbs_complete() will dereference the endpoint
+descriptor. But it could be cleared in __dwc3_gadget_ep_disable()
+when accessory disconnected. So we need to check whether it is null
+or not before dereferencing it.
 
-Fixes: 971ee247060d ("usb: xhci: tegra: Enable ELPG for runtime/system PM")
-Cc: <stable@vger.kernel.org> # 5.14+
-Reported-by: Nicolas Chauvet <kwizart@gmail.com>
-Tested-by: Nicolas Chauvet <kwizart@gmail.com> # T124 TK1
-Tested-by: Thomas Graichen <thomas.graichen@gmail.com> # T124 Nyan Big
-Tested-by: Thierry Reding <treding@nvidia.com> # Tegra CI
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20211107224455.10359-1-digetx@gmail.com
+Fixes: f09ddcfcb8c5 ("usb: dwc3: gadget: Prevent EP queuing while stopping transfers")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Jack Pham <quic_jackp@quicinc.com>
+Signed-off-by: Albert Wang <albertccwang@google.com>
+Link: https://lore.kernel.org/r/20211109092642.3507692-1-albertccwang@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-tegra.c | 41 +++++++++++++++++++++++++----------
- 1 file changed, 29 insertions(+), 12 deletions(-)
+ drivers/usb/dwc3/gadget.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/usb/host/xhci-tegra.c b/drivers/usb/host/xhci-tegra.c
-index 1bf494b649bd..c8af2cd2216d 100644
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -1400,6 +1400,7 @@ static void tegra_xusb_deinit_usb_phy(struct tegra_xusb *tegra)
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index daa8f8548a2e..7e3db00e9759 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -3263,6 +3263,9 @@ static bool dwc3_gadget_endpoint_trbs_complete(struct dwc3_ep *dep,
+ 	struct dwc3		*dwc = dep->dwc;
+ 	bool			no_started_trb = true;
  
- static int tegra_xusb_probe(struct platform_device *pdev)
++	if (!dep->endpoint.desc)
++		return no_started_trb;
++
+ 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
+ 
+ 	if (dep->flags & DWC3_EP_END_TRANSFER_PENDING)
+@@ -3310,6 +3313,9 @@ static void dwc3_gadget_endpoint_transfer_in_progress(struct dwc3_ep *dep,
  {
-+	struct of_phandle_args args;
- 	struct tegra_xusb *tegra;
- 	struct device_node *np;
- 	struct resource *regs;
-@@ -1454,10 +1455,17 @@ static int tegra_xusb_probe(struct platform_device *pdev)
- 		goto put_padctl;
- 	}
+ 	int status = 0;
  
--	tegra->padctl_irq = of_irq_get(np, 0);
--	if (tegra->padctl_irq <= 0) {
--		err = (tegra->padctl_irq == 0) ? -ENODEV : tegra->padctl_irq;
--		goto put_padctl;
-+	/* Older device-trees don't have padctrl interrupt */
-+	err = of_irq_parse_one(np, 0, &args);
-+	if (!err) {
-+		tegra->padctl_irq = of_irq_get(np, 0);
-+		if (tegra->padctl_irq <= 0) {
-+			err = (tegra->padctl_irq == 0) ? -ENODEV : tegra->padctl_irq;
-+			goto put_padctl;
-+		}
-+	} else {
-+		dev_dbg(&pdev->dev,
-+			"%pOF is missing an interrupt, disabling PM support\n", np);
- 	}
- 
- 	tegra->host_clk = devm_clk_get(&pdev->dev, "xusb_host");
-@@ -1696,11 +1704,15 @@ static int tegra_xusb_probe(struct platform_device *pdev)
- 		goto remove_usb3;
- 	}
- 
--	err = devm_request_threaded_irq(&pdev->dev, tegra->padctl_irq, NULL, tegra_xusb_padctl_irq,
--					IRQF_ONESHOT, dev_name(&pdev->dev), tegra);
--	if (err < 0) {
--		dev_err(&pdev->dev, "failed to request padctl IRQ: %d\n", err);
--		goto remove_usb3;
-+	if (tegra->padctl_irq) {
-+		err = devm_request_threaded_irq(&pdev->dev, tegra->padctl_irq,
-+						NULL, tegra_xusb_padctl_irq,
-+						IRQF_ONESHOT, dev_name(&pdev->dev),
-+						tegra);
-+		if (err < 0) {
-+			dev_err(&pdev->dev, "failed to request padctl IRQ: %d\n", err);
-+			goto remove_usb3;
-+		}
- 	}
- 
- 	err = tegra_xusb_enable_firmware_messages(tegra);
-@@ -1718,13 +1730,16 @@ static int tegra_xusb_probe(struct platform_device *pdev)
- 	/* Enable wake for both USB 2.0 and USB 3.0 roothubs */
- 	device_init_wakeup(&tegra->hcd->self.root_hub->dev, true);
- 	device_init_wakeup(&xhci->shared_hcd->self.root_hub->dev, true);
--	device_init_wakeup(tegra->dev, true);
- 
- 	pm_runtime_use_autosuspend(tegra->dev);
- 	pm_runtime_set_autosuspend_delay(tegra->dev, 2000);
- 	pm_runtime_mark_last_busy(tegra->dev);
- 	pm_runtime_set_active(tegra->dev);
--	pm_runtime_enable(tegra->dev);
++	if (!dep->endpoint.desc)
++		return;
 +
-+	if (tegra->padctl_irq) {
-+		device_init_wakeup(tegra->dev, true);
-+		pm_runtime_enable(tegra->dev);
-+	}
+ 	if (usb_endpoint_xfer_isoc(dep->endpoint.desc))
+ 		dwc3_gadget_endpoint_frame_from_event(dep, event);
  
- 	return 0;
- 
-@@ -1772,7 +1787,9 @@ static int tegra_xusb_remove(struct platform_device *pdev)
- 	dma_free_coherent(&pdev->dev, tegra->fw.size, tegra->fw.virt,
- 			  tegra->fw.phys);
- 
--	pm_runtime_disable(&pdev->dev);
-+	if (tegra->padctl_irq)
-+		pm_runtime_disable(&pdev->dev);
-+
- 	pm_runtime_put(&pdev->dev);
- 
- 	tegra_xusb_powergate_partitions(tegra);
 -- 
 2.34.0
 
