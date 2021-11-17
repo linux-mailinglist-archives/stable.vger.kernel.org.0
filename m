@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 220BE454C7E
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 18:50:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CA7A454C7F
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 18:51:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238352AbhKQRxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 12:53:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47904 "EHLO mail.kernel.org"
+        id S235525AbhKQRyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 12:54:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239659AbhKQRxy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Nov 2021 12:53:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAD2161929;
-        Wed, 17 Nov 2021 17:50:52 +0000 (UTC)
+        id S239674AbhKQRyA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Nov 2021 12:54:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6946D60FF2;
+        Wed, 17 Nov 2021 17:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637171453;
-        bh=WSAixO4jwnVJ0MrgbOTgS59o9Ax/Fdjm0r0qoIMbyco=;
+        s=korg; t=1637171462;
+        bh=SrKFCNRfWG9oYF2WD/hsoKDY/1Rq3eM14MqG217CjeM=;
         h=Subject:To:Cc:From:Date:From;
-        b=hf3P/7bs8uWX77+Y74kURwU3qqUIA0E0t2LPQr/22swEkbrZwg8DNu6uh2WUOPEVQ
-         ESVfGTPaq7pcJj5PEgJegLZpLTdGuseLql1OwhLAhfzpjRQuziuFctUL52tbpwe+H9
-         jk4vhLAJPiEv24Jy0a+TOExUqaPJvOFuwjzuRuIk=
-Subject: FAILED: patch "[PATCH] s390/kvm: support collaborative memory management" failed to apply to 4.9-stable tree
+        b=Yf4kdUFrH0wR7sSa5ufWAv4+NC3d7V5W+YdAhbzN5bFCAyQloAUdUJV8iBuHPM/B2
+         JKgX2KMYyLQMG+imC6RL41oZnAw3owJMy/DXIZFrQladaSpdn5xiupOuax118wIDWp
+         Im+zvNh8p1f4hbpwzqSUgFSlQomqSVCFPPDrp+S0=
+Subject: FAILED: patch "[PATCH] s390/kvm: support collaborative memory management" failed to apply to 4.14-stable tree
 To:     konstantin.weitz@gmail.com, schwidefsky@de.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 17 Nov 2021 18:50:50 +0100
-Message-ID: <1637171450215128@kroah.com>
+Date:   Wed, 17 Nov 2021 18:50:51 +0100
+Message-ID: <163717145119927@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
