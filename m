@@ -2,157 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D07C454E7F
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 21:22:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71CE8454E9B
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 21:33:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240694AbhKQUZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 15:25:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53608 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240696AbhKQUZX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 15:25:23 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A8DC061570
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 12:22:24 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id z6so1999654plk.6
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 12:22:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=9CShJWuFR5UBrAT3zQyxC9HSFYvK81F4NVkPLY4A+GM=;
-        b=4iwWPALT2Xn1g6M7yXQD+Rcn6VTmyySF1kfLp12uBhGh/O1aZz0xs3FvQ8CONQaL0c
-         +m1/ljusS6Tqo3fGlvwLbXu7+ZdiEH/ZdHCm3SYUI9rqr73G1RX+fvaaQonqZEJOXSPF
-         soN3s/dEpIDPCdmVvDkacOTRGAfuJbDZJqj2RtoPaTUNZI8hM+BY5zAdgFPZgdBzyaKt
-         4BVFLiIDpDWav2nNtyC5RpfoAMY7pkukxFRyOx1XLZAwABFzSohyA4EjJevt70Ln0/aB
-         jwqBsz6EpIiZRgLkBnkJpeaRDiOl2F8EJgTi0Dy5aFUoyMY0NHB9Y9tOjmPWHolB2LRT
-         Doqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=9CShJWuFR5UBrAT3zQyxC9HSFYvK81F4NVkPLY4A+GM=;
-        b=EqTQRWWEFL0NTRKA1B1PnbSeDEnqzMm5zpg+LMyoZw8DNzqHla7x0CuSrA0FzXJu6N
-         z5by/YiaT3j+NVKf9a4yYtHIlPh6mw9VfJmDfrBw0//RzWSnHFhEEQllraBkjdaei3u8
-         K1QMfvAXgoTQH/grlNdKS5ksZGxHVfMNd1AQKAwuE3oMD5ej0VRK4bhxriwM1veLvsp0
-         SgFR27zCVW13gjITwHNDhiv+dml5oB/U8L0cy4CW2J5gEa7rZAqqLYDdVslR5YEptCmT
-         rxp2gUEb43GPEg/VDz9BHoGS4/soFSjhpPj3Y4NgDtb+0gK8rF0wmCBIBewn43RiYgcI
-         5dZw==
-X-Gm-Message-State: AOAM531+71G7CFIP0L7zJ4Iq9S+TzBJwZpkTEdpdtOd+15zXJXeu6wAU
-        PpgZVsyrBA2ixCqBnfEPXQoncDKOpuQzGNia
-X-Google-Smtp-Source: ABdhPJzgpI5T4nb1rhL0bbB5vm/sn5dUy+bqmYrLjPZpSWMqWgTw00PNbhX3XGhT/89w7FFrEojWhQ==
-X-Received: by 2002:a17:903:22cc:b0:142:d31:bd9 with SMTP id y12-20020a17090322cc00b001420d310bd9mr58412423plg.64.1637180543857;
-        Wed, 17 Nov 2021 12:22:23 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id mz7sm6083253pjb.7.2021.11.17.12.22.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Nov 2021 12:22:23 -0800 (PST)
-Message-ID: <6195647f.1c69fb81.8fb68.231f@mx.google.com>
-Date:   Wed, 17 Nov 2021 12:22:23 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S232117AbhKQUgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 15:36:54 -0500
+Received: from ofcsgdbm.dwd.de ([141.38.3.245]:42431 "EHLO ofcsgdbm.dwd.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231720AbhKQUgy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Nov 2021 15:36:54 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by ofcsg2dn1.dwd.de (Postfix) with ESMTP id 4HvZDn4VBvz20NB
+        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 20:25:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=dwd.de; h=
+        content-type:content-type:mime-version:references:message-id
+        :in-reply-to:subject:subject:from:from:date:date:received
+        :received:received:received:received:received:received:received;
+         s=dwd-csg20210107; t=1637180729; x=1638390330; bh=absRaF0AyRWFE
+        rHHsQuG9VvtLc2L1whYYXeUbE+o7Nw=; b=1M+1JRYESFeBsA5nELYZl0PeERIwy
+        W0LL8BUsRzJB38tILKA3vdMYvglbv5QlY4lEkG5wmSMJ9xZyjqxORuK63XBTJD0D
+        OwRRjcXujHNliaLdc13eruDJc7mr/ikc+piPKTJobeR6fq6VccLoa5PpBZH+ihWE
+        IHqRwCmk3LTIBz/33d+mKnBo96rdviZg2plbYlHLpVsrIE9IGEunW/8PJzLyAP1R
+        pZPI6IwyFKQyEBxLYoYeJIELA2PCbpCwY1al8Ko/Ad2MOfe5WCRZ2JSthTSZmg5w
+        ZmFTXadwE9UJdRgNuLVHwULvaVz2y3/Si3u/ta1/5xQ0pHtWpsvgjKhtg==
+X-Virus-Scanned: by amavisd-new at csg.dwd.de
+Received: from ofcsg2cteh1.dwd.de ([172.30.232.65])
+        by localhost (ofcsg2dn1.dwd.de [172.30.232.24]) (amavisd-new, port 10024)
+        with ESMTP id KQV4gfa4qUQV for <stable@vger.kernel.org>;
+        Wed, 17 Nov 2021 20:25:29 +0000 (UTC)
+Received: from ofcsg2cteh1.dwd.de (unknown [127.0.0.1])
+        by DDEI (Postfix) with SMTP id 697D5C900D83
+        for <root@ofcsg2dn1.dwd.de>; Wed, 17 Nov 2021 20:25:29 +0000 (UTC)
+Received: from ofcsg2cteh1.dwd.de (unknown [127.0.0.1])
+        by DDEI (Postfix) with ESMTP id 861C5C9025E4
+        for <root@ofcsg2dn1.dwd.de>; Wed, 17 Nov 2021 20:25:13 +0000 (UTC)
+X-DDEI-TLS-USAGE: Unused
+Received: from ofcsgdbm.dwd.de (unknown [172.30.232.24])
+        by ofcsg2cteh1.dwd.de (Postfix) with ESMTP
+        for <root@ofcsg2dn1.dwd.de>; Wed, 17 Nov 2021 20:25:13 +0000 (UTC)
+Received: from ofcsgdbm.dwd.de by localhost (Postfix XFORWARD proxy);
+ Wed, 17 Nov 2021 20:25:13 -0000
+Received: from ofcsg2dvf2.dwd.de (ofcsg2dvf2.dwd.de [172.30.232.11])
+        by ofcsg2dn1.dwd.de (Postfix) with ESMTPS id 4HvZDT3PVjz1xn8;
+        Wed, 17 Nov 2021 20:25:13 +0000 (UTC)
+Received: from ofmailhub.dwd.de (ofmailhub.dwd.de [141.38.39.196])
+        by ofcsg2dvf2.dwd.de  with ESMTP id 1AHKPCI1009217-1AHKPCI2009217;
+        Wed, 17 Nov 2021 20:25:12 GMT
+Received: from diagnostix.dwd.de (diagnostix.dwd.de [141.38.44.45])
+        by ofmailhub.dwd.de (Postfix) with ESMTP id CA467E27A3;
+        Wed, 17 Nov 2021 20:25:12 +0000 (UTC)
+Date:   Wed, 17 Nov 2021 20:25:12 +0000 (GMT)
+From:   Holger Kiehl <Holger.Kiehl@dwd.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.15 000/923] 5.15.3-rc3 review
+In-Reply-To: <20211117101657.463560063@linuxfoundation.org>
+Message-ID: <413ef3-c782-be14-da3-da86ed14a210@diagnostix.dwd.de>
+References: <20211117101657.463560063@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.10.79-569-g7cba82f768816
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.10 baseline: 151 runs,
- 2 regressions (v5.10.79-569-g7cba82f768816)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
+X-FE-Policy-ID: 2:2:1:SYSTEM
+X-TMASE-Version: DDEI-5.1-8.6.1018-26536.002
+X-TMASE-Result: 10--7.389900-10.000000
+X-TMASE-MatchedRID: VfovoVrt/oaWfDtBOz4q26HggtOWAEvR69aS+7/zbj9lEv6AItKWF3YY
+        S0IdBFk7zEIp4VT5Da6LQ60xZ6J3CUQb08eHfFUFMy+jMkhCdFZ02ZC6RJyIuLqq6rvK6xTaDNE
+        KwYdREu7kLeKnzPvnhtj/F/70C6zbgl5Rdh8uTQFi8FpcLW8dYAD4keG7QhHm5k47RFlilVSETM
+        jf6aTOJ0XgvWQOMaft4c9hRRd5/qT4kBiMXhevoceuFL5UpINxV447DNvw38bNmo0PmpP6e56ba
+        /D5x6cp4vM1YF6AJbYUBfgS1SLQ+AtuKBGekqUpIG4YlbCDECtruV6hT84yE1iwJprBIi4pPo4F
+        3xl8padOoNGWodxsd8Pw8mkzWoCMdp34Uj9JQqN+3BndfXUhXQ==
+X-TMASE-SNAP-Result: 1.821001.0001-0-1-22:0,33:0,34:0-0
+X-TMASE-INERTIA: 0-0;;;;
+X-DDEI-PROCESSED-RESULT: Safe
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 151 runs, 2 regressions (v5.10.79-569-g7cba8=
-2f768816)
+Hello,
 
-Regressions Summary
--------------------
+On Wed, 17 Nov 2021, Greg Kroah-Hartman wrote:
 
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-imx6q-var-dt6customboard | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 2          =
+> This is the start of the stable review cycle for the 5.15.3 release.
+> There are 923 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 19 Nov 2021 10:14:52 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.3-rc3.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+On a Deskmini X300 with a AMD APU 5700G this does not boot (rc1+rc2 also
+do not boot). As Scott Bruce already noticed, if one removes
+c3fc9d9e8f2dc518a8ce3c77f833a11b47865944 "x86: Fix __get_wchan() for
+!STACKTRACE" it boots.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.79-569-g7cba82f768816/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.79-569-g7cba82f768816
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7cba82f768816ce2fbcb073efd0e123692d35c1b =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-imx6q-var-dt6customboard | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 2          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61952c9cc93abb08133358f9
-
-  Results:     4 PASS, 2 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.79-=
-569-g7cba82f768816/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6=
-q-var-dt6customboard.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.79-=
-569-g7cba82f768816/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6=
-q-var-dt6customboard.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/61952c9cc93abb0=
-8133358fd
-        new failure (last pass: v5.10.79-577-g36adb8b9fb074)
-        4 lines
-
-    2021-11-17T16:23:42.861235  kern  :alert : 8<--- cut here ---
-    2021-11-17T16:23:42.861497  kern  :alert : Unhandled fault: alignment e=
-xception (0x001) at 0xcec60217
-    2021-11-17T16:23:42.861966  kern  :alert : pgd =3D (ptrval)
-    2021-11-17T16:23:42.862680  kern  :alert : [<8>[   39.397537] <LAVA_SIG=
-NAL_TESTCASE TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASUREMENT=
-=3D4>
-    2021-11-17T16:23:42.862916  cec60217] *pgd=3D1ec1141e(bad)   =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61952c9cc93abb0=
-8133358fe
-        new failure (last pass: v5.10.79-577-g36adb8b9fb074)
-        26 lines
-
-    2021-11-17T16:23:42.912984  kern  :emerg : Internal error: : 1 [#1] SMP=
- ARM
-    2021-11-17T16:23:42.913245  kern  :emerg : Process kworker/1:3 (pid: 75=
-, stack limit =3D 0x(ptrval))
-    2021-11-17T16:23:42.913717  kern  :emerg : Stack: (0xc3281eb0 to<8>[   =
-39.443897] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=
-=3Dlines MEASUREMENT=3D26>
-    2021-11-17T16:23:42.913954   0xc3282000)
-    2021-11-17T16:23:42.914170  kern  :emerg : 1ea0<8>[   39.455609] <LAVA_=
-SIGNAL_ENDRUN 0_dmesg 1093759_1.5.2.4.1>
-    2021-11-17T16:23:42.914384  :                                     1e9b1=
-0fe f23d6f68 c180ab40 cec60217   =
-
- =20
+Holger
