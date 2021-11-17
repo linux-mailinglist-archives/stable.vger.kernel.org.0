@@ -2,134 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9F54454950
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 15:53:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61A2C454952
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 15:54:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230103AbhKQO4I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 09:56:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34348 "EHLO
+        id S230040AbhKQO5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 09:57:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229818AbhKQO4H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 09:56:07 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3227C061570
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 06:53:08 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id n85so2876852pfd.10
-        for <stable@vger.kernel.org>; Wed, 17 Nov 2021 06:53:08 -0800 (PST)
+        with ESMTP id S229818AbhKQO5U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Nov 2021 09:57:20 -0500
+Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D56C061570;
+        Wed, 17 Nov 2021 06:54:22 -0800 (PST)
+Received: by mail-ot1-x335.google.com with SMTP id r10-20020a056830080a00b0055c8fd2cebdso5154630ots.6;
+        Wed, 17 Nov 2021 06:54:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ijgCSk9RnMGhIBg3hXlgr/sISbhEMvT5V9s3yuBT2+I=;
-        b=WWSyHzEQdSSz6mOIdSp4u6bBYBQI+pbYUrI9OZ/MjDvbmjOsIndNIIMOG/CbCdegjw
-         03qILtld+CX6JTzOhKbidvpQxOd2UYvI58ddUCLNgxZJQ7/P89Bgn1DGqCGqWwDd2rdE
-         p6gYgFysohchIqJkciwkQkxAiK9Ne2a19vbCpajs1GRFpDNkNuH3NDngIwcLMnb39DCv
-         32MgSfW98SDvMLztDCCKynpwGcSpA/70bB3dCQuIq95prnQGv0z/hLcgegFni/SafVY3
-         C7WjUjj/AYrJMLiyBL8IIS0grGNUBTXy0x5Ofl36bSgcMRNIr9aB/5ung8xSpQgaNfl/
-         PU/A==
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=mRIERqiL2aQ0BoDY3j7j+k2cL8eLVgdknTW4xHUEnr0=;
+        b=Rl9BjezFX12nDSvg2bkfLnCeXHPBEAPUn9WxUHFo0nRh6SGni1K5qiyr99QIrs1bpe
+         62aTpfICjg8Zsy5H5suUAXLWE75zJuO9A0wdIJcQTIKS1mLrv1V8Lb5Pvph4lukM2tuW
+         stIGposKu27fTj7KF1LFqc9fl8AUKDczr3lnJiylKhWI4eu6ITs0ZHTWrojVBZzZ703A
+         fyYqv7QqQ7IXATM2gD0EYM5CewndvPZk4pgjWwRwm40Zgx6uMBJBKHx5iDW1EK1dmEsk
+         4OGN6tOoGul+wS6IaV9nFOaxpOFO0kvMm7cPa5sjtmCyhIs3bkmks+iH79SSiphuU+NI
+         Aciw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ijgCSk9RnMGhIBg3hXlgr/sISbhEMvT5V9s3yuBT2+I=;
-        b=UaDrXcXfiPlhjZMsV/8hbMaRCBk7gh54vBmZinD3693ahwc8OD84N2Cfv3O333PDD8
-         7ovDzfoq91adAg5zNxprk+MrQJlBJKeloDbVEQAgCnvZWm0oR6cnk86aBkQ+iA2lkjL+
-         8O2KmimCHXv5j5C7Y1xXMM6c+GHsVlL8nMGjU/83JkFLuumXHmBXu2wb+mYHTYPcBpa4
-         UlUMf5+2DF3Jnfg5AXPJZx6nYjBcJLcznvQ/38Llu7yla9hVo5YsEDStIf6+PSbW17Kv
-         92VXzj1/mgqAswbKlHpIqh+0lUs+QxvNFjm7cyeGaHJ/uArEKYmnmnaPDr/vHCIY72Ct
-         w0Ow==
-X-Gm-Message-State: AOAM5306lgTdonqpiMnXLlFW3VAFDKtn64yvtrUNQ2VcBhQArYeCRTx2
-        OgkIEL/Agx6vGH+/+OReKH0fhNjw85y7G/r+
-X-Google-Smtp-Source: ABdhPJx22ShXXONBkyeKh5dhqgQVUHMbbv34FoULsw5K3CndNTCuu/AVJyRzTDBIw7v72RTw3MpTVA==
-X-Received: by 2002:a63:d74a:: with SMTP id w10mr5639176pgi.341.1637160788121;
-        Wed, 17 Nov 2021 06:53:08 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t7sm5725992pjs.45.2021.11.17.06.53.07
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=mRIERqiL2aQ0BoDY3j7j+k2cL8eLVgdknTW4xHUEnr0=;
+        b=lcXggMXd1o7uFHWKhw7er0qsieyedmvVXznqbzMOwrnadvyNfaMozY4eAOCgqxwv7v
+         kypPGs9Fxg6kG1N/vdNBvFzDP8Ny3lfibzpN92rGju+nWuluiqT/pJiS/oILsXy9BIra
+         GtCn2QQyohDHAcYXr8FzsULAmLGsuskoxtPJdc+T93ybOMADEnAC5188a9DiSwjtBVUp
+         YITg2X61rFaqnTtkRW5rWTGjNYNx+LnEqdA4D2iHTtHztLRHZpHEhnAP2j+YLYvwEG3w
+         5MFY/UugdYhMcSsyxYQJoWaUaJ60QFS7DXyltETXptmC5ubnSmwFegxOym5Gh8c8qAKU
+         8E/Q==
+X-Gm-Message-State: AOAM532mRfGscpIBNbE4Li4b4LJH0GRdmmU8XtH1xGFNYdt1l9telrBG
+        5RwIOeZQgP9FGG10A8MkWMlpTlbScaE=
+X-Google-Smtp-Source: ABdhPJxos1r2c7kQ8c2sS0mxFVpaldjdGE5gduJRoQP8vchF15SfaN3/MRPiPT+pg75C1rJWMycU8g==
+X-Received: by 2002:a9d:7a8c:: with SMTP id l12mr13790271otn.84.1637160861487;
+        Wed, 17 Nov 2021 06:54:21 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id bl33sm1889210oib.47.2021.11.17.06.54.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Nov 2021 06:53:07 -0800 (PST)
-Message-ID: <61951753.1c69fb81.b5a7b.04aa@mx.google.com>
-Date:   Wed, 17 Nov 2021 06:53:07 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Wed, 17 Nov 2021 06:54:20 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 17 Nov 2021 06:54:19 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.15 000/923] 5.15.3-rc3 review
+Message-ID: <20211117145419.GA189081@roeck-us.net>
+References: <20211117101657.463560063@linuxfoundation.org>
+ <81192f2a-afe7-1eee-847a-f8103a6d7cd1@roeck-us.net>
+ <YZUVKX0KraPWiXx1@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.255-199-g19adfc3d75c6
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.14 baseline: 79 runs,
- 1 regressions (v4.14.255-199-g19adfc3d75c6)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YZUVKX0KraPWiXx1@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 79 runs, 1 regressions (v4.14.255-199-g19adf=
-c3d75c6)
+On Wed, Nov 17, 2021 at 03:43:53PM +0100, Greg Kroah-Hartman wrote:
+> On Wed, Nov 17, 2021 at 06:13:47AM -0800, Guenter Roeck wrote:
+> > On 11/17/21 2:19 AM, Greg Kroah-Hartman wrote:
+> > > This is the start of the stable review cycle for the 5.15.3 release.
+> > > There are 923 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > > 
+> > > Responses should be made by Fri, 19 Nov 2021 10:14:52 +0000.
+> > > Anything received after that time might be too late.
+> > > 
+> > 
+> > Build is still broken for m68k.
+> > 
+> > drivers/block/ataflop.c: In function 'atari_cleanup_floppy_disk':
+> > drivers/block/ataflop.c:2050:17: error: implicit declaration of function 'blk_cleanup_disk'
+> > drivers/block/ataflop.c: In function 'atari_floppy_init':
+> > drivers/block/ataflop.c:2065:15: error: implicit declaration of function '__register_blkdev'
+> > 
+> > Are you sure you want to carry that patch series into v5.10.y ? I had to revert
+> > pretty much everything to get it to compile. It seems to me that someone should
+> > provide a working backport if the series is needed/wanted in v5.10.y.
+> 
+> Wow, I dropped the wrong patch :(
+> 
+... and I replied to the wrong announcement. Yes, this was for 5.10.y.
+Sorry, and thanks for catching.
 
-Regressions Summary
--------------------
+Guenter
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.255-199-g19adfc3d75c6/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.255-199-g19adfc3d75c6
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      19adfc3d75c619b72b1fdb574162d970818d2bc8 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6194dd6874308c7e653358f5
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.255=
--199-g19adfc3d75c6/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.255=
--199-g19adfc3d75c6/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6194dd6874308c7=
-e653358f8
-        new failure (last pass: v4.14.255-199-gb184298c8e64)
-        2 lines
-
-    2021-11-17T10:45:44.991747  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/100
-    2021-11-17T10:45:45.000653  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+> No, I don't want to carry that series, let me go rip out everything for
+> ataflop.c now.  If someone cares about this for 5.10.y, I'll take a
+> backport series, but really, they should just go use 5.15.y instead.
+> 
+> I'll push out a -rc4 now.
+> 
+> thanks,
+> 
+> greg k-h
