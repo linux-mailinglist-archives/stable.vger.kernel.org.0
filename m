@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65F2D454818
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 15:04:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3159345481A
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 15:04:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236978AbhKQOGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 09:06:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60562 "EHLO mail.kernel.org"
+        id S235656AbhKQOHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 09:07:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237037AbhKQOGX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Nov 2021 09:06:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D5DF6139F;
-        Wed, 17 Nov 2021 14:03:24 +0000 (UTC)
+        id S234454AbhKQOH3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Nov 2021 09:07:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C4EE6187F;
+        Wed, 17 Nov 2021 14:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637157804;
-        bh=1UdgZ7NcHJlERj5KdGwNujaSKdliU73ToHYQgy7P8Gk=;
+        s=korg; t=1637157871;
+        bh=bfErSRBb6v8WcRSmkm9UJIp/G0FcAgfhM2Gxg+Yifpo=;
         h=Subject:To:From:Date:From;
-        b=rJmXc0fMqGzArofdRHWMaYwHYmNLJlvCX8Wfs6kUb0ViNPhJd+5gjUrnGgFe06E9E
-         GVuKnsr3cQS5oW9WV3Hs5C1EuJvQ1NEcObGGuWJFt8MF/r/zxd7P5SVIVz/aj4D1Pj
-         7SU0vN26wgTWntDfO2AeLQh2QKx0Pmm9sjnJ7E84=
-Subject: patch "usb: dwc3: gadget: Fix null pointer exception" added to usb-linus
-To:     albertccwang@google.com, gregkh@linuxfoundation.org,
-        quic_jackp@quicinc.com, stable@vger.kernel.org
+        b=F5HCPuOqS9hL3YcynQrNnFanVhc+p3SAf/U/JP1VgOZAnlN6tSfmYm2vzPtkTHreL
+         7rZvmRlAXW4kyAdE6/i8ujEIHgiYpY5hrCeAaJdIctpmksA80vK4TIdZ3PPlnZgODs
+         53vj1/g5dkVarSJ2z03mh39xPHOE/Q04QGobj6lM=
+Subject: patch "usb: dwc2: hcd_queue: Fix use of floating point literal" added to usb-linus
+To:     nathan@kernel.org, Minas.Harutyunyan@synopsys.com,
+        gregkh@linuxfoundation.org, john@metanate.com,
+        ndesaulniers@google.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 17 Nov 2021 15:03:09 +0100
-Message-ID: <16371577895199@kroah.com>
+Date:   Wed, 17 Nov 2021 15:04:28 +0100
+Message-ID: <16371578681867@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc3: gadget: Fix null pointer exception
+    usb: dwc2: hcd_queue: Fix use of floating point literal
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,52 +52,60 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 26288448120b28af1dfd85a6fa6b6d55a16c7f2f Mon Sep 17 00:00:00 2001
-From: Albert Wang <albertccwang@google.com>
-Date: Tue, 9 Nov 2021 17:26:42 +0800
-Subject: usb: dwc3: gadget: Fix null pointer exception
+From 310780e825f3ffd211b479b8f828885a6faedd63 Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <nathan@kernel.org>
+Date: Fri, 5 Nov 2021 07:58:03 -0700
+Subject: usb: dwc2: hcd_queue: Fix use of floating point literal
 
-In the endpoint interrupt functions
-dwc3_gadget_endpoint_transfer_in_progress() and
-dwc3_gadget_endpoint_trbs_complete() will dereference the endpoint
-descriptor. But it could be cleared in __dwc3_gadget_ep_disable()
-when accessory disconnected. So we need to check whether it is null
-or not before dereferencing it.
+A new commit in LLVM causes an error on the use of 'long double' when
+'-mno-x87' is used, which the kernel does through an alias,
+'-mno-80387' (see the LLVM commit below for more details around why it
+does this).
 
-Fixes: f09ddcfcb8c5 ("usb: dwc3: gadget: Prevent EP queuing while stopping transfers")
+ drivers/usb/dwc2/hcd_queue.c:1744:25: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
+                         delay = ktime_set(0, DWC2_RETRY_WAIT_DELAY);
+                                             ^
+ drivers/usb/dwc2/hcd_queue.c:62:34: note: expanded from macro 'DWC2_RETRY_WAIT_DELAY'
+ #define DWC2_RETRY_WAIT_DELAY (1 * 1E6L)
+                                 ^
+ 1 error generated.
+
+This happens due to the use of a 'long double' literal. The 'E6' part of
+'1E6L' causes the literal to be a 'double' then the 'L' suffix promotes
+it to 'long double'.
+
+There is no visible reason for a floating point value in this driver, as
+the value is only used as a parameter to a function that expects an
+integer type. Use NSEC_PER_MSEC, which is the same integer value as
+'1E6L', to avoid changing functionality but fix the error.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1497
+Link: https://github.com/llvm/llvm-project/commit/a8083d42b1c346e21623a1d36d1f0cadd7801d83
+Fixes: 6ed30a7d8ec2 ("usb: dwc2: host: use hrtimer for NAK retries")
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Jack Pham <quic_jackp@quicinc.com>
-Signed-off-by: Albert Wang <albertccwang@google.com>
-Link: https://lore.kernel.org/r/20211109092642.3507692-1-albertccwang@google.com
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: John Keeping <john@metanate.com>
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20211105145802.2520658-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/dwc2/hcd_queue.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index daa8f8548a2e..7e3db00e9759 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -3263,6 +3263,9 @@ static bool dwc3_gadget_endpoint_trbs_complete(struct dwc3_ep *dep,
- 	struct dwc3		*dwc = dep->dwc;
- 	bool			no_started_trb = true;
+diff --git a/drivers/usb/dwc2/hcd_queue.c b/drivers/usb/dwc2/hcd_queue.c
+index 89a788326c56..24beff610cf2 100644
+--- a/drivers/usb/dwc2/hcd_queue.c
++++ b/drivers/usb/dwc2/hcd_queue.c
+@@ -59,7 +59,7 @@
+ #define DWC2_UNRESERVE_DELAY (msecs_to_jiffies(5))
  
-+	if (!dep->endpoint.desc)
-+		return no_started_trb;
-+
- 	dwc3_gadget_ep_cleanup_completed_requests(dep, event, status);
+ /* If we get a NAK, wait this long before retrying */
+-#define DWC2_RETRY_WAIT_DELAY (1 * 1E6L)
++#define DWC2_RETRY_WAIT_DELAY (1 * NSEC_PER_MSEC)
  
- 	if (dep->flags & DWC3_EP_END_TRANSFER_PENDING)
-@@ -3310,6 +3313,9 @@ static void dwc3_gadget_endpoint_transfer_in_progress(struct dwc3_ep *dep,
- {
- 	int status = 0;
- 
-+	if (!dep->endpoint.desc)
-+		return;
-+
- 	if (usb_endpoint_xfer_isoc(dep->endpoint.desc))
- 		dwc3_gadget_endpoint_frame_from_event(dep, event);
- 
+ /**
+  * dwc2_periodic_channel_available() - Checks that a channel is available for a
 -- 
 2.34.0
 
