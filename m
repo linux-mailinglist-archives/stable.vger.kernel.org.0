@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 658FA4544A4
-	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 11:05:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 303074544A6
+	for <lists+stable@lfdr.de>; Wed, 17 Nov 2021 11:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236004AbhKQKIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Nov 2021 05:08:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55206 "EHLO mail.kernel.org"
+        id S236049AbhKQKIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Nov 2021 05:08:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236055AbhKQKIk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236056AbhKQKIk (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 17 Nov 2021 05:08:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CEF560EBD;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EEB161BF4;
         Wed, 17 Nov 2021 10:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1637143542;
-        bh=1XXwWsrGMJXdbhQwE4pOB+h2mN8wEfcH6Dlfo9qWuX0=;
+        bh=CX8OUhMnhHykIog+bQcI6spbJp9/XgWWj4zovXpY2h8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cT5V0Xe33OmJCbKgg8ObsE/4+rNzzN/ADgnZg3v83GvpiA79rQ0LyHHZa0Oi1igHR
-         RXmAJXxjJKR9JcVgEnzpZbysTcyaU3evqPi678kCVQzHXbuZ+3Hq4ujxL8WWEEt5DR
-         nkLoM2YOOgmBRoKJBFsGg3xuD3loyk3pGri+CWfPlljDw4z2GaV0TFcx92Q/T+eg22
-         MzKSOzFQOPQRMaaRMmhqCLQsLEr0Hnv/yi6UlgKHE6lx7z62J53ql5h565i2cDlhq2
-         39MFvH4IaPa5RONO/3fHds3Z7YBVKtlLb+tCIU6oWyYRLykvCdbme4FOhhPQfdpcWK
-         GkORYNnd9Qfiw==
+        b=gQrmuTT0TNAlG2gyDmRnQ1kBWulVLGbtZe7WruT61eVdP+mZ/ufyTGSkn5zOpdx94
+         W9ADluPRDV2+FwNaMPBwCi4EgbyKvIhtP8CoJbPLvaJpeqJIOTLqtI1YQXoObUc1lI
+         zFTSk1O5t8CkMYiqrZb1SIcKfHtxlsBnoDX72Fu5PNVv56v2B7NN0czYPsLFdZb3Zi
+         y34w4jI91HYDEUoNUo7MpdF4UTq6ysofDmVsPgWcEyy8ewvN1MzaN26fvbS1PGy9aL
+         S2KYYBDC1gU0cIpCwzzP9OWvTVJPQ9Wbr3sZ128mtLgHeImkoqekDOs0r6n76JlMFz
+         J8w3B5Wbi3qfg==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1mnHoi-0001KU-LF; Wed, 17 Nov 2021 11:05:24 +0100
+        id 1mnHoi-0001KW-O3; Wed, 17 Nov 2021 11:05:24 +0100
 From:   Johan Hovold <johan@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Ilia Sergachev <silia@ethz.ch>,
@@ -36,9 +36,9 @@ Cc:     Ilia Sergachev <silia@ethz.ch>,
         linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan@kernel.org>, stable@vger.kernel.org,
         Filip Kokosinski <fkokosinski@antmicro.com>
-Subject: [PATCH v2 1/3] serial: liteuart: fix use-after-free and memleak on unbind
-Date:   Wed, 17 Nov 2021 11:05:10 +0100
-Message-Id: <20211117100512.5058-2-johan@kernel.org>
+Subject: [PATCH v2 2/3] serial: liteuart: fix minor-number leak on probe errors
+Date:   Wed, 17 Nov 2021 11:05:11 +0100
+Message-Id: <20211117100512.5058-3-johan@kernel.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20211117100512.5058-1-johan@kernel.org>
 References: <20211117100512.5058-1-johan@kernel.org>
@@ -48,9 +48,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Deregister the port when unbinding the driver to prevent it from being
-used after releasing the driver data and leaking memory allocated by
-serial core.
+Make sure to release the allocated minor number before returning on
+probe errors.
 
 Fixes: 1da81e5562fa ("drivers/tty/serial: add LiteUART driver")
 Cc: stable@vger.kernel.org      # 5.11
@@ -59,21 +58,44 @@ Cc: Mateusz Holenko <mholenko@antmicro.com>
 Reviewed-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/tty/serial/liteuart.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/serial/liteuart.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/tty/serial/liteuart.c b/drivers/tty/serial/liteuart.c
-index f075f4ff5fcf..da792d0df790 100644
+index da792d0df790..2941659e5274 100644
 --- a/drivers/tty/serial/liteuart.c
 +++ b/drivers/tty/serial/liteuart.c
-@@ -295,6 +295,7 @@ static int liteuart_remove(struct platform_device *pdev)
- 	struct uart_port *port = platform_get_drvdata(pdev);
- 	struct liteuart_port *uart = to_liteuart_port(port);
+@@ -270,8 +270,10 @@ static int liteuart_probe(struct platform_device *pdev)
  
-+	uart_remove_one_port(&liteuart_driver, port);
- 	xa_erase(&liteuart_array, uart->id);
+ 	/* get membase */
+ 	port->membase = devm_platform_get_and_ioremap_resource(pdev, 0, NULL);
+-	if (IS_ERR(port->membase))
+-		return PTR_ERR(port->membase);
++	if (IS_ERR(port->membase)) {
++		ret = PTR_ERR(port->membase);
++		goto err_erase_id;
++	}
  
- 	return 0;
+ 	/* values not from device tree */
+ 	port->dev = &pdev->dev;
+@@ -287,7 +289,16 @@ static int liteuart_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, port);
+ 
+-	return uart_add_one_port(&liteuart_driver, &uart->port);
++	ret = uart_add_one_port(&liteuart_driver, &uart->port);
++	if (ret)
++		goto err_erase_id;
++
++	return 0;
++
++err_erase_id:
++	xa_erase(&liteuart_array, uart->id);
++
++	return ret;
+ }
+ 
+ static int liteuart_remove(struct platform_device *pdev)
 -- 
 2.32.0
 
