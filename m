@@ -2,136 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31B5D456602
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 00:02:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7B3A456638
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 00:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232344AbhKRXFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 18:05:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49126 "EHLO
+        id S233006AbhKRXLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 18:11:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231499AbhKRXFk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 18:05:40 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92F5BC061574
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 15:02:39 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id n15-20020a17090a160f00b001a75089daa3so9519939pja.1
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 15:02:39 -0800 (PST)
+        with ESMTP id S232397AbhKRXLI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 18:11:08 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE0F5C06173E
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 15:08:07 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id j6-20020a17090a588600b001a78a5ce46aso9557410pji.0
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 15:08:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=TZfREpWFxbzfQOU3JFwTitWrnQiqb45RF33KvCEp9D8=;
-        b=4xZ1Vgf/jvbjcU+/TeWatwWRM+tBYg/SD3IQtC0OEddCq+Rhg0reafpeTGkhexxxsl
-         mETxnFhm1sQFhb77cDwaD5BQRTXEu6ZFK32mB6WLAQrx2ScYPRVAOzZHuvVIEfYkxTEL
-         w75bVaJkAxTVcImQY3NGWp/jxoR+YQPRWV0gh3Sa9HD7PxnN3vqOHDK1O68gQPIP3HKZ
-         gzLBJTPfzxCJnGCVgo2+nY2YBV1ZeSzNgpu/S6AvA7+NgcoIWlHQmlalF+fpCRENDwNk
-         J+299+WHoEk/9ytxJ+ftrcDUoYY89Ji6PX5p+jXSkdJES1F5UABqvrbd8GKdNSSM20Vp
-         nkhw==
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:content-language:cc:from:to
+         :subject:content-transfer-encoding;
+        bh=uHe0nHBoQnusXD7sqpDSgV4n0Un05qLazUUcsOwBApU=;
+        b=olu2tKe8WwBsUhb1pyzkmIse+j1hlmXgWE7qkgXCkJzwhLLOQQMvt2AsenAjDZdSp8
+         5AXASJxnSJ205uUovwHSH2kAsHvpVFNEh/xjuYmlPhEUZqq2N4LFU6wffRkCsH5M0tq4
+         9OsTtReKwjYaXPz1b1YFNxg+uKX4VykN4Qk3eyHVxaFHBZBETPsZTKlmA+mAhlnx27up
+         ruFpZr48NZZwtcZlY8Yy2BkgbLLpmbdOGOhoXlFjenMLzxHJ7xBvmHRMoLidVRRJTtEe
+         Q7ebH9oN6+3EiMsZ+aykmk9Ew3QS0XZ7HgBn+ov69HLF9kRNKqFpOtrfOjoHMRFboMQv
+         rzXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=TZfREpWFxbzfQOU3JFwTitWrnQiqb45RF33KvCEp9D8=;
-        b=67CnFsHv8sNRiZbgdRHvhbQjFjVAUPSUnKa7Y37aDP4eVWu+5wfORijzriduP+RSi2
-         oL9BonhObVm++xq0eaQ5fszEYb1t84hlzKk7nhFzhiPrbwoXUpSE6IFTULzlSRtO0Yrq
-         ejXVmaK79/hWcMjA5UTHfXXsVkM0eNH1jzJwKavmAIy4eeqlUczo1mAcZFpubwHB022k
-         iv+KlnN6EStrF0EyRhprzfCHtp2tdLO81RKBYDAGr5ePfa+uhR8MxgrOc+EAyel0iOd+
-         /kcAL7N0dPPZmjIxfdJOQh2aJY3rMC8uMv4iw5rCfuJLYp71CPZL11iVk69zZE/zYqS6
-         a3/w==
-X-Gm-Message-State: AOAM532Q393QSMBKSKJzYk0db9VxDK0TLHYaWQjB+gbjrTg6p8YYKOQp
-        c6B73ANL6dvQMYHkZwOcr3MFGY9SeVgprYhp
-X-Google-Smtp-Source: ABdhPJzJ4vdnWLiYWYnylFO0DKeezlUfWdLoYo6OgnYj4tNviujY9GbuK2TaoVuyCkttUVjv7S2EwA==
-X-Received: by 2002:a17:903:1208:b0:143:e4e9:4ce3 with SMTP id l8-20020a170903120800b00143e4e94ce3mr18948010plh.21.1637276559001;
-        Thu, 18 Nov 2021 15:02:39 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w187sm616135pfd.119.2021.11.18.15.02.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Nov 2021 15:02:38 -0800 (PST)
-Message-ID: <6196db8e.1c69fb81.96b64.3168@mx.google.com>
-Date:   Thu, 18 Nov 2021 15:02:38 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:cc:from:to:subject:content-transfer-encoding;
+        bh=uHe0nHBoQnusXD7sqpDSgV4n0Un05qLazUUcsOwBApU=;
+        b=QHwCJ6I5V4xkvmP/OS7JC7SkeV+WJkuZ43FaZ/IvuzJZALI8a9bxcX3gZZeGDWawA0
+         keh+ov8sCK+EijUnNvpoQmhU3IPPBldnw98Yk4PHyZQduT/8hqltZPfb51BMDX02Y3Qe
+         NG1eHZHTg95foMNRmZOh7B1L1HfZXipXiaOeagKqOSzMa4zf45eiMKX7lafDF2WFYcG8
+         Q+sRbxgEeuE0+2T/JW56fINe9rnC8cnysUwOTDzKgEaB/eVUyKBJfcU3Dv0akYOVCpzT
+         MPt/8IxQrMNYoEfD3L2LWh/DA0y2RWwxNH7+JLSlZsXfbQ7eMgAIs/23D6b4065UbF/d
+         f22A==
+X-Gm-Message-State: AOAM533wgc52eROTmVi+x246HZzBAShAmC2f7Zy8ZRAcar2wPOyP1yk+
+        67sngemKWaQbvppoqrCTxUH6IBSz9zE6VQ==
+X-Google-Smtp-Source: ABdhPJyE+ku5KctC4fuaG3TdvAXqJjhHDTpWzWxaypNRYbu2MbOuIG2qnmKp0Orrxvj1FSgblsFOGg==
+X-Received: by 2002:a17:902:7d8b:b0:144:e29b:4f2b with SMTP id a11-20020a1709027d8b00b00144e29b4f2bmr3501542plm.57.1637276887254;
+        Thu, 18 Nov 2021 15:08:07 -0800 (PST)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id k3sm640442pff.211.2021.11.18.15.08.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 18 Nov 2021 15:08:07 -0800 (PST)
+Message-ID: <7e6c4c23-f071-f33b-7bd4-da11980d34c6@linaro.org>
+Date:   Thu, 18 Nov 2021 15:08:06 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.217-251-gd104c0a7fd2c
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 136 runs,
- 1 regressions (v4.19.217-251-gd104c0a7fd2c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Content-Language: en-US
+Cc:     syzbot+662448179365dddc1880@syzkaller.appspotmail.com,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        xieyongji@bytedance.com, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     stable@vger.kernel.org
+Subject: general protection fault in bdev_read_page
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 136 runs, 1 regressions (v4.19.217-251-gd104=
-c0a7fd2c)
+Hi,
+This has triggered in 5.10.77 yesterday [1], and I was able to
+reproduce it on 5.10.80 using the C repro from android-54 [2].
+What happens is that the function do_mpage_readpage() calls
+bdev_read_page() [3] passing in bdev == NULL, and bdev_read_page()
+crashes here [4]. This happens in 5.15 down to 5.10, but it is fixed
+in 5.16-rc1. I bisected it to the first good commit, which is:
 
-Regressions Summary
--------------------
+af3c570fb0df ("loop: Use blk_validate_block_size() to validate block size")
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+The root cause seems to be loss of precision in loop_configure(),
+when it calls loop_validate_block_size() in [5]. The config->block_size
+is an uint32 and the bsize param passed to loop_validate_block_size() is
+unsigned short. The reproducer sets up a loop device with the block size
+equal to 0x20000400, which is bigger than USHRT_MAX.
+The loop_validate_block_size() returns 0, but uses the invalid size
+to setup the device. The new helper changes the bsize param type to uint,
+and the issue goes away.
 
+To fix this for the older kernels can we please have the two commits:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.217-251-gd104c0a7fd2c/plan/baseline/
+570b1cac4776 ("block: Add a helper to validate the block size")
+af3c570fb0df ("loop: Use blk_validate_block_size() to validate block size")
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.217-251-gd104c0a7fd2c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d104c0a7fd2ca12da34e38b70edb8f636379c64c =
+applied to 5.15, 5.14, and 5.10.
+The first one needs to be back ported, but the second applies cleanly.
+I will follow up back ports for each version in few minutes.
 
+-- 
+Thanks,
+Tadeusz
 
+[1] https://syzkaller.appspot.com/bug?id=2a34ab9dad714959a3d2b60533acbd99094a5c5a
+[2] https://syzkaller.appspot.com/x/repro.c?x=13420a05900000
+[3] https://elixir.bootlin.com/linux/v5.15/source/fs/mpage.c#L302
+[4] https://elixir.bootlin.com/linux/v5.15/source/block/bdev.c#L323
+[5] https://elixir.bootlin.com/linux/v5.15/source/drivers/block/loop.c#L1239
 
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6196a13f9ef69e154fe551c7
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.217=
--251-gd104c0a7fd2c/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.217=
--251-gd104c0a7fd2c/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6196a13f9ef69e1=
-54fe551cd
-        new failure (last pass: v4.19.217-251-gdb8a90cbc48f)
-        2 lines
-
-    2021-11-18T18:53:35.565260  <8>[   21.103302] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-18T18:53:35.610208  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/109
-    2021-11-18T18:53:35.619193  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
