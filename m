@@ -2,85 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D11674561E1
-	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 18:56:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC4E4561E9
+	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 19:02:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230225AbhKRR7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 12:59:42 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:50873 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230164AbhKRR7l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 12:59:41 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1637258201;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=MxhnEclBR8jNFCPokG8x6EB8ezTmbh4+h0AQiwN5yKM=;
-        b=J46Nsh4S07B3p7r0t3RJG+I6b6X+sKwqcHd7Djud8Z/MNdWTuD78bVcKuCrvPPr0xj9LPs
-        IpAEAgxlBKbPHH3nEd2EWYw3T5/gFeu2tJlU8JWbIjB/n1E+39an3vIzopBTxiuRQDpd4K
-        yhAq7SbGkRgLJ5liAa/B3A46R26hzeY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-424-7ABgYMPDPfqCTaDlTPTsEw-1; Thu, 18 Nov 2021 12:56:37 -0500
-X-MC-Unique: 7ABgYMPDPfqCTaDlTPTsEw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B953E100C609;
-        Thu, 18 Nov 2021 17:56:36 +0000 (UTC)
-Received: from [10.39.192.245] (unknown [10.39.192.245])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 82A9410190A7;
-        Thu, 18 Nov 2021 17:56:35 +0000 (UTC)
-Message-ID: <4316fbc5-b758-a7c6-530d-dc5a97f4e97b@redhat.com>
-Date:   Thu, 18 Nov 2021 18:56:34 +0100
+        id S230006AbhKRSFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 13:05:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37026 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229997AbhKRSFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 13:05:16 -0500
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B34C061574
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 10:02:15 -0800 (PST)
+Received: by mail-pg1-x535.google.com with SMTP id r5so6099373pgi.6
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 10:02:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=t/EXr+oMzpoBCjL0wailQ0KhKwey32csRQWIbfhW/cc=;
+        b=T5CSFdL6B7uounQwsjxK1ZMr4oZBZh0b/mHcMlF32MFy1mnHHATjNMZ3nRkk0l/mnj
+         eg/9h1QIz0XYDnK2a1Pby9hX9KYjePaWC38hsHaHPvopreFsFyD/8DGof2Y+EOxIGHH+
+         WiVmftqcqOHEFPTRnImraCYAWa35h11DL1tevljx17mdgU38UAAtE/Cz36dHLrXhNcTa
+         ygUQL4SDbHpslPOvd3cjciwcWBT6mf1BLijpQZkWieTyYxIK5AsqWjy7qOC+viiWzkQg
+         3wMnw7HlQXEiFVnrx3VtdvnQw9GTSH1t+Stunw17SG1Ffr7/DHSt9lR028IFA0jslwvg
+         Mk0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=t/EXr+oMzpoBCjL0wailQ0KhKwey32csRQWIbfhW/cc=;
+        b=WqhbLQzzo0/9AJEaPRo85K9t+373JmjV0VA4WkXFiJJsfxGhxBvwPXg1mMeQO0dmCG
+         MjGLFklbJa4GIad21N8r6N5TroPB2cduluynrqV88nnZhMGyHG3OD954EyTxAy8yEqSS
+         E78F8wbaNtlVwKUo/FG7Xup7jSqTIR8NFFJ8bxSajUbvXL0ZbQUmkr9VwJxZPJqwPZYy
+         CP5LkjZv3tuH8my3tAjEkEChj6yqpxt+c+3N7SHiNKc9hBhYYJXH9MhTA66Xh9+g0v0J
+         m0bqxIpAmUCPt2tAqV9nvMwPTFwd87OaemURBCtoUvl/UuVKmA0tX403tFLWYyCteljE
+         xDJg==
+X-Gm-Message-State: AOAM532h/raxP0sPFN5eJzUKGW0GNk2Fh+AvOEahM7LidRAD12h/0SbD
+        0vplfDTX4U6H/UOzCEU0G6CUvhXqHDdIjsKt
+X-Google-Smtp-Source: ABdhPJxExlWQOr4pTHfIfkY8NK0o+x2FvNG7sP8lmaw/w91jJd79q8RqMJnbYvv67q74D2MejaFq9Q==
+X-Received: by 2002:a62:15d0:0:b0:4a0:2dd5:ee4e with SMTP id 199-20020a6215d0000000b004a02dd5ee4emr58538212pfv.14.1637258534905;
+        Thu, 18 Nov 2021 10:02:14 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id co4sm9062342pjb.2.2021.11.18.10.02.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Nov 2021 10:02:14 -0800 (PST)
+Message-ID: <61969526.1c69fb81.5fd98.a3af@mx.google.com>
+Date:   Thu, 18 Nov 2021 10:02:14 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH v2] KVM: x86: check PIR even for vCPUs with disabled APICv
-Content-Language: en-US
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     Maxim Levitsky <mlevitsk@redhat.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, stable@vger.kernel.org
-References: <20211118072531.1534938-1-pbonzini@redhat.com>
- <8ad47d43a7c8ae19f09cc6ada73665d6e348e213.camel@redhat.com>
- <4ee9fe58-73ca-98fd-3d79-198e1093f722@redhat.com>
- <YZZ8hAjbIJnkkraD@google.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <YZZ8hAjbIJnkkraD@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.160-4-g477a37096746
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 145 runs,
+ 1 regressions (v5.4.160-4-g477a37096746)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/18/21 17:17, Sean Christopherson wrote:
-> On Thu, Nov 18, 2021, Paolo Bonzini wrote:
->> On 11/18/21 10:56, Maxim Levitsky wrote:
->>> vmx_sync_pir_to_irr has 'if (KVM_BUG_ON(!vcpu->arch.apicv_active,
->>> vcpu->kvm))' That has to be removed I think for this to work.
->>
->> Good point.
-> 
-> Hmm, I think I'd prefer to keep it as
-> 
-> 	if (KVM_BUG_ON(!enable_apicv))
-> 		return -EIO;
-> 
-> since calling it directly or failing to nullify vmx_x86_ops.sync_pir_to_irr when
-> APICv is unsupported would lead to all sorts of errors.  It's not a strong
-> preference though.
-> 
+stable-rc/queue/5.4 baseline: 145 runs, 1 regressions (v5.4.160-4-g477a3709=
+6746)
 
-Sure, why not.  There's a few more changes required to handle 
-KVM_REQ_EVENT when APICv is !active on the CPU, so I'll post it early 
-next week.
+Regressions Summary
+-------------------
 
-(The MOVE/COPY context stuff also exposed itself as a bit of a 
-trainwreck and ate half of my day).
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig | 1     =
+     =
 
-Paolo
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.160-4-g477a37096746/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.160-4-g477a37096746
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      477a37096746b80259c66810e3af79348b057c04 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/61965e4de662758960e551ec
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.160-4=
+-g477a37096746/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d=
+-p230.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.160-4=
+-g477a37096746/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d=
+-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61965e4de662758960e55=
+1ed
+        new failure (last pass: v5.4.160-4-gb13bf6dfb5f7) =
+
+ =20
