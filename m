@@ -2,79 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 993544556DD
-	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 09:21:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2A9A4556E7
+	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 09:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244249AbhKRIX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 03:23:57 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49127 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235672AbhKRIXz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 03:23:55 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.nyi.internal (Postfix) with ESMTP id C27F15C0076;
-        Thu, 18 Nov 2021 03:20:55 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Thu, 18 Nov 2021 03:20:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=2BwFqhkEaqb0wwO4i3eJ2chfvHV
-        2OQLt6WAJ9OSUwcM=; b=sRu3Wu+Pe/QilkPNIeqJywkZ0pgKkDxpsObRV8dGTj/
-        cZyCcpFjAWgqckvCz5bumyFEhmuRee/ZuK48yvNuY0tbYoiMBJTR194vdaFrEq12
-        KUs4X5+BckD4enucuQVV7NGSFP37v9WR/p3B/+ok6ZifV/kNuTY4by8dMRRDKGqH
-        3eJif2aDZMH4BVer28qUuBmk3iMAjHgjto5P+flsYoo0L0A9avrFtPmM3GSyKEFd
-        jm+cDyTsm+a9s5D9IM7ZmsjMSw1WOKZOXxQJR4jz1KmlpSQLGTmI7+PKDMx6vq84
-        9mLCCpCC4UWKyBlraL8h1eurOlDF7/octK0VgsWnMpA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=2BwFqh
-        kEaqb0wwO4i3eJ2chfvHV2OQLt6WAJ9OSUwcM=; b=YqIbYrvW2PnsnJp78GJYDT
-        x0oQ9Ma/wPvNMgtT5L3Ok2DE83ZsLxWBJHohERKLWLrZU2l1eE7kyOG8bEWPaukr
-        26IRyIokwStya8kXaAK4PDoW0nIuIIo3DLGEGch8JYXDcIRBVWD7nqDGEhTmLsaN
-        6qxRAPJ1lM43LoeiEZAa5gZ2qRtmsYeBJER6sgZEiOVCzkXwgbbXC60ZyS+kkWQR
-        QjKrore07F7oGAGWWtuXaHzHq8ETEmQ4YcMtykugkgidQnqG2HQWK4uQoO4xyk78
-        Een/i5QkNTE4rlAFjvWl9w9K/4A7mu3hMbBj/ntq+wEL3rTWu/O/A1XPhCxxh7WA
-        ==
-X-ME-Sender: <xms:5wyWYdEsRCODQ_e6zCEQVW3VOrxWgYlvsQvk96TfPFJfLOtjuPvlPw>
-    <xme:5wyWYSX37BqcM9FJSAKdWW_cNsSSrN-0-rkj212-lR0UnlurCRkyfjPzL-eXdhWI7
-    LGBBla_M-JyoQ>
-X-ME-Received: <xmr:5wyWYfLQbECc3GOBYynmmtesPKwK8576FGLsOJNAGDvaVXdRCd7hB939CTEzlNhECc9b5ghJXU4Wz9-SiMFhYZKSr31Mv4JR>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrfeehgdduudehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:5wyWYTHPCfJsJBfSpMyS7Wrwndt0LJVd3Tie9vM32UnaRiLWK3ww9w>
-    <xmx:5wyWYTUCw5l9x1sM7NKngzeevvAbztl-qi8APRd7VFQPMgD2Qv98kg>
-    <xmx:5wyWYeMqxispHEMcVgkGKTuNyj7RdV_tyfi6b-WlWdT9oyr6ydx1FQ>
-    <xmx:5wyWYQhB9umU4l-rNihvQMn3rH2BjPOOMl-v_Ucx2MdtS2Ro0q9GRA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 18 Nov 2021 03:20:54 -0500 (EST)
-Date:   Thu, 18 Nov 2021 09:20:52 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Shaoying Xu <shaoyi@amazon.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 5.4] ext4: fix lazy initialization next schedule time
- computation in more granular unit
-Message-ID: <YZYM5DRi+yztvfbX@kroah.com>
-References: <20211115214212.GA18940@amazon.com>
- <YZVDshkxnSxnIdfq@kroah.com>
- <20211117232036.GA14594@amazon.com>
+        id S244345AbhKRI0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 03:26:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43008 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S244270AbhKRI0b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Nov 2021 03:26:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AEDE61361;
+        Thu, 18 Nov 2021 08:23:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637223812;
+        bh=754HzQeRSa4U0WKlwM/2vq9iGP9k2bKesd46flafvxQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RfdcBvJsuGTw//As2G1IWXaH1710+QQqgWWfqrDuhq7eNXr0jl5Uayx037IkZrTUq
+         CciS+XroAyox8eOnFydFVTglS6jiCboQeyH9904TsvEWgdhH/RiP5mHVh8dKoZ059V
+         5uHsUk0Rpi1ZnJZkX+DFWxZ+tu2IKNdXrGWBMsVI=
+Date:   Thu, 18 Nov 2021 09:23:29 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Marek Vasut <marex@denx.de>
+Cc:     Szabolcs Sipos <labuwx@balfug.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] Bluetooth: btusb: Add support for TP-Link UB500 Adapter
+Message-ID: <YZYNgUv51hs6suNE@kroah.com>
+References: <aa3f6986-1e9b-4aaa-e498-fd99385f4063@denx.de>
+ <YWPrSHGbno3dODKr@kroah.com>
+ <62685363-e1b3-bc97-431e-a7c8faccb78d@balfug.com>
+ <YZP6CL+CDMyzQ6aA@kroah.com>
+ <5931c469-c0bf-4e93-e7e3-443b5ca60fb3@denx.de>
+ <YZSixJVYJxE7COuy@kroah.com>
+ <182bce57-8a46-9631-3ecf-7eb7a89593ce@denx.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211117232036.GA14594@amazon.com>
+In-Reply-To: <182bce57-8a46-9631-3ecf-7eb7a89593ce@denx.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 17, 2021 at 11:20:36PM +0000, Shaoying Xu wrote:
-> Thank you! Can the patch also be added to kernel 4.19 and 4.14 please? 
+On Wed, Nov 17, 2021 at 09:27:17PM +0100, Marek Vasut wrote:
+> On 11/17/21 7:35 AM, Greg Kroah-Hartman wrote:
+> > On Tue, Nov 16, 2021 at 08:58:15PM +0100, Marek Vasut wrote:
+> > > On 11/16/21 7:35 PM, Greg Kroah-Hartman wrote:
+> > > > On Tue, Nov 16, 2021 at 06:41:08PM +0100, Szabolcs Sipos wrote:
+> > > > > On 10/11/21 09:44, Greg Kroah-Hartman wrote:
+> > > > > > On Sun, Oct 10, 2021 at 10:59:06PM +0200, Marek Vasut wrote:
+> > > > > > > Hello everyone,
+> > > > > > > 
+> > > > > > > The following new device USB ID has landed in linux-next recently:
+> > > > > > > 
+> > > > > > > 4fd6d4907961 ("Bluetooth: btusb: Add support for TP-Link UB500 Adapter")
+> > > > > > > 
+> > > > > > > It would be nice if it could be backported to stable. I verified it works on
+> > > > > > > 5.14.y as a simple cherry-pick .
+> > > > > > 
+> > > > > > A patch needs to be in Linus's tree before we can add it to the stable
+> > > > > > releases.  Please let us know when it gets there and we will be glad to
+> > > > > > pick it up.
+> > > > > > 
+> > > > > > thanks,
+> > > > > > 
+> > > > > > greg k-h
+> > > > > 
+> > > > > Hello Greg,
+> > > > > 
+> > > > > The patch has reached Linus's tree:
+> > > > > 4fd6d4907961 ("Bluetooth: btusb: Add support for TP-Link UB500 Adapter")
+> > > > > 
+> > > > > Could you please add it to stable (5.15.y)?
+> > > > 
+> > > > I will queue it up for the next set of kernels after the current ones are
+> > > > released.
+> > > 
+> > > btw while you're bringing it up, is there some sure-fire method I can use to
+> > > verify the patch is in Linus tree, besides having a separate checkout of
+> > > that tree ?
+> > 
+> > Without the tree/branch checked out?  Not that I know of, sorry.
+> 
+> I have a local checkout of Linus tree, except I also have other remotes in
+> it, that's what I meant.
+> 
+> > > I usually have both Linus tree as origin and next in one git tree, so I was
+> > > wondering if there is a recommended way to avoid mistakes like the one I
+> > > made above (and checking at git.kernel.org apparently also has its
+> > > downsides).
+> > 
+> > Having both in one git tree is fine.  Just switch between branches (one
+> > that tracks Linus's and one that tracks linux-next) and you can see what
+> > is happening in each of them.
+> 
+> I can do some "git log linus/master | grep the-commit" , but that does not
+> seem to be the most efficient approach, or is it ?
 
-Now queued up, thanks.
+git log linux/master path/to/file/you/care/about.c
+
+will give you just the log of the specific file as you know what one you
+are looking for here, right?
+
+> > There's other "tricks" to see if patches have been added to branches by
+> > adding them to a branch and then rebasing and seeing the end result, but
+> > those get tricky to try to explain in simple emails...
+> 
+> Some sort of git-cherry-pick and git-rebase ?
+
+Yes, create a branch:
+	git checkout -b my_new_branch linux/master
+add the patch
+	git cherry-pick SHA_to_pick
+
+And then later on after you have updated linux/master:
+	git rebase linux/master
+and see if anything is still left here or not:
+	git log linux/master..HEAD
+
+if the commit is merged, then the log will be empty.
+
+have fun!
 
 greg k-h
