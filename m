@@ -2,210 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66AF2455865
-	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 10:57:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A880455867
+	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 10:57:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245313AbhKRJ75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 04:59:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37514 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245322AbhKRJ7E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 04:59:04 -0500
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DBDC061764
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 01:56:03 -0800 (PST)
-Received: by mail-ed1-x529.google.com with SMTP id z5so24483978edd.3
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 01:56:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=aleksander-es.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Xu5C790ZoAg97VGCg1XhQWVDBmDf+6a36FlNr4a3o/M=;
-        b=ynBCFY5uD4ULQ9b/5BK8N5p8NyESaZmBpT5PNxk9FhOvrN3r77IYXiXYuYim4xVME1
-         t+k0rV7mkqae5K8ojii4uRFtclgDlvxj2m/q6OQtwh9V7kLhaQeNRR/mKHZMEI3yHjpq
-         Qui0gTFLBC2a4WbUyVM/Ynu/v/Rdy1S6fQfBiTQH1i1Zq3kXiLfWK0yVDUvJMQAGR6yC
-         WM3MiQelyyFak9ymmcYM7VmH7UUFjmZcU6tVzLsjRuVrDFkqDFNE5aV2TmNPAW9gaRzx
-         aWrehN6NKuXCR46SvqdaWBpVox7ECBeKRLfU1yT2EpNiO4FX6//lYQMq64iKutnhWqvN
-         Yo4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Xu5C790ZoAg97VGCg1XhQWVDBmDf+6a36FlNr4a3o/M=;
-        b=tJ5OEJDkoSWx/1GETrs8sGcncSWY4xN7FkOnYc9EaeVyvbIwv64Kedg5RGI0v9zbaJ
-         H/nQAdwqC3O9+UfcLilX8p+XNQDkjq0e4DkTiFSnCi56qUWu5K8m2J8pQAHpFsoKeZVl
-         sCAuZGYlhMBLQ4UsW5fDqCJ8csl4jWdsGoKG9nM/GZ9lHYfg27Bwor29fG4SZNdIZxIu
-         UN0SUpcJwewDtxaiBAngxnonqdguSX0coxXfdEg0+du7mFfxpEHErpYm2jn5KG6yOSKK
-         +KLoqBr+pyNSZBttyhkp6GYs/2CbjbW7/BjxLEfHoI3NxG5d5cDGgUxU6dfatf/NczV1
-         qocQ==
-X-Gm-Message-State: AOAM5305bV05oOqVdfuAQYUJQ7VR9yrbmvKraEuSQzdLe99zi3ZBuSlU
-        u8uXGJ1wRp8gAjIenofiDLrekqqYYylvLhLXgwNJCg==
-X-Google-Smtp-Source: ABdhPJytdcmXOpm+1R0BZ5kIZ7mJHWmMMAKGNTUwWOBwbaIAUJQfq3/Rmp56rV4+ydwCFBd0unEvoNAfl2QvdEnvDrw=
-X-Received: by 2002:a17:907:720d:: with SMTP id dr13mr32411152ejc.153.1637229362213;
- Thu, 18 Nov 2021 01:56:02 -0800 (PST)
-MIME-Version: 1.0
-References: <20211118055726.13107-1-manivannan.sadhasivam@linaro.org>
-In-Reply-To: <20211118055726.13107-1-manivannan.sadhasivam@linaro.org>
-From:   Aleksander Morgado <aleksander@aleksander.es>
-Date:   Thu, 18 Nov 2021 10:55:51 +0100
-Message-ID: <CAAP7ucJoOTOqFnNpJcQmxF=A0TOB8TtCCng-2q9pNkddRTbpuw@mail.gmail.com>
-Subject: Re: [PATCH v3] bus: mhi: Fix race while handling SYS_ERR at power up
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc:     mhi@lists.linux.dev, Loic Poulain <loic.poulain@linaro.org>,
-        Thomas Perrot <thomas.perrot@bootlin.com>,
-        Hemant Kumar <hemantk@codeaurora.org>,
-        Bhaumik Bhatt <bbhatt@codeaurora.org>, quic_jhugo@quicinc.com,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
+        id S245345AbhKRKAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 05:00:03 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:26929 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S245360AbhKRJ7T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 04:59:19 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1637229377;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=wEk0Ix6QqXBgVWnz008QmDW0QekiZrGZyqYEU0wf5p4=;
+        b=PNy5FJZd6FBkGBmrlObhVVvEm2kroeh0H98uoR4btWqHkP4GqdGpj7odPT7UH8CnktTUNs
+        JzJ8n2X0/3vv4S8x0M/0vDtNcDg93nswEc9d/7rElxRJJGgkbh3wI4606sljpow0oYXZeG
+        q3j4N18hCIAcHRyKZCXqUjEj1OHL+9w=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-363-uqecaitHPRmsAKjQpphpBg-1; Thu, 18 Nov 2021 04:56:16 -0500
+X-MC-Unique: uqecaitHPRmsAKjQpphpBg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1D81587D541;
+        Thu, 18 Nov 2021 09:56:14 +0000 (UTC)
+Received: from starship (unknown [10.40.194.243])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5D8CB5FC13;
+        Thu, 18 Nov 2021 09:56:12 +0000 (UTC)
+Message-ID: <8ad47d43a7c8ae19f09cc6ada73665d6e348e213.camel@redhat.com>
+Subject: Re: [PATCH v2] KVM: x86: check PIR even for vCPUs with disabled
+ APICv
+From:   Maxim Levitsky <mlevitsk@redhat.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>
+Date:   Thu, 18 Nov 2021 11:56:11 +0200
+In-Reply-To: <20211118072531.1534938-1-pbonzini@redhat.com>
+References: <20211118072531.1534938-1-pbonzini@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-2.fc32) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hey Mani,
-
-On Thu, Nov 18, 2021 at 6:57 AM Manivannan Sadhasivam
-<manivannan.sadhasivam@linaro.org> wrote:
->
-> Some devices tend to trigger SYS_ERR interrupt while the host handling
-> SYS_ERR state of the device during power up. This creates a race
-> condition and causes a failure in booting up the device.
->
-> The issue is seen on the Sierra Wireless EM9191 modem during SYS_ERR
-> handling in mhi_async_power_up(). Once the host detects that the device
-> is in SYS_ERR state, it issues MHI_RESET and waits for the device to
-> process the reset request. During this time, the device triggers SYS_ERR
-> interrupt to the host and host starts handling SYS_ERR execution.
->
-> So by the time the device has completed reset, host starts SYS_ERR
-> handling. This causes the race condition and the modem fails to boot.
->
-> Hence, register the IRQ handler only after handling the SYS_ERR check
-> to avoid getting spurious IRQs from the device.
->
+On Thu, 2021-11-18 at 02:25 -0500, Paolo Bonzini wrote:
+> The IRTE for an assigned device can trigger a POSTED_INTR_VECTOR even
+> if APICv is disabled on the vCPU that receives it.  In that case, the
+> interrupt will just cause a vmexit and leave the ON bit set together
+> with the PIR bit corresponding to the interrupt.
+100% true.
+> 
+> Right now, the interrupt would not be delivered until APICv is re-enabled.
+> However, fixing this is just a matter of always doing the PIR->IRR
+> synchronization, even if the vCPU has temporarily disabled APICv.
+> 
+> This is not a problem for performance, or if anything it is an
+> improvement.  First, in the common case where vcpu->arch.apicv_active is
+> true, one fewer check has to be performed.  Second, static_call_cond will
+> elide the function call if APICv is not present or disabled.  Finally,
+> in the case for AMD hardware we can remove the sync_pir_to_irr callback:
+> it is only needed for apic_has_interrupt_for_ppr, and that function
+> already has a fallback for !APICv.
+> 
 > Cc: stable@vger.kernel.org
-> Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
-> Reported-by: Aleksander Morgado <aleksander@aleksander.es>
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> Co-developed-by: Sean Christopherson <seanjc@google.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 > ---
->
-> Changes in v3:
->
-> * Moved BHI_INTVEC setup after irq setup
-> * Used interval_us as the delay for the polling API
->
-> Changes in v2:
->
-> * Switched to "mhi_poll_reg_field" for detecting MHI reset in device.
->
+>  arch/x86/kvm/lapic.c   |  2 +-
+>  arch/x86/kvm/svm/svm.c |  1 -
+>  arch/x86/kvm/x86.c     | 18 +++++++++---------
+>  3 files changed, 10 insertions(+), 11 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+> index 759952dd1222..f206fc35deff 100644
+> --- a/arch/x86/kvm/lapic.c
+> +++ b/arch/x86/kvm/lapic.c
+> @@ -707,7 +707,7 @@ static void pv_eoi_clr_pending(struct kvm_vcpu *vcpu)
+>  static int apic_has_interrupt_for_ppr(struct kvm_lapic *apic, u32 ppr)
+>  {
+>  	int highest_irr;
+> -	if (apic->vcpu->arch.apicv_active)
+> +	if (kvm_x86_ops.sync_pir_to_irr)
+>  		highest_irr = static_call(kvm_x86_sync_pir_to_irr)(apic->vcpu);
 
-I tried this v3 patch and I'm not sure if it's working properly in my
-setup; not all boots are successfully bringing the modem up.
+>  	else
+>  		highest_irr = apic_find_highest_irr(apic);
+> diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+> index 5630c241d5f6..d0f68d11ec70 100644
+> --- a/arch/x86/kvm/svm/svm.c
+> +++ b/arch/x86/kvm/svm/svm.c
+> @@ -4651,7 +4651,6 @@ static struct kvm_x86_ops svm_x86_ops __initdata = {
+>  	.load_eoi_exitmap = svm_load_eoi_exitmap,
+>  	.hwapic_irr_update = svm_hwapic_irr_update,
+>  	.hwapic_isr_update = svm_hwapic_isr_update,
+> -	.sync_pir_to_irr = kvm_lapic_find_highest_irr,
+>  	.apicv_post_state_restore = avic_post_state_restore,
+>  
+>  	.set_tss_addr = svm_set_tss_addr,
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 627c955101a0..a8f12c83db4b 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -4448,8 +4448,7 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+>  static int kvm_vcpu_ioctl_get_lapic(struct kvm_vcpu *vcpu,
+>  				    struct kvm_lapic_state *s)
+>  {
+> -	if (vcpu->arch.apicv_active)
+> -		static_call(kvm_x86_sync_pir_to_irr)(vcpu);
+> +	static_call_cond(kvm_x86_sync_pir_to_irr)(vcpu);
+>  
+>  	return kvm_apic_get_state(vcpu, s);
+>  }
+> @@ -9528,8 +9527,7 @@ static void vcpu_scan_ioapic(struct kvm_vcpu *vcpu)
+>  	if (irqchip_split(vcpu->kvm))
+>  		kvm_scan_ioapic_routes(vcpu, vcpu->arch.ioapic_handled_vectors);
+>  	else {
+> -		if (vcpu->arch.apicv_active)
+> -			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
+> +		static_call_cond(kvm_x86_sync_pir_to_irr)(vcpu);
+>  		if (ioapic_in_kernel(vcpu->kvm))
+>  			kvm_ioapic_scan_entry(vcpu, vcpu->arch.ioapic_handled_vectors);
+>  	}
+> @@ -9802,10 +9800,12 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+>  
+>  	/*
+>  	 * This handles the case where a posted interrupt was
+> -	 * notified with kvm_vcpu_kick.
+> +	 * notified with kvm_vcpu_kick.  Assigned devices can
+> +	 * use the POSTED_INTR_VECTOR even if APICv is disabled,
+> +	 * so do it even if !kvm_vcpu_apicv_active(vcpu).
+>  	 */
+> -	if (kvm_lapic_enabled(vcpu) && vcpu->arch.apicv_active)
+> -		static_call(kvm_x86_sync_pir_to_irr)(vcpu);
+> +	if (kvm_lapic_enabled(vcpu))
+> +		static_call_cond(kvm_x86_sync_pir_to_irr)(vcpu);
+>  
+>  	if (kvm_vcpu_exit_request(vcpu)) {
+>  		vcpu->mode = OUTSIDE_GUEST_MODE;
+> @@ -9849,8 +9849,8 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+>  		if (likely(exit_fastpath != EXIT_FASTPATH_REENTER_GUEST))
+>  			break;
+>  
+> -		if (kvm_lapic_enabled(vcpu) && kvm->arch.apicv_active)
+> -			static_call(kvm_x86_sync_pir_to_irr)(vcpu);
+> +		if (kvm_lapic_enabled(vcpu))
+> +			static_call_cond(kvm_x86_sync_pir_to_irr)(vcpu);
+>  
+>  		if (unlikely(kvm_vcpu_exit_request(vcpu))) {
+>  			exit_fastpath = EXIT_FASTPATH_EXIT_HANDLED;
 
-Once I installed it, I kept having this kind of logs on every boot:
-[    7.030407] mhi-pci-generic 0000:01:00.0: BAR 0: assigned [mem
-0x600000000-0x600000fff 64bit]
-[    7.038984] mhi-pci-generic 0000:01:00.0: enabling device (0000 -> 0002)
-[    7.045814] mhi-pci-generic 0000:01:00.0: using shared MSI
-[    7.052191] mhi mhi0: Requested to power ON
-[    7.168042] mhi mhi0: Power on setup success
-[    7.168141] mhi mhi0: Wait for device to enter SBL or Mission mode
-[   15.687938] mhi-pci-generic 0000:01:00.0: failed to suspend device: -16
 
-I didn't have debug logs enabled in that build, so I created a new one
-with them enabled, and... these are the logs I'm getting now (not the
-same ones as above, not sure why):
+vmx_sync_pir_to_irr has 'if (KVM_BUG_ON(!vcpu->arch.apicv_active, vcpu->kvm))'
+That has to be removed I think for this to work.
 
-// Cold boots fail (tried several times)
-[    7.033370] mhi-pci-generic 0000:01:00.0: MHI PCI device found: sierra-em919x
-[    7.040558] mhi-pci-generic 0000:01:00.0: BAR 0: assigned [mem
-0x600000000-0x600000fff 64bit]
-[    7.049105] mhi-pci-generic 0000:01:00.0: enabling device (0000 -> 0002)
-[    7.055923] mhi-pci-generic 0000:01:00.0: using shared MSI
-[    7.062130] mhi mhi0: Requested to power ON
-[    7.066351] mhi mhi0: Attempting power on with EE: PASS THROUGH,
-state: SYS ERROR
-[   20.572010] mhi mhi0: Power on setup success
-[   20.576412] mhi mhi0: Handling state transition: PBL
-[   55.139820] mhi mhi0: Device failed to enter MHI Ready
-[   55.144978] mhi mhi0: MHI did not enter READY state
-[   55.149876] mhi mhi0: Handling state transition: DISABLE
-[   55.155203] mhi mhi0: Processing disable transition with PM state:
-Firmware Download Error
-[   55.163482] mhi mhi0: Triggering MHI Reset in device
-[   89.727820] mhi mhi0: Device failed to clear MHI Reset
-[   89.732975] mhi mhi0: Waiting for all pending event ring processing
-to complete
-[   89.740316] mhi mhi0: Waiting for all pending threads to complete
-[   89.746422] mhi mhi0: Reset all active channels and remove MHI devices
-[   89.752963] mhi mhi0: Resetting EV CTXT and CMD CTXT
-[   89.757940] mhi mhi0: Error moving from PM state: Firmware Download
-Error to: DISABLE
-[   89.765785] mhi mhi0: Exiting with PM state: Firmware Download
-Error, MHI state: RESET
-[   89.773793] mhi-pci-generic 0000:01:00.0: failed to power up MHI controller
-[   89.781067] mhi-pci-generic: probe of 0000:01:00.0 failed with error -110
+Plus the above calls now can happen when APICv is fully disabled (and not just inhibited),
+which is also something that I think that vmx_sync_pir_to_irr should be fixed to be aware of.
 
-// Warm reboots afterwards seem to go ok (tried several times)
-[    7.072762] mhi-pci-generic 0000:01:00.0: MHI PCI device found: sierra-em919x
-[    7.079942] mhi-pci-generic 0000:01:00.0: BAR 0: assigned [mem
-0x600000000-0x600000fff 64bit]
-[    7.088505] mhi-pci-generic 0000:01:00.0: enabling device (0000 -> 0002)
-[    7.095331] mhi-pci-generic 0000:01:00.0: using shared MSI
-[    7.101628] mhi mhi0: Requested to power ON
-[    7.105859] mhi mhi0: Attempting power on with EE: PASS THROUGH,
-state: SYS ERROR
-[    7.224053] mhi mhi0: Power on setup success
-[    7.228373] mhi mhi0: local ee: INVALID_EE state: RESET device ee:
-MISSION MODE state: READY
-[    7.236878] mhi mhi0: Handling state transition: PBL
-[    7.241871] mhi mhi0: Device in READY State
-[    7.246118] mhi mhi0: Initializing MHI registers
-[    7.250775] mhi mhi0: Wait for device to enter SBL or Mission mode
-[   15.418147] mhi mhi0: local ee: MISSION MODE state: READY device
-ee: MISSION MODE state: READY
-[   16.025027] mhi mhi0: State change event to state: M0
-[   16.025041] mhi mhi0: local ee: MISSION MODE state: READY device
-ee: MISSION MODE state: M0
-[   16.038500] mhi mhi0: Received EE event: MISSION MODE
-[   16.038505] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-MISSION MODE state: M0
-[   16.051671] mhi mhi0: Handling state transition: MISSION MODE
-[   16.057434] mhi mhi0: Processing Mission Mode transition
-[   16.063780] mhi_net mhi0_IP_HW0: 100: Updating channel state to: START
-[   16.197073] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-MISSION MODE state: M0
-[   16.201196] mhi_net mhi0_IP_HW0: 100: Channel state change to START
-successful
-[   16.212565] mhi_net mhi0_IP_HW0: 101: Updating channel state to: START
-[   16.362262] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-MISSION MODE state: M0
-[   16.362268] mhi_net mhi0_IP_HW0: 101: Channel state change to START
-successful
-[   18.860081] mhi mhi0: Allowing M3 transition
-[   18.864380] mhi mhi0: Waiting for M3 completion
-[   19.080218] mhi mhi0: State change event to state: M3
-[   19.080228] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-MISSION MODE state: M3
-[   21.899049] mhi_wwan_ctrl mhi0_DUN: 32: Updating channel state to: START
-[   21.924031] mhi mhi0: Entered with PM state: M3, MHI state: M3
-[   21.952174] mhi mhi0: State change event to state: M0
-[   21.952193] mhi mhi0: local ee: MISSION MODE state: M3 device ee:
-MISSION MODE state: M0
-[   21.967549] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-MISSION MODE state: M0
-[   21.967553] mhi_wwan_ctrl mhi0_DUN: 32: Channel state change to
-START successful
+Also note that VMX has code that sets vmx_x86_ops.sync_pir_to_irr to NULL in its 'hardware_setup'
+if APICv is disabled. 
+I wonder if that done befor or after the static_call_cond sites are updated.
 
-I didn't try the v1 or v2 patches (sorry!), so not sure if the issues
-come in this last iteration or in an earlier one. Do you want me to
-try with v1 and v2 as well?
+I think that this code should be removed as well, and vmx_sync_pir_to_irr should just
+do nothing when APICv is fully disabled.
 
-The patch that was working very reliably (100%) for me was the "bus:
-mhi: Register IRQ handler after SYS_ERR check during power up" one,
-which you attached here:
-https://www.spinics.net/lists/linux-arm-msm/msg97646.html
+I haven't run tested this code so I might be wrong of course.
 
--- 
-Aleksander
-https://aleksander.es
+
+Best regards,
+	Maxim Levitsky
+
