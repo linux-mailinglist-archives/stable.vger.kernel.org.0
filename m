@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCC74456554
-	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 23:04:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BADFC456555
+	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 23:04:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230208AbhKRWHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 17:07:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50042 "EHLO mail.kernel.org"
+        id S231282AbhKRWHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 17:07:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229777AbhKRWHd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Nov 2021 17:07:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0DC7610FC;
-        Thu, 18 Nov 2021 22:04:32 +0000 (UTC)
+        id S229777AbhKRWHr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Nov 2021 17:07:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4011461108;
+        Thu, 18 Nov 2021 22:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1637273072;
-        bh=cfQgggidWR/rUD0Jmhzy8dNAtDW8yk6uw+KcRH1dJlw=;
+        s=korg; t=1637273086;
+        bh=uLC8w3HVdZYmx8hafAm7eA46tedviwzM9b15dZqtKbY=;
         h=Date:From:To:Subject:From;
-        b=nopPLLGYHqcz7JWR3GnTQkFhy54jgHm83yjDBKogWQCJU0VWeXPfE8sV2QaMd4v0X
-         RqNwYxWkk2Ry8pa7OCBPeQhA465q9+8PSTtf6hgOyAn2Osxky6dcxvqagZt19Mz6qN
-         QoFc0y53lo+nDr9lHLCLYa37+1DD95e1OBEUgz4o=
-Date:   Thu, 18 Nov 2021 14:04:32 -0800
+        b=wJgrsf1a7jbE1fJRK+zYtf2GLmGXj6hJEU+X/cEa4Hvu94re1PjCprlGhTx8UNATh
+         +HOrNl9zqd5ApOtXzRbJBGrHpN2Zs6aebeZ3fPZcnln8W3ux9jYyPBXfMwnkFSbT6a
+         QWKxJolJn+N40KdwSAcQuLhpGF5DeMGcSrpednZU=
+Date:   Thu, 18 Nov 2021 14:04:45 -0800
 From:   akpm@linux-foundation.org
 To:     almasrymina@google.com, jthoughton@google.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        weixugc@google.com
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, weixugc@google.com
 Subject:  +
  hugetlb-userfaultfd-fix-reservation-restore-on-userfaultfd-error.patch
  added to -mm tree
-Message-ID: <20211118220432.Hwbkn6UvN%akpm@linux-foundation.org>
+Message-ID: <20211118220445.nFEgf39Il%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -78,6 +78,7 @@ Link: https://lkml.kernel.org/r/20211117193825.378528-1-almasrymina@google.com
 Fixes: c7b1850dfb41 ("hugetlb: don't pass page cache pages to restore_reserve_on_error")
 Signed-off-by: Mina Almasry <almasrymina@google.com>
 Reported-by: James Houghton <jthoughton@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: Wei Xu <weixugc@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
