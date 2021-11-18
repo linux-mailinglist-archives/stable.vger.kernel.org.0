@@ -2,86 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E494455FB3
-	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 16:39:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5350455FBE
+	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 16:44:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232471AbhKRPmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 10:42:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60384 "EHLO
+        id S232419AbhKRPrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 10:47:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230376AbhKRPmA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 10:42:00 -0500
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1354C061574
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 07:38:59 -0800 (PST)
-Received: by mail-ot1-x342.google.com with SMTP id x19-20020a9d7053000000b0055c8b39420bso11626860otj.1
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 07:38:59 -0800 (PST)
+        with ESMTP id S231613AbhKRPrA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 10:47:00 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BEA6C061574
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 07:44:00 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id h24so5463225pjq.2
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 07:44:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=XTpOu3C6ypOxJdAqziHwMT+WgzZABxAOQFGer02Qdgg=;
-        b=bEKlJVaiF7GVvTa4XCkko/fwSQLfFO7u2SSBD822ateXq4uGYU4h5MytyKoJe/3wiC
-         isP3xA3MjtPN+qmczS+gtfNwRSBBCPMaMMDzMGuHVFREdggeEAffo+SjapvSXd85fsCx
-         pD2CKijjCmNZsWyTnO4ssO34xuvmPr2NdtO4WiPg20tV4uHfx6M6hLW2maPk7E+ZJ1hl
-         kVS8bsf48NJUvB2gdEeYJ9mcFsvvtSHhsULkEEm3dtWb0xSFTh3JEm5KRmV+AB5m52b8
-         yegbDfEaN3X4xA+XVLhDh+RcdJ/2Klk1gAy+kLOF7Xt3ODPZnpe3IYLhcXzOVI/bNYt/
-         Wa8g==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=bFB2Kd7VBsl4vHFftQvBkjbtNVbo4gvaTPqnlcqmWPk=;
+        b=xXBFJB1vPV5/BWKLJg++T4tpsdB25+fBpvCv9GWxZBo3zNkcQpE01sgdsT13bBNS0L
+         kiQAMU8rv2hX3XcA5YDaAc38029irGc6fCjlcUoqCIVM+dMAr2McgO6AhCyXQcSgwpOW
+         6FRXKxQuh5EhJnysmygQRQt1Qo6IxXEpiMb6LB8gTvLW5ElQTJ1c9c0E4bPzMIM9rI5s
+         Q8WjZNPDkIzxPJHwDirbTqoVlewBNinA0/B6EBq2XgHXXMdMa/RLzw8a4S7+yudj0OYy
+         BngPdHa+oiA/9CnZz6Og9GAKEGiRolcLplzkFZpO+wJyU8jEth0kNdfJrzJarl+ZDNfG
+         81aQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=XTpOu3C6ypOxJdAqziHwMT+WgzZABxAOQFGer02Qdgg=;
-        b=7bROjSBSTJ35L7rQuefK1Q4fLgNvU1k+28OX91FqULyoHWsQoNr+q+vuJEMurWn1RG
-         XAm0hVfmeMrGqVwDtGtn/nm+NkwbdXbzLobWRnGXZOc9+2CJ8h6h0E7Qp6JgJo6blwy7
-         9z2ZcvTOxrfO34dnjMS67LVoLvi9m6IC7pChQPeOX0UZnO3yj5UqmvyXcQjzBhizQnZd
-         K9bAPviqh9O7h4J0yPy5VOm9IdC7MUHDI1lxEqRY2i9tlvMNx0Ye3UxtiyCYdrT04MsG
-         8czeKQax9j6Q6i+Qzv2s8NVG9bLpy7xDYPeoYKj2Zc+dR/7LX1Zl4RYMl31mt4P0yyGl
-         vGAA==
-X-Gm-Message-State: AOAM530avxOTU/H87zs6sUyW/4G++/DFZ/rk6u4jT1bshdlzz1P4fpQJ
-        LB+zT+WHLL+4yum3PRvtA5YlK/6/xloNRfHn6hU=
-X-Google-Smtp-Source: ABdhPJzxb/mllvoFK0rwkPDHgcOObGkxLe97VYYe5xyDWit4XxkeDCU6jDJ3zCTlcCYSA3vOy9opao2EEZfMutMGEvA=
-X-Received: by 2002:a9d:1c86:: with SMTP id l6mr4555417ota.241.1637249939099;
- Thu, 18 Nov 2021 07:38:59 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=bFB2Kd7VBsl4vHFftQvBkjbtNVbo4gvaTPqnlcqmWPk=;
+        b=BwhM17DqVylX8EOnQeBGSoqPKOHZZQ4Bynwd+KteMvA8zGsV3YT0/1xRFiAN7m0IST
+         gIU2J4oCt25CFsVnWna+TiXjyop4p1MynsNurnqhuo3gqpLwbpP+LyXq4hxCsTS/BC9P
+         PImb5t+pm7Q9RNus1/Ayo3x0/VZNjKJWmmtFtIuEsARgbFQxUrE6h2wABDGYDyePTfBv
+         Fl9pVBJW844vBGiMuXhJQhy1h3g31PJFQ++SaR/7Jj6308ChulrbBeEPAc/0H0zQbI8o
+         P06EiqM7dDKkQPjLubHDgUUFEnnQAZavVW3Gpps2ITXfNbnb0Ku86B7U5hkYIK4/nCA6
+         uU6A==
+X-Gm-Message-State: AOAM531JqkXb6rwwfWJJO/PnA5J5F0nzOBfkUI0xBJ9TwzXUrqUCmnY/
+        11nnXyI1KyfyP7VptukrOTsGHLaevc58AwhA
+X-Google-Smtp-Source: ABdhPJwDr7Nwm2k9imF5/riwiXIjPpzboGTLtuVbaPhRW19J6mDB+ycqgsgcuXQPllETBpNAcYgL+w==
+X-Received: by 2002:a17:903:2344:b0:142:25b4:76c1 with SMTP id c4-20020a170903234400b0014225b476c1mr67973793plh.43.1637250239882;
+        Thu, 18 Nov 2021 07:43:59 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id np1sm9290258pjb.22.2021.11.18.07.43.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Nov 2021 07:43:59 -0800 (PST)
+Message-ID: <619674bf.1c69fb81.b9611.9d6c@mx.google.com>
+Date:   Thu, 18 Nov 2021 07:43:59 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:a05:6838:e64c:0:0:0:0 with HTTP; Thu, 18 Nov 2021 07:38:58
- -0800 (PST)
-Reply-To: mrsaishag45@gmail.com
-From:   Mrs Aisha Al-Qaddafi <gaddafimrsaisha155@gmail.com>
-Date:   Thu, 18 Nov 2021 07:38:58 -0800
-Message-ID: <CAATVZ=QJDKwY51Tcxs8683Bd5zF3Wu0cK-qBJiJW_MkOXeLBjg@mail.gmail.com>
-Subject: Dear Friend,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.255-198-gdaf544a98bb7
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 baseline: 127 runs,
+ 1 regressions (v4.14.255-198-gdaf544a98bb7)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+stable-rc/queue/4.14 baseline: 127 runs, 1 regressions (v4.14.255-198-gdaf5=
+44a98bb7)
 
-I came across your e-mail contact prior a private search while in need
-of your assistance. My name is Aisha Gaddafi a single
+Regressions Summary
+-------------------
 
-Mother and a Widow with three Children. I am the only biological
-Daughter of late Libyan President (Late Colonel Muammar
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-Gaddafi).
 
-I have investment funds worth Twenty Seven Million Five Hundred
-Thousand United State Dollar ($27.500.000.00 ) and i need a
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.255-198-gdaf544a98bb7/plan/baseline/
 
-trusted investment Manager/Partner because of my current refugee
-status, however, I am interested in you for investment
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.255-198-gdaf544a98bb7
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      daf544a98bb75467cbca94b80552a241ecdec953 =
 
-project assistance in your country, may be from there, we can build
-business relationship in the nearest future.
 
-I am willing to negotiate investment/business profit sharing ratio
-with you base on the future investment earning profits.
-If you are willing to handle this project on my behalf kindly reply
-urgent to enable me provide you more information about
 
-the investment funds. Your Urgent Reply Will Be appreciated and all
-email should be at the email below;
+Test Regressions
+---------------- =
 
-Best Regards
-Mrs Aisha Al-Qaddafi
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61963b1dc23cef2336e551ef
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.255=
+-198-gdaf544a98bb7/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.255=
+-198-gdaf544a98bb7/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61963b1dc23cef2=
+336e551f5
+        failing since 0 day (last pass: v4.14.255-199-g07b05cbc7a1c, first =
+fail: v4.14.255-197-ga09e356b405d)
+        2 lines
+
+    2021-11-18T11:37:47.236398  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/106
+    2021-11-18T11:37:47.250953  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
+    2021-11-18T11:37:47.259643  [   19.995422] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
