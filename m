@@ -2,99 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A8345563E
-	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 09:06:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ADC54557C3
+	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 10:09:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231250AbhKRIJa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 03:09:30 -0500
-Received: from mga14.intel.com ([192.55.52.115]:29589 "EHLO mga14.intel.com"
+        id S234801AbhKRJMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 04:12:22 -0500
+Received: from mail.hddive.pl ([5.249.155.245]:56856 "EHLO mail.hddive.pl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244164AbhKRIJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Nov 2021 03:09:29 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10171"; a="234374941"
-X-IronPort-AV: E=Sophos;i="5.87,243,1631602800"; 
-   d="scan'208";a="234374941"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2021 00:05:47 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,243,1631602800"; 
-   d="scan'208";a="646411871"
-Received: from zxingrtx.sh.intel.com ([10.239.159.110])
-  by fmsmga001.fm.intel.com with ESMTP; 18 Nov 2021 00:05:34 -0800
-From:   zhengjun.xing@linux.intel.com
-To:     peterz@infradead.org, mingo@redhat.com, acme@kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     adrian.hunter@intel.com, alexander.shishkin@intel.com,
-        ak@linux.intel.com, kan.liang@intel.com,
-        zhengjun.xing@linux.intel.com, stable@vger.kernel.org
-Subject: [PATCH v3] perf/x86/intel/uncore: Fix CAS_COUNT_WRITE issue for ICX
-Date:   Fri, 19 Nov 2021 00:02:41 +0800
-Message-Id: <20211118160241.329657-1-zhengjun.xing@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S244995AbhKRJMC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Nov 2021 04:12:02 -0500
+X-Greylist: delayed 480 seconds by postgrey-1.27 at vger.kernel.org; Thu, 18 Nov 2021 04:12:02 EST
+Received: by mail.hddive.pl (Postfix, from userid 1001)
+        id C0A2D85C61; Thu, 18 Nov 2021 09:01:05 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=hddive.pl; s=mail;
+        t=1637226071; bh=V5oTVWi+tCoL82i5IushXr7AQu7VFkZ7QSQtyVBlvCM=;
+        h=Date:From:To:Subject:From;
+        b=Rg03Twr6zFIqDzbsIJejG6/HM/OEUHjvDXAafQsNtZaKzk9zyGF8bXV2xqqLgpHfG
+         ItbvPQzHhXaTvPmyleanYDYWwvHqvrZ0w2rshHsnkJrB7GbbE8jjV8JtX8T/zXcW4y
+         zuOsFT/QNMB8hhobHf6a60pMbkF67nt6INtaQSu2F8X8qwZHyC4MZZ8olqhyFqVYdZ
+         4NsNybvjVvK/uVAOBCk0BjYSxefhoq0cLdhIA0soQK1Kyh1IBZYru03w80LCeCF+3g
+         x/IjWE+XliTg2xek7Azb5rXToidpjp6CxAb45W3HlgUU5X6Q8A+grRNZ21Qtfd5Hqd
+         V0IacaUa99RyA==
+Received: by mail.hddive.pl for <stable@vger.kernel.org>; Thu, 18 Nov 2021 09:00:58 GMT
+Message-ID: <20211118074500-0.1.1y.1yn5.0.5pp5ku2m6v@hddive.pl>
+Date:   Thu, 18 Nov 2021 09:00:58 GMT
+From:   =?UTF-8?Q? "Mi=C5=82osz_Nowak" ?= <milosz.nowak@hddive.pl>
+To:     <stable@vger.kernel.org>
+Subject: Wycena paneli fotowoltaicznych
+X-Mailer: mail.hddive.pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Dzie=C5=84 dobry,
 
-The user recently report a perf issue in the ICX platform, when test by
-perf event “uncore_imc_x/cas_count_write”,the write bandwidth is always
-very small (only 0.38MB/s), it is caused by the wrong "umask" for the
-"cas_count_write" event. When double-checking, find "cas_count_read"
-also is wrong.
+dostrzegam mo=C5=BCliwo=C5=9B=C4=87 wsp=C3=B3=C5=82pracy z Pa=C5=84stwa f=
+irm=C4=85.
 
-The public document for ICX uncore:
+=C5=9Awiadczymy kompleksow=C4=85 obs=C5=82ug=C4=99 inwestycji w fotowolta=
+ik=C4=99, kt=C3=B3ra obni=C5=BCa koszty energii elektrycznej nawet o 90%.
 
-https://www.intel.com/content/www/us/en/develop/download/3rd-gen-intel-xeon-processor-scalable-uncore-pm.html
+Czy s=C4=85 Pa=C5=84stwo zainteresowani weryfikacj=C4=85 wst=C4=99pnych p=
+ropozycji?
 
-On page 142, Table 2-143, defines Unit Masks for CAS_COUNT:
-RD b00001111
-WR b00110000
 
-So Corrected both "cas_count_read" and "cas_count_write" for ICX.
-
-Old settings:
- hswep_uncore_imc_events
-	INTEL_UNCORE_EVENT_DESC(cas_count_read,  "event=0x04,umask=0x03")
- 	INTEL_UNCORE_EVENT_DESC(cas_count_write, "event=0x04,umask=0x0c")
-
-New settings:
- snr_uncore_imc_events
-	INTEL_UNCORE_EVENT_DESC(cas_count_read,  "event=0x04,umask=0x0f")
-	INTEL_UNCORE_EVENT_DESC(cas_count_write, "event=0x04,umask=0x30"),
-
-Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore support")
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
-Cc: stable@vger.kernel.org
----
-Change log:
-
-  v3:
-    * Add change log
-
-  v2:
-    * Add stable tag
-
- arch/x86/events/intel/uncore_snbep.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 5ddc0f30db6f..a6fd8eb410a9 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -5468,7 +5468,7 @@ static struct intel_uncore_type icx_uncore_imc = {
- 	.fixed_ctr_bits	= 48,
- 	.fixed_ctr	= SNR_IMC_MMIO_PMON_FIXED_CTR,
- 	.fixed_ctl	= SNR_IMC_MMIO_PMON_FIXED_CTL,
--	.event_descs	= hswep_uncore_imc_events,
-+	.event_descs	= snr_uncore_imc_events,
- 	.perf_ctr	= SNR_IMC_MMIO_PMON_CTR0,
- 	.event_ctl	= SNR_IMC_MMIO_PMON_CTL0,
- 	.event_mask	= SNBEP_PMON_RAW_EVENT_MASK,
--- 
-2.25.1
-
+Pozdrawiam,=20
+Mi=C5=82osz Nowak
