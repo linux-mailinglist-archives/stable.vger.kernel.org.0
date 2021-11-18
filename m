@@ -2,146 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F652455714
-	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 09:36:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92EE045572C
+	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 09:41:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244656AbhKRIjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 03:39:05 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:54480 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244722AbhKRIic (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 03:38:32 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id B434A1FD35;
-        Thu, 18 Nov 2021 08:35:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1637224530; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+        id S244717AbhKRIoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 03:44:07 -0500
+Received: from de-smtp-delivery-102.mimecast.com ([194.104.111.102]:60229 "EHLO
+        de-smtp-delivery-102.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S244806AbhKRIny (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 03:43:54 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=mimecast20200619;
+        t=1637224853;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=FD94QdcVS8s3Ogz1ge3REQoKg7gxIQqOlza6TNdJrPI=;
-        b=OA7wgulOUrcOv5qwO4a+RjaWY4uDPt8N9xTjIxVuH5my7tyscaTqk+OW5XFq64bO3iDN7z
-        YCLua1H3RKk2WEzm3KciLrWy2q6vHniqoblJjZkF8aAAdusJizLjTbZx0bl1AeucaqdnN9
-        GYeQhQNDBFLatH/ffpq17Y5LQ5MBJPY=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 803BAA3B83;
-        Thu, 18 Nov 2021 08:35:30 +0000 (UTC)
-Date:   Thu, 18 Nov 2021 09:35:30 +0100
-From:   Michal Hocko <mhocko@suse.com>
-To:     Alexey Makhalov <amakhalov@vmware.com>
-Cc:     Dennis Zhou <dennis@kernel.org>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>, Tejun Heo <tj@kernel.org>,
-        Christoph Lameter <cl@linux.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] mm: fix panic in __alloc_pages
-Message-ID: <YZYQUn10DrKhSE7L@dhcp22.suse.cz>
-References: <908909e0-4815-b580-7ff5-d824d36a141c@redhat.com>
- <20211108202325.20304-1-amakhalov@vmware.com>
- <2e191db3-286f-90c6-bf96-3f89891e9926@gmail.com>
- <YYqstfX8PSGDfWsn@dhcp22.suse.cz>
- <YYrGpn/52HaLCAyo@fedora>
- <YYrSC7vtSQXz652a@dhcp22.suse.cz>
- <BAE95F0C-FAA7-40C6-A0D6-5049B1207A27@vmware.com>
- <YZN3ExwL7BiDS5nj@dhcp22.suse.cz>
- <5239D699-523C-4F0C-923A-B068E476043E@vmware.com>
+        bh=llQ4wRsyJ0uGbRlru51nj9tulLG7/T2vCEv5MdCMxTM=;
+        b=e3nuhx7zDXbUIOK5qAQBV8Uxasc7Y3bl4zAJJaPE+6jTkSJ+OGMbZLoO40VdJKPx4qI4Om
+        w7OUgUyRCTWYa6f/4JIjPVUo/AYe0/vPJrxS2RzhZclNcKDBNRIw1EYcwPv0sGZgzouGMs
+        QmDrM+a+w2E3/aUHxuXXwZzXFp5ejh0=
+Received: from EUR01-VE1-obe.outbound.protection.outlook.com
+ (mail-ve1eur01lp2050.outbound.protection.outlook.com [104.47.1.50]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ de-mta-32-NJNWaiqcM4uaPpgrfocvRQ-1; Thu, 18 Nov 2021 09:40:51 +0100
+X-MC-Unique: NJNWaiqcM4uaPpgrfocvRQ-1
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=DecLPgdqOw04eIHzxby8foNruQm7zL5CVvalwhQOFCwgBLJKdOAVwU1/K4V+LvedHLBLAA/kNvTgwKcg0GHYbtFb9adTgOuPjGvRu3WobkJTwK2kyRgjNfP4qCLanFQNPlswNfufNJ8u7n6icxv63dyOvJ5Ldn/yDR+OcnWA184/sxllevVF40plkLZAAFcz0tnorwdbYDA6huFlcGxFCBKY3y+jAygiJOMnDwuADOLrzFTcOkzR7zDfVV4SrOfieMNnnFLEo3D3bbw0/DDAHPhIggfH7U3stvC8/C/zHs1BgrYiHw1jebgiprravVHhyGqzQDaRK3PXtxxw5gU4Pw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=llQ4wRsyJ0uGbRlru51nj9tulLG7/T2vCEv5MdCMxTM=;
+ b=f22gJbkX4/TAC2N1aDrIPIcj+2jhtGt2zW4tjXBH6a3xqIL2zaIUO9x8jd2R9oDwCmyVxM8d3cewjcfHwGDlqnN2oR74tjHsq/K8OrdDGGsNy1aqnwIr5dNrsrScNFKnywn8Lx5NEMvyjMVXlxPeS4bDuwXyBw4yCHM2aV7iTe5cgi6eU5Ppf6xIq29R39Q4Q4cxg3urNDVin49PQ8a0mKbDrSevm8HmUp+03xpW9SiQCv8eKWGkL2TKSzONSQhfFkPnfV1tptnnz9uCqYzTZYWuo+ab3yJ2JGZLHNpY9BJWgReEw8pbGaDgSNhgmQLl6dl5HSOYZshK+2hIGNm7fQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=suse.com; dmarc=pass action=none header.from=suse.com;
+ dkim=pass header.d=suse.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=suse.com;
+Received: from VI1PR04MB5600.eurprd04.prod.outlook.com (2603:10a6:803:e7::16)
+ by VI1PR04MB3118.eurprd04.prod.outlook.com (2603:10a6:802:a::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4690.27; Thu, 18 Nov
+ 2021 08:40:48 +0000
+Received: from VI1PR04MB5600.eurprd04.prod.outlook.com
+ ([fe80::8062:d7cb:ca45:1898]) by VI1PR04MB5600.eurprd04.prod.outlook.com
+ ([fe80::8062:d7cb:ca45:1898%3]) with mapi id 15.20.4713.019; Thu, 18 Nov 2021
+ 08:40:48 +0000
+Message-ID: <4c952e5b-a136-3fda-810c-29fa556ef965@suse.com>
+Date:   Thu, 18 Nov 2021 09:40:42 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH] xen: detect uninitialized xenbus in xenbus_init
+Content-Language: en-US
+To:     Stefano Stabellini <sstabellini@kernel.org>
+Cc:     boris.ostrovsky@oracle.com, xen-devel@lists.xenproject.org,
+        linux-kernel@vger.kernel.org,
+        Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        stable@vger.kernel.org, jgross@suse.com
+References: <20211117021145.3105042-1-sstabellini@kernel.org>
+ <2592121c-ed62-c346-5aeb-37adb6bb1982@suse.com>
+ <alpine.DEB.2.22.394.2111171823160.1412361@ubuntu-linux-20-04-desktop>
+From:   Jan Beulich <jbeulich@suse.com>
+In-Reply-To: <alpine.DEB.2.22.394.2111171823160.1412361@ubuntu-linux-20-04-desktop>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: AS9PR06CA0058.eurprd06.prod.outlook.com
+ (2603:10a6:20b:463::32) To VI1PR04MB5600.eurprd04.prod.outlook.com
+ (2603:10a6:803:e7::16)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5239D699-523C-4F0C-923A-B068E476043E@vmware.com>
+Received: from [10.156.60.236] (37.24.206.209) by AS9PR06CA0058.eurprd06.prod.outlook.com (2603:10a6:20b:463::32) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.21 via Frontend Transport; Thu, 18 Nov 2021 08:40:47 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: b7e0e5b9-3918-45e1-97a3-08d9aa6f1e89
+X-MS-TrafficTypeDiagnostic: VI1PR04MB3118:
+X-LD-Processed: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba,ExtFwd
+X-Microsoft-Antispam-PRVS: <VI1PR04MB311852305D2CECB5DFF2BA2BB39B9@VI1PR04MB3118.eurprd04.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: hvtYZcg1qJeK1HWmHowhMTYW3sJN53CytO1lnmBMB8Sb5wNlAWsH8VhK3+thTfNjRt/fxYrvPytMv4gy4YWvFiHfbKe+TGOWwszXbioGO8RHwtdDWFrMty7/qYtOA9IE/vno0YuNsvPmKxbeBtPgA5W4CA7g5AfwBZVLbslZgMfoNKT0FaymMhmKv2fhJUAhrEFNC+kJKROjHCOSNd0ssXBQUpjp3CefxqRE+25vYFbqakvdAH/T8PdV11QXVVu5j5eJvuvU84ZkmWl3vT745OZaCndcnBhI1lFiSYV3i0k5nSZF9t/JFvO/HUc7SL6czG5aCFqwFCl5/ZmiQyJYVlxhwa0sjPpTeyZc9LOO5vYWtefHgJ2g4ommkGP1Bwywd/66tBjL1JA7DvASORD9uR0x1CA02qj2FXvn2vRuocVGOpsp5T24Uvo50AhYoy24j9mVFLbOI9Gnc+ru2TP02BytDo90opzjClSLK9YqgP8EszqEQu+BirXRn9vbKQ6/Y1TIvhfQ4WQf4XvYjpWQ2lWSoG37QBtGCYhJy+ETTxHlhDsFeOuOYNkvzgeFhtpJBKChgCTWlBGySHopxTZRTkMMHak5RJ2d9F7EmS8q8NXqRqXN3XALyL5kDy3B4IrbxYlnUKpICqqdX+0QZgTVrRjXuVOd71IhpVDn3ac9+znlq+KzJYhGbQzDs7x/NXV+PnJsFXPPHCeYVzHQ+t9VZf24Q8bvE9crMfIBJFCX2q0VsYimHjUuToaszzwfe48i
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5600.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(66476007)(66556008)(6666004)(66946007)(8676002)(8936002)(6486002)(107886003)(31696002)(956004)(86362001)(5660300002)(316002)(38100700002)(31686004)(4326008)(6916009)(508600001)(16576012)(53546011)(36756003)(26005)(186003)(2616005)(2906002)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?OXV4blAyY1Z6WUtIUnBjOTltcndac2FpMEdyOVZCRkNrUUMwMS80Y1Rhemx1?=
+ =?utf-8?B?V3ZGWVd4eVgrTjA4NVFPKyt5RlBjRVZ4UnhLR3J1d0dSdE1sUzRaWURUTVRE?=
+ =?utf-8?B?YUhVK1FaLzB4WlhQd0Jqek8xY3dQUUx1Q3FtMUplZHd0U1kvUERvQlZaeTh1?=
+ =?utf-8?B?ZkdXYThuSmxZbHJnN3ZJODhJR05BUklGOWV1ZjFydWJ5K2EvV0VKTjlJb3NN?=
+ =?utf-8?B?WDJvTlIzRmVZaFptS2NReGxKcm5KNkhCVERwQW1VWi9ycGxGN3UxbXdFVXBr?=
+ =?utf-8?B?V3hxei9Gdk1rZEY2ekd0RUdUWkdoQjgxdUYrQWczUm44bTZVNzNyZmVsZmpr?=
+ =?utf-8?B?OVgrNVRtSG1lS2pyRkZEMUNnRUc4RnVZaU1yaXU4NXNUNnpScVBUeWMzbUts?=
+ =?utf-8?B?dXJNaTNjeTZ1K1psVjBpd1dPa1VBYjMxVk1zNGdOOFRna2dZTTdhd2FmQlMw?=
+ =?utf-8?B?cFdycEI2QlhXTzlSWHh0OG10ZmNYSU5TZHhCMHA0SFlJTVIvSnpFZkcvWlMy?=
+ =?utf-8?B?WTBIbm5kVy9jUUs2aUFJRktvMjhSSEErWmlONEtvUDArSDBldmxKZkJIcGpG?=
+ =?utf-8?B?QmZFZFFtT0FpQUZZQjNoMkhaK1g1SWUyeUQxRUJoTzRZbkJKMlNLSE9xb2pH?=
+ =?utf-8?B?RzNLOFNETDhEWDgvRy92T3Z5NEV5YnV1ODRBT0ZTTG83dENSTjhDclJ3aTEx?=
+ =?utf-8?B?dFdPRDNIaW1MMk80L1FFeEZickdVUlh4SXFNSkVCdkRLc3dYQndBVkhNSjdO?=
+ =?utf-8?B?WGJ1MWVoNkJ0bHVLWTdrOU45dC95RGZmdTBpck93T28yWUFqOStYVE02clAv?=
+ =?utf-8?B?SUF6OXJ5QVV4YVFreGpHT3FncnV3Mk40RjExWG11OS96S3JWanVGQnJVUDRh?=
+ =?utf-8?B?dWVzbi9FNlk3QWI5OXBxU2lGeHlYSFQyazQ4TmN6azh5TnZDMzhEMHc3OStS?=
+ =?utf-8?B?MmxoaVBRd2NlNEhUaVo1ditzVzJOZkYvM05DWWZrbG9SYUtRVnE3YnNKblhU?=
+ =?utf-8?B?TWc3MENVMjJMOFQ0U1JWM2hqTXk4cHVlbVZTdGFXY21TdUtFM1Q3em83UXZ4?=
+ =?utf-8?B?eFc4MlR6WEJVZnZkY2t3WnBteGxabHZySjA3elphWUFSdlpkTFc0VGFmK1Y5?=
+ =?utf-8?B?ZVdqcjBRZHVQSFlUWWFqUE9IeXFrT04xSVAzaXVOMU95K3dVdEVLNnpDVU5q?=
+ =?utf-8?B?SmVOTmJtTUl4TlV2VFByTDhVSDdVTEhuVk82VHArMEJwVUFoeVcxbklFMjkz?=
+ =?utf-8?B?WC9FNHNFcjd3V1duWWN4TTBLem9keW1mK3JSUVRYV0ZrQVUyN1h1MWpWUSt5?=
+ =?utf-8?B?YVBOOTdGb1MyejZONG5yZW5iYlFXeEtKc1BUbXVub0RyRmY0NGVhMGtmS0hO?=
+ =?utf-8?B?MXFsaFpqNXJFVGdqOEJSZncyMXc4RkFVclkxQ3FqMHp3YnNDRlNJUE5RVnJk?=
+ =?utf-8?B?UTdGUENPYmYyem1PL002VVlPaHBBVHZJK1F2THYzazdIbHdHcUR0allIdUpZ?=
+ =?utf-8?B?M3pQVjVCbWVlQnV3ejgrcXZvLzJ3MVhXc3YrdWFZS0hOa3RwNC9HNGtmRzRx?=
+ =?utf-8?B?VTU4NVZmNXI3QitGT1duV2pRRWZEL1Y2ajkzc0JIeWZZVThiNGJJUmh4ekc3?=
+ =?utf-8?B?d1pPZ2lBMGVBQnZidVRyOW9aVzhtanhidkNYQ0w1WFBpaUxjdGJLN2pBYTN5?=
+ =?utf-8?B?MDQyQnk5MElIREdKVHhldUxsQXZHZHZNVkhHQ3Znam5PUitoQUc1d1hKUC8y?=
+ =?utf-8?B?RkxjdElBODdPOENQRVYwTFBSZHp6OFQ0cTdkNFphbU9mTUdSUFc3RWtBS1FN?=
+ =?utf-8?B?V3dqaEFpV0F0U0UrY3hYQ28xZzhGMVBtOXRpTW1VZW9XTUJZN2VmUTdYTXhh?=
+ =?utf-8?B?dEpDMEhHVlJjQngyb09xNG4rVDZ2N0JnN1RVSzhudG9YRHFhN1h5MGp4K1lz?=
+ =?utf-8?B?dXBCa24yRHFoNWVoNkxPQlh1dTZqNUZXYjFpYzVkZFR6SGM4S05hWU42Ynlq?=
+ =?utf-8?B?NXFiODJmbFF6bDVyZmVtUnZqY2M3ckVDRS9BdVM4RmMyaXl2ck9JR2FaNm9z?=
+ =?utf-8?B?anl6aWdodkt1RG82RHpZRUJJQTNBdlFwZjB6M2xxdzZneXRDUG5IdUxoNG9Y?=
+ =?utf-8?B?MldaeXpjOUFpQTduT2lWZnMva05mYVd3SDdKR25Pd0dSbEFGak9GenNMZDBQ?=
+ =?utf-8?Q?Vhi0KR2dyUO9G1UoQluNjUA=3D?=
+X-OriginatorOrg: suse.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b7e0e5b9-3918-45e1-97a3-08d9aa6f1e89
+X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5600.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Nov 2021 08:40:48.1370
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: q1nq2NLsNtEbK2pFOH7Jmob0wrIxPyNS8DoZKw+53mVMhp5xJVSxgSQFprKXlieVlC+BIA3QTef6cjdvL0RJqQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR04MB3118
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 16-11-21 20:22:49, Alexey Makhalov wrote:
+On 18.11.2021 03:37, Stefano Stabellini wrote:
+> On Wed, 17 Nov 2021, Jan Beulich wrote:
+>> On 17.11.2021 03:11, Stefano Stabellini wrote:
+>>> --- a/drivers/xen/xenbus/xenbus_probe.c
+>>> +++ b/drivers/xen/xenbus/xenbus_probe.c
+>>> @@ -951,6 +951,18 @@ static int __init xenbus_init(void)
+>>>  		err = hvm_get_parameter(HVM_PARAM_STORE_PFN, &v);
+>>>  		if (err)
+>>>  			goto out_error;
+>>> +		/*
+>>> +		 * Uninitialized hvm_params are zero and return no error.
+>>> +		 * Although it is theoretically possible to have
+>>> +		 * HVM_PARAM_STORE_PFN set to zero on purpose, in reality it is
+>>> +		 * not zero when valid. If zero, it means that Xenstore hasn't
+>>> +		 * been properly initialized. Instead of attempting to map a
+>>> +		 * wrong guest physical address return error.
+>>> +		 */
+>>> +		if (v == 0) {
+>>> +			err = -ENOENT;
+>>> +			goto out_error;
+>>> +		}
+>>
+>> If such a check gets added, then I think known-invalid frame numbers
+>> should be covered at even higher a priority than zero.
 > 
-> 
-> > On Nov 16, 2021, at 1:17 AM, Michal Hocko <mhocko@suse.com> wrote:
-> > 
-> > On Tue 16-11-21 01:31:44, Alexey Makhalov wrote:
-> > [...]
-> >> diff --git a/drivers/acpi/acpi_processor.c b/drivers/acpi/acpi_processor.c
-> >> index 6737b1cbf..bbc1a70d5 100644
-> >> --- a/drivers/acpi/acpi_processor.c
-> >> +++ b/drivers/acpi/acpi_processor.c
-> >> @@ -200,6 +200,10 @@ static int acpi_processor_hotadd_init(struct acpi_processor *pr)
-> >>        * gets online for the first time.
-> >>        */
-> >>       pr_info("CPU%d has been hot-added\n", pr->id);
-> >> +       {
-> >> +               int nid = cpu_to_node(pr->id);
-> >> +               printk("%s:%d cpu %d, node %d, online %d, ndata %p\n", __FUNCTION__, __LINE__, pr->id, nid, node_online(nid), NODE_DATA(nid));
-> >> +       }
-> >>       pr->flags.need_hotplug_init = 1;
-> > 
-> > OK, IIUC you are adding a processor which is outside of
-> > possible_cpu_mask and that means that the node is not allocated for such
-> > a future to be hotplugged cpu and its memory node. init_cpu_to_node
-> > would have done that initialization otherwise.
-> It is not correct.
-> 
-> possible_cpus is 128 for this VM. Look at SRAT and percpu output for proof.
-> [    0.085524] SRAT: PXM 127 -> APIC 0xfe -> Node 127
-> [    0.118928] setup_percpu: NR_CPUS:128 nr_cpumask_bits:128 nr_cpu_ids:128 nr_node_ids:128
+> Uhm, that's a good point. We could check for 0 and also ULONG_MAX
 
-OK, I see. I have missed that when looking at the boot log you have
-sent.
+Why ULONG_MAX? The upper bound is determined by the number of physical
+address bits (in a guest: the virtual counterpart thereof). In a 32-bit
+environment ULONG_MAX could in principle even represent a valid frame
+number.
 
-> It is impossible to add processor outside of possible_cpu_mask. possible_cpus is absolute maximum
-> that system can support. See Documentation/core-api/cpu_hotplug.rst
+Jan
 
-That was my understanding hence the suspicion you might be doing
-something that is not really supported.
-
-> Number of present and onlined CPUs (and nodes) is 4. Other 124 CPUs (and nodes) are not present, but can
-> be potentially hot added.
-
-Yes this is a configuration I have already seen. The cpu->node binding
-was configured during the boot time though IIRC.
-
-> Number of initialized nodes is 4, as init_cpu_to_node() will skip not yet present nodes,
-> see arch/x86/mm/numa.c:798 (numa_cpu_node(CPU #4) == NUMA_NO_NODE)
-
-Isn't this the problem? Why is the cpu->node association missing here? 
-
-> 788 void __init init_cpu_to_node(void)
-> 789 {
-> 790         int cpu;
-> 791         u16 *cpu_to_apicid = early_per_cpu_ptr(x86_cpu_to_apicid);
-> 792
-> 793         BUG_ON(cpu_to_apicid == NULL);
-> 794
-> 795         for_each_possible_cpu(cpu) {
-> 796                 int node = numa_cpu_node(cpu);
-> 797
-> 798                 if (node == NUMA_NO_NODE)
-> 799                         continue;
-> 800
-> 
-> After CPU (and node) hot plug:
-> - CPU 4 is marker as present, but not yet online
-> - New node got ID 4. numa_cpu_node(CPU #4) returns 4
-> - node_online(4) == 0 and NODE_DATA(4) == NULL, but it will be accessed inside
-> for_each_possible_cpu loop in percpu allocation.
-> 
-> Digging further.
-> Even if x86/CPU hot add maintainers decide to clean up memoryless node hot add code to initialize the node on time of
-> attaching it (to be aligned with mm node while memory hot add), this percpu fix is still needed as it is used during
-> the node onlining, See chicken and egg problem that I described above.
-
-I have to say I do not see the chicken and egg problem. As long as
-init_cpu_to_node initializes the memoryless node for the cpu properly
-then the pcp allocator doesn't really have to care as the page allocator
-falls back to to first populated node in a distance order. So I believe
-the whole issue boils down to addressing why init_cpu_to_node doesn't
-see a proper cpu->node association.
-
-> Or as 2nd option, numa_cpu_node(4) should return NUMA_NO_NODE until node 4 get fully initialized.
--- 
-Michal Hocko
-SUSE Labs
