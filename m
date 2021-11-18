@@ -2,98 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 076FC455B89
-	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 13:32:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDA61455C86
+	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 14:20:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243833AbhKRMfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 07:35:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44632 "EHLO
+        id S230442AbhKRNX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 08:23:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242412AbhKRMfD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 07:35:03 -0500
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 841A4C061570;
-        Thu, 18 Nov 2021 04:32:03 -0800 (PST)
-Received: by mail-wm1-x332.google.com with SMTP id 67-20020a1c1946000000b0030d4c90fa87so4694402wmz.2;
-        Thu, 18 Nov 2021 04:32:03 -0800 (PST)
+        with ESMTP id S230411AbhKRNXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 08:23:55 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B072C061764
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 05:20:55 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id y12so26840380eda.12
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 05:20:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=HTUmXOuwAK3b2BpkEcD3R3Tlh4bL303PitPz8j6jUtg=;
-        b=LqHIGx3daPLmG/Ro9J1LPjHyvQ0EUd1ji9TZusts5Tp3i5fZG/KG4Och7nFBWj3rTu
-         V0S7koYYPfqnLs/RwaZPwFulL+scdZBS1f63Ho9mPHYZHaljMDvwZUshZWfSL/VDOYqi
-         CCU9wq0Dtx5l6I4rkKhAGVm0hp085b1ZRNosBvHCak86crCaZl3zP1YtAqQDX7ZCaAO/
-         nJe4OnFHJoWIeyI4uYJVreaNCNXSfUL/uilIRN8Vv8x+U8KnWRuwwjL2POqnpfCN5Ix/
-         350wbgtlmavs2gX13wn6W/m9p6XgpfAjruHy89jQrhL0JKqHhNACAqWFDKL1idROoPNT
-         Mudg==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=o/E5pVansUx3F/k2LuNW2doPkR1FpoTGrLH7703k+v4=;
+        b=GMCa8RapPciQuspbffqVlAhXBLRNmWT2i2kKsPAXfDBiC8EtdknV2D45kJ5KAp5RzH
+         lBi5d1OfDDfEF62dpcnm6iLfyOVMCik4oWoeqgG5nO91QxRYUpEYLODDGnIu0tx3aJsD
+         1FX3e8YnhE5jtraa1yythrWGE5PYsFeYgbAChC/rgEQ5d/N4e1veIuiPxcWNpzZFJYdp
+         yNMhPt2uKGrfXrF7EhI4hmDlojiovzxc/AzBA6mPPxKARPi0NYdWydi9LXAWwj/ybXE4
+         90HwtAqnJi4+OOER/X+uY87tTpH+JoPVfGAI4mS4QozKkJIerSVhpunbOl9m58WNiPE7
+         d5Dg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=HTUmXOuwAK3b2BpkEcD3R3Tlh4bL303PitPz8j6jUtg=;
-        b=IIxC1LRgXncU68nH9+iVDOTdgW9vrm4ACSydqjGNIwGAc+iBJvBROSruV2yabMtEsc
-         XbtYT0npGYH+RCq9YJ3ah9ha4bHJU/vVzsimBM9UT50M+9YmIk+n0dpW91P7ovv6V8Wd
-         ZQgt+Yq+774hYgQlGzcnfk9p7gcGsKw7nJQuXXshYDBWDdqcFIlOOO/x5oNJdsAgMQdE
-         8Q7oJYjWp6nypkcotvGwdALWdq6cM12Xn8neXKvwN5LITv4LC8rb8NjJoIP4ddwG3or6
-         P/m+b7kSlBtpqxLr/o1lTIJF8asqSfPzDqjS97ErxrljWIKTiHscgynTDeBUaS0rm4ll
-         poqg==
-X-Gm-Message-State: AOAM532AihOOeaS4Gwd8xWo1tdU9gTR0lUff9CYZcsaB9VENElWvERMS
-        VUA+ir7DBRnegxIqr6p9ZRY=
-X-Google-Smtp-Source: ABdhPJwvtRUA57aI7bT+0Zfqfl36sxWXyRpMYnfT3spnFAjOwXo8Rp6pyrjFH8oAf3s/0OE0J8sRtg==
-X-Received: by 2002:a7b:c207:: with SMTP id x7mr9705355wmi.108.1637238722153;
-        Thu, 18 Nov 2021 04:32:02 -0800 (PST)
-Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
-        by smtp.gmail.com with ESMTPSA id t8sm3754930wmq.32.2021.11.18.04.32.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Nov 2021 04:32:01 -0800 (PST)
-Date:   Thu, 18 Nov 2021 12:31:59 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/569] 5.10.80-rc4 review
-Message-ID: <YZZHvzCrIsqbo46z@debian>
-References: <20211117144602.341592498@linuxfoundation.org>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=o/E5pVansUx3F/k2LuNW2doPkR1FpoTGrLH7703k+v4=;
+        b=jNRuZslxXKsABnf5lKIpe3SvyYBSsl/8U0pOSEzDgSQ/244jU68+SeQV4ohBIdj5lE
+         M2DvGNwaWRPenDx0gPhToXCr6LfEa8FOqiy/DKflHEOPx2dSvEryf/g9y8VoW4sOpXuT
+         ypKiemymlGCrTspqGnrd/5uYG9/k+BSfKur/R5ceHS7DpFasjLaYp4gWZ4fcg92ETFbs
+         EqO73VWAW7MYAvcemnPcpzVO8n0DipmlgBvmriBL3ZpDw1ckojugEs9LaqV4nNjJoFwU
+         w2IpZ7+pGOHN9ISYX1ukWFl0T0BQ7aQT/XJZh8ySH3G0n/GDHM5FHoYV7iOQeMuyBnNq
+         P8/A==
+X-Gm-Message-State: AOAM530/Gtdn+Y3XFTLK78KEDzeAXS9DPnhtf3PJjpolaTuuHBiJEh8W
+        WKeEasrJbUC9CzYdZOlzuxmISBzHLGg2yvZ/Iyc=
+X-Google-Smtp-Source: ABdhPJxwqkV/DBN8tUFWhS2r29qzMcgj2kscPiurXFIiBdt36akNlwIdXJB3VhRXUJPi0SYTF3Sr3lFh72sAErOxaBA=
+X-Received: by 2002:a50:ef02:: with SMTP id m2mr11328204eds.172.1637241653962;
+ Thu, 18 Nov 2021 05:20:53 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211117144602.341592498@linuxfoundation.org>
+Received: by 2002:a50:cf0b:0:0:0:0:0 with HTTP; Thu, 18 Nov 2021 05:20:53
+ -0800 (PST)
+Reply-To: francoispetit113@outlook.com
+From:   Francois Petit <daphinemsparharmrhonda491@gmail.com>
+Date:   Thu, 18 Nov 2021 14:20:53 +0100
+Message-ID: <CAPd2WpdNgw_twyFVaWDQb_v_VwfrVwv-73uaiTBvoO_zTjv5=w@mail.gmail.com>
+Subject: TREAT AS CONFIDENTIAL..
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Hello,
 
-On Wed, Nov 17, 2021 at 03:46:44PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.80 release.
-> There are 569 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 19 Nov 2021 14:44:50 +0000.
-> Anything received after that time might be too late.
+I'm Francois Petit with Societe Generale Bank here in France. I
+sincerely seek to present you as the Next of Kin to a late client who
+left behind $145.5 million dollars in a fixed deposit account in my
+bank before his demise.
 
-Build test:
-mips (gcc version 11.2.1 20211112): 63 configs -> no new failure
-arm (gcc version 11.2.1 20211112): 105 configs -> no new failure
-arm64 (gcc version 11.2.1 20211112): 3 configs -> no failure
-x86_64 (gcc version 11.2.1 20211112): 4 configs -> no failure
+The British born client was into Diamond and Gold mining and died
+without a Next of Kin. I shall obtain the legal documents that will
+give you legal rights to make this claim legitimately. I am willing to
+share the funds 60/40 with you and this shall be completed within 72
+hours. With the legal documents, the bank will approve you as the Next
+of Kin and pay out this amount to you within three working days. I
+considered the funds would be of better use to both of us instead of
+letting the bank or some corrupt politician to confiscate the funds.
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-arm64: Booted on rpi4b (4GB model). No regression. [2]
+Kindly get back to me as soon as possible with your full name,
+address, direct contact number and occupation for the processing of
+the legal documents if you are interested and can be trusted to return
+my own share when you have received the funds in your bank account.
+More information shall be given to you once I hear from you. I put it
+to you that this is probably going to be the best decision you ever
+make in your life.
 
-[1]. https://openqa.qa.codethink.co.uk/tests/402
-[2]. https://openqa.qa.codethink.co.uk/tests/401
+However, if you are not interested in the offer, kindly delete this
+message from your mailbox and pretend that I never contacted you. I'll
+continue my search for a reliable person that will help out.
 
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
-
+Best Wishes,
+Francois Petit
