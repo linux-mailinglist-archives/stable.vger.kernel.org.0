@@ -2,128 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC4E4561E9
-	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 19:02:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 731764561FC
+	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 19:09:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230006AbhKRSFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 13:05:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37026 "EHLO
+        id S231477AbhKRSMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 13:12:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229997AbhKRSFQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 13:05:16 -0500
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B34C061574
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 10:02:15 -0800 (PST)
-Received: by mail-pg1-x535.google.com with SMTP id r5so6099373pgi.6
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 10:02:15 -0800 (PST)
+        with ESMTP id S234297AbhKRSMS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 13:12:18 -0500
+Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C03C5C061574;
+        Thu, 18 Nov 2021 10:09:17 -0800 (PST)
+Received: by mail-ot1-x335.google.com with SMTP id x43-20020a056830246b00b00570d09d34ebso12420051otr.2;
+        Thu, 18 Nov 2021 10:09:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=t/EXr+oMzpoBCjL0wailQ0KhKwey32csRQWIbfhW/cc=;
-        b=T5CSFdL6B7uounQwsjxK1ZMr4oZBZh0b/mHcMlF32MFy1mnHHATjNMZ3nRkk0l/mnj
-         eg/9h1QIz0XYDnK2a1Pby9hX9KYjePaWC38hsHaHPvopreFsFyD/8DGof2Y+EOxIGHH+
-         WiVmftqcqOHEFPTRnImraCYAWa35h11DL1tevljx17mdgU38UAAtE/Cz36dHLrXhNcTa
-         ygUQL4SDbHpslPOvd3cjciwcWBT6mf1BLijpQZkWieTyYxIK5AsqWjy7qOC+viiWzkQg
-         3wMnw7HlQXEiFVnrx3VtdvnQw9GTSH1t+Stunw17SG1Ffr7/DHSt9lR028IFA0jslwvg
-         Mk0w==
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=IcFB8gYjjLB7mVdFbNYINpla/WNywThwEFYJQ31syCU=;
+        b=T3gAzIv3tCTr8w+UvlWLzDDRx440cD0XnGKxaT84YGbEKy7tA3CK/o0Kjq3hkNhZ5b
+         Ojk3LtB4hqv2CEcUxyjI2lTZFMT6ZAvyDXGuDeqEtGsqK5RqX91L3A7MBEuWa89Oszen
+         t9M9/7ZShHpXw9+xvRe9NIbS5MludVsdxw40YkI+0tQq05Ol2TW9UTXL2kLDqgtJwnF9
+         I1ociPkNXUFtplU7kVUejEMUNRJvTLgq/Jtiros2ZJYNXLmGEobIWeH/Qq+tDCfoQ+qX
+         sEGCctG6WY2uOPNzFnP/pjk4CM3+uo/5NxfJsa+UwhUFamlh/RCfx2DBh3fu1bgsQ52T
+         aaAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=t/EXr+oMzpoBCjL0wailQ0KhKwey32csRQWIbfhW/cc=;
-        b=WqhbLQzzo0/9AJEaPRo85K9t+373JmjV0VA4WkXFiJJsfxGhxBvwPXg1mMeQO0dmCG
-         MjGLFklbJa4GIad21N8r6N5TroPB2cduluynrqV88nnZhMGyHG3OD954EyTxAy8yEqSS
-         E78F8wbaNtlVwKUo/FG7Xup7jSqTIR8NFFJ8bxSajUbvXL0ZbQUmkr9VwJxZPJqwPZYy
-         CP5LkjZv3tuH8my3tAjEkEChj6yqpxt+c+3N7SHiNKc9hBhYYJXH9MhTA66Xh9+g0v0J
-         m0bqxIpAmUCPt2tAqV9nvMwPTFwd87OaemURBCtoUvl/UuVKmA0tX403tFLWYyCteljE
-         xDJg==
-X-Gm-Message-State: AOAM532h/raxP0sPFN5eJzUKGW0GNk2Fh+AvOEahM7LidRAD12h/0SbD
-        0vplfDTX4U6H/UOzCEU0G6CUvhXqHDdIjsKt
-X-Google-Smtp-Source: ABdhPJxExlWQOr4pTHfIfkY8NK0o+x2FvNG7sP8lmaw/w91jJd79q8RqMJnbYvv67q74D2MejaFq9Q==
-X-Received: by 2002:a62:15d0:0:b0:4a0:2dd5:ee4e with SMTP id 199-20020a6215d0000000b004a02dd5ee4emr58538212pfv.14.1637258534905;
-        Thu, 18 Nov 2021 10:02:14 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id co4sm9062342pjb.2.2021.11.18.10.02.14
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=IcFB8gYjjLB7mVdFbNYINpla/WNywThwEFYJQ31syCU=;
+        b=Sx6UL8Jt688GkmStjrEwXN0TNunQRDqyB2ijs+v6H4XHks02ijn63DWmBZQOe2E2Kc
+         klEI+dcQxUNSZhKmMNj5IbK9Elr+82WwXjgrURMeDEGALdUmKrt6aPNb49AnaJym4lJh
+         45jxJYUCzn4XUXPgOsgkPZNOpffmlUT8NEMe+p0Q6hhCktZSMnzGGbpomKHfpfLmmZQn
+         ImW6dFwExKuxqSLdOk/7yRl0M7AFJtOcw38ogWUCjbnvBBK+e2KTGOq8Dio3P8YN6H/C
+         HlBtBLk5RD7XLqOhnkP2e8AnB6c4PlhOkoXgVrb8ni0r7Z2YkII9JClyxEEDkuUXHh9C
+         X45A==
+X-Gm-Message-State: AOAM5303mOqflEIglKkgYaPk0PiZLdUiTNC4Ft96M8pItnAAjAnMzWsX
+        SYE7ImJvtZG9RezCiv7joXQ=
+X-Google-Smtp-Source: ABdhPJwyqfmI1pi15/e9MpErb1Dbtt53M3K3UaxFXzRiFs+GZSrITOoDrEINtGVWpnGx5R9Vp14Msg==
+X-Received: by 2002:a9d:67d5:: with SMTP id c21mr22624062otn.128.1637258956979;
+        Thu, 18 Nov 2021 10:09:16 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id t14sm97598otr.23.2021.11.18.10.09.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Nov 2021 10:02:14 -0800 (PST)
-Message-ID: <61969526.1c69fb81.5fd98.a3af@mx.google.com>
-Date:   Thu, 18 Nov 2021 10:02:14 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 18 Nov 2021 10:09:16 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Thu, 18 Nov 2021 10:09:14 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.15 000/920] 5.15.3-rc4 review
+Message-ID: <20211118180914.GA3320814@roeck-us.net>
+References: <20211118081919.507743013@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.160-4-g477a37096746
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 145 runs,
- 1 regressions (v5.4.160-4-g477a37096746)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211118081919.507743013@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 145 runs, 1 regressions (v5.4.160-4-g477a3709=
-6746)
+On Thu, Nov 18, 2021 at 09:25:58AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.3 release.
+> There are 920 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 20 Nov 2021 08:14:03 +0000.
+> Anything received after that time might be too late.
+> 
 
-Regressions Summary
--------------------
+Build results:
+	total: 154 pass: 154 fail: 0
+Qemu test results:
+	total: 482 pass: 482 fail: 0
 
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig | 1     =
-     =
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.160-4-g477a37096746/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.160-4-g477a37096746
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      477a37096746b80259c66810e3af79348b057c04 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig | 1     =
-     =
-
-
-  Details:     https://kernelci.org/test/plan/id/61965e4de662758960e551ec
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.160-4=
--g477a37096746/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d=
--p230.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.160-4=
--g477a37096746/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d=
--p230.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61965e4de662758960e55=
-1ed
-        new failure (last pass: v5.4.160-4-gb13bf6dfb5f7) =
-
- =20
+Guenter
