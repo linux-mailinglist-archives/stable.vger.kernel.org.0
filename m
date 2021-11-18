@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A323345557E
-	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 08:27:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2A8345563E
+	for <lists+stable@lfdr.de>; Thu, 18 Nov 2021 09:06:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243484AbhKRHaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 02:30:24 -0500
-Received: from mga04.intel.com ([192.55.52.120]:13004 "EHLO mga04.intel.com"
+        id S231250AbhKRIJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 03:09:30 -0500
+Received: from mga14.intel.com ([192.55.52.115]:29589 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243448AbhKRHaW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Nov 2021 02:30:22 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10171"; a="232853645"
+        id S244164AbhKRIJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Nov 2021 03:09:29 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10171"; a="234374941"
 X-IronPort-AV: E=Sophos;i="5.87,243,1631602800"; 
-   d="scan'208";a="232853645"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Nov 2021 23:27:12 -0800
+   d="scan'208";a="234374941"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2021 00:05:47 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.87,243,1631602800"; 
-   d="scan'208";a="473056553"
+   d="scan'208";a="646411871"
 Received: from zxingrtx.sh.intel.com ([10.239.159.110])
-  by orsmga002.jf.intel.com with ESMTP; 17 Nov 2021 23:27:10 -0800
+  by fmsmga001.fm.intel.com with ESMTP; 18 Nov 2021 00:05:34 -0800
 From:   zhengjun.xing@linux.intel.com
-To:     zhengjun.xing@intel.com
-Cc:     zhengjun.xing@linux.intel.com,
-        Adrian Hunter <adrian.hunter@intel.com>, stable@vger.kernel.org
-Subject: [PATCH v2] perf/x86/intel/uncore: Fix CAS_COUNT_WRITE issue for ICX
-Date:   Thu, 18 Nov 2021 23:24:38 +0800
-Message-Id: <20211118152438.329322-1-zhengjun.xing@linux.intel.com>
+To:     peterz@infradead.org, mingo@redhat.com, acme@kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     adrian.hunter@intel.com, alexander.shishkin@intel.com,
+        ak@linux.intel.com, kan.liang@intel.com,
+        zhengjun.xing@linux.intel.com, stable@vger.kernel.org
+Subject: [PATCH v3] perf/x86/intel/uncore: Fix CAS_COUNT_WRITE issue for ICX
+Date:   Fri, 19 Nov 2021 00:02:41 +0800
+Message-Id: <20211118160241.329657-1-zhengjun.xing@linux.intel.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,6 +71,14 @@ Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
 Signed-off-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
 Cc: stable@vger.kernel.org
 ---
+Change log:
+
+  v3:
+    * Add change log
+
+  v2:
+    * Add stable tag
+
  arch/x86/events/intel/uncore_snbep.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
