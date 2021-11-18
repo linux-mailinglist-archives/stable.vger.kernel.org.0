@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF2B04566AD
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 00:57:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CE844566B9
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 00:58:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230386AbhKSAAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 19:00:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33136 "EHLO
+        id S233524AbhKSABO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 19:01:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230053AbhKSAAw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 19:00:52 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32C05C061748
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 15:57:52 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id p18so6667834plf.13
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 15:57:52 -0800 (PST)
+        with ESMTP id S233429AbhKSABL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 19:01:11 -0500
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84D4AC061574
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 15:58:09 -0800 (PST)
+Received: by mail-pf1-x431.google.com with SMTP id r130so7699919pfc.1
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 15:58:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=3UwJ5dDFRUsiDM86YTsOk4kxwh467C8v6Q3+NzxJ2PE=;
-        b=fm/TwLWQrv4BezmLZcfblFavaSNuLLrmAtbYI9bTahTaT49uuS28MyJIiPgqIhnvvQ
-         DCuuDObSbDyai2JlILJ7Vw3bMereozM5QgjjVpJtfDkQlutyC56gbS6UzdEECoKpRQxz
-         Y1uWzDr2MaYcIPlSzPUFRJdguLyfblgL9rbrlOz3BbC0Hr/xvTuiVzGmrHabNkiJ+pvZ
-         NACTJF82gNTmwLc++mWQLxbHMCHVERct0nGQHl/lFfOk65hewFoKT3n++vC7sshcrDem
-         7+CS3SEQap/R8ojODn1is4zKrrTWsQ/ccihrrSgZQijsUVHV8sVxFjbq/2+GPZmkpDZc
-         yxnA==
+        bh=4rpZGCTbKBiGjmtzGhgW6CK6EMd3LEVNf1dfX6HFghQ=;
+        b=QQWOck8j0+FFQqp9DDAcFXvAZCuqBxhYe+Hhm027LcAg6kMBTZEixpAPgXZMvDEPQu
+         VmFjdp9Wej0Kci9DSSCFYgvPWoFlYAHUVZbSL9YQ0gQjnagB1MatFVdhyTyJmXBzb3Mw
+         6pzgG2RCndEkAM55X5RaI+GdXiQtGZ0w4b/D0qR83mbDkHTrtBPV0IxG9uW+06j6d4yY
+         kO0K7VjB7goGrJTDCIibwuUsvRYcezZp81iBEJxmx2kXkEdDpP6Z+5EogR+xMSnaE9gN
+         B0IgECgrq1HYwrc4QjItYu2llOLwHuplt+jvJ2n7qiXa262OIMisRpYUtW0tBQz89xsx
+         gw2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=3UwJ5dDFRUsiDM86YTsOk4kxwh467C8v6Q3+NzxJ2PE=;
-        b=uL0ia8FMGEnCrg1OzmczkycgI+nTW6omZh718tPhH+8CO7KjAHE8QkL61GZ/+OaVaY
-         05B+h6586++gvy9gVAtqfJohzKE7csgbEBw3NX1RMsxIkD2K8riMwJyvqpiKT2WJv4Ce
-         p7ATLkFQifMJDqUYugF2+3cJEOtchEOG9I32cOJJekGD1YE8bEZbk3d0kTLGgzOQd0Iz
-         /nAZPXRXXLcn06T037gfUb9MVQuP6HxdOuXEgloHnTB0pz548my4dzJYJdElzV5E8z6L
-         vzef6PSoRB9Z48yex4dQ1e8SwQiqdVeglu0MapzIBYRHT9Mf95IUgvbnbXsiML6LAtVr
-         6/aA==
-X-Gm-Message-State: AOAM532RAvIvcx8aPF4uKyk9zLiGJO2TCXjipH9roj9RobjXkLu9px9J
-        HKDgVMvIpKqD/blF1YrOqe3VAP3Wv6RVlg==
-X-Google-Smtp-Source: ABdhPJyfPDeVb99Oi/x9k+2vq4ATZkEUSOqCvI7P0yUnMVu0oL79eH9N27/jvLhgqcBGJYl9CWVjfQ==
-X-Received: by 2002:a17:902:8d85:b0:142:892d:bfa with SMTP id v5-20020a1709028d8500b00142892d0bfamr71797364plo.76.1637279870745;
-        Thu, 18 Nov 2021 15:57:50 -0800 (PST)
+        bh=4rpZGCTbKBiGjmtzGhgW6CK6EMd3LEVNf1dfX6HFghQ=;
+        b=01IDH1IUcgIz+B+tcHvQrmKBPwMUM/FKxTNxRJljU0Mziqi6z+8fSonoJnovM7tluc
+         lNTqagQQfNHqDvMNi4BrhKQpbZBW7LmWYikHj4efJVfwnhDfvxPZdgjq6rN5RAGx01oK
+         CHvLcZb5GS6ahjSbd3rVbtRSMDk5nF0RIwFWHe9qK0sCKNctq8TQO4ZOKlC4McwUEB1E
+         BfvWuZpy38Prc1APWn7tMWsrBDXNJ8ozG7+RTpyOAC507ZIyVfh6QQchEiYXJO0EJdLa
+         6zmGaxSubIxjRdgtBgP81lzTwNCSbYfVw3jzfVDd+usarU+pxOCPMae4VbziwFQ4Et48
+         AZ1g==
+X-Gm-Message-State: AOAM531ReCkF7KVg29laZJ9Zin4STdukNXzBdhWnQRaXNtnDUVtVgD49
+        QnbZFrVpHudhunpEHweV+NEP3KRvPxXrQQ==
+X-Google-Smtp-Source: ABdhPJwofaoOdmDDhaskHtIZryki0A+tmXZox9rRYiee7+l8BcJCyR75Rmu+i2bmarhQoeAyG5x94A==
+X-Received: by 2002:a63:844a:: with SMTP id k71mr4169755pgd.101.1637279888906;
+        Thu, 18 Nov 2021 15:58:08 -0800 (PST)
 Received: from localhost.localdomain ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id u22sm726999pfk.148.2021.11.18.15.57.50
+        by smtp.gmail.com with ESMTPSA id ip6sm9786395pjb.42.2021.11.18.15.58.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Nov 2021 15:57:50 -0800 (PST)
+        Thu, 18 Nov 2021 15:58:08 -0800 (PST)
 From:   Tadeusz Struk <tadeusz.struk@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     tadeusz.struk@linaro.org, axboe@kernel.dk, hch@lst.de,
         linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
         syzbot+662448179365dddc1880@syzkaller.appspotmail.com,
         xieyongji@bytedance.com
-Subject: [PATCH 5.15] block: Add a helper to validate the block size
-Date:   Thu, 18 Nov 2021 15:57:38 -0800
-Message-Id: <20211118235738.1128085-1-tadeusz.struk@linaro.org>
+Subject: [PATCH 5.14] block: Add a helper to validate the block size
+Date:   Thu, 18 Nov 2021 15:57:56 -0800
+Message-Id: <20211118235756.1128122-1-tadeusz.struk@linaro.org>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <7e6c4c23-f071-f33b-7bd4-da11980d34c6@linaro.org>
 References: <7e6c4c23-f071-f33b-7bd4-da11980d34c6@linaro.org>
@@ -83,10 +83,10 @@ Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
  1 file changed, 8 insertions(+)
 
 diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 683aee365420..5b03795ae33b 100644
+index e7979fe7e4fa..84019910446a 100644
 --- a/include/linux/blkdev.h
 +++ b/include/linux/blkdev.h
-@@ -54,6 +54,14 @@ struct blk_keyslot_manager;
+@@ -59,6 +59,14 @@ struct blk_keyslot_manager;
   */
  #define BLKCG_MAX_POLS		6
  
