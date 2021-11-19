@@ -2,137 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 167F74578DA
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 23:34:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56F9245793F
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 00:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233083AbhKSWht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 17:37:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56806 "EHLO
+        id S234720AbhKSXDq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 18:03:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232093AbhKSWhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 17:37:48 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6C4EC061574
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 14:34:46 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id np3so8932528pjb.4
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 14:34:46 -0800 (PST)
+        with ESMTP id S233433AbhKSXDp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 18:03:45 -0500
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543BBC061748
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 15:00:43 -0800 (PST)
+Received: by mail-ed1-x532.google.com with SMTP id v1so15338435edx.2
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 15:00:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=vbTXY5qrK1/ADHYWfrXeZxt5G4i7AgXei6+9/5z+3cA=;
-        b=Gl9HUXOEbAqfa3CW4eJ3RcYp6LS/W0eFtstDBdffL1ILCNPcN/j6BHq0eoqIU2LNYb
-         ggtMAtawwE+uhTg4azY4NNgxh+egpnZdvmT/d0navKua7cEwQVMl6y+auS3yyjKHyKNn
-         y9Oa/mQli7fYWS20l9jnxjJmWLmAr/3uH/WPv1cOlrs2u3iZGN8dWcJLBf5q7VoByYhX
-         aEwRAlaAT4RyqJ1S7dSkjnShtAkZhTzC0XWt5laroMoEjCyn2YhfdA+bBbe+CI47W5R6
-         fVVKJQyr6GFZUjH9nMdFNax9avNgIZT/wNJuP07L9POcddu3DENtT0sO6TZs0/QYra38
-         8sXA==
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=It4uFIPm/TcoK+jPH5YkeMMq3zsyxm4gO2u58vGukR0=;
+        b=3pJoQe2hjfrg/7hSbzLxsod9OrFWCoaug9P7fvkrEFg0rv9ffCcPK1UzNYydItGFTZ
+         8Gsmt/c334dnG4toozreaXjNphhZPsZYp2nlHPw3e/IL09S/41opYVanB2nzNO6/romw
+         i1rKm54xMk9+J65ZcFGOcZQ1SLjAb01WfAXpC5IjfPdVnhpO70u2p2JsMNKHDcQdADrz
+         aY47nKih2yF8knoiTAME51sXes1K6AV8Z51vQZXQFjkOEDpmKlNrruLgqJUvnP5ZmTFO
+         EX6tdfLRUPCJosqeGFNBGk62gvwF20K+oZOxePAEXnDwZsit9k4eDkfGa6isnfm5eM4B
+         QSvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=vbTXY5qrK1/ADHYWfrXeZxt5G4i7AgXei6+9/5z+3cA=;
-        b=Vt/ui5l6QJYRkq9qfmmYZwIi4nM/nmkWUitIxQRveYmOx1eTe/3MAUMGhddMuQKc7r
-         enpCk9WH8xZhBZGiB2jCasJvyGLjNvEKkyjwge0ilUjLbN1dpJKOnCh8sL0u0FTNIqVk
-         QhyScpQBYYZsU9HSKb1h2hNTmz5N7FSGq3GS4vM6xS5AwgHRy/1XlY1o1j8rm1umH2Ow
-         /colfr45mp/h482wnPYESIi5uCVleahESDntctQ3vPPg3DilJ4YO6IULKfcq+8eU8LN/
-         Svs0SUQYz6I4PyTAT6O3SeJdF/WPM5ZG/vqGrt4O2C61ViRWjeqrBc7FIZ49S4LRG8Aw
-         1MkQ==
-X-Gm-Message-State: AOAM530kbdbxn7UQ9iip62QBw8KtKcrJfGH5I0m6fhSodP93Zi2A0Ht7
-        etcqkGr4YRWvctP9ho8BTEZkLcgZJ5Y1DFWJ
-X-Google-Smtp-Source: ABdhPJyympP/ZbB05Y6wA5+9eeGd4VubIXaYWPJBHAWxLVbh6VJP/HC+7IbCyQe2zPOSYL4z5Xorfw==
-X-Received: by 2002:a17:90b:1bc3:: with SMTP id oa3mr4070653pjb.52.1637361286134;
-        Fri, 19 Nov 2021 14:34:46 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u22sm636621pfk.148.2021.11.19.14.34.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Nov 2021 14:34:45 -0800 (PST)
-Message-ID: <61982685.1c69fb81.6f5d1.2a8a@mx.google.com>
-Date:   Fri, 19 Nov 2021 14:34:45 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=It4uFIPm/TcoK+jPH5YkeMMq3zsyxm4gO2u58vGukR0=;
+        b=w2qLLoWnLOpOK6d3ZAOjGh6ocuoQRBCUnaUD7CiOtVLMhfhKilKY0699pR2inrsnnX
+         VMU8djh1+Vjh9Xpp8G0P60UyprL9svc6B5awpR2Tk/5FuB9dDbmTPsxOE2vC8G/DyquV
+         9PpYx6+YkbSf15ZxeJPzI8aAWv1IEv4sIcdq9O4y3oLFZbBm4mdDgyuSe0/iiNX+5ggb
+         0nyI0JdAukCAbMm59k/2m8N6NlEH10E5TN4QrQM3Hn/FYdHFBw3aA3xlk1CfXe1+gwP6
+         eKoYrinyXpeoTpBjOlJCfjzU9dQk4DGcwMX6pLjaya6PNyqF4udQ1MThNxYs9UpovviM
+         djfQ==
+X-Gm-Message-State: AOAM532BzayjG5gQOKdsDVYhZe7ODX6Lxkdm5bOR/1lEfMLWdM8gQCRj
+        kdb2ffFsh5k+YUnaA2QlTMwoPp3RVpBLoEMZ+baR
+X-Google-Smtp-Source: ABdhPJwj8srWh1Z1Q4zO93E9LesvzJGVPu0HuTT8W9Stihxm6dQnTTI+EpjPhsnLo9c1VlkWaxAuFRFcd+EwUhAciqo=
+X-Received: by 2002:a17:907:629b:: with SMTP id nd27mr12593174ejc.24.1637362841746;
+ Fri, 19 Nov 2021 15:00:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.217-258-g71fd6c08f1a97
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 97 runs,
- 1 regressions (v4.19.217-258-g71fd6c08f1a97)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20211112180720.2858135-1-tkjos@google.com>
+In-Reply-To: <20211112180720.2858135-1-tkjos@google.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 19 Nov 2021 18:00:31 -0500
+Message-ID: <CAHC9VhQaHzrjdnr_DvZdPfWGiehC17yJVAJdVJMn8tOC1_Y+gA@mail.gmail.com>
+Subject: Re: [PATCH] binder: fix test regression due to sender_euid change
+To:     Todd Kjos <tkjos@google.com>
+Cc:     gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
+        maco@android.com, christian@brauner.io, jmorris@namei.org,
+        serge@hallyn.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, keescook@chromium.org, jannh@google.com,
+        jeffv@google.com, zohar@linux.ibm.com,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org,
+        joel@joelfernandes.org, kernel-team@android.com,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 97 runs, 1 regressions (v4.19.217-258-g71fd6=
-c08f1a97)
+On Fri, Nov 12, 2021 at 1:07 PM Todd Kjos <tkjos@google.com> wrote:
+>
+> This is a partial revert of commit
+> 29bc22ac5e5b ("binder: use euid from cred instead of using task").
+> Setting sender_euid using proc->cred caused some Android system test
+> regressions that need further investigation. It is a partial
+> reversion because subsequent patches rely on proc->cred.
+>
+> Cc: stable@vger.kernel.org # 4.4+
+> Fixes: 29bc22ac5e5b ("binder: use euid from cred instead of using task")
+> Signed-off-by: Todd Kjos <tkjos@google.com>
+> Change-Id: I9b1769a3510fed250bb21859ef8beebabe034c66
+> ---
+> - the issue was introduced in 5.16-rc1, so please apply to 5.16
+> - this should apply cleanly to all stable branches back to 4.4
+>   that contain "binder: use euid from cred instead of using task"
+>
+>
+>  drivers/android/binder.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Regressions Summary
--------------------
+This looks okay to me.  I assume this is going in via GregKH's tree?
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Acked-by: Paul Moore <paul@paul-moore.com>
 
+> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> index 49fb74196d02..cffbe57a8e08 100644
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -2710,7 +2710,7 @@ static void binder_transaction(struct binder_proc *proc,
+>                 t->from = thread;
+>         else
+>                 t->from = NULL;
+> -       t->sender_euid = proc->cred->euid;
+> +       t->sender_euid = task_euid(proc->tsk);
+>         t->to_proc = target_proc;
+>         t->to_thread = target_thread;
+>         t->code = tr->code;
+> --
+> 2.34.0.rc1.387.gb447b232ab-goog
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.217-258-g71fd6c08f1a97/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.217-258-g71fd6c08f1a97
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      71fd6c08f1a97335e6cc83b95013bf2f744e9ca2 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/6197eea94faa30b400e551d2
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.217=
--258-g71fd6c08f1a97/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-p=
-anda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.217=
--258-g71fd6c08f1a97/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-p=
-anda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6197eea94faa30b=
-400e551d8
-        failing since 0 day (last pass: v4.19.217-251-gdb8a90cbc48f, first =
-fail: v4.19.217-251-gd104c0a7fd2c)
-        2 lines
-
-    2021-11-19T18:36:12.863257  <8>[   21.303833] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-19T18:36:12.911851  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/105
-    2021-11-19T18:36:12.920936  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+-- 
+paul moore
+www.paul-moore.com
