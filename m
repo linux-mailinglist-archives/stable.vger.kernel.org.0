@@ -2,166 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC5D4575E4
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:40:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B06804575EC
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:40:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237087AbhKSRmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 12:42:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45516 "EHLO mail.kernel.org"
+        id S237025AbhKSRnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 12:43:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237106AbhKSRmq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 12:42:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8400860D42;
-        Fri, 19 Nov 2021 17:39:43 +0000 (UTC)
+        id S230525AbhKSRmn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 12:42:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E7AB6113A;
+        Fri, 19 Nov 2021 17:39:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637343584;
-        bh=jMTZKkkv4dNVR0tkI2wcq4nImUf7RwAVm22Cu+jcatM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=zx0l0BDR8GLYw3J3z3qlQOZIGcB6Kq8zYSv9dxWPUfqNsSER3w5Ur9GpoC2voxmvi
-         VVHBZmYoox+KGOxC0iOe2UOltDIZs8S+DCQ1l0iq/1bJLXTK+Oz5PmRqa+PrfRfCTD
-         BxIsFoZMaayFJG2qxszG/WiRjMpA7hEWWbc9EPB8=
+        s=korg; t=1637343581;
+        bh=Hy8SscTAiv7mBa0A9uGV8T8aGBMiHvsJHtdyfiwDGwI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=CyNDWGcQe6OO+V0Vo+jO7qL7RIWH05yYOeZ0jgEsoSOscui3GnEjKfzYVlRhiiDSY
+         UIt+05BGuElORliJ9Gr7UU+T9wTFremsjlP1r2FY7PB6bzGS7gynPFchoXdPY0/pZw
+         e29Z0j0owbhT0lXA8Kr9YuRacr4Vtnd2lRXDBx9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.15 00/20] 5.15.4-rc1 review
-Date:   Fri, 19 Nov 2021 18:39:18 +0100
-Message-Id: <20211119171444.640508836@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.15 01/20] string: uninline memcpy_and_pad
+Date:   Fri, 19 Nov 2021 18:39:19 +0100
+Message-Id: <20211119171444.686925925@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-MIME-Version: 1.0
+In-Reply-To: <20211119171444.640508836@linuxfoundation.org>
+References: <20211119171444.640508836@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.4-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.15.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.15.4-rc1
-X-KernelTest-Deadline: 2021-11-21T17:14+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.15.4 release.
-There are 20 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Guenter Roeck <linux@roeck-us.net>
 
-Responses should be made by Sun, 21 Nov 2021 17:14:35 +0000.
-Anything received after that time might be too late.
+commit 5c4e0a21fae877a7ef89be6dcc6263ec672372b8 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.4-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-and the diffstat can be found below.
+When building m68k:allmodconfig, recent versions of gcc generate the
+following error if the length of UTS_RELEASE is less than 8 bytes.
 
-thanks,
+  In function 'memcpy_and_pad',
+    inlined from 'nvmet_execute_disc_identify' at
+      drivers/nvme/target/discovery.c:268:2: arch/m68k/include/asm/string.h:72:25: error:
+	'__builtin_memcpy' reading 8 bytes from a region of size 7
 
-greg k-h
+Discussions around the problem suggest that this only happens if an
+architecture does not provide strlen(), if -ffreestanding is provided as
+compiler option, and if CONFIG_FORTIFY_SOURCE=n. All of this is the case
+for m68k. The exact reasons are unknown, but seem to be related to the
+ability of the compiler to evaluate the return value of strlen() and
+the resulting execution flow in memcpy_and_pad(). It would be possible
+to work around the problem by using sizeof(UTS_RELEASE) instead of
+strlen(UTS_RELEASE), but that would only postpone the problem until the
+function is called in a similar way. Uninline memcpy_and_pad() instead
+to solve the problem for good.
 
--------------
-Pseudo-Shortlog of commits:
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ include/linux/string.h |   19 ++-----------------
+ lib/string_helpers.c   |   20 ++++++++++++++++++++
+ 2 files changed, 22 insertions(+), 17 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.15.4-rc1
-
-Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-    Revert "ACPI: scan: Release PM resources blocked by unused objects"
-
-Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
-    thermal: Fix NULL pointer dereferences in of_thermal_ functions
-
-Greg Thelen <gthelen@google.com>
-    perf/core: Avoid put_page() when GUP fails
-
-Marc Zyngier <maz@kernel.org>
-    PCI: Add MSI masking quirk for Nvidia ION AHCI
-
-Marc Zyngier <maz@kernel.org>
-    PCI/MSI: Deal with devices lying about their MSI mask capability
-
-Sven Schnelle <svens@stackframe.org>
-    parisc/entry: fix trace test in syscall exit path
-
-Nicholas Flintham <nick@flinny.org>
-    Bluetooth: btusb: Add support for TP-Link UB500 Adapter
-
-Xie Yongji <xieyongji@bytedance.com>
-    loop: Use blk_validate_block_size() to validate block size
-
-Xie Yongji <xieyongji@bytedance.com>
-    block: Add a helper to validate the block size
-
-Kees Cook <keescook@chromium.org>
-    fortify: Explicitly disable Clang support
-
-Johannes Thumshirn <johannes.thumshirn@wdc.com>
-    btrfs: zoned: allow preallocation for relocation inodes
-
-Johannes Thumshirn <johannes.thumshirn@wdc.com>
-    btrfs: check for relocation inodes on zoned btrfs in should_nocow
-
-Johannes Thumshirn <johannes.thumshirn@wdc.com>
-    btrfs: zoned: use regular writes for relocation
-
-Johannes Thumshirn <johannes.thumshirn@wdc.com>
-    btrfs: zoned: only allow one process to add pages to a relocation inode
-
-Johannes Thumshirn <johannes.thumshirn@wdc.com>
-    btrfs: zoned: add a dedicated data relocation block group
-
-Johannes Thumshirn <johannes.thumshirn@wdc.com>
-    btrfs: introduce btrfs_is_data_reloc_root
-
-David Woodhouse <dwmw@amazon.co.uk>
-    KVM: Fix steal time asm constraints
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "drm: fb_helper: fix CONFIG_FB dependency"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "drm: fb_helper: improve CONFIG_FB dependency"
-
-Guenter Roeck <linux@roeck-us.net>
-    string: uninline memcpy_and_pad
-
-
--------------
-
-Diffstat:
-
- Makefile                     |  4 ++--
- arch/parisc/kernel/entry.S   |  2 +-
- arch/x86/kvm/x86.c           |  6 ++---
- drivers/acpi/glue.c          | 25 --------------------
- drivers/acpi/internal.h      |  1 -
- drivers/acpi/scan.c          |  6 -----
- drivers/block/loop.c         | 17 ++------------
- drivers/bluetooth/btusb.c    |  4 ++++
- drivers/gpu/drm/Kconfig      |  5 ++--
- drivers/pci/msi.c            |  3 +++
- drivers/pci/quirks.c         |  6 +++++
- drivers/thermal/thermal_of.c |  9 ++++---
- fs/btrfs/block-group.c       |  1 +
- fs/btrfs/ctree.h             | 12 ++++++++++
- fs/btrfs/disk-io.c           |  3 ++-
- fs/btrfs/extent-tree.c       | 56 +++++++++++++++++++++++++++++++++++++++++---
- fs/btrfs/extent_io.c         | 11 +++++++++
- fs/btrfs/inode.c             | 29 +++++++++++++----------
- fs/btrfs/relocation.c        | 38 +++---------------------------
- fs/btrfs/zoned.c             | 21 +++++++++++++++++
- fs/btrfs/zoned.h             |  3 +++
- include/linux/blkdev.h       |  8 +++++++
- include/linux/pci.h          |  2 ++
- include/linux/string.h       | 19 ++-------------
- kernel/events/core.c         | 10 ++++----
- lib/string_helpers.c         | 20 ++++++++++++++++
- security/Kconfig             |  3 +++
- 27 files changed, 193 insertions(+), 131 deletions(-)
+--- a/include/linux/string.h
++++ b/include/linux/string.h
+@@ -262,23 +262,8 @@ void __write_overflow(void) __compiletim
+ #include <linux/fortify-string.h>
+ #endif
+ 
+-/**
+- * memcpy_and_pad - Copy one buffer to another with padding
+- * @dest: Where to copy to
+- * @dest_len: The destination buffer size
+- * @src: Where to copy from
+- * @count: The number of bytes to copy
+- * @pad: Character to use for padding if space is left in destination.
+- */
+-static inline void memcpy_and_pad(void *dest, size_t dest_len,
+-				  const void *src, size_t count, int pad)
+-{
+-	if (dest_len > count) {
+-		memcpy(dest, src, count);
+-		memset(dest + count, pad,  dest_len - count);
+-	} else
+-		memcpy(dest, src, dest_len);
+-}
++void memcpy_and_pad(void *dest, size_t dest_len, const void *src, size_t count,
++		    int pad);
+ 
+ /**
+  * str_has_prefix - Test if a string has a given prefix
+--- a/lib/string_helpers.c
++++ b/lib/string_helpers.c
+@@ -696,3 +696,23 @@ void kfree_strarray(char **array, size_t
+ 	kfree(array);
+ }
+ EXPORT_SYMBOL_GPL(kfree_strarray);
++
++/**
++ * memcpy_and_pad - Copy one buffer to another with padding
++ * @dest: Where to copy to
++ * @dest_len: The destination buffer size
++ * @src: Where to copy from
++ * @count: The number of bytes to copy
++ * @pad: Character to use for padding if space is left in destination.
++ */
++void memcpy_and_pad(void *dest, size_t dest_len, const void *src, size_t count,
++		    int pad)
++{
++	if (dest_len > count) {
++		memcpy(dest, src, count);
++		memset(dest + count, pad,  dest_len - count);
++	} else {
++		memcpy(dest, src, dest_len);
++	}
++}
++EXPORT_SYMBOL(memcpy_and_pad);
 
 
