@@ -2,108 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96241457353
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 17:44:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F246F457575
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:26:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236634AbhKSQrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 11:47:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34356 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236641AbhKSQru (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 11:47:50 -0500
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA40C061574
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:44:49 -0800 (PST)
-Received: by mail-pg1-x52a.google.com with SMTP id p17so9141745pgj.2
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:44:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
-        h=subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding:cc:from:to;
-        bh=SB6EgCTuUg8MJlUo+ml24NJI9nw+lDZjDHqU1EIISBQ=;
-        b=xZBTX2fkClhsrAhAhHvzzo3gipmQJBe9KDtvFo2Al+JGruCpMlsfpmz+hHWMrOvMfv
-         /CN0knlgAf9BQT/GfzTUnEpeNc+zQn6thds6pyjL/qxPhfTGCWm1TajlN3mY/hMKq3G1
-         gbZy/bTOStCDE4xY7mN8NfhIwa49nLhVohe5Dtu56Y8EzjxkOus4igegCZM+ePXheS0U
-         Y98Lac6ygTleo0oICOyMK/h8hDT5ayBcO5YwLn8al7NrFJQgymrth90UFq4ug6FB7HrZ
-         Tk1G/fjf6w+EAGKJo1wChfVJcHIW/wTXacZUSPEScWlYuXufKzgXSx8NWcGvMGxfggsE
-         uhJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding:cc:from:to;
-        bh=SB6EgCTuUg8MJlUo+ml24NJI9nw+lDZjDHqU1EIISBQ=;
-        b=NXeDEIFCDVTX/ypWZ2syBR0VyV1gcm8cIUvEoec/sH1GVYii60LBXrGr3HEjN7nqOo
-         npORuFR/RlddJLGPAob3JCk+bzQsTYHtmvQ+5t309e2e7iaxUeoZTA1F0KXgXa1UHWI6
-         w+zf2MnWtt4jxHMc45fV7mtkOntJwXccqyGA5JldhJCevL3EDXpL3rkZwAQzkZnsuM38
-         Wdw7ZkG679DJSVOChOAv09JhJqLVUFSE6/Kb9HJjfMKqQ78q+JR4wjeNVFQmmrgaswGv
-         oOEL+VFaqjakUmr+TAxAODLHz50ZRJSW6JVkw8vcICwn9Xt6yPEmrHZ3zQrzZlVk4yx5
-         +JIQ==
-X-Gm-Message-State: AOAM5303XldeSViIQ4fORmx0zjLyYe+RSnQhQkEUPrjQPtrBbgUDfbd6
-        s4v1V0Ro8sFRUAVdhGsqukterg==
-X-Google-Smtp-Source: ABdhPJzh8J4KCx4EO8kuEnK1oVC5fTwdJ/I9PGqYQcKUN1CBeBpJvZzXndIvprNjCMgwhkZQgvDsMA==
-X-Received: by 2002:aa7:9af6:0:b0:4a2:fa4a:714c with SMTP id y22-20020aa79af6000000b004a2fa4a714cmr23848682pfp.40.1637340285451;
-        Fri, 19 Nov 2021 08:44:45 -0800 (PST)
-Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
-        by smtp.gmail.com with ESMTPSA id v10sm195914pfu.123.2021.11.19.08.44.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Nov 2021 08:44:44 -0800 (PST)
-Subject: [PATCH 02/12] RISC-V: MAXPHYSMEM_2GB doesn't depend on CMODEL_MEDLOW
-Date:   Fri, 19 Nov 2021 08:44:03 -0800
-Message-Id: <20211119164413.29052-3-palmer@rivosinc.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211119164413.29052-1-palmer@rivosinc.com>
-References: <20211119164413.29052-1-palmer@rivosinc.com>
+        id S229811AbhKSR3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 12:29:53 -0500
+Received: from host.78.145.23.62.rev.coltfrance.com ([62.23.145.78]:34100 "EHLO
+        smtpservice.6wind.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S236280AbhKSR3w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 12:29:52 -0500
+X-Greylist: delayed 388 seconds by postgrey-1.27 at vger.kernel.org; Fri, 19 Nov 2021 12:29:52 EST
+Received: from bretzel (bretzel.dev.6wind.com [10.17.1.57])
+        by smtpservice.6wind.com (Postfix) with ESMTPS id A49CE60511;
+        Fri, 19 Nov 2021 18:20:21 +0100 (CET)
+Received: from dichtel by bretzel with local (Exim 4.92)
+        (envelope-from <dichtel@6wind.com>)
+        id 1mo7Yj-00031X-Go; Fri, 19 Nov 2021 18:20:21 +0100
+From:   Nicolas Dichtel <nicolas.dichtel@6wind.com>
+To:     steffen.klassert@secunet.com, herbert@gondor.apana.org.au
+Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
+        Ghalem Boudour <ghalem.boudour@6wind.com>,
+        stable@vger.kernel.org, Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Subject: [PATCH net v2] xfrm: fix policy lookup for ipv6 gre packets
+Date:   Fri, 19 Nov 2021 18:20:16 +0100
+Message-Id: <20211119172016.11610-1-nicolas.dichtel@6wind.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211119170402.11213-1-nicolas.dichtel@6wind.com>
+References: <20211119170402.11213-1-nicolas.dichtel@6wind.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Cc:     Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>, aou@eecs.berkeley.edu,
-        anup.patel@wdc.com, heinrich.schuchardt@canonical.com,
-        atish.patra@wdc.com, bin.meng@windriver.com,
-        sagar.kadam@sifive.com, damien.lemoal@wdc.com, axboe@kernel.dk,
-        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Palmer Dabbelt <palmer@rivosinc.com>, stable@vger.kernel.org
-From:   Palmer Dabbelt <palmer@rivosinc.com>
-To:         linux-riscv@lists.infradead.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmer@rivosinc.com>
+From: Ghalem Boudour <ghalem.boudour@6wind.com>
 
-For non-relocatable kernels we need to be able to link the kernel at
-approximately PAGE_OFFSET, thus requiring medany (as medlow requires the
-code to be linked within 2GiB of 0).  The inverse doesn't apply, though:
-since medany code can be linked anywhere it's fine to link it close to
-0, so we can support the smaller memory config.
+On egress side, xfrm lookup is called from __gre6_xmit() with the
+fl6_gre_key field not initialized leading to policies selectors check
+failure. Consequently, gre packets are sent without encryption.
 
-Fixes: de5f4b8f634b ("RISC-V: Define MAXPHYSMEM_1GB only for RV32")
+On ingress side, INET6_PROTO_NOPOLICY was set, thus packets were not
+checked against xfrm policies. Like for egress side, fl6_gre_key should be
+correctly set, this is now done in decode_session6().
+
+Fixes: c12b395a4664 ("gre: Support GRE over IPv6")
 Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-
+Signed-off-by: Ghalem Boudour <ghalem.boudour@6wind.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 ---
 
-I found this when going through the savedefconfig diffs for the K210
-defconfigs.  I'm not entirely sure they're doing the right thing here
-(they should probably be setting CMODEL_LOW to take advantage of the
-better code generation), but I don't have any way to test those
-platforms so I don't want to change too much.
----
- arch/riscv/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patch targets ipsec tree, but because this tree has not been yet
+rebased on top of the net tree, I based the patch on top of net.
 
-diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-index 821252b65f89..61f64512dcde 100644
---- a/arch/riscv/Kconfig
-+++ b/arch/riscv/Kconfig
-@@ -280,7 +280,7 @@ choice
- 		depends on 32BIT
- 		bool "1GiB"
- 	config MAXPHYSMEM_2GB
--		depends on 64BIT && CMODEL_MEDLOW
-+		depends on 64BIT
- 		bool "2GiB"
- 	config MAXPHYSMEM_128GB
- 		depends on 64BIT && CMODEL_MEDANY
+v1 -> v2
+ Add 'Cc: stable@vger.kernel.org'
+
+ net/ipv6/ip6_gre.c     |  5 ++++-
+ net/xfrm/xfrm_policy.c | 21 +++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 1 deletion(-)
+
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index d831d2439693..f5a511c57aa2 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -755,6 +755,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 		fl6->daddr = key->u.ipv6.dst;
+ 		fl6->flowlabel = key->label;
+ 		fl6->flowi6_uid = sock_net_uid(dev_net(dev), NULL);
++		fl6->fl6_gre_key = tunnel_id_to_key32(key->tun_id);
+ 
+ 		dsfield = key->tos;
+ 		flags = key->tun_flags &
+@@ -990,6 +991,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
+ 		fl6.daddr = key->u.ipv6.dst;
+ 		fl6.flowlabel = key->label;
+ 		fl6.flowi6_uid = sock_net_uid(dev_net(dev), NULL);
++		fl6.fl6_gre_key = tunnel_id_to_key32(key->tun_id);
+ 
+ 		dsfield = key->tos;
+ 		if (!(tun_info->key.tun_flags & TUNNEL_ERSPAN_OPT))
+@@ -1098,6 +1100,7 @@ static void ip6gre_tnl_link_config_common(struct ip6_tnl *t)
+ 	fl6->flowi6_oif = p->link;
+ 	fl6->flowlabel = 0;
+ 	fl6->flowi6_proto = IPPROTO_GRE;
++	fl6->fl6_gre_key = t->parms.o_key;
+ 
+ 	if (!(p->flags&IP6_TNL_F_USE_ORIG_TCLASS))
+ 		fl6->flowlabel |= IPV6_TCLASS_MASK & p->flowinfo;
+@@ -1544,7 +1547,7 @@ static void ip6gre_fb_tunnel_init(struct net_device *dev)
+ static struct inet6_protocol ip6gre_protocol __read_mostly = {
+ 	.handler     = gre_rcv,
+ 	.err_handler = ip6gre_err,
+-	.flags       = INET6_PROTO_NOPOLICY|INET6_PROTO_FINAL,
++	.flags       = INET6_PROTO_FINAL,
+ };
+ 
+ static void ip6gre_destroy_tunnels(struct net *net, struct list_head *head)
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 1a06585022ab..84d2361da015 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -33,6 +33,7 @@
+ #include <net/flow.h>
+ #include <net/xfrm.h>
+ #include <net/ip.h>
++#include <net/gre.h>
+ #if IS_ENABLED(CONFIG_IPV6_MIP6)
+ #include <net/mip6.h>
+ #endif
+@@ -3422,6 +3423,26 @@ decode_session6(struct sk_buff *skb, struct flowi *fl, bool reverse)
+ 			}
+ 			fl6->flowi6_proto = nexthdr;
+ 			return;
++		case IPPROTO_GRE:
++			if (!onlyproto &&
++			    (nh + offset + 12 < skb->data ||
++			     pskb_may_pull(skb, nh + offset + 12 - skb->data))) {
++				struct gre_base_hdr *gre_hdr;
++				__be32 *gre_key;
++
++				nh = skb_network_header(skb);
++				gre_hdr = (struct gre_base_hdr *)(nh + offset);
++				gre_key = (__be32 *)(gre_hdr + 1);
++
++				if (gre_hdr->flags & GRE_KEY) {
++					if (gre_hdr->flags & GRE_CSUM)
++						gre_key++;
++					fl6->fl6_gre_key = *gre_key;
++				}
++			}
++			fl6->flowi6_proto = nexthdr;
++			return;
++
+ #if IS_ENABLED(CONFIG_IPV6_MIP6)
+ 		case IPPROTO_MH:
+ 			offset += ipv6_optlen(exthdr);
 -- 
-2.32.0
+2.33.0
 
