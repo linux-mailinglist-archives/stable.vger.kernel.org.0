@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3BFD456763
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 02:19:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA4745677E
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 02:35:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229915AbhKSBWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 20:22:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51178 "EHLO
+        id S231403AbhKSBi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 20:38:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229833AbhKSBWU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 20:22:20 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74D07C061574
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 17:19:19 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id np6-20020a17090b4c4600b001a90b011e06so7404224pjb.5
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 17:19:19 -0800 (PST)
+        with ESMTP id S229754AbhKSBi4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 20:38:56 -0500
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBB66C061574
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 17:35:55 -0800 (PST)
+Received: by mail-pg1-x52d.google.com with SMTP id r5so7174604pgi.6
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 17:35:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=VvsMPLZ06B15/xQQw0zrbDO3JDKg/szQp4uOlOyfjec=;
-        b=OEJ9xAMY9Ogym/ziS0tr5MNkr+2sXfkdkw6HclvA88aImZ7kdWFHrMxMtf589Gc7XL
-         qm9h/oon2+G/IPA8smojyVEnURciVz4MzA0MpiaU1/5ZqFG6lCa7RKvlrfPaBeR+O4vH
-         NuzBki/Z6D0HcIUCfTzyNRtn8MOvQU0kZvv7b9xFNtSHci+8Eyou08eDYC9XHQMAuPb6
-         A6wCuWsdYfzgJmo70OW5Og/A+iKcNvjIPLH3KQmemPdo3LmMQQstEgNps+Xz5sJQLyhb
-         /8Kn9jFDi672bSL9OtuGgtwTiXU69ICdNRDRMDvpa/blE1j4pdgwZWEqlTrk+UWxyktc
-         c1zA==
+        bh=E3qy8ZgEWojrmm4jpzgd5Z7UwFDoiaWsfINqVfMqUko=;
+        b=huZ5pGIEtqPCNMzB+l4JFs+fHU68Q0Y9vCXOhLR8WT5CjC8SdzMcENi1RwYB3bgV0j
+         PEwgQl3V0Sx3O+a2LYvbEdsICbLDZ4bt/PtcvN+IwZHpy89/4Dd5N3yAWi0Nr/assQer
+         8Pb3Fh0NjCzhPe8ZfU3hBCj7jfFh5C5cXrknJ0I136Dx9scYd27ZLtuoC9XKrqwPDJxz
+         qN3w1QgYXRvlCROheTWFlv5UWHkPO0Rw/MD0xAY+FNHxuElhcuo/0uF3SqoxSH/HP1Np
+         ajvkQMCzneb8Tx+gupbbNHHocCqJW4N49ebeyYXcHZ+XE9QVVoMLk97iGltFL5jJ2Sqk
+         2ahg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=VvsMPLZ06B15/xQQw0zrbDO3JDKg/szQp4uOlOyfjec=;
-        b=3itJBt5ZfHLNA9sHajr7qg0XIMsyPBw6zkDu9eUuzzXsVBCzEOB7YbPdKtkUaFb92m
-         AxHzQ7ZIcsSFhmWUH9Hu8eZ+GYSRnkGmDdNTUQwy72aZB7rLZE1wEU2WxbtotyzOKEXO
-         YhYSNmtS0H7RX3nNng3Q9Ip5XhFH6cz/nxXpl/eJtHcCdgUpXAmjcCfJlB26bZE5jCat
-         FPgNOgLcLrmVO7A1bSYL+Pn/a7n7o3k4vBYe2+PufXgeZD8KQqrsmnOfAd5/BJfyS4vv
-         dHCQl7u1VJPAgVSy4/vbAJnv5ZawFkkeMMG/u74+B0uAooKPvNd+5UN/sGWYzZy8w9PY
-         NPPw==
-X-Gm-Message-State: AOAM53335vgzLIe7HBTMeXA0EUJGdxHmzFXc1fVnnspe/Vlq0iwEPPnn
-        7lupmZIX7icSrmEUSJHkWACUVTcL0f9yrsa4
-X-Google-Smtp-Source: ABdhPJyVCVIcgapNcXPFwcLEeHbwzfWECNw5/fqGbeMVAQ0CeEMzRS6XFTfL0+D59b4+1Iu5Honh7w==
-X-Received: by 2002:a17:90a:e395:: with SMTP id b21mr44529pjz.103.1637284758873;
-        Thu, 18 Nov 2021 17:19:18 -0800 (PST)
+        bh=E3qy8ZgEWojrmm4jpzgd5Z7UwFDoiaWsfINqVfMqUko=;
+        b=fUZjjyIO2AGPySPKZs5OrC9b73jZG8C2iMEZ8i0C3twRFU+OAdc4sZACUXRrDUhtHz
+         pReXuKG0Wocl+3nzLOzh6bE78LvR84gFP5cbTVmMkVVYH9fyPECMXQ614p6yLkRFHiLc
+         FviTGHVionjfVB5K1IIe9+jmg7tNtEnYJS9UCyNdsmHyRfvKeEoAdTPm3ra2AeYdd5Bt
+         VpRPWlP3wo8pzk/UF0u2KQj6v/PLkZefbtMUB7HsyeluK1lAol/QGBAJYDVRcCFibNhS
+         Ppio4EmffGBKidkMwaonY9ubnxc0S9CkWnPHp20MIAxRI5wQ/j5T65jP5GOSeP3YlbrY
+         qApA==
+X-Gm-Message-State: AOAM532aEyKWJn4RPerO2/DENdOYqwkMs2K4QkyWntym8n6Vg1ErGc5u
+        6+9YLxSe+J83+7S2fI5opc4kRIvRhVAnxtnA
+X-Google-Smtp-Source: ABdhPJwUfHkuWVFCLDODXzaImtw0HXrZH8t69Pm1ls0NYz9K/FpwneRq/ay7Q97inmDB3uS6IxDCNA==
+X-Received: by 2002:aa7:8198:0:b0:44b:e191:7058 with SMTP id g24-20020aa78198000000b0044be1917058mr19656794pfi.39.1637285755079;
+        Thu, 18 Nov 2021 17:35:55 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s2sm846030pfg.124.2021.11.18.17.19.18
+        by smtp.gmail.com with ESMTPSA id d24sm808392pfn.62.2021.11.18.17.35.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Nov 2021 17:19:18 -0800 (PST)
-Message-ID: <6196fb96.1c69fb81.7d48d.448a@mx.google.com>
-Date:   Thu, 18 Nov 2021 17:19:18 -0800 (PST)
+        Thu, 18 Nov 2021 17:35:54 -0800 (PST)
+Message-ID: <6196ff7a.1c69fb81.4c804.40ac@mx.google.com>
+Date:   Thu, 18 Nov 2021 17:35:54 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.290
+X-Kernelci-Kernel: v4.14.255
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y baseline: 148 runs, 2 regressions (v4.9.290)
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y baseline: 163 runs, 2 regressions (v4.14.255)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -64,32 +64,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 148 runs, 2 regressions (v4.9.290)
+stable-rc/linux-4.14.y baseline: 163 runs, 2 regressions (v4.14.255)
 
 Regressions Summary
 -------------------
 
-platform    | arch   | lab           | compiler | defconfig                =
-    | regressions
-------------+--------+---------------+----------+--------------------------=
-----+------------
-panda       | arm    | lab-collabora | gcc-10   | omap2plus_defconfig      =
-    | 1          =
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+beagle-xm | arm  | lab-baylibre  | gcc-10   | omap2plus_defconfig | 1      =
+    =
 
-qemu_x86_64 | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon...6-chromeb=
-ook | 1          =
+panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
+    =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.290/plan/baseline/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.255/plan/baseline/
 
   Test:     baseline
   Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.290
+  Branch:   linux-4.14.y
+  Describe: v4.14.255
   URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
 able-rc.git
-  SHA:      ab95ef83dddbae37b60263e092d08d5cd2b0059e =
+  SHA:      5f9f3b0057d5c5782985784ba0159b05b4083055 =
 
 
 
@@ -98,71 +98,71 @@ Test Regressions
 
 
 
-platform    | arch   | lab           | compiler | defconfig                =
-    | regressions
-------------+--------+---------------+----------+--------------------------=
-----+------------
-panda       | arm    | lab-collabora | gcc-10   | omap2plus_defconfig      =
-    | 1          =
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+beagle-xm | arm  | lab-baylibre  | gcc-10   | omap2plus_defconfig | 1      =
+    =
 
 
-  Details:     https://kernelci.org/test/plan/id/618faebb1160764876335906
+  Details:     https://kernelci.org/test/plan/id/618f9e169171338eb73358ec
 
-  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Results:     0 PASS, 1 FAIL, 0 SKIP
   Full config: omap2plus_defconfig
   Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
 10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.290=
-/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.290=
-/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+55/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+55/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-xm.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
 .05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
 
 
 
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/618faebb1160764=
-876335909
-        new failure (last pass: v4.9.289-23-g6ecf94b5fd89)
-        2 lines
-
-    2021-11-18T21:07:00.258013  [   20.255096] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-18T21:07:00.304817  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/129
-    2021-11-18T21:07:00.314190  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+  * baseline.login: https://kernelci.org/test/case/id/618f9e169171338eb7335=
+8ed
+        new failure (last pass: v4.14.255-200-g9ac4e6b250bf) =
 
  =
 
 
 
-platform    | arch   | lab           | compiler | defconfig                =
-    | regressions
-------------+--------+---------------+----------+--------------------------=
-----+------------
-qemu_x86_64 | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon...6-chromeb=
-ook | 1          =
+platform  | arch | lab           | compiler | defconfig           | regress=
+ions
+----------+------+---------------+----------+---------------------+--------=
+----
+panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
+    =
 
 
-  Details:     https://kernelci.org/test/plan/id/618fab494e1337b08e335918
+  Details:     https://kernelci.org/test/plan/id/618f9e149171338eb73358dc
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.290=
-/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/baseline-qemu_x8=
-6_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.290=
-/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/baseline-qemu_x8=
-6_64.html
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+55/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+55/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/618fab494e1337b08e335=
-919
-        new failure (last pass: v4.9.290-160-ga8041b640adb) =
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/618f9e149171338=
+eb73358e0
+        failing since 5 days (last pass: v4.14.255, first fail: v4.14.255-5=
+4-gb6f4d599e1d3)
+        2 lines
+
+    2021-11-18T21:29:25.070480  [   20.070861] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-11-18T21:29:25.112227  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/104
+    2021-11-18T21:29:25.121453  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
 
  =20
