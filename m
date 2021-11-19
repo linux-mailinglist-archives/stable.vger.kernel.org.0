@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EDAF45760D
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:42:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B46CB4575F4
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:40:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237205AbhKSRpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 12:45:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45724 "EHLO mail.kernel.org"
+        id S232657AbhKSRnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 12:43:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237215AbhKSRnI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 12:43:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 946906113A;
-        Fri, 19 Nov 2021 17:40:05 +0000 (UTC)
+        id S235878AbhKSRnK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 12:43:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1C9C611F2;
+        Fri, 19 Nov 2021 17:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637343606;
-        bh=hCVeozaWi7LaVIcQlvv+XJFTayV6Vu9xbqHZ/DUY8Jk=;
+        s=korg; t=1637343608;
+        bh=3a+EeNU+k3yWBuiMvFTkGsQyKEc8/o5jn32fSi+RK1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YglLw4KGl4rprfK5KX/CuD6U/rLfuGPYODqGF4KMGuYLQHqUcsEqCTfVu9KWTabcR
-         w02+qK3OU85SW3ojBZRVnDBm+YOSFeRpHpJs13MxH/WzS8OvNan+ErlwwQGb9vBI+a
-         bjYtY6KeExOJVp8ss4P2D5xgFVyk+tCfgiCysllw=
+        b=dtyfkunQxP1X4sXESnBkL10AeDOTX+Lkcw69XYAtfcG/vZI6AM40SjDuwgpQdYxgw
+         KxlGMQ2y95AR8cT5h+KZVE5TcVPuumBmTB3tuKy/bW0O/REkY7Gu4NHyw5kHTlJist
+         7p4d8RORsVN6MroH/4OKXBQPz22rVNUNRvI0jrZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
         Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 07/20] btrfs: zoned: only allow one process to add pages to a relocation inode
-Date:   Fri, 19 Nov 2021 18:39:25 +0100
-Message-Id: <20211119171444.893229128@linuxfoundation.org>
+Subject: [PATCH 5.15 08/20] btrfs: zoned: use regular writes for relocation
+Date:   Fri, 19 Nov 2021 18:39:26 +0100
+Message-Id: <20211119171444.926247447@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211119171444.640508836@linuxfoundation.org>
 References: <20211119171444.640508836@linuxfoundation.org>
@@ -42,48 +42,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit 35156d852762b58855f513b4f8bb7f32d69dc9c5 upstream
+commit e6d261e3b1f777b499ce8f535ed44dd1b69278b7 upstream
 
-Don't allow more than one process to add pages to a relocation inode on
-a zoned filesystem, otherwise we cannot guarantee the sequential write
-rule once we're filling preallocated extents on a zoned filesystem.
+Now that we have a dedicated block group for relocation, we can use
+REQ_OP_WRITE instead of  REQ_OP_ZONE_APPEND for writing out the data on
+relocation.
 
+Reviewed-by: Naohiro Aota <naohiro.aota@wdc.com>
 Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent_io.c |   11 +++++++++++
+ fs/btrfs/zoned.c |   11 +++++++++++
  1 file changed, 11 insertions(+)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -5120,6 +5120,9 @@ int extent_write_locked_range(struct ino
- int extent_writepages(struct address_space *mapping,
- 		      struct writeback_control *wbc)
- {
-+	struct inode *inode = mapping->host;
-+	const bool data_reloc = btrfs_is_data_reloc_root(BTRFS_I(inode)->root);
-+	const bool zoned = btrfs_is_zoned(BTRFS_I(inode)->root->fs_info);
- 	int ret = 0;
- 	struct extent_page_data epd = {
- 		.bio_ctrl = { 0 },
-@@ -5127,7 +5130,15 @@ int extent_writepages(struct address_spa
- 		.sync_io = wbc->sync_mode == WB_SYNC_ALL,
- 	};
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -1304,6 +1304,17 @@ bool btrfs_use_zone_append(struct btrfs_
+ 	if (!is_data_inode(&inode->vfs_inode))
+ 		return false;
  
 +	/*
-+	 * Allow only a single thread to do the reloc work in zoned mode to
-+	 * protect the write pointer updates.
++	 * Using REQ_OP_ZONE_APPNED for relocation can break assumptions on the
++	 * extent layout the relocation code has.
++	 * Furthermore we have set aside own block-group from which only the
++	 * relocation "process" can allocate and make sure only one process at a
++	 * time can add pages to an extent that gets relocated, so it's safe to
++	 * use regular REQ_OP_WRITE for this special case.
 +	 */
-+	if (data_reloc && zoned)
-+		btrfs_inode_lock(inode, 0);
- 	ret = extent_write_cache_pages(mapping, wbc, &epd);
-+	if (data_reloc && zoned)
-+		btrfs_inode_unlock(inode, 0);
- 	ASSERT(ret <= 0);
- 	if (ret < 0) {
- 		end_write_bio(&epd, ret);
++	if (btrfs_is_data_reloc_root(inode->root))
++		return false;
++
+ 	cache = btrfs_lookup_block_group(fs_info, start);
+ 	ASSERT(cache);
+ 	if (!cache)
 
 
