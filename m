@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 404E94569F5
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 07:11:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAEBB4569EF
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 07:11:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232854AbhKSGOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 01:14:37 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:37582 "EHLO www.linuxtv.org"
+        id S229921AbhKSGOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 01:14:35 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:37318 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230118AbhKSGOg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 01:14:36 -0500
+        id S232202AbhKSGOe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 01:14:34 -0500
 Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1mnx7U-0020E6-TV; Fri, 19 Nov 2021 06:11:32 +0000
+        id 1mnx7U-0020Dh-RF; Fri, 19 Nov 2021 06:11:32 +0000
 From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Fri, 19 Nov 2021 06:04:16 +0000
-Subject: [git:media_stage/master] media: redrat3: fix control-message timeouts
+Date:   Fri, 19 Nov 2021 06:04:53 +0000
+Subject: [git:media_stage/master] media: flexcop-usb: fix control-message timeouts
 To:     linuxtv-commits@linuxtv.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
+Cc:     stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Johan Hovold <johan@kernel.org>
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1mnx7U-0020E6-TV@www.linuxtv.org>
+Message-Id: <E1mnx7U-0020Dh-RF@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: redrat3: fix control-message timeouts
+Subject: media: flexcop-usb: fix control-message timeouts
 Author:  Johan Hovold <johan@kernel.org>
-Date:    Mon Oct 25 13:16:35 2021 +0100
+Date:    Mon Oct 25 13:16:36 2021 +0100
 
 USB control-message timeouts are specified in milliseconds and should
 specifically not vary with CONFIG_HZ.
+
+Note that the driver was multiplying some of the timeout values with HZ
+twice resulting in 3000-second timeouts with HZ=1000.
+
+Also note that two of the timeout defines are currently unused.
 
 Fixes: 2154be651b90 ("[media] redrat3: new rc-core IR transceiver device driver")
 Cc: stable@vger.kernel.org      # 3.0
@@ -43,103 +48,80 @@ Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
- drivers/media/rc/redrat3.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/media/usb/b2c2/flexcop-usb.c | 10 +++++-----
+ drivers/media/usb/b2c2/flexcop-usb.h | 12 ++++++------
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
 ---
 
-diff --git a/drivers/media/rc/redrat3.c b/drivers/media/rc/redrat3.c
-index ac85464864b9..cb22316b3f00 100644
---- a/drivers/media/rc/redrat3.c
-+++ b/drivers/media/rc/redrat3.c
-@@ -404,7 +404,7 @@ static int redrat3_send_cmd(int cmd, struct redrat3_dev *rr3)
- 	udev = rr3->udev;
- 	res = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0), cmd,
- 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--			      0x0000, 0x0000, data, sizeof(u8), HZ * 10);
-+			      0x0000, 0x0000, data, sizeof(u8), 10000);
+diff --git a/drivers/media/usb/b2c2/flexcop-usb.c b/drivers/media/usb/b2c2/flexcop-usb.c
+index 5d38171b7638..bfeb92d93de3 100644
+--- a/drivers/media/usb/b2c2/flexcop-usb.c
++++ b/drivers/media/usb/b2c2/flexcop-usb.c
+@@ -87,7 +87,7 @@ static int flexcop_usb_readwrite_dw(struct flexcop_device *fc, u16 wRegOffsPCI,
+ 			0,
+ 			fc_usb->data,
+ 			sizeof(u32),
+-			B2C2_WAIT_FOR_OPERATION_RDW * HZ);
++			B2C2_WAIT_FOR_OPERATION_RDW);
  
- 	if (res < 0) {
- 		dev_err(rr3->dev, "%s: Error sending rr3 cmd res %d, data %d",
-@@ -480,7 +480,7 @@ static u32 redrat3_get_timeout(struct redrat3_dev *rr3)
- 	pipe = usb_rcvctrlpipe(rr3->udev, 0);
- 	ret = usb_control_msg(rr3->udev, pipe, RR3_GET_IR_PARAM,
- 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--			      RR3_IR_IO_SIG_TIMEOUT, 0, tmp, len, HZ * 5);
-+			      RR3_IR_IO_SIG_TIMEOUT, 0, tmp, len, 5000);
- 	if (ret != len)
- 		dev_warn(rr3->dev, "Failed to read timeout from hardware\n");
- 	else {
-@@ -510,7 +510,7 @@ static int redrat3_set_timeout(struct rc_dev *rc_dev, unsigned int timeoutus)
- 	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0), RR3_SET_IR_PARAM,
- 		     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
- 		     RR3_IR_IO_SIG_TIMEOUT, 0, timeout, sizeof(*timeout),
--		     HZ * 25);
-+		     25000);
- 	dev_dbg(dev, "set ir parm timeout %d ret 0x%02x\n",
- 						be32_to_cpu(*timeout), ret);
+ 	if (ret != sizeof(u32)) {
+ 		err("error while %s dword from %d (%d).", read ? "reading" :
+@@ -155,7 +155,7 @@ static int flexcop_usb_v8_memory_req(struct flexcop_usb *fc_usb,
+ 			wIndex,
+ 			fc_usb->data,
+ 			buflen,
+-			nWaitTime * HZ);
++			nWaitTime);
+ 	if (ret != buflen)
+ 		ret = -EIO;
  
-@@ -542,32 +542,32 @@ static void redrat3_reset(struct redrat3_dev *rr3)
- 	*val = 0x01;
- 	rc = usb_control_msg(udev, rxpipe, RR3_RESET,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--			     RR3_CPUCS_REG_ADDR, 0, val, len, HZ * 25);
-+			     RR3_CPUCS_REG_ADDR, 0, val, len, 25000);
- 	dev_dbg(dev, "reset returned 0x%02x\n", rc);
+@@ -248,13 +248,13 @@ static int flexcop_usb_i2c_req(struct flexcop_i2c_adapter *i2c,
+ 		/* DKT 020208 - add this to support special case of DiSEqC */
+ 	case USB_FUNC_I2C_CHECKWRITE:
+ 		pipe = B2C2_USB_CTRL_PIPE_OUT;
+-		nWaitTime = 2;
++		nWaitTime = 2000;
+ 		request_type |= USB_DIR_OUT;
+ 		break;
+ 	case USB_FUNC_I2C_READ:
+ 	case USB_FUNC_I2C_REPEATREAD:
+ 		pipe = B2C2_USB_CTRL_PIPE_IN;
+-		nWaitTime = 2;
++		nWaitTime = 2000;
+ 		request_type |= USB_DIR_IN;
+ 		break;
+ 	default:
+@@ -281,7 +281,7 @@ static int flexcop_usb_i2c_req(struct flexcop_i2c_adapter *i2c,
+ 			wIndex,
+ 			fc_usb->data,
+ 			buflen,
+-			nWaitTime * HZ);
++			nWaitTime);
  
- 	*val = length_fuzz;
- 	rc = usb_control_msg(udev, txpipe, RR3_SET_IR_PARAM,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
--			     RR3_IR_IO_LENGTH_FUZZ, 0, val, len, HZ * 25);
-+			     RR3_IR_IO_LENGTH_FUZZ, 0, val, len, 25000);
- 	dev_dbg(dev, "set ir parm len fuzz %d rc 0x%02x\n", *val, rc);
+ 	if (ret != buflen)
+ 		ret = -EIO;
+diff --git a/drivers/media/usb/b2c2/flexcop-usb.h b/drivers/media/usb/b2c2/flexcop-usb.h
+index 2f230bf72252..c7cca1a5ee59 100644
+--- a/drivers/media/usb/b2c2/flexcop-usb.h
++++ b/drivers/media/usb/b2c2/flexcop-usb.h
+@@ -91,13 +91,13 @@ typedef enum {
+ 	UTILITY_SRAM_TESTVERIFY     = 0x16,
+ } flexcop_usb_utility_function_t;
  
- 	*val = (65536 - (minimum_pause * 2000)) / 256;
- 	rc = usb_control_msg(udev, txpipe, RR3_SET_IR_PARAM,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
--			     RR3_IR_IO_MIN_PAUSE, 0, val, len, HZ * 25);
-+			     RR3_IR_IO_MIN_PAUSE, 0, val, len, 25000);
- 	dev_dbg(dev, "set ir parm min pause %d rc 0x%02x\n", *val, rc);
+-#define B2C2_WAIT_FOR_OPERATION_RW (1*HZ)
+-#define B2C2_WAIT_FOR_OPERATION_RDW (3*HZ)
+-#define B2C2_WAIT_FOR_OPERATION_WDW (1*HZ)
++#define B2C2_WAIT_FOR_OPERATION_RW 1000
++#define B2C2_WAIT_FOR_OPERATION_RDW 3000
++#define B2C2_WAIT_FOR_OPERATION_WDW 1000
  
- 	*val = periods_measure_carrier;
- 	rc = usb_control_msg(udev, txpipe, RR3_SET_IR_PARAM,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
--			     RR3_IR_IO_PERIODS_MF, 0, val, len, HZ * 25);
-+			     RR3_IR_IO_PERIODS_MF, 0, val, len, 25000);
- 	dev_dbg(dev, "set ir parm periods measure carrier %d rc 0x%02x", *val,
- 									rc);
+-#define B2C2_WAIT_FOR_OPERATION_V8READ (3*HZ)
+-#define B2C2_WAIT_FOR_OPERATION_V8WRITE (3*HZ)
+-#define B2C2_WAIT_FOR_OPERATION_V8FLASH (3*HZ)
++#define B2C2_WAIT_FOR_OPERATION_V8READ 3000
++#define B2C2_WAIT_FOR_OPERATION_V8WRITE 3000
++#define B2C2_WAIT_FOR_OPERATION_V8FLASH 3000
  
- 	*val = RR3_DRIVER_MAXLENS;
- 	rc = usb_control_msg(udev, txpipe, RR3_SET_IR_PARAM,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
--			     RR3_IR_IO_MAX_LENGTHS, 0, val, len, HZ * 25);
-+			     RR3_IR_IO_MAX_LENGTHS, 0, val, len, 25000);
- 	dev_dbg(dev, "set ir parm max lens %d rc 0x%02x\n", *val, rc);
- 
- 	kfree(val);
-@@ -585,7 +585,7 @@ static void redrat3_get_firmware_rev(struct redrat3_dev *rr3)
- 	rc = usb_control_msg(rr3->udev, usb_rcvctrlpipe(rr3->udev, 0),
- 			     RR3_FW_VERSION,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--			     0, 0, buffer, RR3_FW_VERSION_LEN, HZ * 5);
-+			     0, 0, buffer, RR3_FW_VERSION_LEN, 5000);
- 
- 	if (rc >= 0)
- 		dev_info(rr3->dev, "Firmware rev: %s", buffer);
-@@ -825,14 +825,14 @@ static int redrat3_transmit_ir(struct rc_dev *rcdev, unsigned *txbuf,
- 
- 	pipe = usb_sndbulkpipe(rr3->udev, rr3->ep_out->bEndpointAddress);
- 	ret = usb_bulk_msg(rr3->udev, pipe, irdata,
--			    sendbuf_len, &ret_len, 10 * HZ);
-+			    sendbuf_len, &ret_len, 10000);
- 	dev_dbg(dev, "sent %d bytes, (ret %d)\n", ret_len, ret);
- 
- 	/* now tell the hardware to transmit what we sent it */
- 	pipe = usb_rcvctrlpipe(rr3->udev, 0);
- 	ret = usb_control_msg(rr3->udev, pipe, RR3_TX_SEND_SIGNAL,
- 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--			      0, 0, irdata, 2, HZ * 10);
-+			      0, 0, irdata, 2, 10000);
- 
- 	if (ret < 0)
- 		dev_err(dev, "Error: control msg send failed, rc %d\n", ret);
+ typedef enum {
+ 	V8_MEMORY_PAGE_DVB_CI = 0x20,
