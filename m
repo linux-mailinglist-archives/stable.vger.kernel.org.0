@@ -2,142 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 711E34578CC
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 23:29:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A22D14578D0
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 23:30:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232116AbhKSWcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 17:32:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55570 "EHLO
+        id S232344AbhKSWda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 17:33:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230392AbhKSWcY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 17:32:24 -0500
-Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FC59C061574
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 14:29:22 -0800 (PST)
-Received: by mail-lf1-x12a.google.com with SMTP id z34so49747081lfu.8
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 14:29:22 -0800 (PST)
+        with ESMTP id S232233AbhKSWd3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 17:33:29 -0500
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44E4EC06173E
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 14:30:27 -0800 (PST)
+Received: by mail-lf1-x131.google.com with SMTP id t26so49466213lfk.9
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 14:30:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=EDW4syYNAtTu07Zje9Yf7tN8HiRrmtT7x8jt/tno8Mc=;
-        b=mKPm9uxYBAjMkZ8EkhBWgXiG8l5yimPyznkhQM4lZwybnDUQAjpJRiiz05MChN4uI7
-         IJZFnQkN6191WpoY7ttLtYSmpxB/ww9Ti6XAnihP3FlNCCejQsROgzMcGbFTTwlvTDHf
-         Z2UU2T0GNb20iRKdH44J9+kd6NwduIaZWb5PBU2STfAJRmCpz0uzcW9mkjQETkC/aGX1
-         vIs8JUbpxBwg4NxHlzhX5RDFUD2ydApSqqpxdlr0iC6I+oCzIbHuRF3ItcXr+MU/Fx5y
-         KEWij4xWOodQetbUHZlLcejCMDuipGL3TtYMk1B8pAy0N/+d65LcLDsVkcbPpetcbTiE
-         rasQ==
+        bh=gb6DJ5DQJ8d8n/pzGXXmbwQTl8pHSuAAtPMhI2ncwL4=;
+        b=Hgml2IugRLSk+dAVCRLMQCrykgMbgDpd3VP1x0lAQpTwmYfxxlqxu+79jHjq/WB6TY
+         tPwF8FPSdowAEQFfJDvyJq61vlSzQUOBYyxcpAnsm4XUkfwnM7i5BKtYrZ8LrZNU88Sj
+         8th2/LbXQEKHJYp0TfWS/kPp4/aTH3jOcFl80r9E4XZyaRqHly1iimKguZGLb1J+1/XW
+         JFxVmL9VAkBqWKuPYjnPmP62FKZZkYNtEciCTve5a0siodV+ZNeuwD9H6uvGS0EAxK61
+         iJ+3hMy2lO5kaceP4agXsO2oKoWQBGK5FrKtAOdVeyWZRPy113cjJ8V9HTmvfeCuc6Sw
+         8L1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=EDW4syYNAtTu07Zje9Yf7tN8HiRrmtT7x8jt/tno8Mc=;
-        b=Y27Zh2bEa0vIF5H90NFxa1TAfHfeghUl/RmTytLD/FSxKOBHKPssHJZKhHVH2qh5gl
-         Mue8XIND1CoiJKcGqLJc7FXG1RPyB4UiY+LQ2OMJ6EJGPyG9kfrf3D2VBk+FvJ3Wpj8e
-         15sF6eQ4OcterFeaEZc5dvzWmCT9yLQnjYDV4FwWpTlzyngHAUlkxOYtrGO/IZWrXOWD
-         P/eK/ivjvZfV7v4vpmPZXBZinRhZ97JzBQ1pJoffVFag5nZUBgQ+yiE045F9z/XwYMvR
-         CvCJBrzzJD5NlKbV51OZsNxjqSSFSWVHLLC2cVFmhHVX6R7n5sim98QB74xoEGTkcZSd
-         fh+g==
-X-Gm-Message-State: AOAM533bZjdQI4X0NMyOfEvpm7dkcT4ZisaNa1CMIbeACLTfsULPKncH
-        ZFvBwRdvOODdvvDAaM2Pxxy+TvQKRVl0c7w/7/kpBA==
-X-Google-Smtp-Source: ABdhPJxC1rNvQabwkVZw/7XFuXFX/0lIprBjqcbChdje0gP9jUW8uAeGMZApcMUg7I9vl9LYKb2TMZKqyMzGXCY+aB4=
-X-Received: by 2002:a05:6512:110e:: with SMTP id l14mr37262522lfg.550.1637360960683;
- Fri, 19 Nov 2021 14:29:20 -0800 (PST)
+        bh=gb6DJ5DQJ8d8n/pzGXXmbwQTl8pHSuAAtPMhI2ncwL4=;
+        b=inPeryrgyYqM3O29LsUljCGm4L7JHSy6EJ1xDuzT5qk/v5UhqGNaM074BxhjLN6PXR
+         n3GZDA142NhotSpbRizrVE/4XH2uSc/NlFaMBDXdeqD5tb5MN/YOSc84H2Ha/Odbun9e
+         RHV81xA1vtldKHTWNykfc9v/GFk0vDAfJGd5c7rPBl/2kLeSlvUupVs5VKZHrPo/4k+L
+         0Cfy29D1XPN8iaIF87TxBxKjyDfXNI00kqLsogj26CkrWca0z/Xkrxh+v21fJ2OzYUh1
+         fXRshe3zy4G0H+1kyr4OJ7Y22aOJ9PQpvElxC9jOo/f1DlXDyF2GYKk4z0Vp16hkgg+Y
+         OQLw==
+X-Gm-Message-State: AOAM530VgkkeUqT2yfRlUorNpgVbWZ9INbjWFmDztX2KruBjv3PUlMAI
+        TZJA/CxAFIFtCa2SnRNtiazMhu0D00FOe788nC6pAw==
+X-Google-Smtp-Source: ABdhPJxsTRG9T5xPG7viwUpKNna/wqOSpxwg9/Ci7jmaVEF8uQRUQkffK18TtZFmDsdpyxdZOiSKWj1XVD4ChuJZw+Q=
+X-Received: by 2002:a2e:b6ce:: with SMTP id m14mr29600483ljo.128.1637361025473;
+ Fri, 19 Nov 2021 14:30:25 -0800 (PST)
 MIME-Version: 1.0
-References: <CAKwvOdmaGrk80s5T9uDMd-XEVTOUupaCxiU1mbtkk9K276KS5w@mail.gmail.com>
- <YZem/VtituWK2zkd@kroah.com>
-In-Reply-To: <YZem/VtituWK2zkd@kroah.com>
+References: <20211119171443.892729043@linuxfoundation.org> <20211119171444.250202515@linuxfoundation.org>
+ <20211119214713.GB23353@amd> <CAKwvOdnxTRuMDDnriD5y26uWeUD8eoTH=6wrcFWvQZj8qOt2yA@mail.gmail.com>
+In-Reply-To: <CAKwvOdnxTRuMDDnriD5y26uWeUD8eoTH=6wrcFWvQZj8qOt2yA@mail.gmail.com>
 From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Fri, 19 Nov 2021 14:29:09 -0800
-Message-ID: <CAKwvOdkZ1ydLs2VwvVLtT7QK+e1gNB0ZE5RqTxMY15QQvhxZ1w@mail.gmail.com>
-Subject: Re: backport of 14831fad73f5 for 5.10 and 5.4
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
+Date:   Fri, 19 Nov 2021 14:30:14 -0800
+Message-ID: <CAKwvOdkFAiDN_tnDUH+tDdEoUfpiXQFN2qN-bT=RGAbbcFGpMA@mail.gmail.com>
+Subject: Re: [PATCH 5.10 11/21] arm64: vdso32: suppress error message for make mrproper
+To:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Lucas Henneman <henneman@google.com>,
         Masahiro Yamada <masahiroy@kernel.org>,
         Vincenzo Frascino <vincenzo.frascino@arm.com>,
         Nathan Chancellor <nathan@kernel.org>,
-        Will Deacon <will@kernel.org>, llvm@lists.linux.dev,
-        Pavel Machek <pavel@denx.de>
-Content-Type: multipart/mixed; boundary="0000000000006ed1d505d12bce53"
+        Will Deacon <will@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---0000000000006ed1d505d12bce53
-Content-Type: text/plain; charset="UTF-8"
-
-On Fri, Nov 19, 2021 at 5:30 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+On Fri, Nov 19, 2021 at 2:24 PM Nick Desaulniers
+<ndesaulniers@google.com> wrote:
 >
-> On Thu, Nov 18, 2021 at 11:30:38AM -0800, Nick Desaulniers wrote:
-> > Dear stable kernel maintainers,
-> > Please consider applying the attached backport of 14831fad73f5 to
-> > linux-5.10.y and linux-5.4.y.
+> On Fri, Nov 19, 2021 at 1:47 PM Pavel Machek <pavel@denx.de> wrote:
 > >
-> > 14831fad73f5 first landed in v5.16-rc1.
+> > Hi!
 > >
-> > There was a minor conflict due to missing e35123d83ee3 ("arm64: lto:
-> > Strengthen READ_ONCE() to acquire when CONFIG_LTO=y") which first
-> > landed in v5.11-rc1.
+> > > commit 14831fad73f5ac30ac61760487d95a538e6ab3cb upstream.
+> > >
+> > > When running the following command without arm-linux-gnueabi-gcc in
+> > > one's $PATH, the following warning is observed:
+> > >
+> > > $ ARCH=arm64 CROSS_COMPILE_COMPAT=arm-linux-gnueabi- make -j72 LLVM=1 mrproper
+> > > make[1]: arm-linux-gnueabi-gcc: No such file or directory
+> > >
+> > > This is because KCONFIG is not run for mrproper, so CONFIG_CC_IS_CLANG
+> > > is not set, and we end up eagerly evaluating various variables that try
+> > > to invoke CC_COMPAT.
 > >
-> > It fixes a minor warning observed during `make mrproper` for Android
-> > kernel builds.
+> > Upstream commit is fine, but 5.10 port misses the 2> part of the
+> > change.
 >
-> Now queued up, thanks.
+> You're right; thanks for the report. Greg, can you drop this version
+> of the backport for 5.10 and 5.4? I'll resubmit an updated version.
 
-I'm sorry; I made a mistake.  As reported by Pavel in
-https://lore.kernel.org/stable/20211119214713.GB23353@amd/
-I missed part of the backport.  Attached is a v2.
+V2 sent:
+https://lore.kernel.org/stable/CAKwvOdkZ1ydLs2VwvVLtT7QK+e1gNB0ZE5RqTxMY15QQvhxZ1w@mail.gmail.com/
+
+>
+> >
+> > > +++ b/arch/arm64/kernel/vdso32/Makefile
+> > > @@ -48,7 +48,8 @@ cc32-as-instr = $(call try-run,\
+> > >  # As a result we set our own flags here.
+> > >
+> > >  # KBUILD_CPPFLAGS and NOSTDINC_FLAGS from top-level Makefile
+> > > -VDSO_CPPFLAGS := -D__KERNEL__ -nostdinc -isystem $(shell $(CC_COMPAT) -print-file-name=include)
+> > > +VDSO_CPPFLAGS := -D__KERNEL__ -nostdinc
+> > > +VDSO_CPPFLAGS += -isystem $(shell $(CC_COMPAT) -print-file-name=include)
+> > >  VDSO_CPPFLAGS += $(LINUXINCLUDE)
+> > >
+> > >  # Common C and assembly flags
+> > >
+> >
+> > Best regards,
+> >                                                                 Pavel
+> > --
+> > DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+> > HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+>
+>
+>
+> --
+> Thanks,
+> ~Nick Desaulniers
+
+
+
 -- 
 Thanks,
 ~Nick Desaulniers
-
---0000000000006ed1d505d12bce53
-Content-Type: application/octet-stream; 
-	name="v2.14831fad73f5.5.10.and.5.4.patch"
-Content-Disposition: attachment; 
-	filename="v2.14831fad73f5.5.10.and.5.4.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_kw6yf34h0>
-X-Attachment-Id: f_kw6yf34h0
-
-RnJvbSBiNjZjZDYyNGQwZDU5MTIwNTA1MzZkMzc3MDkwYzE2NDEzZTUzYjA0IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBOaWNrIERlc2F1bG5pZXJzIDxuZGVzYXVsbmllcnNAZ29vZ2xl
-LmNvbT4KRGF0ZTogVHVlLCAxOSBPY3QgMjAyMSAxNTozNjo0NSAtMDcwMApTdWJqZWN0OiBbUEFU
-Q0hdIGFybTY0OiB2ZHNvMzI6IHN1cHByZXNzIGVycm9yIG1lc3NhZ2UgZm9yICdtYWtlIG1ycHJv
-cGVyJwoKY29tbWl0IDE0ODMxZmFkNzNmNWFjMzBhYzYxNzYwNDg3ZDk1YTUzOGU2YWIzY2IgdXBz
-dHJlYW0uCgpXaGVuIHJ1bm5pbmcgdGhlIGZvbGxvd2luZyBjb21tYW5kIHdpdGhvdXQgYXJtLWxp
-bnV4LWdudWVhYmktZ2NjIGluCm9uZSdzICRQQVRILCB0aGUgZm9sbG93aW5nIHdhcm5pbmcgaXMg
-b2JzZXJ2ZWQ6CgokIEFSQ0g9YXJtNjQgQ1JPU1NfQ09NUElMRV9DT01QQVQ9YXJtLWxpbnV4LWdu
-dWVhYmktIG1ha2UgLWo3MiBMTFZNPTEgbXJwcm9wZXIKbWFrZVsxXTogYXJtLWxpbnV4LWdudWVh
-YmktZ2NjOiBObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5CgpUaGlzIGlzIGJlY2F1c2UgS0NPTkZJ
-RyBpcyBub3QgcnVuIGZvciBtcnByb3Blciwgc28gQ09ORklHX0NDX0lTX0NMQU5HCmlzIG5vdCBz
-ZXQsIGFuZCB3ZSBlbmQgdXAgZWFnZXJseSBldmFsdWF0aW5nIHZhcmlvdXMgdmFyaWFibGVzIHRo
-YXQgdHJ5CnRvIGludm9rZSBDQ19DT01QQVQuCgpUaGlzIGlzIGEgc2ltaWxhciBwcm9ibGVtIHRv
-IHdoYXQgd2FzIG9ic2VydmVkIGluCmNvbW1pdCBkYzk2MGJmZWVkYjAgKCJoODMwMDogc3VwcHJl
-c3MgZXJyb3IgbWVzc2FnZXMgZm9yICdtYWtlIGNsZWFuJyIpCgpSZXBvcnRlZC1ieTogTHVjYXMg
-SGVubmVtYW4gPGhlbm5lbWFuQGdvb2dsZS5jb20+ClN1Z2dlc3RlZC1ieTogTWFzYWhpcm8gWWFt
-YWRhIDxtYXNhaGlyb3lAa2VybmVsLm9yZz4KW25kOiBhZGp1c3RlZCBjb250ZXh0IGR1ZSB0byBt
-aXNzaW5nIGUzNTEyM2Q4M2VlM10KU2lnbmVkLW9mZi1ieTogTmljayBEZXNhdWxuaWVycyA8bmRl
-c2F1bG5pZXJzQGdvb2dsZS5jb20+ClJldmlld2VkLWJ5OiBWaW5jZW56byBGcmFzY2lubyA8dmlu
-Y2Vuem8uZnJhc2Npbm9AYXJtLmNvbT4KUmV2aWV3ZWQtYnk6IE5hdGhhbiBDaGFuY2VsbG9yIDxu
-YXRoYW5Aa2VybmVsLm9yZz4KVGVzdGVkLWJ5OiBOYXRoYW4gQ2hhbmNlbGxvciA8bmF0aGFuQGtl
-cm5lbC5vcmc+Ckxpbms6IGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL3IvMjAyMTEwMTkyMjM2NDYu
-MTE0Njk0NS00LW5kZXNhdWxuaWVyc0Bnb29nbGUuY29tClNpZ25lZC1vZmYtYnk6IFdpbGwgRGVh
-Y29uIDx3aWxsQGtlcm5lbC5vcmc+Ci0tLQogYXJjaC9hcm02NC9rZXJuZWwvdmRzbzMyL01ha2Vm
-aWxlIHwgMyArKy0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24o
-LSkKCmRpZmYgLS1naXQgYS9hcmNoL2FybTY0L2tlcm5lbC92ZHNvMzIvTWFrZWZpbGUgYi9hcmNo
-L2FybTY0L2tlcm5lbC92ZHNvMzIvTWFrZWZpbGUKaW5kZXggNzkyODBjNTNiOWE2Li5hNDYzYjli
-Y2VlZDQgMTAwNjQ0Ci0tLSBhL2FyY2gvYXJtNjQva2VybmVsL3Zkc28zMi9NYWtlZmlsZQorKysg
-Yi9hcmNoL2FybTY0L2tlcm5lbC92ZHNvMzIvTWFrZWZpbGUKQEAgLTQ4LDcgKzQ4LDggQEAgY2Mz
-Mi1hcy1pbnN0ciA9ICQoY2FsbCB0cnktcnVuLFwKICMgQXMgYSByZXN1bHQgd2Ugc2V0IG91ciBv
-d24gZmxhZ3MgaGVyZS4KIAogIyBLQlVJTERfQ1BQRkxBR1MgYW5kIE5PU1RESU5DX0ZMQUdTIGZy
-b20gdG9wLWxldmVsIE1ha2VmaWxlCi1WRFNPX0NQUEZMQUdTIDo9IC1EX19LRVJORUxfXyAtbm9z
-dGRpbmMgLWlzeXN0ZW0gJChzaGVsbCAkKENDX0NPTVBBVCkgLXByaW50LWZpbGUtbmFtZT1pbmNs
-dWRlKQorVkRTT19DUFBGTEFHUyA6PSAtRF9fS0VSTkVMX18gLW5vc3RkaW5jCitWRFNPX0NQUEZM
-QUdTICs9IC1pc3lzdGVtICQoc2hlbGwgJChDQ19DT01QQVQpIC1wcmludC1maWxlLW5hbWU9aW5j
-bHVkZSAyPi9kZXYvbnVsbCkKIFZEU09fQ1BQRkxBR1MgKz0gJChMSU5VWElOQ0xVREUpCiAKICMg
-Q29tbW9uIEMgYW5kIGFzc2VtYmx5IGZsYWdzCi0tIAoyLjM0LjAucmMyLjM5My5nZjhjOTY2Njg4
-MC1nb29nCgo=
---0000000000006ed1d505d12bce53--
