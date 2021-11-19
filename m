@@ -2,137 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B11FE4567AE
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 02:55:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 789EC4567CF
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 03:04:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234011AbhKSB6S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 20:58:18 -0500
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:21683 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234009AbhKSB6Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 20:58:16 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1637286916; x=1668822916;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=aG5LqWTsRucrm11BXz0YXxnhDV4aHDGwps3zTPHMqJE=;
-  b=jsv+Zr4t1WMqTvP1jFLhEnstXqikNMqoDz4rbjyuvsh9Q2eZZQGNNtN/
-   6LvuCu25O1dWgOwKs2oeDlvX3NuibiZbtRjnRc6KSBhL8nPa4Z/L45/AV
-   O2ncJ5VCKGFko6CWbkuNoD++re9LkkU/OAtMjbzwemHAO/N2jG638Fgz8
-   eGTM99f+jbaIbZm2znvAS3fSCKoCJA9AKbqH1Rpc3kgTEjctw4m2CcLiY
-   wf6ML85oKk2ZwroaZ22WvcosG/dqTbxj6WRT7pyEFu7NwYoifc+9o4spq
-   lUb3s+eYesniZgAbPKqvY8yIk09D4qLhTD0BvOLdvVpaSesjvJZhLG22A
-   g==;
-X-IronPort-AV: E=Sophos;i="5.87,246,1631548800"; 
-   d="scan'208";a="185023355"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 19 Nov 2021 09:55:13 +0800
-IronPort-SDR: G3Z4Sn36FHmhB9T5WPOk9R3tHyfXWJJDgmrEDKZIppXh3I/ZIJoo1qloICTDTeQgzn2FGxYQuW
- 7ID+3IXOtb7x6nyCuEmS1l5JC0rvaSAA9Xj2mQLqnqPPG1pvNgPqu1E2uxuaH13Tql0i4Ggsc/
- q6GxCsx8B5uwLoHwqRZX9JcbCXupIcpaTtIzbKY0ouTn+eS5YeV8MWzwuLMv0BqO7MMjg6erCs
- uS/OeusRXg+inqcP3nheDMSXKKNOI3ZMmBSuFkBOitj40ggxtHaGUYJ3SjJtzZUNtR/PZTT7Hx
- D+Zk+PriMP6rGIOJBFleAO6P
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2021 17:30:13 -0800
-IronPort-SDR: IA5Qt6KNJOzzs1ihFeWuLGfVaO2SSykYCfum2K+44y5Xr3ylKR6WUPeOPsxf6RBrcMW4NxgKj1
- enRuL6ud9L4QjatXtltgI9X+HbY4ykMpsoRjTiRMhB2ky39Ih+t9bQa6N9UbVAEHY90TOVndjC
- c4L+hFK0RxI8LxDJQn70URtCKWD0Svkor+vpkCTTJnNijECGAH4QciQ941RiinAdN95Oy3+Lmz
- ISf7/RTEzb72LfPhItJ2btMHIeO+wJKf2OEO/pcOcTNaOPUXReZVPAGEVnqLkx/wpjK5+pWJf/
- U5w=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Nov 2021 17:55:13 -0800
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4HwKVn172Hz1RtVn
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 17:55:13 -0800 (PST)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:from:references:to:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1637286911; x=1639878912; bh=aG5LqWTsRucrm11BXz0YXxnhDV4aHDGwps3
-        zTPHMqJE=; b=VpQNF3zKxOX2dSZG2/BE4JWXNTW1W8qVMBK7MSAE3T8EE0w2411
-        4y+8PyG8xkTPPzwX47/PIwGnteq5/IAsGQGjFrlJ1RICr1JMaw0gRAAmi9anFVqN
-        5fcD1EozGlszJ9b0xp5i4SHEk8jkRG5Lzq77b6FnKvmsn/bqBlMcSzVVWiDOsitN
-        gwv+BmTpUwAbC6Mnom3v6VQrenA1Z7yi/qOzTeatMgmEfGxVBFKcwSmRlOH37msm
-        naV775kTDj4nySbJ3K0R8sZ5zAMiMgDJO1EDYCMJ+123gSDAjKiGu+h2eCneVzw+
-        dGgCQv3Ox6d3FoHjOefDxyOdMcwQzBUuJIQ==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 1oHQHghmnkgW for <stable@vger.kernel.org>;
-        Thu, 18 Nov 2021 17:55:11 -0800 (PST)
-Received: from [10.225.54.48] (unknown [10.225.54.48])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4HwKVk4Pkyz1RtVl;
-        Thu, 18 Nov 2021 17:55:10 -0800 (PST)
-Message-ID: <df37d57e-86e1-56dd-54b7-f3d7b96ffd56@opensource.wdc.com>
-Date:   Fri, 19 Nov 2021 10:55:08 +0900
+        id S229833AbhKSCHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 21:07:35 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:21731 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232627AbhKSCHe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 21:07:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1637287473;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=AGSOSbx9KHQS8zqvecKfdTvOeLPt7uvQMecFRR7horI=;
+        b=bbDWT5e+tycB/WXU9BvRrHLSmmBrPl/Tle9hZjZ3uZ7ZyXg/1+kiZuOS8OGGBcEgCKrLU7
+        8wDn6QmKU6DbzGoEL9WQhpZ48wSDEo7vRHEUPCA2Bp3UNtPmBObOtvOj4mA2XDLJIyhCVX
+        O9Cn2MLG+1j38eqlJV2w7yLv4Q4Kssw=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-447-DFV6SrAxPCGShDyyQF7RLg-1; Thu, 18 Nov 2021 21:04:32 -0500
+X-MC-Unique: DFV6SrAxPCGShDyyQF7RLg-1
+Received: by mail-qt1-f198.google.com with SMTP id o12-20020a05622a008c00b002aff5552c89so5693367qtw.23
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 18:04:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=AGSOSbx9KHQS8zqvecKfdTvOeLPt7uvQMecFRR7horI=;
+        b=phdWVHHWAbo3raleqkj68azdtyssknViqhGtiOQpGj1WWv8wcfJlwrKALgrBzWoWVu
+         lTH4uFPBXPRGdDMCLL+tLoDT0RlS5jiM1/jxEPhubQUA0EFOVCxbZTiHAtiteE9mCYFk
+         UcmG04KB3R0YAgTNlJpD7ujdQI+KJHnTF8UwAHvFZenTlZxv86LLnM742z3H3GMl97af
+         9YETquFX1IPilGH0aquSp4pCgv2E0pBgCRveJgxNGf5N1JdQxadBFSFJcwvpAext3F36
+         dF0OBF9UuK0sGjcW6HB55R19hFxu4bHLn2SJ6cCapgykqqdZl07DKVBbp5lkNQ+TvIWg
+         SDWw==
+X-Gm-Message-State: AOAM533VyeR7zx4Vagw54F06vEYfkg5xg0JxK5kmHY9byKLdc7ZZ/jDk
+        45+lgISl0oWQ+FX20g4EbrzzDgDUqBxBgbMxeMQYsiWCiXI9C1LDnwKYeQW9I3xPZaMkNkgnRvO
+        a5gG/I7Rh4crSNj1a
+X-Received: by 2002:a05:620a:bd6:: with SMTP id s22mr25531281qki.306.1637287471818;
+        Thu, 18 Nov 2021 18:04:31 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxuCUqQL54jg/D75F3PqUIH6vspq7qRyOaik1SrsMas8wVNJJ8wVqJFn1+vXReR5poHB6M+1g==
+X-Received: by 2002:a05:620a:bd6:: with SMTP id s22mr25531253qki.306.1637287471523;
+        Thu, 18 Nov 2021 18:04:31 -0800 (PST)
+Received: from treble ([2600:1700:6e32:6c00::35])
+        by smtp.gmail.com with ESMTPSA id 139sm841883qkn.37.2021.11.18.18.04.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Nov 2021 18:04:30 -0800 (PST)
+Date:   Thu, 18 Nov 2021 18:04:27 -0800
+From:   Josh Poimboeuf <jpoimboe@redhat.com>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Holger =?utf-8?Q?Hoffst=C3=A4tte?= 
+        <holger@applied-asynchrony.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Justin Forbes <jmforbes@linuxtx.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 5.15 000/923] 5.15.3-rc3 review
+Message-ID: <20211119020427.2y5esq2czquwmvwc@treble>
+References: <20211117101657.463560063@linuxfoundation.org>
+ <YZV02RCRVHIa144u@fedora64.linuxtx.org>
+ <55c7b316-e03d-9e91-d74c-fea63c469b3b@applied-asynchrony.com>
+ <CAHk-=wjHbKfck1Ws4Y0pUZ7bxdjU9eh2WK0EFsv65utfeVkT9Q@mail.gmail.com>
+ <20211118080627.GH174703@worktop.programming.kicks-ass.net>
+ <20211118081852.GM174730@worktop.programming.kicks-ass.net>
+ <YZYfYOcqNqOyZ8Yo@hirez.programming.kicks-ass.net>
+ <YZZC3Shc0XA/gHK9@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.3.1
-Subject: Re: [PATCH 5.15] block: Add a helper to validate the block size
-Content-Language: en-US
-To:     Tadeusz Struk <tadeusz.struk@linaro.org>, stable@vger.kernel.org
-Cc:     axboe@kernel.dk, hch@lst.de, linux-block@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        syzbot+662448179365dddc1880@syzkaller.appspotmail.com,
-        xieyongji@bytedance.com
-References: <7e6c4c23-f071-f33b-7bd4-da11980d34c6@linaro.org>
- <20211118235738.1128085-1-tadeusz.struk@linaro.org>
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital
-In-Reply-To: <20211118235738.1128085-1-tadeusz.struk@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <YZZC3Shc0XA/gHK9@hirez.programming.kicks-ass.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021/11/19 8:57, Tadeusz Struk wrote:
-> From: Xie Yongji <xieyongji@bytedance.com>
+On Thu, Nov 18, 2021 at 01:11:09PM +0100, Peter Zijlstra wrote:
+> On Thu, Nov 18, 2021 at 10:39:44AM +0100, Peter Zijlstra wrote:
+> > On Thu, Nov 18, 2021 at 09:18:52AM +0100, Peter Zijlstra wrote:
+> > > On Thu, Nov 18, 2021 at 09:06:27AM +0100, Peter Zijlstra wrote:
+> > > > On Wed, Nov 17, 2021 at 03:50:17PM -0800, Linus Torvalds wrote:
+> > > > 
+> > > > > I really don't think the WCHAN code should use unwinders at all. It's
+> > > > > too damn fragile, and it's too easily triggered from user space.
+> > > > 
+> > > > On x86, esp. with ORC, it pretty much has to. The thing is, the ORC
+> > > > unwinder has been very stable so far. I'm guessing there's some really
+> > > > stupid thing going on, like for example trying to unwind a freed stack.
+> > > > 
+> > > > I *just* managed to reproduce, so let me go have a poke.
+> > > 
+> > > Confirmed, with the below it no longer reproduces. Now, let me go undo
+> > > that and fix the unwinder to not explode while trying to unwind nothing.
+> > 
+> > OK, so the bug is firmly with 5d1ceb3969b6 ("x86: Fix __get_wchan() for
+> > !STACKTRACE") which lost the try_get_task_stack() that stack_trace_*()
+> > does.
+> > 
+> > We can ofc trivially re-instate that, but I'm now running with the
+> > below which I suppose is a better fix, hmm?
+> > 
+> > (obv I still need to look a the other two unwinders)
 > 
-> From: Xie Yongji <xieyongji@bytedance.com>
+> I now have the below, the only thing missing is that there's a
+> user_mode() call on a stack based regs. Now on x86_64 we can
+> __get_kernel_nofault() regs->cs and call it a day, but on i386 we have
+> to also fetch regs->flags.
 > 
-> There are some duplicated codes to validate the block
-> size in block drivers. This limitation actually comes
-> from block layer, so this patch tries to add a new block
-> layer helper for that.
-> 
-> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> Link: https://lore.kernel.org/r/20211026144015.188-2-xieyongji@bytedance.com
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-> ---
->  include/linux/blkdev.h | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-> index 683aee365420..5b03795ae33b 100644
-> --- a/include/linux/blkdev.h
-> +++ b/include/linux/blkdev.h
-> @@ -54,6 +54,14 @@ struct blk_keyslot_manager;
->   */
->  #define BLKCG_MAX_POLS		6
->  
-> +static inline int blk_validate_block_size(unsigned int bsize)
-> +{
-> +	if (bsize < 512 || bsize > PAGE_SIZE || !is_power_of_2(bsize))
-> +		return -EINVAL;
-> +
-> +	return 0;
-> +}
-> +
->  typedef void (rq_end_io_fn)(struct request *, blk_status_t);
->  
->  /*
-> 
+> Is this really the way to go?
 
-But where is this used in 5.15 ? I do not see any callers for this.
-So why backport it ?
+Please no.  Can we just add a check in unwind_start() to ensure the
+caller did try_get_task_stack()?
 
 -- 
-Damien Le Moal
-Western Digital Research
+Josh
+
