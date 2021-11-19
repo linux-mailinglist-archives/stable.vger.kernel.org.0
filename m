@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81DD74575E8
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:40:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B278545760A
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:41:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237088AbhKSRnE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 12:43:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45800 "EHLO mail.kernel.org"
+        id S237414AbhKSRoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 12:44:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237089AbhKSRmy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 12:42:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA4F161279;
-        Fri, 19 Nov 2021 17:39:51 +0000 (UTC)
+        id S237239AbhKSRnd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 12:43:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EA186113A;
+        Fri, 19 Nov 2021 17:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637343592;
-        bh=tnqyqeyXW3Bwsd24Il137clZkPiw8fFv9CZzmxu8VcM=;
+        s=korg; t=1637343631;
+        bh=AzC2yyqjBLMsGhjszsKWYhf8b6JIWxC5H7DHZLA0yfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBx2cO6NHPd/jYm1aVkZ4kL7NGR2+/+uaje7a2DgXDOv314jjg51vej6PiP8cEpUK
-         Nk+T/cD53KUToTPQSnJnAl/qSt4jugxLl8QGekuAmo9amQ/ajgBpEzISYMc0bU944C
-         RUgGr+hXxfLNypw14McIsKkUbAO2ZWq1sRVQULr0=
+        b=oZF/YQ53/Yjh7E/Jwh2riO7L2PsEIZh20zUHGcbJf6Odw62UeYqtmpZY58MLwIFA0
+         Dswg+bOZEST8/6OWHhAcFUlfF+TjCOYiSuulPb8cKxZfivqcd8fMiSzQ+IcfvmBG6h
+         uz1SkY066sxD5VK2vKqTJ8AkJQdTGwTCObACkiPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.15 11/20] fortify: Explicitly disable Clang support
-Date:   Fri, 19 Nov 2021 18:39:29 +0100
-Message-Id: <20211119171445.023010151@linuxfoundation.org>
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: [PATCH 5.15 12/20] block: Add a helper to validate the block size
+Date:   Fri, 19 Nov 2021 18:39:30 +0100
+Message-Id: <20211119171445.054954779@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211119171444.640508836@linuxfoundation.org>
 References: <20211119171444.640508836@linuxfoundation.org>
@@ -40,47 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-commit a52f8a59aef46b59753e583bf4b28fccb069ce64 upstream.
+commit 570b1cac477643cbf01a45fa5d018430a1fddbce upstream.
 
-Clang has never correctly compiled the FORTIFY_SOURCE defenses due to
-a couple bugs:
+There are some duplicated codes to validate the block
+size in block drivers. This limitation actually comes
+from block layer, so this patch tries to add a new block
+layer helper for that.
 
-	Eliding inlines with matching __builtin_* names
-	https://bugs.llvm.org/show_bug.cgi?id=50322
-
-	Incorrect __builtin_constant_p() of some globals
-	https://bugs.llvm.org/show_bug.cgi?id=41459
-
-In the process of making improvements to the FORTIFY_SOURCE defenses, the
-first (silent) bug (coincidentally) becomes worked around, but exposes
-the latter which breaks the build. As such, Clang must not be used with
-CONFIG_FORTIFY_SOURCE until at least latter bug is fixed (in Clang 13),
-and the fortify routines have been rearranged.
-
-Update the Kconfig to reflect the reality of the current situation.
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/lkml/CAKwvOd=A+ueGV2ihdy5GtgR2fQbcXjjAtVxv3=cPjffpebZB7A@mail.gmail.com
-Cc: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Link: https://lore.kernel.org/r/20211026144015.188-2-xieyongji@bytedance.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/Kconfig |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/blkdev.h |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -191,6 +191,9 @@ config HARDENED_USERCOPY_PAGESPAN
- config FORTIFY_SOURCE
- 	bool "Harden common str/mem functions against buffer overflows"
- 	depends on ARCH_HAS_FORTIFY_SOURCE
-+	# https://bugs.llvm.org/show_bug.cgi?id=50322
-+	# https://bugs.llvm.org/show_bug.cgi?id=41459
-+	depends on !CC_IS_CLANG
- 	help
- 	  Detect overflows of buffers in common string and memory functions
- 	  where the compiler can determine and validate the buffer sizes.
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -235,6 +235,14 @@ struct request {
+ 	void *end_io_data;
+ };
+ 
++static inline int blk_validate_block_size(unsigned int bsize)
++{
++	if (bsize < 512 || bsize > PAGE_SIZE || !is_power_of_2(bsize))
++		return -EINVAL;
++
++	return 0;
++}
++
+ static inline bool blk_op_is_passthrough(unsigned int op)
+ {
+ 	op &= REQ_OP_MASK;
 
 
