@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90961456B64
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 09:13:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3770D456B69
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 09:14:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233653AbhKSIPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 03:15:00 -0500
-Received: from mail-eopbgr80132.outbound.protection.outlook.com ([40.107.8.132]:8839
-        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
+        id S233217AbhKSIRW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 03:17:22 -0500
+Received: from mail-db8eur05on2115.outbound.protection.outlook.com ([40.107.20.115]:20316
+        "EHLO EUR05-DB8-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232869AbhKSIPA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 03:15:00 -0500
+        id S232838AbhKSIRV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 03:17:21 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UmOJNG7y+GMMrQZT0OQAEs4GJTTnds4K3j5AVXpKs9XOqIs4u+UdEdVz46Hjex/MIwwGalNz+MNw5PUTscMP9Ucscg6yMBkz6E68bQdXlqwjOfsCZX+O4NvZlqrDY4qbvTibh9rv7k4Qvn6513WX1fJwGUHbDcHQxubb1bnISJZ1aRQejI03n0uegNbITjrb/T0gjwqKA31nLjr57IRHrbBViUvizO0PQ7YxKi05oZ8+/nhxCUMWxhD52OkEjRxxLKZ8mUx/HH6g8B/qfr691kOQzODrHy5nuMa1LGR2dGSW8NboXphoxdcln3d0U2csmqrxkW2hS8WLqtu9owW2Qw==
+ b=mzBHV6vhz4Fbwzw9wo6A5/GCPWS6wg5zjqwbjSD+jNhtUANFn5JE6XkzRjlDWouTCQ2rjy/+OkCR8Hhyf1MYoBGe8NQ5KsNKE6aMxQzIZWGn/vyfIJZa1SBofP2OJ46RqTCFtChY9LBrALXo1JFiggXZoPf16+vF0A2QpYx6lCcTHkq8YgbhsdtlH76BgCJPKwCE52zCJteP120DwYRodmxsTi5LXYjWTwGQK6EbayNjBNdmBxXRi6KwWLTTu3Px3lVAlRvS99dVAX5HaqdRah760sKsv+9L67C6/230582txjPiEbz6mTestZoeSIgwNw4NLXvKpWQf/bs1iDww+A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=uPtjCkHmb+bzG7B0J3Tj5fCU+m9r9hYC7swunm9MwCg=;
- b=QH/XyTa/AnbKu9+hhirYXYIoyfkQ3439x4XQSMdHDymIdxwFo7dQCumf22XT6aIeR4R/wF6Xwnr1+rzggl5vJDtJApmmygCwM/zDe38PIAi5vpsRea/vDm8jiBMseMLuvrkpWym07pX4M2JE8lA2+D+egaQUY6965bby1rBT396Oa4PU9ReqnlYwET0aLKhozUbZZ2ayRumrx6BVEQiycMDvGMGRcjfa1LMJODt4Av80w4bZrufIrAcVYzNsQo7ut73K6ilznoItltFWZYdZ5o0ufde8WlIanA7DfXuYtW6CLuORCyzwfl80tH05kzjMT44lOTh2Kpdcjh7oaAzPhg==
+ bh=Q/5KWa8zqFIOSJ9qIRCWVS/Boh51W2vNyr4PnFXxik4=;
+ b=ki74PnPR/7YNhWpjzSrDtvo0SA+1TBpxF3cVYzVPfqHBT+gWZdqP7Mg89k2P0o+ypoL3LDrc2otBOgdFiNR28Xo6t4KsuMzVZSjT02JsrcI2yjLKo09Q8j34FpSzkZic3VitP6lsuBvt42ZFxjgDiBTU3+OwGmA8D173SKwNRVNjBpm0J5ZWA/5xiV8XcPV00PkqyU5tN9c8P7WBTSPaeBfJwpoOWrJGQjLa8KedVqF7D+juHUj9yhKm4qdKv9m70MtFXqURtwydQ6Xpk1L0gOjQws3EVfJmmaXQeVxpC3MYrdXuNAyNIPYVURT6VjXgJqTgYNuLCP04Ye7hXjhYKw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  131.228.2.8) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nokia.com;
  dmarc=pass (p=none sp=none pct=100) action=none header.from=nokia.com;
@@ -26,18 +26,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
  s=selector1-nokia-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=uPtjCkHmb+bzG7B0J3Tj5fCU+m9r9hYC7swunm9MwCg=;
- b=xJTFZaSJ4XcW4fLJ116uy+eV5zd33Sb/uhozy1W6LOEKIeVyc5KFxjS6rY4iDotUFL5hGHl9e0wlmDZ0+R7LLOyC1PmU9DXPXOVhgrs8oiUs5srQPY3wyZOIVnYGr4RelTmZzGlvO0tcI6UlO4qXj771M5bMwEQ2karSo2iw+A0=
-Received: from AM5PR04CA0013.eurprd04.prod.outlook.com (2603:10a6:206:1::26)
- by AS8PR07MB8374.eurprd07.prod.outlook.com (2603:10a6:20b:445::8) with
+ bh=Q/5KWa8zqFIOSJ9qIRCWVS/Boh51W2vNyr4PnFXxik4=;
+ b=h1NAMDIy7mRiwBMuTNrlcbyQMJW1w579KWx3PlsWtNehr/kSItqoJlv8JV/Qqrm3to/zH7/8xTQktvFOCCpSJbUKg9Sn6Rjw3RSE38mf1T+P0RExbhE+qYPaniioxNsBQa5yejyRhFZPpoQ7gg+B1tCYpiqfRvflCG/owmZoIQg=
+Received: from DB8PR06CA0047.eurprd06.prod.outlook.com (2603:10a6:10:120::21)
+ by AS8PR07MB8186.eurprd07.prod.outlook.com (2603:10a6:20b:375::12) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.11; Fri, 19 Nov
- 2021 08:11:56 +0000
-Received: from VE1EUR03FT051.eop-EUR03.prod.protection.outlook.com
- (2603:10a6:206:1:cafe::58) by AM5PR04CA0013.outlook.office365.com
- (2603:10a6:206:1::26) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.20 via Frontend
- Transport; Fri, 19 Nov 2021 08:11:56 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.16; Fri, 19 Nov
+ 2021 08:14:18 +0000
+Received: from DB5EUR03FT003.eop-EUR03.prod.protection.outlook.com
+ (2603:10a6:10:120:cafe::5c) by DB8PR06CA0047.outlook.office365.com
+ (2603:10a6:10:120::21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.19 via Frontend
+ Transport; Fri, 19 Nov 2021 08:14:18 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 131.228.2.8)
  smtp.mailfrom=nokia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nokia.com;
@@ -45,12 +45,12 @@ Received-SPF: Pass (protection.outlook.com: domain of nokia.com designates
  131.228.2.8 as permitted sender) receiver=protection.outlook.com;
  client-ip=131.228.2.8; helo=fihe3nok0734.emea.nsn-net.net;
 Received: from fihe3nok0734.emea.nsn-net.net (131.228.2.8) by
- VE1EUR03FT051.mail.protection.outlook.com (10.152.19.75) with Microsoft SMTP
+ DB5EUR03FT003.mail.protection.outlook.com (10.152.20.157) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4713.19 via Frontend Transport; Fri, 19 Nov 2021 08:11:56 +0000
+ 15.20.4713.19 via Frontend Transport; Fri, 19 Nov 2021 08:14:18 +0000
 Received: from ulegcparamis.emea.nsn-net.net (ulegcparamis.emea.nsn-net.net [10.151.74.146])
-        by fihe3nok0734.emea.nsn-net.net (GMO) with ESMTP id 1AJ8BpxF019881;
-        Fri, 19 Nov 2021 08:11:52 GMT
+        by fihe3nok0734.emea.nsn-net.net (GMO) with ESMTP id 1AJ8EGdX022091;
+        Fri, 19 Nov 2021 08:14:16 GMT
 From:   Alexander A Sverdlin <alexander.sverdlin@nokia.com>
 To:     linux-mtd@lists.infradead.org
 Cc:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
@@ -61,33 +61,33 @@ Cc:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
         Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH 1/2] mtd: spi-nor: Check for zero erase size in spi_nor_find_best_erase_type()
-Date:   Fri, 19 Nov 2021 09:11:47 +0100
-Message-Id: <20211119081147.9895-1-alexander.sverdlin@nokia.com>
+Subject: [PATCH v2] mtd: spi-nor: Check for zero erase size in spi_nor_find_best_erase_type()
+Date:   Fri, 19 Nov 2021 09:14:12 +0100
+Message-Id: <20211119081412.29732-1-alexander.sverdlin@nokia.com>
 X-Mailer: git-send-email 2.10.2
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
 MIME-Version: 1.0
 Content-Type: text/plain
-X-MS-Office365-Filtering-Correlation-Id: 7eacf0fd-b6b0-475b-ef97-08d9ab3440bf
-X-MS-TrafficTypeDiagnostic: AS8PR07MB8374:
-X-Microsoft-Antispam-PRVS: <AS8PR07MB8374951D72008FD248FF8721889C9@AS8PR07MB8374.eurprd07.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:4714;
+X-MS-Office365-Filtering-Correlation-Id: 01e97c8f-93d6-4dc4-d96e-08d9ab3495c1
+X-MS-TrafficTypeDiagnostic: AS8PR07MB8186:
+X-Microsoft-Antispam-PRVS: <AS8PR07MB8186DD24BF3A1C8785A1CE0C889C9@AS8PR07MB8186.eurprd07.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:5516;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: jrUDmQAok5ETyOOEbPMcfp9mS96eaOEEQpe2jyAIKEKL7o5bRjt8OhFURlK82HrUP3prOlsaDsx81WTUgEYYNyORlC1mZAysc5cL2//ui1IUtAz7Ky+upc5o4eNXHMvhR+YSk1pvDoGk9/N+8VCuwXUv5aSkC0GweBsFs3DLPKXA12R8saOciw6iT3Dq35jKB0BnCj8VdHy42FgUTDeISoR+Z8lHkQqEUvpQrNKnsjc/869Ux58yBnhSGybPY58GxUKGIyAKz1kNJ84yitLl3SKrdNYjax6qRhax8D7ormO8y6IZrO0gHi6pMDFALVA/6ir8XsuQwBx7M0YXneQIFi9Vbc+LCDUo4YZi/J2pYc/QcJjGa5pEk+QFr/hNQXvVNygnTtXAm2YUoG/ue1MMXlqE9gvnmGYaFqs1nBKD5HvZsRmKyD2/mAE8Srq7HY5HtZB3RQRm2NWjy98GtxTs3dY048C965nTczOVDrs9NJRtscam6qYgyo7FODEqC4qMZxZrmJKTtWGv6g9DkA2xz2DI1krZQO+C/dmjWEx6mI6Vokzvn/pmvrDwdhcNl6RNkQ/2KimHxy9OCcBsObdjUKHy2ESJ2Z2WFN9K+LTLjMO/+L2UrBCzbmNfwuQXamFK2rYrtNbAoI1WvzIKft2bTvRR3NGgKNqDl88fqgjGWgSVso8nL30U3yJOvQDst2KaYE1msjHHc2IS4H1FVsy+xE3i4LxjRcgRSXeF9bVcn6M=
-X-Forefront-Antispam-Report: CIP:131.228.2.8;CTRY:FI;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:fihe3nok0734.emea.nsn-net.net;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(356005)(81166007)(70586007)(36756003)(186003)(8676002)(82960400001)(316002)(70206006)(336012)(508600001)(5660300002)(2616005)(26005)(36860700001)(8936002)(86362001)(4326008)(6916009)(6666004)(2906002)(54906003)(47076005)(1076003)(4744005)(82310400003)(36900700001);DIR:OUT;SFP:1102;
+X-Microsoft-Antispam-Message-Info: EL5bXrqi/z/+9QMKWByQKe6EZrRoAEplLwBvcol6hbuJWlQG+i8Vz1XaS5rwoJ+M9G+FDFCEIa4V3Q/OVftgQzHbfiJyOVUdY+bwSpLChzD34wNsS9QPAzdUKEvGWcDMTx7meTs3rTVvrIhPTTVhl/XhHabMznvvg8exCBwun3CGLrIuRR00q+BnJhzMTuq/besMqMz2zgGpwIEHHQzM2kOBncfNaJFA4ZwxjtVQZE/C2MyyW/sZOOVXa573ns+sbZe6jFDO6Wm3Au9CcL4wWNg6tu+K+twUH/PcCQZInTiaNdG2knXmuEbMD03Sfs/jsY7Pcr9CrcVIkb3HlgBEmhg3nPC7Z8VtM4iRfeDbdiHTsg1/4koAuhHZmuOOTl2GGbTX6duTG7h04CBaSC94GXMqc3VLBskNM6vT1TSWJodHOGaOz3E2fJX4b4LbOtUX0INCN6+Tql+YatalcImYrlUEx68QJfd2q1Hi3dq9H4jyeQR37m4bEwqJhd/I5I+5M3Zt3Hc9/KztSSQ4KbTl9dax198f2LazI2c6bWyCcyYu+hmhe+eBcdRLyE6PCbhkSyCTZimi41tnBn6QMuBFWNX9aDRu+SFtUyzdmD3SomjP/h2x8OVhrkNA5PPatcw4DXMpjWTQcAd79o73xjxogzIyj1OoWDkA9MGigpKf6dcoAgKzwA3Q0/cxrVH5XYX1RYNNDEUFFdQJFpYYjpDgl5fblGglbaFy7x1HrWGWCw+N8BPLtJ2VRJ9nWd531bjwaAAFjokOUf9jcaGhYfTHHtQrC4tHPkvXDup/nceYWdk=
+X-Forefront-Antispam-Report: CIP:131.228.2.8;CTRY:FI;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:fihe3nok0734.emea.nsn-net.net;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(8676002)(316002)(2616005)(356005)(336012)(6916009)(81166007)(26005)(186003)(86362001)(6666004)(82310400003)(82960400001)(8936002)(508600001)(47076005)(5660300002)(70586007)(70206006)(4326008)(36756003)(1076003)(36860700001)(54906003)(2906002)(36900700001);DIR:OUT;SFP:1102;
 X-OriginatorOrg: nokia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Nov 2021 08:11:56.1746
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Nov 2021 08:14:18.7764
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7eacf0fd-b6b0-475b-ef97-08d9ab3440bf
+X-MS-Exchange-CrossTenant-Network-Message-Id: 01e97c8f-93d6-4dc4-d96e-08d9ab3495c1
 X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=5d471751-9675-428d-917b-70f44f9630b0;Ip=[131.228.2.8];Helo=[fihe3nok0734.emea.nsn-net.net]
-X-MS-Exchange-CrossTenant-AuthSource: VE1EUR03FT051.eop-EUR03.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: DB5EUR03FT003.eop-EUR03.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR07MB8374
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR07MB8186
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -103,6 +103,9 @@ Fixes: dc92843159a7 ("mtd: spi-nor: fix erase_type array to indicate current map
 Cc: stable@vger.kernel.org
 Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 ---
+Changes in v2:
+erase->opcode -> erase->size
+
  drivers/mtd/spi-nor/core.c | 2 ++
  1 file changed, 2 insertions(+)
 
@@ -114,7 +117,7 @@ index 88dd090..183ea9d 100644
  			continue;
  
  		erase = &map->erase_type[i];
-+		if (!erase->opcode)
++		if (!erase->size)
 +			continue;
  
  		/* Alignment is not mandatory for overlaid regions */
