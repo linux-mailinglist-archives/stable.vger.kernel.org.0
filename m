@@ -2,86 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61793457968
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 00:15:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2280945796F
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 00:17:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234676AbhKSXSp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 18:18:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37794 "EHLO
+        id S235348AbhKSXUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 18:20:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234360AbhKSXSo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 18:18:44 -0500
-Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com [IPv6:2607:f8b0:4864:20::c2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60B58C061574
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 15:15:42 -0800 (PST)
-Received: by mail-oo1-xc2b.google.com with SMTP id p2-20020a4adfc2000000b002c2676904fdso4203575ood.13
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 15:15:42 -0800 (PST)
+        with ESMTP id S235095AbhKSXUo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 18:20:44 -0500
+Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EDD4C061574
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 15:17:42 -0800 (PST)
+Received: by mail-il1-x134.google.com with SMTP id t8so1860182ilu.8
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 15:17:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=GD0aySu3SnLtPfPurGLGTrA4SK5u/VwrAiKx2VQvjf0=;
-        b=GVySuw98mhcJRdqMl10ZYIfAywcd0KS4lZo0rSYVBTRv/SNvuykWJ6w8Gf4itKh7DH
-         zCAFw9Vwx3jDMPVTLOSOZmRoEdnDahBPpWjwkBtkSMT30MG2jeANFsugkg+XhZ4ekcs4
-         +s79rgz7XoRMKI9TyRzSnbOWuyq5FsyoSF1EuWCyba7uKU0wqgK0fLPbFDZm+hyUDByN
-         gGMZ6RQDbe2hEyU1bpMDOUx/bMUMLOW46qCsn1DncrdvFVcio1ajD2khCyenEegupApQ
-         90zBtdKeEQO93cEAyf87vA7hf7nR3fKBV2KxuqIKNKmvePABXlToC9qaKyoRemk9CLGo
-         dD8Q==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=VxoPoCC9cObbyv624yFsho4myl9q3IV7NWPGVGoX05Q=;
+        b=hF961MXX3VhZdSeNiwmKk7q4iv+7cIm5RGC9xSMSJDb6+kOOVBY36jelF6W1m/Rwrh
+         Daf+8OAGdJ38SKzkI5hmCkRohKIgF/LWY/wmKQ2cvpGn2WPpZhqePL7XRc3Kb4nbPMnw
+         k9LGM9CDnLX+12APTu2mHB/+yyKKPn2LPmkX0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=GD0aySu3SnLtPfPurGLGTrA4SK5u/VwrAiKx2VQvjf0=;
-        b=T/UsYuEXGBiQzhS2Z3N0wkz2dpSGL9vqnO5hQPUp8kSqCWLC66yHjFg6DXg74DPAc8
-         DFiwcGZasxOa4FUbCO86K/pdQqWOJABc0BYX53fpvl+erld5b/0kVMSJtHmQnVBGNtYE
-         inmOgdp7yLmYp4YLmQ63S/74HfshnMeWSZGgIk6TZ3mTDzuFZBFzglm8rmharwB5/Cr1
-         DNoS00r9r7/8TWd74KIMiUHFQeWWW8FLJ2YarSCjlRalUvGXPkJt+Yfx1MYcowAhEOYZ
-         0tsMAXMZrN/x3/IR3B8CQqXzrUdYiqBa5jQWF57qKm+9YHYEfU9oa415FaTB2++yYaqr
-         XcYw==
-X-Gm-Message-State: AOAM533ct7jzkX9Qp461tDmk6GDOwvae0d3NQ0peVXTdEgQJvG3NzrX2
-        ugQv35xZlL7iU/OZ3ulxWxl6G24AgT7xm2pjXW8=
-X-Google-Smtp-Source: ABdhPJwhdys+04sCToA/CgdkPzZRm7oOqfTNPD8P+frt5BC6//rGjQgawbgr8R1t+cEsfR1fLRJlgvury5V9ZqjwjtM=
-X-Received: by 2002:a4a:b34a:: with SMTP id n10mr20563501ooo.46.1637363741427;
- Fri, 19 Nov 2021 15:15:41 -0800 (PST)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=VxoPoCC9cObbyv624yFsho4myl9q3IV7NWPGVGoX05Q=;
+        b=E2W3eADHSE4+eShMhst47NawgoFieZeSVxEl56LV/lqBgcRa0KWM9q32+mNgQMRWS3
+         rAJGQPlsHVmSwN7GRelAk41VXT1eELeikJ7Tii2okh51Vh1bhnhhe8WJFjAwkSCyi8xg
+         ovZO6Ofcf/wn7BavapI6XvOXLsYiNmWJCawxd8EnOFyMAAQANU8i7hy7F1ClBb2yU1Ye
+         15INsfi6hH1f9o/ao0UFiLTCsF+3G+90zEEgAaDzgV5FOsOvJeOgRbV1zBUvacb3m+nZ
+         nqjZF2VrzDVFTzbVTdJabb830YejMNTX1kK5HT+nYkfjTyIZu5x03kUr6h3tE+F87pzI
+         yfFQ==
+X-Gm-Message-State: AOAM530DssNr+GgsiyF0ErvhBXc3vW21FkeDToFGF7QFkcUMccG7pM1Y
+        vbD/odlkhgXzhWeYmngtIiPJcg==
+X-Google-Smtp-Source: ABdhPJxu83UIDq15n0gB/UlpT0oEfwILMKyWTG8DekVMC2TQj51UzeFbc2C+LtEA69a+k/C2YKBaJA==
+X-Received: by 2002:a92:d14d:: with SMTP id t13mr7781167ilg.194.1637363861976;
+        Fri, 19 Nov 2021 15:17:41 -0800 (PST)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id u10sm794231ill.73.2021.11.19.15.17.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 19 Nov 2021 15:17:41 -0800 (PST)
+Subject: Re: [PATCH 5.15 00/20] 5.15.4-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20211119171444.640508836@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <355c0430-13e2-41c3-8dd9-783df7b29264@linuxfoundation.org>
+Date:   Fri, 19 Nov 2021 16:17:40 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Sender: gaddafiayesha532@gmail.com
-Received: by 2002:a05:6820:1693:0:0:0:0 with HTTP; Fri, 19 Nov 2021 15:15:41
- -0800 (PST)
-From:   Anderson Theresa <ndersontheresa.24@gmail.com>
-Date:   Fri, 19 Nov 2021 15:15:41 -0800
-X-Google-Sender-Auth: neMD1cjzmkmPixgeikLZSPT6o7s
-Message-ID: <CALeZTrdiNrHRgK5vhjB8YwAtWqoiXrE5g_-02WTi_795sc4chA@mail.gmail.com>
-Subject: Re: Greetings My Dear,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20211119171444.640508836@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings,
+On 11/19/21 10:39 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.4 release.
+> There are 20 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 21 Nov 2021 17:14:35 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.4-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-I sent this mail praying it will find you in a good condition, since I
-myself am in a very critical health condition in which I sleep every
-night without knowing if I may be alive to see the next day. I am
-Mrs.theresa anderson, a widow suffering from a long time illness. I
-have some funds I inherited from my late husband, the sum of
-($11,000,000.00, Eleven Million Dollars) my Doctor told me recently
-that I have serious sickness which is a cancer problem. What disturbs
-me most is my stroke sickness. Having known my condition, I decided to
-donate this fund to a good person that will utilize it the way I am
-going to instruct herein. I need a very honest God.
+Compiled and booted on my test system. No dmesg regressions.
 
-fearing a person who can claim this money and use it for Charity
-works, for orphanages, widows and also build schools for less
-privileges that will be named after my late husband if possible and to
-promote the word of God and the effort that the house of God is
-maintained. I do not want a situation where this money will be used in
-an ungodly manner. That's why I' making this decision. I'm not afraid
-of death so I know where I'm going. I accept this decision because I
-do not have any child who will inherit this money after I die. Please
-I want your sincere and urgent answer to know if you will be able to
-execute this project, and I will give you more information on how the
-fund will be transferred to your bank account. I am waiting for your
-reply.
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-May God Bless you,
-Mrs.theresa anderson.
+thanks,
+-- Shuah
