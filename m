@@ -2,71 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68403462FF0
-	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 10:42:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29E97462FF2
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 10:42:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233704AbhK3JqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Nov 2021 04:46:00 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:49274 "EHLO www.linuxtv.org"
+        id S240323AbhK3JqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Nov 2021 04:46:01 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:49330 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240323AbhK3JqA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240335AbhK3JqA (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 30 Nov 2021 04:46:00 -0500
 Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1mrzeo-0004lg-T4; Tue, 30 Nov 2021 09:42:38 +0000
+        id 1mrzeo-0004kX-KL; Tue, 30 Nov 2021 09:42:38 +0000
 From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Fri, 19 Nov 2021 06:05:12 +0000
-Subject: [git:media_tree/master] media: cpia2: fix control-message timeouts
+Date:   Fri, 19 Nov 2021 06:05:33 +0000
+Subject: [git:media_tree/master] media: em28xx: fix control-message timeouts
 To:     linuxtv-commits@linuxtv.org
-Cc:     stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>, stable@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1mrzeo-0004lg-T4@www.linuxtv.org>
+Message-Id: <E1mrzeo-0004kX-KL@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: cpia2: fix control-message timeouts
+Subject: media: em28xx: fix control-message timeouts
 Author:  Johan Hovold <johan@kernel.org>
-Date:    Mon Oct 25 13:16:37 2021 +0100
+Date:    Mon Oct 25 13:16:38 2021 +0100
 
 USB control-message timeouts are specified in milliseconds and should
 specifically not vary with CONFIG_HZ.
 
-Fixes: ab33d5071de7 ("V4L/DVB (3376): Add cpia2 camera support")
-Cc: stable@vger.kernel.org      # 2.6.17
+Fixes: a6c2ba283565 ("[PATCH] v4l: 716: support for em28xx board family")
+Cc: stable@vger.kernel.org      # 2.6.16
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
- drivers/media/usb/cpia2/cpia2_usb.c | 4 ++--
+ drivers/media/usb/em28xx/em28xx-core.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 ---
 
-diff --git a/drivers/media/usb/cpia2/cpia2_usb.c b/drivers/media/usb/cpia2/cpia2_usb.c
-index 76aac06f9fb8..cba03b286473 100644
---- a/drivers/media/usb/cpia2/cpia2_usb.c
-+++ b/drivers/media/usb/cpia2/cpia2_usb.c
-@@ -550,7 +550,7 @@ static int write_packet(struct usb_device *udev,
- 			       0,	/* index */
- 			       buf,	/* buffer */
- 			       size,
--			       HZ);
-+			       1000);
+diff --git a/drivers/media/usb/em28xx/em28xx-core.c b/drivers/media/usb/em28xx/em28xx-core.c
+index acc0bf7dbe2b..c837cc528a33 100644
+--- a/drivers/media/usb/em28xx/em28xx-core.c
++++ b/drivers/media/usb/em28xx/em28xx-core.c
+@@ -89,7 +89,7 @@ int em28xx_read_reg_req_len(struct em28xx *dev, u8 req, u16 reg,
+ 	mutex_lock(&dev->ctrl_urb_lock);
+ 	ret = usb_control_msg(udev, pipe, req,
+ 			      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-			      0x0000, reg, dev->urb_buf, len, HZ);
++			      0x0000, reg, dev->urb_buf, len, 1000);
+ 	if (ret < 0) {
+ 		em28xx_regdbg("(pipe 0x%08x): IN:  %02x %02x %02x %02x %02x %02x %02x %02x  failed with error %i\n",
+ 			      pipe,
+@@ -158,7 +158,7 @@ int em28xx_write_regs_req(struct em28xx *dev, u8 req, u16 reg, char *buf,
+ 	memcpy(dev->urb_buf, buf, len);
+ 	ret = usb_control_msg(udev, pipe, req,
+ 			      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-			      0x0000, reg, dev->urb_buf, len, HZ);
++			      0x0000, reg, dev->urb_buf, len, 1000);
+ 	mutex_unlock(&dev->ctrl_urb_lock);
  
- 	kfree(buf);
- 	return ret;
-@@ -582,7 +582,7 @@ static int read_packet(struct usb_device *udev,
- 			       0,	/* index */
- 			       buf,	/* buffer */
- 			       size,
--			       HZ);
-+			       1000);
- 
- 	if (ret >= 0)
- 		memcpy(registers, buf, size);
+ 	if (ret < 0) {
