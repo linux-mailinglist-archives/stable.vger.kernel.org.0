@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B46CB4575F4
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:40:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E008457600
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:40:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232657AbhKSRnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 12:43:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46044 "EHLO mail.kernel.org"
+        id S237203AbhKSRno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 12:43:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235878AbhKSRnK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 12:43:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1C9C611F2;
-        Fri, 19 Nov 2021 17:40:07 +0000 (UTC)
+        id S237150AbhKSRnN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 12:43:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 485D86120F;
+        Fri, 19 Nov 2021 17:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637343608;
-        bh=3a+EeNU+k3yWBuiMvFTkGsQyKEc8/o5jn32fSi+RK1c=;
+        s=korg; t=1637343610;
+        bh=JzZuXbcsQGKQ8Z1OZ8lt1YPnM5RuBbBIcY/avHpZH7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dtyfkunQxP1X4sXESnBkL10AeDOTX+Lkcw69XYAtfcG/vZI6AM40SjDuwgpQdYxgw
-         KxlGMQ2y95AR8cT5h+KZVE5TcVPuumBmTB3tuKy/bW0O/REkY7Gu4NHyw5kHTlJist
-         7p4d8RORsVN6MroH/4OKXBQPz22rVNUNRvI0jrZ0=
+        b=gcktDnXRIiN06eKkZWvPFVKNBnezPoBPdeP8p24RgwYx9bHEDmin0PHFgnxxWImAC
+         V09NpMqWif/pYNZsW46EyR/jQvycZdh/pJFap5PxT/bHm/e2WBDGqLfM3+rp5crUO+
+         d17iVAcUQf5+7FcrfAqEvumHSWZ4NHyDxEE7DdUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
         Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 08/20] btrfs: zoned: use regular writes for relocation
-Date:   Fri, 19 Nov 2021 18:39:26 +0100
-Message-Id: <20211119171444.926247447@linuxfoundation.org>
+Subject: [PATCH 5.15 09/20] btrfs: check for relocation inodes on zoned btrfs in should_nocow
+Date:   Fri, 19 Nov 2021 18:39:27 +0100
+Message-Id: <20211119171444.959705952@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211119171444.640508836@linuxfoundation.org>
 References: <20211119171444.640508836@linuxfoundation.org>
@@ -42,11 +42,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit e6d261e3b1f777b499ce8f535ed44dd1b69278b7 upstream
+commit 2adada886b26e998b5a624e72f0834ebfdc54cc7 upstream
 
-Now that we have a dedicated block group for relocation, we can use
-REQ_OP_WRITE instead of  REQ_OP_ZONE_APPEND for writing out the data on
-relocation.
+Prepare for allowing preallocation for relocation inodes.
 
 Reviewed-by: Naohiro Aota <naohiro.aota@wdc.com>
 Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
@@ -55,28 +53,27 @@ Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/zoned.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/btrfs/inode.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -1304,6 +1304,17 @@ bool btrfs_use_zone_append(struct btrfs_
- 	if (!is_data_inode(&inode->vfs_inode))
- 		return false;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1945,7 +1945,15 @@ int btrfs_run_delalloc_range(struct btrf
+ 	const bool zoned = btrfs_is_zoned(inode->root->fs_info);
  
-+	/*
-+	 * Using REQ_OP_ZONE_APPNED for relocation can break assumptions on the
-+	 * extent layout the relocation code has.
-+	 * Furthermore we have set aside own block-group from which only the
-+	 * relocation "process" can allocate and make sure only one process at a
-+	 * time can add pages to an extent that gets relocated, so it's safe to
-+	 * use regular REQ_OP_WRITE for this special case.
-+	 */
-+	if (btrfs_is_data_reloc_root(inode->root))
-+		return false;
-+
- 	cache = btrfs_lookup_block_group(fs_info, start);
- 	ASSERT(cache);
- 	if (!cache)
+ 	if (should_nocow(inode, start, end)) {
+-		ASSERT(!zoned);
++		/*
++		 * Normally on a zoned device we're only doing COW writes, but
++		 * in case of relocation on a zoned filesystem we have taken
++		 * precaution, that we're only writing sequentially. It's safe
++		 * to use run_delalloc_nocow() here, like for  regular
++		 * preallocated inodes.
++		 */
++		ASSERT(!zoned ||
++		       (zoned && btrfs_is_data_reloc_root(inode->root)));
+ 		ret = run_delalloc_nocow(inode, locked_page, start, end,
+ 					 page_started, nr_written);
+ 	} else if (!inode_can_compress(inode) ||
 
 
