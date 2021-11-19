@@ -2,94 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 057664572A2
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 17:17:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0647C457362
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 17:47:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236369AbhKSQUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 11:20:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56068 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236332AbhKSQUC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 11:20:02 -0500
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8564C061574
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:17:00 -0800 (PST)
-Received: by mail-pl1-x635.google.com with SMTP id y8so8504584plg.1
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:17:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=usWViYcCzWq+4eFNkCmatkBvFbU3RNEL7+YZbow3+zc=;
-        b=MTALUAwzUdnK0Z5b5lVgWJgU6FzCgTzqcFTHahFtZm7OPQApKlWTZNVObBcZdNSRnV
-         2Yse8yInV0FVgkF79OZMymK7DwbHqAXAwVQ7+uj+WXY+Z+pGBsUQYIT7JtusZLfJdEpF
-         a7OlTvBu+zbNncabs+9IIufXtLeXyIR23TjCc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=usWViYcCzWq+4eFNkCmatkBvFbU3RNEL7+YZbow3+zc=;
-        b=SjPvulMzLKEiJalT4pwDmn+oztM8MILoBuaStvmsxPrhNKuU0LPDebr1MI3jmca9II
-         S8/j5PnTwJB8OvYe+/lxOn1NZxiF/960LJtY/5yOHEljxBGrOxRHTZkCBmtEuWLHacLl
-         b18aRhSLEi/p0qrhe+sng6rOu+sOF7TbX1weesIB6AG8muA3/5/C4EiM2gVeM1jcmwcQ
-         wy3LfRXHS4lsnpWKcX4D7/uBvtCx/7CG1XtLe7/LOqonBYeNa7rMxOct3yLNSPS29LF0
-         2y/iH9Mj//txEyaPVR0I++tJXS34aimDSel8YubbYBKxvQzqwHeHoZAPfcE/jU4CQ3JB
-         jm+Q==
-X-Gm-Message-State: AOAM530qbXnTRgY2Beuo1bNrr/3lFgYUQQOKg6CFJwcjHtw9s26tl4fR
-        fQbS2dhAXU0w0oGjUPqxvnWSzW8+pPX9zw==
-X-Google-Smtp-Source: ABdhPJwDTwOHmvZNvmhYMtZtG/IekoV9obZXM4fOU/Lgx3Ml0lm+gtjzNOd7Y5hKxzPt0un1+dyuUw==
-X-Received: by 2002:a17:902:f24a:b0:141:c6fc:2e18 with SMTP id j10-20020a170902f24a00b00141c6fc2e18mr79310972plc.55.1637338620272;
-        Fri, 19 Nov 2021 08:17:00 -0800 (PST)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id j6sm125497pfu.205.2021.11.19.08.16.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Nov 2021 08:16:59 -0800 (PST)
-Date:   Fri, 19 Nov 2021 08:16:59 -0800
-From:   Kees Cook <keescook@chromium.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        stable@vger.kernel.org, llvm@lists.linux.dev
-Subject: Re: Apply a52f8a59aef46b59753e583bf4b28fccb069ce64 to 5.15 through
- 4.19
-Message-ID: <202111190808.1DA0067@keescook>
-References: <YZKpVkYpYfYfHD50@archlinux-ax161>
- <YZeaCndfOGSZLHgX@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YZeaCndfOGSZLHgX@kroah.com>
+        id S231529AbhKSQu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 11:50:29 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:43770 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231173AbhKSQu3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 11:50:29 -0500
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1mo72s-002cS3-Uh; Fri, 19 Nov 2021 16:47:26 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Fri, 19 Nov 2021 16:22:42 +0000
+Subject: [git:media_stage/master] media: dib0700: fix undefined behavior in tuner shutdown
+To:     linuxtv-commits@linuxtv.org
+Cc:     Michael Kuron <michael.kuron@gmail.com>, stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1mo72s-002cS3-Uh@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 19, 2021 at 01:35:22PM +0100, Greg Kroah-Hartman wrote:
-> On Mon, Nov 15, 2021 at 11:39:18AM -0700, Nathan Chancellor wrote:
-> > Hi Greg and Sasha,
-> > 
-> > There is a build error with newer versions of clang due to a broken
-> > FORTIFY_SOURCE implementation, which has never worked:
-> > 
-> > https://github.com/ClangBuiltLinux/linux/issues/1496
-> > https://github.com/ClangBuiltLinux/continuous-integration2/actions/runs/1457787760
-> > 
-> > Please apply upstream commit a52f8a59aef4 ("fortify: Explicitly disable
-> > Clang support") to 5.15 through 4.19 to resolve this. It should apply
-> > cleanly.
-> 
-> Hah!  Oh the Android people are going to _LOVE_ this one...
+This is an automatic generated email to let you know that the following patch were queued:
 
-They (we) are already aware[1]. Fortify has always been broken under
-Clang, so really this doesn't change anything for Android builds. :P
+Subject: media: dib0700: fix undefined behavior in tuner shutdown
+Author:  Michael Kuron <michael.kuron@gmail.com>
+Date:    Sun Sep 26 21:51:26 2021 +0100
 
-But yes, one of many motivations of the recent memcpy and fortify work
-has been to get fortify fixed for Clang. Hopefully this will be all done
-by 5.17.
+This fixes a problem where closing the tuner would leave it in a state
+where it would not tune to any channel when reopened. This problem was
+discovered as part of https://github.com/hselasky/webcamd/issues/16.
 
--Kees
+Since adap->id is 0 or 1, this bit-shift overflows, which is undefined
+behavior. The driver still worked in practice as the overflow would in
+most environments result in 0, which rendered the line a no-op. When
+running the driver as part of webcamd however, the overflow could lead
+to 0xff due to optimizations by the compiler, which would, in the end,
+improperly shut down the tuner.
 
-[1] https://github.com/KSPP/linux/issues/77
+The bug is a regression introduced in the commit referenced below. The
+present patch causes identical behavior to before that commit for
+adap->id equal to 0 or 1. The driver does not contain support for
+dib0700 devices with more adapters, assuming such even exist.
 
--- 
-Kees Cook
+Tests have been performed with the Xbox One Digital TV Tuner on amd64.
+Not all dib0700 devices are expected to be affected by the regression;
+this code path is only taken by those with incorrect endpoint numbers.
+
+Link: https://lore.kernel.org/linux-media/1d2fc36d94ced6f67c7cc21dcc469d5e5bdd8201.1632689033.git.mchehab+huawei@kernel.org
+
+Cc: stable@vger.kernel.org
+Fixes: 7757ddda6f4f ("[media] DiB0700: add function to change I2C-speed")
+Signed-off-by: Michael Kuron <michael.kuron@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+ drivers/media/usb/dvb-usb/dib0700_core.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+---
+
+diff --git a/drivers/media/usb/dvb-usb/dib0700_core.c b/drivers/media/usb/dvb-usb/dib0700_core.c
+index 70219b3e8566..7ea8f68b0f45 100644
+--- a/drivers/media/usb/dvb-usb/dib0700_core.c
++++ b/drivers/media/usb/dvb-usb/dib0700_core.c
+@@ -618,8 +618,6 @@ int dib0700_streaming_ctrl(struct dvb_usb_adapter *adap, int onoff)
+ 		deb_info("the endpoint number (%i) is not correct, use the adapter id instead", adap->fe_adap[0].stream.props.endpoint);
+ 		if (onoff)
+ 			st->channel_state |=	1 << (adap->id);
+-		else
+-			st->channel_state |=	1 << ~(adap->id);
+ 	} else {
+ 		if (onoff)
+ 			st->channel_state |=	1 << (adap->fe_adap[0].stream.props.endpoint-2);
