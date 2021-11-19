@@ -2,128 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 789EC4567CF
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 03:04:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A81754567D5
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 03:05:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229833AbhKSCHf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Nov 2021 21:07:35 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:21731 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232627AbhKSCHe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 21:07:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1637287473;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=AGSOSbx9KHQS8zqvecKfdTvOeLPt7uvQMecFRR7horI=;
-        b=bbDWT5e+tycB/WXU9BvRrHLSmmBrPl/Tle9hZjZ3uZ7ZyXg/1+kiZuOS8OGGBcEgCKrLU7
-        8wDn6QmKU6DbzGoEL9WQhpZ48wSDEo7vRHEUPCA2Bp3UNtPmBObOtvOj4mA2XDLJIyhCVX
-        O9Cn2MLG+1j38eqlJV2w7yLv4Q4Kssw=
-Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
- [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-447-DFV6SrAxPCGShDyyQF7RLg-1; Thu, 18 Nov 2021 21:04:32 -0500
-X-MC-Unique: DFV6SrAxPCGShDyyQF7RLg-1
-Received: by mail-qt1-f198.google.com with SMTP id o12-20020a05622a008c00b002aff5552c89so5693367qtw.23
-        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 18:04:32 -0800 (PST)
+        id S233856AbhKSCHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Nov 2021 21:07:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33172 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233816AbhKSCHx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Nov 2021 21:07:53 -0500
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA363C06173E
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 18:04:52 -0800 (PST)
+Received: by mail-pl1-x629.google.com with SMTP id b11so6894522pld.12
+        for <stable@vger.kernel.org>; Thu, 18 Nov 2021 18:04:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=meV5sh0FoRCWsH7BipuD99BmjoHOLlsFF8rB+9YXKgI=;
+        b=3rqHaqs8MxXKwbVYUYUL0tgHqiT6XBHGTXEanp6oXoBNsGWh4Eq1vVl84WWfPpUZWl
+         TFoK08RP/66yesO6ubxRCpxnPTRA4XqMtqbWav8mBG+/9fYNJurcc8eOeNa6KjqVn7we
+         TUpRHusSWZmE6xL88M4UclOmkoSHgcRPUtjEprL5bDOgRmDPlkBy0b38tMk3EfMaOHTy
+         SKteEatGvpRsOuk9gFSP/Yzd68hbQGrA8HwqlCCckQOsLcw+gdENai/fmen1gH0LY3Zt
+         l6FYgFPG+dpf4C2KJh15iHo9kHzjriNZtgMss3BmBif9netSVXDCxQ+Encv6Pbxr/7NL
+         5UGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=AGSOSbx9KHQS8zqvecKfdTvOeLPt7uvQMecFRR7horI=;
-        b=phdWVHHWAbo3raleqkj68azdtyssknViqhGtiOQpGj1WWv8wcfJlwrKALgrBzWoWVu
-         lTH4uFPBXPRGdDMCLL+tLoDT0RlS5jiM1/jxEPhubQUA0EFOVCxbZTiHAtiteE9mCYFk
-         UcmG04KB3R0YAgTNlJpD7ujdQI+KJHnTF8UwAHvFZenTlZxv86LLnM742z3H3GMl97af
-         9YETquFX1IPilGH0aquSp4pCgv2E0pBgCRveJgxNGf5N1JdQxadBFSFJcwvpAext3F36
-         dF0OBF9UuK0sGjcW6HB55R19hFxu4bHLn2SJ6cCapgykqqdZl07DKVBbp5lkNQ+TvIWg
-         SDWw==
-X-Gm-Message-State: AOAM533VyeR7zx4Vagw54F06vEYfkg5xg0JxK5kmHY9byKLdc7ZZ/jDk
-        45+lgISl0oWQ+FX20g4EbrzzDgDUqBxBgbMxeMQYsiWCiXI9C1LDnwKYeQW9I3xPZaMkNkgnRvO
-        a5gG/I7Rh4crSNj1a
-X-Received: by 2002:a05:620a:bd6:: with SMTP id s22mr25531281qki.306.1637287471818;
-        Thu, 18 Nov 2021 18:04:31 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxuCUqQL54jg/D75F3PqUIH6vspq7qRyOaik1SrsMas8wVNJJ8wVqJFn1+vXReR5poHB6M+1g==
-X-Received: by 2002:a05:620a:bd6:: with SMTP id s22mr25531253qki.306.1637287471523;
-        Thu, 18 Nov 2021 18:04:31 -0800 (PST)
-Received: from treble ([2600:1700:6e32:6c00::35])
-        by smtp.gmail.com with ESMTPSA id 139sm841883qkn.37.2021.11.18.18.04.29
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=meV5sh0FoRCWsH7BipuD99BmjoHOLlsFF8rB+9YXKgI=;
+        b=S20EJLCRFPxAOWukV50Qx0/dY4Fexi115bo4knuyjp7Iq9lNWc6wx5wJ8HizfBKYEa
+         2Jgvcd5XS94dG/Bu7SS03az5Z3nJzplzUGLsr9GINuQL7z+j5w7RD8tl/VRtFemc2nUI
+         XSFVfHYCW3sEjkGPygh+eMm9ZYo3ONRwYgLj7V68y1decdL8l4ea58w2kGltZ2yyF4CF
+         nNpXu8eQVCvw5tYbarFte8wP7sK6aBDFlNoHRe+8kxFsPUyk8OwA1dEdSZ7j/JqZ6I2K
+         L4YUiIhkW2USJnS0G7+YQ0YU/iQhObqF8zQyPv+4Q9A5QUaHmitrpCsGOKZSiaSGqNv6
+         LLxg==
+X-Gm-Message-State: AOAM533gzZaXUlmXoBCjab8q8ZV8mZ0tQOH6H5uDNx7SFHgIsPSOdD1m
+        KjMSHvdcALE+1UfEyufwu9BylbjM9y74WQgs
+X-Google-Smtp-Source: ABdhPJyIuAMCDjhlxAEvVnx5XiwRbSUbd3WYtiMhj9JX0pYc+7yzy/smWoF6jNVQKz8JyN7qVEGDvw==
+X-Received: by 2002:a17:902:e8d4:b0:143:88c2:e2c9 with SMTP id v20-20020a170902e8d400b0014388c2e2c9mr72563052plg.12.1637287492312;
+        Thu, 18 Nov 2021 18:04:52 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o134sm852712pfg.1.2021.11.18.18.04.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Nov 2021 18:04:30 -0800 (PST)
-Date:   Thu, 18 Nov 2021 18:04:27 -0800
-From:   Josh Poimboeuf <jpoimboe@redhat.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Holger =?utf-8?Q?Hoffst=C3=A4tte?= 
-        <holger@applied-asynchrony.com>,
-        Qi Zheng <zhengqi.arch@bytedance.com>,
-        Kees Cook <keescook@chromium.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Justin Forbes <jmforbes@linuxtx.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.15 000/923] 5.15.3-rc3 review
-Message-ID: <20211119020427.2y5esq2czquwmvwc@treble>
-References: <20211117101657.463560063@linuxfoundation.org>
- <YZV02RCRVHIa144u@fedora64.linuxtx.org>
- <55c7b316-e03d-9e91-d74c-fea63c469b3b@applied-asynchrony.com>
- <CAHk-=wjHbKfck1Ws4Y0pUZ7bxdjU9eh2WK0EFsv65utfeVkT9Q@mail.gmail.com>
- <20211118080627.GH174703@worktop.programming.kicks-ass.net>
- <20211118081852.GM174730@worktop.programming.kicks-ass.net>
- <YZYfYOcqNqOyZ8Yo@hirez.programming.kicks-ass.net>
- <YZZC3Shc0XA/gHK9@hirez.programming.kicks-ass.net>
+        Thu, 18 Nov 2021 18:04:52 -0800 (PST)
+Message-ID: <61970644.1c69fb81.2f0c.442e@mx.google.com>
+Date:   Thu, 18 Nov 2021 18:04:52 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YZZC3Shc0XA/gHK9@hirez.programming.kicks-ass.net>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.217
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y baseline: 194 runs, 1 regressions (v4.19.217)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 18, 2021 at 01:11:09PM +0100, Peter Zijlstra wrote:
-> On Thu, Nov 18, 2021 at 10:39:44AM +0100, Peter Zijlstra wrote:
-> > On Thu, Nov 18, 2021 at 09:18:52AM +0100, Peter Zijlstra wrote:
-> > > On Thu, Nov 18, 2021 at 09:06:27AM +0100, Peter Zijlstra wrote:
-> > > > On Wed, Nov 17, 2021 at 03:50:17PM -0800, Linus Torvalds wrote:
-> > > > 
-> > > > > I really don't think the WCHAN code should use unwinders at all. It's
-> > > > > too damn fragile, and it's too easily triggered from user space.
-> > > > 
-> > > > On x86, esp. with ORC, it pretty much has to. The thing is, the ORC
-> > > > unwinder has been very stable so far. I'm guessing there's some really
-> > > > stupid thing going on, like for example trying to unwind a freed stack.
-> > > > 
-> > > > I *just* managed to reproduce, so let me go have a poke.
-> > > 
-> > > Confirmed, with the below it no longer reproduces. Now, let me go undo
-> > > that and fix the unwinder to not explode while trying to unwind nothing.
-> > 
-> > OK, so the bug is firmly with 5d1ceb3969b6 ("x86: Fix __get_wchan() for
-> > !STACKTRACE") which lost the try_get_task_stack() that stack_trace_*()
-> > does.
-> > 
-> > We can ofc trivially re-instate that, but I'm now running with the
-> > below which I suppose is a better fix, hmm?
-> > 
-> > (obv I still need to look a the other two unwinders)
-> 
-> I now have the below, the only thing missing is that there's a
-> user_mode() call on a stack based regs. Now on x86_64 we can
-> __get_kernel_nofault() regs->cs and call it a day, but on i386 we have
-> to also fetch regs->flags.
-> 
-> Is this really the way to go?
+stable-rc/linux-4.19.y baseline: 194 runs, 1 regressions (v4.19.217)
 
-Please no.  Can we just add a check in unwind_start() to ensure the
-caller did try_get_task_stack()?
+Regressions Summary
+-------------------
 
--- 
-Josh
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.217/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.217
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      fd8250304dd51bc2c8674af65c102dd8463ee88b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/618fb259091576e1613358ec
+
+  Results:     5 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+17/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+17/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/618fb259091576e=
+1613358ef
+        new failure (last pass: v4.19.216-17-gf1ca790424bd)
+        2 lines
+
+    2021-11-18T22:01:07.671403  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/110
+    2021-11-18T22:01:07.680842  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-11-18T22:01:07.700174  <8>[   21.523101] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
