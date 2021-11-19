@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBCE34575CF
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F29184575D4
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:39:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237039AbhKSRmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 12:42:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44446 "EHLO mail.kernel.org"
+        id S235102AbhKSRm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 12:42:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237004AbhKSRmP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 12:42:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C24F6113A;
-        Fri, 19 Nov 2021 17:39:13 +0000 (UTC)
+        id S237022AbhKSRmS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 12:42:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAF6160D42;
+        Fri, 19 Nov 2021 17:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637343553;
-        bh=gJrEnkQ+xQWYpD1cHCkgp6gy7UIGLF2IhVz6HLZAZxs=;
+        s=korg; t=1637343556;
+        bh=tnqyqeyXW3Bwsd24Il137clZkPiw8fFv9CZzmxu8VcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eL7awut9GiFkxLx4PxvNOld0NPWum4CUPLCZONiQGlB+Bu2+03N/i/KELgHYf1qgI
-         e0gZRveyxgFnKu46I5vpLcFhapYpGzJxJlGq1C9hi63stMBApElmSgYKeA0+q4c//N
-         KfYEiPWvDIP3KIbPLqzeVFklWgrZMJETt6qMNCBM=
+        b=gumyZRcCrOPdf6wM4URip9V5JnCygYINjCpWiisU4mqcfjoaZJ90aUp3kYzD4cykI
+         B/bdUpWuEZ6Y9iwXAnKj9uwHO5bXhfT7xbKN9TKiZ6KNKnIw+dZozyPL33sqRM7EKr
+         hAKRcjH9vJYa6vRRyVTfue0GWLKTbC/mKespChgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.14 03/15] KVM: Fix steal time asm constraints
-Date:   Fri, 19 Nov 2021 18:38:36 +0100
-Message-Id: <20211119171443.835489014@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.14 04/15] fortify: Explicitly disable Clang support
+Date:   Fri, 19 Nov 2021 18:38:37 +0100
+Message-Id: <20211119171443.866051513@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211119171443.724340448@linuxfoundation.org>
 References: <20211119171443.724340448@linuxfoundation.org>
@@ -40,42 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Woodhouse <dwmw@amazon.co.uk>
+From: Kees Cook <keescook@chromium.org>
 
-commit 964b7aa0b040bdc6ec1c543ee620cda3f8b4c68a upstream.
+commit a52f8a59aef46b59753e583bf4b28fccb069ce64 upstream.
 
-In 64-bit mode, x86 instruction encoding allows us to use the low 8 bits
-of any GPR as an 8-bit operand. In 32-bit mode, however, we can only use
-the [abcd] registers. For which, GCC has the "q" constraint instead of
-the less restrictive "r".
+Clang has never correctly compiled the FORTIFY_SOURCE defenses due to
+a couple bugs:
 
-Also fix st->preempted, which is an input/output operand rather than an
-input.
+	Eliding inlines with matching __builtin_* names
+	https://bugs.llvm.org/show_bug.cgi?id=50322
 
-Fixes: 7e2175ebd695 ("KVM: x86: Fix recording of guest steal time / preempted status")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Message-Id: <89bf72db1b859990355f9c40713a34e0d2d86c98.camel@infradead.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+	Incorrect __builtin_constant_p() of some globals
+	https://bugs.llvm.org/show_bug.cgi?id=41459
+
+In the process of making improvements to the FORTIFY_SOURCE defenses, the
+first (silent) bug (coincidentally) becomes worked around, but exposes
+the latter which breaks the build. As such, Clang must not be used with
+CONFIG_FORTIFY_SOURCE until at least latter bug is fixed (in Clang 13),
+and the fortify routines have been rearranged.
+
+Update the Kconfig to reflect the reality of the current situation.
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/lkml/CAKwvOd=A+ueGV2ihdy5GtgR2fQbcXjjAtVxv3=cPjffpebZB7A@mail.gmail.com
+Cc: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ security/Kconfig |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3237,9 +3237,9 @@ static void record_steal_time(struct kvm
- 			     "xor %1, %1\n"
- 			     "2:\n"
- 			     _ASM_EXTABLE_UA(1b, 2b)
--			     : "+r" (st_preempted),
--			       "+&r" (err)
--			     : "m" (st->preempted));
-+			     : "+q" (st_preempted),
-+			       "+&r" (err),
-+			       "+m" (st->preempted));
- 		if (err)
- 			goto out;
- 
+--- a/security/Kconfig
++++ b/security/Kconfig
+@@ -191,6 +191,9 @@ config HARDENED_USERCOPY_PAGESPAN
+ config FORTIFY_SOURCE
+ 	bool "Harden common str/mem functions against buffer overflows"
+ 	depends on ARCH_HAS_FORTIFY_SOURCE
++	# https://bugs.llvm.org/show_bug.cgi?id=50322
++	# https://bugs.llvm.org/show_bug.cgi?id=41459
++	depends on !CC_IS_CLANG
+ 	help
+ 	  Detect overflows of buffers in common string and memory functions
+ 	  where the compiler can determine and validate the buffer sizes.
 
 
