@@ -2,149 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 318164575E2
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:40:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAAFC4575C1
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:39:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237122AbhKSRmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 12:42:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45028 "EHLO mail.kernel.org"
+        id S235709AbhKSRmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 12:42:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237114AbhKSRmc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 12:42:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D513611BF;
-        Fri, 19 Nov 2021 17:39:29 +0000 (UTC)
+        id S236937AbhKSRl5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 12:41:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A23F60D42;
+        Fri, 19 Nov 2021 17:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637343570;
-        bh=2YVwLPmZGWZb3ezW1upsHby5OLwNjv77Vg58smY/6fw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=a3I5XL19G/8GFRk3gbpYc7EgXnvNb8oRXpAO2RFa28VdCAxZ7Hf4t7jrhuh3bNnfa
-         TBvjnpM/ywXYrPGTErW8spWPPqhHziYST+uFrJRCyAIaYaDRLks2j+AirsYVkmg3qy
-         5cCzqGzv4XyHzF16OX4LP/fxBrkFe/SWntKn/gI8=
+        s=korg; t=1637343535;
+        bh=TJdoZ7tLbiC8NbAe2Z0Dxen47CzlSpByrpgb2KiZu9o=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Omf1kAC0367SguxyiODw1KSYT+Hk2dij7JdWSXy1u2ihWUaTUJJprPxe/rhR7IGmn
+         aFWhlI0lwaHkScXIl6o+WzJrbYppRS7VTvxYc/YwGufOy74cxw3V7+3UqAU4Ksov8o
+         tii2bNhCzzItwwYAvrXVjZAuUFBbE50cH1+/9Lrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.14 00/15] 5.14.21-rc1 review
-Date:   Fri, 19 Nov 2021 18:38:33 +0100
-Message-Id: <20211119171443.724340448@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Kees Cook <keescook@chromium.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 01/15] Revert "drm: fb_helper: improve CONFIG_FB dependency"
+Date:   Fri, 19 Nov 2021 18:38:34 +0100
+Message-Id: <20211119171443.771434131@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-MIME-Version: 1.0
+In-Reply-To: <20211119171443.724340448@linuxfoundation.org>
+References: <20211119171443.724340448@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.21-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.14.21-rc1
-X-KernelTest-Deadline: 2021-11-21T17:14+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---------------------
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Note, this will be the LAST 5.14.y kernel release.  After this one it
-will be marked end-of-life.  Please move to the 5.15.y tree at this
-point in time.
+This reverts commit 94e18f5a5dd1b5e3b89c665fc5ff780858b1c9f6 which is
+commit 9d6366e743f37d36ef69347924ead7bcc596076e upstream.
 
---------------------
+It causes some build problems as reported by Jiri.
 
-This is the start of the stable review cycle for the 5.14.21 release.
-There are 15 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+Link: https://lore.kernel.org/r/9fdb2bf1-de52-1b9d-4783-c61ce39e8f51@kernel.org
+Reported-by: Jiri Slaby <jirislaby@kernel.org>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/gpu/drm/Kconfig |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Responses should be made by Sun, 21 Nov 2021 17:14:35 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.21-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.14.21-rc1
-
-Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-    Revert "ACPI: scan: Release PM resources blocked by unused objects"
-
-Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
-    thermal: Fix NULL pointer dereferences in of_thermal_ functions
-
-Greg Thelen <gthelen@google.com>
-    perf/core: Avoid put_page() when GUP fails
-
-Marc Zyngier <maz@kernel.org>
-    PCI: Add MSI masking quirk for Nvidia ION AHCI
-
-Marc Zyngier <maz@kernel.org>
-    PCI/MSI: Deal with devices lying about their MSI mask capability
-
-Thomas Gleixner <tglx@linutronix.de>
-    PCI/MSI: Destroy sysfs before freeing entries
-
-Sven Schnelle <svens@stackframe.org>
-    parisc/entry: fix trace test in syscall exit path
-
-Nicholas Flintham <nick@flinny.org>
-    Bluetooth: btusb: Add support for TP-Link UB500 Adapter
-
-Masami Hiramatsu <mhiramat@kernel.org>
-    bootconfig: init: Fix memblock leak in xbc_make_cmdline()
-
-Xie Yongji <xieyongji@bytedance.com>
-    loop: Use blk_validate_block_size() to validate block size
-
-Xie Yongji <xieyongji@bytedance.com>
-    block: Add a helper to validate the block size
-
-Kees Cook <keescook@chromium.org>
-    fortify: Explicitly disable Clang support
-
-David Woodhouse <dwmw@amazon.co.uk>
-    KVM: Fix steal time asm constraints
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "drm: fb_helper: fix CONFIG_FB dependency"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "drm: fb_helper: improve CONFIG_FB dependency"
-
-
--------------
-
-Diffstat:
-
- Makefile                     |  4 ++--
- arch/parisc/kernel/entry.S   |  2 +-
- arch/x86/kvm/x86.c           |  6 +++---
- drivers/acpi/glue.c          | 25 -------------------------
- drivers/acpi/internal.h      |  1 -
- drivers/acpi/scan.c          |  6 ------
- drivers/block/loop.c         | 17 ++---------------
- drivers/bluetooth/btusb.c    |  4 ++++
- drivers/gpu/drm/Kconfig      |  5 +++--
- drivers/pci/msi.c            | 27 +++++++++++++++------------
- drivers/pci/quirks.c         |  6 ++++++
- drivers/thermal/thermal_of.c |  9 ++++++---
- include/linux/blkdev.h       |  8 ++++++++
- include/linux/pci.h          |  2 ++
- init/main.c                  |  1 +
- kernel/events/core.c         | 10 +++++-----
- security/Kconfig             |  3 +++
- 17 files changed, 61 insertions(+), 75 deletions(-)
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -97,8 +97,9 @@ config DRM_DEBUG_DP_MST_TOPOLOGY_REFS
+ 
+ config DRM_FBDEV_EMULATION
+ 	bool "Enable legacy fbdev support for your modesetting driver"
+-	depends on DRM_KMS_HELPER
+-	depends on FB=y || FB=DRM_KMS_HELPER
++	depends on DRM
++	depends on FB=y || FB=DRM
++	select DRM_KMS_HELPER
+ 	select FB_CFB_FILLRECT
+ 	select FB_CFB_COPYAREA
+ 	select FB_CFB_IMAGEBLIT
 
 
