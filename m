@@ -2,141 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F246F457575
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:26:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 560D4457573
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:26:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229811AbhKSR3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 12:29:53 -0500
-Received: from host.78.145.23.62.rev.coltfrance.com ([62.23.145.78]:34100 "EHLO
-        smtpservice.6wind.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S236280AbhKSR3w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 12:29:52 -0500
-X-Greylist: delayed 388 seconds by postgrey-1.27 at vger.kernel.org; Fri, 19 Nov 2021 12:29:52 EST
-Received: from bretzel (bretzel.dev.6wind.com [10.17.1.57])
-        by smtpservice.6wind.com (Postfix) with ESMTPS id A49CE60511;
-        Fri, 19 Nov 2021 18:20:21 +0100 (CET)
-Received: from dichtel by bretzel with local (Exim 4.92)
-        (envelope-from <dichtel@6wind.com>)
-        id 1mo7Yj-00031X-Go; Fri, 19 Nov 2021 18:20:21 +0100
-From:   Nicolas Dichtel <nicolas.dichtel@6wind.com>
-To:     steffen.klassert@secunet.com, herbert@gondor.apana.org.au
+        id S236591AbhKSR3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 12:29:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44100 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236582AbhKSR3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 12:29:22 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 348CEC06173E
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 09:26:20 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id d27so19375351wrb.6
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 09:26:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=6wind.com; s=google;
+        h=reply-to:subject:to:cc:references:from:organization:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Sg9mZ2PGrmzKFrdGWcYp7whsp41pLzgkMBSKP2kUkUI=;
+        b=Vbsc7bWTZ03zDF5sukj16xOFul7ZJk+3rnoh0sMCu+2lF5Gj2fLtYqmpFk0I8+pd4g
+         m6H/+/dpreNm9kgpxf/J4CDMJ6US2CaJdGC6YZeEFt22S9vJUbGgLiNAdQgjZe1+VRbM
+         pabiMqSmwWCj+/BGSgkI6QHzMBywuD/SYRaf2kspJzc75bsmUhIMJ0AE17gwXm0Wlp78
+         4kLwmR3ZopEMHS2bfzGA+yozHEWYoayiI39FDIVUJSUV7Ay96wFYgB6Du9yZ6bmlerH3
+         c7NC/3HvjjLb/wvx+fIveQVQ6ehSEgYdxeiet9mlkKQ9fZuvoYKM4vAXYtREmzj2nIxX
+         7weA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:reply-to:subject:to:cc:references:from
+         :organization:message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=Sg9mZ2PGrmzKFrdGWcYp7whsp41pLzgkMBSKP2kUkUI=;
+        b=GATL3T1lQ8AcO571d1GQRjjba+CAC6WTXRIYKYU0+Ugtqwxya28oIXjMdTMXS/Gdtb
+         SIeexk5+VXDWFog2H2axtnbRqHxd35b5TnrMrpThCwYD3KwAXgQU4LvpTssapMtbGKDJ
+         GH/kSemKGYXUC4p7XuuazZPwE9TKIsfvXo9IIzF77K+JXhBUu16qUKCKtZNcMtjPmMYY
+         evjBa5KA9mLM0yqprzEycW1ffZSLgLcmPN/cuvC58iw/ZFBL3AXiPB4+rv2wCvBCjM9q
+         M89Mbl6uczm7jYQjYgG6z+viZXT9DIQAjwHqnHrWz/6ufdKMZntU1rRIyZQ8P1SaMHMF
+         3n6A==
+X-Gm-Message-State: AOAM530K3dRSGOeR8Et0gGhz+8+yAmGzd7280JB3osvOfSiFBhE4SxZ3
+        70mCeQWU3kxUvIbM/mgt11GAIA==
+X-Google-Smtp-Source: ABdhPJyGkEi7tIQg4mUQtRrwaDcg07ia1PulbfHRbtd5ceBpa7LR7yLfOth6+KIqoSdREJl+2n515w==
+X-Received: by 2002:a5d:6351:: with SMTP id b17mr9106870wrw.151.1637342778687;
+        Fri, 19 Nov 2021 09:26:18 -0800 (PST)
+Received: from ?IPv6:2a01:e0a:b41:c160:28cf:7e86:cefd:55f9? ([2a01:e0a:b41:c160:28cf:7e86:cefd:55f9])
+        by smtp.gmail.com with ESMTPSA id j40sm15115709wms.19.2021.11.19.09.26.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 19 Nov 2021 09:26:18 -0800 (PST)
+Reply-To: nicolas.dichtel@6wind.com
+Subject: Re: [PATCH net] tun: fix bonding active backup with arp monitoring
+To:     patchwork-bot+netdevbpf@kernel.org
 Cc:     davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org,
-        Ghalem Boudour <ghalem.boudour@6wind.com>,
-        stable@vger.kernel.org, Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Subject: [PATCH net v2] xfrm: fix policy lookup for ipv6 gre packets
-Date:   Fri, 19 Nov 2021 18:20:16 +0100
-Message-Id: <20211119172016.11610-1-nicolas.dichtel@6wind.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211119170402.11213-1-nicolas.dichtel@6wind.com>
-References: <20211119170402.11213-1-nicolas.dichtel@6wind.com>
+        stable <stable@vger.kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+References: <20211112075603.6450-1-nicolas.dichtel@6wind.com>
+ <163698180894.15087.10819422346391173910.git-patchwork-notify@kernel.org>
+From:   Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Organization: 6WIND
+Message-ID: <37db0bc8-d3e0-7155-5f08-fe8b5abd21ed@6wind.com>
+Date:   Fri, 19 Nov 2021 18:26:17 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
+In-Reply-To: <163698180894.15087.10819422346391173910.git-patchwork-notify@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ghalem Boudour <ghalem.boudour@6wind.com>
+Le 15/11/2021 à 14:10, patchwork-bot+netdevbpf@kernel.org a écrit :
+> Hello:
+> 
+> This patch was applied to netdev/net.git (master)
+> by David S. Miller <davem@davemloft.net>:
+> 
+> On Fri, 12 Nov 2021 08:56:03 +0100 you wrote:
+>> As stated in the bonding doc, trans_start must be set manually for drivers
+>> using NETIF_F_LLTX:
+>>  Drivers that use NETIF_F_LLTX flag must also update
+>>  netdev_queue->trans_start. If they do not, then the ARP monitor will
+>>  immediately fail any slaves using that driver, and those slaves will stay
+>>  down.
+>>
+>> [...]
+> 
+> Here is the summary with links:
+>   - [net] tun: fix bonding active backup with arp monitoring
+>     https://git.kernel.org/netdev/net/c/a31d27fbed5d
+> 
+> You are awesome, thank you!
+> 
+May I ask for a backport to stable of this patch?
 
-On egress side, xfrm lookup is called from __gre6_xmit() with the
-fl6_gre_key field not initialized leading to policies selectors check
-failure. Consequently, gre packets are sent without encryption.
+It's now in Linus tree: a31d27fbed5d ("tun: fix bonding active backup with arp
+monitoring"):
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a31d27fbed5d
 
-On ingress side, INET6_PROTO_NOPOLICY was set, thus packets were not
-checked against xfrm policies. Like for egress side, fl6_gre_key should be
-correctly set, this is now done in decode_session6().
+I didn't put a Fixes tag in the original submission because the bug is there
+before git ages.
+Maybe "Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")" would have been a better choice.
 
-Fixes: c12b395a4664 ("gre: Support GRE over IPv6")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ghalem Boudour <ghalem.boudour@6wind.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
----
 
-This patch targets ipsec tree, but because this tree has not been yet
-rebased on top of the net tree, I based the patch on top of net.
+Regards,
+Nicolas
 
-v1 -> v2
- Add 'Cc: stable@vger.kernel.org'
-
- net/ipv6/ip6_gre.c     |  5 ++++-
- net/xfrm/xfrm_policy.c | 21 +++++++++++++++++++++
- 2 files changed, 25 insertions(+), 1 deletion(-)
-
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index d831d2439693..f5a511c57aa2 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -755,6 +755,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 		fl6->daddr = key->u.ipv6.dst;
- 		fl6->flowlabel = key->label;
- 		fl6->flowi6_uid = sock_net_uid(dev_net(dev), NULL);
-+		fl6->fl6_gre_key = tunnel_id_to_key32(key->tun_id);
- 
- 		dsfield = key->tos;
- 		flags = key->tun_flags &
-@@ -990,6 +991,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
- 		fl6.daddr = key->u.ipv6.dst;
- 		fl6.flowlabel = key->label;
- 		fl6.flowi6_uid = sock_net_uid(dev_net(dev), NULL);
-+		fl6.fl6_gre_key = tunnel_id_to_key32(key->tun_id);
- 
- 		dsfield = key->tos;
- 		if (!(tun_info->key.tun_flags & TUNNEL_ERSPAN_OPT))
-@@ -1098,6 +1100,7 @@ static void ip6gre_tnl_link_config_common(struct ip6_tnl *t)
- 	fl6->flowi6_oif = p->link;
- 	fl6->flowlabel = 0;
- 	fl6->flowi6_proto = IPPROTO_GRE;
-+	fl6->fl6_gre_key = t->parms.o_key;
- 
- 	if (!(p->flags&IP6_TNL_F_USE_ORIG_TCLASS))
- 		fl6->flowlabel |= IPV6_TCLASS_MASK & p->flowinfo;
-@@ -1544,7 +1547,7 @@ static void ip6gre_fb_tunnel_init(struct net_device *dev)
- static struct inet6_protocol ip6gre_protocol __read_mostly = {
- 	.handler     = gre_rcv,
- 	.err_handler = ip6gre_err,
--	.flags       = INET6_PROTO_NOPOLICY|INET6_PROTO_FINAL,
-+	.flags       = INET6_PROTO_FINAL,
- };
- 
- static void ip6gre_destroy_tunnels(struct net *net, struct list_head *head)
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index 1a06585022ab..84d2361da015 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -33,6 +33,7 @@
- #include <net/flow.h>
- #include <net/xfrm.h>
- #include <net/ip.h>
-+#include <net/gre.h>
- #if IS_ENABLED(CONFIG_IPV6_MIP6)
- #include <net/mip6.h>
- #endif
-@@ -3422,6 +3423,26 @@ decode_session6(struct sk_buff *skb, struct flowi *fl, bool reverse)
- 			}
- 			fl6->flowi6_proto = nexthdr;
- 			return;
-+		case IPPROTO_GRE:
-+			if (!onlyproto &&
-+			    (nh + offset + 12 < skb->data ||
-+			     pskb_may_pull(skb, nh + offset + 12 - skb->data))) {
-+				struct gre_base_hdr *gre_hdr;
-+				__be32 *gre_key;
-+
-+				nh = skb_network_header(skb);
-+				gre_hdr = (struct gre_base_hdr *)(nh + offset);
-+				gre_key = (__be32 *)(gre_hdr + 1);
-+
-+				if (gre_hdr->flags & GRE_KEY) {
-+					if (gre_hdr->flags & GRE_CSUM)
-+						gre_key++;
-+					fl6->fl6_gre_key = *gre_key;
-+				}
-+			}
-+			fl6->flowi6_proto = nexthdr;
-+			return;
-+
- #if IS_ENABLED(CONFIG_IPV6_MIP6)
- 		case IPPROTO_MH:
- 			offset += ipv6_optlen(exthdr);
--- 
-2.33.0
 
