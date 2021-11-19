@@ -2,126 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF5B457312
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 17:34:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25D76457351
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 17:44:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234080AbhKSQhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 11:37:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60152 "EHLO
+        id S236608AbhKSQrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 11:47:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235117AbhKSQhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 11:37:33 -0500
-Received: from mail-io1-xd2b.google.com (mail-io1-xd2b.google.com [IPv6:2607:f8b0:4864:20::d2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31BCDC06173E
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:34:31 -0800 (PST)
-Received: by mail-io1-xd2b.google.com with SMTP id m9so13576083iop.0
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:34:31 -0800 (PST)
+        with ESMTP id S232938AbhKSQrq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 11:47:46 -0500
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78796C061574
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:44:44 -0800 (PST)
+Received: by mail-pf1-x42b.google.com with SMTP id o4so9801045pfp.13
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:44:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=eibhgHyEnDty6prD7kw2qZTGk1uH223Sz/QXKL+fHLw=;
-        b=gupIA5r6nnIRjlORFF+kzOOBKq3NM2WhInQC47GO5E9xRNGoT4F4dbcOK6mamCJ1N4
-         yGHX2AC3mCXdkFZmAG96Eic3jJbdCyi7EoZ8SHsHFdhwVxtF0n0r3E3pVyi5qkX25TKb
-         3zvujhOG60vuFmUSryBYpN9PkqVSw1Qc/wO0/LM0wpLPF1R0tes+dSZcpMa3s9xnUuAk
-         0+8qhqQZNrGdvwWTgLuZRlPJiScDKCRg6He4T8JPqyU8asw7kqfyvj+3K/Dd+jMwP+t0
-         rWRfXuLP3jkVS0NQqGiT79pZZGpBLHyHcJG3HOOf2E5cLwzqJi3cUJNDfb1PwgPEKhua
-         HRlQ==
+        d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
+        h=subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding:cc:from:to;
+        bh=5ChM9rojwfVZwb854uhoQhujli+NJle96xwmBErH+IU=;
+        b=DaCfNGu+rNT7plyiOhA2fSQzYoF3ErJeSq6lLAt9u7p5aRck5wu/2q8lyTSKC9FwL7
+         8mt3lmeZ6OpVHgLgtMAyDz44a78JkOoCWTRVB65syJhyKhGddI9tWRbuaIqKuryMM0cZ
+         qpq20nC50jElNtQrUfuJwwqeLesDO6dbKe1Tk0VUFmW5xpDzSVEDztR9ZFBBxGRk+1sN
+         hCav4BtrNRiyAnus7AcC4kWfXf+7Fo34FkZdSuFFCy1/QvGiXIm54hcm8YKlUrHoMpWH
+         fO8FTlpHAJZMFYf3dPqlwJFPtUlHBygsGhK2YhmcMHN6plY73ISQXSDvOHtdnu2inQoR
+         dLRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=eibhgHyEnDty6prD7kw2qZTGk1uH223Sz/QXKL+fHLw=;
-        b=rPL6QQTf/3vBOpit9Xmwy8zVz/aBQnrsizeY0+pBpdCFV8cqXTgeRK5hje5Oi1FLZn
-         UunLp5i6+XsdI4kh4fSSbR50tgXNANaVXUwd01ENVDFNya1Mgjgg6+2TMcj+O0OMxtqA
-         WXxVuZKGhEGgTDU5zwDKFvuL1y6nQbuDgwPM+1L5aRtlYSKI1WxBh8Fll/dtBmiFoVSO
-         qfQ+oKCO5g/OshRZieeqyeyBmrVuHDuBZRo40CWrCC5+D5yxSEqglb9Z7cPBhgp5F0V6
-         3DC674jJE0Zuc31vz+Hij2EiIR6QKMWw7UFDS8W88hMkQeuNePUt1VRpZLDMMxLDNZCv
-         P8YA==
-X-Gm-Message-State: AOAM532mE6X8u4Cr88UyC591V6TpMaNfQ+zxkUGlhE90vrdX1GUuxJv2
-        uBlC4Bmncz9TLtyJCyUI5WP5tDgRVyFgU1u410E=
-X-Google-Smtp-Source: ABdhPJyxCxEBY/GQLBhkCDixsXOWTdVdBs1ryPJSr0Y0waFliBN6adcK+fRa3+hCgcxu9QdotQyGu+UwsNRCOiNN1PE=
-X-Received: by 2002:a02:ccb3:: with SMTP id t19mr27884444jap.145.1637339670411;
- Fri, 19 Nov 2021 08:34:30 -0800 (PST)
+        h=x-gm-message-state:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding:cc:from:to;
+        bh=5ChM9rojwfVZwb854uhoQhujli+NJle96xwmBErH+IU=;
+        b=RWUR7Bf3QWLcnJuoVzl6nRZ80vfzIitYiWZFyyent6yE12w6oHJYMU767G5DnSBqGt
+         QYwbMifA1+AACXGYHgx8Pgu0iUekYwnhTOUkMnOY+8MjLHM92/PBYvOEt+YRVbhVjxQk
+         nwdV+0+J4Gb2o7AP/N3a3OidQ++BoWp4GBeYdB9JtmdPWXZVeIP0fzeobthkufcr8OsP
+         EWryFQOJxt9dtbwOeiHesMfQt9AQY3takTIOBZW8KC4u6FiDEpZdCVZHwWgNmTmYjFK3
+         IFOyFGNLbseQDsNaUwC6UPRC4/PGoCGxsL50DKnAdzOAi2Nm4NSbuBHFkiZeXcp7fneF
+         CemA==
+X-Gm-Message-State: AOAM531M+u3+Dhz+tzZ7v6rhW0crQGLSB5mZFlS1tTOtysfqSb+YAZLv
+        N4OwOke4AYAjyC10PYZ1OCAMvA==
+X-Google-Smtp-Source: ABdhPJyf466y1OSj6NIxhcvh6K8TQYHu4W9tg//KV4Y0C3o/44ZnxTLiwoKCUqKKG8aX01yCdYyQZw==
+X-Received: by 2002:a63:ce54:: with SMTP id r20mr18197963pgi.95.1637340284094;
+        Fri, 19 Nov 2021 08:44:44 -0800 (PST)
+Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
+        by smtp.gmail.com with ESMTPSA id i76sm194874pgd.69.2021.11.19.08.44.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Nov 2021 08:44:43 -0800 (PST)
+Subject: [PATCH 01/12] RISC-V: defconfigs: Set CONFIG_FB=y, for FB console
+Date:   Fri, 19 Nov 2021 08:44:02 -0800
+Message-Id: <20211119164413.29052-2-palmer@rivosinc.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20211119164413.29052-1-palmer@rivosinc.com>
+References: <20211119164413.29052-1-palmer@rivosinc.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6622:2749:0:0:0:0 with HTTP; Fri, 19 Nov 2021 08:34:29
- -0800 (PST)
-Reply-To: msbelinaya892@gmail.com
-From:   msbelinaya <deligiozelenadeligioz@gmail.com>
-Date:   Fri, 19 Nov 2021 16:34:29 +0000
-Message-ID: <CAHeiC3QTvK5oD6=dEHhBLtCz69qoQH=1LoAGKUZxaSQekAKFug@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Cc:     Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>, aou@eecs.berkeley.edu,
+        anup.patel@wdc.com, heinrich.schuchardt@canonical.com,
+        atish.patra@wdc.com, bin.meng@windriver.com,
+        sagar.kadam@sifive.com, damien.lemoal@wdc.com, axboe@kernel.dk,
+        linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Palmer Dabbelt <palmer@rivosinc.com>, stable@vger.kernel.org
+From:   Palmer Dabbelt <palmer@rivosinc.com>
+To:         linux-riscv@lists.infradead.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ich biete meine Freundschaft an und glaube, dass Sie mich mit gutem
-Herzen akzeptieren werden. Ich wurde gedr=C3=A4ngt, Sie zu kontaktieren und
-zu sehen, wie wir einander am besten unterst=C3=BCtzen k=C3=B6nnen. Ich bin=
- Frau
-Kodjovi Hegbor aus der T=C3=BCrkei und arbeite als Divisionsleiterin f=C3=
-=BCr
-Operationen bei der StandardBNP bank limited Turkey . Ich glaube, es
-ist der Wille Gottes, dass ich Ihnen jetzt begegnen werde. Ich habe
-ein wichtiges gesch=C3=A4ftliches Gespr=C3=A4ch, das ich mit Ihnen teilen
-m=C3=B6chte, von dem ich glaube, dass es Sie interessiert, da es mit Ihrem
-Nachnamen in Verbindung steht und Sie davon profitieren werden.
+From: Palmer Dabbelt <palmer@rivosinc.com>
 
- Im Jahr 2006 hat ein B=C3=BCrger Ihres Landes ein Nicht-Residentenkonto
-f=C3=BCr 36 Monate des Kalenders im Wert von =C2=A38.400.000,00 bei meiner =
-Bank
-eingerichtet. Das Ablaufdatum f=C3=BCr diesen Einlagenvertrag war der 16.
-Januar 2009. Leider starb er w=C3=A4hrend einer Gesch=C3=A4ftsreise bei ein=
-em
-t=C3=B6dlichen Erdbeben am 12. Mai 2008 in Sichuan, China, bei dem
-mindestens 68.000 Menschen ums Leben kamen.
+We have CONFIG_FRAMEBUFFER_CONSOLE=y in the defconfigs, but that depends
+on CONFIG_FB so it's not actually getting set.  I'm assuming most users
+on real systems want a framebuffer console, so this enables CONFIG_FB to
+allow that to take effect.
 
-Das Management meiner Bank hat noch nichts von seinem Tod erfahren,
-ich wusste davon, weil er mein Freund war und ich sein Kontof=C3=BChrer
-war, als das Konto vor meiner Bef=C3=B6rderung er=C3=B6ffnet wurde. Jedoch =
-Herr
- erw=C3=A4hnte bei der Kontoer=C3=B6ffnung keine n=C3=A4chsten Verwandten/E=
-rben, und
-er war nicht verheiratet und hatte keine Kinder. Letzte Woche hat
-meine Bankdirektion mich gebeten, Anweisungen zu geben, was mit seinen
-Geldern zu tun ist, wenn der Vertrag verl=C3=A4ngert werden soll.
+Fixes: 33c57c0d3c67 ("RISC-V: Add a basic defconfig")
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+---
+ arch/riscv/configs/defconfig      | 1 +
+ arch/riscv/configs/rv32_defconfig | 1 +
+ 2 files changed, 2 insertions(+)
 
-Ich wei=C3=9F, dass dies passieren wird, und deshalb habe ich nach einem
-Mittel gesucht, um mit der Situation umzugehen, denn wenn meine
-Bankdirektoren wissen, dass sie tot sind und keinen Erben haben,
-werden sie das Geld f=C3=BCr ihren pers=C3=B6nlichen Gebrauch nehmen, also =
-Ich
-m=C3=B6chte nicht, dass so etwas passiert. Das war, als ich Ihren Nachnamen
-sah, ich war gl=C3=BCcklich und suche jetzt Ihre Mitarbeit, um Sie als Next
-of Kin/Erbe des Kontos zu pr=C3=A4sentieren, da Sie den gleichen Nachnamen
-wie er haben und meine Bankzentrale das Konto freigeben wird f=C3=BCr dich.
-Es besteht kein Risiko; die Transaktion wird im Rahmen einer legitimen
-Vereinbarung ausgef=C3=BChrt, die Sie vor Rechtsverletzungen sch=C3=BCtzt.
+diff --git a/arch/riscv/configs/defconfig b/arch/riscv/configs/defconfig
+index ef473e2f503b..11de2ab9ed6e 100644
+--- a/arch/riscv/configs/defconfig
++++ b/arch/riscv/configs/defconfig
+@@ -78,6 +78,7 @@ CONFIG_DRM=m
+ CONFIG_DRM_RADEON=m
+ CONFIG_DRM_NOUVEAU=m
+ CONFIG_DRM_VIRTIO_GPU=m
++CONFIG_FB=y
+ CONFIG_FRAMEBUFFER_CONSOLE=y
+ CONFIG_USB=y
+ CONFIG_USB_XHCI_HCD=y
+diff --git a/arch/riscv/configs/rv32_defconfig b/arch/riscv/configs/rv32_defconfig
+index 6e9f12ff968a..05b6f17adbc1 100644
+--- a/arch/riscv/configs/rv32_defconfig
++++ b/arch/riscv/configs/rv32_defconfig
+@@ -73,6 +73,7 @@ CONFIG_POWER_RESET=y
+ CONFIG_DRM=y
+ CONFIG_DRM_RADEON=y
+ CONFIG_DRM_VIRTIO_GPU=y
++CONFIG_FB=y
+ CONFIG_FRAMEBUFFER_CONSOLE=y
+ CONFIG_USB=y
+ CONFIG_USB_XHCI_HCD=y
+-- 
+2.32.0
 
-Es ist besser, dass wir das Geld beanspruchen, als es den
-Bankdirektoren zu erlauben, es zu nehmen, sie sind bereits reich. Ich
-bin kein gieriger Mensch, daher schlage ich vor, dass wir das Geld zu
-gleichen Teilen teilen, 50/50% auf beide Parteien. Mein Anteil wird
-mir helfen, mein eigenes Unternehmen zu gr=C3=BCnden und den Erl=C3=B6s f=
-=C3=BCr
-wohlt=C3=A4tige Zwecke zu verwenden, was mein Traum war.
-
-Teilen Sie mir Ihre Meinung zu meinem Vorschlag mit, bitte ich brauche
-wirklich Ihre Hilfe bei dieser Transaktion. Ich habe Sie ausgew=C3=A4hlt,
-um mir zu helfen, nicht durch mein eigenes Tun, meine Liebe, sondern
-durch Gott wollte ich, dass Sie wissen, dass ich mir Zeit zum Beten
-genommen habe =C3=BCber diese Mitteilung, bevor ich Sie jemals kontaktiert
-habe, teilen Sie mir Ihre Meinung dazu mit und behandeln Sie diese
-Informationen bitte als STRENG GEHEIM. Nach Erhalt Ihrer Antwort,
-ausschlie=C3=9Flich =C3=BCber meine pers=C3=B6nliche E-Mail-Adresse,
-msbelinaya892@gmail.com
-gibt Ihnen Details zur Transaktion. Und eine Kopie der
-Einlagenbescheinigung des Fonds sowie die Gr=C3=BCndungsurkunde der
-Gesellschaft, die den Fonds erstellt hat.
-Gott segne, in Erwartung Ihrer dringenden Antwort
-Mit freundlichen Gr=C3=BC=C3=9Fen
-Frau Kodjovi Hegbor
-msbelinaya892@gmail.com
