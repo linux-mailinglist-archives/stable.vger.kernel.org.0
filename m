@@ -2,90 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F6D456E0D
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 12:14:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 829F8456E13
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 12:16:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232004AbhKSLQv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 06:16:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43128 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229521AbhKSLQu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 06:16:50 -0500
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C18AC061574
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 03:13:49 -0800 (PST)
-Received: by mail-ot1-x329.google.com with SMTP id a23-20020a9d4717000000b0056c15d6d0caso16248635otf.12
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 03:13:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=aBpjYAWTia/cQ0f6LVj6yM0cFdnWl/MhnHW7qKvyljU=;
-        b=Tx7KdjVozdASSKjMP+KOWLcBeqYfPnjURHHx71ffYbRwqp1LFVdjPbSniyXw/U7RLT
-         72WWnMqTEsxgUSO0qW79kunTkM+un2/yLL2ZOvrfdboehMMapr3rcyCpFovU8jOy9jc0
-         5hnnXP7ZG82lo9phYFcbmaMbykrpzhXqboh428bOMFrLqYge4YLd/b/OqlRo3afkB8U+
-         tqi60jP0dZWK0qUfytjWPpoE7ZBuvmb2GP6krdj8R0G0bLvVhkUYuFhB/Lw3Z1WUyCzP
-         E47f4/qm0cMfEEt7rZi+Be/m7n8hy56i6lkkrbPy/zeVb0W4NZolYnBd01z2IEOYLjP0
-         c1NQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:to:from:subject:message-id:date
-         :user-agent:mime-version:content-language:content-transfer-encoding;
-        bh=aBpjYAWTia/cQ0f6LVj6yM0cFdnWl/MhnHW7qKvyljU=;
-        b=rsZwlQV6KmI6C43KKftGv2G7u2/Tn5mudAzyJRfOrBgDvS11PLqlmd+odHW0uEvOBJ
-         YehGYcL7X68OKSUZp/7Bl9g7U9a9EFuCIeQsCfv7FhO07IV0WAikJJ/dYxtNv0w1or0O
-         oRQz/vFNcpqtBu1KKflUeuFbmKJ2jbUyP1jqSmbQRCqKf3oUWglppWLWDgQ0W5t5d0NT
-         ELcl79QmnBqWzlahVFtP7gFQCm3Kkv1bFVR56QCI7O0bFMptmIJgO0ffJSoN1B5KNyP1
-         eru/Ez4i++KDbkaGoz3EZwSeARhmdrcMUq8P4O1FK5mu/w0KkiS8Gs6oN2RzEUUE9iHe
-         xHvg==
-X-Gm-Message-State: AOAM5314+jJbrqy5ETXIH7/nFsFI/WcLnsH0+9pccf4SxQJut7sZj1CP
-        w08rgKV4gQJGjORBkDd3JQlzpITlMY0=
-X-Google-Smtp-Source: ABdhPJwrIFzClvAPV1Wy8ypSgZwmIGQE9zPLYQIDI2DbZC3o4c/fXsV3ahokw0tHkGCuWFkNehqRaw==
-X-Received: by 2002:a05:6830:200d:: with SMTP id e13mr4138944otp.109.1637320428834;
-        Fri, 19 Nov 2021 03:13:48 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id bg38sm694210oib.40.2021.11.19.03.13.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 19 Nov 2021 03:13:48 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-To:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Subject: Please apply commit 5c4e0a21fae8 ("string: uninline memcpy_and_pad")
- to v5.15.y
-Message-ID: <70eadb53-b964-796b-dc4b-470e226c0982@roeck-us.net>
-Date:   Fri, 19 Nov 2021 03:13:46 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S234431AbhKSLSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 06:18:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47110 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229521AbhKSLSw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 06:18:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFE3E619E5;
+        Fri, 19 Nov 2021 11:15:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637320548;
+        bh=ebn6eQi/XNLS2skGGx7gx0OtfsV07+MOad09equp6yw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hNpSNkFJOwMFWSdpSEhVFHmNZU+gMq3dwh9sWexAkJHYVM5JlRKQ8TOaVO3TIa008
+         GH3r3adtdSq7twfK2f+WzmjbgqN/pm0LgHDutYJc2IIdMU2GEbjlJFZ66eDI8OBsIJ
+         C/+YmhxarTia93z1jMsiesF2HpTiNKbyeBMEkPhQ=
+Date:   Fri, 19 Nov 2021 12:15:45 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jiri Slaby <jirislaby@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Acked-by: Jani Nikula" <jani.nikula@intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.15 808/917] drm: fb_helper: improve CONFIG_FB dependency
+Message-ID: <YZeHYcPsjUMJ6x+q@kroah.com>
+References: <20211115165428.722074685@linuxfoundation.org>
+ <20211115165456.391822721@linuxfoundation.org>
+ <9fdb2bf1-de52-1b9d-4783-c61ce39e8f51@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9fdb2bf1-de52-1b9d-4783-c61ce39e8f51@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Fri, Nov 19, 2021 at 08:50:05AM +0100, Jiri Slaby wrote:
+> On 15. 11. 21, 18:05, Greg Kroah-Hartman wrote:
+> > From: Arnd Bergmann <arnd@arndb.de>
+> > 
+> > [ Upstream commit 9d6366e743f37d36ef69347924ead7bcc596076e ]
+> 
+> Hi,
+> 
+> this breaks build on openSUSE's armv7hl config:
+> $ wget -O .config https://raw.githubusercontent.com/openSUSE/kernel-source/stable/config/armv7hl/default
+> $ make -j168 CROSS_COMPILE=arm-suse-linux-gnueabi- ARCH=arm vmlinux
+> ...
+>   LD      .tmp_vmlinux.btf
+> arm-suse-linux-gnueabi-ld: drivers/gpu/drm/panel/panel-simple.o: in function
+> `panel_simple_probe':
+> drivers/gpu/drm/panel/panel-simple.c:803: undefined reference to
+> `drm_panel_dp_aux_backlight'
+> $ grep -E 'CONFIG_(DRM|FB|DRM_KMS_HELPER|DRM_FBDEV_EMULATION)\>' .config
+> CONFIG_DRM=y
+> CONFIG_DRM_KMS_HELPER=m
+> CONFIG_DRM_FBDEV_EMULATION=y
+> CONFIG_FB=y
+> 
+> 5.16-rc1 builds just fine -- investigating why…
 
-please apply commit 5c4e0a21fae8 ("string: uninline memcpy_and_pad")
-to v5.15.y to avoid the following build error seen with gcc 11.x.
+Ok, will go revert that, thanks.
 
-Building m68k:allmodconfig ... failed
---------------
-Error log:
-In file included from include/linux/string.h:20,
-                  from include/linux/bitmap.h:10,
-                  from include/linux/cpumask.h:12,
-                  from include/linux/smp.h:13,
-                  from include/linux/lockdep.h:14,
-                  from include/linux/spinlock.h:63,
-                  from include/linux/mmzone.h:8,
-                  from include/linux/gfp.h:6,
-                  from include/linux/slab.h:15,
-                  from drivers/nvme/target/discovery.c:7:
-In function 'memcpy_and_pad',
-     inlined from 'nvmet_execute_disc_identify' at drivers/nvme/target/discovery.c:268:2:
-arch/m68k/include/asm/string.h:72:25: error: '__builtin_memcpy' reading 8 bytes from a region of size 7
-
-Thanks,
-Guenter
+greg k-h
