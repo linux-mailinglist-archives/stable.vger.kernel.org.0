@@ -2,186 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 946B6456B5D
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 09:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90961456B64
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 09:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234069AbhKSINu convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 19 Nov 2021 03:13:50 -0500
-Received: from mout.kundenserver.de ([217.72.192.74]:46565 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230477AbhKSINu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 03:13:50 -0500
-Received: from mail-wr1-f43.google.com ([209.85.221.43]) by
- mrelayeu.kundenserver.de (mreue106 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MF418-1muaha3XNw-00FPHu; Fri, 19 Nov 2021 09:10:46 +0100
-Received: by mail-wr1-f43.google.com with SMTP id t30so16597344wra.10;
-        Fri, 19 Nov 2021 00:10:46 -0800 (PST)
-X-Gm-Message-State: AOAM5314nX/tl2dUN2USFftMfWz+744orGKq+CmcOl6s57miuMBkI3ri
-        m4m229ob505y8W2dHh768t7XSSRDYkXgMQAQ3IM=
-X-Google-Smtp-Source: ABdhPJx6qRGQWFWOaKX7IdWter6gwkfJpsyjLUqtZoPih1adh8HX2MN+hFqq2YVOIF2Y+C8hNKkWfNpPd+TCIcTYha8=
-X-Received: by 2002:adf:df89:: with SMTP id z9mr4955733wrl.336.1637309446428;
- Fri, 19 Nov 2021 00:10:46 -0800 (PST)
+        id S233653AbhKSIPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 03:15:00 -0500
+Received: from mail-eopbgr80132.outbound.protection.outlook.com ([40.107.8.132]:8839
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S232869AbhKSIPA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 03:15:00 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=UmOJNG7y+GMMrQZT0OQAEs4GJTTnds4K3j5AVXpKs9XOqIs4u+UdEdVz46Hjex/MIwwGalNz+MNw5PUTscMP9Ucscg6yMBkz6E68bQdXlqwjOfsCZX+O4NvZlqrDY4qbvTibh9rv7k4Qvn6513WX1fJwGUHbDcHQxubb1bnISJZ1aRQejI03n0uegNbITjrb/T0gjwqKA31nLjr57IRHrbBViUvizO0PQ7YxKi05oZ8+/nhxCUMWxhD52OkEjRxxLKZ8mUx/HH6g8B/qfr691kOQzODrHy5nuMa1LGR2dGSW8NboXphoxdcln3d0U2csmqrxkW2hS8WLqtu9owW2Qw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=uPtjCkHmb+bzG7B0J3Tj5fCU+m9r9hYC7swunm9MwCg=;
+ b=QH/XyTa/AnbKu9+hhirYXYIoyfkQ3439x4XQSMdHDymIdxwFo7dQCumf22XT6aIeR4R/wF6Xwnr1+rzggl5vJDtJApmmygCwM/zDe38PIAi5vpsRea/vDm8jiBMseMLuvrkpWym07pX4M2JE8lA2+D+egaQUY6965bby1rBT396Oa4PU9ReqnlYwET0aLKhozUbZZ2ayRumrx6BVEQiycMDvGMGRcjfa1LMJODt4Av80w4bZrufIrAcVYzNsQo7ut73K6ilznoItltFWZYdZ5o0ufde8WlIanA7DfXuYtW6CLuORCyzwfl80tH05kzjMT44lOTh2Kpdcjh7oaAzPhg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 131.228.2.8) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nokia.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=nokia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
+ s=selector1-nokia-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uPtjCkHmb+bzG7B0J3Tj5fCU+m9r9hYC7swunm9MwCg=;
+ b=xJTFZaSJ4XcW4fLJ116uy+eV5zd33Sb/uhozy1W6LOEKIeVyc5KFxjS6rY4iDotUFL5hGHl9e0wlmDZ0+R7LLOyC1PmU9DXPXOVhgrs8oiUs5srQPY3wyZOIVnYGr4RelTmZzGlvO0tcI6UlO4qXj771M5bMwEQ2karSo2iw+A0=
+Received: from AM5PR04CA0013.eurprd04.prod.outlook.com (2603:10a6:206:1::26)
+ by AS8PR07MB8374.eurprd07.prod.outlook.com (2603:10a6:20b:445::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.11; Fri, 19 Nov
+ 2021 08:11:56 +0000
+Received: from VE1EUR03FT051.eop-EUR03.prod.protection.outlook.com
+ (2603:10a6:206:1:cafe::58) by AM5PR04CA0013.outlook.office365.com
+ (2603:10a6:206:1::26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.20 via Frontend
+ Transport; Fri, 19 Nov 2021 08:11:56 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 131.228.2.8)
+ smtp.mailfrom=nokia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nokia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nokia.com designates
+ 131.228.2.8 as permitted sender) receiver=protection.outlook.com;
+ client-ip=131.228.2.8; helo=fihe3nok0734.emea.nsn-net.net;
+Received: from fihe3nok0734.emea.nsn-net.net (131.228.2.8) by
+ VE1EUR03FT051.mail.protection.outlook.com (10.152.19.75) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4713.19 via Frontend Transport; Fri, 19 Nov 2021 08:11:56 +0000
+Received: from ulegcparamis.emea.nsn-net.net (ulegcparamis.emea.nsn-net.net [10.151.74.146])
+        by fihe3nok0734.emea.nsn-net.net (GMO) with ESMTP id 1AJ8BpxF019881;
+        Fri, 19 Nov 2021 08:11:52 GMT
+From:   Alexander A Sverdlin <alexander.sverdlin@nokia.com>
+To:     linux-mtd@lists.infradead.org
+Cc:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Pratyush Yadav <p.yadav@ti.com>,
+        Michael Walle <michael@walle.cc>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH 1/2] mtd: spi-nor: Check for zero erase size in spi_nor_find_best_erase_type()
+Date:   Fri, 19 Nov 2021 09:11:47 +0100
+Message-Id: <20211119081147.9895-1-alexander.sverdlin@nokia.com>
+X-Mailer: git-send-email 2.10.2
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
 MIME-Version: 1.0
-References: <20211115165428.722074685@linuxfoundation.org> <20211115165456.391822721@linuxfoundation.org>
- <9fdb2bf1-de52-1b9d-4783-c61ce39e8f51@kernel.org> <fd7132a4-a016-9bf2-bb08-616f5f9d6e85@kernel.org>
-In-Reply-To: <fd7132a4-a016-9bf2-bb08-616f5f9d6e85@kernel.org>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Fri, 19 Nov 2021 09:10:30 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a3kE49BgyWozXH1rsxUr=ZDH1GM6r+nyeCRfe5r40QD_w@mail.gmail.com>
-Message-ID: <CAK8P3a3kE49BgyWozXH1rsxUr=ZDH1GM6r+nyeCRfe5r40QD_w@mail.gmail.com>
-Subject: Re: [PATCH 5.15 808/917] drm: fb_helper: improve CONFIG_FB dependency
-To:     Jiri Slaby <jirislaby@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        "Acked-by: Jani Nikula" <jani.nikula@intel.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-Provags-ID: V03:K1:ttMnjwJJBKl3Lnjlv/2iiYXIVxb9Jz1XG3ArSohCRTXR/udLr+Z
- 0nITH3ozUK7WR1sv9uRuTHm5ecYKXH3DQUxngbOutltw+PrUbRtVKbbVUY7cveH1SfwXux4
- BZY8d8HoHn7buJHcuOGjaEauxHHy+8GDwl5hMYxQk2g/nZFnmuK6WITtsv5P30AyIne44EE
- Z3sBYyqU8+pF/QOV8JlGQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:akZywUKe9m8=:YbJ2JuBxghYrJmeqCmIQp1
- cpQ8r3HkyhUqK+Yq1+L0yAOZzAzi8KthLoJxJGHVUHvRAQqdCQ84URDzmWiK+k6uF7mg2OS4G
- ZEnnqhJLTsaUFvMDvlmrCG4nUuO0lyPDy/W+mILGsTKcXJ1IVnvrNUN0MS5nQmpxH7qof4VfX
- cFzo3NBv8mdZjMczE3rsLlIypkJV2DErlxKGOBC24JLa41+SbLf7v8QOhD0gH2r/3xAFJ7jY6
- U5iUhYyfNEcgI/BPJMn6WF0uRgMtcuQXLOdg43uqaU2DJEJWUbYbmquk7VdYGyARSQ6axiIMu
- MGkFEe+YeptudLvG5g/ecQPljBqkXjaHzSTsJ2jwmmHE1SIxR6TjZx8nFXwaGzKVjosXBipAo
- eDxo8p31NmrVjxCjpmgZP8hK5H5N8sFhy0pOyHq4KOwCGiq7vSiDCF7eopscyU1JkMl2Rl9Tc
- IHtXy5qMbru45aEnPILlY+dXrIhxuDwEoQHKbYdreiW0hhm2sKjDpT8DVyAtwCuCvBw6SQBOW
- 5fEhajObv2sYvUYJnfyUXa3e7Fv+x1r1htWf4I+aMYn+ejW7rglrKi4RZTa5Hxx/tfTlQ+pZy
- wmPNuICCsAa0Nc3BCEYZEHTasNIAn8dtd6KtFj/+AdJrhU9bH228KL0WjN3PZOqw3MJZIFVuw
- sWlycGpXGXwTMmD0QTsVIqBPYKS7LSProfyKoZQkEoBXgie4HUUFFFGZ1olw6P3hb+uk=
+Content-Type: text/plain
+X-MS-Office365-Filtering-Correlation-Id: 7eacf0fd-b6b0-475b-ef97-08d9ab3440bf
+X-MS-TrafficTypeDiagnostic: AS8PR07MB8374:
+X-Microsoft-Antispam-PRVS: <AS8PR07MB8374951D72008FD248FF8721889C9@AS8PR07MB8374.eurprd07.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:4714;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: jrUDmQAok5ETyOOEbPMcfp9mS96eaOEEQpe2jyAIKEKL7o5bRjt8OhFURlK82HrUP3prOlsaDsx81WTUgEYYNyORlC1mZAysc5cL2//ui1IUtAz7Ky+upc5o4eNXHMvhR+YSk1pvDoGk9/N+8VCuwXUv5aSkC0GweBsFs3DLPKXA12R8saOciw6iT3Dq35jKB0BnCj8VdHy42FgUTDeISoR+Z8lHkQqEUvpQrNKnsjc/869Ux58yBnhSGybPY58GxUKGIyAKz1kNJ84yitLl3SKrdNYjax6qRhax8D7ormO8y6IZrO0gHi6pMDFALVA/6ir8XsuQwBx7M0YXneQIFi9Vbc+LCDUo4YZi/J2pYc/QcJjGa5pEk+QFr/hNQXvVNygnTtXAm2YUoG/ue1MMXlqE9gvnmGYaFqs1nBKD5HvZsRmKyD2/mAE8Srq7HY5HtZB3RQRm2NWjy98GtxTs3dY048C965nTczOVDrs9NJRtscam6qYgyo7FODEqC4qMZxZrmJKTtWGv6g9DkA2xz2DI1krZQO+C/dmjWEx6mI6Vokzvn/pmvrDwdhcNl6RNkQ/2KimHxy9OCcBsObdjUKHy2ESJ2Z2WFN9K+LTLjMO/+L2UrBCzbmNfwuQXamFK2rYrtNbAoI1WvzIKft2bTvRR3NGgKNqDl88fqgjGWgSVso8nL30U3yJOvQDst2KaYE1msjHHc2IS4H1FVsy+xE3i4LxjRcgRSXeF9bVcn6M=
+X-Forefront-Antispam-Report: CIP:131.228.2.8;CTRY:FI;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:fihe3nok0734.emea.nsn-net.net;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(356005)(81166007)(70586007)(36756003)(186003)(8676002)(82960400001)(316002)(70206006)(336012)(508600001)(5660300002)(2616005)(26005)(36860700001)(8936002)(86362001)(4326008)(6916009)(6666004)(2906002)(54906003)(47076005)(1076003)(4744005)(82310400003)(36900700001);DIR:OUT;SFP:1102;
+X-OriginatorOrg: nokia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Nov 2021 08:11:56.1746
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7eacf0fd-b6b0-475b-ef97-08d9ab3440bf
+X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=5d471751-9675-428d-917b-70f44f9630b0;Ip=[131.228.2.8];Helo=[fihe3nok0734.emea.nsn-net.net]
+X-MS-Exchange-CrossTenant-AuthSource: VE1EUR03FT051.eop-EUR03.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR07MB8374
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 19, 2021 at 8:56 AM Jiri Slaby <jirislaby@kernel.org> wrote:
->
-> On 19. 11. 21, 8:50, Jiri Slaby wrote:
-> > On 15. 11. 21, 18:05, Greg Kroah-Hartman wrote:
-> >> From: Arnd Bergmann <arnd@arndb.de>
-> >>
-> >> [ Upstream commit 9d6366e743f37d36ef69347924ead7bcc596076e ]
-> >
-> > Hi,
-> >
-> > this breaks build on openSUSE's armv7hl config:
-> > $ wget -O .config
-> > https://raw.githubusercontent.com/openSUSE/kernel-source/stable/config/armv7hl/default
-> >
-> > $ make -j168 CROSS_COMPILE=arm-suse-linux-gnueabi- ARCH=arm vmlinux
-> > ...
-> >    LD      .tmp_vmlinux.btf
-> > arm-suse-linux-gnueabi-ld: drivers/gpu/drm/panel/panel-simple.o: in
-> > function `panel_simple_probe':
-> > drivers/gpu/drm/panel/panel-simple.c:803: undefined reference to
-> > `drm_panel_dp_aux_backlight'
-> > $ grep -E 'CONFIG_(DRM|FB|DRM_KMS_HELPER|DRM_FBDEV_EMULATION)\>' .config
-> > CONFIG_DRM=y
-> > CONFIG_DRM_KMS_HELPER=m
-> > CONFIG_DRM_FBDEV_EMULATION=y
-> > CONFIG_FB=y
-> >
-> > 5.16-rc1 builds just fine -- investigating why…
->
-> CLearly because the code moved to panel-edp.c. So doing:
-> -CONFIG_DRM_PANEL_EDP=m
-> +CONFIG_DRM_PANEL_EDP=y
-> leads to the same error in that file:
-> arm-suse-linux-gnueabi-ld: drivers/gpu/drm/panel/panel-edp.o: in
-> function `panel_edp_probe':
-> drivers/gpu/drm/panel/panel-edp.c:843: undefined reference to
-> `drm_panel_dp_aux_backlight'
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-Ah right, I ran into a similar thing on my randconfig builds, this is
-what I have
-applied locally but wasn't completely sure about yet, it may need additional
-'select DRM_KMS_CMA_HELPER' to cover all instances:
+Erase can be zeroed in spi_nor_parse_4bait() or
+spi_nor_init_non_uniform_erase_map(). In practice it happened with
+mt25qu256a, which supports 4K, 32K, 64K erases with 3b address commands,
+but only 4K and 64K erase with 4b address commands.
 
-commit 8dd05af5243f3ab968b317ef82b3c0d04079b805
-Author: Arnd Bergmann <arnd@arndb.de>
-Date:   Mon Nov 15 16:54:04 2021 +0100
+Fixes: dc92843159a7 ("mtd: spi-nor: fix erase_type array to indicate current map conf")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+---
+ drivers/mtd/spi-nor/core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-    drm/mipi-dbi: select CONFIG_DRM_KMS_HELPER
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index 88dd090..183ea9d 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -1400,6 +1400,8 @@ spi_nor_find_best_erase_type(const struct spi_nor_erase_map *map,
+ 			continue;
+ 
+ 		erase = &map->erase_type[i];
++		if (!erase->opcode)
++			continue;
+ 
+ 		/* Alignment is not mandatory for overlaid regions */
+ 		if (region->offset & SNOR_OVERLAID_REGION &&
+-- 
+2.10.2
 
-    The driver fails to build when the KMS helpers are disabled:
-
-    ld.lld: error: undefined symbol: drm_gem_fb_get_obj
-    >>> referenced by drm_mipi_dbi.c
-    >>>               gpu/drm/drm_mipi_dbi.o:(mipi_dbi_buf_copy) in
-archive drivers/built-in.a
-    >>> referenced by drm_mipi_dbi.c
-    >>>               gpu/drm/drm_mipi_dbi.o:(mipi_dbi_fb_dirty) in
-archive drivers/built-in.a
-
-    ld.lld: error: undefined symbol: drm_gem_fb_begin_cpu_access
-    >>> referenced by drm_mipi_dbi.c
-    >>>               gpu/drm/drm_mipi_dbi.o:(mipi_dbi_buf_copy) in
-archive drivers/built-in.a
-
-    ld.lld: error: undefined symbol: drm_fb_swab
-    >>> referenced by drm_mipi_dbi.c
-    >>>               gpu/drm/drm_mipi_dbi.o:(mipi_dbi_buf_copy) in
-archive drivers/built-in.a
-
-    ld.lld: error: undefined symbol: drm_fb_xrgb8888_to_rgb565
-    >>> referenced by drm_mipi_dbi.c
-    >>>               gpu/drm/drm_mipi_dbi.o:(mipi_dbi_buf_copy) in
-archive drivers/built-in.a
-
-    ld.lld: error: undefined symbol: drm_fb_memcpy
-    >>> referenced by drm_mipi_dbi.c
-    >>>               gpu/drm/drm_mipi_dbi.o:(mipi_dbi_buf_copy) in
-archive drivers/built-in.a
-
-    This is fairly hard to hit in randconfig drivers, but it eventually
-    did trigger for me in a configuration where all other DRM drivers
-    are loadable modules, but DRM_PANEL_WIDECHIPS_WS2401 was built-in.
-
-    Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-
-diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-index 0039df26854b..a03c2761c5f9 100644
---- a/drivers/gpu/drm/Kconfig
-+++ b/drivers/gpu/drm/Kconfig
-@@ -29,6 +29,7 @@ menuconfig DRM
-
- config DRM_MIPI_DBI
-        tristate
-+       select DRM_KMS_HELPER
-        depends on DRM
-
- config DRM_MIPI_DSI
-diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
-index 431b6e12a81f..17a8d603e7d8 100644
---- a/drivers/gpu/drm/bridge/Kconfig
-+++ b/drivers/gpu/drm/bridge/Kconfig
-@@ -8,7 +8,6 @@ config DRM_BRIDGE
- config DRM_PANEL_BRIDGE
-        def_bool y
-        depends on DRM_BRIDGE
--       depends on DRM_KMS_HELPER
-        select DRM_PANEL
-        help
-          DRM bridge wrapper of DRM panels
-diff --git a/drivers/gpu/drm/panel/Kconfig b/drivers/gpu/drm/panel/Kconfig
-index cfc8d644cedf..40ec20f3552d 100644
---- a/drivers/gpu/drm/panel/Kconfig
-+++ b/drivers/gpu/drm/panel/Kconfig
-@@ -140,9 +140,8 @@ config DRM_PANEL_ILITEK_IL9322
- config DRM_PANEL_ILITEK_ILI9341
-        tristate "Ilitek ILI9341 240x320 QVGA panels"
-        depends on OF && SPI
--       depends on DRM_KMS_HELPER
--       depends on DRM_KMS_CMA_HELPER
-        depends on BACKLIGHT_CLASS_DEVICE
-+       select DRM_KMS_CMA_HELPER
-        select DRM_MIPI_DBI
-        help
-          Say Y here if you want to enable support for Ilitek IL9341
