@@ -2,125 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CD514575AE
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:38:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 318164575E2
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:40:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236842AbhKSRlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 12:41:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42810 "EHLO mail.kernel.org"
+        id S237122AbhKSRmt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 12:42:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236831AbhKSRlh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 12:41:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1156611CC;
-        Fri, 19 Nov 2021 17:38:34 +0000 (UTC)
+        id S237114AbhKSRmc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 12:42:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D513611BF;
+        Fri, 19 Nov 2021 17:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637343515;
-        bh=uWjY/w/k51+YFbDwyzN0vMn6uyKqi3AafaRODPAL8b4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OOkzWbPpj3gw/cx3gED5DDLwDEkhxmPTUEse2wo55+SQXJjp0w/8gnUwQ/SUGAnT+
-         Xl0xXJT8/BGyx1ijSfG7dzy7AgBfOp4wlWrRF0sAhMPSNscQ0+ce3YZVhG2tRLzYMM
-         vz10uZ7/wQZsH+8uM8746sUT8xp2G3JE2Pvw+3cg=
+        s=korg; t=1637343570;
+        bh=2YVwLPmZGWZb3ezW1upsHby5OLwNjv77Vg58smY/6fw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=a3I5XL19G/8GFRk3gbpYc7EgXnvNb8oRXpAO2RFa28VdCAxZ7Hf4t7jrhuh3bNnfa
+         TBvjnpM/ywXYrPGTErW8spWPPqhHziYST+uFrJRCyAIaYaDRLks2j+AirsYVkmg3qy
+         5cCzqGzv4XyHzF16OX4LP/fxBrkFe/SWntKn/gI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Collins <quic_collinsd@quicinc.com>,
-        Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 21/21] thermal: Fix NULL pointer dereferences in of_thermal_ functions
-Date:   Fri, 19 Nov 2021 18:37:56 +0100
-Message-Id: <20211119171444.564139633@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.14 00/15] 5.14.21-rc1 review
+Date:   Fri, 19 Nov 2021 18:38:33 +0100
+Message-Id: <20211119171443.724340448@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211119171443.892729043@linuxfoundation.org>
-References: <20211119171443.892729043@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.21-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.14.21-rc1
+X-KernelTest-Deadline: 2021-11-21T17:14+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
+--------------------
 
-commit 96cfe05051fd8543cdedd6807ec59a0e6c409195 upstream.
+Note, this will be the LAST 5.14.y kernel release.  After this one it
+will be marked end-of-life.  Please move to the 5.15.y tree at this
+point in time.
 
-of_parse_thermal_zones() parses the thermal-zones node and registers a
-thermal_zone device for each subnode. However, if a thermal zone is
-consuming a thermal sensor and that thermal sensor device hasn't probed
-yet, an attempt to set trip_point_*_temp for that thermal zone device
-can cause a NULL pointer dereference. Fix it.
+--------------------
 
- console:/sys/class/thermal/thermal_zone87 # echo 120000 > trip_point_0_temp
- ...
- Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
- ...
- Call trace:
-  of_thermal_set_trip_temp+0x40/0xc4
-  trip_point_temp_store+0xc0/0x1dc
-  dev_attr_store+0x38/0x88
-  sysfs_kf_write+0x64/0xc0
-  kernfs_fop_write_iter+0x108/0x1d0
-  vfs_write+0x2f4/0x368
-  ksys_write+0x7c/0xec
-  __arm64_sys_write+0x20/0x30
-  el0_svc_common.llvm.7279915941325364641+0xbc/0x1bc
-  do_el0_svc+0x28/0xa0
-  el0_svc+0x14/0x24
-  el0_sync_handler+0x88/0xec
-  el0_sync+0x1c0/0x200
+This is the start of the stable review cycle for the 5.14.21 release.
+There are 15 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-While at it, fix the possible NULL pointer dereference in other
-functions as well: of_thermal_get_temp(), of_thermal_set_emul_temp(),
-of_thermal_get_trend().
+Responses should be made by Sun, 21 Nov 2021 17:14:35 +0000.
+Anything received after that time might be too late.
 
-Suggested-by: David Collins <quic_collinsd@quicinc.com>
-Signed-off-by: Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
-Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/thermal/thermal_of.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.21-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
+and the diffstat can be found below.
 
---- a/drivers/thermal/thermal_of.c
-+++ b/drivers/thermal/thermal_of.c
-@@ -89,7 +89,7 @@ static int of_thermal_get_temp(struct th
- {
- 	struct __thermal_zone *data = tz->devdata;
- 
--	if (!data->ops->get_temp)
-+	if (!data->ops || !data->ops->get_temp)
- 		return -EINVAL;
- 
- 	return data->ops->get_temp(data->sensor_data, temp);
-@@ -186,6 +186,9 @@ static int of_thermal_set_emul_temp(stru
- {
- 	struct __thermal_zone *data = tz->devdata;
- 
-+	if (!data->ops || !data->ops->set_emul_temp)
-+		return -EINVAL;
-+
- 	return data->ops->set_emul_temp(data->sensor_data, temp);
- }
- 
-@@ -194,7 +197,7 @@ static int of_thermal_get_trend(struct t
- {
- 	struct __thermal_zone *data = tz->devdata;
- 
--	if (!data->ops->get_trend)
-+	if (!data->ops || !data->ops->get_trend)
- 		return -EINVAL;
- 
- 	return data->ops->get_trend(data->sensor_data, trip, trend);
-@@ -301,7 +304,7 @@ static int of_thermal_set_trip_temp(stru
- 	if (trip >= data->ntrips || trip < 0)
- 		return -EDOM;
- 
--	if (data->ops->set_trip_temp) {
-+	if (data->ops && data->ops->set_trip_temp) {
- 		int ret;
- 
- 		ret = data->ops->set_trip_temp(data->sensor_data, trip, temp);
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.14.21-rc1
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    Revert "ACPI: scan: Release PM resources blocked by unused objects"
+
+Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
+    thermal: Fix NULL pointer dereferences in of_thermal_ functions
+
+Greg Thelen <gthelen@google.com>
+    perf/core: Avoid put_page() when GUP fails
+
+Marc Zyngier <maz@kernel.org>
+    PCI: Add MSI masking quirk for Nvidia ION AHCI
+
+Marc Zyngier <maz@kernel.org>
+    PCI/MSI: Deal with devices lying about their MSI mask capability
+
+Thomas Gleixner <tglx@linutronix.de>
+    PCI/MSI: Destroy sysfs before freeing entries
+
+Sven Schnelle <svens@stackframe.org>
+    parisc/entry: fix trace test in syscall exit path
+
+Nicholas Flintham <nick@flinny.org>
+    Bluetooth: btusb: Add support for TP-Link UB500 Adapter
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    bootconfig: init: Fix memblock leak in xbc_make_cmdline()
+
+Xie Yongji <xieyongji@bytedance.com>
+    loop: Use blk_validate_block_size() to validate block size
+
+Xie Yongji <xieyongji@bytedance.com>
+    block: Add a helper to validate the block size
+
+Kees Cook <keescook@chromium.org>
+    fortify: Explicitly disable Clang support
+
+David Woodhouse <dwmw@amazon.co.uk>
+    KVM: Fix steal time asm constraints
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "drm: fb_helper: fix CONFIG_FB dependency"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "drm: fb_helper: improve CONFIG_FB dependency"
+
+
+-------------
+
+Diffstat:
+
+ Makefile                     |  4 ++--
+ arch/parisc/kernel/entry.S   |  2 +-
+ arch/x86/kvm/x86.c           |  6 +++---
+ drivers/acpi/glue.c          | 25 -------------------------
+ drivers/acpi/internal.h      |  1 -
+ drivers/acpi/scan.c          |  6 ------
+ drivers/block/loop.c         | 17 ++---------------
+ drivers/bluetooth/btusb.c    |  4 ++++
+ drivers/gpu/drm/Kconfig      |  5 +++--
+ drivers/pci/msi.c            | 27 +++++++++++++++------------
+ drivers/pci/quirks.c         |  6 ++++++
+ drivers/thermal/thermal_of.c |  9 ++++++---
+ include/linux/blkdev.h       |  8 ++++++++
+ include/linux/pci.h          |  2 ++
+ init/main.c                  |  1 +
+ kernel/events/core.c         | 10 +++++-----
+ security/Kconfig             |  3 +++
+ 17 files changed, 61 insertions(+), 75 deletions(-)
 
 
