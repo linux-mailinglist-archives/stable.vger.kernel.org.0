@@ -2,98 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55156456D07
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 11:12:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCDB7456D32
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 11:23:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229896AbhKSKPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 05:15:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57148 "EHLO
+        id S232087AbhKSK02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 05:26:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229879AbhKSKPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 05:15:47 -0500
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA942C061574
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 02:12:45 -0800 (PST)
-Received: by mail-pf1-x42b.google.com with SMTP id 8so8992489pfo.4
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 02:12:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=xdMnQBLsjA/JGQWK7OBCayAXSz+gCmIXh9MFYVVCuU0=;
-        b=cPJ/jrA5deZRTeyHThGgFEB761zHs4QoSJNgkj5kzD1KjF5Ksm8svvMFSolsarsRUN
-         E8zdkVltG+MZJT8fRxA4NmBACnRTDd2CEohGghiggnwXpNrx/6vmQS+SrXm+tA/J+rPu
-         7nuqL4oe6laNtsRR/ECm3ZYWL9/oVanyurtFlwRWyVR5YxB4+rIOc4wew5OyXqLfpfaf
-         zH4ou2g9pJ5LRZ/aY3i65qXE+v5TqkakrV+0sgFdh14WQFgHRh/6qJXST1NRkaCctYH3
-         QqDfmOB62opvckorKaPULySzVQyXfP0Cbq0yj7rnGsHZzUnCAEn/GviI4rUhHTaiRd2m
-         OyjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=xdMnQBLsjA/JGQWK7OBCayAXSz+gCmIXh9MFYVVCuU0=;
-        b=tsZl/MHw0gbSxhk2YwyfkIM7V+3rZ7JAxXakYAdj24An3Ca93aD6EYbNPyvVNGQS3X
-         KqcbOlePs8FgCO3yIcQ8gk1ppOWk4wJUcgBFV5wHfXQFmdqCXWVx2mBXPCTnclNKYNqf
-         VwyjhKtVoSfQ94JCvXCiX64vipSgdxmczQ0lEcrHGFQFmQLiQip7wLY4rIQSwL+kNfQl
-         ulAEB5Gc2yjZvDuNMOERceVOVNjRu6JMyam2sXivY8vxREaJyfB/SyOyAo3MmP34ud9c
-         g/xosM6NSDsdxaFO78DcDSiSpT+1Rjg8Wn1NswWuvTqgoIzQGw+raDsKP0hWrBopabr3
-         kerA==
-X-Gm-Message-State: AOAM532dVNFlCryE/Zan2C71vhgD2AwuHgHrJGiUwvbgJGcnsfa8jaR9
-        msty3mRUmkKfTpraxHM2rIyF+KOgtRUz8Q6awuU=
-X-Google-Smtp-Source: ABdhPJymSL5b4FyEwDQ7PQ6nC9HHgvr6LJb0t28Qyc9y1WrMWtibASLTKi9BDD0H5idGZgWGlm/W3mhx1Tueglevc2c=
-X-Received: by 2002:a05:6a00:1583:b0:49f:dc1c:a0fe with SMTP id
- u3-20020a056a00158300b0049fdc1ca0femr21736879pfk.46.1637316765062; Fri, 19
- Nov 2021 02:12:45 -0800 (PST)
+        with ESMTP id S231321AbhKSK02 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 05:26:28 -0500
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C47ABC061574;
+        Fri, 19 Nov 2021 02:23:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=gvdXTg/W2n3kKbuv3dIGKinzbO87/pI65V1In1bjrsM=; b=KdaE+z6SbZ935E8lO4NM5utHGv
+        UsEYEvPWBYYvqGkj+Q3LxJTAfoxrH5w4Rxn0XwaQhkxKtLVlFh8ptyxG+ZflDJTyHjGf/1pRhEdUL
+        BrN0uwUEI5YUsVjHSN7ZtWWF/hMTfnLclgMXlTKZLH63iefadLKm4eZbnU3DgM+sV7rFfZOWXnX4V
+        W6IAFdffjS+ffsXJpbiid/jpm78LVb+2facCvmTn9rHX3SjuDlo/elkNFLp6mu5dymTv5Zjs0yRNc
+        iuoXWyrcpnycu1wiUDa7RvgM1lG36MQ+eReEgJZy3MfzwQaPgduLtM68jsoq1BliaKr/XBtXRqmNw
+        dpvBf58g==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mo12h-00GsQM-4O; Fri, 19 Nov 2021 10:22:52 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 2415930001B;
+        Fri, 19 Nov 2021 11:22:49 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id D724C30AF36F8; Fri, 19 Nov 2021 11:22:49 +0100 (CET)
+Date:   Fri, 19 Nov 2021 11:22:49 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Qi Zheng <zhengqi.arch@bytedance.com>
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Holger Hoffst??tte <holger@applied-asynchrony.com>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Justin Forbes <jmforbes@linuxtx.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] x86: Pin task-stack in __get_wchan()
+Message-ID: <YZd6+SFZVzTeX45f@hirez.programming.kicks-ass.net>
+References: <YZV02RCRVHIa144u@fedora64.linuxtx.org>
+ <55c7b316-e03d-9e91-d74c-fea63c469b3b@applied-asynchrony.com>
+ <CAHk-=wjHbKfck1Ws4Y0pUZ7bxdjU9eh2WK0EFsv65utfeVkT9Q@mail.gmail.com>
+ <20211118080627.GH174703@worktop.programming.kicks-ass.net>
+ <20211118081852.GM174730@worktop.programming.kicks-ass.net>
+ <YZYfYOcqNqOyZ8Yo@hirez.programming.kicks-ass.net>
+ <YZZC3Shc0XA/gHK9@hirez.programming.kicks-ass.net>
+ <20211119020427.2y5esq2czquwmvwc@treble>
+ <YZduix64h64cDa7R@hirez.programming.kicks-ass.net>
+ <759cd319-990f-af23-2f1c-aba55d0768b8@bytedance.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6a20:4291:b0:5d:61e5:6747 with HTTP; Fri, 19 Nov 2021
- 02:12:44 -0800 (PST)
-Reply-To: sandrine024ni@gmail.com
-From:   "Mrs. Sandrine Nikiema Daouda." <mrsalfathqiyamah1@gmail.com>
-Date:   Fri, 19 Nov 2021 10:12:44 +0000
-Message-ID: <CAC-3Ayz2TczUJ5Taf3JR1fLQqpp=tEB24oBe27H6r09UH1PH3Q@mail.gmail.com>
-Subject: Hi its me.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <759cd319-990f-af23-2f1c-aba55d0768b8@bytedance.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings,
-How are you and your lovely family doing i hope you are all in good health?
-i have a business proposal in good faith hoping that i will rely on you in
-this transaction that requires absolute confidentiality and of great
-interest and benefit to our both families which i request your cooperation
-in my desire to find a foreign partner who will assist me in relocation and
-investment of a fixed deposit for 36 months, valued of ($19.3 Million)
-Nineteen Million Three Hundred Thousand US Dollars at the bank where i work
-and i was his account officer, in-which the maturity date for this deposit
-contract was 27th of September 2010. Sadly MR. ALI MOISI EL-SAAD was among
-the death victims in the September 2009 earthquake in Indonesia that left
-over 1,200 people dead while he was there on a business trip.
+On Fri, Nov 19, 2021 at 06:02:50PM +0800, Qi Zheng wrote:
 
-Meanwhile, i don=E2=80=99t know you in person but i am 100% sure that we ca=
-n join
-our head together and achieve this great opportunity because i got your
-contact address through my Country E-mail Data Directory while searching
-for a credible and reliable foreign partner to share this information with
-which i am counting on your sense of confidentiality as i desire that you
-keep this business transaction top secret only to yourself because this is
-huge amount of money involved.
+> This implementation is very similar to stack_trace_save_tsk(), maybe we
+> can just move stack_trace_save_tsk() out of CONFIG_STACKTRACE and reuse
+> it.
 
-That=E2=80=99s why i am seeking your cooperation to present you as the one =
-to
-benefit from this fund as the next of kin, so that my bank headquarters
-will pay the funds into your bank account. I have done enough inside the
-bank arrangement and i only have to put in your details into the
-information network in the bank computers and document and reflect you as
-his next of kin beneficiary. If you concur with this proposal, I intend for
-you to retain 40% of the funds while 60% will be mine.
+No, we want to move away from the stack_trace_*() API because it has
+very unclear semantics and various arch implementations differ in
+details.
 
-Therefore, if you are interested and willing for us to achieve this great
-opportunity kindly get back to me without further delay for more details on
-how we could proceed and achieve these goals successfully.
-
-Thanks and my regards to you and your lovely family.
-Mrs. Sandrine Nikiema Daouda.
-My private Phone number on WhatsApp +226- 64-19-73-97.
+There's a patch that untangles arch_stack_walk*() from CONFIG_STACKTRACE
+and we can eventually use that.
