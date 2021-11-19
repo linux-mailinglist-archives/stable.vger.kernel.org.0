@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D76457351
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 17:44:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96241457353
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 17:44:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236608AbhKSQrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 11:47:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34324 "EHLO
+        id S236634AbhKSQrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 11:47:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232938AbhKSQrq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 11:47:46 -0500
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78796C061574
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:44:44 -0800 (PST)
-Received: by mail-pf1-x42b.google.com with SMTP id o4so9801045pfp.13
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:44:44 -0800 (PST)
+        with ESMTP id S236641AbhKSQru (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 11:47:50 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA40C061574
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:44:49 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id p17so9141745pgj.2
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 08:44:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
         h=subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding:cc:from:to;
-        bh=5ChM9rojwfVZwb854uhoQhujli+NJle96xwmBErH+IU=;
-        b=DaCfNGu+rNT7plyiOhA2fSQzYoF3ErJeSq6lLAt9u7p5aRck5wu/2q8lyTSKC9FwL7
-         8mt3lmeZ6OpVHgLgtMAyDz44a78JkOoCWTRVB65syJhyKhGddI9tWRbuaIqKuryMM0cZ
-         qpq20nC50jElNtQrUfuJwwqeLesDO6dbKe1Tk0VUFmW5xpDzSVEDztR9ZFBBxGRk+1sN
-         hCav4BtrNRiyAnus7AcC4kWfXf+7Fo34FkZdSuFFCy1/QvGiXIm54hcm8YKlUrHoMpWH
-         fO8FTlpHAJZMFYf3dPqlwJFPtUlHBygsGhK2YhmcMHN6plY73ISQXSDvOHtdnu2inQoR
-         dLRQ==
+        bh=SB6EgCTuUg8MJlUo+ml24NJI9nw+lDZjDHqU1EIISBQ=;
+        b=xZBTX2fkClhsrAhAhHvzzo3gipmQJBe9KDtvFo2Al+JGruCpMlsfpmz+hHWMrOvMfv
+         /CN0knlgAf9BQT/GfzTUnEpeNc+zQn6thds6pyjL/qxPhfTGCWm1TajlN3mY/hMKq3G1
+         gbZy/bTOStCDE4xY7mN8NfhIwa49nLhVohe5Dtu56Y8EzjxkOus4igegCZM+ePXheS0U
+         Y98Lac6ygTleo0oICOyMK/h8hDT5ayBcO5YwLn8al7NrFJQgymrth90UFq4ug6FB7HrZ
+         Tk1G/fjf6w+EAGKJo1wChfVJcHIW/wTXacZUSPEScWlYuXufKzgXSx8NWcGvMGxfggsE
+         uhJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding:cc:from:to;
-        bh=5ChM9rojwfVZwb854uhoQhujli+NJle96xwmBErH+IU=;
-        b=RWUR7Bf3QWLcnJuoVzl6nRZ80vfzIitYiWZFyyent6yE12w6oHJYMU767G5DnSBqGt
-         QYwbMifA1+AACXGYHgx8Pgu0iUekYwnhTOUkMnOY+8MjLHM92/PBYvOEt+YRVbhVjxQk
-         nwdV+0+J4Gb2o7AP/N3a3OidQ++BoWp4GBeYdB9JtmdPWXZVeIP0fzeobthkufcr8OsP
-         EWryFQOJxt9dtbwOeiHesMfQt9AQY3takTIOBZW8KC4u6FiDEpZdCVZHwWgNmTmYjFK3
-         IFOyFGNLbseQDsNaUwC6UPRC4/PGoCGxsL50DKnAdzOAi2Nm4NSbuBHFkiZeXcp7fneF
-         CemA==
-X-Gm-Message-State: AOAM531M+u3+Dhz+tzZ7v6rhW0crQGLSB5mZFlS1tTOtysfqSb+YAZLv
-        N4OwOke4AYAjyC10PYZ1OCAMvA==
-X-Google-Smtp-Source: ABdhPJyf466y1OSj6NIxhcvh6K8TQYHu4W9tg//KV4Y0C3o/44ZnxTLiwoKCUqKKG8aX01yCdYyQZw==
-X-Received: by 2002:a63:ce54:: with SMTP id r20mr18197963pgi.95.1637340284094;
-        Fri, 19 Nov 2021 08:44:44 -0800 (PST)
+        bh=SB6EgCTuUg8MJlUo+ml24NJI9nw+lDZjDHqU1EIISBQ=;
+        b=NXeDEIFCDVTX/ypWZ2syBR0VyV1gcm8cIUvEoec/sH1GVYii60LBXrGr3HEjN7nqOo
+         npORuFR/RlddJLGPAob3JCk+bzQsTYHtmvQ+5t309e2e7iaxUeoZTA1F0KXgXa1UHWI6
+         w+zf2MnWtt4jxHMc45fV7mtkOntJwXccqyGA5JldhJCevL3EDXpL3rkZwAQzkZnsuM38
+         Wdw7ZkG679DJSVOChOAv09JhJqLVUFSE6/Kb9HJjfMKqQ78q+JR4wjeNVFQmmrgaswGv
+         oOEL+VFaqjakUmr+TAxAODLHz50ZRJSW6JVkw8vcICwn9Xt6yPEmrHZ3zQrzZlVk4yx5
+         +JIQ==
+X-Gm-Message-State: AOAM5303XldeSViIQ4fORmx0zjLyYe+RSnQhQkEUPrjQPtrBbgUDfbd6
+        s4v1V0Ro8sFRUAVdhGsqukterg==
+X-Google-Smtp-Source: ABdhPJzh8J4KCx4EO8kuEnK1oVC5fTwdJ/I9PGqYQcKUN1CBeBpJvZzXndIvprNjCMgwhkZQgvDsMA==
+X-Received: by 2002:aa7:9af6:0:b0:4a2:fa4a:714c with SMTP id y22-20020aa79af6000000b004a2fa4a714cmr23848682pfp.40.1637340285451;
+        Fri, 19 Nov 2021 08:44:45 -0800 (PST)
 Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
-        by smtp.gmail.com with ESMTPSA id i76sm194874pgd.69.2021.11.19.08.44.43
+        by smtp.gmail.com with ESMTPSA id v10sm195914pfu.123.2021.11.19.08.44.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Nov 2021 08:44:43 -0800 (PST)
-Subject: [PATCH 01/12] RISC-V: defconfigs: Set CONFIG_FB=y, for FB console
-Date:   Fri, 19 Nov 2021 08:44:02 -0800
-Message-Id: <20211119164413.29052-2-palmer@rivosinc.com>
+        Fri, 19 Nov 2021 08:44:44 -0800 (PST)
+Subject: [PATCH 02/12] RISC-V: MAXPHYSMEM_2GB doesn't depend on CMODEL_MEDLOW
+Date:   Fri, 19 Nov 2021 08:44:03 -0800
+Message-Id: <20211119164413.29052-3-palmer@rivosinc.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20211119164413.29052-1-palmer@rivosinc.com>
 References: <20211119164413.29052-1-palmer@rivosinc.com>
@@ -70,43 +70,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Palmer Dabbelt <palmer@rivosinc.com>
 
-We have CONFIG_FRAMEBUFFER_CONSOLE=y in the defconfigs, but that depends
-on CONFIG_FB so it's not actually getting set.  I'm assuming most users
-on real systems want a framebuffer console, so this enables CONFIG_FB to
-allow that to take effect.
+For non-relocatable kernels we need to be able to link the kernel at
+approximately PAGE_OFFSET, thus requiring medany (as medlow requires the
+code to be linked within 2GiB of 0).  The inverse doesn't apply, though:
+since medany code can be linked anywhere it's fine to link it close to
+0, so we can support the smaller memory config.
 
-Fixes: 33c57c0d3c67 ("RISC-V: Add a basic defconfig")
+Fixes: de5f4b8f634b ("RISC-V: Define MAXPHYSMEM_1GB only for RV32")
 Cc: stable@vger.kernel.org
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
----
- arch/riscv/configs/defconfig      | 1 +
- arch/riscv/configs/rv32_defconfig | 1 +
- 2 files changed, 2 insertions(+)
 
-diff --git a/arch/riscv/configs/defconfig b/arch/riscv/configs/defconfig
-index ef473e2f503b..11de2ab9ed6e 100644
---- a/arch/riscv/configs/defconfig
-+++ b/arch/riscv/configs/defconfig
-@@ -78,6 +78,7 @@ CONFIG_DRM=m
- CONFIG_DRM_RADEON=m
- CONFIG_DRM_NOUVEAU=m
- CONFIG_DRM_VIRTIO_GPU=m
-+CONFIG_FB=y
- CONFIG_FRAMEBUFFER_CONSOLE=y
- CONFIG_USB=y
- CONFIG_USB_XHCI_HCD=y
-diff --git a/arch/riscv/configs/rv32_defconfig b/arch/riscv/configs/rv32_defconfig
-index 6e9f12ff968a..05b6f17adbc1 100644
---- a/arch/riscv/configs/rv32_defconfig
-+++ b/arch/riscv/configs/rv32_defconfig
-@@ -73,6 +73,7 @@ CONFIG_POWER_RESET=y
- CONFIG_DRM=y
- CONFIG_DRM_RADEON=y
- CONFIG_DRM_VIRTIO_GPU=y
-+CONFIG_FB=y
- CONFIG_FRAMEBUFFER_CONSOLE=y
- CONFIG_USB=y
- CONFIG_USB_XHCI_HCD=y
+---
+
+I found this when going through the savedefconfig diffs for the K210
+defconfigs.  I'm not entirely sure they're doing the right thing here
+(they should probably be setting CMODEL_LOW to take advantage of the
+better code generation), but I don't have any way to test those
+platforms so I don't want to change too much.
+---
+ arch/riscv/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 821252b65f89..61f64512dcde 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -280,7 +280,7 @@ choice
+ 		depends on 32BIT
+ 		bool "1GiB"
+ 	config MAXPHYSMEM_2GB
+-		depends on 64BIT && CMODEL_MEDLOW
++		depends on 64BIT
+ 		bool "2GiB"
+ 	config MAXPHYSMEM_128GB
+ 		depends on 64BIT && CMODEL_MEDANY
 -- 
 2.32.0
 
