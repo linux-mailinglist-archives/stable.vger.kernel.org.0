@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 404C64575AA
-	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:38:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E4BB4575AD
+	for <lists+stable@lfdr.de>; Fri, 19 Nov 2021 18:38:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236821AbhKSRlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 12:41:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42810 "EHLO mail.kernel.org"
+        id S236839AbhKSRli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 12:41:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236873AbhKSRla (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 12:41:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C752361A7D;
-        Fri, 19 Nov 2021 17:38:27 +0000 (UTC)
+        id S236897AbhKSRle (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 12:41:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 766FF61A3A;
+        Fri, 19 Nov 2021 17:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637343508;
-        bh=BL8/H3y2TQZOpJ+/pRUPYvUquyBGPO8kEdeg39HOqrU=;
+        s=korg; t=1637343512;
+        bh=esR2LXy6XG3o68hiFSJP3m/z1TwVzyzslyrCVFn25jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jXTiDxtfVybbLaLkuSsOkuNZYmgVhbYPlkETEaMFvtf9j/x2GhOk5/dFfsOji/0ju
-         P3/RC7gJWk2Zngd7/p72WJIaPc813qSEVE8SWxTRg3nDRgeQUPrR/oW/InIujUo074
-         Ax3vcB4rRs8W0DODy+kIsEhV5O+NIL3mie3Ad2Ys=
+        b=t6W4EYd2zStZ+HglMNxH20pzvBgC/HZRK5jw+6tmNaUAjus4X98pegb4yJX/tBv+/
+         OEcrOoQhghTbzoImGH/JehHot3o8ifwcYpcQ2wJUpsw25z86PQQSVbhPZyHF5tFgRT
+         +tN7ltsaI2cn4DvBemYcbYQFaS9jGrjZa+GGpYb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 5.10 19/21] scripts/lld-version.sh: Rewrite based on upstream ld-version.sh
-Date:   Fri, 19 Nov 2021 18:37:54 +0100
-Message-Id: <20211119171444.503251464@linuxfoundation.org>
+        stable@vger.kernel.org, Greg Thelen <gthelen@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.10 20/21] perf/core: Avoid put_page() when GUP fails
+Date:   Fri, 19 Nov 2021 18:37:55 +0100
+Message-Id: <20211119171444.534512068@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211119171443.892729043@linuxfoundation.org>
 References: <20211119171443.892729043@linuxfoundation.org>
@@ -39,96 +39,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Greg Thelen <gthelen@google.com>
 
-This patch is for linux-5.10.y only.
+commit 4716023a8f6a0f4a28047f14dd7ebdc319606b84 upstream.
 
-When scripts/lld-version.sh was initially written, it did not account
-for the LLD_VENDOR cmake flag, which changes the output of ld.lld's
---version flag slightly.
+PEBS PERF_SAMPLE_PHYS_ADDR events use perf_virt_to_phys() to convert PMU
+sampled virtual addresses to physical using get_user_page_fast_only()
+and page_to_phys().
 
-Without LLD_VENDOR:
+Some get_user_page_fast_only() error cases return false, indicating no
+page reference, but still initialize the output page pointer with an
+unreferenced page. In these error cases perf_virt_to_phys() calls
+put_page(). This causes page reference count underflow, which can lead
+to unintentional page sharing.
 
-$ ld.lld --version
-LLD 14.0.0 (compatible with GNU linkers)
+Fix perf_virt_to_phys() to only put_page() if get_user_page_fast_only()
+returns a referenced page.
 
-With LLD_VENDOR:
-
-$ ld.lld --version
-Debian LLD 14.0.0 (compatible with GNU linkers)
-
-As a result, CONFIG_LLD_VERSION is messed up and configuration values
-that are dependent on it cannot be selected:
-
-scripts/lld-version.sh: 20: printf: LLD: expected numeric value
-scripts/lld-version.sh: 20: printf: LLD: expected numeric value
-scripts/lld-version.sh: 20: printf: LLD: expected numeric value
-init/Kconfig:52:warning: 'LLD_VERSION': number is invalid
-.config:11:warning: symbol value '00000' invalid for LLD_VERSION
-.config:8800:warning: override: CPU_BIG_ENDIAN changes choice state
-
-This was fixed upstream by commit 1f09af062556 ("kbuild: Fix
-ld-version.sh script if LLD was built with LLD_VENDOR") in 5.12 but that
-was done to ld-version.sh after it was massively rewritten in
-commit 02aff8592204 ("kbuild: check the minimum linker version in
-Kconfig").
-
-To avoid bringing in that change plus its prerequisites and fixes, just
-modify lld-version.sh to make it similar to the upstream ld-version.sh,
-which handles ld.lld with or without LLD_VENDOR and ld.bfd without any
-errors.
-
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Fixes: fc7ce9c74c3ad ("perf/core, x86: Add PERF_SAMPLE_PHYS_ADDR")
+Signed-off-by: Greg Thelen <gthelen@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20211111021814.757086-1-gthelen@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/lld-version.sh |   35 ++++++++++++++++++++++++++---------
- 1 file changed, 26 insertions(+), 9 deletions(-)
+ kernel/events/core.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/scripts/lld-version.sh
-+++ b/scripts/lld-version.sh
-@@ -6,15 +6,32 @@
- # Print the linker version of `ld.lld' in a 5 or 6-digit form
- # such as `100001' for ld.lld 10.0.1 etc.
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -7036,7 +7036,6 @@ void perf_output_sample(struct perf_outp
+ static u64 perf_virt_to_phys(u64 virt)
+ {
+ 	u64 phys_addr = 0;
+-	struct page *p = NULL;
  
--linker_string="$($* --version)"
-+set -e
- 
--if ! ( echo $linker_string | grep -q LLD ); then
-+# Convert the version string x.y.z to a canonical 5 or 6-digit form.
-+get_canonical_version()
-+{
-+	IFS=.
-+	set -- $1
+ 	if (!virt)
+ 		return 0;
+@@ -7055,14 +7054,15 @@ static u64 perf_virt_to_phys(u64 virt)
+ 		 * If failed, leave phys_addr as 0.
+ 		 */
+ 		if (current->mm != NULL) {
++			struct page *p;
 +
-+	# If the 2nd or 3rd field is missing, fill it with a zero.
-+	echo $((10000 * $1 + 100 * ${2:-0} + ${3:-0}))
-+}
-+
-+# Get the first line of the --version output.
-+IFS='
-+'
-+set -- $(LC_ALL=C "$@" --version)
-+
-+# Split the line on spaces.
-+IFS=' '
-+set -- $1
-+
-+while [ $# -gt 1 -a "$1" != "LLD" ]; do
-+	shift
-+done
-+if [ "$1" = LLD ]; then
-+	echo $(get_canonical_version ${2%-*})
-+else
- 	echo 0
--	exit 1
- fi
+ 			pagefault_disable();
+-			if (get_user_page_fast_only(virt, 0, &p))
++			if (get_user_page_fast_only(virt, 0, &p)) {
+ 				phys_addr = page_to_phys(p) + virt % PAGE_SIZE;
++				put_page(p);
++			}
+ 			pagefault_enable();
+ 		}
 -
--VERSION=$(echo $linker_string | cut -d ' ' -f 2)
--MAJOR=$(echo $VERSION | cut -d . -f 1)
--MINOR=$(echo $VERSION | cut -d . -f 2)
--PATCHLEVEL=$(echo $VERSION | cut -d . -f 3)
--printf "%d%02d%02d\\n" $MAJOR $MINOR $PATCHLEVEL
+-		if (p)
+-			put_page(p);
+ 	}
+ 
+ 	return phys_addr;
 
 
