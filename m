@@ -2,94 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46F04457E37
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:39:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B8E457E36
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:39:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233195AbhKTMms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230381AbhKTMms (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 20 Nov 2021 07:42:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43870 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235422AbhKTMmr (ORCPT
+        with ESMTP id S233195AbhKTMmr (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 07:42:47 -0500
 Received: from dvalin.narfation.org (dvalin.narfation.org [IPv6:2a00:17d8:100::8b1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAC33C061574
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CF58C061748
         for <stable@vger.kernel.org>; Sat, 20 Nov 2021 04:39:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
         s=20121; t=1637411982;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=wtxbE2ShimJI2SYkU0dcLWnYZNoIH7UwvIqoz/9d5Cc=;
-        b=PR9byry0AjRWtNLQHZmii/TOZTfT352Bo6IjIx06nTnhmF4RNXJK2rXaD7mBMK8nW55UkE
-        8ihf3XSNEinQ/xvBA4sYk4ASaC3ETvS/s7F+f6CcdlU/Uk51vFon2LoPzuZxNTgdjmcy3x
-        plK24LOnasEW8rGDm371i3kNDQ739/k=
+        bh=Tapa3Y205oYvhgGZ3fKaBByTWKzaol61opjN713tCK0=;
+        b=X+c0Qnu4EHuH0UOu5hCC+99WY4p8/yxBnHtHqUIRFddOdGebJ4xCks3cb7OLe/ixpxCL/e
+        bfjdIEo3yXgwEhFOpO2x5q8dz7DpJUM1ZflMY4365deg/fn8aJAyzBAN9sUBm2EfedsLpP
+        NK3LpZt4wH4QO4FFqLbqcqBREkHJ7DU=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
 Cc:     b.a.t.m.a.n@lists.open-mesh.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        =?UTF-8?q?Leonardo=20M=C3=B6rlein?= <me@irrelefant.net>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sven Eckelmann <sven@narfation.org>
-Subject: [PATCH 4.4 02/11] batman-adv: Fix multicast TT issues with bogus ROAM flags
-Date:   Sat, 20 Nov 2021 13:39:30 +0100
-Message-Id: <20211120123939.260723-3-sven@narfation.org>
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.4 03/11] batman-adv: Prevent duplicated softif_vlan entry
+Date:   Sat, 20 Nov 2021 13:39:31 +0100
+Message-Id: <20211120123939.260723-4-sven@narfation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211120123939.260723-1-sven@narfation.org>
 References: <20211120123939.260723-1-sven@narfation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <linus.luessing@c0d3.blue>
+commit 94cb82f594ed86be303398d6dfc7640a6f1d45d4 upstream.
 
-commit a44ebeff6bbd6ef50db41b4195fca87b21aefd20 upstream.
+The function batadv_softif_vlan_get is responsible for adding new
+softif_vlan to the softif_vlan_list. It first checks whether the entry
+already is in the list or not. If it is, then the creation of a new entry
+is aborted.
 
-When a (broken) node wrongly sends multicast TT entries with a ROAM
-flag then this causes any receiving node to drop all entries for the
-same multicast MAC address announced by other nodes, leading to
-packet loss.
+But the lock for the list is only held when the list is really modified.
+This could lead to duplicated entries because another context could create
+an entry with the same key between the check and the list manipulation.
 
-Fix this DoS vector by only storing TT sync flags. For multicast TT
-non-sync'ing flag bits like ROAM are unused so far anyway.
+The check and the manipulation of the list must therefore be in the same
+locked code section.
 
-Fixes: 1d8ab8d3c176 ("batman-adv: Modified forwarding behaviour for multicast packets")
-Reported-by: Leonardo Mörlein <me@irrelefant.net>
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Fixes: 5d2c05b21337 ("batman-adv: add per VLAN interface attribute framework")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.4 backported: adjust context, use old style to access flags ]
+[ bp: 4.4 backport: switch back to atomic_t based reference counting. ]
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 ---
- net/batman-adv/translation-table.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/batman-adv/soft-interface.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/net/batman-adv/translation-table.c b/net/batman-adv/translation-table.c
-index 5f976485e8c6..208cf66868e9 100644
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -1426,7 +1426,8 @@ static bool batadv_tt_global_add(struct batadv_priv *bat_priv,
- 		ether_addr_copy(common->addr, tt_addr);
- 		common->vid = vid;
+diff --git a/net/batman-adv/soft-interface.c b/net/batman-adv/soft-interface.c
+index ff693887ea82..f1e2e7e33500 100644
+--- a/net/batman-adv/soft-interface.c
++++ b/net/batman-adv/soft-interface.c
+@@ -539,15 +539,20 @@ int batadv_softif_create_vlan(struct batadv_priv *bat_priv, unsigned short vid)
+ 	struct batadv_softif_vlan *vlan;
+ 	int err;
  
--		common->flags = flags & (~BATADV_TT_SYNC_MASK);
-+		if (!is_multicast_ether_addr(common->addr))
-+			common->flags = flags & (~BATADV_TT_SYNC_MASK);
++	spin_lock_bh(&bat_priv->softif_vlan_list_lock);
++
+ 	vlan = batadv_softif_vlan_get(bat_priv, vid);
+ 	if (vlan) {
+ 		batadv_softif_vlan_free_ref(vlan);
++		spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
+ 		return -EEXIST;
+ 	}
  
- 		tt_global_entry->roam_at = 0;
- 		/* node must store current time in case of roaming. This is
-@@ -1489,7 +1490,8 @@ static bool batadv_tt_global_add(struct batadv_priv *bat_priv,
- 		 * TT_CLIENT_WIFI, therefore they have to be copied in the
- 		 * client entry
- 		 */
--		tt_global_entry->common.flags |= flags & (~BATADV_TT_SYNC_MASK);
-+		if (!is_multicast_ether_addr(common->addr))
-+			tt_global_entry->common.flags |= flags & (~BATADV_TT_SYNC_MASK);
+ 	vlan = kzalloc(sizeof(*vlan), GFP_ATOMIC);
+-	if (!vlan)
++	if (!vlan) {
++		spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
+ 		return -ENOMEM;
++	}
  
- 		/* If there is the BATADV_TT_CLIENT_ROAM flag set, there is only
- 		 * one originator left in the list and we previously received a
+ 	vlan->bat_priv = bat_priv;
+ 	vlan->vid = vid;
+@@ -555,16 +560,19 @@ int batadv_softif_create_vlan(struct batadv_priv *bat_priv, unsigned short vid)
+ 
+ 	atomic_set(&vlan->ap_isolation, 0);
+ 
++	hlist_add_head_rcu(&vlan->list, &bat_priv->softif_vlan_list);
++	spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
++
++	/* batadv_sysfs_add_vlan cannot be in the spinlock section due to the
++	 * sleeping behavior of the sysfs functions and the fs_reclaim lock
++	 */
+ 	err = batadv_sysfs_add_vlan(bat_priv->soft_iface, vlan);
+ 	if (err) {
+-		kfree(vlan);
++		/* ref for the list */
++		batadv_softif_vlan_free_ref(vlan);
+ 		return err;
+ 	}
+ 
+-	spin_lock_bh(&bat_priv->softif_vlan_list_lock);
+-	hlist_add_head_rcu(&vlan->list, &bat_priv->softif_vlan_list);
+-	spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
+-
+ 	/* add a new TT local entry. This one will be marked with the NOPURGE
+ 	 * flag
+ 	 */
 -- 
 2.30.2
 
