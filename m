@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADB58457E65
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:41:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3C68457E66
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237239AbhKTMoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Nov 2021 07:44:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44254 "EHLO
+        id S237231AbhKTMoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Nov 2021 07:44:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237231AbhKTMoE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 07:44:04 -0500
+        with ESMTP id S237259AbhKTMoG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 07:44:06 -0500
 Received: from dvalin.narfation.org (dvalin.narfation.org [IPv6:2a00:17d8:100::8b1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61C93C061574
-        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 04:41:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EB28C06173E
+        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 04:41:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
         s=20121; t=1637412060;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=t7wbxovLoX7LRwlLOel7o2Ymj+dtVX9lRg/4gewPTQk=;
-        b=1r5RT5rWdN4r6tse23U/puZ/UqDahbQaUyy3Pew9hKKnmd3AYVAjxI7pdPKrEDUwHWjI46
-        2Vo8RPA27yju39rbn1WYdjdDo0jqKBVO4o5G+l20zm1tVI0OPXMl5QGzq8tKCRxu+WM1Bi
-        bTbspJfiwaCCHgQJmgzHa3rfzr1hpfY=
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ZpdsrkCS3uAi4Z7sRXf+IT4tYwKyqPJtQ31TxLsuk5M=;
+        b=KxMMN2uBySDradiGEHSnHkaERoyCS0+E+DpFKFFe9PSZSNtu9xXzm7gp1MFigsiBtk1Mr0
+        UuNwV7SXeRXU7MyATS1Qf71qhKyzl2/7NMufXv4bsc1Xlob6a8XHH67jyrsajiUaJRYHhn
+        ttBRm/sZYt5fWxrTEhb/NCfG5O4/9ow=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
 Cc:     b.a.t.m.a.n@lists.open-mesh.org,
-        Sven Eckelmann <sven@narfation.org>
-Subject: [PATCH 5.4 0/3] batman-adv: Fixes for stable/linux-4.19.y
-Date:   Sat, 20 Nov 2021 13:40:50 +0100
-Message-Id: <20211120124053.261156-1-sven@narfation.org>
+        Sven Eckelmann <sven@narfation.org>,
+        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 5.4 1/3] batman-adv: Consider fragmentation for needed_headroom
+Date:   Sat, 20 Nov 2021 13:40:51 +0100
+Message-Id: <20211120124053.261156-2-sven@narfation.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211120124053.261156-1-sven@narfation.org>
+References: <20211120124053.261156-1-sven@narfation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -38,35 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+commit 4ca23e2c2074465bff55ea14221175fecdf63c5f upstream.
 
-I went through  all changes in batman-adv since v4.19 with a Fixes: line
-and checked whether they were backported to the LTS kernels. The ones which
-weren't ported and applied to this branch are now part of this patch series.
+If a batman-adv packets has to be fragmented, then the original batman-adv
+packet header is not stripped away. Instead, only a new header is added in
+front of the packet after it was split.
 
-For this kernel version, I only found following three patches:
+This size must be considered to avoid cost intensive reallocations during
+the transmission through the various device layers.
 
-* batman-adv: Consider fragmentation for needed_headroom
-* batman-adv: Reserve needed_*room for fragments
-* batman-adv: Don't always reallocate the fragmentation skb head
+Fixes: 7bca68c7844b ("batman-adv: Add lower layer needed_(head|tail)room to own ones")
+Reported-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+---
+ net/batman-adv/hard-interface.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-which could in some circumstances cause packet loss but which were created
-to fix high CPU load/low throughput problems. But I've added them here
-anyway because the corresponding VXLAN patches were also added to stable.
-And some stable kernels also got these fixes a while back.
-
-Kind regards,
-	Sven
-
-Sven Eckelmann (3):
-  batman-adv: Consider fragmentation for needed_headroom
-  batman-adv: Reserve needed_*room for fragments
-  batman-adv: Don't always reallocate the fragmentation skb head
-
- net/batman-adv/fragmentation.c  | 26 ++++++++++++++++----------
- net/batman-adv/hard-interface.c |  3 +++
- 2 files changed, 19 insertions(+), 10 deletions(-)
-
+diff --git a/net/batman-adv/hard-interface.c b/net/batman-adv/hard-interface.c
+index afb52282d5bd..18e644f3cb30 100644
+--- a/net/batman-adv/hard-interface.c
++++ b/net/batman-adv/hard-interface.c
+@@ -554,6 +554,9 @@ static void batadv_hardif_recalc_extra_skbroom(struct net_device *soft_iface)
+ 	needed_headroom = lower_headroom + (lower_header_len - ETH_HLEN);
+ 	needed_headroom += batadv_max_header_len();
+ 
++	/* fragmentation headers don't strip the unicast/... header */
++	needed_headroom += sizeof(struct batadv_frag_packet);
++
+ 	soft_iface->needed_headroom = needed_headroom;
+ 	soft_iface->needed_tailroom = lower_tailroom;
+ }
 -- 
 2.30.2
 
