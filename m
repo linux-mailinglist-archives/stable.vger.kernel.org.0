@@ -2,128 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC9E457AC9
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 04:32:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1835C457AF5
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 04:56:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233722AbhKTDf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 22:35:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37728 "EHLO
+        id S236152AbhKTD7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 22:59:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233478AbhKTDf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 22:35:26 -0500
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CEE8C061574
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 19:32:24 -0800 (PST)
-Received: by mail-pg1-x52f.google.com with SMTP id 28so10204588pgq.8
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 19:32:24 -0800 (PST)
+        with ESMTP id S236091AbhKTD7v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 22:59:51 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0609C06173E
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 19:56:48 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id d27so21486030wrb.6
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 19:56:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=mRU8xvlyYyKxpFEQ4rx1kBkXurVSbZnyVnntEuj8By4=;
-        b=M2+3jgGCUWUX8dpwD/rsFaK1v+OYaOCA2cuDfYR4R5Kgc2A5QqXhbRgnjRPHbdCt85
-         8q7jn4940zE+LEOkQNZG6xfmcSvMtBj6vjHeFovmcgDWykGBxn53lI3mnpehKvm/N4vU
-         k7Nsxs4kkuMU3vKj/BIpuKMcsF5Tc9tInflKJFyc6nsJbHWNh+z5kYRsVeA/pwTsHtN3
-         SIpokXjHbD24VuEsmvlwxP/PhC2Un6pPelNbnJKMv4Yx8x8PmE4cD4a/vR1/lbkJzexZ
-         UqXfpv8Y8UP7ZyL3okqll9E7+onZrJ01+qOm2IIlExknsoDJFnJFxtmJOGE1e4BSrnmx
-         Th+w==
+        d=brainfault-org.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=M02PfsqksLPda89nlrI5PxBf9KrvqVjaq7MtFU6lXW4=;
+        b=1EKDk2SnM+bUg+Im8VsXxIZJwVRqeo9beponAjLTV/vhNdMWHU5+kOE7/zyB9K+q5g
+         2dbfw5bRuZWRboaQyAhWIXtl/ERVgnEDW4OG/yZEqdatGag+tGWRUofT+asXPr02qjjf
+         m7e3svTTvXsmNy1jflwuHBZqyahyqDyaMYNYpPYwuSS6CL1pL/i4eyHkcVjK+IZPmuV3
+         NrT9vGReddULSLOC0mImoWdpD7+eyJAFesX35/szAWBunR5qRiDiX9LqYGmIsTN4DPbY
+         JoRL37Ip7wahWy4BAX9H8tvLjd1x9srJo5lFrzBvzoBQVpE36VsC00etiH0nMqZURxvz
+         73Pg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=mRU8xvlyYyKxpFEQ4rx1kBkXurVSbZnyVnntEuj8By4=;
-        b=QVjG4SXIpsdndSeDvyijD1Tf/pBlRdHtCi1K4joZYtm4ftAPckGHdCm+gfdXpppFg6
-         CPfGhezXF5hyu/A5Ms7KC4locyyACTbKPXvu5kKftHpNKoV+T1HZIQuMhmjcQAXlaLw+
-         LY5pjVpg0cCDHMbsoWYE8bMz6+y4tsealA1CZlfyb+ENRMS+0P7FD9PceRNoxTMpp6L9
-         L1LNWrj2jP0o1CJfoCQ+VULB6qECjMtN2yIW4g5vPg6/6xGfyMNV4GmCZnE0CiPzU8nV
-         2V4qrFdQQqw7KWEDWYEbwHOXfrpH2UucMmTCBl9RBlDtnYmr3LX6eNCAIyKzycVUe0Uk
-         NpXA==
-X-Gm-Message-State: AOAM532g+3XlCb6W85RyVKGHIt/jk64F12BMqgiFjmbVySLqZHNDPAfs
-        9ZpX5YK1ue2ob1uiRbX9+ys6ob0wi3cfjmid
-X-Google-Smtp-Source: ABdhPJwr8334SgQjTREuaBQb9oezR1OzgXRlvrhf93sspWBoq+1CV+/YFwZ8pIBDHTZsUzSSV42s5Q==
-X-Received: by 2002:aa7:8b14:0:b0:4a3:a714:30ed with SMTP id f20-20020aa78b14000000b004a3a71430edmr11523781pfd.2.1637379143482;
-        Fri, 19 Nov 2021 19:32:23 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i33sm774579pgi.71.2021.11.19.19.32.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Nov 2021 19:32:23 -0800 (PST)
-Message-ID: <61986c47.1c69fb81.23b87.3a6d@mx.google.com>
-Date:   Fri, 19 Nov 2021 19:32:23 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=M02PfsqksLPda89nlrI5PxBf9KrvqVjaq7MtFU6lXW4=;
+        b=D368GCr1n5rbbouo3JzN13+NMEczkpBCzCH4Kxln9ZnID71WM68sbMDlmlhVs/PC9o
+         UefvSb31zAiU2O3SertdXllzei3poiUwQQTRwNreTiiw6xwoxdke8G6OaVbp8ldhJ78H
+         cSmziHgIjVJtW7HZHi2Etzq+Xubrbl5RrIMIcwAtz87hOrYjPt4Q9CFOvVF5N37ha20V
+         BUAUJwoXvryCm9GjkxsRpVAJAc2lyycKqezgIe7Ry/0k3wwuhIHHorMr/EeCFXT1+3xq
+         RwRNNkNxx3jYDNImrFxz2Kpn0ARhbkSck4JJGv1qUlhLavGpp0Q8EsqyCCB7R3kikvgY
+         QYcQ==
+X-Gm-Message-State: AOAM531PnmW+K4jaciEusS8Z7TRFH2dgGuJAEP5W3yPPIjR44kv0qZPA
+        zyMWi4ptykWGZorzYM+OvGX0cHCk5KIRuEJWDptcIFeqYWA=
+X-Google-Smtp-Source: ABdhPJzGZ2FRjxzdL13lLUsnFVAOo8OzdTpxDEYsb8XDAjJ7NFcBANTW6pXcFbMnXX/A9+MkpASidyBFA9nV0l5ri4w=
+X-Received: by 2002:adf:8165:: with SMTP id 92mr14513881wrm.199.1637380607106;
+ Fri, 19 Nov 2021 19:56:47 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.3-21-g9f5b4a585c82d
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.15.y
-Subject: stable-rc/linux-5.15.y baseline: 136 runs,
- 1 regressions (v5.15.3-21-g9f5b4a585c82d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20211119164413.29052-1-palmer@rivosinc.com> <20211119164413.29052-2-palmer@rivosinc.com>
+In-Reply-To: <20211119164413.29052-2-palmer@rivosinc.com>
+From:   Anup Patel <anup@brainfault.org>
+Date:   Sat, 20 Nov 2021 09:26:35 +0530
+Message-ID: <CAAhSdy1wGprfMAKQg8CZOtg79Lu_fCuw_TjkAqpPHLYkn6ZZaw@mail.gmail.com>
+Subject: Re: [PATCH 01/12] RISC-V: defconfigs: Set CONFIG_FB=y, for FB console
+To:     Palmer Dabbelt <palmer@rivosinc.com>
+Cc:     linux-riscv <linux-riscv@lists.infradead.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Anup Patel <anup.patel@wdc.com>,
+        Heinrich Schuchardt <heinrich.schuchardt@canonical.com>,
+        Atish Patra <atish.patra@wdc.com>,
+        Bin Meng <bin.meng@windriver.com>,
+        Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>, axboe@kernel.dk,
+        "linux-kernel@vger.kernel.org List" <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.15.y baseline: 136 runs, 1 regressions (v5.15.3-21-g9f5b4=
-a585c82d)
+On Fri, Nov 19, 2021 at 10:14 PM Palmer Dabbelt <palmer@rivosinc.com> wrote:
+>
+> From: Palmer Dabbelt <palmer@rivosinc.com>
+>
+> We have CONFIG_FRAMEBUFFER_CONSOLE=y in the defconfigs, but that depends
+> on CONFIG_FB so it's not actually getting set.  I'm assuming most users
+> on real systems want a framebuffer console, so this enables CONFIG_FB to
+> allow that to take effect.
+>
+> Fixes: 33c57c0d3c67 ("RISC-V: Add a basic defconfig")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 
-Regressions Summary
--------------------
+Looks good to me.
 
-platform                     | arch  | lab           | compiler | defconfig=
- | regressions
------------------------------+-------+---------------+----------+----------=
--+------------
-mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
- | 1          =
+Reviewed-by: Anup Patel <anup@brainfault.org>
 
+Regards,
+Anup
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
-nel/v5.15.3-21-g9f5b4a585c82d/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.15.y
-  Describe: v5.15.3-21-g9f5b4a585c82d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9f5b4a585c82d545acbc198579edfa8991532019 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
- | regressions
------------------------------+-------+---------------+----------+----------=
--+------------
-mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/619833c5c97820e3e3e551d5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
--21-g9f5b4a585c82d/arm64/defconfig/gcc-10/lab-collabora/baseline-mt8183-kuk=
-ui-jacuzzi-juniper-sku16.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
--21-g9f5b4a585c82d/arm64/defconfig/gcc-10/lab-collabora/baseline-mt8183-kuk=
-ui-jacuzzi-juniper-sku16.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/619833c5c97820e3e3e55=
-1d6
-        new failure (last pass: v5.15.3) =
-
- =20
+> ---
+>  arch/riscv/configs/defconfig      | 1 +
+>  arch/riscv/configs/rv32_defconfig | 1 +
+>  2 files changed, 2 insertions(+)
+>
+> diff --git a/arch/riscv/configs/defconfig b/arch/riscv/configs/defconfig
+> index ef473e2f503b..11de2ab9ed6e 100644
+> --- a/arch/riscv/configs/defconfig
+> +++ b/arch/riscv/configs/defconfig
+> @@ -78,6 +78,7 @@ CONFIG_DRM=m
+>  CONFIG_DRM_RADEON=m
+>  CONFIG_DRM_NOUVEAU=m
+>  CONFIG_DRM_VIRTIO_GPU=m
+> +CONFIG_FB=y
+>  CONFIG_FRAMEBUFFER_CONSOLE=y
+>  CONFIG_USB=y
+>  CONFIG_USB_XHCI_HCD=y
+> diff --git a/arch/riscv/configs/rv32_defconfig b/arch/riscv/configs/rv32_defconfig
+> index 6e9f12ff968a..05b6f17adbc1 100644
+> --- a/arch/riscv/configs/rv32_defconfig
+> +++ b/arch/riscv/configs/rv32_defconfig
+> @@ -73,6 +73,7 @@ CONFIG_POWER_RESET=y
+>  CONFIG_DRM=y
+>  CONFIG_DRM_RADEON=y
+>  CONFIG_DRM_VIRTIO_GPU=y
+> +CONFIG_FB=y
+>  CONFIG_FRAMEBUFFER_CONSOLE=y
+>  CONFIG_USB=y
+>  CONFIG_USB_XHCI_HCD=y
+> --
+> 2.32.0
+>
