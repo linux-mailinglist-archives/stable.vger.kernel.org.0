@@ -2,126 +2,364 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F7E457F10
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 16:50:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 874CE457F5D
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 17:07:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237415AbhKTPxK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Nov 2021 10:53:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56874 "EHLO
+        id S237726AbhKTQKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Nov 2021 11:10:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237364AbhKTPxK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 10:53:10 -0500
-Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B82D2C061574
-        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 07:50:06 -0800 (PST)
-Received: by mail-io1-xd2e.google.com with SMTP id e144so16981509iof.3
-        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 07:50:06 -0800 (PST)
+        with ESMTP id S231523AbhKTQKM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 11:10:12 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 902D7C06173E
+        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 08:07:08 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id v1so22667589edx.2
+        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 08:07:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=eibhgHyEnDty6prD7kw2qZTGk1uH223Sz/QXKL+fHLw=;
-        b=qduvfPFm+wn34/TMcZJMGWNbfFXlpl479rK3+Yt+z3+F6CsVe5b+/HvkdS1rmwOf5C
-         sk/UbJiRjaVpFIoJBkFj5SSZAR9cIMzltJ4X1hdQc3dlvCxl/bMwISRcmoPWAuhLyCcT
-         OE3Z93qqsRGA8UU1AejNRG0Sd3fLqNuA4Uu+cuiga8Z2gF7m8J4SbzypXUKVFzCPXRsL
-         jTM448p/h+lARR802UbZJ8FNsagSpscSpgELoDWd+Tt1QTmZYsKEausBMu6Gu547QpGl
-         QU8t/sk24vBFcGdaReWs4NS+47w5F7Ihb3wljhJNPjkrEr6PwzIUvfksn7mkklXW9Qlh
-         YNfw==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=dONUrPBQwEgXgwz1i2/FBCEms8zfe8jywFdMB4mBXn4=;
+        b=p02MlVcnpAL59IC1CFThAJanmgBNwLNMFmClxr4XxyrmJIAJCiG4QEvcaeMhVux5KK
+         PltstlpjhjeZGhySZdst1n/xCeLtTb28nS9CMQrtpnqJheuZ6+oGUpiQWukqMQFFcbhv
+         3/HxF+qbxFBCV3uuM5FDNJyVBLvXDltHS4FbFc2+6RSEh0WUzjD82P0wKyRa9vHtxNBF
+         6EoMZae0QC/fKJ0mSoOftz0BqAJLRWkoPH/y9Bl9l4IlqV18V0sPUHYFaKeJktaB6my5
+         IDkrR4DWznO23uPFGvkBUeQqH3v9ncao3D4CmDRlZzpZo344/LhxQvfICeMdMI78LJ++
+         ZCGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=eibhgHyEnDty6prD7kw2qZTGk1uH223Sz/QXKL+fHLw=;
-        b=lhwwSnB7IGxac6ziRzR8EGsk+kNzDaGzx0OWmHZCs8XcXcmXceGwCLRtfKi1uNfP/o
-         uequePlo9H00xO7ODk+xLZuGTqR+otIt2IKjxD0yHGiY4dAXIFTvH+A8u8bIoYjiduoX
-         /S9c8D5jfMQvnVZ/d1TmvJUO/1D5W0nUcajttDEhDTC8m8Gyl1rmGg3KNG3ebV3yrqf3
-         C0+eCljoKmIGm6o30DeIxMywL4aPofczqYrO8caY60uksms7ZjaxlrZV5aSZ09CMVlPe
-         6qU/eIsAn/HZPEg54qKg9BS/VhEktMYsE9kJdQ8tB4EqCTEfAA5r9Siv0EGfFLO8uHdj
-         QnWw==
-X-Gm-Message-State: AOAM531haftXRG91oSpVyWvispyhyDNiHvpAAfvy3+1mR8Kef6bSeQLb
-        uF8Q8XVvv718WI+5PoHZ4esYIXgr3NBRrCFbOYE=
-X-Google-Smtp-Source: ABdhPJwAUudHrrBO4ZjCd/JYbTxd3//H7u1EfLMc4kTceoX5BbfZm8+hyaL4ARg3uZuzkvu7LsRUZbmz1UsohyObWf0=
-X-Received: by 2002:a02:c908:: with SMTP id t8mr35415834jao.55.1637423406199;
- Sat, 20 Nov 2021 07:50:06 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=dONUrPBQwEgXgwz1i2/FBCEms8zfe8jywFdMB4mBXn4=;
+        b=XMwRZ/nwyc+HE9Rszk7dsf6irAo2UGEcNBQh6+oNtlXteWoDYt5U0BgmXGlGAAbMIn
+         hlFCDA9Tgg5edEY79xwxKgP01OVa+/SpoMhzJbVsS1RrYZ7KSh6ani5yQUE6EBQ8yu4x
+         KTD0OBwCRYvoOBx5YNP/FUPsGPDzyd525MWQ4/hJNyWHH8H01EFjfPb5HV+INVJAzfb6
+         XAwuxwhMPud4jdDvaXtvNISAqtcp1049aMMGYxkwoZTCBwPwKk3l/t/056pO8LwBqDzu
+         JXLYaBCelFofGTeMD9T1pXZA38Z/nsjjKY/+rLKTq7q02d4ErTAqKGMztIg4M8hv3KPh
+         bX9w==
+X-Gm-Message-State: AOAM532x6k9AYpOqt6lEc4jZhyU4LAjFvELkHjVtdfP5wWJQtjvKz24s
+        gYbctugnOvSTp13DUv9ysxPD1BmMn21yQ6GxheKuSA==
+X-Google-Smtp-Source: ABdhPJzu/dUAVr4ckZlvVgHmm7HoIdGr2Te9Xczlhu0xFEnuPIRlpGJ06pYxucIhNrkkwpJA6w87b+1dKb1sa4bYJHM=
+X-Received: by 2002:a05:6402:4311:: with SMTP id m17mr20517745edc.103.1637424426738;
+ Sat, 20 Nov 2021 08:07:06 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:a05:6622:2749:0:0:0:0 with HTTP; Sat, 20 Nov 2021 07:50:05
- -0800 (PST)
-Reply-To: msbelinaya892@gmail.com
-From:   msbelinaya <deligiozelenadeligioz@gmail.com>
-Date:   Sat, 20 Nov 2021 15:50:05 +0000
-Message-ID: <CAHeiC3QKSHncoagntazRq5EA_kir0tqkZu3vqv=NET3R7FXUww@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
+References: <20211119171443.892729043@linuxfoundation.org> <106740f9-4efc-f1ac-fd42-bf8afc994333@linaro.org>
+In-Reply-To: <106740f9-4efc-f1ac-fd42-bf8afc994333@linaro.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 20 Nov 2021 21:36:55 +0530
+Message-ID: <CA+G9fYv4s0oE4w5ushnLwYrC4=fWh6uK2_umnU15o2bEZWZt2g@mail.gmail.com>
+Subject: Re: [PATCH 5.10 00/21] 5.10.81-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>
+Cc:     linux-kernel@vger.kernel.org, f.fainelli@gmail.com,
+        torvalds@linux-foundation.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        shuah@kernel.org, linux@roeck-us.net,
+        =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>,
+        Ondrej Zary <linux@zary.sk>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ich biete meine Freundschaft an und glaube, dass Sie mich mit gutem
-Herzen akzeptieren werden. Ich wurde gedr=C3=A4ngt, Sie zu kontaktieren und
-zu sehen, wie wir einander am besten unterst=C3=BCtzen k=C3=B6nnen. Ich bin=
- Frau
-Kodjovi Hegbor aus der T=C3=BCrkei und arbeite als Divisionsleiterin f=C3=
-=BCr
-Operationen bei der StandardBNP bank limited Turkey . Ich glaube, es
-ist der Wille Gottes, dass ich Ihnen jetzt begegnen werde. Ich habe
-ein wichtiges gesch=C3=A4ftliches Gespr=C3=A4ch, das ich mit Ihnen teilen
-m=C3=B6chte, von dem ich glaube, dass es Sie interessiert, da es mit Ihrem
-Nachnamen in Verbindung steht und Sie davon profitieren werden.
++ Peter Zijlstra
++ Thomas Gleixner
++ Borislav Petkov
++ Ondrej Zary
 
- Im Jahr 2006 hat ein B=C3=BCrger Ihres Landes ein Nicht-Residentenkonto
-f=C3=BCr 36 Monate des Kalenders im Wert von =C2=A38.400.000,00 bei meiner =
-Bank
-eingerichtet. Das Ablaufdatum f=C3=BCr diesen Einlagenvertrag war der 16.
-Januar 2009. Leider starb er w=C3=A4hrend einer Gesch=C3=A4ftsreise bei ein=
-em
-t=C3=B6dlichen Erdbeben am 12. Mai 2008 in Sichuan, China, bei dem
-mindestens 68.000 Menschen ums Leben kamen.
 
-Das Management meiner Bank hat noch nichts von seinem Tod erfahren,
-ich wusste davon, weil er mein Freund war und ich sein Kontof=C3=BChrer
-war, als das Konto vor meiner Bef=C3=B6rderung er=C3=B6ffnet wurde. Jedoch =
-Herr
- erw=C3=A4hnte bei der Kontoer=C3=B6ffnung keine n=C3=A4chsten Verwandten/E=
-rben, und
-er war nicht verheiratet und hatte keine Kinder. Letzte Woche hat
-meine Bankdirektion mich gebeten, Anweisungen zu geben, was mit seinen
-Geldern zu tun ist, wenn der Vertrag verl=C3=A4ngert werden soll.
+On Sat, 20 Nov 2021 at 20:57, Daniel D=C3=ADaz <daniel.diaz@linaro.org> wro=
+te:
+>
+> Hello!
+>
+> On 11/19/21 11:37 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.81 release.
+> > There are 21 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sun, 21 Nov 2021 17:14:35 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >       https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.81-rc1.gz
+> > or in the git tree and branch at:
+> >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> >
+> > -------------
+> > Pseudo-Shortlog of commits:
+> >
+> > Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> >      Linux 5.10.81-rc1
+> [...]> Peter Zijlstra <peterz@infradead.org>
+> >      x86/iopl: Fake iopl(3) CLI/STI usage
 
-Ich wei=C3=9F, dass dies passieren wird, und deshalb habe ich nach einem
-Mittel gesucht, um mit der Situation umzugehen, denn wenn meine
-Bankdirektoren wissen, dass sie tot sind und keinen Erben haben,
-werden sie das Geld f=C3=BCr ihren pers=C3=B6nlichen Gebrauch nehmen, also =
-Ich
-m=C3=B6chte nicht, dass so etwas passiert. Das war, als ich Ihren Nachnamen
-sah, ich war gl=C3=BCcklich und suche jetzt Ihre Mitarbeit, um Sie als Next
-of Kin/Erbe des Kontos zu pr=C3=A4sentieren, da Sie den gleichen Nachnamen
-wie er haben und meine Bankzentrale das Konto freigeben wird f=C3=BCr dich.
-Es besteht kein Risiko; die Transaktion wird im Rahmen einer legitimen
-Vereinbarung ausgef=C3=BChrt, die Sie vor Rechtsverletzungen sch=C3=BCtzt.
+This is due to  ^ new kernel code + old test case (Test case needs to
+be updated)
 
-Es ist besser, dass wir das Geld beanspruchen, als es den
-Bankdirektoren zu erlauben, es zu nehmen, sie sind bereits reich. Ich
-bin kein gieriger Mensch, daher schlage ich vor, dass wir das Geld zu
-gleichen Teilen teilen, 50/50% auf beide Parteien. Mein Anteil wird
-mir helfen, mein eigenes Unternehmen zu gr=C3=BCnden und den Erl=C3=B6s f=
-=C3=BCr
-wohlt=C3=A4tige Zwecke zu verwenden, was mein Traum war.
+> [...]
+>
+> Results from Linaro's test farm.
+> Regressions found on x86_64 and i386, on iopl. Here's an excerpt of the s=
+elftest:
+>
+>    [    0.000000] Linux version 5.10.81-rc1 (oe-user@oe-host) (x86_64-lin=
+aro-linux-gcc (GCC) 7.3.0, GNU ld (GNU Binutils) 2.30.0.20180208) #1 SMP Fr=
+i Nov 19 19:48:55 UTC 2021
+> [...]
+>    [  170.351838] traps: iopl_64[2769] attempts to use CLI/STI, pretendin=
+g it's a NOP, ip:400dde in iopl_64[400000+2000]
+> [...]
+>    # selftests: x86: iopl_64
+>    # [FAIL]     CLI worked
+>    # [FAIL]     STI worked
 
-Teilen Sie mir Ihre Meinung zu meinem Vorschlag mit, bitte ich brauche
-wirklich Ihre Hilfe bei dieser Transaktion. Ich habe Sie ausgew=C3=A4hlt,
-um mir zu helfen, nicht durch mein eigenes Tun, meine Liebe, sondern
-durch Gott wollte ich, dass Sie wissen, dass ich mir Zeit zum Beten
-genommen habe =C3=BCber diese Mitteilung, bevor ich Sie jemals kontaktiert
-habe, teilen Sie mir Ihre Meinung dazu mit und behandeln Sie diese
-Informationen bitte als STRENG GEHEIM. Nach Erhalt Ihrer Antwort,
-ausschlie=C3=9Flich =C3=BCber meine pers=C3=B6nliche E-Mail-Adresse,
-msbelinaya892@gmail.com
-gibt Ihnen Details zur Transaktion. Und eine Kopie der
-Einlagenbescheinigung des Fonds sowie die Gr=C3=BCndungsurkunde der
-Gesellschaft, die den Fonds erstellt hat.
-Gott segne, in Erwartung Ihrer dringenden Antwort
-Mit freundlichen Gr=C3=BC=C3=9Fen
-Frau Kodjovi Hegbor
-msbelinaya892@gmail.com
+This failure was detected on linux next and the later test case has been fi=
+xed.
+The Following patch could fix this problem across 5.10, 5.14 and 5.15.
+
+Patch details,
+---
+selftests/x86/iopl: Adjust to the faked iopl CLI/STI usage
+
+Commit in Fixes changed the iopl emulation to not #GP on CLI and STI
+because it would break some insane luserspace tools which would toggle
+interrupts.
+
+The corresponding selftest would rely on the fact that executing CLI/STI
+would trigger a #GP and thus detect it this way but since that #GP is
+not happening anymore, the detection is now wrong too.
+
+Extend the test to actually look at the IF flag and whether executing
+those insns had any effect on it. The STI detection needs to have the
+fact that interrupts were previously disabled, passed in so do that from
+the previous CLI test, i.e., STI test needs to follow a previous CLI one
+for it to make sense.
+
+Fixes: b968e84b509d ("x86/iopl: Fake iopl(3) CLI/STI usage")
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20211030083939.13073-1-bp@alien8.de
+
+
+
+>    # [OK]       outb to 0x80 worked
+>    # [OK]       outb to 0x80 worked
+>    # [OK]       outb to 0xed failed
+>    #    child: set IOPL to 3
+>    # [RUN]      child: write to 0x80
+>    # [FAIL]     CLI worked
+>    # [FAIL]     STI worked
+>    # [OK]       outb to 0x80 worked
+>    # [OK]       outb to 0x80 worked
+>    # [OK]       outb to 0xed failed
+>    # [OK]       Child succeeded
+>    # [RUN]      parent: write to 0x80 (should fail)
+>    # [OK]       outb to 0x80 failed
+>    # [OK]       CLI faulted
+>    # [OK]       STI faulted
+>    #    iopl(3)
+>    #    Drop privileges
+>    # [RUN]      iopl(3) unprivileged but with IOPL=3D=3D3
+>    # [RUN]      iopl(0) unprivileged
+>    # [RUN]      iopl(3) unprivileged
+>    # [OK]       Failed as expected
+>    not ok 7 selftests: x86: iopl_64 # exit=3D1
+>
+> The baseline kernel (v5.10.80) exhibited this output:
+>    # selftests: x86: iopl_64
+>    # [OK]       CLI faulted
+>    # [OK]       STI faulted
+>    # [OK]       outb to 0x80 worked
+>    # [OK]       outb to 0x80 worked
+>    # [OK]       outb to 0xed failed
+>    #    child: set IOPL to 3
+>    # [RUN]      child: write to 0x80
+>    # [OK]       CLI faulted
+>    # [OK]       STI faulted
+>    # [OK]       outb to 0x80 worked
+>    # [OK]       outb to 0x80 worked
+>    # [OK]       outb to 0xed failed
+>    # [OK]       Child succeeded
+>    # [RUN]      parent: write to 0x80 (should fail)
+>    # [OK]       outb to 0x80 failed
+>    # [OK]       CLI faulted
+>    # [OK]       STI faulted
+>    #    iopl(3)
+>    #    Drop privileges
+>    # [RUN]      iopl(3) unprivileged but with IOPL=3D=3D3
+>    # [RUN]      iopl(0) unprivileged
+>    # [RUN]      iopl(3) unprivileged
+>    # [OK]       Failed as expected
+>    ok 7 selftests: x86: iopl_64
+>
+>
+> ## Build
+> * kernel: 5.10.81-rc1
+> * git: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-sta=
+ble-rc.git', 'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc=
+']
+> * git branch: linux-5.10.y
+> * git commit: ed689bd1df46a07911fffa509cd06c5ec7beb9c1
+> * git describe: v5.10.80-22-ged689bd1df46
+> * test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-=
+5.10.y/build/v5.10.80-22-ged689bd1df46
+>
+> ## Regressions (compared to v5.10.80)
+> * i386, kselftest-x86
+>    - x86.iopl_32
+>
+> * qemu_x86_64, kselftest-x86
+>    - x86.iopl_64
+>
+> * x86, kselftest-x86
+>    - x86.iopl_64
+>
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>
+>
+> ## No fixes (compared to v5.10.80)
+>
+> ## Test result summary
+> total: 91125, pass: 77560, fail: 574, skip: 12243, xfail: 748
+>
+> ## Build Summary
+> * arc: 10 total, 10 passed, 0 failed
+> * arm: 259 total, 259 passed, 0 failed
+> * arm64: 37 total, 37 passed, 0 failed
+> * dragonboard-410c: 1 total, 1 passed, 0 failed
+> * hi6220-hikey: 1 total, 1 passed, 0 failed
+> * i386: 36 total, 36 passed, 0 failed
+> * juno-r2: 1 total, 1 passed, 0 failed
+> * mips: 34 total, 34 passed, 0 failed
+> * parisc: 12 total, 12 passed, 0 failed
+> * powerpc: 54 total, 46 passed, 8 failed
+> * riscv: 24 total, 24 passed, 0 failed
+> * s390: 18 total, 18 passed, 0 failed
+> * sh: 24 total, 24 passed, 0 failed
+> * sparc: 12 total, 12 passed, 0 failed
+> * x15: 1 total, 1 passed, 0 failed
+> * x86: 1 total, 1 passed, 0 failed
+> * x86_64: 37 total, 37 passed, 0 failed
+>
+> ## Test suites summary
+> * fwts
+> * igt-gpu-tools
+> * kselftest-android
+> * kselftest-bpf
+> * kselftest-breakpoints
+> * kselftest-capabilities
+> * kselftest-cgroup
+> * kselftest-clone3
+> * kselftest-core
+> * kselftest-cpu-hotplug
+> * kselftest-cpufreq
+> * kselftest-drivers
+> * kselftest-efivarfs
+> * kselftest-filesystems
+> * kselftest-firmware
+> * kselftest-fpu
+> * kselftest-futex
+> * kselftest-gpio
+> * kselftest-intel_pstate
+> * kselftest-ipc
+> * kselftest-ir
+> * kselftest-kcmp
+> * kselftest-kexec
+> * kselftest-kvm
+> * kselftest-lib
+> * kselftest-livepatch
+> * kselftest-membarrier
+> * kselftest-memfd
+> * kselftest-memory-hotplug
+> * kselftest-mincore
+> * kselftest-mount
+> * kselftest-mqueue
+> * kselftest-net
+> * kselftest-netfilter
+> * kselftest-nsfs
+> * kselftest-openat2
+> * kselftest-pid_namespace
+> * kselftest-pidfd
+> * kselftest-proc
+> * kselftest-pstore
+> * kselftest-ptrace
+> * kselftest-rseq
+> * kselftest-rtc
+> * kselftest-seccomp
+> * kselftest-sigaltstack
+> * kselftest-size
+> * kselftest-splice
+> * kselftest-static_keys
+> * kselftest-sync
+> * kselftest-sysctl
+> * kselftest-tc-testing
+> * kselftest-timens
+> * kselftest-timers
+> * kselftest-tmpfs
+> * kselftest-tpm2
+> * kselftest-user
+> * kselftest-vm
+> * kselftest-x86
+> * kselftest-zram
+> * kunit
+> * kvm-unit-tests
+> * libgpiod
+> * libhugetlbfs
+> * linux-log-parser
+> * ltp-cap_bounds-tests
+> * ltp-commands-tests
+> * ltp-containers-tests
+> * ltp-controllers-tests
+> * ltp-cpuhotplug-tests
+> * ltp-crypto-tests
+> * ltp-cve-tests
+> * ltp-dio-tests
+> * ltp-fcntl-locktests-tests
+> * ltp-filecaps-tests
+> * ltp-fs-tests
+> * ltp-fs_bind-tests
+> * ltp-fs_perms_simple-tests
+> * ltp-fsx-tests
+> * ltp-hugetlb-tests
+> * ltp-io-tests
+> * ltp-ipc-tests
+> * ltp-math-tests
+> * ltp-mm-tests
+> * ltp-nptl-tests
+> * ltp-open-posix-tests
+> * ltp-pty-tests
+> * ltp-sched-tests
+> * ltp-securebits-tests
+> * ltp-syscalls-tests
+> * ltp-tracing-tests
+> * network-basic-tests
+> * packetdrill
+> * perf
+> * rcutorture
+> * ssuite
+> * v4l2-compliance
+>
+>
+> Greetings!
+>
+> Daniel D=C3=ADaz
+> daniel.diaz@linaro.org
+>
+> --
+> Linaro LKFT
+> https://lkft.linaro.org
