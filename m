@@ -2,108 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF7BE457A49
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 01:43:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 064C6457A4A
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 01:43:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236625AbhKTAq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 19:46:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50928 "EHLO mail.kernel.org"
+        id S236574AbhKTAq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 19:46:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236574AbhKTAqz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 19:46:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB5D161A07;
-        Sat, 20 Nov 2021 00:43:52 +0000 (UTC)
+        id S235910AbhKTAq6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 19:46:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD56261A07;
+        Sat, 20 Nov 2021 00:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1637369033;
-        bh=qf3iadlSg2k12B5DqrvmmY/Fm1Ggd5KqM/KQJdUpLzw=;
+        s=korg; t=1637369036;
+        bh=kpDpwTBVeKup3eHAtT2yi5lkPw6vsjOEwl/p8uhLNuA=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=PbZQT7Y/EtGMxQw3xtK/0Kvu4xX7Tqoj7QvAiPGW/tvLrhsw/z/isp1G0n41BxMax
-         lu52qvQt1oJqYFJoG1cuv0VY0RF+hf4ACfAxHMQbIOKPa9K8vmgywkGeX+jSOmwbqU
-         dmXQSODTrahU/ufLLCZ7jTo7ZEDpGpGEr1WrvhxI=
-Date:   Fri, 19 Nov 2021 16:43:52 -0800
+        b=i+rwDxr8s0x3sw8exxbUkbDXVjBEunkeFxEvbT2uU5k+qjZwHoN18gWJCFxuCJmXv
+         Ld7rZUky6EUlOKzdkZv5GYOkkueyOOIKaFOrbxOSPB2770O5DXFM5XMQZNQBiUPtQd
+         63t5qjRzrEjztWUkoBzteoERXYfaccsNh95Yst78=
+Date:   Fri, 19 Nov 2021 16:43:55 -0800
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, sj@kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 13/15] mm/damon/dbgfs: fix missed use of
- damon_dbgfs_lock
-Message-ID: <20211120004352.cP--sDA9q%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, ardb@kernel.org,
+        linus.walleij@linaro.org, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, quanyang.wang@windriver.com,
+        rmk+kernel@armlinux.org.uk, stable@vger.kernel.org,
+        tglx@linutronix.de, torvalds@linux-foundation.org
+Subject:  [patch 14/15] kmap_local: don't assume kmap PTEs are
+ linear arrays in memory
+Message-ID: <20211120004355.3d5IhALrg%akpm@linux-foundation.org>
 In-Reply-To: <20211119164248.50feee07c5d2cc6cc4addf97@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SeongJae Park <sj@kernel.org>
-Subject: mm/damon/dbgfs: fix missed use of damon_dbgfs_lock
+From: Ard Biesheuvel <ardb@kernel.org>
+Subject: kmap_local: don't assume kmap PTEs are linear arrays in memory
 
-DAMON debugfs is supposed to protect dbgfs_ctxs, dbgfs_nr_ctxs, and
-dbgfs_dirs using damon_dbgfs_lock.  However, some of the code is accessing
-the variables without the protection.  This commit fixes it by protecting
-all such accesses.
+The kmap_local conversion broke the ARM architecture, because the new code
+assumes that all PTEs used for creating kmaps form a linear array in
+memory, and uses array indexing to look up the kmap PTE belonging to a
+certain kmap index.
 
-Link: https://lkml.kernel.org/r/20211110145758.16558-3-sj@kernel.org
-Fixes: 75c1c2b53c78 ("mm/damon/dbgfs: support multiple contexts")
-Signed-off-by: SeongJae Park <sj@kernel.org>
+On ARM, this cannot work, not only because the PTE pages may be
+non-adjacent in memory, but also because ARM/!LPAE interleaves hardware
+entries and extended entries (carrying software-only bits) in a way that
+is not compatible with array indexing.
+
+Fortunately, this only seems to affect configurations with more than 8
+CPUs, due to the way the per-CPU kmap slots are organized in memory.
+
+Work around this by permitting an architecture to set a Kconfig symbol
+that signifies that the kmap PTEs do not form a lineary array in memory,
+and so the only way to locate the appropriate one is to walk the page
+tables.
+
+Link: https://lore.kernel.org/linux-arm-kernel/20211026131249.3731275-1-ardb@kernel.org/
+Link: https://lkml.kernel.org/r/20211116094737.7391-1-ardb@kernel.org
+Fixes: 2a15ba82fa6c ("ARM: highmem: Switch to generic kmap atomic")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reported-by: Quanyang Wang <quanyang.wang@windriver.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/damon/dbgfs.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/arm/Kconfig |    1 +
+ mm/Kconfig       |    3 +++
+ mm/highmem.c     |   32 +++++++++++++++++++++-----------
+ 3 files changed, 25 insertions(+), 11 deletions(-)
 
---- a/mm/damon/dbgfs.c~mm-damon-dbgfs-fix-missed-use-of-damon_dbgfs_lock
-+++ a/mm/damon/dbgfs.c
-@@ -877,12 +877,14 @@ static ssize_t dbgfs_monitor_on_write(st
- 		return -EINVAL;
- 	}
+--- a/arch/arm/Kconfig~kmap_local-dont-assume-kmap-ptes-are-linear-arrays-in-memory
++++ a/arch/arm/Kconfig
+@@ -1463,6 +1463,7 @@ config HIGHMEM
+ 	bool "High Memory Support"
+ 	depends on MMU
+ 	select KMAP_LOCAL
++	select KMAP_LOCAL_NON_LINEAR_PTE_ARRAY
+ 	help
+ 	  The address space of ARM processors is only 4 Gigabytes large
+ 	  and it has to accommodate user address space, kernel address
+--- a/mm/highmem.c~kmap_local-dont-assume-kmap-ptes-are-linear-arrays-in-memory
++++ a/mm/highmem.c
+@@ -503,16 +503,22 @@ static inline int kmap_local_calc_idx(in
  
-+	mutex_lock(&damon_dbgfs_lock);
- 	if (!strncmp(kbuf, "on", count)) {
- 		int i;
+ static pte_t *__kmap_pte;
  
- 		for (i = 0; i < dbgfs_nr_ctxs; i++) {
- 			if (damon_targets_empty(dbgfs_ctxs[i])) {
- 				kfree(kbuf);
-+				mutex_unlock(&damon_dbgfs_lock);
- 				return -EINVAL;
- 			}
- 		}
-@@ -892,6 +894,7 @@ static ssize_t dbgfs_monitor_on_write(st
- 	} else {
- 		ret = -EINVAL;
- 	}
-+	mutex_unlock(&damon_dbgfs_lock);
- 
- 	if (!ret)
- 		ret = count;
-@@ -944,15 +947,16 @@ static int __init __damon_dbgfs_init(voi
- 
- static int __init damon_dbgfs_init(void)
+-static pte_t *kmap_get_pte(void)
++static pte_t *kmap_get_pte(unsigned long vaddr, int idx)
  {
--	int rc;
-+	int rc = -ENOMEM;
- 
-+	mutex_lock(&damon_dbgfs_lock);
- 	dbgfs_ctxs = kmalloc(sizeof(*dbgfs_ctxs), GFP_KERNEL);
- 	if (!dbgfs_ctxs)
--		return -ENOMEM;
-+		goto out;
- 	dbgfs_ctxs[0] = dbgfs_new_ctx();
- 	if (!dbgfs_ctxs[0]) {
- 		kfree(dbgfs_ctxs);
--		return -ENOMEM;
-+		goto out;
- 	}
- 	dbgfs_nr_ctxs = 1;
- 
-@@ -963,6 +967,8 @@ static int __init damon_dbgfs_init(void)
- 		pr_err("%s: dbgfs init failed\n", __func__);
- 	}
- 
-+out:
-+	mutex_unlock(&damon_dbgfs_lock);
- 	return rc;
++	if (IS_ENABLED(CONFIG_KMAP_LOCAL_NON_LINEAR_PTE_ARRAY))
++		/*
++		 * Set by the arch if __kmap_pte[-idx] does not produce
++		 * the correct entry.
++		 */
++		return virt_to_kpte(vaddr);
+ 	if (!__kmap_pte)
+ 		__kmap_pte = virt_to_kpte(__fix_to_virt(FIX_KMAP_BEGIN));
+-	return __kmap_pte;
++	return &__kmap_pte[-idx];
  }
  
+ void *__kmap_local_pfn_prot(unsigned long pfn, pgprot_t prot)
+ {
+-	pte_t pteval, *kmap_pte = kmap_get_pte();
++	pte_t pteval, *kmap_pte;
+ 	unsigned long vaddr;
+ 	int idx;
+ 
+@@ -524,9 +530,10 @@ void *__kmap_local_pfn_prot(unsigned lon
+ 	preempt_disable();
+ 	idx = arch_kmap_local_map_idx(kmap_local_idx_push(), pfn);
+ 	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+-	BUG_ON(!pte_none(*(kmap_pte - idx)));
++	kmap_pte = kmap_get_pte(vaddr, idx);
++	BUG_ON(!pte_none(*kmap_pte));
+ 	pteval = pfn_pte(pfn, prot);
+-	arch_kmap_local_set_pte(&init_mm, vaddr, kmap_pte - idx, pteval);
++	arch_kmap_local_set_pte(&init_mm, vaddr, kmap_pte, pteval);
+ 	arch_kmap_local_post_map(vaddr, pteval);
+ 	current->kmap_ctrl.pteval[kmap_local_idx()] = pteval;
+ 	preempt_enable();
+@@ -559,7 +566,7 @@ EXPORT_SYMBOL(__kmap_local_page_prot);
+ void kunmap_local_indexed(void *vaddr)
+ {
+ 	unsigned long addr = (unsigned long) vaddr & PAGE_MASK;
+-	pte_t *kmap_pte = kmap_get_pte();
++	pte_t *kmap_pte;
+ 	int idx;
+ 
+ 	if (addr < __fix_to_virt(FIX_KMAP_END) ||
+@@ -584,8 +591,9 @@ void kunmap_local_indexed(void *vaddr)
+ 	idx = arch_kmap_local_unmap_idx(kmap_local_idx(), addr);
+ 	WARN_ON_ONCE(addr != __fix_to_virt(FIX_KMAP_BEGIN + idx));
+ 
++	kmap_pte = kmap_get_pte(addr, idx);
+ 	arch_kmap_local_pre_unmap(addr);
+-	pte_clear(&init_mm, addr, kmap_pte - idx);
++	pte_clear(&init_mm, addr, kmap_pte);
+ 	arch_kmap_local_post_unmap(addr);
+ 	current->kmap_ctrl.pteval[kmap_local_idx()] = __pte(0);
+ 	kmap_local_idx_pop();
+@@ -607,7 +615,7 @@ EXPORT_SYMBOL(kunmap_local_indexed);
+ void __kmap_local_sched_out(void)
+ {
+ 	struct task_struct *tsk = current;
+-	pte_t *kmap_pte = kmap_get_pte();
++	pte_t *kmap_pte;
+ 	int i;
+ 
+ 	/* Clear kmaps */
+@@ -634,8 +642,9 @@ void __kmap_local_sched_out(void)
+ 		idx = arch_kmap_local_map_idx(i, pte_pfn(pteval));
+ 
+ 		addr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
++		kmap_pte = kmap_get_pte(addr, idx);
+ 		arch_kmap_local_pre_unmap(addr);
+-		pte_clear(&init_mm, addr, kmap_pte - idx);
++		pte_clear(&init_mm, addr, kmap_pte);
+ 		arch_kmap_local_post_unmap(addr);
+ 	}
+ }
+@@ -643,7 +652,7 @@ void __kmap_local_sched_out(void)
+ void __kmap_local_sched_in(void)
+ {
+ 	struct task_struct *tsk = current;
+-	pte_t *kmap_pte = kmap_get_pte();
++	pte_t *kmap_pte;
+ 	int i;
+ 
+ 	/* Restore kmaps */
+@@ -663,7 +672,8 @@ void __kmap_local_sched_in(void)
+ 		/* See comment in __kmap_local_sched_out() */
+ 		idx = arch_kmap_local_map_idx(i, pte_pfn(pteval));
+ 		addr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+-		set_pte_at(&init_mm, addr, kmap_pte - idx, pteval);
++		kmap_pte = kmap_get_pte(addr, idx);
++		set_pte_at(&init_mm, addr, kmap_pte, pteval);
+ 		arch_kmap_local_post_map(addr, pteval);
+ 	}
+ }
+--- a/mm/Kconfig~kmap_local-dont-assume-kmap-ptes-are-linear-arrays-in-memory
++++ a/mm/Kconfig
+@@ -890,6 +890,9 @@ config MAPPING_DIRTY_HELPERS
+ config KMAP_LOCAL
+ 	bool
+ 
++config KMAP_LOCAL_NON_LINEAR_PTE_ARRAY
++	bool
++
+ # struct io_mapping based helper.  Selected by drivers that need them
+ config IO_MAPPING
+ 	bool
 _
