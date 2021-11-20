@@ -2,83 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FEBF457A46
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 01:43:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10EEA457A47
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 01:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235855AbhKTAqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 19:46:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50692 "EHLO mail.kernel.org"
+        id S236545AbhKTAqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 19:46:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234793AbhKTAqk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 19:46:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B48176137B;
-        Sat, 20 Nov 2021 00:43:37 +0000 (UTC)
+        id S236503AbhKTAqq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 19:46:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00E0361AF0;
+        Sat, 20 Nov 2021 00:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1637369018;
-        bh=AQ5tlSpHHH8OIRqYCVH8VZh2bPmobVgNxO6sRajN5eY=;
+        s=korg; t=1637369024;
+        bh=PFGDFAEfjl7jEKR11Yq/J+ibTmrUmQSFCxGQ51lNk84=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=JdLn7IqyymouIK14Ddqjv0m8YtVB6/TRqj4luEsBm13oasqzfiVSpvZHUJ6yf2OZ1
-         1Ucj2pCX4V4pC+QeHJ98wvmY/8obOc60QrzYcnsV7a8zvWMBpcZNfK8s4sF7rjwDh1
-         haBGOwECIISotm7z4yNHdghbS/M6KpO9mAuvPX0Y=
-Date:   Fri, 19 Nov 2021 16:43:37 -0800
+        b=eTMr4uf8Z0tJNfmS5Uqj7/JRU3mtaA9waxcAnCxKh94wtWruGHWA8qcxNF0dBxYd4
+         4aUnFqTgnOiOv3qObBwgfrNCGzp0OXq0FWGYurZyntWU5dmqh6iuObQspr+QABfTbA
+         rin+dYlzhOElqwqTa+yrJRNakvq2nxJv1UKl3Pzw=
+Date:   Fri, 19 Nov 2021 16:43:43 -0800
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, catalin.marinas@arm.com, cl@linux.com,
-        glommer@parallels.com, gregkh@linuxfoundation.org,
-        iamjoonsoo.kim@lge.com, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, penberg@kernel.org,
-        rientjes@google.com, rkovhaev@gmail.com, songmuchun@bytedance.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz
-Subject:  [patch 08/15] mm: kmemleak: slob: respect
- SLAB_NOLEAKTRACE flag
-Message-ID: <20211120004337.1cGvw42-J%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, almasrymina@google.com,
+        jthoughton@google.com, linux-mm@kvack.org, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, weixugc@google.com
+Subject:  [patch 10/15] hugetlb, userfaultfd: fix reservation
+ restore on userfaultfd error
+Message-ID: <20211120004343.akzlmXMvc%akpm@linux-foundation.org>
 In-Reply-To: <20211119164248.50feee07c5d2cc6cc4addf97@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
-Subject: mm: kmemleak: slob: respect SLAB_NOLEAKTRACE flag
+From: Mina Almasry <almasrymina@google.com>
+Subject: hugetlb, userfaultfd: fix reservation restore on userfaultfd error
 
-When kmemleak is enabled for SLOB, system does not boot and does not print
-anything to the console.  At the very early stage in the boot process we
-hit infinite recursion from kmemleak_init() and eventually kernel crashes.
+Currently in the is_continue case in hugetlb_mcopy_atomic_pte(), if we
+bail out using "goto out_release_unlock;" in the cases where idx >= size,
+or !huge_pte_none(), the code will detect that new_pagecache_page ==
+false, and so call restore_reserve_on_error().  In this case I see
+restore_reserve_on_error() delete the reservation, and the following call
+to remove_inode_hugepages() will increment h->resv_hugepages causing a
+100% reproducible leak.
 
-kmemleak_init() specifies SLAB_NOLEAKTRACE for KMEM_CACHE(), but
-kmem_cache_create_usercopy() removes it because CACHE_CREATE_MASK is not
-valid for SLOB.
+We should treat the is_continue case similar to adding a page into the
+pagecache and set new_pagecache_page to true, to indicate that there is no
+reservation to restore on the error path, and we need not call
+restore_reserve_on_error().  Rename new_pagecache_page to
+page_in_pagecache to make that clear.
 
-Let's fix CACHE_CREATE_MASK and make kmemleak work with SLOB
-
-Link: https://lkml.kernel.org/r/20211115020850.3154366-1-rkovhaev@gmail.com
-Fixes: d8843922fba4 ("slab: Ignore internal flags in cache creation")
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Glauber Costa <glommer@parallels.com>
+Link: https://lkml.kernel.org/r/20211117193825.378528-1-almasrymina@google.com
+Fixes: c7b1850dfb41 ("hugetlb: don't pass page cache pages to restore_reserve_on_error")
+Signed-off-by: Mina Almasry <almasrymina@google.com>
+Reported-by: James Houghton <jthoughton@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Wei Xu <weixugc@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/slab.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/hugetlb.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/mm/slab.h~mm-kmemleak-slob-respect-slab_noleaktrace-flag
-+++ a/mm/slab.h
-@@ -147,7 +147,7 @@ static inline slab_flags_t kmem_cache_fl
- #define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE | SLAB_RECLAIM_ACCOUNT | \
- 			  SLAB_TEMPORARY | SLAB_ACCOUNT)
- #else
--#define SLAB_CACHE_FLAGS (0)
-+#define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE)
- #endif
+--- a/mm/hugetlb.c~hugetlb-userfaultfd-fix-reservation-restore-on-userfaultfd-error
++++ a/mm/hugetlb.c
+@@ -5736,13 +5736,14 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
+ 	int ret = -ENOMEM;
+ 	struct page *page;
+ 	int writable;
+-	bool new_pagecache_page = false;
++	bool page_in_pagecache = false;
  
- /* Common flags available with current configuration */
+ 	if (is_continue) {
+ 		ret = -EFAULT;
+ 		page = find_lock_page(mapping, idx);
+ 		if (!page)
+ 			goto out;
++		page_in_pagecache = true;
+ 	} else if (!*pagep) {
+ 		/* If a page already exists, then it's UFFDIO_COPY for
+ 		 * a non-missing case. Return -EEXIST.
+@@ -5830,7 +5831,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_s
+ 		ret = huge_add_to_page_cache(page, mapping, idx);
+ 		if (ret)
+ 			goto out_release_nounlock;
+-		new_pagecache_page = true;
++		page_in_pagecache = true;
+ 	}
+ 
+ 	ptl = huge_pte_lockptr(h, dst_mm, dst_pte);
+@@ -5894,7 +5895,7 @@ out_release_unlock:
+ 	if (vm_shared || is_continue)
+ 		unlock_page(page);
+ out_release_nounlock:
+-	if (!new_pagecache_page)
++	if (!page_in_pagecache)
+ 		restore_reserve_on_error(h, dst_vma, dst_addr, page);
+ 	put_page(page);
+ 	goto out;
 _
