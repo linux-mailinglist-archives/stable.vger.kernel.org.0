@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F57457E49
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:40:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 205E6457E4B
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:40:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237535AbhKTMnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Nov 2021 07:43:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43992 "EHLO
+        id S236677AbhKTMnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Nov 2021 07:43:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231871AbhKTMnL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 07:43:11 -0500
+        with ESMTP id S237177AbhKTMnP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 07:43:15 -0500
 Received: from dvalin.narfation.org (dvalin.narfation.org [IPv6:2a00:17d8:100::8b1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F2AAC061574
-        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 04:40:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5745C061574
+        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 04:40:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1637412006;
+        s=20121; t=1637412007;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=G7ufWjHzbdNX/Z4w4mqqFWPHMmC9Rz900v9Jt3hASXY=;
-        b=Qmrgn/jGG5hRJRfBFl7z1DBXFY6RddCWSSPkydSb7BhpMMYqhYLU8Fch1Ktg+jGUwa+p5c
-        owFscPXEkHJvd8jzOp7arfKnW0U+et/a4ER/J7azWU3ck/mrL8Ef1W8aaM2MDs3++hWHz2
-        EMw/M93b4e3rFhtCVrB3QTb2sZluEwY=
+        bh=1qBqcJVzYM60kixb22EbboOokXXtbpsZ/Y57JewX2Vg=;
+        b=KOR7D51FdRrEiWIFTulHLpVTikmXxpGHDeka7Frl7Cn/OtuJzJ6iIacQftOllw3RV2lY0E
+        IOduTwEqnsSjO+U2YxbJy5xiTl9l8P32XFlBcXcCtwpQHxAG8XwYUMO2eI8G0/wEqtZk4Q
+        aRJ+KFf5bjiq55SMsvKTpgwsMwGCkMo=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
 Cc:     b.a.t.m.a.n@lists.open-mesh.org,
-        Sven Eckelmann <sven@narfation.org>,
-        Martin Weinelt <martin@darmstadt.freifunk.net>,
         =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.9 1/7] batman-adv: Keep fragments equally sized
-Date:   Sat, 20 Nov 2021 13:39:52 +0100
-Message-Id: <20211120123958.260826-2-sven@narfation.org>
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sven Eckelmann <sven@narfation.org>
+Subject: [PATCH 4.9 2/7] batman-adv: Fix own OGM check in aggregated OGMs
+Date:   Sat, 20 Nov 2021 13:39:53 +0100
+Message-Id: <20211120123958.260826-3-sven@narfation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211120123958.260826-1-sven@narfation.org>
 References: <20211120123958.260826-1-sven@narfation.org>
@@ -44,110 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 1c2bcc766be44467809f1798cd4ceacafe20a852 upstream.
+From: Linus Lüssing <linus.luessing@c0d3.blue>
 
-The batman-adv fragmentation packets have the design problem that they
-cannot be refragmented and cannot handle padding by the underlying link.
-The latter often leads to problems when networks are incorrectly configured
-and don't use a common MTU.
+commit d8bf0c01642275c7dca1e5d02c34e4199c200b1f upstream.
 
-The sender could for example fragment a 1271 byte frame (plus external
-ethernet header (14) and batadv unicast header (10)) to fit in a 1280 bytes
-large MTU of the underlying link (max. 1294 byte frames). This would create
-a 1294 bytes large frame (fragment 2) and a 55 bytes large frame
-(fragment 1). The extra 54 bytes are the fragment header (20) added to each
-fragment and the external ethernet header (14) for the second fragment.
+The own OGM check is currently misplaced and can lead to the following
+issues:
 
-Let us assume that the next hop is then not able to transport 1294 bytes to
-its next hop. The 1294 byte large frame will be dropped but the 55 bytes
-large fragment will still be forwarded to its destination.
+For one thing we might receive an aggregated OGM from a neighbor node
+which has our own OGM in the first place. We would then not only skip
+our own OGM but erroneously also any other, following OGM in the
+aggregate.
 
-Or let us assume that the underlying hardware requires that each frame has
-a minimum size (e.g. 60 bytes). Then it will pad the 55 bytes frame to 60
-bytes. The receiver of the 60 bytes frame will no longer be able to
-correctly assemble the two frames together because it is not aware that 5
-bytes of the 60 bytes frame are padding and don't belong to the reassembled
-frame.
+For another, we might receive an OGM aggregate which has our own OGM in
+a place other then the first one. Then we would wrongly not skip this
+OGM, leading to populating the orginator and gateway table with ourself.
 
-This can partly be avoided by splitting frames more equally. In this
-example, the 675 and 674 bytes large fragment frames could both potentially
-reach its destination without being too large or too small.
-
-Reported-by: Martin Weinelt <martin@darmstadt.freifunk.net>
-Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Acked-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Fixes: 9323158ef9f4 ("batman-adv: OGMv2 - implement originators logic")
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.9 backported: adjust context. ]
+[ bp: 4.9 backported: adjust context, correct fixes line ]
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 ---
- net/batman-adv/fragmentation.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ net/batman-adv/bat_v_ogm.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
-index fef21f75892e..b36606816bac 100644
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -396,7 +396,7 @@ bool batadv_frag_skb_fwd(struct sk_buff *skb,
-  * batadv_frag_create - create a fragment from skb
-  * @skb: skb to create fragment from
-  * @frag_head: header to use in new fragment
-- * @mtu: size of new fragment
-+ * @fragment_size: size of new fragment
-  *
-  * Split the passed skb into two fragments: A new one with size matching the
-  * passed mtu and the old one with the rest. The new skb contains data from the
-@@ -406,11 +406,11 @@ bool batadv_frag_skb_fwd(struct sk_buff *skb,
-  */
- static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
- 					  struct batadv_frag_packet *frag_head,
--					  unsigned int mtu)
-+					  unsigned int fragment_size)
- {
- 	struct sk_buff *skb_fragment;
- 	unsigned int header_size = sizeof(*frag_head);
--	unsigned int fragment_size = mtu - header_size;
-+	unsigned int mtu = fragment_size + header_size;
+diff --git a/net/batman-adv/bat_v_ogm.c b/net/batman-adv/bat_v_ogm.c
+index d2e6885479cb..cb94ac988618 100644
+--- a/net/batman-adv/bat_v_ogm.c
++++ b/net/batman-adv/bat_v_ogm.c
+@@ -690,6 +690,12 @@ static void batadv_v_ogm_process(const struct sk_buff *skb, int ogm_offset,
+ 		   ntohl(ogm_packet->seqno), ogm_throughput, ogm_packet->ttl,
+ 		   ogm_packet->version, ntohs(ogm_packet->tvlv_len));
  
- 	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
- 	if (!skb_fragment)
-@@ -449,7 +449,7 @@ int batadv_frag_send_packet(struct sk_buff *skb,
- 	struct sk_buff *skb_fragment;
- 	unsigned int mtu = neigh_node->if_incoming->net_dev->mtu;
- 	unsigned int header_size = sizeof(frag_header);
--	unsigned int max_fragment_size, max_packet_size;
-+	unsigned int max_fragment_size, num_fragments;
- 	int ret = -1;
- 
- 	/* To avoid merge and refragmentation at next-hops we never send
-@@ -457,10 +457,15 @@ int batadv_frag_send_packet(struct sk_buff *skb,
++	if (batadv_is_my_mac(bat_priv, ogm_packet->orig)) {
++		batadv_dbg(BATADV_DBG_BATMAN, bat_priv,
++			   "Drop packet: originator packet from ourself\n");
++		return;
++	}
++
+ 	/* If the troughput metric is 0, immediately drop the packet. No need to
+ 	 * create orig_node / neigh_node for an unusable route.
  	 */
- 	mtu = min_t(unsigned int, mtu, BATADV_FRAG_MAX_FRAG_SIZE);
- 	max_fragment_size = mtu - header_size;
--	max_packet_size = max_fragment_size * BATADV_FRAG_MAX_FRAGMENTS;
-+
-+	if (skb->len == 0 || max_fragment_size == 0)
-+		return -EINVAL;
-+
-+	num_fragments = (skb->len - 1) / max_fragment_size + 1;
-+	max_fragment_size = (skb->len - 1) / num_fragments + 1;
+@@ -788,11 +794,6 @@ int batadv_v_ogm_packet_recv(struct sk_buff *skb,
+ 	if (batadv_is_my_mac(bat_priv, ethhdr->h_source))
+ 		return NET_RX_DROP;
  
- 	/* Don't even try to fragment, if we need more than 16 fragments */
--	if (skb->len > max_packet_size)
-+	if (num_fragments > BATADV_FRAG_MAX_FRAGMENTS)
- 		goto out;
- 
- 	bat_priv = orig_node->bat_priv;
-@@ -498,7 +503,8 @@ int batadv_frag_send_packet(struct sk_buff *skb,
- 			goto out;
- 		}
- 
--		skb_fragment = batadv_frag_create(skb, &frag_header, mtu);
-+		skb_fragment = batadv_frag_create(skb, &frag_header,
-+						  max_fragment_size);
- 		if (!skb_fragment)
- 			goto out;
- 
+-	ogm_packet = (struct batadv_ogm2_packet *)skb->data;
+-
+-	if (batadv_is_my_mac(bat_priv, ogm_packet->orig))
+-		return NET_RX_DROP;
+-
+ 	batadv_inc_counter(bat_priv, BATADV_CNT_MGMT_RX);
+ 	batadv_add_counter(bat_priv, BATADV_CNT_MGMT_RX_BYTES,
+ 			   skb->len + ETH_HLEN);
 -- 
 2.30.2
 
