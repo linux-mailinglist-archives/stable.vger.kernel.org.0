@@ -2,90 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C782457EAE
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 14:49:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BCC4457EE3
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 16:21:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235851AbhKTNwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Nov 2021 08:52:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59024 "EHLO
+        id S237496AbhKTPYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Nov 2021 10:24:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237043AbhKTNwH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 08:52:07 -0500
-Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97AF2C061574
-        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 05:49:04 -0800 (PST)
-Received: by mail-ua1-x934.google.com with SMTP id o1so27075694uap.4
-        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 05:49:04 -0800 (PST)
+        with ESMTP id S230038AbhKTPYQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 10:24:16 -0500
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17403C061574;
+        Sat, 20 Nov 2021 07:21:13 -0800 (PST)
+Received: by mail-wr1-x42a.google.com with SMTP id d5so23685809wrc.1;
+        Sat, 20 Nov 2021 07:21:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=vtAv/jOt7N6EStVjgJmVp1Uo/Kx3FFMrGvh6EIppQKU=;
-        b=SUkK0/f9fny1Yo7mBEEXOZTT3WwVDPJLXLCPLnyJD6Wjr4/fmaQGGapnPam5yi0wYI
-         imvDS2U7/a52oR/NKduP4MYyKgF961Jib6wJQPGvkSwj8u/HpN1k9Q4abOuktQ02u9n/
-         Eh3CUJ5sOxw8ThEoE/A3AbEZb0D7IxW3HPKgHPAzAwEUW7bGk7xSK9yAw6Yj3C1EfHCI
-         b98C873gjznfHtYCfP3K6cZ+I0egUb3fcJdp//VzNrH8JfG+4phrOHkFJfJYsjV4UWa6
-         EKEsu0vlPSfCl1mCWkQBUVEoTSJt1UnaYYwxnSNmQ5WiiTY8IufOT7krIvUHKJF7XaQv
-         Ja9Q==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=CyM3+eJ6aCtIacq87VUybJ0cUWuQiHmdVvSz9Qi8v8s=;
+        b=CNQAcXJ4z8SdArb9OgLusWsevmQHhW+tuboXBc6JnNgu86F027TOwmxWz6183a9F5v
+         Lbg8p4yRRnwPTgTcQ1dZZqC9CoTuPdPOZf5gVkHbTYyoDHT+gs42lVg0XPsb6QoqgzkF
+         vwTEILg/ALALrvd2GSfdATnqFJQ+d9vIXSi9e2MxRIwjD4zbBkU4yS266sjjmBZH2ZvN
+         CpodapjdlkXXZTog9TUJMWm9aJHX1NTuMf1wNyLXONPaD9YQEWsX763pFdGyz0jVFMW/
+         zwlqhf7ba3qwNTbpEni/G94wx/NcW/Kh/MKEFPyxC7eupl04BxlFtIdnrVqf0ba27yoR
+         bZrg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=vtAv/jOt7N6EStVjgJmVp1Uo/Kx3FFMrGvh6EIppQKU=;
-        b=Ot85EwwvI8WHwFAaCphd1nhJ8wKcLv+ZOe4HvDl7zTRftADf8PQB/feQeH8x48wSuP
-         5Bn8Dwryf38U4thW2xf3IFmsuL1GNIsfICoYqqhjpOlICqUfNt3xNrmWjt+ya9g3vinq
-         XL3bREgf2QMrWx+clu3HJ3addnb6Cz/uIj8Q7S8ZpJGz/Tx7CJ9BSCFAN8cu1bX3w3CW
-         GExkcTwDf6HmS4m6H66HHvFPLdo18fJ6+o0OlDW5HXafEoBiGlQgbFOt3/ybu5To2u6y
-         ei5R7UXFakynqOIx98H9KZQ2hp1HeSmZzrdPHYmdKQSQ96UoIgPxw+Z5oPZt1+igGdlw
-         WXlw==
-X-Gm-Message-State: AOAM530sXUDtvDtYhuLOLHaGxzuPzl6Q4/M8ycF+yyDvyaY6uZJPhm6i
-        52vgYM/+7wfZu7ivF1vzexnv1jPIoqqJPNJy79o=
-X-Google-Smtp-Source: ABdhPJwhpcb1PHPdXgc1zbmsoYxwvHPLsq3MT+8C/YW/n3CExJKPY7sbfPFkPGNuushq1lOk49B7DFDAqPkMkxTa/JA=
-X-Received: by 2002:a67:ec94:: with SMTP id h20mr104275409vsp.59.1637416143355;
- Sat, 20 Nov 2021 05:49:03 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=CyM3+eJ6aCtIacq87VUybJ0cUWuQiHmdVvSz9Qi8v8s=;
+        b=JDxeXWekmrnmTPmMnHna39cXOLMZ6mMunOZTjo/5ldnHPI+H6dQB34gYIoIU6myv9V
+         JPcs1av0gGB8u+IUbYQ0ph5pxyPvSFOlM5P02IyK/sGp6IjUxqxu+QKdJDCmLmZlDZSg
+         egoA7aRBQ1tvFVvZJsGCJiYLcjk9VC1KAOKE8fezhQXMNsE+fkICRt/BprFfi+2hRXmM
+         yZQ+cmh5knwJBgOKBD+8H1gMiIWCuSbMDlPixpYxQfU4ulLRdsrqHMyWefRtBPbMW2Z1
+         5iKyhnQTYxACCy/axl521sH4dwWru+hHVLKqIH87iAPNkw/QONyqdVzKQmJ/cSSC68SH
+         WMwg==
+X-Gm-Message-State: AOAM530ojb8Y75jHPyyCgMZJSpsyoOgJh9Y8bSiIYv5Dq3JhrgvpzW5t
+        z8LI0d76uB1HWp15qf5uV78=
+X-Google-Smtp-Source: ABdhPJys0Fs9mVGxnNnEGUHfR0eQm6JUHSXf3yvQ45uNMJHUZ/bPMj7ze7/j5yj7jTnetGgWC5povw==
+X-Received: by 2002:a05:6000:52:: with SMTP id k18mr18199747wrx.192.1637421671581;
+        Sat, 20 Nov 2021 07:21:11 -0800 (PST)
+Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
+        by smtp.gmail.com with ESMTPSA id f81sm17254100wmf.22.2021.11.20.07.21.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 20 Nov 2021 07:21:11 -0800 (PST)
+Date:   Sat, 20 Nov 2021 15:21:09 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 00/21] 5.10.81-rc1 review
+Message-ID: <YZkSZbBIv7LHQ1DW@debian>
+References: <20211119171443.892729043@linuxfoundation.org>
 MIME-Version: 1.0
-Reply-To: christinemarran77@gmail.com
-Sender: dr.mohammadrezanaghshineh@gmail.com
-Received: by 2002:a67:f904:0:0:0:0:0 with HTTP; Sat, 20 Nov 2021 05:49:03
- -0800 (PST)
-From:   "Mrs.Christine Marran " <christinemarran77@gmail.com>
-Date:   Sat, 20 Nov 2021 05:49:03 -0800
-X-Google-Sender-Auth: su_4TEL9Nn8hiGqGchmQjdYYpnk
-Message-ID: <CAPFKLWR0Ji4bsucDwUdpkRBE6FLp4nCUK5FuvhBFPGgLXgzDeA@mail.gmail.com>
-Subject: Dearest beloved in the Lord,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211119171443.892729043@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dearest beloved in the lord
+Hi Greg,
 
-I am Mrs.Christine Marran
+On Fri, Nov 19, 2021 at 06:37:35PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.81 release.
+> There are 21 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 21 Nov 2021 17:14:35 +0000.
+> Anything received after that time might be too late.
 
-I'm a 75 year old British woman. I was born an orphan and GOD blessed
-me abundantly with riches but no children nor husband which makes me
-an unhappy woman. Now I am affected with cancer of the lung and breast
-with a partial stroke which has affected my speech. I can no longer
-talk well and half of my body is paralyzed, I sent this email to you
-with the help of my private female nurse.
+Build test:
+mips (gcc version 11.2.1 20211112): 63 configs -> no new failure
+arm (gcc version 11.2.1 20211112): 105 configs -> no new failure
+arm64 (gcc version 11.2.1 20211112): 3 configs -> no failure
+x86_64 (gcc version 11.2.1 20211112): 4 configs -> no failure
 
-After going through your profile, I decided to make my last donation
-of Ten Million Five Hundred Thousand United Kingdom Pounds
-(UK=C2=A310.500, 000, 00) to you as my investment manager. I want you to
-build an Orphanage home with my name (  Mrs.Christine Marran  ) in
-your country.
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
 
-If you are willing and able to do this task for the sake of humanity
-then send me below information for more details to receive the funds.
+[1]. https://openqa.qa.codethink.co.uk/tests/410
+[2]. https://openqa.qa.codethink.co.uk/tests/409
 
-1. Name...................................................
 
-2. Phone number...............................
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-3. Address.............................................
+--
+Regards
+Sudip
 
-4. Country of Origin and residence
-
-Mrs.Christine Marran   ,
