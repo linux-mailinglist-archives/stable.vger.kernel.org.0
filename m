@@ -2,118 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 839D0457AF7
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 04:57:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3106C457B1D
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 05:28:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232663AbhKTEA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 23:00:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43140 "EHLO
+        id S236283AbhKTEbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 23:31:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235772AbhKTEA0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 23:00:26 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67711C06173E
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 19:57:23 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id b184-20020a1c1bc1000000b0033140bf8dd5so8934423wmb.5
-        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 19:57:23 -0800 (PST)
+        with ESMTP id S236900AbhKTEbk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Nov 2021 23:31:40 -0500
+Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 356E9C06173E
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 20:28:38 -0800 (PST)
+Received: by mail-oi1-x234.google.com with SMTP id t23so25723222oiw.3
+        for <stable@vger.kernel.org>; Fri, 19 Nov 2021 20:28:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=brainfault-org.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=oxYwFgP8QJkY0fxAaKGmN1e+xFo7sJTuqw6yMPGfDkU=;
-        b=IK9SuPgNEEXpXn5eTloZtETIgJUVZCFMm5dY5FECGXFayp2QZE4sItiri8a9E3ZAwO
-         w44k+4ShvTftu/4aHhItjEmF4SqykRKGl7KRMBTtE9mW9l3Y29TF2ZLaNrCHFjUuDWTU
-         dpVb3ufS2FrPSIusaomI3+nEQX+1quVvFzdW+MswCGStMDsSD9Eg7/+XvdYNPTyvpbkS
-         9pXy4UpmC+qIoBsu8dA1LHtUXwJhr49g5SLjtl7ZrEiicgWxM0fIcbAI0bXN42k/vgop
-         Pea5vu4B32j+LaYtaFNdhTqwObs8SEMnmGvVceC/Lez4+Nefb/MdW6QRk0G5FXBCldUD
-         yc7g==
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=eaf6YWH3zdLZq9h98VDLUZfPOVqzv7JmYdALRJ3OMcs=;
+        b=sZtmzSNdW/jKYoskYuW3TLZmJj4u4G8tq8XjImN7ii3hduTd1fY4TUIR+aAwOzqmyM
+         vi3xy+6sbafWrSuUkLriGT1xLcAqY8ZWWOaSh4NU+LI3SzVIx3sTh5otGUERyEXmTj1C
+         p8KF1yiq+WkN/aJmThkJLRoph7LHMBUrmVvmcDz7TTyqJ5AKjDJULXLpMlPeuYG1hVRq
+         yD+n6629ZuYTlYvHDTvRQaWIgtiFYv+lTqNWECwlLQyjTgLXEAR+vn7kI2Ml5FpnlaEu
+         BicY4Z8k4NzsMRNmpm4Qi/IjJF5Zbelb0+UyR12BbLHXSCApmxm7BJvLX6UXUmG0OssA
+         Sn4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=oxYwFgP8QJkY0fxAaKGmN1e+xFo7sJTuqw6yMPGfDkU=;
-        b=pOE/Ae7XYBKFSlhS+qZnPw2SIE78YAREpAV/BkmMxTfLY//YF5spVLwV7rMSI0smQP
-         12E2m68hcZn2CPOm8ky3Zv5Xt3YnJkI9zWhYzCOUuSmnxkY4bzy047S6XfSMFVICQyqL
-         iP3mQ2MpY9SkxaeP+49+Nn4UuywzlnOo7SYEVRDd/JRbBm59gxFh8UEGMTWzefAwlrDX
-         VhsultlwmHJG3AavDIWV8VN77wT9onwaCup7hqzu9hyBU7a7TKv3YqJmeplBTxxNQApX
-         5WC4D7tJhS2PYhQywwhrsBLluitzDKKmuVDDhDOdeU5jdaaUKXvbLzubv4OEdI0c7C+w
-         /+cA==
-X-Gm-Message-State: AOAM5317+esInebihX7O9lf383BLPSl17M3f4m+qwogee/AZH/2/wXb1
-        dcUWqhsoRPIF13WAk6pCW8BoT5Ahm+nlEokd2Pgp+A==
-X-Google-Smtp-Source: ABdhPJyIb0xxDF6sP8Nm5V4J/JpeG+4+whciNZU5mV9yRjqVSK7mUHZ0qQPwxtG1jTQX1H5BGp23UGzUxdWfTn+fudI=
-X-Received: by 2002:a7b:c194:: with SMTP id y20mr6680170wmi.61.1637380641708;
- Fri, 19 Nov 2021 19:57:21 -0800 (PST)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=eaf6YWH3zdLZq9h98VDLUZfPOVqzv7JmYdALRJ3OMcs=;
+        b=v1RkA0ZONPc6fTwop3pmW+u9981ifwM/f0VJZzIr/xhQly9do0b6BQAJrIN4JkXQMI
+         YnhctR+G/850A2Jj+pFGoBWZ391MNOtj71P5EwNbBYXP02UMS1iLOGbw1gMkI+vWnsmd
+         rUwKIzKQnOlN+ykI/srQH3OypDuusdMpOKLn79A3ed3X7LaRwG4oBsFeSTfV47dN8Xit
+         5O7+lWMSo5PqbhFazAeELAO6sD5j5ZrNROhACSrWkSzUyYdhsTp9wLUnwx/0Sg8wSur9
+         npVZV0K/qlqb4cODYpK5YhxojWJ//KIOW8zCJLPvIRQsBwe2higKc4MbfPNxqsvZpJlZ
+         lfTQ==
+X-Gm-Message-State: AOAM531f8QdoqRIAgXEk3swtzGFDvsalOoHz1r8U6kjUcLoKFjZzTBj3
+        Sb1dajnYu/DETXWcGBSoikbadpf52VVBZA==
+X-Google-Smtp-Source: ABdhPJxsIyCm2Gr+zCJYZkCHA7GHIVGhD+Up9AKf8vxzE2he4QJGe1+XYxer+Vx37/1lSSVinLLU3Q==
+X-Received: by 2002:a05:6808:a8f:: with SMTP id q15mr4770539oij.65.1637382516551;
+        Fri, 19 Nov 2021 20:28:36 -0800 (PST)
+Received: from [192.168.17.16] ([189.219.75.83])
+        by smtp.gmail.com with ESMTPSA id n189sm431449oif.33.2021.11.19.20.28.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 19 Nov 2021 20:28:36 -0800 (PST)
+Subject: Re: [PATCH 5.15 00/20] 5.15.4-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+References: <20211119171444.640508836@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <169908ff-0709-2967-d21a-dd947c4fbf0e@linaro.org>
+Date:   Fri, 19 Nov 2021 22:28:34 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-References: <20211119164413.29052-1-palmer@rivosinc.com> <20211119164413.29052-3-palmer@rivosinc.com>
-In-Reply-To: <20211119164413.29052-3-palmer@rivosinc.com>
-From:   Anup Patel <anup@brainfault.org>
-Date:   Sat, 20 Nov 2021 09:27:09 +0530
-Message-ID: <CAAhSdy1hx3Me_YCKnE=QkTaA9j-qyZjmgJDM8nT-uYCdg7vf=g@mail.gmail.com>
-Subject: Re: [PATCH 02/12] RISC-V: MAXPHYSMEM_2GB doesn't depend on CMODEL_MEDLOW
-To:     Palmer Dabbelt <palmer@rivosinc.com>
-Cc:     linux-riscv <linux-riscv@lists.infradead.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Anup Patel <anup.patel@wdc.com>,
-        Heinrich Schuchardt <heinrich.schuchardt@canonical.com>,
-        Atish Patra <atish.patra@wdc.com>,
-        Bin Meng <bin.meng@windriver.com>,
-        Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>, axboe@kernel.dk,
-        "linux-kernel@vger.kernel.org List" <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20211119171444.640508836@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 19, 2021 at 10:14 PM Palmer Dabbelt <palmer@rivosinc.com> wrote:
->
-> From: Palmer Dabbelt <palmer@rivosinc.com>
->
-> For non-relocatable kernels we need to be able to link the kernel at
-> approximately PAGE_OFFSET, thus requiring medany (as medlow requires the
-> code to be linked within 2GiB of 0).  The inverse doesn't apply, though:
-> since medany code can be linked anywhere it's fine to link it close to
-> 0, so we can support the smaller memory config.
->
-> Fixes: de5f4b8f634b ("RISC-V: Define MAXPHYSMEM_1GB only for RV32")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Hello!
 
-Looks good to me.
+On 11/19/21 11:39 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.4 release.
+> There are 20 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 21 Nov 2021 17:14:35 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.4-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Reviewed-by: Anup Patel <anup@brainfault.org>
+Results from Linaro's test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Regards,
-Anup
+## Build
+* kernel: 5.15.4-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: 9f5b4a585c82d545acbc198579edfa8991532019
+* git describe: v5.15.3-21-g9f5b4a585c82
+* test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15.3-21-g9f5b4a585c82
 
->
-> ---
->
-> I found this when going through the savedefconfig diffs for the K210
-> defconfigs.  I'm not entirely sure they're doing the right thing here
-> (they should probably be setting CMODEL_LOW to take advantage of the
-> better code generation), but I don't have any way to test those
-> platforms so I don't want to change too much.
-> ---
->  arch/riscv/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
-> index 821252b65f89..61f64512dcde 100644
-> --- a/arch/riscv/Kconfig
-> +++ b/arch/riscv/Kconfig
-> @@ -280,7 +280,7 @@ choice
->                 depends on 32BIT
->                 bool "1GiB"
->         config MAXPHYSMEM_2GB
-> -               depends on 64BIT && CMODEL_MEDLOW
-> +               depends on 64BIT
->                 bool "2GiB"
->         config MAXPHYSMEM_128GB
->                 depends on 64BIT && CMODEL_MEDANY
-> --
-> 2.32.0
->
+## No regressions (compared to v5.15.3)
+
+## No fixes (compared to v5.15.3)
+
+## Test result summary
+total: 93274, pass: 79148, fail: 681, skip: 12567, xfail: 878
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 260 total, 260 passed, 0 failed
+* arm64: 42 total, 37 passed, 5 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 40 total, 37 passed, 3 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 37 total, 35 passed, 2 failed
+* parisc: 14 total, 14 passed, 0 failed
+* powerpc: 49 total, 44 passed, 5 failed
+* riscv: 27 total, 25 passed, 2 failed
+* s390: 22 total, 20 passed, 2 failed
+* sh: 26 total, 24 passed, 2 failed
+* sparc: 14 total, 14 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 42 total, 40 passed, 2 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest
+* kselftest-android
+* kselftest-arm64
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-loc[
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
+
+-- 
+Linaro LKFT
+https://lkft.linaro.org
