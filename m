@@ -2,198 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 064C6457A4A
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 01:43:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91EF8457A4B
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 01:44:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236574AbhKTAq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Nov 2021 19:46:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50960 "EHLO mail.kernel.org"
+        id S235910AbhKTArB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Nov 2021 19:47:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235910AbhKTAq6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Nov 2021 19:46:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD56261A07;
-        Sat, 20 Nov 2021 00:43:55 +0000 (UTC)
+        id S235861AbhKTArB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Nov 2021 19:47:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0170D61A86;
+        Sat, 20 Nov 2021 00:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1637369036;
-        bh=kpDpwTBVeKup3eHAtT2yi5lkPw6vsjOEwl/p8uhLNuA=;
+        s=korg; t=1637369039;
+        bh=UAr7Q/5h2/Uck3swGjAInJ+tTo4aGlSu0RjHHUlzxoc=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=i+rwDxr8s0x3sw8exxbUkbDXVjBEunkeFxEvbT2uU5k+qjZwHoN18gWJCFxuCJmXv
-         Ld7rZUky6EUlOKzdkZv5GYOkkueyOOIKaFOrbxOSPB2770O5DXFM5XMQZNQBiUPtQd
-         63t5qjRzrEjztWUkoBzteoERXYfaccsNh95Yst78=
-Date:   Fri, 19 Nov 2021 16:43:55 -0800
+        b=pAhzlG9e76LG6n4GOP7TuNPBssnGg9LtoOogVr1N7Y0dG/tEGq/JnTIg6Y7VKRn2s
+         BjZY+PZkSCULBq+TxnIyOLjxleGl7xwXuqDTxPmzuJadgEllS3WImWf7yBrHL6EiFH
+         85GEolhuIWImeaXAwZxBlkr2oHErR/6yAWHqFStQ=
+Date:   Fri, 19 Nov 2021 16:43:58 -0800
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, ardb@kernel.org,
-        linus.walleij@linaro.org, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, quanyang.wang@windriver.com,
-        rmk+kernel@armlinux.org.uk, stable@vger.kernel.org,
-        tglx@linutronix.de, torvalds@linux-foundation.org
-Subject:  [patch 14/15] kmap_local: don't assume kmap PTEs are
- linear arrays in memory
-Message-ID: <20211120004355.3d5IhALrg%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, bhe@redhat.com, david@redhat.com,
+        dyoung@redhat.com, linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        prudo@redhat.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vgoyal@redhat.com
+Subject:  [patch 15/15] proc/vmcore: fix clearing user buffer by
+ properly using clear_user()
+Message-ID: <20211120004358.K3wyLJN5Y%akpm@linux-foundation.org>
 In-Reply-To: <20211119164248.50feee07c5d2cc6cc4addf97@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
-Subject: kmap_local: don't assume kmap PTEs are linear arrays in memory
+From: David Hildenbrand <david@redhat.com>
+Subject: proc/vmcore: fix clearing user buffer by properly using clear_user()
 
-The kmap_local conversion broke the ARM architecture, because the new code
-assumes that all PTEs used for creating kmaps form a linear array in
-memory, and uses array indexing to look up the kmap PTE belonging to a
-certain kmap index.
+To clear a user buffer we cannot simply use memset, we have to use
+clear_user().  With a virtio-mem device that registers a vmcore_cb and has
+some logically unplugged memory inside an added Linux memory block, I can
+easily trigger a BUG by copying the vmcore via "cp":
 
-On ARM, this cannot work, not only because the PTE pages may be
-non-adjacent in memory, but also because ARM/!LPAE interleaves hardware
-entries and extended entries (carrying software-only bits) in a way that
-is not compatible with array indexing.
+[   11.327580] systemd[1]: Starting Kdump Vmcore Save Service...
+[   11.339697] kdump[420]: Kdump is using the default log level(3).
+[   11.370964] kdump[453]: saving to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
+[   11.373997] kdump[458]: saving vmcore-dmesg.txt to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
+[   11.385357] kdump[465]: saving vmcore-dmesg.txt complete
+[   11.386722] kdump[467]: saving vmcore
+[   16.531275] BUG: unable to handle page fault for address: 00007f2374e01000
+[   16.531705] #PF: supervisor write access in kernel mode
+[   16.532037] #PF: error_code(0x0003) - permissions violation
+[   16.532396] PGD 7a523067 P4D 7a523067 PUD 7a528067 PMD 7a525067 PTE 800000007048f867
+[   16.532872] Oops: 0003 [#1] PREEMPT SMP NOPTI
+[   16.533154] CPU: 0 PID: 468 Comm: cp Not tainted 5.15.0+ #6
+[   16.533513] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-27-g64f37cc530f1-prebuilt.qemu.org 04/01/2014
+[   16.534198] RIP: 0010:read_from_oldmem.part.0.cold+0x1d/0x86
+[   16.534552] Code: ff ff ff e8 05 ff fe ff e9 b9 e9 7f ff 48 89 de 48 c7 c7 38 3b 60 82 e8 f1 fe fe ff 83 fd 08 72 3c 49 8d 7d 08 4c 89 e9 89 e8 <49> c7 45 00 00 00 00 00 49 c7 44 05 f8 00 00 00 00 48 83 e7 f81
+[   16.535670] RSP: 0018:ffffc9000073be08 EFLAGS: 00010212
+[   16.535998] RAX: 0000000000001000 RBX: 00000000002fd000 RCX: 00007f2374e01000
+[   16.536441] RDX: 0000000000000001 RSI: 00000000ffffdfff RDI: 00007f2374e01008
+[   16.536878] RBP: 0000000000001000 R08: 0000000000000000 R09: ffffc9000073bc50
+[   16.537315] R10: ffffc9000073bc48 R11: ffffffff829461a8 R12: 000000000000f000
+[   16.537755] R13: 00007f2374e01000 R14: 0000000000000000 R15: ffff88807bd421e8
+[   16.538200] FS:  00007f2374e12140(0000) GS:ffff88807f000000(0000) knlGS:0000000000000000
+[   16.538696] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   16.539055] CR2: 00007f2374e01000 CR3: 000000007a4aa000 CR4: 0000000000350eb0
+[   16.539510] Call Trace:
+[   16.539679]  <TASK>
+[   16.539828]  read_vmcore+0x236/0x2c0
+[   16.540063]  ? enqueue_hrtimer+0x2f/0x80
+[   16.540323]  ? inode_security+0x22/0x60
+[   16.540572]  proc_reg_read+0x55/0xa0
+[   16.540807]  vfs_read+0x95/0x190
+[   16.541022]  ksys_read+0x4f/0xc0
+[   16.541238]  do_syscall_64+0x3b/0x90
+[   16.541475]  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fortunately, this only seems to affect configurations with more than 8
-CPUs, due to the way the per-CPU kmap slots are organized in memory.
+Some x86-64 CPUs have a CPU feature called "Supervisor Mode Access
+Prevention (SMAP)", which is used to detect wrong access from the kernel
+to user buffers like this: SMAP triggers a permissions violation on wrong
+access.  In the x86-64 variant of clear_user(), SMAP is properly handled
+via clac()+stac().
 
-Work around this by permitting an architecture to set a Kconfig symbol
-that signifies that the kmap PTEs do not form a lineary array in memory,
-and so the only way to locate the appropriate one is to walk the page
-tables.
+To fix, properly use clear_user() when we're dealing with a user buffer.
 
-Link: https://lore.kernel.org/linux-arm-kernel/20211026131249.3731275-1-ardb@kernel.org/
-Link: https://lkml.kernel.org/r/20211116094737.7391-1-ardb@kernel.org
-Fixes: 2a15ba82fa6c ("ARM: highmem: Switch to generic kmap atomic")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reported-by: Quanyang Wang <quanyang.wang@windriver.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20211112092750.6921-1-david@redhat.com
+Fixes: 997c136f518c ("fs/proc/vmcore.c: add hook to read_from_oldmem() to check for non-ram pages")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Acked-by: Baoquan He <bhe@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Cc: Philipp Rudo <prudo@redhat.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- arch/arm/Kconfig |    1 +
- mm/Kconfig       |    3 +++
- mm/highmem.c     |   32 +++++++++++++++++++++-----------
- 3 files changed, 25 insertions(+), 11 deletions(-)
+ fs/proc/vmcore.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/arch/arm/Kconfig~kmap_local-dont-assume-kmap-ptes-are-linear-arrays-in-memory
-+++ a/arch/arm/Kconfig
-@@ -1463,6 +1463,7 @@ config HIGHMEM
- 	bool "High Memory Support"
- 	depends on MMU
- 	select KMAP_LOCAL
-+	select KMAP_LOCAL_NON_LINEAR_PTE_ARRAY
- 	help
- 	  The address space of ARM processors is only 4 Gigabytes large
- 	  and it has to accommodate user address space, kernel address
---- a/mm/highmem.c~kmap_local-dont-assume-kmap-ptes-are-linear-arrays-in-memory
-+++ a/mm/highmem.c
-@@ -503,16 +503,22 @@ static inline int kmap_local_calc_idx(in
+--- a/fs/proc/vmcore.c~proc-vmcore-fix-clearing-user-buffer-by-properly-using-clear_user
++++ a/fs/proc/vmcore.c
+@@ -154,9 +154,13 @@ ssize_t read_from_oldmem(char *buf, size
+ 			nr_bytes = count;
  
- static pte_t *__kmap_pte;
- 
--static pte_t *kmap_get_pte(void)
-+static pte_t *kmap_get_pte(unsigned long vaddr, int idx)
- {
-+	if (IS_ENABLED(CONFIG_KMAP_LOCAL_NON_LINEAR_PTE_ARRAY))
-+		/*
-+		 * Set by the arch if __kmap_pte[-idx] does not produce
-+		 * the correct entry.
-+		 */
-+		return virt_to_kpte(vaddr);
- 	if (!__kmap_pte)
- 		__kmap_pte = virt_to_kpte(__fix_to_virt(FIX_KMAP_BEGIN));
--	return __kmap_pte;
-+	return &__kmap_pte[-idx];
- }
- 
- void *__kmap_local_pfn_prot(unsigned long pfn, pgprot_t prot)
- {
--	pte_t pteval, *kmap_pte = kmap_get_pte();
-+	pte_t pteval, *kmap_pte;
- 	unsigned long vaddr;
- 	int idx;
- 
-@@ -524,9 +530,10 @@ void *__kmap_local_pfn_prot(unsigned lon
- 	preempt_disable();
- 	idx = arch_kmap_local_map_idx(kmap_local_idx_push(), pfn);
- 	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
--	BUG_ON(!pte_none(*(kmap_pte - idx)));
-+	kmap_pte = kmap_get_pte(vaddr, idx);
-+	BUG_ON(!pte_none(*kmap_pte));
- 	pteval = pfn_pte(pfn, prot);
--	arch_kmap_local_set_pte(&init_mm, vaddr, kmap_pte - idx, pteval);
-+	arch_kmap_local_set_pte(&init_mm, vaddr, kmap_pte, pteval);
- 	arch_kmap_local_post_map(vaddr, pteval);
- 	current->kmap_ctrl.pteval[kmap_local_idx()] = pteval;
- 	preempt_enable();
-@@ -559,7 +566,7 @@ EXPORT_SYMBOL(__kmap_local_page_prot);
- void kunmap_local_indexed(void *vaddr)
- {
- 	unsigned long addr = (unsigned long) vaddr & PAGE_MASK;
--	pte_t *kmap_pte = kmap_get_pte();
-+	pte_t *kmap_pte;
- 	int idx;
- 
- 	if (addr < __fix_to_virt(FIX_KMAP_END) ||
-@@ -584,8 +591,9 @@ void kunmap_local_indexed(void *vaddr)
- 	idx = arch_kmap_local_unmap_idx(kmap_local_idx(), addr);
- 	WARN_ON_ONCE(addr != __fix_to_virt(FIX_KMAP_BEGIN + idx));
- 
-+	kmap_pte = kmap_get_pte(addr, idx);
- 	arch_kmap_local_pre_unmap(addr);
--	pte_clear(&init_mm, addr, kmap_pte - idx);
-+	pte_clear(&init_mm, addr, kmap_pte);
- 	arch_kmap_local_post_unmap(addr);
- 	current->kmap_ctrl.pteval[kmap_local_idx()] = __pte(0);
- 	kmap_local_idx_pop();
-@@ -607,7 +615,7 @@ EXPORT_SYMBOL(kunmap_local_indexed);
- void __kmap_local_sched_out(void)
- {
- 	struct task_struct *tsk = current;
--	pte_t *kmap_pte = kmap_get_pte();
-+	pte_t *kmap_pte;
- 	int i;
- 
- 	/* Clear kmaps */
-@@ -634,8 +642,9 @@ void __kmap_local_sched_out(void)
- 		idx = arch_kmap_local_map_idx(i, pte_pfn(pteval));
- 
- 		addr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
-+		kmap_pte = kmap_get_pte(addr, idx);
- 		arch_kmap_local_pre_unmap(addr);
--		pte_clear(&init_mm, addr, kmap_pte - idx);
-+		pte_clear(&init_mm, addr, kmap_pte);
- 		arch_kmap_local_post_unmap(addr);
- 	}
- }
-@@ -643,7 +652,7 @@ void __kmap_local_sched_out(void)
- void __kmap_local_sched_in(void)
- {
- 	struct task_struct *tsk = current;
--	pte_t *kmap_pte = kmap_get_pte();
-+	pte_t *kmap_pte;
- 	int i;
- 
- 	/* Restore kmaps */
-@@ -663,7 +672,8 @@ void __kmap_local_sched_in(void)
- 		/* See comment in __kmap_local_sched_out() */
- 		idx = arch_kmap_local_map_idx(i, pte_pfn(pteval));
- 		addr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
--		set_pte_at(&init_mm, addr, kmap_pte - idx, pteval);
-+		kmap_pte = kmap_get_pte(addr, idx);
-+		set_pte_at(&init_mm, addr, kmap_pte, pteval);
- 		arch_kmap_local_post_map(addr, pteval);
- 	}
- }
---- a/mm/Kconfig~kmap_local-dont-assume-kmap-ptes-are-linear-arrays-in-memory
-+++ a/mm/Kconfig
-@@ -890,6 +890,9 @@ config MAPPING_DIRTY_HELPERS
- config KMAP_LOCAL
- 	bool
- 
-+config KMAP_LOCAL_NON_LINEAR_PTE_ARRAY
-+	bool
+ 		/* If pfn is not ram, return zeros for sparse dump files */
+-		if (!pfn_is_ram(pfn))
+-			memset(buf, 0, nr_bytes);
+-		else {
++		if (!pfn_is_ram(pfn)) {
++			tmp = 0;
++			if (!userbuf)
++				memset(buf, 0, nr_bytes);
++			else if (clear_user(buf, nr_bytes))
++				tmp = -EFAULT;
++		} else {
+ 			if (encrypted)
+ 				tmp = copy_oldmem_page_encrypted(pfn, buf,
+ 								 nr_bytes,
+@@ -165,12 +169,12 @@ ssize_t read_from_oldmem(char *buf, size
+ 			else
+ 				tmp = copy_oldmem_page(pfn, buf, nr_bytes,
+ 						       offset, userbuf);
+-
+-			if (tmp < 0) {
+-				up_read(&vmcore_cb_rwsem);
+-				return tmp;
+-			}
+ 		}
++		if (tmp < 0) {
++			up_read(&vmcore_cb_rwsem);
++			return tmp;
++		}
 +
- # struct io_mapping based helper.  Selected by drivers that need them
- config IO_MAPPING
- 	bool
+ 		*ppos += nr_bytes;
+ 		count -= nr_bytes;
+ 		buf += nr_bytes;
 _
