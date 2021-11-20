@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67D77457E40
+	by mail.lfdr.de (Postfix) with ESMTP id DE510457E41
 	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:39:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236947AbhKTMmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Nov 2021 07:42:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43908 "EHLO
+        id S231135AbhKTMmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Nov 2021 07:42:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236860AbhKTMmw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 07:42:52 -0500
+        with ESMTP id S231871AbhKTMmx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 07:42:53 -0500
 Received: from dvalin.narfation.org (dvalin.narfation.org [IPv6:2a00:17d8:100::8b1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D05AC061574
-        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 04:39:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11521C06173E
+        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 04:39:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
         s=20121; t=1637411987;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=J2yYAWWrPYzWNGmwIQ4VJd+c8/WRWRL3hv2IB/oZOzM=;
-        b=T7bE5MzDLN24h+7/X5jZ0cPd5y9F02IZNUjfzTAC8RfovdvaHQBE4nJd4Qu9Y4KmjBryTg
-        Ge5VFmac49gNtQOvzPgSV0Q5mTzXEP9f8mE27dcVjlxujyhpNfMYdIO7i3bKKmYkHy99kH
-        fRnt3bB0JjqSRQmEYEcGzlVKB8/3Ef8=
+        bh=4maUAAS44X66FxWwAzQabuiiYD7i+Wp6i2zb+oOcTlg=;
+        b=lPRpHNnNnRf9/6aY+Y/kI+k7HE3xH3EOkP3uTDMovdz/YQvHnUmC1tAxh77aQ5m6U8iguP
+        0IK7r2+TDGdsQNJK2gGRztKs/pNp/snz3cE5J1aUWm1qBsgjF63NCQ9LtPzJOep3iENp+g
+        9ze9w2Y6xd1dOItWXLu3xKleXtNxKh4=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
 Cc:     b.a.t.m.a.n@lists.open-mesh.org,
         Sven Eckelmann <sven@narfation.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        syzbot+c0b807de416427ff3dd1@syzkaller.appspotmail.com,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 10/11] batman-adv: Don't always reallocate the fragmentation skb head
-Date:   Sat, 20 Nov 2021 13:39:38 +0100
-Message-Id: <20211120123939.260723-11-sven@narfation.org>
+Subject: [PATCH 4.4 11/11] batman-adv: Avoid WARN_ON timing related checks
+Date:   Sat, 20 Nov 2021 13:39:39 +0100
+Message-Id: <20211120123939.260723-12-sven@narfation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211120123939.260723-1-sven@narfation.org>
 References: <20211120123939.260723-1-sven@narfation.org>
@@ -41,48 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 992b03b88e36254e26e9a4977ab948683e21bd9f upstream.
+commit 9f460ae31c4435fd022c443a6029352217a16ac1 upstream.
 
-When a packet is fragmented by batman-adv, the original batman-adv header
-is not modified. Only a new fragmentation is inserted between the original
-one and the ethernet header. The code must therefore make sure that it has
-a writable region of this size in the skbuff head.
+The soft/batadv interface for a queued OGM can be changed during the time
+the OGM was queued for transmission and when the OGM is actually
+transmitted by the worker.
 
-But it is not useful to always reallocate the skbuff by this size even when
-there would be more than enough headroom still in the skb. The reallocation
-is just to costly during in this codepath.
+But WARN_ON must be used to denote kernel bugs and not to print simple
+warnings. A warning can simply be printed using pr_warn.
 
-Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
+Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Reported-by: syzbot+c0b807de416427ff3dd1@syzkaller.appspotmail.com
+Fixes: ef0a937f7a14 ("batman-adv: consider outgoing interface in OGM sending")
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.4 backported: adjust context, switch back to old return type +
-  labels ]
+[ bp: 4.4 backported: adjust context. ]
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 ---
- net/batman-adv/fragmentation.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/batman-adv/bat_iv_ogm.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
-index 07dd799e0d56..371f50804fc2 100644
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -507,11 +507,13 @@ bool batadv_frag_send_packet(struct sk_buff *skb,
- 		frag_header.no++;
- 	}
+diff --git a/net/batman-adv/bat_iv_ogm.c b/net/batman-adv/bat_iv_ogm.c
+index caea5bb38d4b..6f8d2fe114f6 100644
+--- a/net/batman-adv/bat_iv_ogm.c
++++ b/net/batman-adv/bat_iv_ogm.c
+@@ -526,8 +526,10 @@ static void batadv_iv_ogm_emit(struct batadv_forw_packet *forw_packet)
+ 	if (WARN_ON(!forw_packet->if_outgoing))
+ 		goto out;
  
--	/* Make room for the fragment header. */
--	if (batadv_skb_head_push(skb, header_size) < 0 ||
--	    pskb_expand_head(skb, header_size + ETH_HLEN, 0, GFP_ATOMIC) < 0)
-+	/* make sure that there is at least enough head for the fragmentation
-+	 * and ethernet headers
-+	 */
-+	if (skb_cow_head(skb, ETH_HLEN + header_size) < 0)
- 		goto out_err;
+-	if (WARN_ON(forw_packet->if_outgoing->soft_iface != soft_iface))
++	if (forw_packet->if_outgoing->soft_iface != soft_iface) {
++		pr_warn("%s: soft interface switch for queued OGM\n", __func__);
+ 		goto out;
++	}
  
-+	skb_push(skb, header_size);
- 	memcpy(skb->data, &frag_header, header_size);
- 
- 	/* Send the last fragment */
+ 	if (forw_packet->if_incoming->if_status != BATADV_IF_ACTIVE)
+ 		goto out;
 -- 
 2.30.2
 
