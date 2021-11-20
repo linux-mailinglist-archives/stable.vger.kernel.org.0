@@ -2,237 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4943457E3A
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:39:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43725457E3C
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:39:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237099AbhKTMmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237139AbhKTMmv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 20 Nov 2021 07:42:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43892 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231135AbhKTMmu (ORCPT
+        with ESMTP id S236677AbhKTMmu (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 07:42:50 -0500
 Received: from dvalin.narfation.org (dvalin.narfation.org [IPv6:2a00:17d8:100::8b1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B36C061574
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97DCFC06173E
         for <stable@vger.kernel.org>; Sat, 20 Nov 2021 04:39:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1637411984;
+        s=20121; t=1637411985;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=PvfESdvyhHLSgdq1cgkoDBV+EZEBCoVtYNP6BKFu76I=;
-        b=GBpRVvLJt0z0psYnbyIO2JX1SqKOqgavFlqigJ2xABs+3++x9WRgOf2t90pFycEAWTY0hU
-        cWJH011z3k6sFMSKyA7NE0ULdHUmH9Dx0a9aLWZoUpp9zSGn2gT6WLd4hdkUkJIwRYENvx
-        HljTFlPJfznh7kmQjwb2uTPC2kV+VTE=
+        bh=GtMYygK9CveU6Qg0qkcv5EHFKfWIoCejXMN28DDIRIY=;
+        b=mRFyaOYVDSJP4O2rjxp8DbsFExQjcs+wmPTu+x0xn0HNQX3IR5SRcjSsSc8/vzn+SANXIZ
+        G9acRpR+yN4kRvtgNJjeWjFj8qLDY7TFlHfncl4CVTAeOtAeBSOA02O2wtQm2z9iuId35C
+        kDixKdMqRh9WfV5iMnR0UaXwk+fxLmw=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
-Cc:     b.a.t.m.a.n@lists.open-mesh.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+Cc:     b.a.t.m.a.n@lists.open-mesh.org, Taehee Yoo <ap420073@gmail.com>,
         Simon Wunderlich <sw@simonwunderlich.de>,
         Sven Eckelmann <sven@narfation.org>
-Subject: [PATCH 4.4 06/11] batman-adv: mcast: fix duplicate mcast packets from BLA backbone to mesh
-Date:   Sat, 20 Nov 2021 13:39:34 +0100
-Message-Id: <20211120123939.260723-7-sven@narfation.org>
+Subject: [PATCH 4.4 07/11] batman-adv: set .owner to THIS_MODULE
+Date:   Sat, 20 Nov 2021 13:39:35 +0100
+Message-Id: <20211120123939.260723-8-sven@narfation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211120123939.260723-1-sven@narfation.org>
 References: <20211120123939.260723-1-sven@narfation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <linus.luessing@c0d3.blue>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit 2369e827046920ef0599e6a36b975ac5c0a359c2 upstream.
+commit 14a2e551faea53d45bc11629a9dac88f88950ca7 upstream.
 
-Scenario:
-* Multicast frame send from BLA backbone gateways (multiple nodes
-  with their bat0 bridged together, with BLA enabled) sharing the same
-  LAN to nodes in the mesh
+If THIS_MODULE is not set, the module would be removed while debugfs is
+being used.
+It eventually makes kernel panic.
 
-Issue:
-* Nodes receive the frame multiple times on bat0 from the mesh,
-  once from each foreign BLA backbone gateway which shares the same LAN
-  with another
-
-For multicast frames via batman-adv broadcast packets coming from the
-same BLA backbone but from different backbone gateways duplicates are
-currently detected via a CRC history of previously received packets.
-
-However this CRC so far was not performed for multicast frames received
-via batman-adv unicast packets. Fixing this by appyling the same check
-for such packets, too.
-
-Room for improvements in the future: Ideally we would introduce the
-possibility to not only claim a client, but a complete originator, too.
-This would allow us to only send a multicast-in-unicast packet from a BLA
-backbone gateway claiming the node and by that avoid potential redundant
-transmissions in the first place.
-
-Fixes: fe2da6ff27c7 ("batman-adv: add broadcast duplicate check")
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.4 backported: adjust context, correct fixes line, switch back to
-  int return type ]
+[ bp: 4.4 backported: switch to old filename. ]
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 ---
- net/batman-adv/bridge_loop_avoidance.c | 99 ++++++++++++++++++++++----
- 1 file changed, 85 insertions(+), 14 deletions(-)
+ net/batman-adv/debugfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/batman-adv/bridge_loop_avoidance.c b/net/batman-adv/bridge_loop_avoidance.c
-index c8fbcaed5844..e97b1e000670 100644
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -1366,31 +1366,32 @@ int batadv_bla_init(struct batadv_priv *bat_priv)
- }
+diff --git a/net/batman-adv/debugfs.c b/net/batman-adv/debugfs.c
+index b2ef03a3a2d4..b905763dc2e7 100644
+--- a/net/batman-adv/debugfs.c
++++ b/net/batman-adv/debugfs.c
+@@ -214,6 +214,7 @@ static const struct file_operations batadv_log_fops = {
+ 	.read           = batadv_log_read,
+ 	.poll           = batadv_log_poll,
+ 	.llseek         = no_llseek,
++	.owner          = THIS_MODULE,
+ };
  
- /**
-- * batadv_bla_check_bcast_duplist
-+ * batadv_bla_check_duplist() - Check if a frame is in the broadcast dup.
-  * @bat_priv: the bat priv with all the soft interface information
-- * @skb: contains the bcast_packet to be checked
-+ * @skb: contains the multicast packet to be checked
-+ * @payload_ptr: pointer to position inside the head buffer of the skb
-+ *  marking the start of the data to be CRC'ed
-+ * @orig: originator mac address, NULL if unknown
-  *
-- * check if it is on our broadcast list. Another gateway might
-- * have sent the same packet because it is connected to the same backbone,
-- * so we have to remove this duplicate.
-+ * Check if it is on our broadcast list. Another gateway might have sent the
-+ * same packet because it is connected to the same backbone, so we have to
-+ * remove this duplicate.
-  *
-  * This is performed by checking the CRC, which will tell us
-  * with a good chance that it is the same packet. If it is furthermore
-  * sent by another host, drop it. We allow equal packets from
-  * the same host however as this might be intended.
-  */
--int batadv_bla_check_bcast_duplist(struct batadv_priv *bat_priv,
--				   struct sk_buff *skb)
-+static int batadv_bla_check_duplist(struct batadv_priv *bat_priv,
-+				    struct sk_buff *skb, u8 *payload_ptr,
-+				    const u8 *orig)
- {
- 	int i, curr, ret = 0;
- 	__be32 crc;
--	struct batadv_bcast_packet *bcast_packet;
- 	struct batadv_bcast_duplist_entry *entry;
- 
--	bcast_packet = (struct batadv_bcast_packet *)skb->data;
--
- 	/* calculate the crc ... */
--	crc = batadv_skb_crc32(skb, (u8 *)(bcast_packet + 1));
-+	crc = batadv_skb_crc32(skb, payload_ptr);
- 
- 	spin_lock_bh(&bat_priv->bla.bcast_duplist_lock);
- 
-@@ -1409,8 +1410,21 @@ int batadv_bla_check_bcast_duplist(struct batadv_priv *bat_priv,
- 		if (entry->crc != crc)
- 			continue;
- 
--		if (batadv_compare_eth(entry->orig, bcast_packet->orig))
--			continue;
-+		/* are the originators both known and not anonymous? */
-+		if (orig && !is_zero_ether_addr(orig) &&
-+		    !is_zero_ether_addr(entry->orig)) {
-+			/* If known, check if the new frame came from
-+			 * the same originator:
-+			 * We are safe to take identical frames from the
-+			 * same orig, if known, as multiplications in
-+			 * the mesh are detected via the (orig, seqno) pair.
-+			 * So we can be a bit more liberal here and allow
-+			 * identical frames from the same orig which the source
-+			 * host might have sent multiple times on purpose.
-+			 */
-+			if (batadv_compare_eth(entry->orig, orig))
-+				continue;
-+		}
- 
- 		/* this entry seems to match: same crc, not too old,
- 		 * and from another gw. therefore return 1 to forbid it.
-@@ -1426,7 +1440,14 @@ int batadv_bla_check_bcast_duplist(struct batadv_priv *bat_priv,
- 	entry = &bat_priv->bla.bcast_duplist[curr];
- 	entry->crc = crc;
- 	entry->entrytime = jiffies;
--	ether_addr_copy(entry->orig, bcast_packet->orig);
-+
-+	/* known originator */
-+	if (orig)
-+		ether_addr_copy(entry->orig, orig);
-+	/* anonymous originator */
-+	else
-+		eth_zero_addr(entry->orig);
-+
- 	bat_priv->bla.bcast_duplist_curr = curr;
- 
- out:
-@@ -1435,6 +1456,48 @@ int batadv_bla_check_bcast_duplist(struct batadv_priv *bat_priv,
- 	return ret;
- }
- 
-+/**
-+ * batadv_bla_check_ucast_duplist() - Check if a frame is in the broadcast dup.
-+ * @bat_priv: the bat priv with all the soft interface information
-+ * @skb: contains the multicast packet to be checked, decapsulated from a
-+ *  unicast_packet
-+ *
-+ * Check if it is on our broadcast list. Another gateway might have sent the
-+ * same packet because it is connected to the same backbone, so we have to
-+ * remove this duplicate.
-+ *
-+ * Return: true if a packet is in the duplicate list, false otherwise.
-+ */
-+static bool batadv_bla_check_ucast_duplist(struct batadv_priv *bat_priv,
-+					   struct sk_buff *skb)
-+{
-+	return batadv_bla_check_duplist(bat_priv, skb, (u8 *)skb->data, NULL);
-+}
-+
-+/**
-+ * batadv_bla_check_bcast_duplist() - Check if a frame is in the broadcast dup.
-+ * @bat_priv: the bat priv with all the soft interface information
-+ * @skb: contains the bcast_packet to be checked
-+ *
-+ * Check if it is on our broadcast list. Another gateway might have sent the
-+ * same packet because it is connected to the same backbone, so we have to
-+ * remove this duplicate.
-+ *
-+ * Return: true if a packet is in the duplicate list, false otherwise.
-+ */
-+int batadv_bla_check_bcast_duplist(struct batadv_priv *bat_priv,
-+				   struct sk_buff *skb)
-+{
-+	struct batadv_bcast_packet *bcast_packet;
-+	u8 *payload_ptr;
-+
-+	bcast_packet = (struct batadv_bcast_packet *)skb->data;
-+	payload_ptr = (u8 *)(bcast_packet + 1);
-+
-+	return batadv_bla_check_duplist(bat_priv, skb, payload_ptr,
-+					bcast_packet->orig);
-+}
-+
- /**
-  * batadv_bla_is_backbone_gw_orig
-  * @bat_priv: the bat priv with all the soft interface information
-@@ -1587,6 +1650,14 @@ int batadv_bla_rx(struct batadv_priv *bat_priv, struct sk_buff *skb,
- 			    packet_type == BATADV_UNICAST)
- 				goto handled;
- 
-+	/* potential duplicates from foreign BLA backbone gateways via
-+	 * multicast-in-unicast packets
-+	 */
-+	if (is_multicast_ether_addr(ethhdr->h_dest) &&
-+	    packet_type == BATADV_UNICAST &&
-+	    batadv_bla_check_ucast_duplist(bat_priv, skb))
-+		goto handled;
-+
- 	ether_addr_copy(search_claim.addr, ethhdr->h_source);
- 	search_claim.vid = vid;
- 	claim = batadv_claim_hash_find(bat_priv, &search_claim);
+ static int batadv_debug_log_setup(struct batadv_priv *bat_priv)
 -- 
 2.30.2
 
