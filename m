@@ -2,87 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC16A457E51
+	by mail.lfdr.de (Postfix) with ESMTP id B2A58457E50
 	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:40:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237152AbhKTMnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Nov 2021 07:43:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44026 "EHLO
+        id S237179AbhKTMnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Nov 2021 07:43:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237303AbhKTMnR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 07:43:17 -0500
+        with ESMTP id S237249AbhKTMnY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 07:43:24 -0500
 Received: from dvalin.narfation.org (dvalin.narfation.org [IPv6:2a00:17d8:100::8b1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F3B9C061574
-        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 04:40:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04A57C06173E
+        for <stable@vger.kernel.org>; Sat, 20 Nov 2021 04:40:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1637412010;
+        s=20121; t=1637412019;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=VjUYQ6oXZkBiXYjojTpahxcFcaCQNiZbys9b1nVcndc=;
-        b=cdtu6n+fQKt4+gwYGFO2/TjRC967LMUtCL7Q2FznYKqE1pDqPO1KnYAgJTcFz5dMGLGVM1
-        RG+xCWPCVauHmZ5wtqzCPSrmt8i1ZltzNzoOIqsPwgA5bDVS3ydElyqJai4LaHelxFApxj
-        BwK3AIkHvz5Ibo7l6Zd319u66L689Co=
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=mzoIfXxpdajHJCIiXm9bxvB8pLJXA0fgVxfBe0FftLg=;
+        b=yNMq/zAi2atq7kiTRU+e3vUj4mo/ZXMhcsd6e65yX41VWoq47b/HhixsAWZ6NIKfB1LEaT
+        kgJHoGabSqzm/0Mr7gNXDmiwOcN/2Jw3Iz0H/BNX+MHASv3pyYvbNabgMcnUU4e7p/5DtP
+        8xcPkSShhFLhikNPOhY4qggwiTYm3HA=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
 Cc:     b.a.t.m.a.n@lists.open-mesh.org,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.9 7/7] batman-adv: Don't always reallocate the fragmentation skb head
-Date:   Sat, 20 Nov 2021 13:39:58 +0100
-Message-Id: <20211120123958.260826-8-sven@narfation.org>
+        Sven Eckelmann <sven@narfation.org>
+Subject: [PATCH 4.14 0/5] batman-adv: Fixes for stable/linux-4.14.y
+Date:   Sat, 20 Nov 2021 13:40:13 +0100
+Message-Id: <20211120124018.260907-1-sven@narfation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211120123958.260826-1-sven@narfation.org>
-References: <20211120123958.260826-1-sven@narfation.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 992b03b88e36254e26e9a4977ab948683e21bd9f upstream.
+Hi,
 
-When a packet is fragmented by batman-adv, the original batman-adv header
-is not modified. Only a new fragmentation is inserted between the original
-one and the ethernet header. The code must therefore make sure that it has
-a writable region of this size in the skbuff head.
+I went through  all changes in batman-adv since v4.14 with a Fixes: line
+and checked whether they were backported to the LTS kernels. The ones which
+weren't ported and applied to this branch are now part of this patch series.
 
-But it is not useful to always reallocate the skbuff by this size even when
-there would be more than enough headroom still in the skb. The reallocation
-is just to costly during in this codepath.
+There are also following three patches included:
 
-Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.9 backported: adjust context. ]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
----
- net/batman-adv/fragmentation.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+* batman-adv: Consider fragmentation for needed_headroom
+* batman-adv: Reserve needed_*room for fragments
+* batman-adv: Don't always reallocate the fragmentation skb head
 
-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
-index 353772eb4f4d..343f4fc5909d 100644
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -528,11 +528,14 @@ int batadv_frag_send_packet(struct sk_buff *skb,
- 		frag_header.no++;
- 	}
- 
--	/* Make room for the fragment header. */
--	if (batadv_skb_head_push(skb, header_size) < 0 ||
--	    pskb_expand_head(skb, header_size + ETH_HLEN, 0, GFP_ATOMIC) < 0)
-+	/* make sure that there is at least enough head for the fragmentation
-+	 * and ethernet headers
-+	 */
-+	ret = skb_cow_head(skb, ETH_HLEN + header_size);
-+	if (ret < 0)
- 		goto out;
- 
-+	skb_push(skb, header_size);
- 	memcpy(skb->data, &frag_header, header_size);
- 
- 	/* Send the last fragment */
+which could in some circumstances cause packet loss but which were created
+to fix high CPU load/low throughput problems. But I've added them here
+anyway because the corresponding VXLAN patches were also added to stable.
+And some stable kernels also got these fixes a while back.
+
+Kind regards,
+	Sven
+
+Linus Lüssing (2):
+  batman-adv: mcast: fix duplicate mcast packets in BLA backbone from
+    LAN
+  batman-adv: mcast: fix duplicate mcast packets from BLA backbone to
+    mesh
+
+Sven Eckelmann (3):
+  batman-adv: Consider fragmentation for needed_headroom
+  batman-adv: Reserve needed_*room for fragments
+  batman-adv: Don't always reallocate the fragmentation skb head
+
+ net/batman-adv/bridge_loop_avoidance.c | 103 +++++++++++++++++++++----
+ net/batman-adv/fragmentation.c         |  26 ++++---
+ net/batman-adv/hard-interface.c        |   3 +
+ net/batman-adv/multicast.c             |  31 ++++++++
+ net/batman-adv/multicast.h             |  15 ++++
+ net/batman-adv/soft-interface.c        |   5 +-
+ 6 files changed, 154 insertions(+), 29 deletions(-)
+
 -- 
 2.30.2
 
