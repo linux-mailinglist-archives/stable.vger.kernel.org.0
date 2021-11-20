@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C6A0457E38
-	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:39:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA585457E35
+	for <lists+stable@lfdr.de>; Sat, 20 Nov 2021 13:39:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230480AbhKTMmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231398AbhKTMmr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 20 Nov 2021 07:42:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43860 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230381AbhKTMmr (ORCPT
+        with ESMTP id S230480AbhKTMmr (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 20 Nov 2021 07:42:47 -0500
 Received: from dvalin.narfation.org (dvalin.narfation.org [IPv6:2a00:17d8:100::8b1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F010BC061574
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00575C06173E
         for <stable@vger.kernel.org>; Sat, 20 Nov 2021 04:39:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-        s=20121; t=1637411980;
+        s=20121; t=1637411981;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=qIZ4ceWhobrZ6dhjhEaCuwWdHu5EaAIxG28AL/vsizY=;
-        b=DYqfkyaiUM/9LdZVw01GhURx7Pqzo3TIhAA6eKkvPJcQDnhDcFMrdumIkLll8RsUlujt5F
-        bXBkwrxzyBmDQQ3CtMzYWEoLNhL0wbLlH/SNtkYhpqZHMB8rWflSJWfRx4L7qkHQn9WHzX
-        NAGAww2zJam1IHrjQQXpM2cVrAy0L/o=
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=D2Zt3+lA2sYSSk7jceFNezZYAdSOoveVQg/mf+lksSc=;
+        b=E9ewx4ThRJkEkzIvuj3fclf0YyNljDhDOyfnUqbGwm7Cd7bBPLyPbi6eQUyhGYqn4VtwD2
+        GICXJsUhLp5TctmcwzxDWDI+F5TYXJxCGZSgPE0rGUgXSzs75XpNrIUhoVU4zVdNpgKUdt
+        L5EVcS7QX7TEIXHW35OnwzKOItIlp/4=
 From:   Sven Eckelmann <sven@narfation.org>
 To:     stable@vger.kernel.org
 Cc:     b.a.t.m.a.n@lists.open-mesh.org,
-        Sven Eckelmann <sven@narfation.org>
-Subject: [PATCH 4.4 00/11] batman-adv: Fixes for stable/linux-4.4.y
-Date:   Sat, 20 Nov 2021 13:39:28 +0100
-Message-Id: <20211120123939.260723-1-sven@narfation.org>
+        Sven Eckelmann <sven@narfation.org>,
+        Martin Weinelt <martin@darmstadt.freifunk.net>,
+        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.4 01/11] batman-adv: Keep fragments equally sized
+Date:   Sat, 20 Nov 2021 13:39:29 +0100
+Message-Id: <20211120123939.260723-2-sven@narfation.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211120123939.260723-1-sven@narfation.org>
+References: <20211120123939.260723-1-sven@narfation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -38,58 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+commit 1c2bcc766be44467809f1798cd4ceacafe20a852 upstream.
 
-I went through  all changes in batman-adv since v4.4 with a Fixes: line
-and checked whether they were backported to the LTS kernels. The ones which
-weren't ported and applied to this branch are now part of this patch series.
+The batman-adv fragmentation packets have the design problem that they
+cannot be refragmented and cannot handle padding by the underlying link.
+The latter often leads to problems when networks are incorrectly configured
+and don't use a common MTU.
 
-There are also following three patches included:
+The sender could for example fragment a 1271 byte frame (plus external
+ethernet header (14) and batadv unicast header (10)) to fit in a 1280 bytes
+large MTU of the underlying link (max. 1294 byte frames). This would create
+a 1294 bytes large frame (fragment 2) and a 55 bytes large frame
+(fragment 1). The extra 54 bytes are the fragment header (20) added to each
+fragment and the external ethernet header (14) for the second fragment.
 
-* batman-adv: Consider fragmentation for needed_headroom
-* batman-adv: Reserve needed_*room for fragments
-* batman-adv: Don't always reallocate the fragmentation skb head
+Let us assume that the next hop is then not able to transport 1294 bytes to
+its next hop. The 1294 byte large frame will be dropped but the 55 bytes
+large fragment will still be forwarded to its destination.
 
-which could in some circumstances cause packet loss but which were created
-to fix high CPU load/low throughput problems. But I've added them here
-anyway because the corresponding VXLAN patches were also added to stable.
-And some stable kernels also got these fixes a while back.
+Or let us assume that the underlying hardware requires that each frame has
+a minimum size (e.g. 60 bytes). Then it will pad the 55 bytes frame to 60
+bytes. The receiver of the 60 bytes frame will no longer be able to
+correctly assemble the two frames together because it is not aware that 5
+bytes of the 60 bytes frame are padding and don't belong to the reassembled
+frame.
 
-Kind regards,
-	Sven
+This can partly be avoided by splitting frames more equally. In this
+example, the 675 and 674 bytes large fragment frames could both potentially
+reach its destination without being too large or too small.
 
-Linus Lüssing (4):
-  batman-adv: Fix multicast TT issues with bogus ROAM flags
-  batman-adv: mcast: fix duplicate mcast packets in BLA backbone from
-    LAN
-  batman-adv: mcast: fix duplicate mcast packets in BLA backbone from
-    mesh
-  batman-adv: mcast: fix duplicate mcast packets from BLA backbone to
-    mesh
+Reported-by: Martin Weinelt <martin@darmstadt.freifunk.net>
+Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Acked-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+[ bp: 4.4 backported: adjust context, switch back to old return type +
+  labels ]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+---
+ net/batman-adv/fragmentation.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-Sven Eckelmann (6):
-  batman-adv: Keep fragments equally sized
-  batman-adv: Prevent duplicated softif_vlan entry
-  batman-adv: Consider fragmentation for needed_headroom
-  batman-adv: Reserve needed_*room for fragments
-  batman-adv: Don't always reallocate the fragmentation skb head
-  batman-adv: Avoid WARN_ON timing related checks
-
-Taehee Yoo (1):
-  batman-adv: set .owner to THIS_MODULE
-
- net/batman-adv/bat_iv_ogm.c            |   4 +-
- net/batman-adv/bridge_loop_avoidance.c | 133 ++++++++++++++++++++-----
- net/batman-adv/bridge_loop_avoidance.h |   4 +-
- net/batman-adv/debugfs.c               |   1 +
- net/batman-adv/fragmentation.c         |  41 +++++---
- net/batman-adv/hard-interface.c        |   3 +
- net/batman-adv/multicast.c             |  31 ++++++
- net/batman-adv/multicast.h             |  15 +++
- net/batman-adv/soft-interface.c        |  31 +++---
- net/batman-adv/translation-table.c     |   6 +-
- 10 files changed, 215 insertions(+), 54 deletions(-)
-
+diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+index 9751b207b01f..3aceac21b283 100644
+--- a/net/batman-adv/fragmentation.c
++++ b/net/batman-adv/fragmentation.c
+@@ -396,7 +396,7 @@ bool batadv_frag_skb_fwd(struct sk_buff *skb,
+  * batadv_frag_create - create a fragment from skb
+  * @skb: skb to create fragment from
+  * @frag_head: header to use in new fragment
+- * @mtu: size of new fragment
++ * @fragment_size: size of new fragment
+  *
+  * Split the passed skb into two fragments: A new one with size matching the
+  * passed mtu and the old one with the rest. The new skb contains data from the
+@@ -406,11 +406,11 @@ bool batadv_frag_skb_fwd(struct sk_buff *skb,
+  */
+ static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
+ 					  struct batadv_frag_packet *frag_head,
+-					  unsigned int mtu)
++					  unsigned int fragment_size)
+ {
+ 	struct sk_buff *skb_fragment;
+ 	unsigned header_size = sizeof(*frag_head);
+-	unsigned fragment_size = mtu - header_size;
++	unsigned mtu = fragment_size + header_size;
+ 
+ 	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
+ 	if (!skb_fragment)
+@@ -448,7 +448,7 @@ bool batadv_frag_send_packet(struct sk_buff *skb,
+ 	struct sk_buff *skb_fragment;
+ 	unsigned mtu = neigh_node->if_incoming->net_dev->mtu;
+ 	unsigned header_size = sizeof(frag_header);
+-	unsigned max_fragment_size, max_packet_size;
++	unsigned max_fragment_size, num_fragments;
+ 	bool ret = false;
+ 
+ 	/* To avoid merge and refragmentation at next-hops we never send
+@@ -456,10 +456,15 @@ bool batadv_frag_send_packet(struct sk_buff *skb,
+ 	 */
+ 	mtu = min_t(unsigned, mtu, BATADV_FRAG_MAX_FRAG_SIZE);
+ 	max_fragment_size = mtu - header_size;
+-	max_packet_size = max_fragment_size * BATADV_FRAG_MAX_FRAGMENTS;
++
++	if (skb->len == 0 || max_fragment_size == 0)
++		goto out_err;
++
++	num_fragments = (skb->len - 1) / max_fragment_size + 1;
++	max_fragment_size = (skb->len - 1) / num_fragments + 1;
+ 
+ 	/* Don't even try to fragment, if we need more than 16 fragments */
+-	if (skb->len > max_packet_size)
++	if (num_fragments > BATADV_FRAG_MAX_FRAGMENTS)
+ 		goto out_err;
+ 
+ 	bat_priv = orig_node->bat_priv;
+@@ -484,7 +489,8 @@ bool batadv_frag_send_packet(struct sk_buff *skb,
+ 		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1)
+ 			goto out_err;
+ 
+-		skb_fragment = batadv_frag_create(skb, &frag_header, mtu);
++		skb_fragment = batadv_frag_create(skb, &frag_header,
++						  max_fragment_size);
+ 		if (!skb_fragment)
+ 			goto out_err;
+ 
 -- 
 2.30.2
 
