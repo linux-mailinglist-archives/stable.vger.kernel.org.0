@@ -2,129 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5616458668
-	for <lists+stable@lfdr.de>; Sun, 21 Nov 2021 22:03:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27F26458734
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 00:38:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229489AbhKUVGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Nov 2021 16:06:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40318 "EHLO
+        id S230418AbhKUXlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Nov 2021 18:41:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbhKUVGX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Nov 2021 16:06:23 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 477A7C061574
-        for <stable@vger.kernel.org>; Sun, 21 Nov 2021 13:03:17 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id iq11so12139043pjb.3
-        for <stable@vger.kernel.org>; Sun, 21 Nov 2021 13:03:17 -0800 (PST)
+        with ESMTP id S229735AbhKUXlO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Nov 2021 18:41:14 -0500
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C82C9C061574;
+        Sun, 21 Nov 2021 15:38:08 -0800 (PST)
+Received: by mail-lf1-x12e.google.com with SMTP id l22so71968251lfg.7;
+        Sun, 21 Nov 2021 15:38:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=U7Hqqo7MBpf2qleycLRlIUU1VL6PUd0Lu3Ytxu6JjvA=;
-        b=7HsMk+VGb2KNu353yuWiW0ZExjFNBrUD77Q5bwMSt8A+EsgRzbKnFggD+26iG4rPY+
-         9e/NfYITGYGEeonZMHquw4To6XuL9OmE3jvGGuV73UADzLl+kvAcL9HJUDAecwsdo9Ud
-         cwxsVCyKta8ogScGrJOyAtEMMBlef2O6FooE8sB7Aj8TTmmmjNKxXA/jZ43Ctt6AY6Hd
-         +b+KojBd8qQkBOknuFwSPGKak7CUAZEcAELYryCwhHC1d1HuAbdApUIlEVBgfhk2c36c
-         mFU90ya3SxX/PYDlMuiIC8OglagOnkc7Ulk7y2Ksy6DZu43Ak/9YjLDKjklakEZZnvT1
-         FiPg==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=YPOtm/OEYq9+Jn4Mj0aBpoQwr/iK+obQeVk8uZUmqOg=;
+        b=O02JlR5FwEi+uFevjBB6FYK5QvDra7RVsR8Y6hePJyi8BQHBUPMY7kkgj662JcDb8D
+         I8xLuhDlZRc+5Ea114DPKQWxZxLDeOH1GNRpJsy6KW/tkonu/b6wBr78wBOg/7TifNWq
+         vF/PpYTeJx1PaCwSGpM4mV1kdzP3ohT8h6BpSBgAA6pZ44FbEWPQup3X5dIIaxEhXhwu
+         35XnFRdgTHOflsjh9nCcYg1PFZVS1u8eSnBW2ep7mTv8aEUmCxKjPCfHMxA1LLf7HpkC
+         cGY9d1ERvMhP2ZNBlwkMqeWokU/fVgBhA1if+CZaoKe4rfOnOz6mMzRP7ftqdlKk3Ltm
+         F2Gw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=U7Hqqo7MBpf2qleycLRlIUU1VL6PUd0Lu3Ytxu6JjvA=;
-        b=rNR9vJ1xq0xyAjRR6fPKLAZh1XtirRGvr54lhO3bYzi3CcH0BOsvoZr2x2Jg85mIIU
-         yCYcKSU7egk8VEHEDq/yq7CROplwHDUxqpxZu/oFzbBc0ZqYo70m5xPW2Z7l+JMFECzh
-         HIZ70PcvzJnpneo/Y2OfYbMCYbyVSZnb6B8YzIXOQDubCYQ+FYA8AgOttS3rTahtFPpt
-         vL1yjONAMSZ3V/GljLueUge+dOjV/dTR09RMTvD0X9De0z5a9fQxRZKYUFTeTZyuYHDa
-         ZrYmwlEDgREf4QOp2Yxt2vOihhs8Bw0rUJCIR+WqEh4Exqxt4vQaaY9hiXKL/opHuskV
-         OEzQ==
-X-Gm-Message-State: AOAM5307AcQBrpBeKKD+5UDEZpoJ1mH1Zxkklcj6RxqaN9aoG3G8klSr
-        slviNmHc54Avjl2h+3q5+3vPVHGV5X6xMPx4
-X-Google-Smtp-Source: ABdhPJwwyZ0ibqO1pbd3pnKf7jcDnRYkMxC/M7bDA6qJ3HG5i7YTx64Ar9xEz3NrDlimqsuXLNIOzQ==
-X-Received: by 2002:a17:903:10d:b0:142:6343:a48e with SMTP id y13-20020a170903010d00b001426343a48emr99941193plc.29.1637528596562;
-        Sun, 21 Nov 2021 13:03:16 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o1sm16180319pjs.30.2021.11.21.13.03.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Nov 2021 13:03:16 -0800 (PST)
-Message-ID: <619ab414.1c69fb81.1fecc.0b9a@mx.google.com>
-Date:   Sun, 21 Nov 2021 13:03:16 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=YPOtm/OEYq9+Jn4Mj0aBpoQwr/iK+obQeVk8uZUmqOg=;
+        b=OnSsdFS5HhVfsojTwswK+TBL3QKrogM71tt+8XTf03KLoRFfeEGVT/ahABDStAv6zu
+         uW5PKkVw4EMbPYJ4+d1QkseeRXBfF8cjzgil3LxwxjxpuB5ZCwkuALjkvZwF5st6sVFg
+         zuwQayrRVltJwB6wX5MZahsCsQFIX7MDymMSwuAcKkXgcpRbGhDYNeGi+0oatnBOX4W6
+         aVJgngNQ+st4sEPZd96rnesKrp1+EFh0pgEZFVZath5gW6isX7+zQqP1cc6O+nhXrVp0
+         J5ClPy8QqzHOLnP1lwQ60jaG+AFFvG7w5LU+YnoDpfYaMo3ASauroNxA1wy2IHR5LNrE
+         JMgw==
+X-Gm-Message-State: AOAM531q9ea+gbvptAsXfF9RiHPe2oCaIscaQBiiDGe2djAAGQM3uBUc
+        oQ6OV6MdfN88Ug6kmsdnPxxHHm8deoYJu3MSd2nsXJw8XVc=
+X-Google-Smtp-Source: ABdhPJzf1jB9nZ67gjicvbbM9Gh9GDs1icnKevWjd04ZqHIiq+31fgdItefLGC1RazuTBzPVDT5PH/Lz7CjSNjiyi1o=
+X-Received: by 2002:a2e:3304:: with SMTP id d4mr46472796ljc.377.1637537887185;
+ Sun, 21 Nov 2021 15:38:07 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.14.20-15-g377ca61cde601
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.14
-Subject: stable-rc/queue/5.14 baseline: 117 runs,
- 1 regressions (v5.14.20-15-g377ca61cde601)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20211121232535.93218-1-sashal@kernel.org>
+In-Reply-To: <20211121232535.93218-1-sashal@kernel.org>
+From:   Sohaib Mohamed <sohaib.amhmd@gmail.com>
+Date:   Mon, 22 Nov 2021 01:37:56 +0200
+Message-ID: <CAOz-JA6xVGS9nUsgnGQxZ1=c8__XewdTfefGbMQvWmMAQVPWcQ@mail.gmail.com>
+Subject: Re: Patch "perf bench: Fix two memory leaks detected with ASan" has
+ been added to the 4.9-stable tree
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable-commits@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>, stable@vger.kernel.org,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 117 runs, 1 regressions (v5.14.20-15-g377ca6=
-1cde601)
+Hi, Sasha
 
-Regressions Summary
--------------------
+On Mon, Nov 22, 2021 at 1:25 AM Sasha Levin <sashal@kernel.org> wrote:
+>
+> This is a note to let you know that I've just added the patch titled
+>
+>     perf bench: Fix two memory leaks detected with ASan
+>
+> to the 4.9-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+>
+> The filename of the patch is:
+>      perf-bench-fix-two-memory-leaks-detected-with-asan.patch
+> and it can be found in the queue-4.9 subdirectory.
+>
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
+>
+>
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
+I think this patch should not be added to the stable tree. I think
+this patch should be reverted soon.
 
+Thanks,
+- Sohaib
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.20-15-g377ca61cde601/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.20-15-g377ca61cde601
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      377ca61cde601fa14c1ce130b9693bd61b331d2e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/619a802842aefc2bf5e551d8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.20-=
-15-g377ca61cde601/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.20-=
-15-g377ca61cde601/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
-le-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/619a802842aefc2bf5e55=
-1d9
-        failing since 28 days (last pass: v5.14.14-64-gb66eb77f69e4, first =
-fail: v5.14.14-124-g710e5bbf51e3) =
-
- =20
+>
+> commit b1c29e2248629770cee7ac88cb9dfea91e07146b
+> Author: Sohaib Mohamed <sohaib.amhmd@gmail.com>
+> Date:   Wed Nov 10 04:20:11 2021 +0200
+>
+>     perf bench: Fix two memory leaks detected with ASan
+>
+>     [ Upstream commit 92723ea0f11d92496687db8c9725248e9d1e5e1d ]
+>
+>     ASan reports memory leaks while running:
+>
+>       $ perf bench sched all
+>
+>     Fixes: e27454cc6352c422 ("perf bench: Add sched-messaging.c: Benchmark for scheduler and IPC mechanisms based on hackbench")
+>     Signed-off-by: Sohaib Mohamed <sohaib.amhmd@gmail.com>
+>     Acked-by: Ian Rogers <irogers@google.com>
+>     Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+>     Cc: Hitoshi Mitake <h.mitake@gmail.com>
+>     Cc: Jiri Olsa <jolsa@redhat.com>
+>     Cc: Mark Rutland <mark.rutland@arm.com>
+>     Cc: Namhyung Kim <namhyung@kernel.org>
+>     Cc: Paul Russel <rusty@rustcorp.com.au>
+>     Cc: Peter Zijlstra <peterz@infradead.org>
+>     Cc: Pierre Gondois <pierre.gondois@arm.com>
+>     Link: http://lore.kernel.org/lkml/20211110022012.16620-1-sohaib.amhmd@gmail.com
+>     Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+>     Signed-off-by: Sasha Levin <sashal@kernel.org>
+>
+> diff --git a/tools/perf/bench/sched-messaging.c b/tools/perf/bench/sched-messaging.c
+> index 6a111e775210f..9322fd166bdaf 100644
+> --- a/tools/perf/bench/sched-messaging.c
+> +++ b/tools/perf/bench/sched-messaging.c
+> @@ -225,6 +225,8 @@ static unsigned int group(pthread_t *pth,
+>                 snd_ctx->out_fds[i] = fds[1];
+>                 if (!thread_mode)
+>                         close(fds[0]);
+> +
+> +               free(ctx);
+>         }
+>
+>         /* Now we have all the fds, fork the senders */
+> @@ -241,6 +243,8 @@ static unsigned int group(pthread_t *pth,
+>                 for (i = 0; i < num_fds; i++)
+>                         close(snd_ctx->out_fds[i]);
+>
+> +       free(snd_ctx);
+> +
+>         /* Return number of children to reap */
+>         return num_fds * 2;
+>  }
