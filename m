@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F24A458F14
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 14:06:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D640458F21
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 14:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239497AbhKVNJw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 08:09:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42930 "EHLO mail.kernel.org"
+        id S239192AbhKVNKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 08:10:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239438AbhKVNJu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Nov 2021 08:09:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B43260234;
-        Mon, 22 Nov 2021 13:06:43 +0000 (UTC)
+        id S239534AbhKVNJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Nov 2021 08:09:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE45D60234;
+        Mon, 22 Nov 2021 13:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637586404;
-        bh=7We5BXmbdpxao2bX2OJuZ39EcCZcSxA1fXg/JuAP7IQ=;
+        s=korg; t=1637586412;
+        bh=bDV2XBuDXfGYQR2A/0P2rnv3uJW5Rq7BHbRbY+2TNAM=;
         h=Subject:To:Cc:From:Date:From;
-        b=rcKzSrvGAogZyDK3+QApCWhWI7rNxQbTruolaLPKtDjx7OmIWcz+4cZ40iy0+CgvM
-         pUs9ZMrg0fOmUW7i73uKrEWm43VpjpmjsecF02GEnViK/wfIDhTr3pbrRcat9cLoPe
-         M+G2pk6AU4ns1s7M+z5QU0L26JKDYkN8koWsgAJw=
-Subject: FAILED: patch "[PATCH] dma-buf/poll: Get a file reference for outstanding fence" failed to apply to 5.15-stable tree
+        b=u/ad80NpS+9T0fxBgGlqYPU/zAo7MDUbXSP464+En8B6rzcPE1PxbRtWVSsRcEgPI
+         jP1BR4mDyvvSw8dwRLk2YdgKcaJaJJe5kPmyEt3HE//Yje+6/XIuWz1TipIdVX2kLr
+         lU4m12JOkPyYpxiEpm4XSeMuU7EPnbjy2XWN7kuw=
+Subject: FAILED: patch "[PATCH] dma-buf/poll: Get a file reference for outstanding fence" failed to apply to 5.10-stable tree
 To:     mdaenzer@redhat.com, christian.koenig@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 22 Nov 2021 14:06:41 +0100
-Message-ID: <1637586401115211@kroah.com>
+Message-ID: <16375864012941@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
