@@ -2,63 +2,344 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F6F458C4F
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 11:33:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2C0458C51
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 11:33:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229716AbhKVKg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 05:36:29 -0500
-Received: from host.78.145.23.62.rev.coltfrance.com ([62.23.145.78]:56900 "EHLO
-        smtpservice.6wind.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S236258AbhKVKg2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 05:36:28 -0500
-Received: from bretzel (bretzel.dev.6wind.com [10.17.1.57])
-        by smtpservice.6wind.com (Postfix) with ESMTPS id 480A160015;
-        Mon, 22 Nov 2021 11:33:20 +0100 (CET)
-Received: from dichtel by bretzel with local (Exim 4.92)
-        (envelope-from <dichtel@6wind.com>)
-        id 1mp6dU-0000Li-4i; Mon, 22 Nov 2021 11:33:20 +0100
-From:   Nicolas Dichtel <nicolas.dichtel@6wind.com>
-To:     steffen.klassert@secunet.com
-Cc:     davem@davemloft.net, herbert@gondor.apana.org.au, kuba@kernel.org,
-        antony.antony@secunet.com, netdev@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        stable@vger.kernel.org
-Subject: [PATCH ipsec] xfrm: fix dflt policy check when there is no policy configured
-Date:   Mon, 22 Nov 2021 11:33:13 +0100
-Message-Id: <20211122103313.1331-1-nicolas.dichtel@6wind.com>
-X-Mailer: git-send-email 2.33.0
+        id S236306AbhKVKgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 05:36:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60120 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236258AbhKVKgp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Nov 2021 05:36:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2918360F6B;
+        Mon, 22 Nov 2021 10:33:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637577218;
+        bh=1hYTfybyp+wSEJM+O71hnUc6Qp+RzEYsA0Lt55Z2+jQ=;
+        h=Subject:To:Cc:From:Date:From;
+        b=o4xChSwVwDz6F5LivdIuWKDixLdnOrs6K+OaYiMyoGjg6bbvdSViIuCiK4Hzuqydd
+         sI/wLEvo3CCqzEvPXCmeMUqkV44Dzy4KIZ80X0DgcVwj+v3EuCMnUusQoBW1Mjhcdw
+         Mv6s7x4M/O1ozcAMuqsf0+I7m6tPnwScjFbsgBqY=
+Subject: FAILED: patch "[PATCH] bpf: Fix toctou on read-only map's constant scalar tracking" failed to apply to 5.10-stable tree
+To:     daniel@iogearbox.net, andrii@kernel.org, ast@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 22 Nov 2021 11:33:35 +0100
+Message-ID: <1637577215186161@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When there is no policy configured on the system, the default policy is
-checked in xfrm_route_forward. However, it was done with the wrong
-direction (XFRM_POLICY_FWD instead of XFRM_POLICY_OUT).
-The default policy for XFRM_POLICY_FWD was checked just before, with a call
-to xfrm[46]_policy_check().
 
-CC: stable@vger.kernel.org
-Fixes: 2d151d39073a ("xfrm: Add possibility to set the default to block if we have no policy")
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
----
- include/net/xfrm.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 2308210793a0..55e574511af5 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1162,7 +1162,7 @@ static inline int xfrm_route_forward(struct sk_buff *skb, unsigned short family)
- {
- 	struct net *net = dev_net(skb->dev);
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 353050be4c19e102178ccc05988101887c25ae53 Mon Sep 17 00:00:00 2001
+From: Daniel Borkmann <daniel@iogearbox.net>
+Date: Tue, 9 Nov 2021 18:48:08 +0000
+Subject: [PATCH] bpf: Fix toctou on read-only map's constant scalar tracking
+
+Commit a23740ec43ba ("bpf: Track contents of read-only maps as scalars") is
+checking whether maps are read-only both from BPF program side and user space
+side, and then, given their content is constant, reading out their data via
+map->ops->map_direct_value_addr() which is then subsequently used as known
+scalar value for the register, that is, it is marked as __mark_reg_known()
+with the read value at verification time. Before a23740ec43ba, the register
+content was marked as an unknown scalar so the verifier could not make any
+assumptions about the map content.
+
+The current implementation however is prone to a TOCTOU race, meaning, the
+value read as known scalar for the register is not guaranteed to be exactly
+the same at a later point when the program is executed, and as such, the
+prior made assumptions of the verifier with regards to the program will be
+invalid which can cause issues such as OOB access, etc.
+
+While the BPF_F_RDONLY_PROG map flag is always fixed and required to be
+specified at map creation time, the map->frozen property is initially set to
+false for the map given the map value needs to be populated, e.g. for global
+data sections. Once complete, the loader "freezes" the map from user space
+such that no subsequent updates/deletes are possible anymore. For the rest
+of the lifetime of the map, this freeze one-time trigger cannot be undone
+anymore after a successful BPF_MAP_FREEZE cmd return. Meaning, any new BPF_*
+cmd calls which would update/delete map entries will be rejected with -EPERM
+since map_get_sys_perms() removes the FMODE_CAN_WRITE permission. This also
+means that pending update/delete map entries must still complete before this
+guarantee is given. This corner case is not an issue for loaders since they
+create and prepare such program private map in successive steps.
+
+However, a malicious user is able to trigger this TOCTOU race in two different
+ways: i) via userfaultfd, and ii) via batched updates. For i) userfaultfd is
+used to expand the competition interval, so that map_update_elem() can modify
+the contents of the map after map_freeze() and bpf_prog_load() were executed.
+This works, because userfaultfd halts the parallel thread which triggered a
+map_update_elem() at the time where we copy key/value from the user buffer and
+this already passed the FMODE_CAN_WRITE capability test given at that time the
+map was not "frozen". Then, the main thread performs the map_freeze() and
+bpf_prog_load(), and once that had completed successfully, the other thread
+is woken up to complete the pending map_update_elem() which then changes the
+map content. For ii) the idea of the batched update is similar, meaning, when
+there are a large number of updates to be processed, it can increase the
+competition interval between the two. It is therefore possible in practice to
+modify the contents of the map after executing map_freeze() and bpf_prog_load().
+
+One way to fix both i) and ii) at the same time is to expand the use of the
+map's map->writecnt. The latter was introduced in fc9702273e2e ("bpf: Add mmap()
+support for BPF_MAP_TYPE_ARRAY") and further refined in 1f6cb19be2e2 ("bpf:
+Prevent re-mmap()'ing BPF map as writable for initially r/o mapping") with
+the rationale to make a writable mmap()'ing of a map mutually exclusive with
+read-only freezing. The counter indicates writable mmap() mappings and then
+prevents/fails the freeze operation. Its semantics can be expanded beyond
+just mmap() by generally indicating ongoing write phases. This would essentially
+span any parallel regular and batched flavor of update/delete operation and
+then also have map_freeze() fail with -EBUSY. For the check_mem_access() in
+the verifier we expand upon the bpf_map_is_rdonly() check ensuring that all
+last pending writes have completed via bpf_map_write_active() test. Once the
+map->frozen is set and bpf_map_write_active() indicates a map->writecnt of 0
+only then we are really guaranteed to use the map's data as known constants.
+For map->frozen being set and pending writes in process of still being completed
+we fall back to marking that register as unknown scalar so we don't end up
+making assumptions about it. With this, both TOCTOU reproducers from i) and
+ii) are fixed.
+
+Note that the map->writecnt has been converted into a atomic64 in the fix in
+order to avoid a double freeze_mutex mutex_{un,}lock() pair when updating
+map->writecnt in the various map update/delete BPF_* cmd flavors. Spanning
+the freeze_mutex over entire map update/delete operations in syscall side
+would not be possible due to then causing everything to be serialized.
+Similarly, something like synchronize_rcu() after setting map->frozen to wait
+for update/deletes to complete is not possible either since it would also
+have to span the user copy which can sleep. On the libbpf side, this won't
+break d66562fba1ce ("libbpf: Add BPF object skeleton support") as the
+anonymous mmap()-ed "map initialization image" is remapped as a BPF map-backed
+mmap()-ed memory where for .rodata it's non-writable.
+
+Fixes: a23740ec43ba ("bpf: Track contents of read-only maps as scalars")
+Reported-by: w1tcher.bupt@gmail.com
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index f715e8863f4d..e7a163a3146b 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -193,7 +193,7 @@ struct bpf_map {
+ 	atomic64_t usercnt;
+ 	struct work_struct work;
+ 	struct mutex freeze_mutex;
+-	u64 writecnt; /* writable mmap cnt; protected by freeze_mutex */
++	atomic64_t writecnt;
+ };
  
--	if (xfrm_default_allow(net, XFRM_POLICY_FWD))
-+	if (xfrm_default_allow(net, XFRM_POLICY_OUT))
- 		return !net->xfrm.policy_count[XFRM_POLICY_OUT] ||
- 			(skb_dst(skb)->flags & DST_NOXFRM) ||
- 			__xfrm_route_forward(skb, family);
--- 
-2.33.0
+ static inline bool map_value_has_spin_lock(const struct bpf_map *map)
+@@ -1419,6 +1419,7 @@ void bpf_map_put(struct bpf_map *map);
+ void *bpf_map_area_alloc(u64 size, int numa_node);
+ void *bpf_map_area_mmapable_alloc(u64 size, int numa_node);
+ void bpf_map_area_free(void *base);
++bool bpf_map_write_active(const struct bpf_map *map);
+ void bpf_map_init_from_attr(struct bpf_map *map, union bpf_attr *attr);
+ int  generic_map_lookup_batch(struct bpf_map *map,
+ 			      const union bpf_attr *attr,
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index 50f96ea4452a..1033ee8c0caf 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -132,6 +132,21 @@ static struct bpf_map *find_and_alloc_map(union bpf_attr *attr)
+ 	return map;
+ }
+ 
++static void bpf_map_write_active_inc(struct bpf_map *map)
++{
++	atomic64_inc(&map->writecnt);
++}
++
++static void bpf_map_write_active_dec(struct bpf_map *map)
++{
++	atomic64_dec(&map->writecnt);
++}
++
++bool bpf_map_write_active(const struct bpf_map *map)
++{
++	return atomic64_read(&map->writecnt) != 0;
++}
++
+ static u32 bpf_map_value_size(const struct bpf_map *map)
+ {
+ 	if (map->map_type == BPF_MAP_TYPE_PERCPU_HASH ||
+@@ -601,11 +616,8 @@ static void bpf_map_mmap_open(struct vm_area_struct *vma)
+ {
+ 	struct bpf_map *map = vma->vm_file->private_data;
+ 
+-	if (vma->vm_flags & VM_MAYWRITE) {
+-		mutex_lock(&map->freeze_mutex);
+-		map->writecnt++;
+-		mutex_unlock(&map->freeze_mutex);
+-	}
++	if (vma->vm_flags & VM_MAYWRITE)
++		bpf_map_write_active_inc(map);
+ }
+ 
+ /* called for all unmapped memory region (including initial) */
+@@ -613,11 +625,8 @@ static void bpf_map_mmap_close(struct vm_area_struct *vma)
+ {
+ 	struct bpf_map *map = vma->vm_file->private_data;
+ 
+-	if (vma->vm_flags & VM_MAYWRITE) {
+-		mutex_lock(&map->freeze_mutex);
+-		map->writecnt--;
+-		mutex_unlock(&map->freeze_mutex);
+-	}
++	if (vma->vm_flags & VM_MAYWRITE)
++		bpf_map_write_active_dec(map);
+ }
+ 
+ static const struct vm_operations_struct bpf_map_default_vmops = {
+@@ -668,7 +677,7 @@ static int bpf_map_mmap(struct file *filp, struct vm_area_struct *vma)
+ 		goto out;
+ 
+ 	if (vma->vm_flags & VM_MAYWRITE)
+-		map->writecnt++;
++		bpf_map_write_active_inc(map);
+ out:
+ 	mutex_unlock(&map->freeze_mutex);
+ 	return err;
+@@ -1139,6 +1148,7 @@ static int map_update_elem(union bpf_attr *attr, bpfptr_t uattr)
+ 	map = __bpf_map_get(f);
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
++	bpf_map_write_active_inc(map);
+ 	if (!(map_get_sys_perms(map, f) & FMODE_CAN_WRITE)) {
+ 		err = -EPERM;
+ 		goto err_put;
+@@ -1174,6 +1184,7 @@ static int map_update_elem(union bpf_attr *attr, bpfptr_t uattr)
+ free_key:
+ 	kvfree(key);
+ err_put:
++	bpf_map_write_active_dec(map);
+ 	fdput(f);
+ 	return err;
+ }
+@@ -1196,6 +1207,7 @@ static int map_delete_elem(union bpf_attr *attr)
+ 	map = __bpf_map_get(f);
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
++	bpf_map_write_active_inc(map);
+ 	if (!(map_get_sys_perms(map, f) & FMODE_CAN_WRITE)) {
+ 		err = -EPERM;
+ 		goto err_put;
+@@ -1226,6 +1238,7 @@ static int map_delete_elem(union bpf_attr *attr)
+ out:
+ 	kvfree(key);
+ err_put:
++	bpf_map_write_active_dec(map);
+ 	fdput(f);
+ 	return err;
+ }
+@@ -1533,6 +1546,7 @@ static int map_lookup_and_delete_elem(union bpf_attr *attr)
+ 	map = __bpf_map_get(f);
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
++	bpf_map_write_active_inc(map);
+ 	if (!(map_get_sys_perms(map, f) & FMODE_CAN_READ) ||
+ 	    !(map_get_sys_perms(map, f) & FMODE_CAN_WRITE)) {
+ 		err = -EPERM;
+@@ -1597,6 +1611,7 @@ static int map_lookup_and_delete_elem(union bpf_attr *attr)
+ free_key:
+ 	kvfree(key);
+ err_put:
++	bpf_map_write_active_dec(map);
+ 	fdput(f);
+ 	return err;
+ }
+@@ -1624,8 +1639,7 @@ static int map_freeze(const union bpf_attr *attr)
+ 	}
+ 
+ 	mutex_lock(&map->freeze_mutex);
+-
+-	if (map->writecnt) {
++	if (bpf_map_write_active(map)) {
+ 		err = -EBUSY;
+ 		goto err_put;
+ 	}
+@@ -4171,6 +4185,9 @@ static int bpf_map_do_batch(const union bpf_attr *attr,
+ 			    union bpf_attr __user *uattr,
+ 			    int cmd)
+ {
++	bool has_read  = cmd == BPF_MAP_LOOKUP_BATCH ||
++			 cmd == BPF_MAP_LOOKUP_AND_DELETE_BATCH;
++	bool has_write = cmd != BPF_MAP_LOOKUP_BATCH;
+ 	struct bpf_map *map;
+ 	int err, ufd;
+ 	struct fd f;
+@@ -4183,16 +4200,13 @@ static int bpf_map_do_batch(const union bpf_attr *attr,
+ 	map = __bpf_map_get(f);
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+-
+-	if ((cmd == BPF_MAP_LOOKUP_BATCH ||
+-	     cmd == BPF_MAP_LOOKUP_AND_DELETE_BATCH) &&
+-	    !(map_get_sys_perms(map, f) & FMODE_CAN_READ)) {
++	if (has_write)
++		bpf_map_write_active_inc(map);
++	if (has_read && !(map_get_sys_perms(map, f) & FMODE_CAN_READ)) {
+ 		err = -EPERM;
+ 		goto err_put;
+ 	}
+-
+-	if (cmd != BPF_MAP_LOOKUP_BATCH &&
+-	    !(map_get_sys_perms(map, f) & FMODE_CAN_WRITE)) {
++	if (has_write && !(map_get_sys_perms(map, f) & FMODE_CAN_WRITE)) {
+ 		err = -EPERM;
+ 		goto err_put;
+ 	}
+@@ -4205,8 +4219,9 @@ static int bpf_map_do_batch(const union bpf_attr *attr,
+ 		BPF_DO_BATCH(map->ops->map_update_batch);
+ 	else
+ 		BPF_DO_BATCH(map->ops->map_delete_batch);
+-
+ err_put:
++	if (has_write)
++		bpf_map_write_active_dec(map);
+ 	fdput(f);
+ 	return err;
+ }
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 65d2f93b7030..50efda51515b 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -4056,7 +4056,22 @@ static void coerce_reg_to_size(struct bpf_reg_state *reg, int size)
+ 
+ static bool bpf_map_is_rdonly(const struct bpf_map *map)
+ {
+-	return (map->map_flags & BPF_F_RDONLY_PROG) && map->frozen;
++	/* A map is considered read-only if the following condition are true:
++	 *
++	 * 1) BPF program side cannot change any of the map content. The
++	 *    BPF_F_RDONLY_PROG flag is throughout the lifetime of a map
++	 *    and was set at map creation time.
++	 * 2) The map value(s) have been initialized from user space by a
++	 *    loader and then "frozen", such that no new map update/delete
++	 *    operations from syscall side are possible for the rest of
++	 *    the map's lifetime from that point onwards.
++	 * 3) Any parallel/pending map update/delete operations from syscall
++	 *    side have been completed. Only after that point, it's safe to
++	 *    assume that map value(s) are immutable.
++	 */
++	return (map->map_flags & BPF_F_RDONLY_PROG) &&
++	       READ_ONCE(map->frozen) &&
++	       !bpf_map_write_active(map);
+ }
+ 
+ static int bpf_map_direct_read(struct bpf_map *map, int off, int size, u64 *val)
 
