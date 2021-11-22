@@ -2,135 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17F17458B41
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 10:25:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA2D458BA1
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 10:33:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232885AbhKVJ2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 04:28:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32902 "EHLO
+        id S238918AbhKVJgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 04:36:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229906AbhKVJ2U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 04:28:20 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9F9AC061574
-        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 01:25:13 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id z6so15502918pfe.7
-        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 01:25:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=kdDXNaQVBDW+lEawPKuop3dXiBjUW+MDVbKr5TD4g/M=;
-        b=38IjtOfkxNJAlsdp2X3ubyv1riVWsyQm4eEZPbTeMG4N/iVZg7lS0cDx6qLIMFv/iI
-         7ie4PO6iHYprAb+fPYKWqkVuUtoslVYvmvVZtCaB8zDgIRD/gYvi0HELUN8buLss4YWa
-         6oNyVj5rdp2QA8nMP53kAeb5Dg9oYygBivWdSwyFXrp/ZJLzrHNgZDc+73Y5NYhkiHFd
-         Y9NDpi9jUy+ZmcaWrJ/yMhUYq1CIyq31LABIsXgrbVzRhfaDInfNeLNp7H/U5toIx/Mi
-         MmCEYTW1aPnfuTtDYYvPirIIsSjVAmPCg66lBbyOewK7XHeLmFTn8NG6pFG+WyP7Rv9o
-         JdQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=kdDXNaQVBDW+lEawPKuop3dXiBjUW+MDVbKr5TD4g/M=;
-        b=B00KXyXhNTmH7SG6ElD4ynR+Q39zpxBiYTjM/KmlwGnP1oy74MwSH2SJBNVbpXcONr
-         +MvDq+MAFlNvDWKF79lwvGPdYJBP2y/phZJuRqSZc7gEydHgK/X8SbBKJ0ILWcLEyyMN
-         8jcbmLOI4DxpZtMV4dRqCJvN9mnutHJK/lEAQN0nk+AI0ysE0WQtWqfBPYr9ObFl0hG8
-         GTZw31kcNVrLsCICHzlF8tWHb/07u4XcY9WzphCm68rLgyw87B2sdcvQah0BhCr/KpvC
-         GCTZDKhpkvdyNmCELgHGZLCEaIwjfgnTv0FB/6w7RS/nk1X2pEHPGxD797M/8bB5bFXJ
-         1Quw==
-X-Gm-Message-State: AOAM531YbU/VSnkbaTNusqCFZLLSe42KB0qTZrAIjTgTJwIVs2UZ6gmc
-        j+P5Q9TBrd6eCAotpVNFJvY1NI66vD8fz0fT
-X-Google-Smtp-Source: ABdhPJxYLRp2/fZYMByHQnXKgmoNbuGVYvJsPsB+xql0CBsFcRYrKnP+m0ujgE7SDZyIvsMYazR7eQ==
-X-Received: by 2002:a65:40c3:: with SMTP id u3mr32821052pgp.160.1637573113155;
-        Mon, 22 Nov 2021 01:25:13 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p21sm8270585pfh.43.2021.11.22.01.25.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Nov 2021 01:25:12 -0800 (PST)
-Message-ID: <619b61f8.1c69fb81.7e7f0.7fb2@mx.google.com>
-Date:   Mon, 22 Nov 2021 01:25:12 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S238829AbhKVJgG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 04:36:06 -0500
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E191C061574;
+        Mon, 22 Nov 2021 01:33:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=Fp26s5uppIFd2Zv4jQ0yfaWneL1VX3WxkQs03CTdqkU=; b=H38Cef7CAspj9z8pOoghO0oMpH
+        3Mkjm7+M59OaJ86VowlLqGvGv7LNEBgbkRlvAYV61NVGviRs5L1dtyZdCG9VK3CAdCdU087qQxS/I
+        gwnK2yHpfIPPPqnImsPVMVBaEMhSJoEobEfikQVJ6UspAWlNaadpR9jShApOK8bzJrz7AMW61uwvI
+        QDKdKOrI664kTIxeADVIrWj492gB/ZpmHHM47UygaC4QuK8sxrp8w6umJp8ker4tADE2vE7qYO7x0
+        UhqlIMgiCiaK3phwlzIy3yetjvBqoli3ixzm0M02JFxY9dRa9oLcektdRaE2RzqFnV7Kcdt/q84lF
+        H/niIMUQ==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mp5gh-00HSx6-KW; Mon, 22 Nov 2021 09:32:35 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 5064130043C;
+        Mon, 22 Nov 2021 10:32:33 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id E263F203218D5; Mon, 22 Nov 2021 10:32:32 +0100 (CET)
+Date:   Mon, 22 Nov 2021 10:32:32 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Josh Poimboeuf <jpoimboe@redhat.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Holger Hoffst??tte <holger@applied-asynchrony.com>,
+        Qi Zheng <zhengqi.arch@bytedance.com>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Justin Forbes <jmforbes@linuxtx.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] x86: Pin task-stack in __get_wchan()
+Message-ID: <YZtjsPXjEsxOU0Zv@hirez.programming.kicks-ass.net>
+References: <YZV02RCRVHIa144u@fedora64.linuxtx.org>
+ <55c7b316-e03d-9e91-d74c-fea63c469b3b@applied-asynchrony.com>
+ <CAHk-=wjHbKfck1Ws4Y0pUZ7bxdjU9eh2WK0EFsv65utfeVkT9Q@mail.gmail.com>
+ <20211118080627.GH174703@worktop.programming.kicks-ass.net>
+ <20211118081852.GM174730@worktop.programming.kicks-ass.net>
+ <YZYfYOcqNqOyZ8Yo@hirez.programming.kicks-ass.net>
+ <YZZC3Shc0XA/gHK9@hirez.programming.kicks-ass.net>
+ <20211119020427.2y5esq2czquwmvwc@treble>
+ <YZduix64h64cDa7R@hirez.programming.kicks-ass.net>
+ <20211119183544.sragh42cn2liu3pw@treble>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.292-140-ga310aae52ea5
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 59 runs,
- 1 regressions (v4.4.292-140-ga310aae52ea5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211119183544.sragh42cn2liu3pw@treble>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 59 runs, 1 regressions (v4.4.292-140-ga310aae=
-52ea5)
+On Fri, Nov 19, 2021 at 10:35:44AM -0800, Josh Poimboeuf wrote:
+> On Fri, Nov 19, 2021 at 10:29:47AM +0100, Peter Zijlstra wrote:
+> > On Thu, Nov 18, 2021 at 06:04:27PM -0800, Josh Poimboeuf wrote:
+> > > On Thu, Nov 18, 2021 at 01:11:09PM +0100, Peter Zijlstra wrote:
+> > 
+> > > > I now have the below, the only thing missing is that there's a
+> > > > user_mode() call on a stack based regs. Now on x86_64 we can
+> > > > __get_kernel_nofault() regs->cs and call it a day, but on i386 we have
+> > > > to also fetch regs->flags.
+> > > > 
+> > > > Is this really the way to go?
+> > > 
+> > > Please no.  Can we just add a check in unwind_start() to ensure the
+> > > caller did try_get_task_stack()?
+> > 
+> > I tried; but at best it's fundamentally racy and in practise its worse
+> > because init_task doesn't seem to believe in refcounts and kthreads are
+> > odd for some raisin. Now those are fixable, but given the fundamental
+> > races, I don't see how it's ever going to be reliable.
+> 
+> I'm probably out of the loop here, but I wonder what races you're
+> referring to.
 
-Regressions Summary
--------------------
+We can do the warn as you suggest, however, it can become 0 right after
+we test and then still make the unwder explode.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+That is, the test is not sufficient.
 
+> And I assume 'stack_refcount > 0' only needs to be asserted when
+> unwinding other tasks, not current.  So it shouldn't affect unwinds
+> during boot, or oopses.
+> 
+> Yes, the unwinder has to be rock solid, but if the caller can't even
+> ensure the given task's memory exists, it sounds like a bug in the
+> caller that needs a warning.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.292-140-ga310aae52ea5/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.292-140-ga310aae52ea5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a310aae52ea527065c5f882b6c08d30f9a589820 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/619b29131a26aa1db5e551ec
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-1=
-40-ga310aae52ea5/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-1=
-40-ga310aae52ea5/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619b29131a26aa1=
-db5e551f2
-        failing since 0 day (last pass: v4.4.292-116-gc13aef2ca259, first f=
-ail: v4.4.292-140-g1794f2b1b0d51)
-        2 lines
-
-    2021-11-22T05:22:07.448944  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/117
-    2021-11-22T05:22:07.458149  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+Well, yes. Still it would be nice if the unwinder would not itself burn
+the house, even in that case.
