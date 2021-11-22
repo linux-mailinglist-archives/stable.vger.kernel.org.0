@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 795BC458E43
+	by mail.lfdr.de (Postfix) with ESMTP id 3296B458E42
 	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:27:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233840AbhKVMaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 07:30:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51700 "EHLO mail.kernel.org"
+        id S232866AbhKVMaM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 07:30:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232866AbhKVMaK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Nov 2021 07:30:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 466FA6054E;
-        Mon, 22 Nov 2021 12:27:01 +0000 (UTC)
+        id S234322AbhKVMaL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Nov 2021 07:30:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B52F60F5B;
+        Mon, 22 Nov 2021 12:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637584021;
-        bh=xjQB221luEuw8jOD3t2pKJdrhGVfpfd15d2QJ9da788=;
+        s=korg; t=1637584025;
+        bh=CUQpRpQPGZhtumCLIVFGFFcImsfVjzBNVyAX8Os2UVo=;
         h=Subject:To:Cc:From:Date:From;
-        b=XeC9is95iUs4Q008zktkYOoJNvjHTYTwRrZaAZpyhUcIaphDih56HkhhUV6V/G5zU
-         Wga7XUrLeNF2m2e8zno64WxLm3Cu+ADRMbzwozmf3lwvWJHkQhNIl6TuqZKSy07NT5
-         GEJsop2KX6xClqw+7K5SjxplpmrRuNSGnrqryJ7E=
-Subject: FAILED: patch "[PATCH] proc/vmcore: fix clearing user buffer by properly using" failed to apply to 4.9-stable tree
+        b=Eo0YcH9JtbXH9tutEi1dPosEAi6uY3PJCidcveucBQnT5lbT8POjJBATkcOBrmC5G
+         TiMjaOi3LdofHmiibYHwjENaAD1+csYQaiGtGWt2las74fDDxXxOcSK9c396FeWMY8
+         bF51zW9bCmNR73YXI2hHNiEYw7E7/nWPPUAWQjHY=
+Subject: FAILED: patch "[PATCH] proc/vmcore: fix clearing user buffer by properly using" failed to apply to 4.14-stable tree
 To:     david@redhat.com, akpm@linux-foundation.org, bhe@redhat.com,
         dyoung@redhat.com, prudo@redhat.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org, vgoyal@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Nov 2021 13:26:57 +0100
-Message-ID: <163758401712010@kroah.com>
+Date:   Mon, 22 Nov 2021 13:26:59 +0100
+Message-ID: <163758401911200@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
