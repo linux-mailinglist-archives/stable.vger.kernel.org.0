@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9688458E66
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:32:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59836458E67
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:32:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234228AbhKVMf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 07:35:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55198 "EHLO mail.kernel.org"
+        id S236320AbhKVMfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 07:35:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233849AbhKVMf1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Nov 2021 07:35:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07E596069B;
-        Mon, 22 Nov 2021 12:32:19 +0000 (UTC)
+        id S233849AbhKVMfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Nov 2021 07:35:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30A0C60FC2;
+        Mon, 22 Nov 2021 12:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637584340;
-        bh=TwgfpYZ8LUoxJ/RBhiHJQtvG0P2PVKxG7a0ndKCOWJU=;
+        s=korg; t=1637584353;
+        bh=6rFv8KVrdFqu9DsMCIsyVPzAJfSDTaw9GpV4uqaFE1I=;
         h=Subject:To:Cc:From:Date:From;
-        b=NS44R1c3uADXcSxFTSKtfrsZEEizW1uXFl9P3LIcQAgAbE490Kr5BVFH0fJKkcCgE
-         VM8rwCqppitStnNqzlQsFZeypewfAKURiMvBNHlhfUkutMLKHTvQgLEgUQyvdBWkeH
-         6RtnUu+h24kSHmzg4C73YtZodaTQKKA4GXvRyl5A=
-Subject: FAILED: patch "[PATCH] Revert "drm/i915/tgl/dsi: Gate the ddi clocks after pll" failed to apply to 5.10-stable tree
+        b=cWexAbvUvLHOS+va54MwgYOu09c8GiXXVE/mQe1qLS2Ek4m1BmzxfgUsM+nSoIGYv
+         lvvVVfaJ/DvQGPqHnbqOa4J04AxDvIxmQomVtIRBKCHTqPDge1sEDZ+RtuoBwNPz/8
+         OMw76zz6zjsOqGw+wFeAHf7xO7mLzK0FkUVh7CV8=
+Subject: FAILED: patch "[PATCH] Revert "drm/i915/tgl/dsi: Gate the ddi clocks after pll" failed to apply to 5.4-stable tree
 To:     vandita.kulkarni@intel.com, jani.nikula@intel.com,
         rodrigo.vivi@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Nov 2021 13:32:17 +0100
-Message-ID: <1637584337181215@kroah.com>
+Date:   Mon, 22 Nov 2021 13:32:18 +0100
+Message-ID: <1637584338221152@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
