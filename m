@@ -2,177 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC41459164
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 16:27:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7746045918B
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 16:42:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231883AbhKVPay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 10:30:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59392 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239824AbhKVPay (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 10:30:54 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF80AC061714
-        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 07:27:47 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id iq11so14115191pjb.3
-        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 07:27:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=FWFwUQiNQcPmdLWpd4EdufDmfHkR01oMllZ2TVyM5h4=;
-        b=RdqohAcqy6NHhBvlbYxKLEw3Kj8ldpe/vCPMziaU0/z4T/SkAp/6t2n1lPDpt5YMt5
-         BrkmXkFkkjzTx/OFCnSKRGMrXapnmNgPMPjrvjmpMLYrTwMt8YgcL3AeayWOmMfd3qo/
-         iI+XC2i/0Q0Kx09S+dNp+tUpQwpiLTswJz5TVYcLJXbV/uWkHuhvjAJocukbOX4Oy/V9
-         5oqcgp067t0L+ZvDaVtS7AM1asICdpQJmYHiTz+I6b8vxw/RYWhoz9q+tcRrSBalVlM7
-         W4Ceux4kp/5nHIPq58maNI2n/W9OUqZBao3gKEltEBM3JnPFIsC6CHdUN9x5Va6p87jU
-         rT0g==
+        id S239930AbhKVPpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 10:45:06 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:48453 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231697AbhKVPpF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 10:45:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1637595718;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JpH0Jkovi9K+tAJod1tvkLzMmn8RBtpJbJgqMBgGJZI=;
+        b=K7ZDfCFUVuH0UCrYf811yhClkVZAu2Udjq2H1wlq/Lz+5k8SXdY9xn+pFYdprheDJbPjtd
+        OXjT07wC0tDB8i1pigeU3a6poKEhSaeCH2bsh+ZEYV1yGIxBGMxop4JQuu/VRUKqpQlF8/
+        tVGGhhhfGlmUlpm18QXj++ZzBwyEP/s=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-45-utEiNgEvN9uetNqXR7e6pA-1; Mon, 22 Nov 2021 10:41:57 -0500
+X-MC-Unique: utEiNgEvN9uetNqXR7e6pA-1
+Received: by mail-ed1-f71.google.com with SMTP id b15-20020aa7c6cf000000b003e7cf0f73daso15106660eds.22
+        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 07:41:57 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=FWFwUQiNQcPmdLWpd4EdufDmfHkR01oMllZ2TVyM5h4=;
-        b=GBbHEbN/bSJ1Ronh27TcfjoICcuyYOtULVDkjdQeFjERnU+dti5kxbNUj4TOzWqGaM
-         tUM1bt6oxlswxpqPny4PYqEe33SSS4hkuh9Wx0Rv5/uhK4Woxyh9JQfbtqC/+PWywIer
-         KQ8Dt/i8iXUkh4jZxJ11+rqwF25O+f1CXWzy1qaKMpZp+GhGbcoVVg4W4OgEjP9OFoO5
-         QxG1WhMVWcjT0ByZQOeD9o3g4Cot4JAbYRxkFcFKCbbNcuVWBHBdil1xG1Bxf47+nXug
-         jSRNSTk+oLxiYwskL4qP64Ep6cFy6oyHINkcQy07UebMCv0ppdilAgxYbMf3Ox/d+/qD
-         KjFw==
-X-Gm-Message-State: AOAM533YskUvY9mOuntOEni8Odnh3z5huaaW3EMgqgPzMNO+Se5L4kRp
-        1jf0gdGgnMvnoRPmi4WyynJKhPYOnta6
-X-Google-Smtp-Source: ABdhPJxlpS3VhiGIwfzqcOqSG0xq8GMqo57/UK4XVjG7EqB8Kn3/RisEsTh+r8TvOJqrd8VHqn3Z3g==
-X-Received: by 2002:a17:903:32c2:b0:141:eed4:ec0a with SMTP id i2-20020a17090332c200b00141eed4ec0amr108770519plr.74.1637594867106;
-        Mon, 22 Nov 2021 07:27:47 -0800 (PST)
-Received: from thinkpad ([202.21.42.242])
-        by smtp.gmail.com with ESMTPSA id g20sm10430677pfj.12.2021.11.22.07.27.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Nov 2021 07:27:46 -0800 (PST)
-Date:   Mon, 22 Nov 2021 20:57:42 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Aleksander Morgado <aleksander@aleksander.es>
-Cc:     mhi@lists.linux.dev, Loic Poulain <loic.poulain@linaro.org>,
-        Thomas Perrot <thomas.perrot@bootlin.com>,
-        Hemant Kumar <hemantk@codeaurora.org>,
-        Bhaumik Bhatt <bbhatt@codeaurora.org>, quic_jhugo@quicinc.com,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v3] bus: mhi: Fix race while handling SYS_ERR at power up
-Message-ID: <20211122152742.GA83834@thinkpad>
-References: <20211118055726.13107-1-manivannan.sadhasivam@linaro.org>
- <CAAP7ucJoOTOqFnNpJcQmxF=A0TOB8TtCCng-2q9pNkddRTbpuw@mail.gmail.com>
- <20211120112508.GA100286@thinkpad>
- <20211120113626.GB100286@thinkpad>
- <CAAP7ucJ8LyYXWRLGAhYfCV7nYL+6tSHCLrOJ_hZ+swqRfv7QfQ@mail.gmail.com>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=JpH0Jkovi9K+tAJod1tvkLzMmn8RBtpJbJgqMBgGJZI=;
+        b=4/lvlzuzDtok/ViHxGh6V9DGCrT5Fse59g04cJmkZLjUA6689QisUv5LowN7mpM+NL
+         8ZEvwwK15h17O0xtRRrklGkV8L58lJuxgikrKjv+JoeDOeb5gF+R9DqqUmM9IHEa5P9n
+         j0w9R/C6ykMhXHbajXUgrBWk+mzaC52q7BOOZFGMqxS9965fBZRjrVosjsThGLn3aBve
+         7mcJK7GlvZDSsiVfj0cvLJDbhtVzsDaEI2UkoAG4YkL0/x//kE0EMrBNPHT4hUF1DH66
+         a+WdcBIeIqr7bxMyFiFuyVAoDkn7LM4KfdV17hgAfl+YNTgdxz3EseKmE53NFIWULqgv
+         haeg==
+X-Gm-Message-State: AOAM533kvTH2+PiBtDZDcoEeOjgKVO0qcPJLDD6dZbXr26sT02IVdwWz
+        6GG3zNw/NrVXf0ni4M5fKf9jwKlD25QTThhrq18iGRObiE4TvstrtIhq3llw01jtZQ2LTU+2wHF
+        8AMQjYt9R0a77wcyf
+X-Received: by 2002:a05:6402:289e:: with SMTP id eg30mr65889759edb.253.1637595716372;
+        Mon, 22 Nov 2021 07:41:56 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx4ryiA+oOZhsMU1H219z3VLft5AYNHxxM6VNjWf4I+q6O5/5UD5vkKTKChWvUHWQDeIC5I9A==
+X-Received: by 2002:a05:6402:289e:: with SMTP id eg30mr65889716edb.253.1637595716180;
+        Mon, 22 Nov 2021 07:41:56 -0800 (PST)
+Received: from ?IPV6:2001:1c00:c1e:bf00:1054:9d19:e0f0:8214? (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
+        by smtp.gmail.com with ESMTPSA id hr11sm3999873ejc.108.2021.11.22.07.41.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 22 Nov 2021 07:41:55 -0800 (PST)
+Message-ID: <132b6778-91e7-d758-2636-9561e5aa347f@redhat.com>
+Date:   Mon, 22 Nov 2021 16:41:54 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAAP7ucJ8LyYXWRLGAhYfCV7nYL+6tSHCLrOJ_hZ+swqRfv7QfQ@mail.gmail.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [RFT PATCH] usb: hub: Fix locking issues with address0_mutex
+Content-Language: en-US
+To:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        m.szyprowski@samsung.com, gregkh@linuxfoundation.org,
+        stern@rowland.harvard.edu, kishon@ti.com
+Cc:     chris.chiu@canonical.com, linux-usb@vger.kernel.org,
+        stable@vger.kernel.org
+References: <1d6ef5ff-e5e2-b81e-42be-7876b5bcfd05@linux.intel.com>
+ <20211122105003.1089218-1-mathias.nyman@linux.intel.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <20211122105003.1089218-1-mathias.nyman@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hey,
+Hi,
 
-On Mon, Nov 22, 2021 at 02:13:08PM +0100, Aleksander Morgado wrote:
-> Hey Mani,
+On 11/22/21 11:50, Mathias Nyman wrote:
+> Fix the circular lock dependency and unbalanced unlock of addess0_mutex
+> introduced when fixing an address0_mutex enumeration retry race in commit
+> ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
 > 
-> > > > >
-> > > > > Some devices tend to trigger SYS_ERR interrupt while the host handling
-> > > > > SYS_ERR state of the device during power up. This creates a race
-> > > > > condition and causes a failure in booting up the device.
-> > > > >
-> > > > > The issue is seen on the Sierra Wireless EM9191 modem during SYS_ERR
-> > > > > handling in mhi_async_power_up(). Once the host detects that the device
-> > > > > is in SYS_ERR state, it issues MHI_RESET and waits for the device to
-> > > > > process the reset request. During this time, the device triggers SYS_ERR
-> > > > > interrupt to the host and host starts handling SYS_ERR execution.
-> > > > >
-> > > > > So by the time the device has completed reset, host starts SYS_ERR
-> > > > > handling. This causes the race condition and the modem fails to boot.
-> > > > >
-> > > > > Hence, register the IRQ handler only after handling the SYS_ERR check
-> > > > > to avoid getting spurious IRQs from the device.
-> > > > >
-> > > > > Cc: stable@vger.kernel.org
-> > > > > Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
-> > > > > Reported-by: Aleksander Morgado <aleksander@aleksander.es>
-> > > > > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> > > > > ---
-> > > > >
-> > > > > Changes in v3:
-> > > > >
-> > > > > * Moved BHI_INTVEC setup after irq setup
-> > > > > * Used interval_us as the delay for the polling API
-> > > > >
-> > > > > Changes in v2:
-> > > > >
-> > > > > * Switched to "mhi_poll_reg_field" for detecting MHI reset in device.
-> > > > >
-> > > >
-> > > > I tried this v3 patch and I'm not sure if it's working properly in my
-> > > > setup; not all boots are successfully bringing the modem up.
-> > > >
-> > >
-> > > Ouch!
-> > >
-> > > > Once I installed it, I kept having this kind of logs on every boot:
-> > > > [    7.030407] mhi-pci-generic 0000:01:00.0: BAR 0: assigned [mem
-> > > > 0x600000000-0x600000fff 64bit]
-> > > > [    7.038984] mhi-pci-generic 0000:01:00.0: enabling device (0000 -> 0002)
-> > > > [    7.045814] mhi-pci-generic 0000:01:00.0: using shared MSI
-> > > > [    7.052191] mhi mhi0: Requested to power ON
-> > > > [    7.168042] mhi mhi0: Power on setup success
-> > > > [    7.168141] mhi mhi0: Wait for device to enter SBL or Mission mode
-> > > > [   15.687938] mhi-pci-generic 0000:01:00.0: failed to suspend device: -16
-> > >
-> > > [...]
-> > >
-> > > > I didn't try the v1 or v2 patches (sorry!), so not sure if the issues
-> > > > come in this last iteration or in an earlier one. Do you want me to
-> > > > try with v1 and v2 as well?
-> > > >
-> > >
-> > > Yes, please. Nothing changed other than moving the BHI_INTVEC programming.
-> > >
-> >
-> > Or if you want to do it quickly, please test the diff below:
-> >
-> > diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-> > index ee0515a25e46..21484a61bbed 100644
-> > --- a/drivers/bus/mhi/core/pm.c
-> > +++ b/drivers/bus/mhi/core/pm.c
-> > @@ -1055,7 +1055,9 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
-> >         mutex_lock(&mhi_cntrl->pm_mutex);
-> >         mhi_cntrl->pm_state = MHI_PM_DISABLE;
-> >
-> > +       /* Setup BHI INTVEC */
-> >         write_lock_irq(&mhi_cntrl->pm_lock);
-> > +       mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
-> >         mhi_cntrl->pm_state = MHI_PM_POR;
-> >         mhi_cntrl->ee = MHI_EE_MAX;
-> >         current_ee = mhi_get_exec_env(mhi_cntrl);
-> > @@ -1094,9 +1096,6 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
-> >         if (ret)
-> >                 goto error_setup_irq;
-> >
-> > -       /* Setup BHI INTVEC */
-> > -       mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
-> > -
-> >         /* Transition to next state */
-> >         next_state = MHI_IN_PBL(current_ee) ?
-> >                 DEV_ST_TRANSITION_PBL : DEV_ST_TRANSITION_READY;
-> >
+> Make sure locking order between port_dev->status_lock and address0_mutex
+> is correct, and that address0_mutex is not unlocked in hub_port_connect
+> "done:" codepath which may be reached without locking address0_mutex
 > 
-> I tested that additional diff on top of v3, and so far so good; I did
-> 5 soft reboots and 5 hard boots and they were all successful.
->
+> Fixes: 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-Great! Thanks for the testing. I'll post v4 with this change.
-Please spare some time in testing that also :)
+Oh, this is great, with this patch I can finally hot-plug my
+thunderbolt dock (and thus a XHCI controller) without the XHCI
+controller given a whole bunch of weird errors (and some USB
+devices not working), which it does not when already connected at boot.
 
-Thanks,
-Mani
- 
-> -- 
-> Aleksander
-> https://aleksander.es
+I also tried the hotplug thingy with the previous fix without
+this locking fix and then I actually hit the deadlock and things
+like lsusb would hang.
+
+If we can get these 2 fixes together merged soon and also backported
+to the stable series that would be great:
+
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+Tested-by: Hans de Goede <hdegoede@redhat.com>
+
+Regards,
+
+Hans
+
+
+
+
+
+
+
+> ---
+>  drivers/usb/core/hub.c | 20 ++++++++++++--------
+>  1 file changed, 12 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+> index 00c3506324e4..00070a8a6507 100644
+> --- a/drivers/usb/core/hub.c
+> +++ b/drivers/usb/core/hub.c
+> @@ -5188,6 +5188,7 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>  	struct usb_port *port_dev = hub->ports[port1 - 1];
+>  	struct usb_device *udev = port_dev->child;
+>  	static int unreliable_port = -1;
+> +	bool retry_locked;
+>  
+>  	/* Disconnect any existing devices under this port */
+>  	if (udev) {
+> @@ -5244,10 +5245,10 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>  
+>  	status = 0;
+>  
+> -	mutex_lock(hcd->address0_mutex);
+> -
+>  	for (i = 0; i < PORT_INIT_TRIES; i++) {
+> -
+> +		usb_lock_port(port_dev);
+> +		mutex_lock(hcd->address0_mutex);
+> +		retry_locked = true;
+>  		/* reallocate for each attempt, since references
+>  		 * to the previous one can escape in various ways
+>  		 */
+> @@ -5255,6 +5256,8 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>  		if (!udev) {
+>  			dev_err(&port_dev->dev,
+>  					"couldn't allocate usb_device\n");
+> +			mutex_unlock(hcd->address0_mutex);
+> +			usb_unlock_port(port_dev);
+>  			goto done;
+>  		}
+>  
+> @@ -5276,13 +5279,13 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>  		}
+>  
+>  		/* reset (non-USB 3.0 devices) and get descriptor */
+> -		usb_lock_port(port_dev);
+>  		status = hub_port_init(hub, udev, port1, i);
+> -		usb_unlock_port(port_dev);
+>  		if (status < 0)
+>  			goto loop;
+>  
+>  		mutex_unlock(hcd->address0_mutex);
+> +		usb_unlock_port(port_dev);
+> +		retry_locked = false;
+>  
+>  		if (udev->quirks & USB_QUIRK_DELAY_INIT)
+>  			msleep(2000);
+> @@ -5372,11 +5375,14 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>  
+>  loop_disable:
+>  		hub_port_disable(hub, port1, 1);
+> -		mutex_lock(hcd->address0_mutex);
+>  loop:
+>  		usb_ep0_reinit(udev);
+>  		release_devnum(udev);
+>  		hub_free_dev(udev);
+> +		if (retry_locked) {
+> +			mutex_unlock(hcd->address0_mutex);
+> +			usb_unlock_port(port_dev);
+> +		}
+>  		usb_put_dev(udev);
+>  		if ((status == -ENOTCONN) || (status == -ENOTSUPP))
+>  			break;
+> @@ -5399,8 +5405,6 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>  	}
+>  
+>  done:
+> -	mutex_unlock(hcd->address0_mutex);
+> -
+>  	hub_port_disable(hub, port1, 1);
+>  	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
+>  		if (status != -ENOTCONN && status != -ENODEV)
+> 
+
