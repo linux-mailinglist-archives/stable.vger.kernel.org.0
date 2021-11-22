@@ -2,127 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D640458F21
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 14:07:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6C0B458F36
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 14:13:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239192AbhKVNKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 08:10:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43162 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239534AbhKVNJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Nov 2021 08:09:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE45D60234;
-        Mon, 22 Nov 2021 13:06:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637586412;
-        bh=bDV2XBuDXfGYQR2A/0P2rnv3uJW5Rq7BHbRbY+2TNAM=;
-        h=Subject:To:Cc:From:Date:From;
-        b=u/ad80NpS+9T0fxBgGlqYPU/zAo7MDUbXSP464+En8B6rzcPE1PxbRtWVSsRcEgPI
-         jP1BR4mDyvvSw8dwRLk2YdgKcaJaJJe5kPmyEt3HE//Yje+6/XIuWz1TipIdVX2kLr
-         lU4m12JOkPyYpxiEpm4XSeMuU7EPnbjy2XWN7kuw=
-Subject: FAILED: patch "[PATCH] dma-buf/poll: Get a file reference for outstanding fence" failed to apply to 5.10-stable tree
-To:     mdaenzer@redhat.com, christian.koenig@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Nov 2021 14:06:41 +0100
-Message-ID: <16375864012941@kroah.com>
+        id S236731AbhKVNQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 08:16:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57058 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231448AbhKVNQ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 08:16:28 -0500
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFC54C061714
+        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 05:13:21 -0800 (PST)
+Received: by mail-ed1-x52d.google.com with SMTP id r11so76648881edd.9
+        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 05:13:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=aleksander-es.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=wtYroizhHqJrGVDaksNBazUqy0tZ4NNXvcMpUiY7l1w=;
+        b=EE6VFG4kLO7LPHcRNyRoT+pOd94sieaTFgr7Gs/uu6WtuIWDdMnjrBGcbINfqfndfE
+         QxCp1UUozIySbMYb579T9/LLoyt4okXcnHWkdwEVQphMHiG6koalumdadTYbYukgs5G7
+         PGgY5gmHKKG1zhJl2C52euWXUaUIQPAkdFd6lX+jeQHsn5ykIfm2oAi10FEHZ3JZGwXq
+         JNTMIhDXwHjYbybohLD6IhWVILqu/2Ejmp/ARHuc5465xfv9h5oHJ83HHDoU3WfozdO1
+         0NKR4gaD51HY8fq/mtsnMCSFnsBNwMQ/veJZfOiUmPfq3G2+FmjL334/LH9V7l/yjyTS
+         A02Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wtYroizhHqJrGVDaksNBazUqy0tZ4NNXvcMpUiY7l1w=;
+        b=3SPzKkoJOEVhoQ/AFkCfNQipdxDE5JyuZFOr7ggOzVOOHAEtZrRH/fVvpLvzt534Em
+         9ZnrkCftMlMUd8CQoukFVuGfimFICSwW6fnGzWa9pZLKjAXC8/t5pQLwZw8lXdB6PNcL
+         P0Yyz7o1fUNQ3Hu5+k/nnPM7A3LqyyC81i+fkO23RQS1J3IYqg0RFk+mxJmR9nCEocDA
+         Tbls1UV13dm70O4OyCS0Bo/txOrDgUXWJNbSfZv11mFV3wI/GN/MFg8R0uurKoIbjl7r
+         gzKaANKLvha7CQ3CmSsbmIFrg9x8w0t206mwSm45l/+oNRRCaI1g54bQGLIVqqQGESMg
+         fyqg==
+X-Gm-Message-State: AOAM531+fVmdp7ipe+SGzzBpQKkWHvU3JdgY2l6GXuYunFJHWIlPhMyv
+        hh1cOvJ3KHw0+rWnZ+icO8Nvsywh5ek0L/5bKBWkCA==
+X-Google-Smtp-Source: ABdhPJzVLCPziXjZsYJ6ncptCqZfDMLvYAV4ajtwLF+R5azT6DiquWrL7LZ+T0F9TROgKFUugM+N+Di2Q/8EcRUggM4=
+X-Received: by 2002:a17:907:68e:: with SMTP id wn14mr41508952ejb.258.1637586800354;
+ Mon, 22 Nov 2021 05:13:20 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20211118055726.13107-1-manivannan.sadhasivam@linaro.org>
+ <CAAP7ucJoOTOqFnNpJcQmxF=A0TOB8TtCCng-2q9pNkddRTbpuw@mail.gmail.com>
+ <20211120112508.GA100286@thinkpad> <20211120113626.GB100286@thinkpad>
+In-Reply-To: <20211120113626.GB100286@thinkpad>
+From:   Aleksander Morgado <aleksander@aleksander.es>
+Date:   Mon, 22 Nov 2021 14:13:08 +0100
+Message-ID: <CAAP7ucJ8LyYXWRLGAhYfCV7nYL+6tSHCLrOJ_hZ+swqRfv7QfQ@mail.gmail.com>
+Subject: Re: [PATCH v3] bus: mhi: Fix race while handling SYS_ERR at power up
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc:     mhi@lists.linux.dev, Loic Poulain <loic.poulain@linaro.org>,
+        Thomas Perrot <thomas.perrot@bootlin.com>,
+        Hemant Kumar <hemantk@codeaurora.org>,
+        Bhaumik Bhatt <bbhatt@codeaurora.org>, quic_jhugo@quicinc.com,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hey Mani,
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+> > > >
+> > > > Some devices tend to trigger SYS_ERR interrupt while the host handling
+> > > > SYS_ERR state of the device during power up. This creates a race
+> > > > condition and causes a failure in booting up the device.
+> > > >
+> > > > The issue is seen on the Sierra Wireless EM9191 modem during SYS_ERR
+> > > > handling in mhi_async_power_up(). Once the host detects that the device
+> > > > is in SYS_ERR state, it issues MHI_RESET and waits for the device to
+> > > > process the reset request. During this time, the device triggers SYS_ERR
+> > > > interrupt to the host and host starts handling SYS_ERR execution.
+> > > >
+> > > > So by the time the device has completed reset, host starts SYS_ERR
+> > > > handling. This causes the race condition and the modem fails to boot.
+> > > >
+> > > > Hence, register the IRQ handler only after handling the SYS_ERR check
+> > > > to avoid getting spurious IRQs from the device.
+> > > >
+> > > > Cc: stable@vger.kernel.org
+> > > > Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
+> > > > Reported-by: Aleksander Morgado <aleksander@aleksander.es>
+> > > > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > > > ---
+> > > >
+> > > > Changes in v3:
+> > > >
+> > > > * Moved BHI_INTVEC setup after irq setup
+> > > > * Used interval_us as the delay for the polling API
+> > > >
+> > > > Changes in v2:
+> > > >
+> > > > * Switched to "mhi_poll_reg_field" for detecting MHI reset in device.
+> > > >
+> > >
+> > > I tried this v3 patch and I'm not sure if it's working properly in my
+> > > setup; not all boots are successfully bringing the modem up.
+> > >
+> >
+> > Ouch!
+> >
+> > > Once I installed it, I kept having this kind of logs on every boot:
+> > > [    7.030407] mhi-pci-generic 0000:01:00.0: BAR 0: assigned [mem
+> > > 0x600000000-0x600000fff 64bit]
+> > > [    7.038984] mhi-pci-generic 0000:01:00.0: enabling device (0000 -> 0002)
+> > > [    7.045814] mhi-pci-generic 0000:01:00.0: using shared MSI
+> > > [    7.052191] mhi mhi0: Requested to power ON
+> > > [    7.168042] mhi mhi0: Power on setup success
+> > > [    7.168141] mhi mhi0: Wait for device to enter SBL or Mission mode
+> > > [   15.687938] mhi-pci-generic 0000:01:00.0: failed to suspend device: -16
+> >
+> > [...]
+> >
+> > > I didn't try the v1 or v2 patches (sorry!), so not sure if the issues
+> > > come in this last iteration or in an earlier one. Do you want me to
+> > > try with v1 and v2 as well?
+> > >
+> >
+> > Yes, please. Nothing changed other than moving the BHI_INTVEC programming.
+> >
+>
+> Or if you want to do it quickly, please test the diff below:
+>
+> diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
+> index ee0515a25e46..21484a61bbed 100644
+> --- a/drivers/bus/mhi/core/pm.c
+> +++ b/drivers/bus/mhi/core/pm.c
+> @@ -1055,7 +1055,9 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+>         mutex_lock(&mhi_cntrl->pm_mutex);
+>         mhi_cntrl->pm_state = MHI_PM_DISABLE;
+>
+> +       /* Setup BHI INTVEC */
+>         write_lock_irq(&mhi_cntrl->pm_lock);
+> +       mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
+>         mhi_cntrl->pm_state = MHI_PM_POR;
+>         mhi_cntrl->ee = MHI_EE_MAX;
+>         current_ee = mhi_get_exec_env(mhi_cntrl);
+> @@ -1094,9 +1096,6 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+>         if (ret)
+>                 goto error_setup_irq;
+>
+> -       /* Setup BHI INTVEC */
+> -       mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
+> -
+>         /* Transition to next state */
+>         next_state = MHI_IN_PBL(current_ee) ?
+>                 DEV_ST_TRANSITION_PBL : DEV_ST_TRANSITION_READY;
+>
 
-thanks,
+I tested that additional diff on top of v3, and so far so good; I did
+5 soft reboots and 5 hard boots and they were all successful.
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From ff2d23843f7fb4f13055be5a4a9a20ddd04e6e9c Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
-Date: Fri, 23 Jul 2021 09:58:57 +0200
-Subject: [PATCH] dma-buf/poll: Get a file reference for outstanding fence
- callbacks
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-This makes sure we don't hit the
-
-	BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
-
-in dma_buf_release, which could be triggered by user space closing the
-dma-buf file description while there are outstanding fence callbacks
-from dma_buf_poll.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Michel Dänzer <mdaenzer@redhat.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210723075857.4065-1-michel@daenzer.net
-Signed-off-by: Christian König <christian.koenig@amd.com>
-
-diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-index beb504a92d60..35fe1cb5ad98 100644
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -67,12 +67,9 @@ static void dma_buf_release(struct dentry *dentry)
- 	BUG_ON(dmabuf->vmapping_counter);
- 
- 	/*
--	 * Any fences that a dma-buf poll can wait on should be signaled
--	 * before releasing dma-buf. This is the responsibility of each
--	 * driver that uses the reservation objects.
--	 *
--	 * If you hit this BUG() it means someone dropped their ref to the
--	 * dma-buf while still having pending operation to the buffer.
-+	 * If you hit this BUG() it could mean:
-+	 * * There's a file reference imbalance in dma_buf_poll / dma_buf_poll_cb or somewhere else
-+	 * * dmabuf->cb_in/out.active are non-0 despite no pending fence callback
- 	 */
- 	BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
- 
-@@ -200,6 +197,7 @@ static loff_t dma_buf_llseek(struct file *file, loff_t offset, int whence)
- static void dma_buf_poll_cb(struct dma_fence *fence, struct dma_fence_cb *cb)
- {
- 	struct dma_buf_poll_cb_t *dcb = (struct dma_buf_poll_cb_t *)cb;
-+	struct dma_buf *dmabuf = container_of(dcb->poll, struct dma_buf, poll);
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&dcb->poll->lock, flags);
-@@ -207,6 +205,8 @@ static void dma_buf_poll_cb(struct dma_fence *fence, struct dma_fence_cb *cb)
- 	dcb->active = 0;
- 	spin_unlock_irqrestore(&dcb->poll->lock, flags);
- 	dma_fence_put(fence);
-+	/* Paired with get_file in dma_buf_poll */
-+	fput(dmabuf->file);
- }
- 
- static bool dma_buf_poll_add_cb(struct dma_resv *resv, bool write,
-@@ -259,6 +259,9 @@ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
- 		spin_unlock_irq(&dmabuf->poll.lock);
- 
- 		if (events & EPOLLOUT) {
-+			/* Paired with fput in dma_buf_poll_cb */
-+			get_file(dmabuf->file);
-+
- 			if (!dma_buf_poll_add_cb(resv, true, dcb))
- 				/* No callback queued, wake up any other waiters */
- 				dma_buf_poll_cb(NULL, &dcb->cb);
-@@ -279,6 +282,9 @@ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
- 		spin_unlock_irq(&dmabuf->poll.lock);
- 
- 		if (events & EPOLLIN) {
-+			/* Paired with fput in dma_buf_poll_cb */
-+			get_file(dmabuf->file);
-+
- 			if (!dma_buf_poll_add_cb(resv, false, dcb))
- 				/* No callback queued, wake up any other waiters */
- 				dma_buf_poll_cb(NULL, &dcb->cb);
-
+-- 
+Aleksander
+https://aleksander.es
