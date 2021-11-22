@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 952C6458E34
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:22:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D98E0458E37
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:23:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236336AbhKVMZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 07:25:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48428 "EHLO mail.kernel.org"
+        id S231755AbhKVM1D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 07:27:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231755AbhKVMZr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Nov 2021 07:25:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1071B60F25;
-        Mon, 22 Nov 2021 12:22:39 +0000 (UTC)
+        id S229518AbhKVM1C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Nov 2021 07:27:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0135F60551;
+        Mon, 22 Nov 2021 12:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637583760;
-        bh=ozRvC3sa12msWdK5j9W+j4KRCd8TiNUn0nQb9XwESTU=;
+        s=korg; t=1637583836;
+        bh=6pedxauv+pmL4aGaK7nYqMzzUUSPRjF+NulaURPGlX0=;
         h=Subject:To:Cc:From:Date:From;
-        b=yv1cX7kiXszkYcoc3Bfj1y0zQNbr1D2ZmkTwyyvAIYLubUgNL/0CI+1wIa4lNcnKp
-         sfB6pogChL9hdelX1jU7iJ2Mld3hIpt6Hm/zZuSgOWMjOfbbFJ1KsHKylYxROfG1h0
-         4/pkKGMg4qe4wp91P1jecbZihHHtfw+BluAai3No=
-Subject: FAILED: patch "[PATCH] shm: extend forced shm destroy to support objects from" failed to apply to 4.19-stable tree
+        b=COZFgdkj0L/N4IiQLIUuobX/8mc2YGE1zHK//VO+aisc6VcIWC+yf7B6hspejp+Lu
+         a69sFN/zj/6SXJUzX6U439i5Ykr07VrjaiJ/iw4dE5l/DuSkbRSKeUogTNm10F8ZFw
+         RXL1MRYE22XEQZlwvFkw2Y964L+F5aR0lnZfWEJY=
+Subject: FAILED: patch "[PATCH] shm: extend forced shm destroy to support objects from" failed to apply to 5.4-stable tree
 To:     alexander.mikhalitsyn@virtuozzo.com, akpm@linux-foundation.org,
         avagin@gmail.com, dave@stgolabs.net, ebiederm@xmission.com,
         gregkh@linuxfoundation.org, manfred@colorfullife.com,
@@ -28,8 +28,8 @@ To:     alexander.mikhalitsyn@virtuozzo.com, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, vvs@virtuozzo.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Nov 2021 13:22:37 +0100
-Message-ID: <163758375777179@kroah.com>
+Date:   Mon, 22 Nov 2021 13:23:53 +0100
+Message-ID: <16375838338521@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -38,7 +38,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
