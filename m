@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1ED458E38
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:24:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE341458E41
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:27:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231829AbhKVM13 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 07:27:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49624 "EHLO mail.kernel.org"
+        id S234058AbhKVMaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 07:30:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229518AbhKVM13 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Nov 2021 07:27:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F63B60F25;
-        Mon, 22 Nov 2021 12:24:22 +0000 (UTC)
+        id S233840AbhKVMaK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Nov 2021 07:30:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B34A460F25;
+        Mon, 22 Nov 2021 12:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637583862;
-        bh=M2RluITvpzPk3+dwfJtTgZRTYQ1waJh/evs7TZ1wlNQ=;
+        s=korg; t=1637584018;
+        bh=szwKq9qMvAxEyVEj5/t1RoTijHF8NaWTGo0dWRBrKZU=;
         h=Subject:To:Cc:From:Date:From;
-        b=durAqlU9tbbuM1IheAzBwMi2fzs+gp+Fn48aymeE0gn/1kCV1zdfoNUUSWk/Zk6LQ
-         fO1eeTtpkwtrWWZXENVMpanwMvlfBUY8xIAy6PBcDuZJg9BThMomjzbVPCmTYCmRSf
-         HeFG0l1AWB1wNLJFWzNDrFn60oXlfb/UtnvcAQ8Q=
-Subject: FAILED: patch "[PATCH] shm: extend forced shm destroy to support objects from" failed to apply to 5.10-stable tree
-To:     alexander.mikhalitsyn@virtuozzo.com, akpm@linux-foundation.org,
-        avagin@gmail.com, dave@stgolabs.net, ebiederm@xmission.com,
-        gregkh@linuxfoundation.org, manfred@colorfullife.com,
-        ptikhomirov@virtuozzo.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vvs@virtuozzo.com
+        b=ht7WpyNXyv1OZS0+u3Y1oKUhVK1R4Gi8jeZfZYwiX7pzmo3bECrPRUQfPKrffkLlN
+         qp5+QRld7abOIAlKG+tBruwh8c8HPkoRYj7gnlBbSg9LnJ0V9tcTrD/cLRP+DyjCO4
+         F1SZd+v9PKG7WTynoBZtT3A4enqouQDkS8mQKtgc=
+Subject: FAILED: patch "[PATCH] proc/vmcore: fix clearing user buffer by properly using" failed to apply to 4.4-stable tree
+To:     david@redhat.com, akpm@linux-foundation.org, bhe@redhat.com,
+        dyoung@redhat.com, prudo@redhat.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vgoyal@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Nov 2021 13:24:20 +0100
-Message-ID: <163758386010469@kroah.com>
+Date:   Mon, 22 Nov 2021 13:26:55 +0100
+Message-ID: <163758401512149@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -38,7 +36,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -49,387 +47,106 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 85b6d24646e4125c591639841169baa98a2da503 Mon Sep 17 00:00:00 2001
-From: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Date: Fri, 19 Nov 2021 16:43:21 -0800
-Subject: [PATCH] shm: extend forced shm destroy to support objects from
- several IPC nses
+From c1e63117711977cc4295b2ce73de29dd17066c82 Mon Sep 17 00:00:00 2001
+From: David Hildenbrand <david@redhat.com>
+Date: Fri, 19 Nov 2021 16:43:58 -0800
+Subject: [PATCH] proc/vmcore: fix clearing user buffer by properly using
+ clear_user()
 
-Currently, the exit_shm() function not designed to work properly when
-task->sysvshm.shm_clist holds shm objects from different IPC namespaces.
+To clear a user buffer we cannot simply use memset, we have to use
+clear_user().  With a virtio-mem device that registers a vmcore_cb and
+has some logically unplugged memory inside an added Linux memory block,
+I can easily trigger a BUG by copying the vmcore via "cp":
 
-This is a real pain when sysctl kernel.shm_rmid_forced = 1, because it
-leads to use-after-free (reproducer exists).
+  systemd[1]: Starting Kdump Vmcore Save Service...
+  kdump[420]: Kdump is using the default log level(3).
+  kdump[453]: saving to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
+  kdump[458]: saving vmcore-dmesg.txt to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
+  kdump[465]: saving vmcore-dmesg.txt complete
+  kdump[467]: saving vmcore
+  BUG: unable to handle page fault for address: 00007f2374e01000
+  #PF: supervisor write access in kernel mode
+  #PF: error_code(0x0003) - permissions violation
+  PGD 7a523067 P4D 7a523067 PUD 7a528067 PMD 7a525067 PTE 800000007048f867
+  Oops: 0003 [#1] PREEMPT SMP NOPTI
+  CPU: 0 PID: 468 Comm: cp Not tainted 5.15.0+ #6
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-27-g64f37cc530f1-prebuilt.qemu.org 04/01/2014
+  RIP: 0010:read_from_oldmem.part.0.cold+0x1d/0x86
+  Code: ff ff ff e8 05 ff fe ff e9 b9 e9 7f ff 48 89 de 48 c7 c7 38 3b 60 82 e8 f1 fe fe ff 83 fd 08 72 3c 49 8d 7d 08 4c 89 e9 89 e8 <49> c7 45 00 00 00 00 00 49 c7 44 05 f8 00 00 00 00 48 83 e7 f81
+  RSP: 0018:ffffc9000073be08 EFLAGS: 00010212
+  RAX: 0000000000001000 RBX: 00000000002fd000 RCX: 00007f2374e01000
+  RDX: 0000000000000001 RSI: 00000000ffffdfff RDI: 00007f2374e01008
+  RBP: 0000000000001000 R08: 0000000000000000 R09: ffffc9000073bc50
+  R10: ffffc9000073bc48 R11: ffffffff829461a8 R12: 000000000000f000
+  R13: 00007f2374e01000 R14: 0000000000000000 R15: ffff88807bd421e8
+  FS:  00007f2374e12140(0000) GS:ffff88807f000000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f2374e01000 CR3: 000000007a4aa000 CR4: 0000000000350eb0
+  Call Trace:
+   read_vmcore+0x236/0x2c0
+   proc_reg_read+0x55/0xa0
+   vfs_read+0x95/0x190
+   ksys_read+0x4f/0xc0
+   do_syscall_64+0x3b/0x90
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-This is an attempt to fix the problem by extending exit_shm mechanism to
-handle shm's destroy from several IPC ns'es.
+Some x86-64 CPUs have a CPU feature called "Supervisor Mode Access
+Prevention (SMAP)", which is used to detect wrong access from the kernel
+to user buffers like this: SMAP triggers a permissions violation on
+wrong access.  In the x86-64 variant of clear_user(), SMAP is properly
+handled via clac()+stac().
 
-To achieve that we do several things:
+To fix, properly use clear_user() when we're dealing with a user buffer.
 
-1. add a namespace (non-refcounted) pointer to the struct shmid_kernel
-
-2. during new shm object creation (newseg()/shmget syscall) we
-   initialize this pointer by current task IPC ns
-
-3. exit_shm() fully reworked such that it traverses over all shp's in
-   task->sysvshm.shm_clist and gets IPC namespace not from current task
-   as it was before but from shp's object itself, then call
-   shm_destroy(shp, ns).
-
-Note: We need to be really careful here, because as it was said before
-(1), our pointer to IPC ns non-refcnt'ed.  To be on the safe side we
-using special helper get_ipc_ns_not_zero() which allows to get IPC ns
-refcounter only if IPC ns not in the "state of destruction".
-
-Q/A
-
-Q: Why can we access shp->ns memory using non-refcounted pointer?
-A: Because shp object lifetime is always shorther than IPC namespace
-   lifetime, so, if we get shp object from the task->sysvshm.shm_clist
-   while holding task_lock(task) nobody can steal our namespace.
-
-Q: Does this patch change semantics of unshare/setns/clone syscalls?
-A: No. It's just fixes non-covered case when process may leave IPC
-   namespace without getting task->sysvshm.shm_clist list cleaned up.
-
-Link: https://lkml.kernel.org/r/67bb03e5-f79c-1815-e2bf-949c67047418@colorfullife.com
-Link: https://lkml.kernel.org/r/20211109151501.4921-1-manfred@colorfullife.com
-Fixes: ab602f79915 ("shm: make exit_shm work proportional to task activity")
-Co-developed-by: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Andrei Vagin <avagin@gmail.com>
-Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Cc: Vasily Averin <vvs@virtuozzo.com>
+Link: https://lkml.kernel.org/r/20211112092750.6921-1-david@redhat.com
+Fixes: 997c136f518c ("fs/proc/vmcore.c: add hook to read_from_oldmem() to check for non-ram pages")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Acked-by: Baoquan He <bhe@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Cc: Philipp Rudo <prudo@redhat.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/include/linux/ipc_namespace.h b/include/linux/ipc_namespace.h
-index 05e22770af51..b75395ec8d52 100644
---- a/include/linux/ipc_namespace.h
-+++ b/include/linux/ipc_namespace.h
-@@ -131,6 +131,16 @@ static inline struct ipc_namespace *get_ipc_ns(struct ipc_namespace *ns)
- 	return ns;
- }
+diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+index 30a3b66f475a..509f85148fee 100644
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -154,9 +154,13 @@ ssize_t read_from_oldmem(char *buf, size_t count,
+ 			nr_bytes = count;
  
-+static inline struct ipc_namespace *get_ipc_ns_not_zero(struct ipc_namespace *ns)
-+{
-+	if (ns) {
-+		if (refcount_inc_not_zero(&ns->ns.count))
-+			return ns;
-+	}
-+
-+	return NULL;
-+}
-+
- extern void put_ipc_ns(struct ipc_namespace *ns);
- #else
- static inline struct ipc_namespace *copy_ipcs(unsigned long flags,
-@@ -147,6 +157,11 @@ static inline struct ipc_namespace *get_ipc_ns(struct ipc_namespace *ns)
- 	return ns;
- }
- 
-+static inline struct ipc_namespace *get_ipc_ns_not_zero(struct ipc_namespace *ns)
-+{
-+	return ns;
-+}
-+
- static inline void put_ipc_ns(struct ipc_namespace *ns)
- {
- }
-diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
-index ba88a6987400..058d7f371e25 100644
---- a/include/linux/sched/task.h
-+++ b/include/linux/sched/task.h
-@@ -158,7 +158,7 @@ static inline struct vm_struct *task_stack_vm_area(const struct task_struct *t)
-  * Protects ->fs, ->files, ->mm, ->group_info, ->comm, keyring
-  * subscriptions and synchronises with wait4().  Also used in procfs.  Also
-  * pins the final release of task.io_context.  Also protects ->cpuset and
-- * ->cgroup.subsys[]. And ->vfork_done.
-+ * ->cgroup.subsys[]. And ->vfork_done. And ->sysvshm.shm_clist.
-  *
-  * Nests both inside and outside of read_lock(&tasklist_lock).
-  * It must not be nested with write_lock_irq(&tasklist_lock),
-diff --git a/ipc/shm.c b/ipc/shm.c
-index 4942bdd65748..b3048ebd5c31 100644
---- a/ipc/shm.c
-+++ b/ipc/shm.c
-@@ -62,9 +62,18 @@ struct shmid_kernel /* private to the kernel */
- 	struct pid		*shm_lprid;
- 	struct ucounts		*mlock_ucounts;
- 
--	/* The task created the shm object.  NULL if the task is dead. */
-+	/*
-+	 * The task created the shm object, for
-+	 * task_lock(shp->shm_creator)
-+	 */
- 	struct task_struct	*shm_creator;
--	struct list_head	shm_clist;	/* list by creator */
-+
-+	/*
-+	 * List by creator. task_lock(->shm_creator) required for read/write.
-+	 * If list_empty(), then the creator is dead already.
-+	 */
-+	struct list_head	shm_clist;
-+	struct ipc_namespace	*ns;
- } __randomize_layout;
- 
- /* shm_mode upper byte flags */
-@@ -115,6 +124,7 @@ static void do_shm_rmid(struct ipc_namespace *ns, struct kern_ipc_perm *ipcp)
- 	struct shmid_kernel *shp;
- 
- 	shp = container_of(ipcp, struct shmid_kernel, shm_perm);
-+	WARN_ON(ns != shp->ns);
- 
- 	if (shp->shm_nattch) {
- 		shp->shm_perm.mode |= SHM_DEST;
-@@ -225,10 +235,43 @@ static void shm_rcu_free(struct rcu_head *head)
- 	kfree(shp);
- }
- 
--static inline void shm_rmid(struct ipc_namespace *ns, struct shmid_kernel *s)
-+/*
-+ * It has to be called with shp locked.
-+ * It must be called before ipc_rmid()
-+ */
-+static inline void shm_clist_rm(struct shmid_kernel *shp)
- {
--	list_del(&s->shm_clist);
--	ipc_rmid(&shm_ids(ns), &s->shm_perm);
-+	struct task_struct *creator;
-+
-+	/* ensure that shm_creator does not disappear */
-+	rcu_read_lock();
-+
-+	/*
-+	 * A concurrent exit_shm may do a list_del_init() as well.
-+	 * Just do nothing if exit_shm already did the work
-+	 */
-+	if (!list_empty(&shp->shm_clist)) {
-+		/*
-+		 * shp->shm_creator is guaranteed to be valid *only*
-+		 * if shp->shm_clist is not empty.
-+		 */
-+		creator = shp->shm_creator;
-+
-+		task_lock(creator);
-+		/*
-+		 * list_del_init() is a nop if the entry was already removed
-+		 * from the list.
-+		 */
-+		list_del_init(&shp->shm_clist);
-+		task_unlock(creator);
-+	}
-+	rcu_read_unlock();
-+}
-+
-+static inline void shm_rmid(struct shmid_kernel *s)
-+{
-+	shm_clist_rm(s);
-+	ipc_rmid(&shm_ids(s->ns), &s->shm_perm);
- }
- 
- 
-@@ -283,7 +326,7 @@ static void shm_destroy(struct ipc_namespace *ns, struct shmid_kernel *shp)
- 	shm_file = shp->shm_file;
- 	shp->shm_file = NULL;
- 	ns->shm_tot -= (shp->shm_segsz + PAGE_SIZE - 1) >> PAGE_SHIFT;
--	shm_rmid(ns, shp);
-+	shm_rmid(shp);
- 	shm_unlock(shp);
- 	if (!is_file_hugepages(shm_file))
- 		shmem_lock(shm_file, 0, shp->mlock_ucounts);
-@@ -303,10 +346,10 @@ static void shm_destroy(struct ipc_namespace *ns, struct shmid_kernel *shp)
-  *
-  * 2) sysctl kernel.shm_rmid_forced is set to 1.
-  */
--static bool shm_may_destroy(struct ipc_namespace *ns, struct shmid_kernel *shp)
-+static bool shm_may_destroy(struct shmid_kernel *shp)
- {
- 	return (shp->shm_nattch == 0) &&
--	       (ns->shm_rmid_forced ||
-+	       (shp->ns->shm_rmid_forced ||
- 		(shp->shm_perm.mode & SHM_DEST));
- }
- 
-@@ -337,7 +380,7 @@ static void shm_close(struct vm_area_struct *vma)
- 	ipc_update_pid(&shp->shm_lprid, task_tgid(current));
- 	shp->shm_dtim = ktime_get_real_seconds();
- 	shp->shm_nattch--;
--	if (shm_may_destroy(ns, shp))
-+	if (shm_may_destroy(shp))
- 		shm_destroy(ns, shp);
- 	else
- 		shm_unlock(shp);
-@@ -358,10 +401,10 @@ static int shm_try_destroy_orphaned(int id, void *p, void *data)
- 	 *
- 	 * As shp->* are changed under rwsem, it's safe to skip shp locking.
- 	 */
--	if (shp->shm_creator != NULL)
-+	if (!list_empty(&shp->shm_clist))
- 		return 0;
- 
--	if (shm_may_destroy(ns, shp)) {
-+	if (shm_may_destroy(shp)) {
- 		shm_lock_by_ptr(shp);
- 		shm_destroy(ns, shp);
- 	}
-@@ -379,48 +422,97 @@ void shm_destroy_orphaned(struct ipc_namespace *ns)
- /* Locking assumes this will only be called with task == current */
- void exit_shm(struct task_struct *task)
- {
--	struct ipc_namespace *ns = task->nsproxy->ipc_ns;
--	struct shmid_kernel *shp, *n;
-+	for (;;) {
-+		struct shmid_kernel *shp;
-+		struct ipc_namespace *ns;
- 
--	if (list_empty(&task->sysvshm.shm_clist))
--		return;
-+		task_lock(task);
-+
-+		if (list_empty(&task->sysvshm.shm_clist)) {
-+			task_unlock(task);
-+			break;
-+		}
-+
-+		shp = list_first_entry(&task->sysvshm.shm_clist, struct shmid_kernel,
-+				shm_clist);
- 
--	/*
--	 * If kernel.shm_rmid_forced is not set then only keep track of
--	 * which shmids are orphaned, so that a later set of the sysctl
--	 * can clean them up.
--	 */
--	if (!ns->shm_rmid_forced) {
--		down_read(&shm_ids(ns).rwsem);
--		list_for_each_entry(shp, &task->sysvshm.shm_clist, shm_clist)
--			shp->shm_creator = NULL;
- 		/*
--		 * Only under read lock but we are only called on current
--		 * so no entry on the list will be shared.
-+		 * 1) Get pointer to the ipc namespace. It is worth to say
-+		 * that this pointer is guaranteed to be valid because
-+		 * shp lifetime is always shorter than namespace lifetime
-+		 * in which shp lives.
-+		 * We taken task_lock it means that shp won't be freed.
- 		 */
--		list_del(&task->sysvshm.shm_clist);
--		up_read(&shm_ids(ns).rwsem);
--		return;
--	}
-+		ns = shp->ns;
- 
--	/*
--	 * Destroy all already created segments, that were not yet mapped,
--	 * and mark any mapped as orphan to cover the sysctl toggling.
--	 * Destroy is skipped if shm_may_destroy() returns false.
--	 */
--	down_write(&shm_ids(ns).rwsem);
--	list_for_each_entry_safe(shp, n, &task->sysvshm.shm_clist, shm_clist) {
--		shp->shm_creator = NULL;
-+		/*
-+		 * 2) If kernel.shm_rmid_forced is not set then only keep track of
-+		 * which shmids are orphaned, so that a later set of the sysctl
-+		 * can clean them up.
-+		 */
-+		if (!ns->shm_rmid_forced)
-+			goto unlink_continue;
- 
--		if (shm_may_destroy(ns, shp)) {
--			shm_lock_by_ptr(shp);
--			shm_destroy(ns, shp);
-+		/*
-+		 * 3) get a reference to the namespace.
-+		 *    The refcount could be already 0. If it is 0, then
-+		 *    the shm objects will be free by free_ipc_work().
-+		 */
-+		ns = get_ipc_ns_not_zero(ns);
-+		if (!ns) {
-+unlink_continue:
-+			list_del_init(&shp->shm_clist);
-+			task_unlock(task);
-+			continue;
- 		}
--	}
- 
--	/* Remove the list head from any segments still attached. */
--	list_del(&task->sysvshm.shm_clist);
--	up_write(&shm_ids(ns).rwsem);
-+		/*
-+		 * 4) get a reference to shp.
-+		 *   This cannot fail: shm_clist_rm() is called before
-+		 *   ipc_rmid(), thus the refcount cannot be 0.
-+		 */
-+		WARN_ON(!ipc_rcu_getref(&shp->shm_perm));
-+
-+		/*
-+		 * 5) unlink the shm segment from the list of segments
-+		 *    created by current.
-+		 *    This must be done last. After unlinking,
-+		 *    only the refcounts obtained above prevent IPC_RMID
-+		 *    from destroying the segment or the namespace.
-+		 */
-+		list_del_init(&shp->shm_clist);
-+
-+		task_unlock(task);
-+
-+		/*
-+		 * 6) we have all references
-+		 *    Thus lock & if needed destroy shp.
-+		 */
-+		down_write(&shm_ids(ns).rwsem);
-+		shm_lock_by_ptr(shp);
-+		/*
-+		 * rcu_read_lock was implicitly taken in shm_lock_by_ptr, it's
-+		 * safe to call ipc_rcu_putref here
-+		 */
-+		ipc_rcu_putref(&shp->shm_perm, shm_rcu_free);
-+
-+		if (ipc_valid_object(&shp->shm_perm)) {
-+			if (shm_may_destroy(shp))
-+				shm_destroy(ns, shp);
-+			else
-+				shm_unlock(shp);
+ 		/* If pfn is not ram, return zeros for sparse dump files */
+-		if (!pfn_is_ram(pfn))
+-			memset(buf, 0, nr_bytes);
+-		else {
++		if (!pfn_is_ram(pfn)) {
++			tmp = 0;
++			if (!userbuf)
++				memset(buf, 0, nr_bytes);
++			else if (clear_user(buf, nr_bytes))
++				tmp = -EFAULT;
 +		} else {
-+			/*
-+			 * Someone else deleted the shp from namespace
-+			 * idr/kht while we have waited.
-+			 * Just unlock and continue.
-+			 */
-+			shm_unlock(shp);
+ 			if (encrypted)
+ 				tmp = copy_oldmem_page_encrypted(pfn, buf,
+ 								 nr_bytes,
+@@ -165,12 +169,12 @@ ssize_t read_from_oldmem(char *buf, size_t count,
+ 			else
+ 				tmp = copy_oldmem_page(pfn, buf, nr_bytes,
+ 						       offset, userbuf);
+-
+-			if (tmp < 0) {
+-				up_read(&vmcore_cb_rwsem);
+-				return tmp;
+-			}
+ 		}
++		if (tmp < 0) {
++			up_read(&vmcore_cb_rwsem);
++			return tmp;
 +		}
 +
-+		up_write(&shm_ids(ns).rwsem);
-+		put_ipc_ns(ns); /* paired with get_ipc_ns_not_zero */
-+	}
- }
- 
- static vm_fault_t shm_fault(struct vm_fault *vmf)
-@@ -676,7 +768,11 @@ static int newseg(struct ipc_namespace *ns, struct ipc_params *params)
- 	if (error < 0)
- 		goto no_id;
- 
-+	shp->ns = ns;
-+
-+	task_lock(current);
- 	list_add(&shp->shm_clist, &current->sysvshm.shm_clist);
-+	task_unlock(current);
- 
- 	/*
- 	 * shmid gets reported as "inode#" in /proc/pid/maps.
-@@ -1567,7 +1663,8 @@ long do_shmat(int shmid, char __user *shmaddr, int shmflg,
- 	down_write(&shm_ids(ns).rwsem);
- 	shp = shm_lock(ns, shmid);
- 	shp->shm_nattch--;
--	if (shm_may_destroy(ns, shp))
-+
-+	if (shm_may_destroy(shp))
- 		shm_destroy(ns, shp);
- 	else
- 		shm_unlock(shp);
+ 		*ppos += nr_bytes;
+ 		count -= nr_bytes;
+ 		buf += nr_bytes;
 
