@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C5F8458E5F
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:31:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9688458E66
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:32:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236786AbhKVMeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 07:34:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54512 "EHLO mail.kernel.org"
+        id S234228AbhKVMf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 07:35:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234228AbhKVMeV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Nov 2021 07:34:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D5BB46069B;
-        Mon, 22 Nov 2021 12:31:14 +0000 (UTC)
+        id S233849AbhKVMf1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Nov 2021 07:35:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07E596069B;
+        Mon, 22 Nov 2021 12:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637584275;
-        bh=nuYfL6NsDFfA0M+psr1NxMeJuL2noj5B02OMqxTiYK4=;
+        s=korg; t=1637584340;
+        bh=TwgfpYZ8LUoxJ/RBhiHJQtvG0P2PVKxG7a0ndKCOWJU=;
         h=Subject:To:Cc:From:Date:From;
-        b=QwJ8zfnL9OzEqyQi/EFaExT3ja5GlWWyOswhOaF99cbsNFUQzfWPjVslViuwj6EIS
-         EkRq6B1hmDoBAf3VLwu3AsA/ES2GTKWDVD/ET7XFLuNS+CEmIFLOv6PJR612NIno5l
-         xvDnLRxFp/F9HS9/cJDBOp8MM653Y0xJcv/DtCOY=
-Subject: FAILED: patch "[PATCH] signal: Don't always set SA_IMMUTABLE for forced signals" failed to apply to 5.15-stable tree
-To:     ebiederm@xmission.com, keescook@chromium.org, khuey@kylehuey.com,
-        me@kylehuey.com, oliver.sang@intel.com,
-        torvalds@linux-foundation.org
+        b=NS44R1c3uADXcSxFTSKtfrsZEEizW1uXFl9P3LIcQAgAbE490Kr5BVFH0fJKkcCgE
+         VM8rwCqppitStnNqzlQsFZeypewfAKURiMvBNHlhfUkutMLKHTvQgLEgUQyvdBWkeH
+         6RtnUu+h24kSHmzg4C73YtZodaTQKKA4GXvRyl5A=
+Subject: FAILED: patch "[PATCH] Revert "drm/i915/tgl/dsi: Gate the ddi clocks after pll" failed to apply to 5.10-stable tree
+To:     vandita.kulkarni@intel.com, jani.nikula@intel.com,
+        rodrigo.vivi@intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Nov 2021 13:31:12 +0100
-Message-ID: <163758427225348@kroah.com>
+Date:   Mon, 22 Nov 2021 13:32:17 +0100
+Message-ID: <1637584337181215@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -47,111 +46,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e349d945fac76bddc78ae1cb92a0145b427a87ce Mon Sep 17 00:00:00 2001
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Thu, 18 Nov 2021 11:11:13 -0600
-Subject: [PATCH] signal: Don't always set SA_IMMUTABLE for forced signals
+From f15863b27752682bb700c21de5f83f613a0fb77e Mon Sep 17 00:00:00 2001
+From: Vandita Kulkarni <vandita.kulkarni@intel.com>
+Date: Tue, 9 Nov 2021 17:34:28 +0530
+Subject: [PATCH] Revert "drm/i915/tgl/dsi: Gate the ddi clocks after pll
+ mapping"
 
-Recently to prevent issues with SECCOMP_RET_KILL and similar signals
-being changed before they are delivered SA_IMMUTABLE was added.
+This reverts commit 991d9557b0c4 ("drm/i915/tgl/dsi: Gate the ddi clocks
+after pll mapping"). The Bspec was updated recently with the pll ungate
+sequence similar to that of icl dsi enable sequence. Hence reverting.
 
-Unfortunately this broke debuggers[1][2] which reasonably expect to be
-able to trap synchronous SIGTRAP and SIGSEGV even when the target
-process is not configured to handle those signals.
+Bspec: 49187
+Fixes: 991d9557b0c4 ("drm/i915/tgl/dsi: Gate the ddi clocks after pll mapping")
+Cc: <stable@vger.kernel.org> # v5.4+
+Signed-off-by: Vandita Kulkarni <vandita.kulkarni@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211109120428.15211-1-vandita.kulkarni@intel.com
+(cherry picked from commit 4579509ef181480f4e4510d436c691519167c5c2)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-Update force_sig_to_task to support both the case when we can allow
-the debugger to intercept and possibly ignore the signal and the case
-when it is not safe to let userspace know about the signal until the
-process has exited.
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Reported-by: Kyle Huey <me@kylehuey.com>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Cc: stable@vger.kernel.org
-[1] https://lkml.kernel.org/r/CAP045AoMY4xf8aC_4QU_-j7obuEPYgTcnQQP3Yxk=2X90jtpjw@mail.gmail.com
-[2] https://lkml.kernel.org/r/20211117150258.GB5403@xsang-OptiPlex-9020
-Fixes: 00b06da29cf9 ("signal: Add SA_IMMUTABLE to ensure forced siganls do not get changed")
-Link: https://lkml.kernel.org/r/877dd5qfw5.fsf_-_@email.froward.int.ebiederm.org
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Tested-by: Kees Cook <keescook@chromium.org>
-Tested-by: Kyle Huey <khuey@kylehuey.com>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 7c4b7ae714d4..7815e1bbeddc 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1298,6 +1298,12 @@ int do_send_sig_info(int sig, struct kernel_siginfo *info, struct task_struct *p
- 	return ret;
- }
+diff --git a/drivers/gpu/drm/i915/display/icl_dsi.c b/drivers/gpu/drm/i915/display/icl_dsi.c
+index 168c84a74d30..00f270c41894 100644
+--- a/drivers/gpu/drm/i915/display/icl_dsi.c
++++ b/drivers/gpu/drm/i915/display/icl_dsi.c
+@@ -696,10 +696,7 @@ static void gen11_dsi_map_pll(struct intel_encoder *encoder,
+ 	intel_de_write(dev_priv, ICL_DPCLKA_CFGCR0, val);
  
-+enum sig_handler {
-+	HANDLER_CURRENT, /* If reachable use the current handler */
-+	HANDLER_SIG_DFL, /* Always use SIG_DFL handler semantics */
-+	HANDLER_EXIT,	 /* Only visible as the process exit code */
-+};
-+
- /*
-  * Force a signal that the process can't ignore: if necessary
-  * we unblock the signal and change any SIG_IGN to SIG_DFL.
-@@ -1310,7 +1316,8 @@ int do_send_sig_info(int sig, struct kernel_siginfo *info, struct task_struct *p
-  * that is why we also clear SIGNAL_UNKILLABLE.
-  */
- static int
--force_sig_info_to_task(struct kernel_siginfo *info, struct task_struct *t, bool sigdfl)
-+force_sig_info_to_task(struct kernel_siginfo *info, struct task_struct *t,
-+	enum sig_handler handler)
+ 	for_each_dsi_phy(phy, intel_dsi->phys) {
+-		if (DISPLAY_VER(dev_priv) >= 12)
+-			val |= ICL_DPCLKA_CFGCR0_DDI_CLK_OFF(phy);
+-		else
+-			val &= ~ICL_DPCLKA_CFGCR0_DDI_CLK_OFF(phy);
++		val &= ~ICL_DPCLKA_CFGCR0_DDI_CLK_OFF(phy);
+ 	}
+ 	intel_de_write(dev_priv, ICL_DPCLKA_CFGCR0, val);
+ 
+@@ -1135,8 +1132,6 @@ static void
+ gen11_dsi_enable_port_and_phy(struct intel_encoder *encoder,
+ 			      const struct intel_crtc_state *crtc_state)
  {
- 	unsigned long int flags;
- 	int ret, blocked, ignored;
-@@ -1321,9 +1328,10 @@ force_sig_info_to_task(struct kernel_siginfo *info, struct task_struct *t, bool
- 	action = &t->sighand->action[sig-1];
- 	ignored = action->sa.sa_handler == SIG_IGN;
- 	blocked = sigismember(&t->blocked, sig);
--	if (blocked || ignored || sigdfl) {
-+	if (blocked || ignored || (handler != HANDLER_CURRENT)) {
- 		action->sa.sa_handler = SIG_DFL;
--		action->sa.sa_flags |= SA_IMMUTABLE;
-+		if (handler == HANDLER_EXIT)
-+			action->sa.sa_flags |= SA_IMMUTABLE;
- 		if (blocked) {
- 			sigdelset(&t->blocked, sig);
- 			recalc_sigpending_and_wake(t);
-@@ -1343,7 +1351,7 @@ force_sig_info_to_task(struct kernel_siginfo *info, struct task_struct *t, bool
+-	struct drm_i915_private *dev_priv = to_i915(encoder->base.dev);
+-
+ 	/* step 4a: power up all lanes of the DDI used by DSI */
+ 	gen11_dsi_power_up_lanes(encoder);
  
- int force_sig_info(struct kernel_siginfo *info)
- {
--	return force_sig_info_to_task(info, current, false);
-+	return force_sig_info_to_task(info, current, HANDLER_CURRENT);
+@@ -1162,8 +1157,7 @@ gen11_dsi_enable_port_and_phy(struct intel_encoder *encoder,
+ 	gen11_dsi_configure_transcoder(encoder, crtc_state);
+ 
+ 	/* Step 4l: Gate DDI clocks */
+-	if (DISPLAY_VER(dev_priv) == 11)
+-		gen11_dsi_gate_clocks(encoder);
++	gen11_dsi_gate_clocks(encoder);
  }
  
- /*
-@@ -1660,7 +1668,7 @@ void force_fatal_sig(int sig)
- 	info.si_code = SI_KERNEL;
- 	info.si_pid = 0;
- 	info.si_uid = 0;
--	force_sig_info_to_task(&info, current, true);
-+	force_sig_info_to_task(&info, current, HANDLER_SIG_DFL);
- }
- 
- /*
-@@ -1693,7 +1701,7 @@ int force_sig_fault_to_task(int sig, int code, void __user *addr
- 	info.si_flags = flags;
- 	info.si_isr = isr;
- #endif
--	return force_sig_info_to_task(&info, t, false);
-+	return force_sig_info_to_task(&info, t, HANDLER_CURRENT);
- }
- 
- int force_sig_fault(int sig, int code, void __user *addr
-@@ -1813,7 +1821,8 @@ int force_sig_seccomp(int syscall, int reason, bool force_coredump)
- 	info.si_errno = reason;
- 	info.si_arch = syscall_get_arch(current);
- 	info.si_syscall = syscall;
--	return force_sig_info_to_task(&info, current, force_coredump);
-+	return force_sig_info_to_task(&info, current,
-+		force_coredump ? HANDLER_EXIT : HANDLER_CURRENT);
- }
- 
- /* For the crazy architectures that include trap information in
+ static void gen11_dsi_powerup_panel(struct intel_encoder *encoder)
 
