@@ -2,136 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A202458887
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 05:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E21A458872
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 04:45:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229543AbhKVEGN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Nov 2021 23:06:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46840 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229527AbhKVEGM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Nov 2021 23:06:12 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 180D4C061574
-        for <stable@vger.kernel.org>; Sun, 21 Nov 2021 20:03:07 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id nh10-20020a17090b364a00b001a69adad5ebso14111266pjb.2
-        for <stable@vger.kernel.org>; Sun, 21 Nov 2021 20:03:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=3rRiGTPIQg1A9juZh8tc/PNrXvUttZZZh5Hgz3/Ip1M=;
-        b=48HyISC4o6ZrJpqAiLu9+SZZY3A1YA61/k/NCH39TkOswH6zVnaDZcr8X6/4B6vm6p
-         9HDPoBcsSc9vO63ud3Mnd2f2Jkmr+/OmBNvsxUGYRpa82RxNh8bFm/wdfYYiwzolV/Jx
-         vdnglZfSymBDarsLT2vM2kOGXpaQ2NRlUcLcdyF+KLRHW/j671cYGfXzn2i9tcaje/Aj
-         CsEXMkU6q2osXZHn4/Qhdh/cTsr5eknx89PunNdomtKxxOQmbyKEb/pH/aygNUvXovU2
-         bfsFxK3onECkkcxoDABzBWlbGl9QwEyd/Lcs01r57yGk9sN7XT8C1z9WlhDqYtQxUfaR
-         voUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=3rRiGTPIQg1A9juZh8tc/PNrXvUttZZZh5Hgz3/Ip1M=;
-        b=lwp+8h0z679UFLv3q7dSLZTcdGAVKLIA9cRHMrm+lzPZ+SdCcdUcehNABLlgGKCCEl
-         fB8VXERLRr28W25w0h3r2wDWyNjQWZ+UnFU0B9pBoebpxkdpN7b+sgmVlQuPKn6f9mTi
-         hauBxJKDTFWN4qY6AMvRgr6rl765w+AsnBElqO+dZkHIoj4bGwzdzoBC8CYKo+3hlgwP
-         F5zoBntp2oIaETMCGOXslmjPjwKcp1oUvM3VkQ+zUch6A5HbEUnBUGYpKHol5aKgHMyi
-         zrxMnoi9u77BhMpAzRoFI0Rl2faA5frE1KEbFbwNoh+qaTI8GuilIYet0dn7MR2C4C15
-         jIlg==
-X-Gm-Message-State: AOAM530oBZXIsabQiUS8h66UkxMpXWnVlZkGn3SXOVD83oL+/dRB4cJB
-        WT+SEH+K7OIAhfO08gMJlLKWn2LbnKfhaSYr
-X-Google-Smtp-Source: ABdhPJws+yZGT0SPi3TXHVKd04BBrqZ/HPm0qDxDDIfF7IQnxDpNnWPTiNeQue4hTF1tRuFiDVOVhw==
-X-Received: by 2002:a17:902:d2c7:b0:142:f06:e5fa with SMTP id n7-20020a170902d2c700b001420f06e5famr103416414plc.87.1637553786362;
-        Sun, 21 Nov 2021 20:03:06 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h6sm7462871pfh.82.2021.11.21.20.03.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Nov 2021 20:03:06 -0800 (PST)
-Message-ID: <619b167a.1c69fb81.3ee3d.5f2d@mx.google.com>
-Date:   Sun, 21 Nov 2021 20:03:06 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S238726AbhKVDsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Nov 2021 22:48:16 -0500
+Received: from szxga01-in.huawei.com ([45.249.212.187]:14967 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229862AbhKVDsQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Nov 2021 22:48:16 -0500
+Received: from dggeml756-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4HyClM6DWbzZcNX;
+        Mon, 22 Nov 2021 11:42:39 +0800 (CST)
+Received: from huawei.com (10.67.174.191) by dggeml756-chm.china.huawei.com
+ (10.1.199.158) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.20; Mon, 22
+ Nov 2021 11:45:09 +0800
+From:   Li Hua <hucool.lihua@huawei.com>
+To:     Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>
+CC:     <yuehaibing@huawei.com>, <weiyongjun1@huawei.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        <linux-kernel@vger.kernel.org>, <w.f@huawei.com>,
+        <hucool.lihua@huawei.com>, <cj.chengjian@huawei.com>,
+        <judy.chenhui@huawei.com>, <stable@vger.kernel.org>
+Subject: [PATCH v2] sched/rt: Try to restart rt period timer when rt runtime exceeded
+Date:   Mon, 22 Nov 2021 04:03:53 +0000
+Message-ID: <20211122040353.7850-1-hucool.lihua@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.292-140-g1794f2b1b0d51
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 122 runs,
- 1 regressions (v4.4.292-140-g1794f2b1b0d51)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+X-Originating-IP: [10.67.174.191]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggeml756-chm.china.huawei.com (10.1.199.158)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 122 runs, 1 regressions (v4.4.292-140-g1794f2=
-b1b0d51)
+When rt_runtime is modified from -1 to a valid control value, it may
+cause the task to be throttled all the time. Operations like the following
+will trigger the bug. E.g:
+1. echo -1 > /proc/sys/kernel/sched_rt_runtime_us
+2. Run a FIFO task named A that executes while(1)
+3. echo 950000 > /proc/sys/kernel/sched_rt_runtime_us
 
-Regressions Summary
--------------------
+When rt_runtime is -1, The rt period timer will not be activated when task A
+enqueued. And then the task will be throttled after setting rt_runtime to
+950,000. The task will always be throttled because the rt period timer is not
+activated.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Li Hua <hucool.lihua@huawei.com>
+
+v1->v2:
+  - call do_start_rt_bandwidth to reduce repetitive code.
+  - use raw_spin_lock_irqsave to avoid deadlock on a timer context.
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ kernel/sched/rt.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index b48baaba2fc2..7b4f4fbbb404 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -52,11 +52,8 @@ void init_rt_bandwidth(struct rt_bandwidth *rt_b, u64 period, u64 runtime)
+ 	rt_b->rt_period_timer.function = sched_rt_period_timer;
+ }
+ 
+-static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
++static inline void do_start_rt_bandwidth(struct rt_bandwidth *rt_b)
+ {
+-	if (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF)
+-		return;
+-
+ 	raw_spin_lock(&rt_b->rt_runtime_lock);
+ 	if (!rt_b->rt_period_active) {
+ 		rt_b->rt_period_active = 1;
+@@ -75,6 +72,14 @@ static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
+ 	raw_spin_unlock(&rt_b->rt_runtime_lock);
+ }
+ 
++static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
++{
++	if (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF)
++		return;
++
++	do_start_rt_bandwidth(rt_b);
++}
++
+ void init_rt_rq(struct rt_rq *rt_rq)
+ {
+ 	struct rt_prio_array *array;
+@@ -1031,13 +1036,17 @@ static void update_curr_rt(struct rq *rq)
+ 
+ 	for_each_sched_rt_entity(rt_se) {
+ 		struct rt_rq *rt_rq = rt_rq_of_se(rt_se);
++		int exceeded;
+ 
+ 		if (sched_rt_runtime(rt_rq) != RUNTIME_INF) {
+ 			raw_spin_lock(&rt_rq->rt_runtime_lock);
+ 			rt_rq->rt_time += delta_exec;
+-			if (sched_rt_runtime_exceeded(rt_rq))
++			exceeded = sched_rt_runtime_exceeded(rt_rq);
++			if (exceeded)
+ 				resched_curr(rq);
+ 			raw_spin_unlock(&rt_rq->rt_runtime_lock);
++			if (exceeded)
++				do_start_rt_bandwidth(sched_rt_bandwidth(rt_rq));
+ 		}
+ 	}
+ }
+@@ -2911,8 +2920,12 @@ static int sched_rt_global_validate(void)
+ 
+ static void sched_rt_do_global(void)
+ {
++	unsigned long flags;
++
++	raw_spin_lock_irqsave(&def_rt_bandwidth.rt_runtime_lock, flags);
+ 	def_rt_bandwidth.rt_runtime = global_rt_runtime();
+ 	def_rt_bandwidth.rt_period = ns_to_ktime(global_rt_period());
++	raw_spin_unlock_irqrestore(&def_rt_bandwidth.rt_runtime_lock, flags);
+ }
+ 
+ int sched_rt_handler(struct ctl_table *table, int write, void *buffer,
+-- 
+2.17.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.292-140-g1794f2b1b0d51/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.292-140-g1794f2b1b0d51
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1794f2b1b0d5189b2d0a6c34db1755b9cf2ca725 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/619add9c742431dddbe551c7
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-1=
-40-g1794f2b1b0d51/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-1=
-40-g1794f2b1b0d51/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619add9c742431d=
-ddbe551cd
-        new failure (last pass: v4.4.292-116-gc13aef2ca259)
-        2 lines
-
-    2021-11-22T00:00:04.510863  [   19.309295] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-22T00:00:04.556593  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/114
-    2021-11-22T00:00:04.565360  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
