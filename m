@@ -2,168 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66DF04595BD
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 20:44:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73B1E4595D0
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 20:54:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232897AbhKVTrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 14:47:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33834 "EHLO
+        id S240303AbhKVT5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 14:57:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232629AbhKVTrc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 14:47:32 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FCF9C061574
-        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 11:44:25 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id w33-20020a17090a6ba400b001a722a06212so536857pjj.0
-        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 11:44:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=elNn561CLvSzHt3gRS8uJSiqfjKCQBuAd0XnaSCk+V0=;
-        b=Jilxx3k5e5kJfK+8o8hYXBh2yVXIVzBV2MIaEaRnGOa02ReDCgshqf/3Pg36kMnO9V
-         Bn5yGlUE2NqKPnjoxDNphh1zKUjxifyXln7ozhAIwPi/4UFJZMnZEegZ1+8PUCqNCVM8
-         gvisHIIRA7/hBV7RtFp3gKA586il6pn4sxgjlzbS4CiX5osUA/c41hXdNBDro4MbS/gL
-         5Gfbm4xlm9hPwo8ORLB1wSkzlkiczZ7tZVbUEjgwQ/OfsXHBac896jn5eOIW+KHDNbz0
-         l1hw4D6V1ALp7IrpExqMH/aq4a9CpaFlSnRBcrluGjgXW6vRXDSnIPgnYFRxLQ0dUT6h
-         YZ5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=elNn561CLvSzHt3gRS8uJSiqfjKCQBuAd0XnaSCk+V0=;
-        b=eZjGWeuv56TQpxfrRq/RAJkMrLil2j7ntTKRY98VZeM04iQwvXnAGlSjTk/uCoUa63
-         Ag8W3cl4VeP0iNTrz1di7yLNb/Kiy8HwGVHQ5nI9sZBPTaFC6vi30eNl4BBOORR8O8fd
-         OxF/CjB5eFTbHNveqiX58ihgG1oj42si96oGzwHNXRDptVVREuyRogYA+oto1bVP2Wl5
-         Ev2HZq10JtZrMOLMM73364CylZZC6k/M4ZZCObcIqljv0ALzXcUws8UQ0SBCwjJ2ImN+
-         k4bxUW2jB1dUwh3+CJSatrQGvg20mMSYGSVcNIaGYEw59A0eH8aJlFEv0bnGf8vAHI0a
-         E++g==
-X-Gm-Message-State: AOAM530l0iubsTK60ouZbnGY12EfNf5Bidq5Un4x8P+W2wfs+8RRE2Yd
-        akZxmZgRQkm56gSegUPnHR1IFaqY6mjcrK2l
-X-Google-Smtp-Source: ABdhPJxNMiLgIKOiuUew+NM9P+vlQlk2+P7ha7+VOY8BjDGGIzTnAV/QGKyGfhw7orAdMW6n2foGdw==
-X-Received: by 2002:a17:902:ec8f:b0:142:11b8:eaaa with SMTP id x15-20020a170902ec8f00b0014211b8eaaamr110585862plg.81.1637610264520;
-        Mon, 22 Nov 2021 11:44:24 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q13sm10256483pfk.22.2021.11.22.11.44.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Nov 2021 11:44:24 -0800 (PST)
-Message-ID: <619bf318.1c69fb81.f5c72.cf4a@mx.google.com>
-Date:   Mon, 22 Nov 2021 11:44:24 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S237596AbhKVT5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 14:57:06 -0500
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B85DEC061574
+        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 11:53:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:
+        Content-Transfer-Encoding:Content-Type:MIME-Version:References:Message-ID:
+        Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=KdZmRcc3t+prr1s7+hSrGjqXoixJomYlrH7C4x4Wvhk=; b=HC/R7sKScVNcLXHvCwjx2WD97d
+        JWsW/Co+TC7xT7JyHfLebl4AMhkemUz2OnbnTTCmwI8kqKh5R81C6guICkw+NZBSp6DYNbBt4pN0Z
+        ImwT8MxDNiiD+FMA1cDNJtssA4gyZnJ+kDx+FQ5+qcnE1kU3/F6INSjaDSbjgBLYIENA7tCvZ5ASq
+        VtKVT442vmTKA7x2NYAknc3SxtCnD3La5RIBSACdC6KZh8PV9TXiHiM3emH7FJZcr21KoOmRPfNep
+        qjbDwamRhY3jS2dY+Rxzmmk0bYEpOPQQHuwIKSujt5OQRV+1Lz2HBu+VKHKwrXm9GvvF0KHa/1g2I
+        CLjY0r7g==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:55800)
+        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1mpFNs-00074Z-O1; Mon, 22 Nov 2021 19:53:48 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1mpFNo-0007xa-7a; Mon, 22 Nov 2021 19:53:44 +0000
+Date:   Mon, 22 Nov 2021 19:53:44 +0000
+From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
+To:     Jordan Vrtanoski <jordan.vrtanoski@gmail.com>,
+        stable@vger.kernel.org
+Cc:     mw@semihalf.com, linux-arm-kernel@lists.infradead.org,
+        stefanc@marvell.com
+Subject: Re: ClearFog GT 8K not initialising SFP-H10GB-CU1M transceiver on
+ 5.4.150
+Message-ID: <YZv1SBrYTXmorcLJ@shell.armlinux.org.uk>
+References: <3AB36F18-250C-46F5-8135-94C79102B8A5@gmail.com>
+ <YZONJC7KhACsq+5m@shell.armlinux.org.uk>
+ <A2513E97-0C96-4E16-A9D2-98BB90490229@gmail.com>
+ <YZlPeoRLSJKNJZ5F@shell.armlinux.org.uk>
+ <256509AE-EE75-40AF-882F-F84A55F98C2D@gmail.com>
+ <2F6C75BF-6CD8-4A58-B8AA-4D3A6B5A1008@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.217
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y baseline: 198 runs, 2 regressions (v4.19.217)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <2F6C75BF-6CD8-4A58-B8AA-4D3A6B5A1008@gmail.com>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 198 runs, 2 regressions (v4.19.217)
+On Mon, Nov 22, 2021 at 02:51:36PM +0400, Jordan Vrtanoski wrote:
+> Hi,
+>     After bisecting, the regression defect was introduced in 5.4.90 with the following patch:
+> "[PATCH net v3] net: mvpp2: disable force link UP during port init procedure”
+> 
+>     The patch is changing the configuration of the port during the initialisation of MVPP22_XLG_CTRL0_REG, which
+> on ClearFog GT 8K is preventing the MVPP2 to properly start the MAC after the transceiver is detected. After reverting 
+> the patch, the transceiver works properly.
 
-Regressions Summary
--------------------
+Right, the problem will be 875082244853 ("net: mvpp2: disable force
+link UP during port init procedure") that has been backported to
+kernels that it shouldn't have been applied to.
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
-   | 1          =
+There is a subtle interaction between that commit and development work
+leading up to it that wasn't obvious during the review. Specifically,
+any kernel without fefeae73ac7a ("net: mvpp2: ensure the port is forced
+down while changing modes") will now be broken.
 
-panda                | arm   | lab-collabora | gcc-10   | omap2plus_defconf=
-ig | 1          =
+However, fefeae73ac7a is development work, and so can't be backported.
 
+Adding stable to this thread so they're aware of the issue.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.217/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.217
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fd8250304dd51bc2c8674af65c102dd8463ee88b =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6196cc13335dc20807e551cf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-17/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d-p230.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-17/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d-p230.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6196cc13335dc20807e55=
-1d0
-        new failure (last pass: v4.19.217-259-gf3d787ccb5492) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-panda                | arm   | lab-collabora | gcc-10   | omap2plus_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/618fb259091576e1613358ec
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-17/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-17/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/618fb259091576e=
-1613358ef
-        new failure (last pass: v4.19.216-17-gf1ca790424bd)
-        2 lines
-
-    2021-11-22T16:00:22.537047  <8>[   21.313720] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-22T16:00:22.584348  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/107
-    2021-11-22T16:00:22.594086  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-11-22T16:00:22.608711  <8>[   21.387084] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
