@@ -2,104 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9852745882A
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 03:57:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 023C545885E
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 04:33:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233082AbhKVDAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Nov 2021 22:00:21 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:60525 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229870AbhKVDAU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Nov 2021 22:00:20 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1FFCF5C01A1;
-        Sun, 21 Nov 2021 21:57:10 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 21 Nov 2021 21:57:10 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=traverse.com.au;
-         h=from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm2; bh=DRVC5L3MNdlCbCaUbXt77+4Bue
-        gyLacB1omkIW83YMg=; b=GTZF+j+4gto4z5zUfqgNeDGF8q94qKtAyN00SrJJuA
-        uEUxFW1gLPRebv7oDEFoSg1AOT42RbXT2kd9G5LLTbVmRgRfU12yzCzxm9Bm+eF3
-        bJZR7apDeob2Ak0grrzsSGTQMT3YpvQF+ssH4/T/vOtzMpHKdZHpAqLDNHhQCSGY
-        rQvw4gyz8WiY0m2SlvRSjwWwIqPR02RbqjFUpPhL4T/7tKkVTkmRI7V16MNy+rNn
-        OKQGwSCp3G0bfRarutRhVBCQnaDvcX1t31YcfgDTTd2rhKrofTBFUNXQxC8CChlb
-        kHxQIjxDHkvQluWbLc5/CqXS1xN8yTA6qu1j0DutAptQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=DRVC5L3MNdlCbCaUb
-        Xt77+4BuegyLacB1omkIW83YMg=; b=YOHzAMf6PyoxfQqlBuSa8dSXygW7GTXsT
-        FTOLMx98hSJDeDLUgj7TzjOfzmzQ2MtCdNkrkcIIDtq2tisTwqWZNeAel1M7e4fA
-        Q/w8nZ82RKV5osSKCXbsyR4vMkVCgSIAjGpbfyqmzxVkiNwiVzRWuDmdjh+uNejX
-        tgf5D8ziz2Lmw/zhtEgPXz9ZdvEaoCQ3JfrsGtCUw1dZ2VYcQVXT2hlZSZ/fO8Pu
-        2+oSKBDSgV60I33TWQTD3BTr6aDAmiD0834iuyKSP7DX3iL5O4X9t5MLw6B1UxSF
-        yZ8Ex06NzkkzrrX94UbE/399FKA+8OMcEkYpMS75M9+mc8MZqoZKw==
-X-ME-Sender: <xms:BQebYSDM9TaB9bdGrDsNw2ADSX-adOBZG5NUQFbGXPDLyLNNksvSyQ>
-    <xme:BQebYcjFgnFs4MgiWR4mqQvel3s3tDWEFKx0kISt3YH1o9UOWHvy5xshnZHQSo4yk
-    5hEU5CA373epk2wWlg>
-X-ME-Received: <xmr:BQebYVk-II4fTXJeYXA77SHMMYWrPJiVFIHxFV6U6yZVhekHjt0kUpNtrpNvxPlo7707nNYMZqGxCSqAutculSFal7GYX3dA3mjiU1F8VLrN-Suhws2PKvjTJYO10Xo>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrgeefgdehgecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepofgrthhhvgifucfo
-    tgeurhhiuggvuceomhgrthhtsehtrhgrvhgvrhhsvgdrtghomhdrrghuqeenucggtffrrg
-    htthgvrhhnpefgkeehgfeiheffteduheevveduuedttdetieffuefgveeutddttdegleef
-    keelvdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hmrghtthesthhrrghvvghrshgvrdgtohhmrdgruh
-X-ME-Proxy: <xmx:BQebYQzurWi6d9GEhmUYQXWFUTxwTzxAgRhUc_HkSl_NVwC-sZjUNA>
-    <xmx:BQebYXTnQO0694VqqbhcBvU-3IFvchlCaSWGZ-joyYhtITx4b3DxMg>
-    <xmx:BQebYbZga8w2z6fUWinfqNX8ZNnFL76u0K8pWY_Cg-m1TzFwDiGXKw>
-    <xmx:BgebYYLB6wZ1Lkdl6yNerCKNxSWlXK11Lfmq5ykxRaisKLFAaM4MMw>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 21 Nov 2021 21:57:07 -0500 (EST)
-From:   Mathew McBride <matt@traverse.com.au>
-To:     Shawn Guo <shawnguo@kernel.org>, Li Yang <leoyang.li@nxp.com>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     Mathew McBride <matt@traverse.com.au>, stable@vger.kernel.org
-Subject: [PATCH] arm64: dts: ten64: remove redundant interrupt declaration for gpio-keys
-Date:   Mon, 22 Nov 2021 02:55:54 +0000
-Message-Id: <20211122025554.15338-1-matt@traverse.com.au>
-X-Mailer: git-send-email 2.30.1
+        id S233914AbhKVDgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Nov 2021 22:36:09 -0500
+Received: from szxga08-in.huawei.com ([45.249.212.255]:28088 "EHLO
+        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232852AbhKVDgI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Nov 2021 22:36:08 -0500
+Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.57])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4HyCTM4dSNz1DJWp;
+        Mon, 22 Nov 2021 11:30:31 +0800 (CST)
+Received: from huawei.com (10.175.127.227) by dggpeml500020.china.huawei.com
+ (7.185.36.88) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.20; Mon, 22 Nov
+ 2021 11:33:00 +0800
+From:   Baokun Li <libaokun1@huawei.com>
+To:     <damien.lemoal@opensource.wdc.com>, <axboe@kernel.dk>,
+        <tj@kernel.org>, <linux-ide@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <sergei.shtylyov@gmail.com>, <yebin10@huawei.com>,
+        <libaokun1@huawei.com>, <yukuai3@huawei.com>,
+        <stable@vger.kernel.org>, Hulk Robot <hulkci@huawei.com>
+Subject: [PATCH -next V3 1/2] sata_fsl: fix UAF in sata_fsl_port_stop when rmmod sata_fsl
+Date:   Mon, 22 Nov 2021 11:45:15 +0800
+Message-ID: <20211122034516.2280734-2-libaokun1@huawei.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20211122034516.2280734-1-libaokun1@huawei.com>
+References: <20211122034516.2280734-1-libaokun1@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.127.227]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpeml500020.china.huawei.com (7.185.36.88)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-gpio-keys already 'inherits' the interrupts from the controller
-of the specified GPIO, so having another declaration is redundant.
-On >=v5.15 this started causing an oops under gpio_keys_probe as
-the IRQ was already claimed.
+When the `rmmod sata_fsl.ko` command is executed in the PPC64 GNU/Linux,
+a bug is reported:
+ ==================================================================
+ BUG: Unable to handle kernel data access on read at 0x80000800805b502c
+ Oops: Kernel access of bad area, sig: 11 [#1]
+ NIP [c0000000000388a4] .ioread32+0x4/0x20
+ LR [80000000000c6034] .sata_fsl_port_stop+0x44/0xe0 [sata_fsl]
+ Call Trace:
+  .free_irq+0x1c/0x4e0 (unreliable)
+  .ata_host_stop+0x74/0xd0 [libata]
+  .release_nodes+0x330/0x3f0
+  .device_release_driver_internal+0x178/0x2c0
+  .driver_detach+0x64/0xd0
+  .bus_remove_driver+0x70/0xf0
+  .driver_unregister+0x38/0x80
+  .platform_driver_unregister+0x14/0x30
+  .fsl_sata_driver_exit+0x18/0xa20 [sata_fsl]
+  .__se_sys_delete_module+0x1ec/0x2d0
+  .system_call_exception+0xfc/0x1f0
+  system_call_common+0xf8/0x200
+ ==================================================================
 
-Signed-off-by: Mathew McBride <matt@traverse.com.au>
-Fixes: 418962eea358 ("arm64: dts: add device tree for Traverse Ten64 (LS1088A)")
+The triggering of the BUG is shown in the following stack:
+
+driver_detach
+  device_release_driver_internal
+    __device_release_driver
+      drv->remove(dev) --> platform_drv_remove/platform_remove
+        drv->remove(dev) --> sata_fsl_remove
+          iounmap(host_priv->hcr_base);			<---- unmap
+          kfree(host_priv);                             <---- free
+      devres_release_all
+        release_nodes
+          dr->node.release(dev, dr->data) --> ata_host_stop
+            ap->ops->port_stop(ap) --> sata_fsl_port_stop
+                ioread32(hcr_base + HCONTROL)           <---- UAF
+            host->ops->host_stop(host)
+
+The iounmap(host_priv->hcr_base) and kfree(host_priv) functions should
+not be executed in drv->remove. These functions should be executed in
+host_stop after port_stop. Therefore, we move these functions to the
+new function sata_fsl_host_stop and bind the new function to host_stop
+by referring to AHCI.
+
+Fixes: faf0b2e5afe7 ("drivers/ata: add support to Freescale 3.0Gbps SATA Controller")
 Cc: stable@vger.kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1088a-ten64.dts | 2 --
- 1 file changed, 2 deletions(-)
+V2->V3:
+	Add fixed and CC stable and modified the patch description.
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a-ten64.dts b/arch/arm64/boot/dts/freescale/fsl-ls1088a-ten64.dts
-index 3063851c2fb9..d3f03dcbb8c3 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1088a-ten64.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a-ten64.dts
-@@ -38,7 +38,6 @@ buttons {
- 		powerdn {
- 			label = "External Power Down";
- 			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
--			interrupts = <&gpio1 17 IRQ_TYPE_EDGE_FALLING>;
- 			linux,code = <KEY_POWER>;
- 		};
+ drivers/ata/sata_fsl.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/ata/sata_fsl.c b/drivers/ata/sata_fsl.c
+index e5838b23c9e0..30759fd1c3a2 100644
+--- a/drivers/ata/sata_fsl.c
++++ b/drivers/ata/sata_fsl.c
+@@ -1430,12 +1430,25 @@ static struct ata_port_operations sata_fsl_ops = {
+ 	.pmp_detach = sata_fsl_pmp_detach,
+ };
  
-@@ -46,7 +45,6 @@ powerdn {
- 		admin {
- 			label = "ADMIN button";
- 			gpios = <&gpio3 8 GPIO_ACTIVE_HIGH>;
--			interrupts = <&gpio3 8 IRQ_TYPE_EDGE_RISING>;
- 			linux,code = <KEY_WPS_BUTTON>;
- 		};
- 	};
++static void sata_fsl_host_stop(struct ata_host *host)
++{
++	struct sata_fsl_host_priv *host_priv = host->private_data;
++
++	iounmap(host_priv->hcr_base);
++	kfree(host_priv);
++}
++
++static struct ata_port_operations sata_fsl_platform_ops = {
++	.inherits       = &sata_fsl_ops,
++	.host_stop      = sata_fsl_host_stop,
++};
++
+ static const struct ata_port_info sata_fsl_port_info[] = {
+ 	{
+ 	 .flags = SATA_FSL_HOST_FLAGS,
+ 	 .pio_mask = ATA_PIO4,
+ 	 .udma_mask = ATA_UDMA6,
+-	 .port_ops = &sata_fsl_ops,
++	 .port_ops = &sata_fsl_platform_ops,
+ 	 },
+ };
+ 
+@@ -1558,8 +1571,6 @@ static int sata_fsl_remove(struct platform_device *ofdev)
+ 	ata_host_detach(host);
+ 
+ 	irq_dispose_mapping(host_priv->irq);
+-	iounmap(host_priv->hcr_base);
+-	kfree(host_priv);
+ 
+ 	return 0;
+ }
 -- 
-2.30.1
+2.31.1
 
