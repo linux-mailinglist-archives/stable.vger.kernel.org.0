@@ -2,137 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7066D4596F2
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 22:50:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79CE645970F
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 23:04:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235437AbhKVVxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 16:53:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33904 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230366AbhKVVxk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 16:53:40 -0500
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F66C061574
-        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 13:50:33 -0800 (PST)
-Received: by mail-pl1-x62e.google.com with SMTP id p18so15246953plf.13
-        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 13:50:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=DAOixMuzPEfrqkJovoJXXw3/3ZVmacpGLxtSDvH8y24=;
-        b=mdzm1N00/esw3wXmBVvaxWk5HYsBERbvhMXsPbxhX0OIF5TLc16kmCdpvbgck/9UBr
-         XJmuI1YMnDdI5s/ez8MJv3jV3aeCT07wjffJrhun02Gm9y6qQes3pW+l3Y8J7h8XZ8N1
-         MPn+AzHpWJ7VZN2xw+uJQkrdrUO5b8jA0+F2F2VsBJ2gHA44yJHLoH+KPJWb8Nmu37Rw
-         okVjahNe6Wy+XY6OXiD/aCWrqtL12khiWV4MP6gDToUJBg9y6R5WEvms4BG31klGzP9L
-         r66eB7Q8LKbeCUmrDkWnVrjuo50nW/xoOtmYmsGj87aiVKkS7sfn2lBwNHUDm2Yyttt/
-         TKzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=DAOixMuzPEfrqkJovoJXXw3/3ZVmacpGLxtSDvH8y24=;
-        b=iywf7p8vTXuo6RDtytcXuNSZFkFj3IiI7jJCcY3rjBgD49VAVhTFUy8sl0wrEbxBN3
-         G47NzGlFBT3PrOfX0zaMHuCXLCzPzfvLsASOWU0BJz+iV7Rghh5HMs0srv2hx0+42ZPw
-         IFrNePxG4ZFHIUertkF8q/G4wRQnKGA6lZ0lRDp4tgCu5K6PWcheuHGaVrjEhH6LA9Ai
-         aDxO7q7KVyPK1Q9Z+/D2+Bc+TVWiNTo1YyGa+7ow1FXH53/eS0q+ovgeH+jeiiNsDtrA
-         gzKMAltetLudUv32IAGGcjMgBx7C3dCGOqebiWVUvcWJs5mgteWSbhwGEkzGTinmhX8D
-         G7RA==
-X-Gm-Message-State: AOAM532qNODiwjTJ2OxuAXu4jXjuQeuXCp4K/yvoT5b3NYZ204AzvTFJ
-        Pt8PPx6dGdhxTEoqHl9pKLc7mwC5xnNTH9IT
-X-Google-Smtp-Source: ABdhPJwf2zyefqpSSFMZw0uOmxTpODNXwF436aMtT3ubco1x0GI/cTZXaNJjXEOyF+N60sEdpEdlcA==
-X-Received: by 2002:a17:90b:4c0d:: with SMTP id na13mr35625pjb.206.1637617833068;
-        Mon, 22 Nov 2021 13:50:33 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b4sm10324083pfl.60.2021.11.22.13.50.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Nov 2021 13:50:32 -0800 (PST)
-Message-ID: <619c10a8.1c69fb81.fe397.d7f1@mx.google.com>
-Date:   Mon, 22 Nov 2021 13:50:32 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S238332AbhKVWHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 17:07:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56674 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232667AbhKVWHI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Nov 2021 17:07:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C179604D1;
+        Mon, 22 Nov 2021 22:04:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637618640;
+        bh=jOZoDcdty3EVXoO97iBWXCdZc4YcdG2UrCIxg6yqsOI=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=KQaOQ/8mdKxeHcSN/IfNcXV6jpA9VIrYHF6zPGcF8oCo8ZsB+HdG1s79HpwcpkXwK
+         EizF31knhMnjWgkLiQ/fygn6B7qstlQTLnaZ+VDeyNONyG+AkQCaL9R2U0egM4OLw2
+         /2vOuxOlu4DjJ2SGbargP2zYoJlrVG4AnBfdDjxmlroI88ejdzqnpwd//fiGXxR4P5
+         YVfZkIEd6v16rEjd2axNhFX50BlePbMOwb8/LW5WmP8cPbLxx8TWF+nwEECadwxigJ
+         mMMvYj5kcXcJIpdMHmzzyCtmQY+hVo7cHOo9jrHwfILaejDnxYiXAUumTUH0lHpSYc
+         5jwCX2cblL/uw==
+Date:   Mon, 22 Nov 2021 14:03:59 -0800 (PST)
+From:   Stefano Stabellini <sstabellini@kernel.org>
+X-X-Sender: sstabellini@ubuntu-linux-20-04-desktop
+To:     Jan Beulich <jbeulich@suse.com>
+cc:     Stefano Stabellini <sstabellini@kernel.org>,
+        boris.ostrovsky@oracle.com, xen-devel@lists.xenproject.org,
+        linux-kernel@vger.kernel.org,
+        Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        stable@vger.kernel.org, jgross@suse.com
+Subject: Re: [PATCH v2] xen: detect uninitialized xenbus in xenbus_init
+In-Reply-To: <bc47bbe2-b330-7744-8d6b-869e3c7523e4@suse.com>
+Message-ID: <alpine.DEB.2.22.394.2111221357081.1412361@ubuntu-linux-20-04-desktop>
+References: <20211119202951.403525-1-sstabellini@kernel.org> <bc47bbe2-b330-7744-8d6b-869e3c7523e4@suse.com>
+User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.217-309-gfbdc7d8c6144
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 142 runs,
- 1 regressions (v4.19.217-309-gfbdc7d8c6144)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 142 runs, 1 regressions (v4.19.217-309-gfbdc=
-7d8c6144)
+On Mon, 22 Nov 2021, Jan Beulich wrote:
+> On 19.11.2021 21:29, Stefano Stabellini wrote:
+> > --- a/drivers/xen/xenbus/xenbus_probe.c
+> > +++ b/drivers/xen/xenbus/xenbus_probe.c
+> > @@ -951,6 +951,20 @@ static int __init xenbus_init(void)
+> >  		err = hvm_get_parameter(HVM_PARAM_STORE_PFN, &v);
+> >  		if (err)
+> >  			goto out_error;
+> > +		/* Uninitialized. */
+> > +		if (v == 0 || v == ULLONG_MAX) {
+> 
+> Didn't you have a comment in v1 here regarding the check against 0? Or was that
+> just like now only in the description? IOW I think there ought to be a code
+> comment justifying the theoretically wrong check ...
 
-Regressions Summary
--------------------
+Yeah, I added all the info in the commit message and shortened the
+in-code comment this time. I am also happy to keep the details in the
+in-code comment, e.g.:
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.217-309-gfbdc7d8c6144/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.217-309-gfbdc7d8c6144
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fbdc7d8c614403556b4838ed9ec2b38d8ee9a386 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+/*
+ * If the xenstore page hasn't been allocated properly, reading the
+ * value of the related hvm_param (HVM_PARAM_STORE_PFN) won't actually
+ * return error. Instead, it will succeed and return zero. Instead of
+ * attempting to xen_remap a bad guest physical address, detect this
+ * condition and return early.
+ *
+ * Note that although a guest physical address of zero for
+ * HVM_PARAM_STORE_PFN is theoretically possible, it is not a good
+ * choice and zero has never been validly used in that capacity.
+ *
+ * Also recognize the invalid value of INVALID_PFN which is ULLONG_MAX.
+ */
 
 
-  Details:     https://kernelci.org/test/plan/id/619bd5b7e609399310f2efb2
+> Also, while I realize there are various other similar assumptions elsewhere, I
+> would generally recommend to avoid such: There's no guarantee that now and
+> forever unsigned long long and uint64_t are the same thing. And it's easy in
+> cases like this one:
+> 
+> 		if (!v || !(v + 1)) {
 
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.217=
--309-gfbdc7d8c6144/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.217=
--309-gfbdc7d8c6144/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619bd5b7e609399=
-310f2efb5
-        failing since 0 day (last pass: v4.19.217-258-g500386e5fa6f, first =
-fail: v4.19.217-301-g59e657d57c9d)
-        2 lines
-
-    2021-11-22T17:38:48.842251  <8>[   21.256896] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-22T17:38:48.888472  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/105
-    2021-11-22T17:38:48.897757  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+I am happy to use this.
