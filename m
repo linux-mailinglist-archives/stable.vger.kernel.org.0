@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7DAF458E77
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F24A458F14
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 14:06:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234638AbhKVMhY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 07:37:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56526 "EHLO mail.kernel.org"
+        id S239497AbhKVNJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 08:09:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234308AbhKVMhY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Nov 2021 07:37:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E05E860F25;
-        Mon, 22 Nov 2021 12:34:16 +0000 (UTC)
+        id S239438AbhKVNJu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Nov 2021 08:09:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B43260234;
+        Mon, 22 Nov 2021 13:06:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637584457;
-        bh=rv+UI64AKuAZ8XwwN2v1gPvfsq7tRdBWxkYgwAbGOrM=;
+        s=korg; t=1637586404;
+        bh=7We5BXmbdpxao2bX2OJuZ39EcCZcSxA1fXg/JuAP7IQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=V/ql6FNs0cMiCxphpEIa23oQ67EX8MIoemjBwet/2a2Vka59a7RhCjSXDRCJTK8Lp
-         znLIv7h5a1O75SycaQt6NzmjZ/W3j/1SDQtSv92mmFuLI1ig4kNoc7M2fgLza+bgQn
-         PFVUgZtiqVzudWBF70wRrmHGEUt5MxMDMaaHk42o=
-Subject: FAILED: patch "[PATCH] s390/vdso: filter out -mstack-guard and -mstack-size" failed to apply to 5.10-stable tree
-To:     svens@linux.ibm.com, frankja@linux.ibm.com, hca@linux.ibm.com
+        b=rcKzSrvGAogZyDK3+QApCWhWI7rNxQbTruolaLPKtDjx7OmIWcz+4cZ40iy0+CgvM
+         pUs9ZMrg0fOmUW7i73uKrEWm43VpjpmjsecF02GEnViK/wfIDhTr3pbrRcat9cLoPe
+         M+G2pk6AU4ns1s7M+z5QU0L26JKDYkN8koWsgAJw=
+Subject: FAILED: patch "[PATCH] dma-buf/poll: Get a file reference for outstanding fence" failed to apply to 5.15-stable tree
+To:     mdaenzer@redhat.com, christian.koenig@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Nov 2021 13:34:14 +0100
-Message-ID: <1637584454164100@kroah.com>
+Date:   Mon, 22 Nov 2021 14:06:41 +0100
+Message-ID: <1637586401115211@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,61 +45,84 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 00b55eaf45549ce26424224d069a091c7e5d8bac Mon Sep 17 00:00:00 2001
-From: Sven Schnelle <svens@linux.ibm.com>
-Date: Thu, 11 Nov 2021 10:58:26 +0100
-Subject: [PATCH] s390/vdso: filter out -mstack-guard and -mstack-size
+From ff2d23843f7fb4f13055be5a4a9a20ddd04e6e9c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Fri, 23 Jul 2021 09:58:57 +0200
+Subject: [PATCH] dma-buf/poll: Get a file reference for outstanding fence
+ callbacks
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-When CONFIG_VMAP_STACK is disabled, the user can enable CONFIG_STACK_CHECK,
-which adds a stack overflow check to each C function in the kernel. This is
-also done for functions in the vdso page. These functions are run in user
-context and user stack sizes are usually different to what the kernel uses.
-This might trigger the stack check although the stack size is valid.
-Therefore filter the -mstack-guard and -mstack-size flags when compiling
-vdso C files.
+This makes sure we don't hit the
 
-Cc: stable@kernel.org # 5.10+
-Fixes: 4bff8cb54502 ("s390: convert to GENERIC_VDSO")
-Reported-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+	BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
 
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index 69c45f600273..609e3697324b 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -77,10 +77,12 @@ KBUILD_AFLAGS_DECOMPRESSOR += $(aflags-y)
- KBUILD_CFLAGS_DECOMPRESSOR += $(cflags-y)
+in dma_buf_release, which could be triggered by user space closing the
+dma-buf file description while there are outstanding fence callbacks
+from dma_buf_poll.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Michel Dänzer <mdaenzer@redhat.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210723075857.4065-1-michel@daenzer.net
+Signed-off-by: Christian König <christian.koenig@amd.com>
+
+diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+index beb504a92d60..35fe1cb5ad98 100644
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -67,12 +67,9 @@ static void dma_buf_release(struct dentry *dentry)
+ 	BUG_ON(dmabuf->vmapping_counter);
  
- ifneq ($(call cc-option,-mstack-size=8192 -mstack-guard=128),)
--cflags-$(CONFIG_CHECK_STACK) += -mstack-size=$(STACK_SIZE)
--ifeq ($(call cc-option,-mstack-size=8192),)
--cflags-$(CONFIG_CHECK_STACK) += -mstack-guard=$(CONFIG_STACK_GUARD)
--endif
-+  CC_FLAGS_CHECK_STACK := -mstack-size=$(STACK_SIZE)
-+  ifeq ($(call cc-option,-mstack-size=8192),)
-+    CC_FLAGS_CHECK_STACK += -mstack-guard=$(CONFIG_STACK_GUARD)
-+  endif
-+  export CC_FLAGS_CHECK_STACK
-+  cflags-$(CONFIG_CHECK_STACK) += $(CC_FLAGS_CHECK_STACK)
- endif
+ 	/*
+-	 * Any fences that a dma-buf poll can wait on should be signaled
+-	 * before releasing dma-buf. This is the responsibility of each
+-	 * driver that uses the reservation objects.
+-	 *
+-	 * If you hit this BUG() it means someone dropped their ref to the
+-	 * dma-buf while still having pending operation to the buffer.
++	 * If you hit this BUG() it could mean:
++	 * * There's a file reference imbalance in dma_buf_poll / dma_buf_poll_cb or somewhere else
++	 * * dmabuf->cb_in/out.active are non-0 despite no pending fence callback
+ 	 */
+ 	BUG_ON(dmabuf->cb_in.active || dmabuf->cb_out.active);
  
- ifdef CONFIG_EXPOLINE
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index e7d911780935..9e2b95a222a9 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -8,8 +8,9 @@ ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
- include $(srctree)/lib/vdso/Makefile
- obj-vdso64 = vdso_user_wrapper.o note.o
- obj-cvdso64 = vdso64_generic.o getcpu.o
--CFLAGS_REMOVE_getcpu.o = -pg $(CC_FLAGS_FTRACE) $(CC_FLAGS_EXPOLINE)
--CFLAGS_REMOVE_vdso64_generic.o = -pg $(CC_FLAGS_FTRACE) $(CC_FLAGS_EXPOLINE)
-+VDSO_CFLAGS_REMOVE := -pg $(CC_FLAGS_FTRACE) $(CC_FLAGS_EXPOLINE) $(CC_FLAGS_CHECK_STACK)
-+CFLAGS_REMOVE_getcpu.o = $(VDSO_CFLAGS_REMOVE)
-+CFLAGS_REMOVE_vdso64_generic.o = $(VDSO_CFLAGS_REMOVE)
+@@ -200,6 +197,7 @@ static loff_t dma_buf_llseek(struct file *file, loff_t offset, int whence)
+ static void dma_buf_poll_cb(struct dma_fence *fence, struct dma_fence_cb *cb)
+ {
+ 	struct dma_buf_poll_cb_t *dcb = (struct dma_buf_poll_cb_t *)cb;
++	struct dma_buf *dmabuf = container_of(dcb->poll, struct dma_buf, poll);
+ 	unsigned long flags;
  
- # Build rules
+ 	spin_lock_irqsave(&dcb->poll->lock, flags);
+@@ -207,6 +205,8 @@ static void dma_buf_poll_cb(struct dma_fence *fence, struct dma_fence_cb *cb)
+ 	dcb->active = 0;
+ 	spin_unlock_irqrestore(&dcb->poll->lock, flags);
+ 	dma_fence_put(fence);
++	/* Paired with get_file in dma_buf_poll */
++	fput(dmabuf->file);
+ }
  
+ static bool dma_buf_poll_add_cb(struct dma_resv *resv, bool write,
+@@ -259,6 +259,9 @@ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
+ 		spin_unlock_irq(&dmabuf->poll.lock);
+ 
+ 		if (events & EPOLLOUT) {
++			/* Paired with fput in dma_buf_poll_cb */
++			get_file(dmabuf->file);
++
+ 			if (!dma_buf_poll_add_cb(resv, true, dcb))
+ 				/* No callback queued, wake up any other waiters */
+ 				dma_buf_poll_cb(NULL, &dcb->cb);
+@@ -279,6 +282,9 @@ static __poll_t dma_buf_poll(struct file *file, poll_table *poll)
+ 		spin_unlock_irq(&dmabuf->poll.lock);
+ 
+ 		if (events & EPOLLIN) {
++			/* Paired with fput in dma_buf_poll_cb */
++			get_file(dmabuf->file);
++
+ 			if (!dma_buf_poll_add_cb(resv, false, dcb))
+ 				/* No callback queued, wake up any other waiters */
+ 				dma_buf_poll_cb(NULL, &dcb->cb);
 
