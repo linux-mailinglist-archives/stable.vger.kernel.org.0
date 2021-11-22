@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A34A458E31
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:22:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FF13458E32
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:22:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238951AbhKVMZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 07:25:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47896 "EHLO mail.kernel.org"
+        id S239227AbhKVMZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 07:25:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239227AbhKVMZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Nov 2021 07:25:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7017960F25;
-        Mon, 22 Nov 2021 12:22:01 +0000 (UTC)
+        id S235750AbhKVMZL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Nov 2021 07:25:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42338604AC;
+        Mon, 22 Nov 2021 12:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637583722;
-        bh=R0urJgUlCpYGhM2RORwy+Hi20GnfkIqKybtFYi7NZ+s=;
+        s=korg; t=1637583724;
+        bh=kS1uqbuFLMOEg0FaTzCX/TN+H79wLFPWeAt1Q8kQsFM=;
         h=Subject:To:Cc:From:Date:From;
-        b=1rtx9fker8q27t6P2Wj80rOPvPNw/Jm+aZNGoswOsq3tuT+luNoex7G+tp9ZCpsFY
-         IKO/AtFrh12tfuGE4NCEcUh0PLmfKHjKV+NrKtMxKt03YJ0Ap7eTceoAiL2UDA0vZX
-         JzYq9dvIwFn0BgRPd5wGF2DumO+vBGvz/UZA2Yk8=
-Subject: FAILED: patch "[PATCH] ipc: WARN if trying to remove ipc object which is absent" failed to apply to 4.9-stable tree
+        b=IdICYgRmUiJPeD8bEB+Z3xX6ZNk0Q/HJHj3x5E2Sr34L6XzVKYB/A9cPcaY3IB/Oy
+         XW/zwj8YLpeHZ4MVvbDHfAd3m/1ZVB4x6EMjQkThjRKGKokQlmpg3kNu8IDXgaPfkm
+         H9Oq3UfcmNfaMwNhZzJr5Vm/oY5qVzreQsbN4BTA=
+Subject: FAILED: patch "[PATCH] ipc: WARN if trying to remove ipc object which is absent" failed to apply to 4.4-stable tree
 To:     alexander.mikhalitsyn@virtuozzo.com, akpm@linux-foundation.org,
         avagin@gmail.com, dave@stgolabs.net, ebiederm@xmission.com,
         gregkh@linuxfoundation.org, manfred@colorfullife.com,
@@ -28,8 +28,8 @@ To:     alexander.mikhalitsyn@virtuozzo.com, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, vvs@virtuozzo.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Nov 2021 13:21:54 +0100
-Message-ID: <16375837148489@kroah.com>
+Date:   Mon, 22 Nov 2021 13:21:56 +0100
+Message-ID: <163758371621116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -38,7 +38,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
