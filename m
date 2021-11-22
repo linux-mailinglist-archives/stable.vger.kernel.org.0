@@ -2,151 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3737E458E47
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:27:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15034458E48
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 13:27:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235466AbhKVMaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 07:30:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51980 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234322AbhKVMaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Nov 2021 07:30:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10B6D60FBF;
-        Mon, 22 Nov 2021 12:27:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637584036;
-        bh=Hy6Jn4jNVCP4yMI1GwuWDvtaAPiyRk8tIOkCfQ2Aoes=;
-        h=Subject:To:Cc:From:Date:From;
-        b=c4m6gPo2lmmAZPjrkmzeUXM47G15jRWmnx//lrvs2RHxQIjZ1yHkB9KSeFbwE79EM
-         l9tTdHhwoDgez/+IqAUFaN6Rju98FSPVakDj/E3aGQh2GAAV8DgUwHoNgYRWNaHf91
-         nA7prVaq7ixl/+Dxs0WbSWQ+dw5A1GrgUG9oXur0=
-Subject: FAILED: patch "[PATCH] proc/vmcore: fix clearing user buffer by properly using" failed to apply to 5.15-stable tree
-To:     david@redhat.com, akpm@linux-foundation.org, bhe@redhat.com,
-        dyoung@redhat.com, prudo@redhat.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vgoyal@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Nov 2021 13:27:05 +0100
-Message-ID: <163758402560135@kroah.com>
+        id S236060AbhKVMa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 07:30:26 -0500
+Received: from mailout1.w1.samsung.com ([210.118.77.11]:30600 "EHLO
+        mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234322AbhKVMa0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 07:30:26 -0500
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20211122122718euoutp012aeb948fe8281a029391054ee622ca92~53gG5Cf4z2760627606euoutp01N
+        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 12:27:18 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20211122122718euoutp012aeb948fe8281a029391054ee622ca92~53gG5Cf4z2760627606euoutp01N
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1637584038;
+        bh=iRB3UxxK1Di6aCE2Ld9HGZTPjw6VdP4WaBATR6RbZAY=;
+        h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+        b=SUR8jR4RPuAzINL/TbTWk9H/OybVi1/Gb1V0+0tfjIGpFffIa8ETwM1O2V1JWyEAf
+         mA1sUH8Te1lLJ1+sVS6X5hXyx4qzIZz84ij2sZIlpZmKP4tYA5rMJS6RwJh8U1zmD8
+         qLlVoHoXCh/Hu6CLPJ3Yl/MosgMRbMnayD1/mkhI=
+Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20211122122718eucas1p299d54d88fcd74fc00ea1439ab6266657~53gGn8o8I3260632606eucas1p2G;
+        Mon, 22 Nov 2021 12:27:18 +0000 (GMT)
+Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
+        eusmges2new.samsung.com (EUCPMTA) with SMTP id 24.95.09887.5AC8B916; Mon, 22
+        Nov 2021 12:27:18 +0000 (GMT)
+Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+        20211122122717eucas1p17574c005b04a3c50cb9e94aa729652e8~53gGJpAPz2989829898eucas1p1f;
+        Mon, 22 Nov 2021 12:27:17 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
+        eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20211122122717eusmtrp207f0989d53e196f9a73a883cc5e0a66c~53gGDN1-g2893128931eusmtrp2H;
+        Mon, 22 Nov 2021 12:27:17 +0000 (GMT)
+X-AuditID: cbfec7f4-45bff7000000269f-86-619b8ca51ec7
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+        eusmgms1.samsung.com (EUCPMTA) with SMTP id 58.8C.09522.5AC8B916; Mon, 22
+        Nov 2021 12:27:17 +0000 (GMT)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+        eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20211122122717eusmtip1b4d2b34c9995dc1266e98900cdf79bee~53gFmBlKU2119121191eusmtip1Q;
+        Mon, 22 Nov 2021 12:27:17 +0000 (GMT)
+Message-ID: <22f12ed7-18f3-9800-3858-9738f9ccd1f2@samsung.com>
+Date:   Mon, 22 Nov 2021 13:27:16 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0)
+        Gecko/20100101 Thunderbird/91.3.1
+Subject: Re: [RFT PATCH] usb: hub: Fix locking issues with address0_mutex
+Content-Language: en-US
+To:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        gregkh@linuxfoundation.org, stern@rowland.harvard.edu,
+        kishon@ti.com
+Cc:     hdegoede@redhat.com, chris.chiu@canonical.com,
+        linux-usb@vger.kernel.org, stable@vger.kernel.org
+From:   Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <20211122105003.1089218-1-mathias.nyman@linux.intel.com>
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrNKsWRmVeSWpSXmKPExsWy7djPc7rLemYnGhx9zWRxae1eVovmxevZ
+        LN4cn85kceFpD5vFomWtzBavPzSxWCzY+IjRYsLvC2wOHB6zGnrZPOadDPTYP3cNu8f7fVfZ
+        PGbf/cHocfzGdiaPz5vkAtijuGxSUnMyy1KL9O0SuDIaf05gLNgqW9E1eTNjA+Nq8S5GTg4J
+        AROJtZ+a2EFsIYEVjBKLTsh2MXIB2V8YJc6+usQC4XxmlGjbeYsVpuP36pnMEInljBJdj76z
+        QbR/ZJSYtMkSxOYVsJN403+AGcRmEVCVaHj/lQ0iLihxcuYTFhBbVCBJ4nTrJLAaYQFPib8L
+        r4LFmQXEJW49mc8EYosIVEp0Luhkg4inSexoXAhWzyZgKNH1tgsszingKtH97TpUr7zE9rdz
+        wI6TEHjDIXF/wjw2iKtdJBZcnwf1gbDEq+Nb2CFsGYn/O0GWgTQ0M0o8PLeWHcLpYZS43DSD
+        EaLKWuLOuV9AkziAVmhKrN+lDxF2lJi3ro8dJCwhwCdx460gxBF8EpO2TWeGCPNKdLQJQVSr
+        Scw6vg5u7cELl5gnMCrNQgqWWUjen4XknVkIexcwsqxiFE8tLc5NTy02ykst1ytOzC0uzUvX
+        S87P3cQITE+n/x3/soNx+auPeocYmTgYDzFKcDArifBybJieKMSbklhZlVqUH19UmpNafIhR
+        moNFSZxX5E9DopBAemJJanZqakFqEUyWiYNTqoFJ5LeT5cWHL4vf8/1+W7BT8M2dan+N1ylp
+        oi9Kz8penFm7jb0/dPl+Gd0Vyz8vXf0nz22V11rF1/q2vPt/MCyb6iV/05R91cYDIl+Fb+cq
+        cdXsuirh+/+ruJvrjO2NJxsfP2v/ZPt/oYDRisjut5f6pA9PPijn+uri0TWy0r6t1vN8777h
+        bs9Z0bjn0Lrm8msXTn0NEJqtOC9HpMVPTsogZOnB5rC5Gdl176/XnZBYx6ZSrDbR4M1h5mMO
+        1hPr7pccWqYlUCTLGsgn2b0+lt9uEqvFTfm2/zVP0r2cS3q25De6HmuY81Y6eNabTkGxd9w3
+        1/R/ENi8R9Lm0Xy3tzsVHQ84iyzSbLjs1Jak6nNCiaU4I9FQi7moOBEA9RaBRr4DAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrPIsWRmVeSWpSXmKPExsVy+t/xu7pLe2YnGpy+IG9xae1eVovmxevZ
+        LN4cn85kceFpD5vFomWtzBavPzSxWCzY+IjRYsLvC2wOHB6zGnrZPOadDPTYP3cNu8f7fVfZ
+        PGbf/cHocfzGdiaPz5vkAtij9GyK8ktLUhUy8otLbJWiDS2M9AwtLfSMTCz1DI3NY62MTJX0
+        7WxSUnMyy1KL9O0S9DIaf05gLNgqW9E1eTNjA+Nq8S5GTg4JAROJ36tnMncxcnEICSxllOi4
+        +40dIiEjcXJaAyuELSzx51oXG0TRe0aJnaffMoMkeAXsJN70HwCzWQRUJRref2WDiAtKnJz5
+        hAXEFhVIkuj/vgusRljAU+LvwqtgcWYBcYlbT+YzgdgiApUSWxofMkHE0yQubWtgh1h2kVHi
+        2uvdYM1sAoYSXW+7wBZwCrhKdH+7DjXITKJraxcjhC0vsf3tHOYJjEKzkNwxC8m+WUhaZiFp
+        WcDIsopRJLW0ODc9t9hQrzgxt7g0L10vOT93EyMwJrcd+7l5B+O8Vx/1DjEycTAeYpTgYFYS
+        4eXYMD1RiDclsbIqtSg/vqg0J7X4EKMpMDAmMkuJJucDk0JeSbyhmYGpoYmZpYGppZmxkjiv
+        Z0FHopBAemJJanZqakFqEUwfEwenVAPT3H1fdu0zK+wTn37pp5RdxU2zffVd692Xhu+0DunV
+        eLlqwf0uhTCZ2RkS3ip9k47sOplj06T+5K7V+syM+kzDvCvPY0MOxwosTGK6cNo2N/7h6SVT
+        1vhtPlFo46RdyM7N1VxQyml6dI79jNvW85xk2DpUNrccULofdLXrpvsCKVeTiwV9hSZWNw8v
+        F3x43NzuucCjHWprX97rP6SzkdVy0auy8isC/GHMt7qLfHef2x9TN5vve73vEu8rN5oTTG6a
+        brnDGt6irsW25Oru/4cM7Wz/rWysYH144bl1wI7LPF4uBe9Dy2qVk3imPQrX2fntwP9fLm9/
+        8M/6e0Cu9OLCdvl9OowOu+TbhG5+6wxUYinOSDTUYi4qTgQA6q1DP1IDAAA=
+X-CMS-MailID: 20211122122717eucas1p17574c005b04a3c50cb9e94aa729652e8
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20211122104844eucas1p193f1cdbe6255ccd2f945726711e719a4
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20211122104844eucas1p193f1cdbe6255ccd2f945726711e719a4
+References: <1d6ef5ff-e5e2-b81e-42be-7876b5bcfd05@linux.intel.com>
+        <CGME20211122104844eucas1p193f1cdbe6255ccd2f945726711e719a4@eucas1p1.samsung.com>
+        <20211122105003.1089218-1-mathias.nyman@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On 22.11.2021 11:50, Mathias Nyman wrote:
+> Fix the circular lock dependency and unbalanced unlock of addess0_mutex
+> introduced when fixing an address0_mutex enumeration retry race in commit
+> ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
+>
+> Make sure locking order between port_dev->status_lock and address0_mutex
+> is correct, and that address0_mutex is not unlocked in hub_port_connect
+> "done:" codepath which may be reached without locking address0_mutex
+>
+> Fixes: 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+This fixes the issue I've reported here: 
+https://lore.kernel.org/all/f3bfcbc7-f701-c74a-09bd-6491d4c8d863@samsung.com/
+Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> ---
+>   drivers/usb/core/hub.c | 20 ++++++++++++--------
+>   1 file changed, 12 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+> index 00c3506324e4..00070a8a6507 100644
+> --- a/drivers/usb/core/hub.c
+> +++ b/drivers/usb/core/hub.c
+> @@ -5188,6 +5188,7 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>   	struct usb_port *port_dev = hub->ports[port1 - 1];
+>   	struct usb_device *udev = port_dev->child;
+>   	static int unreliable_port = -1;
+> +	bool retry_locked;
+>   
+>   	/* Disconnect any existing devices under this port */
+>   	if (udev) {
+> @@ -5244,10 +5245,10 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>   
+>   	status = 0;
+>   
+> -	mutex_lock(hcd->address0_mutex);
+> -
+>   	for (i = 0; i < PORT_INIT_TRIES; i++) {
+> -
+> +		usb_lock_port(port_dev);
+> +		mutex_lock(hcd->address0_mutex);
+> +		retry_locked = true;
+>   		/* reallocate for each attempt, since references
+>   		 * to the previous one can escape in various ways
+>   		 */
+> @@ -5255,6 +5256,8 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>   		if (!udev) {
+>   			dev_err(&port_dev->dev,
+>   					"couldn't allocate usb_device\n");
+> +			mutex_unlock(hcd->address0_mutex);
+> +			usb_unlock_port(port_dev);
+>   			goto done;
+>   		}
+>   
+> @@ -5276,13 +5279,13 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>   		}
+>   
+>   		/* reset (non-USB 3.0 devices) and get descriptor */
+> -		usb_lock_port(port_dev);
+>   		status = hub_port_init(hub, udev, port1, i);
+> -		usb_unlock_port(port_dev);
+>   		if (status < 0)
+>   			goto loop;
+>   
+>   		mutex_unlock(hcd->address0_mutex);
+> +		usb_unlock_port(port_dev);
+> +		retry_locked = false;
+>   
+>   		if (udev->quirks & USB_QUIRK_DELAY_INIT)
+>   			msleep(2000);
+> @@ -5372,11 +5375,14 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>   
+>   loop_disable:
+>   		hub_port_disable(hub, port1, 1);
+> -		mutex_lock(hcd->address0_mutex);
+>   loop:
+>   		usb_ep0_reinit(udev);
+>   		release_devnum(udev);
+>   		hub_free_dev(udev);
+> +		if (retry_locked) {
+> +			mutex_unlock(hcd->address0_mutex);
+> +			usb_unlock_port(port_dev);
+> +		}
+>   		usb_put_dev(udev);
+>   		if ((status == -ENOTCONN) || (status == -ENOTSUPP))
+>   			break;
+> @@ -5399,8 +5405,6 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
+>   	}
+>   
+>   done:
+> -	mutex_unlock(hcd->address0_mutex);
+> -
+>   	hub_port_disable(hub, port1, 1);
+>   	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
+>   		if (status != -ENOTCONN && status != -ENODEV)
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From c1e63117711977cc4295b2ce73de29dd17066c82 Mon Sep 17 00:00:00 2001
-From: David Hildenbrand <david@redhat.com>
-Date: Fri, 19 Nov 2021 16:43:58 -0800
-Subject: [PATCH] proc/vmcore: fix clearing user buffer by properly using
- clear_user()
-
-To clear a user buffer we cannot simply use memset, we have to use
-clear_user().  With a virtio-mem device that registers a vmcore_cb and
-has some logically unplugged memory inside an added Linux memory block,
-I can easily trigger a BUG by copying the vmcore via "cp":
-
-  systemd[1]: Starting Kdump Vmcore Save Service...
-  kdump[420]: Kdump is using the default log level(3).
-  kdump[453]: saving to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
-  kdump[458]: saving vmcore-dmesg.txt to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
-  kdump[465]: saving vmcore-dmesg.txt complete
-  kdump[467]: saving vmcore
-  BUG: unable to handle page fault for address: 00007f2374e01000
-  #PF: supervisor write access in kernel mode
-  #PF: error_code(0x0003) - permissions violation
-  PGD 7a523067 P4D 7a523067 PUD 7a528067 PMD 7a525067 PTE 800000007048f867
-  Oops: 0003 [#1] PREEMPT SMP NOPTI
-  CPU: 0 PID: 468 Comm: cp Not tainted 5.15.0+ #6
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-27-g64f37cc530f1-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:read_from_oldmem.part.0.cold+0x1d/0x86
-  Code: ff ff ff e8 05 ff fe ff e9 b9 e9 7f ff 48 89 de 48 c7 c7 38 3b 60 82 e8 f1 fe fe ff 83 fd 08 72 3c 49 8d 7d 08 4c 89 e9 89 e8 <49> c7 45 00 00 00 00 00 49 c7 44 05 f8 00 00 00 00 48 83 e7 f81
-  RSP: 0018:ffffc9000073be08 EFLAGS: 00010212
-  RAX: 0000000000001000 RBX: 00000000002fd000 RCX: 00007f2374e01000
-  RDX: 0000000000000001 RSI: 00000000ffffdfff RDI: 00007f2374e01008
-  RBP: 0000000000001000 R08: 0000000000000000 R09: ffffc9000073bc50
-  R10: ffffc9000073bc48 R11: ffffffff829461a8 R12: 000000000000f000
-  R13: 00007f2374e01000 R14: 0000000000000000 R15: ffff88807bd421e8
-  FS:  00007f2374e12140(0000) GS:ffff88807f000000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f2374e01000 CR3: 000000007a4aa000 CR4: 0000000000350eb0
-  Call Trace:
-   read_vmcore+0x236/0x2c0
-   proc_reg_read+0x55/0xa0
-   vfs_read+0x95/0x190
-   ksys_read+0x4f/0xc0
-   do_syscall_64+0x3b/0x90
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Some x86-64 CPUs have a CPU feature called "Supervisor Mode Access
-Prevention (SMAP)", which is used to detect wrong access from the kernel
-to user buffers like this: SMAP triggers a permissions violation on
-wrong access.  In the x86-64 variant of clear_user(), SMAP is properly
-handled via clac()+stac().
-
-To fix, properly use clear_user() when we're dealing with a user buffer.
-
-Link: https://lkml.kernel.org/r/20211112092750.6921-1-david@redhat.com
-Fixes: 997c136f518c ("fs/proc/vmcore.c: add hook to read_from_oldmem() to check for non-ram pages")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Acked-by: Baoquan He <bhe@redhat.com>
-Cc: Dave Young <dyoung@redhat.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Vivek Goyal <vgoyal@redhat.com>
-Cc: Philipp Rudo <prudo@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-index 30a3b66f475a..509f85148fee 100644
---- a/fs/proc/vmcore.c
-+++ b/fs/proc/vmcore.c
-@@ -154,9 +154,13 @@ ssize_t read_from_oldmem(char *buf, size_t count,
- 			nr_bytes = count;
- 
- 		/* If pfn is not ram, return zeros for sparse dump files */
--		if (!pfn_is_ram(pfn))
--			memset(buf, 0, nr_bytes);
--		else {
-+		if (!pfn_is_ram(pfn)) {
-+			tmp = 0;
-+			if (!userbuf)
-+				memset(buf, 0, nr_bytes);
-+			else if (clear_user(buf, nr_bytes))
-+				tmp = -EFAULT;
-+		} else {
- 			if (encrypted)
- 				tmp = copy_oldmem_page_encrypted(pfn, buf,
- 								 nr_bytes,
-@@ -165,12 +169,12 @@ ssize_t read_from_oldmem(char *buf, size_t count,
- 			else
- 				tmp = copy_oldmem_page(pfn, buf, nr_bytes,
- 						       offset, userbuf);
--
--			if (tmp < 0) {
--				up_read(&vmcore_cb_rwsem);
--				return tmp;
--			}
- 		}
-+		if (tmp < 0) {
-+			up_read(&vmcore_cb_rwsem);
-+			return tmp;
-+		}
-+
- 		*ppos += nr_bytes;
- 		count -= nr_bytes;
- 		buf += nr_bytes;
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
