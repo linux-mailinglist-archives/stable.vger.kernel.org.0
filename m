@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2C0458C51
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 11:33:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 641D6458C57
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 11:33:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236306AbhKVKgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 05:36:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60120 "EHLO mail.kernel.org"
+        id S239249AbhKVKhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 05:37:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236258AbhKVKgp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Nov 2021 05:36:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2918360F6B;
-        Mon, 22 Nov 2021 10:33:37 +0000 (UTC)
+        id S239243AbhKVKgz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Nov 2021 05:36:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2569D60249;
+        Mon, 22 Nov 2021 10:33:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637577218;
-        bh=1hYTfybyp+wSEJM+O71hnUc6Qp+RzEYsA0Lt55Z2+jQ=;
+        s=korg; t=1637577228;
+        bh=otBEOVxdASvKoPd2QPYOnlqHENOe+19kFuDHHEFYjBg=;
         h=Subject:To:Cc:From:Date:From;
-        b=o4xChSwVwDz6F5LivdIuWKDixLdnOrs6K+OaYiMyoGjg6bbvdSViIuCiK4Hzuqydd
-         sI/wLEvo3CCqzEvPXCmeMUqkV44Dzy4KIZ80X0DgcVwj+v3EuCMnUusQoBW1Mjhcdw
-         Mv6s7x4M/O1ozcAMuqsf0+I7m6tPnwScjFbsgBqY=
-Subject: FAILED: patch "[PATCH] bpf: Fix toctou on read-only map's constant scalar tracking" failed to apply to 5.10-stable tree
+        b=xNLZshzrSdV6nwgf8LJsUvxEcMmsWJMnpDRFspZbwqZkW9NlHfsI2XV4TXIiru3Q4
+         OzY15yn5lV6JlHuTNug55f6BTbn4ek27yn237s1B27Q+mRaOJ2lW1d+P/QB5xhShE6
+         7+U1CXYjAtNH+sJXo6dF1ZhstxIhk/n5jDC5L4nM=
+Subject: FAILED: patch "[PATCH] bpf: Fix toctou on read-only map's constant scalar tracking" failed to apply to 5.4-stable tree
 To:     daniel@iogearbox.net, andrii@kernel.org, ast@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Nov 2021 11:33:35 +0100
-Message-ID: <1637577215186161@kroah.com>
+Date:   Mon, 22 Nov 2021 11:33:37 +0100
+Message-ID: <163757721744154@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
