@@ -2,118 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D298B458861
-	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 04:33:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A202458887
+	for <lists+stable@lfdr.de>; Mon, 22 Nov 2021 05:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229775AbhKVDgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Nov 2021 22:36:10 -0500
-Received: from szxga02-in.huawei.com ([45.249.212.188]:26346 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232868AbhKVDgJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Nov 2021 22:36:09 -0500
-Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.54])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4HyCQW2BKczbhvx;
-        Mon, 22 Nov 2021 11:28:03 +0800 (CST)
-Received: from huawei.com (10.175.127.227) by dggpeml500020.china.huawei.com
- (7.185.36.88) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.20; Mon, 22 Nov
- 2021 11:33:01 +0800
-From:   Baokun Li <libaokun1@huawei.com>
-To:     <damien.lemoal@opensource.wdc.com>, <axboe@kernel.dk>,
-        <tj@kernel.org>, <linux-ide@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <sergei.shtylyov@gmail.com>, <yebin10@huawei.com>,
-        <libaokun1@huawei.com>, <yukuai3@huawei.com>,
-        <stable@vger.kernel.org>, Hulk Robot <hulkci@huawei.com>
-Subject: [PATCH -next V3 2/2] sata_fsl: fix warning in remove_proc_entry when rmmod sata_fsl
-Date:   Mon, 22 Nov 2021 11:45:16 +0800
-Message-ID: <20211122034516.2280734-3-libaokun1@huawei.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211122034516.2280734-1-libaokun1@huawei.com>
-References: <20211122034516.2280734-1-libaokun1@huawei.com>
+        id S229543AbhKVEGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Nov 2021 23:06:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46840 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229527AbhKVEGM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Nov 2021 23:06:12 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 180D4C061574
+        for <stable@vger.kernel.org>; Sun, 21 Nov 2021 20:03:07 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id nh10-20020a17090b364a00b001a69adad5ebso14111266pjb.2
+        for <stable@vger.kernel.org>; Sun, 21 Nov 2021 20:03:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3rRiGTPIQg1A9juZh8tc/PNrXvUttZZZh5Hgz3/Ip1M=;
+        b=48HyISC4o6ZrJpqAiLu9+SZZY3A1YA61/k/NCH39TkOswH6zVnaDZcr8X6/4B6vm6p
+         9HDPoBcsSc9vO63ud3Mnd2f2Jkmr+/OmBNvsxUGYRpa82RxNh8bFm/wdfYYiwzolV/Jx
+         vdnglZfSymBDarsLT2vM2kOGXpaQ2NRlUcLcdyF+KLRHW/j671cYGfXzn2i9tcaje/Aj
+         CsEXMkU6q2osXZHn4/Qhdh/cTsr5eknx89PunNdomtKxxOQmbyKEb/pH/aygNUvXovU2
+         bfsFxK3onECkkcxoDABzBWlbGl9QwEyd/Lcs01r57yGk9sN7XT8C1z9WlhDqYtQxUfaR
+         voUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3rRiGTPIQg1A9juZh8tc/PNrXvUttZZZh5Hgz3/Ip1M=;
+        b=lwp+8h0z679UFLv3q7dSLZTcdGAVKLIA9cRHMrm+lzPZ+SdCcdUcehNABLlgGKCCEl
+         fB8VXERLRr28W25w0h3r2wDWyNjQWZ+UnFU0B9pBoebpxkdpN7b+sgmVlQuPKn6f9mTi
+         hauBxJKDTFWN4qY6AMvRgr6rl765w+AsnBElqO+dZkHIoj4bGwzdzoBC8CYKo+3hlgwP
+         F5zoBntp2oIaETMCGOXslmjPjwKcp1oUvM3VkQ+zUch6A5HbEUnBUGYpKHol5aKgHMyi
+         zrxMnoi9u77BhMpAzRoFI0Rl2faA5frE1KEbFbwNoh+qaTI8GuilIYet0dn7MR2C4C15
+         jIlg==
+X-Gm-Message-State: AOAM530oBZXIsabQiUS8h66UkxMpXWnVlZkGn3SXOVD83oL+/dRB4cJB
+        WT+SEH+K7OIAhfO08gMJlLKWn2LbnKfhaSYr
+X-Google-Smtp-Source: ABdhPJws+yZGT0SPi3TXHVKd04BBrqZ/HPm0qDxDDIfF7IQnxDpNnWPTiNeQue4hTF1tRuFiDVOVhw==
+X-Received: by 2002:a17:902:d2c7:b0:142:f06:e5fa with SMTP id n7-20020a170902d2c700b001420f06e5famr103416414plc.87.1637553786362;
+        Sun, 21 Nov 2021 20:03:06 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h6sm7462871pfh.82.2021.11.21.20.03.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 21 Nov 2021 20:03:06 -0800 (PST)
+Message-ID: <619b167a.1c69fb81.3ee3d.5f2d@mx.google.com>
+Date:   Sun, 21 Nov 2021 20:03:06 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.127.227]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpeml500020.china.huawei.com (7.185.36.88)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.4.292-140-g1794f2b1b0d51
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 baseline: 122 runs,
+ 1 regressions (v4.4.292-140-g1794f2b1b0d51)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Trying to remove the fsl-sata module in the PPC64 GNU/Linux
-leads to the following warning:
- ------------[ cut here ]------------
- remove_proc_entry: removing non-empty directory 'irq/69',
-   leaking at least 'fsl-sata[ff0221000.sata]'
- WARNING: CPU: 3 PID: 1048 at fs/proc/generic.c:722
-   .remove_proc_entry+0x20c/0x220
- IRQMASK: 0
- NIP [c00000000033826c] .remove_proc_entry+0x20c/0x220
- LR [c000000000338268] .remove_proc_entry+0x208/0x220
- Call Trace:
-  .remove_proc_entry+0x208/0x220 (unreliable)
-  .unregister_irq_proc+0x104/0x140
-  .free_desc+0x44/0xb0
-  .irq_free_descs+0x9c/0xf0
-  .irq_dispose_mapping+0x64/0xa0
-  .sata_fsl_remove+0x58/0xa0 [sata_fsl]
-  .platform_drv_remove+0x40/0x90
-  .device_release_driver_internal+0x160/0x2c0
-  .driver_detach+0x64/0xd0
-  .bus_remove_driver+0x70/0xf0
-  .driver_unregister+0x38/0x80
-  .platform_driver_unregister+0x14/0x30
-  .fsl_sata_driver_exit+0x18/0xa20 [sata_fsl]
- ---[ end trace 0ea876d4076908f5 ]---
+stable-rc/queue/4.4 baseline: 122 runs, 1 regressions (v4.4.292-140-g1794f2=
+b1b0d51)
 
-The driver creates the mapping by calling irq_of_parse_and_map(),
-so it also has to dispose the mapping. But the easy way out is to
-simply use platform_get_irq() instead of irq_of_parse_map(). Also
-we should adapt return value checking and propagate error values.
+Regressions Summary
+-------------------
 
-In this case the mapping is not managed by the device but by
-the of core, so the device has not to dispose the mapping.
-
-Fixes: faf0b2e5afe7 ("drivers/ata: add support to Freescale 3.0Gbps SATA Controller")
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
-V1->V2:
-	Adapt return value checking and propagate error values.
-V2->V3:
-	Add fixed and CC stable.
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
- drivers/ata/sata_fsl.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/ata/sata_fsl.c b/drivers/ata/sata_fsl.c
-index 30759fd1c3a2..f850dfab72a6 100644
---- a/drivers/ata/sata_fsl.c
-+++ b/drivers/ata/sata_fsl.c
-@@ -1493,8 +1493,9 @@ static int sata_fsl_probe(struct platform_device *ofdev)
- 	host_priv->ssr_base = ssr_base;
- 	host_priv->csr_base = csr_base;
- 
--	irq = irq_of_parse_and_map(ofdev->dev.of_node, 0);
--	if (!irq) {
-+	irq = platform_get_irq(ofdev, 0);
-+	if (irq < 0) {
-+		retval = irq;
- 		dev_err(&ofdev->dev, "invalid irq from platform\n");
- 		goto error_exit_with_cleanup;
- 	}
-@@ -1570,8 +1571,6 @@ static int sata_fsl_remove(struct platform_device *ofdev)
- 
- 	ata_host_detach(host);
- 
--	irq_dispose_mapping(host_priv->irq);
--
- 	return 0;
- }
- 
--- 
-2.31.1
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.292-140-g1794f2b1b0d51/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.292-140-g1794f2b1b0d51
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1794f2b1b0d5189b2d0a6c34db1755b9cf2ca725 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/619add9c742431dddbe551c7
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-1=
+40-g1794f2b1b0d51/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.292-1=
+40-g1794f2b1b0d51/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619add9c742431d=
+ddbe551cd
+        new failure (last pass: v4.4.292-116-gc13aef2ca259)
+        2 lines
+
+    2021-11-22T00:00:04.510863  [   19.309295] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2021-11-22T00:00:04.556593  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/114
+    2021-11-22T00:00:04.565360  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
