@@ -2,106 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C39745A0CD
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:02:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD5145A0DB
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:03:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235745AbhKWLFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 06:05:08 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:37462 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235673AbhKWLFH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 06:05:07 -0500
-Date:   Tue, 23 Nov 2021 11:01:57 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1637665318;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Y+oX2OITdqipqOQE08AxFDVOuJoEEjjNBJJ3k5+eZcI=;
-        b=YlbHiluUitdiJdlCu5LZ3Wa6eF7EUMeaMSUjyyOcbja8iVOF4H4UFOBQXLxpzcf/R0zfHa
-        SGthxTiYZ3w18y48Bw8JTloisiBdJohUrQpEdU4T6TCTcZQMjexs5+52PUMoIO2ckvk3jL
-        XHt2t6GZz+ONZTr/TytayCCina9ay76L9WoczdUhvWo/MLi7b74Y63S5jYd4RH3YpJUeHk
-        9Q3pk9LZo49yz1nFizAfxJKCOKY7hdqHP8jylYGOdv2eQNjeE87QjYfmGYa1VtKy2cN/Od
-        HnXOxex9qWSghzGulwKEm535nmNKDZtdn/Oh0aGBBNE6tWVMmPl5FcPCWVS8dg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1637665318;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Y+oX2OITdqipqOQE08AxFDVOuJoEEjjNBJJ3k5+eZcI=;
-        b=COZu4klu0TDSZoxQN5YeiKQZtE0u5+uHvPvH96bXF37h8gaWC5FYeowYTamQLs0GgvoWsO
-        Ru6epnNh05CucyBg==
-From:   "tip-bot2 for Andrey Ryabinin" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: sched/core] cputime, cpuacct: Include guest time in user time
- in cpuacct.stat
-Cc:     Andrey Ryabinin <arbn@yandex-team.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Tejun Heo <tj@kernel.org>, <stable@vger.kernel.org>,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20211115164607.23784-1-arbn@yandex-team.com>
-References: <20211115164607.23784-1-arbn@yandex-team.com>
+        id S230366AbhKWLGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 06:06:22 -0500
+Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:53665 "EHLO
+        wnew1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231702AbhKWLGV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 06:06:21 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailnew.west.internal (Postfix) with ESMTP id 508522B01453;
+        Tue, 23 Nov 2021 06:03:12 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Tue, 23 Nov 2021 06:03:13 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=oWc2vzhrYc1jGwqIggT9FtG26pa
+        qnkl6UTa7ET4HxiI=; b=pQghMJ0VqgX8bX0UcPhjTj5i/5dKqWCFpdZo6NeR99p
+        SCaOQ+fMljtwJO9M6RE3+7bvHnAXQpJV2DAlkUN2pSGjWKRTacf9/JgEtj2lcKV0
+        jk4TTrh7xAzwfupppCF+yN2e+oRf1HObuz08tcfkZfeqCb5+w8wFkIIoSC7QVmL1
+        BbdUJ5InvcRXQCK2izbiujrGzXGFp11ODtXZlePrI3uVBYNWygM0veGiRGf1zcfh
+        a9kuo/VJi1nl3cO/eE6VsmubWw3QiZz6clHptJn7Vew0OgD5vEb06bgSnld7LmEo
+        6/1pXDBN5bt4qEwwacBTJOOJzGDWDwjtOVFQYmtIASA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=oWc2vz
+        hrYc1jGwqIggT9FtG26paqnkl6UTa7ET4HxiI=; b=Vi5L/h0cknM7DwkdQFxjn0
+        b2TMtdrQO9jsyuDGp4fRLAdPR5xpZ3WolrVmBh0hI2xIv1tOIYZXI/NLRY9XrMLV
+        rClsEb4Xal+9VHbkkrr8MB6pUvC9398uskiTuyxWSGXZATYisE5NcpQRJ+0lFrCP
+        VjFlyljRuOcu0435mucZeDbhEY0CjBPnhrzWADsa0vS18e7NyLQEeRSJ4CdtqpyP
+        3zHCMeIc+qqVEOzNfr4iodY51+irmlRUbfOkoqrF9v1zpdZPrOJPq04pjWPzpHXq
+        ceLHRiiY8H7BoGhQuxwS8CirWJ7vQue2SPtprJtx6PzB56ovIgiTN6p6BcZx8Z6g
+        ==
+X-ME-Sender: <xms:b8qcYdDjFsXHzzfwu3frjxSZ5NjQmucnaXO2BP3049WAJz6j5G8Glw>
+    <xme:b8qcYbj7ISfJqP2ldJ-JuLIwk3z55IreCq7Lyqp755PyEuTKT6b_aqOyRRWSK9bMi
+    SazgS9KvmP1Qg>
+X-ME-Received: <xmr:b8qcYYnVn8ZQhlSrlABawa8vEJmucjppj8UsrQGdsDYJLVocjadbE1BzTtqAWp39FlUd2E_C9WtoLSc3m1DPPCQXIJyKRDgX>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrgeeigddvfecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
+    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
+    pehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:b8qcYXxtFhkyfEyz1LHNIwvRnDymYLuvz9PGFVzmDiKinV4-oIh9yA>
+    <xmx:b8qcYSTKfYcfc_BvxRHBpdAkyq_SCY5Uc4vs27x2ojdJeIXfOeIbdQ>
+    <xmx:b8qcYaYFQsZU17e_nFaxHd-f4GX3mKMfxmgBJ8p3B6uS22nVaDYwkg>
+    <xmx:b8qcYXItOwvA43RKp7cfe-2ww8yfqsVK8xAPz7Xgpk7cJNX5ke9kePMSLW0>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 23 Nov 2021 06:03:11 -0500 (EST)
+Date:   Tue, 23 Nov 2021 12:03:08 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Sasha Levin <sashal@kernel.org>, "3.8+" <stable@vger.kernel.org>,
+        stable-commits@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
+        Jiri Kosina <jikos@kernel.org>
+Subject: Re: Patch "HID: playstation: require multicolor LED functionality"
+ has been added to the 5.15-stable tree
+Message-ID: <YZzKbKseHT5xoxSj@kroah.com>
+References: <20211121230439.76777-1-sashal@kernel.org>
+ <CAO-hwJLkmZPj25O49Xr++jWcoBUEJHQAtPZFkXTjwFZvRqFKJA@mail.gmail.com>
 MIME-Version: 1.0
-Message-ID: <163766531756.11128.2497713509765772870.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJLkmZPj25O49Xr++jWcoBUEJHQAtPZFkXTjwFZvRqFKJA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the sched/core branch of tip:
+On Tue, Nov 23, 2021 at 11:59:25AM +0100, Benjamin Tissoires wrote:
+> On Mon, Nov 22, 2021 at 12:04 AM Sasha Levin <sashal@kernel.org> wrote:
+> >
+> > This is a note to let you know that I've just added the patch titled
+> >
+> >     HID: playstation: require multicolor LED functionality
+> >
+> > to the 5.15-stable tree which can be found at:
+> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> >
+> > The filename of the patch is:
+> >      hid-playstation-require-multicolor-led-functionality.patch
+> > and it can be found in the queue-5.15 subdirectory.
+> >
+> > If you, or anyone else, feels it should not be added to the stable tree,
+> > please let <stable@vger.kernel.org> know about it.
+> 
+> I am deeply puzzled by this cherry-pick.
+> 
+> The purpose of this patch was to fix fc97b4d6a1a6 ("HID: playstation:
+> expose DualSense lightbar through a multi-color LED.")
+> 
+> So unless this patch gets backported in stable (and this is *not* a
+> request to do so), bringing in this patch in 5.15 is wrong.
 
-Commit-ID:     9731698ecb9c851f353ce2496292ff9fcea39dff
-Gitweb:        https://git.kernel.org/tip/9731698ecb9c851f353ce2496292ff9fcea39dff
-Author:        Andrey Ryabinin <arbn@yandex-team.com>
-AuthorDate:    Mon, 15 Nov 2021 19:46:04 +03:00
-Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Tue, 23 Nov 2021 09:55:22 +01:00
+You are right, thanks for catching this, I'll go drop this commit now.
 
-cputime, cpuacct: Include guest time in user time in cpuacct.stat
-
-cpuacct.stat in no-root cgroups shows user time without guest time
-included int it. This doesn't match with user time shown in root
-cpuacct.stat and /proc/<pid>/stat. This also affects cgroup2's cpu.stat
-in the same way.
-
-Make account_guest_time() to add user time to cgroup's cpustat to
-fix this.
-
-Fixes: ef12fefabf94 ("cpuacct: add per-cgroup utime/stime statistics")
-Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211115164607.23784-1-arbn@yandex-team.com
----
- kernel/sched/cputime.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
-index 872e481..042a6db 100644
---- a/kernel/sched/cputime.c
-+++ b/kernel/sched/cputime.c
-@@ -148,10 +148,10 @@ void account_guest_time(struct task_struct *p, u64 cputime)
- 
- 	/* Add guest time to cpustat. */
- 	if (task_nice(p) > 0) {
--		cpustat[CPUTIME_NICE] += cputime;
-+		task_group_account_field(p, CPUTIME_NICE, cputime);
- 		cpustat[CPUTIME_GUEST_NICE] += cputime;
- 	} else {
--		cpustat[CPUTIME_USER] += cputime;
-+		task_group_account_field(p, CPUTIME_USER, cputime);
- 		cpustat[CPUTIME_GUEST] += cputime;
- 	}
- }
+greg k-h
