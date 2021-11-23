@@ -2,135 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 828A845AAC7
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 19:06:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B8FC45AAFC
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 19:12:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239508AbhKWSJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 13:09:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57774 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229674AbhKWSJj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 13:09:39 -0500
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E03EC061574
-        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 10:06:31 -0800 (PST)
-Received: by mail-pj1-x1030.google.com with SMTP id w33-20020a17090a6ba400b001a722a06212so2642795pjj.0
-        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 10:06:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=bqo2TAJOXXDhFLXaZWmyJFRRHkvIH188NipFNLUv/us=;
-        b=pd6xCVjxGamudkQORXhFAoJLoeI/cCbWBkbR1HQBNk8ywbrUTbxndcVnd4FOiFre+B
-         88x8SMB2XyDkJ781IJXSZniG8n3W+AiV2mchcPHa27btdNseaJurOHhiiaeGrHhSHUy5
-         8beV1XKiPf2cLfu3kj3KRe2sK0uDMxIstKJnRNkj3G8XiBKjel9OTHJYo0B2JCMcG+jw
-         0KQyWlk6qSJog3Pt1J7NNpYJDvhc13C7WJXqIdMivoQdmfP3WXJpzCZphCcLkTVnPDRy
-         WQ/dbYCQ1IMQk8vXKzVeEnuw/kkyoLCu64uYJGEGKl5c8dZvXIFslfc9kyjlWMd2BYqj
-         +uKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=bqo2TAJOXXDhFLXaZWmyJFRRHkvIH188NipFNLUv/us=;
-        b=7zoxDPFB3DgMATzobtf2E8XZQ3WyRK5xvv9h2phIuZOTz+LXfVTktC0rMR/MLBuA3Z
-         4zmUWtUsZwDNy5Jm0TBAgX54k36yZ2DS0MC8OUScM0O6KbZmrUFWvsvqYjr72qQFgrZo
-         BRFhxClULq4gQ7ODr8mPw9qsElzW6uVU+OYBgezYz/NOGoMpfo0L7yhMRC41SBDESFrI
-         62PJUAN8zbdAj5Nc+rFq1I5GKEqi00lyBMSQgPIiRMvwuwwM2dAt3kAVxD16FerEoDW0
-         7ixipjcjABt452t4VFEOrAQscjC6RWdOwMH35R1jSTH0f4jIw34wpig1A/81NaSu9tj3
-         1iFg==
-X-Gm-Message-State: AOAM532Cx3OtOz1g4d0bzG8NAHrpQVCqUTZtGwSaxVWpjxD69/WINLJ7
-        IOBErHwwmfCWw+dMW0BCAyiTDRxKZrrYG46C
-X-Google-Smtp-Source: ABdhPJz61oDFbE073s+NQmUQu5BUhdjaWD116ABcGygZSbe/QJ0T6ixqQWtxhfYx70MwXEiWcuXJpw==
-X-Received: by 2002:a17:90a:ec05:: with SMTP id l5mr5442294pjy.68.1637690790796;
-        Tue, 23 Nov 2021 10:06:30 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ot18sm2309241pjb.14.2021.11.23.10.06.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Nov 2021 10:06:30 -0800 (PST)
-Message-ID: <619d2da6.1c69fb81.f1bd2.4ae9@mx.google.com>
-Date:   Tue, 23 Nov 2021 10:06:30 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S239765AbhKWSPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 13:15:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58848 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234236AbhKWSPo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 13:15:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2335560F9D;
+        Tue, 23 Nov 2021 18:12:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637691155;
+        bh=ljCu8zLyZq17cxGz/q2cy057a6PRyyROwH6wrp0QAEk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DbZiZzV2xrffQPzWMDzFd6JpbOOP1ZpCRfm0gY0t0jnQTEkoQNv6U1pJc7hZWCmcT
+         k13mZUW9DetFToequZCfwOKCEmX0UqJv4BYCWiFud5TPRLG1zv7KKBwwhETq0YgelK
+         XI18cNXx7Ws+09zDlFSZAHTvSRSWTTOl5Q0vWqFw=
+Date:   Tue, 23 Nov 2021 19:12:16 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Thomas Backlund <tmb@iki.fi>
+Cc:     ebiederm@xmission.com, keescook@chromium.org, khuey@kylehuey.com,
+        me@kylehuey.com, oliver.sang@intel.com,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] signal: Don't always set SA_IMMUTABLE for
+ forced signals" failed to apply to 5.15-stable tree
+Message-ID: <YZ0vAK6QJJFP3jY5@kroah.com>
+References: <163758427225348@kroah.com>
+ <c83d6b54-d02f-c23b-d1cc-76c1993031d5@iki.fi>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.255-248-g403d1dca749d
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y baseline: 138 runs,
- 1 regressions (v4.14.255-248-g403d1dca749d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c83d6b54-d02f-c23b-d1cc-76c1993031d5@iki.fi>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 138 runs, 1 regressions (v4.14.255-248-g40=
-3d1dca749d)
+On Tue, Nov 23, 2021 at 07:29:43PM +0200, Thomas Backlund wrote:
+> Den 2021-11-22 kl. 14:31, skrev gregkh@linuxfoundation.org:
+> > 
+> > The patch below does not apply to the 5.15-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> 
+> It will apply if you add this one first:
+> 
+> From 26d5badbccddcc063dc5174a2baffd13a23322aa Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Wed, 20 Oct 2021 12:43:59 -0500
+> Subject: [PATCH] signal: Implement force_fatal_sig
+> 
+> 
+> 
+> 
+> and if the other patch for signal that has similar description should land
+> in 5.15:
+> 
+> From fcb116bc43c8c37c052530ead79872f8b2615711 Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Thu, 18 Nov 2021 14:23:21 -0600
+> Subject: [PATCH] signal: Replace force_fatal_sig with force_exit_sig when in
+> doubt
+> 
+> 
+> 
+> then the list is looks something like:
+> 
+> 
+> From 941edc5bf174b67f94db19817cbeab0a93e0c32a Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Wed, 20 Oct 2021 12:44:00 -0500
+> Subject: [PATCH] exit/syscall_user_dispatch: Send ordinary signals on
+> failure
+> 
+> From 83a1f27ad773b1d8f0460d3a676114c7651918cc Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Wed, 20 Oct 2021 12:43:53 -0500
+> Subject: [PATCH] signal/powerpc: On swapcontext failure force SIGSEGV
+> 
+> From 9bc508cf0791c8e5a37696de1a046d746fcbd9d8 Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Wed, 20 Oct 2021 12:43:57 -0500
+> Subject: [PATCH] signal/s390: Use force_sigsegv in default_trap_handler
+> 
+> From c317d306d55079525c9610267fdaf3a8a6d2f08b Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Wed, 20 Oct 2021 12:44:01 -0500
+> Subject: [PATCH] signal/sparc32: Exit with a fatal signal when
+>  try_to_clear_window_buffer fails
+> 
+> From 086ec444f86660e103de8945d0dcae9b67132ac9 Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Wed, 20 Oct 2021 12:44:02 -0500
+> Subject: [PATCH] signal/sparc32: In setup_rt_frame and setup_fram use
+>  force_fatal_sig
+> 
+> From 1fbd60df8a852d9c55de8cd3621899cf4c72a5b7 Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Wed, 20 Oct 2021 12:43:56 -0500
+> Subject: [PATCH] signal/vm86_32: Properly send SIGSEGV when the vm86 state
+> cannot be saved.
+> 
+> From 695dd0d634df8903e5ead8aa08d326f63b23368a Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Wed, 20 Oct 2021 12:44:03 -0500
+> Subject: [PATCH] signal/x86: In emulate_vsyscall force a signal instead of
+> calling do_exit
+> 
+> From 26d5badbccddcc063dc5174a2baffd13a23322aa Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Wed, 20 Oct 2021 12:43:59 -0500
+> Subject: [PATCH] signal: Implement force_fatal_sig
+> 
+> From e21294a7aaae32c5d7154b187113a04db5852e37 Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Mon, 25 Oct 2021 10:50:57 -0500
+> Subject: [PATCH] signal: Replace force_sigsegv(SIGSEGV) with
+>  force_fatal_sig(SIGSEGV)
+> 
+> From e349d945fac76bddc78ae1cb92a0145b427a87ce Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Thu, 18 Nov 2021 11:11:13 -0600
+> Subject: [PATCH] signal: Don't always set SA_IMMUTABLE for forced signals
+> 
+> From fcb116bc43c8c37c052530ead79872f8b2615711 Mon Sep 17 00:00:00 2001
+> From: "Eric W. Biederman" <ebiederm@xmission.com>
+> Date: Thu, 18 Nov 2021 14:23:21 -0600
+> Subject: [PATCH] signal: Replace force_fatal_sig with force_exit_sig when in
+> doubt
+> 
+> 
+> 
+> Applying them in listed order on top of 5.14.4 and builds/runs on i586,
+> x86_64, armv7hl, aarch64
 
-Regressions Summary
--------------------
+That series list is crazy, let me go try it and see what blows up! :)
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+thanks,
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.255-248-g403d1dca749d/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.255-248-g403d1dca749d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      403d1dca749d0392ef194d5623bac7bd30c60284 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/619cf9dd86a8cbcc98f2efc5
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-55-248-g403d1dca749d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-=
-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-55-248-g403d1dca749d/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-=
-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619cf9dd86a8cbc=
-c98f2efc8
-        failing since 9 days (last pass: v4.14.255, first fail: v4.14.255-5=
-4-gb6f4d599e1d3)
-        2 lines
-
-    2021-11-23T14:25:14.601490  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/95
-    2021-11-23T14:25:14.611089  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+greg k-h
