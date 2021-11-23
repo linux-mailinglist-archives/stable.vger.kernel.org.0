@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 461E245A19B
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:36:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A20A445A19D
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:36:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236240AbhKWLjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 06:39:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33272 "EHLO mail.kernel.org"
+        id S236082AbhKWLjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 06:39:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236228AbhKWLjE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 06:39:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B127A60FD7;
-        Tue, 23 Nov 2021 11:35:55 +0000 (UTC)
+        id S233037AbhKWLjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 06:39:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88F4D60FD7;
+        Tue, 23 Nov 2021 11:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637667356;
-        bh=/gCKxYA908A79IRTku3AlUaxkDm5ygjDROTqz1mLabE=;
+        s=korg; t=1637667390;
+        bh=G0Mo2Dxt7mlmD9XGOLlZlVa195KeB0BzFJFLD91YAKI=;
         h=Subject:To:Cc:From:Date:From;
-        b=pOn5EzyZhhd1NFHCgeLafB8VJn0pHpITF/CYHrhd3CawAmmE/5jw1U6EgvuQLw0jH
-         It7fuuNVJhUyvdMPczgUEqhcGlpIcL2NvI8eIQjL4/p8g1a5jlA6csCBVOE0BF6UEy
-         8cjth+WqvKoTLO1Xi8+43NeUil+/iEYgm2j5Wc30=
-Subject: FAILED: patch "[PATCH] drm/i915: Fix syncmap memory leak" failed to apply to 5.15-stable tree
-To:     matthew.brost@intel.com, John.C.Harrison@Intel.com,
-        stable@vger.kernel.org
+        b=xaxlzET2KgAilr0Z4lYFnVpMTak8N33/L7JtcpzoHA1AnGc5/Ph6VetCJRLL+TTwB
+         /pkdXCOowHqEBo6tioNBta8WAXe9sdQZp6Kjhk2afziB25o83arD38s/n5LZu4L+1P
+         8s0W/KM9ys/FguovIzm1nZwVBI74El2nqlE49um4=
+Subject: FAILED: patch "[PATCH] drm/i915: Fix bug in user proto-context creation that leaked" failed to apply to 5.15-stable tree
+To:     matthew.brost@intel.com, jason@jlekstrand.net,
+        stable@vger.kernel.org, tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Nov 2021 12:35:43 +0100
-Message-ID: <16376673434259@kroah.com>
+Date:   Tue, 23 Nov 2021 12:36:27 +0100
+Message-ID: <1637667387216201@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -46,59 +46,54 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From faf890985e30d5e88cc3a7c50c1bcad32f89ab7c Mon Sep 17 00:00:00 2001
+From 84edf53776343d6b5bf5fa59a6f600a22ca23c40 Mon Sep 17 00:00:00 2001
 From: Matthew Brost <matthew.brost@intel.com>
-Date: Fri, 30 Jul 2021 12:53:42 -0700
-Subject: [PATCH] drm/i915: Fix syncmap memory leak
+Date: Fri, 1 Oct 2021 08:58:25 -0700
+Subject: [PATCH] drm/i915: Fix bug in user proto-context creation that leaked
+ contexts
 
-A small race exists between intel_gt_retire_requests_timeout and
-intel_timeline_exit which could result in the syncmap not getting
-free'd. Rather than work to hard to seal this race, simply cleanup the
-syncmap on fini.
+Set number of engines before attempting to create contexts so the
+function free_engines can clean up properly. Also check return of
+alloc_engines for NULL.
 
-unreferenced object 0xffff88813bc53b18 (size 96):
-  comm "gem_close_race", pid 5410, jiffies 4294917818 (age 1105.600s)
-  hex dump (first 32 bytes):
-    01 00 00 00 00 00 00 00 00 00 00 00 0a 00 00 00  ................
-    00 00 00 00 00 00 00 00 6b 6b 6b 6b 06 00 00 00  ........kkkk....
-  backtrace:
-    [<00000000120b863a>] __sync_alloc_leaf+0x1e/0x40 [i915]
-    [<00000000042f6959>] __sync_set+0x1bb/0x240 [i915]
-    [<0000000090f0e90f>] i915_request_await_dma_fence+0x1c7/0x400 [i915]
-    [<0000000056a48219>] i915_request_await_object+0x222/0x360 [i915]
-    [<00000000aaac4ee3>] i915_gem_do_execbuffer+0x1bd0/0x2250 [i915]
-    [<000000003c9d830f>] i915_gem_execbuffer2_ioctl+0x405/0xce0 [i915]
-    [<00000000fd7a8e68>] drm_ioctl_kernel+0xb0/0xf0 [drm]
-    [<00000000e721ee87>] drm_ioctl+0x305/0x3c0 [drm]
-    [<000000008b0d8986>] __x64_sys_ioctl+0x71/0xb0
-    [<0000000076c362a4>] do_syscall_64+0x33/0x80
-    [<00000000eb7a4831>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+v2:
+ (Tvrtko)
+  - Send as stand alone patch
+ (John Harrison)
+  - Check for alloc_engines returning NULL
+v3:
+ (Checkpatch / Tvrtko)
+  - Remove braces around single line if statement
 
+Cc: Jason Ekstrand <jason@jlekstrand.net>
+Fixes: d4433c7600f7 ("drm/i915/gem: Use the proto-context to handle create parameters (v5)")
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Matthew Brost <matthew.brost@intel.com>
-Fixes: 531958f6f357 ("drm/i915/gt: Track timeline activeness in enter/exit")
 Cc: <stable@vger.kernel.org>
-Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210730195342.110234-1-matthew.brost@intel.com
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211001155825.6762-1-matthew.brost@intel.com
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_timeline.c b/drivers/gpu/drm/i915/gt/intel_timeline.c
-index c4a126c8caef..1257f4f11e66 100644
---- a/drivers/gpu/drm/i915/gt/intel_timeline.c
-+++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
-@@ -127,6 +127,15 @@ static void intel_timeline_fini(struct rcu_head *rcu)
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_context.c b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+index 51861a66547c..74e33a4cdfe8 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_context.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_context.c
+@@ -941,6 +941,10 @@ static struct i915_gem_engines *user_engines(struct i915_gem_context *ctx,
+ 	unsigned int n;
  
- 	i915_vma_put(timeline->hwsp_ggtt);
- 	i915_active_fini(&timeline->active);
+ 	e = alloc_engines(num_engines);
++	if (!e)
++		return ERR_PTR(-ENOMEM);
++	e->num_engines = num_engines;
 +
-+	/*
-+	 * A small race exists between intel_gt_retire_requests_timeout and
-+	 * intel_timeline_exit which could result in the syncmap not getting
-+	 * free'd. Rather than work to hard to seal this race, simply cleanup
-+	 * the syncmap on fini.
-+	 */
-+	i915_syncmap_free(&timeline->sync);
-+
- 	kfree(timeline);
- }
+ 	for (n = 0; n < num_engines; n++) {
+ 		struct intel_context *ce;
+ 		int ret;
+@@ -974,7 +978,6 @@ static struct i915_gem_engines *user_engines(struct i915_gem_context *ctx,
+ 			goto free_engines;
+ 		}
+ 	}
+-	e->num_engines = num_engines;
+ 
+ 	return e;
  
 
