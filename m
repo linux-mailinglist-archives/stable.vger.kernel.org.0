@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2D545A18F
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:35:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D74E045A199
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:35:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236098AbhKWLix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 06:38:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33094 "EHLO mail.kernel.org"
+        id S236177AbhKWLjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 06:39:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235094AbhKWLiw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 06:38:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CDC360E73;
-        Tue, 23 Nov 2021 11:35:43 +0000 (UTC)
+        id S236175AbhKWLjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 06:39:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D228F60E73;
+        Tue, 23 Nov 2021 11:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637667344;
-        bh=nkSAvXu3RMpRrLOx0sQapZhQoWK7UOv88MjJwwU/b1M=;
+        s=korg; t=1637667353;
+        bh=XIa4ONE3xSbYSfLZ0T+wPrO/ri2EdhCV9gJAWmZKwcU=;
         h=Subject:To:Cc:From:Date:From;
-        b=LG1lOGcG2bJvFcBAORTFEPLDttG8iFqR0+Fg3N6QSuDCLcraE0I2nQSWLgmWRVfG1
-         xvSSWGZvLH440wNIVrLpm7jrSNmZ5PaaR6zT3bDpgcDb757AdFG69QEgztthfGfShm
-         o/l08Z2hCiEfP4uDUlsEgPY/sofh0CgIuF1qqvno=
-Subject: FAILED: patch "[PATCH] drm/i915: Fix syncmap memory leak" failed to apply to 5.4-stable tree
+        b=ZS0coj9h6XO+ONjedUPxawePSQ/oSWgXcngWYNxbSJ3yURoHfcZtmQJ80n6CCxjdC
+         VgJGAIaAeuyJBYBsJtd+fjJ2I481hGo5DbgtF8B6Q+K1RGwC2+c7DAZeAnqbXQas8y
+         dD/4cD3DCwUPpqUr9sp0WGRfS0K9DRRWx4++H8fI=
+Subject: FAILED: patch "[PATCH] drm/i915: Fix syncmap memory leak" failed to apply to 5.10-stable tree
 To:     matthew.brost@intel.com, John.C.Harrison@Intel.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Nov 2021 12:35:41 +0100
-Message-ID: <163766734158224@kroah.com>
+Date:   Tue, 23 Nov 2021 12:35:42 +0100
+Message-ID: <1637667342908@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
