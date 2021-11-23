@@ -2,144 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0619F45AEC8
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 22:56:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6349B45AF0E
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 23:28:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230197AbhKWV7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 16:59:43 -0500
-Received: from meesny.iki.fi ([195.140.195.201]:55698 "EHLO meesny.iki.fi"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229633AbhKWV7m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 16:59:42 -0500
-Received: from [172.16.24.131] (73-55.dynamonet.fi [85.134.55.73])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: tmb@iki.fi)
-        by meesny.iki.fi (Postfix) with ESMTPSA id 27B22202B7;
-        Tue, 23 Nov 2021 23:56:32 +0200 (EET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=meesny;
-        t=1637704592;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=YvSp1quBF/r2X8h0rUNOPMDy349fc4EAE8LATnyMxIc=;
-        b=dVhbsWek4w/Eba27xnladZGMIVnBl8SB9UZjzCJe4bvfGwgF0fgY8h7ccBtuW39IIeukT4
-        les4mQP2OGCQ7eSrNFfliHOHXctgXiRGayrQ7yFRYF2B6ZMq3arp2n5Y6XEMkpp3s0U0zP
-        qocbg9we1g9+bweWSZ5jbdBdhJTNna4=
-Message-ID: <2406f6cc-3c24-4b0c-20db-194da63640c7@iki.fi>
-Date:   Tue, 23 Nov 2021 23:56:31 +0200
+        id S229824AbhKWWbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 17:31:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33300 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229675AbhKWWbz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 17:31:55 -0500
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D717AC061574
+        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 14:28:46 -0800 (PST)
+Received: by mail-pj1-x102b.google.com with SMTP id j5-20020a17090a318500b001a6c749e697so2951907pjb.1
+        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 14:28:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xXWENpgWlVU02Dl+cUXfWGVJh7aYJYdRwk/KnAkvyZA=;
+        b=ClT3YfNscpgcHo+x59mFh36Wa38Og7QHn9HEweR92fg8kQ0fFwASFKY6tHeSa5f8+i
+         AgS086QlSkl3QHWdr7dzqu3KJGPAO5xzdEG1sDNFKsC5TSawSGecv69m916oTQz1W0HF
+         0PRSq6vvYvxQtsIdKcHisWZbTl90DtWY0JUn2BX41MUCtVGSetk9KfQ+83BB28tv7LoP
+         2x8IIP06RNh8/GV/ESQS3bcSxyFHf/TKpqHQwiT0jlLtnh++Nl3RcABOY3XJkO2XHhuq
+         u2s/2Xg5b00+sqtbLyulIJzteer5IJYr6FiV/Ju2SlhBmfDGuwnx19yoM+eXs6jSI4tu
+         zZHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xXWENpgWlVU02Dl+cUXfWGVJh7aYJYdRwk/KnAkvyZA=;
+        b=1G0yyV8XhYCyrJFFQCxaAaxE+HH96iIDPLWfTLOyIjd/97Y4TsYWHTuPnuaz5w8/ar
+         +lphz8HsNbVWOXWs7S+kw6+/mq/MMD3dXtYFTxsYGkVh8LAxpHS/Z4mia+WoH/nYMl3u
+         watF+thEpfSs3ixOG8Y1ifYIWNWXObY/XBxPHdpbN1J5YoKD0r1jwG2zQhVZtucn+EOA
+         C5ciHMZdFZp2Pus0kuo7X1X5CWKCxs13JX4xLj0ZW8M0G9li7mTl7Hi+pM7bQRq7dENp
+         TMQvm3T0Ovddd2RE80AA0VvBATYFJof9Bvsp/f7sLgSjh3rt1NomTwI0Q+c+lUOSVx3c
+         6yaQ==
+X-Gm-Message-State: AOAM533q0KPlkiiUeoGHY0CP6ZrukG/bePZWFmD2YBEKpZIWucyou0Ve
+        StWY92oADTsoOxhtBEu2Xgalry7wdNn6/LIz
+X-Google-Smtp-Source: ABdhPJzkshDjBTbX4MLbkxoetyVOC9ekaMIAFByA/jRdJheGkEwsMe/wAZXo2sMve3c5J2HSk5Qp4Q==
+X-Received: by 2002:a17:902:d703:b0:144:e012:d550 with SMTP id w3-20020a170902d70300b00144e012d550mr10873419ply.38.1637706526257;
+        Tue, 23 Nov 2021 14:28:46 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v10sm14010892pfu.123.2021.11.23.14.28.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Nov 2021 14:28:46 -0800 (PST)
+Message-ID: <619d6b1e.1c69fb81.a38e2.6fcb@mx.google.com>
+Date:   Tue, 23 Nov 2021 14:28:46 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.2
-Subject: Re: FAILED: patch "[PATCH] signal: Don't always set SA_IMMUTABLE for
- forced signals" failed to apply to 5.15-stable tree
-Content-Language: en-US
-To:     ebiederm@xmission.com, Thomas Backlund <tmb@iki.fi>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, keescook@chromium.org,
-        khuey@kylehuey.com, me@kylehuey.com, oliver.sang@intel.com,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-References: <163758427225348@kroah.com>
- <c83d6b54-d02f-c23b-d1cc-76c1993031d5@iki.fi> <YZ0vAK6QJJFP3jY5@kroah.com>
- <aGPtF092eTtTol3Vfasn4-kVySgX_vBRkK7e4jX97omisSwgyJR7vHltUrS1bwNE9pYuB2N2nSas1HWLQxUBNg==@protonmail.internalid>
- <877dcyllom.fsf@email.froward.int.ebiederm.org>
- <d0eca47c-73f8-3d7f-3eb8-4ee7722022f8@iki.fi>
- <zxGERJOml4ibU0qisIO6vgdvT07lGQscimGWqAgInuK30--ddobSRfYhUSr1Ez9n4Dc_SRpEKCYvA_2QAeQrKQ==@protonmail.internalid>
- <87k0gyim6z.fsf@email.froward.int.ebiederm.org>
-From:   Thomas Backlund <tmb@iki.fi>
-In-Reply-To: <87k0gyim6z.fsf@email.froward.int.ebiederm.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-ARC-Authentication-Results: i=1;
-        ORIGINATING;
-        auth=pass smtp.auth=tmb@iki.fi smtp.mailfrom=tmb@iki.fi
-ARC-Seal: i=1; s=meesny; d=iki.fi; t=1637704592; a=rsa-sha256; cv=none;
-        b=B4A+vWF0dQp4rAnx/zfnCaUkydTvRmEdKO04gONsbOe9Y1D0Nsj0Gy1g0nzgCYJLMBXZZ8
-        y2tIOdmzweE4T8o01tFGsgBcbb8SYwWXOmR39h1QODzxmiAXIZ4R81w/BqYAOE+TQ2i3eD
-        EktZcayroJXSTpV9wbt3OLaBkeXD8VE=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi;
-        s=meesny; t=1637704592;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=YvSp1quBF/r2X8h0rUNOPMDy349fc4EAE8LATnyMxIc=;
-        b=uYllrCPX1791OiQfv70+/MTez5Lq/7rOrKSmuFSplFNCZEtHUSfzj7Nzy65AYVz3FlOWD6
-        l0HYdPs+VhWeLaxTCNed4Jc2mgseYcWr1+1632G2pfQe9MBtW3ftEwYHXxyoVq7fdadNIY
-        zbOShjO35macWCfKQNs7ZDuCN+WjGXQ=
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.290-204-g0f8512aac86d
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.9 baseline: 120 runs,
+ 1 regressions (v4.9.290-204-g0f8512aac86d)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Den 2021-11-23 kl. 23:41, skrev ebiederm@xmission.com:
-> Thomas Backlund <tmb@iki.fi> writes:
->
->> Den 2021-11-23 kl. 21:24, skrev ebiederm@xmission.com:
+stable-rc/queue/4.9 baseline: 120 runs, 1 regressions (v4.9.290-204-g0f8512=
+aac86d)
 
->>> Maybe I am wrong but I think "Don't always set SA_IMMUTABLE for forced
->>> signals" will apply if you drop the hunk modifying force_fatal_sig.
->>> Then you don't need to backport all of the cleanups just the fix.
->>>
->>> I will take a quick look and verify that.
->>
->> that's why i wrote: "if the other patch for signal that has similar
->> description should land"
-> Apologies for not responding to that bit, I was reading quickly
-> and I missed that bit.
+Regressions Summary
+-------------------
+
+platform         | arch   | lab         | compiler | defconfig             =
+       | regressions
+-----------------+--------+-------------+----------+-----------------------=
+-------+------------
+qemu_x86_64-uefi | x86_64 | lab-broonie | gcc-10   | x86_64_defcon...6-chro=
+mebook | 1          =
 
 
-No worries :)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.290-204-g0f8512aac86d/plan/baseline/
 
-> The second patch does not need to land in 5.15.
->> (meaning "signal: Replace force_fatal_sig with force_exit_sig when in
->> doubt")
->>
->> as thats the one needing the whole patch series...
->>
->>
->> since going by patch descriptions for:
->>
->> "signal: Don't always set SA_IMMUTABLE for forced signals"
->>
->> "signal: Replace force_fatal_sig with force_exit_sig when in doubt"
->>
->>
->> both has the info:
->>
->> "Unfortunately this broke debuggers[1][2] which reasonably expect
->> to be able to trap synchronous SIGTRAP and SIGSEGV even when
->> the target process is not configured to handle those signals."
->>
->> and the second even has:
->> "This avoids userspace regressions as older kernels exited with do_exit
->> which debuggers also can not intercept."
->>
->>
->> or is the patch description on the second patch somewhat misleading ?
-> It is the same problem.  But it only applies to code that was merged
-> post 5.15.
->
-> For 5.15 on force_sig_seccomp is really affected.
->
-> For 5.16 there were many calls to do_exit that I turned into signals.
-> Some of the properly should be oridinary signals and some of them
-> for correctness purposes can't allow debuggers or userspace to intercept
-> them.
->
-> The second patch went through and modified everything that was
-> non-interceptible before 5.16 to be non-interceptible in 5.16.  Where
-> that is not necessary we can relax things later.
->
-> But for 5.15 only the one patch needs to be applied.
->
-> Eric
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.290-204-g0f8512aac86d
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0f8512aac86d82537a4c327c28e986c707a29413 =
 
 
-Thanks for the explanation.
 
---
-
-Thomas
+Test Regressions
+---------------- =
 
 
+
+platform         | arch   | lab         | compiler | defconfig             =
+       | regressions
+-----------------+--------+-------------+----------+-----------------------=
+-------+------------
+qemu_x86_64-uefi | x86_64 | lab-broonie | gcc-10   | x86_64_defcon...6-chro=
+mebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/619d4017fc8e71b974f2efad
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.290-2=
+04-g0f8512aac86d/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.290-2=
+04-g0f8512aac86d/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
+baseline-qemu_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/619d4017fc8e71b974f2e=
+fae
+        new failure (last pass: v4.9.290-192-ge1c5881b115f) =
+
+ =20
