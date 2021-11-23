@@ -2,111 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB8B645A39A
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 14:20:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86E7045A46F
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 15:08:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237223AbhKWNXc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 08:23:32 -0500
-Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.217]:30763 "EHLO
-        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237159AbhKWNX1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 08:23:27 -0500
-X-Greylist: delayed 365 seconds by postgrey-1.27 at vger.kernel.org; Tue, 23 Nov 2021 08:23:26 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1637673250;
-    s=strato-dkim-0002; d=gerhold.net;
-    h=In-Reply-To:References:Message-ID:Subject:Cc:To:From:Date:Cc:Date:
-    From:Subject:Sender;
-    bh=awRBfgBZ8ETDP+YqMyu0xW4JiwJasqSJ5EtHrR7j26k=;
-    b=OImAF6ntXH6JXJHOatQrHsndz12rvCa1U2PVJ0G0GK5zKjwQxFEXiCq3NRU87B0e2/
-    vLdn4O/cdJ6tDrn984NhtYNSUqPu+kxIVCUlkwN65cYz8TLzlFDA1uWwAnnGUKYoB/FE
-    08RE4flX6bQt+V2VEf9WfAc1HnVmubsB+H+p6I6J3HENakT4FU/ghc7KbKhhnE6JBPsP
-    eSf/0BySlaT7KMcUFMm3XwGH59KpZFdneNtBRSdsvaBBoTzMrpcX0W7d58wUNKdyYN9O
-    l5iyi0izXGEQ4J1kXz7o9xOJ055toBubRxyr+2dUtBbgEgyp6f9WcrW8SIDyJshGJB3K
-    DotQ==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVOQ/OcYgojyw4j34+u267FZF9PwpcNKLUrK88/6Y="
-X-RZG-CLASS-ID: mo00
-Received: from gerhold.net
-    by smtp.strato.de (RZmta 47.34.6 AUTH)
-    with ESMTPSA id x00478xANDEA9d4
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-    Tue, 23 Nov 2021 14:14:10 +0100 (CET)
-Date:   Tue, 23 Nov 2021 14:14:04 +0100
-From:   Stephan Gerhold <stephan@gerhold.net>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable-commits@vger.kernel.org, Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>, stable@vger.kernel.org
-Subject: Re: Patch "arm64: dts: qcom: msm8916: Add CPU ACC and SAW/SPM" has
- been added to the 5.15-stable tree
-Message-ID: <YZzpHOrS8IHE6mRm@gerhold.net>
-References: <20211121230414.76410-1-sashal@kernel.org>
+        id S230015AbhKWOLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 09:11:14 -0500
+Received: from mail-bn7nam10on2054.outbound.protection.outlook.com ([40.107.92.54]:43502
+        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S235451AbhKWOLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 09:11:14 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZlhcIxgHbDnDBy82Z1JEPt+8+rR6naX6zS48PpL5XZPM4td7+GLXaQCH9ObP9nGk+1o3G+kxCCy3mFSlxUTB3duR/Eszt/Fb7p5U6xoucxuHF4d2CeGcD21EQoygq3QwlvDjx31YGjQ+ZooT4PQ0/Jts7hkcRsUbbR2Zeew7wBTulTFtHJHd3ZZTvITPSgqNuQ4tfe6EK04/nUIh4hxABjPwYUB6tHycWy6YncNAN3DPqiQAe334sHSyKPoToh6QbwJpa8lsHjNiKT0NJd8r6+mu5WFROKwVoQqiCRw2g8eZFAcGOFJSKyOHsp3Ku1CKEoV5RhIqq/AI1qifhH/PzQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VtAtEDbZjKim3rmtX8lxKLp/G0Xkhs2YL+72nKHHQ/s=;
+ b=H4e05SmQ6RC7EycFQ+/xLXdv//CKVDK1IIh4f/k4U/PeWsf3KE1SGLoS+gVBF7LqqAqQN8hOiUmroxMaOxsqNHK86Y1wU2clyZFbjkGuqB2ozmUp/ErtSI1259KQO8Yz4qLDNXWIUQgxJTINDcGnkJbo1ikLwf7/jcwZ1Sbpmn+OInYaclrd0BTspUI70gsxMSOSZn6abvv4DmeP5JKSGBkwPQqbXIt/ghFRptbYqFrs/3oIxgPDA2mRdeMom3Gm9ynldDns/AigZuSfPGDy16dLAd/Xap6J11C1jaWQHeEn9ESohePG7GGcBpn+1O8p5rTGXA4uBGEp4LQjp99BbQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.36) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=nvidia.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VtAtEDbZjKim3rmtX8lxKLp/G0Xkhs2YL+72nKHHQ/s=;
+ b=jxrfvKJ2QKcETlHX9PJfvW3PAVRwhQvhcrS41ccAr5h7rxRtsYCurxk83xBjMtzMzkhh3yIFxZO40ubisZjXK8vFlGNmdEO8SbnYxcIh79ymLtUAQx/uVptBvXflPRr14mUrqE35ttcGqumbWrwd/J/WAf2LhJmD0yyNgbq5TS7Cd/4oCswH/WW0yXlmz4bvzpCtsMWzK30XeQ3mEJ8O2qZsWZCjlmn2bdQG2t6OsqtDe3UWw6DLyL/Z/KQgutWmoArfNc97gBnVh+xILux5+fKN34Jhwh41cVcZb2kAb3yVCZmUERFf58QGksA/cYKlOUNHqAGYwKvaHRY5QCcieQ==
+Received: from MWHPR18CA0044.namprd18.prod.outlook.com (2603:10b6:320:31::30)
+ by DM5PR12MB2582.namprd12.prod.outlook.com (2603:10b6:4:b5::37) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.19; Tue, 23 Nov
+ 2021 14:08:04 +0000
+Received: from CO1NAM11FT061.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:320:31:cafe::ba) by MWHPR18CA0044.outlook.office365.com
+ (2603:10b6:320:31::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.21 via Frontend
+ Transport; Tue, 23 Nov 2021 14:08:04 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.36)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.36 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.36; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.36) by
+ CO1NAM11FT061.mail.protection.outlook.com (10.13.175.200) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4713.20 via Frontend Transport; Tue, 23 Nov 2021 14:08:03 +0000
+Received: from HQMAIL109.nvidia.com (172.20.187.15) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 23 Nov
+ 2021 14:08:03 +0000
+Received: from audio.nvidia.com (172.20.187.6) by mail.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server id 15.0.1497.18 via Frontend
+ Transport; Tue, 23 Nov 2021 06:08:00 -0800
+From:   Sameer Pujar <spujar@nvidia.com>
+To:     <broonie@kernel.org>, <lgirdwood@gmail.com>, <perex@perex.cz>,
+        <tiwai@suse.com>
+CC:     <thierry.reding@gmail.com>, <jonathanh@nvidia.com>,
+        <alsa-devel@alsa-project.org>, <linux-tegra@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, Sameer Pujar <spujar@nvidia.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH 1/6] ASoC: tegra: Balance runtime PM count
+Date:   Tue, 23 Nov 2021 19:37:34 +0530
+Message-ID: <1637676459-31191-2-git-send-email-spujar@nvidia.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1637676459-31191-1-git-send-email-spujar@nvidia.com>
+References: <1637676459-31191-1-git-send-email-spujar@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211121230414.76410-1-sashal@kernel.org>
+Content-Type: text/plain
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 0805cfd1-82d4-47b9-102a-08d9ae8aaa6f
+X-MS-TrafficTypeDiagnostic: DM5PR12MB2582:
+X-Microsoft-Antispam-PRVS: <DM5PR12MB25824DC8C19D945ED7B8F0D5A7609@DM5PR12MB2582.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1775;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YJr8Ay0MD7RhMgPVCns4GXgybV9wMchGMh5Ly3k9dZG4OpNB1fxTWQ0jWfjUbudAQhVT9jpbmtP5vRlTCLkkdqY0Wm9BXaSvX1xgE5JO4nwYMfPiz4m0uaMwIqKYrHjDE/72RdwFtKjezrlzIOFsrQkIOXdVLSQOvkteQqQa3BrpP/yzvOW2Oy/ZkoGIxzvWlKQenCXBW1u6e7euW1ohceFxSDtL4g4Y0+SbgoN+8BCwCmy1ZjyqBpMKP4xnRKd8UaUz5pKtAY5ij936TnhnFYmxfOBw46B3EsmbZ70a/QCbc8fk1b6v1bvmglYvfC5XLW3KHXbBBgFGcPhjwacPI5NLKEsKu0Kift+W3fLtGCSIZdGHtnJ0SNPzEk3uPe5N9LeRPWGslde1Xm/cRLu6JR5zMZI1Ws5mUBTswD7WpGBEyA93VMVEokC1/RcokVoO+ZNLNhS4cqeR3FaQmkLmjRIhdSg9/AZ5Iu3vlrXadSXulQdggAi0oDckUJQkMRtdYS4XXiIpeEc1eRAv7zI1XRvcWOI2VfX5ZCCx0gNzHM/kAjbYgt0veRr3qcFv1EKHWVp0EGWfEiRvc07DksZQoVa/SEt7VISToIOhpJV5lBnfhdOrKOd4/xXV9k+uW7q988lCBpPkfUUsD9kgjzFAPpXm2ajcqsypGwmufl5KsbgU/RMwUHeu0tHTVLkxCRUPxVH19UB7/cnPcoCWjbw24g==
+X-Forefront-Antispam-Report: CIP:216.228.112.36;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid05.nvidia.com;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(36756003)(47076005)(54906003)(83380400001)(8936002)(82310400004)(336012)(186003)(508600001)(2616005)(7636003)(26005)(70586007)(2906002)(70206006)(86362001)(7696005)(5660300002)(356005)(4326008)(110136005)(8676002)(6666004)(316002)(36860700001)(36906005)(426003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Nov 2021 14:08:03.6221
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0805cfd1-82d4-47b9-102a-08d9ae8aaa6f
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.36];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT061.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB2582
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+After successful application of volume/mute settings via mixer control
+put calls, the control returns without balancing the runtime PM count.
+This makes device to be always runtime active. Fix this by allowing
+control to reach pm_runtime_put() call.
 
-On Sun, Nov 21, 2021 at 06:04:14PM -0500, Sasha Levin wrote:
-> This is a note to let you know that I've just added the patch titled
-> 
->     arm64: dts: qcom: msm8916: Add CPU ACC and SAW/SPM
-> 
-> to the 5.15-stable tree which can be found at:
->     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> 
-> The filename of the patch is:
->      arm64-dts-qcom-msm8916-add-cpu-acc-and-saw-spm.patch
-> and it can be found in the queue-5.15 subdirectory.
-> 
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
-> 
+Fixes: e539891f9687 ("ASoC: tegra: Add Tegra210 based MVC driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+---
+ sound/soc/tegra/tegra210_mvc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Did you forget to drop this patch? :)
+diff --git a/sound/soc/tegra/tegra210_mvc.c b/sound/soc/tegra/tegra210_mvc.c
+index ae00570..c9859e1 100644
+--- a/sound/soc/tegra/tegra210_mvc.c
++++ b/sound/soc/tegra/tegra210_mvc.c
+@@ -164,7 +164,7 @@ static int tegra210_mvc_put_mute(struct snd_kcontrol *kcontrol,
+ 	if (err < 0)
+ 		goto end;
+ 
+-	return 1;
++	err = 1;
+ 
+ end:
+ 	pm_runtime_put(cmpnt->dev);
+@@ -236,7 +236,7 @@ static int tegra210_mvc_put_vol(struct snd_kcontrol *kcontrol,
+ 			   TEGRA210_MVC_VOLUME_SWITCH_MASK,
+ 			   TEGRA210_MVC_VOLUME_SWITCH_TRIGGER);
+ 
+-	return 1;
++	err = 1;
+ 
+ end:
+ 	pm_runtime_put(cmpnt->dev);
+-- 
+2.7.4
 
-You mentioned that you did [1] (since I replied that this patch is not
-useful without other changes in 5.16), but apparently not. ;)
-
-Thanks,
-Stephan
-
-[1]: https://lore.kernel.org/stable/YY5veYUpixJn9Q92@sashalap/
-
-> 
-> commit 4b41a4624fb79b1745e888594425ec592946fb80
-> Author: Stephan Gerhold <stephan@gerhold.net>
-> Date:   Mon Oct 4 22:49:53 2021 +0200
-> 
->     arm64: dts: qcom: msm8916: Add CPU ACC and SAW/SPM
->     
->     [ Upstream commit a22f9a766e1dc61f8f6ee2edfe83d4d23d78e059 ]
->     
->     Add the device tree nodes necessary for SMP bring-up and cpuidle
->     without PSCI on ARM32. The hardware is typically controlled by the
->     PSCI implementation in the TrustZone firmware and is therefore marked
->     as status = "reserved" by default (from the device tree specification):
->     
->       "Indicates that the device is operational, but should not be used.
->        Typically this is used for devices that are controlled by another
->        software component, such as platform firmware."
->     
->     Since this is part of the MSM8916 SoC it should be added to msm8916.dtsi
->     but in practice these nodes should only get enabled via an extra include
->     on ARM32.
->     
->     This is necessary for some devices with signed firmware which is missing
->     both ARM64 and PSCI support and can therefore only boot ARM32 kernels.
->     
->     Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
->     Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
->     Link: https://lore.kernel.org/r/20211004204955.21077-13-stephan@gerhold.net
->     Signed-off-by: Sasha Levin <sashal@kernel.org>
-> 
-> ...
