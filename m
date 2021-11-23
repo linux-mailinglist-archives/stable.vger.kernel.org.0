@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0919545A108
+	by mail.lfdr.de (Postfix) with ESMTP id 9A26445A10A
 	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:10:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235937AbhKWLNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 06:13:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
+        id S235142AbhKWLNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 06:13:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234250AbhKWLNI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 06:13:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1025460F58;
-        Tue, 23 Nov 2021 11:09:59 +0000 (UTC)
+        id S234250AbhKWLNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 06:13:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA2D660F6E;
+        Tue, 23 Nov 2021 11:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637665800;
-        bh=/Bhp5SiNog3DVvFLVRJ+mzOHrAgoMit7c+TOUi/7nI4=;
+        s=korg; t=1637665806;
+        bh=pcGZYQ/xL5rksnYdzGV3aZaz45uRkby+IVIPgnpDVs4=;
         h=Subject:To:Cc:From:Date:From;
-        b=bTogs+FbiqCNJ6bMtkZbbeEBkD/qqDehYK1BUaFvfe1/1JbC9HtZGtM0zFtsZBWup
-         bxtafoRiUTQSemTPaWpjyocL0gunXdIUDyGr31dm5aPmnOQfGFnvNmi1ixNQt892Wb
-         JpEf6ZjiirrVYmh+dHvpXnbo8NInPUwJAXENDwUk=
-Subject: FAILED: patch "[PATCH] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC reg" failed to apply to 4.4-stable tree
+        b=i7MGt7pTckVf97PRYFFQLh2vqMVj1UGgIcucN32LRJ/a4oYqvw9VZchzv0BdstA1i
+         EXJEwn4iwLPQIXfJOeMy9GyjTsmyG3E5DREDk2nKQKjpJv5dUEWjgx7uS//zFY/0F8
+         HkxW1vYUbsp+C7Y4ocnKHSBAKJeNubbiXOrSh34M=
+Subject: FAILED: patch "[PATCH] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC reg" failed to apply to 4.9-stable tree
 To:     ankit.k.nautiyal@intel.com, daniel.vetter@ffwll.ch,
         jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
         paulo.r.zanoni@intel.com, rodrigo.vivi@intel.com,
@@ -28,8 +28,8 @@ To:     ankit.k.nautiyal@intel.com, daniel.vetter@ffwll.ch,
         ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Nov 2021 12:09:58 +0100
-Message-ID: <163766579847207@kroah.com>
+Date:   Tue, 23 Nov 2021 12:09:59 +0100
+Message-ID: <1637665799255226@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -38,7 +38,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
