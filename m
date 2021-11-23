@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC0645A82B
+	by mail.lfdr.de (Postfix) with ESMTP id D4EFF45A82D
 	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 17:36:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238321AbhKWQjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 11:39:55 -0500
+        id S238907AbhKWQj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 11:39:59 -0500
 Received: from mail.kernel.org ([198.145.29.99]:45032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237867AbhKWQjv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 11:39:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D033C60FA0;
-        Tue, 23 Nov 2021 16:36:41 +0000 (UTC)
+        id S236460AbhKWQjy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 11:39:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D137460F90;
+        Tue, 23 Nov 2021 16:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637685403;
-        bh=uUIkEweckbYo8Q6YoDffoleSraKp6ilZOhkzhdD8L1A=;
+        s=k20201202; t=1637685406;
+        bh=IWxmDelPs4YPNvZmtOG1vhIrWVbFQf3oIx3Nqu6GuXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OrVza2x829sm/EjdHHmq+sgP8SEbBlBlDQNJV12YMQaCArhAz3tF4cYaDLjmfysIP
-         UII/AN10+XB18JIsT2ikqIxOKguY0cg4ncledCkJwX05PjpxyteDvxnp8k5cMWuFB8
-         5hBZedNv9lJOtJqvU3gTFS3hnuq/fimlcRBCB2SiC1v24bGAFkuWir3Hl9WL3Iiurb
-         cCXJlzY/3fSzmaEoUzM6+rLtimM0j3T974DROPzsSILQGy6JzN06TponjfgwqiDalt
-         r7QDc8AN1t0jCK3ojRqr78paN2yE5GhCXVHF1DCg7uncvb05vd7VU3B2/uF2sNnDV+
-         MOuUTiLZaTIuA==
+        b=l/EckTg233z04ojddeSp3epUda7ke6Wr9eobscXu2UvDKzpOr7HvM7Otmnam4uOqx
+         oJ3k/K0UAGbhS1hqtEWMGpOdxHENgG/edKx79beoLHBynv1Jf3VqHFHbxUYCHO/Ny0
+         N6lg4o7ezJe6m8LGyoipRkO4dS6ojMy+2vPFCi6QeiCA7AECTQO9skJf7YfKsnxH2E
+         GlHQMecZfId/OYrbMpaGgRCd+PVdxhsDQUwvq0vSnxxqp4+iwkdVta7ewdhL1S7Pxe
+         NVDDyhJPPZlSkK/8gg6wfR6QZbgcngkRm2FRDh4SVZxj5JG4L1rT8W+l5M5AtmTRVN
+         UVAwlh67zqgVA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, frankja@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.15 5/8] KVM: s390: Cap KVM_CAP_NR_VCPUS by num_online_cpus()
-Date:   Tue, 23 Nov 2021 11:36:27 -0500
-Message-Id: <20211123163630.289306-5-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, mpe@ellerman.id.au,
+        paulus@ozlabs.org, jgross@suse.com, bharata@linux.ibm.com,
+        ravi.bangoria@linux.ibm.com, clg@kaod.org, npiggin@gmail.com,
+        ndesaulniers@google.com, christophe.leroy@csgroup.eu,
+        farosas@linux.ibm.com, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH MANUALSEL 5.15 6/8] KVM: PPC: Cap KVM_CAP_NR_VCPUS by KVM_CAP_MAX_VCPUS
+Date:   Tue, 23 Nov 2021 11:36:28 -0500
+Message-Id: <20211123163630.289306-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211123163630.289306-1-sashal@kernel.org>
 References: <20211123163630.289306-1-sashal@kernel.org>
@@ -48,37 +48,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 82cc27eff4486f8e79ef8faac1af1f5573039aa4 ]
+[ Upstream commit b7915d55b1ac0e68a7586697fa2d06c018135c49 ]
 
-KVM_CAP_NR_VCPUS is a legacy advisory value which on other architectures
-return num_online_cpus() caped by KVM_CAP_NR_VCPUS or something else
-(ppc and arm64 are special cases). On s390, KVM_CAP_NR_VCPUS returns
-the same as KVM_CAP_MAX_VCPUS and this may turn out to be a bad
-'advice'. Switch s390 to returning caped num_online_cpus() too.
+It doesn't make sense to return the recommended maximum number of
+vCPUs which exceeds the maximum possible number of vCPUs.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Message-Id: <20211116163443.88707-6-vkuznets@redhat.com>
+Message-Id: <20211116163443.88707-4-vkuznets@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/kvm-s390.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/kvm/powerpc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 1c97493d21e10..31bf4bc5a23d7 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -585,6 +585,8 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 			r = KVM_MAX_VCPUS;
- 		else if (sclp.has_esca && sclp.has_64bscao)
- 			r = KVM_S390_ESCA_CPU_SLOTS;
-+		if (ext == KVM_CAP_NR_VCPUS)
-+			r = min_t(unsigned int, num_online_cpus(), r);
+diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
+index b4e6f70b97b94..8334563a46236 100644
+--- a/arch/powerpc/kvm/powerpc.c
++++ b/arch/powerpc/kvm/powerpc.c
+@@ -641,9 +641,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 		 * implementations just count online CPUs.
+ 		 */
+ 		if (hv_enabled)
+-			r = num_present_cpus();
++			r = min_t(unsigned int, num_present_cpus(), KVM_MAX_VCPUS);
+ 		else
+-			r = num_online_cpus();
++			r = min_t(unsigned int, num_online_cpus(), KVM_MAX_VCPUS);
  		break;
- 	case KVM_CAP_S390_COW:
- 		r = MACHINE_HAS_ESOP;
+ 	case KVM_CAP_MAX_VCPUS:
+ 		r = KVM_MAX_VCPUS;
 -- 
 2.33.0
 
