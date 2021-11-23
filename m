@@ -2,137 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E8EA459FE2
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 11:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E3E45A02E
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 11:27:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235355AbhKWKSx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 05:18:53 -0500
-Received: from mga02.intel.com ([134.134.136.20]:51066 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235337AbhKWKSx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 05:18:53 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10176"; a="222217864"
-X-IronPort-AV: E=Sophos;i="5.87,257,1631602800"; 
-   d="scan'208";a="222217864"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Nov 2021 02:15:45 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,257,1631602800"; 
-   d="scan'208";a="590374148"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.199])
-  by FMSMGA003.fm.intel.com with ESMTP; 23 Nov 2021 02:15:42 -0800
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     <gregkh@linuxfoundation.org>
-Cc:     m.szyprowski@samsung.com, <stern@rowland.harvard.edu>,
-        kishon@ti.com, hdegoede@redhat.com, chris.chiu@canonical.com,
-        linux-usb@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        id S229847AbhKWKat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 05:30:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34668 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235161AbhKWKat (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 05:30:49 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DFDDC061574
+        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 02:27:41 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id x6so77845033edr.5
+        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 02:27:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qlMWALK/MdlntNRPXPOBXX8+k0slz9MlWLCqALsY7yo=;
+        b=GmTklnmE+vKS5ULB1hlSa7DUSXEqWpnxcsvAFkdJo9LssELUpfQAUR/lwvkem5uAYG
+         Lfhj8EBad1k1QwR2Xxqe1kmwijVzRmhrp32ihM11b2QiQKoWKfqE6yaIWU44S/eo4qDZ
+         EuI9KzTdJPZxdLgghL/jGrvgR4xBviANxeAujfw24MvI6mSw4tEQkACnr7XO3m/yVSVi
+         bwEPzx3hbTVIvbajG8KehnMk41Akgy72TAdR3OlIrUVZRaDUVglexQ43x54qGqo3LHY5
+         ult/HfLURnFJHWwdTCbSjlJC5ej3B9a7LIst6/VsgRlAWsOuKkrTIWueHt2R9v9iNQ4C
+         tuKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qlMWALK/MdlntNRPXPOBXX8+k0slz9MlWLCqALsY7yo=;
+        b=Czh2jAEeFWwgCgCvm9cpYTn3wkhBdku42SmaI/UntEVrNEBUzWnlx+OE4crp5l7b5U
+         vyx7ClL83bWe7a0Rostkex7vGY05cUbkW/+1fMfgL2gQxfRv8dqauFeBq/ufrSjiS2pP
+         PGZXkdWJmtqsl9KEaX4j5VsBH6lkx5xSwV4sVyx9AIiY0ss1rRa+FmLL89d2kmFfxbMd
+         oZok5D+86SbFWPwoYVZ5U+xTgsG1f0r9hZKr5fNKy4/WK24QSnFbbavCWrZNTtAoih/k
+         AWMWLfaMBziJP4ua91Ieuk5a8OBBGUjz/EjLuyvCYV/QSQ5RNhdi9tJxTOeE+63vMTva
+         fUpQ==
+X-Gm-Message-State: AOAM533pZ/ALv1FDwDfNYGnsOdCWRk+fqg/q/FX6mK5tI/87NNTU6WZP
+        AvGyAhxqa/gkOQAMp+ZdnxArx0w4mLKSCDAM
+X-Google-Smtp-Source: ABdhPJzGadwPCnUmF9JAh8axAngqDkkZCsm84mLRcYQXx8SbUppd0vRWt39pGo0s6CTCwfNGckD/oA==
+X-Received: by 2002:a50:f68c:: with SMTP id d12mr7227366edn.307.1637663259834;
+        Tue, 23 Nov 2021 02:27:39 -0800 (PST)
+Received: from debil.vdiclient.nvidia.com (84-238-136-197.ip.btc-net.bg. [84.238.136.197])
+        by smtp.gmail.com with ESMTPSA id w5sm5934450edc.58.2021.11.23.02.27.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Nov 2021 02:27:39 -0800 (PST)
+From:   Nikolay Aleksandrov <razor@blackwall.org>
+To:     netdev@vger.kernel.org
+Cc:     idosch@idosch.org, davem@davemloft.net, kuba@kernel.org,
+        dsahern@gmail.com, Nikolay Aleksandrov <nikolay@nvidia.com>,
         stable@vger.kernel.org
-Subject: [PATCH] usb: hub: Fix locking issues with address0_mutex
-Date:   Tue, 23 Nov 2021 12:16:56 +0200
-Message-Id: <20211123101656.1113518-1-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+Subject: [PATCH net] net: nexthop: fix null pointer dereference when IPv6 is not enabled
+Date:   Tue, 23 Nov 2021 12:27:19 +0200
+Message-Id: <20211123102719.3085670-1-razor@blackwall.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix the circular lock dependency and unbalanced unlock of addess0_mutex
-introduced when fixing an address0_mutex enumeration retry race in commit
-ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Make sure locking order between port_dev->status_lock and address0_mutex
-is correct, and that address0_mutex is not unlocked in hub_port_connect
-"done:" codepath which may be reached without locking address0_mutex
+When we try to add an IPv6 nexthop and IPv6 is not enabled
+(!CONFIG_IPV6) we'll hit a NULL pointer dereference[1] in the error path
+of nh_create_ipv6() due to calling ipv6_stub->fib6_nh_release. The bug
+has been present since the beginning of IPv6 nexthop gateway support.
+Commit 1aefd3de7bc6 ("ipv6: Add fib6_nh_init and release to stubs") tells
+us that only fib6_nh_init has a dummy stub because fib6_nh_release should
+not be called if fib6_nh_init returns an error, but the commit below added
+a call to ipv6_stub->fib6_nh_release in its error path. To fix it return
+the dummy stub's -EAFNOSUPPORT error directly without calling
+ipv6_stub->fib6_nh_release in nh_create_ipv6()'s error path.
 
-Fixes: 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
-Cc: <stable@vger.kernel.org>
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+[1]
+ Output is a bit truncated, but it clearly shows the error.
+ BUG: kernel NULL pointer dereference, address: 000000000000000000
+ #PF: supervisor instruction fetch in kernel modede
+ #PF: error_code(0x0010) - not-present pagege
+ PGD 0 P4D 0
+ Oops: 0010 [#1] PREEMPT SMP NOPTI
+ CPU: 4 PID: 638 Comm: ip Kdump: loaded Not tainted 5.16.0-rc1+ #446
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
+ RIP: 0010:0x0
+ Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+ RSP: 0018:ffff888109f5b8f0 EFLAGS: 00010286^Ac
+ RAX: 0000000000000000 RBX: ffff888109f5ba28 RCX: 0000000000000000
+ RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff8881008a2860
+ RBP: ffff888109f5b9d8 R08: 0000000000000000 R09: 0000000000000000
+ R10: ffff888109f5b978 R11: ffff888109f5b948 R12: 00000000ffffff9f
+ R13: ffff8881008a2a80 R14: ffff8881008a2860 R15: ffff8881008a2840
+ FS:  00007f98de70f100(0000) GS:ffff88822bf00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: ffffffffffffffd6 CR3: 0000000100efc000 CR4: 00000000000006e0
+ Call Trace:
+  <TASK>
+  nh_create_ipv6+0xed/0x10c
+  rtm_new_nexthop+0x6d7/0x13f3
+  ? check_preemption_disabled+0x3d/0xf2
+  ? lock_is_held_type+0xbe/0xfd
+  rtnetlink_rcv_msg+0x23f/0x26a
+  ? check_preemption_disabled+0x3d/0xf2
+  ? rtnl_calcit.isra.0+0x147/0x147
+  netlink_rcv_skb+0x61/0xb2
+  netlink_unicast+0x100/0x187
+  netlink_sendmsg+0x37f/0x3a0
+  ? netlink_unicast+0x187/0x187
+  sock_sendmsg_nosec+0x67/0x9b
+  ____sys_sendmsg+0x19d/0x1f9
+  ? copy_msghdr_from_user+0x4c/0x5e
+  ? rcu_read_lock_any_held+0x2a/0x78
+  ___sys_sendmsg+0x6c/0x8c
+  ? asm_sysvec_apic_timer_interrupt+0x12/0x20
+  ? lockdep_hardirqs_on+0xd9/0x102
+  ? sockfd_lookup_light+0x69/0x99
+  __sys_sendmsg+0x50/0x6e
+  do_syscall_64+0xcb/0xf2
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f98dea28914
+ Code: 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b5 0f 1f 80 00 00 00 00 48 8d 05 e9 5d 0c 00 8b 00 85 c0 75 13 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 54 c3 0f 1f 00 41 54 41 89 d4 55 48 89 f5 53
+ RSP: 002b:00007fff859f5e68 EFLAGS: 00000246 ORIG_RAX: 000000000000002e2e
+ RAX: ffffffffffffffda RBX: 00000000619cb810 RCX: 00007f98dea28914
+ RDX: 0000000000000000 RSI: 00007fff859f5ed0 RDI: 0000000000000003
+ RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000008
+ R10: fffffffffffffce6 R11: 0000000000000246 R12: 0000000000000001
+ R13: 000055c0097ae520 R14: 000055c0097957fd R15: 00007fff859f63a0
+ </TASK>
+ Modules linked in: bridge stp llc bonding virtio_net
+
+Cc: stable@vger.kernel.org
+Fixes: 53010f991a9f ("nexthop: Add support for IPv6 gateways")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 ---
- drivers/usb/core/hub.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+I found this while testing my recent nexthop fixes, alternatively we can
+add a fib6_nh_release dummy stub. I don't have strong preference so if
+anyone prefers it just let me know. This fix is smaller for backports,
+that's why I went with it.
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 9f0d1af8be6f..e907dfa0ca6d 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -5190,6 +5190,7 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 	struct usb_port *port_dev = hub->ports[port1 - 1];
- 	struct usb_device *udev = port_dev->child;
- 	static int unreliable_port = -1;
-+	bool retry_locked;
- 
- 	/* Disconnect any existing devices under this port */
- 	if (udev) {
-@@ -5246,10 +5247,10 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 
- 	status = 0;
- 
--	mutex_lock(hcd->address0_mutex);
+ net/ipv4/nexthop.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
+index a69a9e76f99f..5dbd4b5505eb 100644
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -2565,11 +2565,15 @@ static int nh_create_ipv6(struct net *net,  struct nexthop *nh,
+ 	/* sets nh_dev if successful */
+ 	err = ipv6_stub->fib6_nh_init(net, fib6_nh, &fib6_cfg, GFP_KERNEL,
+ 				      extack);
+-	if (err)
++	if (err) {
++		/* IPv6 is not enabled, don't call fib6_nh_release */
++		if (err == -EAFNOSUPPORT)
++			goto out;
+ 		ipv6_stub->fib6_nh_release(fib6_nh);
+-	else
++	} else {
+ 		nh->nh_flags = fib6_nh->fib_nh_flags;
 -
- 	for (i = 0; i < PORT_INIT_TRIES; i++) {
--
-+		usb_lock_port(port_dev);
-+		mutex_lock(hcd->address0_mutex);
-+		retry_locked = true;
- 		/* reallocate for each attempt, since references
- 		 * to the previous one can escape in various ways
- 		 */
-@@ -5257,6 +5258,8 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 		if (!udev) {
- 			dev_err(&port_dev->dev,
- 					"couldn't allocate usb_device\n");
-+			mutex_unlock(hcd->address0_mutex);
-+			usb_unlock_port(port_dev);
- 			goto done;
- 		}
++	}
++out:
+ 	return err;
+ }
  
-@@ -5278,13 +5281,13 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 		}
- 
- 		/* reset (non-USB 3.0 devices) and get descriptor */
--		usb_lock_port(port_dev);
- 		status = hub_port_init(hub, udev, port1, i);
--		usb_unlock_port(port_dev);
- 		if (status < 0)
- 			goto loop;
- 
- 		mutex_unlock(hcd->address0_mutex);
-+		usb_unlock_port(port_dev);
-+		retry_locked = false;
- 
- 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
- 			msleep(2000);
-@@ -5374,11 +5377,14 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 
- loop_disable:
- 		hub_port_disable(hub, port1, 1);
--		mutex_lock(hcd->address0_mutex);
- loop:
- 		usb_ep0_reinit(udev);
- 		release_devnum(udev);
- 		hub_free_dev(udev);
-+		if (retry_locked) {
-+			mutex_unlock(hcd->address0_mutex);
-+			usb_unlock_port(port_dev);
-+		}
- 		usb_put_dev(udev);
- 		if ((status == -ENOTCONN) || (status == -ENOTSUPP))
- 			break;
-@@ -5401,8 +5407,6 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 	}
- 
- done:
--	mutex_unlock(hcd->address0_mutex);
--
- 	hub_port_disable(hub, port1, 1);
- 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
- 		if (status != -ENOTCONN && status != -ENODEV)
 -- 
-2.25.1
+2.31.1
 
