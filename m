@@ -2,159 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ADBB45A375
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 14:08:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB8B645A39A
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 14:20:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234816AbhKWNLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 08:11:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48992 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234386AbhKWNLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 08:11:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E0C060FDA;
-        Tue, 23 Nov 2021 13:08:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637672916;
-        bh=gAT+EF3RCUr32hdp8c3qldoNq44P6ylVvxEfju4XLxQ=;
-        h=Subject:To:From:Date:From;
-        b=Aai6WHEz0MuY1QYkv0BZDRDGOFvC9D+5J6gp9fGQOs/aq5ZlIu49HxssPkLeXCv2Z
-         /asvO8ybIA4fMvTWDe4/ZBCW2JguWNVHD2cLQl9cLncw/ut+jmgkO/bv+aPNnjyS/F
-         3GkUKdISLsVB/65AR3Q08NPAuB3i5UbHmjsthVz4=
-Subject: patch "usb: hub: Fix locking issues with address0_mutex" added to usb-linus
-To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
-        hdegoede@redhat.com, m.szyprowski@samsung.com,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Nov 2021 14:08:34 +0100
-Message-ID: <163767291472107@kroah.com>
+        id S237223AbhKWNXc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 08:23:32 -0500
+Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.217]:30763 "EHLO
+        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237159AbhKWNX1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 08:23:27 -0500
+X-Greylist: delayed 365 seconds by postgrey-1.27 at vger.kernel.org; Tue, 23 Nov 2021 08:23:26 EST
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1637673250;
+    s=strato-dkim-0002; d=gerhold.net;
+    h=In-Reply-To:References:Message-ID:Subject:Cc:To:From:Date:Cc:Date:
+    From:Subject:Sender;
+    bh=awRBfgBZ8ETDP+YqMyu0xW4JiwJasqSJ5EtHrR7j26k=;
+    b=OImAF6ntXH6JXJHOatQrHsndz12rvCa1U2PVJ0G0GK5zKjwQxFEXiCq3NRU87B0e2/
+    vLdn4O/cdJ6tDrn984NhtYNSUqPu+kxIVCUlkwN65cYz8TLzlFDA1uWwAnnGUKYoB/FE
+    08RE4flX6bQt+V2VEf9WfAc1HnVmubsB+H+p6I6J3HENakT4FU/ghc7KbKhhnE6JBPsP
+    eSf/0BySlaT7KMcUFMm3XwGH59KpZFdneNtBRSdsvaBBoTzMrpcX0W7d58wUNKdyYN9O
+    l5iyi0izXGEQ4J1kXz7o9xOJ055toBubRxyr+2dUtBbgEgyp6f9WcrW8SIDyJshGJB3K
+    DotQ==
+Authentication-Results: strato.com;
+    dkim=none
+X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVOQ/OcYgojyw4j34+u267FZF9PwpcNKLUrK88/6Y="
+X-RZG-CLASS-ID: mo00
+Received: from gerhold.net
+    by smtp.strato.de (RZmta 47.34.6 AUTH)
+    with ESMTPSA id x00478xANDEA9d4
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+    Tue, 23 Nov 2021 14:14:10 +0100 (CET)
+Date:   Tue, 23 Nov 2021 14:14:04 +0100
+From:   Stephan Gerhold <stephan@gerhold.net>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable-commits@vger.kernel.org, Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>, stable@vger.kernel.org
+Subject: Re: Patch "arm64: dts: qcom: msm8916: Add CPU ACC and SAW/SPM" has
+ been added to the 5.15-stable tree
+Message-ID: <YZzpHOrS8IHE6mRm@gerhold.net>
+References: <20211121230414.76410-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211121230414.76410-1-sashal@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Sasha,
 
-This is a note to let you know that I've just added the patch titled
+On Sun, Nov 21, 2021 at 06:04:14PM -0500, Sasha Levin wrote:
+> This is a note to let you know that I've just added the patch titled
+> 
+>     arm64: dts: qcom: msm8916: Add CPU ACC and SAW/SPM
+> 
+> to the 5.15-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> 
+> The filename of the patch is:
+>      arm64-dts-qcom-msm8916-add-cpu-acc-and-saw-spm.patch
+> and it can be found in the queue-5.15 subdirectory.
+> 
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
+> 
 
-    usb: hub: Fix locking issues with address0_mutex
+Did you forget to drop this patch? :)
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+You mentioned that you did [1] (since I replied that this patch is not
+useful without other changes in 5.16), but apparently not. ;)
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Thanks,
+Stephan
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+[1]: https://lore.kernel.org/stable/YY5veYUpixJn9Q92@sashalap/
 
-If you have any questions about this process, please let me know.
-
-
-From 6cca13de26eea6d32a98d96d916a048d16a12822 Mon Sep 17 00:00:00 2001
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Tue, 23 Nov 2021 12:16:56 +0200
-Subject: usb: hub: Fix locking issues with address0_mutex
-
-Fix the circular lock dependency and unbalanced unlock of addess0_mutex
-introduced when fixing an address0_mutex enumeration retry race in commit
-ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
-
-Make sure locking order between port_dev->status_lock and address0_mutex
-is correct, and that address0_mutex is not unlocked in hub_port_connect
-"done:" codepath which may be reached without locking address0_mutex
-
-Fixes: 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
-Cc: <stable@vger.kernel.org>
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211123101656.1113518-1-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/core/hub.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 00c3506324e4..00070a8a6507 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -5188,6 +5188,7 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 	struct usb_port *port_dev = hub->ports[port1 - 1];
- 	struct usb_device *udev = port_dev->child;
- 	static int unreliable_port = -1;
-+	bool retry_locked;
- 
- 	/* Disconnect any existing devices under this port */
- 	if (udev) {
-@@ -5244,10 +5245,10 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 
- 	status = 0;
- 
--	mutex_lock(hcd->address0_mutex);
--
- 	for (i = 0; i < PORT_INIT_TRIES; i++) {
--
-+		usb_lock_port(port_dev);
-+		mutex_lock(hcd->address0_mutex);
-+		retry_locked = true;
- 		/* reallocate for each attempt, since references
- 		 * to the previous one can escape in various ways
- 		 */
-@@ -5255,6 +5256,8 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 		if (!udev) {
- 			dev_err(&port_dev->dev,
- 					"couldn't allocate usb_device\n");
-+			mutex_unlock(hcd->address0_mutex);
-+			usb_unlock_port(port_dev);
- 			goto done;
- 		}
- 
-@@ -5276,13 +5279,13 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 		}
- 
- 		/* reset (non-USB 3.0 devices) and get descriptor */
--		usb_lock_port(port_dev);
- 		status = hub_port_init(hub, udev, port1, i);
--		usb_unlock_port(port_dev);
- 		if (status < 0)
- 			goto loop;
- 
- 		mutex_unlock(hcd->address0_mutex);
-+		usb_unlock_port(port_dev);
-+		retry_locked = false;
- 
- 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
- 			msleep(2000);
-@@ -5372,11 +5375,14 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 
- loop_disable:
- 		hub_port_disable(hub, port1, 1);
--		mutex_lock(hcd->address0_mutex);
- loop:
- 		usb_ep0_reinit(udev);
- 		release_devnum(udev);
- 		hub_free_dev(udev);
-+		if (retry_locked) {
-+			mutex_unlock(hcd->address0_mutex);
-+			usb_unlock_port(port_dev);
-+		}
- 		usb_put_dev(udev);
- 		if ((status == -ENOTCONN) || (status == -ENOTSUPP))
- 			break;
-@@ -5399,8 +5405,6 @@ static void hub_port_connect(struct usb_hub *hub, int port1, u16 portstatus,
- 	}
- 
- done:
--	mutex_unlock(hcd->address0_mutex);
--
- 	hub_port_disable(hub, port1, 1);
- 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
- 		if (status != -ENOTCONN && status != -ENODEV)
--- 
-2.34.0
-
-
+> 
+> commit 4b41a4624fb79b1745e888594425ec592946fb80
+> Author: Stephan Gerhold <stephan@gerhold.net>
+> Date:   Mon Oct 4 22:49:53 2021 +0200
+> 
+>     arm64: dts: qcom: msm8916: Add CPU ACC and SAW/SPM
+>     
+>     [ Upstream commit a22f9a766e1dc61f8f6ee2edfe83d4d23d78e059 ]
+>     
+>     Add the device tree nodes necessary for SMP bring-up and cpuidle
+>     without PSCI on ARM32. The hardware is typically controlled by the
+>     PSCI implementation in the TrustZone firmware and is therefore marked
+>     as status = "reserved" by default (from the device tree specification):
+>     
+>       "Indicates that the device is operational, but should not be used.
+>        Typically this is used for devices that are controlled by another
+>        software component, such as platform firmware."
+>     
+>     Since this is part of the MSM8916 SoC it should be added to msm8916.dtsi
+>     but in practice these nodes should only get enabled via an extra include
+>     on ARM32.
+>     
+>     This is necessary for some devices with signed firmware which is missing
+>     both ARM64 and PSCI support and can therefore only boot ARM32 kernels.
+>     
+>     Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+>     Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+>     Link: https://lore.kernel.org/r/20211004204955.21077-13-stephan@gerhold.net
+>     Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> ...
