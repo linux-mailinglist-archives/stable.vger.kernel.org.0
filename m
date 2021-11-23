@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A317745A823
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 17:36:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FC0645A82B
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 17:36:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237684AbhKWQjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 11:39:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44996 "EHLO mail.kernel.org"
+        id S238321AbhKWQjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 11:39:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235635AbhKWQjt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 11:39:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D38B60F5B;
-        Tue, 23 Nov 2021 16:36:40 +0000 (UTC)
+        id S237867AbhKWQjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 11:39:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D033C60FA0;
+        Tue, 23 Nov 2021 16:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637685401;
-        bh=t4/zS9EALiqTaAb4F8IW40rN8Jv7H6eywALNBHC7/6Y=;
+        s=k20201202; t=1637685403;
+        bh=uUIkEweckbYo8Q6YoDffoleSraKp6ilZOhkzhdD8L1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KBuTLo+EatmicXAx6awZLzALtBBi/q7d3pGaRtdL5qfleYV/ag/7lZJLNHtViAQos
-         4RVyxwGibvToE6wkDCpLyvj/iFEOn+j7bClhqErlHH1QwrK7Yi0pqqkWUHULCSueUu
-         6MaYg68xXsJMMuKExyyNvUFXUgi1FJAmXoLC5HbUhqHFquqVHN1nSwdJzXmBjMhlDe
-         C34i4Xg1LZXlOSnzm+HSIUtgsMcrwQDYKCs8xyCWP/FAUnvpXTC4GYF7eo7EA/5ib/
-         N8gzGzf/yFTW3jKaZXjmJxbl5x0eT2auSvoxItuYCJ2ppY79F7ORz1RFeQehGvEIqi
-         w5yIHX8JEyJOQ==
+        b=OrVza2x829sm/EjdHHmq+sgP8SEbBlBlDQNJV12YMQaCArhAz3tF4cYaDLjmfysIP
+         UII/AN10+XB18JIsT2ikqIxOKguY0cg4ncledCkJwX05PjpxyteDvxnp8k5cMWuFB8
+         5hBZedNv9lJOtJqvU3gTFS3hnuq/fimlcRBCB2SiC1v24bGAFkuWir3Hl9WL3Iiurb
+         cCXJlzY/3fSzmaEoUzM6+rLtimM0j3T974DROPzsSILQGy6JzN06TponjfgwqiDalt
+         r7QDc8AN1t0jCK3ojRqr78paN2yE5GhCXVHF1DCg7uncvb05vd7VU3B2/uF2sNnDV+
+         MOuUTiLZaTIuA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Huth <thuth@redhat.com>,
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        kvm@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.15 4/8] KVM: selftests: Fix kvm_vm_free() in cr4_cpuid_sync and vmx_tsc_adjust tests
-Date:   Tue, 23 Nov 2021 11:36:26 -0500
-Message-Id: <20211123163630.289306-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, frankja@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH MANUALSEL 5.15 5/8] KVM: s390: Cap KVM_CAP_NR_VCPUS by num_online_cpus()
+Date:   Tue, 23 Nov 2021 11:36:27 -0500
+Message-Id: <20211123163630.289306-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211123163630.289306-1-sashal@kernel.org>
 References: <20211123163630.289306-1-sashal@kernel.org>
@@ -43,51 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Huth <thuth@redhat.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 22d7108ce47290d47e1ea83a28fbfc85e0ecf97e ]
+[ Upstream commit 82cc27eff4486f8e79ef8faac1af1f5573039aa4 ]
 
-The kvm_vm_free() statement here is currently dead code, since the loop
-in front of it can only be left with the "goto done" that jumps right
-after the kvm_vm_free(). Fix it by swapping the locations of the "done"
-label and the kvm_vm_free().
+KVM_CAP_NR_VCPUS is a legacy advisory value which on other architectures
+return num_online_cpus() caped by KVM_CAP_NR_VCPUS or something else
+(ppc and arm64 are special cases). On s390, KVM_CAP_NR_VCPUS returns
+the same as KVM_CAP_MAX_VCPUS and this may turn out to be a bad
+'advice'. Switch s390 to returning caped num_online_cpus() too.
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
-Message-Id: <20210826074928.240942-1-thuth@redhat.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Message-Id: <20211116163443.88707-6-vkuznets@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/x86_64/cr4_cpuid_sync_test.c | 3 +--
- tools/testing/selftests/kvm/x86_64/vmx_tsc_adjust_test.c | 2 +-
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/kvm/x86_64/cr4_cpuid_sync_test.c b/tools/testing/selftests/kvm/x86_64/cr4_cpuid_sync_test.c
-index f40fd097cb359..6f6fd189dda3f 100644
---- a/tools/testing/selftests/kvm/x86_64/cr4_cpuid_sync_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/cr4_cpuid_sync_test.c
-@@ -109,8 +109,7 @@ int main(int argc, char *argv[])
- 		}
- 	}
- 
--	kvm_vm_free(vm);
--
- done:
-+	kvm_vm_free(vm);
- 	return 0;
- }
-diff --git a/tools/testing/selftests/kvm/x86_64/vmx_tsc_adjust_test.c b/tools/testing/selftests/kvm/x86_64/vmx_tsc_adjust_test.c
-index 7e33a350b053a..e683d0ac3e45e 100644
---- a/tools/testing/selftests/kvm/x86_64/vmx_tsc_adjust_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/vmx_tsc_adjust_test.c
-@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
- 		}
- 	}
- 
--	kvm_vm_free(vm);
- done:
-+	kvm_vm_free(vm);
- 	return 0;
- }
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 1c97493d21e10..31bf4bc5a23d7 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -585,6 +585,8 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 			r = KVM_MAX_VCPUS;
+ 		else if (sclp.has_esca && sclp.has_64bscao)
+ 			r = KVM_S390_ESCA_CPU_SLOTS;
++		if (ext == KVM_CAP_NR_VCPUS)
++			r = min_t(unsigned int, num_online_cpus(), r);
+ 		break;
+ 	case KVM_CAP_S390_COW:
+ 		r = MACHINE_HAS_ESOP;
 -- 
 2.33.0
 
