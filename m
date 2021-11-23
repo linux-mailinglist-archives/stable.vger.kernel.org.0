@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67FCC45A875
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 17:38:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52E5845A877
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 17:38:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238323AbhKWQl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 11:41:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45624 "EHLO mail.kernel.org"
+        id S239335AbhKWQlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 11:41:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239185AbhKWQks (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 11:40:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74B5D60FD7;
-        Tue, 23 Nov 2021 16:37:38 +0000 (UTC)
+        id S239410AbhKWQkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 11:40:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 886F960FD9;
+        Tue, 23 Nov 2021 16:37:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637685459;
-        bh=w3cT2oslgU+kwGW3oLI24vq8edURSGT6hX1m6elGhAg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VfAy9L5oVvTm8JQGTmTqJ6J31Ub+ywd/NOaIXP48DRCpVYohokdWreaet+hYwWOj8
-         VCgrtCxLJwNnuUu/jfiosgA9F3CnIE9GmKFG6DDZh7oerrd+h7VeEYlmoLYFJeUCrz
-         nYn1bZiDRHI6pdO1Z5VApQf/X4PliInqTWsNIdf8VZFSMvbxuxH7iBegFD9qJ9OUQm
-         5loyjIlsz5WuAGOwWTReXKwS8AcfdE/ZidP7Z0mmta3jLSWx2oK12nOllnx8m3SkYr
-         S8y737d4+r49jrgea/+UuxW7KomRGj32sE4Hu4yVRavEqcyLv3uy27LQy5CU8hZn5r
-         s7hkzKslwNcVQ==
+        s=k20201202; t=1637685465;
+        bh=x12KwXeaswcwwB/jKfFK1MB0NKmwL9y5uBux9iiPvlc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=FtA9WJ/QsqrLB5rqp+I3pC2o6Ii1HD0w7j+dLmLX9b5ZG/MdEb0chUfgBoXj5CrWh
+         Z6Z9qYTiVqvO7nPyksNt6PJ0uh+gKLj8BsmlTnJUDvXt6WkpKLSnBB41a9PxldY1wq
+         8Vx24HnirMkR05cRiiMaKSZTwI6Eg7rfnHxzTfMDRN3O+KPMFE+vcqjOzM7Kdq/vsq
+         oWQQwi0lQ6CcQ1yPKPvXwoxM0lID6o/UbDds9B6yYopZl1Qw9A0P3ksOwjLfAoyhMP
+         FiE9bHi3Y0dr1OlcVgEJUMP6fDpqOJLD9k74Xyy5c4Skn2nUwbz/OmSiY9xE9ZpabC
+         OZS3I+nfczzOw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>, mpe@ellerman.id.au,
-        paulus@ozlabs.org, christophe.leroy@csgroup.eu,
-        farosas@linux.ibm.com, bharata@linux.ibm.com, jgross@suse.com,
-        clg@kaod.org, ravi.bangoria@linux.ibm.com, npiggin@gmail.com,
-        ndesaulniers@google.com, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH MANUALSEL 4.9 2/2] KVM: PPC: Cap KVM_CAP_NR_VCPUS by KVM_CAP_MAX_VCPUS
-Date:   Tue, 23 Nov 2021 11:37:33 -0500
-Message-Id: <20211123163733.289925-2-sashal@kernel.org>
+        paulus@ozlabs.org, david@gibson.dropbear.id.au,
+        bharata@linux.ibm.com, clg@kaod.org, farosas@linux.ibm.com,
+        jgross@suse.com, ndesaulniers@google.com,
+        ravi.bangoria@linux.ibm.com, christophe.leroy@csgroup.eu,
+        npiggin@gmail.com, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH MANUALSEL 4.4] KVM: PPC: Cap KVM_CAP_NR_VCPUS by KVM_CAP_MAX_VCPUS
+Date:   Tue, 23 Nov 2021 11:37:40 -0500
+Message-Id: <20211123163742.290040-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211123163733.289925-1-sashal@kernel.org>
-References: <20211123163733.289925-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -62,10 +61,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
-index fc0df0f6fe881..596c7612bbbff 100644
+index a3b182dcb8236..823ca801b0507 100644
 --- a/arch/powerpc/kvm/powerpc.c
 +++ b/arch/powerpc/kvm/powerpc.c
-@@ -582,9 +582,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+@@ -555,9 +555,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
  		 * implementations just count online CPUs.
  		 */
  		if (hv_enabled)
