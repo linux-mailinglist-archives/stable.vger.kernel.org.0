@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 206D945A213
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:56:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50EB745A21C
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 13:00:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236721AbhKWL7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 06:59:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42544 "EHLO mail.kernel.org"
+        id S230236AbhKWMDg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 07:03:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234881AbhKWL7r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 06:59:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 690FA60F42;
-        Tue, 23 Nov 2021 11:56:39 +0000 (UTC)
+        id S232056AbhKWMDe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 07:03:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C469160F26;
+        Tue, 23 Nov 2021 12:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637668599;
-        bh=iLBhKfsa2fWoOGw7O6KFizYcuq4WJz8qKnEEPGEYwmM=;
+        s=korg; t=1637668825;
+        bh=7svvoshiP5vS7WzOnDGIrKT3lOJE5I1rcydTYh/Hw7k=;
         h=Subject:To:Cc:From:Date:From;
-        b=2dZ63FF3rBWnz5dGMsdiHfWk5W81XmiJM7ER0WcQNxktKePJVBJB2Ahr0Nnin8RoF
-         JVVvd1kiizskBrFt8ut8Wx1a4MqucvOTvcVgobhBXqDRiVlmcTVfmtFHsxJBXJsI8c
-         1CRcZ2FXTwizM8DykjH7IqdxWea0Wn7dkE4S2Xjw=
-Subject: FAILED: patch "[PATCH] drm/i915/guc: Fix recursive lock in GuC submission" failed to apply to 5.15-stable tree
-To:     matthew.brost@intel.com, John.C.Harrison@Intel.com,
-        rodrigo.vivi@intel.com, thomas.hellstrom@linux.intel.com
+        b=OTCZhPOr1zEjIYTZZ9rke0HReWaIwIbT3owE5+t3fldN5HHzgJpA6W68+oCimyTre
+         vpHLWjbOWhWQcSw9rMe6idG88Hc91hN0g4qY8+kFM771jwuLfv84lMWEwYWuA5c614
+         u8brCLCEo9OiZtiShpmpWO4zUwRRnCRzdkvUPSDQ=
+Subject: FAILED: patch "[PATCH] drm/nouveau: clean up all clients on device removal" failed to apply to 5.4-stable tree
+To:     jcline@redhat.com, bskeggs@redhat.com, kherbst@redhat.com,
+        lyude@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Nov 2021 12:56:32 +0100
-Message-ID: <163766859210295@kroah.com>
+Date:   Tue, 23 Nov 2021 13:00:22 +0100
+Message-ID: <1637668822119116@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,137 +46,106 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9ca8bb7a1d201d62773a90bbab267f81f2ea427d Mon Sep 17 00:00:00 2001
-From: Matthew Brost <matthew.brost@intel.com>
-Date: Wed, 20 Oct 2021 12:21:47 -0700
-Subject: [PATCH] drm/i915/guc: Fix recursive lock in GuC submission
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From f55aaf63bde0d0336c3823bb3713bd4a464abbcf Mon Sep 17 00:00:00 2001
+From: Jeremy Cline <jcline@redhat.com>
+Date: Wed, 25 Nov 2020 15:26:48 -0500
+Subject: [PATCH] drm/nouveau: clean up all clients on device removal
 
-Use __release_guc_id (lock held) rather than release_guc_id (acquires
-lock), add lockdep annotations.
+The postclose handler can run after the device has been removed (or the
+driver has been unbound) since userspace clients are free to hold the
+file open as long as they want. Because the device removal callback
+frees the entire nouveau_drm structure, any reference to it in the
+postclose handler will result in a use-after-free.
 
-213.280129] i915: Running i915_perf_live_selftests/live_noa_gpr
-[ 213.283459] ============================================
-[ 213.283462] WARNING: possible recursive locking detected
-{{[ 213.283466] 5.15.0-rc6+ #18 Tainted: G U W }}
-[ 213.283470] --------------------------------------------
-[ 213.283472] kworker/u24:0/8 is trying to acquire lock:
-[ 213.283475] ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x2df/0x350 [i915]
-{{[ 213.283618] }}
-{{ but task is already holding lock:}}
-[ 213.283621] ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x4f/0x350 [i915]
-{{[ 213.283720] }}
-{{ other info that might help us debug this:}}
-[ 213.283724] Possible unsafe locking scenario:[ 213.283727] CPU0
-[ 213.283728] ----
-[ 213.283730] lock(&guc->submission_state.lock);
-[ 213.283734] lock(&guc->submission_state.lock);
-{{[ 213.283737] }}
-{{ *** DEADLOCK ***}}[ 213.283740] May be due to missing lock nesting notation[ 213.283744] 3 locks held by kworker/u24:0/8:
-[ 213.283747] #0: ffff8ffb80059d38 ((wq_completion)events_unbound){..}-{0:0}, at: process_one_work+0x1f3/0x550
-[ 213.283757] #1: ffffb509000e3e78 ((work_completion)(&guc->submission_state.destroyed_worker)){..}-{0:0}, at: process_one_work+0x1f3/0x550
-[ 213.283766] #2: ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x4f/0x350 [i915]
-{{[ 213.283860] }}
-{{ stack backtrace:}}
-[ 213.283863] CPU: 8 PID: 8 Comm: kworker/u24:0 Tainted: G U W 5.15.0-rc6+ #18
-[ 213.283868] Hardware name: ASUS System Product Name/PRIME B560M-A AC, BIOS 0403 01/26/2021
-[ 213.283873] Workqueue: events_unbound destroyed_worker_func [i915]
-[ 213.283957] Call Trace:
-[ 213.283960] dump_stack_lvl+0x57/0x72
-[ 213.283966] __lock_acquire.cold+0x191/0x2d3
-[ 213.283972] lock_acquire+0xb5/0x2b0
-[ 213.283978] ? destroyed_worker_func+0x2df/0x350 [i915]
-[ 213.284059] ? destroyed_worker_func+0x2d7/0x350 [i915]
-[ 213.284139] ? lock_release+0xb9/0x280
-[ 213.284143] _raw_spin_lock_irqsave+0x48/0x60
-[ 213.284148] ? destroyed_worker_func+0x2df/0x350 [i915]
-[ 213.284226] destroyed_worker_func+0x2df/0x350 [i915]
-[ 213.284310] process_one_work+0x270/0x550
-[ 213.284315] worker_thread+0x52/0x3b0
-[ 213.284319] ? process_one_work+0x550/0x550
-[ 213.284322] kthread+0x135/0x160
-[ 213.284326] ? set_kthread_struct+0x40/0x40
-[ 213.284331] ret_from_fork+0x1f/0x30
+To reproduce this, one must simply open the device file, unbind the
+driver (or physically remove the device), and then close the device
+file. This was found and can be reproduced easily with the IGT
+core_hotunplug tests.
 
-and a bit later in the trace:
+To avoid this, all clients are cleaned up in the device finalization
+rather than deferring it to the postclose handler, and the postclose
+handler is protected by a critical section which ensures the
+drm_dev_unplug() and the postclose handler won't race.
 
-{{ 227.499864] do_raw_spin_lock+0x94/0xa0}}
-[ 227.499868] _raw_spin_lock_irqsave+0x50/0x60
-[ 227.499871] ? guc_flush_destroyed_contexts+0x4f/0xf0 [i915]
-[ 227.499995] guc_flush_destroyed_contexts+0x4f/0xf0 [i915]
-[ 227.500104] intel_guc_submission_reset_prepare+0x99/0x4b0 [i915]
-[ 227.500209] ? mark_held_locks+0x49/0x70
-[ 227.500212] intel_uc_reset_prepare+0x46/0x50 [i915]
-[ 227.500320] reset_prepare+0x78/0x90 [i915]
-[ 227.500412] __intel_gt_set_wedged.part.0+0x13/0xe0 [i915]
-[ 227.500485] intel_gt_set_wedged.part.0+0x54/0x100 [i915]
-[ 227.500556] intel_gt_set_wedged_on_fini+0x1a/0x30 [i915]
-[ 227.500622] intel_gt_driver_unregister+0x1e/0x60 [i915]
-[ 227.500694] i915_driver_remove+0x4a/0xf0 [i915]
-[ 227.500767] i915_pci_probe+0x84/0x170 [i915]
-[ 227.500838] local_pci_probe+0x42/0x80
-[ 227.500842] pci_device_probe+0xd9/0x190
-[ 227.500844] really_probe+0x1f2/0x3f0
-[ 227.500847] __driver_probe_device+0xfe/0x180
-[ 227.500848] driver_probe_device+0x1e/0x90
-[ 227.500850] __driver_attach+0xc4/0x1d0
-[ 227.500851] ? __device_attach_driver+0xe0/0xe0
-[ 227.500853] ? __device_attach_driver+0xe0/0xe0
-[ 227.500854] bus_for_each_dev+0x64/0x90
-[ 227.500856] bus_add_driver+0x12e/0x1f0
-[ 227.500857] driver_register+0x8f/0xe0
-[ 227.500859] i915_init+0x1d/0x8f [i915]
-[ 227.500934] ? 0xffffffffc144a000
-[ 227.500936] do_one_initcall+0x58/0x2d0
-[ 227.500938] ? rcu_read_lock_sched_held+0x3f/0x80
-[ 227.500940] ? kmem_cache_alloc_trace+0x238/0x2d0
-[ 227.500944] do_init_module+0x5c/0x270
-[ 227.500946] __do_sys_finit_module+0x95/0xe0
-[ 227.500949] do_syscall_64+0x38/0x90
-[ 227.500951] entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 227.500953] RIP: 0033:0x7ffa59d2ae0d
-[ 227.500954] Code: c8 0c 00 0f 05 eb a9 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 3b 80 0c 00 f7 d8 64 89 01 48
-[ 227.500955] RSP: 002b:00007fff320bbf48 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-[ 227.500956] RAX: ffffffffffffffda RBX: 00000000022ea710 RCX: 00007ffa59d2ae0d
-[ 227.500957] RDX: 0000000000000000 RSI: 00000000022e1d90 RDI: 0000000000000004
-[ 227.500958] RBP: 0000000000000020 R08: 00007ffa59df3a60 R09: 0000000000000070
-[ 227.500958] R10: 00000000022e1d90 R11: 0000000000000246 R12: 00000000022e1d90
-[ 227.500959] R13: 00000000022e58e0 R14: 0000000000000043 R15: 00000000022e42c0
+This is not an ideal fix, since as I understand the proposed plan for
+the kernel<->userspace interface for hotplug support, destroying the
+client before the file is closed will cause problems. However, I believe
+to properly fix this issue, the lifetime of the nouveau_drm structure
+needs to be extended to match the drm_device, and this proved to be a
+rather invasive change. Thus, I've broken this out so the fix can be
+easily backported.
 
-v2:
- (CI build)
-  - Fix build error
+This fixes with the two previous commits CVE-2020-27820 (Karol).
 
-Fixes: 1a52faed31311 ("drm/i915/guc: Take GT PM ref when deregistering context")
-Signed-off-by: Matthew Brost <matthew.brost@intel.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211020192147.8048-1-matthew.brost@intel.com
-(cherry picked from commit 12a9917e9e84fef4efa73c09b32870df0b1ed795)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: stable@vger.kernel.org # 5.4+
+Signed-off-by: Jeremy Cline <jcline@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Ben Skeggs <bskeggs@redhat.com>
+Tested-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201125202648.5220-4-jcline@redhat.com
+Link: https://gitlab.freedesktop.org/drm/nouveau/-/merge_requests/14
 
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-index d7710debcd47..38b47e73e35d 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-@@ -2373,6 +2373,7 @@ static inline void guc_lrc_desc_unpin(struct intel_context *ce)
- 	unsigned long flags;
- 	bool disabled;
+diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
+index 4c69ac2a8295..e7efd9ede8e4 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -633,6 +633,7 @@ nouveau_drm_device_init(struct drm_device *dev)
+ static void
+ nouveau_drm_device_fini(struct drm_device *dev)
+ {
++	struct nouveau_cli *cli, *temp_cli;
+ 	struct nouveau_drm *drm = nouveau_drm(dev);
  
-+	lockdep_assert_held(&guc->submission_state.lock);
- 	GEM_BUG_ON(!intel_gt_pm_is_awake(gt));
- 	GEM_BUG_ON(!lrc_desc_registered(guc, ce->guc_id.id));
- 	GEM_BUG_ON(ce != __get_context(guc, ce->guc_id.id));
-@@ -2388,7 +2389,7 @@ static inline void guc_lrc_desc_unpin(struct intel_context *ce)
- 	}
- 	spin_unlock_irqrestore(&ce->guc_state.lock, flags);
- 	if (unlikely(disabled)) {
--		release_guc_id(guc, ce);
-+		__release_guc_id(guc, ce);
- 		__guc_context_destroy(ce);
- 		return;
- 	}
+ 	if (nouveau_pmops_runtime()) {
+@@ -657,6 +658,24 @@ nouveau_drm_device_fini(struct drm_device *dev)
+ 	nouveau_ttm_fini(drm);
+ 	nouveau_vga_fini(drm);
+ 
++	/*
++	 * There may be existing clients from as-yet unclosed files. For now,
++	 * clean them up here rather than deferring until the file is closed,
++	 * but this likely not correct if we want to support hot-unplugging
++	 * properly.
++	 */
++	mutex_lock(&drm->clients_lock);
++	list_for_each_entry_safe(cli, temp_cli, &drm->clients, head) {
++		list_del(&cli->head);
++		mutex_lock(&cli->mutex);
++		if (cli->abi16)
++			nouveau_abi16_fini(cli->abi16);
++		mutex_unlock(&cli->mutex);
++		nouveau_cli_fini(cli);
++		kfree(cli);
++	}
++	mutex_unlock(&drm->clients_lock);
++
+ 	nouveau_cli_fini(&drm->client);
+ 	nouveau_cli_fini(&drm->master);
+ 	nvif_parent_dtor(&drm->parent);
+@@ -1112,6 +1131,16 @@ nouveau_drm_postclose(struct drm_device *dev, struct drm_file *fpriv)
+ {
+ 	struct nouveau_cli *cli = nouveau_cli(fpriv);
+ 	struct nouveau_drm *drm = nouveau_drm(dev);
++	int dev_index;
++
++	/*
++	 * The device is gone, and as it currently stands all clients are
++	 * cleaned up in the removal codepath. In the future this may change
++	 * so that we can support hot-unplugging, but for now we immediately
++	 * return to avoid a double-free situation.
++	 */
++	if (!drm_dev_enter(dev, &dev_index))
++		return;
+ 
+ 	pm_runtime_get_sync(dev->dev);
+ 
+@@ -1128,6 +1157,7 @@ nouveau_drm_postclose(struct drm_device *dev, struct drm_file *fpriv)
+ 	kfree(cli);
+ 	pm_runtime_mark_last_busy(dev->dev);
+ 	pm_runtime_put_autosuspend(dev->dev);
++	drm_dev_exit(dev_index);
+ }
+ 
+ static const struct drm_ioctl_desc
 
