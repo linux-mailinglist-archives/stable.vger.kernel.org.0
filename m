@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F6545A210
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:55:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 206D945A213
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:56:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234012AbhKWL62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 06:58:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42252 "EHLO mail.kernel.org"
+        id S236721AbhKWL7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 06:59:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236683AbhKWL62 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 06:58:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95C1260F26;
-        Tue, 23 Nov 2021 11:55:19 +0000 (UTC)
+        id S234881AbhKWL7r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 06:59:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 690FA60F42;
+        Tue, 23 Nov 2021 11:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637668520;
-        bh=Gq6GjGaTV7VT2mO0IDr1Q4YU3HWBYhWzL2JYX+NGpaA=;
+        s=korg; t=1637668599;
+        bh=iLBhKfsa2fWoOGw7O6KFizYcuq4WJz8qKnEEPGEYwmM=;
         h=Subject:To:Cc:From:Date:From;
-        b=BQ4gguc0xIPC8vqMIrSJiRrMsz+YDA7rbT4MfJIVW2Ho1bXyBDBvj8w+bqVlqEaxL
-         t/kBHTFrNTR7gDXuCy+GbIkIphSCv3zZGJU0G2X2FHxLGCNquBNKfVEzEUlIpjTMA9
-         MBBPOD63/9Ni5HCgjgVHCu5W28pwlOtqCJkaAGSY=
-Subject: FAILED: patch "[PATCH] drm/amd/pm: add GFXCLK/SCLK clocks level print support for" failed to apply to 5.15-stable tree
-To:     Perry.Yuan@amd.com, Ray.Huang@amd.com, alexander.deucher@amd.com
+        b=2dZ63FF3rBWnz5dGMsdiHfWk5W81XmiJM7ER0WcQNxktKePJVBJB2Ahr0Nnin8RoF
+         JVVvd1kiizskBrFt8ut8Wx1a4MqucvOTvcVgobhBXqDRiVlmcTVfmtFHsxJBXJsI8c
+         1CRcZ2FXTwizM8DykjH7IqdxWea0Wn7dkE4S2Xjw=
+Subject: FAILED: patch "[PATCH] drm/i915/guc: Fix recursive lock in GuC submission" failed to apply to 5.15-stable tree
+To:     matthew.brost@intel.com, John.C.Harrison@Intel.com,
+        rodrigo.vivi@intel.com, thomas.hellstrom@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Nov 2021 12:55:17 +0100
-Message-ID: <16376685172321@kroah.com>
+Date:   Tue, 23 Nov 2021 12:56:32 +0100
+Message-ID: <163766859210295@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,195 +46,137 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3dac776e349a214c07fb2b0e5973947b0aade4f6 Mon Sep 17 00:00:00 2001
-From: Perry Yuan <Perry.Yuan@amd.com>
-Date: Thu, 28 Oct 2021 06:05:42 -0400
-Subject: [PATCH] drm/amd/pm: add GFXCLK/SCLK clocks level print support for
- APUs
+From 9ca8bb7a1d201d62773a90bbab267f81f2ea427d Mon Sep 17 00:00:00 2001
+From: Matthew Brost <matthew.brost@intel.com>
+Date: Wed, 20 Oct 2021 12:21:47 -0700
+Subject: [PATCH] drm/i915/guc: Fix recursive lock in GuC submission
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-add support that allow the userspace tool like RGP to get the GFX clock
-value at runtime, the fix follow the old way to show the min/current/max
-clocks level for compatible consideration.
+Use __release_guc_id (lock held) rather than release_guc_id (acquires
+lock), add lockdep annotations.
 
-=== Test ===
-$ cat /sys/class/drm/card0/device/pp_dpm_sclk
-0: 200Mhz *
-1: 1100Mhz
-2: 1600Mhz
+213.280129] i915: Running i915_perf_live_selftests/live_noa_gpr
+[ 213.283459] ============================================
+[ 213.283462] WARNING: possible recursive locking detected
+{{[ 213.283466] 5.15.0-rc6+ #18 Tainted: G U W }}
+[ 213.283470] --------------------------------------------
+[ 213.283472] kworker/u24:0/8 is trying to acquire lock:
+[ 213.283475] ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x2df/0x350 [i915]
+{{[ 213.283618] }}
+{{ but task is already holding lock:}}
+[ 213.283621] ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x4f/0x350 [i915]
+{{[ 213.283720] }}
+{{ other info that might help us debug this:}}
+[ 213.283724] Possible unsafe locking scenario:[ 213.283727] CPU0
+[ 213.283728] ----
+[ 213.283730] lock(&guc->submission_state.lock);
+[ 213.283734] lock(&guc->submission_state.lock);
+{{[ 213.283737] }}
+{{ *** DEADLOCK ***}}[ 213.283740] May be due to missing lock nesting notation[ 213.283744] 3 locks held by kworker/u24:0/8:
+[ 213.283747] #0: ffff8ffb80059d38 ((wq_completion)events_unbound){..}-{0:0}, at: process_one_work+0x1f3/0x550
+[ 213.283757] #1: ffffb509000e3e78 ((work_completion)(&guc->submission_state.destroyed_worker)){..}-{0:0}, at: process_one_work+0x1f3/0x550
+[ 213.283766] #2: ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x4f/0x350 [i915]
+{{[ 213.283860] }}
+{{ stack backtrace:}}
+[ 213.283863] CPU: 8 PID: 8 Comm: kworker/u24:0 Tainted: G U W 5.15.0-rc6+ #18
+[ 213.283868] Hardware name: ASUS System Product Name/PRIME B560M-A AC, BIOS 0403 01/26/2021
+[ 213.283873] Workqueue: events_unbound destroyed_worker_func [i915]
+[ 213.283957] Call Trace:
+[ 213.283960] dump_stack_lvl+0x57/0x72
+[ 213.283966] __lock_acquire.cold+0x191/0x2d3
+[ 213.283972] lock_acquire+0xb5/0x2b0
+[ 213.283978] ? destroyed_worker_func+0x2df/0x350 [i915]
+[ 213.284059] ? destroyed_worker_func+0x2d7/0x350 [i915]
+[ 213.284139] ? lock_release+0xb9/0x280
+[ 213.284143] _raw_spin_lock_irqsave+0x48/0x60
+[ 213.284148] ? destroyed_worker_func+0x2df/0x350 [i915]
+[ 213.284226] destroyed_worker_func+0x2df/0x350 [i915]
+[ 213.284310] process_one_work+0x270/0x550
+[ 213.284315] worker_thread+0x52/0x3b0
+[ 213.284319] ? process_one_work+0x550/0x550
+[ 213.284322] kthread+0x135/0x160
+[ 213.284326] ? set_kthread_struct+0x40/0x40
+[ 213.284331] ret_from_fork+0x1f/0x30
 
-then run stress test on one APU system.
-$ cat /sys/class/drm/card0/device/pp_dpm_sclk
-0: 200Mhz
-1: 1040Mhz *
-2: 1600Mhz
+and a bit later in the trace:
 
-The current GFXCLK value is updated at runtime.
+{{ 227.499864] do_raw_spin_lock+0x94/0xa0}}
+[ 227.499868] _raw_spin_lock_irqsave+0x50/0x60
+[ 227.499871] ? guc_flush_destroyed_contexts+0x4f/0xf0 [i915]
+[ 227.499995] guc_flush_destroyed_contexts+0x4f/0xf0 [i915]
+[ 227.500104] intel_guc_submission_reset_prepare+0x99/0x4b0 [i915]
+[ 227.500209] ? mark_held_locks+0x49/0x70
+[ 227.500212] intel_uc_reset_prepare+0x46/0x50 [i915]
+[ 227.500320] reset_prepare+0x78/0x90 [i915]
+[ 227.500412] __intel_gt_set_wedged.part.0+0x13/0xe0 [i915]
+[ 227.500485] intel_gt_set_wedged.part.0+0x54/0x100 [i915]
+[ 227.500556] intel_gt_set_wedged_on_fini+0x1a/0x30 [i915]
+[ 227.500622] intel_gt_driver_unregister+0x1e/0x60 [i915]
+[ 227.500694] i915_driver_remove+0x4a/0xf0 [i915]
+[ 227.500767] i915_pci_probe+0x84/0x170 [i915]
+[ 227.500838] local_pci_probe+0x42/0x80
+[ 227.500842] pci_device_probe+0xd9/0x190
+[ 227.500844] really_probe+0x1f2/0x3f0
+[ 227.500847] __driver_probe_device+0xfe/0x180
+[ 227.500848] driver_probe_device+0x1e/0x90
+[ 227.500850] __driver_attach+0xc4/0x1d0
+[ 227.500851] ? __device_attach_driver+0xe0/0xe0
+[ 227.500853] ? __device_attach_driver+0xe0/0xe0
+[ 227.500854] bus_for_each_dev+0x64/0x90
+[ 227.500856] bus_add_driver+0x12e/0x1f0
+[ 227.500857] driver_register+0x8f/0xe0
+[ 227.500859] i915_init+0x1d/0x8f [i915]
+[ 227.500934] ? 0xffffffffc144a000
+[ 227.500936] do_one_initcall+0x58/0x2d0
+[ 227.500938] ? rcu_read_lock_sched_held+0x3f/0x80
+[ 227.500940] ? kmem_cache_alloc_trace+0x238/0x2d0
+[ 227.500944] do_init_module+0x5c/0x270
+[ 227.500946] __do_sys_finit_module+0x95/0xe0
+[ 227.500949] do_syscall_64+0x38/0x90
+[ 227.500951] entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 227.500953] RIP: 0033:0x7ffa59d2ae0d
+[ 227.500954] Code: c8 0c 00 0f 05 eb a9 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 3b 80 0c 00 f7 d8 64 89 01 48
+[ 227.500955] RSP: 002b:00007fff320bbf48 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[ 227.500956] RAX: ffffffffffffffda RBX: 00000000022ea710 RCX: 00007ffa59d2ae0d
+[ 227.500957] RDX: 0000000000000000 RSI: 00000000022e1d90 RDI: 0000000000000004
+[ 227.500958] RBP: 0000000000000020 R08: 00007ffa59df3a60 R09: 0000000000000070
+[ 227.500958] R10: 00000000022e1d90 R11: 0000000000000246 R12: 00000000022e1d90
+[ 227.500959] R13: 00000000022e58e0 R14: 0000000000000043 R15: 00000000022e42c0
 
-BugLink: https://gitlab.freedesktop.org/mesa/mesa/-/issues/5260
-Reviewed-by: Huang Ray <Ray.Huang@amd.com>
-Signed-off-by: Perry Yuan <Perry.Yuan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+v2:
+ (CI build)
+  - Fix build error
+
+Fixes: 1a52faed31311 ("drm/i915/guc: Take GT PM ref when deregistering context")
+Signed-off-by: Matthew Brost <matthew.brost@intel.com>
 Cc: stable@vger.kernel.org
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211020192147.8048-1-matthew.brost@intel.com
+(cherry picked from commit 12a9917e9e84fef4efa73c09b32870df0b1ed795)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c
-index cbc3f99e8573..2238ee19c222 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/cyan_skillfish_ppt.c
-@@ -309,6 +309,7 @@ static int cyan_skillfish_print_clk_levels(struct smu_context *smu,
- {
- 	int ret = 0, size = 0;
- 	uint32_t cur_value = 0;
-+	int i;
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+index d7710debcd47..38b47e73e35d 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+@@ -2373,6 +2373,7 @@ static inline void guc_lrc_desc_unpin(struct intel_context *ce)
+ 	unsigned long flags;
+ 	bool disabled;
  
- 	smu_cmn_get_sysfs_buf(&buf, &size);
- 
-@@ -334,8 +335,6 @@ static int cyan_skillfish_print_clk_levels(struct smu_context *smu,
- 		size += sysfs_emit_at(buf, size, "VDDC: %7umV  %10umV\n",
- 						CYAN_SKILLFISH_VDDC_MIN, CYAN_SKILLFISH_VDDC_MAX);
- 		break;
--	case SMU_GFXCLK:
--	case SMU_SCLK:
- 	case SMU_FCLK:
- 	case SMU_MCLK:
- 	case SMU_SOCCLK:
-@@ -346,6 +345,25 @@ static int cyan_skillfish_print_clk_levels(struct smu_context *smu,
- 			return ret;
- 		size += sysfs_emit_at(buf, size, "0: %uMhz *\n", cur_value);
- 		break;
-+	case SMU_SCLK:
-+	case SMU_GFXCLK:
-+		ret = cyan_skillfish_get_current_clk_freq(smu, clk_type, &cur_value);
-+		if (ret)
-+			return ret;
-+		if (cur_value  == CYAN_SKILLFISH_SCLK_MAX)
-+			i = 2;
-+		else if (cur_value == CYAN_SKILLFISH_SCLK_MIN)
-+			i = 0;
-+		else
-+			i = 1;
-+		size += sysfs_emit_at(buf, size, "0: %uMhz %s\n", CYAN_SKILLFISH_SCLK_MIN,
-+				i == 0 ? "*" : "");
-+		size += sysfs_emit_at(buf, size, "1: %uMhz %s\n",
-+				i == 1 ? cur_value : cyan_skillfish_sclk_default,
-+				i == 1 ? "*" : "");
-+		size += sysfs_emit_at(buf, size, "2: %uMhz %s\n", CYAN_SKILLFISH_SCLK_MAX,
-+				i == 2 ? "*" : "");
-+		break;
- 	default:
- 		dev_warn(smu->adev->dev, "Unsupported clock type\n");
- 		return ret;
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c
-index 421f38e8dada..c02ed65ffa38 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/vangogh_ppt.c
-@@ -683,6 +683,7 @@ static int vangogh_print_clk_levels(struct smu_context *smu,
- 	int i, size = 0, ret = 0;
- 	uint32_t cur_value = 0, value = 0, count = 0;
- 	bool cur_value_match_level = false;
-+	uint32_t min, max;
- 
- 	memset(&metrics, 0, sizeof(metrics));
- 
-@@ -743,6 +744,13 @@ static int vangogh_print_clk_levels(struct smu_context *smu,
- 		if (ret)
- 			return ret;
- 		break;
-+	case SMU_GFXCLK:
-+	case SMU_SCLK:
-+		ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_GetGfxclkFrequency, 0, &cur_value);
-+		if (ret) {
-+			return ret;
-+		}
-+		break;
- 	default:
- 		break;
++	lockdep_assert_held(&guc->submission_state.lock);
+ 	GEM_BUG_ON(!intel_gt_pm_is_awake(gt));
+ 	GEM_BUG_ON(!lrc_desc_registered(guc, ce->guc_id.id));
+ 	GEM_BUG_ON(ce != __get_context(guc, ce->guc_id.id));
+@@ -2388,7 +2389,7 @@ static inline void guc_lrc_desc_unpin(struct intel_context *ce)
  	}
-@@ -768,6 +776,24 @@ static int vangogh_print_clk_levels(struct smu_context *smu,
- 		if (!cur_value_match_level)
- 			size += sysfs_emit_at(buf, size, "   %uMhz *\n", cur_value);
- 		break;
-+	case SMU_GFXCLK:
-+	case SMU_SCLK:
-+		min = (smu->gfx_actual_hard_min_freq > 0) ? smu->gfx_actual_hard_min_freq : smu->gfx_default_hard_min_freq;
-+		max = (smu->gfx_actual_soft_max_freq > 0) ? smu->gfx_actual_soft_max_freq : smu->gfx_default_soft_max_freq;
-+		if (cur_value  == max)
-+			i = 2;
-+		else if (cur_value == min)
-+			i = 0;
-+		else
-+			i = 1;
-+		size += sysfs_emit_at(buf, size, "0: %uMhz %s\n", min,
-+				i == 0 ? "*" : "");
-+		size += sysfs_emit_at(buf, size, "1: %uMhz %s\n",
-+				i == 1 ? cur_value : VANGOGH_UMD_PSTATE_STANDARD_GFXCLK,
-+				i == 1 ? "*" : "");
-+		size += sysfs_emit_at(buf, size, "2: %uMhz %s\n", max,
-+				i == 2 ? "*" : "");
-+		break;
- 	default:
- 		break;
+ 	spin_unlock_irqrestore(&ce->guc_state.lock, flags);
+ 	if (unlikely(disabled)) {
+-		release_guc_id(guc, ce);
++		__release_guc_id(guc, ce);
+ 		__guc_context_destroy(ce);
+ 		return;
  	}
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-index 8215bbf5ed7c..caf1775d48ef 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-@@ -697,6 +697,11 @@ static int yellow_carp_get_current_clk_freq(struct smu_context *smu,
- 	case SMU_FCLK:
- 		return smu_cmn_send_smc_msg_with_param(smu,
- 				SMU_MSG_GetFclkFrequency, 0, value);
-+	case SMU_GFXCLK:
-+	case SMU_SCLK:
-+		return smu_cmn_send_smc_msg_with_param(smu,
-+				SMU_MSG_GetGfxclkFrequency, 0, value);
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-@@ -967,6 +972,7 @@ static int yellow_carp_print_clk_levels(struct smu_context *smu,
- {
- 	int i, size = 0, ret = 0;
- 	uint32_t cur_value = 0, value = 0, count = 0;
-+	uint32_t min, max;
- 
- 	smu_cmn_get_sysfs_buf(&buf, &size);
- 
-@@ -1005,6 +1011,27 @@ static int yellow_carp_print_clk_levels(struct smu_context *smu,
- 					cur_value == value ? "*" : "");
- 		}
- 		break;
-+	case SMU_GFXCLK:
-+	case SMU_SCLK:
-+		ret = yellow_carp_get_current_clk_freq(smu, clk_type, &cur_value);
-+		if (ret)
-+			goto print_clk_out;
-+		min = (smu->gfx_actual_hard_min_freq > 0) ? smu->gfx_actual_hard_min_freq : smu->gfx_default_hard_min_freq;
-+		max = (smu->gfx_actual_soft_max_freq > 0) ? smu->gfx_actual_soft_max_freq : smu->gfx_default_soft_max_freq;
-+		if (cur_value  == max)
-+			i = 2;
-+		else if (cur_value == min)
-+			i = 0;
-+		else
-+			i = 1;
-+		size += sysfs_emit_at(buf, size, "0: %uMhz %s\n", min,
-+				i == 0 ? "*" : "");
-+		size += sysfs_emit_at(buf, size, "1: %uMhz %s\n",
-+				i == 1 ? cur_value : YELLOW_CARP_UMD_PSTATE_GFXCLK,
-+				i == 1 ? "*" : "");
-+		size += sysfs_emit_at(buf, size, "2: %uMhz %s\n", max,
-+				i == 2 ? "*" : "");
-+		break;
- 	default:
- 		break;
- 	}
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.h b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.h
-index b3ad8352c68a..a9205a8ea3ad 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.h
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.h
-@@ -24,5 +24,6 @@
- #define __YELLOW_CARP_PPT_H__
- 
- extern void yellow_carp_set_ppt_funcs(struct smu_context *smu);
-+#define YELLOW_CARP_UMD_PSTATE_GFXCLK       1100
- 
- #endif
 
