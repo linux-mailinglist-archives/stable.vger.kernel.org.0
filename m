@@ -2,118 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB5114599B9
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 02:29:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D58459A0B
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 03:20:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232417AbhKWBcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Nov 2021 20:32:55 -0500
-Received: from szxga02-in.huawei.com ([45.249.212.188]:26349 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229776AbhKWBcy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 20:32:54 -0500
-Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Hymdn6X61zbhv7;
-        Tue, 23 Nov 2021 09:24:45 +0800 (CST)
-Received: from huawei.com (10.175.127.227) by dggpeml500020.china.huawei.com
- (7.185.36.88) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.20; Tue, 23 Nov
- 2021 09:29:44 +0800
-From:   Baokun Li <libaokun1@huawei.com>
-To:     <damien.lemoal@opensource.wdc.com>, <axboe@kernel.dk>,
-        <tj@kernel.org>, <linux-ide@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <sergei.shtylyov@gmail.com>, <yebin10@huawei.com>,
-        <libaokun1@huawei.com>, <yukuai3@huawei.com>,
-        <stable@vger.kernel.org>, Hulk Robot <hulkci@huawei.com>
-Subject: [PATCH -next V4 2/2] sata_fsl: fix warning in remove_proc_entry when rmmod sata_fsl
-Date:   Tue, 23 Nov 2021 09:41:59 +0800
-Message-ID: <20211123014159.3442998-3-libaokun1@huawei.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211123014159.3442998-1-libaokun1@huawei.com>
-References: <20211123014159.3442998-1-libaokun1@huawei.com>
+        id S232605AbhKWCXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Nov 2021 21:23:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38618 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231222AbhKWCXe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Nov 2021 21:23:34 -0500
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F23C061574
+        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 18:20:27 -0800 (PST)
+Received: by mail-ed1-x52e.google.com with SMTP id l25so68447836eda.11
+        for <stable@vger.kernel.org>; Mon, 22 Nov 2021 18:20:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=inGg2ozIO61DUeekcaBgdee8gmnFxwlwbC+Dglgl2cg=;
+        b=ClguJWjGMZX8NYRFGepau2ULn7x1QorEOapg7uoNikCGYVXAM2XUL2hIgjVUdoG/OE
+         YegzbKiDzvNr+yhxUkMkJyOGOWJI5IhT+Hj3vvW/3rrAHpacqmZpjjWZM1hFso7Llr4V
+         1zatZlMtzvMW878sbaeN1amXc4bZxaIWEDjh6tj7BqtZe8d0p5o7QKMdZiIkwbAepRyV
+         T9vnmuUVxJzJLmFV5J37dypMnCv/doo8GBcEMEmr9wbnauvi4LWKn9HJKvsRhDuxmdMN
+         BDPjeNUMML3ju8cWlzn2w14Mh06qde2QjRgQtQb6aZlY/2lfYQVJ1v+XvQXjVcojzElt
+         UGwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=inGg2ozIO61DUeekcaBgdee8gmnFxwlwbC+Dglgl2cg=;
+        b=BCS4VT9NG9xAEJPKYmfMofGmNvkKqV7qAaciM/HNC30M1cXkwunHt0zuLVSO1ahwBi
+         7LpMsHCtfKfirKlVdjYjTKIM9k0KnokuUVxbvIVmfHTLsVXvrO1ZzUFpNOoBG2Qgv6GX
+         KRix2OG2rPHID5fJc3tPRBCp+KhayQScH0/hapRMpqAoXDWPbq3QBc7FYCqHMzI5juc/
+         saqYBbTdgIulFqmTR0vfQ3lPNX9D/iGli90kBjbbzjlbxeOV1q9uagJ62Qmf9klLT3FR
+         1/h3B/ioiPXspcjlXn3L6hmI3fVqfCAS1uXlpr73IxMYkyJDKgyQFujvh3SbiOC4UdIB
+         +jLw==
+X-Gm-Message-State: AOAM530DJUFKnZ/K3W5cPLJDQ5F7RbMlvYs9PN4fKnMAhYvzZR1CnOY0
+        sZ5z4yFdvHmIcq7lidlH2sCiUXb2JVIpMZa35qQ=
+X-Google-Smtp-Source: ABdhPJz7yt0CL/d98Hm3HkgVsM+PaCaMCnOkasKqRr53mjEwInjnhWFZZ8Aj8f0S1fSTmSQaR4c5FsmIxPUnN5pXwPw=
+X-Received: by 2002:a17:906:9f20:: with SMTP id fy32mr2881085ejc.459.1637634025585;
+ Mon, 22 Nov 2021 18:20:25 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.127.227]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpeml500020.china.huawei.com (7.185.36.88)
-X-CFilter-Loop: Reflected
+Sender: lisaragnvard@gmail.com
+Received: by 2002:a17:906:90da:0:0:0:0 with HTTP; Mon, 22 Nov 2021 18:20:25
+ -0800 (PST)
+From:   Jackie Fowler <jackiefowler597@gmail.com>
+Date:   Tue, 23 Nov 2021 02:20:25 +0000
+X-Google-Sender-Auth: DCniIXPZoxJuqxcJTjq6LJWpPC8
+Message-ID: <CAEtDg5DRt37i0QRACUqWhZzQjt-M=cjy=pYRYUZUz7JiVx5=6w@mail.gmail.com>
+Subject: Hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Trying to remove the fsl-sata module in the PPC64 GNU/Linux
-leads to the following warning:
- ------------[ cut here ]------------
- remove_proc_entry: removing non-empty directory 'irq/69',
-   leaking at least 'fsl-sata[ff0221000.sata]'
- WARNING: CPU: 3 PID: 1048 at fs/proc/generic.c:722
-   .remove_proc_entry+0x20c/0x220
- IRQMASK: 0
- NIP [c00000000033826c] .remove_proc_entry+0x20c/0x220
- LR [c000000000338268] .remove_proc_entry+0x208/0x220
- Call Trace:
-  .remove_proc_entry+0x208/0x220 (unreliable)
-  .unregister_irq_proc+0x104/0x140
-  .free_desc+0x44/0xb0
-  .irq_free_descs+0x9c/0xf0
-  .irq_dispose_mapping+0x64/0xa0
-  .sata_fsl_remove+0x58/0xa0 [sata_fsl]
-  .platform_drv_remove+0x40/0x90
-  .device_release_driver_internal+0x160/0x2c0
-  .driver_detach+0x64/0xd0
-  .bus_remove_driver+0x70/0xf0
-  .driver_unregister+0x38/0x80
-  .platform_driver_unregister+0x14/0x30
-  .fsl_sata_driver_exit+0x18/0xa20 [sata_fsl]
- ---[ end trace 0ea876d4076908f5 ]---
+Gooday,
 
-The driver creates the mapping by calling irq_of_parse_and_map(),
-so it also has to dispose the mapping. But the easy way out is to
-simply use platform_get_irq() instead of irq_of_parse_map(). Also
-we should adapt return value checking and propagate error values.
+It's my pleasure to contact you to seek for your urgent assistance in
+this humanitarian social investment project to be establish in your
+country for the mutual benefit of the orphans and the less privileged
+ones, haven't known each other or meet before, I know that everything
+is controlled by God as there is nothing impossible to him. I believe
+that you and I can cooperate together in the service of the Lord,
+please open your heart to assist me in carrying out this benevolently
+project in your country/position. I am Mrs.Fowler Jackie. a dying
+widow hospitalized undergoing treatment for brain tumor disease, I
+believe that you will not expose or betray this trust and confidence
+that I am about to entrust on you for the mutual benefit of the
+orphans and the less privileged ones. My late husband made a
+substantial deposit with the Bank which I have decided to hand over
+and entrust the sum of ($ 12,500,000.00 Dollars) in the account under
+your custody for you to invest it into any social charitable project
+in your location or your country. Based on my present health status I
+am permanently indisposed to handle finances or any financial related
+project.
 
-In this case the mapping is not managed by the device but by
-the of core, so the device has not to dispose the mapping.
-
-Fixes: faf0b2e5afe7 ("drivers/ata: add support to Freescale 3.0Gbps SATA Controller")
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
----
-V1->V2:
-	Adapt return value checking and propagate error values.
-V2->V3:
-	Add fixed and CC stable.
-
- drivers/ata/sata_fsl.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/ata/sata_fsl.c b/drivers/ata/sata_fsl.c
-index 2eb216792695..8e7c49793f91 100644
---- a/drivers/ata/sata_fsl.c
-+++ b/drivers/ata/sata_fsl.c
-@@ -1490,8 +1490,9 @@ static int sata_fsl_probe(struct platform_device *ofdev)
- 	host_priv->ssr_base = ssr_base;
- 	host_priv->csr_base = csr_base;
- 
--	irq = irq_of_parse_and_map(ofdev->dev.of_node, 0);
--	if (!irq) {
-+	irq = platform_get_irq(ofdev, 0);
-+	if (irq < 0) {
-+		retval = irq;
- 		dev_err(&ofdev->dev, "invalid irq from platform\n");
- 		goto error_exit_with_cleanup;
- 	}
-@@ -1567,8 +1568,6 @@ static int sata_fsl_remove(struct platform_device *ofdev)
- 
- 	ata_host_detach(host);
- 
--	irq_dispose_mapping(host_priv->irq);
--
- 	return 0;
- }
- 
--- 
-2.31.1
-
+This is the reason why I decided to contact you for your support and
+help to stand as my rightful beneficiary and claim the money for
+humanitarian purposes for the mutual benefits of the less privileged
+ones. Because If the money remains unclaimed with the bank after my
+death, those greedy bank executives will place the money as an
+unclaimed Fund and share it for their selfish and worthless ventures.
+However I need your sincerity and ability to carry out this
+transaction and fulfill my final wish in implementing the charitable
+investment project in your country as it requires absolute trust and
+devotion without any failure. Meanwhile It will be my pleasure to
+compensate you with part of the total money as my Investment
+manager/partner for your effort in handling the transaction, while the
+remaining amount shall be invested into any charity project of your
+choice there in your country.
+Please I'm waiting for your prompt response if only you are
+interested. I will send you further details and the bank contact
+details where the fund has been deposited for you to contact the Bank
+for immediate release and transfer of the fund into your bank account
+as my rightful beneficiary.
+May god bless you and your family.
+Respectfully.
+Mrs.Fowler Jackie.
+Written from the Hospital.
