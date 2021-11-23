@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D672645A1A2
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:37:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8B8E45A1A0
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:37:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236253AbhKWLkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 06:40:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34024 "EHLO mail.kernel.org"
+        id S236238AbhKWLkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 06:40:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236278AbhKWLk3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 06:40:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0630F60F6E;
-        Tue, 23 Nov 2021 11:37:20 +0000 (UTC)
+        id S236251AbhKWLkV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 06:40:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99D8560E73;
+        Tue, 23 Nov 2021 11:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637667441;
-        bh=mU2dhEZ+9nFLYL/PPQfF9VY1ugwVdzdCbO18G7nsHiQ=;
+        s=korg; t=1637667433;
+        bh=OvRWccbRtmQJFk1uEhKSQ2ry9Wq0bOCstx3yYR6KEg8=;
         h=Subject:To:Cc:From:Date:From;
-        b=guts6LazDm3Z7CSKtx10DCKFOBl5xcm/vsLBTT3Rcbv9WBt3U9+anTsQ+0sc17m2v
-         tLWUYJ3T7NVxwg6rNhdgHD7W3Ug+HVxWoBPRsfW5mZ5BdZJw/m5tynaDe7bAqFUpF1
-         r0h7WTPAsrUrsUFnpws6LLhHJ0f2PmpZs4rsMhd0=
-Subject: FAILED: patch "[PATCH] drm/i915: Convert unconditional clflush to" failed to apply to 5.15-stable tree
+        b=bLJxzpAitdmX9ReNYW8bUaY49rcB5tuTYo8RLco7u4Iko3XuG0zShivHARgZC+iLj
+         rFqweHBG0qRmPZcYCYohVbN3vamlAPz17q2C7FGUwskup3hk2HA+41qmQWkt1NB4F5
+         a7QOzahyfBXW0xcyujfogK8irPNyIfbr9WWHVfiw=
+Subject: FAILED: patch "[PATCH] drm/i915: Convert unconditional clflush to" failed to apply to 5.10-stable tree
 To:     ville.syrjala@linux.intel.com, airlied@redhat.com,
         maarten.lankhorst@linux.intel.com, thomas.hellstrom@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 23 Nov 2021 12:37:10 +0100
-Message-ID: <1637667430249164@kroah.com>
+Message-ID: <163766743015627@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
