@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 693FA45A1F3
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:52:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F8DA45A1FB
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229924AbhKWLzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 06:55:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41480 "EHLO mail.kernel.org"
+        id S235109AbhKWL4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 06:56:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229955AbhKWLzM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 06:55:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0671060ED4;
-        Tue, 23 Nov 2021 11:52:03 +0000 (UTC)
+        id S234172AbhKWL4U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 06:56:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C34961028;
+        Tue, 23 Nov 2021 11:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637668324;
-        bh=mHIeZA1ejTaDDEPygG0MYIQ+ab99QRg3B+sw903ZhgM=;
+        s=korg; t=1637668392;
+        bh=gTaqTexhK3zBhFCM2zo6lSnZlQDGkNxO8b6fTuhPhZA=;
         h=Subject:To:Cc:From:Date:From;
-        b=MAsSBi/qYKwIOa7ODio79mqJyehTxTYn/KBeSoIJC6MmQFX4+EfTQ4IHpyIGLgoRz
-         32+NJGtApSKOcEs/w8PbTT9s+XBm/5Ra31d/RN3waPRK9EbKQSsGHyiIXVnRPRAu7C
-         u9gfvVb7TX2D+DplgflbRl7jGeCvKKlC3ppCLJiA=
-Subject: FAILED: patch "[PATCH] drm/i915/hdmi: Turn DP++ TMDS output buffers back on in" failed to apply to 5.15-stable tree
-To:     ville.syrjala@linux.intel.com, rodrigo.vivi@intel.com,
-        stable@vger.kernel.org, stanislav.lisovskiy@intel.com
+        b=PiYFovKfLq3XWBxgzdmgP3DrOGVj8I4PBpwtFlewqxK2LZ6wL5S1XIr8uSPgfK6v4
+         2+bIUx2/TgwiUASaA8ZsfgVfxtn3AdR/XrVQ67ngE3w06NMPqd8NtIe/UC1oIw1oJ5
+         UWclgXlQt/aV93wpFaR4bUGq/hjbzQ1SRJri9MaY=
+Subject: FAILED: patch "[PATCH] drm/i915: Extend the async flip VT-d w/a to skl/bxt" failed to apply to 5.15-stable tree
+To:     ville.syrjala@linux.intel.com, jani.nikula@intel.com,
+        karthik.b.s@intel.com, matthew.d.roper@intel.com,
+        rodrigo.vivi@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Nov 2021 12:52:02 +0100
-Message-ID: <1637668322209209@kroah.com>
+Date:   Tue, 23 Nov 2021 12:53:10 +0100
+Message-ID: <163766839011952@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,124 +47,63 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cecbc0c7eba7983965cac94f88d2db00b913253b Mon Sep 17 00:00:00 2001
+From 99bac3063e8e0f437b04897a399b9394919d1a79 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
-Date: Fri, 29 Oct 2021 22:18:02 +0300
-Subject: [PATCH] drm/i915/hdmi: Turn DP++ TMDS output buffers back on in
- encoder->shutdown()
+Date: Thu, 30 Sep 2021 22:09:42 +0300
+Subject: [PATCH] drm/i915: Extend the async flip VT-d w/a to skl/bxt
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Looks like our VBIOS/GOP generally fail to turn the DP dual mode adater
-TMDS output buffers back on after a reboot. This leads to a black screen
-after reboot if we turned the TMDS output buffers off prior to reboot.
-And if i915 decides to do a fastboot the black screen will persist even
-after i915 takes over.
+Looks like skl/bxt/derivatives also need the plane stride
+stretch w/a when using async flips and VT-d is enabled, or
+else we get corruption on screen. To my surprise this was
+even documented in bspec, but only as a note on the
+CHICHKEN_PIPESL register description rather than on the
+w/a list.
 
-Apparently this has been a problem ever since commit b2ccb822d376 ("drm/i915:
-Enable/disable TMDS output buffers in DP++ adaptor as needed") if one
-rebooted while the display was turned off. And things became worse with
-commit fe0f1e3bfdfe ("drm/i915: Shut down displays gracefully on reboot")
-since now we always turn the display off before a reboot.
+So very much the same thing as on HSW/BDW, except the bits
+moved yet again.
 
-This was reported on a RKL, but I confirmed the same behaviour on my
-SNB as well. So looks pretty universal.
-
-Let's fix this by explicitly turning the TMDS output buffers back on
-in the encoder->shutdown() hook. Note that this gets called after irqs
-have been disabled, so the i2c communication with the DP dual mode
-adapter has to be performed via polling (which the gmbus code is
-perfectly happy to do for us).
-
-We also need a bit of care in handling DDI encoders which may or may
-not be set up for HDMI output. Specifically ddc_pin will not be
-populated for a DP only DDI encoder, in which case we don't want to
-call intel_gmbus_get_adapter(). We can handle that by simply doing
-the dual mode adapter type check before calling
-intel_gmbus_get_adapter().
-
-Cc: <stable@vger.kernel.org> # v5.11+
-Fixes: fe0f1e3bfdfe ("drm/i915: Shut down displays gracefully on reboot")
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4371
+Cc: stable@vger.kernel.org
+Cc: Karthik B S <karthik.b.s@intel.com>
+Fixes: 55ea1cb178ef ("drm/i915: Enable async flips in i915")
 Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211029191802.18448-2-ville.syrjala@linux.intel.com
-Reviewed-by: Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>
-(cherry picked from commit 49c55f7b035b87371a6d3c53d9af9f92ddc962db)
+Link: https://patchwork.freedesktop.org/patch/msgid/20210930190943.17547-1-ville.syrjala@linux.intel.com
+Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
+(cherry picked from commit d08df3b0bdb25546e86dc9a6c4e3ec0c43832299)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit b2d73debfdc16b742e64948dc4461876af3f8c10)
 Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-diff --git a/drivers/gpu/drm/i915/display/g4x_hdmi.c b/drivers/gpu/drm/i915/display/g4x_hdmi.c
-index 88c427f3c346..f5b4dd5b4275 100644
---- a/drivers/gpu/drm/i915/display/g4x_hdmi.c
-+++ b/drivers/gpu/drm/i915/display/g4x_hdmi.c
-@@ -584,6 +584,7 @@ void g4x_hdmi_init(struct drm_i915_private *dev_priv,
- 		else
- 			intel_encoder->enable = g4x_enable_hdmi;
+diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
+index f90fe39cf8ca..ecbb3d141632 100644
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -77,6 +77,8 @@ struct intel_wm_config {
+ 
+ static void gen9_init_clock_gating(struct drm_i915_private *dev_priv)
+ {
++	enum pipe pipe;
++
+ 	if (HAS_LLC(dev_priv)) {
+ 		/*
+ 		 * WaCompressedResourceDisplayNewHashMode:skl,kbl
+@@ -90,6 +92,16 @@ static void gen9_init_clock_gating(struct drm_i915_private *dev_priv)
+ 			   SKL_DE_COMPRESSED_HASH_MODE);
  	}
-+	intel_encoder->shutdown = intel_hdmi_encoder_shutdown;
  
- 	intel_encoder->type = INTEL_OUTPUT_HDMI;
- 	intel_encoder->power_domain = intel_port_to_power_domain(port);
-diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
-index 1dcfe31e6c6f..cfb567df71b3 100644
---- a/drivers/gpu/drm/i915/display/intel_ddi.c
-+++ b/drivers/gpu/drm/i915/display/intel_ddi.c
-@@ -4361,6 +4361,7 @@ static void intel_ddi_encoder_shutdown(struct intel_encoder *encoder)
- 	enum phy phy = intel_port_to_phy(i915, encoder->port);
- 
- 	intel_dp_encoder_shutdown(encoder);
-+	intel_hdmi_encoder_shutdown(encoder);
- 
- 	if (!intel_phy_is_tc(i915, phy))
- 		return;
-diff --git a/drivers/gpu/drm/i915/display/intel_hdmi.c b/drivers/gpu/drm/i915/display/intel_hdmi.c
-index d2e61f6c6e08..371736bdc01f 100644
---- a/drivers/gpu/drm/i915/display/intel_hdmi.c
-+++ b/drivers/gpu/drm/i915/display/intel_hdmi.c
-@@ -1246,12 +1246,13 @@ static void hsw_set_infoframes(struct intel_encoder *encoder,
- void intel_dp_dual_mode_set_tmds_output(struct intel_hdmi *hdmi, bool enable)
- {
- 	struct drm_i915_private *dev_priv = intel_hdmi_to_i915(hdmi);
--	struct i2c_adapter *adapter =
--		intel_gmbus_get_adapter(dev_priv, hdmi->ddc_bus);
-+	struct i2c_adapter *adapter;
- 
- 	if (hdmi->dp_dual_mode.type < DRM_DP_DUAL_MODE_TYPE2_DVI)
- 		return;
- 
-+	adapter = intel_gmbus_get_adapter(dev_priv, hdmi->ddc_bus);
++	for_each_pipe(dev_priv, pipe) {
++		/*
++		 * "Plane N strech max must be programmed to 11b (x1)
++		 *  when Async flips are enabled on that plane."
++		 */
++		if (!IS_GEMINILAKE(dev_priv) && intel_vtd_active())
++			intel_uncore_rmw(&dev_priv->uncore, CHICKEN_PIPESL_1(pipe),
++					 SKL_PLANE1_STRETCH_MAX_MASK, SKL_PLANE1_STRETCH_MAX_X1);
++	}
 +
- 	drm_dbg_kms(&dev_priv->drm, "%s DP dual mode adaptor TMDS output\n",
- 		    enable ? "Enabling" : "Disabling");
- 
-@@ -2258,6 +2259,17 @@ int intel_hdmi_compute_config(struct intel_encoder *encoder,
- 	return 0;
- }
- 
-+void intel_hdmi_encoder_shutdown(struct intel_encoder *encoder)
-+{
-+	struct intel_hdmi *intel_hdmi = enc_to_intel_hdmi(encoder);
-+
-+	/*
-+	 * Give a hand to buggy BIOSen which forget to turn
-+	 * the TMDS output buffers back on after a reboot.
-+	 */
-+	intel_dp_dual_mode_set_tmds_output(intel_hdmi, true);
-+}
-+
- static void
- intel_hdmi_unset_edid(struct drm_connector *connector)
- {
-diff --git a/drivers/gpu/drm/i915/display/intel_hdmi.h b/drivers/gpu/drm/i915/display/intel_hdmi.h
-index b43a180d007e..2bf440eb400a 100644
---- a/drivers/gpu/drm/i915/display/intel_hdmi.h
-+++ b/drivers/gpu/drm/i915/display/intel_hdmi.h
-@@ -28,6 +28,7 @@ void intel_hdmi_init_connector(struct intel_digital_port *dig_port,
- int intel_hdmi_compute_config(struct intel_encoder *encoder,
- 			      struct intel_crtc_state *pipe_config,
- 			      struct drm_connector_state *conn_state);
-+void intel_hdmi_encoder_shutdown(struct intel_encoder *encoder);
- bool intel_hdmi_handle_sink_scrambling(struct intel_encoder *encoder,
- 				       struct drm_connector *connector,
- 				       bool high_tmds_clock_ratio,
+ 	/* See Bspec note for PSR2_CTL bit 31, Wa#828:skl,bxt,kbl,cfl */
+ 	intel_uncore_write(&dev_priv->uncore, CHICKEN_PAR1_1,
+ 		   intel_uncore_read(&dev_priv->uncore, CHICKEN_PAR1_1) | SKL_EDP_PSR_FIX_RDWRAP);
 
