@@ -2,57 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1C9845A2E6
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 13:41:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E0845A314
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 13:48:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232785AbhKWMof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 07:44:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41958 "EHLO mail.kernel.org"
+        id S236663AbhKWMwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 07:52:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231623AbhKWMoe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 07:44:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BB6F60F50;
-        Tue, 23 Nov 2021 12:41:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637671286;
-        bh=FRikde0I9a4WzIpqUt2iCu9byjSggwOwavedsafE5BY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iyquXK1I9LX5sIlQpMQ6wI4Cx2eifVgsSChGeoRAzyib/epBAQVlW1LdwucdvIclO
-         uw3JU8SiHLLYS/kky6J95Lpmab2uFUQHxEdCG1mEg4rLCGwQ0Mv5bCRcsWoDAuEkBW
-         tSM+opOqQhYJt4uPXcHBdlfy98cLCetENWC7kuEk=
-Date:   Tue, 23 Nov 2021 13:41:24 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sven Eckelmann <sven@narfation.org>
-Cc:     stable@vger.kernel.org, b.a.t.m.a.n@lists.open-mesh.org
-Subject: Re: [PATCH 4.4 00/11] batman-adv: Fixes for stable/linux-4.4.y
-Message-ID: <YZzhdAFXzHaNt5eQ@kroah.com>
-References: <20211120123939.260723-1-sven@narfation.org>
+        id S235777AbhKWMwE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 07:52:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A61F360F9F;
+        Tue, 23 Nov 2021 12:48:55 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="itlkojzZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1637671734;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=HpolBjuHC+PB3ZPuhFxusO2odaaYRNz1iowAIqcUuMs=;
+        b=itlkojzZ60mmkItAtv/Qmjl4Yu07KVJIWGwO/AsPzqBB2dJ6mVnl5BMbOpyVL1PhzMcbHM
+        fzk8NN0NLGXRyEndzZ9Fz6J9BR62y/KJzQiZGLzZnZzNvRx8tcSY2OXlpmA6MlmTuwn7MW
+        drN9LchZHzE6MQEXKe9bfVt/uP1Dc6Y=
+Received: by mail.zx2c4.com (OpenSMTPD) with ESMTPSA id a9bde089 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Tue, 23 Nov 2021 12:48:53 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     netdev@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        Wei Wang <weiwan@google.com>,
+        David Miller <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     msizanoen1 <msizanoen@qtmlabs.xyz>, stable@vger.kernel.org,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH net] ipv6: fix memory leak in fib6_rule_suppress
+Date:   Tue, 23 Nov 2021 13:48:32 +0100
+Message-Id: <20211123124832.15419-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211120123939.260723-1-sven@narfation.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 20, 2021 at 01:39:28PM +0100, Sven Eckelmann wrote:
-> Hi,
-> 
-> I went through  all changes in batman-adv since v4.4 with a Fixes: line
-> and checked whether they were backported to the LTS kernels. The ones which
-> weren't ported and applied to this branch are now part of this patch series.
-> 
-> There are also following three patches included:
-> 
-> * batman-adv: Consider fragmentation for needed_headroom
-> * batman-adv: Reserve needed_*room for fragments
-> * batman-adv: Don't always reallocate the fragmentation skb head
-> 
-> which could in some circumstances cause packet loss but which were created
-> to fix high CPU load/low throughput problems. But I've added them here
-> anyway because the corresponding VXLAN patches were also added to stable.
-> And some stable kernels also got these fixes a while back.
+From: msizanoen1 <msizanoen@qtmlabs.xyz>
 
-All patches and series now queued up, thanks!
+The kernel leaks memory when a `fib` rule is present in IPv6 nftables
+firewall rules and a suppress_prefix rule is present in the IPv6 routing
+rules (used by certain tools such as wg-quick). In such scenarios, every
+incoming packet will leak an allocation in `ip6_dst_cache` slab cache.
 
-greg k-h
+After some hours of `bpftrace`-ing and source code reading, I tracked
+down the issue to ca7a03c41753 ("ipv6: do not free rt if
+FIB_LOOKUP_NOREF is set on suppress rule").
+
+The problem with that change is that the generic `args->flags` always have
+`FIB_LOOKUP_NOREF` set[1][2] but the IPv6-specific flag
+`RT6_LOOKUP_F_DST_NOREF` might not be, leading to `fib6_rule_suppress` not
+decreasing the refcount when needed.
+
+How to reproduce:
+ - Add the following nftables rule to a prerouting chain:
+     meta nfproto ipv6 fib saddr . mark . iif oif missing drop
+   This can be done with:
+     sudo nft create table inet test
+     sudo nft create chain inet test test_chain '{ type filter hook prerouting priority filter + 10; policy accept; }'
+     sudo nft add rule inet test test_chain meta nfproto ipv6 fib saddr . mark . iif oif missing drop
+ - Run:
+     sudo ip -6 rule add table main suppress_prefixlength 0
+ - Watch `sudo slabtop -o | grep ip6_dst_cache` to see memory usage increase
+   with every incoming ipv6 packet.
+
+This patch exposes the protocol-specific flags to the protocol
+specific `suppress` function, and check the protocol-specific `flags`
+argument for RT6_LOOKUP_F_DST_NOREF instead of the generic
+FIB_LOOKUP_NOREF when decreasing the refcount, like this.
+
+[1]: https://github.com/torvalds/linux/blob/ca7a03c4175366a92cee0ccc4fec0038c3266e26/net/ipv6/fib6_rules.c#L71
+[2]: https://github.com/torvalds/linux/blob/ca7a03c4175366a92cee0ccc4fec0038c3266e26/net/ipv6/fib6_rules.c#L99
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215105
+Fixes: ca7a03c41753 ("ipv6: do not free rt if FIB_LOOKUP_NOREF is set on suppress rule")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+The original author of this commit and commit message is anonymous and
+is therefore unable to sign off on it. Greg suggested that I do the sign
+off, extracting it from the bugzilla entry above, and post it properly.
+The patch "seems to work" on first glance, but I haven't looked deeply
+at it yet and therefore it doesn't have my Reviewed-by, even though I'm
+submitting this patch on the author's behalf. And it should probably get
+a good look from the v6 fib folks. The original author should be on this
+thread to address issues that come off, and I'll shephard additional
+versions that he has.
+
+ include/net/fib_rules.h | 4 +++-
+ net/core/fib_rules.c    | 2 +-
+ net/ipv4/fib_rules.c    | 1 +
+ net/ipv6/fib6_rules.c   | 4 ++--
+ 4 files changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/include/net/fib_rules.h b/include/net/fib_rules.h
+index 4b10676c69d1..bd07484ab9dd 100644
+--- a/include/net/fib_rules.h
++++ b/include/net/fib_rules.h
+@@ -69,7 +69,7 @@ struct fib_rules_ops {
+ 	int			(*action)(struct fib_rule *,
+ 					  struct flowi *, int,
+ 					  struct fib_lookup_arg *);
+-	bool			(*suppress)(struct fib_rule *,
++	bool			(*suppress)(struct fib_rule *, int,
+ 					    struct fib_lookup_arg *);
+ 	int			(*match)(struct fib_rule *,
+ 					 struct flowi *, int);
+@@ -218,7 +218,9 @@ INDIRECT_CALLABLE_DECLARE(int fib4_rule_action(struct fib_rule *rule,
+ 			    struct fib_lookup_arg *arg));
+ 
+ INDIRECT_CALLABLE_DECLARE(bool fib6_rule_suppress(struct fib_rule *rule,
++						int flags,
+ 						struct fib_lookup_arg *arg));
+ INDIRECT_CALLABLE_DECLARE(bool fib4_rule_suppress(struct fib_rule *rule,
++						int flags,
+ 						struct fib_lookup_arg *arg));
+ #endif
+diff --git a/net/core/fib_rules.c b/net/core/fib_rules.c
+index 79df7cd9dbc1..1bb567a3b329 100644
+--- a/net/core/fib_rules.c
++++ b/net/core/fib_rules.c
+@@ -323,7 +323,7 @@ int fib_rules_lookup(struct fib_rules_ops *ops, struct flowi *fl,
+ 		if (!err && ops->suppress && INDIRECT_CALL_MT(ops->suppress,
+ 							      fib6_rule_suppress,
+ 							      fib4_rule_suppress,
+-							      rule, arg))
++							      rule, flags, arg))
+ 			continue;
+ 
+ 		if (err != -EAGAIN) {
+diff --git a/net/ipv4/fib_rules.c b/net/ipv4/fib_rules.c
+index ce54a30c2ef1..364ad3446b2f 100644
+--- a/net/ipv4/fib_rules.c
++++ b/net/ipv4/fib_rules.c
+@@ -141,6 +141,7 @@ INDIRECT_CALLABLE_SCOPE int fib4_rule_action(struct fib_rule *rule,
+ }
+ 
+ INDIRECT_CALLABLE_SCOPE bool fib4_rule_suppress(struct fib_rule *rule,
++						int flags,
+ 						struct fib_lookup_arg *arg)
+ {
+ 	struct fib_result *result = (struct fib_result *) arg->result;
+diff --git a/net/ipv6/fib6_rules.c b/net/ipv6/fib6_rules.c
+index 40f3e4f9f33a..dcedfe29d9d9 100644
+--- a/net/ipv6/fib6_rules.c
++++ b/net/ipv6/fib6_rules.c
+@@ -267,6 +267,7 @@ INDIRECT_CALLABLE_SCOPE int fib6_rule_action(struct fib_rule *rule,
+ }
+ 
+ INDIRECT_CALLABLE_SCOPE bool fib6_rule_suppress(struct fib_rule *rule,
++						int flags,
+ 						struct fib_lookup_arg *arg)
+ {
+ 	struct fib6_result *res = arg->result;
+@@ -294,8 +295,7 @@ INDIRECT_CALLABLE_SCOPE bool fib6_rule_suppress(struct fib_rule *rule,
+ 	return false;
+ 
+ suppress_route:
+-	if (!(arg->flags & FIB_LOOKUP_NOREF))
+-		ip6_rt_put(rt);
++	ip6_rt_put_flags(rt, flags);
+ 	return true;
+ }
+ 
+-- 
+2.34.0
+
