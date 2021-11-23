@@ -2,117 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53BF745AF5B
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 23:46:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1208345AF5C
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 23:46:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239185AbhKWWtN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238852AbhKWWtN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Nov 2021 17:49:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51464 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238852AbhKWWtL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 17:49:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9ADE460F5B;
-        Tue, 23 Nov 2021 22:46:02 +0000 (UTC)
+        id S239113AbhKWWtN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 17:49:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C3ED60E08;
+        Tue, 23 Nov 2021 22:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1637707562;
-        bh=zXXVp68MSRldtqr5wQZSsMIVeZ9La7LEgCi1A16xqQw=;
+        s=korg; t=1637707564;
+        bh=4LvFDitmV4HoCGXKzQY4dSbnRF2wkH+WkA2sKy0XNiw=;
         h=Date:From:To:Subject:From;
-        b=ydf1P4oNmPVWmLiOb4QtMcP143t+kOsSU1qT9TeIBc6DoN/cJhE8QAuw/OuohD3j4
-         DhL8Dgo94Uuf5Vgn4drjip4xXCANi2174+4UV1MzDSvGVBR5VB3QbXgTgvJveWK9na
-         KXkVIU1LvaLT4gWd/3Z2RbOM5ziVaNuxdHXRZs7U=
-Date:   Tue, 23 Nov 2021 14:46:02 -0800
+        b=DfK0Ks39l0QgRJC2ZWS0iXkzyyYs596rBDpXj9DOTBJIt8cMmVic/gEv9rUIZ6uPA
+         ds2GIlfbSM33tWJibbv7Ohm67cp0uEtvc/1l4p7ka3xRQwJLDeonAs/MGQqMLLs73o
+         bJWP2gPGv+Dt3EcMfxzJgHPzcEtcfjpwnpbHvEZw=
+Date:   Tue, 23 Nov 2021 14:46:04 -0800
 From:   akpm@linux-foundation.org
 To:     mm-commits@vger.kernel.org, sj@kernel.org, stable@vger.kernel.org
 Subject:  [merged]
- =?US-ASCII?Q?mm-damon-dbgfs-use-=5F=5Fgfp=5Fnowarn-for-user-specified-?=
- =?US-ASCII?Q?size-buffer-allocation.patch?= removed from -mm tree
-Message-ID: <20211123224602.SFvhJKDXb%akpm@linux-foundation.org>
+ mm-damon-dbgfs-fix-missed-use-of-damon_dbgfs_lock.patch removed from -mm
+ tree
+Message-ID: <20211123224604.77Gx2r8RM%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/damon/dbgfs: use '__GFP_NOWARN' for user-specified size buffer allocation
+     Subject: mm/damon/dbgfs: fix missed use of damon_dbgfs_lock
 has been removed from the -mm tree.  Its filename was
-     mm-damon-dbgfs-use-__gfp_nowarn-for-user-specified-size-buffer-allocation.patch
+     mm-damon-dbgfs-fix-missed-use-of-damon_dbgfs_lock.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
 From: SeongJae Park <sj@kernel.org>
-Subject: mm/damon/dbgfs: use '__GFP_NOWARN' for user-specified size buffer allocation
+Subject: mm/damon/dbgfs: fix missed use of damon_dbgfs_lock
 
-Patch series "DAMON fixes".
+DAMON debugfs is supposed to protect dbgfs_ctxs, dbgfs_nr_ctxs, and
+dbgfs_dirs using damon_dbgfs_lock.  However, some of the code is accessing
+the variables without the protection.  This commit fixes it by protecting
+all such accesses.
 
-
-This patch (of 2):
-
-DAMON users can trigger below warning in '__alloc_pages()' by invoking
-write() to some DAMON debugfs files with arbitrarily high count argument,
-because DAMON debugfs interface allocates some buffers based on the
-user-specified 'count'.
-
-        if (unlikely(order >= MAX_ORDER)) {
-                WARN_ON_ONCE(!(gfp & __GFP_NOWARN));
-                return NULL;
-        }
-
-Because the DAMON debugfs interface code checks failure of the
-'kmalloc()', this commit simply suppresses the warnings by adding
-'__GFP_NOWARN' flag.
-
-Link: https://lkml.kernel.org/r/20211110145758.16558-1-sj@kernel.org
-Link: https://lkml.kernel.org/r/20211110145758.16558-2-sj@kernel.org
-Fixes: 4bc05954d007 ("mm/damon: implement a debugfs-based user space interface")
+Link: https://lkml.kernel.org/r/20211110145758.16558-3-sj@kernel.org
+Fixes: 75c1c2b53c78 ("mm/damon/dbgfs: support multiple contexts")
 Signed-off-by: SeongJae Park <sj@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/damon/dbgfs.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ mm/damon/dbgfs.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/mm/damon/dbgfs.c~mm-damon-dbgfs-use-__gfp_nowarn-for-user-specified-size-buffer-allocation
+--- a/mm/damon/dbgfs.c~mm-damon-dbgfs-fix-missed-use-of-damon_dbgfs_lock
 +++ a/mm/damon/dbgfs.c
-@@ -32,7 +32,7 @@ static char *user_input_str(const char _
- 	if (*ppos)
- 		return ERR_PTR(-EINVAL);
+@@ -877,12 +877,14 @@ static ssize_t dbgfs_monitor_on_write(st
+ 		return -EINVAL;
+ 	}
  
--	kbuf = kmalloc(count + 1, GFP_KERNEL);
-+	kbuf = kmalloc(count + 1, GFP_KERNEL | __GFP_NOWARN);
- 	if (!kbuf)
- 		return ERR_PTR(-ENOMEM);
++	mutex_lock(&damon_dbgfs_lock);
+ 	if (!strncmp(kbuf, "on", count)) {
+ 		int i;
  
-@@ -133,7 +133,7 @@ static ssize_t dbgfs_schemes_read(struct
- 	char *kbuf;
- 	ssize_t len;
+ 		for (i = 0; i < dbgfs_nr_ctxs; i++) {
+ 			if (damon_targets_empty(dbgfs_ctxs[i])) {
+ 				kfree(kbuf);
++				mutex_unlock(&damon_dbgfs_lock);
+ 				return -EINVAL;
+ 			}
+ 		}
+@@ -892,6 +894,7 @@ static ssize_t dbgfs_monitor_on_write(st
+ 	} else {
+ 		ret = -EINVAL;
+ 	}
++	mutex_unlock(&damon_dbgfs_lock);
  
--	kbuf = kmalloc(count, GFP_KERNEL);
-+	kbuf = kmalloc(count, GFP_KERNEL | __GFP_NOWARN);
- 	if (!kbuf)
- 		return -ENOMEM;
+ 	if (!ret)
+ 		ret = count;
+@@ -944,15 +947,16 @@ static int __init __damon_dbgfs_init(voi
  
-@@ -452,7 +452,7 @@ static ssize_t dbgfs_init_regions_read(s
- 	char *kbuf;
- 	ssize_t len;
+ static int __init damon_dbgfs_init(void)
+ {
+-	int rc;
++	int rc = -ENOMEM;
  
--	kbuf = kmalloc(count, GFP_KERNEL);
-+	kbuf = kmalloc(count, GFP_KERNEL | __GFP_NOWARN);
- 	if (!kbuf)
- 		return -ENOMEM;
++	mutex_lock(&damon_dbgfs_lock);
+ 	dbgfs_ctxs = kmalloc(sizeof(*dbgfs_ctxs), GFP_KERNEL);
+ 	if (!dbgfs_ctxs)
+-		return -ENOMEM;
++		goto out;
+ 	dbgfs_ctxs[0] = dbgfs_new_ctx();
+ 	if (!dbgfs_ctxs[0]) {
+ 		kfree(dbgfs_ctxs);
+-		return -ENOMEM;
++		goto out;
+ 	}
+ 	dbgfs_nr_ctxs = 1;
  
-@@ -578,7 +578,7 @@ static ssize_t dbgfs_kdamond_pid_read(st
- 	char *kbuf;
- 	ssize_t len;
+@@ -963,6 +967,8 @@ static int __init damon_dbgfs_init(void)
+ 		pr_err("%s: dbgfs init failed\n", __func__);
+ 	}
  
--	kbuf = kmalloc(count, GFP_KERNEL);
-+	kbuf = kmalloc(count, GFP_KERNEL | __GFP_NOWARN);
- 	if (!kbuf)
- 		return -ENOMEM;
++out:
++	mutex_unlock(&damon_dbgfs_lock);
+ 	return rc;
+ }
  
 _
 
