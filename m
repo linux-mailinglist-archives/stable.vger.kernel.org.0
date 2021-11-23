@@ -2,169 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E3E45A02E
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 11:27:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DEF745A070
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 11:39:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229847AbhKWKat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 05:30:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34668 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235161AbhKWKat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 05:30:49 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DFDDC061574
-        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 02:27:41 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id x6so77845033edr.5
-        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 02:27:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=qlMWALK/MdlntNRPXPOBXX8+k0slz9MlWLCqALsY7yo=;
-        b=GmTklnmE+vKS5ULB1hlSa7DUSXEqWpnxcsvAFkdJo9LssELUpfQAUR/lwvkem5uAYG
-         Lfhj8EBad1k1QwR2Xxqe1kmwijVzRmhrp32ihM11b2QiQKoWKfqE6yaIWU44S/eo4qDZ
-         EuI9KzTdJPZxdLgghL/jGrvgR4xBviANxeAujfw24MvI6mSw4tEQkACnr7XO3m/yVSVi
-         bwEPzx3hbTVIvbajG8KehnMk41Akgy72TAdR3OlIrUVZRaDUVglexQ43x54qGqo3LHY5
-         ult/HfLURnFJHWwdTCbSjlJC5ej3B9a7LIst6/VsgRlAWsOuKkrTIWueHt2R9v9iNQ4C
-         tuKA==
+        id S229947AbhKWKnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 05:43:04 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:29891 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229764AbhKWKnD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 05:43:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1637663995;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=XK0aJCDPWMVY8iUCb8dM1QaYRFGC3oywwhYDDiHndV4=;
+        b=MTaVS3OFlP7XVS0DuEZx6Ug2Yp8YlsPa8X+odN1TjL2r+KngB30UkS8uZ0iOApHh0WyJqD
+        6+ij6/vxSAOxtpmZ5zmAWnsc+/k9g4/ACaOBWd/fD/osJPv+t9E4wevbPfOW+zirgPqXcE
+        qKe/26Tpu+6VH9FdTogIRTdGoNlP6r4=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-185-r_Leeq5sMZiQN7cxqgxDNQ-1; Tue, 23 Nov 2021 05:39:54 -0500
+X-MC-Unique: r_Leeq5sMZiQN7cxqgxDNQ-1
+Received: by mail-wr1-f70.google.com with SMTP id v17-20020adfedd1000000b0017c5e737b02so3630870wro.18
+        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 02:39:54 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
          :content-transfer-encoding;
-        bh=qlMWALK/MdlntNRPXPOBXX8+k0slz9MlWLCqALsY7yo=;
-        b=Czh2jAEeFWwgCgCvm9cpYTn3wkhBdku42SmaI/UntEVrNEBUzWnlx+OE4crp5l7b5U
-         vyx7ClL83bWe7a0Rostkex7vGY05cUbkW/+1fMfgL2gQxfRv8dqauFeBq/ufrSjiS2pP
-         PGZXkdWJmtqsl9KEaX4j5VsBH6lkx5xSwV4sVyx9AIiY0ss1rRa+FmLL89d2kmFfxbMd
-         oZok5D+86SbFWPwoYVZ5U+xTgsG1f0r9hZKr5fNKy4/WK24QSnFbbavCWrZNTtAoih/k
-         AWMWLfaMBziJP4ua91Ieuk5a8OBBGUjz/EjLuyvCYV/QSQ5RNhdi9tJxTOeE+63vMTva
-         fUpQ==
-X-Gm-Message-State: AOAM533pZ/ALv1FDwDfNYGnsOdCWRk+fqg/q/FX6mK5tI/87NNTU6WZP
-        AvGyAhxqa/gkOQAMp+ZdnxArx0w4mLKSCDAM
-X-Google-Smtp-Source: ABdhPJzGadwPCnUmF9JAh8axAngqDkkZCsm84mLRcYQXx8SbUppd0vRWt39pGo0s6CTCwfNGckD/oA==
-X-Received: by 2002:a50:f68c:: with SMTP id d12mr7227366edn.307.1637663259834;
-        Tue, 23 Nov 2021 02:27:39 -0800 (PST)
-Received: from debil.vdiclient.nvidia.com (84-238-136-197.ip.btc-net.bg. [84.238.136.197])
-        by smtp.gmail.com with ESMTPSA id w5sm5934450edc.58.2021.11.23.02.27.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Nov 2021 02:27:39 -0800 (PST)
-From:   Nikolay Aleksandrov <razor@blackwall.org>
-To:     netdev@vger.kernel.org
-Cc:     idosch@idosch.org, davem@davemloft.net, kuba@kernel.org,
-        dsahern@gmail.com, Nikolay Aleksandrov <nikolay@nvidia.com>,
-        stable@vger.kernel.org
-Subject: [PATCH net] net: nexthop: fix null pointer dereference when IPv6 is not enabled
-Date:   Tue, 23 Nov 2021 12:27:19 +0200
-Message-Id: <20211123102719.3085670-1-razor@blackwall.org>
-X-Mailer: git-send-email 2.31.1
+        bh=XK0aJCDPWMVY8iUCb8dM1QaYRFGC3oywwhYDDiHndV4=;
+        b=SNPcL45NQ47kaQdByNs+kPamta99sUlr2FFYsC8800RCK+gbnSDe3Q/BmpLlgcpcZn
+         /EvUnukOZ+m5iGKPNFHp/5eUjJzzM90ZIIOX442xK+pTkbf5bCZ3n2mueSdtpb8uebz1
+         LpcYGes32zm2X9gYiIFGrQw+BH99TsAloHJ/31FD2lM+gF+cxC5bUjUJoqQo0oc5irEC
+         Aezib9VQLbQGWLRwN7Yvh6Eb0cEh4HYzXM9fURHT2Sg8fPze1Bg6i5KZot6RlH3xbtWs
+         r4X/ig/xmIYk+RCxRfCWgJwj2ohmnDY3wRfh0uhy8lPoH9n8uiNguVbsCM93hjphAn6T
+         Cs6g==
+X-Gm-Message-State: AOAM533IO3eWiUK4AR7DuA1/YUdEMr03Vc1arCOpSGd3wLkYIb3yMNR4
+        ZVNVgGa4kPAn9KR52AGilgQpYx0b7uvGY05onJnqIYJ1fVADFdXawwFv4wGmP4tiFEw2XTSD1k6
+        KEFpFulRJWSXLEjpE
+X-Received: by 2002:a7b:c102:: with SMTP id w2mr1721642wmi.151.1637663993248;
+        Tue, 23 Nov 2021 02:39:53 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwqhwwWfAzk772dDrU+DzYrMGjxPc1RC0qFfScB8KPG+OISG92+TCtdFD7PBOobSW78biUqSg==
+X-Received: by 2002:a7b:c102:: with SMTP id w2mr1721617wmi.151.1637663992970;
+        Tue, 23 Nov 2021 02:39:52 -0800 (PST)
+Received: from [192.168.3.132] (p5b0c6765.dip0.t-ipconnect.de. [91.12.103.101])
+        by smtp.gmail.com with ESMTPSA id g19sm785878wmg.12.2021.11.23.02.39.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 23 Nov 2021 02:39:52 -0800 (PST)
+Message-ID: <1b3077a2-a365-3742-5238-e85cd3af816d@redhat.com>
+Date:   Tue, 23 Nov 2021 11:39:51 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: FAILED: patch "[PATCH] proc/vmcore: fix clearing user buffer by
+ properly using" failed to apply to 5.10-stable tree
+Content-Language: en-US
+To:     Dave Young <dyoung@redhat.com>, gregkh@linuxfoundation.org
+Cc:     akpm <akpm@linux-foundation.org>, bhe <bhe@redhat.com>,
+        Philipp Rudo <prudo@redhat.com>, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, "Goyal, Vivek" <vgoyal@redhat.com>
+References: <16375840231750@kroah.com>
+ <CALu+AoRMcX9Xg97yBzHd1qYONNutoX9R+VksxpE0Hr6eUtXPGw@mail.gmail.com>
+From:   David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <CALu+AoRMcX9Xg97yBzHd1qYONNutoX9R+VksxpE0Hr6eUtXPGw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+On 23.11.21 07:20, Dave Young wrote:
+> 
+> 
+> On Mon, 22 Nov 2021 at 20:33, <gregkh@linuxfoundation.org
+> <mailto:gregkh@linuxfoundation.org>> wrote:
+> 
+> 
+>     The patch below does not apply to the 5.10-stable tree.
+>     If someone wants it applied there, or to any other stable or longterm
+>     tree, then please email the backport, including the original git commit
+>     id to <stable@vger.kernel.org <mailto:stable@vger.kernel.org>>.
+> 
+>     thanks,
+> 
+>     greg k-h
+> 
+>     ------------------ original commit in Linus's tree ------------------
+> 
+>     From c1e63117711977cc4295b2ce73de29dd17066c82 Mon Sep 17 00:00:00 2001
+>     From: David Hildenbrand <david@redhat.com <mailto:david@redhat.com>>
+>     Date: Fri, 19 Nov 2021 16:43:58 -0800
+>     Subject: [PATCH] proc/vmcore: fix clearing user buffer by properly using
+>      clear_user()
+> 
+> 
+> I think this is a very corner case and a good-to-have fix in stable, 
+> but we can also leave it as is.
+> I would like to leave this to David.  David?  Would you like to rebase
+> or drop it?
 
-When we try to add an IPv6 nexthop and IPv6 is not enabled
-(!CONFIG_IPV6) we'll hit a NULL pointer dereference[1] in the error path
-of nh_create_ipv6() due to calling ipv6_stub->fib6_nh_release. The bug
-has been present since the beginning of IPv6 nexthop gateway support.
-Commit 1aefd3de7bc6 ("ipv6: Add fib6_nh_init and release to stubs") tells
-us that only fib6_nh_init has a dummy stub because fib6_nh_release should
-not be called if fib6_nh_init returns an error, but the commit below added
-a call to ipv6_stub->fib6_nh_release in its error path. To fix it return
-the dummy stub's -EAFNOSUPPORT error directly without calling
-ipv6_stub->fib6_nh_release in nh_create_ipv6()'s error path.
+I'll have a look how easy (and different) the backports for the stable
+trees area. I assume they are easy, then I'll just do the backport.
 
-[1]
- Output is a bit truncated, but it clearly shows the error.
- BUG: kernel NULL pointer dereference, address: 000000000000000000
- #PF: supervisor instruction fetch in kernel modede
- #PF: error_code(0x0010) - not-present pagege
- PGD 0 P4D 0
- Oops: 0010 [#1] PREEMPT SMP NOPTI
- CPU: 4 PID: 638 Comm: ip Kdump: loaded Not tainted 5.16.0-rc1+ #446
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
- RIP: 0010:0x0
- Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
- RSP: 0018:ffff888109f5b8f0 EFLAGS: 00010286^Ac
- RAX: 0000000000000000 RBX: ffff888109f5ba28 RCX: 0000000000000000
- RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff8881008a2860
- RBP: ffff888109f5b9d8 R08: 0000000000000000 R09: 0000000000000000
- R10: ffff888109f5b978 R11: ffff888109f5b948 R12: 00000000ffffff9f
- R13: ffff8881008a2a80 R14: ffff8881008a2860 R15: ffff8881008a2840
- FS:  00007f98de70f100(0000) GS:ffff88822bf00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: ffffffffffffffd6 CR3: 0000000100efc000 CR4: 00000000000006e0
- Call Trace:
-  <TASK>
-  nh_create_ipv6+0xed/0x10c
-  rtm_new_nexthop+0x6d7/0x13f3
-  ? check_preemption_disabled+0x3d/0xf2
-  ? lock_is_held_type+0xbe/0xfd
-  rtnetlink_rcv_msg+0x23f/0x26a
-  ? check_preemption_disabled+0x3d/0xf2
-  ? rtnl_calcit.isra.0+0x147/0x147
-  netlink_rcv_skb+0x61/0xb2
-  netlink_unicast+0x100/0x187
-  netlink_sendmsg+0x37f/0x3a0
-  ? netlink_unicast+0x187/0x187
-  sock_sendmsg_nosec+0x67/0x9b
-  ____sys_sendmsg+0x19d/0x1f9
-  ? copy_msghdr_from_user+0x4c/0x5e
-  ? rcu_read_lock_any_held+0x2a/0x78
-  ___sys_sendmsg+0x6c/0x8c
-  ? asm_sysvec_apic_timer_interrupt+0x12/0x20
-  ? lockdep_hardirqs_on+0xd9/0x102
-  ? sockfd_lookup_light+0x69/0x99
-  __sys_sendmsg+0x50/0x6e
-  do_syscall_64+0xcb/0xf2
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f98dea28914
- Code: 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b5 0f 1f 80 00 00 00 00 48 8d 05 e9 5d 0c 00 8b 00 85 c0 75 13 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 54 c3 0f 1f 00 41 54 41 89 d4 55 48 89 f5 53
- RSP: 002b:00007fff859f5e68 EFLAGS: 00000246 ORIG_RAX: 000000000000002e2e
- RAX: ffffffffffffffda RBX: 00000000619cb810 RCX: 00007f98dea28914
- RDX: 0000000000000000 RSI: 00007fff859f5ed0 RDI: 0000000000000003
- RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000008
- R10: fffffffffffffce6 R11: 0000000000000246 R12: 0000000000000001
- R13: 000055c0097ae520 R14: 000055c0097957fd R15: 00007fff859f63a0
- </TASK>
- Modules linked in: bridge stp llc bonding virtio_net
 
-Cc: stable@vger.kernel.org
-Fixes: 53010f991a9f ("nexthop: Add support for IPv6 gateways")
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
----
-I found this while testing my recent nexthop fixes, alternatively we can
-add a fib6_nh_release dummy stub. I don't have strong preference so if
-anyone prefers it just let me know. This fix is smaller for backports,
-that's why I went with it.
-
- net/ipv4/nexthop.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
-index a69a9e76f99f..5dbd4b5505eb 100644
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -2565,11 +2565,15 @@ static int nh_create_ipv6(struct net *net,  struct nexthop *nh,
- 	/* sets nh_dev if successful */
- 	err = ipv6_stub->fib6_nh_init(net, fib6_nh, &fib6_cfg, GFP_KERNEL,
- 				      extack);
--	if (err)
-+	if (err) {
-+		/* IPv6 is not enabled, don't call fib6_nh_release */
-+		if (err == -EAFNOSUPPORT)
-+			goto out;
- 		ipv6_stub->fib6_nh_release(fib6_nh);
--	else
-+	} else {
- 		nh->nh_flags = fib6_nh->fib_nh_flags;
--
-+	}
-+out:
- 	return err;
- }
- 
 -- 
-2.31.1
+Thanks,
+
+David / dhildenb
 
