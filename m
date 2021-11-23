@@ -2,127 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6349B45AF0E
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 23:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9295A45AF55
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 23:45:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229824AbhKWWbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 17:31:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33300 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229675AbhKWWbz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 17:31:55 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D717AC061574
-        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 14:28:46 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id j5-20020a17090a318500b001a6c749e697so2951907pjb.1
-        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 14:28:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=xXWENpgWlVU02Dl+cUXfWGVJh7aYJYdRwk/KnAkvyZA=;
-        b=ClT3YfNscpgcHo+x59mFh36Wa38Og7QHn9HEweR92fg8kQ0fFwASFKY6tHeSa5f8+i
-         AgS086QlSkl3QHWdr7dzqu3KJGPAO5xzdEG1sDNFKsC5TSawSGecv69m916oTQz1W0HF
-         0PRSq6vvYvxQtsIdKcHisWZbTl90DtWY0JUn2BX41MUCtVGSetk9KfQ+83BB28tv7LoP
-         2x8IIP06RNh8/GV/ESQS3bcSxyFHf/TKpqHQwiT0jlLtnh++Nl3RcABOY3XJkO2XHhuq
-         u2s/2Xg5b00+sqtbLyulIJzteer5IJYr6FiV/Ju2SlhBmfDGuwnx19yoM+eXs6jSI4tu
-         zZHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=xXWENpgWlVU02Dl+cUXfWGVJh7aYJYdRwk/KnAkvyZA=;
-        b=1G0yyV8XhYCyrJFFQCxaAaxE+HH96iIDPLWfTLOyIjd/97Y4TsYWHTuPnuaz5w8/ar
-         +lphz8HsNbVWOXWs7S+kw6+/mq/MMD3dXtYFTxsYGkVh8LAxpHS/Z4mia+WoH/nYMl3u
-         watF+thEpfSs3ixOG8Y1ifYIWNWXObY/XBxPHdpbN1J5YoKD0r1jwG2zQhVZtucn+EOA
-         C5ciHMZdFZp2Pus0kuo7X1X5CWKCxs13JX4xLj0ZW8M0G9li7mTl7Hi+pM7bQRq7dENp
-         TMQvm3T0Ovddd2RE80AA0VvBATYFJof9Bvsp/f7sLgSjh3rt1NomTwI0Q+c+lUOSVx3c
-         6yaQ==
-X-Gm-Message-State: AOAM533q0KPlkiiUeoGHY0CP6ZrukG/bePZWFmD2YBEKpZIWucyou0Ve
-        StWY92oADTsoOxhtBEu2Xgalry7wdNn6/LIz
-X-Google-Smtp-Source: ABdhPJzkshDjBTbX4MLbkxoetyVOC9ekaMIAFByA/jRdJheGkEwsMe/wAZXo2sMve3c5J2HSk5Qp4Q==
-X-Received: by 2002:a17:902:d703:b0:144:e012:d550 with SMTP id w3-20020a170902d70300b00144e012d550mr10873419ply.38.1637706526257;
-        Tue, 23 Nov 2021 14:28:46 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v10sm14010892pfu.123.2021.11.23.14.28.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Nov 2021 14:28:46 -0800 (PST)
-Message-ID: <619d6b1e.1c69fb81.a38e2.6fcb@mx.google.com>
-Date:   Tue, 23 Nov 2021 14:28:46 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.290-204-g0f8512aac86d
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.9 baseline: 120 runs,
- 1 regressions (v4.9.290-204-g0f8512aac86d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S230023AbhKWWso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 17:48:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50872 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229774AbhKWWsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 17:48:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C681A60F5D;
+        Tue, 23 Nov 2021 22:45:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1637707535;
+        bh=CpRrrWk9aWIu9SjC7KwhFAwYIYBWgRFgmWFyFDsLGGM=;
+        h=Date:From:To:Subject:From;
+        b=cRztrMXjglwzw/CnmI7zgInTgncvQgIcnDcWrnYRlNt+lkZ/DchdK7N12mVL3wZAo
+         Z0VwQMSfievehjzlk5fkk1xEnhJew59V8FdOa3J5zmmsDIuHA/aSZUtYu4AeLowxxq
+         BCkwnIitC/OSHLwEkzBHldBdoTcdMNzRBq27igII=
+Date:   Tue, 23 Nov 2021 14:45:34 -0800
+From:   akpm@linux-foundation.org
+To:     alexander.mikhalitsyn@virtuozzo.com, avagin@gmail.com,
+        dave@stgolabs.net, ebiederm@xmission.com,
+        gregkh@linuxfoundation.org, manfred@colorfullife.com,
+        mm-commits@vger.kernel.org, ptikhomirov@virtuozzo.com,
+        stable@vger.kernel.org, vvs@virtuozzo.com
+Subject:  [merged]
+ ipc-warn-if-trying-to-remove-ipc-object-which-is-absent.patch removed from
+ -mm tree
+Message-ID: <20211123224534.d7EfwPRdS%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 120 runs, 1 regressions (v4.9.290-204-g0f8512=
-aac86d)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: ipc: WARN if trying to remove ipc object which is absent
+has been removed from the -mm tree.  Its filename was
+     ipc-warn-if-trying-to-remove-ipc-object-which-is-absent.patch
 
-platform         | arch   | lab         | compiler | defconfig             =
-       | regressions
------------------+--------+-------------+----------+-----------------------=
--------+------------
-qemu_x86_64-uefi | x86_64 | lab-broonie | gcc-10   | x86_64_defcon...6-chro=
-mebook | 1          =
+This patch was dropped because it was merged into mainline or a subsystem tree
+
+------------------------------------------------------
+From: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+Subject: ipc: WARN if trying to remove ipc object which is absent
+
+Patch series "shm: shm_rmid_forced feature fixes".
+
+Some time ago I met kernel crash after CRIU restore procedure,
+fortunately, it was CRIU restore, so, I had dump files and could do
+restore many times and crash reproduced easily.  After some investigation
+I've constructed the minimal reproducer.  It was found that it's
+use-after-free and it happens only if sysctl kernel.shm_rmid_forced = 1.
+
+The key of the problem is that the exit_shm() function not handles shp's
+object destroy when task->sysvshm.shm_clist contains items from different
+IPC namespaces.  In most cases this list will contain only items from one
+IPC namespace.
+
+Why this list may contain object from different namespaces?  Function
+exit_shm() designed to clean up this list always when process leaves IPC
+namespace.  But we made a mistake a long time ago and not add exit_shm()
+call into setns() syscall procedures.  1st second idea was just to add
+this call to setns() syscall but it's obviously changes semantics of
+setns() syscall and that's userspace-visible change.  So, I gave up this
+idea.
+
+First real attempt to address the issue was just to omit forced destroy if
+we meet shp object not from current task IPC namespace [1].  But that was
+not the best idea because task->sysvshm.shm_clist was protected by rwsem
+which belongs to current task IPC namespace.  It means that list
+corruption may occur.
+
+Second approach is just extend exit_shm() to properly handle shp's from
+different IPC namespaces [2].  This is really non-trivial thing, I've put
+a lot of effort into that but not believed that it's possible to make it
+fully safe, clean and clear.
+
+Thanks to the efforts of Manfred Spraul working an elegant solution was
+designed.  Thanks a lot, Manfred!
+
+Eric also suggested the way to address the issue in ("[RFC][PATCH] shm: In
+shm_exit destroy all created and never attached segments") Eric's idea was
+to maintain a list of shm_clists one per IPC namespace, use lock-less
+lists.  But there is some extra memory consumption-related concerns.
+
+Alternative solution which was suggested by me was implemented in ("shm:
+reset shm_clist on setns but omit forced shm destroy") Idea is pretty
+simple, we add exit_shm() syscall to setns() but DO NOT destroy shm
+segments even if sysctl kernel.shm_rmid_forced = 1, we just clean up the
+task->sysvshm.shm_clist list.  This chages semantics of setns() syscall a
+little bit but in comparision to "naive" solution when we just add
+exit_shm() without any special exclusions this looks like a safer option.
+
+[1] https://lkml.org/lkml/2021/7/6/1108
+[2] https://lkml.org/lkml/2021/7/14/736
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.290-204-g0f8512aac86d/plan/baseline/
+This patch (of 2):
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.290-204-g0f8512aac86d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0f8512aac86d82537a4c327c28e986c707a29413 =
+Let's produce a warning if we trying to remove non-existing IPC object
+from IPC namespace kht/idr structures.
+
+This allows to catch possible bugs when ipc_rmid() function was called
+with inconsistent struct ipc_ids*, struct kern_ipc_perm* arguments.
+
+Link: https://lkml.kernel.org/r/20211027224348.611025-1-alexander.mikhalitsyn@virtuozzo.com
+Link: https://lkml.kernel.org/r/20211027224348.611025-2-alexander.mikhalitsyn@virtuozzo.com
+Co-developed-by: Manfred Spraul <manfred@colorfullife.com>
+Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
+Signed-off-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Andrei Vagin <avagin@gmail.com>
+Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+Cc: Vasily Averin <vvs@virtuozzo.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ ipc/util.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/ipc/util.c~ipc-warn-if-trying-to-remove-ipc-object-which-is-absent
++++ a/ipc/util.c
+@@ -447,8 +447,8 @@ static int ipcget_public(struct ipc_name
+ static void ipc_kht_remove(struct ipc_ids *ids, struct kern_ipc_perm *ipcp)
+ {
+ 	if (ipcp->key != IPC_PRIVATE)
+-		rhashtable_remove_fast(&ids->key_ht, &ipcp->khtnode,
+-				       ipc_kht_params);
++		WARN_ON_ONCE(rhashtable_remove_fast(&ids->key_ht, &ipcp->khtnode,
++				       ipc_kht_params));
+ }
+ 
+ /**
+@@ -498,7 +498,7 @@ void ipc_rmid(struct ipc_ids *ids, struc
+ {
+ 	int idx = ipcid_to_idx(ipcp->id);
+ 
+-	idr_remove(&ids->ipcs_idr, idx);
++	WARN_ON_ONCE(idr_remove(&ids->ipcs_idr, idx) != ipcp);
+ 	ipc_kht_remove(ids, ipcp);
+ 	ids->in_use--;
+ 	ipcp->deleted = true;
+_
+
+Patches currently in -mm which might be from alexander.mikhalitsyn@virtuozzo.com are
 
 
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch   | lab         | compiler | defconfig             =
-       | regressions
------------------+--------+-------------+----------+-----------------------=
--------+------------
-qemu_x86_64-uefi | x86_64 | lab-broonie | gcc-10   | x86_64_defcon...6-chro=
-mebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/619d4017fc8e71b974f2efad
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.290-2=
-04-g0f8512aac86d/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
-baseline-qemu_x86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.290-2=
-04-g0f8512aac86d/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
-baseline-qemu_x86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/619d4017fc8e71b974f2e=
-fae
-        new failure (last pass: v4.9.290-192-ge1c5881b115f) =
-
- =20
