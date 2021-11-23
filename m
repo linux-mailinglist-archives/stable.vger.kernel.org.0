@@ -2,73 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8708F459EF5
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 10:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D9E459F16
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 10:17:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234577AbhKWJOl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 04:14:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55626 "EHLO mail.kernel.org"
+        id S232342AbhKWJUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 04:20:14 -0500
+Received: from mga05.intel.com ([192.55.52.43]:42710 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232003AbhKWJOl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 04:14:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49D2660F5A;
-        Tue, 23 Nov 2021 09:11:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637658693;
-        bh=uw8P7/0v1UxKq6wjCwJcO0k0TrTVKVVMdns8Y5hTk00=;
-        h=From:To:Cc:Subject:Date:From;
-        b=XgV4T7ldai2Qxq+dvxPzTs2iEBDoI9lnuFZMjPFEPxJDeorVjRdDzPeCyMXKIklCd
-         EA4YBXc5zwap87uWJP9YdXq7h7A9wYHMOeeHVpWPlLQnHabGP0dihoAqHkTk6BE8IW
-         uTMJzyrvryEUgSwSmWqLc/pUFQQmISKB2XKJOVOytcUruZcP2IaB3YCr2t0J7PHVYW
-         T1Zsm95GTon/38o4PIuW0rszLUd3CBhugkvZjqMaTiRGGZp3imw3aiu4MSqwWgl8yN
-         lfNSpP512uq9cjCyuJzklaSd5+epApiA23pLTeF6EsIrRRuJuqJmOAI60VMcUFYggy
-         VhZOzlkWTjC0Q==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1mpRpY-00080p-UQ; Tue, 23 Nov 2021 10:11:13 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Anton Lundin <glance@acc.umu.se>, stable@vger.kernel.org
-Subject: [PATCH] USB: serial: pl2303: fix GC type detection
-Date:   Tue, 23 Nov 2021 10:10:17 +0100
-Message-Id: <20211123091017.30708-1-johan@kernel.org>
-X-Mailer: git-send-email 2.32.0
+        id S232715AbhKWJUN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 04:20:13 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10176"; a="321220014"
+X-IronPort-AV: E=Sophos;i="5.87,257,1631602800"; 
+   d="scan'208";a="321220014"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Nov 2021 01:17:05 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.87,257,1631602800"; 
+   d="scan'208";a="650011034"
+Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.199]) ([10.237.72.199])
+  by fmsmga001.fm.intel.com with ESMTP; 23 Nov 2021 01:17:03 -0800
+Subject: Re: [RFT PATCH] usb: hub: Fix locking issues with address0_mutex
+To:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        gregkh@linuxfoundation.org, stern@rowland.harvard.edu,
+        kishon@ti.com
+Cc:     hdegoede@redhat.com, chris.chiu@canonical.com,
+        linux-usb@vger.kernel.org, stable@vger.kernel.org
+References: <1d6ef5ff-e5e2-b81e-42be-7876b5bcfd05@linux.intel.com>
+ <CGME20211122104844eucas1p193f1cdbe6255ccd2f945726711e719a4@eucas1p1.samsung.com>
+ <20211122105003.1089218-1-mathias.nyman@linux.intel.com>
+ <22f12ed7-18f3-9800-3858-9738f9ccd1f2@samsung.com>
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+Message-ID: <e3be3b04-838a-2de6-2590-e2050af29b7d@linux.intel.com>
+Date:   Tue, 23 Nov 2021 11:18:35 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <22f12ed7-18f3-9800-3858-9738f9ccd1f2@samsung.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-At least some PL2303GC have a bcdDevice of 0x105 instead of 0x100 as the
-datasheet claims. Add it to the list of known release numbers for the
-HXN (G) type.
+On 22.11.2021 14.27, Marek Szyprowski wrote:
+> Hi,
+> 
+> On 22.11.2021 11:50, Mathias Nyman wrote:
+>> Fix the circular lock dependency and unbalanced unlock of addess0_mutex
+>> introduced when fixing an address0_mutex enumeration retry race in commit
+>> ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
+>>
+>> Make sure locking order between port_dev->status_lock and address0_mutex
+>> is correct, and that address0_mutex is not unlocked in hub_port_connect
+>> "done:" codepath which may be reached without locking address0_mutex
+>>
+>> Fixes: 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
+>> Cc: <stable@vger.kernel.org>
+>> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+> This fixes the issue I've reported here: 
+> https://lore.kernel.org/all/f3bfcbc7-f701-c74a-09bd-6491d4c8d863@samsung.com/
+> Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
 
-Note the chip type could only be determined indirectly based on its
-package being of QFP type, which appears to only be available for
-PL2303GC.
+Thank you for testing, I'll add these tags
 
-Fixes: 894758d0571d ("USB: serial: pl2303: tighten type HXN (G) detection")
-Reported-by: Anton Lundin <glance@acc.umu.se>
-Link: https://lore.kernel.org/r/20211123071613.GZ108031@montezuma.acc.umu.se
-Cc: stable@vger.kernel.org	# 5.13
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/pl2303.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/usb/serial/pl2303.c b/drivers/usb/serial/pl2303.c
-index f45ca7ddf78e..a70fd86f735c 100644
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -432,6 +432,7 @@ static int pl2303_detect_type(struct usb_serial *serial)
- 	case 0x200:
- 		switch (bcdDevice) {
- 		case 0x100:
-+		case 0x105:
- 		case 0x305:
- 		case 0x405:
- 			/*
--- 
-2.32.0
-
+-Mathias
