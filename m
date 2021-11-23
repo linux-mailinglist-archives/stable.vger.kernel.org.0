@@ -2,110 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C42B45A106
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:10:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0919545A108
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 12:10:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235848AbhKWLNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 06:13:07 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:43533 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234250AbhKWLNG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 06:13:06 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 4E5FF5C023C;
-        Tue, 23 Nov 2021 06:09:58 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Tue, 23 Nov 2021 06:09:58 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=RZZmGZ
-        o6hxlB3LWIz7vJN/EDb9BFZamP+Fs++n5u3wo=; b=R4274JmJimsfUCpRNugRxH
-        SB07C0o7JuFUF2FKD9j0zb5h3xO9as89+XE+smahMufgwRYP4XK8Nds4/gD0mFIl
-        2R2b2RBB1OC6gaRXi0Ah7Cfg3L+ySv0NCEyIhHEXgcfvICFg4hexA1U79MCeECTb
-        IaXNbwov9BU1A+Vuza2E99R2hv7bpta99lCV/bv3V0agxwcAzWKGwuuUhacqVWCI
-        4aO6fDFjEJTHt9UC44OHK9E9jNUUwXyclemMyFN/8cIqK11pLLex6Rajf1EJ/IrR
-        FtaJIJV3CKQKmara3jTeYKbclaosMORmNuXP+avtX9jN0ENwC09okgEpvnexq8xg
-        ==
-X-ME-Sender: <xms:BsycYSrHtBm1sm4gnAVql8YU4j3HLsCS-xyNKEUkdzHDaEvW080t-g>
-    <xme:BsycYQqllqsENG1AleoVBrA0kS9nQmhN1DtWgEZravyEQO_w9l0H35lHE2mDuzwtr
-    naw2E0UkKGQQX4>
-X-ME-Received: <xmr:BsycYXOZAzB4tKzA79lXme_tPCbryE7kc1IPaQWev72lBNlMu8iDmvu886qweZz99rMOAj9i31Lwd62e0Ng3k0WuJdn6iA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrgeeigddvhecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepkfguohcuufgt
-    hhhimhhmvghluceoihguohhstghhsehiughoshgthhdrohhrgheqnecuggftrfgrthhtvg
-    hrnheptdffkeekfeduffevgeeujeffjefhtefgueeugfevtdeiheduueeukefhudehleet
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepihguoh
-    hstghhsehiughoshgthhdrohhrgh
-X-ME-Proxy: <xmx:BsycYR4UTSI4VBl_tAlHg1pf1DYarPRCO3m0uBW52pUVSsmDia6l2A>
-    <xmx:BsycYR5J0KYNgYosvzl0a7Kgywpci_9Jk-iH5u_XCLNVBtqTZNb5rg>
-    <xmx:BsycYRiy7hQYQ2JByhx7V447LgNItW5aC2G6x8RRagnLat0fffoAtw>
-    <xmx:BsycYU0-iK7e6xVp9qjiV9XMXAGOPEqJWCxt913s5NHZDRmXtA-6Mg>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 23 Nov 2021 06:09:57 -0500 (EST)
-Date:   Tue, 23 Nov 2021 13:09:54 +0200
-From:   Ido Schimmel <idosch@idosch.org>
-To:     Nikolay Aleksandrov <razor@blackwall.org>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        dsahern@gmail.com, Nikolay Aleksandrov <nikolay@nvidia.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH net] net: nexthop: fix null pointer dereference when IPv6
- is not enabled
-Message-ID: <YZzMAgIKFsCRjgc/@shredder>
-References: <20211123102719.3085670-1-razor@blackwall.org>
+        id S235937AbhKWLNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 06:13:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234250AbhKWLNI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 06:13:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1025460F58;
+        Tue, 23 Nov 2021 11:09:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637665800;
+        bh=/Bhp5SiNog3DVvFLVRJ+mzOHrAgoMit7c+TOUi/7nI4=;
+        h=Subject:To:Cc:From:Date:From;
+        b=bTogs+FbiqCNJ6bMtkZbbeEBkD/qqDehYK1BUaFvfe1/1JbC9HtZGtM0zFtsZBWup
+         bxtafoRiUTQSemTPaWpjyocL0gunXdIUDyGr31dm5aPmnOQfGFnvNmi1ixNQt892Wb
+         JpEf6ZjiirrVYmh+dHvpXnbo8NInPUwJAXENDwUk=
+Subject: FAILED: patch "[PATCH] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC reg" failed to apply to 4.4-stable tree
+To:     ankit.k.nautiyal@intel.com, daniel.vetter@ffwll.ch,
+        jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com,
+        paulo.r.zanoni@intel.com, rodrigo.vivi@intel.com,
+        stable@vger.kernel.org, uma.shankar@intel.com,
+        ville.syrjala@linux.intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 23 Nov 2021 12:09:58 +0100
+Message-ID: <163766579847207@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211123102719.3085670-1-razor@blackwall.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 23, 2021 at 12:27:19PM +0200, Nikolay Aleksandrov wrote:
-> From: Nikolay Aleksandrov <nikolay@nvidia.com>
-> 
-> When we try to add an IPv6 nexthop and IPv6 is not enabled
-> (!CONFIG_IPV6) we'll hit a NULL pointer dereference[1] in the error path
-> of nh_create_ipv6() due to calling ipv6_stub->fib6_nh_release. The bug
-> has been present since the beginning of IPv6 nexthop gateway support.
-> Commit 1aefd3de7bc6 ("ipv6: Add fib6_nh_init and release to stubs") tells
-> us that only fib6_nh_init has a dummy stub because fib6_nh_release should
-> not be called if fib6_nh_init returns an error, but the commit below added
-> a call to ipv6_stub->fib6_nh_release in its error path. To fix it return
-> the dummy stub's -EAFNOSUPPORT error directly without calling
-> ipv6_stub->fib6_nh_release in nh_create_ipv6()'s error path.
 
-[...]
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
-> index a69a9e76f99f..5dbd4b5505eb 100644
-> --- a/net/ipv4/nexthop.c
-> +++ b/net/ipv4/nexthop.c
-> @@ -2565,11 +2565,15 @@ static int nh_create_ipv6(struct net *net,  struct nexthop *nh,
->  	/* sets nh_dev if successful */
->  	err = ipv6_stub->fib6_nh_init(net, fib6_nh, &fib6_cfg, GFP_KERNEL,
->  				      extack);
-> -	if (err)
-> +	if (err) {
-> +		/* IPv6 is not enabled, don't call fib6_nh_release */
-> +		if (err == -EAFNOSUPPORT)
-> +			goto out;
->  		ipv6_stub->fib6_nh_release(fib6_nh);
+thanks,
 
-Is the call actually necessary? If fib6_nh_init() failed, then I believe
-it should clean up after itself and not rely on fib6_nh_release().
+greg k-h
 
-> -	else
-> +	} else {
->  		nh->nh_flags = fib6_nh->fib_nh_flags;
-> -
-> +	}
-> +out:
->  	return err;
->  }
->  
-> -- 
-> 2.31.1
-> 
+------------------ original commit in Linus's tree ------------------
+
+From 70418a68713c13da3f36c388087d0220b456a430 Mon Sep 17 00:00:00 2001
+From: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Date: Wed, 11 Aug 2021 10:48:57 +0530
+Subject: [PATCH] drm/i915/display: Fix the 12 BPC bits for PIPE_MISC reg
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Till DISPLAY12 the PIPE_MISC bits 5-7 are used to set the
+Dithering BPC, with valid values of 6, 8, 10 BPC.
+For ADLP+ these bits are used to set the PORT OUTPUT BPC, with valid
+values of: 6, 8, 10, 12 BPC, and need to be programmed whether
+dithering is enabled or not.
+
+This patch:
+-corrects the bits 5-7 for PIPE MISC register for 12 BPC.
+-renames the bits and mask to have generic names for these bits for
+dithering bpc and port output bpc.
+
+v3: Added a note for MIPI DSI which uses the PIPE_MISC for readout
+for pipe_bpp. (Uma Shankar)
+
+v2: Added 'display' to the subject and fixes tag. (Uma Shankar)
+
+Fixes: 756f85cffef2 ("drm/i915/bdw: Broadwell has PIPEMISC")
+Cc: Paulo Zanoni <paulo.r.zanoni@intel.com> (v1)
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v3.13+
+
+Signed-off-by: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Reviewed-by: Uma Shankar <uma.shankar@intel.com>
+Signed-off-by: Uma Shankar <uma.shankar@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210811051857.109723-1-ankit.k.nautiyal@intel.com
+
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index 122f091e0a1e..58f51854bb79 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -5835,16 +5835,18 @@ static void bdw_set_pipemisc(const struct intel_crtc_state *crtc_state)
+ 
+ 	switch (crtc_state->pipe_bpp) {
+ 	case 18:
+-		val |= PIPEMISC_DITHER_6_BPC;
++		val |= PIPEMISC_6_BPC;
+ 		break;
+ 	case 24:
+-		val |= PIPEMISC_DITHER_8_BPC;
++		val |= PIPEMISC_8_BPC;
+ 		break;
+ 	case 30:
+-		val |= PIPEMISC_DITHER_10_BPC;
++		val |= PIPEMISC_10_BPC;
+ 		break;
+ 	case 36:
+-		val |= PIPEMISC_DITHER_12_BPC;
++		/* Port output 12BPC defined for ADLP+ */
++		if (DISPLAY_VER(dev_priv) > 12)
++			val |= PIPEMISC_12_BPC_ADLP;
+ 		break;
+ 	default:
+ 		MISSING_CASE(crtc_state->pipe_bpp);
+@@ -5897,15 +5899,27 @@ int bdw_get_pipemisc_bpp(struct intel_crtc *crtc)
+ 
+ 	tmp = intel_de_read(dev_priv, PIPEMISC(crtc->pipe));
+ 
+-	switch (tmp & PIPEMISC_DITHER_BPC_MASK) {
+-	case PIPEMISC_DITHER_6_BPC:
++	switch (tmp & PIPEMISC_BPC_MASK) {
++	case PIPEMISC_6_BPC:
+ 		return 18;
+-	case PIPEMISC_DITHER_8_BPC:
++	case PIPEMISC_8_BPC:
+ 		return 24;
+-	case PIPEMISC_DITHER_10_BPC:
++	case PIPEMISC_10_BPC:
+ 		return 30;
+-	case PIPEMISC_DITHER_12_BPC:
+-		return 36;
++	/*
++	 * PORT OUTPUT 12 BPC defined for ADLP+.
++	 *
++	 * TODO:
++	 * For previous platforms with DSI interface, bits 5:7
++	 * are used for storing pipe_bpp irrespective of dithering.
++	 * Since the value of 12 BPC is not defined for these bits
++	 * on older platforms, need to find a workaround for 12 BPC
++	 * MIPI DSI HW readout.
++	 */
++	case PIPEMISC_12_BPC_ADLP:
++		if (DISPLAY_VER(dev_priv) > 12)
++			return 36;
++		fallthrough;
+ 	default:
+ 		MISSING_CASE(tmp);
+ 		return 0;
+diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
+index 680acccef26b..c9a62a248e49 100644
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -6163,11 +6163,17 @@ enum {
+ #define   PIPEMISC_HDR_MODE_PRECISION	(1 << 23) /* icl+ */
+ #define   PIPEMISC_OUTPUT_COLORSPACE_YUV  (1 << 11)
+ #define   PIPEMISC_PIXEL_ROUNDING_TRUNC	REG_BIT(8) /* tgl+ */
+-#define   PIPEMISC_DITHER_BPC_MASK	(7 << 5)
+-#define   PIPEMISC_DITHER_8_BPC		(0 << 5)
+-#define   PIPEMISC_DITHER_10_BPC	(1 << 5)
+-#define   PIPEMISC_DITHER_6_BPC		(2 << 5)
+-#define   PIPEMISC_DITHER_12_BPC	(3 << 5)
++/*
++ * For Display < 13, Bits 5-7 of PIPE MISC represent DITHER BPC with
++ * valid values of: 6, 8, 10 BPC.
++ * ADLP+, the bits 5-7 represent PORT OUTPUT BPC with valid values of:
++ * 6, 8, 10, 12 BPC.
++ */
++#define   PIPEMISC_BPC_MASK		(7 << 5)
++#define   PIPEMISC_8_BPC		(0 << 5)
++#define   PIPEMISC_10_BPC		(1 << 5)
++#define   PIPEMISC_6_BPC		(2 << 5)
++#define   PIPEMISC_12_BPC_ADLP		(4 << 5) /* adlp+ */
+ #define   PIPEMISC_DITHER_ENABLE	(1 << 4)
+ #define   PIPEMISC_DITHER_TYPE_MASK	(3 << 2)
+ #define   PIPEMISC_DITHER_TYPE_SP	(0 << 2)
+
