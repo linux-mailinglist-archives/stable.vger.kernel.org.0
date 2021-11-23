@@ -2,93 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 270CD45A29F
-	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 13:30:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A44D045A2AA
+	for <lists+stable@lfdr.de>; Tue, 23 Nov 2021 13:31:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236690AbhKWMdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 07:33:22 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:57881 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236687AbhKWMdW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 07:33:22 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.nyi.internal (Postfix) with ESMTP id 42C6B5C025E;
-        Tue, 23 Nov 2021 07:30:14 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Tue, 23 Nov 2021 07:30:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=+EZDlGXdbDtH/vqFYKb48nYolhR
-        FQjQrsIqjWtvnJAo=; b=SzJyE3mLiuSib3RTyDKKAVeifQ1q9SwlAe1fjoR2Key
-        bvGQ/f/AxhMAd1RJdVaX2JKwU+ECO/Vj2cI0jXbB6ajAtswpSNyRRZeUaVZPqOlk
-        MjoJbsmhuGBDE9X8kcV5H3UEofdYLnq/Tfqrfr1c53jlHo6AP7ps8q+TYZSXmjH/
-        ooK5lpfLQzJvdhviCzBRFed1EL6Nz3jkwgeVaXD0M6Ngk+R/lGdc7cBjmpDD9IgF
-        U0gtbyGgpih93s1pFyOYOSRQUO1Y6hmhnQSocLWH6XuLfKOlXYbv9EFq3oyIFUac
-        /hWXZig/vXwB9RbYsC9oCpw/tdMyYfD1X0A2cwqrhjA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=+EZDlG
-        XdbDtH/vqFYKb48nYolhRFQjQrsIqjWtvnJAo=; b=HIBCiSRaEjpe6DlH50y5YX
-        JKlNzpYHfc62sEhwdfnZh3YtUXwm0YYYQcEmzKK0InakMtg584X7rgHrmsXbDjP4
-        dhfdyLWxzeZF7rJldkDGcLn6kL0bbQO9PcDk8n+U4jUDpzZ7ezRTW5Jp8SBV5/j+
-        rU4f+riZLM/+AxPdAXnYhTHKOiHtz+3j8CQqzy8djRLG0d1lH/P40weQyNpJHXOR
-        a6D8UNr/oumZbAzDRmf0Tlm+2sfJXaTzjtlTshvYBWIi0do54cSGApdd/09NDW3v
-        mV9VcY3SVKfU92hTg/CgMuoCp1P2MgfHftlw3rjySaXj9INBvKg4YJUB6kd18t0w
-        ==
-X-ME-Sender: <xms:1d6cYbAKgE-ZU3949ner31IimjQE5sgRfsqdocGodDVgddTjcLWnpA>
-    <xme:1d6cYRjJVKXPMe4fvL2aQwxIgY66oOaQ9_NJEoDPvFsySlAtNv4PNw8EmCkxzpsEO
-    hZnioEIE-tnSg>
-X-ME-Received: <xmr:1d6cYWmHRbtY8VSt7XkOltmDNZINmEwwBGVassU1JmDfACzX-HwOGlk20JGnKBY0kfRHuWATSmPj4jkFxNVeSpgb0sKykSOU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrgeeigdegtdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:1t6cYdxp8lsFQMiwoKQUoQfTpM8S5hJ5gFnmQ4TngqcRdDFI6p8KhA>
-    <xmx:1t6cYQR_ZoxNjjRjcMiAhQRbiiKTL_2_IALlzERDD05-xIAWSV8hmg>
-    <xmx:1t6cYQZJWO6CzuTTWHT0gl18EzOa7OhqyQQVhhj_SD2QgqHgAtAHOA>
-    <xmx:1t6cYfF7xbKLpyjNNilyjRKSsW-1cMZVW8ica6LNRx7bu4nDba3GMg>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 23 Nov 2021 07:30:13 -0500 (EST)
-Date:   Tue, 23 Nov 2021 13:30:11 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Adrian Hunter <adrian.hunter@intel.com>
-Cc:     stable@vger.kernel.org,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Bart Van Assche <bvanassche@acm.org>
-Subject: Re: [PATCH 5.10 0/2] scsi: ufs: core: Fix task management completion
-Message-ID: <YZze04KBEL1IckWI@kroah.com>
-References: <20211123121930.1464738-1-adrian.hunter@intel.com>
+        id S234978AbhKWMex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 07:34:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36324 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234773AbhKWMex (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 07:34:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CF9D61028;
+        Tue, 23 Nov 2021 12:31:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637670705;
+        bh=Cj4yS3X1LdZzdf2zrAxhsLzcVw4iFb7d3801jnQaCME=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UpRFwQH6N0bkCd9CxintKO3NEwCWIuasZc25Mzspk8AUU+caPgR7Oaw25m85nEyky
+         dd1ziBBY5wQaC/nuPeCNgw6wBTVdflhyfamSGDOpgH5IbhfTfQlFXxKwGjGO0Yn/lU
+         70JxWXsDEDxJcn/f0t7psZvFlpxy8Xlu3BEQBqeE=
+Date:   Tue, 23 Nov 2021 13:31:42 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Greg Thelen <gthelen@google.com>
+Cc:     stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Kan Liang <kan.liang@intel.com>,
+        Stephane Eranian <eranian@google.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>
+Subject: Re: [PATCH 4.14] perf/core: Avoid put_page() when GUP fails
+Message-ID: <YZzfLmJQKguowfoM@kroah.com>
+References: <20211122171825.1582436-1-gthelen@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211123121930.1464738-1-adrian.hunter@intel.com>
+In-Reply-To: <20211122171825.1582436-1-gthelen@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 23, 2021 at 02:19:28PM +0200, Adrian Hunter wrote:
-> Hi
+On Mon, Nov 22, 2021 at 09:18:25AM -0800, Greg Thelen wrote:
+> commit 4716023a8f6a0f4a28047f14dd7ebdc319606b84 upstream.
 > 
-> Here are 2 patches backported for v5.10.  Upstream there is a third patch
-> associated with these i.e. commit 5cb37a26355 ("scsi: ufs: core: Fix
-> another task management completion race"), but it is not needed because
-> v5.10 has different lock usage.
+> PEBS PERF_SAMPLE_PHYS_ADDR events use perf_virt_to_phys() to convert PMU
+> sampled virtual addresses to physical using get_user_page_fast_only()
+> and page_to_phys().
 > 
+> Some get_user_page_fast_only() error cases return false, indicating no
+> page reference, but still initialize the output page pointer with an
+> unreferenced page. In these error cases perf_virt_to_phys() calls
+> put_page(). This causes page reference count underflow, which can lead
+> to unintentional page sharing.
 > 
-> Adrian Hunter (2):
->       scsi: ufs: core: Fix task management completion
->       scsi: ufs: core: Fix task management completion timeout race
+> Fix perf_virt_to_phys() to only put_page() if get_user_page_fast_only()
+> returns a referenced page.
 > 
->  drivers/scsi/ufs/ufshcd.c | 57 +++++++++++++++++++----------------------------
->  drivers/scsi/ufs/ufshcd.h |  1 +
->  2 files changed, 24 insertions(+), 34 deletions(-)
-> 
+> Fixes: fc7ce9c74c3ad ("perf/core, x86: Add PERF_SAMPLE_PHYS_ADDR")
+> Signed-off-by: Greg Thelen <gthelen@google.com>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Link: https://lkml.kernel.org/r/20211111021814.757086-1-gthelen@google.com
+> [gthelen: manual backport to 4.14]
+> ---
+>  kernel/events/core.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
 
-Both now queued up, thanks.
+All now queued up,t hanks.
 
 greg k-h
