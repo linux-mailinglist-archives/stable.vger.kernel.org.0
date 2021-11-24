@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDFFB45C096
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DBB645C534
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345957AbhKXNJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:09:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46522 "EHLO mail.kernel.org"
+        id S1352905AbhKXNzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:55:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347961AbhKXNIa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:08:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF87761A55;
-        Wed, 24 Nov 2021 12:39:07 +0000 (UTC)
+        id S1350148AbhKXNvf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:51:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD42763250;
+        Wed, 24 Nov 2021 13:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757548;
-        bh=aRussNACNucEHDq8NBXRad6hYb7zPm34lflBXRR3OrM=;
+        s=korg; t=1637759072;
+        bh=wz2BgDrdXATOuIut9HiksyjNZr92zAn+60QAjRjiz9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o45H7xW3hwqVVG1EKOvGMmzTFUZ5sF3IKIKjTG9P7Ve/1x3zjMGFBhBodoXQOYfEE
-         P90R0OhxwnDjPag3vvUkEIU2ETc/tjfy5fiF6fwJBqi1mpAblk8opLODSoFkxAq5Yl
-         tORZhhfRAbTCT2jGLNWor5+g4NSt1UYB3q+bdGG4=
+        b=gOoYolzIqJykH5YOxOVUi2xSZtZpoijQ2D2Bt4/eygyhLjXjw2vsogjgo3uafZz58
+         UU+oHqkHAFT4W967YwE7L3gDDHaEKojUyyMEU5yuiUUChVBmcXx1UjGoGtPw/hMq3I
+         vGg5nnfKUq8F7HlGTPSz5IKWOoM5rTfxOzaWcjHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stan Johnson <userm57@yahoo.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 188/323] video: fbdev: chipsfb: use memset_io() instead of memset()
+Subject: [PATCH 5.15 091/279] clk/ast2600: Fix soc revision for AHB
 Date:   Wed, 24 Nov 2021 12:56:18 +0100
-Message-Id: <20211124115725.291745334@linuxfoundation.org>
+Message-Id: <20211124115721.928811786@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,82 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit f2719b26ae27282c145202ffd656d5ff1fe737cc ]
+[ Upstream commit f45c5b1c27293f834682e89003f88b3512329ab4 ]
 
-While investigating a lockup at startup on Powerbook 3400C, it was
-identified that the fbdev driver generates alignment exception at
-startup:
+Move the soc revision parsing to the initial probe, saving the driver
+from parsing the register multiple times.
 
-  --- interrupt: 600 at memset+0x60/0xc0
-  NIP:  c0021414 LR: c03fc49c CTR: 00007fff
-  REGS: ca021c10 TRAP: 0600   Tainted: G        W          (5.14.2-pmac-00727-g12a41fa69492)
-  MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 44008442  XER: 20000100
-  DAR: cab80020 DSISR: 00017c07
-  GPR00: 00000007 ca021cd0 c14412e0 cab80000 00000000 00100000 cab8001c 00000004
-  GPR08: 00100000 00007fff 00000000 00000000 84008442 00000000 c0006fb4 00000000
-  GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00100000
-  GPR24: 00000000 81800000 00000320 c15fa400 c14d1878 00000000 c14d1800 c094e19c
-  NIP [c0021414] memset+0x60/0xc0
-  LR [c03fc49c] chipsfb_pci_init+0x160/0x580
-  --- interrupt: 600
-  [ca021cd0] [c03fc46c] chipsfb_pci_init+0x130/0x580 (unreliable)
-  [ca021d20] [c03a3a70] pci_device_probe+0xf8/0x1b8
-  [ca021d50] [c043d584] really_probe.part.0+0xac/0x388
-  [ca021d70] [c043d914] __driver_probe_device+0xb4/0x170
-  [ca021d90] [c043da18] driver_probe_device+0x48/0x144
-  [ca021dc0] [c043e318] __driver_attach+0x11c/0x1c4
-  [ca021de0] [c043ad30] bus_for_each_dev+0x88/0xf0
-  [ca021e10] [c043c724] bus_add_driver+0x190/0x22c
-  [ca021e40] [c043ee94] driver_register+0x9c/0x170
-  [ca021e60] [c0006c28] do_one_initcall+0x54/0x1ec
-  [ca021ed0] [c08246e4] kernel_init_freeable+0x1c0/0x270
-  [ca021f10] [c0006fdc] kernel_init+0x28/0x11c
-  [ca021f30] [c0017148] ret_from_kernel_thread+0x14/0x1c
-  Instruction dump:
-  7d4601a4 39490777 7d4701a4 39490888 7d4801a4 39490999 7d4901a4 39290aaa
-  7d2a01a4 4c00012c 4bfffe88 0fe00000 <4bfffe80> 9421fff0 38210010 48001970
+Use this variable to select the correct divisor table for the AHB clock.
+Before this fix the A2 would have used the A0 table.
 
-This is due to 'dcbz' instruction being used on non-cached memory.
-'dcbz' instruction is used by memset() to zeroize a complete
-cacheline at once, and memset() is not expected to be used on non
-cached memory.
-
-When performing a 'sparse' check on fbdev driver, it also appears
-that the use of memset() is unexpected:
-
-  drivers/video/fbdev/chipsfb.c:334:17: warning: incorrect type in argument 1 (different address spaces)
-  drivers/video/fbdev/chipsfb.c:334:17:    expected void *
-  drivers/video/fbdev/chipsfb.c:334:17:    got char [noderef] __iomem *screen_base
-  drivers/video/fbdev/chipsfb.c:334:15: warning: memset with byte count of 1048576
-
-Use fb_memset() instead of memset(). fb_memset() is defined as
-memset_io() for powerpc.
-
-Fixes: 8c8709334cec ("[PATCH] ppc32: Remove CONFIG_PMAC_PBOOK")
-Reported-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/884a54f1e5cb774c1d9b4db780209bee5d4f6718.1631712563.git.christophe.leroy@csgroup.eu
+Fixes: 2d491066ccd4 ("clk: ast2600: Fix AHB clock divider for A1")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20210922235449.213631-1-joel@jms.id.au
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/chipsfb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/clk-ast2600.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/video/fbdev/chipsfb.c b/drivers/video/fbdev/chipsfb.c
-index f9b366d175875..413b465e69d8e 100644
---- a/drivers/video/fbdev/chipsfb.c
-+++ b/drivers/video/fbdev/chipsfb.c
-@@ -332,7 +332,7 @@ static const struct fb_var_screeninfo chipsfb_var = {
+diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
+index bc3be5f3eae15..24dab2312bc6f 100644
+--- a/drivers/clk/clk-ast2600.c
++++ b/drivers/clk/clk-ast2600.c
+@@ -51,6 +51,8 @@ static DEFINE_SPINLOCK(aspeed_g6_clk_lock);
+ static struct clk_hw_onecell_data *aspeed_g6_clk_data;
  
- static void init_chips(struct fb_info *p, unsigned long addr)
+ static void __iomem *scu_g6_base;
++/* AST2600 revision: A0, A1, A2, etc */
++static u8 soc_rev;
+ 
+ /*
+  * Clocks marked with CLK_IS_CRITICAL:
+@@ -191,9 +193,8 @@ static struct clk_hw *ast2600_calc_pll(const char *name, u32 val)
+ static struct clk_hw *ast2600_calc_apll(const char *name, u32 val)
  {
--	memset(p->screen_base, 0, 0x100000);
-+	fb_memset(p->screen_base, 0, 0x100000);
+ 	unsigned int mult, div;
+-	u32 chip_id = readl(scu_g6_base + ASPEED_G6_SILICON_REV);
  
- 	p->fix = chipsfb_fix;
- 	p->fix.smem_start = addr;
+-	if (((chip_id & CHIP_REVISION_ID) >> 16) >= 2) {
++	if (soc_rev >= 2) {
+ 		if (val & BIT(24)) {
+ 			/* Pass through mode */
+ 			mult = div = 1;
+@@ -707,7 +708,7 @@ static const u32 ast2600_a1_axi_ahb200_tbl[] = {
+ static void __init aspeed_g6_cc(struct regmap *map)
+ {
+ 	struct clk_hw *hw;
+-	u32 val, div, divbits, chip_id, axi_div, ahb_div;
++	u32 val, div, divbits, axi_div, ahb_div;
+ 
+ 	clk_hw_register_fixed_rate(NULL, "clkin", NULL, 0, 25000000);
+ 
+@@ -738,8 +739,7 @@ static void __init aspeed_g6_cc(struct regmap *map)
+ 		axi_div = 2;
+ 
+ 	divbits = (val >> 11) & 0x3;
+-	regmap_read(map, ASPEED_G6_SILICON_REV, &chip_id);
+-	if (chip_id & BIT(16)) {
++	if (soc_rev >= 1) {
+ 		if (!divbits) {
+ 			ahb_div = ast2600_a1_axi_ahb200_tbl[(val >> 8) & 0x3];
+ 			if (val & BIT(16))
+@@ -784,6 +784,8 @@ static void __init aspeed_g6_cc_init(struct device_node *np)
+ 	if (!scu_g6_base)
+ 		return;
+ 
++	soc_rev = (readl(scu_g6_base + ASPEED_G6_SILICON_REV) & CHIP_REVISION_ID) >> 16;
++
+ 	aspeed_g6_clk_data = kzalloc(struct_size(aspeed_g6_clk_data, hws,
+ 				      ASPEED_G6_NUM_CLKS), GFP_KERNEL);
+ 	if (!aspeed_g6_clk_data)
 -- 
 2.33.0
 
