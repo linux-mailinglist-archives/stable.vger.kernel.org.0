@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 326FD45BDF4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFF0945BC03
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344722AbhKXMme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:42:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39882 "EHLO mail.kernel.org"
+        id S243394AbhKXMZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344396AbhKXMke (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:40:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4A8961106;
-        Wed, 24 Nov 2021 12:24:09 +0000 (UTC)
+        id S244519AbhKXMXi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:23:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E342061181;
+        Wed, 24 Nov 2021 12:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756650;
-        bh=7dgEWNHaA14Y+PRhau65y4Mt0xIg5cl1UhbyEy7ENs8=;
+        s=korg; t=1637756057;
+        bh=bbweiu+Mk016m4AA5YrcuEzD0ltQ3PCRjXSzh/nCr7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MV2qeUmQyZdJ6w1mHhPIv8ys7FZIJQYdbEg0sglZYp/04Aj9zjnKcvRAJGbvGVIzn
-         0a2UkDNX46cY1LjUpMC9AQ2RyFqVZ7DphCxgsHogX+ZNvTvxP1Q8oY47X4WtYXJFaN
-         VI9V9VZAsrnCMk2fdrnQFnwsL0jgURDXr9vLNuvI=
+        b=FQKxg3bmgZ+O7kdV1Mhz3uSzqPVlxY48I0KIAO3sio7Ym45r8nW7T5BLvkWq9Saa/
+         MMAPQ9IKflaoeix8T5EFa3NrZeZb8/weei9v4G1UCKKoJvAhzS43SRIUfJ+UOnB/9j
+         IaDLvia7pTiNgo0G9I6gW0gu7GUJEyw6twi62ozs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anssi Hannula <anssi.hannula@bitwise.fi>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 157/251] serial: xilinx_uartps: Fix race condition causing stuck TX
+Subject: [PATCH 4.9 128/207] RDMA/mlx4: Return missed an error if device doesnt support steering
 Date:   Wed, 24 Nov 2021 12:56:39 +0100
-Message-Id: <20211124115715.727799823@linuxfoundation.org>
+Message-Id: <20211124115708.190719714@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 88b20f84f0fe47409342669caf3e58a3fc64c316 ]
+[ Upstream commit f4e56ec4452f48b8292dcf0e1c4bdac83506fb8b ]
 
-xilinx_uartps .start_tx() clears TXEMPTY when enabling TXEMPTY to avoid
-any previous TXEVENT event asserting the UART interrupt. This clear
-operation is done immediately after filling the TX FIFO.
+The error flow fixed in this patch is not possible because all kernel
+users of create QP interface check that device supports steering before
+set IB_QP_CREATE_NETIF_QP flag.
 
-However, if the bytes inserted by cdns_uart_handle_tx() are consumed by
-the UART before the TXEMPTY is cleared, the clear operation eats the new
-TXEMPTY event as well, causing cdns_uart_isr() to never receive the
-TXEMPTY event. If there are bytes still queued in circbuf, TX will get
-stuck as they will never get transferred to FIFO (unless new bytes are
-queued to circbuf in which case .start_tx() is called again).
-
-While the racy missed TXEMPTY occurs fairly often with short data
-sequences (e.g. write 1 byte), in those cases circbuf is usually empty
-so no action on TXEMPTY would have been needed anyway. On the other
-hand, longer data sequences make the race much more unlikely as UART
-takes longer to consume the TX FIFO. Therefore it is rare for this race
-to cause visible issues in general.
-
-Fix the race by clearing the TXEMPTY bit in ISR *before* filling the
-FIFO.
-
-The TXEMPTY bit in ISR will only get asserted at the exact moment the
-TX FIFO *becomes* empty, so clearing the bit before filling FIFO does
-not cause an extra immediate assertion even if the FIFO is initially
-empty.
-
-This is hard to reproduce directly on a normal system, but inserting
-e.g. udelay(200) after cdns_uart_handle_tx(port), setting 4000000 baud,
-and then running "dd if=/dev/zero bs=128 of=/dev/ttyPS0 count=50"
-reliably reproduces the issue on my ZynqMP test system unless this fix
-is applied.
-
-Fixes: 85baf542d54e ("tty: xuartps: support 64 byte FIFO size")
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Link: https://lore.kernel.org/r/20211026102741.2910441-1-anssi.hannula@bitwise.fi
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c1c98501121e ("IB/mlx4: Add support for steerable IB UD QPs")
+Link: https://lore.kernel.org/r/91c61f6e60eb0240f8bbc321fda7a1d2986dd03c.1634023677.git.leonro@nvidia.com
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/xilinx_uartps.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx4/qp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
-index 00a740b8ad273..cdd81c28893a0 100644
---- a/drivers/tty/serial/xilinx_uartps.c
-+++ b/drivers/tty/serial/xilinx_uartps.c
-@@ -595,9 +595,10 @@ static void cdns_uart_start_tx(struct uart_port *port)
- 	if (uart_circ_empty(&port->state->xmit))
- 		return;
+diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
+index 7284a9176844e..718d817265795 100644
+--- a/drivers/infiniband/hw/mlx4/qp.c
++++ b/drivers/infiniband/hw/mlx4/qp.c
+@@ -773,8 +773,10 @@ static int create_qp_common(struct mlx4_ib_dev *dev, struct ib_pd *pd,
+ 			if (dev->steering_support ==
+ 			    MLX4_STEERING_MODE_DEVICE_MANAGED)
+ 				qp->flags |= MLX4_IB_QP_NETIF;
+-			else
++			else {
++				err = -EINVAL;
+ 				goto err;
++			}
+ 		}
  
-+	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_ISR);
-+
- 	cdns_uart_handle_tx(port);
- 
--	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_ISR);
- 	/* Enable the TX Empty interrupt */
- 	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_IER);
- }
+ 		memcpy(&backup_cap, &init_attr->cap, sizeof(backup_cap));
 -- 
 2.33.0
 
