@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19C6045C6AA
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:07:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A068845C5F1
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:00:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349964AbhKXOKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:10:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55398 "EHLO mail.kernel.org"
+        id S1351438AbhKXOCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:02:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355103AbhKXOIa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:08:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A78DE61283;
-        Wed, 24 Nov 2021 12:47:28 +0000 (UTC)
+        id S1352709AbhKXOAp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:00:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAFA8632F3;
+        Wed, 24 Nov 2021 13:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758049;
-        bh=qga7bKfNy0GUN1l9l6rNWveOX+HjHy/FBsRGpx5ufgc=;
+        s=korg; t=1637759373;
+        bh=ugWqr8UcQFycdxLEgR2jOF0/IWWvJRmU6HdmzdRh9ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OMAQ10ihMudTkkeKVEw71ouXUW2WEpjf5c948z5hE0wc+tR9ubd/2bs7nVE/1hOJK
-         OinxgBzg5SkYfG9G7Wp390A/XitcpaiuRO7JNtFBP+sMvGQ3Y5MBTBl8kc9+MPiJbU
-         XbuZcFeLaJHAYD0NoooB7XW8wJPpyqxuwfE0TtPw=
+        b=vCuFIgc0S4/GmZYM8bAGLvOwdbT8Ahn4kJrEau/U2dksXXZ5qgzuT1rxfaKPLVGPZ
+         UhY48a9QV2w6KiVZ+jFBpRzpKoRODC3ydb4HZf2cztRtHNQrbxwKiNFowiRB3+TVQJ
+         Kd8c3VGtfO5r3aMf6SY2fzZW/N+NbTdoKO9GBlHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.4 043/100] RDMA/netlink: Add __maybe_unused to static inline in C file
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Brian Cain <bcain@codeaurora.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 192/279] hexagon: clean up timer-regs.h
 Date:   Wed, 24 Nov 2021 12:57:59 +0100
-Message-Id: <20211124115656.273919531@linuxfoundation.org>
+Message-Id: <20211124115725.359078871@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +42,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 83dde7498fefeb920b1def317421262317d178e5 upstream.
+commit 51f2ec593441d3d1ebc0d478fac3ea329c7c93ac upstream.
 
-Like other commits in the tree add __maybe_unused to a static inline in a
-C file because some clang compilers will complain about unused code:
+When building allmodconfig, there is a warning about TIMER_ENABLE being
+redefined:
 
->> drivers/infiniband/core/nldev.c:2543:1: warning: unused function '__chk_RDMA_NL_NLDEV'
-   MODULE_ALIAS_RDMA_NETLINK(RDMA_NL_NLDEV, 5);
-   ^
+  drivers/clocksource/timer-oxnas-rps.c:39:9: error: 'TIMER_ENABLE' macro redefined [-Werror,-Wmacro-redefined]
+  #define TIMER_ENABLE            BIT(7)
+          ^
+  arch/hexagon/include/asm/timer-regs.h:13:9: note: previous definition is here
+  #define TIMER_ENABLE            0
+           ^
+  1 error generated.
 
-Fixes: e3bf14bdc17a ("rdma: Autoload netlink client modules")
-Link: https://lore.kernel.org/r/4a8101919b765e01d7fde6f27fd572c958deeb4a.1636267207.git.leonro@nvidia.com
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+The values in this header are only used in one file each, if they are
+used at all.  Remove the header and sink all of the constants into their
+respective files.
+
+TCX0_CLK_RATE is only used in arch/hexagon/include/asm/timex.h
+
+TIMER_ENABLE, RTOS_TIMER_INT, RTOS_TIMER_REGS_ADDR are only used in
+arch/hexagon/kernel/time.c.
+
+SLEEP_CLK_RATE and TIMER_CLR_ON_MATCH have both been unused since the
+file's introduction in commit 71e4a47f32f4 ("Hexagon: Add time and timer
+functions").
+
+TIMER_ENABLE is redefined as BIT(0) so the shift is moved into the
+definition, rather than its use.
+
+Link: https://lkml.kernel.org/r/20211115174250.1994179-3-nathan@kernel.org
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: Brian Cain <bcain@codeaurora.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/rdma/rdma_netlink.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/hexagon/include/asm/timer-regs.h |   26 --------------------------
+ arch/hexagon/include/asm/timex.h      |    3 +--
+ arch/hexagon/kernel/time.c            |   12 ++++++++++--
+ 3 files changed, 11 insertions(+), 30 deletions(-)
+ delete mode 100644 arch/hexagon/include/asm/timer-regs.h
 
---- a/include/rdma/rdma_netlink.h
-+++ b/include/rdma/rdma_netlink.h
-@@ -30,7 +30,7 @@ enum rdma_nl_flags {
-  * constant as well and the compiler checks they are the same.
-  */
- #define MODULE_ALIAS_RDMA_NETLINK(_index, _val)                                \
--	static inline void __chk_##_index(void)                                \
-+	static inline void __maybe_unused __chk_##_index(void)                 \
- 	{                                                                      \
- 		BUILD_BUG_ON(_index != _val);                                  \
- 	}                                                                      \
+--- a/arch/hexagon/include/asm/timer-regs.h
++++ /dev/null
+@@ -1,26 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- * Timer support for Hexagon
+- *
+- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
+- */
+-
+-#ifndef _ASM_TIMER_REGS_H
+-#define _ASM_TIMER_REGS_H
+-
+-/*  This stuff should go into a platform specific file  */
+-#define TCX0_CLK_RATE		19200
+-#define TIMER_ENABLE		0
+-#define TIMER_CLR_ON_MATCH	1
+-
+-/*
+- * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
+- * release 1.1, and then it's "adjustable" and probably not defaulted.
+- */
+-#define RTOS_TIMER_INT		3
+-#ifdef CONFIG_HEXAGON_COMET
+-#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
+-#endif
+-#define SLEEP_CLK_RATE		32000
+-
+-#endif
+--- a/arch/hexagon/include/asm/timex.h
++++ b/arch/hexagon/include/asm/timex.h
+@@ -7,11 +7,10 @@
+ #define _ASM_TIMEX_H
+ 
+ #include <asm-generic/timex.h>
+-#include <asm/timer-regs.h>
+ #include <asm/hexagon_vm.h>
+ 
+ /* Using TCX0 as our clock.  CLOCK_TICK_RATE scheduled to be removed. */
+-#define CLOCK_TICK_RATE              TCX0_CLK_RATE
++#define CLOCK_TICK_RATE              19200
+ 
+ #define ARCH_HAS_READ_CURRENT_TIMER
+ 
+--- a/arch/hexagon/kernel/time.c
++++ b/arch/hexagon/kernel/time.c
+@@ -17,9 +17,10 @@
+ #include <linux/of_irq.h>
+ #include <linux/module.h>
+ 
+-#include <asm/timer-regs.h>
+ #include <asm/hexagon_vm.h>
+ 
++#define TIMER_ENABLE		BIT(0)
++
+ /*
+  * For the clocksource we need:
+  *	pcycle frequency (600MHz)
+@@ -33,6 +34,13 @@ cycles_t	pcycle_freq_mhz;
+ cycles_t	thread_freq_mhz;
+ cycles_t	sleep_clk_freq;
+ 
++/*
++ * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
++ * release 1.1, and then it's "adjustable" and probably not defaulted.
++ */
++#define RTOS_TIMER_INT		3
++#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
++
+ static struct resource rtos_timer_resources[] = {
+ 	{
+ 		.start	= RTOS_TIMER_REGS_ADDR,
+@@ -80,7 +88,7 @@ static int set_next_event(unsigned long
+ 	iowrite32(0, &rtos_timer->clear);
+ 
+ 	iowrite32(delta, &rtos_timer->match);
+-	iowrite32(1 << TIMER_ENABLE, &rtos_timer->enable);
++	iowrite32(TIMER_ENABLE, &rtos_timer->enable);
+ 	return 0;
+ }
+ 
 
 
