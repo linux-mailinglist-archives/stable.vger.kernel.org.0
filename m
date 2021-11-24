@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F86E45BE4C
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:43:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9E845BC0D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245038AbhKXMqP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:46:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50644 "EHLO mail.kernel.org"
+        id S244194AbhKXMZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345850AbhKXMoO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:44:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA6C361252;
-        Wed, 24 Nov 2021 12:26:10 +0000 (UTC)
+        id S244951AbhKXMYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:24:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FFEA611AE;
+        Wed, 24 Nov 2021 12:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756771;
-        bh=VfAnDFPrThSiozoB6PVltjzOrirtCzeL6GLWNPHDRxY=;
+        s=korg; t=1637756096;
+        bh=5jF8UW9ywMp5f1se+mwd14wESIYgVkguv5XTK3a5ip8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5v0+fEfa16E3t1gAJfxhPT0sGXxvPv67ZM6wSj+eOVCau0H34+zmAikdvo4QgbVq
-         qlnVnZP+1sIvBgqvYrYamgiDkLzzTLZl6kuB0gbvfR2QbSKHUS/Z/+QSm8afvwNhOU
-         WjyRRY9ncFpJWhFE6RugHcR+DK5xVNvJ+2c+WRn4=
+        b=O55W0nvJBdFEGTwkAEgMpkga6G+QtFZRR7qB0yPZliTyGq02OI85cAvIq2M16JFMI
+         MsjTZ2m/bsRw6jeFD0ozVyq3eleZZdc//3/hky32GvwGDrQJ/Y8FQ5hDGcg6NEbyOy
+         tjVjqzX6rS76htJ9nrsiOfwRF7t71bND01eQNu7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 200/251] parisc/entry: fix trace test in syscall exit path
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 171/207] scsi: target: Fix alua_tg_pt_gps_count tracking
 Date:   Wed, 24 Nov 2021 12:57:22 +0100
-Message-Id: <20211124115717.220793237@linuxfoundation.org>
+Message-Id: <20211124115709.527466925@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@stackframe.org>
+From: Mike Christie <michael.christie@oracle.com>
 
-commit 3ec18fc7831e7d79e2d536dd1f3bc0d3ba425e8a upstream.
+[ Upstream commit 1283c0d1a32bb924324481586b5d6e8e76f676ba ]
 
-commit 8779e05ba8aa ("parisc: Fix ptrace check on syscall return")
-fixed testing of TI_FLAGS. This uncovered a bug in the test mask.
-syscall_restore_rfi is only used when the kernel needs to exit to
-usespace with single or block stepping and the recovery counter
-enabled. The test however used _TIF_SYSCALL_TRACE_MASK, which
-includes a lot of bits that shouldn't be tested here.
+We can't free the tg_pt_gp in core_alua_set_tg_pt_gp_id() because it's
+still accessed via configfs. Its release must go through the normal
+configfs/refcount process.
 
-Fix this by using TIF_SINGLESTEP and TIF_BLOCKSTEP directly.
+The max alua_tg_pt_gps_count check should probably have been done in
+core_alua_allocate_tg_pt_gp(), but with the current code userspace could
+have created 0x0000ffff + 1 groups, but only set the id for 0x0000ffff.
+Then it could have deleted a group with an ID set, and then set the ID for
+that extra group and it would work ok.
 
-I encountered this bug by enabling syscall tracepoints. Both in qemu and
-on real hardware. As soon as i enabled the tracepoint (sys_exit_read,
-but i guess it doesn't really matter which one), i got random page
-faults in userspace almost immediately.
+It's unlikely, but just in case this patch continues to allow that type of
+behavior, and just fixes the kfree() while in use bug.
 
-Signed-off-by: Sven Schnelle <svens@stackframe.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20210930020422.92578-4-michael.christie@oracle.com
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/entry.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/target/target_core_alua.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/parisc/kernel/entry.S
-+++ b/arch/parisc/kernel/entry.S
-@@ -1850,7 +1850,7 @@ syscall_restore:
- 
- 	/* Are we being ptraced? */
- 	LDREG	TI_FLAGS-THREAD_SZ_ALGN-FRAME_SIZE(%r30),%r19
--	ldi	_TIF_SYSCALL_TRACE_MASK,%r2
-+	ldi	_TIF_SINGLESTEP|_TIF_BLOCKSTEP,%r2
- 	and,COND(=)	%r19,%r2,%r0
- 	b,n	syscall_restore_rfi
- 
+diff --git a/drivers/target/target_core_alua.c b/drivers/target/target_core_alua.c
+index ee5b29aed54bd..fa28fd89add6c 100644
+--- a/drivers/target/target_core_alua.c
++++ b/drivers/target/target_core_alua.c
+@@ -1735,7 +1735,6 @@ int core_alua_set_tg_pt_gp_id(
+ 		pr_err("Maximum ALUA alua_tg_pt_gps_count:"
+ 			" 0x0000ffff reached\n");
+ 		spin_unlock(&dev->t10_alua.tg_pt_gps_lock);
+-		kmem_cache_free(t10_alua_tg_pt_gp_cache, tg_pt_gp);
+ 		return -ENOSPC;
+ 	}
+ again:
+-- 
+2.33.0
+
 
 
