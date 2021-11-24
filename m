@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D0D45C4B0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:48:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD3245C070
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351947AbhKXNuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:50:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41816 "EHLO mail.kernel.org"
+        id S1343566AbhKXNIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:08:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354297AbhKXNtL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:49:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58E9361A6E;
-        Wed, 24 Nov 2021 13:02:57 +0000 (UTC)
+        id S1346394AbhKXNGA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:06:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A77E561212;
+        Wed, 24 Nov 2021 12:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758977;
-        bh=KBjicrp1ylwp8JwVn424vDBoBysR3XZ08jFFAw+Q514=;
+        s=korg; t=1637757486;
+        bh=xMQ+ucItWHuNXUM2bQ1LG6mnEYghT3QmAa3pOEPTcrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1X0WKBt9A81chOde5Fdq5xAvoBjujRpM+L560N3plA5+CTjSjvE+npkfCqITfTRw
-         ztElGiIbXX1d451DFIiI1184D4JyB08WseGCsYmzOojM6cUkTpgHgixq120JuXCDnp
-         dOpcU/crr9ikQOe4tdb0fpgDeawXwqTV/OY7o3Bk=
+        b=s3y+hTgZFU9wcvbwLGBhvuIo4KcBve1ApAa/i+5xmlB1aU679nux1H3nIK/fuuT1L
+         vRybuYSYck8Zs/mLS7gYi7MrNHk7hFhkFyAlUBVIth9Gt2sxvQjo9dEcY6FB72lt1M
+         iIRZcLd79oLPEHL9y24XODmg9WykS8Tsuj0mWLHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Matt Fleming <matt@console-pimps.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 085/279] sh: fix kconfig unmet dependency warning for FRAME_POINTER
-Date:   Wed, 24 Nov 2021 12:56:12 +0100
-Message-Id: <20211124115721.649166877@linuxfoundation.org>
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 183/323] JFS: fix memleak in jfs_mount
+Date:   Wed, 24 Nov 2021 12:56:13 +0100
+Message-Id: <20211124115725.125120966@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +40,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit fda1bc533094a7db68b11e7503d2c6c73993d12a ]
+[ Upstream commit c48a14dca2cb57527dde6b960adbe69953935f10 ]
 
-FRAME_POINTER depends on DEBUG_KERNEL so DWARF_UNWINDER should
-depend on DEBUG_KERNEL before selecting FRAME_POINTER.
+In jfs_mount, when diMount(ipaimap2) fails, it goes to errout35. However,
+the following code does not free ipaimap2 allocated by diReadSpecial.
 
-WARNING: unmet direct dependencies detected for FRAME_POINTER
-  Depends on [n]: DEBUG_KERNEL [=n] && (M68K || UML || SUPERH [=y]) || ARCH_WANT_FRAME_POINTERS [=n]
-  Selected by [y]:
-  - DWARF_UNWINDER [=y]
+Fix this by refactoring the error handling code of jfs_mount. To be
+specific, modify the lable name and free ipaimap2 when the above error
+ocurrs.
 
-Fixes: bd353861c735 ("sh: dwarf unwinder support.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Matt Fleming <matt@console-pimps.org>
-Cc: Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Rich Felker <dalias@libc.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/Kconfig.debug | 1 +
- 1 file changed, 1 insertion(+)
+ fs/jfs/jfs_mount.c | 51 ++++++++++++++++++++--------------------------
+ 1 file changed, 22 insertions(+), 29 deletions(-)
 
-diff --git a/arch/sh/Kconfig.debug b/arch/sh/Kconfig.debug
-index 958f790273ab9..10290e5c1f438 100644
---- a/arch/sh/Kconfig.debug
-+++ b/arch/sh/Kconfig.debug
-@@ -54,6 +54,7 @@ config DUMP_CODE
+diff --git a/fs/jfs/jfs_mount.c b/fs/jfs/jfs_mount.c
+index b5214c9ac47ac..f1a705d159043 100644
+--- a/fs/jfs/jfs_mount.c
++++ b/fs/jfs/jfs_mount.c
+@@ -93,14 +93,14 @@ int jfs_mount(struct super_block *sb)
+ 	 * (initialize mount inode from the superblock)
+ 	 */
+ 	if ((rc = chkSuper(sb))) {
+-		goto errout20;
++		goto out;
+ 	}
  
- config DWARF_UNWINDER
- 	bool "Enable the DWARF unwinder for stacktraces"
-+	depends on DEBUG_KERNEL
- 	select FRAME_POINTER
- 	default n
- 	help
+ 	ipaimap = diReadSpecial(sb, AGGREGATE_I, 0);
+ 	if (ipaimap == NULL) {
+ 		jfs_err("jfs_mount: Failed to read AGGREGATE_I");
+ 		rc = -EIO;
+-		goto errout20;
++		goto out;
+ 	}
+ 	sbi->ipaimap = ipaimap;
+ 
+@@ -111,7 +111,7 @@ int jfs_mount(struct super_block *sb)
+ 	 */
+ 	if ((rc = diMount(ipaimap))) {
+ 		jfs_err("jfs_mount: diMount(ipaimap) failed w/rc = %d", rc);
+-		goto errout21;
++		goto err_ipaimap;
+ 	}
+ 
+ 	/*
+@@ -120,7 +120,7 @@ int jfs_mount(struct super_block *sb)
+ 	ipbmap = diReadSpecial(sb, BMAP_I, 0);
+ 	if (ipbmap == NULL) {
+ 		rc = -EIO;
+-		goto errout22;
++		goto err_umount_ipaimap;
+ 	}
+ 
+ 	jfs_info("jfs_mount: ipbmap:0x%p", ipbmap);
+@@ -132,7 +132,7 @@ int jfs_mount(struct super_block *sb)
+ 	 */
+ 	if ((rc = dbMount(ipbmap))) {
+ 		jfs_err("jfs_mount: dbMount failed w/rc = %d", rc);
+-		goto errout22;
++		goto err_ipbmap;
+ 	}
+ 
+ 	/*
+@@ -151,7 +151,7 @@ int jfs_mount(struct super_block *sb)
+ 		if (!ipaimap2) {
+ 			jfs_err("jfs_mount: Failed to read AGGREGATE_I");
+ 			rc = -EIO;
+-			goto errout35;
++			goto err_umount_ipbmap;
+ 		}
+ 		sbi->ipaimap2 = ipaimap2;
+ 
+@@ -163,7 +163,7 @@ int jfs_mount(struct super_block *sb)
+ 		if ((rc = diMount(ipaimap2))) {
+ 			jfs_err("jfs_mount: diMount(ipaimap2) failed, rc = %d",
+ 				rc);
+-			goto errout35;
++			goto err_ipaimap2;
+ 		}
+ 	} else
+ 		/* Secondary aggregate inode table is not valid */
+@@ -180,7 +180,7 @@ int jfs_mount(struct super_block *sb)
+ 		jfs_err("jfs_mount: Failed to read FILESYSTEM_I");
+ 		/* open fileset secondary inode allocation map */
+ 		rc = -EIO;
+-		goto errout40;
++		goto err_umount_ipaimap2;
+ 	}
+ 	jfs_info("jfs_mount: ipimap:0x%p", ipimap);
+ 
+@@ -190,41 +190,34 @@ int jfs_mount(struct super_block *sb)
+ 	/* initialize fileset inode allocation map */
+ 	if ((rc = diMount(ipimap))) {
+ 		jfs_err("jfs_mount: diMount failed w/rc = %d", rc);
+-		goto errout41;
++		goto err_ipimap;
+ 	}
+ 
+-	goto out;
++	return rc;
+ 
+ 	/*
+ 	 *	unwind on error
+ 	 */
+-      errout41:		/* close fileset inode allocation map inode */
++err_ipimap:
++	/* close fileset inode allocation map inode */
+ 	diFreeSpecial(ipimap);
+-
+-      errout40:		/* fileset closed */
+-
++err_umount_ipaimap2:
+ 	/* close secondary aggregate inode allocation map */
+-	if (ipaimap2) {
++	if (ipaimap2)
+ 		diUnmount(ipaimap2, 1);
++err_ipaimap2:
++	/* close aggregate inodes */
++	if (ipaimap2)
+ 		diFreeSpecial(ipaimap2);
+-	}
+-
+-      errout35:
+-
+-	/* close aggregate block allocation map */
++err_umount_ipbmap:	/* close aggregate block allocation map */
+ 	dbUnmount(ipbmap, 1);
++err_ipbmap:		/* close aggregate inodes */
+ 	diFreeSpecial(ipbmap);
+-
+-      errout22:		/* close aggregate inode allocation map */
+-
++err_umount_ipaimap:	/* close aggregate inode allocation map */
+ 	diUnmount(ipaimap, 1);
+-
+-      errout21:		/* close aggregate inodes */
++err_ipaimap:		/* close aggregate inodes */
+ 	diFreeSpecial(ipaimap);
+-      errout20:		/* aggregate closed */
+-
+-      out:
+-
++out:
+ 	if (rc)
+ 		jfs_err("Mount JFS Failure: %d", rc);
+ 
 -- 
 2.33.0
 
