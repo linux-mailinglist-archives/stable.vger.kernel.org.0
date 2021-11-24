@@ -2,45 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A44745BA93
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B06F45BE4D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:43:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242821AbhKXMMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:12:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34592 "EHLO mail.kernel.org"
+        id S245064AbhKXMqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:46:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238547AbhKXMKB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:10:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEAFB61059;
-        Wed, 24 Nov 2021 12:05:56 +0000 (UTC)
+        id S1345855AbhKXMoO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:44:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FA2161221;
+        Wed, 24 Nov 2021 12:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755557;
-        bh=v4jhMJMM/kqOIp0d87ntrS76WqGSPULooJvfay64SVU=;
+        s=korg; t=1637756773;
+        bh=KOE7QOMhpEINvh2hGUqlrpZHncZ0wr/2/1qNtEkU/Xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AwTiM4GuuoUtZm85J6Dsk5OuuIY/qEZAkqU5D3b3/EYoG7HSydnzsFQUGKLUZ27FT
-         BFFRP6MOOllO8F6zf66V2utlY5OjxsxDYpZKXvLA/dMWB2C7uLv5BkDn46qo2SCWoE
-         sM2ngNKGsLFKW0ikJRUmrs8pCZA3Z2cBtREKf86I=
+        b=LAMMZgnb7mmKQTE6zDaqXcKfkZNIExa8+nGBHd418EHbUehFFdJlDjrbRLolATxZW
+         eYKg6D1iqpPoCdwhN5x9+gu1GIYItj/DSzxA9c/kszXFKZR9H4CGHPk+UlAOcSvvhR
+         q43lC0H6a4zpi47/WL5MhQrzt2utlw+krXEsG+1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sohaib Mohamed <sohaib.amhmd@gmail.com>,
-        Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Hitoshi Mitake <h.mitake@gmail.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Paul Russel <rusty@rustcorp.com.au>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Pierre Gondois <pierre.gondois@arm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 140/162] perf bench: Fix two memory leaks detected with ASan
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Bjorn Helgaas <helgaas@kernel.org>
+Subject: [PATCH 4.14 201/251] PCI/MSI: Destroy sysfs before freeing entries
 Date:   Wed, 24 Nov 2021 12:57:23 +0100
-Message-Id: <20211124115702.820600458@linuxfoundation.org>
+Message-Id: <20211124115717.252469172@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,56 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sohaib Mohamed <sohaib.amhmd@gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 92723ea0f11d92496687db8c9725248e9d1e5e1d ]
+commit 3735459037114d31e5acd9894fad9aed104231a0 upstream.
 
-ASan reports memory leaks while running:
+free_msi_irqs() frees the MSI entries before destroying the sysfs entries
+which are exposing them. Nothing prevents a concurrent free while a sysfs
+file is read and accesses the possibly freed entry.
 
-  $ perf bench sched all
+Move the sysfs release ahead of freeing the entries.
 
-Fixes: e27454cc6352c422 ("perf bench: Add sched-messaging.c: Benchmark for scheduler and IPC mechanisms based on hackbench")
-Signed-off-by: Sohaib Mohamed <sohaib.amhmd@gmail.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Hitoshi Mitake <h.mitake@gmail.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Paul Russel <rusty@rustcorp.com.au>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Pierre Gondois <pierre.gondois@arm.com>
-Link: http://lore.kernel.org/lkml/20211110022012.16620-1-sohaib.amhmd@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1c51b50c2995 ("PCI/MSI: Export MSI mode using attributes, not kobjects")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Bjorn Helgaas <helgaas@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87sfw5305m.ffs@tglx
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- tools/perf/bench/sched-messaging.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/pci/msi.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/tools/perf/bench/sched-messaging.c b/tools/perf/bench/sched-messaging.c
-index d4ff1b539cfd2..1841e10fdb964 100644
---- a/tools/perf/bench/sched-messaging.c
-+++ b/tools/perf/bench/sched-messaging.c
-@@ -224,6 +224,8 @@ static unsigned int group(pthread_t *pth,
- 		snd_ctx->out_fds[i] = fds[1];
- 		if (!thread_mode)
- 			close(fds[0]);
-+
-+		free(ctx);
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -372,18 +372,6 @@ static void free_msi_irqs(struct pci_dev
+ 			for (i = 0; i < entry->nvec_used; i++)
+ 				BUG_ON(irq_has_action(entry->irq + i));
+ 
+-	pci_msi_teardown_msi_irqs(dev);
+-
+-	list_for_each_entry_safe(entry, tmp, msi_list, list) {
+-		if (entry->msi_attrib.is_msix) {
+-			if (list_is_last(&entry->list, msi_list))
+-				iounmap(entry->mask_base);
+-		}
+-
+-		list_del(&entry->list);
+-		free_msi_entry(entry);
+-	}
+-
+ 	if (dev->msi_irq_groups) {
+ 		sysfs_remove_groups(&dev->dev.kobj, dev->msi_irq_groups);
+ 		msi_attrs = dev->msi_irq_groups[0]->attrs;
+@@ -399,6 +387,18 @@ static void free_msi_irqs(struct pci_dev
+ 		kfree(dev->msi_irq_groups);
+ 		dev->msi_irq_groups = NULL;
  	}
- 
- 	/* Now we have all the fds, fork the senders */
-@@ -240,6 +242,8 @@ static unsigned int group(pthread_t *pth,
- 		for (i = 0; i < num_fds; i++)
- 			close(snd_ctx->out_fds[i]);
- 
-+	free(snd_ctx);
 +
- 	/* Return number of children to reap */
- 	return num_fds * 2;
++	pci_msi_teardown_msi_irqs(dev);
++
++	list_for_each_entry_safe(entry, tmp, msi_list, list) {
++		if (entry->msi_attrib.is_msix) {
++			if (list_is_last(&entry->list, msi_list))
++				iounmap(entry->mask_base);
++		}
++
++		list_del(&entry->list);
++		free_msi_entry(entry);
++	}
  }
--- 
-2.33.0
-
+ 
+ static void pci_intx_for_msi(struct pci_dev *dev, int enable)
 
 
