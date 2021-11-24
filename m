@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB4545BD05
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:32:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 950B845BFF6
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343899AbhKXMev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:34:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49472 "EHLO mail.kernel.org"
+        id S245518AbhKXND6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:03:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245138AbhKXMcn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:32:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA3EF61371;
-        Wed, 24 Nov 2021 12:20:17 +0000 (UTC)
+        id S1346573AbhKXNCO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:02:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6C1E611EF;
+        Wed, 24 Nov 2021 12:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756418;
-        bh=Atx7ZiO0oLOeVSGrVDTeC+qmbeDayM/96As/GANmrOk=;
+        s=korg; t=1637757330;
+        bh=lnzBVUyKSSvDvO9SrOk/TcJOJiWQDNMMljmjLlLaQCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SujcOvGtHnLqWfdTLaC5jPzioOBcp6pXQp3yVqtk6OTNXP34/8Kj/iGw0GfUQmUCX
-         E+56vxXzOVKiv4IUGXQFWCVcqW1Vf4K9kk8aDHU5M9qrRiAFAgy4tBsZhL/2l48NW1
-         ciUb/jNtTFuVFK+Kex18y3ZjkDF6x5xiLRnT3cF4=
+        b=yho6/2iB/qJsDGb8JrTNxiDwIaWVaKNFBnOEMfa5QnSk0h/zhsormYBOZ2vp4QKPi
+         rHSKhXFlnChEu+CPzG1fW3EoopL73HSoPnnZwwxniu84WYXOh1vrfVQpy8Y1tbDqRQ
+         sR0vbIWAW27a+C/hMrVMypitZQb4g2FgNQg53PKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Houlong Wei <houlong.wei@mediatek.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 080/251] media: uvcvideo: Set capability in s_param
-Date:   Wed, 24 Nov 2021 12:55:22 +0100
-Message-Id: <20211124115713.040134918@linuxfoundation.org>
+Subject: [PATCH 4.19 133/323] media: mtk-vpu: Fix a resource leak in the error handling path of mtk_vpu_probe()
+Date:   Wed, 24 Nov 2021 12:55:23 +0100
+Message-Id: <20211124115723.421163689@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 97a2777a96070afb7da5d587834086c0b586c8cc ]
+[ Upstream commit 2143ad413c05c7be24c3a92760e367b7f6aaac92 ]
 
-Fixes v4l2-compliance:
+A successful 'clk_prepare()' call should be balanced by a corresponding
+'clk_unprepare()' call in the error handling path of the probe, as already
+done in the remove function.
 
-Format ioctls (Input 0):
-                warn: v4l2-test-formats.cpp(1339): S_PARM is supported but doesn't report V4L2_CAP_TIMEPERFRAME
-                fail: v4l2-test-formats.cpp(1241): node->has_frmintervals && !cap->capability
+Update the error handling path accordingly.
 
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Fixes: 3003a180ef6b ("[media] VPU: mediatek: support Mediatek VPU")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Houlong Wei <houlong.wei@mediatek.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_v4l2.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/media/platform/mtk-vpu/mtk_vpu.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
-index fae811b9cde96..2b0ca32d71965 100644
---- a/drivers/media/usb/uvc/uvc_v4l2.c
-+++ b/drivers/media/usb/uvc/uvc_v4l2.c
-@@ -446,10 +446,13 @@ static int uvc_v4l2_set_streamparm(struct uvc_streaming *stream,
- 	uvc_simplify_fraction(&timeperframe.numerator,
- 		&timeperframe.denominator, 8, 333);
+diff --git a/drivers/media/platform/mtk-vpu/mtk_vpu.c b/drivers/media/platform/mtk-vpu/mtk_vpu.c
+index f8d35e3ac1dcc..9b57fb2857285 100644
+--- a/drivers/media/platform/mtk-vpu/mtk_vpu.c
++++ b/drivers/media/platform/mtk-vpu/mtk_vpu.c
+@@ -818,7 +818,8 @@ static int mtk_vpu_probe(struct platform_device *pdev)
+ 	vpu->wdt.wq = create_singlethread_workqueue("vpu_wdt");
+ 	if (!vpu->wdt.wq) {
+ 		dev_err(dev, "initialize wdt workqueue failed\n");
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto clk_unprepare;
+ 	}
+ 	INIT_WORK(&vpu->wdt.ws, vpu_wdt_reset_func);
+ 	mutex_init(&vpu->vpu_mutex);
+@@ -917,6 +918,8 @@ disable_vpu_clk:
+ 	vpu_clock_disable(vpu);
+ workqueue_destroy:
+ 	destroy_workqueue(vpu->wdt.wq);
++clk_unprepare:
++	clk_unprepare(vpu->clk);
  
--	if (parm->type == V4L2_BUF_TYPE_VIDEO_CAPTURE)
-+	if (parm->type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
- 		parm->parm.capture.timeperframe = timeperframe;
--	else
-+		parm->parm.capture.capability = V4L2_CAP_TIMEPERFRAME;
-+	} else {
- 		parm->parm.output.timeperframe = timeperframe;
-+		parm->parm.output.capability = V4L2_CAP_TIMEPERFRAME;
-+	}
- 
- 	return 0;
+ 	return ret;
  }
 -- 
 2.33.0
