@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C74545C263
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:26:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6584145C398
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:38:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343968AbhKXN2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:28:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50666 "EHLO mail.kernel.org"
+        id S1348847AbhKXNky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:40:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349190AbhKXNZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:25:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A13AD611C0;
-        Wed, 24 Nov 2021 12:49:13 +0000 (UTC)
+        id S1353029AbhKXNiv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:38:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F29263224;
+        Wed, 24 Nov 2021 12:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758154;
-        bh=IKwPofgKLC48bMDR5dDV0wr4niRdtc3cnrk94Doc37o=;
+        s=korg; t=1637758587;
+        bh=rjhtdDJs5SYZGs+43r87m39hnjGWHnIpAs3cBkpbzoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6RALRLhuyMTpCkFhw9cHFdr3H+SIwrqrlBSwkjfXtmYeA2IYOSUZBJk2VKjzWoCj
-         +QlygCdZ01CwNBScvXakZBcGTp/B2eItF37zRPqHRb0USIzxEPdGW1JvGdEc+3lbWt
-         caTH+C3Ul9HBHNkFxlQqnJG3PWe2BDigp1ApD55U=
+        b=lwru/EMw4Bhy/15qoyRN1kFgJ9q8hU4YmaOWyAoCJ6xOpd68jEpYJ7iiOtBjMN9Hv
+         Kq/S2p6IW4g/NXeXSsQiPAhHzJCoDsvsUkzUdbgwKFBvWK7ByEL/zu0w8sIaGwvZVk
+         KB64l5iLyiNVSWhpqIiBRifhUJgYRgryWTW/OVZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
-        Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Andrei Vagin <avagin@gmail.com>,
-        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 079/100] ipc: WARN if trying to remove ipc object which is absent
+        stable@vger.kernel.org, Lucas Henneman <henneman@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.10 119/154] arm64: vdso32: suppress error message for make mrproper
 Date:   Wed, 24 Nov 2021 12:58:35 +0100
-Message-Id: <20211124115657.411504172@linuxfoundation.org>
+Message-Id: <20211124115706.136723741@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,115 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 126e8bee943e9926238c891e2df5b5573aee76bc upstream.
+commit 14831fad73f5ac30ac61760487d95a538e6ab3cb upstream.
 
-Patch series "shm: shm_rmid_forced feature fixes".
+When running the following command without arm-linux-gnueabi-gcc in
+one's $PATH, the following warning is observed:
 
-Some time ago I met kernel crash after CRIU restore procedure,
-fortunately, it was CRIU restore, so, I had dump files and could do
-restore many times and crash reproduced easily.  After some
-investigation I've constructed the minimal reproducer.  It was found
-that it's use-after-free and it happens only if sysctl
-kernel.shm_rmid_forced = 1.
+$ ARCH=arm64 CROSS_COMPILE_COMPAT=arm-linux-gnueabi- make -j72 LLVM=1 mrproper
+make[1]: arm-linux-gnueabi-gcc: No such file or directory
 
-The key of the problem is that the exit_shm() function not handles shp's
-object destroy when task->sysvshm.shm_clist contains items from
-different IPC namespaces.  In most cases this list will contain only
-items from one IPC namespace.
+This is because KCONFIG is not run for mrproper, so CONFIG_CC_IS_CLANG
+is not set, and we end up eagerly evaluating various variables that try
+to invoke CC_COMPAT.
 
-How can this list contain object from different namespaces? The
-exit_shm() function is designed to clean up this list always when
-process leaves IPC namespace.  But we made a mistake a long time ago and
-did not add a exit_shm() call into the setns() syscall procedures.
+This is a similar problem to what was observed in
+commit dc960bfeedb0 ("h8300: suppress error messages for 'make clean'")
 
-The first idea was just to add this call to setns() syscall but it
-obviously changes semantics of setns() syscall and that's
-userspace-visible change.  So, I gave up on this idea.
-
-The first real attempt to address the issue was just to omit forced
-destroy if we meet shp object not from current task IPC namespace [1].
-But that was not the best idea because task->sysvshm.shm_clist was
-protected by rwsem which belongs to current task IPC namespace.  It
-means that list corruption may occur.
-
-Second approach is just extend exit_shm() to properly handle shp's from
-different IPC namespaces [2].  This is really non-trivial thing, I've
-put a lot of effort into that but not believed that it's possible to
-make it fully safe, clean and clear.
-
-Thanks to the efforts of Manfred Spraul working an elegant solution was
-designed.  Thanks a lot, Manfred!
-
-Eric also suggested the way to address the issue in ("[RFC][PATCH] shm:
-In shm_exit destroy all created and never attached segments") Eric's
-idea was to maintain a list of shm_clists one per IPC namespace, use
-lock-less lists.  But there is some extra memory consumption-related
-concerns.
-
-An alternative solution which was suggested by me was implemented in
-("shm: reset shm_clist on setns but omit forced shm destroy").  The idea
-is pretty simple, we add exit_shm() syscall to setns() but DO NOT
-destroy shm segments even if sysctl kernel.shm_rmid_forced = 1, we just
-clean up the task->sysvshm.shm_clist list.
-
-This chages semantics of setns() syscall a little bit but in comparision
-to the "naive" solution when we just add exit_shm() without any special
-exclusions this looks like a safer option.
-
-[1] https://lkml.org/lkml/2021/7/6/1108
-[2] https://lkml.org/lkml/2021/7/14/736
-
-This patch (of 2):
-
-Let's produce a warning if we trying to remove non-existing IPC object
-from IPC namespace kht/idr structures.
-
-This allows us to catch possible bugs when the ipc_rmid() function was
-called with inconsistent struct ipc_ids*, struct kern_ipc_perm*
-arguments.
-
-Link: https://lkml.kernel.org/r/20211027224348.611025-1-alexander.mikhalitsyn@virtuozzo.com
-Link: https://lkml.kernel.org/r/20211027224348.611025-2-alexander.mikhalitsyn@virtuozzo.com
-Co-developed-by: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Andrei Vagin <avagin@gmail.com>
-Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Cc: Vasily Averin <vvs@virtuozzo.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Lucas Henneman <henneman@google.com>
+Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20211019223646.1146945-4-ndesaulniers@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- ipc/util.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/ipc/util.c
-+++ b/ipc/util.c
-@@ -446,8 +446,8 @@ static int ipcget_public(struct ipc_name
- static void ipc_kht_remove(struct ipc_ids *ids, struct kern_ipc_perm *ipcp)
- {
- 	if (ipcp->key != IPC_PRIVATE)
--		rhashtable_remove_fast(&ids->key_ht, &ipcp->khtnode,
--				       ipc_kht_params);
-+		WARN_ON_ONCE(rhashtable_remove_fast(&ids->key_ht, &ipcp->khtnode,
-+				       ipc_kht_params));
- }
+---
+ arch/arm64/kernel/vdso32/Makefile |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/arch/arm64/kernel/vdso32/Makefile
++++ b/arch/arm64/kernel/vdso32/Makefile
+@@ -48,7 +48,8 @@ cc32-as-instr = $(call try-run,\
+ # As a result we set our own flags here.
  
- /**
-@@ -462,7 +462,7 @@ void ipc_rmid(struct ipc_ids *ids, struc
- {
- 	int idx = ipcid_to_idx(ipcp->id);
+ # KBUILD_CPPFLAGS and NOSTDINC_FLAGS from top-level Makefile
+-VDSO_CPPFLAGS := -D__KERNEL__ -nostdinc -isystem $(shell $(CC_COMPAT) -print-file-name=include)
++VDSO_CPPFLAGS := -D__KERNEL__ -nostdinc
++VDSO_CPPFLAGS += -isystem $(shell $(CC_COMPAT) -print-file-name=include 2>/dev/null)
+ VDSO_CPPFLAGS += $(LINUXINCLUDE)
  
--	idr_remove(&ids->ipcs_idr, idx);
-+	WARN_ON_ONCE(idr_remove(&ids->ipcs_idr, idx) != ipcp);
- 	ipc_kht_remove(ids, ipcp);
- 	ids->in_use--;
- 	ipcp->deleted = true;
+ # Common C and assembly flags
 
 
