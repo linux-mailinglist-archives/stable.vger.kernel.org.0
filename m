@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 335A345C334
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:33:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C211D45C0DF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:09:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349522AbhKXNgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:36:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51988 "EHLO mail.kernel.org"
+        id S1346576AbhKXNMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:12:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349523AbhKXNeL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:34:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC74261B4E;
-        Wed, 24 Nov 2021 12:54:20 +0000 (UTC)
+        id S1347565AbhKXNKM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:10:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE3C061401;
+        Wed, 24 Nov 2021 12:41:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758461;
-        bh=OkEDGTIR1G3x7rRunlXBe+9gmRRYIfruLWF93G3jpqU=;
+        s=korg; t=1637757682;
+        bh=iuzFRE0Nscgynx3scD91a3Xw/dGqFYVFdYFoTpeeSQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nmNrNFWfX8tOCC5JtSGtx9G0Mep3K/O3v/Y+Gu4Do554DvBcJWHwU1gJyLLXVA0Nb
-         CgG9RCtgTrk0K8BvkRk56dZUbyBEllaG3RbCAbmKeGUUOAa1ORbX27tmS2P1CFZReI
-         kNnT8JwkESn4B521tCRBt0YKNLX7VBs1zbPZEUBQ=
+        b=Ff+owtH6oZEkuTkTk8XujRbRi2CZlcDFZ5sbLR3Te5vrZOg6yUUcFJ2/6olOMKn+V
+         F4ZnJSGsKXIr/GO9uZB7NA+Tvhs0e/pMI0m5LOZaYDeFXRQ2tug5Crre4sC5Vq3Wr0
+         JYHYQIvb0NDwq9Oqud9n3DoKuVrSYq6HU6xtnTlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guanghui Feng <guanghuifeng@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 036/154] tty: tty_buffer: Fix the softlockup issue in flush_to_ldisc
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Roman Gushchin <guro@fb.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 242/323] mm, oom: pagefault_out_of_memory: dont force global OOM for dying tasks
 Date:   Wed, 24 Nov 2021 12:57:12 +0100
-Message-Id: <20211124115703.523325369@linuxfoundation.org>
+Message-Id: <20211124115727.084045026@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +49,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guanghui Feng <guanghuifeng@linux.alibaba.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 3968ddcf05fb4b9409cd1859feb06a5b0550a1c1 ]
+commit 0b28179a6138a5edd9d82ad2687c05b3773c387b upstream.
 
-When running ltp testcase(ltp/testcases/kernel/pty/pty04.c) with arm64, there is a soft lockup,
-which look like this one:
+Patch series "memcg: prohibit unconditional exceeding the limit of dying tasks", v3.
 
-  Workqueue: events_unbound flush_to_ldisc
-  Call trace:
-   dump_backtrace+0x0/0x1ec
-   show_stack+0x24/0x30
-   dump_stack+0xd0/0x128
-   panic+0x15c/0x374
-   watchdog_timer_fn+0x2b8/0x304
-   __run_hrtimer+0x88/0x2c0
-   __hrtimer_run_queues+0xa4/0x120
-   hrtimer_interrupt+0xfc/0x270
-   arch_timer_handler_phys+0x40/0x50
-   handle_percpu_devid_irq+0x94/0x220
-   __handle_domain_irq+0x88/0xf0
-   gic_handle_irq+0x84/0xfc
-   el1_irq+0xc8/0x180
-   slip_unesc+0x80/0x214 [slip]
-   tty_ldisc_receive_buf+0x64/0x80
-   tty_port_default_receive_buf+0x50/0x90
-   flush_to_ldisc+0xbc/0x110
-   process_one_work+0x1d4/0x4b0
-   worker_thread+0x180/0x430
-   kthread+0x11c/0x120
+Memory cgroup charging allows killed or exiting tasks to exceed the hard
+limit.  It can be misused and allowed to trigger global OOM from inside
+a memcg-limited container.  On the other hand if memcg fails allocation,
+called from inside #PF handler it triggers global OOM from inside
+pagefault_out_of_memory().
 
-In the testcase pty04, The first process call the write syscall to send
-data to the pty master. At the same time, the workqueue will do the
-flush_to_ldisc to pop data in a loop until there is no more data left.
-When the sender and workqueue running in different core, the sender sends
-data fastly in full time which will result in workqueue doing work in loop
-for a long time and occuring softlockup in flush_to_ldisc with kernel
-configured without preempt. So I add need_resched check and cond_resched
-in the flush_to_ldisc loop to avoid it.
+To prevent these problems this patchset:
+ (a) removes execution of out_of_memory() from
+     pagefault_out_of_memory(), becasue nobody can explain why it is
+     necessary.
+ (b) allow memcg to fail allocation of dying/killed tasks.
 
-Signed-off-by: Guanghui Feng <guanghuifeng@linux.alibaba.com>
-Link: https://lore.kernel.org/r/1633961304-24759-1-git-send-email-guanghuifeng@linux.alibaba.com
+This patch (of 3):
+
+Any allocation failure during the #PF path will return with VM_FAULT_OOM
+which in turn results in pagefault_out_of_memory which in turn executes
+out_out_memory() and can kill a random task.
+
+An allocation might fail when the current task is the oom victim and
+there are no memory reserves left.  The OOM killer is already handled at
+the page allocator level for the global OOM and at the charging level
+for the memcg one.  Both have much more information about the scope of
+allocation/charge request.  This means that either the OOM killer has
+been invoked properly and didn't lead to the allocation success or it
+has been skipped because it couldn't have been invoked.  In both cases
+triggering it from here is pointless and even harmful.
+
+It makes much more sense to let the killed task die rather than to wake
+up an eternally hungry oom-killer and send him to choose a fatter victim
+for breakfast.
+
+Link: https://lkml.kernel.org/r/0828a149-786e-7c06-b70a-52d086818ea3@virtuozzo.com
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Suggested-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_buffer.c | 3 +++
+ mm/oom_kill.c |    3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
-index bd2d91546e327..0fc473321d3e3 100644
---- a/drivers/tty/tty_buffer.c
-+++ b/drivers/tty/tty_buffer.c
-@@ -534,6 +534,9 @@ static void flush_to_ldisc(struct work_struct *work)
- 		if (!count)
- 			break;
- 		head->read += count;
-+
-+		if (need_resched())
-+			cond_resched();
- 	}
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -1152,6 +1152,9 @@ void pagefault_out_of_memory(void)
+ 	if (mem_cgroup_oom_synchronize(true))
+ 		return;
  
- 	mutex_unlock(&buf->lock);
--- 
-2.33.0
-
++	if (fatal_signal_pending(current))
++		return;
++
+ 	if (!mutex_trylock(&oom_lock))
+ 		return;
+ 	out_of_memory(&oc);
 
 
