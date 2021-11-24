@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C320E45C12A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0883D45C5A0
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:57:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346068AbhKXNPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:15:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51816 "EHLO mail.kernel.org"
+        id S1347447AbhKXN7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:59:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348456AbhKXNNN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:13:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E47861A8A;
-        Wed, 24 Nov 2021 12:42:54 +0000 (UTC)
+        id S1353200AbhKXN44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:56:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E803B6337D;
+        Wed, 24 Nov 2021 13:07:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757775;
-        bh=geWwvt+WcT0Vr9beU/Rq9/kGpE1RZ0NSTymtca8vwFs=;
+        s=korg; t=1637759242;
+        bh=dT//0w6GFNNI+kKFbzzw1+b4KhIWblGHWa1x70fP8ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XYLtaYpK7/TeRto7WCsMCMme85HzhOErK86I3/cnM4zTjf9smYXiz+tEBEkTtnyXH
-         GDzKl8h3I5U79ojVylbG/rHSNmHEtl4qQpVQ7g/jE6afse6WdNhWqs+7pNYNeALU79
-         C7SHH7Zl/oe4Oufe9VP+54JHPvQLc3s4tCnfZPoA=
+        b=Jwp/eEmU+z0+bWhuusdZdO+4bnELVBZgLsA5TBwGh+77H+cOxysAQuPprHIi3/ge1
+         jCky/CgY+Cucp2jtVLAH8g2r9LkW2c5CR2s7k8tUqqDTOTMW3qAUYOHc+r6Jk3b+VE
+         IEvTJuLReqiN2AtQ4uKhTWeKgxqNECv6JpsfxMYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-mips@vger.kernel.org,
-        Bart Van Assche <bvanassche@acm.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 273/323] MIPS: sni: Fix the build
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Daniel Axtens <dja@axtens.net>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 176/279] KVM: PPC: Book3S HV: Use GLOBAL_TOC for kvmppc_h_set_dabr/xdabr()
 Date:   Wed, 24 Nov 2021 12:57:43 +0100
-Message-Id: <20211124115728.101427761@linuxfoundation.org>
+Message-Id: <20211124115724.822884961@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit c91cf42f61dc77b289784ea7b15a8531defa41c0 ]
+[ Upstream commit dae581864609d36fb58855fd59880b4941ce9d14 ]
 
-This patch fixes the following gcc 10 build error:
+kvmppc_h_set_dabr(), and kvmppc_h_set_xdabr() which jumps into
+it, need to use _GLOBAL_TOC to setup the kernel TOC pointer, because
+kvmppc_h_set_dabr() uses LOAD_REG_ADDR() to load dawr_force_enable.
 
-arch/mips/sni/time.c: In function ‘a20r_set_periodic’:
-arch/mips/sni/time.c:15:26: error: unsigned conversion from ‘int’ to ‘u8’ {aka ‘volatile unsigned char’} changes value from ‘576’ to ‘64’ [-Werror=overflow]
-   15 | #define SNI_COUNTER0_DIV ((SNI_CLOCK_TICK_RATE / SNI_COUNTER2_DIV) / HZ)
-      |                          ^
-arch/mips/sni/time.c:21:45: note: in expansion of macro ‘SNI_COUNTER0_DIV’
-   21 |  *(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV;
-      |                                             ^~~~~~~~~~~~~~~~
+When called from hcall_try_real_mode() we have the kernel TOC in r2,
+established near the start of kvmppc_interrupt_hv(), so there is no
+issue.
 
-Cc: linux-mips@vger.kernel.org
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+But they can also be called from kvmppc_pseries_do_hcall() which is
+module code, so the access ends up happening with the kvm-hv module's
+r2, which will not point at dawr_force_enable and could even cause a
+fault.
+
+With the current code layout and compilers we haven't observed a fault
+in practice, the load hits somewhere in kvm-hv.ko and silently returns
+some bogus value.
+
+Note that we we expect p8/p9 guests to use the DAWR, but SLOF uses
+h_set_dabr() to test if sc1 works correctly, see SLOF's
+lib/libhvcall/brokensc1.c.
+
+Fixes: c1fe190c0672 ("powerpc: Add force enable of DAWR on P9 option")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Daniel Axtens <dja@axtens.net>
+Link: https://lore.kernel.org/r/20210923151031.72408-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/sni/time.c | 4 ++--
+ arch/powerpc/kvm/book3s_hv_rmhandlers.S | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/sni/time.c b/arch/mips/sni/time.c
-index dbace1f3e1a97..745ceb945fc50 100644
---- a/arch/mips/sni/time.c
-+++ b/arch/mips/sni/time.c
-@@ -18,14 +18,14 @@ static int a20r_set_periodic(struct clock_event_device *evt)
- {
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 12) = 0x34;
- 	wmb();
--	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV;
-+	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV & 0xff;
- 	wmb();
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV >> 8;
- 	wmb();
+diff --git a/arch/powerpc/kvm/book3s_hv_rmhandlers.S b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+index eb776d0c5d8e9..32a4b4d412b92 100644
+--- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
++++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
+@@ -2005,7 +2005,7 @@ hcall_real_table:
+ 	.globl	hcall_real_table_end
+ hcall_real_table_end:
  
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 12) = 0xb4;
- 	wmb();
--	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 8) = SNI_COUNTER2_DIV;
-+	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 8) = SNI_COUNTER2_DIV & 0xff;
- 	wmb();
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 8) = SNI_COUNTER2_DIV >> 8;
- 	wmb();
+-_GLOBAL(kvmppc_h_set_xdabr)
++_GLOBAL_TOC(kvmppc_h_set_xdabr)
+ EXPORT_SYMBOL_GPL(kvmppc_h_set_xdabr)
+ 	andi.	r0, r5, DABRX_USER | DABRX_KERNEL
+ 	beq	6f
+@@ -2015,7 +2015,7 @@ EXPORT_SYMBOL_GPL(kvmppc_h_set_xdabr)
+ 6:	li	r3, H_PARAMETER
+ 	blr
+ 
+-_GLOBAL(kvmppc_h_set_dabr)
++_GLOBAL_TOC(kvmppc_h_set_dabr)
+ EXPORT_SYMBOL_GPL(kvmppc_h_set_dabr)
+ 	li	r5, DABRX_USER | DABRX_KERNEL
+ 3:
 -- 
 2.33.0
 
