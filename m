@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33C2045C56A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:54:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82D5D45C126
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350751AbhKXN5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:57:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46102 "EHLO mail.kernel.org"
+        id S1347035AbhKXNPS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:15:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352995AbhKXNze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:55:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EA36632C4;
-        Wed, 24 Nov 2021 13:06:33 +0000 (UTC)
+        id S1346035AbhKXNLx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:11:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E20F61A80;
+        Wed, 24 Nov 2021 12:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759194;
-        bh=FEgnfhqPl81GleE3IRFdHhyPMhCuTyNWnScTp9ADNzY=;
+        s=korg; t=1637757715;
+        bh=tnqyqeyXW3Bwsd24Il137clZkPiw8fFv9CZzmxu8VcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sNAKP8l/J2mwQBUnyQsyGHgd9EYYJtmScypNk4604rc78vLNlGXOy5No+drDCNVZY
-         1xof+5DlvzI99xnAEmmqpHIUhqkYLkNbyl2NY71FpKU3vqMgOX2inARyV8zESs3ORn
-         Lmkwb4b/+ghzcr067Si8mxOGGfuTKntqTyh87B+Q=
+        b=bzp0r9mjUI6jFr1Cz9KMs5a4OSnsqEd8EmZHzNvp2GsjIIc7v+kBCxfFaOEvK/V8x
+         /S80gytFvFPoD3U91XNZHzXV9v1mKZgLEnGh3dD9E0F0z/5w0HADNNpdZtdPQcsglM
+         eCqL0MNpsyRSrA8Ijbfxd1c2kXPnuvvp2AOwxoew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 155/279] scsi: ufs: core: Fix another task management completion race
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.19 252/323] fortify: Explicitly disable Clang support
 Date:   Wed, 24 Nov 2021 12:57:22 +0100
-Message-Id: <20211124115724.128091686@linuxfoundation.org>
+Message-Id: <20211124115727.406344540@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 5cb37a26355d79ab290220677b1b57d28e99a895 ]
+commit a52f8a59aef46b59753e583bf4b28fccb069ce64 upstream.
 
-hba->outstanding_tasks, which is read under host_lock spinlock, tells the
-interrupt handler what task management tags are in use by the driver.  The
-doorbell register bits indicate which tags are in use by the hardware.  A
-doorbell bit that is 0 is because the bit has yet to be set by the driver,
-or because the task is complete. It is only possible to disambiguate the 2
-cases, if reading/writing the doorbell register is synchronized with
-reading/writing hba->outstanding_tasks.
+Clang has never correctly compiled the FORTIFY_SOURCE defenses due to
+a couple bugs:
 
-For that reason, reading REG_UTP_TASK_REQ_DOOR_BELL must be done under
-spinlock.
+	Eliding inlines with matching __builtin_* names
+	https://bugs.llvm.org/show_bug.cgi?id=50322
 
-Link: https://lore.kernel.org/r/20211108064815.569494-3-adrian.hunter@intel.com
-Fixes: f5ef336fd2e4 ("scsi: ufs: core: Fix task management completion")
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	Incorrect __builtin_constant_p() of some globals
+	https://bugs.llvm.org/show_bug.cgi?id=41459
+
+In the process of making improvements to the FORTIFY_SOURCE defenses, the
+first (silent) bug (coincidentally) becomes worked around, but exposes
+the latter which breaks the build. As such, Clang must not be used with
+CONFIG_FORTIFY_SOURCE until at least latter bug is fixed (in Clang 13),
+and the fortify routines have been rearranged.
+
+Update the Kconfig to reflect the reality of the current situation.
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/lkml/CAKwvOd=A+ueGV2ihdy5GtgR2fQbcXjjAtVxv3=cPjffpebZB7A@mail.gmail.com
+Cc: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ security/Kconfig |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 3d0da8b3fed8a..55f2e4d6f10b7 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6382,9 +6382,8 @@ static irqreturn_t ufshcd_tmc_handler(struct ufs_hba *hba)
- 	irqreturn_t ret = IRQ_NONE;
- 	int tag;
- 
--	pending = ufshcd_readl(hba, REG_UTP_TASK_REQ_DOOR_BELL);
--
- 	spin_lock_irqsave(hba->host->host_lock, flags);
-+	pending = ufshcd_readl(hba, REG_UTP_TASK_REQ_DOOR_BELL);
- 	issued = hba->outstanding_tasks & ~pending;
- 	for_each_set_bit(tag, &issued, hba->nutmrs) {
- 		struct request *req = hba->tmf_rqs[tag];
--- 
-2.33.0
-
+--- a/security/Kconfig
++++ b/security/Kconfig
+@@ -191,6 +191,9 @@ config HARDENED_USERCOPY_PAGESPAN
+ config FORTIFY_SOURCE
+ 	bool "Harden common str/mem functions against buffer overflows"
+ 	depends on ARCH_HAS_FORTIFY_SOURCE
++	# https://bugs.llvm.org/show_bug.cgi?id=50322
++	# https://bugs.llvm.org/show_bug.cgi?id=41459
++	depends on !CC_IS_CLANG
+ 	help
+ 	  Detect overflows of buffers in common string and memory functions
+ 	  where the compiler can determine and validate the buffer sizes.
 
 
