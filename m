@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 907DC45B9E4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:03:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A36A045C000
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241485AbhKXMGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:06:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60568 "EHLO mail.kernel.org"
+        id S1343861AbhKXNEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:04:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232580AbhKXMFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:05:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F6D9600EF;
-        Wed, 24 Nov 2021 12:02:03 +0000 (UTC)
+        id S1346794AbhKXNCV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:02:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30B236120A;
+        Wed, 24 Nov 2021 12:35:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755324;
-        bh=c/A9rEv6MEbfdXuo8hHkDH6YxoXTEtFVR+YJmv66wck=;
+        s=korg; t=1637757339;
+        bh=w9lWDKiLb4ruWCjGXxfuyOTwxn6cK4A60fr6gj76WxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zsJkNbOc03Wuopw3/T+lvpX+p+4AnqsKF97IsnMgBGMuG0FimxNpnH/SrXWs+ikre
-         WMu0Cv1hQGp3r/c/e8zlLBWEA6tWuGygyZW+xwjs28p5qqMH4rYGTu6PGo/8KTFFRv
-         V+p5TCGPgfly04/EustVHHlAEOpHgOoo/V8PyW3o=
+        b=RRwGInxtO8IZVwWUgI8wqn8Tf9iw2vGISuyuaqzl71ZGJcpnpi+uNrCUQwhe68pJq
+         NPaW6+xBB0L4I+Npbo2TtFFVa4kCaCzADM0t+3WIhd49kkJZa5+MfYuAaIeJt672Y5
+         NjavKW2hjfUAl5Gv4ZbQBgofgOETmlgxBr9gI7Rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Perrot <thomas.perrot@bootlin.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 021/162] spi: spl022: fix Microwire full duplex mode
-Date:   Wed, 24 Nov 2021 12:55:24 +0100
-Message-Id: <20211124115659.019104477@linuxfoundation.org>
+Subject: [PATCH 4.19 135/323] media: cx23885: Fix snd_card_free call on null card pointer
+Date:   Wed, 24 Nov 2021 12:55:25 +0100
+Message-Id: <20211124115723.482366187@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Perrot <thomas.perrot@bootlin.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit d81d0e41ed5fe7229a2c9a29d13bad288c7cf2d2 ]
+[ Upstream commit 7266dda2f1dfe151b12ef0c14eb4d4e622fb211c ]
 
-There are missing braces in the function that verify controller parameters,
-then an error is always returned when the parameter to select Microwire
-frames operation is used on devices allowing it.
+Currently a call to snd_card_new that fails will set card with a NULL
+pointer, this causes a null pointer dereference on the error cleanup
+path when card it passed to snd_card_free. Fix this by adding a new
+error exit path that does not call snd_card_free and exiting via this
+new path.
 
-Signed-off-by: Thomas Perrot <thomas.perrot@bootlin.com>
-Link: https://lore.kernel.org/r/20211022142104.1386379-1-thomas.perrot@bootlin.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Addresses-Coverity: ("Explicit null dereference")
+
+Fixes: 9e44d63246a9 ("[media] cx23885: Add ALSA support")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pl022.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/pci/cx23885/cx23885-alsa.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-pl022.c b/drivers/spi/spi-pl022.c
-index 5e5fd77e27119..e294f21db2068 100644
---- a/drivers/spi/spi-pl022.c
-+++ b/drivers/spi/spi-pl022.c
-@@ -1710,12 +1710,13 @@ static int verify_controller_parameters(struct pl022 *pl022,
- 				return -EINVAL;
- 			}
- 		} else {
--			if (chip_info->duplex != SSP_MICROWIRE_CHANNEL_FULL_DUPLEX)
-+			if (chip_info->duplex != SSP_MICROWIRE_CHANNEL_FULL_DUPLEX) {
- 				dev_err(&pl022->adev->dev,
- 					"Microwire half duplex mode requested,"
- 					" but this is only available in the"
- 					" ST version of PL022\n");
--			return -EINVAL;
-+				return -EINVAL;
-+			}
- 		}
- 	}
- 	return 0;
+diff --git a/drivers/media/pci/cx23885/cx23885-alsa.c b/drivers/media/pci/cx23885/cx23885-alsa.c
+index db1e8ff35474a..150106eb36052 100644
+--- a/drivers/media/pci/cx23885/cx23885-alsa.c
++++ b/drivers/media/pci/cx23885/cx23885-alsa.c
+@@ -559,7 +559,7 @@ struct cx23885_audio_dev *cx23885_audio_register(struct cx23885_dev *dev)
+ 			   SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+ 			THIS_MODULE, sizeof(struct cx23885_audio_dev), &card);
+ 	if (err < 0)
+-		goto error;
++		goto error_msg;
+ 
+ 	chip = (struct cx23885_audio_dev *) card->private_data;
+ 	chip->dev = dev;
+@@ -585,6 +585,7 @@ struct cx23885_audio_dev *cx23885_audio_register(struct cx23885_dev *dev)
+ 
+ error:
+ 	snd_card_free(card);
++error_msg:
+ 	pr_err("%s(): Failed to register analog audio adapter\n",
+ 	       __func__);
+ 
 -- 
 2.33.0
 
