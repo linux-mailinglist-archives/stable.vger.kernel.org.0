@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B68F45BC02
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA95045BE83
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:46:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243976AbhKXMZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41740 "EHLO mail.kernel.org"
+        id S1344434AbhKXMrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:47:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244515AbhKXMXi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:23:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6F57610CA;
-        Wed, 24 Nov 2021 12:14:11 +0000 (UTC)
+        id S1344784AbhKXMpi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:45:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DD6F61269;
+        Wed, 24 Nov 2021 12:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756052;
-        bh=GG0P45e0MOYGWGRukWjS+NV37NJFc7dEt9253jaRWE0=;
+        s=korg; t=1637756809;
+        bh=ivg2Xhd8htgta8PZ6DSn+eKqtKtOPPpkReiTN/UBQl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RfHSqukoSPH3V3BVYGBTTAaFU9XN5zMNO0tDCFbTVsIvWDX82LAY57771d6k8vvTZ
-         fTKHwD+PjwIVSh5N+m6mgdEedXqgYFuqKb49jXqgwa1ucJb1Zm7W/wFL0AyvTmOj9t
-         MfcZsQBBqyn4PRqbloJXIHqYVWTWEMBclq2llnRE=
+        b=xYR3EZDbI7uXX5ihyQd4x5CMnbZUBJZ4iJml7g8ddz7qK2jpoVU8Qj6UX8VXI/cHW
+         V3EP3BNdKA9xt51PK7RzgAyXf919pvC0bjpW3Iv3UTiTuAezpB6La4jUDpbFIXI3pW
+         ziuFh1j4Vp0+0oWNHwWiJFAk9zkMDggNhlKGmyQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Antonio Terceiro <antonio.terceiro@linaro.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Sebastian Andrzej Siewior <sebastian@breakpoint.cc>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Klaus Kudielka <klaus.kudielka@gmail.com>,
-        Matthias Klose <doko@debian.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.9 153/207] ARM: 9156/1: drop cc-option fallbacks for architecture selection
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 182/251] ACPI: PMIC: Fix intel_pmic_regs_handler() read accesses
 Date:   Wed, 24 Nov 2021 12:57:04 +0100
-Message-Id: <20211124115708.966052329@linuxfoundation.org>
+Message-Id: <20211124115716.595255972@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,103 +40,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 418ace9992a7647c446ed3186df40cf165b67298 upstream.
+[ Upstream commit 009a789443fe4c8e6b1ecb7c16b4865c026184cd ]
 
-Naresh and Antonio ran into a build failure with latest Debian
-armhf compilers, with lots of output like
+The handling of PMIC register reads through writing 0 to address 4
+of the OpRegion is wrong. Instead of returning the read value
+through the value64, which is a no-op for function == ACPI_WRITE calls,
+store the value and then on a subsequent function == ACPI_READ with
+address == 3 (the address for the value field of the OpRegion)
+return the stored value.
 
- tmp/ccY3nOAs.s:2215: Error: selected processor does not support `cpsid i' in ARM mode
+This has been tested on a Xiaomi Mi Pad 2 and makes the ACPI battery dev
+there mostly functional (unfortunately there are still other issues).
 
-As it turns out, $(cc-option) fails early here when the FPU is not
-selected before CPU architecture is selected, as the compiler
-option check runs before enabling -msoft-float, which causes
-a problem when testing a target architecture level without an FPU:
+Here are the SET() / GET() functions of the PMIC ACPI device,
+which use this OpRegion, which clearly show the new behavior to
+be correct:
 
-cc1: error: '-mfloat-abi=hard': selected architecture lacks an FPU
+OperationRegion (REGS, 0x8F, Zero, 0x50)
+Field (REGS, ByteAcc, NoLock, Preserve)
+{
+    CLNT,   8,
+    SA,     8,
+    OFF,    8,
+    VAL,    8,
+    RWM,    8
+}
 
-Passing e.g. -march=armv6k+fp in place of -march=armv6k would avoid this
-issue, but the fallback logic is already broken because all supported
-compilers (gcc-5 and higher) are much more recent than these options,
-and building with -march=armv5t as a fallback no longer works.
+Method (GET, 3, Serialized)
+{
+    If ((AVBE == One))
+    {
+        CLNT = Arg0
+        SA = Arg1
+        OFF = Arg2
+        RWM = Zero
+        If ((AVBG == One))
+        {
+            GPRW = Zero
+        }
+    }
 
-The best way forward that I see is to just remove all the checks, which
-also has the nice side-effect of slightly improving the startup time for
-'make'.
+    Return (VAL) /* \_SB_.PCI0.I2C7.PMI5.VAL_ */
+}
 
-The -mtune=marvell-f option was apparently never supported by any mainline
-compiler, and the custom Codesourcery gcc build that did support is
-now too old to build kernels, so just use -mtune=xscale unconditionally
-for those.
+Method (SET, 4, Serialized)
+{
+    If ((AVBE == One))
+    {
+        CLNT = Arg0
+        SA = Arg1
+        OFF = Arg2
+        VAL = Arg3
+        RWM = One
+        If ((AVBG == One))
+        {
+            GPRW = One
+        }
+    }
+}
 
-This should be safe to apply on all stable kernels, and will be required
-in order to keep building them with gcc-11 and higher.
-
-Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=996419
-
-Reported-by: Antonio Terceiro <antonio.terceiro@linaro.org>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reported-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
-Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Tested-by: Klaus Kudielka <klaus.kudielka@gmail.com>
-Cc: Matthias Klose <doko@debian.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0afa877a5650 ("ACPI / PMIC: intel: add REGS operation region support")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Makefile |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/acpi/pmic/intel_pmic.c | 51 +++++++++++++++++++---------------
+ 1 file changed, 28 insertions(+), 23 deletions(-)
 
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -64,15 +64,15 @@ KBUILD_CFLAGS	+= $(call cc-option,-fno-i
- # Note that GCC does not numerically define an architecture version
- # macro, but instead defines a whole series of macros which makes
- # testing for a specific architecture or later rather impossible.
--arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m -Wa,-march=armv7-m
--arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
--arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6,-march=armv5t -Wa$(comma)-march=armv6)
-+arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m
-+arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 -march=armv7-a
-+arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 -march=armv6
- # Only override the compiler option if ARMv6. The ARMv6K extensions are
- # always available in ARMv7
- ifeq ($(CONFIG_CPU_32v6),y)
--arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6k,-march=armv5t -Wa$(comma)-march=armv6k)
-+arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 -march=armv6k
- endif
--arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5te,-march=armv4t)
-+arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 -march=armv5te
- arch-$(CONFIG_CPU_32v4T)	=-D__LINUX_ARM_ARCH__=4 -march=armv4t
- arch-$(CONFIG_CPU_32v4)		=-D__LINUX_ARM_ARCH__=4 -march=armv4
- arch-$(CONFIG_CPU_32v3)		=-D__LINUX_ARM_ARCH__=3 -march=armv3
-@@ -86,7 +86,7 @@ tune-$(CONFIG_CPU_ARM720T)	=-mtune=arm7t
- tune-$(CONFIG_CPU_ARM740T)	=-mtune=arm7tdmi
- tune-$(CONFIG_CPU_ARM9TDMI)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM940T)	=-mtune=arm9tdmi
--tune-$(CONFIG_CPU_ARM946E)	=$(call cc-option,-mtune=arm9e,-mtune=arm9tdmi)
-+tune-$(CONFIG_CPU_ARM946E)	=-mtune=arm9e
- tune-$(CONFIG_CPU_ARM920T)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM922T)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM925T)	=-mtune=arm9tdmi
-@@ -94,11 +94,11 @@ tune-$(CONFIG_CPU_ARM926T)	=-mtune=arm9t
- tune-$(CONFIG_CPU_FA526)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_SA110)	=-mtune=strongarm110
- tune-$(CONFIG_CPU_SA1100)	=-mtune=strongarm1100
--tune-$(CONFIG_CPU_XSCALE)	=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
--tune-$(CONFIG_CPU_XSC3)		=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
--tune-$(CONFIG_CPU_FEROCEON)	=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
--tune-$(CONFIG_CPU_V6)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
--tune-$(CONFIG_CPU_V6K)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
-+tune-$(CONFIG_CPU_XSCALE)	=-mtune=xscale
-+tune-$(CONFIG_CPU_XSC3)		=-mtune=xscale
-+tune-$(CONFIG_CPU_FEROCEON)	=-mtune=xscale
-+tune-$(CONFIG_CPU_V6)		=-mtune=arm1136j-s
-+tune-$(CONFIG_CPU_V6K)		=-mtune=arm1136j-s
+diff --git a/drivers/acpi/pmic/intel_pmic.c b/drivers/acpi/pmic/intel_pmic.c
+index ca18e0d23df97..db63d3463617a 100644
+--- a/drivers/acpi/pmic/intel_pmic.c
++++ b/drivers/acpi/pmic/intel_pmic.c
+@@ -216,31 +216,36 @@ static acpi_status intel_pmic_regs_handler(u32 function,
+ 		void *handler_context, void *region_context)
+ {
+ 	struct intel_pmic_opregion *opregion = region_context;
+-	int result = 0;
++	int result = -EINVAL;
++
++	if (function == ACPI_WRITE) {
++		switch (address) {
++		case 0:
++			return AE_OK;
++		case 1:
++			opregion->ctx.addr |= (*value64 & 0xff) << 8;
++			return AE_OK;
++		case 2:
++			opregion->ctx.addr |= *value64 & 0xff;
++			return AE_OK;
++		case 3:
++			opregion->ctx.val = *value64 & 0xff;
++			return AE_OK;
++		case 4:
++			if (*value64) {
++				result = regmap_write(opregion->regmap, opregion->ctx.addr,
++						      opregion->ctx.val);
++			} else {
++				result = regmap_read(opregion->regmap, opregion->ctx.addr,
++						     &opregion->ctx.val);
++			}
++			opregion->ctx.addr = 0;
++		}
++	}
  
- # Evaluate tune cc-option calls now
- tune-y := $(tune-y)
+-	switch (address) {
+-	case 0:
+-		return AE_OK;
+-	case 1:
+-		opregion->ctx.addr |= (*value64 & 0xff) << 8;
++	if (function == ACPI_READ && address == 3) {
++		*value64 = opregion->ctx.val;
+ 		return AE_OK;
+-	case 2:
+-		opregion->ctx.addr |= *value64 & 0xff;
+-		return AE_OK;
+-	case 3:
+-		opregion->ctx.val = *value64 & 0xff;
+-		return AE_OK;
+-	case 4:
+-		if (*value64) {
+-			result = regmap_write(opregion->regmap, opregion->ctx.addr,
+-					      opregion->ctx.val);
+-		} else {
+-			result = regmap_read(opregion->regmap, opregion->ctx.addr,
+-					     &opregion->ctx.val);
+-			if (result == 0)
+-				*value64 = opregion->ctx.val;
+-		}
+-		memset(&opregion->ctx, 0x00, sizeof(opregion->ctx));
+ 	}
+ 
+ 	if (result < 0) {
+-- 
+2.33.0
+
 
 
