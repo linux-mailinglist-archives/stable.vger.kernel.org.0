@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFEA445C5C0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:59:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7023B45C1E8
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355699AbhKXOAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:00:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47000 "EHLO mail.kernel.org"
+        id S245063AbhKXNYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:24:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355586AbhKXN6f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:58:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3ABB613A7;
-        Wed, 24 Nov 2021 13:08:11 +0000 (UTC)
+        id S1349262AbhKXNS5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:18:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A78D61263;
+        Wed, 24 Nov 2021 12:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759292;
-        bh=mV4/4Igol31KI5gbeAxpCtkzj/tHx3TSwHLwbNgcPcM=;
+        s=korg; t=1637757962;
+        bh=sO1KZ1DwrtekWZ3Ueom3iIMku29c1maiDZkUaqZf0rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQPoB7/7Cqniw8H85CbuoR9xZraGFEMRiTpdonCEjxkGSQz+k0ayDgEuQmP+aHvLG
-         bQ0EbBjR97Jr8GJdAQffScVCJpn/n2HfbQBaDj0zEzTFEcFbUqjFwe01WbUKVb0aj8
-         44qfKHDNqSWz5ZRBdV/7i1B0vZbaIhDX6FjeIhug=
+        b=Fk42TjiLinr0WNzV5JKO/RZa1Zg4hIBcZqphfJQdPSwGicLWENQfMn/itlUsI7++Q
+         4DbAsQpFmNf8tLgfLYsG1sQ5p/L9O1zoU8diYYGx8nrLA4IBF5cXW6ejcHDzHLN/1E
+         TVrhwAqNWwttgY+jnVSKyULEYbdqrdPhfQCPkX2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Eryk Rybak <eryk.roch.rybak@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 160/279] i40e: Fix correct max_pkt_size on VF RX queue
+Subject: [PATCH 5.4 011/100] arm64: dts: freescale: fix arm,sp805 compatible string
 Date:   Wed, 24 Nov 2021 12:57:27 +0100
-Message-Id: <20211124115724.295165530@linuxfoundation.org>
+Message-Id: <20211124115655.213549318@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,116 +40,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eryk Rybak <eryk.roch.rybak@intel.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 6afbd7b3c53cb7417189f476e99d431daccb85b0 ]
+[ Upstream commit 99a7cacc66cae92db40139b57689be2af75fc6b8 ]
 
-Setting VLAN port increasing RX queue max_pkt_size
-by 4 bytes to take VLAN tag into account.
-Trigger the VF reset when setting port VLAN for
-VF to renegotiate its capabilities and reinitialize.
+According to Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
+the compatible is:
+  compatible = "arm,sp805", "arm,primecell";
 
-Fixes: ba4e003d29c1 ("i40e: don't hold spinlock while resetting VF")
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Signed-off-by: Eryk Rybak <eryk.roch.rybak@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+The current compatible string doesn't exist at all. Fix it.
+
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 53 ++++---------------
- 1 file changed, 9 insertions(+), 44 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi | 16 ++++++++--------
+ arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi | 16 ++++++++--------
+ 2 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 472f56b360b8c..815661632e7a7 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -674,14 +674,13 @@ static int i40e_config_vsi_rx_queue(struct i40e_vf *vf, u16 vsi_id,
- 				    u16 vsi_queue_id,
- 				    struct virtchnl_rxq_info *info)
- {
-+	u16 pf_queue_id = i40e_vc_get_pf_queue_id(vf, vsi_id, vsi_queue_id);
- 	struct i40e_pf *pf = vf->pf;
-+	struct i40e_vsi *vsi = pf->vsi[vf->lan_vsi_idx];
- 	struct i40e_hw *hw = &pf->hw;
- 	struct i40e_hmc_obj_rxq rx_ctx;
--	u16 pf_queue_id;
- 	int ret = 0;
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
+index 407ebdb35cd2e..6b1b728de9e9c 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a.dtsi
+@@ -637,56 +637,56 @@
+ 		};
  
--	pf_queue_id = i40e_vc_get_pf_queue_id(vf, vsi_id, vsi_queue_id);
--
- 	/* clear the context structure first */
- 	memset(&rx_ctx, 0, sizeof(struct i40e_hmc_obj_rxq));
+ 		cluster1_core0_watchdog: wdt@c000000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc000000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
  
-@@ -719,6 +718,10 @@ static int i40e_config_vsi_rx_queue(struct i40e_vf *vf, u16 vsi_id,
- 	}
- 	rx_ctx.rxmax = info->max_pkt_size;
+ 		cluster1_core1_watchdog: wdt@c010000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc010000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
  
-+	/* if port VLAN is configured increase the max packet size */
-+	if (vsi->info.pvid)
-+		rx_ctx.rxmax += VLAN_HLEN;
-+
- 	/* enable 32bytes desc always */
- 	rx_ctx.dsize = 1;
+ 		cluster1_core2_watchdog: wdt@c020000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc020000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
  
-@@ -4169,34 +4172,6 @@ error_param:
- 	return ret;
- }
+ 		cluster1_core3_watchdog: wdt@c030000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc030000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
  
--/**
-- * i40e_vsi_has_vlans - True if VSI has configured VLANs
-- * @vsi: pointer to the vsi
-- *
-- * Check if a VSI has configured any VLANs. False if we have a port VLAN or if
-- * we have no configured VLANs. Do not call while holding the
-- * mac_filter_hash_lock.
-- */
--static bool i40e_vsi_has_vlans(struct i40e_vsi *vsi)
--{
--	bool have_vlans;
--
--	/* If we have a port VLAN, then the VSI cannot have any VLANs
--	 * configured, as all MAC/VLAN filters will be assigned to the PVID.
--	 */
--	if (vsi->info.pvid)
--		return false;
--
--	/* Since we don't have a PVID, we know that if the device is in VLAN
--	 * mode it must be because of a VLAN filter configured on this VSI.
--	 */
--	spin_lock_bh(&vsi->mac_filter_hash_lock);
--	have_vlans = i40e_is_vsi_in_vlan(vsi);
--	spin_unlock_bh(&vsi->mac_filter_hash_lock);
--
--	return have_vlans;
--}
--
- /**
-  * i40e_ndo_set_vf_port_vlan
-  * @netdev: network interface device structure
-@@ -4253,19 +4228,9 @@ int i40e_ndo_set_vf_port_vlan(struct net_device *netdev, int vf_id,
- 		/* duplicate request, so just return success */
- 		goto error_pvid;
+ 		cluster2_core0_watchdog: wdt@c100000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc100000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
  
--	if (i40e_vsi_has_vlans(vsi)) {
--		dev_err(&pf->pdev->dev,
--			"VF %d has already configured VLAN filters and the administrator is requesting a port VLAN override.\nPlease unload and reload the VF driver for this change to take effect.\n",
--			vf_id);
--		/* Administrator Error - knock the VF offline until he does
--		 * the right thing by reconfiguring his network correctly
--		 * and then reloading the VF driver.
--		 */
--		i40e_vc_disable_vf(vf);
--		/* During reset the VF got a new VSI, so refresh the pointer. */
--		vsi = pf->vsi[vf->lan_vsi_idx];
--	}
--
-+	i40e_vc_disable_vf(vf);
-+	/* During reset the VF got a new VSI, so refresh a pointer. */
-+	vsi = pf->vsi[vf->lan_vsi_idx];
- 	/* Locked once because multiple functions below iterate list */
- 	spin_lock_bh(&vsi->mac_filter_hash_lock);
+ 		cluster2_core1_watchdog: wdt@c110000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc110000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
  
+ 		cluster2_core2_watchdog: wdt@c120000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc120000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster2_core3_watchdog: wdt@c130000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc130000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+index 82f0fe6acbfb7..4bf4a22faa61a 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+@@ -227,56 +227,56 @@
+ 		};
+ 
+ 		cluster1_core0_watchdog: wdt@c000000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc000000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster1_core1_watchdog: wdt@c010000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc010000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster2_core0_watchdog: wdt@c100000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc100000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster2_core1_watchdog: wdt@c110000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc110000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster3_core0_watchdog: wdt@c200000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc200000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster3_core1_watchdog: wdt@c210000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc210000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster4_core0_watchdog: wdt@c300000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc300000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
+ 		};
+ 
+ 		cluster4_core1_watchdog: wdt@c310000 {
+-			compatible = "arm,sp805-wdt", "arm,primecell";
++			compatible = "arm,sp805", "arm,primecell";
+ 			reg = <0x0 0xc310000 0x0 0x1000>;
+ 			clocks = <&clockgen 4 3>, <&clockgen 4 3>;
+ 			clock-names = "wdog_clk", "apb_pclk";
 -- 
 2.33.0
 
