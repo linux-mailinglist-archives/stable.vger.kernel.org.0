@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F6E45C5A7
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:57:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6161F45C387
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:37:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352479AbhKXN7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:59:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
+        id S1348983AbhKXNkB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:40:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349305AbhKXN5f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:57:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD697633BB;
-        Wed, 24 Nov 2021 13:07:49 +0000 (UTC)
+        id S1350426AbhKXNiA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:38:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 716DB630EE;
+        Wed, 24 Nov 2021 12:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759270;
-        bh=1ReDytQa2MRvTxsZ/9xvcEfOpHSfzl45f3ot5+dOTfQ=;
+        s=korg; t=1637758557;
+        bh=kUtZBQ3U2UQLmUDuqQBx/hfO/pbPh1zjZNNjDYJHO20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xZofe/GXqaRVgaaVWqVExb0rQ2+uRY++u2ra34/ALlhybcO4ATDAqbwMwbmqQH0Xk
-         F8v1VSpPQtsFGhuCenoJXCWV7P8VfiAp10OAcQQTACY+JGjrdiSZi4W4fLi0wKva8X
-         3vfKuJGInLDwdLg93FcCneWhk1aRUIlN+56rB59w=
+        b=NXlj6FtcN0afE/S3QgZ1ZVaVo40f69ogjk7OSDgoMacGwLKJJ2Jiz9rBUIsSsdvPX
+         7+Y5HMsmIB29r+ooUi0gs8WKGoWNBsNw57Z3hlYV0ZMniaCCIkjLxVx7Qv+mlLeJ4y
+         IDMkOw9+ToTsWWXIYRjkHuoruUxm7RzHtleKRwXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Antonov <alexander.antonov@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
+        Marcelo Ricardo Leitner <mleitner@redhat.com>,
+        Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 184/279] perf/x86/intel/uncore: Fix IIO event constraints for Snowridge
+Subject: [PATCH 5.10 075/154] bnxt_en: reject indirect blk offload when hw-tc-offload is off
 Date:   Wed, 24 Nov 2021 12:57:51 +0100
-Message-Id: <20211124115725.090343756@linuxfoundation.org>
+Message-Id: <20211124115704.757272451@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Antonov <alexander.antonov@linux.intel.com>
+From: Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>
 
-[ Upstream commit bdc0feee05174418dec1fa68de2af19e1750b99f ]
+[ Upstream commit b0757491a118ae5727cf9f1c3a11544397d46596 ]
 
-According to the latest uncore document, DATA_REQ_OF_CPU (0x83),
-DATA_REQ_BY_CPU (0xc0) and COMP_BUF_OCCUPANCY (0xd5) events have
-constraints. Add uncore IIO constraints for Snowridge.
+The driver does not check if hw-tc-offload is enabled for the device
+before offloading a flow in the context of indirect block callback.
+Fix this by checking NETIF_F_HW_TC in the features flag and rejecting
+the offload request.  This will avoid unnecessary dmesg error logs when
+hw-tc-offload is disabled, such as these:
 
-Fixes: 210cc5f9db7a ("perf/x86/intel/uncore: Add uncore support for Snow Ridge server")
-Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20211115090334.3789-4-alexander.antonov@linux.intel.com
+bnxt_en 0000:19:00.1 eno2np1: dev(ifindex=294) not on same switch
+bnxt_en 0000:19:00.1 eno2np1: Error: bnxt_tc_add_flow: cookie=0xffff8dace1c88000 error=-22
+bnxt_en 0000:19:00.0 eno1np0: dev(ifindex=294) not on same switch
+bnxt_en 0000:19:00.0 eno1np0: Error: bnxt_tc_add_flow: cookie=0xffff8dace1c88000 error=-22
+
+Reported-by: Marcelo Ricardo Leitner <mleitner@redhat.com>
+Fixes: 627c89d00fb9 ("bnxt_en: flow_offload: offload tunnel decap rules via indirect callbacks")
+Signed-off-by: Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 9aba4ef77b13b..3660f698fb2aa 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -4529,6 +4529,13 @@ static void snr_iio_cleanup_mapping(struct intel_uncore_type *type)
- 	pmu_iio_cleanup_mapping(type, &snr_iio_mapping_group);
- }
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c
+index 2186706cf9130..3e9b1f59e381d 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_tc.c
+@@ -1854,7 +1854,7 @@ static int bnxt_tc_setup_indr_block_cb(enum tc_setup_type type,
+ 	struct flow_cls_offload *flower = type_data;
+ 	struct bnxt *bp = priv->bp;
  
-+static struct event_constraint snr_uncore_iio_constraints[] = {
-+	UNCORE_EVENT_CONSTRAINT(0x83, 0x3),
-+	UNCORE_EVENT_CONSTRAINT(0xc0, 0xc),
-+	UNCORE_EVENT_CONSTRAINT(0xd5, 0xc),
-+	EVENT_CONSTRAINT_END
-+};
-+
- static struct intel_uncore_type snr_uncore_iio = {
- 	.name			= "iio",
- 	.num_counters		= 4,
-@@ -4540,6 +4547,7 @@ static struct intel_uncore_type snr_uncore_iio = {
- 	.event_mask_ext		= SNR_IIO_PMON_RAW_EVENT_MASK_EXT,
- 	.box_ctl		= SNR_IIO_MSR_PMON_BOX_CTL,
- 	.msr_offset		= SNR_IIO_MSR_OFFSET,
-+	.constraints		= snr_uncore_iio_constraints,
- 	.ops			= &ivbep_uncore_msr_ops,
- 	.format_group		= &snr_uncore_iio_format_group,
- 	.attr_update		= snr_iio_attr_update,
+-	if (flower->common.chain_index)
++	if (!tc_cls_can_offload_and_chain0(bp->dev, type_data))
+ 		return -EOPNOTSUPP;
+ 
+ 	switch (type) {
 -- 
 2.33.0
 
