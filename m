@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25CA145C532
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D65E45C089
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352919AbhKXNzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:55:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42264 "EHLO mail.kernel.org"
+        id S1346139AbhKXNJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:09:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349787AbhKXNvc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:51:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9796A63213;
-        Wed, 24 Nov 2021 13:04:25 +0000 (UTC)
+        id S244239AbhKXNHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:07:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C720561A40;
+        Wed, 24 Nov 2021 12:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759066;
-        bh=g1PX9AtFkQdg83c94E5SjxeY6CKTnJmmzNl+9+mzTT0=;
+        s=korg; t=1637757517;
+        bh=MoAPyZQ8dBjT6Y4/5IiofA+Ju8ZfMzSAQNa7XYg6N+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMd/tZaBf2Q98gls3EdqGteEeH1dedsHQ9Tc1kxbQGKtN+F4E7nqyJ93Ft/QSmzRj
-         4ZLnGlKw3oMZ4i/XQ9ge/giXLlS17cEB50uSXz+UXlsoZrx3ckMvDDxNIS0zZoKgc8
-         VtM5RCud8NNIB2E2gZCmnOCBxt5cIcotXXexoaIc=
+        b=Ns9otCuvEnVGrjtyK0cyx06mUdqey5xY5rbRDfg8QA04bfM4wbzZD4o0MpF8U41be
+         msAl1Pm2T6hqazP7NGQXqG0sX4mI4WOzmb82GlAjZQhRJpjEBZmGsSh4yuIKVW8ycG
+         x9aKbjRP0TO2NKAMc74yEgYRBK9e1kQWbBKVPQjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 089/279] f2fs: fix incorrect return value in f2fs_sanity_check_ckpt()
-Date:   Wed, 24 Nov 2021 12:56:16 +0100
-Message-Id: <20211124115721.860637666@linuxfoundation.org>
+Subject: [PATCH 4.19 187/323] memory: fsl_ifc: fix leak of irq and nand_irq in fsl_ifc_ctrl_probe
+Date:   Wed, 24 Nov 2021 12:56:17 +0100
+Message-Id: <20211124115725.253674081@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit ca98d72141dd81f42893a9a43d7ededab3355fba ]
+[ Upstream commit 4ed2f3545c2e5acfbccd7f85fea5b1a82e9862d7 ]
 
-As Pavel Machek reported in [1]
+The error handling code of fsl_ifc_ctrl_probe is problematic. When
+fsl_ifc_ctrl_init fails or request_irq of fsl_ifc_ctrl_dev->irq fails,
+it forgets to free the irq and nand_irq. Meanwhile, if request_irq of
+fsl_ifc_ctrl_dev->nand_irq fails, it will still free nand_irq even if
+the request_irq is not successful.
 
-This code looks quite confused: part of function returns 1 on
-corruption, part returns -errno. The problem is not stable-specific.
+Fix this by refactoring the error handling code.
 
-[1] https://lkml.org/lkml/2021/9/19/207
-
-Let's fix to make 'insane cp_payload case' to return 1 rater than
-EFSCORRUPTED, so that return value can be kept consistent for all
-error cases, it can avoid confusion of code logic.
-
-Fixes: 65ddf6564843 ("f2fs: fix to do sanity check for sb/cp fields correctly")
-Reported-by: Pavel Machek <pavel@denx.de>
-Reviewed-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: d2ae2e20fbdd ("driver/memory:Move Freescale IFC driver to a common driver")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20210925151434.8170-1-mudongliangabcd@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/memory/fsl_ifc.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 4d24146b4f471..8795a5a8d4e89 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -3487,7 +3487,7 @@ skip_cross:
- 		NR_CURSEG_PERSIST_TYPE + nat_bits_blocks >= blocks_per_seg)) {
- 		f2fs_warn(sbi, "Insane cp_payload: %u, nat_bits_blocks: %u)",
- 			  cp_payload, nat_bits_blocks);
--		return -EFSCORRUPTED;
-+		return 1;
+diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
+index 38b945eb410f3..9c0e70b047c39 100644
+--- a/drivers/memory/fsl_ifc.c
++++ b/drivers/memory/fsl_ifc.c
+@@ -276,7 +276,7 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
+ 
+ 	ret = fsl_ifc_ctrl_init(fsl_ifc_ctrl_dev);
+ 	if (ret < 0)
+-		goto err;
++		goto err_unmap_nandirq;
+ 
+ 	init_waitqueue_head(&fsl_ifc_ctrl_dev->nand_wait);
+ 
+@@ -285,7 +285,7 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
+ 	if (ret != 0) {
+ 		dev_err(&dev->dev, "failed to install irq (%d)\n",
+ 			fsl_ifc_ctrl_dev->irq);
+-		goto err_irq;
++		goto err_unmap_nandirq;
  	}
  
- 	if (unlikely(f2fs_cp_error(sbi))) {
+ 	if (fsl_ifc_ctrl_dev->nand_irq) {
+@@ -294,17 +294,16 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
+ 		if (ret != 0) {
+ 			dev_err(&dev->dev, "failed to install irq (%d)\n",
+ 				fsl_ifc_ctrl_dev->nand_irq);
+-			goto err_nandirq;
++			goto err_free_irq;
+ 		}
+ 	}
+ 
+ 	return 0;
+ 
+-err_nandirq:
+-	free_irq(fsl_ifc_ctrl_dev->nand_irq, fsl_ifc_ctrl_dev);
+-	irq_dispose_mapping(fsl_ifc_ctrl_dev->nand_irq);
+-err_irq:
++err_free_irq:
+ 	free_irq(fsl_ifc_ctrl_dev->irq, fsl_ifc_ctrl_dev);
++err_unmap_nandirq:
++	irq_dispose_mapping(fsl_ifc_ctrl_dev->nand_irq);
+ 	irq_dispose_mapping(fsl_ifc_ctrl_dev->irq);
+ err:
+ 	iounmap(fsl_ifc_ctrl_dev->gregs);
 -- 
 2.33.0
 
