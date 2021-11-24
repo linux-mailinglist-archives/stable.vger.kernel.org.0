@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CCC45C410
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:43:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D55445C617
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347929AbhKXNpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:45:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34336 "EHLO mail.kernel.org"
+        id S1344668AbhKXOFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:05:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353306AbhKXNlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:41:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9294663258;
-        Wed, 24 Nov 2021 12:57:56 +0000 (UTC)
+        id S1353604AbhKXOAh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:00:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36E70632E6;
+        Wed, 24 Nov 2021 13:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758677;
-        bh=JxNSFW/hA7GMC/1lZygmnjbe9EThL7OX/GemEEh7+4Y=;
+        s=korg; t=1637759360;
+        bh=9+fEL5bRC2vbzDxSFxZxriKpVHTD61kOjmtxRdEj3xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gC+sDxnB6covrsEWd5VVIG8Yazu5936B44mO7vIrBXeY3+mYyOUOceBgeDw1YnXbJ
-         xbHtJgDDaNu+WvVoiLHwqS4GssQpa+wDWoePGIID8eXKqWqSX5FM8qtFP2kZrAO5sR
-         FDPJBpDZ9WbbR3OpADVGViGmDu5ftpBhhDhg9qxg=
+        b=lwjyrAyk0nnnmQzmKfGYNp7Ur0cQUBq6/hHeyqsCkTZGWHBdemRUCpMe/FDVAPXgk
+         cuvP9wtO17E1ei8H0uPmkWZwkkqaaa5QRL1Z0gnT6l/qYRuD7VdtW3bO+9EsFWgvOc
+         lvCnAUPX6bc1Z5rcZjHoSFIOnmppXclT6Nxh2r2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 106/154] i40e: Fix display error code in dmesg
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 215/279] scsi: qla2xxx: Fix mailbox direction flags in qla2xxx_get_adapter_id()
 Date:   Wed, 24 Nov 2021 12:58:22 +0100
-Message-Id: <20211124115705.717958907@linuxfoundation.org>
+Message-Id: <20211124115726.176576466@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+From: Ewan D. Milne <emilne@redhat.com>
 
-[ Upstream commit 5aff430d4e33a0b48a6b3d5beb06f79da23f9916 ]
+commit 392006871bb26166bcfafa56faf49431c2cfaaa8 upstream.
 
-Fix misleading display error in dmesg if tc filter return fail.
-Only i40e status error code should be converted to string, not linux
-error code. Otherwise, we return false information about the error.
+The SCM changes set the flags in mcp->out_mb instead of mcp->in_mb so the
+data was not actually being read into the mcp->mb[] array from the adapter.
 
-Fixes: 2f4b411a3d67 ("i40e: Enable cloud filters via tc-flower")
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211108183012.13895-1-emilne@redhat.com
+Fixes: 9f2475fe7406 ("scsi: qla2xxx: SAN congestion management implementation")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Reviewed-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_mbx.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 8cb80798efb2b..583eae71cda4b 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -8171,9 +8171,8 @@ static int i40e_configure_clsflower(struct i40e_vsi *vsi,
- 		err = i40e_add_del_cloud_filter(vsi, filter, true);
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -1695,10 +1695,8 @@ qla2x00_get_adapter_id(scsi_qla_host_t *
+ 		mcp->in_mb |= MBX_13|MBX_12|MBX_11|MBX_10;
+ 	if (IS_FWI2_CAPABLE(vha->hw))
+ 		mcp->in_mb |= MBX_19|MBX_18|MBX_17|MBX_16;
+-	if (IS_QLA27XX(vha->hw) || IS_QLA28XX(vha->hw)) {
+-		mcp->in_mb |= MBX_15;
+-		mcp->out_mb |= MBX_7|MBX_21|MBX_22|MBX_23;
+-	}
++	if (IS_QLA27XX(vha->hw) || IS_QLA28XX(vha->hw))
++		mcp->in_mb |= MBX_15|MBX_21|MBX_22|MBX_23;
  
- 	if (err) {
--		dev_err(&pf->pdev->dev,
--			"Failed to add cloud filter, err %s\n",
--			i40e_stat_str(&pf->hw, err));
-+		dev_err(&pf->pdev->dev, "Failed to add cloud filter, err %d\n",
-+			err);
- 		goto err;
- 	}
- 
--- 
-2.33.0
-
+ 	mcp->tov = MBX_TOV_SECONDS;
+ 	mcp->flags = 0;
 
 
