@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C78045BABC
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D100645BEA4
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243373AbhKXMOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:14:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34004 "EHLO mail.kernel.org"
+        id S1343503AbhKXMtd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:49:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242026AbhKXMLW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:11:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 290A9610FF;
-        Wed, 24 Nov 2021 12:06:27 +0000 (UTC)
+        id S1345093AbhKXMqk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:46:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EFDF60174;
+        Wed, 24 Nov 2021 12:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755587;
-        bh=ooqIPNvB8dc7fQgXPp3Md7Ffx3iVT3QAKWxtbL1KJ3Y=;
+        s=korg; t=1637756847;
+        bh=5CBpwH/uIjDrDhJJp8VhF3NGdSNVzhRkvGijOW7cIQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WND/o4Lb4SlRt+5GXWQpO/ngJz77qiiCoyITMorwW7CbMunmEVun++MVdHUxVBMPH
-         j+dW8OXcJmuzw4g13dGLQnKwx5AenOyXBS8/njpTGYejt69mPQE8IRtSD3MID3NZhe
-         8GyaYz0iF5U6dZ3wNnHkFP24BvVYSd9oRZhqV1sk=
+        b=ncGdUiKIUP0a41d6C+6QphbyeJ0/Rk/qnWK2prHbdS2VMa1Xo8S8gQlf6uGJPqOs/
+         mY8FIZR52QSc9szOWZeD4uSEdeM5Q6Mv5yju7wdwwXsBxw2NGEDb4vvjTfqKi75sot
+         eCPJIcS4d+T0ihFoDbVnuN5495w/JNLX4Yo2UOHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Martin Weinelt <martin@darmstadt.freifunk.net>,
-        Sven Eckelmann <sven@narfation.org>,
-        =?UTF-8?q?Linus=20L=FCssing?= <linus.luessing@c0d3.blue>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 149/162] batman-adv: Keep fragments equally sized
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 210/251] scsi: target: Fix ordered tag handling
 Date:   Wed, 24 Nov 2021 12:57:32 +0100
-Message-Id: <20211124115703.091620750@linuxfoundation.org>
+Message-Id: <20211124115717.563296571@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,111 +41,266 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Mike Christie <michael.christie@oracle.com>
 
-commit 1c2bcc766be44467809f1798cd4ceacafe20a852 upstream.
+[ Upstream commit ed1227e080990ffec5bf39006ec8a57358e6689a ]
 
-The batman-adv fragmentation packets have the design problem that they
-cannot be refragmented and cannot handle padding by the underlying link.
-The latter often leads to problems when networks are incorrectly configured
-and don't use a common MTU.
+This patch fixes the following bugs:
 
-The sender could for example fragment a 1271 byte frame (plus external
-ethernet header (14) and batadv unicast header (10)) to fit in a 1280 bytes
-large MTU of the underlying link (max. 1294 byte frames). This would create
-a 1294 bytes large frame (fragment 2) and a 55 bytes large frame
-(fragment 1). The extra 54 bytes are the fragment header (20) added to each
-fragment and the external ethernet header (14) for the second fragment.
+1. If there are multiple ordered cmds queued and multiple simple cmds
+   completing, target_restart_delayed_cmds() could be called on different
+   CPUs and each instance could start a ordered cmd. They could then run in
+   different orders than they were queued.
 
-Let us assume that the next hop is then not able to transport 1294 bytes to
-its next hop. The 1294 byte large frame will be dropped but the 55 bytes
-large fragment will still be forwarded to its destination.
+2. target_restart_delayed_cmds() and target_handle_task_attr() can race
+   where:
 
-Or let us assume that the underlying hardware requires that each frame has
-a minimum size (e.g. 60 bytes). Then it will pad the 55 bytes frame to 60
-bytes. The receiver of the 60 bytes frame will no longer be able to
-correctly assemble the two frames together because it is not aware that 5
-bytes of the 60 bytes frame are padding and don't belong to the reassembled
-frame.
+   1. target_handle_task_attr() has passed the simple_cmds == 0 check.
 
-This can partly be avoided by splitting frames more equally. In this
-example, the 675 and 674 bytes large fragment frames could both potentially
-reach its destination without being too large or too small.
+   2. transport_complete_task_attr() then decrements simple_cmds to 0.
 
-Reported-by: Martin Weinelt <martin@darmstadt.freifunk.net>
-Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Acked-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.4 backported: adjust context, switch back to old return type +
-  labels ]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+   3. transport_complete_task_attr() runs target_restart_delayed_cmds() and
+      it does not see any cmds on the delayed_cmd_list.
+
+   4. target_handle_task_attr() adds the cmd to the delayed_cmd_list.
+
+   The cmd will then end up timing out.
+
+3. If we are sent > 1 ordered cmds and simple_cmds == 0, we can execute
+   them out of order, because target_handle_task_attr() will hit that
+   simple_cmds check first and return false for all ordered cmds sent.
+
+4. We run target_restart_delayed_cmds() after every cmd completion, so if
+   there is more than 1 simple cmd running, we start executing ordered cmds
+   after that first cmd instead of waiting for all of them to complete.
+
+5. Ordered cmds are not supposed to start until HEAD OF QUEUE and all older
+   cmds have completed, and not just simple.
+
+6. It's not a bug but it doesn't make sense to take the delayed_cmd_lock
+   for every cmd completion when ordered cmds are almost never used. Just
+   replacing that lock with an atomic increases IOPs by up to 10% when
+   completions are spread over multiple CPUs and there are multiple
+   sessions/ mqs/thread accessing the same device.
+
+This patch moves the queued delayed handling to a per device work to
+serialze the cmd executions for each device and adds a new counter to track
+HEAD_OF_QUEUE and SIMPLE cmds. We can then check the new counter to
+determine when to run the work on the completion path.
+
+Link: https://lore.kernel.org/r/20210930020422.92578-3-michael.christie@oracle.com
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/fragmentation.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/target/target_core_device.c    |  2 +
+ drivers/target/target_core_internal.h  |  1 +
+ drivers/target/target_core_transport.c | 76 ++++++++++++++++++--------
+ include/target/target_core_base.h      |  6 +-
+ 4 files changed, 61 insertions(+), 24 deletions(-)
 
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -396,7 +396,7 @@ out:
-  * batadv_frag_create - create a fragment from skb
-  * @skb: skb to create fragment from
-  * @frag_head: header to use in new fragment
-- * @mtu: size of new fragment
-+ * @fragment_size: size of new fragment
-  *
-  * Split the passed skb into two fragments: A new one with size matching the
-  * passed mtu and the old one with the rest. The new skb contains data from the
-@@ -406,11 +406,11 @@ out:
-  */
- static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
- 					  struct batadv_frag_packet *frag_head,
--					  unsigned int mtu)
-+					  unsigned int fragment_size)
- {
- 	struct sk_buff *skb_fragment;
- 	unsigned header_size = sizeof(*frag_head);
--	unsigned fragment_size = mtu - header_size;
-+	unsigned mtu = fragment_size + header_size;
+diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
+index cebef8e5a43d1..68b2fa562201c 100644
+--- a/drivers/target/target_core_device.c
++++ b/drivers/target/target_core_device.c
+@@ -791,6 +791,8 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
+ 	INIT_LIST_HEAD(&dev->t10_alua.lba_map_list);
+ 	spin_lock_init(&dev->t10_alua.lba_map_lock);
  
- 	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
- 	if (!skb_fragment)
-@@ -448,7 +448,7 @@ bool batadv_frag_send_packet(struct sk_b
- 	struct sk_buff *skb_fragment;
- 	unsigned mtu = neigh_node->if_incoming->net_dev->mtu;
- 	unsigned header_size = sizeof(frag_header);
--	unsigned max_fragment_size, max_packet_size;
-+	unsigned max_fragment_size, num_fragments;
- 	bool ret = false;
++	INIT_WORK(&dev->delayed_cmd_work, target_do_delayed_work);
++
+ 	dev->t10_wwn.t10_dev = dev;
+ 	dev->t10_alua.t10_dev = dev;
  
- 	/* To avoid merge and refragmentation at next-hops we never send
-@@ -456,10 +456,15 @@ bool batadv_frag_send_packet(struct sk_b
+diff --git a/drivers/target/target_core_internal.h b/drivers/target/target_core_internal.h
+index 18e3eb16e7567..7060be69dc6a3 100644
+--- a/drivers/target/target_core_internal.h
++++ b/drivers/target/target_core_internal.h
+@@ -149,6 +149,7 @@ void	transport_clear_lun_ref(struct se_lun *);
+ void	transport_send_task_abort(struct se_cmd *);
+ sense_reason_t	target_cmd_size_check(struct se_cmd *cmd, unsigned int size);
+ void	target_qf_do_work(struct work_struct *work);
++void	target_do_delayed_work(struct work_struct *work);
+ bool	target_check_wce(struct se_device *dev);
+ bool	target_check_fua(struct se_device *dev);
+ void	__target_execute_cmd(struct se_cmd *, bool);
+diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
+index 852680e859217..c20997bf314e9 100644
+--- a/drivers/target/target_core_transport.c
++++ b/drivers/target/target_core_transport.c
+@@ -1914,32 +1914,35 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
  	 */
- 	mtu = min_t(unsigned, mtu, BATADV_FRAG_MAX_FRAG_SIZE);
- 	max_fragment_size = mtu - header_size;
--	max_packet_size = max_fragment_size * BATADV_FRAG_MAX_FRAGMENTS;
+ 	switch (cmd->sam_task_attr) {
+ 	case TCM_HEAD_TAG:
++		atomic_inc_mb(&dev->non_ordered);
+ 		pr_debug("Added HEAD_OF_QUEUE for CDB: 0x%02x\n",
+ 			 cmd->t_task_cdb[0]);
+ 		return false;
+ 	case TCM_ORDERED_TAG:
+-		atomic_inc_mb(&dev->dev_ordered_sync);
++		atomic_inc_mb(&dev->delayed_cmd_count);
+ 
+ 		pr_debug("Added ORDERED for CDB: 0x%02x to ordered list\n",
+ 			 cmd->t_task_cdb[0]);
+-
+-		/*
+-		 * Execute an ORDERED command if no other older commands
+-		 * exist that need to be completed first.
+-		 */
+-		if (!atomic_read(&dev->simple_cmds))
+-			return false;
+ 		break;
+ 	default:
+ 		/*
+ 		 * For SIMPLE and UNTAGGED Task Attribute commands
+ 		 */
+-		atomic_inc_mb(&dev->simple_cmds);
++		atomic_inc_mb(&dev->non_ordered);
 +
-+	if (skb->len == 0 || max_fragment_size == 0)
-+		goto out_err;
++		if (atomic_read(&dev->delayed_cmd_count) == 0)
++			return false;
+ 		break;
+ 	}
+ 
+-	if (atomic_read(&dev->dev_ordered_sync) == 0)
+-		return false;
++	if (cmd->sam_task_attr != TCM_ORDERED_TAG) {
++		atomic_inc_mb(&dev->delayed_cmd_count);
++		/*
++		 * We will account for this when we dequeue from the delayed
++		 * list.
++		 */
++		atomic_dec_mb(&dev->non_ordered);
++	}
+ 
+ 	spin_lock(&dev->delayed_cmd_lock);
+ 	list_add_tail(&cmd->se_delayed_node, &dev->delayed_cmd_list);
+@@ -1947,6 +1950,12 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
+ 
+ 	pr_debug("Added CDB: 0x%02x Task Attr: 0x%02x to delayed CMD listn",
+ 		cmd->t_task_cdb[0], cmd->sam_task_attr);
++	/*
++	 * We may have no non ordered cmds when this function started or we
++	 * could have raced with the last simple/head cmd completing, so kick
++	 * the delayed handler here.
++	 */
++	schedule_work(&dev->delayed_cmd_work);
+ 	return true;
+ }
+ 
+@@ -1997,29 +2006,48 @@ EXPORT_SYMBOL(target_execute_cmd);
+  * Process all commands up to the last received ORDERED task attribute which
+  * requires another blocking boundary
+  */
+-static void target_restart_delayed_cmds(struct se_device *dev)
++void target_do_delayed_work(struct work_struct *work)
+ {
+-	for (;;) {
++	struct se_device *dev = container_of(work, struct se_device,
++					     delayed_cmd_work);
 +
-+	num_fragments = (skb->len - 1) / max_fragment_size + 1;
-+	max_fragment_size = (skb->len - 1) / num_fragments + 1;
++	spin_lock(&dev->delayed_cmd_lock);
++	while (!dev->ordered_sync_in_progress) {
+ 		struct se_cmd *cmd;
  
- 	/* Don't even try to fragment, if we need more than 16 fragments */
--	if (skb->len > max_packet_size)
-+	if (num_fragments > BATADV_FRAG_MAX_FRAGMENTS)
- 		goto out_err;
+-		spin_lock(&dev->delayed_cmd_lock);
+-		if (list_empty(&dev->delayed_cmd_list)) {
+-			spin_unlock(&dev->delayed_cmd_lock);
++		if (list_empty(&dev->delayed_cmd_list))
+ 			break;
+-		}
  
- 	bat_priv = orig_node->bat_priv;
-@@ -484,7 +489,8 @@ bool batadv_frag_send_packet(struct sk_b
- 		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1)
- 			goto out_err;
+ 		cmd = list_entry(dev->delayed_cmd_list.next,
+ 				 struct se_cmd, se_delayed_node);
++
++		if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
++			/*
++			 * Check if we started with:
++			 * [ordered] [simple] [ordered]
++			 * and we are now at the last ordered so we have to wait
++			 * for the simple cmd.
++			 */
++			if (atomic_read(&dev->non_ordered) > 0)
++				break;
++
++			dev->ordered_sync_in_progress = true;
++		}
++
+ 		list_del(&cmd->se_delayed_node);
++		atomic_dec_mb(&dev->delayed_cmd_count);
+ 		spin_unlock(&dev->delayed_cmd_lock);
  
--		skb_fragment = batadv_frag_create(skb, &frag_header, mtu);
-+		skb_fragment = batadv_frag_create(skb, &frag_header,
-+						  max_fragment_size);
- 		if (!skb_fragment)
- 			goto out_err;
++		if (cmd->sam_task_attr != TCM_ORDERED_TAG)
++			atomic_inc_mb(&dev->non_ordered);
++
+ 		cmd->transport_state |= CMD_T_SENT;
  
+ 		__target_execute_cmd(cmd, true);
+ 
+-		if (cmd->sam_task_attr == TCM_ORDERED_TAG)
+-			break;
++		spin_lock(&dev->delayed_cmd_lock);
+ 	}
++	spin_unlock(&dev->delayed_cmd_lock);
+ }
+ 
+ /*
+@@ -2037,14 +2065,17 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
+ 		goto restart;
+ 
+ 	if (cmd->sam_task_attr == TCM_SIMPLE_TAG) {
+-		atomic_dec_mb(&dev->simple_cmds);
++		atomic_dec_mb(&dev->non_ordered);
+ 		dev->dev_cur_ordered_id++;
+ 	} else if (cmd->sam_task_attr == TCM_HEAD_TAG) {
++		atomic_dec_mb(&dev->non_ordered);
+ 		dev->dev_cur_ordered_id++;
+ 		pr_debug("Incremented dev_cur_ordered_id: %u for HEAD_OF_QUEUE\n",
+ 			 dev->dev_cur_ordered_id);
+ 	} else if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
+-		atomic_dec_mb(&dev->dev_ordered_sync);
++		spin_lock(&dev->delayed_cmd_lock);
++		dev->ordered_sync_in_progress = false;
++		spin_unlock(&dev->delayed_cmd_lock);
+ 
+ 		dev->dev_cur_ordered_id++;
+ 		pr_debug("Incremented dev_cur_ordered_id: %u for ORDERED\n",
+@@ -2053,7 +2084,8 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
+ 	cmd->se_cmd_flags &= ~SCF_TASK_ATTR_SET;
+ 
+ restart:
+-	target_restart_delayed_cmds(dev);
++	if (atomic_read(&dev->delayed_cmd_count) > 0)
++		schedule_work(&dev->delayed_cmd_work);
+ }
+ 
+ static void transport_complete_qf(struct se_cmd *cmd)
+diff --git a/include/target/target_core_base.h b/include/target/target_core_base.h
+index 0d924e968c94b..336c9f71b750a 100644
+--- a/include/target/target_core_base.h
++++ b/include/target/target_core_base.h
+@@ -771,8 +771,9 @@ struct se_device {
+ 	atomic_long_t		read_bytes;
+ 	atomic_long_t		write_bytes;
+ 	/* Active commands on this virtual SE device */
+-	atomic_t		simple_cmds;
+-	atomic_t		dev_ordered_sync;
++	atomic_t		non_ordered;
++	bool			ordered_sync_in_progress;
++	atomic_t		delayed_cmd_count;
+ 	atomic_t		dev_qf_count;
+ 	u32			export_count;
+ 	spinlock_t		delayed_cmd_lock;
+@@ -795,6 +796,7 @@ struct se_device {
+ 	struct list_head	dev_tmr_list;
+ 	struct workqueue_struct *tmr_wq;
+ 	struct work_struct	qf_work_queue;
++	struct work_struct	delayed_cmd_work;
+ 	struct list_head	delayed_cmd_list;
+ 	struct list_head	state_list;
+ 	struct list_head	qf_cmd_list;
+-- 
+2.33.0
+
 
 
