@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8BE945BED9
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:49:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DBC845BEDA
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:49:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244657AbhKXMvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:51:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55372 "EHLO mail.kernel.org"
+        id S243896AbhKXMvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:51:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346374AbhKXMtK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:49:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92F526141B;
-        Wed, 24 Nov 2021 12:28:44 +0000 (UTC)
+        id S1346387AbhKXMtL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:49:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AAF3601FA;
+        Wed, 24 Nov 2021 12:28:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756925;
-        bh=7sH9iGawK+BJ10fHt+KcHKovJHWVBj46z7VNArhimD4=;
+        s=korg; t=1637756927;
+        bh=ScIkEIevUeM39R2RZnIwahZV7hf0DIrJDRbPVkEesCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNtznGSSCD88oDeIGSYLlLR4EyUKHgZBcjNHkBoG70Cu821Ir+pR913ZHp/l4pyt/
-         p2zzbVhmW+9NHpS2cDvv7YlTAN/VBei6eaCHJpN/FcmV4kcHlxfJ2V9SpUja7gOLux
-         DMbj5wKaYdl4LaWlX3PS8HRlthZ0dwAx4rKwudBA=
+        b=jlhO1Qu47Rv4cXhGbLr/WBLMNF8hVATqLeOL0EtyULSlKAD9ySJL9P5l1e88FJ+T0
+         +Hu4WZ7DzFPnJCUUNn9t0KXo75XOw/tjEDGAywtQCvhRZ/1KzrjI10YhLLjJ74rUkg
+         WUS7pg0SSff2UZFjx84QA6qWpp6UINyM4mKQdHkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        =?UTF-8?q?Linus=20L=FCssing?= <linus.luessing@c0d3.blue>,
         Sven Eckelmann <sven@narfation.org>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.14 245/251] batman-adv: Consider fragmentation for needed_headroom
-Date:   Wed, 24 Nov 2021 12:58:07 +0100
-Message-Id: <20211124115718.856304423@linuxfoundation.org>
+Subject: [PATCH 4.14 246/251] batman-adv: Reserve needed_*room for fragments
+Date:   Wed, 24 Nov 2021 12:58:08 +0100
+Message-Id: <20211124115718.892573441@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
 References: <20211124115710.214900256@linuxfoundation.org>
@@ -42,36 +41,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sven Eckelmann <sven@narfation.org>
 
-commit 4ca23e2c2074465bff55ea14221175fecdf63c5f upstream.
+commit c5cbfc87558168ef4c3c27ce36eba6b83391db19 upstream.
 
-If a batman-adv packets has to be fragmented, then the original batman-adv
-packet header is not stripped away. Instead, only a new header is added in
-front of the packet after it was split.
+The batadv net_device is trying to propagate the needed_headroom and
+needed_tailroom from the lower devices. This is needed to avoid cost
+intensive reallocations using pskb_expand_head during the transmission.
 
-This size must be considered to avoid cost intensive reallocations during
-the transmission through the various device layers.
+But the fragmentation code split the skb's without adding extra room at the
+end/beginning of the various fragments. This reduced the performance of
+transmissions over complex scenarios (batadv on vxlan on wireguard) because
+the lower devices had to perform the reallocations at least once.
 
-Fixes: 7bca68c7844b ("batman-adv: Add lower layer needed_(head|tail)room to own ones")
-Reported-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+[ bp: 4.14 backported: adjust context. ]
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/hard-interface.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/batman-adv/fragmentation.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/net/batman-adv/hard-interface.c
-+++ b/net/batman-adv/hard-interface.c
-@@ -558,6 +558,9 @@ static void batadv_hardif_recalc_extra_s
- 	needed_headroom = lower_headroom + (lower_header_len - ETH_HLEN);
- 	needed_headroom += batadv_max_header_len();
+--- a/net/batman-adv/fragmentation.c
++++ b/net/batman-adv/fragmentation.c
+@@ -402,6 +402,7 @@ out:
  
-+	/* fragmentation headers don't strip the unicast/... header */
-+	needed_headroom += sizeof(struct batadv_frag_packet);
-+
- 	soft_iface->needed_headroom = needed_headroom;
- 	soft_iface->needed_tailroom = lower_tailroom;
- }
+ /**
+  * batadv_frag_create - create a fragment from skb
++ * @net_dev: outgoing device for fragment
+  * @skb: skb to create fragment from
+  * @frag_head: header to use in new fragment
+  * @fragment_size: size of new fragment
+@@ -412,22 +413,25 @@ out:
+  *
+  * Return: the new fragment, NULL on error.
+  */
+-static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
++static struct sk_buff *batadv_frag_create(struct net_device *net_dev,
++					  struct sk_buff *skb,
+ 					  struct batadv_frag_packet *frag_head,
+ 					  unsigned int fragment_size)
+ {
++	unsigned int ll_reserved = LL_RESERVED_SPACE(net_dev);
++	unsigned int tailroom = net_dev->needed_tailroom;
+ 	struct sk_buff *skb_fragment;
+ 	unsigned int header_size = sizeof(*frag_head);
+ 	unsigned int mtu = fragment_size + header_size;
+ 
+-	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
++	skb_fragment = dev_alloc_skb(ll_reserved + mtu + tailroom);
+ 	if (!skb_fragment)
+ 		goto err;
+ 
+ 	skb_fragment->priority = skb->priority;
+ 
+ 	/* Eat the last mtu-bytes of the skb */
+-	skb_reserve(skb_fragment, header_size + ETH_HLEN);
++	skb_reserve(skb_fragment, ll_reserved + header_size);
+ 	skb_split(skb, skb_fragment, skb->len - fragment_size);
+ 
+ 	/* Add the header */
+@@ -450,11 +454,12 @@ int batadv_frag_send_packet(struct sk_bu
+ 			    struct batadv_orig_node *orig_node,
+ 			    struct batadv_neigh_node *neigh_node)
+ {
++	struct net_device *net_dev = neigh_node->if_incoming->net_dev;
+ 	struct batadv_priv *bat_priv;
+ 	struct batadv_hard_iface *primary_if = NULL;
+ 	struct batadv_frag_packet frag_header;
+ 	struct sk_buff *skb_fragment;
+-	unsigned int mtu = neigh_node->if_incoming->net_dev->mtu;
++	unsigned int mtu = net_dev->mtu;
+ 	unsigned int header_size = sizeof(frag_header);
+ 	unsigned int max_fragment_size, num_fragments;
+ 	int ret;
+@@ -514,7 +519,7 @@ int batadv_frag_send_packet(struct sk_bu
+ 			goto put_primary_if;
+ 		}
+ 
+-		skb_fragment = batadv_frag_create(skb, &frag_header,
++		skb_fragment = batadv_frag_create(net_dev, skb, &frag_header,
+ 						  max_fragment_size);
+ 		if (!skb_fragment) {
+ 			ret = -ENOMEM;
 
 
