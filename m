@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BFE145C519
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DF6045C0D8
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:09:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352476AbhKXNy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:54:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
+        id S1346465AbhKXNL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:11:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354739AbhKXNwy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:52:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D3BC6120F;
-        Wed, 24 Nov 2021 13:05:08 +0000 (UTC)
+        id S1343799AbhKXNJw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:09:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E83BC613C8;
+        Wed, 24 Nov 2021 12:40:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759110;
-        bh=t6EpUKSDxpBunjZbMHXcFMQfN9THHgB5DkBUhoIiJTw=;
+        s=korg; t=1637757655;
+        bh=euXDII/cwLGLXjWwAeInRLsbxYuEkoTyojdlZ0XI8U0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=srG0BgB2+1x7uuOFw07czXV7V6fDLDHpmIGHocLZjZeAUjo8E0rtH4+4LEuU5aFDy
-         Vk1mGuMWzz4fQt36koDKL1X2j3tlk7lHKA9JvCX5XSR0a11QIiDSca1sdKxpKXqPJ8
-         P5z1YwnV0xs5qO2eU856QFTX+4dBbM70Y+curRpk=
+        b=2B0d+0HeHeLdrWkoNacnOsXXcrhDdNW6tm2cZe3dCPd9GgkGBsACHlFI+89FtRCX2
+         3veN4z01IC1ZhQrtxvS/4MkuMphJTib5LcHlSJs9ol2YiYaP8cImSdzJ49lhCKRq1P
+         wS9GKiWcyyIzpZvDrhgYBF8FY78s3gyUJVIUcOK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        linux-mips@vger.kernel.org, John Crispin <john@phrozen.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org,
-        Russell King <linux@armlinux.org.uk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 136/279] mips: lantiq: add support for clk_get_parent()
-Date:   Wed, 24 Nov 2021 12:57:03 +0100
-Message-Id: <20211124115723.489133502@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Antonio Terceiro <antonio.terceiro@linaro.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Sebastian Andrzej Siewior <sebastian@breakpoint.cc>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Klaus Kudielka <klaus.kudielka@gmail.com>,
+        Matthias Klose <doko@debian.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 4.19 234/323] ARM: 9156/1: drop cc-option fallbacks for architecture selection
+Date:   Wed, 24 Nov 2021 12:57:04 +0100
+Message-Id: <20211124115726.827009648@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +46,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit fc1aabb088860d6cf9dd03612b7a6f0de91ccac2 ]
+commit 418ace9992a7647c446ed3186df40cf165b67298 upstream.
 
-Provide a simple implementation of clk_get_parent() in the
-lantiq subarch so that callers of it will build without errors.
+Naresh and Antonio ran into a build failure with latest Debian
+armhf compilers, with lots of output like
 
-Fixes this build error:
-ERROR: modpost: "clk_get_parent" [drivers/iio/adc/ingenic-adc.ko] undefined!
+ tmp/ccY3nOAs.s:2215: Error: selected processor does not support `cpsid i' in ARM mode
 
-Fixes: 171bb2f19ed6 ("MIPS: Lantiq: Add initial support for Lantiq SoCs")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Suggested-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Cc: linux-mips@vger.kernel.org
-Cc: John Crispin <john@phrozen.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Jonathan Cameron <jic23@kernel.org>
-Cc: linux-iio@vger.kernel.org
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Acked-by: John Crispin <john@phrozen.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As it turns out, $(cc-option) fails early here when the FPU is not
+selected before CPU architecture is selected, as the compiler
+option check runs before enabling -msoft-float, which causes
+a problem when testing a target architecture level without an FPU:
+
+cc1: error: '-mfloat-abi=hard': selected architecture lacks an FPU
+
+Passing e.g. -march=armv6k+fp in place of -march=armv6k would avoid this
+issue, but the fallback logic is already broken because all supported
+compilers (gcc-5 and higher) are much more recent than these options,
+and building with -march=armv5t as a fallback no longer works.
+
+The best way forward that I see is to just remove all the checks, which
+also has the nice side-effect of slightly improving the startup time for
+'make'.
+
+The -mtune=marvell-f option was apparently never supported by any mainline
+compiler, and the custom Codesourcery gcc build that did support is
+now too old to build kernels, so just use -mtune=xscale unconditionally
+for those.
+
+This should be safe to apply on all stable kernels, and will be required
+in order to keep building them with gcc-11 and higher.
+
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=996419
+
+Reported-by: Antonio Terceiro <antonio.terceiro@linaro.org>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reported-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
+Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Tested-by: Klaus Kudielka <klaus.kudielka@gmail.com>
+Cc: Matthias Klose <doko@debian.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/lantiq/clk.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/Makefile |   22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/arch/mips/lantiq/clk.c b/arch/mips/lantiq/clk.c
-index dd819e31fcbbf..4916cccf378fd 100644
---- a/arch/mips/lantiq/clk.c
-+++ b/arch/mips/lantiq/clk.c
-@@ -158,6 +158,12 @@ void clk_deactivate(struct clk *clk)
- }
- EXPORT_SYMBOL(clk_deactivate);
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -63,15 +63,15 @@ KBUILD_CFLAGS	+= $(call cc-option,-fno-i
+ # Note that GCC does not numerically define an architecture version
+ # macro, but instead defines a whole series of macros which makes
+ # testing for a specific architecture or later rather impossible.
+-arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m -Wa,-march=armv7-m
+-arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
+-arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6,-march=armv5t -Wa$(comma)-march=armv6)
++arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m
++arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 -march=armv7-a
++arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 -march=armv6
+ # Only override the compiler option if ARMv6. The ARMv6K extensions are
+ # always available in ARMv7
+ ifeq ($(CONFIG_CPU_32v6),y)
+-arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6k,-march=armv5t -Wa$(comma)-march=armv6k)
++arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 -march=armv6k
+ endif
+-arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5te,-march=armv4t)
++arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 -march=armv5te
+ arch-$(CONFIG_CPU_32v4T)	=-D__LINUX_ARM_ARCH__=4 -march=armv4t
+ arch-$(CONFIG_CPU_32v4)		=-D__LINUX_ARM_ARCH__=4 -march=armv4
+ arch-$(CONFIG_CPU_32v3)		=-D__LINUX_ARM_ARCH__=3 -march=armv3
+@@ -85,7 +85,7 @@ tune-$(CONFIG_CPU_ARM720T)	=-mtune=arm7t
+ tune-$(CONFIG_CPU_ARM740T)	=-mtune=arm7tdmi
+ tune-$(CONFIG_CPU_ARM9TDMI)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_ARM940T)	=-mtune=arm9tdmi
+-tune-$(CONFIG_CPU_ARM946E)	=$(call cc-option,-mtune=arm9e,-mtune=arm9tdmi)
++tune-$(CONFIG_CPU_ARM946E)	=-mtune=arm9e
+ tune-$(CONFIG_CPU_ARM920T)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_ARM922T)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_ARM925T)	=-mtune=arm9tdmi
+@@ -93,11 +93,11 @@ tune-$(CONFIG_CPU_ARM926T)	=-mtune=arm9t
+ tune-$(CONFIG_CPU_FA526)	=-mtune=arm9tdmi
+ tune-$(CONFIG_CPU_SA110)	=-mtune=strongarm110
+ tune-$(CONFIG_CPU_SA1100)	=-mtune=strongarm1100
+-tune-$(CONFIG_CPU_XSCALE)	=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
+-tune-$(CONFIG_CPU_XSC3)		=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
+-tune-$(CONFIG_CPU_FEROCEON)	=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
+-tune-$(CONFIG_CPU_V6)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
+-tune-$(CONFIG_CPU_V6K)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
++tune-$(CONFIG_CPU_XSCALE)	=-mtune=xscale
++tune-$(CONFIG_CPU_XSC3)		=-mtune=xscale
++tune-$(CONFIG_CPU_FEROCEON)	=-mtune=xscale
++tune-$(CONFIG_CPU_V6)		=-mtune=arm1136j-s
++tune-$(CONFIG_CPU_V6K)		=-mtune=arm1136j-s
  
-+struct clk *clk_get_parent(struct clk *clk)
-+{
-+	return NULL;
-+}
-+EXPORT_SYMBOL(clk_get_parent);
-+
- static inline u32 get_counter_resolution(void)
- {
- 	u32 res;
--- 
-2.33.0
-
+ # Evaluate tune cc-option calls now
+ tune-y := $(tune-y)
 
 
