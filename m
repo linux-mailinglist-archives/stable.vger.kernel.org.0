@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA09745BF1A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:52:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2835045BEFF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:51:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345584AbhKXMzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:55:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54258 "EHLO mail.kernel.org"
+        id S1343974AbhKXMy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:54:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345586AbhKXMud (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345588AbhKXMud (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 07:50:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55C2961458;
-        Wed, 24 Nov 2021 12:29:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A3566135E;
+        Wed, 24 Nov 2021 12:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756967;
-        bh=zaNXhMLyLcrfUrTJYs04kG9zCTb8sBCcvr8CIWqaR20=;
+        s=korg; t=1637756970;
+        bh=zs3y7/UwMDHGcVsbwdhIOhK7Nehmn9XCw0Gd6mMCnX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lm/fn+gcVfLCxCA0A1OdIMPYZ0O12Hk/KE5VxOA2NZYlzZGlp8nXzjqkMKiRabYg1
-         +3EjK3GiXHs6uCglL0/Bnnev+sXKDQiXKqF5s8iDRk34jyHs7SGUJeHUfkAwIMJIpB
-         t4EgUidxwNQyEhe+sSHo2FLlZsy6oBlrgrCaZh1U=
+        b=SdKmZW55D0iJw/0ZVx33mNHEbqq9gPYbf4jTq9DCdcfvX2ZkhRfj5DPpi93wuQa2I
+         ak1fJNqU2i6n9qi3GkJ1Ilamkw+W768h3GwPWft3AGpXe/4CR6HDv2N39gBAICwFLb
+         WF22qP8ZoJ5o335OZaayS9yBdqAbLfaZrsJF/qzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phoenix Huang <phoenix@emc.com.tw>,
-        Yufei Du <yufeidu@cs.unc.edu>,
+        stable@vger.kernel.org, Neal Gompa <ngompa13@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 004/323] Input: elantench - fix misreporting trackpoint coordinates
-Date:   Wed, 24 Nov 2021 12:53:14 +0100
-Message-Id: <20211124115718.974373122@linuxfoundation.org>
+Subject: [PATCH 4.19 005/323] Input: i8042 - Add quirk for Fujitsu Lifebook T725
+Date:   Wed, 24 Nov 2021 12:53:15 +0100
+Message-Id: <20211124115719.005058545@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
@@ -40,45 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phoenix Huang <phoenix@emc.com.tw>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit be896bd3b72b44126c55768f14c22a8729b0992e upstream.
+commit 16e28abb7290c4ca3b3a0f333ba067f34bb18c86 upstream.
 
-Some firmwares occasionally report bogus data from trackpoint, with X or Y
-displacement being too large (outside of [-127, 127] range). Let's drop such
-packets so that we do not generate jumps.
+Fujitsu Lifebook T725 laptop requires, like a few other similar
+models, the nomux and notimeout options to probe the touchpad
+properly.  This patch adds the corresponding quirk entries.
 
-Signed-off-by: Phoenix Huang <phoenix@emc.com.tw>
-Tested-by: Yufei Du <yufeidu@cs.unc.edu>
-Link: https://lore.kernel.org/r/20210729010940.5752-1-phoenix@emc.com.tw
-Cc: stable@vger.kernel.org
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1191980
+Tested-by: Neal Gompa <ngompa13@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20211103070019.13374-1-tiwai@suse.de
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/mouse/elantech.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/input/serio/i8042-x86ia64io.h |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -433,6 +433,19 @@ static void elantech_report_trackpoint(s
- 	case 0x16008020U:
- 	case 0x26800010U:
- 	case 0x36808000U:
-+
-+		/*
-+		 * This firmware misreport coordinates for trackpoint
-+		 * occasionally. Discard packets outside of [-127, 127] range
-+		 * to prevent cursor jumps.
-+		 */
-+		if (packet[4] == 0x80 || packet[5] == 0x80 ||
-+		    packet[1] >> 7 == packet[4] >> 7 ||
-+		    packet[2] >> 7 == packet[5] >> 7) {
-+			elantech_debug("discarding packet [%6ph]\n", packet);
-+			break;
-+
-+		}
- 		x = packet[4] - (int)((packet[1]^0x80) << 1);
- 		y = (int)((packet[2]^0x80) << 1) - packet[5];
- 
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -277,6 +277,13 @@ static const struct dmi_system_id __init
+ 		},
+ 	},
+ 	{
++		/* Fujitsu Lifebook T725 laptop */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
++		},
++	},
++	{
+ 		/* Fujitsu Lifebook U745 */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+@@ -845,6 +852,13 @@ static const struct dmi_system_id __init
+ 		},
+ 	},
+ 	{
++		/* Fujitsu Lifebook T725 laptop */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
++		},
++	},
++	{
+ 		/* Fujitsu U574 laptop */
+ 		/* https://bugzilla.kernel.org/show_bug.cgi?id=69731 */
+ 		.matches = {
 
 
