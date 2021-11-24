@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8096745C191
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5396545C67D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:07:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346664AbhKXNT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:19:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36408 "EHLO mail.kernel.org"
+        id S1351800AbhKXOKH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:10:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346680AbhKXNRq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:17:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3340361AEB;
-        Wed, 24 Nov 2021 12:45:23 +0000 (UTC)
+        id S1353604AbhKXOGQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:06:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6B7E633EB;
+        Wed, 24 Nov 2021 13:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757923;
-        bh=Mp4f8lz5s+dgPZZ49eP0mvEAxMZRj/wLCgFzyDgPovI=;
+        s=korg; t=1637759513;
+        bh=B536EK3DhJYpbOfYtBhSCY+lujpvzWO0y5FIzrnKslw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FzouIDAcipSgr3MlHGYHCAmSzEtfH+MiyHthcfoRov1Bsve3fHAccRFe+aO3tyYaN
-         mB+/Axb1itM3IS1/C0pw5AaSN4caPcRtOmS/M6kdeycvBybUq51iQf2Ym8qxTAnHhu
-         FnITEPCaaoUBU482VxL6Mizhu4s5gud4J1844MnY=
+        b=oXZSsYcsZGgLYqzNgMGtKXlC9UD1a1+7fiWceXqX991B3+QmAbQfZyJ3M9X6XBT7i
+         LcUfwC2ORUZ0F5eOyPe5JKf0In5HEhNInfyjg/V6IdQYgndGxYEKKmVUsAE4C9hf+J
+         l9f/orJK8L1JZBQPv0ghqruPuZlL5T4R12XoTTyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 321/323] ASoC: DAPM: Cover regression by kctl change notification fix
-Date:   Wed, 24 Nov 2021 12:58:31 +0100
-Message-Id: <20211124115729.760668362@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>
+Subject: [PATCH 5.15 225/279] KVM: nVMX: dont use vcpu->arch.efer when checking host state on nested state load
+Date:   Wed, 24 Nov 2021 12:58:32 +0100
+Message-Id: <20211124115726.510075060@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,82 +39,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit 827b0913a9d9d07a0c3e559dbb20ca4d6d285a54 upstream.
+commit af957eebfcc17433ee83ab85b1195a933ab5049c upstream.
 
-The recent fix for DAPM to correct the kctl change notification by the
-commit 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change
-notifications") caused other regressions since it changed the behavior
-of snd_soc_dapm_set_pin() that is called from several API functions.
-Formerly it returned always 0 for success, but now it returns 0 or 1.
+When loading nested state, don't use check vcpu->arch.efer to get the
+L1 host's 64-bit vs. 32-bit state and don't check it for consistency
+with respect to VM_EXIT_HOST_ADDR_SPACE_SIZE, as register state in vCPU
+may be stale when KVM_SET_NESTED_STATE is called---and architecturally
+does not exist.  When restoring L2 state in KVM, the CPU is placed in
+non-root where nested VMX code has no snapshot of L1 host state: VMX
+(conditionally) loads host state fields loaded on VM-exit, but they need
+not correspond to the state before entry.  A simple case occurs in KVM
+itself, where the host RIP field points to vmx_vmexit rather than the
+instruction following vmlaunch/vmresume.
 
-This patch addresses it, restoring the old behavior of
-snd_soc_dapm_set_pin() while keeping the fix in
-snd_soc_dapm_put_pin_switch().
+However, for the particular case of L1 being in 32- or 64-bit mode
+on entry, the exit controls can be treated instead as the source of
+truth regarding the state of L1 on entry, and can be used to check
+that vmcs12.VM_EXIT_HOST_ADDR_SPACE_SIZE matches vmcs12.HOST_EFER if
+vmcs12.VM_EXIT_LOAD_IA32_EFER is set.  The consistency check on CPU
+EFER vs. vmcs12.VM_EXIT_HOST_ADDR_SPACE_SIZE, instead, happens only
+on VM-Enter.  That's because, again, there's conceptually no "current"
+L1 EFER to check on KVM_SET_NESTED_STATE.
 
-Fixes: 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change notifications")
-Reported-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211105090925.20575-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20211115131837.195527-2-mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-dapm.c |   29 +++++++++++++++++++++++------
- 1 file changed, 23 insertions(+), 6 deletions(-)
+ arch/x86/kvm/vmx/nested.c |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2511,8 +2511,13 @@ static struct snd_soc_dapm_widget *dapm_
- 	return NULL;
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2854,6 +2854,17 @@ static int nested_vmx_check_controls(str
+ 	return 0;
  }
  
--static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
--				const char *pin, int status)
-+/*
-+ * set the DAPM pin status:
-+ * returns 1 when the value has been updated, 0 when unchanged, or a negative
-+ * error code; called from kcontrol put callback
-+ */
-+static int __snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
-+				  const char *pin, int status)
- {
- 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
- 	int ret = 0;
-@@ -2538,6 +2543,18 @@ static int snd_soc_dapm_set_pin(struct s
- 	return ret;
- }
- 
-+/*
-+ * similar as __snd_soc_dapm_set_pin(), but returns 0 when successful;
-+ * called from several API functions below
-+ */
-+static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
-+				const char *pin, int status)
++static int nested_vmx_check_address_space_size(struct kvm_vcpu *vcpu,
++				       struct vmcs12 *vmcs12)
 +{
-+	int ret = __snd_soc_dapm_set_pin(dapm, pin, status);
-+
-+	return ret < 0 ? ret : 0;
++#ifdef CONFIG_X86_64
++	if (CC(!!(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE) !=
++		!!(vcpu->arch.efer & EFER_LMA)))
++		return -EINVAL;
++#endif
++	return 0;
 +}
 +
- /**
-  * snd_soc_dapm_sync_unlocked - scan and power dapm paths
-  * @dapm: DAPM context
-@@ -3465,10 +3482,10 @@ int snd_soc_dapm_put_pin_switch(struct s
- 	const char *pin = (const char *)kcontrol->private_value;
- 	int ret;
+ static int nested_vmx_check_host_state(struct kvm_vcpu *vcpu,
+ 				       struct vmcs12 *vmcs12)
+ {
+@@ -2878,18 +2889,16 @@ static int nested_vmx_check_host_state(s
+ 		return -EINVAL;
  
--	if (ucontrol->value.integer.value[0])
--		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
--	else
--		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
-+	mutex_lock_nested(&card->dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
-+	ret = __snd_soc_dapm_set_pin(&card->dapm, pin,
-+				     !!ucontrol->value.integer.value[0]);
-+	mutex_unlock(&card->dapm_mutex);
+ #ifdef CONFIG_X86_64
+-	ia32e = !!(vcpu->arch.efer & EFER_LMA);
++	ia32e = !!(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE);
+ #else
+ 	ia32e = false;
+ #endif
  
- 	snd_soc_dapm_sync(&card->dapm);
- 	return ret;
+ 	if (ia32e) {
+-		if (CC(!(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE)) ||
+-		    CC(!(vmcs12->host_cr4 & X86_CR4_PAE)))
++		if (CC(!(vmcs12->host_cr4 & X86_CR4_PAE)))
+ 			return -EINVAL;
+ 	} else {
+-		if (CC(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE) ||
+-		    CC(vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE) ||
++		if (CC(vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE) ||
+ 		    CC(vmcs12->host_cr4 & X86_CR4_PCIDE) ||
+ 		    CC((vmcs12->host_rip) >> 32))
+ 			return -EINVAL;
+@@ -3559,6 +3568,9 @@ static int nested_vmx_run(struct kvm_vcp
+ 	if (nested_vmx_check_controls(vcpu, vmcs12))
+ 		return nested_vmx_fail(vcpu, VMXERR_ENTRY_INVALID_CONTROL_FIELD);
+ 
++	if (nested_vmx_check_address_space_size(vcpu, vmcs12))
++		return nested_vmx_fail(vcpu, VMXERR_ENTRY_INVALID_HOST_STATE_FIELD);
++
+ 	if (nested_vmx_check_host_state(vcpu, vmcs12))
+ 		return nested_vmx_fail(vcpu, VMXERR_ENTRY_INVALID_HOST_STATE_FIELD);
+ 
 
 
