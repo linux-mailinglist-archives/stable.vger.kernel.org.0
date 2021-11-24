@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D632F45C381
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:36:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A6B45C37C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:36:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346717AbhKXNjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:39:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60382 "EHLO mail.kernel.org"
+        id S1344002AbhKXNjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:39:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352262AbhKXNhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1350313AbhKXNhh (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 08:37:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C15761D7C;
-        Wed, 24 Nov 2021 12:55:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98167630EA;
+        Wed, 24 Nov 2021 12:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758533;
-        bh=h2FQ6c81wvOsp7iDw64ZL7YMBzZnOHCOfq69dHuhyps=;
+        s=korg; t=1637758537;
+        bh=oKv2XgHLz4gQqyNcnh6TA28OcMcgI70+BDQE9PhikaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mt3xh9qkSbBQ624OzmmtXKb4520PWz8vPTEVs3fbViTJmaC4K8HDXarhTNdFjWD6f
-         NQrzotxBGuwXNMIgXd6ya8b7PLprpYL8SPdy2jXYp6I6uxavb7Cf+fMq0kV2gFn8J+
-         UJqZK6jKz6C/CUXrfNGdrydF7qtyELtuFHU5s/7o=
+        b=wIRdAPdDq1iid00+CUuhJphgGtbH2eCz4Zyl7LkBc8Dhr8g90NVxhtW3ZKQez5NyU
+         IaSCVrheCgtMymQ7DWU4YoUjuC2Lk5fQ3E9deEwLoSSItpevDstr4RBRUucdz+r57V
+         7CEZYJr8gS2/jeGmXhaax5N0hI8kM/NciPkorMP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Michal Maloszewski <michal.maloszewski@intel.com>,
+        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        Witold Fijalkowski <witoldx.fijalkowski@intel.com>,
+        Jaroslaw Gawin <jaroslawx.gawin@intel.com>,
         Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Eryk Rybak <eryk.roch.rybak@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Brelinski <tony.brelinski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 100/154] i40e: Fix correct max_pkt_size on VF RX queue
-Date:   Wed, 24 Nov 2021 12:58:16 +0100
-Message-Id: <20211124115705.527264811@linuxfoundation.org>
+Subject: [PATCH 5.10 101/154] i40e: Fix NULL ptr dereference on VSI filter sync
+Date:   Wed, 24 Nov 2021 12:58:17 +0100
+Message-Id: <20211124115705.556659524@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
 References: <20211124115702.361983534@linuxfoundation.org>
@@ -44,116 +47,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eryk Rybak <eryk.roch.rybak@intel.com>
+From: Michal Maloszewski <michal.maloszewski@intel.com>
 
-[ Upstream commit 6afbd7b3c53cb7417189f476e99d431daccb85b0 ]
+[ Upstream commit 37d9e304acd903a445df8208b8a13d707902dea6 ]
 
-Setting VLAN port increasing RX queue max_pkt_size
-by 4 bytes to take VLAN tag into account.
-Trigger the VF reset when setting port VLAN for
-VF to renegotiate its capabilities and reinitialize.
+Remove the reason of null pointer dereference in sync VSI filters.
+Added new I40E_VSI_RELEASING flag to signalize deleting and releasing
+of VSI resources to sync this thread with sync filters subtask.
+Without this patch it is possible to start update the VSI filter list
+after VSI is removed, that's causing a kernel oops.
 
-Fixes: ba4e003d29c1 ("i40e: don't hold spinlock while resetting VF")
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Signed-off-by: Eryk Rybak <eryk.roch.rybak@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Michal Maloszewski <michal.maloszewski@intel.com>
+Reviewed-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Reviewed-by: Witold Fijalkowski <witoldx.fijalkowski@intel.com>
+Reviewed-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
+Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 53 ++++---------------
- 1 file changed, 9 insertions(+), 44 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e.h      | 1 +
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 5 +++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index a02167cce81e1..dacd1453b7311 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -621,14 +621,13 @@ static int i40e_config_vsi_rx_queue(struct i40e_vf *vf, u16 vsi_id,
- 				    u16 vsi_queue_id,
- 				    struct virtchnl_rxq_info *info)
- {
-+	u16 pf_queue_id = i40e_vc_get_pf_queue_id(vf, vsi_id, vsi_queue_id);
- 	struct i40e_pf *pf = vf->pf;
-+	struct i40e_vsi *vsi = pf->vsi[vf->lan_vsi_idx];
- 	struct i40e_hw *hw = &pf->hw;
- 	struct i40e_hmc_obj_rxq rx_ctx;
--	u16 pf_queue_id;
- 	int ret = 0;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e.h b/drivers/net/ethernet/intel/i40e/i40e.h
+index fe1258778cbc4..1f31f503fa92b 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e.h
++++ b/drivers/net/ethernet/intel/i40e/i40e.h
+@@ -159,6 +159,7 @@ enum i40e_vsi_state_t {
+ 	__I40E_VSI_OVERFLOW_PROMISC,
+ 	__I40E_VSI_REINIT_REQUESTED,
+ 	__I40E_VSI_DOWN_REQUESTED,
++	__I40E_VSI_RELEASING,
+ 	/* This must be last as it determines the size of the BITMAP */
+ 	__I40E_VSI_STATE_SIZE__,
+ };
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 52c2d6fdeb7a0..72405a0aabde7 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -2622,7 +2622,8 @@ static void i40e_sync_filters_subtask(struct i40e_pf *pf)
  
--	pf_queue_id = i40e_vc_get_pf_queue_id(vf, vsi_id, vsi_queue_id);
--
- 	/* clear the context structure first */
- 	memset(&rx_ctx, 0, sizeof(struct i40e_hmc_obj_rxq));
+ 	for (v = 0; v < pf->num_alloc_vsi; v++) {
+ 		if (pf->vsi[v] &&
+-		    (pf->vsi[v]->flags & I40E_VSI_FLAG_FILTER_CHANGED)) {
++		    (pf->vsi[v]->flags & I40E_VSI_FLAG_FILTER_CHANGED) &&
++		    !test_bit(__I40E_VSI_RELEASING, pf->vsi[v]->state)) {
+ 			int ret = i40e_sync_vsi_filters(pf->vsi[v]);
  
-@@ -666,6 +665,10 @@ static int i40e_config_vsi_rx_queue(struct i40e_vf *vf, u16 vsi_id,
+ 			if (ret) {
+@@ -13308,7 +13309,7 @@ int i40e_vsi_release(struct i40e_vsi *vsi)
+ 		dev_info(&pf->pdev->dev, "Can't remove PF VSI\n");
+ 		return -ENODEV;
  	}
- 	rx_ctx.rxmax = info->max_pkt_size;
- 
-+	/* if port VLAN is configured increase the max packet size */
-+	if (vsi->info.pvid)
-+		rx_ctx.rxmax += VLAN_HLEN;
-+
- 	/* enable 32bytes desc always */
- 	rx_ctx.dsize = 1;
- 
-@@ -4133,34 +4136,6 @@ error_param:
- 	return ret;
- }
- 
--/**
-- * i40e_vsi_has_vlans - True if VSI has configured VLANs
-- * @vsi: pointer to the vsi
-- *
-- * Check if a VSI has configured any VLANs. False if we have a port VLAN or if
-- * we have no configured VLANs. Do not call while holding the
-- * mac_filter_hash_lock.
-- */
--static bool i40e_vsi_has_vlans(struct i40e_vsi *vsi)
--{
--	bool have_vlans;
 -
--	/* If we have a port VLAN, then the VSI cannot have any VLANs
--	 * configured, as all MAC/VLAN filters will be assigned to the PVID.
--	 */
--	if (vsi->info.pvid)
--		return false;
--
--	/* Since we don't have a PVID, we know that if the device is in VLAN
--	 * mode it must be because of a VLAN filter configured on this VSI.
--	 */
--	spin_lock_bh(&vsi->mac_filter_hash_lock);
--	have_vlans = i40e_is_vsi_in_vlan(vsi);
--	spin_unlock_bh(&vsi->mac_filter_hash_lock);
--
--	return have_vlans;
--}
--
- /**
-  * i40e_ndo_set_vf_port_vlan
-  * @netdev: network interface device structure
-@@ -4217,19 +4192,9 @@ int i40e_ndo_set_vf_port_vlan(struct net_device *netdev, int vf_id,
- 		/* duplicate request, so just return success */
- 		goto error_pvid;
- 
--	if (i40e_vsi_has_vlans(vsi)) {
--		dev_err(&pf->pdev->dev,
--			"VF %d has already configured VLAN filters and the administrator is requesting a port VLAN override.\nPlease unload and reload the VF driver for this change to take effect.\n",
--			vf_id);
--		/* Administrator Error - knock the VF offline until he does
--		 * the right thing by reconfiguring his network correctly
--		 * and then reloading the VF driver.
--		 */
--		i40e_vc_disable_vf(vf);
--		/* During reset the VF got a new VSI, so refresh the pointer. */
--		vsi = pf->vsi[vf->lan_vsi_idx];
--	}
--
-+	i40e_vc_disable_vf(vf);
-+	/* During reset the VF got a new VSI, so refresh a pointer. */
-+	vsi = pf->vsi[vf->lan_vsi_idx];
- 	/* Locked once because multiple functions below iterate list */
- 	spin_lock_bh(&vsi->mac_filter_hash_lock);
- 
++	set_bit(__I40E_VSI_RELEASING, vsi->state);
+ 	uplink_seid = vsi->uplink_seid;
+ 	if (vsi->type != I40E_VSI_SRIOV) {
+ 		if (vsi->netdev_registered) {
 -- 
 2.33.0
 
