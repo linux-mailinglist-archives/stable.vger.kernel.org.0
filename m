@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B85145C490
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:47:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E5245C05D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:04:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351516AbhKXNto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:49:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40064 "EHLO mail.kernel.org"
+        id S1345690AbhKXNHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:07:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354045AbhKXNso (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:48:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C49D61A0C;
-        Wed, 24 Nov 2021 13:02:14 +0000 (UTC)
+        id S1347295AbhKXNFc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:05:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A92FB61214;
+        Wed, 24 Nov 2021 12:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758935;
-        bh=w5Xb6WCzlZ8aPhmrZpZHwKQX/kb2t2tuhtwlxNHDG2k=;
+        s=korg; t=1637757459;
+        bh=i0/SSP6wMqGq3MA8g9maM/Gpkd7UtDZf1BkDMRNtZtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/vkHVpaHA5445VEzP2GrMZJuEcuBkT+ysHkUkhLYiGswZujP/bL/ZZeFoDIiXorE
-         vVpT94faH9vgpyEkoQcWf5c/gaTvDTXqp2xGXauIm+6HC4LXdGdhNLq1R1gPYZZo0i
-         zO49kZVX2IVHe6nvAHLmJpxq3S3iDkygpmbtD24M=
+        b=RJqOfTxfPkPg1vQz6ufA+4a4w6DaH9lgdkorxedM+9C13CnIrx5UiaqIVxP3FaHfR
+         1BdzahVeeTlxV0DrBRlBg6GmwMo5AdTGK9LFY0QA+bJ8GEHqZBC1RzIZm2yW0cBT+q
+         NVftCjoApMD5TuS3o+xpYuIPZlIqnT6DC6t5ezLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Vaishnavi Bhat <vaish123@in.ibm.com>,
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        Dany Madden <drt@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 078/279] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
+Subject: [PATCH 4.19 175/323] ibmvnic: Process crqs after enabling interrupts
 Date:   Wed, 24 Nov 2021 12:56:05 +0100
-Message-Id: <20211124115721.408342386@linuxfoundation.org>
+Message-Id: <20211124115724.855298970@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
+[ Upstream commit 6e20d00158f31f7631d68b86996b7e951c4451c8 ]
 
-In dcr-low.S we use cmpli with three arguments, instead of four
-arguments as defined in the ISA:
+Soon after registering a CRQ it is possible that we get a fail over or
+maybe a CRQ_INIT from the VIOS while interrupts were disabled.
 
-	cmpli	cr0,r3,1024
+Look for any such CRQs after enabling interrupts.
 
-This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
-User’s Manual" it shows cmpli having no L field, but implied to be 0 due
-to the core being 32-bit. It mentions that the ISA defines four
-arguments and recommends using cmplwi.
+Otherwise we can intermittently fail to bring up ibmvnic adapters during
+boot, specially in kexec/kdump kernels.
 
-It also corresponds to the old POWER instruction set, which had no L
-field there, a reserved bit instead.
-
-dcr-low.S is only built 32-bit, because it is only built when
-DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
-generated code (with gcc/gas) we see cmplwi as expected.
-
-Although gas is happy with the 3-argument version when building for
-32-bit, the LLVM assembler is not and errors out with:
-
-  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
-   cmpli 0,%r3,1024; ...
-           ^
-
-Switch to the cmplwi extended opcode, which avoids any confusion when
-reading the ISA, fixes the issue with the LLVM assembler, and also means
-the code could be built 64-bit in future (though that's very unlikely).
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
-Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
+Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
+Reported-by: Vaishnavi Bhat <vaish123@in.ibm.com>
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Reviewed-by: Dany Madden <drt@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/dcr-low.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
-index efeeb1b885a17..329b9c4ae5429 100644
---- a/arch/powerpc/sysdev/dcr-low.S
-+++ b/arch/powerpc/sysdev/dcr-low.S
-@@ -11,7 +11,7 @@
- #include <asm/export.h>
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index d97641b9928bb..c52c26fc44e59 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -4603,6 +4603,9 @@ static int init_crq_queue(struct ibmvnic_adapter *adapter)
+ 	crq->cur = 0;
+ 	spin_lock_init(&crq->lock);
  
- #define DCR_ACCESS_PROLOG(table) \
--	cmpli	cr0,r3,1024;	 \
-+	cmplwi	cr0,r3,1024;	 \
- 	rlwinm  r3,r3,4,18,27;   \
- 	lis     r5,table@h;      \
- 	ori     r5,r5,table@l;   \
++	/* process any CRQs that were queued before we enabled interrupts */
++	tasklet_schedule(&adapter->tasklet);
++
+ 	return retrc;
+ 
+ req_irq_failed:
 -- 
 2.33.0
 
