@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BEB245C594
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7CAB45C1B9
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:19:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348608AbhKXN7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:59:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
+        id S1344680AbhKXNVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:21:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353068AbhKXN4n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:56:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60D2A6337B;
-        Wed, 24 Nov 2021 13:06:49 +0000 (UTC)
+        id S1349407AbhKXNTJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:19:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F39661AF8;
+        Wed, 24 Nov 2021 12:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759209;
-        bh=LA0OJ2gtIQKaQU2StZQ1P3y69HmvDhHzjHLgwG7kkg4=;
+        s=korg; t=1637757986;
+        bh=Z32u477UJH7+XontE/nTr3QbELnlCVMPfLwiXNz1+DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1nUwyotEyHRcgH7y+cwLGCGI7f5GB7lLEZuiIEGwE90+cZn//4jw8rQj32B+Psj6
-         kiF30uCnL1W1DwXu5X/1yXECY+V2BY/51FHeHU3c0wJWrnFlzZ4PXFRQxmmeR0VSya
-         4biywv6v98okootoAGUFG2dOsXmuhGYJw5i21bw0=
+        b=ICxT5nqJJwXjMDVeba0F1CZ3Ox+DQYxcau1IyXFWW4ZAaEc6NyK7JRig8Ry0SbLTT
+         y/J+bYsa9eWliBFs3awNxsuDtHOPEZmzKyjedaIpQ+LljSfQ/RRgY9lj00A4m500Kh
+         l5UYGA3leb6BaBLFp4yVoRNNk6U6aNjRYI8C10uI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Li Yang <leoyang.li@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 168/279] NFC: reorganize the functions in nci_request
+Subject: [PATCH 5.4 019/100] ARM: dts: ls1021a: move thermal-zones node out of soc/
 Date:   Wed, 24 Nov 2021 12:57:35 +0100
-Message-Id: <20211124115724.551811813@linuxfoundation.org>
+Message-Id: <20211124115655.481347086@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +40,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Li Yang <leoyang.li@nxp.com>
 
-[ Upstream commit 86cdf8e38792545161dbe3350a7eced558ba4d15 ]
+[ Upstream commit 1ee1500ef717eefb5d9bdaf97905cb81b4e69aa4 ]
 
-There is a possible data race as shown below:
+This fixes dtbs-check error from simple-bus schema:
+soc: thermal-zones: {'type': 'object'} is not allowed for {'cpu-thermal': ..... }
+        From schema: /home/leo/.local/lib/python3.8/site-packages/dtschema/schemas/simple-bus.yaml
 
-thread-A in nci_request()       | thread-B in nci_close_device()
-                                | mutex_lock(&ndev->req_lock);
-test_bit(NCI_UP, &ndev->flags); |
-...                             | test_and_clear_bit(NCI_UP, &ndev->flags)
-mutex_lock(&ndev->req_lock);    |
-                                |
-
-This race will allow __nci_request() to be awaked while the device is
-getting removed.
-
-Similar to commit e2cb6b891ad2 ("bluetooth: eliminate the potential race
-condition when removing the HCI controller"). this patch alters the
-function sequence in nci_request() to prevent the data races between the
-nci_close_device().
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Fixes: 6a2968aaf50c ("NFC: basic NCI protocol implementation")
-Link: https://lore.kernel.org/r/20211115145600.8320-1-linma@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/nci/core.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/ls1021a.dtsi | 66 +++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 33 deletions(-)
 
-diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
-index 82ab39d80726e..39994dbb6a55b 100644
---- a/net/nfc/nci/core.c
-+++ b/net/nfc/nci/core.c
-@@ -144,12 +144,15 @@ inline int nci_request(struct nci_dev *ndev,
- {
- 	int rc;
+diff --git a/arch/arm/boot/dts/ls1021a.dtsi b/arch/arm/boot/dts/ls1021a.dtsi
+index c62fcca7b4263..aeb8a40b6b601 100644
+--- a/arch/arm/boot/dts/ls1021a.dtsi
++++ b/arch/arm/boot/dts/ls1021a.dtsi
+@@ -311,39 +311,6 @@
+ 			#thermal-sensor-cells = <1>;
+ 		};
  
--	if (!test_bit(NCI_UP, &ndev->flags))
--		return -ENETDOWN;
+-		thermal-zones {
+-			cpu_thermal: cpu-thermal {
+-				polling-delay-passive = <1000>;
+-				polling-delay = <5000>;
 -
- 	/* Serialize all requests */
- 	mutex_lock(&ndev->req_lock);
--	rc = __nci_request(ndev, req, opt, timeout);
-+	/* check the state after obtaing the lock against any races
-+	 * from nci_close_device when the device gets removed.
-+	 */
-+	if (test_bit(NCI_UP, &ndev->flags))
-+		rc = __nci_request(ndev, req, opt, timeout);
-+	else
-+		rc = -ENETDOWN;
- 	mutex_unlock(&ndev->req_lock);
+-				thermal-sensors = <&tmu 0>;
+-
+-				trips {
+-					cpu_alert: cpu-alert {
+-						temperature = <85000>;
+-						hysteresis = <2000>;
+-						type = "passive";
+-					};
+-					cpu_crit: cpu-crit {
+-						temperature = <95000>;
+-						hysteresis = <2000>;
+-						type = "critical";
+-					};
+-				};
+-
+-				cooling-maps {
+-					map0 {
+-						trip = <&cpu_alert>;
+-						cooling-device =
+-							<&cpu0 THERMAL_NO_LIMIT
+-							THERMAL_NO_LIMIT>,
+-							<&cpu1 THERMAL_NO_LIMIT
+-							THERMAL_NO_LIMIT>;
+-					};
+-				};
+-			};
+-		};
+-
+ 		dspi0: spi@2100000 {
+ 			compatible = "fsl,ls1021a-v1.0-dspi";
+ 			#address-cells = <1>;
+@@ -984,4 +951,37 @@
+ 		};
  
- 	return rc;
+ 	};
++
++	thermal-zones {
++		cpu_thermal: cpu-thermal {
++			polling-delay-passive = <1000>;
++			polling-delay = <5000>;
++
++			thermal-sensors = <&tmu 0>;
++
++			trips {
++				cpu_alert: cpu-alert {
++					temperature = <85000>;
++					hysteresis = <2000>;
++					type = "passive";
++				};
++				cpu_crit: cpu-crit {
++					temperature = <95000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
++
++			cooling-maps {
++				map0 {
++					trip = <&cpu_alert>;
++					cooling-device =
++						<&cpu0 THERMAL_NO_LIMIT
++						THERMAL_NO_LIMIT>,
++						<&cpu1 THERMAL_NO_LIMIT
++						THERMAL_NO_LIMIT>;
++				};
++			};
++		};
++	};
+ };
 -- 
 2.33.0
 
