@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1C1545C122
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 072DD45C2E6
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:31:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347172AbhKXNPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:15:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56606 "EHLO mail.kernel.org"
+        id S1349505AbhKXNeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:34:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344719AbhKXNLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:11:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1252C61A7D;
-        Wed, 24 Nov 2021 12:42:03 +0000 (UTC)
+        id S1351443AbhKXNbn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:31:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28F2561BD0;
+        Wed, 24 Nov 2021 12:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757724;
-        bh=nyd9qcJTpgWRvmjKoTXfVhux14jDMACQiRjtJvyn83Q=;
+        s=korg; t=1637758373;
+        bh=BK13YRtjt4xo0x18ZkuwYfFykbkco/riE+U0evPBdqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anK325Gbn+MKoe2eQPhLmb3VAiT+CESXSyVQ8lg+9dUofqJddj0puJl/dQ6pYkX8y
-         uW5J6saaH2xDMPRqqdgxOnN2Tkr0akhB0RZrrDYMIkqLRp5Z0YnJU2f6o+8EMBOjHs
-         7B0lF8cfR9XvdrT0F2rcvEvRuySO8iB8BqNC/fVA=
+        b=rYnr2XAYIyOqi6XJM9yFYiNMYVDqre73HrKeaGYxlbdYjQT+O56PWZ5veZJAkDfDR
+         zTDH07zFQimccl56ijVMHDrOYcJzwHcvj8r33GcAaf1GDalwwzSfBoJ9dJwWHF+xsm
+         4CuwXgGCb3sBkY1jVqi3y2BXgPton5gRak5t5OlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bjorn Helgaas <helgaas@kernel.org>
-Subject: [PATCH 4.19 255/323] PCI/MSI: Deal with devices lying about their MSI mask capability
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Lu Wei <luwei32@huawei.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 049/154] maple: fix wrong return value of maple_bus_init().
 Date:   Wed, 24 Nov 2021 12:57:25 +0100
-Message-Id: <20211124115727.508031801@linuxfoundation.org>
+Message-Id: <20211124115703.920442567@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Lu Wei <luwei32@huawei.com>
 
-commit 2226667a145db2e1f314d7f57fd644fe69863ab9 upstream.
+[ Upstream commit bde82ee391fa6d3ad054313c4aa7b726d32515ce ]
 
-It appears that some devices are lying about their mask capability,
-pretending that they don't have it, while they actually do.
-The net result is that now that we don't enable MSIs on such
-endpoint.
+If KMEM_CACHE or maple_alloc_dev failed, the maple_bus_init() will return 0
+rather than error, because the retval is not changed after KMEM_CACHE or
+maple_alloc_dev failed.
 
-Add a new per-device flag to deal with this. Further patches will
-make use of it, sadly.
-
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20211104180130.3825416-2-maz@kernel.org
-Cc: Bjorn Helgaas <helgaas@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 17be2d2b1c33 ("sh: Add maple bus support for the SEGA Dreamcast.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Lu Wei <luwei32@huawei.com>
+Acked-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Rich Felker <dalias@libc.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/msi.c   |    3 +++
- include/linux/pci.h |    2 ++
- 2 files changed, 5 insertions(+)
+ drivers/sh/maple/maple.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -569,6 +569,9 @@ msi_setup_entry(struct pci_dev *dev, int
- 		goto out;
+diff --git a/drivers/sh/maple/maple.c b/drivers/sh/maple/maple.c
+index e5d7fb81ad665..44a931d41a132 100644
+--- a/drivers/sh/maple/maple.c
++++ b/drivers/sh/maple/maple.c
+@@ -835,8 +835,10 @@ static int __init maple_bus_init(void)
  
- 	pci_read_config_word(dev, dev->msi_cap + PCI_MSI_FLAGS, &control);
-+	/* Lies, damned lies, and MSIs */
-+	if (dev->dev_flags & PCI_DEV_FLAGS_HAS_MSI_MASKING)
-+		control |= PCI_MSI_FLAGS_MASKBIT;
+ 	maple_queue_cache = KMEM_CACHE(maple_buffer, SLAB_HWCACHE_ALIGN);
  
- 	entry->msi_attrib.is_msix	= 0;
- 	entry->msi_attrib.is_64		= !!(control & PCI_MSI_FLAGS_64BIT);
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -205,6 +205,8 @@ enum pci_dev_flags {
- 	PCI_DEV_FLAGS_NO_FLR_RESET = (__force pci_dev_flags_t) (1 << 10),
- 	/* Don't use Relaxed Ordering for TLPs directed at this device */
- 	PCI_DEV_FLAGS_NO_RELAXED_ORDERING = (__force pci_dev_flags_t) (1 << 11),
-+	/* Device does honor MSI masking despite saying otherwise */
-+	PCI_DEV_FLAGS_HAS_MSI_MASKING = (__force pci_dev_flags_t) (1 << 12),
- };
+-	if (!maple_queue_cache)
++	if (!maple_queue_cache) {
++		retval = -ENOMEM;
+ 		goto cleanup_bothirqs;
++	}
  
- enum pci_irq_reroute_variant {
+ 	INIT_LIST_HEAD(&maple_waitq);
+ 	INIT_LIST_HEAD(&maple_sentq);
+@@ -849,6 +851,7 @@ static int __init maple_bus_init(void)
+ 		if (!mdev[i]) {
+ 			while (i-- > 0)
+ 				maple_free_dev(mdev[i]);
++			retval = -ENOMEM;
+ 			goto cleanup_cache;
+ 		}
+ 		baseunits[i] = mdev[i];
+-- 
+2.33.0
+
 
 
