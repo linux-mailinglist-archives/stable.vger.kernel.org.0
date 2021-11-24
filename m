@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B301345B621
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 09:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B2B545B623
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 09:03:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240965AbhKXIGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 03:06:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59042 "EHLO mail.kernel.org"
+        id S240972AbhKXIGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 03:06:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240972AbhKXIGQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 03:06:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8221160F5B;
-        Wed, 24 Nov 2021 08:03:06 +0000 (UTC)
+        id S240929AbhKXIGY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 03:06:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1958060F5D;
+        Wed, 24 Nov 2021 08:03:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637740987;
-        bh=eUUTb4MA++G0X8hJsDBH+pQHmF9U6FlkfNB24uMyvGY=;
+        s=korg; t=1637740995;
+        bh=CpPamQ6MUV6GgRUUg1lFkeJ2/ZxPmfZj21gZ0r3S9vY=;
         h=Subject:To:Cc:From:Date:From;
-        b=aNFxJnqUtUbW5lKo+tk9CR2d6GdVIqoQYrlzceNLfc9wvvzbmEhVLpb4G+k8J+0yf
-         9Bb522kmLcwfifCqtqHl89RiDqDJ4eStwlk4Ode3HU2lbMg9mvR2ctJLLtCEbEoLtv
-         iwezOdbYgac5n+nHD+GzeZ/LhdIXs3ReXgM8d6Rk=
-Subject: FAILED: patch "[PATCH] staging: most: dim2: use device release method" failed to apply to 5.15-stable tree
+        b=PXr4BrUdjLGoarkAE9g+qOYNC9DG6CS1+tymlR6Srho/04VGnsaYoEvoNIVnrsEpq
+         NbBmDvu63xjZs9nKtOarepXtAVWUtUmj28qpdoYDVc3MaWWoAIS5ZKCCWCx4JO5rgH
+         bXIexTPAM7L1zjO9TlmM60UKREVX8ek0H+VlEBvI=
+Subject: FAILED: patch "[PATCH] staging: most: dim2: use device release method" failed to apply to 5.10-stable tree
 To:     nikita.yoush@cogentembedded.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 24 Nov 2021 09:03:04 +0100
-Message-ID: <163774098420119@kroah.com>
+Message-ID: <163774098424117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
