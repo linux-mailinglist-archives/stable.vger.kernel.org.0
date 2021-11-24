@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49D2F45C496
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:47:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6538C45C4A7
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:47:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348830AbhKXNtx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:49:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37524 "EHLO mail.kernel.org"
+        id S1354428AbhKXNuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:50:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354110AbhKXNst (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:48:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 554C461A3F;
-        Wed, 24 Nov 2021 13:02:30 +0000 (UTC)
+        id S1354221AbhKXNtB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:49:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A07D61A50;
+        Wed, 24 Nov 2021 13:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758950;
-        bh=54Y67hx8fOEldQOq8dgmTZU6+2TPKOeblwrzgkGJPDI=;
+        s=korg; t=1637758954;
+        bh=bdgE5lYpVo43pMp2r6By3qBAskT0XYAbiUokbSwtaHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdHF2wkTTQKesDpw5gnyNU2xrvCWNjvxkKpeFcZ9AGhkHCfFjmoPA75i1Ee3BNRdv
-         kZMT/26Ei3JdAwoZLBT86lUkSdqYe/xju1mU1Q84/cysrBVGgEgo/sAsLGxSuOPVhS
-         mhv0TLQquvhevjETRCbjlauzwRImxOdIXjCM4yrg=
+        b=qANrJQNbaMfUDYP3ssulAVOO9gwlEE0vELFzFTp8VcALyOOYtYXMCDchg+uV8tNZ0
+         x25LYTHwDMvDUNJCueUtE7DD+1FR4+VpIJ9mWAcpF+TmY1HDwYhG5PL4scJKvLUQyV
+         RxPRs0BT9KAXwlQqQpvwJF0UMFXgPRx060/tKYHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gao Xiang <hsiangkao@linux.alibaba.com>,
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        tanghuan <tanghuan@vivo.com>,
+        Keoseong Park <keosung.park@samsung.com>,
+        Fengnan Chang <changfengnan@vivo.com>,
         Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 082/279] f2fs: fix up f2fs_lookup tracepoints
-Date:   Wed, 24 Nov 2021 12:56:09 +0100
-Message-Id: <20211124115721.553116512@linuxfoundation.org>
+Subject: [PATCH 5.15 083/279] f2fs: fix to use WHINT_MODE
+Date:   Wed, 24 Nov 2021 12:56:10 +0100
+Message-Id: <20211124115721.586062417@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
 References: <20211124115718.776172708@linuxfoundation.org>
@@ -40,75 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Keoseong Park <keosung.park@samsung.com>
 
-[ Upstream commit 70a9ac36ffd807ac506ed0b849f3e8ce3c6623f2 ]
+[ Upstream commit 011e0868e0cf1237675b22e36fffa958fb08f46e ]
 
-Fix up a misuse that the filename pointer isn't always valid in
-the ring buffer, and we should copy the content instead.
+Since active_logs can be set to 2 or 4 or NR_CURSEG_PERSIST_TYPE(6),
+it cannot be set to NR_CURSEG_TYPE(8).
+That is, whint_mode is always off.
 
-Fixes: 0c5e36db17f5 ("f2fs: trace f2fs_lookup")
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Therefore, the condition is changed from NR_CURSEG_TYPE to NR_CURSEG_PERSIST_TYPE.
+
+Cc: Chao Yu <chao@kernel.org>
+Fixes: d0b9e42ab615 (f2fs: introduce inmem curseg)
+Reported-by: tanghuan <tanghuan@vivo.com>
+Signed-off-by: Keoseong Park <keosung.park@samsung.com>
+Signed-off-by: Fengnan Chang <changfengnan@vivo.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/f2fs.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/f2fs/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
-index 4e881d91c8744..4cb055af1ec0b 100644
---- a/include/trace/events/f2fs.h
-+++ b/include/trace/events/f2fs.h
-@@ -807,20 +807,20 @@ TRACE_EVENT(f2fs_lookup_start,
- 	TP_STRUCT__entry(
- 		__field(dev_t,	dev)
- 		__field(ino_t,	ino)
--		__field(const char *,	name)
-+		__string(name,	dentry->d_name.name)
- 		__field(unsigned int, flags)
- 	),
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index dbe040b66802c..4d24146b4f471 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1292,7 +1292,7 @@ default_check:
+ 	/* Not pass down write hints if the number of active logs is lesser
+ 	 * than NR_CURSEG_PERSIST_TYPE.
+ 	 */
+-	if (F2FS_OPTION(sbi).active_logs != NR_CURSEG_TYPE)
++	if (F2FS_OPTION(sbi).active_logs != NR_CURSEG_PERSIST_TYPE)
+ 		F2FS_OPTION(sbi).whint_mode = WHINT_MODE_OFF;
  
- 	TP_fast_assign(
- 		__entry->dev	= dir->i_sb->s_dev;
- 		__entry->ino	= dir->i_ino;
--		__entry->name	= dentry->d_name.name;
-+		__assign_str(name, dentry->d_name.name);
- 		__entry->flags	= flags;
- 	),
- 
- 	TP_printk("dev = (%d,%d), pino = %lu, name:%s, flags:%u",
- 		show_dev_ino(__entry),
--		__entry->name,
-+		__get_str(name),
- 		__entry->flags)
- );
- 
-@@ -834,7 +834,7 @@ TRACE_EVENT(f2fs_lookup_end,
- 	TP_STRUCT__entry(
- 		__field(dev_t,	dev)
- 		__field(ino_t,	ino)
--		__field(const char *,	name)
-+		__string(name,	dentry->d_name.name)
- 		__field(nid_t,	cino)
- 		__field(int,	err)
- 	),
-@@ -842,14 +842,14 @@ TRACE_EVENT(f2fs_lookup_end,
- 	TP_fast_assign(
- 		__entry->dev	= dir->i_sb->s_dev;
- 		__entry->ino	= dir->i_ino;
--		__entry->name	= dentry->d_name.name;
-+		__assign_str(name, dentry->d_name.name);
- 		__entry->cino	= ino;
- 		__entry->err	= err;
- 	),
- 
- 	TP_printk("dev = (%d,%d), pino = %lu, name:%s, ino:%u, err:%d",
- 		show_dev_ino(__entry),
--		__entry->name,
-+		__get_str(name),
- 		__entry->cino,
- 		__entry->err)
- );
+ 	if (f2fs_sb_has_readonly(sbi) && !f2fs_readonly(sbi->sb)) {
 -- 
 2.33.0
 
