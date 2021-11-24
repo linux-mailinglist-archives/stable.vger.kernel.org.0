@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24F0345C685
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:07:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB64945C413
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:43:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353604AbhKXOKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:10:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55244 "EHLO mail.kernel.org"
+        id S1351283AbhKXNpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:45:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354174AbhKXOGX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:06:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC9E7633F8;
-        Wed, 24 Nov 2021 13:11:55 +0000 (UTC)
+        id S1353399AbhKXNmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:42:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8626663298;
+        Wed, 24 Nov 2021 12:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759516;
-        bh=5eVFlKmiOGa5MfTM9+XMxFBysfDmMBpwdNLvuurY28g=;
+        s=korg; t=1637758692;
+        bh=A449UYmvweHwi21q4c14vGl5Mx7+slm/Bf/+Js/yIY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zM6LTTXFnXabiz3uI2lYbRjzhrHESCOg2WQVpGi97C1eLbrFVTzAhGd2q6rymkORd
-         sn4fhgeyLQjBQcum2GQMQKsBNals5FDFENxaOuF2+0QDzuem81D95G+xnrzd6AHytf
-         weP/Njw1qOL7NOMNE/sJZZsbe9leGdrnbHzg7Qsc=
+        b=bXWJOqPb1wlcpArC2D9GNMqWMu63hGpIm4TrNtbYzwic1reMyFqhOTTwcjF3kADv6
+         7iMtCC5HzNKP6w0XcKq7MXt0Ch5fzh7Np5yM/eaJ5R6acP6TJxEtePpy8d5lCOLiz6
+         AbXQLdJaZqzCda+qIFMkbEyWnsgrR2mO4vROnjlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Miller <davem@davemloft.net>,
-        sparclinux@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Thomas Backlund <tmb@iki.fi>
-Subject: [PATCH 5.15 261/279] signal/sparc32: In setup_rt_frame and setup_fram use force_fatal_sig
-Date:   Wed, 24 Nov 2021 12:59:08 +0100
-Message-Id: <20211124115727.732846259@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 153/154] btrfs: update device path inode time instead of bd_inode
+Date:   Wed, 24 Nov 2021 12:59:09 +0100
+Message-Id: <20211124115707.427921719@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 086ec444f86660e103de8945d0dcae9b67132ac9 upstream.
+commit 54fde91f52f515e0b1514f0f0fa146e87a672227 upstream.
 
-Modify the 32bit version of setup_rt_frame and setup_frame to act
-similar to the 64bit version of setup_rt_frame and fail with a signal
-instead of calling do_exit.
+Christoph pointed out that I'm updating bdev->bd_inode for the device
+time when we remove block devices from a btrfs file system, however this
+isn't actually exposed to anything.  The inode we want to update is the
+one that's associated with the path to the device, usually on devtmpfs,
+so that blkid notices the difference.
 
-Replacing do_exit(SIGILL) with force_fatal_signal(SIGILL) ensures that
-the process will be terminated cleanly when the stack frame is
-invalid, instead of just killing off a single thread and leaving the
-process is a weird state.
+We still don't want to do the blkdev_open, so use kern_path() to get the
+path to the given device and do the update time on that inode.
 
-Cc: David Miller <davem@davemloft.net>
-Cc: sparclinux@vger.kernel.org
-Link: https://lkml.kernel.org/r/20211020174406.17889-16-ebiederm@xmission.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Thomas Backlund <tmb@iki.fi>
+Fixes: 8f96a5bfa150 ("btrfs: update the bdev time directly when closing")
+Reported-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sparc/kernel/signal_32.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/volumes.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/arch/sparc/kernel/signal_32.c
-+++ b/arch/sparc/kernel/signal_32.c
-@@ -244,7 +244,7 @@ static int setup_frame(struct ksignal *k
- 		get_sigframe(ksig, regs, sigframe_size);
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -14,6 +14,7 @@
+ #include <linux/semaphore.h>
+ #include <linux/uuid.h>
+ #include <linux/list_sort.h>
++#include <linux/namei.h>
+ #include "misc.h"
+ #include "ctree.h"
+ #include "extent_map.h"
+@@ -1871,18 +1872,22 @@ out:
+ /*
+  * Function to update ctime/mtime for a given device path.
+  * Mainly used for ctime/mtime based probe like libblkid.
++ *
++ * We don't care about errors here, this is just to be kind to userspace.
+  */
+-static void update_dev_time(struct block_device *bdev)
++static void update_dev_time(const char *device_path)
+ {
+-	struct inode *inode = bdev->bd_inode;
++	struct path path;
+ 	struct timespec64 now;
++	int ret;
  
- 	if (invalid_frame_pointer(sf, sigframe_size)) {
--		do_exit(SIGILL);
-+		force_fatal_sig(SIGILL);
- 		return -EINVAL;
- 	}
+-	/* Shouldn't happen but just in case. */
+-	if (!inode)
++	ret = kern_path(device_path, LOOKUP_FOLLOW, &path);
++	if (ret)
+ 		return;
  
-@@ -336,7 +336,7 @@ static int setup_rt_frame(struct ksignal
- 	sf = (struct rt_signal_frame __user *)
- 		get_sigframe(ksig, regs, sigframe_size);
- 	if (invalid_frame_pointer(sf, sigframe_size)) {
--		do_exit(SIGILL);
-+		force_fatal_sig(SIGILL);
- 		return -EINVAL;
- 	}
+-	now = current_time(inode);
+-	generic_update_time(inode, &now, S_MTIME | S_CTIME);
++	now = current_time(d_inode(path.dentry));
++	inode_update_time(d_inode(path.dentry), &now, S_MTIME | S_CTIME);
++	path_put(&path);
+ }
+ 
+ static int btrfs_rm_dev_item(struct btrfs_device *device)
+@@ -2057,7 +2062,7 @@ void btrfs_scratch_superblocks(struct bt
+ 	btrfs_kobject_uevent(bdev, KOBJ_CHANGE);
+ 
+ 	/* Update ctime/mtime for device path for libblkid */
+-	update_dev_time(bdev);
++	update_dev_time(device_path);
+ }
+ 
+ int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
+@@ -2700,7 +2705,7 @@ int btrfs_init_new_device(struct btrfs_f
+ 	btrfs_forget_devices(device_path);
+ 
+ 	/* Update ctime/mtime for blkid or udev */
+-	update_dev_time(bdev);
++	update_dev_time(device_path);
+ 
+ 	return ret;
  
 
 
