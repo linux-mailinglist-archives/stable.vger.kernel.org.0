@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 179E645C2E0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:31:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B08945C1ED
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347391AbhKXNeF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:34:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57672 "EHLO mail.kernel.org"
+        id S1347099AbhKXNYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:24:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351441AbhKXNbn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:31:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A648615A6;
-        Wed, 24 Nov 2021 12:52:50 +0000 (UTC)
+        id S240966AbhKXNVM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:21:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D9FF61B04;
+        Wed, 24 Nov 2021 12:47:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758371;
-        bh=lU/AhEQe/DdLXtk1zubBmRRJyOVRZeWa5760O/Q9GlQ=;
+        s=korg; t=1637758038;
+        bh=tLnqBrFPv3j6HEPrJXTcSeZBMN/5nvOuD+6y1xuxvgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2uUkVZFJfYbxj9YKkShjR/H58CIMZeCQ0f4vqGptKuaUJD/UHGl3fKmohdyIQW5f0
-         WBWv+EzKCbyTB0OXYj7p+WHeHVNUR8DrWiKRONqfoYNoju/UbBN7Rlam4RRzf2XK7P
-         F9LuDKWv3w+V86hydGLdH7JUH/XM0UApZVHPk2mk=
+        b=CSK4b8VHCKEha5QU2xPRTBPVsYLgdcfgD/rZzFZC233eHY5SvcF3DrtLjZj7v9FLc
+         +TblWl0jiUO8YyL0W3bXEMDzeThTLwkr3Exo4PGrJlngIn4dzU469pf2Ij4hDBW7Gc
+         j4TxaPuEeEJruCEAo+F84jBAOrPPA3nHcsPXir4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Paul Mundt <lethal@linux-sh.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Miguel Ojeda <ojeda@kernel.org>, Rich Felker <dalias@libc.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sven Peter <sven@svenpeter.dev>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/154] sh: check return code of request_irq
+Subject: [PATCH 5.4 008/100] usb: typec: tipd: Remove WARN_ON in tps6598x_block_read
 Date:   Wed, 24 Nov 2021 12:57:24 +0100
-Message-Id: <20211124115703.889804044@linuxfoundation.org>
+Message-Id: <20211124115655.117766626@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit 0e38225c92c7964482a8bb6b3e37fde4319e965c ]
+[ Upstream commit b7a0a63f3fed57d413bb857de164ea9c3984bc4e ]
 
-request_irq is marked __must_check, but the call in shx3_prepare_cpus
-has a void return type, so it can't propagate failure to the caller.
-Follow cues from hexagon and just print an error.
+Calling tps6598x_block_read with a higher than allowed len can be
+handled by just returning an error. There's no need to crash systems
+with panic-on-warn enabled.
 
-Fixes: c7936b9abcf5 ("sh: smp: Hook in to the generic IPI handler for SH-X3 SMP.")
-Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: Paul Mundt <lethal@linux-sh.org>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
-Signed-off-by: Rich Felker <dalias@libc.org>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20210914140235.65955-3-sven@svenpeter.dev
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/kernel/cpu/sh4a/smp-shx3.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/typec/tps6598x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/sh/kernel/cpu/sh4a/smp-shx3.c b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-index f8a2bec0f260b..1261dc7b84e8b 100644
---- a/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-+++ b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-@@ -73,8 +73,9 @@ static void shx3_prepare_cpus(unsigned int max_cpus)
- 	BUILD_BUG_ON(SMP_MSG_NR >= 8);
+diff --git a/drivers/usb/typec/tps6598x.c b/drivers/usb/typec/tps6598x.c
+index a38d1409f15b7..67bebee693301 100644
+--- a/drivers/usb/typec/tps6598x.c
++++ b/drivers/usb/typec/tps6598x.c
+@@ -109,7 +109,7 @@ tps6598x_block_read(struct tps6598x *tps, u8 reg, void *val, size_t len)
+ 	u8 data[TPS_MAX_LEN + 1];
+ 	int ret;
  
- 	for (i = 0; i < SMP_MSG_NR; i++)
--		request_irq(104 + i, ipi_interrupt_handler,
--			    IRQF_PERCPU, "IPI", (void *)(long)i);
-+		if (request_irq(104 + i, ipi_interrupt_handler,
-+			    IRQF_PERCPU, "IPI", (void *)(long)i))
-+			pr_err("Failed to request irq %d\n", i);
+-	if (WARN_ON(len + 1 > sizeof(data)))
++	if (len + 1 > sizeof(data))
+ 		return -EINVAL;
  
- 	for (i = 0; i < max_cpus; i++)
- 		set_cpu_present(i, true);
+ 	if (!tps->i2c_protocol)
 -- 
 2.33.0
 
