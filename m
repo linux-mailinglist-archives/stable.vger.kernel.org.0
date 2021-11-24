@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6378845C173
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD06F45C170
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347554AbhKXNSI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:18:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57982 "EHLO mail.kernel.org"
+        id S243271AbhKXNSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:18:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348149AbhKXNQC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1347901AbhKXNQC (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 08:16:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 003AE61AD0;
-        Wed, 24 Nov 2021 12:44:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C4F761411;
+        Wed, 24 Nov 2021 12:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757885;
-        bh=ou0ilUAH19YdqbhEDwDQNcP+1w8//sHePdV6SuJT2ZM=;
+        s=korg; t=1637757888;
+        bh=jWsCta6kK+DLAHPbBw9dqqO9O9iUoX/YFJwdV1TM2vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fp2nGzOnMTlapweEziyMVTy+g8UftQ9D5gMQVQ10U1XNUw0S66S/LzFAPs9V8oMDP
-         Z8Dx/LTkDc7lLVzLLHDLrDh+iZAVgwgVzG+9MRYdqqGXpaWr7KAYTEdt5uIMLyy0Hj
-         C3Ie5ohoVfCQVWJQAMWZGU2fIZ8p6vIoX+xGM4ww=
+        b=pI9I23Hv/wMVq3pnS6YI2c6By/QSrkuDYKgdNtLoLo+QjC9Oq5PwQYN0bKUH6ZGUz
+         5/S2+GOPl/et8NvFs8dkYTQceVUc/I2LLWZSaFq5AatKxouNKOZtp1JJslG0SHjWZv
+         h5huaWhD2N4xdRPi2j8q/KQEInABnSVFdAu2ktGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Wilson <nate@chickenbrittle.com>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.19 309/323] udf: Fix crash after seekdir
-Date:   Wed, 24 Nov 2021 12:58:19 +0100
-Message-Id: <20211124115729.343271574@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Chris Murphy <chris@colorremedies.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 310/323] btrfs: fix memory ordering between normal and ordered work functions
+Date:   Wed, 24 Nov 2021 12:58:20 +0100
+Message-Id: <20211124115729.381261038@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
@@ -39,157 +42,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit a48fc69fe6588b48d878d69de223b91a386a7cb4 upstream.
+commit 45da9c1767ac31857df572f0a909fbe88fd5a7e9 upstream.
 
-udf_readdir() didn't validate the directory position it should start
-reading from. Thus when user uses lseek(2) on directory file descriptor
-it can trick udf_readdir() into reading from a position in the middle of
-directory entry which then upsets directory parsing code resulting in
-errors or even possible kernel crashes. Similarly when the directory is
-modified between two readdir calls, the directory position need not be
-valid anymore.
+Ordered work functions aren't guaranteed to be handled by the same thread
+which executed the normal work functions. The only way execution between
+normal/ordered functions is synchronized is via the WORK_DONE_BIT,
+unfortunately the used bitops don't guarantee any ordering whatsoever.
 
-Add code to validate current offset in the directory. This is actually
-rather expensive for UDF as we need to read from the beginning of the
-directory and parse all directory entries. This is because in UDF a
-directory is just a stream of data containing directory entries and
-since file names are fully under user's control we cannot depend on
-detecting magic numbers and checksums in the header of directory entry
-as a malicious attacker could fake them. We skip this step if we detect
-that nothing changed since the last readdir call.
+This manifested as seemingly inexplicable crashes on ARM64, where
+async_chunk::inode is seen as non-null in async_cow_submit which causes
+submit_compressed_extents to be called and crash occurs because
+async_chunk::inode suddenly became NULL. The call trace was similar to:
 
-Reported-by: Nathan Wilson <nate@chickenbrittle.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+    pc : submit_compressed_extents+0x38/0x3d0
+    lr : async_cow_submit+0x50/0xd0
+    sp : ffff800015d4bc20
+
+    <registers omitted for brevity>
+
+    Call trace:
+     submit_compressed_extents+0x38/0x3d0
+     async_cow_submit+0x50/0xd0
+     run_ordered_work+0xc8/0x280
+     btrfs_work_helper+0x98/0x250
+     process_one_work+0x1f0/0x4ac
+     worker_thread+0x188/0x504
+     kthread+0x110/0x114
+     ret_from_fork+0x10/0x18
+
+Fix this by adding respective barrier calls which ensure that all
+accesses preceding setting of WORK_DONE_BIT are strictly ordered before
+setting the flag. At the same time add a read barrier after reading of
+WORK_DONE_BIT in run_ordered_work which ensures all subsequent loads
+would be strictly ordered after reading the bit. This in turn ensures
+are all accesses before WORK_DONE_BIT are going to be strictly ordered
+before any access that can occur in ordered_func.
+
+Reported-by: Chris Murphy <lists@colorremedies.com>
+Fixes: 08a9ff326418 ("btrfs: Added btrfs_workqueue_struct implemented ordered execution based on kernel workqueue")
+CC: stable@vger.kernel.org # 4.4+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2011928
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Tested-by: Chris Murphy <chris@colorremedies.com>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/dir.c   |   32 ++++++++++++++++++++++++++++++--
- fs/udf/namei.c |    3 +++
- fs/udf/super.c |    2 ++
- 3 files changed, 35 insertions(+), 2 deletions(-)
+ fs/btrfs/async-thread.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/fs/udf/dir.c
-+++ b/fs/udf/dir.c
-@@ -31,6 +31,7 @@
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/bio.h>
-+#include <linux/iversion.h>
+--- a/fs/btrfs/async-thread.c
++++ b/fs/btrfs/async-thread.c
+@@ -270,6 +270,13 @@ static void run_ordered_work(struct __bt
+ 				  ordered_list);
+ 		if (!test_bit(WORK_DONE_BIT, &work->flags))
+ 			break;
++		/*
++		 * Orders all subsequent loads after reading WORK_DONE_BIT,
++		 * paired with the smp_mb__before_atomic in btrfs_work_helper
++		 * this guarantees that the ordered function will see all
++		 * updates from ordinary work function.
++		 */
++		smp_rmb();
  
- #include "udf_i.h"
- #include "udf_sb.h"
-@@ -44,7 +45,7 @@ static int udf_readdir(struct file *file
- 	struct fileIdentDesc *fi = NULL;
- 	struct fileIdentDesc cfi;
- 	udf_pblk_t block, iblock;
--	loff_t nf_pos;
-+	loff_t nf_pos, emit_pos = 0;
- 	int flen;
- 	unsigned char *fname = NULL, *copy_name = NULL;
- 	unsigned char *nameptr;
-@@ -58,6 +59,7 @@ static int udf_readdir(struct file *file
- 	int i, num, ret = 0;
- 	struct extent_position epos = { NULL, 0, {0, 0} };
- 	struct super_block *sb = dir->i_sb;
-+	bool pos_valid = false;
- 
- 	if (ctx->pos == 0) {
- 		if (!dir_emit_dot(file, ctx))
-@@ -68,6 +70,21 @@ static int udf_readdir(struct file *file
- 	if (nf_pos >= size)
- 		goto out;
- 
-+	/*
-+	 * Something changed since last readdir (either lseek was called or dir
-+	 * changed)?  We need to verify the position correctly points at the
-+	 * beginning of some dir entry so that the directory parsing code does
-+	 * not get confused. Since UDF does not have any reliable way of
-+	 * identifying beginning of dir entry (names are under user control),
-+	 * we need to scan the directory from the beginning.
-+	 */
-+	if (!inode_eq_iversion(dir, file->f_version)) {
-+		emit_pos = nf_pos;
-+		nf_pos = 0;
-+	} else {
-+		pos_valid = true;
-+	}
-+
- 	fname = kmalloc(UDF_NAME_LEN, GFP_NOFS);
- 	if (!fname) {
- 		ret = -ENOMEM;
-@@ -123,13 +140,21 @@ static int udf_readdir(struct file *file
- 
- 	while (nf_pos < size) {
- 		struct kernel_lb_addr tloc;
-+		loff_t cur_pos = nf_pos;
- 
--		ctx->pos = (nf_pos >> 2) + 1;
-+		/* Update file position only if we got past the current one */
-+		if (nf_pos >= emit_pos) {
-+			ctx->pos = (nf_pos >> 2) + 1;
-+			pos_valid = true;
-+		}
- 
- 		fi = udf_fileident_read(dir, &nf_pos, &fibh, &cfi, &epos, &eloc,
- 					&elen, &offset);
- 		if (!fi)
- 			goto out;
-+		/* Still not at offset where user asked us to read from? */
-+		if (cur_pos < emit_pos)
-+			continue;
- 
- 		liu = le16_to_cpu(cfi.lengthOfImpUse);
- 		lfi = cfi.lengthFileIdent;
-@@ -187,8 +212,11 @@ static int udf_readdir(struct file *file
- 	} /* end while */
- 
- 	ctx->pos = (nf_pos >> 2) + 1;
-+	pos_valid = true;
- 
- out:
-+	if (pos_valid)
-+		file->f_version = inode_query_iversion(dir);
- 	if (fibh.sbh != fibh.ebh)
- 		brelse(fibh.ebh);
- 	brelse(fibh.sbh);
---- a/fs/udf/namei.c
-+++ b/fs/udf/namei.c
-@@ -30,6 +30,7 @@
- #include <linux/sched.h>
- #include <linux/crc-itu-t.h>
- #include <linux/exportfs.h>
-+#include <linux/iversion.h>
- 
- static inline int udf_match(int len1, const unsigned char *name1, int len2,
- 			    const unsigned char *name2)
-@@ -135,6 +136,8 @@ int udf_write_fi(struct inode *inode, st
- 			mark_buffer_dirty_inode(fibh->ebh, inode);
- 		mark_buffer_dirty_inode(fibh->sbh, inode);
+ 		/*
+ 		 * we are going to call the ordered done function, but
+@@ -355,6 +362,13 @@ static void normal_work_helper(struct bt
+ 	thresh_exec_hook(wq);
+ 	work->func(work);
+ 	if (need_order) {
++		/*
++		 * Ensures all memory accesses done in the work function are
++		 * ordered before setting the WORK_DONE_BIT. Ensuring the thread
++		 * which is going to executed the ordered work sees them.
++		 * Pairs with the smp_rmb in run_ordered_work.
++		 */
++		smp_mb__before_atomic();
+ 		set_bit(WORK_DONE_BIT, &work->flags);
+ 		run_ordered_work(wq, work);
  	}
-+	inode_inc_iversion(inode);
-+
- 	return 0;
- }
- 
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -57,6 +57,7 @@
- #include <linux/crc-itu-t.h>
- #include <linux/log2.h>
- #include <asm/byteorder.h>
-+#include <linux/iversion.h>
- 
- #include "udf_sb.h"
- #include "udf_i.h"
-@@ -151,6 +152,7 @@ static struct inode *udf_alloc_inode(str
- 	init_rwsem(&ei->i_data_sem);
- 	ei->cached_extent.lstart = -1;
- 	spin_lock_init(&ei->i_extent_cache_lock);
-+	inode_set_iversion(&ei->vfs_inode, 1);
- 
- 	return &ei->vfs_inode;
- }
 
 
