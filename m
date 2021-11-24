@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8EFF45C455
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:44:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5331645C035
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:03:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348415AbhKXNrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:47:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39062 "EHLO mail.kernel.org"
+        id S1346974AbhKXNFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:05:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349937AbhKXNpk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:45:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E81363311;
-        Wed, 24 Nov 2021 13:00:32 +0000 (UTC)
+        id S1348027AbhKXNDt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:03:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D680F61A0B;
+        Wed, 24 Nov 2021 12:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758833;
-        bh=uTMo5c9LVjnrfYORMzyT2iHjZJ/DSDPlM+hpqxBkxmk=;
+        s=korg; t=1637757410;
+        bh=wlHHLTuMXSMG0ebQ2+0cAUMlyoDd+6cRBcto/qEX1sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3GZ2tGA82AvWVuxpF12+MZfH850x9eWw5xHN48DHxwssMkTkbK89ec/2Khx1RuZ+
-         0FHa2hYal0LdtuKnP/F9Oewa4kNeuN1h9eZe4vNsXI18ehNXLvMUoANtXsyBCYDLj3
-         3fmoTsGWlZltxDsGR/K4XFFhU4vqwJOUG1aE8Ipk=
+        b=vL6/yqBu4SKlhnXSAsxltL1oA6hWS15DRdKhg6HwDEeS32pvAeT3ZE7U/Vcbyfxrs
+         TbBF2MKMbBLn3pWMZe0x/qRZJ7QRwHMk+otGKgKNS6Zs3qibh/ZKiYQhIGmg9Kz8Fj
+         /CaEXzus0g3GZKKpE5LgVscQIc/q63VUSIg6QY38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 017/279] RDMA/bnxt_re: Check if the vlan is valid before reporting
-Date:   Wed, 24 Nov 2021 12:55:04 +0100
-Message-Id: <20211124115719.351297249@linuxfoundation.org>
+Subject: [PATCH 4.19 115/323] PM: hibernate: Get block device exclusively in swsusp_check()
+Date:   Wed, 24 Nov 2021 12:55:05 +0100
+Message-Id: <20211124115722.837532678@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Selvin Xavier <selvin.xavier@broadcom.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 6bda39149d4b8920fdb8744090653aca3daa792d ]
+[ Upstream commit 39fbef4b0f77f9c89c8f014749ca533643a37c9f ]
 
-When VF is configured with default vlan, HW strips the vlan from the
-packet and driver receives it in Rx completion. VLAN needs to be reported
-for UD work completion only if the vlan is configured on the host. Add a
-check for valid vlan in the UD receive path.
+The following kernel crash can be triggered:
 
-Link: https://lore.kernel.org/r/1631709163-2287-12-git-send-email-selvin.xavier@broadcom.com
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+[   89.266592] ------------[ cut here ]------------
+[   89.267427] kernel BUG at fs/buffer.c:3020!
+[   89.268264] invalid opcode: 0000 [#1] SMP KASAN PTI
+[   89.269116] CPU: 7 PID: 1750 Comm: kmmpd-loop0 Not tainted 5.10.0-862.14.0.6.x86_64-08610-gc932cda3cef4-dirty #20
+[   89.273169] RIP: 0010:submit_bh_wbc.isra.0+0x538/0x6d0
+[   89.277157] RSP: 0018:ffff888105ddfd08 EFLAGS: 00010246
+[   89.278093] RAX: 0000000000000005 RBX: ffff888124231498 RCX: ffffffffb2772612
+[   89.279332] RDX: 1ffff11024846293 RSI: 0000000000000008 RDI: ffff888124231498
+[   89.280591] RBP: ffff8881248cc000 R08: 0000000000000001 R09: ffffed1024846294
+[   89.281851] R10: ffff88812423149f R11: ffffed1024846293 R12: 0000000000003800
+[   89.283095] R13: 0000000000000001 R14: 0000000000000000 R15: ffff8881161f7000
+[   89.284342] FS:  0000000000000000(0000) GS:ffff88839b5c0000(0000) knlGS:0000000000000000
+[   89.285711] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   89.286701] CR2: 00007f166ebc01a0 CR3: 0000000435c0e000 CR4: 00000000000006e0
+[   89.287919] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   89.289138] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   89.290368] Call Trace:
+[   89.290842]  write_mmp_block+0x2ca/0x510
+[   89.292218]  kmmpd+0x433/0x9a0
+[   89.294902]  kthread+0x2dd/0x3e0
+[   89.296268]  ret_from_fork+0x22/0x30
+[   89.296906] Modules linked in:
+
+by running the following commands:
+
+ 1. mkfs.ext4 -O mmp  /dev/sda -b 1024
+ 2. mount /dev/sda /home/test
+ 3. echo "/dev/sda" > /sys/power/resume
+
+That happens because swsusp_check() calls set_blocksize() on the
+target partition which confuses the file system:
+
+       Thread1                       Thread2
+mount /dev/sda /home/test
+get s_mmp_bh  --> has mapped flag
+start kmmpd thread
+				echo "/dev/sda" > /sys/power/resume
+				  resume_store
+				    software_resume
+				      swsusp_check
+				        set_blocksize
+					  truncate_inode_pages_range
+					    truncate_cleanup_page
+					      block_invalidatepage
+					        discard_buffer --> clean mapped flag
+write_mmp_block
+  submit_bh
+    submit_bh_wbc
+      BUG_ON(!buffer_mapped(bh))
+
+To address this issue, modify swsusp_check() to open the target block
+device with exclusive access.
+
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/ib_verbs.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ kernel/power/swap.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/ib_verbs.c b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
-index 408dfbcc47b5e..b7ec3a3926785 100644
---- a/drivers/infiniband/hw/bnxt_re/ib_verbs.c
-+++ b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
-@@ -3354,8 +3354,11 @@ static void bnxt_re_process_res_ud_wc(struct bnxt_re_qp *qp,
- 				      struct ib_wc *wc,
- 				      struct bnxt_qplib_cqe *cqe)
+diff --git a/kernel/power/swap.c b/kernel/power/swap.c
+index e9494c29f1ca4..b5b97df142d26 100644
+--- a/kernel/power/swap.c
++++ b/kernel/power/swap.c
+@@ -1512,9 +1512,10 @@ end:
+ int swsusp_check(void)
  {
-+	struct bnxt_re_dev *rdev;
-+	u16 vlan_id = 0;
- 	u8 nw_type;
+ 	int error;
++	void *holder;
  
-+	rdev = qp->rdev;
- 	wc->opcode = IB_WC_RECV;
- 	wc->status = __rc_to_ib_wc_status(cqe->status);
+ 	hib_resume_bdev = blkdev_get_by_dev(swsusp_resume_device,
+-					    FMODE_READ, NULL);
++					    FMODE_READ | FMODE_EXCL, &holder);
+ 	if (!IS_ERR(hib_resume_bdev)) {
+ 		set_blocksize(hib_resume_bdev, PAGE_SIZE);
+ 		clear_page(swsusp_header);
+@@ -1536,7 +1537,7 @@ int swsusp_check(void)
  
-@@ -3367,9 +3370,12 @@ static void bnxt_re_process_res_ud_wc(struct bnxt_re_qp *qp,
- 		memcpy(wc->smac, cqe->smac, ETH_ALEN);
- 		wc->wc_flags |= IB_WC_WITH_SMAC;
- 		if (cqe->flags & CQ_RES_UD_FLAGS_META_FORMAT_VLAN) {
--			wc->vlan_id = (cqe->cfa_meta & 0xFFF);
--			if (wc->vlan_id < 0x1000)
--				wc->wc_flags |= IB_WC_WITH_VLAN;
-+			vlan_id = (cqe->cfa_meta & 0xFFF);
-+		}
-+		/* Mark only if vlan_id is non zero */
-+		if (vlan_id && bnxt_re_check_if_vlan_valid(rdev, vlan_id)) {
-+			wc->vlan_id = vlan_id;
-+			wc->wc_flags |= IB_WC_WITH_VLAN;
- 		}
- 		nw_type = (cqe->flags & CQ_RES_UD_FLAGS_ROCE_IP_VER_MASK) >>
- 			   CQ_RES_UD_FLAGS_ROCE_IP_VER_SFT;
+ put:
+ 		if (error)
+-			blkdev_put(hib_resume_bdev, FMODE_READ);
++			blkdev_put(hib_resume_bdev, FMODE_READ | FMODE_EXCL);
+ 		else
+ 			pr_debug("Image signature found, resuming\n");
+ 	} else {
 -- 
 2.33.0
 
