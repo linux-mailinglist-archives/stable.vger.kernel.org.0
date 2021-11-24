@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FFCF45BF7B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:55:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 555B645BC83
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345665AbhKXM67 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:58:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60948 "EHLO mail.kernel.org"
+        id S245045AbhKXMbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343684AbhKXM5J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:57:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63580619EE;
-        Wed, 24 Nov 2021 12:32:47 +0000 (UTC)
+        id S1343622AbhKXM3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:29:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F278161059;
+        Wed, 24 Nov 2021 12:17:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757168;
-        bh=4gLSGZaHHiGtGQ8T4gDA9tzFgRl3KWylawhfHmcAVvA=;
+        s=korg; t=1637756268;
+        bh=a0sAXZosEXwTaOW5I52P6jMsdu19bmiS0g9ZVJiR2NQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qyhq6p+4kaJrrZ/oL/fvlDmkDF5v74R8Edua9pvSLBp/NKkFUMRf0uoAStDU1QaPX
-         Cj12t0pAEAd+82ldgs/QOQdMzY8ebK2O8D44Bt5eb4gUGZJ+i5bfo/T8wotjIWW9Hn
-         +ARSvzbssPy1IceJ6nvNFBbqJFYAJj7mjNvfJeaQ=
+        b=QKQbtZaBL4sJ8U+c7Pe8FRkfkifmG+/DjxxwfTmDfKHuXXZ4QUwOfYF0EaB+191Q0
+         7L6gHYCwOktLp2lLCAIpg0weFWCjAtU17jlB4GGMioT+KrW7H+j0r5nNbWcEEUQykK
+         alayyMKEVzk8UB0Mym6f9sIAn47JN9Ln2Jo58FZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.19 078/323] pinctrl: core: fix possible memory leak in pinctrl_enable()
+        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 026/251] bpf: Prevent increasing bpf_jit_limit above max
 Date:   Wed, 24 Nov 2021 12:54:28 +0100
-Message-Id: <20211124115721.509989738@linuxfoundation.org>
+Message-Id: <20211124115711.153847422@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Lorenz Bauer <lmb@cloudflare.com>
 
-commit c7892ae13e461ed20154321eb792e07ebe38f5b3 upstream.
+[ Upstream commit fadb7ff1a6c2c565af56b4aacdd086b067eed440 ]
 
-I got memory leak as follows when doing fault injection test:
+Restrict bpf_jit_limit to the maximum supported by the arch's JIT.
 
-unreferenced object 0xffff888020a7a680 (size 64):
-  comm "i2c-mcp23018-41", pid 23090, jiffies 4295160544 (age 8.680s)
-  hex dump (first 32 bytes):
-    00 48 d3 1e 80 88 ff ff 00 1a 56 c1 ff ff ff ff  .H........V.....
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000083c79b35>] kmem_cache_alloc_trace+0x16d/0x360
-    [<0000000051803c95>] pinctrl_init_controller+0x6ed/0xb70
-    [<0000000064346707>] pinctrl_register+0x27/0x80
-    [<0000000029b0e186>] devm_pinctrl_register+0x5b/0xe0
-    [<00000000391f5a3e>] mcp23s08_probe_one+0x968/0x118a [pinctrl_mcp23s08]
-    [<000000006112c039>] mcp230xx_probe+0x266/0x560 [pinctrl_mcp23s08_i2c]
-
-If pinctrl_claim_hogs() fails, the 'pindesc' allocated in pinctrl_register_one_pin()
-need be freed.
-
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 950b0d91dc10 ("pinctrl: core: Fix regression caused by delayed work for hogs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211022014323.1156924-1-yangyingliang@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20211014142554.53120-4-lmb@cloudflare.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/filter.h     | 1 +
+ kernel/bpf/core.c          | 4 +++-
+ net/core/sysctl_net_core.c | 2 +-
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/pinctrl/core.c
-+++ b/drivers/pinctrl/core.c
-@@ -2038,6 +2038,8 @@ int pinctrl_enable(struct pinctrl_dev *p
- 	if (error) {
- 		dev_err(pctldev->dev, "could not claim hogs: %i\n",
- 			error);
-+		pinctrl_free_pindescs(pctldev, pctldev->desc->pins,
-+				      pctldev->desc->npins);
- 		mutex_destroy(&pctldev->mutex);
- 		kfree(pctldev);
+diff --git a/include/linux/filter.h b/include/linux/filter.h
+index 5ca676d646529..7c0e616362f05 100644
+--- a/include/linux/filter.h
++++ b/include/linux/filter.h
+@@ -730,6 +730,7 @@ extern int bpf_jit_enable;
+ extern int bpf_jit_harden;
+ extern int bpf_jit_kallsyms;
+ extern long bpf_jit_limit;
++extern long bpf_jit_limit_max;
  
+ typedef void (*bpf_jit_fill_hole_t)(void *area, unsigned int size);
+ 
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index e7211b0fa27cf..485e319ba742a 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -295,6 +295,7 @@ int bpf_jit_enable   __read_mostly = IS_BUILTIN(CONFIG_BPF_JIT_ALWAYS_ON);
+ int bpf_jit_harden   __read_mostly;
+ int bpf_jit_kallsyms __read_mostly;
+ long bpf_jit_limit   __read_mostly;
++long bpf_jit_limit_max __read_mostly;
+ 
+ static __always_inline void
+ bpf_get_prog_addr_region(const struct bpf_prog *prog,
+@@ -508,7 +509,8 @@ u64 __weak bpf_jit_alloc_exec_limit(void)
+ static int __init bpf_jit_charge_init(void)
+ {
+ 	/* Only used as heuristic here to derive limit. */
+-	bpf_jit_limit = min_t(u64, round_up(bpf_jit_alloc_exec_limit() >> 2,
++	bpf_jit_limit_max = bpf_jit_alloc_exec_limit();
++	bpf_jit_limit = min_t(u64, round_up(bpf_jit_limit_max >> 2,
+ 					    PAGE_SIZE), LONG_MAX);
+ 	return 0;
+ }
+diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
+index 069e3c4fcc447..ac1a32d5cad3c 100644
+--- a/net/core/sysctl_net_core.c
++++ b/net/core/sysctl_net_core.c
+@@ -410,7 +410,7 @@ static struct ctl_table net_core_table[] = {
+ 		.mode		= 0600,
+ 		.proc_handler	= proc_dolongvec_minmax_bpf_restricted,
+ 		.extra1		= &long_one,
+-		.extra2		= &long_max,
++		.extra2		= &bpf_jit_limit_max,
+ 	},
+ #endif
+ 	{
+-- 
+2.33.0
+
 
 
