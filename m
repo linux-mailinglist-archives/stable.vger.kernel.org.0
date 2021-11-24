@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9664745BA26
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB74445BB6B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:17:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229733AbhKXMIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:08:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34104 "EHLO mail.kernel.org"
+        id S242753AbhKXMTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:19:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242322AbhKXMGx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:06:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76C1360F90;
-        Wed, 24 Nov 2021 12:03:43 +0000 (UTC)
+        id S243182AbhKXMR6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:17:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2502461139;
+        Wed, 24 Nov 2021 12:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755423;
-        bh=TtnOT6SqyLZpNB90uBWqIEsCn9Yo+ZFjMmWllVTgTmk=;
+        s=korg; t=1637755876;
+        bh=pBkYxER+EN8Hfyz1ekNpIL6qF5G0qTENbmrLuw+4EUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XzP9vjTECNk6J2O5cTL6YOklxec0nr1fl1w7Vn3Sg88nUlHroCSPAUGIrW27ZD5Ej
-         JQoALF9LEm8upWfvwXsMu/aXk3O2wmcL3ww51zaD5VLXSQzUQk/f7mBrvMTOd4y8sE
-         Ar9ATFuEVXm1lY+ovhVhbDH9VGGGw5DZkNjYg9ls=
+        b=clNzSjnevnYr96cs/g7mbRRe+F/4uhC5ETUqAWPJ0S7OX7S92cqYMSyke0pn5dYfk
+         ldmRp1celpHis4bVhE/CZmiaE+ejyGmW1XmtcaBj8Q1gOhrwC8yqdhOOM3v8rizIV+
+         58gd3FqEwhSjUVmt7aPnGdUA9/xtq7oeLRt7mVRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 057/162] tracefs: Have tracefs directories not set OTH permission bits by default
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+2cd8c5db4a85f0a04142@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 089/207] media: dvb-usb: fix ununit-value in az6027_rc_query
 Date:   Wed, 24 Nov 2021 12:56:00 +0100
-Message-Id: <20211124115700.187073302@linuxfoundation.org>
+Message-Id: <20211124115706.955344889@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 49d67e445742bbcb03106b735b2ab39f6e5c56bc ]
+[ Upstream commit afae4ef7d5ad913cab1316137854a36bea6268a5 ]
 
-The tracefs file system is by default mounted such that only root user can
-access it. But there are legitimate reasons to create a group and allow
-those added to the group to have access to tracing. By changing the
-permissions of the tracefs mount point to allow access, it will allow
-group access to the tracefs directory.
+Syzbot reported ununit-value bug in az6027_rc_query(). The problem was
+in missing state pointer initialization. Since this function does nothing
+we can simply initialize state to REMOTE_NO_KEY_PRESSED.
 
-There should not be any real reason to allow all access to the tracefs
-directory as it contains sensitive information. Have the default
-permission of directories being created not have any OTH (other) bits set,
-such that an admin that wants to give permission to a group has to first
-disable all OTH bits in the file system.
+Reported-and-tested-by: syzbot+2cd8c5db4a85f0a04142@syzkaller.appspotmail.com
 
-Link: https://lkml.kernel.org/r/20210818153038.664127804@goodmis.org
-
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 76f9a820c867 ("V4L/DVB: AZ6027: Initial import of the driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/tracefs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/az6027.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
-index c66f2423e1f5c..6ccfd47157d37 100644
---- a/fs/tracefs/inode.c
-+++ b/fs/tracefs/inode.c
-@@ -429,7 +429,8 @@ static struct dentry *__create_dir(const char *name, struct dentry *parent,
- 	if (unlikely(!inode))
- 		return failed_creating(dentry);
- 
--	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO;
-+	/* Do not set bits for OTH */
-+	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
- 	inode->i_op = ops;
- 	inode->i_fop = &simple_dir_operations;
+diff --git a/drivers/media/usb/dvb-usb/az6027.c b/drivers/media/usb/dvb-usb/az6027.c
+index 2e711362847e4..382c8075ef524 100644
+--- a/drivers/media/usb/dvb-usb/az6027.c
++++ b/drivers/media/usb/dvb-usb/az6027.c
+@@ -394,6 +394,7 @@ static struct rc_map_table rc_map_az6027_table[] = {
+ /* remote control stuff (does not work with my box) */
+ static int az6027_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
+ {
++	*state = REMOTE_NO_KEY_PRESSED;
+ 	return 0;
+ }
  
 -- 
 2.33.0
