@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9AFF45C172
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B68045C615
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347239AbhKXNSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:18:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60876 "EHLO mail.kernel.org"
+        id S1349676AbhKXOFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:05:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345768AbhKXNQG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:16:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6082E61ADF;
-        Wed, 24 Nov 2021 12:44:51 +0000 (UTC)
+        id S1353618AbhKXOAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:00:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21D0E61244;
+        Wed, 24 Nov 2021 13:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757892;
-        bh=3hASDUYPLjcaNZ3qvW+VwaDN0ZGKb2nxPc2pr74xnRQ=;
+        s=korg; t=1637759357;
+        bh=CKrfun4YaJMnTvB3qUf9eaC7pdw17lPkUjX475xzcfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I27UupydoYsX7E4TR12W87CYQ/Cdf22MD0Y1KiycYdes3h5sDpHBDzPGkfwhaSBx7
-         2shFoy1b40AJw0KKyX6L4rqYyRd/qyHoQmNaC4BIK87f1D+Q2viHBuiWu+rrlv56D4
-         2RjuFIjO1RDFft6RFUCNWsYTz2WR3q6gi1LWxdBk=
+        b=oaCRrYTWlGX7czFAAORzz2uxYfyVYbPPEoMuxYByXVqp7pQ97ZEH05YUU3pSp6VPh
+         NoUWgM8n0JY93TkEdz6eMRYg8WH2p48kMpG4pP9ypKhReOnVEytCn/aFZWPymqVPwD
+         oW5Cg148SjA9BD9ueyRu332Rm9rIxUi559W4EW4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.19 311/323] parisc/sticon: fix reverse colors
+        stable@vger.kernel.org, Nikolay <knv418@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Matthew Perkowski <mgperkow@gmail.com>, stable@kernel.org
+Subject: [PATCH 5.15 214/279] ata: libata: add missing ata_identify_page_supported() calls
 Date:   Wed, 24 Nov 2021 12:58:21 +0100
-Message-Id: <20211124115729.427625105@linuxfoundation.org>
+Message-Id: <20211124115726.136794577@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@stackframe.org>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit bec05f33ebc1006899c6d3e59a00c58881fe7626 upstream.
+commit 06f6c4c6c3e8354dceddd77bd58f9a7a84c67246 upstream.
 
-sticon_build_attr() checked the reverse argument and flipped
-background and foreground color, but returned the non-reverse
-value afterwards. Fix this and also add two local variables
-for foreground and background color to make the code easier
-to read.
+ata_dev_config_ncq_prio() and ata_dev_config_devslp() both access pages
+of the IDENTIFY DEVICE data log. Before calling ata_read_log_page(),
+make sure to check for the existence of the IDENTIFY DEVICE data log and
+of the log page accessed using ata_identify_page_supported(). This
+avoids useless error messages from ata_read_log_page() and failures with
+some LLDD scsi drivers using libsas.
 
-Signed-off-by: Sven Schnelle <svens@stackframe.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: Nikolay <knv418@gmail.com>
+Cc: stable@kernel.org # 5.15
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Tested-by: Matthew Perkowski <mgperkow@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/console/sticon.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/ata/libata-core.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/video/console/sticon.c
-+++ b/drivers/video/console/sticon.c
-@@ -291,13 +291,13 @@ static unsigned long sticon_getxy(struct
- static u8 sticon_build_attr(struct vc_data *conp, u8 color, u8 intens,
- 			    u8 blink, u8 underline, u8 reverse, u8 italic)
- {
--    u8 attr = ((color & 0x70) >> 1) | ((color & 7));
-+	u8 fg = color & 7;
-+	u8 bg = (color & 0x70) >> 4;
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -2167,6 +2167,9 @@ static void ata_dev_config_ncq_prio(stru
+ 	struct ata_port *ap = dev->link->ap;
+ 	unsigned int err_mask;
  
--    if (reverse) {
--	color = ((color >> 3) & 0x7) | ((color & 0x7) << 3);
--    }
--
--    return attr;
-+	if (reverse)
-+		return (fg << 3) | bg;
-+	else
-+		return (bg << 3) | fg;
- }
++	if (!ata_identify_page_supported(dev, ATA_LOG_SATA_SETTINGS))
++		return;
++
+ 	err_mask = ata_read_log_page(dev,
+ 				     ATA_LOG_IDENTIFY_DEVICE,
+ 				     ATA_LOG_SATA_SETTINGS,
+@@ -2443,7 +2446,8 @@ static void ata_dev_config_devslp(struct
+ 	 * Check device sleep capability. Get DevSlp timing variables
+ 	 * from SATA Settings page of Identify Device Data Log.
+ 	 */
+-	if (!ata_id_has_devslp(dev->id))
++	if (!ata_id_has_devslp(dev->id) ||
++	    !ata_identify_page_supported(dev, ATA_LOG_SATA_SETTINGS))
+ 		return;
  
- static void sticon_invert_region(struct vc_data *conp, u16 *p, int count)
+ 	err_mask = ata_read_log_page(dev,
 
 
