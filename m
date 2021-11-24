@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4C8A45C1C1
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:19:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5AD045C7DC
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:44:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344995AbhKXNV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:21:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37042 "EHLO mail.kernel.org"
+        id S1347574AbhKXOrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:47:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346602AbhKXNT0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:19:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBDAA61AFB;
-        Wed, 24 Nov 2021 12:46:33 +0000 (UTC)
+        id S1349348AbhKXOq5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:46:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 076F9632A9;
+        Wed, 24 Nov 2021 13:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757994;
-        bh=bZYwmws7ttw+7pmQhuTuxLgNOJ+/Q2vHTKQPCg9K4Ws=;
+        s=korg; t=1637759215;
+        bh=G5y/s0TehVPSPxEhIAWPKd0206LwggIcVprMq4AFFOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q17HaNG/kSaHP1B+u1WcYyCdwPJKbIMjWGeCnSwSqvCM91M6jchrZ+O+aoBZGJZYM
-         0xbHvBtQp2HKcnz0OIvPMaF+z2kVkQWGi3/AAIuePgK6bXbR7YbrRSeu2uLf0XkaLK
-         E+6Bl+fpOwkXQiaPuXmNT0kF+mm0e386kWAhZKuw=
+        b=Cb0h8h6qljCHRPvcC45x8GnbDHtITelpZUNOqEAm3DfsFBHjIVQdNzp/oblyvx8mz
+         5kLSDkGXeueeEMsALO02VEG8G2Jrb1c+Q2mkwSeVdSkTamcdmAdUZ/1bkt9dx0SFVb
+         Ci6/w9E/S5V5B1o6VHDiaWVF13ZBEwUBjZnz1tD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
-        linux-m68k@lists.linux-m68k.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 021/100] ALSA: ISA: not for M68K
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 170/279] NFC: add NCI_UNREG flag to eliminate the race
 Date:   Wed, 24 Nov 2021 12:57:37 +0100
-Message-Id: <20211124115655.548755545@linuxfoundation.org>
+Message-Id: <20211124115724.613968343@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,86 +41,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 3c05f1477e62ea5a0a8797ba6a545b1dc751fb31 ]
+[ Upstream commit 48b71a9e66c2eab60564b1b1c85f4928ed04e406 ]
 
-On m68k, compiling drivers under SND_ISA causes build errors:
+There are two sites that calls queue_work() after the
+destroy_workqueue() and lead to possible UAF.
 
-../sound/core/isadma.c: In function 'snd_dma_program':
-../sound/core/isadma.c:33:17: error: implicit declaration of function 'claim_dma_lock' [-Werror=implicit-function-declaration]
-   33 |         flags = claim_dma_lock();
-      |                 ^~~~~~~~~~~~~~
-../sound/core/isadma.c:41:9: error: implicit declaration of function 'release_dma_lock' [-Werror=implicit-function-declaration]
-   41 |         release_dma_lock(flags);
-      |         ^~~~~~~~~~~~~~~~
+The first site is nci_send_cmd(), which can happen after the
+nci_close_device as below
 
-../sound/isa/sb/sb16_main.c: In function 'snd_sb16_playback_prepare':
-../sound/isa/sb/sb16_main.c:253:72: error: 'DMA_AUTOINIT' undeclared (first use in this function)
-  253 |         snd_dma_program(dma, runtime->dma_addr, size, DMA_MODE_WRITE | DMA_AUTOINIT);
-      |                                                                        ^~~~~~~~~~~~
-../sound/isa/sb/sb16_main.c:253:72: note: each undeclared identifier is reported only once for each function it appears in
-../sound/isa/sb/sb16_main.c: In function 'snd_sb16_capture_prepare':
-../sound/isa/sb/sb16_main.c:322:71: error: 'DMA_AUTOINIT' undeclared (first use in this function)
-  322 |         snd_dma_program(dma, runtime->dma_addr, size, DMA_MODE_READ | DMA_AUTOINIT);
-      |                                                                       ^~~~~~~~~~~~
+nfcmrvl_nci_unregister_dev   |  nfc_genl_dev_up
+  nci_close_device           |
+    flush_workqueue          |
+    del_timer_sync           |
+  nci_unregister_device      |    nfc_get_device
+    destroy_workqueue        |    nfc_dev_up
+    nfc_unregister_device    |      nci_dev_up
+      device_del             |        nci_open_device
+                             |          __nci_request
+                             |            nci_send_cmd
+                             |              queue_work !!!
 
-and more...
+Another site is nci_cmd_timer, awaked by the nci_cmd_work from the
+nci_send_cmd.
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: alsa-devel@alsa-project.org
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20211016062602.3588-1-rdunlap@infradead.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  ...                        |  ...
+  nci_unregister_device      |  queue_work
+    destroy_workqueue        |
+    nfc_unregister_device    |  ...
+      device_del             |  nci_cmd_work
+                             |  mod_timer
+                             |  ...
+                             |  nci_cmd_timer
+                             |    queue_work !!!
+
+For the above two UAF, the root cause is that the nfc_dev_up can race
+between the nci_unregister_device routine. Therefore, this patch
+introduce NCI_UNREG flag to easily eliminate the possible race. In
+addition, the mutex_lock in nci_close_device can act as a barrier.
+
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Fixes: 6a2968aaf50c ("NFC: basic NCI protocol implementation")
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211116152732.19238-1-linma@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/Makefile | 2 ++
- sound/isa/Kconfig   | 2 +-
- sound/pci/Kconfig   | 1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ include/net/nfc/nci_core.h |  1 +
+ net/nfc/nci/core.c         | 19 +++++++++++++++++--
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/sound/core/Makefile b/sound/core/Makefile
-index ee4a4a6b99ba7..d123587c0fd8f 100644
---- a/sound/core/Makefile
-+++ b/sound/core/Makefile
-@@ -9,7 +9,9 @@ ifneq ($(CONFIG_SND_PROC_FS),)
- snd-y += info.o
- snd-$(CONFIG_SND_OSSEMUL) += info_oss.o
- endif
-+ifneq ($(CONFIG_M68K),y)
- snd-$(CONFIG_ISA_DMA_API) += isadma.o
-+endif
- snd-$(CONFIG_SND_OSSEMUL) += sound_oss.o
- snd-$(CONFIG_SND_VMASTER) += vmaster.o
- snd-$(CONFIG_SND_JACK)	  += ctljack.o jack.o
-diff --git a/sound/isa/Kconfig b/sound/isa/Kconfig
-index b690ed937cbe8..df2e45c8814e9 100644
---- a/sound/isa/Kconfig
-+++ b/sound/isa/Kconfig
-@@ -22,7 +22,7 @@ config SND_SB16_DSP
- menuconfig SND_ISA
- 	bool "ISA sound devices"
- 	depends on ISA || COMPILE_TEST
--	depends on ISA_DMA_API
-+	depends on ISA_DMA_API && !M68K
- 	default y
- 	help
- 	  Support for sound devices connected via the ISA bus.
-diff --git a/sound/pci/Kconfig b/sound/pci/Kconfig
-index 7630f808d087c..6edde2f145025 100644
---- a/sound/pci/Kconfig
-+++ b/sound/pci/Kconfig
-@@ -279,6 +279,7 @@ config SND_CS46XX_NEW_DSP
- config SND_CS5530
- 	tristate "CS5530 Audio"
- 	depends on ISA_DMA_API && (X86_32 || COMPILE_TEST)
-+	depends on !M68K
- 	select SND_SB16_DSP
- 	help
- 	  Say Y here to include support for audio on Cyrix/NatSemi CS5530 chips.
+diff --git a/include/net/nfc/nci_core.h b/include/net/nfc/nci_core.h
+index a964daedc17b6..ea8595651c384 100644
+--- a/include/net/nfc/nci_core.h
++++ b/include/net/nfc/nci_core.h
+@@ -30,6 +30,7 @@ enum nci_flag {
+ 	NCI_UP,
+ 	NCI_DATA_EXCHANGE,
+ 	NCI_DATA_EXCHANGE_TO,
++	NCI_UNREG,
+ };
+ 
+ /* NCI device states */
+diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
+index 39994dbb6a55b..e41e2e9e54984 100644
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -476,6 +476,11 @@ static int nci_open_device(struct nci_dev *ndev)
+ 
+ 	mutex_lock(&ndev->req_lock);
+ 
++	if (test_bit(NCI_UNREG, &ndev->flags)) {
++		rc = -ENODEV;
++		goto done;
++	}
++
+ 	if (test_bit(NCI_UP, &ndev->flags)) {
+ 		rc = -EALREADY;
+ 		goto done;
+@@ -548,6 +553,10 @@ done:
+ static int nci_close_device(struct nci_dev *ndev)
+ {
+ 	nci_req_cancel(ndev, ENODEV);
++
++	/* This mutex needs to be held as a barrier for
++	 * caller nci_unregister_device
++	 */
+ 	mutex_lock(&ndev->req_lock);
+ 
+ 	if (!test_and_clear_bit(NCI_UP, &ndev->flags)) {
+@@ -585,8 +594,8 @@ static int nci_close_device(struct nci_dev *ndev)
+ 
+ 	del_timer_sync(&ndev->cmd_timer);
+ 
+-	/* Clear flags */
+-	ndev->flags = 0;
++	/* Clear flags except NCI_UNREG */
++	ndev->flags &= BIT(NCI_UNREG);
+ 
+ 	mutex_unlock(&ndev->req_lock);
+ 
+@@ -1273,6 +1282,12 @@ void nci_unregister_device(struct nci_dev *ndev)
+ {
+ 	struct nci_conn_info *conn_info, *n;
+ 
++	/* This set_bit is not protected with specialized barrier,
++	 * However, it is fine because the mutex_lock(&ndev->req_lock);
++	 * in nci_close_device() will help to emit one.
++	 */
++	set_bit(NCI_UNREG, &ndev->flags);
++
+ 	nci_close_device(ndev);
+ 
+ 	destroy_workqueue(ndev->cmd_wq);
 -- 
 2.33.0
 
