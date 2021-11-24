@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6793045C3D6
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DD445C602
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347535AbhKXNoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:44:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60380 "EHLO mail.kernel.org"
+        id S245166AbhKXOEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:04:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353298AbhKXNlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:41:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 126356325D;
-        Wed, 24 Nov 2021 12:57:46 +0000 (UTC)
+        id S1350840AbhKXOBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:01:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAA2E63304;
+        Wed, 24 Nov 2021 13:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758667;
-        bh=f+T4R/0FH+Wc1dERMs6RxatyqZry0QIjNYBTxm448SQ=;
+        s=korg; t=1637759388;
+        bh=xWbX/D7Xdm9Cmsn5D42Yhi40wsq+/fubblBwRJU5uEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iEukMsVsO0BjR+bDjD4OwmPnFq2NMOW1+7zZTceUz3jy6Ccjx7fb6fBlmHTTtWezo
-         p4/iGru/7RKgKGqttsenfFtmppzh02VXESawrLTKeVq2AsD1AZUsiPUy75NmzuGyGz
-         DODPYTegqKy5fKdka/zKauTacJRSz8LYgkCJSLBY=
+        b=qQUOKBdLpLS8dzSx9mhpQyt1iBDxAD/u+vi2xMj8UcgJJQw9cmvoaEEzZzIOgqa3z
+         MbIMiIbSO0UiLiw7YDI4wx3iZSupc3JRndmoZq3rAZYkx7pcKwHALLNUKBTaO+tPcE
+         g59Y7PeUvB8kaPU6/M3I0HXue3aDqx6pMuyc/IxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Daniel Axtens <dja@axtens.net>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 113/154] KVM: PPC: Book3S HV: Use GLOBAL_TOC for kvmppc_h_set_dabr/xdabr()
-Date:   Wed, 24 Nov 2021 12:58:29 +0100
-Message-Id: <20211124115705.943481634@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Trukhanov <lahvuun@gmail.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.15 223/279] fbdev: Prevent probing generic drivers if a FB is already registered
+Date:   Wed, 24 Nov 2021 12:58:30 +0100
+Message-Id: <20211124115726.443419677@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit dae581864609d36fb58855fd59880b4941ce9d14 ]
+commit fb561bf9abde49f7e00fdbf9ed2ccf2d86cac8ee upstream.
 
-kvmppc_h_set_dabr(), and kvmppc_h_set_xdabr() which jumps into
-it, need to use _GLOBAL_TOC to setup the kernel TOC pointer, because
-kvmppc_h_set_dabr() uses LOAD_REG_ADDR() to load dawr_force_enable.
+The efifb and simplefb drivers just render to a pre-allocated frame buffer
+and rely on the display hardware being initialized before the kernel boots.
 
-When called from hcall_try_real_mode() we have the kernel TOC in r2,
-established near the start of kvmppc_interrupt_hv(), so there is no
-issue.
+But if another driver already probed correctly and registered a fbdev, the
+generic drivers shouldn't be probed since an actual driver for the display
+hardware is already present.
 
-But they can also be called from kvmppc_pseries_do_hcall() which is
-module code, so the access ends up happening with the kvm-hv module's
-r2, which will not point at dawr_force_enable and could even cause a
-fault.
+This is more likely to occur after commit d391c5827107 ("drivers/firmware:
+move x86 Generic System Framebuffers support") since the "efi-framebuffer"
+and "simple-framebuffer" platform devices are registered at a later time.
 
-With the current code layout and compilers we haven't observed a fault
-in practice, the load hits somewhere in kvm-hv.ko and silently returns
-some bogus value.
-
-Note that we we expect p8/p9 guests to use the DAWR, but SLOF uses
-h_set_dabr() to test if sc1 works correctly, see SLOF's
-lib/libhvcall/brokensc1.c.
-
-Fixes: c1fe190c0672 ("powerpc: Add force enable of DAWR on P9 option")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Daniel Axtens <dja@axtens.net>
-Link: https://lore.kernel.org/r/20210923151031.72408-1-mpe@ellerman.id.au
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211110200253.rfudkt3edbd3nsyj@lahvuun/
+Fixes: d391c5827107 ("drivers/firmware: move x86 Generic System Framebuffers support")
+Reported-by: Ilya Trukhanov <lahvuun@gmail.com>
+Cc: <stable@vger.kernel.org> # 5.15.x
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Tested-by: Ilya Trukhanov <lahvuun@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211111115757.1351045-1-javierm@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_hv_rmhandlers.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/efifb.c    |   11 +++++++++++
+ drivers/video/fbdev/simplefb.c |   11 +++++++++++
+ 2 files changed, 22 insertions(+)
 
-diff --git a/arch/powerpc/kvm/book3s_hv_rmhandlers.S b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-index db78123166a8b..b1d9afffd8419 100644
---- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-+++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-@@ -2539,7 +2539,7 @@ hcall_real_table:
- 	.globl	hcall_real_table_end
- hcall_real_table_end:
+--- a/drivers/video/fbdev/efifb.c
++++ b/drivers/video/fbdev/efifb.c
+@@ -351,6 +351,17 @@ static int efifb_probe(struct platform_d
+ 	char *option = NULL;
+ 	efi_memory_desc_t md;
  
--_GLOBAL(kvmppc_h_set_xdabr)
-+_GLOBAL_TOC(kvmppc_h_set_xdabr)
- EXPORT_SYMBOL_GPL(kvmppc_h_set_xdabr)
- 	andi.	r0, r5, DABRX_USER | DABRX_KERNEL
- 	beq	6f
-@@ -2549,7 +2549,7 @@ EXPORT_SYMBOL_GPL(kvmppc_h_set_xdabr)
- 6:	li	r3, H_PARAMETER
- 	blr
++	/*
++	 * Generic drivers must not be registered if a framebuffer exists.
++	 * If a native driver was probed, the display hardware was already
++	 * taken and attempting to use the system framebuffer is dangerous.
++	 */
++	if (num_registered_fb > 0) {
++		dev_err(&dev->dev,
++			"efifb: a framebuffer is already registered\n");
++		return -EINVAL;
++	}
++
+ 	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EFI || pci_dev_disabled)
+ 		return -ENODEV;
  
--_GLOBAL(kvmppc_h_set_dabr)
-+_GLOBAL_TOC(kvmppc_h_set_dabr)
- EXPORT_SYMBOL_GPL(kvmppc_h_set_dabr)
- 	li	r5, DABRX_USER | DABRX_KERNEL
- 3:
--- 
-2.33.0
-
+--- a/drivers/video/fbdev/simplefb.c
++++ b/drivers/video/fbdev/simplefb.c
+@@ -407,6 +407,17 @@ static int simplefb_probe(struct platfor
+ 	struct simplefb_par *par;
+ 	struct resource *mem;
+ 
++	/*
++	 * Generic drivers must not be registered if a framebuffer exists.
++	 * If a native driver was probed, the display hardware was already
++	 * taken and attempting to use the system framebuffer is dangerous.
++	 */
++	if (num_registered_fb > 0) {
++		dev_err(&pdev->dev,
++			"simplefb: a framebuffer is already registered\n");
++		return -EINVAL;
++	}
++
+ 	if (fb_get_options("simplefb", NULL))
+ 		return -ENODEV;
+ 
 
 
