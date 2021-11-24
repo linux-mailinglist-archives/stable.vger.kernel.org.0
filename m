@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF5B445BC96
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B0FF45BF76
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:55:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245172AbhKXMbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:31:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43946 "EHLO mail.kernel.org"
+        id S1345686AbhKXM65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:58:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343591AbhKXM3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:29:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EEE160232;
-        Wed, 24 Nov 2021 12:17:37 +0000 (UTC)
+        id S1346030AbhKXM4S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:56:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9671C611CA;
+        Wed, 24 Nov 2021 12:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756257;
-        bh=SwMztTDz9fvAw7fCDWhGyNrQFaTxUox8ydHO+BgSCtY=;
+        s=korg; t=1637757159;
+        bh=JT2Wj3L06UuAz3vS67qm6Rj1tZ96bJFkX6hToSKB84A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5VsqoaxkQ8GKWvXa2BvrnbON9j4BdDAqWArVF2tdKtNpsjXr9LZhvdgu9dntW3Yp
-         z20JmE/HbclKkJiAZwSziexgtWz6VHL8HsgdEJEHrq4zYafOmue8Q1lxKlAedbsVLa
-         QlALkvpnO4dmG0yMFHGiB3bTTIqulQghRKlXeL4w=
+        b=LGHbF0vi2dFwVXlmM6W8D8h1Fevqj27IVAHavDLrstcLFB+FtPecYLghCW9JVYGau
+         bc5XV/m2mqHGUI+EFly4/tOuxopFCSkzBSrm7GYtQ/ZWHnUTPkssvTxifSEp5jhRip
+         yM0xa8mu4QLZq4tLfymI0ekHMEdOORSNemXAQ4vI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 022/251] cavium: Fix return values of the probe function
-Date:   Wed, 24 Nov 2021 12:54:24 +0100
-Message-Id: <20211124115711.017885117@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.19 075/323] PCI: aardvark: Read all 16-bits from PCIE_MSI_PAYLOAD_REG
+Date:   Wed, 24 Nov 2021 12:54:25 +0100
+Message-Id: <20211124115721.409237929@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit c69b2f46876825c726bd8a97c7fa852d8932bc32 ]
+commit 95997723b6402cd6c53e0f9e7ac640ec64eaaff8 upstream.
 
-During the process of driver probing, the probe function should return < 0
-for failure, otherwise, the kernel will treat value > 0 as success.
+The PCIE_MSI_PAYLOAD_REG contains 16-bit MSI number, not only lower
+8 bits. Fix reading content of this register and add a comment
+describing the access to this register.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211028185659.20329-4-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cavium/thunder/nicvf_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_main.c b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-index 98734a37b6f64..df1c4ba7e0c97 100644
---- a/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-+++ b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-@@ -1152,7 +1152,7 @@ static int nicvf_register_misc_interrupt(struct nicvf *nic)
- 	if (ret < 0) {
- 		netdev_err(nic->netdev,
- 			   "Req for #%d msix vectors failed\n", nic->num_vec);
--		return 1;
-+		return ret;
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -111,6 +111,7 @@
+ #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
+ #define PCIE_MSI_MASK_REG			(CONTROL_BASE_ADDR + 0x5C)
+ #define PCIE_MSI_PAYLOAD_REG			(CONTROL_BASE_ADDR + 0x9C)
++#define     PCIE_MSI_DATA_MASK			GENMASK(15, 0)
+ 
+ /* LMI registers base address and register offsets */
+ #define LMI_BASE_ADDR				0x6000
+@@ -805,8 +806,12 @@ static void advk_pcie_handle_msi(struct
+ 		if (!(BIT(msi_idx) & msi_status))
+ 			continue;
+ 
++		/*
++		 * msi_idx contains bits [4:0] of the msi_data and msi_data
++		 * contains 16bit MSI interrupt number
++		 */
+ 		advk_writel(pcie, BIT(msi_idx), PCIE_MSI_STATUS_REG);
+-		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & 0xFF;
++		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & PCIE_MSI_DATA_MASK;
+ 		generic_handle_irq(msi_data);
  	}
  
- 	sprintf(nic->irq_name[irq], "%s Mbox", "NICVF");
-@@ -1171,7 +1171,7 @@ static int nicvf_register_misc_interrupt(struct nicvf *nic)
- 	if (!nicvf_check_pf_ready(nic)) {
- 		nicvf_disable_intr(nic, NICVF_INTR_MBOX, 0);
- 		nicvf_unregister_interrupts(nic);
--		return 1;
-+		return -EIO;
- 	}
- 
- 	return 0;
--- 
-2.33.0
-
 
 
