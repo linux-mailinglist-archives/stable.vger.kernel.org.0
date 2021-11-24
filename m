@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E44345C2CC
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:29:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BBCE45C58A
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348740AbhKXNcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:32:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60710 "EHLO mail.kernel.org"
+        id S1347430AbhKXN7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:59:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349398AbhKXNaj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:30:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 074F561183;
-        Wed, 24 Nov 2021 12:52:17 +0000 (UTC)
+        id S1349256AbhKXNyk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:54:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA82363266;
+        Wed, 24 Nov 2021 13:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758338;
-        bh=ZMGpCI8oDIhIjEv0205Deqq+Gh7JpQMOGyNXtAcjAOI=;
+        s=korg; t=1637759137;
+        bh=nC4L3lBQ9wC1a/nRaETaUCLfO5YUykkNuNW8F0lMny4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=raByjrgClzrxOVvRIc2/DRjsEIQSNayLKNe0GL18Zwzfr1AtHA0bFW+EHMNVOr4t8
-         0Pru+o8iSJjT8jOBSV/3XN0hegniifokt15bIDjW+HCD95NX6dnC3YWpwGpJLXtxmv
-         hObxVVqacYDm7MaeYdm5zTqoTZS1m1QAKgQqLLew=
+        b=iafYAvhLDQU6CN8lDDFfsMQsmBUYS4/PWN1zIB8HQA48ZVdPkGmY6Jw0WFV6xJ/Vm
+         FYSxtxOFoRphdnMy8TudPPAB9HAeN/z6uJmd0bqIDrtjst5ERdf2lCaFDXAHIQfV8j
+         6LSrKjCI/JIrPhffNLl8IJWtXtGmxUYet6huJOuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
-        linux-m68k@lists.linux-m68k.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/154] ALSA: ISA: not for M68K
+        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 144/279] net/mlx5e: Wait for concurrent flow deletion during neigh/fib events
 Date:   Wed, 24 Nov 2021 12:57:11 +0100
-Message-Id: <20211124115703.493353371@linuxfoundation.org>
+Message-Id: <20211124115723.754272186@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,86 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-[ Upstream commit 3c05f1477e62ea5a0a8797ba6a545b1dc751fb31 ]
+[ Upstream commit 362980eada85b5ea691e5e0d9257a991aa7ade47 ]
 
-On m68k, compiling drivers under SND_ISA causes build errors:
+Function mlx5e_take_tmp_flow() skips flows with zero reference count. This
+can cause syndrome 0x179e84 when the called from neigh or route update code
+and the skipped flow is not removed from the hardware by the time
+underlying encap/decap resource is deleted. Add new completion
+'del_hw_done' that is completed when flow is unoffloaded. This is safe to
+do because flow with reference count zero needs to be detached from
+encap/decap entry before its memory is deallocated, which requires taking
+the encap_tbl_lock mutex that is held by the event handlers code.
 
-../sound/core/isadma.c: In function 'snd_dma_program':
-../sound/core/isadma.c:33:17: error: implicit declaration of function 'claim_dma_lock' [-Werror=implicit-function-declaration]
-   33 |         flags = claim_dma_lock();
-      |                 ^~~~~~~~~~~~~~
-../sound/core/isadma.c:41:9: error: implicit declaration of function 'release_dma_lock' [-Werror=implicit-function-declaration]
-   41 |         release_dma_lock(flags);
-      |         ^~~~~~~~~~~~~~~~
-
-../sound/isa/sb/sb16_main.c: In function 'snd_sb16_playback_prepare':
-../sound/isa/sb/sb16_main.c:253:72: error: 'DMA_AUTOINIT' undeclared (first use in this function)
-  253 |         snd_dma_program(dma, runtime->dma_addr, size, DMA_MODE_WRITE | DMA_AUTOINIT);
-      |                                                                        ^~~~~~~~~~~~
-../sound/isa/sb/sb16_main.c:253:72: note: each undeclared identifier is reported only once for each function it appears in
-../sound/isa/sb/sb16_main.c: In function 'snd_sb16_capture_prepare':
-../sound/isa/sb/sb16_main.c:322:71: error: 'DMA_AUTOINIT' undeclared (first use in this function)
-  322 |         snd_dma_program(dma, runtime->dma_addr, size, DMA_MODE_READ | DMA_AUTOINIT);
-      |                                                                       ^~~~~~~~~~~~
-
-and more...
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: alsa-devel@alsa-project.org
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20211016062602.3588-1-rdunlap@infradead.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 8914add2c9e5 ("net/mlx5e: Handle FIB events to update tunnel endpoint device")
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/Makefile | 2 ++
- sound/isa/Kconfig   | 2 +-
- sound/pci/Kconfig   | 1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/tc_priv.h      | 1 +
+ drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c | 8 +++++++-
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c           | 2 ++
+ 3 files changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/sound/core/Makefile b/sound/core/Makefile
-index ee4a4a6b99ba7..d123587c0fd8f 100644
---- a/sound/core/Makefile
-+++ b/sound/core/Makefile
-@@ -9,7 +9,9 @@ ifneq ($(CONFIG_SND_PROC_FS),)
- snd-y += info.o
- snd-$(CONFIG_SND_OSSEMUL) += info_oss.o
- endif
-+ifneq ($(CONFIG_M68K),y)
- snd-$(CONFIG_ISA_DMA_API) += isadma.o
-+endif
- snd-$(CONFIG_SND_OSSEMUL) += sound_oss.o
- snd-$(CONFIG_SND_VMASTER) += vmaster.o
- snd-$(CONFIG_SND_JACK)	  += ctljack.o jack.o
-diff --git a/sound/isa/Kconfig b/sound/isa/Kconfig
-index 6ffa48dd59830..570b88e0b2018 100644
---- a/sound/isa/Kconfig
-+++ b/sound/isa/Kconfig
-@@ -22,7 +22,7 @@ config SND_SB16_DSP
- menuconfig SND_ISA
- 	bool "ISA sound devices"
- 	depends on ISA || COMPILE_TEST
--	depends on ISA_DMA_API
-+	depends on ISA_DMA_API && !M68K
- 	default y
- 	help
- 	  Support for sound devices connected via the ISA bus.
-diff --git a/sound/pci/Kconfig b/sound/pci/Kconfig
-index 93bc9bef7641f..41ce125971777 100644
---- a/sound/pci/Kconfig
-+++ b/sound/pci/Kconfig
-@@ -279,6 +279,7 @@ config SND_CS46XX_NEW_DSP
- config SND_CS5530
- 	tristate "CS5530 Audio"
- 	depends on ISA_DMA_API && (X86_32 || COMPILE_TEST)
-+	depends on !M68K
- 	select SND_SB16_DSP
- 	help
- 	  Say Y here to include support for audio on Cyrix/NatSemi CS5530 chips.
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_priv.h b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_priv.h
+index d1599b7b944bf..c340bf90354a0 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_priv.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_priv.h
+@@ -102,6 +102,7 @@ struct mlx5e_tc_flow {
+ 	refcount_t refcnt;
+ 	struct rcu_head rcu_head;
+ 	struct completion init_done;
++	struct completion del_hw_done;
+ 	int tunnel_id; /* the mapped tunnel id of this flow */
+ 	struct mlx5_flow_attr *attr;
+ };
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c
+index 1c44c6c345f5d..ec0163d75dd25 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun_encap.c
+@@ -221,8 +221,14 @@ static void mlx5e_take_tmp_flow(struct mlx5e_tc_flow *flow,
+ 				struct list_head *flow_list,
+ 				int index)
+ {
+-	if (IS_ERR(mlx5e_flow_get(flow)))
++	if (IS_ERR(mlx5e_flow_get(flow))) {
++		/* Flow is being deleted concurrently. Wait for it to be
++		 * unoffloaded from hardware, otherwise deleting encap will
++		 * fail.
++		 */
++		wait_for_completion(&flow->del_hw_done);
+ 		return;
++	}
+ 	wait_for_completion(&flow->init_done);
+ 
+ 	flow->tmp_entry_index = index;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index 129ff7e0d65cc..d2e7b099b83ab 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -1544,6 +1544,7 @@ static void mlx5e_tc_del_fdb_flow(struct mlx5e_priv *priv,
+ 		else
+ 			mlx5e_tc_unoffload_fdb_rules(esw, flow, attr);
+ 	}
++	complete_all(&flow->del_hw_done);
+ 
+ 	if (mlx5_flow_has_geneve_opt(flow))
+ 		mlx5_geneve_tlv_option_del(priv->mdev->geneve);
+@@ -4222,6 +4223,7 @@ mlx5e_alloc_flow(struct mlx5e_priv *priv, int attr_size,
+ 	INIT_LIST_HEAD(&flow->l3_to_l2_reformat);
+ 	refcount_set(&flow->refcnt, 1);
+ 	init_completion(&flow->init_done);
++	init_completion(&flow->del_hw_done);
+ 
+ 	*__flow = flow;
+ 	*__parse_attr = parse_attr;
 -- 
 2.33.0
 
