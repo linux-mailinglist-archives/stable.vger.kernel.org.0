@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71DA645C03C
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:03:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF7C445C488
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:47:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346138AbhKXNFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:05:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44406 "EHLO mail.kernel.org"
+        id S1351933AbhKXNtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:49:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348102AbhKXND4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:03:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29B6361A6E;
-        Wed, 24 Nov 2021 12:36:59 +0000 (UTC)
+        id S1348874AbhKXNrj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:47:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FF74611EE;
+        Wed, 24 Nov 2021 13:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757420;
-        bh=8J6bT5pek6VJ12qMbJWWZz0T9BJtoS0aaqlkQLRmvQk=;
+        s=korg; t=1637758894;
+        bh=0FRINFgcE0ibNBsRgxN0z4DIDom9Wgkvbxes2h9kzaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Yomhx709Sn+9fc37WjWjpXmsVdC0uzAGW6rv9y7e8nE/k4TXPyZdSOxm8VYw3LTq
-         BCTKz41Etkdw+1syxzExI3ObXTdv1wcUvMvpd1f103ieQ4JvXTaAHHecJ3+vrZ4a89
-         LPPlD7nuRJ/iwstX4hhpOA6tnw1uCg7VyHtWGEIo=
+        b=uGobgB0myASpP77CVSX71svO1dKMDCVQglk/jQePElwVEj8avXnkp/KqTC+3Z7QII
+         RGexHyCfWR3xqABv8NOVcH8aE7GhCoTp3tTz9S9nlh6ec5LcnZ+Zw/bmZyiia+IlvF
+         B9iAYazG+Knb07ikbarxXGDpk5ZZn9/YLB+vSLPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
+        stable@vger.kernel.org, wangyugui <wangyugui@e16-tech.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 163/323] s390/gmap: dont unconditionally call pte_unmap_unlock() in __gmap_zap()
+Subject: [PATCH 5.15 066/279] RDMA/core: Use kvzalloc when allocating the struct ib_port
 Date:   Wed, 24 Nov 2021 12:55:53 +0100
-Message-Id: <20211124115724.438579495@linuxfoundation.org>
+Message-Id: <20211124115720.989595278@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: wangyugui <wangyugui@e16-tech.com>
 
-[ Upstream commit b159f94c86b43cf7e73e654bc527255b1f4eafc4 ]
+[ Upstream commit 911a81c9c7092bfd75432ce79b2ef879127ea065 ]
 
-... otherwise we will try unlocking a spinlock that was never locked via a
-garbage pointer.
+The 'struct attribute' flex array contains some struct lock_class_key's
+which become big when lockdep is turned on. Big enough that some drivers
+will not load when CONFIG_PROVE_LOCKING=y because they cannot allocate
+enough memory:
 
-At the time we reach this code path, we usually successfully looked up
-a PGSTE already; however, evil user space could have manipulated the VMA
-layout in the meantime and triggered removal of the page table.
+ WARNING: CPU: 36 PID: 8 at mm/page_alloc.c:5350 __alloc_pages+0x27e/0x3e0
+  Call Trace:
+   kmalloc_order+0x2a/0xb0
+   kmalloc_order_trace+0x19/0xf0
+   __kmalloc+0x231/0x270
+   ib_setup_port_attrs+0xd8/0x870 [ib_core]
+   ib_register_device+0x419/0x4e0 [ib_core]
+   bnxt_re_task+0x208/0x2d0 [bnxt_re]
 
-Fixes: 1e133ab296f3 ("s390/mm: split arch/s390/mm/pgtable.c")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210909162248.14969-3-david@redhat.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Link: https://lore.kernel.org/r/20211019002656.17745-1-wangyugui@e16-tech.com
+Signed-off-by: wangyugui <wangyugui@e16-tech.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/gmap.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/sysfs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 7cde0f2f52e14..65ccb9d797270 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -684,9 +684,10 @@ void __gmap_zap(struct gmap *gmap, unsigned long gaddr)
- 		vmaddr |= gaddr & ~PMD_MASK;
- 		/* Get pointer to the page table entry */
- 		ptep = get_locked_pte(gmap->mm, vmaddr, &ptl);
--		if (likely(ptep))
-+		if (likely(ptep)) {
- 			ptep_zap_unused(gmap->mm, vmaddr, ptep, 0);
--		pte_unmap_unlock(ptep, ptl);
-+			pte_unmap_unlock(ptep, ptl);
-+		}
- 	}
+diff --git a/drivers/infiniband/core/sysfs.c b/drivers/infiniband/core/sysfs.c
+index 6146c3c1cbe5c..8d709986b88c7 100644
+--- a/drivers/infiniband/core/sysfs.c
++++ b/drivers/infiniband/core/sysfs.c
+@@ -757,7 +757,7 @@ static void ib_port_release(struct kobject *kobj)
+ 	if (port->hw_stats_data)
+ 		kfree(port->hw_stats_data->stats);
+ 	kfree(port->hw_stats_data);
+-	kfree(port);
++	kvfree(port);
  }
- EXPORT_SYMBOL_GPL(__gmap_zap);
+ 
+ static void ib_port_gid_attr_release(struct kobject *kobj)
+@@ -1189,7 +1189,7 @@ static struct ib_port *setup_port(struct ib_core_device *coredev, int port_num,
+ 	struct ib_port *p;
+ 	int ret;
+ 
+-	p = kzalloc(struct_size(p, attrs_list,
++	p = kvzalloc(struct_size(p, attrs_list,
+ 				attr->gid_tbl_len + attr->pkey_tbl_len),
+ 		    GFP_KERNEL);
+ 	if (!p)
 -- 
 2.33.0
 
