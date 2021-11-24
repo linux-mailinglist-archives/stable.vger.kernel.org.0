@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14A9345BCD0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE8E345BACE
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245249AbhKXMco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:32:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49480 "EHLO mail.kernel.org"
+        id S243421AbhKXMOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:14:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344262AbhKXMam (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:30:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DD3161355;
-        Wed, 24 Nov 2021 12:19:21 +0000 (UTC)
+        id S243390AbhKXMOA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:14:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DB15611C1;
+        Wed, 24 Nov 2021 12:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756362;
-        bh=1cvafm65JXaolPe3YL4q9jfyfQdAGSm8DerpvBfTj6s=;
+        s=korg; t=1637755710;
+        bh=9s+rSDvOy7U06gwzWgfNajdvN6FhbtNsak6QIH8Ju9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T62P8SZS1igj1C7ENiA/p3a/dBOC/Mrvvviq7x526v8LSQ5t1Cb9UAngKgPfOo+Mw
-         vgckhdq+sWkuD+Skp2I2IOVqRwxJQ91BGvQpMylE6EyLydyJIdQKFN9pkrqkjY0/Lc
-         mOtFjP+CddC3O8lqwFgIdEprlV+gYkcPbc+4GZLE=
+        b=LfyCOHMsSuXnsRUoXCCgEfvm4CwFfdy3XEmtIaWR5Baoo0OKOVDh4USOUr/isojC/
+         d7aLVt31zF3lCVLWc7/MpXnbhf1p2ryIvVqI0pD0DjvuXmbuwatiUBXTEet0gBGBpd
+         sJ8y9lciho8j7POy5qb+/3ASfqhIQOpaJuLy40PQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 4.14 059/251] PCI: aardvark: Do not unmask unused interrupts
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Rob Herring <robh@kernel.org>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 030/207] regulator: dt-bindings: samsung,s5m8767: correct s5m8767,pmic-buck-default-dvs-idx property
 Date:   Wed, 24 Nov 2021 12:55:01 +0100
-Message-Id: <20211124115712.300763446@linuxfoundation.org>
+Message-Id: <20211124115704.924879843@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit 1fb95d7d3c7a926b002fe8a6bd27a1cb428b46dc upstream.
+commit a7fda04bc9b6ad9da8e19c9e6e3b1dab773d068a upstream.
 
-There are lot of undocumented interrupt bits. To prevent unwanted
-spurious interrupts, fix all *_ALL_MASK macros to define all interrupt
-bits, so that driver can properly mask all interrupts, including those
-which are undocumented.
+The driver was always parsing "s5m8767,pmic-buck-default-dvs-idx", not
+"s5m8767,pmic-buck234-default-dvs-idx".
 
-Link: https://lore.kernel.org/r/20211005180952.6812-8-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+Fixes: 26aec009f6b6 ("regulator: add device tree support for s5m8767")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Message-Id: <20211008113723.134648-3-krzysztof.kozlowski@canonical.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/host/pci-aardvark.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/host/pci-aardvark.c
-+++ b/drivers/pci/host/pci-aardvark.c
-@@ -100,13 +100,13 @@
- #define     PCIE_ISR0_MSI_INT_PENDING		BIT(24)
- #define     PCIE_ISR0_INTX_ASSERT(val)		BIT(16 + (val))
- #define     PCIE_ISR0_INTX_DEASSERT(val)	BIT(20 + (val))
--#define	    PCIE_ISR0_ALL_MASK			GENMASK(26, 0)
-+#define     PCIE_ISR0_ALL_MASK			GENMASK(31, 0)
- #define PCIE_ISR1_REG				(CONTROL_BASE_ADDR + 0x48)
- #define PCIE_ISR1_MASK_REG			(CONTROL_BASE_ADDR + 0x4C)
- #define     PCIE_ISR1_POWER_STATE_CHANGE	BIT(4)
- #define     PCIE_ISR1_FLUSH			BIT(5)
- #define     PCIE_ISR1_INTX_ASSERT(val)		BIT(8 + (val))
--#define     PCIE_ISR1_ALL_MASK			GENMASK(11, 4)
-+#define     PCIE_ISR1_ALL_MASK			GENMASK(31, 0)
- #define PCIE_MSI_ADDR_LOW_REG			(CONTROL_BASE_ADDR + 0x50)
- #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
- #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
-@@ -169,7 +169,7 @@
- #define     PCIE_IRQ_MSI_INT2_DET		BIT(21)
- #define     PCIE_IRQ_RC_DBELL_DET		BIT(22)
- #define     PCIE_IRQ_EP_STATUS			BIT(23)
--#define     PCIE_IRQ_ALL_MASK			0xfff0fb
-+#define     PCIE_IRQ_ALL_MASK			GENMASK(31, 0)
- #define     PCIE_IRQ_ENABLE_INTS_MASK		PCIE_IRQ_CORE_INT
+--- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
++++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
+@@ -39,7 +39,7 @@ Optional properties of the main device n
  
- /* Transaction types */
+ Additional properties required if either of the optional properties are used:
+ 
+- - s5m8767,pmic-buck234-default-dvs-idx: Default voltage setting selected from
++ - s5m8767,pmic-buck-default-dvs-idx: Default voltage setting selected from
+    the possible 8 options selectable by the dvs gpios. The value of this
+    property should be between 0 and 7. If not specified or if out of range, the
+    default value of this property is set to 0.
 
 
