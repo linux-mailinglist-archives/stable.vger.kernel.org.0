@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1419A45BB0A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:13:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6F3E45BD53
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:34:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243033AbhKXMPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46748 "EHLO mail.kernel.org"
+        id S1343585AbhKXMhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:37:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243538AbhKXMOI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:14:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19772610CF;
-        Wed, 24 Nov 2021 12:09:07 +0000 (UTC)
+        id S1344107AbhKXMfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:35:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2E3160FE7;
+        Wed, 24 Nov 2021 12:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755748;
-        bh=xEHQfIaOUSvRwynkvC1KzLVjH4f6yWTUSGB+6OYv9Sw=;
+        s=korg; t=1637756488;
+        bh=wAcq/QbrQa58HbAyjghxl82mV4OBsMbJuIOPp79spaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fYS1DyxAstJQbs50CDTUWNrWU3H73LvKF48A/ADzKPVc/l3vyjAuOlohfroLRDv11
-         SkbFfB2p5UNVZ4udv/b1oP96JhhwtACCFixPRxcjxxOTxluVePpgsZuvhA41Bszzsb
-         9ERIf4R6ZiubW6xIknUDglY+PH2q+88YjytN6IKg=
+        b=d7Gf09rqUX5oLc1OuZsfy8ucUHiNhkRZa+k10RGrqaJl/0mpCQVlEsf+bmAzeQlka
+         hDXkgJTuzuNQAYYMI+3h+t8j0b5LXp6DrYtV3Zu6Yc9EUf5kNPnyM9FF2bYEcC/N+q
+         AcQVCxKb/3W/OFodgS/nK4DFBh8LqRtVWVIgKWn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4.9 042/207] signal: Remove the bogus sigkill_pending in ptrace_stop
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 071/251] MIPS: lantiq: dma: add small delay after reset
 Date:   Wed, 24 Nov 2021 12:55:13 +0100
-Message-Id: <20211124115705.297261639@linuxfoundation.org>
+Message-Id: <20211124115712.716656180@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,82 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-commit 7d613f9f72ec8f90ddefcae038fdae5adb8404b3 upstream.
+[ Upstream commit c12aa581f6d5e80c3c3675ab26a52c2b3b62f76e ]
 
-The existence of sigkill_pending is a little silly as it is
-functionally a duplicate of fatal_signal_pending that is used in
-exactly one place.
+Reading the DMA registers immediately after the reset causes
+Data Bus Error. Adding a small delay fixes this issue.
 
-Checking for pending fatal signals and returning early in ptrace_stop
-is actively harmful.  It casues the ptrace_stop called by
-ptrace_signal to return early before setting current->exit_code.
-Later when ptrace_signal reads the signal number from
-current->exit_code is undefined, making it unpredictable what will
-happen.
-
-Instead rely on the fact that schedule will not sleep if there is a
-pending signal that can awaken a task.
-
-Removing the explict sigkill_pending test fixes fixes ptrace_signal
-when ptrace_stop does not stop because current->exit_code is always
-set to to signr.
-
-Cc: stable@vger.kernel.org
-Fixes: 3d749b9e676b ("ptrace: simplify ptrace_stop()->sigkill_pending() path")
-Fixes: 1a669c2f16d4 ("Add arch_ptrace_stop")
-Link: https://lkml.kernel.org/r/87pmsyx29t.fsf@disp2133
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/signal.c |   17 ++---------------
- 1 file changed, 2 insertions(+), 15 deletions(-)
+ arch/mips/lantiq/xway/dma.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1824,16 +1824,6 @@ static inline int may_ptrace_stop(void)
- }
+diff --git a/arch/mips/lantiq/xway/dma.c b/arch/mips/lantiq/xway/dma.c
+index 805b3a6ab2d60..ce7e033b4bb18 100644
+--- a/arch/mips/lantiq/xway/dma.c
++++ b/arch/mips/lantiq/xway/dma.c
+@@ -22,6 +22,7 @@
+ #include <linux/export.h>
+ #include <linux/spinlock.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/err.h>
  
- /*
-- * Return non-zero if there is a SIGKILL that should be waking us up.
-- * Called with the siglock held.
-- */
--static int sigkill_pending(struct task_struct *tsk)
--{
--	return	sigismember(&tsk->pending.signal, SIGKILL) ||
--		sigismember(&tsk->signal->shared_pending.signal, SIGKILL);
--}
--
--/*
-  * This must be called with current->sighand->siglock held.
-  *
-  * This should be the path for all ptrace stops.
-@@ -1858,15 +1848,10 @@ static void ptrace_stop(int exit_code, i
- 		 * calling arch_ptrace_stop, so we must release it now.
- 		 * To preserve proper semantics, we must do this before
- 		 * any signal bookkeeping like checking group_stop_count.
--		 * Meanwhile, a SIGKILL could come in before we retake the
--		 * siglock.  That must prevent us from sleeping in TASK_TRACED.
--		 * So after regaining the lock, we must check for SIGKILL.
- 		 */
- 		spin_unlock_irq(&current->sighand->siglock);
- 		arch_ptrace_stop(exit_code, info);
- 		spin_lock_irq(&current->sighand->siglock);
--		if (sigkill_pending(current))
--			return;
- 	}
+ #include <lantiq_soc.h>
+@@ -234,6 +235,8 @@ ltq_dma_init(struct platform_device *pdev)
+ 	clk_enable(clk);
+ 	ltq_dma_w32_mask(0, DMA_RESET, LTQ_DMA_CTRL);
  
- 	/*
-@@ -1875,6 +1860,8 @@ static void ptrace_stop(int exit_code, i
- 	 * Also, transition to TRACED and updates to ->jobctl should be
- 	 * atomic with respect to siglock and should be done after the arch
- 	 * hook as siglock is released and regrabbed across it.
-+	 * schedule() will not sleep if there is a pending signal that
-+	 * can awaken the task.
- 	 */
- 	set_current_state(TASK_TRACED);
++	usleep_range(1, 10);
++
+ 	/* disable all interrupts */
+ 	ltq_dma_w32(0, LTQ_DMA_IRNEN);
  
+-- 
+2.33.0
+
 
 
