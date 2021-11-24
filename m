@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD06F45C170
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CEAB45C5EE
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:00:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243271AbhKXNSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:18:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60766 "EHLO mail.kernel.org"
+        id S1351729AbhKXOCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:02:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347901AbhKXNQC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:16:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C4F761411;
-        Wed, 24 Nov 2021 12:44:48 +0000 (UTC)
+        id S1353623AbhKXOAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:00:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1375C632DF;
+        Wed, 24 Nov 2021 13:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757888;
-        bh=jWsCta6kK+DLAHPbBw9dqqO9O9iUoX/YFJwdV1TM2vg=;
+        s=korg; t=1637759354;
+        bh=4XE6KWei2eAG36JH0UcyF2SjwoKshUapFqcxs2AaOWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pI9I23Hv/wMVq3pnS6YI2c6By/QSrkuDYKgdNtLoLo+QjC9Oq5PwQYN0bKUH6ZGUz
-         5/S2+GOPl/et8NvFs8dkYTQceVUc/I2LLWZSaFq5AatKxouNKOZtp1JJslG0SHjWZv
-         h5huaWhD2N4xdRPi2j8q/KQEInABnSVFdAu2ktGI=
+        b=exWTDgwK0IqIj64Jtao63jMwvQQ7vhgFqFzjyqrfPjNFFGAVyVmiTY2+EL0JVCi8R
+         Pev+zdA/gb4FMAiWfDfiYXMDYowSr7dBOk5UPeCvCuXKsZ1n1TcLZfIOZVMRU5rz8J
+         CLt5jHhwHOBUnsjRB3KWPTxZrTPej+uEy1G2QXiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Chris Murphy <chris@colorremedies.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 310/323] btrfs: fix memory ordering between normal and ordered work functions
+        stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Matthew Perkowski <mgperkow@gmail.com>, stable@kernel.org
+Subject: [PATCH 5.15 213/279] ata: libata: improve ata_read_log_page() error message
 Date:   Wed, 24 Nov 2021 12:58:20 +0100
-Message-Id: <20211124115729.381261038@linuxfoundation.org>
+Message-Id: <20211124115726.103396986@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,86 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 45da9c1767ac31857df572f0a909fbe88fd5a7e9 upstream.
+commit 23ef63d5e14f916c5bba39128ebef395859d7c0f upstream.
 
-Ordered work functions aren't guaranteed to be handled by the same thread
-which executed the normal work functions. The only way execution between
-normal/ordered functions is synchronized is via the WORK_DONE_BIT,
-unfortunately the used bitops don't guarantee any ordering whatsoever.
+If ata_read_log_page() fails to read a log page, the ata_dev_err() error
+message only print the page number, omitting the log number. In case of
+error, facilitate debugging by also printing the log number.
 
-This manifested as seemingly inexplicable crashes on ARM64, where
-async_chunk::inode is seen as non-null in async_cow_submit which causes
-submit_compressed_extents to be called and crash occurs because
-async_chunk::inode suddenly became NULL. The call trace was similar to:
-
-    pc : submit_compressed_extents+0x38/0x3d0
-    lr : async_cow_submit+0x50/0xd0
-    sp : ffff800015d4bc20
-
-    <registers omitted for brevity>
-
-    Call trace:
-     submit_compressed_extents+0x38/0x3d0
-     async_cow_submit+0x50/0xd0
-     run_ordered_work+0xc8/0x280
-     btrfs_work_helper+0x98/0x250
-     process_one_work+0x1f0/0x4ac
-     worker_thread+0x188/0x504
-     kthread+0x110/0x114
-     ret_from_fork+0x10/0x18
-
-Fix this by adding respective barrier calls which ensure that all
-accesses preceding setting of WORK_DONE_BIT are strictly ordered before
-setting the flag. At the same time add a read barrier after reading of
-WORK_DONE_BIT in run_ordered_work which ensures all subsequent loads
-would be strictly ordered after reading the bit. This in turn ensures
-are all accesses before WORK_DONE_BIT are going to be strictly ordered
-before any access that can occur in ordered_func.
-
-Reported-by: Chris Murphy <lists@colorremedies.com>
-Fixes: 08a9ff326418 ("btrfs: Added btrfs_workqueue_struct implemented ordered execution based on kernel workqueue")
-CC: stable@vger.kernel.org # 4.4+
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2011928
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Tested-by: Chris Murphy <chris@colorremedies.com>
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@kernel.org # 5.15
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Tested-by: Matthew Perkowski <mgperkow@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/async-thread.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/ata/libata-core.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/async-thread.c
-+++ b/fs/btrfs/async-thread.c
-@@ -270,6 +270,13 @@ static void run_ordered_work(struct __bt
- 				  ordered_list);
- 		if (!test_bit(WORK_DONE_BIT, &work->flags))
- 			break;
-+		/*
-+		 * Orders all subsequent loads after reading WORK_DONE_BIT,
-+		 * paired with the smp_mb__before_atomic in btrfs_work_helper
-+		 * this guarantees that the ordered function will see all
-+		 * updates from ordinary work function.
-+		 */
-+		smp_rmb();
- 
- 		/*
- 		 * we are going to call the ordered done function, but
-@@ -355,6 +362,13 @@ static void normal_work_helper(struct bt
- 	thresh_exec_hook(wq);
- 	work->func(work);
- 	if (need_order) {
-+		/*
-+		 * Ensures all memory accesses done in the work function are
-+		 * ordered before setting the WORK_DONE_BIT. Ensuring the thread
-+		 * which is going to executed the ordered work sees them.
-+		 * Pairs with the smp_rmb in run_ordered_work.
-+		 */
-+		smp_mb__before_atomic();
- 		set_bit(WORK_DONE_BIT, &work->flags);
- 		run_ordered_work(wq, work);
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -2031,8 +2031,9 @@ retry:
+ 			dev->horkage |= ATA_HORKAGE_NO_DMA_LOG;
+ 			goto retry;
+ 		}
+-		ata_dev_err(dev, "Read log page 0x%02x failed, Emask 0x%x\n",
+-			    (unsigned int)page, err_mask);
++		ata_dev_err(dev,
++			    "Read log 0x%02x page 0x%02x failed, Emask 0x%x\n",
++			    (unsigned int)log, (unsigned int)page, err_mask);
  	}
+ 
+ 	return err_mask;
 
 
