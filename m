@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6982F45C1DF
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E9C245C12F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346859AbhKXNW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:22:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39540 "EHLO mail.kernel.org"
+        id S1347125AbhKXNP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:15:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347697AbhKXNUy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:20:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B2FD61352;
-        Wed, 24 Nov 2021 12:47:00 +0000 (UTC)
+        id S1348546AbhKXNN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:13:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33E246124D;
+        Wed, 24 Nov 2021 12:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758020;
-        bh=lU/AhEQe/DdLXtk1zubBmRRJyOVRZeWa5760O/Q9GlQ=;
+        s=korg; t=1637757783;
+        bh=xWOBmJ3gAX1c3SABa7g4c2s2TLjb175WWtE/3krY5mI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QgTdB9vLLBqhns6uEG6dvBj2TH3P+RLYA58j9WFeFaoU/AwR07o3epce8YRd9Vefd
-         CymeTh3b6u9urKHsgemVPaI2hfDj4AYmNeYV/dKJ7NPmOkPv8tRfezC0YjMBdL8Tk8
-         +SRlIZsIWn0GIdcPYBBRlZp2yA4MPLZnu/w6TnC8=
+        b=w6ebZcfdOB4jZ0VLCivier++Pb65bBFFh81Kn3PU2zb0EefjzxDk0p1d2HfpJ/TSL
+         e4KHnHmiFITXPocUhxytvep43+iNjRoIexbCE9P2q2AkAj6NF6eNRd7Uwj2Gi96mAJ
+         JXrsR4gKgfCIbZKsztd2sNNd6WqXaVliilBtq5is=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Paul Mundt <lethal@linux-sh.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Miguel Ojeda <ojeda@kernel.org>, Rich Felker <dalias@libc.org>,
+        stable@vger.kernel.org, Anatolij Gustschin <agust@denx.de>,
+        Rob Herring <robh@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/100] sh: check return code of request_irq
+Subject: [PATCH 4.19 276/323] powerpc/5200: dts: fix memory node unit name
 Date:   Wed, 24 Nov 2021 12:57:46 +0100
-Message-Id: <20211124115655.849475090@linuxfoundation.org>
+Message-Id: <20211124115728.215792159@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +41,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Anatolij Gustschin <agust@denx.de>
 
-[ Upstream commit 0e38225c92c7964482a8bb6b3e37fde4319e965c ]
+[ Upstream commit aed2886a5e9ffc8269a4220bff1e9e030d3d2eb1 ]
 
-request_irq is marked __must_check, but the call in shx3_prepare_cpus
-has a void return type, so it can't propagate failure to the caller.
-Follow cues from hexagon and just print an error.
+Fixes build warnings:
+Warning (unit_address_vs_reg): /memory: node has a reg or ranges property, but no unit name
 
-Fixes: c7936b9abcf5 ("sh: smp: Hook in to the generic IPI handler for SH-X3 SMP.")
-Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: Paul Mundt <lethal@linux-sh.org>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
-Signed-off-by: Rich Felker <dalias@libc.org>
+Signed-off-by: Anatolij Gustschin <agust@denx.de>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211013220532.24759-4-agust@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/kernel/cpu/sh4a/smp-shx3.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/boot/dts/charon.dts    | 2 +-
+ arch/powerpc/boot/dts/digsy_mtc.dts | 2 +-
+ arch/powerpc/boot/dts/lite5200.dts  | 2 +-
+ arch/powerpc/boot/dts/lite5200b.dts | 2 +-
+ arch/powerpc/boot/dts/media5200.dts | 2 +-
+ arch/powerpc/boot/dts/mpc5200b.dtsi | 2 +-
+ arch/powerpc/boot/dts/o2d.dts       | 2 +-
+ arch/powerpc/boot/dts/o2d.dtsi      | 2 +-
+ arch/powerpc/boot/dts/o2dnt2.dts    | 2 +-
+ arch/powerpc/boot/dts/o3dnt.dts     | 2 +-
+ arch/powerpc/boot/dts/pcm032.dts    | 2 +-
+ arch/powerpc/boot/dts/tqm5200.dts   | 2 +-
+ 12 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/arch/sh/kernel/cpu/sh4a/smp-shx3.c b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-index f8a2bec0f260b..1261dc7b84e8b 100644
---- a/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-+++ b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-@@ -73,8 +73,9 @@ static void shx3_prepare_cpus(unsigned int max_cpus)
- 	BUILD_BUG_ON(SMP_MSG_NR >= 8);
+diff --git a/arch/powerpc/boot/dts/charon.dts b/arch/powerpc/boot/dts/charon.dts
+index 0e00e508eaa6a..1c8fe20752e6a 100644
+--- a/arch/powerpc/boot/dts/charon.dts
++++ b/arch/powerpc/boot/dts/charon.dts
+@@ -39,7 +39,7 @@
+ 		};
+ 	};
  
- 	for (i = 0; i < SMP_MSG_NR; i++)
--		request_irq(104 + i, ipi_interrupt_handler,
--			    IRQF_PERCPU, "IPI", (void *)(long)i);
-+		if (request_irq(104 + i, ipi_interrupt_handler,
-+			    IRQF_PERCPU, "IPI", (void *)(long)i))
-+			pr_err("Failed to request irq %d\n", i);
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>;	// 128MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/digsy_mtc.dts b/arch/powerpc/boot/dts/digsy_mtc.dts
+index c3922fc03e0b1..1a002cc487d57 100644
+--- a/arch/powerpc/boot/dts/digsy_mtc.dts
++++ b/arch/powerpc/boot/dts/digsy_mtc.dts
+@@ -20,7 +20,7 @@
+ 	model = "intercontrol,digsy-mtc";
+ 	compatible = "intercontrol,digsy-mtc";
  
- 	for (i = 0; i < max_cpus; i++)
- 		set_cpu_present(i, true);
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x02000000>;	// 32MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/lite5200.dts b/arch/powerpc/boot/dts/lite5200.dts
+index 179a1785d6454..18d137a3393f0 100644
+--- a/arch/powerpc/boot/dts/lite5200.dts
++++ b/arch/powerpc/boot/dts/lite5200.dts
+@@ -36,7 +36,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/lite5200b.dts b/arch/powerpc/boot/dts/lite5200b.dts
+index 5abb46c5cc951..29419cf81e044 100644
+--- a/arch/powerpc/boot/dts/lite5200b.dts
++++ b/arch/powerpc/boot/dts/lite5200b.dts
+@@ -35,7 +35,7 @@
+ 		led4 { gpios = <&gpio_simple 2 1>; };
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x10000000>;	// 256MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/media5200.dts b/arch/powerpc/boot/dts/media5200.dts
+index 843f156a49c46..3ae4432165f75 100644
+--- a/arch/powerpc/boot/dts/media5200.dts
++++ b/arch/powerpc/boot/dts/media5200.dts
+@@ -36,7 +36,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;	// 128MB RAM
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/mpc5200b.dtsi b/arch/powerpc/boot/dts/mpc5200b.dtsi
+index 969b2200b2f97..ecfba675b5611 100644
+--- a/arch/powerpc/boot/dts/mpc5200b.dtsi
++++ b/arch/powerpc/boot/dts/mpc5200b.dtsi
+@@ -37,7 +37,7 @@
+ 		};
+ 	};
+ 
+-	memory: memory {
++	memory: memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/o2d.dts b/arch/powerpc/boot/dts/o2d.dts
+index 9f6dd4d889b32..5a676e8141caf 100644
+--- a/arch/powerpc/boot/dts/o2d.dts
++++ b/arch/powerpc/boot/dts/o2d.dts
+@@ -16,7 +16,7 @@
+ 	model = "ifm,o2d";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;  // 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o2d.dtsi b/arch/powerpc/boot/dts/o2d.dtsi
+index cf073e693f24d..1b4df5f64b580 100644
+--- a/arch/powerpc/boot/dts/o2d.dtsi
++++ b/arch/powerpc/boot/dts/o2d.dtsi
+@@ -23,7 +23,7 @@
+ 	model = "ifm,o2d";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o2dnt2.dts b/arch/powerpc/boot/dts/o2dnt2.dts
+index a0f5b97a4f06e..5184c461a205f 100644
+--- a/arch/powerpc/boot/dts/o2dnt2.dts
++++ b/arch/powerpc/boot/dts/o2dnt2.dts
+@@ -16,7 +16,7 @@
+ 	model = "ifm,o2dnt2";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;  // 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o3dnt.dts b/arch/powerpc/boot/dts/o3dnt.dts
+index acce49326491b..045b901719245 100644
+--- a/arch/powerpc/boot/dts/o3dnt.dts
++++ b/arch/powerpc/boot/dts/o3dnt.dts
+@@ -16,7 +16,7 @@
+ 	model = "ifm,o3dnt";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x04000000>;  // 64MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/pcm032.dts b/arch/powerpc/boot/dts/pcm032.dts
+index 576249bf2fb91..637e14286dde5 100644
+--- a/arch/powerpc/boot/dts/pcm032.dts
++++ b/arch/powerpc/boot/dts/pcm032.dts
+@@ -26,7 +26,7 @@
+ 	model = "phytec,pcm032";
+ 	compatible = "phytec,pcm032";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;	// 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/tqm5200.dts b/arch/powerpc/boot/dts/tqm5200.dts
+index 1db07f6cf133c..68b9e8240fb5b 100644
+--- a/arch/powerpc/boot/dts/tqm5200.dts
++++ b/arch/powerpc/boot/dts/tqm5200.dts
+@@ -36,7 +36,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
 -- 
 2.33.0
 
