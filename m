@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EA2845C030
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:03:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0EA445C42E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:44:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346329AbhKXNFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:05:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
+        id S1347711AbhKXNpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:45:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347998AbhKXNDr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:03:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB0F561A05;
-        Wed, 24 Nov 2021 12:36:37 +0000 (UTC)
+        id S1353757AbhKXNoC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:44:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D69761B30;
+        Wed, 24 Nov 2021 12:59:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757398;
-        bh=dLuPjWBz/m5H5FwyUvB6OyIPGZxR95Ap2K4I5sWT250=;
+        s=korg; t=1637758771;
+        bh=8YTO9GM2snWCx4syTdijevGapzQg0EPpWDzJb1mHziw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCEpqQG2/ISUMUBQgK3xtF3zhFSpzV5rE5hcfuRhlXGk0mS+I1jzZcqjdlRwACnWT
-         9D5L4i8VELjZMROgv07KRDAC6fe0JeIKH8f7+zpYAj7lP6neneR1/sESnlHoVdxJSw
-         jH7PZdv8yBTdcQvJUzR8pePReSxj6ejkD3PpNiWc=
+        b=XGlHi5HdrSlFEiFD6PJLIC+DfizTCKRzDgoZ84eQ794220rmhQvTVDWK47CymodUT
+         o5N8JlKuTixmbYliYUgMfL22dM1N3T4QL1ncj/NG86UdbFzNi+RRzJ2Bak5vd+bS+h
+         UsMN1nwwHsZtz2GPbSrz+EbLrnmm44WITmmEZtV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 121/323] spi: bcm-qspi: Fix missing clk_disable_unprepare() on error in bcm_qspi_probe()
+Subject: [PATCH 5.15 024/279] staging: rtl8723bs: remove a second possible deadlock
 Date:   Wed, 24 Nov 2021 12:55:11 +0100
-Message-Id: <20211124115723.026540987@linuxfoundation.org>
+Message-Id: <20211124115719.588751527@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +39,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit ca9b8f56ec089d3a436050afefd17b7237301f47 ]
+[ Upstream commit a7ac783c338bafc04d3259600646350dba989043 ]
 
-Fix the missing clk_disable_unprepare() before return
-from bcm_qspi_probe() in the error handling case.
+Lockdep complains about rtw_free_assoc_resources() taking the sta_hash_lock
+followed by it calling rtw_free_stainfo() which takes xmitpriv->lock.
+While the rtl8723bs_xmit_thread takes the sta_hash_lock while already
+holding the xmitpriv->lock:
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211018073413.2029081-1-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[  103.849756] ======================================================
+[  103.849761] WARNING: possible circular locking dependency detected
+[  103.849767] 5.15.0-rc1+ #470 Tainted: G         C  E
+[  103.849773] ------------------------------------------------------
+[  103.849776] wpa_supplicant/695 is trying to acquire lock:
+[  103.849781] ffffa5d0c0562b00 (&pxmitpriv->lock){+.-.}-{2:2}, at: rtw_free_stainfo+0x8a/0x510 [r8723bs]
+[  103.849840]
+               but task is already holding lock:
+[  103.849843] ffffa5d0c05636a8 (&pstapriv->sta_hash_lock){+.-.}-{2:2}, at: rtw_free_assoc_resources+0x48/0x110 [r8723bs]
+[  103.849881]
+               which lock already depends on the new lock.
+
+[  103.849884]
+               the existing dependency chain (in reverse order) is:
+[  103.849887]
+               -> #1 (&pstapriv->sta_hash_lock){+.-.}-{2:2}:
+[  103.849898]        _raw_spin_lock_bh+0x34/0x40
+[  103.849913]        rtw_get_stainfo+0x93/0x110 [r8723bs]
+[  103.849948]        rtw_make_wlanhdr+0x14a/0x270 [r8723bs]
+[  103.849983]        rtw_xmitframe_coalesce+0x5c/0x6c0 [r8723bs]
+[  103.850019]        rtl8723bs_xmit_thread+0x4ac/0x620 [r8723bs]
+[  103.850050]        kthread+0x143/0x160
+[  103.850058]        ret_from_fork+0x22/0x30
+[  103.850067]
+               -> #0 (&pxmitpriv->lock){+.-.}-{2:2}:
+[  103.850077]        __lock_acquire+0x1158/0x1de0
+[  103.850084]        lock_acquire+0xb5/0x2b0
+[  103.850090]        _raw_spin_lock_bh+0x34/0x40
+[  103.850095]        rtw_free_stainfo+0x8a/0x510 [r8723bs]
+[  103.850130]        rtw_free_assoc_resources+0x53/0x110 [r8723bs]
+[  103.850159]        PHY_IQCalibrate_8723B+0x122b/0x36a0 [r8723bs]
+[  103.850189]        cfg80211_disconnect+0x173/0x320 [cfg80211]
+[  103.850331]        nl80211_disconnect+0x6e/0xb0 [cfg80211]
+[  103.850422]        genl_family_rcv_msg_doit+0xcd/0x110
+[  103.850430]        genl_rcv_msg+0xce/0x1c0
+[  103.850435]        netlink_rcv_skb+0x50/0xf0
+[  103.850441]        genl_rcv+0x24/0x40
+[  103.850446]        netlink_unicast+0x16d/0x230
+[  103.850452]        netlink_sendmsg+0x22b/0x450
+[  103.850457]        sock_sendmsg+0x5e/0x60
+[  103.850465]        ____sys_sendmsg+0x22f/0x270
+[  103.850472]        ___sys_sendmsg+0x81/0xc0
+[  103.850479]        __sys_sendmsg+0x49/0x80
+[  103.850485]        do_syscall_64+0x3b/0x90
+[  103.850493]        entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  103.850500]
+               other info that might help us debug this:
+
+[  103.850504]  Possible unsafe locking scenario:
+
+[  103.850507]        CPU0                    CPU1
+[  103.850510]        ----                    ----
+[  103.850512]   lock(&pstapriv->sta_hash_lock);
+[  103.850518]                                lock(&pxmitpriv->lock);
+[  103.850524]                                lock(&pstapriv->sta_hash_lock);
+[  103.850530]   lock(&pxmitpriv->lock);
+[  103.850535]
+                *** DEADLOCK ***
+
+Push the taking of sta_hash_lock down into rtw_free_stainfo(),
+where the critical section is, this allows taking the lock after
+rtw_free_stainfo() has released pxmitpriv->lock.
+
+This requires changing rtw_free_all_stainfo() so that it does its freeing
+in 2 steps, first moving all stainfo-s to free to a local list while
+holding the sta_hash_lock and then walking that list to call
+rtw_free_stainfo() on them without holding the sta_hash_lock.
+
+Pushing the taking of sta_hash_lock down into rtw_free_stainfo(),
+also fixes a whole bunch of callers of rtw_free_stainfo() which
+were not holding that lock even though they should.
+
+Note that this also fixes the deadlock from the "remove possible
+deadlock when disconnect" patch in a different way. But the
+changes from that patch offer a nice locking cleanup regardless.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210920145502.155454-2-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm-qspi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8723bs/core/rtw_mlme.c      |  5 -----
+ drivers/staging/rtl8723bs/core/rtw_mlme_ext.c  |  4 ----
+ drivers/staging/rtl8723bs/core/rtw_sta_mgt.c   | 11 +++++++++--
+ drivers/staging/rtl8723bs/os_dep/ioctl_linux.c |  2 --
+ 4 files changed, 9 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
-index 4ee92f7ca20bd..b2fd7a3691964 100644
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -1305,7 +1305,7 @@ int bcm_qspi_probe(struct platform_device *pdev,
- 					       &qspi->dev_ids[val]);
- 			if (ret < 0) {
- 				dev_err(&pdev->dev, "IRQ %s not found\n", name);
--				goto qspi_probe_err;
-+				goto qspi_unprepare_err;
- 			}
+diff --git a/drivers/staging/rtl8723bs/core/rtw_mlme.c b/drivers/staging/rtl8723bs/core/rtw_mlme.c
+index ab6a24d70cc96..1f49c49e10b45 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_mlme.c
++++ b/drivers/staging/rtl8723bs/core/rtw_mlme.c
+@@ -897,7 +897,6 @@ void rtw_free_assoc_resources(struct adapter *adapter, int lock_scanned_queue)
+ {
+ 	struct	mlme_priv *pmlmepriv = &adapter->mlmepriv;
+ 	struct wlan_network *tgt_network = &pmlmepriv->cur_network;
+-	struct	sta_priv *pstapriv = &adapter->stapriv;
+ 	struct dvobj_priv *psdpriv = adapter->dvobj;
+ 	struct debug_priv *pdbgpriv = &psdpriv->drv_dbg;
  
- 			qspi->dev_ids[val].dev = qspi;
-@@ -1320,7 +1320,7 @@ int bcm_qspi_probe(struct platform_device *pdev,
- 	if (!num_ints) {
- 		dev_err(&pdev->dev, "no IRQs registered, cannot init driver\n");
- 		ret = -EINVAL;
--		goto qspi_probe_err;
-+		goto qspi_unprepare_err;
+@@ -905,11 +904,7 @@ void rtw_free_assoc_resources(struct adapter *adapter, int lock_scanned_queue)
+ 		struct sta_info *psta;
+ 
+ 		psta = rtw_get_stainfo(&adapter->stapriv, tgt_network->network.mac_address);
+-		spin_lock_bh(&(pstapriv->sta_hash_lock));
+ 		rtw_free_stainfo(adapter,  psta);
+-
+-		spin_unlock_bh(&(pstapriv->sta_hash_lock));
+-
  	}
  
- 	/*
-@@ -1371,6 +1371,7 @@ int bcm_qspi_probe(struct platform_device *pdev,
+ 	if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE|WIFI_ADHOC_MASTER_STATE|WIFI_AP_STATE)) {
+diff --git a/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c b/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
+index a1ae16ec69eb6..ad9c237054c4b 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
++++ b/drivers/staging/rtl8723bs/core/rtw_mlme_ext.c
+@@ -1489,9 +1489,7 @@ unsigned int OnDeAuth(struct adapter *padapter, union recv_frame *precv_frame)
+ 		struct sta_info *psta;
+ 		struct sta_priv *pstapriv = &padapter->stapriv;
  
- qspi_reg_err:
- 	bcm_qspi_hw_uninit(qspi);
-+qspi_unprepare_err:
- 	clk_disable_unprepare(qspi->clk);
- qspi_probe_err:
- 	kfree(qspi->dev_ids);
+-		/* spin_lock_bh(&(pstapriv->sta_hash_lock)); */
+ 		/* rtw_free_stainfo(padapter, psta); */
+-		/* spin_unlock_bh(&(pstapriv->sta_hash_lock)); */
+ 
+ 		netdev_dbg(padapter->pnetdev,
+ 			   "ap recv deauth reason code(%d) sta:%pM\n", reason,
+@@ -1565,9 +1563,7 @@ unsigned int OnDisassoc(struct adapter *padapter, union recv_frame *precv_frame)
+ 		struct sta_info *psta;
+ 		struct sta_priv *pstapriv = &padapter->stapriv;
+ 
+-		/* spin_lock_bh(&(pstapriv->sta_hash_lock)); */
+ 		/* rtw_free_stainfo(padapter, psta); */
+-		/* spin_unlock_bh(&(pstapriv->sta_hash_lock)); */
+ 
+ 		netdev_dbg(padapter->pnetdev,
+ 			   "ap recv disassoc reason code(%d) sta:%pM\n",
+diff --git a/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c b/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
+index c23d0c833ecf8..3d269842677dd 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
++++ b/drivers/staging/rtl8723bs/core/rtw_sta_mgt.c
+@@ -263,7 +263,6 @@ exit:
+ 	return psta;
+ }
+ 
+-/*  using pstapriv->sta_hash_lock to protect */
+ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
+ {
+ 	int i;
+@@ -334,8 +333,10 @@ u32 rtw_free_stainfo(struct adapter *padapter, struct sta_info *psta)
+ 
+ 	spin_unlock_bh(&pxmitpriv->lock);
+ 
++	spin_lock_bh(&pstapriv->sta_hash_lock);
+ 	list_del_init(&psta->hash_list);
+ 	pstapriv->asoc_sta_count--;
++	spin_unlock_bh(&pstapriv->sta_hash_lock);
+ 
+ 	/*  re-init sta_info; 20061114 will be init in alloc_stainfo */
+ 	/* _rtw_init_sta_xmit_priv(&psta->sta_xmitpriv); */
+@@ -430,6 +431,7 @@ void rtw_free_all_stainfo(struct adapter *padapter)
+ 	struct sta_info *psta = NULL;
+ 	struct	sta_priv *pstapriv = &padapter->stapriv;
+ 	struct sta_info *pbcmc_stainfo = rtw_get_bcmc_stainfo(padapter);
++	LIST_HEAD(stainfo_free_list);
+ 
+ 	if (pstapriv->asoc_sta_count == 1)
+ 		return;
+@@ -442,11 +444,16 @@ void rtw_free_all_stainfo(struct adapter *padapter)
+ 			psta = list_entry(plist, struct sta_info, hash_list);
+ 
+ 			if (pbcmc_stainfo != psta)
+-				rtw_free_stainfo(padapter, psta);
++				list_move(&psta->hash_list, &stainfo_free_list);
+ 		}
+ 	}
+ 
+ 	spin_unlock_bh(&pstapriv->sta_hash_lock);
++
++	list_for_each_safe(plist, tmp, &stainfo_free_list) {
++		psta = list_entry(plist, struct sta_info, hash_list);
++		rtw_free_stainfo(padapter, psta);
++	}
+ }
+ 
+ /* any station allocated can be searched by hash list */
+diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+index 9d4a233a861e3..295121c268bd4 100644
+--- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
+@@ -835,9 +835,7 @@ static int rtw_add_sta(struct net_device *dev, struct ieee_param *param)
+ 	psta = rtw_get_stainfo(pstapriv, param->sta_addr);
+ 	if (psta)
+ 	{
+-		spin_lock_bh(&(pstapriv->sta_hash_lock));
+ 		rtw_free_stainfo(padapter,  psta);
+-		spin_unlock_bh(&(pstapriv->sta_hash_lock));
+ 
+ 		psta = NULL;
+ 	}
 -- 
 2.33.0
 
