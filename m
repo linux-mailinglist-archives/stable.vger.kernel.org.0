@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99C8945BE5A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:43:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19D3D45BA59
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:06:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345147AbhKXMqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:46:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51178 "EHLO mail.kernel.org"
+        id S242567AbhKXMKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:10:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344173AbhKXMop (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:44:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 556776140A;
-        Wed, 24 Nov 2021 12:26:34 +0000 (UTC)
+        id S242491AbhKXMI0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:08:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 812CE61074;
+        Wed, 24 Nov 2021 12:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756794;
-        bh=SnkH1IHw/xrUjZIfbxlnv8eDZcZIaUiTxKYPPCRzwiw=;
+        s=korg; t=1637755496;
+        bh=khYJNpcupzLt8+e6KbrRx54/SFJt53RLNkfFZx4ONtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yv5eh7Hlh+u3zynp+1tkwVh2vAL3EqXMIe82IVVPLipyo99KbrRdicPNWe1fIQvfs
-         kygGojYNqSyTnON8zikVVmHxWbKXjhzhDH1TjcA0LHhacfG17qtTFz1Pvt+NSyoPMJ
-         6+ZUuRgHe1nQRPugwERTXnZV9ab8fIv+JMXZo6DU=
+        b=AlMwXAZusaqNw60XZz3uBiicp2ybI9qRx+BLrO3WupcpzIq/xxNHTncIfc68OiSYG
+         6DqsqHvn+6lmypruDOjjQMDn9jUUeHFd729Apvi7iYPLrL9P5fXILIEQNEYksSvGk9
+         PnArnxaYtzxoWlnxpDKugCGayarzJSHMvhukoJ2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 177/251] scsi: qla2xxx: Turn off target reset during issue_lip
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 116/162] net: batman-adv: fix error handling
 Date:   Wed, 24 Nov 2021 12:56:59 +0100
-Message-Id: <20211124115716.418328225@linuxfoundation.org>
+Message-Id: <20211124115702.068609532@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,131 +41,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 0b7a9fd934a68ebfc1019811b7bdc1742072ad7b ]
+commit 6f68cd634856f8ca93bafd623ba5357e0f648c68 upstream.
 
-When user uses issue_lip to do link bounce, driver sends additional target
-reset to remote device before resetting the link. The target reset would
-affect other paths with active I/Os. This patch will remove the unnecessary
-target reset.
+Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
+in wrong error handling in batadv_mesh_init().
 
-Link: https://lore.kernel.org/r/20211026115412.27691-4-njavali@marvell.com
-Fixes: 5854771e314e ("[SCSI] qla2xxx: Add ISPFX00 specific bus reset routine")
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
+of any batadv_*_init() calls failure. This approach may work well, when
+there is some kind of indicator, which can tell which parts of batadv are
+initialized; but there isn't any.
+
+All written above lead to cleaning up uninitialized fields. Even if we hide
+ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
+GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
+
+To fix these bugs we can unwind batadv_*_init() calls one by one.
+It is good approach for 2 reasons: 1) It fixes bugs on error handling
+path 2) It improves the performance, since we won't call unneeded
+batadv_*_free() functions.
+
+So, this patch makes all batadv_*_init() clean up all allocated memory
+before returning with an error to no call correspoing batadv_*_free()
+and open-codes batadv_mesh_free() with proper order to avoid touching
+uninitialized fields.
+
+Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
+Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Acked-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/qla2xxx/qla_gbl.h |  2 --
- drivers/scsi/qla2xxx/qla_mr.c  | 23 -----------------------
- drivers/scsi/qla2xxx/qla_os.c  | 27 ++-------------------------
- 3 files changed, 2 insertions(+), 50 deletions(-)
+ net/batman-adv/bridge_loop_avoidance.c |    8 ++++--
+ net/batman-adv/main.c                  |   44 ++++++++++++++++++++++++---------
+ net/batman-adv/network-coding.c        |    4 ++-
+ net/batman-adv/translation-table.c     |    4 ++-
+ 4 files changed, 44 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_gbl.h b/drivers/scsi/qla2xxx/qla_gbl.h
-index 89706341514e2..a9df91f7c1543 100644
---- a/drivers/scsi/qla2xxx/qla_gbl.h
-+++ b/drivers/scsi/qla2xxx/qla_gbl.h
-@@ -132,7 +132,6 @@ extern int ql2xasynctmfenable;
- extern int ql2xgffidenable;
- extern int ql2xenabledif;
- extern int ql2xenablehba_err_chk;
--extern int ql2xtargetreset;
- extern int ql2xdontresethba;
- extern uint64_t ql2xmaxlun;
- extern int ql2xmdcapmask;
-@@ -724,7 +723,6 @@ extern void qlafx00_abort_iocb(srb_t *, struct abort_iocb_entry_fx00 *);
- extern void qlafx00_fxdisc_iocb(srb_t *, struct fxdisc_entry_fx00 *);
- extern void qlafx00_timer_routine(scsi_qla_host_t *);
- extern int qlafx00_rescan_isp(scsi_qla_host_t *);
--extern int qlafx00_loop_reset(scsi_qla_host_t *vha);
+--- a/net/batman-adv/bridge_loop_avoidance.c
++++ b/net/batman-adv/bridge_loop_avoidance.c
+@@ -1346,10 +1346,14 @@ int batadv_bla_init(struct batadv_priv *
+ 		return 0;
  
- /* qla82xx related functions */
+ 	bat_priv->bla.claim_hash = batadv_hash_new(128);
+-	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.claim_hash)
++		return -ENOMEM;
  
-diff --git a/drivers/scsi/qla2xxx/qla_mr.c b/drivers/scsi/qla2xxx/qla_mr.c
-index e23a3d4c36f39..66ee206026612 100644
---- a/drivers/scsi/qla2xxx/qla_mr.c
-+++ b/drivers/scsi/qla2xxx/qla_mr.c
-@@ -739,29 +739,6 @@ qlafx00_lun_reset(fc_port_t *fcport, uint64_t l, int tag)
- 	return qla2x00_async_tm_cmd(fcport, TCF_LUN_RESET, l, tag);
+-	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
++	bat_priv->bla.backbone_hash = batadv_hash_new(32);
++	if (!bat_priv->bla.backbone_hash) {
++		batadv_hash_destroy(bat_priv->bla.claim_hash);
+ 		return -ENOMEM;
++	}
+ 
+ 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
+ 				   &batadv_claim_hash_lock_class_key);
+--- a/net/batman-adv/main.c
++++ b/net/batman-adv/main.c
+@@ -159,24 +159,34 @@ int batadv_mesh_init(struct net_device *
+ 	INIT_HLIST_HEAD(&bat_priv->softif_vlan_list);
+ 
+ 	ret = batadv_originator_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_orig;
++	}
+ 
+ 	ret = batadv_tt_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_tt;
++	}
+ 
+ 	ret = batadv_bla_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_bla;
++	}
+ 
+ 	ret = batadv_dat_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_dat;
++	}
+ 
+ 	ret = batadv_nc_mesh_init(bat_priv);
+-	if (ret < 0)
+-		goto err;
++	if (ret < 0) {
++		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
++		goto err_nc;
++	}
+ 
+ 	batadv_gw_init(bat_priv);
+ 	batadv_mcast_init(bat_priv);
+@@ -186,8 +196,18 @@ int batadv_mesh_init(struct net_device *
+ 
+ 	return 0;
+ 
+-err:
+-	batadv_mesh_free(soft_iface);
++err_nc:
++	batadv_dat_free(bat_priv);
++err_dat:
++	batadv_bla_free(bat_priv);
++err_bla:
++	batadv_tt_free(bat_priv);
++err_tt:
++	batadv_originator_free(bat_priv);
++err_orig:
++	batadv_purge_outstanding_packets(bat_priv, NULL);
++	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
++
+ 	return ret;
  }
  
--int
--qlafx00_loop_reset(scsi_qla_host_t *vha)
--{
--	int ret;
--	struct fc_port *fcport;
--	struct qla_hw_data *ha = vha->hw;
--
--	if (ql2xtargetreset) {
--		list_for_each_entry(fcport, &vha->vp_fcports, list) {
--			if (fcport->port_type != FCT_TARGET)
--				continue;
--
--			ret = ha->isp_ops->target_reset(fcport, 0, 0);
--			if (ret != QLA_SUCCESS) {
--				ql_dbg(ql_dbg_taskm, vha, 0x803d,
--				    "Bus Reset failed: Reset=%d "
--				    "d_id=%x.\n", ret, fcport->d_id.b24);
--			}
--		}
--	}
--	return QLA_SUCCESS;
--}
--
- int
- qlafx00_iospace_config(struct qla_hw_data *ha)
- {
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index ea60c6e603c06..d0f52c123bfb3 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -188,12 +188,6 @@ MODULE_PARM_DESC(ql2xdbwr,
- 		" 0 -- Regular doorbell.\n"
- 		" 1 -- CAMRAM doorbell (faster).\n");
+--- a/net/batman-adv/network-coding.c
++++ b/net/batman-adv/network-coding.c
+@@ -159,8 +159,10 @@ int batadv_nc_mesh_init(struct batadv_pr
+ 				   &batadv_nc_coding_hash_lock_class_key);
  
--int ql2xtargetreset = 1;
--module_param(ql2xtargetreset, int, S_IRUGO);
--MODULE_PARM_DESC(ql2xtargetreset,
--		 "Enable target reset."
--		 "Default is 1 - use hw defaults.");
--
- int ql2xgffidenable;
- module_param(ql2xgffidenable, int, S_IRUGO);
- MODULE_PARM_DESC(ql2xgffidenable,
-@@ -1652,27 +1646,10 @@ int
- qla2x00_loop_reset(scsi_qla_host_t *vha)
- {
- 	int ret;
--	struct fc_port *fcport;
- 	struct qla_hw_data *ha = vha->hw;
+ 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
+-	if (!bat_priv->nc.decoding_hash)
++	if (!bat_priv->nc.decoding_hash) {
++		batadv_hash_destroy(bat_priv->nc.coding_hash);
+ 		goto err;
++	}
  
--	if (IS_QLAFX00(ha)) {
--		return qlafx00_loop_reset(vha);
--	}
--
--	if (ql2xtargetreset == 1 && ha->flags.enable_target_reset) {
--		list_for_each_entry(fcport, &vha->vp_fcports, list) {
--			if (fcport->port_type != FCT_TARGET)
--				continue;
--
--			ret = ha->isp_ops->target_reset(fcport, 0, 0);
--			if (ret != QLA_SUCCESS) {
--				ql_dbg(ql_dbg_taskm, vha, 0x802c,
--				    "Bus Reset failed: Reset=%d "
--				    "d_id=%x.\n", ret, fcport->d_id.b24);
--			}
--		}
--	}
--
-+	if (IS_QLAFX00(ha))
-+		return QLA_SUCCESS;
+ 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
+ 				   &batadv_nc_decoding_hash_lock_class_key);
+--- a/net/batman-adv/translation-table.c
++++ b/net/batman-adv/translation-table.c
+@@ -3833,8 +3833,10 @@ int batadv_tt_init(struct batadv_priv *b
+ 		return ret;
  
- 	if (ha->flags.enable_lip_full_login && !IS_CNA_CAPABLE(ha)) {
- 		atomic_set(&vha->loop_state, LOOP_DOWN);
--- 
-2.33.0
-
+ 	ret = batadv_tt_global_init(bat_priv);
+-	if (ret < 0)
++	if (ret < 0) {
++		batadv_tt_local_table_free(bat_priv);
+ 		return ret;
++	}
+ 
+ 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
+ 				     batadv_tt_tvlv_unicast_handler_v1,
 
 
