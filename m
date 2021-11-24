@@ -2,188 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10E3F45C771
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28FA345C772
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:32:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351396AbhKXOfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:35:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48092 "EHLO
+        id S1353646AbhKXOgB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:36:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355794AbhKXOfo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 09:35:44 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6995EC1A26B0
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 05:22:41 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id i12so2619071pfd.6
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 05:22:41 -0800 (PST)
+        with ESMTP id S1355790AbhKXOfz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 09:35:55 -0500
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D9CAC1A2ECC
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 05:22:53 -0800 (PST)
+Received: by mail-ed1-x52b.google.com with SMTP id t5so10600466edd.0
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 05:22:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/r7Wr2d64SPcG4y5LNy2d5LgRst/3wJMx3Q73ZCHyWw=;
-        b=blRLAAuRqYS4RDVXHvKkriOBmlYrP/SoxfRBWfP9dD4OjOrurqTgLqxfJAsSKhdskt
-         dC5T1kZtPQvKphjznURE1JMg84N4xrfxU5jQ4rBmeAol9+enhBHdkfnSruPHFsvYI4gg
-         Kh6dHRF0JDxXW7BHBQoq2OFoXEp5K+jOFizigX13Gh2MKlvxn0QhtXNdn3sm7i1GKlOv
-         5bgdTwUJPHuyy8+zYNXRZhYMc8qJm6gxjPFZSgGr7t1SAMC3HzO7jbhRLa3T8dwXqTCL
-         17fvaf1z3fJUwG9Vjc++3gp+HcWzqbVjsSk8JwFYezODWt2AOu/qHHlgJAICIXSbYnBE
-         Udmg==
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=V+QUfd5DKJNhCRaZ+9Sy4asHCx0sUS71DgtMVIdw2vQ=;
+        b=BQJXfCtcH1ooGfhsNrILUu7J6XnqZ8B6FIlafT9azVM1RTr4bLAKiIoJpMJoE0Zrnf
+         DZhKJ4Mz5pISY/YMI/nAnuqFm6AAhiA06AyUUTFozTaECIvkip3GO4L3BcDts6QmwnHc
+         Udh4Kjwu/njDu80SfvPAu5Q81K0O9AE/cyA63/ohqZPwee7ADjNwxyRlx+s13DFkYZIn
+         JZK2Vu8PPACV2l7RPVM6yvuy7J8w6rfaKXo4qW/2IPbTCpi52Ybe8wHV53Q89YX6Bwmf
+         BE7Vox6zCsuZU8VxfLgyBFOdaIBzLKfOq4iS9aM+qMa6BcHIJryNbnmjUlFmd3lTjiMg
+         CuTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/r7Wr2d64SPcG4y5LNy2d5LgRst/3wJMx3Q73ZCHyWw=;
-        b=BxKrEK9QJLQbYNYri59cIsoSCrCeg0tDw4qSnUH2noCcREUoEokBf9KBEprrH0Iktk
-         KrlRESLfojLgKsBT+9cqXPJ2gi9LVefUnzkgS9E6l6iUB7pdih6dK0C7rHI9g7OquKqW
-         EdR+sizSjmXzTbrlKmUFsi7MuJY0ksbCURCL0xK8ILX02aAPYbCrBrnXgJbFY0Mkxmwa
-         amoPZSFCpduicpVCZi3g2gcAv5cQJlTzp7RjXDQclmcn203Nr7SC6kqB0xo5hpYJAEAG
-         Nenfkz9WnUZ6C1qxv8XfJeoUwxE5ohzOqcvHVnTINvvtKi0Go1sZuObHtlqZQ3mlb0pW
-         lMmg==
-X-Gm-Message-State: AOAM531/lyXewp8l2y1fTsqsL60CEZoSa6CRTLG0lsNBS9iY9bngwIGH
-        sEUX2IdRa0kzC/HOQAA+fR3Y
-X-Google-Smtp-Source: ABdhPJwUutZQutwiGkGqFlxxVxBdlTcubvssMfvmU54yrk3BYVaYqbLF8WICHZ7lgLAIk6nF8q3XbA==
-X-Received: by 2002:aa7:9ddb:0:b0:4a4:f597:a4ca with SMTP id g27-20020aa79ddb000000b004a4f597a4camr5696052pfq.57.1637760159750;
-        Wed, 24 Nov 2021 05:22:39 -0800 (PST)
-Received: from localhost.localdomain ([2409:4072:6d01:b1fa:45f8:8977:6ea4:8b04])
-        by smtp.gmail.com with ESMTPSA id lr6sm5300816pjb.0.2021.11.24.05.22.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Nov 2021 05:22:38 -0800 (PST)
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     mhi@lists.linux.dev
-Cc:     aleksander@aleksander.es, loic.poulain@linaro.org,
-        thomas.perrot@bootlin.com, hemantk@codeaurora.org,
-        bbhatt@codeaurora.org, quic_jhugo@quicinc.com,
-        linux-arm-msm@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH v4] bus: mhi: Fix race while handling SYS_ERR at power up
-Date:   Wed, 24 Nov 2021 18:52:21 +0530
-Message-Id: <20211124132221.44915-1-manivannan.sadhasivam@linaro.org>
-X-Mailer: git-send-email 2.25.1
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=V+QUfd5DKJNhCRaZ+9Sy4asHCx0sUS71DgtMVIdw2vQ=;
+        b=r4j5ACwnaZQDRYws/yrtAe7JBbIwJc37UUxDSWiCa5buM2nbGUDyjkJatsEZARXHty
+         y0g1qUR+LZy67nztynjRig6+GBAHjJ4xdLTeKKE9dydwNBb7ODLJkSjAuIa8O0xLzD2g
+         7ClMUPeBMJgJBD/D0kc7IXI1lMRLAU8EEgCR4zWoiMGYqeTc+5G13wWuxXWS71IvwimC
+         zM8HsI6TwDEmfPtH753MFLBUHN6vqw/J9o3GBcfc6G0gC43WqgvsclumSK28Hvd1dVwv
+         ejszwjGI4tNWdcSGAzVXOCqcdnQXVOKufmQXpz+wT9S9jbt/YTTS/caVs772+NH32oZn
+         JDWw==
+X-Gm-Message-State: AOAM532vs392Ek0CayWrTBt1Ot/IMxbbHcdIfYBgaZyFjAG9kBUJZCWK
+        wKhI9WxdsNaKIlDmNHdZC/HiLb5/Oq5+gE+xt4fx8+A5JmFTcw==
+X-Google-Smtp-Source: ABdhPJyd4VU+sUbnBOWEAaBsRROkqJCtH1eAH4EJfYOAnoEdbOp0SLSmA1ZYBX9LKFW/JzbsJ6fDN0bAeELfdNtxOj8=
+X-Received: by 2002:a05:6402:2814:: with SMTP id h20mr25245889ede.288.1637760171344;
+ Wed, 24 Nov 2021 05:22:51 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 24 Nov 2021 18:52:40 +0530
+Message-ID: <CA+G9fYv+SjDwfvP=Zgf-gr2RngkrzHO_w6OQzH7wqzU-dOW9+g@mail.gmail.com>
+Subject: mm: hugetlb.c:3455:25: error: implicit declaration of function 'tlb_flush_pmd_range'
+To:     linux-stable <stable@vger.kernel.org>
+Cc:     Nadav Amit <namit@vmware.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
+        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Some devices tend to trigger SYS_ERR interrupt while the host handling
-SYS_ERR state of the device during power up. This creates a race
-condition and causes a failure in booting up the device.
+Regression found on s390 gcc-11 builds with defconfig
+Following build warnings / errors reported on stable-rc 4.19.
 
-The issue is seen on the Sierra Wireless EM9191 modem during SYS_ERR
-handling in mhi_async_power_up(). Once the host detects that the device
-is in SYS_ERR state, it issues MHI_RESET and waits for the device to
-process the reset request. During this time, the device triggers SYS_ERR
-interrupt to the host and host starts handling SYS_ERR execution.
+metadata:
+    git_describe: v4.19.217-324-g451ddd7eb93b
+    git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+    git_short_log: 451ddd7eb93b (\"Linux 4.19.218-rc1\")
+    target_arch: s390
+    toolchain: gcc-11 / gcc-10 / gcc-9 / gcc-8
 
-So by the time the device has completed reset, host starts SYS_ERR
-handling. This causes the race condition and the modem fails to boot.
+build error :
+--------------
+make --silent --keep-going --jobs=8
+O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=s390
+CROSS_COMPILE=s390x-linux-gnu- 'CC=sccache s390x-linux-gnu-gcc'
+'HOSTCC=sccache gcc'
+arch/s390/kernel/setup.c: In function 'setup_lowcore_dat_off':
+arch/s390/kernel/setup.c:342:9: warning: 'memcpy' reading 128 bytes
+from a region of size 0 [-Wstringop-overread]
+  342 |         memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  343 |                sizeof(lc->stfle_fac_list));
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arch/s390/kernel/setup.c:344:9: warning: 'memcpy' reading 128 bytes
+from a region of size 0 [-Wstringop-overread]
+  344 |         memcpy(lc->alt_stfle_fac_list, S390_lowcore.alt_stfle_fac_list,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  345 |                sizeof(lc->alt_stfle_fac_list));
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arch/s390/kvm/kvm-s390.c: In function 'kvm_s390_get_machine':
+arch/s390/kvm/kvm-s390.c:1302:9: warning: 'memcpy' reading 128 bytes
+from a region of size 0 [-Wstringop-overread]
+ 1302 |         memcpy((unsigned long *)&mach->fac_list,
+S390_lowcore.stfle_fac_list,
+      |
+^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1303 |                sizeof(S390_lowcore.stfle_fac_list));
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from arch/s390/kernel/lgr.c:13:
+In function 'stfle',
+    inlined from 'lgr_info_get' at arch/s390/kernel/lgr.c:122:2:
+arch/s390/include/asm/facility.h:88:9: warning: 'memcpy' reading 4
+bytes from a region of size 0 [-Wstringop-overread]
+   88 |         memcpy(stfle_fac_list, &S390_lowcore.stfl_fac_list, 4);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function 'pcpu_prepare_secondary',
+    inlined from '__cpu_up' at arch/s390/kernel/smp.c:878:2:
+arch/s390/kernel/smp.c:271:9: warning: 'memcpy' reading 128 bytes from
+a region of size 0 [-Wstringop-overread]
+  271 |         memcpy(lc->stfle_fac_list, S390_lowcore.stfle_fac_list,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  272 |                sizeof(lc->stfle_fac_list));
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arch/s390/kernel/smp.c:273:9: warning: 'memcpy' reading 128 bytes from
+a region of size 0 [-Wstringop-overread]
+  273 |         memcpy(lc->alt_stfle_fac_list, S390_lowcore.alt_stfle_fac_list,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  274 |                sizeof(lc->alt_stfle_fac_list));
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mm/hugetlb.c: In function '__unmap_hugepage_range':
+mm/hugetlb.c:3455:25: error: implicit declaration of function
+'tlb_flush_pmd_range'; did you mean 'tlb_flush_mmu_free'?
+[-Werror=implicit-function-declaration]
+ 3455 |                         tlb_flush_pmd_range(tlb, address &
+PUD_MASK, PUD_SIZE);
+      |                         ^~~~~~~~~~~~~~~~~~~
+      |                         tlb_flush_mmu_free
+cc1: some warnings being treated as errors
 
-Hence, register the IRQ handler only after handling the SYS_ERR check
-to avoid getting spurious IRQs from the device.
 
-Cc: stable@vger.kernel.org
-Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
-Reported-by: Aleksander Morgado <aleksander@aleksander.es>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
----
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Changes in v4:
+build link:
+-----------
+https://builds.tuxbuild.com/21MfFQQKrxPYUW7b8amBJjt3Ki7/build.log
 
-* Reverted the change that moved BHI_INTVEC as that was causing issue as
-  reported by Aleksander.
+build config:
+-------------
+https://builds.tuxbuild.com/21MfFQQKrxPYUW7b8amBJjt3Ki7/config
 
-Changes in v3:
+# To install tuxmake on your system globally
+# sudo pip3 install -U tuxmake
+tuxmake --runtime podman --target-arch s390 --toolchain gcc-11
+--kconfig defconfig
 
-* Moved BHI_INTVEC setup after irq setup
-* Used interval_us as the delay for the polling API
-
-Changes in v2:
-
-* Switched to "mhi_poll_reg_field" for detecting MHI reset in device.
-
- drivers/bus/mhi/core/pm.c | 33 +++++++++++----------------------
- 1 file changed, 11 insertions(+), 22 deletions(-)
-
-diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index fb99e3727155..21484a61bbed 100644
---- a/drivers/bus/mhi/core/pm.c
-+++ b/drivers/bus/mhi/core/pm.c
-@@ -1038,7 +1038,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 	enum mhi_ee_type current_ee;
- 	enum dev_st_transition next_state;
- 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
--	u32 val;
-+	u32 interval_us = 25000; /* poll register field every 25 milliseconds */
- 	int ret;
- 
- 	dev_info(dev, "Requested to power ON\n");
-@@ -1055,10 +1055,6 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 	mutex_lock(&mhi_cntrl->pm_mutex);
- 	mhi_cntrl->pm_state = MHI_PM_DISABLE;
- 
--	ret = mhi_init_irq_setup(mhi_cntrl);
--	if (ret)
--		goto error_setup_irq;
--
- 	/* Setup BHI INTVEC */
- 	write_lock_irq(&mhi_cntrl->pm_lock);
- 	mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
-@@ -1072,7 +1068,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 		dev_err(dev, "%s is not a valid EE for power on\n",
- 			TO_MHI_EXEC_STR(current_ee));
- 		ret = -EIO;
--		goto error_async_power_up;
-+		goto error_setup_irq;
- 	}
- 
- 	state = mhi_get_mhi_state(mhi_cntrl);
-@@ -1081,20 +1077,12 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 
- 	if (state == MHI_STATE_SYS_ERR) {
- 		mhi_set_mhi_state(mhi_cntrl, MHI_STATE_RESET);
--		ret = wait_event_timeout(mhi_cntrl->state_event,
--				MHI_PM_IN_FATAL_STATE(mhi_cntrl->pm_state) ||
--					mhi_read_reg_field(mhi_cntrl,
--							   mhi_cntrl->regs,
--							   MHICTRL,
--							   MHICTRL_RESET_MASK,
--							   MHICTRL_RESET_SHIFT,
--							   &val) ||
--					!val,
--				msecs_to_jiffies(mhi_cntrl->timeout_ms));
--		if (!ret) {
--			ret = -EIO;
-+		ret = mhi_poll_reg_field(mhi_cntrl, mhi_cntrl->regs, MHICTRL,
-+				 MHICTRL_RESET_MASK, MHICTRL_RESET_SHIFT, 0,
-+				 interval_us);
-+		if (ret) {
- 			dev_info(dev, "Failed to reset MHI due to syserr state\n");
--			goto error_async_power_up;
-+			goto error_setup_irq;
- 		}
- 
- 		/*
-@@ -1104,6 +1092,10 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 		mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
- 	}
- 
-+	ret = mhi_init_irq_setup(mhi_cntrl);
-+	if (ret)
-+		goto error_setup_irq;
-+
- 	/* Transition to next state */
- 	next_state = MHI_IN_PBL(current_ee) ?
- 		DEV_ST_TRANSITION_PBL : DEV_ST_TRANSITION_READY;
-@@ -1116,9 +1108,6 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 
- 	return 0;
- 
--error_async_power_up:
--	mhi_deinit_free_irq(mhi_cntrl);
--
- error_setup_irq:
- 	mhi_cntrl->pm_state = MHI_PM_DISABLE;
- 	mutex_unlock(&mhi_cntrl->pm_mutex);
--- 
-2.25.1
-
+--
+Linaro LKFT
+https://lkft.linaro.org
