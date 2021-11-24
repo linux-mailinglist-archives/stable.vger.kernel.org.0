@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A632645BB8E
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:18:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9C5B45B9FE
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243610AbhKXMUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:20:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34640 "EHLO mail.kernel.org"
+        id S238420AbhKXMGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:06:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243799AbhKXMSv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:18:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B92236108F;
-        Wed, 24 Nov 2021 12:11:52 +0000 (UTC)
+        id S242242AbhKXMGE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:06:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7EDE61055;
+        Wed, 24 Nov 2021 12:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755913;
-        bh=ZZFIRzeqiZD1A/5WQg+lcKTTL/4Jlx2TpzyOXKrvihs=;
+        s=korg; t=1637755374;
+        bh=NE6wtgAjoCMSQRzm+xST3hTj+qpCsp1XOj/ZWbZehYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eEq1czxVnx1Gpsd9QuY9Da+Nx/mX+AR7KEwYW4c+nPTSBLy25KOXJHtgle3yNciRv
-         ngE7Ktb2lPbD9YopmP8vxTvTlEGC6HECOEAUnXt5+n6swJ5WQwmE753eXT709+8phD
-         Njt45qTZ7n7n+//DziVEDWHqON8gymB8hgv+FYHs=
+        b=XBXGd3xrVi8i54LHZbWFGRCnBrZJDHogW1U1VG7y0I/8SKBvAXVpidxV/kWEhfqcf
+         eBtWJI6AxzJni8g4Z+KJePc5KzE6fSdFaqKKOXlyaH3QTQfnhQAH1nyrpAzMTVf1Fa
+         oLbj2nByDrF/rrWJP7Y7TXnnKcDFuE8hE/u6mWbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Kees Cook <keescook@chromium.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 104/207] mmc: mxs-mmc: disable regulator on error and in the remove function
+Subject: [PATCH 4.4 072/162] media: si470x: Avoid card name truncation
 Date:   Wed, 24 Nov 2021 12:56:15 +0100
-Message-Id: <20211124115707.440659766@linuxfoundation.org>
+Message-Id: <20211124115700.650692667@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit ce5f6c2c9b0fcb4094f8e162cfd37fb4294204f7 ]
+[ Upstream commit 2908249f3878a591f7918368fdf0b7b0a6c3158c ]
 
-The 'reg_vmmc' regulator is enabled in the probe. It is never disabled.
-Neither in the error handling path of the probe nor in the remove
-function.
+The "card" string only holds 31 characters (and the terminating NUL).
+In order to avoid truncation, use a shorter card description instead of
+the current result, "Silicon Labs Si470x FM Radio Re".
 
-Register a devm_action to disable it when needed.
-
-Fixes: 4dc5a79f1350 ("mmc: mxs-mmc: enable regulator for mmc slot")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/4aadb3c97835f7b80f00819c3d549e6130384e67.1634365151.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Suggested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 78656acdcf48 ("V4L/DVB (7038): USB radio driver for Silicon Labs Si470x FM Radio Receivers")
+Fixes: cc35bbddfe10 ("V4L/DVB (12416): radio-si470x: add i2c driver for si470x")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mxs-mmc.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/media/radio/si470x/radio-si470x-i2c.c | 2 +-
+ drivers/media/radio/si470x/radio-si470x-usb.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/mxs-mmc.c b/drivers/mmc/host/mxs-mmc.c
-index 687fd68fbbcd1..77a03301b2a58 100644
---- a/drivers/mmc/host/mxs-mmc.c
-+++ b/drivers/mmc/host/mxs-mmc.c
-@@ -571,6 +571,11 @@ static const struct of_device_id mxs_mmc_dt_ids[] = {
- };
- MODULE_DEVICE_TABLE(of, mxs_mmc_dt_ids);
+diff --git a/drivers/media/radio/si470x/radio-si470x-i2c.c b/drivers/media/radio/si470x/radio-si470x-i2c.c
+index 0836fa442d224..24804ce70f523 100644
+--- a/drivers/media/radio/si470x/radio-si470x-i2c.c
++++ b/drivers/media/radio/si470x/radio-si470x-i2c.c
+@@ -24,7 +24,7 @@
  
-+static void mxs_mmc_regulator_disable(void *regulator)
-+{
-+	regulator_disable(regulator);
-+}
-+
- static int mxs_mmc_probe(struct platform_device *pdev)
- {
- 	const struct of_device_id *of_id =
-@@ -614,6 +619,11 @@ static int mxs_mmc_probe(struct platform_device *pdev)
- 				"Failed to enable vmmc regulator: %d\n", ret);
- 			goto out_mmc_free;
- 		}
-+
-+		ret = devm_add_action_or_reset(&pdev->dev, mxs_mmc_regulator_disable,
-+					       reg_vmmc);
-+		if (ret)
-+			goto out_mmc_free;
- 	}
+ /* driver definitions */
+ #define DRIVER_AUTHOR "Joonyoung Shim <jy0922.shim@samsung.com>";
+-#define DRIVER_CARD "Silicon Labs Si470x FM Radio Receiver"
++#define DRIVER_CARD "Silicon Labs Si470x FM Radio"
+ #define DRIVER_DESC "I2C radio driver for Si470x FM Radio Receivers"
+ #define DRIVER_VERSION "1.0.2"
  
- 	ssp->clk = devm_clk_get(&pdev->dev, NULL);
+diff --git a/drivers/media/radio/si470x/radio-si470x-usb.c b/drivers/media/radio/si470x/radio-si470x-usb.c
+index c9347d5aac04f..6fd1e4f26f5f4 100644
+--- a/drivers/media/radio/si470x/radio-si470x-usb.c
++++ b/drivers/media/radio/si470x/radio-si470x-usb.c
+@@ -29,7 +29,7 @@
+ 
+ /* driver definitions */
+ #define DRIVER_AUTHOR "Tobias Lorenz <tobias.lorenz@gmx.net>"
+-#define DRIVER_CARD "Silicon Labs Si470x FM Radio Receiver"
++#define DRIVER_CARD "Silicon Labs Si470x FM Radio"
+ #define DRIVER_DESC "USB radio driver for Si470x FM Radio Receivers"
+ #define DRIVER_VERSION "1.0.10"
+ 
 -- 
 2.33.0
 
