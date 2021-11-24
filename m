@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B53BD45BB04
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:13:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E5F45BCDA
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:31:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242985AbhKXMPo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44290 "EHLO mail.kernel.org"
+        id S245339AbhKXMc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:32:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243226AbhKXMNd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:13:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BD9261151;
-        Wed, 24 Nov 2021 12:08:03 +0000 (UTC)
+        id S243680AbhKXMbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:31:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4546610D2;
+        Wed, 24 Nov 2021 12:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755684;
-        bh=1JmBukKjrnXRzprbhVQ9UrTE9mZVLG13AXjwuDHE1h4=;
+        s=korg; t=1637756367;
+        bh=9s+rSDvOy7U06gwzWgfNajdvN6FhbtNsak6QIH8Ju9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCRmA3ZBKEvn6syO5Fa3FKafydl3luq4COpi5io3ZSwb9vOYF+VAyP61vSTKN2iKH
-         5zfigDj/gtMDp5IhonkxexYURzxG4tkEX6yvFuwiMy6yZmjekTSA0OCHDC5xUj7w/V
-         T0nf4xImQY/aCz1DczYYlzgoEW7on1pI2Eaf0fYE=
+        b=B4987lsw2iU55D0z4N1cvaiDa33hQ7V8WD83TJZjjV1uZeVQ15YWRyiozCYQSitsz
+         q15ZCvLs+v5WUDbFaEIKroqJvkVKj87cBo9yeiLfKSK8JvZBnUZmPwcWfU0yuW8pwb
+         zZWqBgfQh6Tw+ini50izZGguA3D8rnjpMrGbadeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phoenix Huang <phoenix@emc.com.tw>,
-        Yufei Du <yufeidu@cs.unc.edu>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 004/207] Input: elantench - fix misreporting trackpoint coordinates
-Date:   Wed, 24 Nov 2021 12:54:35 +0100
-Message-Id: <20211124115704.085356383@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Rob Herring <robh@kernel.org>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 034/251] regulator: dt-bindings: samsung,s5m8767: correct s5m8767,pmic-buck-default-dvs-idx property
+Date:   Wed, 24 Nov 2021 12:54:36 +0100
+Message-Id: <20211124115711.425059932@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phoenix Huang <phoenix@emc.com.tw>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit be896bd3b72b44126c55768f14c22a8729b0992e upstream.
+commit a7fda04bc9b6ad9da8e19c9e6e3b1dab773d068a upstream.
 
-Some firmwares occasionally report bogus data from trackpoint, with X or Y
-displacement being too large (outside of [-127, 127] range). Let's drop such
-packets so that we do not generate jumps.
+The driver was always parsing "s5m8767,pmic-buck-default-dvs-idx", not
+"s5m8767,pmic-buck234-default-dvs-idx".
 
-Signed-off-by: Phoenix Huang <phoenix@emc.com.tw>
-Tested-by: Yufei Du <yufeidu@cs.unc.edu>
-Link: https://lore.kernel.org/r/20210729010940.5752-1-phoenix@emc.com.tw
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 26aec009f6b6 ("regulator: add device tree support for s5m8767")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Message-Id: <20211008113723.134648-3-krzysztof.kozlowski@canonical.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/mouse/elantech.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -431,6 +431,19 @@ static void elantech_report_trackpoint(s
- 	case 0x16008020U:
- 	case 0x26800010U:
- 	case 0x36808000U:
-+
-+		/*
-+		 * This firmware misreport coordinates for trackpoint
-+		 * occasionally. Discard packets outside of [-127, 127] range
-+		 * to prevent cursor jumps.
-+		 */
-+		if (packet[4] == 0x80 || packet[5] == 0x80 ||
-+		    packet[1] >> 7 == packet[4] >> 7 ||
-+		    packet[2] >> 7 == packet[5] >> 7) {
-+			elantech_debug("discarding packet [%6ph]\n", packet);
-+			break;
-+
-+		}
- 		x = packet[4] - (int)((packet[1]^0x80) << 1);
- 		y = (int)((packet[2]^0x80) << 1) - packet[5];
+--- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
++++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
+@@ -39,7 +39,7 @@ Optional properties of the main device n
  
+ Additional properties required if either of the optional properties are used:
+ 
+- - s5m8767,pmic-buck234-default-dvs-idx: Default voltage setting selected from
++ - s5m8767,pmic-buck-default-dvs-idx: Default voltage setting selected from
+    the possible 8 options selectable by the dvs gpios. The value of this
+    property should be between 0 and 7. If not specified or if out of range, the
+    default value of this property is set to 0.
 
 
