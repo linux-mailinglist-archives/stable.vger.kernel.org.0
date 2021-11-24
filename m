@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4335045BE1F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6BA145BAE8
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244833AbhKXMos (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:44:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51178 "EHLO mail.kernel.org"
+        id S241838AbhKXMPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:15:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344851AbhKXMnN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:43:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9946361409;
-        Wed, 24 Nov 2021 12:25:42 +0000 (UTC)
+        id S242822AbhKXMMF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:12:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8424760295;
+        Wed, 24 Nov 2021 12:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756743;
-        bh=E75xeQtI4oHGuXT23o4iJrM5A/1CZ+eA7kXnn4MJp4g=;
+        s=korg; t=1637755620;
+        bh=r1AgslNBck/jjGU0EcguFA9a5spCsqwtYW+7uBn2tWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fcc1qkORtCdt+gsgnMmLSWaRqLt0boXlTyZB6PjJMqb35n7FORZfUlUs/qOe1g9Pb
-         FfkqYKGqd1V6eH8skFVh0FELud3KYMytDAWZxew/yEPe7MqW6Bz4XebUq9uqt6JcUz
-         3uUP6SUv0Vc3HPU9/oaU3PcCSTSK3I/zaQ5CYRMg=
+        b=KLW+eyXcnvAbOjMjx/oQsyd2AndMnPSBLGA7NUCwOm46lFHjdWx+5fiwZVzs4NFFf
+         TtzX0ldP3IZyyn0EK2RRX40plBEvE+wRn1Y5qPdUlgudFRxQtaQHKJ8gvFUJHQqS0Q
+         tDSalEqKqaoYqJjeCDYB3LVvV4GG/E1r8MXV7VT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Antonio Terceiro <antonio.terceiro@linaro.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Sebastian Andrzej Siewior <sebastian@breakpoint.cc>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Klaus Kudielka <klaus.kudielka@gmail.com>,
-        Matthias Klose <doko@debian.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.14 190/251] ARM: 9156/1: drop cc-option fallbacks for architecture selection
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Paul Mundt <lethal@linux-sh.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Miguel Ojeda <ojeda@kernel.org>, Rich Felker <dalias@libc.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 129/162] sh: check return code of request_irq
 Date:   Wed, 24 Nov 2021 12:57:12 +0100
-Message-Id: <20211124115716.881602398@linuxfoundation.org>
+Message-Id: <20211124115702.467765244@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,103 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 418ace9992a7647c446ed3186df40cf165b67298 upstream.
+[ Upstream commit 0e38225c92c7964482a8bb6b3e37fde4319e965c ]
 
-Naresh and Antonio ran into a build failure with latest Debian
-armhf compilers, with lots of output like
+request_irq is marked __must_check, but the call in shx3_prepare_cpus
+has a void return type, so it can't propagate failure to the caller.
+Follow cues from hexagon and just print an error.
 
- tmp/ccY3nOAs.s:2215: Error: selected processor does not support `cpsid i' in ARM mode
-
-As it turns out, $(cc-option) fails early here when the FPU is not
-selected before CPU architecture is selected, as the compiler
-option check runs before enabling -msoft-float, which causes
-a problem when testing a target architecture level without an FPU:
-
-cc1: error: '-mfloat-abi=hard': selected architecture lacks an FPU
-
-Passing e.g. -march=armv6k+fp in place of -march=armv6k would avoid this
-issue, but the fallback logic is already broken because all supported
-compilers (gcc-5 and higher) are much more recent than these options,
-and building with -march=armv5t as a fallback no longer works.
-
-The best way forward that I see is to just remove all the checks, which
-also has the nice side-effect of slightly improving the startup time for
-'make'.
-
-The -mtune=marvell-f option was apparently never supported by any mainline
-compiler, and the custom Codesourcery gcc build that did support is
-now too old to build kernels, so just use -mtune=xscale unconditionally
-for those.
-
-This should be safe to apply on all stable kernels, and will be required
-in order to keep building them with gcc-11 and higher.
-
-Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=996419
-
-Reported-by: Antonio Terceiro <antonio.terceiro@linaro.org>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reported-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
-Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Tested-by: Klaus Kudielka <klaus.kudielka@gmail.com>
-Cc: Matthias Klose <doko@debian.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c7936b9abcf5 ("sh: smp: Hook in to the generic IPI handler for SH-X3 SMP.")
+Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc: Paul Mundt <lethal@linux-sh.org>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
+Signed-off-by: Rich Felker <dalias@libc.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Makefile |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ arch/sh/kernel/cpu/sh4a/smp-shx3.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -66,15 +66,15 @@ KBUILD_CFLAGS	+= $(call cc-option,-fno-i
- # Note that GCC does not numerically define an architecture version
- # macro, but instead defines a whole series of macros which makes
- # testing for a specific architecture or later rather impossible.
--arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m -Wa,-march=armv7-m
--arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
--arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6,-march=armv5t -Wa$(comma)-march=armv6)
-+arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m
-+arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 -march=armv7-a
-+arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 -march=armv6
- # Only override the compiler option if ARMv6. The ARMv6K extensions are
- # always available in ARMv7
- ifeq ($(CONFIG_CPU_32v6),y)
--arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6k,-march=armv5t -Wa$(comma)-march=armv6k)
-+arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 -march=armv6k
- endif
--arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5te,-march=armv4t)
-+arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 -march=armv5te
- arch-$(CONFIG_CPU_32v4T)	=-D__LINUX_ARM_ARCH__=4 -march=armv4t
- arch-$(CONFIG_CPU_32v4)		=-D__LINUX_ARM_ARCH__=4 -march=armv4
- arch-$(CONFIG_CPU_32v3)		=-D__LINUX_ARM_ARCH__=3 -march=armv3
-@@ -88,7 +88,7 @@ tune-$(CONFIG_CPU_ARM720T)	=-mtune=arm7t
- tune-$(CONFIG_CPU_ARM740T)	=-mtune=arm7tdmi
- tune-$(CONFIG_CPU_ARM9TDMI)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM940T)	=-mtune=arm9tdmi
--tune-$(CONFIG_CPU_ARM946E)	=$(call cc-option,-mtune=arm9e,-mtune=arm9tdmi)
-+tune-$(CONFIG_CPU_ARM946E)	=-mtune=arm9e
- tune-$(CONFIG_CPU_ARM920T)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM922T)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM925T)	=-mtune=arm9tdmi
-@@ -96,11 +96,11 @@ tune-$(CONFIG_CPU_ARM926T)	=-mtune=arm9t
- tune-$(CONFIG_CPU_FA526)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_SA110)	=-mtune=strongarm110
- tune-$(CONFIG_CPU_SA1100)	=-mtune=strongarm1100
--tune-$(CONFIG_CPU_XSCALE)	=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
--tune-$(CONFIG_CPU_XSC3)		=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
--tune-$(CONFIG_CPU_FEROCEON)	=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
--tune-$(CONFIG_CPU_V6)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
--tune-$(CONFIG_CPU_V6K)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
-+tune-$(CONFIG_CPU_XSCALE)	=-mtune=xscale
-+tune-$(CONFIG_CPU_XSC3)		=-mtune=xscale
-+tune-$(CONFIG_CPU_FEROCEON)	=-mtune=xscale
-+tune-$(CONFIG_CPU_V6)		=-mtune=arm1136j-s
-+tune-$(CONFIG_CPU_V6K)		=-mtune=arm1136j-s
+diff --git a/arch/sh/kernel/cpu/sh4a/smp-shx3.c b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
+index 4a298808789c4..4a1cee5da2dc5 100644
+--- a/arch/sh/kernel/cpu/sh4a/smp-shx3.c
++++ b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
+@@ -78,8 +78,9 @@ static void shx3_prepare_cpus(unsigned int max_cpus)
+ 	BUILD_BUG_ON(SMP_MSG_NR >= 8);
  
- # Evaluate tune cc-option calls now
- tune-y := $(tune-y)
+ 	for (i = 0; i < SMP_MSG_NR; i++)
+-		request_irq(104 + i, ipi_interrupt_handler,
+-			    IRQF_PERCPU, "IPI", (void *)(long)i);
++		if (request_irq(104 + i, ipi_interrupt_handler,
++			    IRQF_PERCPU, "IPI", (void *)(long)i))
++			pr_err("Failed to request irq %d\n", i);
+ 
+ 	for (i = 0; i < max_cpus; i++)
+ 		set_cpu_present(i, true);
+-- 
+2.33.0
+
 
 
