@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45A7945C133
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4BA845C1E0
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347420AbhKXNPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:15:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56644 "EHLO mail.kernel.org"
+        id S1349706AbhKXNXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:23:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348562AbhKXNN2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:13:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C59B561221;
-        Wed, 24 Nov 2021 12:43:12 +0000 (UTC)
+        id S1348733AbhKXNUz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:20:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 923946128A;
+        Wed, 24 Nov 2021 12:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757793;
-        bh=0IqvRS0IJRKnNqDAY5t3blXGq9LRZKZOmBpJ5DNEVc4=;
+        s=korg; t=1637758026;
+        bh=h00z2kKRn84wX9YSnvmocwlC8bQBN+BoZgdwVROFi+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IR5np7auC0deEKC3dKKVvnGUDGtgW8I94nzRnkAx1Og5fQlH9E7EeS6hY9ON9RmvR
-         PJ8NXOls0H4rslbCLNdwPYbp4oSMN5MS5Qn+QqUQXsz5b7c0zbah+2CPoadY+mW8vz
-         Gq9+zI9kdYEpE3ldiRQskefhVnZ35HLrFOVYKgDc=
+        b=BDeqOL102xvoPLNFSauY71asOS1lLYQ4gXaib6wPd2iaEN5okmvq776xbduarTxCI
+         ziTpkQOwe5rP6QRDgazT81cwxc6aSkmgYkSGeEO6hpEJThVBKmRNSjxYrNX8g/5HX2
+         +TCRralMaX6PeKA+00kFIyDViTXPQVezzHTFhU3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 278/323] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
+Subject: [PATCH 5.4 032/100] f2fs: fix up f2fs_lookup tracepoints
 Date:   Wed, 24 Nov 2021 12:57:48 +0100
-Message-Id: <20211124115728.286317451@linuxfoundation.org>
+Message-Id: <20211124115655.913843312@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
+[ Upstream commit 70a9ac36ffd807ac506ed0b849f3e8ce3c6623f2 ]
 
-In dcr-low.S we use cmpli with three arguments, instead of four
-arguments as defined in the ISA:
+Fix up a misuse that the filename pointer isn't always valid in
+the ring buffer, and we should copy the content instead.
 
-	cmpli	cr0,r3,1024
-
-This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
-User’s Manual" it shows cmpli having no L field, but implied to be 0 due
-to the core being 32-bit. It mentions that the ISA defines four
-arguments and recommends using cmplwi.
-
-It also corresponds to the old POWER instruction set, which had no L
-field there, a reserved bit instead.
-
-dcr-low.S is only built 32-bit, because it is only built when
-DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
-generated code (with gcc/gas) we see cmplwi as expected.
-
-Although gas is happy with the 3-argument version when building for
-32-bit, the LLVM assembler is not and errors out with:
-
-  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
-   cmpli 0,%r3,1024; ...
-           ^
-
-Switch to the cmplwi extended opcode, which avoids any confusion when
-reading the ISA, fixes the issue with the LLVM assembler, and also means
-the code could be built 64-bit in future (though that's very unlikely).
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
-Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
+Fixes: 0c5e36db17f5 ("f2fs: trace f2fs_lookup")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/dcr-low.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/trace/events/f2fs.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
-index e687bb2003ff0..5589fbe48bbdc 100644
---- a/arch/powerpc/sysdev/dcr-low.S
-+++ b/arch/powerpc/sysdev/dcr-low.S
-@@ -15,7 +15,7 @@
- #include <asm/export.h>
+diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
+index 1796ff99c3e9c..a7613efc271ab 100644
+--- a/include/trace/events/f2fs.h
++++ b/include/trace/events/f2fs.h
+@@ -793,20 +793,20 @@ TRACE_EVENT(f2fs_lookup_start,
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,	dev)
+ 		__field(ino_t,	ino)
+-		__field(const char *,	name)
++		__string(name,	dentry->d_name.name)
+ 		__field(unsigned int, flags)
+ 	),
  
- #define DCR_ACCESS_PROLOG(table) \
--	cmpli	cr0,r3,1024;	 \
-+	cmplwi	cr0,r3,1024;	 \
- 	rlwinm  r3,r3,4,18,27;   \
- 	lis     r5,table@h;      \
- 	ori     r5,r5,table@l;   \
+ 	TP_fast_assign(
+ 		__entry->dev	= dir->i_sb->s_dev;
+ 		__entry->ino	= dir->i_ino;
+-		__entry->name	= dentry->d_name.name;
++		__assign_str(name, dentry->d_name.name);
+ 		__entry->flags	= flags;
+ 	),
+ 
+ 	TP_printk("dev = (%d,%d), pino = %lu, name:%s, flags:%u",
+ 		show_dev_ino(__entry),
+-		__entry->name,
++		__get_str(name),
+ 		__entry->flags)
+ );
+ 
+@@ -820,7 +820,7 @@ TRACE_EVENT(f2fs_lookup_end,
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,	dev)
+ 		__field(ino_t,	ino)
+-		__field(const char *,	name)
++		__string(name,	dentry->d_name.name)
+ 		__field(nid_t,	cino)
+ 		__field(int,	err)
+ 	),
+@@ -828,14 +828,14 @@ TRACE_EVENT(f2fs_lookup_end,
+ 	TP_fast_assign(
+ 		__entry->dev	= dir->i_sb->s_dev;
+ 		__entry->ino	= dir->i_ino;
+-		__entry->name	= dentry->d_name.name;
++		__assign_str(name, dentry->d_name.name);
+ 		__entry->cino	= ino;
+ 		__entry->err	= err;
+ 	),
+ 
+ 	TP_printk("dev = (%d,%d), pino = %lu, name:%s, ino:%u, err:%d",
+ 		show_dev_ino(__entry),
+-		__entry->name,
++		__get_str(name),
+ 		__entry->cino,
+ 		__entry->err)
+ );
 -- 
 2.33.0
 
