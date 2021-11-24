@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D271F45BA79
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:08:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83BE645BE21
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232442AbhKXMLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:11:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34104 "EHLO mail.kernel.org"
+        id S1344095AbhKXMot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:44:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241644AbhKXMJq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:09:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5053D610A8;
-        Wed, 24 Nov 2021 12:05:33 +0000 (UTC)
+        id S1344258AbhKXMnE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:43:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3052D61244;
+        Wed, 24 Nov 2021 12:25:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755533;
-        bh=iM3CgcmJpYI1BYV4arFIc7UHGjgyPXrZXuVgO3cUedw=;
+        s=korg; t=1637756726;
+        bh=OUb3d98ovpdn63yizbbTlkew56odWcINU3UE0nSNSU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qkAFHh8K5+4QtB+a7ys57lqerI0uo7e4qtf52j0osVbCKvQKW0/6OT/5W5s8qkv2Q
-         J4nTsj93Y6PUvezP0KexrSiAoZbj6cITF5csm55wG4k+K3NclyeAK3IrUECfS0KQRf
-         KXUBxk5zzE05ZqVYrAkZWJZW9bhKhXLwbnK8cpK4=
+        b=gr+j6vcFwCGzZR2Q96Hn3woh0Z1zJeO3XHPzuqfIaXSfXaJvvUoN80BmtohQKFwcf
+         v/Bo4cUpC1UBIrNySZDY/s7D1Hf+okToDivCwAtxo9AgewZS9M7tIBlTWqqNqwyqsb
+         vgNau4+spIxrTYLxIGVsZH51VFR/4Q5mjsno2oZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-mips@vger.kernel.org,
-        Bart Van Assche <bvanassche@acm.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Henry Burns <henryburns@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 123/162] MIPS: sni: Fix the build
+Subject: [PATCH 4.14 184/251] mm/zsmalloc.c: close race window between zs_pool_dec_isolated() and zs_unregister_migration()
 Date:   Wed, 24 Nov 2021 12:57:06 +0100
-Message-Id: <20211124115702.286177563@linuxfoundation.org>
+Message-Id: <20211124115716.664398805@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit c91cf42f61dc77b289784ea7b15a8531defa41c0 ]
+[ Upstream commit afe8605ca45424629fdddfd85984b442c763dc47 ]
 
-This patch fixes the following gcc 10 build error:
+There is one possible race window between zs_pool_dec_isolated() and
+zs_unregister_migration() because wait_for_isolated_drain() checks the
+isolated count without holding class->lock and there is no order inside
+zs_pool_dec_isolated().  Thus the below race window could be possible:
 
-arch/mips/sni/time.c: In function ‘a20r_set_periodic’:
-arch/mips/sni/time.c:15:26: error: unsigned conversion from ‘int’ to ‘u8’ {aka ‘volatile unsigned char’} changes value from ‘576’ to ‘64’ [-Werror=overflow]
-   15 | #define SNI_COUNTER0_DIV ((SNI_CLOCK_TICK_RATE / SNI_COUNTER2_DIV) / HZ)
-      |                          ^
-arch/mips/sni/time.c:21:45: note: in expansion of macro ‘SNI_COUNTER0_DIV’
-   21 |  *(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV;
-      |                                             ^~~~~~~~~~~~~~~~
+  zs_pool_dec_isolated		zs_unregister_migration
+    check pool->destroying != 0
+				  pool->destroying = true;
+				  smp_mb();
+				  wait_for_isolated_drain()
+				    wait for pool->isolated_pages == 0
+    atomic_long_dec(&pool->isolated_pages);
+    atomic_long_read(&pool->isolated_pages) == 0
 
-Cc: linux-mips@vger.kernel.org
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Since we observe the pool->destroying (false) before atomic_long_dec()
+for pool->isolated_pages, waking pool->migration_wait up is missed.
+
+Fix this by ensure checking pool->destroying happens after the
+atomic_long_dec(&pool->isolated_pages).
+
+Link: https://lkml.kernel.org/r/20210708115027.7557-1-linmiaohe@huawei.com
+Fixes: 701d678599d0 ("mm/zsmalloc.c: fix race condition in zs_destroy_pool")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Henry Burns <henryburns@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/sni/time.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/zsmalloc.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/sni/time.c b/arch/mips/sni/time.c
-index fb4b3520cdc61..d72dd0d2ff595 100644
---- a/arch/mips/sni/time.c
-+++ b/arch/mips/sni/time.c
-@@ -18,14 +18,14 @@ static int a20r_set_periodic(struct clock_event_device *evt)
- {
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 12) = 0x34;
- 	wmb();
--	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV;
-+	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV & 0xff;
- 	wmb();
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 0) = SNI_COUNTER0_DIV >> 8;
- 	wmb();
- 
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 12) = 0xb4;
- 	wmb();
--	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 8) = SNI_COUNTER2_DIV;
-+	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 8) = SNI_COUNTER2_DIV & 0xff;
- 	wmb();
- 	*(volatile u8 *)(A20R_PT_CLOCK_BASE + 8) = SNI_COUNTER2_DIV >> 8;
- 	wmb();
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index 633ebcac82f8d..6cdb49ae00010 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -1901,10 +1901,11 @@ static inline void zs_pool_dec_isolated(struct zs_pool *pool)
+ 	VM_BUG_ON(atomic_long_read(&pool->isolated_pages) <= 0);
+ 	atomic_long_dec(&pool->isolated_pages);
+ 	/*
+-	 * There's no possibility of racing, since wait_for_isolated_drain()
+-	 * checks the isolated count under &class->lock after enqueuing
+-	 * on migration_wait.
++	 * Checking pool->destroying must happen after atomic_long_dec()
++	 * for pool->isolated_pages above. Paired with the smp_mb() in
++	 * zs_unregister_migration().
+ 	 */
++	smp_mb__after_atomic();
+ 	if (atomic_long_read(&pool->isolated_pages) == 0 && pool->destroying)
+ 		wake_up_all(&pool->migration_wait);
+ }
 -- 
 2.33.0
 
