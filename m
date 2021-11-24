@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0269345BA56
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:06:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7112F45BBE7
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242550AbhKXMJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:09:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34272 "EHLO mail.kernel.org"
+        id S243715AbhKXMZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242447AbhKXMIU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:08:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C84BC6108E;
-        Wed, 24 Nov 2021 12:04:47 +0000 (UTC)
+        id S244143AbhKXMXB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:23:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 788F86108D;
+        Wed, 24 Nov 2021 12:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755488;
-        bh=5X/Tgypm2iBfoNbVAT64NUB8dqsyDdqqTH/u6mP2Zqc=;
+        s=korg; t=1637756032;
+        bh=DOLY5JQFEAXzzp5L+nU8DjAnztS2eb8ABUZBpFAs9YA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hy6gjoK4GCbHHj9wOpa8VXbNK+tiW4vfu2HgH1otrxmlzaU18MspAK65OJfXHEkAC
-         OTGG8wEVfaSJEWHfbPb7zfzNiB3UZVBg++wMLsmw6aVRMYoW0MYa66BZbxnn3SFMcM
-         jqupsKy+NVaVC2eZZFzaX90JiocKy8BLoy3mYA5U=
+        b=z3jVNJ8JIodcuiUmWSjr//ByAph/VKF9FaaoFmU2/HzSGtVZ47JhS7EowfoQ00rHB
+         1pkiWe5ZgptNCTbUIMn39EOscyO4Jeu8jnrdmVcpHRUAjSGZc/0PHJXoanp/we4ycY
+         IW0VgskYkX/QR4lK3laTMJUU8uqf+OvB7u+B/DrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.4 113/162] PCI: Add PCI_EXP_DEVCTL_PAYLOAD_* macros
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 145/207] net: davinci_emac: Fix interrupt pacing disable
 Date:   Wed, 24 Nov 2021 12:56:56 +0100
-Message-Id: <20211124115701.977572653@linuxfoundation.org>
+Message-Id: <20211124115708.716283298@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-commit 460275f124fb072dca218a6b43b6370eebbab20d upstream.
+[ Upstream commit d52bcb47bdf971a59a2467975d2405fcfcb2fa19 ]
 
-Define a macro PCI_EXP_DEVCTL_PAYLOAD_* for every possible Max Payload
-Size in linux/pci_regs.h, in the same style as PCI_EXP_DEVCTL_READRQ_*.
+This patch allows to use 0 for `coal->rx_coalesce_usecs` param to
+disable rx irq coalescing.
 
-Link: https://lore.kernel.org/r/20211005180952.6812-2-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Previously we could enable rx irq coalescing via ethtool
+(For ex: `ethtool -C eth0 rx-usecs 2000`) but we couldn't disable
+it because this part rejects 0 value:
+
+       if (!coal->rx_coalesce_usecs)
+               return -EINVAL;
+
+Fixes: 84da2658a619 ("TI DaVinci EMAC : Implement interrupt pacing functionality.")
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Link: https://lore.kernel.org/r/20211101152343.4193233-1-bigunclemax@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/pci_regs.h |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/ti/davinci_emac.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/include/uapi/linux/pci_regs.h
-+++ b/include/uapi/linux/pci_regs.h
-@@ -488,6 +488,12 @@
- #define  PCI_EXP_DEVCTL_URRE	0x0008	/* Unsupported Request Reporting En. */
- #define  PCI_EXP_DEVCTL_RELAX_EN 0x0010 /* Enable relaxed ordering */
- #define  PCI_EXP_DEVCTL_PAYLOAD	0x00e0	/* Max_Payload_Size */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_128B 0x0000 /* 128 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_256B 0x0020 /* 256 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_512B 0x0040 /* 512 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_1024B 0x0060 /* 1024 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_2048B 0x0080 /* 2048 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_4096B 0x00a0 /* 4096 Bytes */
- #define  PCI_EXP_DEVCTL_EXT_TAG	0x0100	/* Extended Tag Field Enable */
- #define  PCI_EXP_DEVCTL_PHANTOM	0x0200	/* Phantom Functions Enable */
- #define  PCI_EXP_DEVCTL_AUX_PME	0x0400	/* Auxiliary Power PM Enable */
+diff --git a/drivers/net/ethernet/ti/davinci_emac.c b/drivers/net/ethernet/ti/davinci_emac.c
+index 8b7596fef42a6..37162492e2635 100644
+--- a/drivers/net/ethernet/ti/davinci_emac.c
++++ b/drivers/net/ethernet/ti/davinci_emac.c
+@@ -426,8 +426,20 @@ static int emac_set_coalesce(struct net_device *ndev,
+ 	u32 int_ctrl, num_interrupts = 0;
+ 	u32 prescale = 0, addnl_dvdr = 1, coal_intvl = 0;
+ 
+-	if (!coal->rx_coalesce_usecs)
+-		return -EINVAL;
++	if (!coal->rx_coalesce_usecs) {
++		priv->coal_intvl = 0;
++
++		switch (priv->version) {
++		case EMAC_VERSION_2:
++			emac_ctrl_write(EMAC_DM646X_CMINTCTRL, 0);
++			break;
++		default:
++			emac_ctrl_write(EMAC_CTRL_EWINTTCNT, 0);
++			break;
++		}
++
++		return 0;
++	}
+ 
+ 	coal_intvl = coal->rx_coalesce_usecs;
+ 
+-- 
+2.33.0
+
 
 
