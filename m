@@ -2,85 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A1F945C8A9
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 16:30:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F410A45C8B1
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 16:31:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237373AbhKXPdT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 10:33:19 -0500
-Received: from coyote.holtmann.net ([212.227.132.17]:34348 "EHLO
-        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236235AbhKXPdT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 10:33:19 -0500
-Received: from smtpclient.apple (p5b3d2e91.dip0.t-ipconnect.de [91.61.46.145])
-        by mail.holtmann.org (Postfix) with ESMTPSA id E4D55CED24;
-        Wed, 24 Nov 2021 16:30:07 +0100 (CET)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 15.0 \(3693.20.0.1.32\))
-Subject: Re: [PATCH] Bluetooth: btusb: Add one more Bluetooth part for the
- Realtek RTL8852AE
-From:   Marcel Holtmann <marcel@holtmann.org>
-In-Reply-To: <20211121165148.25355-1-Larry.Finger@lwfinger.net>
-Date:   Wed, 24 Nov 2021 16:30:07 +0100
-Cc:     "Gustavo F. Padovan" <gustavo@padovan.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        linux-bluetooth@vger.kernel.org, Hilda Wu <hildawu@realtek.com>,
-        Stable <stable@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-Message-Id: <617301B7-0357-4E07-BA19-A43E5A2BF819@holtmann.org>
-References: <20211121165148.25355-1-Larry.Finger@lwfinger.net>
-To:     Larry Finger <Larry.Finger@lwfinger.net>
-X-Mailer: Apple Mail (2.3693.20.0.1.32)
+        id S239939AbhKXPef (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 10:34:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44398 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233565AbhKXPee (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 10:34:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F07260F5B;
+        Wed, 24 Nov 2021 15:31:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637767884;
+        bh=LJdfsnrN6zkgkJ5bpl+Sj/7Ntb7JRh85UkiCV9vqFHI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kwQ5XFpqxPP/p/y6DVWh1h2Qc2B4iiu3FJrEvrk3UlmoSAqB9aiM0ezUzXkJYWavO
+         0wfEvXzLEuQ9zKGmNfwAWlCrzqIXk/K6HXrjCwPfc9Fo7oCSIjaiDsAjKVDIjFnRQi
+         NKL2Reyn4i/+bOLthQVW0mGbi5edYwKerqSWi5d8=
+Date:   Wed, 24 Nov 2021 16:31:22 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jari Ruusu <jariruusu@users.sourceforge.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Alistair Delva <adelva@google.com>,
+        Khazhismel Kumykov <khazhy@google.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Serge Hallyn <serge@hallyn.com>, Jens Axboe <axboe@kernel.dk>,
+        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, kernel-team@android.com
+Subject: Re: [PATCH 5.10 130/154] block: Check ADMIN before NICE for
+ IOPRIO_CLASS_RT
+Message-ID: <YZ5ayhuOMZwkd9j6@kroah.com>
+References: <20211124115702.361983534@linuxfoundation.org>
+ <20211124115706.507376250@linuxfoundation.org>
+ <619E4ABA.DC78AA58@users.sourceforge.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <619E4ABA.DC78AA58@users.sourceforge.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Larry,
-
-> The Realtek RTL8852AE has both wifi and BT components. The latter reports
-> a USB ID of 0bda:385a, which is not in the table.
+On Wed, Nov 24, 2021 at 04:22:50PM +0200, Jari Ruusu wrote:
+> Greg Kroah-Hartman wrote:
+> > From: Alistair Delva <adelva@google.com>
+> > 
+> > commit 94c4b4fd25e6c3763941bdec3ad54f2204afa992 upstream.
+>  [SNIP]
+> > --- a/block/ioprio.c
+> > +++ b/block/ioprio.c
+> > @@ -69,7 +69,14 @@ int ioprio_check_cap(int ioprio)
+> > 
+> >         switch (class) {
+> >                 case IOPRIO_CLASS_RT:
+> > -                       if (!capable(CAP_SYS_NICE) && !capable(CAP_SYS_ADMIN))
+> > +                       /*
+> > +                        * Originally this only checked for CAP_SYS_ADMIN,
+> > +                        * which was implicitly allowed for pid 0 by security
+> > +                        * modules such as SELinux. Make sure we check
+> > +                        * CAP_SYS_ADMIN first to avoid a denial/avc for
+> > +                        * possibly missing CAP_SYS_NICE permission.
+> > +                        */
+> > +                       if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_NICE))
+> >                                 return -EPERM;
+> >                         fallthrough;
+> >                         /* rt has prio field too */
 > 
-> The portion of /sys/kernel/debug/usb/devices pertaining to this device is
-> 
-> T:  Bus=01 Lev=01 Prnt=01 Port=03 Cnt=02 Dev#=  3 Spd=12   MxCh= 0
-> D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-> P:  Vendor=0bda ProdID=385a Rev= 0.00
-> S:  Manufacturer=Realtek
-> S:  Product=Bluetooth Radio
-> S:  SerialNumber=00e04c000001
-> C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
-> I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
-> E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-> E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-> I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-> I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-> I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-> I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-> I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-> I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-> E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-> E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-> 
-> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-> Cc: Stable <stable@vger.kernel.org>
-> ---
-> drivers/bluetooth/btusb.c | 2 ++
-> 1 file changed, 2 insertions(+)
+> What exactly is above patch trying to fix?
+> It does not change control flow at all, and added comment is misleading.
 
-patch has been applied to bluetooth-next tree.
+See the thread on the mailing list for what it does and why it is
+needed.
 
-Regards
+It does change the result when selinux is enabled.
 
-Marcel
+thanks,
 
+greg k-h
