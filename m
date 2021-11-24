@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1F4345C1DD
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED29D45C394
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:38:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345842AbhKXNW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:22:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39544 "EHLO mail.kernel.org"
+        id S1348336AbhKXNkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:40:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347723AbhKXNUy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:20:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 445A861B00;
-        Wed, 24 Nov 2021 12:46:55 +0000 (UTC)
+        id S1348855AbhKXNiF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:38:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 568D263210;
+        Wed, 24 Nov 2021 12:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758015;
-        bh=w5Xb6WCzlZ8aPhmrZpZHwKQX/kb2t2tuhtwlxNHDG2k=;
+        s=korg; t=1637758572;
+        bh=QSqCYEMAf62OEoYS4OdQuGkXlIQKQh6bwBJcxa1BN2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Omo/wJkppYZQ8lJwHMOPiC1Faxv/mAhQowXbitD2gEHbhXxpPbpR5IJgVU2zht5yR
-         f7ZZh1j5309kuakzs0Lwd0U9zQT6njXmX1m3cGoL+pqNYQichH9M/oNmnzHNSCnFZX
-         FKfBh1+Y9GtWdlUu2WSa+st+iQyeM668rxeZn2cs=
+        b=mLUJL48Dj/akb9oZLjJaOVNKISyGkmsyJFUkTZLAD+ioivtsCleAqzsroZ7mKe1iT
+         kPtw6E6QzMLkVEF+ZsHQKO3ZyxHyX/sTsMKee/P8XZxO/PawuEP0ClJdR4D0VCWGKI
+         x87wC+z+VyiZ18R6KoHttxxUvqZ3DpYphxCcXuCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Arjun Roy <arjunroy@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 029/100] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
-Date:   Wed, 24 Nov 2021 12:57:45 +0100
-Message-Id: <20211124115655.800279735@linuxfoundation.org>
+Subject: [PATCH 5.10 070/154] net-zerocopy: Refactor skb frag fast-forward op.
+Date:   Wed, 24 Nov 2021 12:57:46 +0100
+Message-Id: <20211124115704.584102373@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +42,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Arjun Roy <arjunroy@google.com>
 
-[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
+[ Upstream commit 7fba5309efe24e4f0284ef4b8663cdf401035e72 ]
 
-In dcr-low.S we use cmpli with three arguments, instead of four
-arguments as defined in the ISA:
+Refactor skb frag fast-forwarding for tcp receive zerocopy. This is
+part of a patch set that introduces short-circuited hybrid copies
+for small receive operations, which results in roughly 33% fewer
+syscalls for small RPC scenarios.
 
-	cmpli	cr0,r3,1024
+skb_advance_to_frag(), given a skb and an offset into the skb,
+iterates from the first frag for the skb until we're at the frag
+specified by the offset. Assuming the offset provided refers to how
+many bytes in the skb are already read, the returned frag points to
+the next frag we may read from, while offset_frag is set to the number
+of bytes from this frag that we have already read.
 
-This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
-User’s Manual" it shows cmpli having no L field, but implied to be 0 due
-to the core being 32-bit. It mentions that the ISA defines four
-arguments and recommends using cmplwi.
+If frag is not null and offset_frag is equal to 0, then we may be able
+to map this frag's page into the process address space with
+vm_insert_page(). However, if offset_frag is not equal to 0, then we
+cannot do so.
 
-It also corresponds to the old POWER instruction set, which had no L
-field there, a reserved bit instead.
-
-dcr-low.S is only built 32-bit, because it is only built when
-DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
-generated code (with gcc/gas) we see cmplwi as expected.
-
-Although gas is happy with the 3-argument version when building for
-32-bit, the LLVM assembler is not and errors out with:
-
-  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
-   cmpli 0,%r3,1024; ...
-           ^
-
-Switch to the cmplwi extended opcode, which avoids any confusion when
-reading the ISA, fixes the issue with the LLVM assembler, and also means
-the code could be built 64-bit in future (though that's very unlikely).
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
-Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
+Signed-off-by: Arjun Roy <arjunroy@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/dcr-low.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp.c | 35 ++++++++++++++++++++++++++---------
+ 1 file changed, 26 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
-index efeeb1b885a17..329b9c4ae5429 100644
---- a/arch/powerpc/sysdev/dcr-low.S
-+++ b/arch/powerpc/sysdev/dcr-low.S
-@@ -11,7 +11,7 @@
- #include <asm/export.h>
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index ba6e4c6db3b0a..b3721cff45023 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1746,6 +1746,28 @@ int tcp_mmap(struct file *file, struct socket *sock,
+ }
+ EXPORT_SYMBOL(tcp_mmap);
  
- #define DCR_ACCESS_PROLOG(table) \
--	cmpli	cr0,r3,1024;	 \
-+	cmplwi	cr0,r3,1024;	 \
- 	rlwinm  r3,r3,4,18,27;   \
- 	lis     r5,table@h;      \
- 	ori     r5,r5,table@l;   \
++static skb_frag_t *skb_advance_to_frag(struct sk_buff *skb, u32 offset_skb,
++				       u32 *offset_frag)
++{
++	skb_frag_t *frag;
++
++	offset_skb -= skb_headlen(skb);
++	if ((int)offset_skb < 0 || skb_has_frag_list(skb))
++		return NULL;
++
++	frag = skb_shinfo(skb)->frags;
++	while (offset_skb) {
++		if (skb_frag_size(frag) > offset_skb) {
++			*offset_frag = offset_skb;
++			return frag;
++		}
++		offset_skb -= skb_frag_size(frag);
++		++frag;
++	}
++	*offset_frag = 0;
++	return frag;
++}
++
+ static int tcp_copy_straggler_data(struct tcp_zerocopy_receive *zc,
+ 				   struct sk_buff *skb, u32 copylen,
+ 				   u32 *offset, u32 *seq)
+@@ -1872,6 +1894,8 @@ static int tcp_zerocopy_receive(struct sock *sk,
+ 	curr_addr = address;
+ 	while (length + PAGE_SIZE <= zc->length) {
+ 		if (zc->recv_skip_hint < PAGE_SIZE) {
++			u32 offset_frag;
++
+ 			/* If we're here, finish the current batch. */
+ 			if (pg_idx) {
+ 				ret = tcp_zerocopy_vm_insert_batch(vma, pages,
+@@ -1892,16 +1916,9 @@ static int tcp_zerocopy_receive(struct sock *sk,
+ 				skb = tcp_recv_skb(sk, seq, &offset);
+ 			}
+ 			zc->recv_skip_hint = skb->len - offset;
+-			offset -= skb_headlen(skb);
+-			if ((int)offset < 0 || skb_has_frag_list(skb))
++			frags = skb_advance_to_frag(skb, offset, &offset_frag);
++			if (!frags || offset_frag)
+ 				break;
+-			frags = skb_shinfo(skb)->frags;
+-			while (offset) {
+-				if (skb_frag_size(frags) > offset)
+-					goto out;
+-				offset -= skb_frag_size(frags);
+-				frags++;
+-			}
+ 		}
+ 		if (skb_frag_size(frags) != PAGE_SIZE || skb_frag_off(frags)) {
+ 			int remaining = zc->recv_skip_hint;
 -- 
 2.33.0
 
