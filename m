@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D5ED45C4AE
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:48:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 666B445C038
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:03:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352001AbhKXNuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:50:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41802 "EHLO mail.kernel.org"
+        id S1345410AbhKXNFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:05:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354226AbhKXNtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:49:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F1D661A0B;
-        Wed, 24 Nov 2021 13:02:42 +0000 (UTC)
+        id S1348094AbhKXNDz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:03:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77F4A61A4F;
+        Wed, 24 Nov 2021 12:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758963;
-        bh=4SocQtq8qZg7rNVIqVpPuI7ulAJS4JvkpVTR/mszbKE=;
+        s=korg; t=1637757413;
+        bh=8lmtBZOAqHtuCErdLvdUUzedyUWDEwSON83vsH7RPCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xdPooBKMBIpWVyoYLgTUBA+rxRWkn5Vy/CVJhDTZ/01iEWbfVvoj4RyF4owutaVxq
-         Gimn+JPjSSyiD02EHe34sLH1iLpFvpiqXaI7Dsp3qHaQ+gy/jTAB/i54Nsu7NrE4i9
-         5D8lAOwKIt65+m0K+2jH55hq4MKluI6mHQfU4o5A=
+        b=dulaV1A1/EBcw2fK6ykurGq2XcL3q18L+LzefEIJAQfBveZovR8oL4Re43LTSPRV8
+         JX5cJjIrH2wgzoBlMYzHhgYNuJo1C6/oGdGCBDL6melqpvNl9OqQXbtCz9GrGDgLwq
+         u7T70GtB5hA1tl/tZwon3jMXMjtv0SnocPIpG4LA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Yang <leoyang.li@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 055/279] ARM: dts: ls1021a: move thermal-zones node out of soc/
+Subject: [PATCH 4.19 152/323] net: stream: dont purge sk_error_queue in sk_stream_kill_queues()
 Date:   Wed, 24 Nov 2021 12:55:42 +0100
-Message-Id: <20211124115720.631275564@linuxfoundation.org>
+Message-Id: <20211124115724.066057896@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,103 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Yang <leoyang.li@nxp.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 1ee1500ef717eefb5d9bdaf97905cb81b4e69aa4 ]
+[ Upstream commit 24bcbe1cc69fa52dc4f7b5b2456678ed464724d8 ]
 
-This fixes dtbs-check error from simple-bus schema:
-soc: thermal-zones: {'type': 'object'} is not allowed for {'cpu-thermal': ..... }
-        From schema: /home/leo/.local/lib/python3.8/site-packages/dtschema/schemas/simple-bus.yaml
+sk_stream_kill_queues() can be called on close when there are
+still outstanding skbs to transmit. Those skbs may try to queue
+notifications to the error queue (e.g. timestamps).
+If sk_stream_kill_queues() purges the queue without taking
+its lock the queue may get corrupted, and skbs leaked.
 
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+This shows up as a warning about an rmem leak:
+
+WARNING: CPU: 24 PID: 0 at net/ipv4/af_inet.c:154 inet_sock_destruct+0x...
+
+The leak is always a multiple of 0x300 bytes (the value is in
+%rax on my builds, so RAX: 0000000000000300). 0x300 is truesize of
+an empty sk_buff. Indeed if we dump the socket state at the time
+of the warning the sk_error_queue is often (but not always)
+corrupted. The ->next pointer points back at the list head,
+but not the ->prev pointer. Indeed we can find the leaked skb
+by scanning the kernel memory for something that looks like
+an skb with ->sk = socket in question, and ->truesize = 0x300.
+The contents of ->cb[] of the skb confirms the suspicion that
+it is indeed a timestamp notification (as generated in
+__skb_complete_tx_timestamp()).
+
+Removing purging of sk_error_queue should be okay, since
+inet_sock_destruct() does it again once all socket refs
+are gone. Eric suggests this may cause sockets that go
+thru disconnect() to maintain notifications from the
+previous incarnations of the socket, but that should be
+okay since the race was there anyway, and disconnect()
+is not exactly dependable.
+
+Thanks to Jonathan Lemon and Omar Sandoval for help at various
+stages of tracing the issue.
+
+Fixes: cb9eff097831 ("net: new user space API for time stamping of incoming and outgoing packets")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ls1021a.dtsi | 66 +++++++++++++++++-----------------
- 1 file changed, 33 insertions(+), 33 deletions(-)
+ net/core/stream.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/ls1021a.dtsi b/arch/arm/boot/dts/ls1021a.dtsi
-index 4fce81422943b..f3b8540750b61 100644
---- a/arch/arm/boot/dts/ls1021a.dtsi
-+++ b/arch/arm/boot/dts/ls1021a.dtsi
-@@ -329,39 +329,6 @@
- 			#thermal-sensor-cells = <1>;
- 		};
+diff --git a/net/core/stream.c b/net/core/stream.c
+index 7f5eaa95a6756..3d98774cf1285 100644
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -195,9 +195,6 @@ void sk_stream_kill_queues(struct sock *sk)
+ 	/* First the read buffer. */
+ 	__skb_queue_purge(&sk->sk_receive_queue);
  
--		thermal-zones {
--			cpu_thermal: cpu-thermal {
--				polling-delay-passive = <1000>;
--				polling-delay = <5000>;
+-	/* Next, the error queue. */
+-	__skb_queue_purge(&sk->sk_error_queue);
 -
--				thermal-sensors = <&tmu 0>;
--
--				trips {
--					cpu_alert: cpu-alert {
--						temperature = <85000>;
--						hysteresis = <2000>;
--						type = "passive";
--					};
--					cpu_crit: cpu-crit {
--						temperature = <95000>;
--						hysteresis = <2000>;
--						type = "critical";
--					};
--				};
--
--				cooling-maps {
--					map0 {
--						trip = <&cpu_alert>;
--						cooling-device =
--							<&cpu0 THERMAL_NO_LIMIT
--							THERMAL_NO_LIMIT>,
--							<&cpu1 THERMAL_NO_LIMIT
--							THERMAL_NO_LIMIT>;
--					};
--				};
--			};
--		};
--
- 		dspi0: spi@2100000 {
- 			compatible = "fsl,ls1021a-v1.0-dspi";
- 			#address-cells = <1>;
-@@ -1016,4 +983,37 @@
- 			big-endian;
- 		};
- 	};
-+
-+	thermal-zones {
-+		cpu_thermal: cpu-thermal {
-+			polling-delay-passive = <1000>;
-+			polling-delay = <5000>;
-+
-+			thermal-sensors = <&tmu 0>;
-+
-+			trips {
-+				cpu_alert: cpu-alert {
-+					temperature = <85000>;
-+					hysteresis = <2000>;
-+					type = "passive";
-+				};
-+				cpu_crit: cpu-crit {
-+					temperature = <95000>;
-+					hysteresis = <2000>;
-+					type = "critical";
-+				};
-+			};
-+
-+			cooling-maps {
-+				map0 {
-+					trip = <&cpu_alert>;
-+					cooling-device =
-+						<&cpu0 THERMAL_NO_LIMIT
-+						THERMAL_NO_LIMIT>,
-+						<&cpu1 THERMAL_NO_LIMIT
-+						THERMAL_NO_LIMIT>;
-+				};
-+			};
-+		};
-+	};
- };
+ 	/* Next, the write queue. */
+ 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
+ 
 -- 
 2.33.0
 
