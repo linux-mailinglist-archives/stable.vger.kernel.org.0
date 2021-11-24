@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2661545C24F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:24:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B138E45C629
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348970AbhKXN1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:27:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45490 "EHLO mail.kernel.org"
+        id S1353878AbhKXOFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:05:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349139AbhKXNZG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:25:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE7506134F;
-        Wed, 24 Nov 2021 12:49:10 +0000 (UTC)
+        id S1356028AbhKXOD1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:03:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F0E06331A;
+        Wed, 24 Nov 2021 13:10:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758151;
-        bh=UtI8oZQYedgNqDAT0GxmJgSH1NypOYlmWQnUMbG6Ieg=;
+        s=korg; t=1637759445;
+        bh=BByTlpL2M+ZkioHvK33DrYO19Zvh9oxdkSEF3XJAhmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LXJu/BHraYGjukVkx6tfCCUT0CzaBMrhUhyHJ/ziqKLz5+gjP1nS7Hqz1gPrr+GV8
-         V9hv7KeybZ9WOn2+lgcdLw6iRTK+HfN0XrqV+itsB5TmNhG2wSVest748MullrnIvN
-         MIUhSGkmYqg9RJWrYcywh/DYJdGDBAaOoNEIQ9PA=
+        b=JhWEVQIHEawUYdVp7yhAHdgIyWHmF/3wHdXZrGIBCK9HakMVXIVJPLeLSTyQ2OodQ
+         YXQRW6R6IDRKK6F2twxKj8C9+LbxggCE74cnuDCB1+5IgmrkAc9wwJplCiswbd/3ek
+         cOHg2Yvxnp4nzU7tfQZRJJG5e5PZpJJKt3gwN5No=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Brian Cain <bcain@codeaurora.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 078/100] hexagon: export raw I/O routines for modules
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Petr Mladek <pmladek@suse.com>,
+        John Ogness <john.ogness@linutronix.de>
+Subject: [PATCH 5.15 227/279] printk: restore flushing of NMI buffers on remote CPUs after NMI backtraces
 Date:   Wed, 24 Nov 2021 12:58:34 +0100
-Message-Id: <20211124115657.382980312@linuxfoundation.org>
+Message-Id: <20211124115726.589357761@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,70 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit ffb92ce826fd801acb0f4e15b75e4ddf0d189bde upstream.
+commit 5d5e4522a7f404d1a96fd6c703989d32a9c9568d upstream.
 
-Patch series "Fixes for ARCH=hexagon allmodconfig", v2.
+printk from NMI context relies on irq work being raised on the local CPU
+to print to console. This can be a problem if the NMI was raised by a
+lockup detector to print lockup stack and regs, because the CPU may not
+enable irqs (because it is locked up).
 
-This series fixes some issues noticed with ARCH=hexagon allmodconfig.
+Introduce printk_trigger_flush() that can be called another CPU to try
+to get those messages to the console, call that where printk_safe_flush
+was previously called.
 
-This patch (of 3):
-
-When building ARCH=hexagon allmodconfig, the following errors occur:
-
-  ERROR: modpost: "__raw_readsl" [drivers/i3c/master/svc-i3c-master.ko] undefined!
-  ERROR: modpost: "__raw_writesl" [drivers/i3c/master/dw-i3c-master.ko] undefined!
-  ERROR: modpost: "__raw_readsl" [drivers/i3c/master/dw-i3c-master.ko] undefined!
-  ERROR: modpost: "__raw_writesl" [drivers/i3c/master/i3c-master-cdns.ko] undefined!
-  ERROR: modpost: "__raw_readsl" [drivers/i3c/master/i3c-master-cdns.ko] undefined!
-
-Export these symbols so that modules can use them without any errors.
-
-Link: https://lkml.kernel.org/r/20211115174250.1994179-1-nathan@kernel.org
-Link: https://lkml.kernel.org/r/20211115174250.1994179-2-nathan@kernel.org
-Fixes: 013bf24c3829 ("Hexagon: Provide basic implementation and/or stubs for I/O routines.")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Brian Cain <bcain@codeaurora.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 93d102f094be ("printk: remove safe buffers")
+Cc: stable@vger.kernel.org # 5.15
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Reviewed-by: John Ogness <john.ogness@linutronix.de>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20211107045116.1754411-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/hexagon/lib/io.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/powerpc/kernel/watchdog.c |    6 ++++++
+ include/linux/printk.h         |    4 ++++
+ kernel/printk/printk.c         |    5 +++++
+ lib/nmi_backtrace.c            |    6 ++++++
+ 4 files changed, 21 insertions(+)
 
---- a/arch/hexagon/lib/io.c
-+++ b/arch/hexagon/lib/io.c
-@@ -27,6 +27,7 @@ void __raw_readsw(const void __iomem *ad
- 		*dst++ = *src;
+--- a/arch/powerpc/kernel/watchdog.c
++++ b/arch/powerpc/kernel/watchdog.c
+@@ -187,6 +187,12 @@ static void watchdog_smp_panic(int cpu,
+ 	if (sysctl_hardlockup_all_cpu_backtrace)
+ 		trigger_allbutself_cpu_backtrace();
  
- }
-+EXPORT_SYMBOL(__raw_readsw);
++	/*
++	 * Force flush any remote buffers that might be stuck in IRQ context
++	 * and therefore could not run their irq_work.
++	 */
++	printk_trigger_flush();
++
+ 	if (hardlockup_panic)
+ 		nmi_panic(NULL, "Hard LOCKUP");
  
- /*
-  * __raw_writesw - read words a short at a time
-@@ -47,6 +48,7 @@ void __raw_writesw(void __iomem *addr, c
- 
- 
- }
-+EXPORT_SYMBOL(__raw_writesw);
- 
- /*  Pretty sure len is pre-adjusted for the length of the access already */
- void __raw_readsl(const void __iomem *addr, void *data, int len)
-@@ -62,6 +64,7 @@ void __raw_readsl(const void __iomem *ad
- 
- 
- }
-+EXPORT_SYMBOL(__raw_readsl);
- 
- void __raw_writesl(void __iomem *addr, const void *data, int len)
+--- a/include/linux/printk.h
++++ b/include/linux/printk.h
+@@ -198,6 +198,7 @@ void dump_stack_print_info(const char *l
+ void show_regs_print_info(const char *log_lvl);
+ extern asmlinkage void dump_stack_lvl(const char *log_lvl) __cold;
+ extern asmlinkage void dump_stack(void) __cold;
++void printk_trigger_flush(void);
+ #else
+ static inline __printf(1, 0)
+ int vprintk(const char *s, va_list args)
+@@ -274,6 +275,9 @@ static inline void dump_stack_lvl(const
+ static inline void dump_stack(void)
  {
-@@ -76,3 +79,4 @@ void __raw_writesl(void __iomem *addr, c
- 
- 
  }
-+EXPORT_SYMBOL(__raw_writesl);
++static inline void printk_trigger_flush(void)
++{
++}
+ #endif
+ 
+ #ifdef CONFIG_SMP
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -3252,6 +3252,11 @@ void defer_console_output(void)
+ 	preempt_enable();
+ }
+ 
++void printk_trigger_flush(void)
++{
++	defer_console_output();
++}
++
+ int vprintk_deferred(const char *fmt, va_list args)
+ {
+ 	int r;
+--- a/lib/nmi_backtrace.c
++++ b/lib/nmi_backtrace.c
+@@ -75,6 +75,12 @@ void nmi_trigger_cpumask_backtrace(const
+ 		touch_softlockup_watchdog();
+ 	}
+ 
++	/*
++	 * Force flush any remote buffers that might be stuck in IRQ context
++	 * and therefore could not run their irq_work.
++	 */
++	printk_trigger_flush();
++
+ 	clear_bit_unlock(0, &backtrace_flag);
+ 	put_cpu();
+ }
 
 
