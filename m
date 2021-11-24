@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4EE045C2F0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:31:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D00245C1B7
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:19:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350051AbhKXNeR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:34:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47486 "EHLO mail.kernel.org"
+        id S1349402AbhKXNVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:21:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348474AbhKXNcp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:32:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADD5A61BD4;
-        Wed, 24 Nov 2021 12:53:19 +0000 (UTC)
+        id S1349388AbhKXNTI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:19:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8388C61AF7;
+        Wed, 24 Nov 2021 12:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758400;
-        bh=qqlYTQSW+aaMSokLxOA6YaEkCvQhesPwPXCzLWKVlhk=;
+        s=korg; t=1637757981;
+        bh=yRU2nC94K7wNrUtgKiFvZusWJJCgd3iynH7iUVZAMW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MMp+3220Un5FSVUHUieTZJqIrBOsR6LPYUJKV95WS9CAhfuRGfRPwDuNr8hVIK/U6
-         1RavrydEcqEF+m8MvMR/Ol/oRKVuhsfdvs5egekYm8Pqgv7HI/qk6mKDZkMtjFUDvU
-         FQ12Pt4ZF3uBBMEquPLLe9LjNHJNhq+BlrUy4Seg=
+        b=IoBlAAKxinG1f7q5bS+qg0z0zplK7RUHXBtv//Af2hcq+9irJ6371aZuUjtHILbjj
+         /Z3lQ/+c/UjzKMeQ2B071yvBC/x8m6nvVfZVGc2hMQ/DAcBI13Rrmhj2i1/EoV3xh0
+         bWx/Xexd/ruScxMmlUirsW8/s1W7PKWzHBGhM7N0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Artur Rojek <contact@artur-rojek.eu>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Roger Quadros <rogerq@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 057/154] clk: ingenic: Fix bugs with divided dividers
+Subject: [PATCH 5.4 017/100] ARM: dts: omap: fix gpmc,mux-add-data type
 Date:   Wed, 24 Nov 2021 12:57:33 +0100
-Message-Id: <20211124115704.172460432@linuxfoundation.org>
+Message-Id: <20211124115655.418167683@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Roger Quadros <rogerq@kernel.org>
 
-[ Upstream commit ed84ef1cd7eddf933d4ffce2caa8161d6f947245 ]
+[ Upstream commit 51b9e22ffd3c4c56cbb7caae9750f70e55ffa603 ]
 
-Two fixes in one:
+gpmc,mux-add-data is not boolean.
 
-- In the "impose hardware constraints" block, the "logical" divider
-  value (aka. not translated to the hardware) was clamped to fit in the
-  register area, but this totally ignored the fact that the divider
-  value can itself have a fixed divider.
+Fixes the below errors flagged by dtbs_check.
 
-- The code that made sure that the divider value returned by the
-  function was a multiple of its own fixed divider could result in a
-  wrong value being calculated, because it was rounded down instead of
-  rounded up.
+"ethernet@4,0:gpmc,mux-add-data: True is not of type 'array'"
 
-Fixes: 4afe2d1a6ed5 ("clk: ingenic: Allow divider value to be divided")
-Co-developed-by: Artur Rojek <contact@artur-rojek.eu>
-Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://lore.kernel.org/r/20211001172033.122329-1-paul@crapouillou.net
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Roger Quadros <rogerq@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ingenic/cgu.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi         | 2 +-
+ arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/ingenic/cgu.c b/drivers/clk/ingenic/cgu.c
-index c8e9cb6c8e39c..2b9bb7d55efc8 100644
---- a/drivers/clk/ingenic/cgu.c
-+++ b/drivers/clk/ingenic/cgu.c
-@@ -425,15 +425,15 @@ ingenic_clk_calc_div(const struct ingenic_cgu_clk_info *clk_info,
- 	}
+diff --git a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+index 7f6aefd134514..e7534fe9c53cf 100644
+--- a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
++++ b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+@@ -29,7 +29,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
  
- 	/* Impose hardware constraints */
--	div = min_t(unsigned, div, 1 << clk_info->div.bits);
--	div = max_t(unsigned, div, 1);
-+	div = clamp_t(unsigned int, div, clk_info->div.div,
-+		      clk_info->div.div << clk_info->div.bits);
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
+diff --git a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+index e5da3bc6f1050..218a10c0d8159 100644
+--- a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+@@ -22,7 +22,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
  
- 	/*
- 	 * If the divider value itself must be divided before being written to
- 	 * the divider register, we must ensure we don't have any bits set that
- 	 * would be lost as a result of doing so.
- 	 */
--	div /= clk_info->div.div;
-+	div = DIV_ROUND_UP(div, clk_info->div.div);
- 	div *= clk_info->div.div;
- 
- 	return div;
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
 -- 
 2.33.0
 
