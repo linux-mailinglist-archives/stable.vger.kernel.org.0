@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2E5F45BCDA
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:31:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21D2D45BB02
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:13:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245339AbhKXMc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:32:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46752 "EHLO mail.kernel.org"
+        id S242952AbhKXMPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:15:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243680AbhKXMbA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:31:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4546610D2;
-        Wed, 24 Nov 2021 12:19:26 +0000 (UTC)
+        id S243227AbhKXMNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:13:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E178361154;
+        Wed, 24 Nov 2021 12:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756367;
-        bh=9s+rSDvOy7U06gwzWgfNajdvN6FhbtNsak6QIH8Ju9I=;
+        s=korg; t=1637755687;
+        bh=UoNthp+EN8gZcHIHGlsINQw8jw4EcFrnLFOeUNraEK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4987lsw2iU55D0z4N1cvaiDa33hQ7V8WD83TJZjjV1uZeVQ15YWRyiozCYQSitsz
-         q15ZCvLs+v5WUDbFaEIKroqJvkVKj87cBo9yeiLfKSK8JvZBnUZmPwcWfU0yuW8pwb
-         zZWqBgfQh6Tw+ini50izZGguA3D8rnjpMrGbadeo=
+        b=z2phukpBwrgQ0RNHN2e7mYW/4tmD0xvZ9AVsTxkx59TbQcavn2o1W26r+Q0Sj0Rci
+         LVnfOhHwXUeO0SkBc1rTB6WvIZtbt0LspMCKET7tVVyQhmyh3LN2Oesj6HW5SCft8X
+         UnmftH0ASGYQP6I7gvDvHsh3+RLIggmBpCRpvLYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Rob Herring <robh@kernel.org>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 034/251] regulator: dt-bindings: samsung,s5m8767: correct s5m8767,pmic-buck-default-dvs-idx property
+        stable@vger.kernel.org, Neal Gompa <ngompa13@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 005/207] Input: i8042 - Add quirk for Fujitsu Lifebook T725
 Date:   Wed, 24 Nov 2021 12:54:36 +0100
-Message-Id: <20211124115711.425059932@linuxfoundation.org>
+Message-Id: <20211124115704.117785091@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit a7fda04bc9b6ad9da8e19c9e6e3b1dab773d068a upstream.
+commit 16e28abb7290c4ca3b3a0f333ba067f34bb18c86 upstream.
 
-The driver was always parsing "s5m8767,pmic-buck-default-dvs-idx", not
-"s5m8767,pmic-buck234-default-dvs-idx".
+Fujitsu Lifebook T725 laptop requires, like a few other similar
+models, the nomux and notimeout options to probe the touchpad
+properly.  This patch adds the corresponding quirk entries.
 
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1191980
+Tested-by: Neal Gompa <ngompa13@gmail.com>
 Cc: <stable@vger.kernel.org>
-Fixes: 26aec009f6b6 ("regulator: add device tree support for s5m8767")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Message-Id: <20211008113723.134648-3-krzysztof.kozlowski@canonical.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20211103070019.13374-1-tiwai@suse.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/serio/i8042-x86ia64io.h |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-+++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
-@@ -39,7 +39,7 @@ Optional properties of the main device n
- 
- Additional properties required if either of the optional properties are used:
- 
-- - s5m8767,pmic-buck234-default-dvs-idx: Default voltage setting selected from
-+ - s5m8767,pmic-buck-default-dvs-idx: Default voltage setting selected from
-    the possible 8 options selectable by the dvs gpios. The value of this
-    property should be between 0 and 7. If not specified or if out of range, the
-    default value of this property is set to 0.
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -277,6 +277,13 @@ static const struct dmi_system_id __init
+ 		},
+ 	},
+ 	{
++		/* Fujitsu Lifebook T725 laptop */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
++		},
++	},
++	{
+ 		/* Fujitsu Lifebook U745 */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+@@ -917,6 +924,13 @@ static const struct dmi_system_id __init
+ 		},
+ 	},
+ 	{
++		/* Fujitsu Lifebook T725 laptop */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
++		},
++	},
++	{
+ 		/* Fujitsu U574 laptop */
+ 		/* https://bugzilla.kernel.org/show_bug.cgi?id=69731 */
+ 		.matches = {
 
 
