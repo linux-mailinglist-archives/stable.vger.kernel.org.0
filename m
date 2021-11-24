@@ -2,56 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBB9E45B2F4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 05:03:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88B4145B2F7
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 05:07:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240903AbhKXEG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 23:06:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60854 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240896AbhKXEG5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Nov 2021 23:06:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5600E60551;
-        Wed, 24 Nov 2021 04:03:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637726628;
-        bh=SMO+DJRmOxkS3j8P437pwB2kbDjs8mxcnAz6vHY49xY=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=INhmPlwoiHWX+GncK/tf5wgiqgdd2n0jxeYcfogSI6lXaSsqyZ2TdQBXLy2Dz2tG3
-         lbp/WnN2xRZhlcdP/CJYEOsHxe1lCIWFsfypLd/Lt9VFkPxIOxCBYpZpq6EEdA6XGZ
-         g0ImMPuHvjUE2cQdsKkk/SBYiTCOKz775yZ2w++4zYYL2eX78rVOsP7zIU+sAco+qx
-         FIXs733/VI1F7JzApmlTEWtDXD5rt13cWZvkMfqwATj1cWr9Zwfyrkkkj9UGi5YolB
-         SkNkpXy50MFoci21dx4KTVIqfbQutdHIjdjWa4fNa0wbOuOAyXkTXjpyY6IGsivGwv
-         pYuV0t0RzMlDA==
-Date:   Tue, 23 Nov 2021 20:03:47 -0800
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc:     netdev@vger.kernel.org, David Ahern <dsahern@gmail.com>,
-        Wei Wang <weiwan@google.com>,
-        David Miller <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        msizanoen1 <msizanoen@qtmlabs.xyz>, stable@vger.kernel.org
-Subject: Re: [PATCH net] ipv6: fix memory leak in fib6_rule_suppress
-Message-ID: <20211123200347.597e2daf@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20211123124832.15419-1-Jason@zx2c4.com>
-References: <20211123124832.15419-1-Jason@zx2c4.com>
+        id S240230AbhKXEKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 23:10:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52050 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232891AbhKXEKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 23:10:47 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1985EC061574
+        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 20:07:38 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id b68so1360019pfg.11
+        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 20:07:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=vB24zVtC23h1mp48za13YoJyMdGbeHVPK1GWkUTdr9s=;
+        b=nO43gJ2xOJJWjM0DpY6Uh7zNlXSVf7hzHM0aW9Jeg2NrdbFRjwSXvZy8wjwzo6xGKf
+         JvqqdcxMSe8WSixYDkt0VdbugZalAUABKZpsQRv5+LTDukylh30FIWksxwvJ/fRxQA17
+         xafgklTNsxHB0oMW8t+37ldY62McSdvYQIP7ghD+WXm3W8wb/Ete26v4kYF8lJFktXvy
+         Fig1qXr84cRkvh2KZmrt9wzfX4HuPaapJoPfX0vrxgL8x0GINCARKbVUuH1x52qLqcIY
+         ycUA9pRP1WKp+ym8iOCbKqK6vlsjPPuVBxJJ9tGr7JYHJMla2N4vgtnUY1yr/zAsx8rI
+         Rw6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=vB24zVtC23h1mp48za13YoJyMdGbeHVPK1GWkUTdr9s=;
+        b=SbZPQ+DUNoMVv4Rjik5u+pAwKJ8gCHAO6+xrziSRZ0Ax3yK8+Bm46+ACizLuHtmghA
+         /wWRdQbEZMevfecxIAsTdkPnR4XyA9uR9oAsJaSAj+vsOKe5lexB5Q0KjATFABeXuBt2
+         brtUCBUqrpVGU3lTdpq6Q0mEFh4X/MAK5MX2OH4cgRR3j5b4CvUeJgw8qDgLDBJ4q0/J
+         IZ38Lv+qnvinq7ivM+JPt+OUf0iAxZnOHMpWdUj+J/diQi6yigQeP/k9UBBBbQNE2Ay0
+         haYuWk4Sg+55MfIGGv3HTnHo3CsJhzFXKBmKNX0xFmhR518D/HRCdDzvilbB8fhYZCjl
+         AUlA==
+X-Gm-Message-State: AOAM533fSsj1YhHpIq+MAC/+5ukhXzArjkQe1EIFoUCLYs2RKXUxAi2a
+        iWhZwqFtA5AOTsrgXA4SDYQtIMS7ExH/dWvx
+X-Google-Smtp-Source: ABdhPJytJ8jv/6/7q+ajo6iHTWhjhZrS+EJjXsQV3TebLcc2Q+xkW+R4VuXUWn0sXZbUoZrFXGr+Sg==
+X-Received: by 2002:aa7:8883:0:b0:49f:f87a:95de with SMTP id z3-20020aa78883000000b0049ff87a95demr2904837pfe.53.1637726857374;
+        Tue, 23 Nov 2021 20:07:37 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d17sm13787799pfo.40.2021.11.23.20.07.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Nov 2021 20:07:37 -0800 (PST)
+Message-ID: <619dba89.1c69fb81.b37db.8651@mx.google.com>
+Date:   Tue, 23 Nov 2021 20:07:37 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.15.4-267-gf7e74fa664b98
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.15.y baseline: 134 runs,
+ 1 regressions (v5.15.4-267-gf7e74fa664b98)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 23 Nov 2021 13:48:32 +0100 Jason A. Donenfeld wrote:
-> The original author of this commit and commit message is anonymous and
-> is therefore unable to sign off on it. Greg suggested that I do the sign
-> off, extracting it from the bugzilla entry above, and post it properly.
-> The patch "seems to work" on first glance, but I haven't looked deeply
-> at it yet and therefore it doesn't have my Reviewed-by, even though I'm
-> submitting this patch on the author's behalf. And it should probably get
-> a good look from the v6 fib folks. The original author should be on this
-> thread to address issues that come off, and I'll shephard additional
-> versions that he has.
+stable-rc/linux-5.15.y baseline: 134 runs, 1 regressions (v5.15.4-267-gf7e7=
+4fa664b98)
 
-Does the fact that the author responded to the patch undermine the need
-for this special handling?
+Regressions Summary
+-------------------
+
+platform            | arch  | lab          | compiler | defconfig | regress=
+ions
+--------------------+-------+--------------+----------+-----------+--------=
+----
+r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
+    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.4-267-gf7e74fa664b98/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.4-267-gf7e74fa664b98
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f7e74fa664b98edbf9ae881f928764c53353735f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch  | lab          | compiler | defconfig | regress=
+ions
+--------------------+-------+--------------+----------+-----------+--------=
+----
+r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/619d83e080157f9502f2efbd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.4=
+-267-gf7e74fa664b98/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-s=
+alvator-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.4=
+-267-gf7e74fa664b98/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-s=
+alvator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/619d83e080157f9502f2e=
+fbe
+        new failure (last pass: v5.15.4-257-gdb939df2ad534) =
+
+ =20
