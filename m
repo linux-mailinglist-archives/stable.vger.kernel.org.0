@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53C1345BC65
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC8A45BE48
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:43:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242275AbhKXMap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:30:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41270 "EHLO mail.kernel.org"
+        id S244455AbhKXMqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:46:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244577AbhKXM0k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:26:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69A4661222;
-        Wed, 24 Nov 2021 12:16:21 +0000 (UTC)
+        id S1345748AbhKXMoG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:44:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0153E61250;
+        Wed, 24 Nov 2021 12:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756181;
-        bh=k6RSaIIGBZJGH3d0AWq5JrwE6AScXNlB++P80iVAmco=;
+        s=korg; t=1637756768;
+        bh=2NLdfpJ5IQdSA6EvccIBEiaYn7yUicCVP71I+nke8wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMdCoW/ullJjYnL0kJ4TZ1ySmXsMb9c9w+pUnnaAQa1V+skapDd/BKGI9GFJ+M/zZ
-         g5U0C9Ut3NXPwPaWZC1QT6XYFJKG1KB5m4CiGMdZA/f+8IE9YsqY6Uhob1T1qfvRPE
-         4vUE0geJb4/Ps4MaW6GIfbN7mQ836ed+W9+TDekE=
+        b=yv8TtSEjSfxp8sBgvGRciaNFfdQeigSQrlz0aYL/A6CfddPULYoKNb8IqkLMznXyW
+         TS/WqjNNwsFBTz8R7FiUQjr6MXIalLNf4kLMaNK8L0skshtKLBS6/sTKGB5q4Ra2XF
+         y7CZLEqTLhmMxuJFKRvHDKWQnD7ln/V7YqDCt8p4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 170/207] scsi: target: Fix ordered tag handling
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Joel Fernandes <joelaf@google.com>,
+        Paul Burton <paulburton@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 199/251] tracing: Resize tgid_map to pid_max, not PID_MAX_DEFAULT
 Date:   Wed, 24 Nov 2021 12:57:21 +0100
-Message-Id: <20211124115709.497933182@linuxfoundation.org>
+Message-Id: <20211124115717.182800413@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,268 +41,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Paul Burton <paulburton@google.com>
 
-[ Upstream commit ed1227e080990ffec5bf39006ec8a57358e6689a ]
+commit 4030a6e6a6a4a42ff8c18414c9e0c93e24cc70b8 upstream.
 
-This patch fixes the following bugs:
+Currently tgid_map is sized at PID_MAX_DEFAULT entries, which means that
+on systems where pid_max is configured higher than PID_MAX_DEFAULT the
+ftrace record-tgid option doesn't work so well. Any tasks with PIDs
+higher than PID_MAX_DEFAULT are simply not recorded in tgid_map, and
+don't show up in the saved_tgids file.
 
-1. If there are multiple ordered cmds queued and multiple simple cmds
-   completing, target_restart_delayed_cmds() could be called on different
-   CPUs and each instance could start a ordered cmd. They could then run in
-   different orders than they were queued.
+In particular since systemd v243 & above configure pid_max to its
+highest possible 1<<22 value by default on 64 bit systems this renders
+the record-tgids option of little use.
 
-2. target_restart_delayed_cmds() and target_handle_task_attr() can race
-   where:
+Increase the size of tgid_map to the configured pid_max instead,
+allowing it to cover the full range of PIDs up to the maximum value of
+PID_MAX_LIMIT if the system is configured that way.
 
-   1. target_handle_task_attr() has passed the simple_cmds == 0 check.
+On 64 bit systems with pid_max == PID_MAX_LIMIT this will increase the
+size of tgid_map from 256KiB to 16MiB. Whilst this 64x increase in
+memory overhead sounds significant 64 bit systems are presumably best
+placed to accommodate it, and since tgid_map is only allocated when the
+record-tgid option is actually used presumably the user would rather it
+spends sufficient memory to actually record the tgids they expect.
 
-   2. transport_complete_task_attr() then decrements simple_cmds to 0.
+The size of tgid_map could also increase for CONFIG_BASE_SMALL=y
+configurations, but these seem unlikely to be systems upon which people
+are both configuring a large pid_max and running ftrace with record-tgid
+anyway.
 
-   3. transport_complete_task_attr() runs target_restart_delayed_cmds() and
-      it does not see any cmds on the delayed_cmd_list.
+Of note is that we only allocate tgid_map once, the first time that the
+record-tgid option is enabled. Therefore its size is only set once, to
+the value of pid_max at the time the record-tgid option is first
+enabled. If a user increases pid_max after that point, the saved_tgids
+file will not contain entries for any tasks with pids beyond the earlier
+value of pid_max.
 
-   4. target_handle_task_attr() adds the cmd to the delayed_cmd_list.
+Link: https://lkml.kernel.org/r/20210701172407.889626-2-paulburton@google.com
 
-   The cmd will then end up timing out.
+Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joel Fernandes <joelaf@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Paul Burton <paulburton@google.com>
+[ Fixed comment coding style ]
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-3. If we are sent > 1 ordered cmds and simple_cmds == 0, we can execute
-   them out of order, because target_handle_task_attr() will hit that
-   simple_cmds check first and return false for all ordered cmds sent.
-
-4. We run target_restart_delayed_cmds() after every cmd completion, so if
-   there is more than 1 simple cmd running, we start executing ordered cmds
-   after that first cmd instead of waiting for all of them to complete.
-
-5. Ordered cmds are not supposed to start until HEAD OF QUEUE and all older
-   cmds have completed, and not just simple.
-
-6. It's not a bug but it doesn't make sense to take the delayed_cmd_lock
-   for every cmd completion when ordered cmds are almost never used. Just
-   replacing that lock with an atomic increases IOPs by up to 10% when
-   completions are spread over multiple CPUs and there are multiple
-   sessions/ mqs/thread accessing the same device.
-
-This patch moves the queued delayed handling to a per device work to
-serialze the cmd executions for each device and adds a new counter to track
-HEAD_OF_QUEUE and SIMPLE cmds. We can then check the new counter to
-determine when to run the work on the completion path.
-
-Link: https://lore.kernel.org/r/20210930020422.92578-3-michael.christie@oracle.com
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_device.c    |  2 +
- drivers/target/target_core_internal.h  |  1 +
- drivers/target/target_core_transport.c | 76 ++++++++++++++++++--------
- include/target/target_core_base.h      |  6 +-
- 4 files changed, 61 insertions(+), 24 deletions(-)
+ kernel/trace/trace.c |   62 ++++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 47 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
-index c3d576ed6f135..d8c3c72da7464 100644
---- a/drivers/target/target_core_device.c
-+++ b/drivers/target/target_core_device.c
-@@ -787,6 +787,8 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
- 	INIT_LIST_HEAD(&dev->t10_alua.lba_map_list);
- 	spin_lock_init(&dev->t10_alua.lba_map_lock);
- 
-+	INIT_WORK(&dev->delayed_cmd_work, target_do_delayed_work);
-+
- 	dev->t10_wwn.t10_dev = dev;
- 	dev->t10_alua.t10_dev = dev;
- 
-diff --git a/drivers/target/target_core_internal.h b/drivers/target/target_core_internal.h
-index be52838cc1a88..48a631ab449e9 100644
---- a/drivers/target/target_core_internal.h
-+++ b/drivers/target/target_core_internal.h
-@@ -144,6 +144,7 @@ void	transport_clear_lun_ref(struct se_lun *);
- void	transport_send_task_abort(struct se_cmd *);
- sense_reason_t	target_cmd_size_check(struct se_cmd *cmd, unsigned int size);
- void	target_qf_do_work(struct work_struct *work);
-+void	target_do_delayed_work(struct work_struct *work);
- bool	target_check_wce(struct se_device *dev);
- bool	target_check_fua(struct se_device *dev);
- void	__target_execute_cmd(struct se_cmd *, bool);
-diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
-index 6afb65387be6c..0e9383fbdd4dc 100644
---- a/drivers/target/target_core_transport.c
-+++ b/drivers/target/target_core_transport.c
-@@ -1883,32 +1883,35 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
- 	 */
- 	switch (cmd->sam_task_attr) {
- 	case TCM_HEAD_TAG:
-+		atomic_inc_mb(&dev->non_ordered);
- 		pr_debug("Added HEAD_OF_QUEUE for CDB: 0x%02x\n",
- 			 cmd->t_task_cdb[0]);
- 		return false;
- 	case TCM_ORDERED_TAG:
--		atomic_inc_mb(&dev->dev_ordered_sync);
-+		atomic_inc_mb(&dev->delayed_cmd_count);
- 
- 		pr_debug("Added ORDERED for CDB: 0x%02x to ordered list\n",
- 			 cmd->t_task_cdb[0]);
--
--		/*
--		 * Execute an ORDERED command if no other older commands
--		 * exist that need to be completed first.
--		 */
--		if (!atomic_read(&dev->simple_cmds))
--			return false;
- 		break;
- 	default:
- 		/*
- 		 * For SIMPLE and UNTAGGED Task Attribute commands
- 		 */
--		atomic_inc_mb(&dev->simple_cmds);
-+		atomic_inc_mb(&dev->non_ordered);
-+
-+		if (atomic_read(&dev->delayed_cmd_count) == 0)
-+			return false;
- 		break;
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1723,8 +1723,15 @@ void tracing_reset_all_online_cpus(void)
  	}
+ }
  
--	if (atomic_read(&dev->dev_ordered_sync) == 0)
--		return false;
-+	if (cmd->sam_task_attr != TCM_ORDERED_TAG) {
-+		atomic_inc_mb(&dev->delayed_cmd_count);
-+		/*
-+		 * We will account for this when we dequeue from the delayed
-+		 * list.
-+		 */
-+		atomic_dec_mb(&dev->non_ordered);
-+	}
++/*
++ * The tgid_map array maps from pid to tgid; i.e. the value stored at index i
++ * is the tgid last observed corresponding to pid=i.
++ */
+ static int *tgid_map;
  
- 	spin_lock(&dev->delayed_cmd_lock);
- 	list_add_tail(&cmd->se_delayed_node, &dev->delayed_cmd_list);
-@@ -1916,6 +1919,12 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
++/* The maximum valid index into tgid_map. */
++static size_t tgid_map_max;
++
+ #define SAVED_CMDLINES_DEFAULT 128
+ #define NO_CMDLINE_MAP UINT_MAX
+ static arch_spinlock_t trace_cmdline_lock = __ARCH_SPIN_LOCK_UNLOCKED;
+@@ -1996,24 +2003,41 @@ void trace_find_cmdline(int pid, char co
+ 	preempt_enable();
+ }
  
- 	pr_debug("Added CDB: 0x%02x Task Attr: 0x%02x to delayed CMD listn",
- 		cmd->t_task_cdb[0], cmd->sam_task_attr);
++static int *trace_find_tgid_ptr(int pid)
++{
 +	/*
-+	 * We may have no non ordered cmds when this function started or we
-+	 * could have raced with the last simple/head cmd completing, so kick
-+	 * the delayed handler here.
++	 * Pairs with the smp_store_release in set_tracer_flag() to ensure that
++	 * if we observe a non-NULL tgid_map then we also observe the correct
++	 * tgid_map_max.
 +	 */
-+	schedule_work(&dev->delayed_cmd_work);
- 	return true;
- }
- 
-@@ -1966,29 +1975,48 @@ EXPORT_SYMBOL(target_execute_cmd);
-  * Process all commands up to the last received ORDERED task attribute which
-  * requires another blocking boundary
-  */
--static void target_restart_delayed_cmds(struct se_device *dev)
-+void target_do_delayed_work(struct work_struct *work)
++	int *map = smp_load_acquire(&tgid_map);
++
++	if (unlikely(!map || pid > tgid_map_max))
++		return NULL;
++
++	return &map[pid];
++}
++
+ int trace_find_tgid(int pid)
  {
--	for (;;) {
-+	struct se_device *dev = container_of(work, struct se_device,
-+					     delayed_cmd_work);
-+
-+	spin_lock(&dev->delayed_cmd_lock);
-+	while (!dev->ordered_sync_in_progress) {
- 		struct se_cmd *cmd;
+-	if (unlikely(!tgid_map || !pid || pid > PID_MAX_DEFAULT))
+-		return 0;
++	int *ptr = trace_find_tgid_ptr(pid);
  
--		spin_lock(&dev->delayed_cmd_lock);
--		if (list_empty(&dev->delayed_cmd_list)) {
--			spin_unlock(&dev->delayed_cmd_lock);
-+		if (list_empty(&dev->delayed_cmd_list))
- 			break;
--		}
+-	return tgid_map[pid];
++	return ptr ? *ptr : 0;
+ }
  
- 		cmd = list_entry(dev->delayed_cmd_list.next,
- 				 struct se_cmd, se_delayed_node);
+ static int trace_save_tgid(struct task_struct *tsk)
+ {
++	int *ptr;
 +
-+		if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
+ 	/* treat recording of idle task as a success */
+ 	if (!tsk->pid)
+ 		return 1;
+ 
+-	if (unlikely(!tgid_map || tsk->pid > PID_MAX_DEFAULT))
++	ptr = trace_find_tgid_ptr(tsk->pid);
++	if (!ptr)
+ 		return 0;
+ 
+-	tgid_map[tsk->pid] = tsk->tgid;
++	*ptr = tsk->tgid;
+ 	return 1;
+ }
+ 
+@@ -4353,6 +4377,8 @@ int trace_keep_overwrite(struct tracer *
+ 
+ int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
+ {
++	int *map;
++
+ 	if ((mask == TRACE_ITER_RECORD_TGID) ||
+ 	    (mask == TRACE_ITER_RECORD_CMD))
+ 		lockdep_assert_held(&event_mutex);
+@@ -4375,9 +4401,19 @@ int set_tracer_flag(struct trace_array *
+ 		trace_event_enable_cmd_record(enabled);
+ 
+ 	if (mask == TRACE_ITER_RECORD_TGID) {
+-		if (!tgid_map)
+-			tgid_map = kzalloc((PID_MAX_DEFAULT + 1) * sizeof(*tgid_map),
+-					   GFP_KERNEL);
++		if (!tgid_map) {
++			tgid_map_max = pid_max;
++			map = kzalloc((tgid_map_max + 1) * sizeof(*tgid_map),
++				      GFP_KERNEL);
++
 +			/*
-+			 * Check if we started with:
-+			 * [ordered] [simple] [ordered]
-+			 * and we are now at the last ordered so we have to wait
-+			 * for the simple cmd.
++			 * Pairs with smp_load_acquire() in
++			 * trace_find_tgid_ptr() to ensure that if it observes
++			 * the tgid_map we just allocated then it also observes
++			 * the corresponding tgid_map_max value.
 +			 */
-+			if (atomic_read(&dev->non_ordered) > 0)
-+				break;
-+
-+			dev->ordered_sync_in_progress = true;
++			smp_store_release(&tgid_map, map);
 +		}
-+
- 		list_del(&cmd->se_delayed_node);
-+		atomic_dec_mb(&dev->delayed_cmd_count);
- 		spin_unlock(&dev->delayed_cmd_lock);
+ 		if (!tgid_map) {
+ 			tr->trace_flags &= ~TRACE_ITER_RECORD_TGID;
+ 			return -ENOMEM;
+@@ -4752,18 +4788,14 @@ static void *saved_tgids_next(struct seq
+ {
+ 	int pid = ++(*pos);
  
-+		if (cmd->sam_task_attr != TCM_ORDERED_TAG)
-+			atomic_inc_mb(&dev->non_ordered);
-+
- 		cmd->transport_state |= CMD_T_SENT;
- 
- 		__target_execute_cmd(cmd, true);
- 
--		if (cmd->sam_task_attr == TCM_ORDERED_TAG)
--			break;
-+		spin_lock(&dev->delayed_cmd_lock);
- 	}
-+	spin_unlock(&dev->delayed_cmd_lock);
+-	if (pid > PID_MAX_DEFAULT)
+-		return NULL;
+-
+-	return &tgid_map[pid];
++	return trace_find_tgid_ptr(pid);
  }
  
- /*
-@@ -2006,16 +2034,19 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
- 		goto restart;
+ static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
+ {
+-	if (!tgid_map || *pos > PID_MAX_DEFAULT)
+-		return NULL;
++	int pid = *pos;
  
- 	if (cmd->sam_task_attr == TCM_SIMPLE_TAG) {
--		atomic_dec_mb(&dev->simple_cmds);
-+		atomic_dec_mb(&dev->non_ordered);
- 		dev->dev_cur_ordered_id++;
- 		pr_debug("Incremented dev->dev_cur_ordered_id: %u for SIMPLE\n",
- 			 dev->dev_cur_ordered_id);
- 	} else if (cmd->sam_task_attr == TCM_HEAD_TAG) {
-+		atomic_dec_mb(&dev->non_ordered);
- 		dev->dev_cur_ordered_id++;
- 		pr_debug("Incremented dev_cur_ordered_id: %u for HEAD_OF_QUEUE\n",
- 			 dev->dev_cur_ordered_id);
- 	} else if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
--		atomic_dec_mb(&dev->dev_ordered_sync);
-+		spin_lock(&dev->delayed_cmd_lock);
-+		dev->ordered_sync_in_progress = false;
-+		spin_unlock(&dev->delayed_cmd_lock);
- 
- 		dev->dev_cur_ordered_id++;
- 		pr_debug("Incremented dev_cur_ordered_id: %u for ORDERED\n",
-@@ -2024,7 +2055,8 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
- 	cmd->se_cmd_flags &= ~SCF_TASK_ATTR_SET;
- 
- restart:
--	target_restart_delayed_cmds(dev);
-+	if (atomic_read(&dev->delayed_cmd_count) > 0)
-+		schedule_work(&dev->delayed_cmd_work);
+-	return &tgid_map[*pos];
++	return trace_find_tgid_ptr(pid);
  }
  
- static void transport_complete_qf(struct se_cmd *cmd)
-diff --git a/include/target/target_core_base.h b/include/target/target_core_base.h
-index 8a70d38f13329..0c7dd6dd23957 100644
---- a/include/target/target_core_base.h
-+++ b/include/target/target_core_base.h
-@@ -779,8 +779,9 @@ struct se_device {
- 	atomic_long_t		read_bytes;
- 	atomic_long_t		write_bytes;
- 	/* Active commands on this virtual SE device */
--	atomic_t		simple_cmds;
--	atomic_t		dev_ordered_sync;
-+	atomic_t		non_ordered;
-+	bool			ordered_sync_in_progress;
-+	atomic_t		delayed_cmd_count;
- 	atomic_t		dev_qf_count;
- 	u32			export_count;
- 	spinlock_t		delayed_cmd_lock;
-@@ -803,6 +804,7 @@ struct se_device {
- 	struct list_head	dev_tmr_list;
- 	struct workqueue_struct *tmr_wq;
- 	struct work_struct	qf_work_queue;
-+	struct work_struct	delayed_cmd_work;
- 	struct list_head	delayed_cmd_list;
- 	struct list_head	state_list;
- 	struct list_head	qf_cmd_list;
--- 
-2.33.0
-
+ static void saved_tgids_stop(struct seq_file *m, void *v)
 
 
