@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A5845BB8F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:18:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6C2545BDB6
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:38:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243635AbhKXMUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:20:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36482 "EHLO mail.kernel.org"
+        id S1343561AbhKXMkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:40:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243778AbhKXMSv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:18:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58E4561075;
-        Wed, 24 Nov 2021 12:11:50 +0000 (UTC)
+        id S1344331AbhKXMi0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:38:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B9AD6138D;
+        Wed, 24 Nov 2021 12:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755910;
-        bh=gk1r4jkUxjtNftgYn/FDJFOALJdADGptP6KCTKaCOL4=;
+        s=korg; t=1637756576;
+        bh=ba7OJ5zJD3+qN5ry1QYNEeab3gpRjeaTarwoS8KfAUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EaTGbB4XgWV9FrHkMlzmDQGDWLJZtNe/0NSa7Z0eoaWijg6liMe1WTXMC7hK/EJnR
-         ilq90wyMtBLKaAthkwnjG+sgQvyV5efsbboi9l1Fg2HhOIjQFlL4ctOUZvmOSmVItX
-         zBhLXtnzfdLNzTrXjw5vJ55u9g2flMAkzSMvxFJw=
+        b=yryCdAOZUAHceI8tloeXAd48+6aEDLHvWlFPedYBgnWgtOFd+uHAchIjIn7XoZo5v
+         J0+JKTj1lVewUFZjbZnN2zQFrMp0w5M0zD7YrWsFQyr1A8BFpDbJ8Fd9fNk+CdNsR4
+         kjSBITc5KzOJgcYThC4Hs3gTf9XWVhkyaLmpV6L0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 103/207] net: stream: dont purge sk_error_queue in sk_stream_kill_queues()
+Subject: [PATCH 4.14 132/251] samples/kretprobes: Fix return value if register_kretprobe() failed
 Date:   Wed, 24 Nov 2021 12:56:14 +0100
-Message-Id: <20211124115707.410412949@linuxfoundation.org>
+Message-Id: <20211124115714.837911393@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 24bcbe1cc69fa52dc4f7b5b2456678ed464724d8 ]
+[ Upstream commit f76fbbbb5061fe14824ba5807c44bd7400a6b4e1 ]
 
-sk_stream_kill_queues() can be called on close when there are
-still outstanding skbs to transmit. Those skbs may try to queue
-notifications to the error queue (e.g. timestamps).
-If sk_stream_kill_queues() purges the queue without taking
-its lock the queue may get corrupted, and skbs leaked.
+Use the actual return value instead of always -1 if register_kretprobe()
+failed.
 
-This shows up as a warning about an rmem leak:
+E.g. without this patch:
 
-WARNING: CPU: 24 PID: 0 at net/ipv4/af_inet.c:154 inet_sock_destruct+0x...
+ # insmod samples/kprobes/kretprobe_example.ko func=no_such_func
+ insmod: ERROR: could not insert module samples/kprobes/kretprobe_example.ko: Operation not permitted
 
-The leak is always a multiple of 0x300 bytes (the value is in
-%rax on my builds, so RAX: 0000000000000300). 0x300 is truesize of
-an empty sk_buff. Indeed if we dump the socket state at the time
-of the warning the sk_error_queue is often (but not always)
-corrupted. The ->next pointer points back at the list head,
-but not the ->prev pointer. Indeed we can find the leaked skb
-by scanning the kernel memory for something that looks like
-an skb with ->sk = socket in question, and ->truesize = 0x300.
-The contents of ->cb[] of the skb confirms the suspicion that
-it is indeed a timestamp notification (as generated in
-__skb_complete_tx_timestamp()).
+With this patch:
 
-Removing purging of sk_error_queue should be okay, since
-inet_sock_destruct() does it again once all socket refs
-are gone. Eric suggests this may cause sockets that go
-thru disconnect() to maintain notifications from the
-previous incarnations of the socket, but that should be
-okay since the race was there anyway, and disconnect()
-is not exactly dependable.
+ # insmod samples/kprobes/kretprobe_example.ko func=no_such_func
+ insmod: ERROR: could not insert module samples/kprobes/kretprobe_example.ko: Unknown symbol in module
 
-Thanks to Jonathan Lemon and Omar Sandoval for help at various
-stages of tracing the issue.
+Link: https://lkml.kernel.org/r/1635213091-24387-2-git-send-email-yangtiezhu@loongson.cn
 
-Fixes: cb9eff097831 ("net: new user space API for time stamping of incoming and outgoing packets")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 804defea1c02 ("Kprobes: move kprobe examples to samples/")
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/stream.c | 3 ---
- 1 file changed, 3 deletions(-)
+ samples/kprobes/kretprobe_example.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/stream.c b/net/core/stream.c
-index 6e41b20bf9f86..05b63feac7e57 100644
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -193,9 +193,6 @@ void sk_stream_kill_queues(struct sock *sk)
- 	/* First the read buffer. */
- 	__skb_queue_purge(&sk->sk_receive_queue);
- 
--	/* Next, the error queue. */
--	__skb_queue_purge(&sk->sk_error_queue);
--
- 	/* Next, the write queue. */
- 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
- 
+diff --git a/samples/kprobes/kretprobe_example.c b/samples/kprobes/kretprobe_example.c
+index 7f9060f435cde..da6de5e78e1dd 100644
+--- a/samples/kprobes/kretprobe_example.c
++++ b/samples/kprobes/kretprobe_example.c
+@@ -83,7 +83,7 @@ static int __init kretprobe_init(void)
+ 	ret = register_kretprobe(&my_kretprobe);
+ 	if (ret < 0) {
+ 		pr_err("register_kretprobe failed, returned %d\n", ret);
+-		return -1;
++		return ret;
+ 	}
+ 	pr_info("Planted return probe at %s: %p\n",
+ 			my_kretprobe.kp.symbol_name, my_kretprobe.kp.addr);
 -- 
 2.33.0
 
