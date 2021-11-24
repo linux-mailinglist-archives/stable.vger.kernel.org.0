@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B8F445BB1F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:14:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD3945BCC8
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242364AbhKXMQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:16:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48834 "EHLO mail.kernel.org"
+        id S244515AbhKXMc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:32:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243642AbhKXMOn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:14:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2CED610F7;
-        Wed, 24 Nov 2021 12:09:42 +0000 (UTC)
+        id S1344167AbhKXMag (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A82861359;
+        Wed, 24 Nov 2021 12:19:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755783;
-        bh=JX+6agdUbCVxfhax1pToneRS2tToK4gC3Zg0+8QpI10=;
+        s=korg; t=1637756340;
+        bh=7+ik/QM0SSY9izOtJeZyh2oN/k0ZiB3xnzNA9pTuZIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aDNDRYtQd3bGKg7b6HjvUYRUHYjdio5kaC3NuEOa9O45QcNYk9or3bfrV90jfVmiF
-         OSMaqB5hk53jd6GDszuDLBv3FhHs+nsMEz2zSX2PxbbqCvsHNbb5+VYu+K1xJqqt5L
-         Y3rCMeppcfLXXTffzFLkHETQ40vkGsRPIadbCyAo=
+        b=0lR0ZEDg/wGKV9dKLwfGeYQskcYeuW32TmoinUNEH+YBg599PlTITswnAhHxY0wPJ
+         cySeBatQr3wsHaCa9PnZTcqstfgoGh4WowypKY5M50uAIDjSpnFaZeC7ZHXsWLinwI
+         u+CdtOXlSW9uVCndQWOJMyU6GoNh0PAVUBYjo27Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Jin <joe.jin@oracle.com>,
-        Dongli Zhang <dongli.zhang@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 023/207] xen/netfront: stop tx queues during live migration
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>,
+        Henrik Grimler <henrik@grimler.se>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCH 4.14 052/251] power: supply: max17042_battery: use VFSOC for capacity when no rsns
 Date:   Wed, 24 Nov 2021 12:54:54 +0100
-Message-Id: <20211124115704.713684410@linuxfoundation.org>
+Message-Id: <20211124115712.058714514@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Henrik Grimler <henrik@grimler.se>
 
-[ Upstream commit 042b2046d0f05cf8124c26ff65dbb6148a4404fb ]
+commit 223a3b82834f036a62aa831f67cbf1f1d644c6e2 upstream.
 
-The tx queues are not stopped during the live migration. As a result, the
-ndo_start_xmit() may access netfront_info->queues which is freed by
-talk_to_netback()->xennet_destroy_queues().
+On Galaxy S3 (i9300/i9305), which has the max17047 fuel gauge and no
+current sense resistor (rsns), the RepSOC register does not provide an
+accurate state of charge value. The reported value is wrong, and does
+not change over time. VFSOC however, which uses the voltage fuel gauge
+to determine the state of charge, always shows an accurate value.
 
-This patch is to netif_device_detach() at the beginning of xen-netfront
-resuming, and netif_device_attach() at the end of resuming.
+For devices without current sense, VFSOC is already used for the
+soc-alert (0x0003 is written to MiscCFG register), so with this change
+the source of the alert and the PROP_CAPACITY value match.
 
-     CPU A                                CPU B
-
- talk_to_netback()
- -> if (info->queues)
-        xennet_destroy_queues(info);
-    to free netfront_info->queues
-
-                                        xennet_start_xmit()
-                                        to access netfront_info->queues
-
-  -> err = xennet_create_queues(info, &num_queues);
-
-The idea is borrowed from virtio-net.
-
-Cc: Joe Jin <joe.jin@oracle.com>
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 359ab9f5b154 ("power_supply: Add MAX17042 Fuel Gauge Driver")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Suggested-by: Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>
+Signed-off-by: Henrik Grimler <henrik@grimler.se>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netfront.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/power/supply/max17042_battery.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index ceaf6b30d683d..0971c09363cbf 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -1460,6 +1460,10 @@ static int netfront_resume(struct xenbus_device *dev)
+--- a/drivers/power/supply/max17042_battery.c
++++ b/drivers/power/supply/max17042_battery.c
+@@ -303,7 +303,10 @@ static int max17042_get_property(struct
+ 		val->intval = data * 625 / 8;
+ 		break;
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+-		ret = regmap_read(map, MAX17042_RepSOC, &data);
++		if (chip->pdata->enable_current_sense)
++			ret = regmap_read(map, MAX17042_RepSOC, &data);
++		else
++			ret = regmap_read(map, MAX17042_VFSOC, &data);
+ 		if (ret < 0)
+ 			return ret;
  
- 	dev_dbg(&dev->dev, "%s\n", dev->nodename);
- 
-+	netif_tx_lock_bh(info->netdev);
-+	netif_device_detach(info->netdev);
-+	netif_tx_unlock_bh(info->netdev);
-+
- 	xennet_disconnect_backend(info);
- 	return 0;
- }
-@@ -2020,6 +2024,10 @@ static int xennet_connect(struct net_device *dev)
- 	 * domain a kick because we've probably just requeued some
- 	 * packets.
- 	 */
-+	netif_tx_lock_bh(np->netdev);
-+	netif_device_attach(np->netdev);
-+	netif_tx_unlock_bh(np->netdev);
-+
- 	netif_carrier_on(np->netdev);
- 	for (j = 0; j < num_queues; ++j) {
- 		queue = &np->queues[j];
--- 
-2.33.0
-
 
 
