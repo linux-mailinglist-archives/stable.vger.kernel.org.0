@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F083545C3B0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE28C45C253
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:24:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350413AbhKXNlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:41:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34332 "EHLO mail.kernel.org"
+        id S1348312AbhKXN1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:27:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350022AbhKXNji (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:39:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF00D63226;
-        Wed, 24 Nov 2021 12:56:39 +0000 (UTC)
+        id S1350269AbhKXNZN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:25:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4C3261354;
+        Wed, 24 Nov 2021 12:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758600;
-        bh=DRAHDbdfxPjqId3pYeecJWs4QZ0k8cGONr5rd/JxIas=;
+        s=korg; t=1637758172;
+        bh=I4Fj5AWIxz0HBNrQX4HLVuZTC5yPXbA5VpMNR1c3KEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WDL94DX7l+wLECHqhQ6XfYKWJZQ24pCErOBTOPVAwOpA9A36CBUweEANwlKByZqya
-         wxcUpirqvMnKn03nLHlSdZS8Td5/oBpegjEMCVYUmui+wMYYOjSWGkIIwzcHQkiQaN
-         vENtSCqL73xaTVjifM90ayDLN41KMQO1r2cqpTJA=
+        b=Jqn4lDnALAYkOCpIdpfXwyo6j+d3gG5668K4gnxRpFpy4oZ0LhtwC4BtolQUcQ+n6
+         qjE5CEJTlHRUePR340wNCp6Kq01q6XDaaEWHoMRA6POi8tUSLQdIShnImhUG7KOuWO
+         ax6FPo1AFiXhYTEO5ZWFt/c9WSE8dAGoahZ3+DPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Ying Xue <ying.xue@windriver.com>,
-        Jon Maloy <jmaloy@redhat.com>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 123/154] tipc: check for null after calling kmemdup
+        stable@vger.kernel.org, Nathan Wilson <nate@chickenbrittle.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.4 083/100] udf: Fix crash after seekdir
 Date:   Wed, 24 Nov 2021 12:58:39 +0100
-Message-Id: <20211124115706.265820102@linuxfoundation.org>
+Message-Id: <20211124115657.541788966@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +39,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
+From: Jan Kara <jack@suse.cz>
 
-commit 3e6db079751afd527bf3db32314ae938dc571916 upstream.
+commit a48fc69fe6588b48d878d69de223b91a386a7cb4 upstream.
 
-kmemdup can return a null pointer so need to check for it, otherwise
-the null key will be dereferenced later in tipc_crypto_key_xmit as
-can be seen in the trace [1].
+udf_readdir() didn't validate the directory position it should start
+reading from. Thus when user uses lseek(2) on directory file descriptor
+it can trick udf_readdir() into reading from a position in the middle of
+directory entry which then upsets directory parsing code resulting in
+errors or even possible kernel crashes. Similarly when the directory is
+modified between two readdir calls, the directory position need not be
+valid anymore.
 
-Cc: tipc-discussion@lists.sourceforge.net
-Cc: stable@vger.kernel.org # 5.15, 5.14, 5.10
+Add code to validate current offset in the directory. This is actually
+rather expensive for UDF as we need to read from the beginning of the
+directory and parse all directory entries. This is because in UDF a
+directory is just a stream of data containing directory entries and
+since file names are fully under user's control we cannot depend on
+detecting magic numbers and checksums in the header of directory entry
+as a malicious attacker could fake them. We skip this step if we detect
+that nothing changed since the last readdir call.
 
-[1] https://syzkaller.appspot.com/bug?id=bca180abb29567b189efdbdb34cbf7ba851c2a58
-
-Reported-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Acked-by: Ying Xue <ying.xue@windriver.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Link: https://lore.kernel.org/r/20211115160143.5099-1-tadeusz.struk@linaro.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Nathan Wilson <nate@chickenbrittle.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/crypto.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/udf/dir.c   |   32 ++++++++++++++++++++++++++++++--
+ fs/udf/namei.c |    3 +++
+ fs/udf/super.c |    2 ++
+ 3 files changed, 35 insertions(+), 2 deletions(-)
 
---- a/net/tipc/crypto.c
-+++ b/net/tipc/crypto.c
-@@ -590,6 +590,10 @@ static int tipc_aead_init(struct tipc_ae
- 	tmp->cloned = NULL;
- 	tmp->authsize = TIPC_AES_GCM_TAG_SIZE;
- 	tmp->key = kmemdup(ukey, tipc_aead_key_size(ukey), GFP_KERNEL);
-+	if (!tmp->key) {
-+		tipc_aead_free(&tmp->rcu);
-+		return -ENOMEM;
+--- a/fs/udf/dir.c
++++ b/fs/udf/dir.c
+@@ -31,6 +31,7 @@
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+ #include <linux/bio.h>
++#include <linux/iversion.h>
+ 
+ #include "udf_i.h"
+ #include "udf_sb.h"
+@@ -44,7 +45,7 @@ static int udf_readdir(struct file *file
+ 	struct fileIdentDesc *fi = NULL;
+ 	struct fileIdentDesc cfi;
+ 	udf_pblk_t block, iblock;
+-	loff_t nf_pos;
++	loff_t nf_pos, emit_pos = 0;
+ 	int flen;
+ 	unsigned char *fname = NULL, *copy_name = NULL;
+ 	unsigned char *nameptr;
+@@ -58,6 +59,7 @@ static int udf_readdir(struct file *file
+ 	int i, num, ret = 0;
+ 	struct extent_position epos = { NULL, 0, {0, 0} };
+ 	struct super_block *sb = dir->i_sb;
++	bool pos_valid = false;
+ 
+ 	if (ctx->pos == 0) {
+ 		if (!dir_emit_dot(file, ctx))
+@@ -68,6 +70,21 @@ static int udf_readdir(struct file *file
+ 	if (nf_pos >= size)
+ 		goto out;
+ 
++	/*
++	 * Something changed since last readdir (either lseek was called or dir
++	 * changed)?  We need to verify the position correctly points at the
++	 * beginning of some dir entry so that the directory parsing code does
++	 * not get confused. Since UDF does not have any reliable way of
++	 * identifying beginning of dir entry (names are under user control),
++	 * we need to scan the directory from the beginning.
++	 */
++	if (!inode_eq_iversion(dir, file->f_version)) {
++		emit_pos = nf_pos;
++		nf_pos = 0;
++	} else {
++		pos_valid = true;
 +	}
- 	memcpy(&tmp->salt, ukey->key + keylen, TIPC_AES_GCM_SALT_SIZE);
- 	atomic_set(&tmp->users, 0);
- 	atomic64_set(&tmp->seqno, 0);
++
+ 	fname = kmalloc(UDF_NAME_LEN, GFP_NOFS);
+ 	if (!fname) {
+ 		ret = -ENOMEM;
+@@ -123,13 +140,21 @@ static int udf_readdir(struct file *file
+ 
+ 	while (nf_pos < size) {
+ 		struct kernel_lb_addr tloc;
++		loff_t cur_pos = nf_pos;
+ 
+-		ctx->pos = (nf_pos >> 2) + 1;
++		/* Update file position only if we got past the current one */
++		if (nf_pos >= emit_pos) {
++			ctx->pos = (nf_pos >> 2) + 1;
++			pos_valid = true;
++		}
+ 
+ 		fi = udf_fileident_read(dir, &nf_pos, &fibh, &cfi, &epos, &eloc,
+ 					&elen, &offset);
+ 		if (!fi)
+ 			goto out;
++		/* Still not at offset where user asked us to read from? */
++		if (cur_pos < emit_pos)
++			continue;
+ 
+ 		liu = le16_to_cpu(cfi.lengthOfImpUse);
+ 		lfi = cfi.lengthFileIdent;
+@@ -187,8 +212,11 @@ static int udf_readdir(struct file *file
+ 	} /* end while */
+ 
+ 	ctx->pos = (nf_pos >> 2) + 1;
++	pos_valid = true;
+ 
+ out:
++	if (pos_valid)
++		file->f_version = inode_query_iversion(dir);
+ 	if (fibh.sbh != fibh.ebh)
+ 		brelse(fibh.ebh);
+ 	brelse(fibh.sbh);
+--- a/fs/udf/namei.c
++++ b/fs/udf/namei.c
+@@ -30,6 +30,7 @@
+ #include <linux/sched.h>
+ #include <linux/crc-itu-t.h>
+ #include <linux/exportfs.h>
++#include <linux/iversion.h>
+ 
+ static inline int udf_match(int len1, const unsigned char *name1, int len2,
+ 			    const unsigned char *name2)
+@@ -135,6 +136,8 @@ int udf_write_fi(struct inode *inode, st
+ 			mark_buffer_dirty_inode(fibh->ebh, inode);
+ 		mark_buffer_dirty_inode(fibh->sbh, inode);
+ 	}
++	inode_inc_iversion(inode);
++
+ 	return 0;
+ }
+ 
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -57,6 +57,7 @@
+ #include <linux/crc-itu-t.h>
+ #include <linux/log2.h>
+ #include <asm/byteorder.h>
++#include <linux/iversion.h>
+ 
+ #include "udf_sb.h"
+ #include "udf_i.h"
+@@ -149,6 +150,7 @@ static struct inode *udf_alloc_inode(str
+ 	init_rwsem(&ei->i_data_sem);
+ 	ei->cached_extent.lstart = -1;
+ 	spin_lock_init(&ei->i_extent_cache_lock);
++	inode_set_iversion(&ei->vfs_inode, 1);
+ 
+ 	return &ei->vfs_inode;
+ }
 
 
