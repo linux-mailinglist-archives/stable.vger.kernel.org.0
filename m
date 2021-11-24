@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09C8845BAFA
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:13:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E0F645BE9A
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242881AbhKXMPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
+        id S245746AbhKXMtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:49:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242954AbhKXMNM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:13:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B2FD610FE;
-        Wed, 24 Nov 2021 12:07:26 +0000 (UTC)
+        id S245598AbhKXMqH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:46:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 814BB61130;
+        Wed, 24 Nov 2021 12:27:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755647;
-        bh=4Q9Za+5KmPVZ4TUcvRbgFLBBLzm6NO2EEEDWk60V+mw=;
+        s=korg; t=1637756821;
+        bh=tmLUm3WqP+mACu1UeO1IEfDLhyUQ/8f3agjabtl4tG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ydovCjC8ehZ72jZC1qDv/F4/8Kyo1QJMQm3g0uv6viboSKM4zNur8xJRgQiEpt73J
-         mYobz3BJoF57uwXYDB9KqVSfLwWr1EJYq0ppDTPSHlB89GumC0RiWsLwWLrOeN4pZ8
-         oceDECdiE5LsR9dTgf6WFOe0EeJbvHW85EjMlOlY=
+        b=ng2pkWsnlqup0wxQQJZSF+fUGHH9gzdMUYqwrI7n8bOc7rIjP1031LFp6mkjBB0tm
+         asV5nFH7Nr66Wrceoo7BLLQzTMb8yf46xn5U/UPqG9IcOa5O3GnC/hemkeOOJIbhgh
+         o+jO+iRx0WHwv6rFucBs9WZk+6ss5KpuyFCFTuGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 157/162] batman-adv: Reserve needed_*room for fragments
-Date:   Wed, 24 Nov 2021 12:57:40 +0100
-Message-Id: <20211124115703.355280561@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        bcm-kernel-feedback-list@broadcom.com, linux-mips@vger.kernel.org,
+        Paul Burton <paulburton@kernel.org>,
+        Maxime Bizon <mbizon@freebox.fr>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 219/251] mips: BCM63XX: ensure that CPU_SUPPORTS_32BIT_KERNEL is set
+Date:   Wed, 24 Nov 2021 12:57:41 +0100
+Message-Id: <20211124115717.874290797@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,90 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit c5cbfc87558168ef4c3c27ce36eba6b83391db19 upstream.
+[ Upstream commit 5eeaafc8d69373c095e461bdb39e5c9b62228ac5 ]
 
-The batadv net_device is trying to propagate the needed_headroom and
-needed_tailroom from the lower devices. This is needed to avoid cost
-intensive reallocations using pskb_expand_head during the transmission.
+Several header files need info on CONFIG_32BIT or CONFIG_64BIT,
+but kconfig symbol BCM63XX does not provide that info. This leads
+to many build errors, e.g.:
 
-But the fragmentation code split the skb's without adding extra room at the
-end/beginning of the various fragments. This reduced the performance of
-transmissions over complex scenarios (batadv on vxlan on wireguard) because
-the lower devices had to perform the reallocations at least once.
+   arch/mips/include/asm/page.h:196:13: error: use of undeclared identifier 'CAC_BASE'
+           return x - PAGE_OFFSET + PHYS_OFFSET;
+   arch/mips/include/asm/mach-generic/spaces.h:91:23: note: expanded from macro 'PAGE_OFFSET'
+   #define PAGE_OFFSET             (CAC_BASE + PHYS_OFFSET)
+   arch/mips/include/asm/io.h:134:28: error: use of undeclared identifier 'CAC_BASE'
+           return (void *)(address + PAGE_OFFSET - PHYS_OFFSET);
+   arch/mips/include/asm/mach-generic/spaces.h:91:23: note: expanded from macro 'PAGE_OFFSET'
+   #define PAGE_OFFSET             (CAC_BASE + PHYS_OFFSET)
 
-Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.4 backported: adjust context. ]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+arch/mips/include/asm/uaccess.h:82:10: error: use of undeclared identifier '__UA_LIMIT'
+           return (__UA_LIMIT & (addr | (addr + size) | __ua_size(size))) == 0;
+
+Selecting the SYS_HAS_CPU_BMIPS* symbols causes SYS_HAS_CPU_BMIPS to be
+set, which then selects CPU_SUPPORT_32BIT_KERNEL, which causes
+CONFIG_32BIT to be set. (a bit more indirect than v1 [RFC].)
+
+Fixes: e7300d04bd08 ("MIPS: BCM63xx: Add support for the Broadcom BCM63xx family of SOCs.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: bcm-kernel-feedback-list@broadcom.com
+Cc: linux-mips@vger.kernel.org
+Cc: Paul Burton <paulburton@kernel.org>
+Cc: Maxime Bizon <mbizon@freebox.fr>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Suggested-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/fragmentation.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ arch/mips/Kconfig | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -394,6 +394,7 @@ out:
- 
- /**
-  * batadv_frag_create - create a fragment from skb
-+ * @net_dev: outgoing device for fragment
-  * @skb: skb to create fragment from
-  * @frag_head: header to use in new fragment
-  * @fragment_size: size of new fragment
-@@ -404,22 +405,25 @@ out:
-  *
-  * Returns the new fragment, NULL on error.
-  */
--static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
-+static struct sk_buff *batadv_frag_create(struct net_device *net_dev,
-+					  struct sk_buff *skb,
- 					  struct batadv_frag_packet *frag_head,
- 					  unsigned int fragment_size)
- {
-+	unsigned int ll_reserved = LL_RESERVED_SPACE(net_dev);
-+	unsigned int tailroom = net_dev->needed_tailroom;
- 	struct sk_buff *skb_fragment;
- 	unsigned header_size = sizeof(*frag_head);
- 	unsigned mtu = fragment_size + header_size;
- 
--	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
-+	skb_fragment = dev_alloc_skb(ll_reserved + mtu + tailroom);
- 	if (!skb_fragment)
- 		goto err;
- 
- 	skb->priority = TC_PRIO_CONTROL;
- 
- 	/* Eat the last mtu-bytes of the skb */
--	skb_reserve(skb_fragment, header_size + ETH_HLEN);
-+	skb_reserve(skb_fragment, ll_reserved + header_size);
- 	skb_split(skb, skb_fragment, skb->len - fragment_size);
- 
- 	/* Add the header */
-@@ -442,11 +446,12 @@ bool batadv_frag_send_packet(struct sk_b
- 			     struct batadv_orig_node *orig_node,
- 			     struct batadv_neigh_node *neigh_node)
- {
-+	struct net_device *net_dev = neigh_node->if_incoming->net_dev;
- 	struct batadv_priv *bat_priv;
- 	struct batadv_hard_iface *primary_if = NULL;
- 	struct batadv_frag_packet frag_header;
- 	struct sk_buff *skb_fragment;
--	unsigned mtu = neigh_node->if_incoming->net_dev->mtu;
-+	unsigned mtu = net_dev->mtu;
- 	unsigned header_size = sizeof(frag_header);
- 	unsigned max_fragment_size, num_fragments;
- 	bool ret = false;
-@@ -489,7 +494,7 @@ bool batadv_frag_send_packet(struct sk_b
- 		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1)
- 			goto out_err;
- 
--		skb_fragment = batadv_frag_create(skb, &frag_header,
-+		skb_fragment = batadv_frag_create(net_dev, skb, &frag_header,
- 						  max_fragment_size);
- 		if (!skb_fragment)
- 			goto out_err;
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 8e77149d658fc..85afd6b4297b2 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -273,6 +273,9 @@ config BCM63XX
+ 	select SYS_SUPPORTS_32BIT_KERNEL
+ 	select SYS_SUPPORTS_BIG_ENDIAN
+ 	select SYS_HAS_EARLY_PRINTK
++	select SYS_HAS_CPU_BMIPS32_3300
++	select SYS_HAS_CPU_BMIPS4350
++	select SYS_HAS_CPU_BMIPS4380
+ 	select SWAP_IO_SPACE
+ 	select GPIOLIB
+ 	select HAVE_CLK
+-- 
+2.33.0
+
 
 
