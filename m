@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C4745CE55
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 21:45:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06FDB45CE5A
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 21:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237968AbhKXUsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 15:48:36 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:20973 "EHLO
+        id S239243AbhKXUtr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 15:49:47 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:40574 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238237AbhKXUsg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 15:48:36 -0500
+        by vger.kernel.org with ESMTP id S238974AbhKXUtp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 15:49:45 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1637786725;
+        s=mimecast20190719; t=1637786794;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=1gVdyoAV5GJi7Ztt/5hNRj2QdLIRDvWPJ1lYWMfCOPY=;
-        b=FS9NhmC6DZqqZsJ11pVCS/4xAI30f0bcL6tFSyw4WCR7+BbxmETiNojPWGsbrokPZW6GxS
-        bH5eTK2j+21lXre/T2FOrvI9uW0SYadjkTvjY+Jc/3+vPOVm7m5o+DSNkObCNfAUZ6K5op
-        LX6//mxQOJP9sZYnXVlfK8y8TDIBysU=
+        bh=FnS6r8ruobXlhNxbMOJkwoBK27bqYlpEfG342+fFQ+k=;
+        b=gfSrXkgvQ3bnHWhlPndWL5gPaswHnSnbQGT5aZ6e75+Umn2EdaHt4Om1UDqFvm/xDY+GV2
+        B+hO4IsYtvNn5eX69/aMyVIxdP/thj6WMKbKTA9LHIdwfovYC43scocKxK/nWJ6vY5tKnC
+        fv7Fi6BWJbmabyTTQIs5GedLaj3aHOw=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-418-GJ3L66BFMIKmJokl9_IJjA-1; Wed, 24 Nov 2021 15:45:22 -0500
-X-MC-Unique: GJ3L66BFMIKmJokl9_IJjA-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ us-mta-207-cmdll6VKPGqu7VBdY2aFWA-1; Wed, 24 Nov 2021 15:46:33 -0500
+X-MC-Unique: cmdll6VKPGqu7VBdY2aFWA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 85C4D1019621;
-        Wed, 24 Nov 2021 20:45:21 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6410E85B665;
+        Wed, 24 Nov 2021 20:46:32 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.39.194.11])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6410919C46;
-        Wed, 24 Nov 2021 20:45:07 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BEAF5369A;
+        Wed, 24 Nov 2021 20:46:11 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
@@ -41,14 +41,14 @@ Cc:     linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
         Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
         Vivek Goyal <vgoyal@redhat.com>,
         Philipp Rudo <prudo@redhat.com>
-Subject: [PATCH for 5.10-stable] proc/vmcore: fix clearing user buffer by properly using clear_user()
-Date:   Wed, 24 Nov 2021 21:45:06 +0100
-Message-Id: <20211124204506.27164-1-david@redhat.com>
-In-Reply-To: <16375840231750@kroah.com>
-References: <16375840231750@kroah.com>
+Subject: [PATCH for 5.15-stable] proc/vmcore: fix clearing user buffer by properly using clear_user()
+Date:   Wed, 24 Nov 2021 21:46:10 +0100
+Message-Id: <20211124204610.27368-1-david@redhat.com>
+In-Reply-To: <163758402560135@kroah.com>
+References: <163758402560135@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -117,7 +117,7 @@ Signed-off-by: David Hildenbrand <david@redhat.com>
  1 file changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-index c3a345c28a93..0e4278d4a769 100644
+index 9a15334da208..e5730986758f 100644
 --- a/fs/proc/vmcore.c
 +++ b/fs/proc/vmcore.c
 @@ -124,9 +124,13 @@ ssize_t read_from_oldmem(char *buf, size_t count,
