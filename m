@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8042145C599
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2100745C123
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350562AbhKXN71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:59:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47004 "EHLO mail.kernel.org"
+        id S1345889AbhKXNPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:15:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353091AbhKXN4p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:56:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EC3B6338B;
-        Wed, 24 Nov 2021 13:07:07 +0000 (UTC)
+        id S245524AbhKXNLx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:11:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0713C61A83;
+        Wed, 24 Nov 2021 12:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759228;
-        bh=VDGr8mG1mvdKL/VohV5GCHGEPqaZgeHXP+LwAow2Bi0=;
+        s=korg; t=1637757718;
+        bh=sF4IfXKalIxJEuhLz93o03/WYRjcFnAh63HOmXr4oM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pWeUWS/z79mlyWRBTd64t1RuGWemRYC+L4Ucv5eox49mViEA5J/kql2IX3O0NP+3r
-         T2uCXtbEPfs52kuzKSoFCtof1gXAp0nvh8wJAitmcNpwN5Iqs5E1G7HoRJDTUsJSH3
-         KAPzlXNU3DHTzNBw/EAgcOewvBy3yaPASwhh9Q0M=
+        b=RBGEGCPYvBbDsy9RA04JcLXkDWn3y8k2+bft6kmZUOj0fUh/p7Bzbw3yuN4hmrbyd
+         nizgdyYUEyBobgPl4v0MpG80PP4MQOGDLgULd8sAQm+hRJPUw55QKh0tO9aucVZfx9
+         +//gmmfCQfJvmu2pIgho8nCV1D0ybKyUnYUxfoFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Marcin Wojtas <mw@semihalf.com>, Andrew Lunn <andrew@lunn.ch>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 156/279] net: mvmdio: fix compilation warning
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 253/323] parisc/entry: fix trace test in syscall exit path
 Date:   Wed, 24 Nov 2021 12:57:23 +0100
-Message-Id: <20211124115724.158878159@linuxfoundation.org>
+Message-Id: <20211124115727.444717331@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcin Wojtas <mw@semihalf.com>
+From: Sven Schnelle <svens@stackframe.org>
 
-[ Upstream commit 2460386bef0b9b98b71728d3c173e15558b78d82 ]
+commit 3ec18fc7831e7d79e2d536dd1f3bc0d3ba425e8a upstream.
 
-The kernel test robot reported a following issue:
+commit 8779e05ba8aa ("parisc: Fix ptrace check on syscall return")
+fixed testing of TI_FLAGS. This uncovered a bug in the test mask.
+syscall_restore_rfi is only used when the kernel needs to exit to
+usespace with single or block stepping and the recovery counter
+enabled. The test however used _TIF_SYSCALL_TRACE_MASK, which
+includes a lot of bits that shouldn't be tested here.
 
->> drivers/net/ethernet/marvell/mvmdio.c:426:36: warning:
-unused variable 'orion_mdio_acpi_match' [-Wunused-const-variable]
-   static const struct acpi_device_id orion_mdio_acpi_match[] = {
-                                      ^
-   1 warning generated.
+Fix this by using TIF_SINGLESTEP and TIF_BLOCKSTEP directly.
 
-Fix that by surrounding the variable by appropriate ifdef.
+I encountered this bug by enabling syscall tracepoints. Both in qemu and
+on real hardware. As soon as i enabled the tracepoint (sys_exit_read,
+but i guess it doesn't really matter which one), i got random page
+faults in userspace almost immediately.
 
-Fixes: c54da4c1acb1 ("net: mvmdio: add ACPI support")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Marcin Wojtas <mw@semihalf.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20211115153024.209083-1-mw@semihalf.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/marvell/mvmdio.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/parisc/kernel/entry.S |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvmdio.c b/drivers/net/ethernet/marvell/mvmdio.c
-index 62a97c46fba05..ef878973b8597 100644
---- a/drivers/net/ethernet/marvell/mvmdio.c
-+++ b/drivers/net/ethernet/marvell/mvmdio.c
-@@ -429,12 +429,14 @@ static const struct of_device_id orion_mdio_match[] = {
- };
- MODULE_DEVICE_TABLE(of, orion_mdio_match);
+--- a/arch/parisc/kernel/entry.S
++++ b/arch/parisc/kernel/entry.S
+@@ -1852,7 +1852,7 @@ syscall_restore:
  
-+#ifdef CONFIG_ACPI
- static const struct acpi_device_id orion_mdio_acpi_match[] = {
- 	{ "MRVL0100", BUS_TYPE_SMI },
- 	{ "MRVL0101", BUS_TYPE_XSMI },
- 	{ },
- };
- MODULE_DEVICE_TABLE(acpi, orion_mdio_acpi_match);
-+#endif
+ 	/* Are we being ptraced? */
+ 	LDREG	TI_FLAGS-THREAD_SZ_ALGN-FRAME_SIZE(%r30),%r19
+-	ldi	_TIF_SYSCALL_TRACE_MASK,%r2
++	ldi	_TIF_SINGLESTEP|_TIF_BLOCKSTEP,%r2
+ 	and,COND(=)	%r19,%r2,%r0
+ 	b,n	syscall_restore_rfi
  
- static struct platform_driver orion_mdio_driver = {
- 	.probe = orion_mdio_probe,
--- 
-2.33.0
-
 
 
