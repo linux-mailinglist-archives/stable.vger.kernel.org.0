@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0102845C108
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DD8F45C318
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:32:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346248AbhKXNOP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:14:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53882 "EHLO mail.kernel.org"
+        id S1352286AbhKXNff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:35:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348004AbhKXNMY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:12:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A0C46140D;
-        Wed, 24 Nov 2021 12:42:36 +0000 (UTC)
+        id S1351799AbhKXNde (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:33:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0C1761BD3;
+        Wed, 24 Nov 2021 12:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757757;
-        bh=K/XMC/1eGJD8Ny3WM6Yf8Gse2GhSI96Vpk6Ju+DMte8=;
+        s=korg; t=1637758416;
+        bh=UctDOi6sgnFA9Ck2+gmrfdDnMs5ZuezcCI9kSB0HyJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=spLFCU97B68A6yRPQjzF4GCYG3/YC4i4sYTjwuEqoFJVzRRYqoVVSW0160pkm89xG
-         dpz7O5/XtDv2EX2nJd7TYPoRWfQk0k327nE18h5a6KQrT5q6Np3AAyHCfha/UKtrcG
-         UN5UFwXrwHOkQi/AbTab7TvFPmYBPpy9Bu/qX7XA=
+        b=xL90GQtOHc5RW9crQrp/9YaKLJSOzgrDOT3QaqQXeowaBtqeZ4mFdJdQkev/AaEH5
+         jojXhx0I9UPbrh8vvvQClBaXLN7cuMsg2g0mylghgMH9VDzgfmNnSChFkEXKYA3Ll2
+         AqTGr5WqFQtbMJZEMewgVVoOKDw38hDatDtGFM+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Zhi <qtxuning1999@sjtu.edu.cn>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
+        Like Xu <likexu@tencent.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 267/323] scsi: advansys: Fix kernel pointer leak
-Date:   Wed, 24 Nov 2021 12:57:37 +0100
-Message-Id: <20211124115727.891635360@linuxfoundation.org>
+Subject: [PATCH 5.10 062/154] perf/x86/vlbr: Add c->flags to vlbr event constraints
+Date:   Wed, 24 Nov 2021 12:57:38 +0100
+Message-Id: <20211124115704.327482886@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Zhi <qtxuning1999@sjtu.edu.cn>
+From: Like Xu <likexu@tencent.com>
 
-[ Upstream commit d4996c6eac4c81b8872043e9391563f67f13e406 ]
+[ Upstream commit 5863702561e625903ec678551cb056a4b19e0b8a ]
 
-Pointers should be printed with %p or %px rather than cast to 'unsigned
-long' and printed with %lx.
+Just like what we do in the x86_get_event_constraints(), the
+PERF_X86_EVENT_LBR_SELECT flag should also be propagated
+to event->hw.flags so that the host lbr driver can save/restore
+MSR_LBR_SELECT for the special vlbr event created by KVM or BPF.
 
-Change %lx to %p to print the hashed pointer.
-
-Link: https://lore.kernel.org/r/20210929122538.1158235-1-qtxuning1999@sjtu.edu.cn
-Signed-off-by: Guo Zhi <qtxuning1999@sjtu.edu.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 097e4311cda9 ("perf/x86: Add constraint to create guest LBR event without hw counter")
+Reported-by: Wanpeng Li <wanpengli@tencent.com>
+Signed-off-by: Like Xu <likexu@tencent.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Wanpeng Li <wanpengli@tencent.com>
+Link: https://lore.kernel.org/r/20211103091716.59906-1-likexu@tencent.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/advansys.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/advansys.c b/drivers/scsi/advansys.c
-index 713f69033f201..2856b0ce7ab9a 100644
---- a/drivers/scsi/advansys.c
-+++ b/drivers/scsi/advansys.c
-@@ -3370,8 +3370,8 @@ static void asc_prt_adv_board_info(struct seq_file *m, struct Scsi_Host *shost)
- 		   shost->host_no);
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index 4684bf9fcc428..a521135247eb6 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -2879,8 +2879,10 @@ intel_vlbr_constraints(struct perf_event *event)
+ {
+ 	struct event_constraint *c = &vlbr_constraint;
  
- 	seq_printf(m,
--		   " iop_base 0x%lx, cable_detect: %X, err_code %u\n",
--		   (unsigned long)v->iop_base,
-+		   " iop_base 0x%p, cable_detect: %X, err_code %u\n",
-+		   v->iop_base,
- 		   AdvReadWordRegister(iop_base,IOPW_SCSI_CFG1) & CABLE_DETECT,
- 		   v->err_code);
+-	if (unlikely(constraint_match(c, event->hw.config)))
++	if (unlikely(constraint_match(c, event->hw.config))) {
++		event->hw.flags |= c->flags;
+ 		return c;
++	}
  
+ 	return NULL;
+ }
 -- 
 2.33.0
 
