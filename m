@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED65B45BA60
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:06:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9CED45BBEC
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238596AbhKXMKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:10:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
+        id S245291AbhKXMZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241334AbhKXMIe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:08:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C171A610A2;
-        Wed, 24 Nov 2021 12:05:08 +0000 (UTC)
+        id S244504AbhKXMXi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:23:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B564610A0;
+        Wed, 24 Nov 2021 12:14:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755509;
-        bh=MIv2PVE0hYJ/DibRIv6CQED5BS/nlyXUll2BwE/PMrk=;
+        s=korg; t=1637756049;
+        bh=VBmhEAGjHcz+ZDTTKPv9VefqqBfp+aeGDtv6M60YmDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uDwi0SjHUwnR9W6SAwwn++BVhV0e0xRhW/AiMr0HhzRpyEDa8YrHm9pTkCn94GSgd
-         kMieCpZbJv3ylx7lKokMvfJhsf8fAekJ5ueX8TQKbrkiueWuM2r9teMJkx86NXkCgG
-         qZnEspryuj7SPzBwJx2xETkJ9HUrpCXaf0H8AARg=
+        b=aKXl2zsPkd1K6OmzOLzB3H2bR22s3RQLEUH9de4cFGjU49iMm3O/4ohkK5E+KwgqQ
+         lyPXNnPEv4CW+CxTzHz6nQOwWzyk9LP0jswxLaAzbW/2ReJgKpaE6vgYh8ejUU4OEY
+         xDCMuBMKprziVbn4Jep1GsrsbsvRack9JTQe38Cw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roger Quadros <rogerq@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 120/162] ARM: dts: omap: fix gpmc,mux-add-data type
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 152/207] USB: chipidea: fix interrupt deadlock
 Date:   Wed, 24 Nov 2021 12:57:03 +0100
-Message-Id: <20211124115702.195994418@linuxfoundation.org>
+Message-Id: <20211124115708.932678518@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +39,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@kernel.org>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 51b9e22ffd3c4c56cbb7caae9750f70e55ffa603 ]
+commit 9aaa81c3366e8393a62374e3a1c67c69edc07b8a upstream.
 
-gpmc,mux-add-data is not boolean.
+Chipidea core was calling the interrupt handler from non-IRQ context
+with interrupts enabled, something which can lead to a deadlock if
+there's an actual interrupt trying to take a lock that's already held
+(e.g. the controller lock in udc_irq()).
 
-Fixes the below errors flagged by dtbs_check.
+Add a wrapper that can be used to fake interrupts instead of calling the
+handler directly.
 
-"ethernet@4,0:gpmc,mux-add-data: True is not of type 'array'"
+Fixes: 3ecb3e09b042 ("usb: chipidea: Use extcon framework for VBUS and ID detect")
+Fixes: 876d4e1e8298 ("usb: chipidea: core: add wakeup support for extcon")
+Cc: Peter Chen <peter.chen@kernel.org>
+Cc: stable@vger.kernel.org      # 4.4
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211021083447.20078-1-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Roger Quadros <rogerq@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi         | 2 +-
- arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/chipidea/core.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
-index 73e272fadc202..58d288fddd9c2 100644
---- a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
-+++ b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
-@@ -28,7 +28,7 @@
- 		compatible = "smsc,lan9221","smsc,lan9115";
- 		bank-width = <2>;
+--- a/drivers/usb/chipidea/core.c
++++ b/drivers/usb/chipidea/core.c
+@@ -516,7 +516,7 @@ int hw_device_reset(struct ci_hdrc *ci)
+ 	return 0;
+ }
  
--		gpmc,mux-add-data;
-+		gpmc,mux-add-data = <0>;
- 		gpmc,cs-on-ns = <0>;
- 		gpmc,cs-rd-off-ns = <42>;
- 		gpmc,cs-wr-off-ns = <36>;
-diff --git a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
-index 82e98ee3023ad..3dbeb7a6c569c 100644
---- a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
-+++ b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
-@@ -25,7 +25,7 @@
- 		compatible = "smsc,lan9221","smsc,lan9115";
- 		bank-width = <2>;
+-static irqreturn_t ci_irq(int irq, void *data)
++static irqreturn_t ci_irq_handler(int irq, void *data)
+ {
+ 	struct ci_hdrc *ci = data;
+ 	irqreturn_t ret = IRQ_NONE;
+@@ -569,6 +569,15 @@ static irqreturn_t ci_irq(int irq, void
+ 	return ret;
+ }
  
--		gpmc,mux-add-data;
-+		gpmc,mux-add-data = <0>;
- 		gpmc,cs-on-ns = <0>;
- 		gpmc,cs-rd-off-ns = <42>;
- 		gpmc,cs-wr-off-ns = <36>;
--- 
-2.33.0
-
++static void ci_irq(struct ci_hdrc *ci)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	ci_irq_handler(ci->irq, ci);
++	local_irq_restore(flags);
++}
++
+ static int ci_vbus_notifier(struct notifier_block *nb, unsigned long event,
+ 			    void *ptr)
+ {
+@@ -582,7 +591,7 @@ static int ci_vbus_notifier(struct notif
+ 
+ 	vbus->changed = true;
+ 
+-	ci_irq(ci->irq, ci);
++	ci_irq(ci);
+ 	return NOTIFY_DONE;
+ }
+ 
+@@ -599,7 +608,7 @@ static int ci_id_notifier(struct notifie
+ 
+ 	id->changed = true;
+ 
+-	ci_irq(ci->irq, ci);
++	ci_irq(ci);
+ 	return NOTIFY_DONE;
+ }
+ 
+@@ -1011,7 +1020,7 @@ static int ci_hdrc_probe(struct platform
+ 	}
+ 
+ 	platform_set_drvdata(pdev, ci);
+-	ret = devm_request_irq(dev, ci->irq, ci_irq, IRQF_SHARED,
++	ret = devm_request_irq(dev, ci->irq, ci_irq_handler, IRQF_SHARED,
+ 			ci->platdata->name, ci);
+ 	if (ret)
+ 		goto stop;
+@@ -1126,11 +1135,11 @@ static void ci_extcon_wakeup_int(struct
+ 
+ 	if (!IS_ERR(cable_id->edev) && ci->is_otg &&
+ 		(otgsc & OTGSC_IDIE) && (otgsc & OTGSC_IDIS))
+-		ci_irq(ci->irq, ci);
++		ci_irq(ci);
+ 
+ 	if (!IS_ERR(cable_vbus->edev) && ci->is_otg &&
+ 		(otgsc & OTGSC_BSVIE) && (otgsc & OTGSC_BSVIS))
+-		ci_irq(ci->irq, ci);
++		ci_irq(ci);
+ }
+ 
+ static int ci_controller_resume(struct device *dev)
 
 
