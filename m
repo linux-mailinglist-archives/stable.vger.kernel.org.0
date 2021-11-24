@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDB9145C0B3
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:07:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 482EC45C4B9
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:48:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347429AbhKXNKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:10:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46522 "EHLO mail.kernel.org"
+        id S1354514AbhKXNu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:50:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348409AbhKXNJS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:09:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A60061A59;
-        Wed, 24 Nov 2021 12:40:30 +0000 (UTC)
+        id S1351471AbhKXNt3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:49:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9AF86334C;
+        Wed, 24 Nov 2021 13:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757631;
-        bh=37TK8niFyefkkf+9qm7JoDzCk8UdohixXVl874uae4w=;
+        s=korg; t=1637758990;
+        bh=NMAfDb+VHtBtCHB7LK1xpcfq8k2QKYT4alhSSBbwU9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qlkoOrsgQ8vm+FAWa4gOGw1mMzLDxovwWZPdozUUB6IUBIy5p8MICYz/jZ+WOs4Wo
-         0N1gTHUt2enNEx6cahAqkRiEsJe8Ioht2SAkvfGDzDCMmlc9XomtVOG8vN7qzh5qyY
-         DLjUph8hg7+O51Znf3FkIIVcEG74JC/0GZ7jtQPU=
+        b=kmAiJtLOQrzF2PhjQtqcpufKNhQllN2DHemplx6gLmlKqan5XyxkzZn4zB1nUD5u2
+         jeFobXQXdshNCsoCDdeq2IsP703y5LeA90a8I1JW4aeDP5+vdtiiyuNfhUZB6lnTz4
+         f8ykrOOwGdkfXG6jC6J5AGFEijByZXasrVswz9jY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Kevin Tanguy <kevin.tanguy@corp.ovh.com>,
+        Mathias Krause <minipli@grsecurity.net>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 193/323] RDMA/mlx4: Return missed an error if device doesnt support steering
-Date:   Wed, 24 Nov 2021 12:56:23 +0100
-Message-Id: <20211124115725.454468523@linuxfoundation.org>
+Subject: [PATCH 5.15 097/279] sched/fair: Prevent dead task groups from regaining cfs_rqs
+Date:   Wed, 24 Nov 2021 12:56:24 +0100
+Message-Id: <20211124115722.123488119@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,292 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Mathias Krause <minipli@grsecurity.net>
 
-[ Upstream commit f4e56ec4452f48b8292dcf0e1c4bdac83506fb8b ]
+[ Upstream commit b027789e5e50494c2325cc70c8642e7fd6059479 ]
 
-The error flow fixed in this patch is not possible because all kernel
-users of create QP interface check that device supports steering before
-set IB_QP_CREATE_NETIF_QP flag.
+Kevin is reporting crashes which point to a use-after-free of a cfs_rq
+in update_blocked_averages(). Initial debugging revealed that we've
+live cfs_rq's (on_list=1) in an about to be kfree()'d task group in
+free_fair_sched_group(). However, it was unclear how that can happen.
 
-Fixes: c1c98501121e ("IB/mlx4: Add support for steerable IB UD QPs")
-Link: https://lore.kernel.org/r/91c61f6e60eb0240f8bbc321fda7a1d2986dd03c.1634023677.git.leonro@nvidia.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+His kernel config happened to lead to a layout of struct sched_entity
+that put the 'my_q' member directly into the middle of the object
+which makes it incidentally overlap with SLUB's freelist pointer.
+That, in combination with SLAB_FREELIST_HARDENED's freelist pointer
+mangling, leads to a reliable access violation in form of a #GP which
+made the UAF fail fast.
+
+Michal seems to have run into the same issue[1]. He already correctly
+diagnosed that commit a7b359fc6a37 ("sched/fair: Correctly insert
+cfs_rq's to list on unthrottle") is causing the preconditions for the
+UAF to happen by re-adding cfs_rq's also to task groups that have no
+more running tasks, i.e. also to dead ones. His analysis, however,
+misses the real root cause and it cannot be seen from the crash
+backtrace only, as the real offender is tg_unthrottle_up() getting
+called via sched_cfs_period_timer() via the timer interrupt at an
+inconvenient time.
+
+When unregister_fair_sched_group() unlinks all cfs_rq's from the dying
+task group, it doesn't protect itself from getting interrupted. If the
+timer interrupt triggers while we iterate over all CPUs or after
+unregister_fair_sched_group() has finished but prior to unlinking the
+task group, sched_cfs_period_timer() will execute and walk the list of
+task groups, trying to unthrottle cfs_rq's, i.e. re-add them to the
+dying task group. These will later -- in free_fair_sched_group() -- be
+kfree()'ed while still being linked, leading to the fireworks Kevin
+and Michal are seeing.
+
+To fix this race, ensure the dying task group gets unlinked first.
+However, simply switching the order of unregistering and unlinking the
+task group isn't sufficient, as concurrent RCU walkers might still see
+it, as can be seen below:
+
+    CPU1:                                      CPU2:
+      :                                        timer IRQ:
+      :                                          do_sched_cfs_period_timer():
+      :                                            :
+      :                                            distribute_cfs_runtime():
+      :                                              rcu_read_lock();
+      :                                              :
+      :                                              unthrottle_cfs_rq():
+    sched_offline_group():                             :
+      :                                                walk_tg_tree_from(…,tg_unthrottle_up,…):
+      list_del_rcu(&tg->list);                           :
+ (1)  :                                                  list_for_each_entry_rcu(child, &parent->children, siblings)
+      :                                                    :
+ (2)  list_del_rcu(&tg->siblings);                         :
+      :                                                    tg_unthrottle_up():
+      unregister_fair_sched_group():                         struct cfs_rq *cfs_rq = tg->cfs_rq[cpu_of(rq)];
+        :                                                    :
+        list_del_leaf_cfs_rq(tg->cfs_rq[cpu]);               :
+        :                                                    :
+        :                                                    if (!cfs_rq_is_decayed(cfs_rq) || cfs_rq->nr_running)
+ (3)    :                                                        list_add_leaf_cfs_rq(cfs_rq);
+      :                                                      :
+      :                                                    :
+      :                                                  :
+      :                                                :
+      :                                              :
+ (4)  :                                              rcu_read_unlock();
+
+CPU 2 walks the task group list in parallel to sched_offline_group(),
+specifically, it'll read the soon to be unlinked task group entry at
+(1). Unlinking it on CPU 1 at (2) therefore won't prevent CPU 2 from
+still passing it on to tg_unthrottle_up(). CPU 1 now tries to unlink
+all cfs_rq's via list_del_leaf_cfs_rq() in
+unregister_fair_sched_group().  Meanwhile CPU 2 will re-add some of
+these at (3), which is the cause of the UAF later on.
+
+To prevent this additional race from happening, we need to wait until
+walk_tg_tree_from() has finished traversing the task groups, i.e.
+after the RCU read critical section ends in (4). Afterwards we're safe
+to call unregister_fair_sched_group(), as each new walk won't see the
+dying task group any more.
+
+On top of that, we need to wait yet another RCU grace period after
+unregister_fair_sched_group() to ensure print_cfs_stats(), which might
+run concurrently, always sees valid objects, i.e. not already free'd
+ones.
+
+This patch survives Michal's reproducer[2] for 8h+ now, which used to
+trigger within minutes before.
+
+  [1] https://lore.kernel.org/lkml/20211011172236.11223-1-mkoutny@suse.com/
+  [2] https://lore.kernel.org/lkml/20211102160228.GA57072@blackbody.suse.cz/
+
+Fixes: a7b359fc6a37 ("sched/fair: Correctly insert cfs_rq's to list on unthrottle")
+[peterz: shuffle code around a bit]
+Reported-by: Kevin Tanguy <kevin.tanguy@corp.ovh.com>
+Signed-off-by: Mathias Krause <minipli@grsecurity.net>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx4/qp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/sched/autogroup.c |  2 +-
+ kernel/sched/core.c      | 44 ++++++++++++++++++++++++++++++++--------
+ kernel/sched/fair.c      |  4 ++--
+ kernel/sched/rt.c        | 12 ++++++++---
+ kernel/sched/sched.h     |  3 ++-
+ 5 files changed, 49 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
-index 73bd35d34a257..7209b8a9b0dd2 100644
---- a/drivers/infiniband/hw/mlx4/qp.c
-+++ b/drivers/infiniband/hw/mlx4/qp.c
-@@ -1057,8 +1057,10 @@ static int create_qp_common(struct mlx4_ib_dev *dev, struct ib_pd *pd,
- 			if (dev->steering_support ==
- 			    MLX4_STEERING_MODE_DEVICE_MANAGED)
- 				qp->flags |= MLX4_IB_QP_NETIF;
--			else
-+			else {
-+				err = -EINVAL;
- 				goto err;
-+			}
- 		}
+diff --git a/kernel/sched/autogroup.c b/kernel/sched/autogroup.c
+index 2067080bb2358..8629b37d118e7 100644
+--- a/kernel/sched/autogroup.c
++++ b/kernel/sched/autogroup.c
+@@ -31,7 +31,7 @@ static inline void autogroup_destroy(struct kref *kref)
+ 	ag->tg->rt_se = NULL;
+ 	ag->tg->rt_rq = NULL;
+ #endif
+-	sched_offline_group(ag->tg);
++	sched_release_group(ag->tg);
+ 	sched_destroy_group(ag->tg);
+ }
  
- 		err = set_kernel_sq_size(dev, &init_attr->cap, qp_type, qp);
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 2c34c7bd559f2..779f27a4b46ac 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -9720,6 +9720,22 @@ static void sched_free_group(struct task_group *tg)
+ 	kmem_cache_free(task_group_cache, tg);
+ }
+ 
++static void sched_free_group_rcu(struct rcu_head *rcu)
++{
++	sched_free_group(container_of(rcu, struct task_group, rcu));
++}
++
++static void sched_unregister_group(struct task_group *tg)
++{
++	unregister_fair_sched_group(tg);
++	unregister_rt_sched_group(tg);
++	/*
++	 * We have to wait for yet another RCU grace period to expire, as
++	 * print_cfs_stats() might run concurrently.
++	 */
++	call_rcu(&tg->rcu, sched_free_group_rcu);
++}
++
+ /* allocate runqueue etc for a new task group */
+ struct task_group *sched_create_group(struct task_group *parent)
+ {
+@@ -9763,25 +9779,35 @@ void sched_online_group(struct task_group *tg, struct task_group *parent)
+ }
+ 
+ /* rcu callback to free various structures associated with a task group */
+-static void sched_free_group_rcu(struct rcu_head *rhp)
++static void sched_unregister_group_rcu(struct rcu_head *rhp)
+ {
+ 	/* Now it should be safe to free those cfs_rqs: */
+-	sched_free_group(container_of(rhp, struct task_group, rcu));
++	sched_unregister_group(container_of(rhp, struct task_group, rcu));
+ }
+ 
+ void sched_destroy_group(struct task_group *tg)
+ {
+ 	/* Wait for possible concurrent references to cfs_rqs complete: */
+-	call_rcu(&tg->rcu, sched_free_group_rcu);
++	call_rcu(&tg->rcu, sched_unregister_group_rcu);
+ }
+ 
+-void sched_offline_group(struct task_group *tg)
++void sched_release_group(struct task_group *tg)
+ {
+ 	unsigned long flags;
+ 
+-	/* End participation in shares distribution: */
+-	unregister_fair_sched_group(tg);
+-
++	/*
++	 * Unlink first, to avoid walk_tg_tree_from() from finding us (via
++	 * sched_cfs_period_timer()).
++	 *
++	 * For this to be effective, we have to wait for all pending users of
++	 * this task group to leave their RCU critical section to ensure no new
++	 * user will see our dying task group any more. Specifically ensure
++	 * that tg_unthrottle_up() won't add decayed cfs_rq's to it.
++	 *
++	 * We therefore defer calling unregister_fair_sched_group() to
++	 * sched_unregister_group() which is guarantied to get called only after the
++	 * current RCU grace period has expired.
++	 */
+ 	spin_lock_irqsave(&task_group_lock, flags);
+ 	list_del_rcu(&tg->list);
+ 	list_del_rcu(&tg->siblings);
+@@ -9900,7 +9926,7 @@ static void cpu_cgroup_css_released(struct cgroup_subsys_state *css)
+ {
+ 	struct task_group *tg = css_tg(css);
+ 
+-	sched_offline_group(tg);
++	sched_release_group(tg);
+ }
+ 
+ static void cpu_cgroup_css_free(struct cgroup_subsys_state *css)
+@@ -9910,7 +9936,7 @@ static void cpu_cgroup_css_free(struct cgroup_subsys_state *css)
+ 	/*
+ 	 * Relies on the RCU grace period between css_released() and this.
+ 	 */
+-	sched_free_group(tg);
++	sched_unregister_group(tg);
+ }
+ 
+ /*
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index f6a05d9b54436..6f16dfb742462 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -11358,8 +11358,6 @@ void free_fair_sched_group(struct task_group *tg)
+ {
+ 	int i;
+ 
+-	destroy_cfs_bandwidth(tg_cfs_bandwidth(tg));
+-
+ 	for_each_possible_cpu(i) {
+ 		if (tg->cfs_rq)
+ 			kfree(tg->cfs_rq[i]);
+@@ -11436,6 +11434,8 @@ void unregister_fair_sched_group(struct task_group *tg)
+ 	struct rq *rq;
+ 	int cpu;
+ 
++	destroy_cfs_bandwidth(tg_cfs_bandwidth(tg));
++
+ 	for_each_possible_cpu(cpu) {
+ 		if (tg->se[cpu])
+ 			remove_entity_load_avg(tg->se[cpu]);
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 3daf42a0f4623..bfef3f39b5552 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -137,13 +137,17 @@ static inline struct rq *rq_of_rt_se(struct sched_rt_entity *rt_se)
+ 	return rt_rq->rq;
+ }
+ 
+-void free_rt_sched_group(struct task_group *tg)
++void unregister_rt_sched_group(struct task_group *tg)
+ {
+-	int i;
+-
+ 	if (tg->rt_se)
+ 		destroy_rt_bandwidth(&tg->rt_bandwidth);
+ 
++}
++
++void free_rt_sched_group(struct task_group *tg)
++{
++	int i;
++
+ 	for_each_possible_cpu(i) {
+ 		if (tg->rt_rq)
+ 			kfree(tg->rt_rq[i]);
+@@ -250,6 +254,8 @@ static inline struct rt_rq *rt_rq_of_se(struct sched_rt_entity *rt_se)
+ 	return &rq->rt;
+ }
+ 
++void unregister_rt_sched_group(struct task_group *tg) { }
++
+ void free_rt_sched_group(struct task_group *tg) { }
+ 
+ int alloc_rt_sched_group(struct task_group *tg, struct task_group *parent)
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 3d3e5793e1172..4f432826933da 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -486,6 +486,7 @@ extern void __refill_cfs_bandwidth_runtime(struct cfs_bandwidth *cfs_b);
+ extern void start_cfs_bandwidth(struct cfs_bandwidth *cfs_b);
+ extern void unthrottle_cfs_rq(struct cfs_rq *cfs_rq);
+ 
++extern void unregister_rt_sched_group(struct task_group *tg);
+ extern void free_rt_sched_group(struct task_group *tg);
+ extern int alloc_rt_sched_group(struct task_group *tg, struct task_group *parent);
+ extern void init_tg_rt_entry(struct task_group *tg, struct rt_rq *rt_rq,
+@@ -501,7 +502,7 @@ extern struct task_group *sched_create_group(struct task_group *parent);
+ extern void sched_online_group(struct task_group *tg,
+ 			       struct task_group *parent);
+ extern void sched_destroy_group(struct task_group *tg);
+-extern void sched_offline_group(struct task_group *tg);
++extern void sched_release_group(struct task_group *tg);
+ 
+ extern void sched_move_task(struct task_struct *tsk);
+ 
 -- 
 2.33.0
 
