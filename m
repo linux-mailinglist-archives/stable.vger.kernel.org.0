@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 692BE45BCB5
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D8D45BAF4
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243970AbhKXMbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:31:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
+        id S242797AbhKXMPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:15:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245376AbhKXMZg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:25:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE5BD611C2;
-        Wed, 24 Nov 2021 12:15:54 +0000 (UTC)
+        id S242900AbhKXMNI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:13:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AAFE610CC;
+        Wed, 24 Nov 2021 12:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756155;
-        bh=leETTxEOUjK8p6dO07fgcIaIw8pBK76xzUPEmbE259w=;
+        s=korg; t=1637755635;
+        bh=Ar0nDp31+5EHseMccXMxhYC/hi4kdrSoZwqAji6xVOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pwk+Bncx08XgruarEDVqXUSe9jvWqKlhd/Ku0Tl58b7kPq5YvZrg9l3xLaEEiyTFz
-         KBLuGq+4YXWvuWwSmAZ1PeZfgGmXIbieTjMp501aLDzS2TfwLfq1wx3LjUBg4MYoA/
-         CcROwV67wMA62Ax4Qp7IhMUOpQXW6zEoydAHcw9U=
+        b=VXI8yxJJlmRT52zPkSH9ITdS2Rs6fn2jNLMct64ef4oOZ30JmaKhe+KMmrGyxJM8U
+         SvBT0/VMujOmxmY6eqXeCfDnUcJUvNJHv0/32dRE/HSYSihOuXmxgt5AaykJvcCJr/
+         S8lJPvOsSRUL11dUGFmGt7IvN1cOgNkmA9crCMuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Brian Cain <bcain@codeaurora.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 191/207] hexagon: export raw I/O routines for modules
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        syzbot+c0b807de416427ff3dd1@syzkaller.appspotmail.com,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.4 159/162] batman-adv: Avoid WARN_ON timing related checks
 Date:   Wed, 24 Nov 2021 12:57:42 +0100
-Message-Id: <20211124115710.139416502@linuxfoundation.org>
+Message-Id: <20211124115703.419182207@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,70 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit ffb92ce826fd801acb0f4e15b75e4ddf0d189bde upstream.
+commit 9f460ae31c4435fd022c443a6029352217a16ac1 upstream.
 
-Patch series "Fixes for ARCH=hexagon allmodconfig", v2.
+The soft/batadv interface for a queued OGM can be changed during the time
+the OGM was queued for transmission and when the OGM is actually
+transmitted by the worker.
 
-This series fixes some issues noticed with ARCH=hexagon allmodconfig.
+But WARN_ON must be used to denote kernel bugs and not to print simple
+warnings. A warning can simply be printed using pr_warn.
 
-This patch (of 3):
-
-When building ARCH=hexagon allmodconfig, the following errors occur:
-
-  ERROR: modpost: "__raw_readsl" [drivers/i3c/master/svc-i3c-master.ko] undefined!
-  ERROR: modpost: "__raw_writesl" [drivers/i3c/master/dw-i3c-master.ko] undefined!
-  ERROR: modpost: "__raw_readsl" [drivers/i3c/master/dw-i3c-master.ko] undefined!
-  ERROR: modpost: "__raw_writesl" [drivers/i3c/master/i3c-master-cdns.ko] undefined!
-  ERROR: modpost: "__raw_readsl" [drivers/i3c/master/i3c-master-cdns.ko] undefined!
-
-Export these symbols so that modules can use them without any errors.
-
-Link: https://lkml.kernel.org/r/20211115174250.1994179-1-nathan@kernel.org
-Link: https://lkml.kernel.org/r/20211115174250.1994179-2-nathan@kernel.org
-Fixes: 013bf24c3829 ("Hexagon: Provide basic implementation and/or stubs for I/O routines.")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Brian Cain <bcain@codeaurora.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Reported-by: syzbot+c0b807de416427ff3dd1@syzkaller.appspotmail.com
+Fixes: ef0a937f7a14 ("batman-adv: consider outgoing interface in OGM sending")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+[ bp: 4.4 backported: adjust context. ]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/hexagon/lib/io.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/batman-adv/bat_iv_ogm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/hexagon/lib/io.c
-+++ b/arch/hexagon/lib/io.c
-@@ -40,6 +40,7 @@ void __raw_readsw(const void __iomem *ad
- 		*dst++ = *src;
+--- a/net/batman-adv/bat_iv_ogm.c
++++ b/net/batman-adv/bat_iv_ogm.c
+@@ -526,8 +526,10 @@ static void batadv_iv_ogm_emit(struct ba
+ 	if (WARN_ON(!forw_packet->if_outgoing))
+ 		goto out;
  
- }
-+EXPORT_SYMBOL(__raw_readsw);
+-	if (WARN_ON(forw_packet->if_outgoing->soft_iface != soft_iface))
++	if (forw_packet->if_outgoing->soft_iface != soft_iface) {
++		pr_warn("%s: soft interface switch for queued OGM\n", __func__);
+ 		goto out;
++	}
  
- /*
-  * __raw_writesw - read words a short at a time
-@@ -60,6 +61,7 @@ void __raw_writesw(void __iomem *addr, c
- 
- 
- }
-+EXPORT_SYMBOL(__raw_writesw);
- 
- /*  Pretty sure len is pre-adjusted for the length of the access already */
- void __raw_readsl(const void __iomem *addr, void *data, int len)
-@@ -75,6 +77,7 @@ void __raw_readsl(const void __iomem *ad
- 
- 
- }
-+EXPORT_SYMBOL(__raw_readsl);
- 
- void __raw_writesl(void __iomem *addr, const void *data, int len)
- {
-@@ -89,3 +92,4 @@ void __raw_writesl(void __iomem *addr, c
- 
- 
- }
-+EXPORT_SYMBOL(__raw_writesl);
+ 	if (forw_packet->if_incoming->if_status != BATADV_IF_ACTIVE)
+ 		goto out;
 
 
