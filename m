@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78F6B45BEF8
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:51:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B048545BEFB
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:51:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244494AbhKXMyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:54:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55390 "EHLO mail.kernel.org"
+        id S245420AbhKXMyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:54:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346459AbhKXMvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:51:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17DB16147F;
-        Wed, 24 Nov 2021 12:29:59 +0000 (UTC)
+        id S1344291AbhKXMvk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:51:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA1C26152B;
+        Wed, 24 Nov 2021 12:30:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757000;
-        bh=NCz/p+WVJI3R+wx/mdu+dIy7lV1eBXTYn4mlKNp02vA=;
+        s=korg; t=1637757003;
+        bh=pZ4yCa9s6GHCd+RZNLKa6zvIXrNKpEr+EYjxFtPlmzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lEA9NZLbis4v4kg6JZ2pJ9tEHQYMg2BljoboYbtSwgzsbHroKq1rGt84tq6vy5fDy
-         BCadSCA01P1yPDyVVFtn0lRQ9c0g4O59PwPMcTBHspPYrbl0y5y9EsSMQXlgTaklnm
-         GIFzpQUGzGmmPFM8Ypnz7t5q4UKpsvMYqDaOAHww=
+        b=vsBbjax/BOTAtWiAZmKar2uRNN8GNtAGlGMg2NI/TKcvX/0aoXZt4tuCbrdJKYP+W
+         Xx+r3WCI8oPuLlOYpQHtfEhdgUHdB5OFVtXFNXEDZyp5r4hqlesTF0fgGM9rWcQcaY
+         o0mR/NnVcheFF6uSYzsmANve19nr1rK2HBP2Ull4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Dinoff <fdinoff@google.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.19 023/323] fuse: fix page stealing
-Date:   Wed, 24 Nov 2021 12:53:33 +0100
-Message-Id: <20211124115719.652273526@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Subject: [PATCH 4.19 024/323] x86/sme: Use #define USE_EARLY_PGTABLE_L5 in mem_encrypt_identity.c
+Date:   Wed, 24 Nov 2021 12:53:34 +0100
+Message-Id: <20211124115719.683105577@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
@@ -39,64 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-commit 712a951025c0667ff00b25afc360f74e639dfabe upstream.
+commit e7d445ab26db833d6640d4c9a08bee176777cc82 upstream.
 
-It is possible to trigger a crash by splicing anon pipe bufs to the fuse
-device.
+When runtime support for converting between 4-level and 5-level pagetables
+was added to the kernel, the SME code that built pagetables was updated
+to use the pagetable functions, e.g. p4d_offset(), etc., in order to
+simplify the code. However, the use of the pagetable functions in early
+boot code requires the use of the USE_EARLY_PGTABLE_L5 #define in order to
+ensure that the proper definition of pgtable_l5_enabled() is used.
 
-The reason for this is that anon_pipe_buf_release() will reuse buf->page if
-the refcount is 1, but that page might have already been stolen and its
-flags modified (e.g. PG_lru added).
+Without the #define, pgtable_l5_enabled() is #defined as
+cpu_feature_enabled(X86_FEATURE_LA57). In early boot, the CPU features
+have not yet been discovered and populated, so pgtable_l5_enabled() will
+return false even when 5-level paging is enabled. This causes the SME code
+to always build 4-level pagetables to perform the in-place encryption.
+If 5-level paging is enabled, switching to the SME pagetables results in
+a page-fault that kills the boot.
 
-This happens in the unlikely case of fuse_dev_splice_write() getting around
-to calling pipe_buf_release() after a page has been stolen, added to the
-page cache and removed from the page cache.
+Adding the #define results in pgtable_l5_enabled() using the
+__pgtable_l5_enabled variable set in early boot and the SME code building
+pagetables for the proper paging level.
 
-Fix by calling pipe_buf_release() right after the page was inserted into
-the page cache.  In this case the page has an elevated refcount so any
-release function will know that the page isn't reusable.
-
-Reported-by: Frank Dinoff <fdinoff@google.com>
-Link: https://lore.kernel.org/r/CAAmZXrsGg2xsP1CK+cbuEMumtrqdvD-NKnWzhNcvn71RV3c1yw@mail.gmail.com/
-Fixes: dd3bb14f44a6 ("fuse: support splice() writing to fuse device")
-Cc: <stable@vger.kernel.org> # v2.6.35
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: aad983913d77 ("x86/mm/encrypt: Simplify sme_populate_pgd() and sme_populate_pgd_large()")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org> # 4.18.x
+Link: https://lkml.kernel.org/r/2cb8329655f5c753905812d951e212022a480475.1634318656.git.thomas.lendacky@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/dev.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/x86/mm/mem_encrypt_identity.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -905,6 +905,12 @@ static int fuse_try_move_page(struct fus
- 		goto out_put_old;
- 	}
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -29,6 +29,15 @@
+ #undef CONFIG_PARAVIRT
+ #undef CONFIG_PARAVIRT_SPINLOCKS
  
-+	/*
-+	 * Release while we have extra ref on stolen page.  Otherwise
-+	 * anon_pipe_buf_release() might think the page can be reused.
-+	 */
-+	pipe_buf_release(cs->pipe, buf);
++/*
++ * This code runs before CPU feature bits are set. By default, the
++ * pgtable_l5_enabled() function uses bit X86_FEATURE_LA57 to determine if
++ * 5-level paging is active, so that won't work here. USE_EARLY_PGTABLE_L5
++ * is provided to handle this situation and, instead, use a variable that
++ * has been set by the early boot code.
++ */
++#define USE_EARLY_PGTABLE_L5
 +
- 	get_page(newpage);
- 
- 	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
-@@ -2054,8 +2060,12 @@ static ssize_t fuse_dev_splice_write(str
- 
- 	pipe_lock(pipe);
- out_free:
--	for (idx = 0; idx < nbuf; idx++)
--		pipe_buf_release(pipe, &bufs[idx]);
-+	for (idx = 0; idx < nbuf; idx++) {
-+		struct pipe_buffer *buf = &bufs[idx];
-+
-+		if (buf->ops)
-+			pipe_buf_release(pipe, buf);
-+	}
- 	pipe_unlock(pipe);
- 
- 	kvfree(bufs);
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+ #include <linux/mem_encrypt.h>
 
 
