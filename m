@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4FB545BA1B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8423345BA1D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242007AbhKXMHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:07:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33882 "EHLO mail.kernel.org"
+        id S235635AbhKXMHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:07:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242282AbhKXMGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:06:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F242660FBF;
-        Wed, 24 Nov 2021 12:03:29 +0000 (UTC)
+        id S240626AbhKXMGn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:06:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 004BE6104F;
+        Wed, 24 Nov 2021 12:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755410;
-        bh=SVJ1+bjXfGnfETTDv75CBkHb2qQU6zm3q6RJWGvy200=;
+        s=korg; t=1637755413;
+        bh=3qIMZ625fZYLgGi4tPwQGmIwZBwgjhFRent0DDe7xdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jpak3Rj909j5S1oO6P5tj0AjDNpRWLyMoJnrqu6oCp+EBvhzvD8Ry21d0ndFpBh1g
-         2UX/sj2aZlFVQhxYjrWdRDoiHRQh6Ds3qtjt+Eu+dKQta4kldEJfrdi1PeIRHgU+KA
-         eNPAw2imjXqxLbJjbrfjfCk2nw8lSQAMDt/j+azw=
+        b=uprBm3dUCXlP8+sKQj9bE0pDxEU6NnDndpbSjKAeciJa52sE26WpUOgPJbAfP+j+j
+         rJv3CgxTCiajAZbdj72OUrEj3Geag7902VpBizEC5U+ApNjoNW49HjMZdBHnK9FoD1
+         jp1y4u+1VW4OaZqkgvXV5XlZuefFwbpEbcO9X60U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+93dba5b91f0fed312cbd@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Casey Schaufler <casey@schaufler-ca.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 084/162] smackfs: use netlbl_cfg_cipsov4_del() for deleting cipso_v4_doi
-Date:   Wed, 24 Nov 2021 12:56:27 +0100
-Message-Id: <20211124115701.039259914@linuxfoundation.org>
+Subject: [PATCH 4.4 085/162] libertas_tf: Fix possible memory leak in probe and disconnect
+Date:   Wed, 24 Nov 2021 12:56:28 +0100
+Message-Id: <20211124115701.069262844@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
 References: <20211124115658.328640564@linuxfoundation.org>
@@ -42,39 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 0934ad42bb2c5df90a1b9de690f93de735b622fe ]
+[ Upstream commit d549107305b4634c81223a853701c06bcf657bc3 ]
 
-syzbot is reporting UAF at cipso_v4_doi_search() [1], for smk_cipso_doi()
-is calling kfree() without removing from the cipso_v4_doi_list list after
-netlbl_cfg_cipsov4_map_add() returned an error. We need to use
-netlbl_cfg_cipsov4_del() in order to remove from the list and wait for
-RCU grace period before kfree().
+I got memory leak as follows when doing fault injection test:
 
-Link: https://syzkaller.appspot.com/bug?extid=93dba5b91f0fed312cbd [1]
-Reported-by: syzbot <syzbot+93dba5b91f0fed312cbd@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 6c2e8ac0953fccdd ("netlabel: Update kernel configuration API")
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+unreferenced object 0xffff88810a2ddc00 (size 512):
+  comm "kworker/6:1", pid 176, jiffies 4295009893 (age 757.220s)
+  hex dump (first 32 bytes):
+    00 50 05 18 81 88 ff ff 00 00 00 00 00 00 00 00  .P..............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
+    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
+    [<ffffffffa02a1530>] if_usb_probe+0x60/0x37c [libertas_tf_usb]
+    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
+    [<ffffffff82b59630>] really_probe+0x190/0x480
+    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
+    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
+    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
+    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
+    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
+    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
+    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
+    [<ffffffff82b52e49>] device_add+0x829/0x1300
+    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
+    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
+    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
+
+cardp is missing being freed in the error handling path of the probe
+and the path of the disconnect, which will cause memory leak.
+
+This patch adds the missing kfree().
+
+Fixes: c305a19a0d0a ("libertas_tf: usb specific functions")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211020120345.2016045-2-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smackfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/libertas_tf/if_usb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index 40c8b2b8a4722..ce30b61c56171 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -740,7 +740,7 @@ static void smk_cipso_doi(void)
- 	if (rc != 0) {
- 		printk(KERN_WARNING "%s:%d map add rc = %d\n",
- 		       __func__, __LINE__, rc);
--		kfree(doip);
-+		netlbl_cfg_cipsov4_del(doip->doi, &nai);
- 		return;
- 	}
- }
+diff --git a/drivers/net/wireless/libertas_tf/if_usb.c b/drivers/net/wireless/libertas_tf/if_usb.c
+index 799a2efe57937..193f8f70c4edb 100644
+--- a/drivers/net/wireless/libertas_tf/if_usb.c
++++ b/drivers/net/wireless/libertas_tf/if_usb.c
+@@ -240,6 +240,7 @@ static int if_usb_probe(struct usb_interface *intf,
+ 
+ dealloc:
+ 	if_usb_free(cardp);
++	kfree(cardp);
+ error:
+ lbtf_deb_leave(LBTF_DEB_MAIN);
+ 	return -ENOMEM;
+@@ -264,6 +265,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
+ 
+ 	/* Unlink and free urb */
+ 	if_usb_free(cardp);
++	kfree(cardp);
+ 
+ 	usb_set_intfdata(intf, NULL);
+ 	usb_put_dev(interface_to_usbdev(intf));
 -- 
 2.33.0
 
