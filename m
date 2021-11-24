@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E10845BB92
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:18:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4275945B9FF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243671AbhKXMU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:20:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36538 "EHLO mail.kernel.org"
+        id S242317AbhKXMGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:06:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243836AbhKXMSx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:18:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4679A61156;
-        Wed, 24 Nov 2021 12:12:00 +0000 (UTC)
+        id S242161AbhKXMGL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:06:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4B0660FE7;
+        Wed, 24 Nov 2021 12:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755920;
-        bh=N7S8ac7Rcg4fZBD6Dknklfv+P+OwiyD4Q7/zqVfK5yg=;
+        s=korg; t=1637755382;
+        bh=66LniA/3g3fXEDy7dezjmcIoAX97+IEozozSMMeJVyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYVCLs5/F9OLr5uOKZLPdEhbS9nS5cXrgaR4k0CPHjpm49KzLMlY5R+i6bHopD2ir
-         0iMiqXWU+ysvyGkxhu3RLsPAgMN14zysuQNdy0CeHQfFHGif5oo1NOcMDKMRBgzhSz
-         AWIVtDY/aFn3wSIwrn57NX/iBvbSKC1Wq2ixJUOw=
+        b=PHSCkSnjmorI5xfA5l6+iGPNu99Umxnz3grxg4jBvT1qGE0hcUwqC+gV1VR3+ZKUG
+         R5yA2vvLsnJsozoPAnkmdy0ER1R+dC9LxLsk+B2kq4qB6PPDKcwnC5OZGyIziQMfB5
+         1SrQP1K7nCxsGTkZUrtWspNksShhbfDPY0wnkciA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 107/207] phy: micrel: ksz8041nl: do not use power down mode
+Subject: [PATCH 4.4 075/162] crypto: qat - detect PFVF collision after ACK
 Date:   Wed, 24 Nov 2021 12:56:18 +0100
-Message-Id: <20211124115707.540442304@linuxfoundation.org>
+Message-Id: <20211124115700.744685132@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 2641b62d2fab52648e34cdc6994b2eacde2d27c1 ]
+[ Upstream commit 9b768e8a3909ac1ab39ed44a3933716da7761a6f ]
 
-Some Micrel KSZ8041NL PHY chips exhibit continuous RX errors after using
-the power down mode bit (0.11). If the PHY is taken out of power down
-mode in a certain temperature range, the PHY enters a weird state which
-leads to continuously reporting RX errors. In that state, the MAC is not
-able to receive or send any Ethernet frames and the activity LED is
-constantly blinking. Since Linux is using the suspend callback when the
-interface is taken down, ending up in that state can easily happen
-during a normal startup.
+Detect a PFVF collision between the local and the remote function by
+checking if the message on the PFVF CSR has been overwritten.
+This is done after the remote function confirms that the message has
+been received, by clearing the interrupt bit, or the maximum number of
+attempts (ADF_IOV_MSG_ACK_MAX_RETRY) to check the CSR has been exceeded.
 
-Micrel confirmed the issue in errata DS80000700A [*], caused by abnormal
-clock recovery when using power down mode. Even the latest revision (A4,
-Revision ID 0x1513) seems to suffer that problem, and according to the
-errata is not going to be fixed.
-
-Remove the suspend/resume callback to avoid using the power down mode
-completely.
-
-[*] https://ww1.microchip.com/downloads/en/DeviceDoc/80000700A.pdf
-
-Fixes: 1a5465f5d6a2 ("phy/micrel: Add suspend/resume support to Micrel PHYs")
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Acked-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Co-developed-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/micrel.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
-index 1704d9e2ca8d1..c21328e1e3cca 100644
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -876,8 +876,9 @@ static struct phy_driver ksphy_driver[] = {
- 	.get_sset_count = kszphy_get_sset_count,
- 	.get_strings	= kszphy_get_strings,
- 	.get_stats	= kszphy_get_stats,
--	.suspend	= genphy_suspend,
--	.resume		= genphy_resume,
-+	/* No suspend/resume callbacks because of errata DS80000700A,
-+	 * receiver error following software power down.
-+	 */
- }, {
- 	.phy_id		= PHY_ID_KSZ8041RNLI,
- 	.phy_id_mask	= MICREL_PHY_ID_MASK,
+diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+index 711706819b05d..7e45c21a61657 100644
+--- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
++++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+@@ -218,6 +218,13 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
+ 		val = ADF_CSR_RD(pmisc_bar_addr, pf2vf_offset);
+ 	} while ((val & int_bit) && (count++ < ADF_IOV_MSG_ACK_MAX_RETRY));
+ 
++	if (val != msg) {
++		dev_dbg(&GET_DEV(accel_dev),
++			"Collision - PFVF CSR overwritten by remote function\n");
++		ret = -EIO;
++		goto out;
++	}
++
+ 	if (val & int_bit) {
+ 		dev_dbg(&GET_DEV(accel_dev), "ACK not received from remote\n");
+ 		val &= ~int_bit;
 -- 
 2.33.0
 
