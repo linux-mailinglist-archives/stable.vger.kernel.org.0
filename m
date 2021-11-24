@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B07B45B908
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 12:24:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48D7445B912
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 12:28:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240901AbhKXL1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 06:27:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35840 "EHLO
+        id S241125AbhKXLbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 06:31:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240520AbhKXL1q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 06:27:46 -0500
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8B92C061574
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 03:24:36 -0800 (PST)
-Received: by mail-pg1-x530.google.com with SMTP id 200so1859426pga.1
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 03:24:36 -0800 (PST)
+        with ESMTP id S238267AbhKXLbv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 06:31:51 -0500
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A037C061574
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 03:28:41 -0800 (PST)
+Received: by mail-pf1-x42d.google.com with SMTP id o4so2289007pfp.13
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 03:28:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=K/yKPeDDVsqQlwsG+tHOOGx1sbLVTHzpANGVmFx83Z4=;
-        b=aBB8zn+68p/7mqxATMjuqxDlbXASFd4Xkq3bzvXJdIASUOV1Z5T40vPR7AA1X/SjG3
-         jxn6lhuLh+BVSzJjSGkNtQ7X4qDRk/AKHTS+JdWbiTF1++HwxQhbYjwov+RJsWDCjAwi
-         jS8W/QThcS458qeUBFDuzWpr35o8VXTlYE6A12n2YNhICxczi1iNbR7CbEQWU6w+MbYv
-         s3R2+22uPK3zui/SqltoOMwKW1XCMWKmBql9Yzf+IQvy4d76Tekq5fznj0ia33z9SVNj
-         eeCcP4VI6etJY13lSs2LcdrbJmFVTKmbFWNx+rhbCsJI2PHlI4CHYpewkCOru7CyaD2G
-         oejQ==
+        bh=V14Fj/x2dKwehR83uXC7RoiIOw0tBB9VQlfhXjxJnrY=;
+        b=bJoqgHoXCcAZhJSZMpR2suH9+ZZKYfGVcnUSe+APXrwzdyQ1yBh/G4MU2Isuv97b8D
+         Sm2wkYBhQGVvwFvN3jqBxlgpVZDH1OikmnoLyCMLnagrJJY9j25B67Mb7VpxFtM2ZkBT
+         g5a2Rp+BtgnO62AoGQI8zgOcMFJ243v+Z6C/eR/T5CF029pt6wKTtZ9YnQRgbwycWHj4
+         +cT0MMOsxFaBJYu9fl5OLrQyUWt9o142p2qkEUE7crGutgldAoxioTpzw4j22nTBSVML
+         wzp3PomhCd9KJNZ0sTaxfdgEzL488+zij1w36MbqHKN/6PJAFUc9WBVFpNbnlQ2U2oaw
+         ycrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=K/yKPeDDVsqQlwsG+tHOOGx1sbLVTHzpANGVmFx83Z4=;
-        b=f5JhNlo1qn0ffw8wuaTY6mSJ4Qgv7En313yDA1Jg952Gtmr1nfXTNs/xaHEUxraRiH
-         L2uVbrk5Yw1b2/P7gVn8OKs4WiWQXdODeQ0aVkBqe+oGT+Y8sIfOLxQIqovVgEaaPK5u
-         qrj/x6aClzmlJXDKghiS0DU41cUcYU+JO/55dChI1xo6iz9jeWMQWxw0588NKh5E2aP8
-         GBrRymWw6MVC0ft8oR0GAVFgk5/wKXLtc5lGcE573a6E3YB4jrKjvr/A8KdwIuQXePU+
-         aSB5rpLqCVZPulXswVfMhrdvu3OBJ2yTR71Acvy6SiCOT4mqDDlC/Gvltw8uo9OSwGbl
-         A+vQ==
-X-Gm-Message-State: AOAM532R3+ZfAeW0ORiBfE4H4KXDQZSYsmQ9Af1rz1dpqadzgyR5RVJc
-        5j0lIGuCqvlgTKs3UCDEt7CNKolTz35wLJT+
-X-Google-Smtp-Source: ABdhPJyqSpnWEAg8sfPEBOaEi2V7ch05cakLKBg0q80hxvDoebSkExorEEkmq/JhVW25pgVYdJHqiA==
-X-Received: by 2002:a63:680a:: with SMTP id d10mr9497783pgc.116.1637753075311;
-        Wed, 24 Nov 2021 03:24:35 -0800 (PST)
+        bh=V14Fj/x2dKwehR83uXC7RoiIOw0tBB9VQlfhXjxJnrY=;
+        b=JwPw21Uln9EoSY5csRi54WaQ90R0JuOrDLSVnM6gBhAAUVeqaNzue9bmAUrspZa3/E
+         YJCAydY+EdvDVxdq9o6EPCHKWcaOJc2xpaYinsSwh01vPiI9MK6keMZols3/PXHZ7hXo
+         LeLWetGG78PbbCDXKOzFzqvB6rnLUmeghyvG2okZ4XYCEcJ83WWHpIk32AkBYllk0yv2
+         aBnxY36YxsVCKZKFT4DpbY/uq0d1HBKOHokB6b+qd639GM5noRbbxorHty21T/zYvA34
+         FiuyDqvr5UiHMtcqCo73nhFkq4TYJ5M/vjwT6jR8Y9iXPHa0zwyBG3c24b1VsrLBOItc
+         /xjg==
+X-Gm-Message-State: AOAM531Q8HQanr7f1tY0t/G/t+IsInEv1eSm+dQEICB5OliwxAww58i0
+        ud+q2UMw/+UBieWSeBKJyUVIHfHGiD/eJo1U
+X-Google-Smtp-Source: ABdhPJw9CDyyEcP1TRbigCKzNrGbphfMo+gkRKSQwqPDLcdR3vkMyDWBGhYUs3LkSAzyAOuQNO6bRw==
+X-Received: by 2002:a05:6a00:140e:b0:444:b077:51ef with SMTP id l14-20020a056a00140e00b00444b07751efmr5138811pfu.61.1637753320267;
+        Wed, 24 Nov 2021 03:28:40 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s24sm61087pfm.100.2021.11.24.03.24.34
+        by smtp.gmail.com with ESMTPSA id t13sm16218688pfl.98.2021.11.24.03.28.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Nov 2021 03:24:34 -0800 (PST)
-Message-ID: <619e20f3.1c69fb81.411d5.0193@mx.google.com>
-Date:   Wed, 24 Nov 2021 03:24:35 -0800 (PST)
+        Wed, 24 Nov 2021 03:28:40 -0800 (PST)
+Message-ID: <619e21e8.1c69fb81.e4971.c310@mx.google.com>
+Date:   Wed, 24 Nov 2021 03:28:40 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.81-156-g7f9de6888cf8a
+X-Kernelci-Kernel: v5.10.81-155-gb6c6ea1c0602
 X-Kernelci-Report-Type: build
-X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Branch: queue/5.10
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.10.y build: 181 builds: 6 failed, 175 passed,
- 7 errors, 10 warnings (v5.10.81-156-g7f9de6888cf8a)
+Subject: stable-rc/queue/5.10 build: 184 builds: 6 failed, 178 passed, 7 errors,
+ 10 warnings (v5.10.81-155-gb6c6ea1c0602)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,16 +65,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y build: 181 builds: 6 failed, 175 passed, 7 errors, 1=
-0 warnings (v5.10.81-156-g7f9de6888cf8a)
+stable-rc/queue/5.10 build: 184 builds: 6 failed, 178 passed, 7 errors, 10 =
+warnings (v5.10.81-155-gb6c6ea1c0602)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.10.=
-y/kernel/v5.10.81-156-g7f9de6888cf8a/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
+0/kernel/v5.10.81-155-gb6c6ea1c0602/
 
 Tree: stable-rc
-Branch: linux-5.10.y
-Git Describe: v5.10.81-156-g7f9de6888cf8a
-Git Commit: 7f9de6888cf8aeb1cc2a6f25c670bce87279fbba
+Branch: queue/5.10
+Git Describe: v5.10.81-155-gb6c6ea1c0602
+Git Commit: b6c6ea1c0602a9bc68f55cd87ffce63ff41983d9
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -329,6 +329,11 @@ cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
 db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -467,6 +472,11 @@ haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 ---------------------------------------------------------------------------=
 -----
 hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
@@ -790,6 +800,11 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
@@ -873,9 +888,9 @@ rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section=
 
 Errors:
     arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
     arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
 =E2=80=99
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
     arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
 =E2=80=99
 
@@ -1014,6 +1029,11 @@ OT_READY=E2=80=99 undeclared (first use in this function); did you mean =E2=
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
 
@@ -1021,11 +1041,6 @@ smatches
 -----
 tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
 
 ---------------------------------------------------------------------------=
 -----
