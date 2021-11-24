@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B34445BEC3
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4597B45BABA
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345604AbhKXMue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:50:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54258 "EHLO mail.kernel.org"
+        id S243605AbhKXMOd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:14:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346035AbhKXMsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:48:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02EAA61356;
-        Wed, 24 Nov 2021 12:28:17 +0000 (UTC)
+        id S242276AbhKXMLm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:11:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3079C610CA;
+        Wed, 24 Nov 2021 12:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756898;
-        bh=hxOkny9yZgUaQJFRSxBWUdZWFLl7onSNJHgQge5vJL4=;
+        s=korg; t=1637755592;
+        bh=tkP7SDcw/RUv5RTKfkZoJ0tUTp8lXtF1+XfDr9S8muo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vaNf6phYuKrgOdZxP/rjckbukY1Rm4df+r/nFfUYp9JI0w9g7fpTPvAmZ+dG0HF38
-         ybUc7ND5GtS2wWyfQLlGeR6IXJI8xJQwi2KyYi6roq6ixIMEtK4NIFdvB07b5brjle
-         s8iNQVHXSb59mPRNoXhUOJtDltJINrgmy0NFy0uY=
+        b=ZDb1A65fzKVZEGothdYEJlsPHuur1dHQsUJImCSKwdQhqQi1xgyOkqyXywp9SB5j2
+         Kx2C2gz3peN+8Nw7L4v7ftzjglCaHBNlumv4l4QRCM2F1/vjvXpmABR3PGx3q+6f+P
+         3ER0lXEh2yymk5vMQC4HHbFfGPMxabPKzZXdjehY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anatolij Gustschin <agust@denx.de>,
-        Rob Herring <robh@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 212/251] powerpc/5200: dts: fix memory node unit name
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.4 151/162] batman-adv: Prevent duplicated softif_vlan entry
 Date:   Wed, 24 Nov 2021 12:57:34 +0100
-Message-Id: <20211124115717.626557322@linuxfoundation.org>
+Message-Id: <20211124115703.158037786@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,191 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anatolij Gustschin <agust@denx.de>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit aed2886a5e9ffc8269a4220bff1e9e030d3d2eb1 ]
+commit 94cb82f594ed86be303398d6dfc7640a6f1d45d4 upstream.
 
-Fixes build warnings:
-Warning (unit_address_vs_reg): /memory: node has a reg or ranges property, but no unit name
+The function batadv_softif_vlan_get is responsible for adding new
+softif_vlan to the softif_vlan_list. It first checks whether the entry
+already is in the list or not. If it is, then the creation of a new entry
+is aborted.
 
-Signed-off-by: Anatolij Gustschin <agust@denx.de>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211013220532.24759-4-agust@denx.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But the lock for the list is only held when the list is really modified.
+This could lead to duplicated entries because another context could create
+an entry with the same key between the check and the list manipulation.
+
+The check and the manipulation of the list must therefore be in the same
+locked code section.
+
+Fixes: 5d2c05b21337 ("batman-adv: add per VLAN interface attribute framework")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+[ bp: 4.4 backport: switch back to atomic_t based reference counting. ]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/boot/dts/charon.dts    | 2 +-
- arch/powerpc/boot/dts/digsy_mtc.dts | 2 +-
- arch/powerpc/boot/dts/lite5200.dts  | 2 +-
- arch/powerpc/boot/dts/lite5200b.dts | 2 +-
- arch/powerpc/boot/dts/media5200.dts | 2 +-
- arch/powerpc/boot/dts/mpc5200b.dtsi | 2 +-
- arch/powerpc/boot/dts/o2d.dts       | 2 +-
- arch/powerpc/boot/dts/o2d.dtsi      | 2 +-
- arch/powerpc/boot/dts/o2dnt2.dts    | 2 +-
- arch/powerpc/boot/dts/o3dnt.dts     | 2 +-
- arch/powerpc/boot/dts/pcm032.dts    | 2 +-
- arch/powerpc/boot/dts/tqm5200.dts   | 2 +-
- 12 files changed, 12 insertions(+), 12 deletions(-)
+ net/batman-adv/soft-interface.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/charon.dts b/arch/powerpc/boot/dts/charon.dts
-index 0e00e508eaa6a..1c8fe20752e6a 100644
---- a/arch/powerpc/boot/dts/charon.dts
-+++ b/arch/powerpc/boot/dts/charon.dts
-@@ -39,7 +39,7 @@
- 		};
- 	};
+--- a/net/batman-adv/soft-interface.c
++++ b/net/batman-adv/soft-interface.c
+@@ -539,15 +539,20 @@ int batadv_softif_create_vlan(struct bat
+ 	struct batadv_softif_vlan *vlan;
+ 	int err;
  
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>;	// 128MB
- 	};
-diff --git a/arch/powerpc/boot/dts/digsy_mtc.dts b/arch/powerpc/boot/dts/digsy_mtc.dts
-index c280e75c86bfd..d4a0a367ed66b 100644
---- a/arch/powerpc/boot/dts/digsy_mtc.dts
-+++ b/arch/powerpc/boot/dts/digsy_mtc.dts
-@@ -20,7 +20,7 @@
- 	model = "intercontrol,digsy-mtc";
- 	compatible = "intercontrol,digsy-mtc";
++	spin_lock_bh(&bat_priv->softif_vlan_list_lock);
++
+ 	vlan = batadv_softif_vlan_get(bat_priv, vid);
+ 	if (vlan) {
+ 		batadv_softif_vlan_free_ref(vlan);
++		spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
+ 		return -EEXIST;
+ 	}
  
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x02000000>;	// 32MB
- 	};
+ 	vlan = kzalloc(sizeof(*vlan), GFP_ATOMIC);
+-	if (!vlan)
++	if (!vlan) {
++		spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
+ 		return -ENOMEM;
++	}
  
-diff --git a/arch/powerpc/boot/dts/lite5200.dts b/arch/powerpc/boot/dts/lite5200.dts
-index 179a1785d6454..18d137a3393f0 100644
---- a/arch/powerpc/boot/dts/lite5200.dts
-+++ b/arch/powerpc/boot/dts/lite5200.dts
-@@ -36,7 +36,7 @@
- 		};
- 	};
+ 	vlan->bat_priv = bat_priv;
+ 	vlan->vid = vid;
+@@ -555,16 +560,19 @@ int batadv_softif_create_vlan(struct bat
  
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
-diff --git a/arch/powerpc/boot/dts/lite5200b.dts b/arch/powerpc/boot/dts/lite5200b.dts
-index 5abb46c5cc951..29419cf81e044 100644
---- a/arch/powerpc/boot/dts/lite5200b.dts
-+++ b/arch/powerpc/boot/dts/lite5200b.dts
-@@ -35,7 +35,7 @@
- 		led4 { gpios = <&gpio_simple 2 1>; };
- 	};
+ 	atomic_set(&vlan->ap_isolation, 0);
  
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x10000000>;	// 256MB
- 	};
++	hlist_add_head_rcu(&vlan->list, &bat_priv->softif_vlan_list);
++	spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
++
++	/* batadv_sysfs_add_vlan cannot be in the spinlock section due to the
++	 * sleeping behavior of the sysfs functions and the fs_reclaim lock
++	 */
+ 	err = batadv_sysfs_add_vlan(bat_priv->soft_iface, vlan);
+ 	if (err) {
+-		kfree(vlan);
++		/* ref for the list */
++		batadv_softif_vlan_free_ref(vlan);
+ 		return err;
+ 	}
  
-diff --git a/arch/powerpc/boot/dts/media5200.dts b/arch/powerpc/boot/dts/media5200.dts
-index b5413cb85f134..3d57463bc49da 100644
---- a/arch/powerpc/boot/dts/media5200.dts
-+++ b/arch/powerpc/boot/dts/media5200.dts
-@@ -36,7 +36,7 @@
- 		};
- 	};
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;	// 128MB RAM
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/mpc5200b.dtsi b/arch/powerpc/boot/dts/mpc5200b.dtsi
-index 969b2200b2f97..ecfba675b5611 100644
---- a/arch/powerpc/boot/dts/mpc5200b.dtsi
-+++ b/arch/powerpc/boot/dts/mpc5200b.dtsi
-@@ -37,7 +37,7 @@
- 		};
- 	};
- 
--	memory: memory {
-+	memory: memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
-diff --git a/arch/powerpc/boot/dts/o2d.dts b/arch/powerpc/boot/dts/o2d.dts
-index 9f6dd4d889b32..5a676e8141caf 100644
---- a/arch/powerpc/boot/dts/o2d.dts
-+++ b/arch/powerpc/boot/dts/o2d.dts
-@@ -16,7 +16,7 @@
- 	model = "ifm,o2d";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;  // 128MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/o2d.dtsi b/arch/powerpc/boot/dts/o2d.dtsi
-index cf073e693f24d..1b4df5f64b580 100644
---- a/arch/powerpc/boot/dts/o2d.dtsi
-+++ b/arch/powerpc/boot/dts/o2d.dtsi
-@@ -23,7 +23,7 @@
- 	model = "ifm,o2d";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/o2dnt2.dts b/arch/powerpc/boot/dts/o2dnt2.dts
-index a0f5b97a4f06e..5184c461a205f 100644
---- a/arch/powerpc/boot/dts/o2dnt2.dts
-+++ b/arch/powerpc/boot/dts/o2dnt2.dts
-@@ -16,7 +16,7 @@
- 	model = "ifm,o2dnt2";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;  // 128MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/o3dnt.dts b/arch/powerpc/boot/dts/o3dnt.dts
-index acce49326491b..045b901719245 100644
---- a/arch/powerpc/boot/dts/o3dnt.dts
-+++ b/arch/powerpc/boot/dts/o3dnt.dts
-@@ -16,7 +16,7 @@
- 	model = "ifm,o3dnt";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x04000000>;  // 64MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/pcm032.dts b/arch/powerpc/boot/dts/pcm032.dts
-index 576249bf2fb91..637e14286dde5 100644
---- a/arch/powerpc/boot/dts/pcm032.dts
-+++ b/arch/powerpc/boot/dts/pcm032.dts
-@@ -26,7 +26,7 @@
- 	model = "phytec,pcm032";
- 	compatible = "phytec,pcm032";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;	// 128MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/tqm5200.dts b/arch/powerpc/boot/dts/tqm5200.dts
-index 1db07f6cf133c..68b9e8240fb5b 100644
---- a/arch/powerpc/boot/dts/tqm5200.dts
-+++ b/arch/powerpc/boot/dts/tqm5200.dts
-@@ -36,7 +36,7 @@
- 		};
- 	};
- 
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
--- 
-2.33.0
-
+-	spin_lock_bh(&bat_priv->softif_vlan_list_lock);
+-	hlist_add_head_rcu(&vlan->list, &bat_priv->softif_vlan_list);
+-	spin_unlock_bh(&bat_priv->softif_vlan_list_lock);
+-
+ 	/* add a new TT local entry. This one will be marked with the NOPURGE
+ 	 * flag
+ 	 */
 
 
