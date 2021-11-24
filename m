@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BCB345BDB7
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:38:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4144245BDB9
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:38:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245631AbhKXMkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:40:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
+        id S1344388AbhKXMkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:40:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344622AbhKXMib (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:38:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DBA16138F;
-        Wed, 24 Nov 2021 12:23:02 +0000 (UTC)
+        id S1344630AbhKXMic (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:38:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7621D613A3;
+        Wed, 24 Nov 2021 12:23:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756583;
-        bh=Y6mdpp1PkKu0mmsVgA/lCctJSMOrGaqRBF5B702YhkY=;
+        s=korg; t=1637756586;
+        bh=KPNdnvY897FfD9BLo2A3Z2x6qFr3e2b3FuKDsqCNAFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tBOoqvS5WLLam2XH+YmmjTvW104xmNmpYRMLYMsDnv5kwDI0cDN99uDSZuSlVE6Lu
-         0AP6Iuv2PvduxwutUb5butBS7R68HgEFXlMfNgThL3OXPkFrDWGShab9xDQ7fVOCk9
-         c2gMGGcyhu1jynTozV+K7RdzdKvIJb2waFCTuaVw=
+        b=YwQ2kw6sQxtlfn6G6wu9atJ3/36OdkXhuKN1yEU6UsUDNApROTl63+y3p3KU7BQC4
+         dDoG5hNE0YWxdZmiCOzFh8KQVG9QQJU78we1i/RHRwX7avWXa7NVzIbnuw8WnT9lv5
+         xigt7iqh3tcPBRRMDxSuRkJhY1rfWoaH13B6kHts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 134/251] libertas: Fix possible memory leak in probe and disconnect
-Date:   Wed, 24 Nov 2021 12:56:16 +0100
-Message-Id: <20211124115714.901869789@linuxfoundation.org>
+Subject: [PATCH 4.14 135/251] net: amd-xgbe: Toggle PLL settings during rate change
+Date:   Wed, 24 Nov 2021 12:56:17 +0100
+Message-Id: <20211124115714.946535760@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
 References: <20211124115710.214900256@linuxfoundation.org>
@@ -41,70 +42,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 
-[ Upstream commit 9692151e2fe7a326bafe99836fd1f20a2cc3a049 ]
+[ Upstream commit daf182d360e509a494db18666799f4e85d83dda0 ]
 
-I got memory leak as follows when doing fault injection test:
+For each rate change command submission, the FW has to do a phy
+power off sequence internally. For this to happen correctly, the
+PLL re-initialization control setting has to be turned off before
+sending mailbox commands and re-enabled once the command submission
+is complete.
 
-unreferenced object 0xffff88812c7d7400 (size 512):
-  comm "kworker/6:1", pid 176, jiffies 4295003332 (age 822.830s)
-  hex dump (first 32 bytes):
-    00 68 1e 04 81 88 ff ff 01 00 00 00 00 00 00 00  .h..............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
-    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
-    [<ffffffffa02c9873>] if_usb_probe+0x63/0x446 [usb8xxx]
-    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
-    [<ffffffff82b59630>] really_probe+0x190/0x480
-    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
-    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
-    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
-    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
-    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
-    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
-    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
-    [<ffffffff82b52e49>] device_add+0x829/0x1300
-    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
-    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
-    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
+Without the PLL control setting, the link up takes longer time in a
+fixed phy configuration.
 
-cardp is missing being freed in the error handling path of the probe
-and the path of the disconnect, which will cause memory leak.
-
-This patch adds the missing kfree().
-
-Fixes: 876c9d3aeb98 ("[PATCH] Marvell Libertas 8388 802.11b/g USB driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211020120345.2016045-3-wanghai38@huawei.com
+Fixes: 47f164deab22 ("amd-xgbe: Add PCI device support")
+Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas/if_usb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/amd/xgbe/xgbe-common.h |  8 ++++++++
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 20 +++++++++++++++++++-
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas/if_usb.c b/drivers/net/wireless/marvell/libertas/if_usb.c
-index aad82ff568835..bbfc89d9d65ab 100644
---- a/drivers/net/wireless/marvell/libertas/if_usb.c
-+++ b/drivers/net/wireless/marvell/libertas/if_usb.c
-@@ -288,6 +288,7 @@ err_add_card:
- 	if_usb_reset_device(cardp);
- dealloc:
- 	if_usb_free(cardp);
-+	kfree(cardp);
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-common.h b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
+index b2cd3bdba9f89..533b8519ec352 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-common.h
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
+@@ -1331,6 +1331,10 @@
+ #define MDIO_VEND2_PMA_CDR_CONTROL	0x8056
+ #endif
  
- error:
- 	return r;
-@@ -312,6 +313,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
++#ifndef MDIO_VEND2_PMA_MISC_CTRL0
++#define MDIO_VEND2_PMA_MISC_CTRL0	0x8090
++#endif
++
+ #ifndef MDIO_CTRL1_SPEED1G
+ #define MDIO_CTRL1_SPEED1G		(MDIO_CTRL1_SPEED10G & ~BMCR_SPEED100)
+ #endif
+@@ -1389,6 +1393,10 @@
+ #define XGBE_PMA_RX_RST_0_RESET_ON	0x10
+ #define XGBE_PMA_RX_RST_0_RESET_OFF	0x00
  
- 	/* Unlink and free urb */
- 	if_usb_free(cardp);
-+	kfree(cardp);
++#define XGBE_PMA_PLL_CTRL_MASK		BIT(15)
++#define XGBE_PMA_PLL_CTRL_ENABLE	BIT(15)
++#define XGBE_PMA_PLL_CTRL_DISABLE	0x0000
++
+ /* Bit setting and getting macros
+  *  The get macro will extract the current bit field value from within
+  *  the variable
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index bb6f0dcea6eab..4a4370a470fd1 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -1803,12 +1803,26 @@ static void xgbe_phy_rx_reset(struct xgbe_prv_data *pdata)
+ 	}
+ }
  
- 	usb_set_intfdata(intf, NULL);
- 	usb_put_dev(interface_to_usbdev(intf));
++static void xgbe_phy_pll_ctrl(struct xgbe_prv_data *pdata, bool enable)
++{
++	XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_VEND2_PMA_MISC_CTRL0,
++			 XGBE_PMA_PLL_CTRL_MASK,
++			 enable ? XGBE_PMA_PLL_CTRL_ENABLE
++				: XGBE_PMA_PLL_CTRL_DISABLE);
++
++	/* Wait for command to complete */
++	usleep_range(100, 200);
++}
++
+ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 					unsigned int cmd, unsigned int sub_cmd)
+ {
+ 	unsigned int s0 = 0;
+ 	unsigned int wait;
+ 
++	/* Disable PLL re-initialization during FW command processing */
++	xgbe_phy_pll_ctrl(pdata, false);
++
+ 	/* Log if a previous command did not complete */
+ 	if (XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS)) {
+ 		netif_dbg(pdata, link, pdata->netdev,
+@@ -1829,7 +1843,7 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 	wait = XGBE_RATECHANGE_COUNT;
+ 	while (wait--) {
+ 		if (!XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS))
+-			return;
++			goto reenable_pll;
+ 
+ 		usleep_range(1000, 2000);
+ 	}
+@@ -1839,6 +1853,10 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 
+ 	/* Reset on error */
+ 	xgbe_phy_rx_reset(pdata);
++
++reenable_pll:
++	/* Enable PLL re-initialization */
++	xgbe_phy_pll_ctrl(pdata, true);
+ }
+ 
+ static void xgbe_phy_rrc(struct xgbe_prv_data *pdata)
 -- 
 2.33.0
 
