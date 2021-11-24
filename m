@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53D8445BC47
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09C8845BAFA
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:13:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244451AbhKXM1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:27:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39320 "EHLO mail.kernel.org"
+        id S242881AbhKXMPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:15:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245297AbhKXMZR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:25:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73D8561106;
-        Wed, 24 Nov 2021 12:15:47 +0000 (UTC)
+        id S242954AbhKXMNM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:13:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B2FD610FE;
+        Wed, 24 Nov 2021 12:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756148;
-        bh=UYAf1plEyO/8i+neD+RnQXHb6oAsx4KIi1AD34TpjvU=;
+        s=korg; t=1637755647;
+        bh=4Q9Za+5KmPVZ4TUcvRbgFLBBLzm6NO2EEEDWk60V+mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cth8IE4tyBefW7GW/4UyMXdoJ+g9KoFqTw7bMPHAnFwjH1UvpbZQBNRrHf3rrDJc0
-         2UnKHbm5pT7weAPx2YzRmK3xNmujue0hyEPcPDVfyLCWSyH+6VzAMVfi59262drdiy
-         dFDCLjZRDf/qNT8PXWsPc1wuFbZA+MgboCT1Tar0=
+        b=ydovCjC8ehZ72jZC1qDv/F4/8Kyo1QJMQm3g0uv6viboSKM4zNur8xJRgQiEpt73J
+         mYobz3BJoF57uwXYDB9KqVSfLwWr1EJYq0ppDTPSHlB89GumC0RiWsLwWLrOeN4pZ8
+         oceDECdiE5LsR9dTgf6WFOe0EeJbvHW85EjMlOlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Antonov <alexander.antonov@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 189/207] perf/x86/intel/uncore: Fix IIO event constraints for Skylake Server
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.4 157/162] batman-adv: Reserve needed_*room for fragments
 Date:   Wed, 24 Nov 2021 12:57:40 +0100
-Message-Id: <20211124115710.078293394@linuxfoundation.org>
+Message-Id: <20211124115703.355280561@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +39,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Antonov <alexander.antonov@linux.intel.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 3866ae319c846a612109c008f43cba80b8c15e86 ]
+commit c5cbfc87558168ef4c3c27ce36eba6b83391db19 upstream.
 
-According to the latest uncore document, COMP_BUF_OCCUPANCY (0xd5) event
-can be collected on 2-3 counters. Update uncore IIO event constraints for
-Skylake Server.
+The batadv net_device is trying to propagate the needed_headroom and
+needed_tailroom from the lower devices. This is needed to avoid cost
+intensive reallocations using pskb_expand_head during the transmission.
 
-Fixes: cd34cd97b7b4 ("perf/x86/intel/uncore: Add Skylake server uncore support")
-Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20211115090334.3789-3-alexander.antonov@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But the fragmentation code split the skb's without adding extra room at the
+end/beginning of the various fragments. This reduced the performance of
+transmissions over complex scenarios (batadv on vxlan on wireguard) because
+the lower devices had to perform the reallocations at least once.
+
+Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+[ bp: 4.4 backported: adjust context. ]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/batman-adv/fragmentation.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index cfd7b85f97889..e94d547e9d248 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -3433,6 +3433,7 @@ static struct event_constraint skx_uncore_iio_constraints[] = {
- 	UNCORE_EVENT_CONSTRAINT(0xc0, 0xc),
- 	UNCORE_EVENT_CONSTRAINT(0xc5, 0xc),
- 	UNCORE_EVENT_CONSTRAINT(0xd4, 0xc),
-+	UNCORE_EVENT_CONSTRAINT(0xd5, 0xc),
- 	EVENT_CONSTRAINT_END
- };
+--- a/net/batman-adv/fragmentation.c
++++ b/net/batman-adv/fragmentation.c
+@@ -394,6 +394,7 @@ out:
  
--- 
-2.33.0
-
+ /**
+  * batadv_frag_create - create a fragment from skb
++ * @net_dev: outgoing device for fragment
+  * @skb: skb to create fragment from
+  * @frag_head: header to use in new fragment
+  * @fragment_size: size of new fragment
+@@ -404,22 +405,25 @@ out:
+  *
+  * Returns the new fragment, NULL on error.
+  */
+-static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
++static struct sk_buff *batadv_frag_create(struct net_device *net_dev,
++					  struct sk_buff *skb,
+ 					  struct batadv_frag_packet *frag_head,
+ 					  unsigned int fragment_size)
+ {
++	unsigned int ll_reserved = LL_RESERVED_SPACE(net_dev);
++	unsigned int tailroom = net_dev->needed_tailroom;
+ 	struct sk_buff *skb_fragment;
+ 	unsigned header_size = sizeof(*frag_head);
+ 	unsigned mtu = fragment_size + header_size;
+ 
+-	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
++	skb_fragment = dev_alloc_skb(ll_reserved + mtu + tailroom);
+ 	if (!skb_fragment)
+ 		goto err;
+ 
+ 	skb->priority = TC_PRIO_CONTROL;
+ 
+ 	/* Eat the last mtu-bytes of the skb */
+-	skb_reserve(skb_fragment, header_size + ETH_HLEN);
++	skb_reserve(skb_fragment, ll_reserved + header_size);
+ 	skb_split(skb, skb_fragment, skb->len - fragment_size);
+ 
+ 	/* Add the header */
+@@ -442,11 +446,12 @@ bool batadv_frag_send_packet(struct sk_b
+ 			     struct batadv_orig_node *orig_node,
+ 			     struct batadv_neigh_node *neigh_node)
+ {
++	struct net_device *net_dev = neigh_node->if_incoming->net_dev;
+ 	struct batadv_priv *bat_priv;
+ 	struct batadv_hard_iface *primary_if = NULL;
+ 	struct batadv_frag_packet frag_header;
+ 	struct sk_buff *skb_fragment;
+-	unsigned mtu = neigh_node->if_incoming->net_dev->mtu;
++	unsigned mtu = net_dev->mtu;
+ 	unsigned header_size = sizeof(frag_header);
+ 	unsigned max_fragment_size, num_fragments;
+ 	bool ret = false;
+@@ -489,7 +494,7 @@ bool batadv_frag_send_packet(struct sk_b
+ 		if (frag_header.no == BATADV_FRAG_MAX_FRAGMENTS - 1)
+ 			goto out_err;
+ 
+-		skb_fragment = batadv_frag_create(skb, &frag_header,
++		skb_fragment = batadv_frag_create(net_dev, skb, &frag_header,
+ 						  max_fragment_size);
+ 		if (!skb_fragment)
+ 			goto out_err;
 
 
