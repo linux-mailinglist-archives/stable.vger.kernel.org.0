@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CCE945BF75
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:55:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1580245BC97
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345320AbhKXM64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:58:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33440 "EHLO mail.kernel.org"
+        id S245192AbhKXMbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346033AbhKXM4S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:56:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9967C61880;
-        Wed, 24 Nov 2021 12:32:41 +0000 (UTC)
+        id S1343618AbhKXM3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:29:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5988060FD9;
+        Wed, 24 Nov 2021 12:17:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757162;
-        bh=2Fsm3nztAYtX6C8ybsZoeJWKl/AV67cfZiLxQEht6OY=;
+        s=korg; t=1637756263;
+        bh=ZQ8QsDemu4Hw7K8dE2XfajIzh7SCg/F1qpBTFgV4qSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LG0yyT1W0t+mOeBtz5eyTbR1HuW9zn76d+iQVBYOtif1uX71smQ3UO0kwxWKD655f
-         Q8iPnSOKPSWbHm2eprP0E+WxqBlc8fu6bN3wfalfHtmDpx/GmnNNtjXt7c+yEKiGFD
-         NiNoHFLRGVMSwmH2k0L48YEP/Zc5RYSaWlbLbpmg=
+        b=Lm9TG0v6XFN6u9y4TQrdpvCbswgQkoDsqst8NthvsFYi0AXZed5I5nKKL1G2G6Nx2
+         ryUrciV7MO9vYb+5fEBK/ySnHErmvXr9Jjjy7E8ZErxOSuuNmcRsMmLJfrxcZo1kD2
+         RCDxsFWUwu1+9VmJ0f1wlaSpBLPVC+R3XpFuYygY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
-        stable@kernel.org, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.19 076/323] quota: check block number when reading the block in quota file
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 024/251] hyperv/vmbus: include linux/bitops.h
 Date:   Wed, 24 Nov 2021 12:54:26 +0100
-Message-Id: <20211124115721.445517718@linuxfoundation.org>
+Message-Id: <20211124115711.089322042@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,54 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 9bf3d20331295b1ecb81f4ed9ef358c51699a050 upstream.
+[ Upstream commit 8017c99680fa65e1e8d999df1583de476a187830 ]
 
-The block number in the quota tree on disk should be smaller than the
-v2_disk_dqinfo.dqi_blocks. If the quota file was corrupted, we may be
-allocating an 'allocated' block and that would lead to a loop in a tree,
-which will probably trigger oops later. This patch adds a check for the
-block number in the quota tree to prevent such potential issue.
+On arm64 randconfig builds, hyperv sometimes fails with this
+error:
 
-Link: https://lore.kernel.org/r/20211008093821.1001186-2-yi.zhang@huawei.com
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Cc: stable@kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In file included from drivers/hv/hv_trace.c:3:
+In file included from drivers/hv/hyperv_vmbus.h:16:
+In file included from arch/arm64/include/asm/sync_bitops.h:5:
+arch/arm64/include/asm/bitops.h:11:2: error: only <linux/bitops.h> can be included directly
+In file included from include/asm-generic/bitops/hweight.h:5:
+include/asm-generic/bitops/arch_hweight.h:9:9: error: implicit declaration of function '__sw_hweight32' [-Werror,-Wimplicit-function-declaration]
+include/asm-generic/bitops/atomic.h:17:7: error: implicit declaration of function 'BIT_WORD' [-Werror,-Wimplicit-function-declaration]
+
+Include the correct header first.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20211018131929.2260087-1-arnd@kernel.org
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/quota_tree.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/hv/hyperv_vmbus.h | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/quota/quota_tree.c
-+++ b/fs/quota/quota_tree.c
-@@ -487,6 +487,13 @@ static int remove_tree(struct qtree_mem_
- 		goto out_buf;
- 	}
- 	newblk = le32_to_cpu(ref[get_index(info, dquot->dq_id, depth)]);
-+	if (newblk < QT_TREEOFF || newblk >= info->dqi_blocks) {
-+		quota_error(dquot->dq_sb, "Getting block too big (%u >= %u)",
-+			    newblk, info->dqi_blocks);
-+		ret = -EUCLEAN;
-+		goto out_buf;
-+	}
-+
- 	if (depth == info->dqi_qtree_depth - 1) {
- 		ret = free_dqentry(info, dquot, newblk);
- 		newblk = 0;
-@@ -586,6 +593,13 @@ static loff_t find_tree_dqentry(struct q
- 	blk = le32_to_cpu(ref[get_index(info, dquot->dq_id, depth)]);
- 	if (!blk)	/* No reference? */
- 		goto out_buf;
-+	if (blk < QT_TREEOFF || blk >= info->dqi_blocks) {
-+		quota_error(dquot->dq_sb, "Getting block too big (%u >= %u)",
-+			    blk, info->dqi_blocks);
-+		ret = -EUCLEAN;
-+		goto out_buf;
-+	}
-+
- 	if (depth < info->dqi_qtree_depth - 1)
- 		ret = find_tree_dqentry(info, dquot, blk, depth+1);
- 	else
+diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
+index a166de6efd99c..0996a246c80bb 100644
+--- a/drivers/hv/hyperv_vmbus.h
++++ b/drivers/hv/hyperv_vmbus.h
+@@ -26,6 +26,7 @@
+ #define _HYPERV_VMBUS_H
+ 
+ #include <linux/list.h>
++#include <linux/bitops.h>
+ #include <asm/sync_bitops.h>
+ #include <linux/atomic.h>
+ #include <linux/hyperv.h>
+-- 
+2.33.0
+
 
 
