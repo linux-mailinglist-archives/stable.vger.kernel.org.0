@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0535F45C58D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FED745C214
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:22:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348907AbhKXN7T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:59:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45564 "EHLO mail.kernel.org"
+        id S1345403AbhKXNZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:25:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352110AbhKXNyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:54:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B11B260524;
-        Wed, 24 Nov 2021 13:06:07 +0000 (UTC)
+        id S1347641AbhKXNVF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:21:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 536D06121F;
+        Wed, 24 Nov 2021 12:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759168;
-        bh=6lAoik51YWxGd7Yk/OUJa2oexmgrS5rHC89SaK+VIao=;
+        s=korg; t=1637758028;
+        bh=+rDN7N/jbkDnn0hQ8X5WZx5qfX//9WsZuSxaPhm+Hro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GKnJztDzPRbnd9FD6QWocxEA6/gPs9r1WxhvGuJE9YzJFQS9Zzy30Xj5WOE4mKYD6
-         i9FI84n134SOg2zdLNGJR+sCEwx7DtiCaV2T7K+9jjxQkbrm/FUlbQoYyOz7iBmLAt
-         0QsN6FrIW+5RA1CYbAXi1bhGJtjOyykW3WR+/KUg=
+        b=fq835Ac9lVhqTUV+5urII6fEewYQmqaTmcZ1kPZhIn0nlWoQkAzwJPjoDB6XUtfXi
+         vmOC3ZSs002Hao0b7zEzbNC0C6pXIJC2D+oE/B6XVwP4y7UvCMLPthXD/gqllPg/GH
+         3EnWuJN9Za/+Mf9+4HjCZR/WWUE8pcPgTUkMuDyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        lijinlin <lijinlin3@huawei.com>, Wu Bo <wubo40@huawei.com>,
-        Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 153/279] scsi: core: sysfs: Fix hang when device state is set via sysfs
+Subject: [PATCH 5.4 004/100] scsi: lpfc: Fix list_add() corruption in lpfc_drain_txq()
 Date:   Wed, 24 Nov 2021 12:57:20 +0100
-Message-Id: <20211124115724.049668298@linuxfoundation.org>
+Message-Id: <20211124115654.993664223@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,100 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 4edd8cd4e86dd3047e5294bbefcc0a08f66a430f ]
+[ Upstream commit 99154581b05c8fb22607afb7c3d66c1bace6aa5d ]
 
-This fixes a regression added with:
+When parsing the txq list in lpfc_drain_txq(), the driver attempts to pass
+the requests to the adapter. If such an attempt fails, a local "fail_msg"
+string is set and a log message output.  The job is then added to a
+completions list for cancellation.
 
-commit f0f82e2476f6 ("scsi: core: Fix capacity set to zero after
-offlinining device")
+Processing of any further jobs from the txq list continues, but since
+"fail_msg" remains set, jobs are added to the completions list regardless
+of whether a wqe was passed to the adapter.  If successfully added to
+txcmplq, jobs are added to both lists resulting in list corruption.
 
-The problem is that after iSCSI recovery, iscsid will call into the kernel
-to set the dev's state to running, and with that patch we now call
-scsi_rescan_device() with the state_mutex held. If the SCSI error handler
-thread is just starting to test the device in scsi_send_eh_cmnd() then it's
-going to try to grab the state_mutex.
+Fix by clearing the fail_msg string after adding a job to the completions
+list. This stops the subsequent jobs from being added to the completions
+list unless they had an appropriate failure.
 
-We are then stuck, because when scsi_rescan_device() tries to send its I/O
-scsi_queue_rq() calls -> scsi_host_queue_ready() -> scsi_host_in_recovery()
-which will return true (the host state is still in recovery) and I/O will
-just be requeued. scsi_send_eh_cmnd() will then never be able to grab the
-state_mutex to finish error handling.
-
-To prevent the deadlock move the rescan-related code to after we drop the
-state_mutex.
-
-This also adds a check for if we are already in the running state. This
-prevents extra scans and helps the iscsid case where if the transport class
-has already onlined the device during its recovery process then we don't
-need userspace to do it again plus possibly block that daemon.
-
-Link: https://lore.kernel.org/r/20211105221048.6541-3-michael.christie@oracle.com
-Fixes: f0f82e2476f6 ("scsi: core: Fix capacity set to zero after offlinining device")
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: lijinlin <lijinlin3@huawei.com>
-Cc: Wu Bo <wubo40@huawei.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Wu Bo <wubo40@huawei.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Link: https://lore.kernel.org/r/20210910233159.115896-2-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_sysfs.c | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index 8bb79ccc9a8b5..9527e734a999a 100644
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -797,6 +797,7 @@ store_state_field(struct device *dev, struct device_attribute *attr,
- 	int i, ret;
- 	struct scsi_device *sdev = to_scsi_device(dev);
- 	enum scsi_device_state state = 0;
-+	bool rescan_dev = false;
- 
- 	for (i = 0; i < ARRAY_SIZE(sdev_states); i++) {
- 		const int len = strlen(sdev_states[i].name);
-@@ -815,20 +816,27 @@ store_state_field(struct device *dev, struct device_attribute *attr,
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 4a7ceaa34341c..51bab0979527b 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -19692,6 +19692,7 @@ lpfc_drain_txq(struct lpfc_hba *phba)
+ 					fail_msg,
+ 					piocbq->iotag, piocbq->sli4_xritag);
+ 			list_add_tail(&piocbq->list, &completions);
++			fail_msg = NULL;
+ 		}
+ 		spin_unlock_irqrestore(&pring->ring_lock, iflags);
  	}
- 
- 	mutex_lock(&sdev->state_mutex);
--	ret = scsi_device_set_state(sdev, state);
--	/*
--	 * If the device state changes to SDEV_RUNNING, we need to
--	 * run the queue to avoid I/O hang, and rescan the device
--	 * to revalidate it. Running the queue first is necessary
--	 * because another thread may be waiting inside
--	 * blk_mq_freeze_queue_wait() and because that call may be
--	 * waiting for pending I/O to finish.
--	 */
--	if (ret == 0 && state == SDEV_RUNNING) {
-+	if (sdev->sdev_state == SDEV_RUNNING && state == SDEV_RUNNING) {
-+		ret = count;
-+	} else {
-+		ret = scsi_device_set_state(sdev, state);
-+		if (ret == 0 && state == SDEV_RUNNING)
-+			rescan_dev = true;
-+	}
-+	mutex_unlock(&sdev->state_mutex);
-+
-+	if (rescan_dev) {
-+		/*
-+		 * If the device state changes to SDEV_RUNNING, we need to
-+		 * run the queue to avoid I/O hang, and rescan the device
-+		 * to revalidate it. Running the queue first is necessary
-+		 * because another thread may be waiting inside
-+		 * blk_mq_freeze_queue_wait() and because that call may be
-+		 * waiting for pending I/O to finish.
-+		 */
- 		blk_mq_run_hw_queues(sdev->request_queue, true);
- 		scsi_rescan_device(dev);
- 	}
--	mutex_unlock(&sdev->state_mutex);
- 
- 	return ret == 0 ? count : -EINVAL;
- }
 -- 
 2.33.0
 
