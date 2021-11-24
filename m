@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F1E645BFFE
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF86545BB35
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343704AbhKXNEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:04:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
+        id S243063AbhKXMRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:17:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346583AbhKXNCV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:02:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74EC66120E;
-        Wed, 24 Nov 2021 12:35:42 +0000 (UTC)
+        id S243229AbhKXMPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:15:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26331610A0;
+        Wed, 24 Nov 2021 12:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757343;
-        bh=mZ0916M+tLlbHotbAInE5xo1EVF4XTAH17VkF6SyygE=;
+        s=korg; t=1637755801;
+        bh=vWEvm1Ld07YN7rGH8D6rVEXcxMo+A7GBzRDSKZ1Ogxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuVn2bon0PbIF7Hopbrm8zUhIaxxiXLysvskc3ObaVynfHoK7U87X5A03jCqNznBj
-         NqnrbGtsHnk2m1BW8JW1jvJXZfBmg/6mvXpC2ImCa/HV57kd1OpR1gAimh1Lx9SEoT
-         DMKN4ea0WVJlmGR3rbUQylm7oHvb6SLPYsjStCMk=
+        b=EpA/cmdC9sDPLS8NvRLbPAZ8NummxMmNqjKK7hTDJAbZUMZiRFdiidBNh8uMTdkFI
+         CGzYAhP76hTOsL5+eCujEABkctmZObtiu21eza4xtHYs4Ih7+WHo6lScks967LYaPu
+         nVNgp+1R4PZPlyv+WECkKyZ+sqj9RwfyTPqd/dkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anel Orazgaliyeva <anelkz@amazon.de>,
-        Aman Priyadarshi <apeureka@amazon.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 136/323] cpuidle: Fix kobject memory leaks in error paths
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 055/207] USB: iowarrior: fix control-message timeouts
 Date:   Wed, 24 Nov 2021 12:55:26 +0100
-Message-Id: <20211124115723.522771321@linuxfoundation.org>
+Message-Id: <20211124115705.711740928@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +38,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anel Orazgaliyeva <anelkz@amazon.de>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit e5f5a66c9aa9c331da5527c2e3fd9394e7091e01 ]
+commit 79a4479a17b83310deb0b1a2a274fe5be12d2318 upstream.
 
-Commit c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
-fixes the cleanup of kobjects; however, it removes kfree() calls
-altogether, leading to memory leaks.
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-Fix those and also defer the initialization of dev->kobj_dev until
-after the error check, so that we do not end up with a dangling
-pointer.
+Use the common control-message timeout define for the five-second
+timeout and drop the driver-specific one.
 
-Fixes: c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
-Signed-off-by: Anel Orazgaliyeva <anelkz@amazon.de>
-Suggested-by: Aman Priyadarshi <apeureka@amazon.de>
-[ rjw: Subject edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
+Cc: stable@vger.kernel.org      # 2.6.21
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211025115159.4954-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpuidle/sysfs.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/misc/iowarrior.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
-index 66979dc336807..d9b917529abaf 100644
---- a/drivers/cpuidle/sysfs.c
-+++ b/drivers/cpuidle/sysfs.c
-@@ -468,6 +468,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
- 					   &kdev->kobj, "state%d", i);
- 		if (ret) {
- 			kobject_put(&kobj->kobj);
-+			kfree(kobj);
- 			goto error_state;
- 		}
- 		cpuidle_add_s2idle_attr_group(kobj);
-@@ -599,6 +600,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
- 				   &kdev->kobj, "driver");
- 	if (ret) {
- 		kobject_put(&kdrv->kobj);
-+		kfree(kdrv);
- 		return ret;
- 	}
+--- a/drivers/usb/misc/iowarrior.c
++++ b/drivers/usb/misc/iowarrior.c
+@@ -96,10 +96,6 @@ struct iowarrior {
+ /*    globals   */
+ /*--------------*/
  
-@@ -685,7 +687,6 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 	if (!kdev)
- 		return -ENOMEM;
- 	kdev->dev = dev;
--	dev->kobj_dev = kdev;
+-/*
+- *  USB spec identifies 5 second timeouts.
+- */
+-#define GET_TIMEOUT 5
+ #define USB_REQ_GET_REPORT  0x01
+ //#if 0
+ static int usb_get_report(struct usb_device *dev,
+@@ -111,7 +107,7 @@ static int usb_get_report(struct usb_dev
+ 			       USB_DIR_IN | USB_TYPE_CLASS |
+ 			       USB_RECIP_INTERFACE, (type << 8) + id,
+ 			       inter->desc.bInterfaceNumber, buf, size,
+-			       GET_TIMEOUT*HZ);
++			       USB_CTRL_GET_TIMEOUT);
+ }
+ //#endif
  
- 	init_completion(&kdev->kobj_unregister);
+@@ -126,7 +122,7 @@ static int usb_set_report(struct usb_int
+ 			       USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+ 			       (type << 8) + id,
+ 			       intf->cur_altsetting->desc.bInterfaceNumber, buf,
+-			       size, HZ);
++			       size, 1000);
+ }
  
-@@ -693,9 +694,11 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 				   "cpuidle");
- 	if (error) {
- 		kobject_put(&kdev->kobj);
-+		kfree(kdev);
- 		return error;
- 	}
- 
-+	dev->kobj_dev = kdev;
- 	kobject_uevent(&kdev->kobj, KOBJ_ADD);
- 
- 	return 0;
--- 
-2.33.0
-
+ /*---------------------*/
 
 
