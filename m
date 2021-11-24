@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54CCD45BA6D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:07:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B51B245BC29
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242655AbhKXMKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:10:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34838 "EHLO mail.kernel.org"
+        id S243875AbhKXM0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:26:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233477AbhKXMJD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:09:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42FB4610A5;
-        Wed, 24 Nov 2021 12:05:14 +0000 (UTC)
+        id S243596AbhKXMUx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:20:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A1A561177;
+        Wed, 24 Nov 2021 12:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755514;
-        bh=crpv9u2e6q3KcKn9wQkOXzOTzU5z+Zxi9Sl7oPGV/9s=;
+        s=korg; t=1637755976;
+        bh=SJpk/K0GSybni35enQRLM01qjFWUElD4ki3tYsKllnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G6PRzXotEBScAkWx/ac2Glr6MdnhEgtf29MEmSlppmi+pu/627e4gV9A85Ze6ATSY
-         Q5vP2eLNU2HNQgPz8yRmRqcFW/IkMV/Nuk7RyblDcGX25bR2AtOc2JnWSnRg5/mZdw
-         Dc39FokAvxQjUV1r6XW8tuLVUAWBHWGrktuoCPic=
+        b=1NZCCYVK7iYA+buM9w4ar8uYD4WxLFtVI7yzmRC4N3GMxmGPC1WcQ6HRNGQgI5Fur
+         yjsCRNgZy1lM5ZUif/n8CajM9Zknh2GRRQgtuJxwYu5hwrcplrxe+ZpwJlhM3otq2h
+         OAxYa2bA0kdXAWN2usKXhzEftW8z7feRnq3ltpG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Stan Johnson <userm57@yahoo.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 091/162] memory: fsl_ifc: fix leak of irq and nand_irq in fsl_ifc_ctrl_probe
+Subject: [PATCH 4.9 123/207] video: fbdev: chipsfb: use memset_io() instead of memset()
 Date:   Wed, 24 Nov 2021 12:56:34 +0100
-Message-Id: <20211124115701.264666913@linuxfoundation.org>
+Message-Id: <20211124115708.039537311@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,71 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 4ed2f3545c2e5acfbccd7f85fea5b1a82e9862d7 ]
+[ Upstream commit f2719b26ae27282c145202ffd656d5ff1fe737cc ]
 
-The error handling code of fsl_ifc_ctrl_probe is problematic. When
-fsl_ifc_ctrl_init fails or request_irq of fsl_ifc_ctrl_dev->irq fails,
-it forgets to free the irq and nand_irq. Meanwhile, if request_irq of
-fsl_ifc_ctrl_dev->nand_irq fails, it will still free nand_irq even if
-the request_irq is not successful.
+While investigating a lockup at startup on Powerbook 3400C, it was
+identified that the fbdev driver generates alignment exception at
+startup:
 
-Fix this by refactoring the error handling code.
+  --- interrupt: 600 at memset+0x60/0xc0
+  NIP:  c0021414 LR: c03fc49c CTR: 00007fff
+  REGS: ca021c10 TRAP: 0600   Tainted: G        W          (5.14.2-pmac-00727-g12a41fa69492)
+  MSR:  00009032 <EE,ME,IR,DR,RI>  CR: 44008442  XER: 20000100
+  DAR: cab80020 DSISR: 00017c07
+  GPR00: 00000007 ca021cd0 c14412e0 cab80000 00000000 00100000 cab8001c 00000004
+  GPR08: 00100000 00007fff 00000000 00000000 84008442 00000000 c0006fb4 00000000
+  GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00100000
+  GPR24: 00000000 81800000 00000320 c15fa400 c14d1878 00000000 c14d1800 c094e19c
+  NIP [c0021414] memset+0x60/0xc0
+  LR [c03fc49c] chipsfb_pci_init+0x160/0x580
+  --- interrupt: 600
+  [ca021cd0] [c03fc46c] chipsfb_pci_init+0x130/0x580 (unreliable)
+  [ca021d20] [c03a3a70] pci_device_probe+0xf8/0x1b8
+  [ca021d50] [c043d584] really_probe.part.0+0xac/0x388
+  [ca021d70] [c043d914] __driver_probe_device+0xb4/0x170
+  [ca021d90] [c043da18] driver_probe_device+0x48/0x144
+  [ca021dc0] [c043e318] __driver_attach+0x11c/0x1c4
+  [ca021de0] [c043ad30] bus_for_each_dev+0x88/0xf0
+  [ca021e10] [c043c724] bus_add_driver+0x190/0x22c
+  [ca021e40] [c043ee94] driver_register+0x9c/0x170
+  [ca021e60] [c0006c28] do_one_initcall+0x54/0x1ec
+  [ca021ed0] [c08246e4] kernel_init_freeable+0x1c0/0x270
+  [ca021f10] [c0006fdc] kernel_init+0x28/0x11c
+  [ca021f30] [c0017148] ret_from_kernel_thread+0x14/0x1c
+  Instruction dump:
+  7d4601a4 39490777 7d4701a4 39490888 7d4801a4 39490999 7d4901a4 39290aaa
+  7d2a01a4 4c00012c 4bfffe88 0fe00000 <4bfffe80> 9421fff0 38210010 48001970
 
-Fixes: d2ae2e20fbdd ("driver/memory:Move Freescale IFC driver to a common driver")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20210925151434.8170-1-mudongliangabcd@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+This is due to 'dcbz' instruction being used on non-cached memory.
+'dcbz' instruction is used by memset() to zeroize a complete
+cacheline at once, and memset() is not expected to be used on non
+cached memory.
+
+When performing a 'sparse' check on fbdev driver, it also appears
+that the use of memset() is unexpected:
+
+  drivers/video/fbdev/chipsfb.c:334:17: warning: incorrect type in argument 1 (different address spaces)
+  drivers/video/fbdev/chipsfb.c:334:17:    expected void *
+  drivers/video/fbdev/chipsfb.c:334:17:    got char [noderef] __iomem *screen_base
+  drivers/video/fbdev/chipsfb.c:334:15: warning: memset with byte count of 1048576
+
+Use fb_memset() instead of memset(). fb_memset() is defined as
+memset_io() for powerpc.
+
+Fixes: 8c8709334cec ("[PATCH] ppc32: Remove CONFIG_PMAC_PBOOK")
+Reported-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/884a54f1e5cb774c1d9b4db780209bee5d4f6718.1631712563.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/fsl_ifc.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/video/fbdev/chipsfb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
-index 26b37ba4feda6..258d95b9c0adc 100644
---- a/drivers/memory/fsl_ifc.c
-+++ b/drivers/memory/fsl_ifc.c
-@@ -275,7 +275,7 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
+diff --git a/drivers/video/fbdev/chipsfb.c b/drivers/video/fbdev/chipsfb.c
+index 314b7eceb81c5..84a3778552eba 100644
+--- a/drivers/video/fbdev/chipsfb.c
++++ b/drivers/video/fbdev/chipsfb.c
+@@ -332,7 +332,7 @@ static struct fb_var_screeninfo chipsfb_var = {
  
- 	ret = fsl_ifc_ctrl_init(fsl_ifc_ctrl_dev);
- 	if (ret < 0)
--		goto err;
-+		goto err_unmap_nandirq;
+ static void init_chips(struct fb_info *p, unsigned long addr)
+ {
+-	memset(p->screen_base, 0, 0x100000);
++	fb_memset(p->screen_base, 0, 0x100000);
  
- 	init_waitqueue_head(&fsl_ifc_ctrl_dev->nand_wait);
- 
-@@ -284,7 +284,7 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
- 	if (ret != 0) {
- 		dev_err(&dev->dev, "failed to install irq (%d)\n",
- 			fsl_ifc_ctrl_dev->irq);
--		goto err_irq;
-+		goto err_unmap_nandirq;
- 	}
- 
- 	if (fsl_ifc_ctrl_dev->nand_irq) {
-@@ -293,17 +293,16 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
- 		if (ret != 0) {
- 			dev_err(&dev->dev, "failed to install irq (%d)\n",
- 				fsl_ifc_ctrl_dev->nand_irq);
--			goto err_nandirq;
-+			goto err_free_irq;
- 		}
- 	}
- 
- 	return 0;
- 
--err_nandirq:
--	free_irq(fsl_ifc_ctrl_dev->nand_irq, fsl_ifc_ctrl_dev);
--	irq_dispose_mapping(fsl_ifc_ctrl_dev->nand_irq);
--err_irq:
-+err_free_irq:
- 	free_irq(fsl_ifc_ctrl_dev->irq, fsl_ifc_ctrl_dev);
-+err_unmap_nandirq:
-+	irq_dispose_mapping(fsl_ifc_ctrl_dev->nand_irq);
- 	irq_dispose_mapping(fsl_ifc_ctrl_dev->irq);
- err:
- 	return ret;
+ 	p->fix = chipsfb_fix;
+ 	p->fix.smem_start = addr;
 -- 
 2.33.0
 
