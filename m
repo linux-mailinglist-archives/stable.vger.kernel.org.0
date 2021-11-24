@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4655045C5D2
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43B9445C202
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355671AbhKXOAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:00:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48872 "EHLO mail.kernel.org"
+        id S1347310AbhKXNYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:24:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355775AbhKXN6x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:58:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5BD6633F1;
-        Wed, 24 Nov 2021 13:08:38 +0000 (UTC)
+        id S1348833AbhKXNWy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:22:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DD7061506;
+        Wed, 24 Nov 2021 12:47:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759319;
-        bh=TJRAMVKcufpQ40vsuYDcXeBQm94pVP6SENhrKXNuClU=;
+        s=korg; t=1637758077;
+        bh=eKvIHxDUtDmLzjO52q3gfrtc/8U9nKb+rjSdjMqkwyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EYvLn2Y189YB+JshbU5AdTWSRa7Hs33yIs+mtIUNp1kGrFqMBK91YRCwZPijsbyG4
-         pdzFaXm45nJ4DGPfDb2Nd1t+y6LWKC9v6B6qa0lR/db6ksMG5yOsYrZQPWp67UICMR
-         l9qTCJNPbpEGppoUIjN5V7y28yt1tw1CcL5UZZhk=
+        b=Yr5ZDS+YXi1DNUTU5NJJ5LW2sVibSxnWkI+A1KU9QuAvxiCjsYpHbTn1jA3WNiWc8
+         DgE9Aa+RvI2piMqzNZk8IAJTXz2UJRa+h4IPbVd6XsXH2l5by2d3jO2Ksv4Tn6WdKZ
+         kcQqpSnivocbZVS1zBndy0a6HRIQm9Zl2Nq5+z88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.15 202/279] x86/sgx: Fix free page accounting
+        stable@vger.kernel.org, Surabhi Boob <surabhi.boob@intel.com>,
+        Tony Brelinski <tony.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 053/100] iavf: Fix for the false positive ASQ/ARQ errors while issuing VF reset
 Date:   Wed, 24 Nov 2021 12:58:09 +0100
-Message-Id: <20211124115725.711942569@linuxfoundation.org>
+Message-Id: <20211124115656.598226635@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,167 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinette Chatre <reinette.chatre@intel.com>
+From: Surabhi Boob <surabhi.boob@intel.com>
 
-commit ac5d272a0ad0419f52e08c91953356e32b075af7 upstream.
+[ Upstream commit 321421b57a12e933f92b228e0e6d0b2c6541f41d ]
 
-The SGX driver maintains a single global free page counter,
-sgx_nr_free_pages, that reflects the number of free pages available
-across all NUMA nodes. Correspondingly, a list of free pages is
-associated with each NUMA node and sgx_nr_free_pages is updated
-every time a page is added or removed from any of the free page
-lists. The main usage of sgx_nr_free_pages is by the reclaimer
-that runs when it (sgx_nr_free_pages) goes below a watermark
-to ensure that there are always some free pages available to, for
-example, support efficient page faults.
+While issuing VF Reset from the guest OS, the VF driver prints
+logs about critical / Overflow error detection. This is not an
+actual error since the VF_MBX_ARQLEN register is set to all FF's
+for a short period of time and the VF would catch the bits set if
+it was reading the register during that spike of time.
+This patch introduces an additional check to ignore this condition
+since the VF is in reset.
 
-With sgx_nr_free_pages accessed and modified from a few places
-it is essential to ensure that these accesses are done safely but
-this is not the case. sgx_nr_free_pages is read without any
-protection and updated with inconsistent protection by any one
-of the spin locks associated with the individual NUMA nodes.
-For example:
-
-      CPU_A                                 CPU_B
-      -----                                 -----
- spin_lock(&nodeA->lock);              spin_lock(&nodeB->lock);
- ...                                   ...
- sgx_nr_free_pages--;  /* NOT SAFE */  sgx_nr_free_pages--;
-
- spin_unlock(&nodeA->lock);            spin_unlock(&nodeB->lock);
-
-Since sgx_nr_free_pages may be protected by different spin locks
-while being modified from different CPUs, the following scenario
-is possible:
-
-      CPU_A                                CPU_B
-      -----                                -----
-{sgx_nr_free_pages = 100}
- spin_lock(&nodeA->lock);              spin_lock(&nodeB->lock);
- sgx_nr_free_pages--;                  sgx_nr_free_pages--;
- /* LOAD sgx_nr_free_pages = 100 */    /* LOAD sgx_nr_free_pages = 100 */
- /* sgx_nr_free_pages--          */    /* sgx_nr_free_pages--          */
- /* STORE sgx_nr_free_pages = 99 */    /* STORE sgx_nr_free_pages = 99 */
- spin_unlock(&nodeA->lock);            spin_unlock(&nodeB->lock);
-
-In the above scenario, sgx_nr_free_pages is decremented from two CPUs
-but instead of sgx_nr_free_pages ending with a value that is two less
-than it started with, it was only decremented by one while the number
-of free pages were actually reduced by two. The consequence of
-sgx_nr_free_pages not being protected is that its value may not
-accurately reflect the actual number of free pages on the system,
-impacting the availability of free pages in support of many flows.
-
-The problematic scenario is when the reclaimer does not run because it
-believes there to be sufficient free pages while any attempt to allocate
-a page fails because there are no free pages available. In the SGX driver
-the reclaimer's watermark is only 32 pages so after encountering the
-above example scenario 32 times a user space hang is possible when there
-are no more free pages because of repeated page faults caused by no
-free pages made available.
-
-The following flow was encountered:
-asm_exc_page_fault
- ...
-   sgx_vma_fault()
-     sgx_encl_load_page()
-       sgx_encl_eldu() // Encrypted page needs to be loaded from backing
-                       // storage into newly allocated SGX memory page
-         sgx_alloc_epc_page() // Allocate a page of SGX memory
-           __sgx_alloc_epc_page() // Fails, no free SGX memory
-           ...
-           if (sgx_should_reclaim(SGX_NR_LOW_PAGES)) // Wake reclaimer
-             wake_up(&ksgxd_waitq);
-           return -EBUSY; // Return -EBUSY giving reclaimer time to run
-       return -EBUSY;
-     return -EBUSY;
-   return VM_FAULT_NOPAGE;
-
-The reclaimer is triggered in above flow with the following code:
-
-static bool sgx_should_reclaim(unsigned long watermark)
-{
-        return sgx_nr_free_pages < watermark &&
-               !list_empty(&sgx_active_page_list);
-}
-
-In the problematic scenario there were no free pages available yet the
-value of sgx_nr_free_pages was above the watermark. The allocation of
-SGX memory thus always failed because of a lack of free pages while no
-free pages were made available because the reclaimer is never started
-because of sgx_nr_free_pages' incorrect value. The consequence was that
-user space kept encountering VM_FAULT_NOPAGE that caused the same
-address to be accessed repeatedly with the same result.
-
-Change the global free page counter to an atomic type that
-ensures simultaneous updates are done safely. While doing so, move
-the updating of the variable outside of the spin lock critical
-section to which it does not belong.
-
-Cc: stable@vger.kernel.org
-Fixes: 901ddbb9ecf5 ("x86/sgx: Add a basic NUMA allocation scheme to sgx_alloc_epc_page()")
-Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Link: https://lkml.kernel.org/r/a95a40743bbd3f795b465f30922dde7f1ea9e0eb.1637004094.git.reinette.chatre@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 19b73d8efaa4 ("i40evf: Add additional check for reset")
+Signed-off-by: Surabhi Boob <surabhi.boob@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/sgx/main.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/sgx/main.c
-+++ b/arch/x86/kernel/cpu/sgx/main.c
-@@ -28,8 +28,7 @@ static DECLARE_WAIT_QUEUE_HEAD(ksgxd_wai
- static LIST_HEAD(sgx_active_page_list);
- static DEFINE_SPINLOCK(sgx_reclaimer_lock);
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 6f6cd013eef3e..484c2a6f1625d 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -2341,7 +2341,7 @@ static void iavf_adminq_task(struct work_struct *work)
  
--/* The free page list lock protected variables prepend the lock. */
--static unsigned long sgx_nr_free_pages;
-+static atomic_long_t sgx_nr_free_pages = ATOMIC_LONG_INIT(0);
- 
- /* Nodes with one or more EPC sections. */
- static nodemask_t sgx_numa_mask;
-@@ -403,14 +402,15 @@ skip:
- 
- 		spin_lock(&node->lock);
- 		list_add_tail(&epc_page->list, &node->free_page_list);
--		sgx_nr_free_pages++;
- 		spin_unlock(&node->lock);
-+		atomic_long_inc(&sgx_nr_free_pages);
- 	}
- }
- 
- static bool sgx_should_reclaim(unsigned long watermark)
- {
--	return sgx_nr_free_pages < watermark && !list_empty(&sgx_active_page_list);
-+	return atomic_long_read(&sgx_nr_free_pages) < watermark &&
-+	       !list_empty(&sgx_active_page_list);
- }
- 
- static int ksgxd(void *p)
-@@ -471,9 +471,9 @@ static struct sgx_epc_page *__sgx_alloc_
- 
- 	page = list_first_entry(&node->free_page_list, struct sgx_epc_page, list);
- 	list_del_init(&page->list);
--	sgx_nr_free_pages--;
- 
- 	spin_unlock(&node->lock);
-+	atomic_long_dec(&sgx_nr_free_pages);
- 
- 	return page;
- }
-@@ -625,9 +625,9 @@ void sgx_free_epc_page(struct sgx_epc_pa
- 	spin_lock(&node->lock);
- 
- 	list_add_tail(&page->list, &node->free_page_list);
--	sgx_nr_free_pages++;
- 
- 	spin_unlock(&node->lock);
-+	atomic_long_inc(&sgx_nr_free_pages);
- }
- 
- static bool __init sgx_setup_epc_section(u64 phys_addr, u64 size,
+ 	/* check for error indications */
+ 	val = rd32(hw, hw->aq.arq.len);
+-	if (val == 0xdeadbeef) /* indicates device in reset */
++	if (val == 0xdeadbeef || val == 0xffffffff) /* device in reset */
+ 		goto freedom;
+ 	oldval = val;
+ 	if (val & IAVF_VF_ARQLEN1_ARQVFE_MASK) {
+-- 
+2.33.0
+
 
 
