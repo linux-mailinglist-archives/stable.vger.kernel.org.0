@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 712C745C03A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:03:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1BD745C483
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:47:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347466AbhKXNFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:05:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45426 "EHLO mail.kernel.org"
+        id S1351915AbhKXNtd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:49:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348098AbhKXNDz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:03:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D967161A6D;
-        Wed, 24 Nov 2021 12:36:54 +0000 (UTC)
+        id S1351908AbhKXNrM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:47:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1255263352;
+        Wed, 24 Nov 2021 13:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757415;
-        bh=haTjemUGBbmDHxAEYNtFK+ZwVaeEI16tWXfR+8w+67A=;
+        s=korg; t=1637758888;
+        bh=GTXwJyf8d6krN8aA51lpSqKWza+QcnoxEV2YKyrJiXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vFSIW8MESov8ImYLgOFIgGjy5U8iRd29vBUCmx1fIi8T0Oby4BaNhgUoouF/LOdJC
-         ruF48sZvrst4lbsVOnF6D/CA8MUkxFlvmnPdQvQr5VHKXbbwOajasn8XNbKYE9LNh5
-         18ptgOBkKFZUm1ukc3QXYXwyzYbyXMWgBhsTmMGk=
+        b=afoeMxopf14X3qcQbPq+Zz4+UeUpASm3mqoO5ZKricSjdj68rxADjNbKgviWa9tXg
+         1jdZL2p7Xv0UMI/s2orXov7ogq0ETlNCI8t4pKdbis6mR5qi6mhLCfbNWvmim8TV5p
+         6lv2ORl31kzVw6UzW4asNOnV01HYrBXEVcuDHQq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jessica Zhang <jesszhan@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 161/323] drm/msm: Fix potential NULL dereference in DPU SSPP
+Subject: [PATCH 5.15 064/279] scsi: target: Fix alua_tg_pt_gps_count tracking
 Date:   Wed, 24 Nov 2021 12:55:51 +0100
-Message-Id: <20211124115724.365031407@linuxfoundation.org>
+Message-Id: <20211124115720.919077836@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Zhang <jesszhan@codeaurora.org>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 8bf71a5719b6cc5b6ba358096081e5d50ea23ab6 ]
+[ Upstream commit 1283c0d1a32bb924324481586b5d6e8e76f676ba ]
 
-Move initialization of sblk in _sspp_subblk_offset() after NULL check to
-avoid potential NULL pointer dereference.
+We can't free the tg_pt_gp in core_alua_set_tg_pt_gp_id() because it's
+still accessed via configfs. Its release must go through the normal
+configfs/refcount process.
 
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jessica Zhang <jesszhan@codeaurora.org>
-Link: https://lore.kernel.org/r/20211020175733.3379-1-jesszhan@codeaurora.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+The max alua_tg_pt_gps_count check should probably have been done in
+core_alua_allocate_tg_pt_gp(), but with the current code userspace could
+have created 0x0000ffff + 1 groups, but only set the id for 0x0000ffff.
+Then it could have deleted a group with an ID set, and then set the ID for
+that extra group and it would work ok.
+
+It's unlikely, but just in case this patch continues to allow that type of
+behavior, and just fixes the kfree() while in use bug.
+
+Link: https://lore.kernel.org/r/20210930020422.92578-4-michael.christie@oracle.com
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/target/target_core_alua.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c
-index c25b52a6b2198..7db24e9df4b9b 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c
-@@ -146,11 +146,13 @@ static inline int _sspp_subblk_offset(struct dpu_hw_pipe *ctx,
- 		u32 *idx)
- {
- 	int rc = 0;
--	const struct dpu_sspp_sub_blks *sblk = ctx->cap->sblk;
-+	const struct dpu_sspp_sub_blks *sblk;
- 
--	if (!ctx)
-+	if (!ctx || !ctx->cap || !ctx->cap->sblk)
- 		return -EINVAL;
- 
-+	sblk = ctx->cap->sblk;
-+
- 	switch (s_id) {
- 	case DPU_SSPP_SRC:
- 		*idx = sblk->src_blk.base;
-@@ -413,7 +415,7 @@ static void _dpu_hw_sspp_setup_scaler3(struct dpu_hw_pipe *ctx,
- 
- 	(void)pe;
- 	if (_sspp_subblk_offset(ctx, DPU_SSPP_SCALER_QSEED3, &idx) || !sspp
--		|| !scaler3_cfg || !ctx || !ctx->cap || !ctx->cap->sblk)
-+		|| !scaler3_cfg)
- 		return;
- 
- 	dpu_hw_setup_scaler3(&ctx->hw, scaler3_cfg, idx,
+diff --git a/drivers/target/target_core_alua.c b/drivers/target/target_core_alua.c
+index cb1de1ecaaa61..bd0f2ce011dd7 100644
+--- a/drivers/target/target_core_alua.c
++++ b/drivers/target/target_core_alua.c
+@@ -1674,7 +1674,6 @@ int core_alua_set_tg_pt_gp_id(
+ 		pr_err("Maximum ALUA alua_tg_pt_gps_count:"
+ 			" 0x0000ffff reached\n");
+ 		spin_unlock(&dev->t10_alua.tg_pt_gps_lock);
+-		kmem_cache_free(t10_alua_tg_pt_gp_cache, tg_pt_gp);
+ 		return -ENOSPC;
+ 	}
+ again:
 -- 
 2.33.0
 
