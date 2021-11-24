@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87CFE45BAC8
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EABB545BCEA
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:31:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243644AbhKXMOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:14:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
+        id S244210AbhKXMdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:33:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242903AbhKXMN4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:13:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87D9561075;
-        Wed, 24 Nov 2021 12:08:12 +0000 (UTC)
+        id S244193AbhKXMb7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:31:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A3E1610E6;
+        Wed, 24 Nov 2021 12:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755693;
-        bh=J2USBgA3nvsI5S8KZizLVyZ3l0AWSw6m91TvFiqrA/w=;
+        s=korg; t=1637756389;
+        bh=88fEqXZU4BwNbyM5NCF+1otnSinxSG1Z5ZrzXyALbrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZiwavtpHEDv5iQhsDoUc8eoXOlY6owKej2Gy4DQIxeiLAfpkzUEMphhxldLHTARNR
-         k1rdYM5gnNw1EIcv9RbPKJEBVsoCCUANHtOO/LdAk+ZPnhF1YtS/0NmMtpTnQe2amv
-         139nL5QsQMJaQvxTknJCxmC8iJ3H++bRJXjY1MhU=
+        b=yEBk+i85hH8HrHs3/7qz6HuFRxxnAjpRoG8YrLwj6jywsTpHFY31cyPQlRBw45gEz
+         ZtQrxxfVXY4vuhA8J0N4aKACcwOkEdLJRzKtMMJDQw4+6Az74j4TlJh3Ddogj7s40t
+         HhHC9RXBTJiA5wFVZlA3nYMx5+NsOKRFNsfcP5P4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 007/207] ocfs2: fix data corruption on truncate
-Date:   Wed, 24 Nov 2021 12:54:38 +0100
-Message-Id: <20211124115704.178237795@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 037/251] ath6kl: fix division by zero in send path
+Date:   Wed, 24 Nov 2021 12:54:39 +0100
+Message-Id: <20211124115711.530707541@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,91 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Johan Hovold <johan@kernel.org>
 
-commit 839b63860eb3835da165642923120d305925561d upstream.
+commit c1b9ca365deae667192be9fe24db244919971234 upstream.
 
-Patch series "ocfs2: Truncate data corruption fix".
+Add the missing endpoint max-packet sanity check to probe() to avoid
+division by zero in ath10k_usb_hif_tx_sg() in case a malicious device
+has broken descriptors (or when doing descriptor fuzz testing).
 
-As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
-corruption after conversion from inline format") didn't fix all the data
-corruption issues the customer started observing after 6dbf7bb55598
-("fs: Don't invalidate page buffers in block_write_full_page()") This
-time I have tracked them down to two bugs in ocfs2 truncation code.
+Note that USB core will reject URBs submitted for endpoints with zero
+wMaxPacketSize but that drivers doing packet-size calculations still
+need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
+endpoint descriptors with maxpacket=0")).
 
-One bug (truncating page cache before clearing tail cluster and setting
-i_size) could cause data corruption even before 6dbf7bb55598, but before
-that commit it needed a race with page fault, after 6dbf7bb55598 it
-started to be pretty deterministic.
-
-Another bug (zeroing pages beyond old i_size) used to be harmless
-inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598
-in combination with the first bug it resulted in deterministic data
-corruption.
-
-Although fixing only the first problem is needed to stop data
-corruption, I've fixed both issues to make the code more robust.
-
-This patch (of 2):
-
-ocfs2_truncate_file() did unmap invalidate page cache pages before
-zeroing partial tail cluster and setting i_size.  Thus some pages could
-be left (and likely have left if the cluster zeroing happened) in the
-page cache beyond i_size after truncate finished letting user possibly
-see stale data once the file was extended again.  Also the tail cluster
-zeroing was not guaranteed to finish before truncate finished causing
-possible stale data exposure.  The problem started to be particularly
-easy to hit after commit 6dbf7bb55598 "fs: Don't invalidate page buffers
-in block_write_full_page()" stopped invalidation of pages beyond i_size
-from page writeback path.
-
-Fix these problems by unmapping and invalidating pages in the page cache
-after the i_size is reduced and tail cluster is zeroed out.
-
-Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
-Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
-Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 9cbee358687e ("ath6kl: add full USB support")
+Cc: stable@vger.kernel.org      # 3.5
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211027080819.6675-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/file.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath6kl/usb.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -490,10 +490,11 @@ int ocfs2_truncate_file(struct inode *in
- 	 * greater than page size, so we have to truncate them
- 	 * anyway.
- 	 */
--	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
--	truncate_inode_pages(inode->i_mapping, new_i_size);
- 
- 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
-+		unmap_mapping_range(inode->i_mapping,
-+				    new_i_size + PAGE_SIZE - 1, 0, 1);
-+		truncate_inode_pages(inode->i_mapping, new_i_size);
- 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
- 					       i_size_read(inode), 1);
- 		if (status)
-@@ -512,6 +513,9 @@ int ocfs2_truncate_file(struct inode *in
- 		goto bail_unlock_sem;
- 	}
- 
-+	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
-+	truncate_inode_pages(inode->i_mapping, new_i_size);
+--- a/drivers/net/wireless/ath/ath6kl/usb.c
++++ b/drivers/net/wireless/ath/ath6kl/usb.c
+@@ -340,6 +340,11 @@ static int ath6kl_usb_setup_pipe_resourc
+ 				   le16_to_cpu(endpoint->wMaxPacketSize),
+ 				   endpoint->bInterval);
+ 		}
 +
- 	status = ocfs2_commit_truncate(osb, inode, di_bh);
- 	if (status < 0) {
- 		mlog_errno(status);
++		/* Ignore broken descriptors. */
++		if (usb_endpoint_maxp(endpoint) == 0)
++			continue;
++
+ 		urbcount = 0;
+ 
+ 		pipe_num =
 
 
