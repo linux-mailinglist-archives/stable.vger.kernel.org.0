@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA1B145C592
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CCB545C178
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349097AbhKXN7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:59:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46988 "EHLO mail.kernel.org"
+        id S244058AbhKXNTK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:19:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353069AbhKXN4n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:56:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 329A363370;
-        Wed, 24 Nov 2021 13:06:52 +0000 (UTC)
+        id S1346762AbhKXNPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:15:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7155E61AA8;
+        Wed, 24 Nov 2021 12:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759212;
-        bh=xEFqqXiRcaFt4gLdA1oq4qnjLxzPR09VjFrD+w7FhaQ=;
+        s=korg; t=1637757855;
+        bh=dp4wwUseV5qUf5xSbC9F2O0f3tz/bFtGcn0p2CQcR9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hYZbv3E92JZiP6BAUs67/j4jIWLxxR+devZZc444W1vFxoKhdQiI7JAwdi4MaAfos
-         EVBGk1oXYIUQC9fLpPkf8oCF0MxIyKkNVwHbjqDfcQi/UHy63qKNT9L9NSSlvK3G9e
-         8ZWdzUjXigE2IO/9QkYMxhbnQ7Os74cb/D3u4gsI=
+        b=arkToYBr3rhnU3WyjQBeJ8gtLjjN4j1kAXCX10F8FQBoCJVzu9WLEI/KIMLFhJmsn
+         1scVbL2Edg1YB+eDZsQ1dw2kGzzoidDZ5T1YPTFedsLbbBjLhz8VoYQG4I4bA5gGHP
+         m2p4Q3YG50R9JSDwg2yeQSgpirIzZqpSWdFFy6qQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 169/279] NFC: reorder the logic in nfc_{un,}register_device
+Subject: [PATCH 4.19 266/323] ASoC: nau8824: Add DMI quirk mechanism for active-high jack-detect
 Date:   Wed, 24 Nov 2021 12:57:36 +0100
-Message-Id: <20211124115724.582691224@linuxfoundation.org>
+Message-Id: <20211124115727.859224332@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,127 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 3e3b5dfcd16a3e254aab61bd1e8c417dd4503102 ]
+[ Upstream commit 92d3360108f1839ca40451bad20ff67dd24a1964 ]
 
-There is a potential UAF between the unregistration routine and the NFC
-netlink operations.
+Add a quirk mechanism to allow specifying that active-high jack-detection
+should be used on platforms where this info is not available in devicetree.
 
-The race that cause that UAF can be shown as below:
+And add an entry for the Cyberbook T116 tablet to the DMI table, so that
+jack-detection will work properly on this tablet.
 
- (FREE)                      |  (USE)
-nfcmrvl_nci_unregister_dev   |  nfc_genl_dev_up
-  nci_close_device           |
-  nci_unregister_device      |    nfc_get_device
-    nfc_unregister_device    |    nfc_dev_up
-      rfkill_destory         |
-      device_del             |      rfkill_blocked
-  ...                        |    ...
-
-The root cause for this race is concluded below:
-1. The rfkill_blocked (USE) in nfc_dev_up is supposed to be placed after
-the device_is_registered check.
-2. Since the netlink operations are possible just after the device_add
-in nfc_register_device, the nfc_dev_up() can happen anywhere during the
-rfkill creation process, which leads to data race.
-
-This patch reorder these actions to permit
-1. Once device_del is finished, the nfc_dev_up cannot dereference the
-rfkill object.
-2. The rfkill_register need to be placed after the device_add of nfc_dev
-because the parent device need to be created first. So this patch keeps
-the order but inject device_lock to prevent the data race.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Fixes: be055b2f89b5 ("NFC: RFKILL support")
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20211116152652.19217-1-linma@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20211002211459.110124-2-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/core.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ sound/soc/codecs/nau8824.c | 40 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-diff --git a/net/nfc/core.c b/net/nfc/core.c
-index 3c645c1d99c9b..dc7a2404efdf9 100644
---- a/net/nfc/core.c
-+++ b/net/nfc/core.c
-@@ -94,13 +94,13 @@ int nfc_dev_up(struct nfc_dev *dev)
+diff --git a/sound/soc/codecs/nau8824.c b/sound/soc/codecs/nau8824.c
+index 663a208c2f784..4af87340b1655 100644
+--- a/sound/soc/codecs/nau8824.c
++++ b/sound/soc/codecs/nau8824.c
+@@ -11,6 +11,7 @@
  
- 	device_lock(&dev->dev);
+ #include <linux/module.h>
+ #include <linux/delay.h>
++#include <linux/dmi.h>
+ #include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/regmap.h>
+@@ -30,6 +31,12 @@
  
--	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
--		rc = -ERFKILL;
-+	if (!device_is_registered(&dev->dev)) {
-+		rc = -ENODEV;
- 		goto error;
- 	}
+ #include "nau8824.h"
  
--	if (!device_is_registered(&dev->dev)) {
--		rc = -ENODEV;
-+	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
-+		rc = -ERFKILL;
- 		goto error;
- 	}
- 
-@@ -1125,11 +1125,7 @@ int nfc_register_device(struct nfc_dev *dev)
- 	if (rc)
- 		pr_err("Could not register llcp device\n");
- 
--	rc = nfc_genl_device_added(dev);
--	if (rc)
--		pr_debug("The userspace won't be notified that the device %s was added\n",
--			 dev_name(&dev->dev));
--
-+	device_lock(&dev->dev);
- 	dev->rfkill = rfkill_alloc(dev_name(&dev->dev), &dev->dev,
- 				   RFKILL_TYPE_NFC, &nfc_rfkill_ops, dev);
- 	if (dev->rfkill) {
-@@ -1138,6 +1134,12 @@ int nfc_register_device(struct nfc_dev *dev)
- 			dev->rfkill = NULL;
- 		}
- 	}
-+	device_unlock(&dev->dev);
++#define NAU8824_JD_ACTIVE_HIGH			BIT(0)
 +
-+	rc = nfc_genl_device_added(dev);
-+	if (rc)
-+		pr_debug("The userspace won't be notified that the device %s was added\n",
-+			 dev_name(&dev->dev));
++static int nau8824_quirk;
++static int quirk_override = -1;
++module_param_named(quirk, quirk_override, uint, 0444);
++MODULE_PARM_DESC(quirk, "Board-specific quirk override");
  
+ static int nau8824_config_sysclk(struct nau8824 *nau8824,
+ 	int clk_id, unsigned int freq);
+@@ -1878,6 +1885,34 @@ static int nau8824_read_device_properties(struct device *dev,
  	return 0;
  }
-@@ -1154,10 +1156,17 @@ void nfc_unregister_device(struct nfc_dev *dev)
  
- 	pr_debug("dev_name=%s\n", dev_name(&dev->dev));
- 
-+	rc = nfc_genl_device_removed(dev);
-+	if (rc)
-+		pr_debug("The userspace won't be notified that the device %s "
-+			 "was removed\n", dev_name(&dev->dev));
++/* Please keep this list alphabetically sorted */
++static const struct dmi_system_id nau8824_quirk_table[] = {
++	{
++		/* Cyberbook T116 rugged tablet */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Default string"),
++			DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "20170531"),
++		},
++		.driver_data = (void *)(NAU8824_JD_ACTIVE_HIGH),
++	},
++	{}
++};
 +
-+	device_lock(&dev->dev);
- 	if (dev->rfkill) {
- 		rfkill_unregister(dev->rfkill);
- 		rfkill_destroy(dev->rfkill);
- 	}
-+	device_unlock(&dev->dev);
++static void nau8824_check_quirks(void)
++{
++	const struct dmi_system_id *dmi_id;
++
++	if (quirk_override != -1) {
++		nau8824_quirk = quirk_override;
++		return;
++	}
++
++	dmi_id = dmi_first_match(nau8824_quirk_table);
++	if (dmi_id)
++		nau8824_quirk = (unsigned long)dmi_id->driver_data;
++}
++
+ static int nau8824_i2c_probe(struct i2c_client *i2c,
+ 	const struct i2c_device_id *id)
+ {
+@@ -1902,6 +1937,11 @@ static int nau8824_i2c_probe(struct i2c_client *i2c,
+ 	nau8824->irq = i2c->irq;
+ 	sema_init(&nau8824->jd_sem, 1);
  
- 	if (dev->ops->check_presence) {
- 		device_lock(&dev->dev);
-@@ -1167,11 +1176,6 @@ void nfc_unregister_device(struct nfc_dev *dev)
- 		cancel_work_sync(&dev->check_pres_work);
- 	}
++	nau8824_check_quirks();
++
++	if (nau8824_quirk & NAU8824_JD_ACTIVE_HIGH)
++		nau8824->jkdet_polarity = 0;
++
+ 	nau8824_print_device_properties(nau8824);
  
--	rc = nfc_genl_device_removed(dev);
--	if (rc)
--		pr_debug("The userspace won't be notified that the device %s "
--			 "was removed\n", dev_name(&dev->dev));
--
- 	nfc_llcp_unregister_device(dev);
- 
- 	mutex_lock(&nfc_devlist_mutex);
+ 	ret = regmap_read(nau8824->regmap, NAU8824_REG_I2C_DEVICE_ID, &value);
 -- 
 2.33.0
 
