@@ -2,137 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3FB945B3B2
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 05:59:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DF5545B3B6
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 06:04:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229483AbhKXFC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 00:02:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35150 "EHLO
+        id S229499AbhKXFHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 00:07:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229482AbhKXFC2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 00:02:28 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23409C061574
-        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 20:59:19 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id c4so1525412pfj.2
-        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 20:59:18 -0800 (PST)
+        with ESMTP id S229482AbhKXFH3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 00:07:29 -0500
+Received: from mail-ua1-x935.google.com (mail-ua1-x935.google.com [IPv6:2607:f8b0:4864:20::935])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B83B8C061574;
+        Tue, 23 Nov 2021 21:04:20 -0800 (PST)
+Received: by mail-ua1-x935.google.com with SMTP id n6so2590537uak.1;
+        Tue, 23 Nov 2021 21:04:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ODK5z1J5OlQKG5sLu1H+w81EAkO1DpPsYoR4cjQppQ0=;
-        b=M+rWLcXy34Rzwrfzjb3RQSecyEykaqXvp16VjAtPVE+tPsMJwRv3HDik8s29WTUJRk
-         IdLpn34/MkwDNGnyzwFhMdGp2riuIvhpMvFFvvHnSTJmXreO5rlyQMBIHy09LLA7RhIu
-         5LU9zbkruvWus3JtJNrOuj56+sTfa/j4zyCX1eTubDyTiL2Xf63H3banqMbULJ186Cfd
-         wsrxCxmYUkDJLi58rgKS1Lt734DEfe85UqNAswAD8oYO6VWJgGb31BwspbFI+h4oOfXE
-         U7h7WiddPi9z42eCQ00Qioj5v73m9ILYZw7lMVT2inkjgf4JSM4ZtLBVIj/6Qf+dBgvd
-         leOQ==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=DLu60VdNpOFl5EO9/7C3ti11HMjzdJ7VrkBrvpessEs=;
+        b=ZmpBtOKZ968zAOt4BZ3YTiTNXpcuA4vuSgMYfs3hRqd2RroaG/un059x910LRziuNj
+         Yjdsxh5uh1uWdO7Az80NOO7vTn0nf6gDRSGfln6Mjys8RMvJuuwhkfKwD/KsQlvlaoub
+         3s/KuLvkErcTLl9meacZmroxC5ccsd0+8MEiKS3+TVoCCAJnrmAydYTxMfTsR9tIswfs
+         DZYh2XMuCmlkhIIkG0UHOCRNt6dqVSGlzIs4D/QOMq1MTnOxPLTX2T/AC21hj7vahbZG
+         gua+qo0wJDJZZU7Dc2yDXrqmTvHcSXKeNr59vu/MAu2fbGZf5aYswBF0mbZOl12h2DEd
+         Ceqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ODK5z1J5OlQKG5sLu1H+w81EAkO1DpPsYoR4cjQppQ0=;
-        b=jRDdAVL8v1t8yUV8olcfVubU+AGcn6ouSCEFzvk3rAAX2Db+yFbiOWB9X+txqtbLqW
-         guEfxUogGHBq7O1TBLdNPQTv7Bbqkl3awS42whX48Mi+5DnVGGWM0ptYTFxaKythne6d
-         DJgpBhC9mSsUw+Sl951H8WCj/8AJHJtZiN4jFknMm7I8n+THxb9iiDr+FEgmgY1UTuN4
-         LYIrW3U5D8Hx/lCgbbLSxdorcGfqF5HKnrIY2dgThMXEC2Mtr3a3s2IjYPGK6rSncbS5
-         3Xf8GygeeH4mvGcrX3jDkxvTME8MAC8CB0zHjHZFZrr4biQGlN0FUkBS+AcflEdVSKTQ
-         ChtQ==
-X-Gm-Message-State: AOAM533KwJZzfTLDVMbkQLrwAPYKuNJ3mhL/ba0XXZ65Zi5PvhoTcxlW
-        sfUQzgAIBVqKt59dzyuIQzj42xOa9HqItQY+
-X-Google-Smtp-Source: ABdhPJzY4po5XBk6MpEqgmks/wEVtHUY+VhWSG4MzGPMNGTl8B1HVaZlmjUgWqKP88BPw8fqbFAYHQ==
-X-Received: by 2002:a62:1cc4:0:b0:49f:99b6:3507 with SMTP id c187-20020a621cc4000000b0049f99b63507mr3039076pfc.76.1637729958240;
-        Tue, 23 Nov 2021 20:59:18 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id co4sm2944912pjb.2.2021.11.23.20.59.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Nov 2021 20:59:18 -0800 (PST)
-Message-ID: <619dc6a6.1c69fb81.c2a28.7b69@mx.google.com>
-Date:   Tue, 23 Nov 2021 20:59:18 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=DLu60VdNpOFl5EO9/7C3ti11HMjzdJ7VrkBrvpessEs=;
+        b=xmJnM4i6CzOGhpwaktGUBB9pkaUhM7AEToFVOAFM7pWlGBa3XyqfGbcicle3sJevwr
+         yiIcvxi2iCymF2g1/VuXqzC2OeRLIshSinhXaeRT14n9ivV2hdqqgV+EbsNoULR9tLOs
+         u8D4+O1ZIOw9YDVq4zFPvSR7FFCSwm9p+ykN764COSohMk5Y9YcFafwKppzeDTgJ65DD
+         4iaQHnVHs3SmmCwUn5le4s2TXwhPjnFLQxXBUw9eNW4ZaAsSaZQsjGHPWyQ98n4aa1o3
+         Wwq175LX+DwnZUK/P+VQ9HJKRxf4OdHStTs0dsa2WnayvmeD3yfaK7qAqz8jaJoDJ1VV
+         UlFg==
+X-Gm-Message-State: AOAM533NDrgJ/PcGXwx/iABUDFLvEcKJXLcnMP++KVYHynyr2TL2QcP2
+        SEmHlNmzoPkoWMpCoas7rEOp71OMsJQPRKewv00jUd8Dw88=
+X-Google-Smtp-Source: ABdhPJwOnnT724UYAqiDlX6LuZAkXcfixTfv9zwkx8MH9wn1QQ8mMrl0B8HNAKS5eWTEQzwmhH1CNJHCvxoBaKesjmg=
+X-Received: by 2002:ab0:4465:: with SMTP id m92mr5493316uam.47.1637730259696;
+ Tue, 23 Nov 2021 21:04:19 -0800 (PST)
 MIME-Version: 1.0
+References: <20211124014511.12510-1-linkinjeon@kernel.org>
+In-Reply-To: <20211124014511.12510-1-linkinjeon@kernel.org>
+From:   Hyunchul Lee <hyc.lee@gmail.com>
+Date:   Wed, 24 Nov 2021 14:04:08 +0900
+Message-ID: <CANFS6baukT-PLGj2gdJajmTM=mP=2tRi2Ef=KP56zhYxEcPtTQ@mail.gmail.com>
+Subject: Re: [PATCH] ksmbd: fix memleak in get_file_stream_info()
+To:     Namjae Jeon <linkinjeon@kernel.org>
+Cc:     linux-cifs <linux-cifs@vger.kernel.org>, stable@vger.kernel.org,
+        Coverity Scan <scan-admin@coverity.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.217-320-g3675fbb7a6c84
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y baseline: 134 runs,
- 1 regressions (v4.19.217-320-g3675fbb7a6c84)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 134 runs, 1 regressions (v4.19.217-320-g36=
-75fbb7a6c84)
+2021=EB=85=84 11=EC=9B=94 24=EC=9D=BC (=EC=88=98) =EC=98=A4=ED=9B=84 1:46, =
+Namjae Jeon <linkinjeon@kernel.org>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=B1:
+>
+> Fix memleak in get_file_stream_info()
+>
+> Fixes: 34061d6b76a4 ("ksmbd: validate OutputBufferLength of QUERY_DIR, QU=
+ERY_INFO, IOCTL requests")
+> Cc: stable@vger.kernel.org # v5.15
+> Reported-by: Coverity Scan <scan-admin@coverity.com>
+> Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+> ---
 
-Regressions Summary
--------------------
+Acked-by: Hyunchul Lee <hyc.lee@gmail.com>
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.217-320-g3675fbb7a6c84/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.217-320-g3675fbb7a6c84
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3675fbb7a6c84d9ccb8f28e91f99d3f2e9e8c417 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/619d8c197c77dbcae4f2efa2
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-17-320-g3675fbb7a6c84/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline=
--panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-17-320-g3675fbb7a6c84/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline=
--panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+>  fs/ksmbd/smb2pdu.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
+> index 2067d5bab1b0..c70972b49da8 100644
+> --- a/fs/ksmbd/smb2pdu.c
+> +++ b/fs/ksmbd/smb2pdu.c
+> @@ -4496,8 +4496,10 @@ static void get_file_stream_info(struct ksmbd_work=
+ *work,
+>                                      ":%s", &stream_name[XATTR_NAME_STREA=
+M_LEN]);
+>
+>                 next =3D sizeof(struct smb2_file_stream_info) + streamlen=
+ * 2;
+> -               if (next > buf_free_len)
+> +               if (next > buf_free_len) {
+> +                       kfree(stream_buf);
+>                         break;
+> +               }
+>
+>                 file_info =3D (struct smb2_file_stream_info *)&rsp->Buffe=
+r[nbytes];
+>                 streamlen  =3D smbConvertToUTF16((__le16 *)file_info->Str=
+eamName,
+> --
+> 2.25.1
+>
 
 
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619d8c197c77dbc=
-ae4f2efa5
-        failing since 10 days (last pass: v4.19.216-17-gf1ca790424bd, first=
- fail: v4.19.217)
-        2 lines
-
-    2021-11-24T00:49:11.072206  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/110
-    2021-11-24T00:49:11.082141  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-11-24T00:49:11.096115  <8>[   21.272277] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+--=20
+Thanks,
+Hyunchul
