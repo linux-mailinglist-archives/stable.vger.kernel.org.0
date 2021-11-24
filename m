@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5742245BA75
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:08:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD7C45BBBA
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:19:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242394AbhKXMLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:11:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32848 "EHLO mail.kernel.org"
+        id S243269AbhKXMWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:22:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242400AbhKXMJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:09:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FB6C61075;
-        Wed, 24 Nov 2021 12:05:30 +0000 (UTC)
+        id S243324AbhKXMUp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:20:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EDD6611B0;
+        Wed, 24 Nov 2021 12:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755531;
-        bh=lA42VD3iRzmgxGMgpYLuBwmH0+VxrxRMBuAUeCPxQks=;
+        s=korg; t=1637755962;
+        bh=cROOCRFi8kNEWkFex36JA+IT0AjCTWiBtubAa6sI2bA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ESTjLdSOMWsxYtvxM0V/T/ec73IOQ3VU4w7xOyL1Bebpn1xDETvChXzTXfUcWMKXA
-         oiKeCqmKr9sGvLjbNW93EkC+RrJc1+6AVUAIBOFNXgi33oU5+c/adGBhtNavVUwL7M
-         4KBBXva8ndmS5h3auMtrMhc+uiK0xm6B8QsY0p8I=
+        b=08DmGd0wkbpaSFHKAWNQZ2hdVsB+UK0lJ/dd1s0buR7QYLXpjWPxoCFVbINeb7qlv
+         Mll3yNAj9VGfvRDpTA8kDmRgQZr+G6Ilx2l3nGuZpmTsCHbK9JQXrQjryGROe+pb3j
+         VK4k7VO74Eq78CZx26Llz8g6fYQnFjUAE288G+s8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 087/162] crypto: pcrypt - Delay write to padata->info
+Subject: [PATCH 4.9 119/207] JFS: fix memleak in jfs_mount
 Date:   Wed, 24 Nov 2021 12:56:30 +0100
-Message-Id: <20211124115701.134849986@linuxfoundation.org>
+Message-Id: <20211124115707.913721262@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +40,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 68b6dea802cea0dbdd8bd7ccc60716b5a32a5d8a ]
+[ Upstream commit c48a14dca2cb57527dde6b960adbe69953935f10 ]
 
-These three events can race when pcrypt is used multiple times in a
-template ("pcrypt(pcrypt(...))"):
+In jfs_mount, when diMount(ipaimap2) fails, it goes to errout35. However,
+the following code does not free ipaimap2 allocated by diReadSpecial.
 
-  1.  [taskA] The caller makes the crypto request via crypto_aead_encrypt()
-  2.  [kworkerB] padata serializes the inner pcrypt request
-  3.  [kworkerC] padata serializes the outer pcrypt request
+Fix this by refactoring the error handling code of jfs_mount. To be
+specific, modify the lable name and free ipaimap2 when the above error
+ocurrs.
 
-3 might finish before the call to crypto_aead_encrypt() returns in 1,
-resulting in two possible issues.
-
-First, a use-after-free of the crypto request's memory when, for
-example, taskA writes to the outer pcrypt request's padata->info in
-pcrypt_aead_enc() after kworkerC completes the request.
-
-Second, the outer pcrypt request overwrites the inner pcrypt request's
-return code with -EINPROGRESS, making a successful request appear to
-fail.  For instance, kworkerB writes the outer pcrypt request's
-padata->info in pcrypt_aead_done() and then taskA overwrites it
-in pcrypt_aead_enc().
-
-Avoid both situations by delaying the write of padata->info until after
-the inner crypto request's return code is checked.  This prevents the
-use-after-free by not touching the crypto request's memory after the
-next-inner crypto request is made, and stops padata->info from being
-overwritten.
-
-Fixes: 5068c7a883d16 ("crypto: pcrypt - Add pcrypt crypto parallelization wrapper")
-Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/pcrypt.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ fs/jfs/jfs_mount.c | 51 ++++++++++++++++++++--------------------------
+ 1 file changed, 22 insertions(+), 29 deletions(-)
 
-diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
-index 85082574c5154..62e11835f220e 100644
---- a/crypto/pcrypt.c
-+++ b/crypto/pcrypt.c
-@@ -138,12 +138,14 @@ static void pcrypt_aead_enc(struct padata_priv *padata)
- {
- 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
- 	struct aead_request *req = pcrypt_request_ctx(preq);
-+	int ret;
+diff --git a/fs/jfs/jfs_mount.c b/fs/jfs/jfs_mount.c
+index 103788ecc28c1..0c2aabba1fdbb 100644
+--- a/fs/jfs/jfs_mount.c
++++ b/fs/jfs/jfs_mount.c
+@@ -93,14 +93,14 @@ int jfs_mount(struct super_block *sb)
+ 	 * (initialize mount inode from the superblock)
+ 	 */
+ 	if ((rc = chkSuper(sb))) {
+-		goto errout20;
++		goto out;
+ 	}
  
--	padata->info = crypto_aead_encrypt(req);
-+	ret = crypto_aead_encrypt(req);
+ 	ipaimap = diReadSpecial(sb, AGGREGATE_I, 0);
+ 	if (ipaimap == NULL) {
+ 		jfs_err("jfs_mount: Failed to read AGGREGATE_I");
+ 		rc = -EIO;
+-		goto errout20;
++		goto out;
+ 	}
+ 	sbi->ipaimap = ipaimap;
  
--	if (padata->info == -EINPROGRESS)
-+	if (ret == -EINPROGRESS)
- 		return;
+@@ -111,7 +111,7 @@ int jfs_mount(struct super_block *sb)
+ 	 */
+ 	if ((rc = diMount(ipaimap))) {
+ 		jfs_err("jfs_mount: diMount(ipaimap) failed w/rc = %d", rc);
+-		goto errout21;
++		goto err_ipaimap;
+ 	}
  
-+	padata->info = ret;
- 	padata_do_serial(padata);
- }
+ 	/*
+@@ -120,7 +120,7 @@ int jfs_mount(struct super_block *sb)
+ 	ipbmap = diReadSpecial(sb, BMAP_I, 0);
+ 	if (ipbmap == NULL) {
+ 		rc = -EIO;
+-		goto errout22;
++		goto err_umount_ipaimap;
+ 	}
  
-@@ -180,12 +182,14 @@ static void pcrypt_aead_dec(struct padata_priv *padata)
- {
- 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
- 	struct aead_request *req = pcrypt_request_ctx(preq);
-+	int ret;
+ 	jfs_info("jfs_mount: ipbmap:0x%p", ipbmap);
+@@ -132,7 +132,7 @@ int jfs_mount(struct super_block *sb)
+ 	 */
+ 	if ((rc = dbMount(ipbmap))) {
+ 		jfs_err("jfs_mount: dbMount failed w/rc = %d", rc);
+-		goto errout22;
++		goto err_ipbmap;
+ 	}
  
--	padata->info = crypto_aead_decrypt(req);
-+	ret = crypto_aead_decrypt(req);
+ 	/*
+@@ -151,7 +151,7 @@ int jfs_mount(struct super_block *sb)
+ 		if (!ipaimap2) {
+ 			jfs_err("jfs_mount: Failed to read AGGREGATE_I");
+ 			rc = -EIO;
+-			goto errout35;
++			goto err_umount_ipbmap;
+ 		}
+ 		sbi->ipaimap2 = ipaimap2;
  
--	if (padata->info == -EINPROGRESS)
-+	if (ret == -EINPROGRESS)
- 		return;
+@@ -163,7 +163,7 @@ int jfs_mount(struct super_block *sb)
+ 		if ((rc = diMount(ipaimap2))) {
+ 			jfs_err("jfs_mount: diMount(ipaimap2) failed, rc = %d",
+ 				rc);
+-			goto errout35;
++			goto err_ipaimap2;
+ 		}
+ 	} else
+ 		/* Secondary aggregate inode table is not valid */
+@@ -180,7 +180,7 @@ int jfs_mount(struct super_block *sb)
+ 		jfs_err("jfs_mount: Failed to read FILESYSTEM_I");
+ 		/* open fileset secondary inode allocation map */
+ 		rc = -EIO;
+-		goto errout40;
++		goto err_umount_ipaimap2;
+ 	}
+ 	jfs_info("jfs_mount: ipimap:0x%p", ipimap);
  
-+	padata->info = ret;
- 	padata_do_serial(padata);
- }
+@@ -190,41 +190,34 @@ int jfs_mount(struct super_block *sb)
+ 	/* initialize fileset inode allocation map */
+ 	if ((rc = diMount(ipimap))) {
+ 		jfs_err("jfs_mount: diMount failed w/rc = %d", rc);
+-		goto errout41;
++		goto err_ipimap;
+ 	}
+ 
+-	goto out;
++	return rc;
+ 
+ 	/*
+ 	 *	unwind on error
+ 	 */
+-      errout41:		/* close fileset inode allocation map inode */
++err_ipimap:
++	/* close fileset inode allocation map inode */
+ 	diFreeSpecial(ipimap);
+-
+-      errout40:		/* fileset closed */
+-
++err_umount_ipaimap2:
+ 	/* close secondary aggregate inode allocation map */
+-	if (ipaimap2) {
++	if (ipaimap2)
+ 		diUnmount(ipaimap2, 1);
++err_ipaimap2:
++	/* close aggregate inodes */
++	if (ipaimap2)
+ 		diFreeSpecial(ipaimap2);
+-	}
+-
+-      errout35:
+-
+-	/* close aggregate block allocation map */
++err_umount_ipbmap:	/* close aggregate block allocation map */
+ 	dbUnmount(ipbmap, 1);
++err_ipbmap:		/* close aggregate inodes */
+ 	diFreeSpecial(ipbmap);
+-
+-      errout22:		/* close aggregate inode allocation map */
+-
++err_umount_ipaimap:	/* close aggregate inode allocation map */
+ 	diUnmount(ipaimap, 1);
+-
+-      errout21:		/* close aggregate inodes */
++err_ipaimap:		/* close aggregate inodes */
+ 	diFreeSpecial(ipaimap);
+-      errout20:		/* aggregate closed */
+-
+-      out:
+-
++out:
+ 	if (rc)
+ 		jfs_err("Mount JFS Failure: %d", rc);
  
 -- 
 2.33.0
