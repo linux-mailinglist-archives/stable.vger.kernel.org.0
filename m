@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0631345C04D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:03:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C857E45C487
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:47:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347032AbhKXNGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:06:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46776 "EHLO mail.kernel.org"
+        id S1345524AbhKXNti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:49:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346068AbhKXNE5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:04:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89C96610A2;
-        Wed, 24 Nov 2021 12:37:14 +0000 (UTC)
+        id S1344381AbhKXNrs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:47:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7E1D63361;
+        Wed, 24 Nov 2021 13:01:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757435;
-        bh=EgdypAKV5xyi1lXaZEGRPDwo7lGnRQwWqp+NVcjRl60=;
+        s=korg; t=1637758912;
+        bh=A0IhG0duW+sokUwebqnXxg/iOEkbWqw7YJjmQJh7+Ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pvu6D7L/jgsX+zUlHuZGxaRtqUrUS/95ml5zWODL8htT7kBHivgS/5iWbIuIYUl5t
-         6bkFKZ0OTT76efM4XC9TAetx+ErQ23Ampdc3MLKIcL2Ro9n4Aptyxyl8E5FDQhoU7L
-         eG/Ux6bqHz1yfaOoyH2aableZb7z5uIj/v7+P7MY=
+        b=dkFtw6bras7nCbiZrL1OnGIANViDH9AnBDTNrqzRX4nZoLOWqkpvwSH+DEeKp1WqR
+         L5STzja9LLBzpS61bFgvOlt+r4pg7tyAd+YZ+C7XnPh5I4OEGrNYQv7kkdUTd/MGy3
+         +Rp22+PzmCNlC0JXLVb0KlOxWIWUSnGOQBxp9fPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Anatolij Gustschin <agust@denx.de>,
+        Rob Herring <robh@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 168/323] libertas_tf: Fix possible memory leak in probe and disconnect
+Subject: [PATCH 5.15 071/279] powerpc/5200: dts: fix memory node unit name
 Date:   Wed, 24 Nov 2021 12:55:58 +0100
-Message-Id: <20211124115724.619148421@linuxfoundation.org>
+Message-Id: <20211124115721.153201211@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +41,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Anatolij Gustschin <agust@denx.de>
 
-[ Upstream commit d549107305b4634c81223a853701c06bcf657bc3 ]
+[ Upstream commit aed2886a5e9ffc8269a4220bff1e9e030d3d2eb1 ]
 
-I got memory leak as follows when doing fault injection test:
+Fixes build warnings:
+Warning (unit_address_vs_reg): /memory: node has a reg or ranges property, but no unit name
 
-unreferenced object 0xffff88810a2ddc00 (size 512):
-  comm "kworker/6:1", pid 176, jiffies 4295009893 (age 757.220s)
-  hex dump (first 32 bytes):
-    00 50 05 18 81 88 ff ff 00 00 00 00 00 00 00 00  .P..............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
-    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
-    [<ffffffffa02a1530>] if_usb_probe+0x60/0x37c [libertas_tf_usb]
-    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
-    [<ffffffff82b59630>] really_probe+0x190/0x480
-    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
-    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
-    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
-    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
-    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
-    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
-    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
-    [<ffffffff82b52e49>] device_add+0x829/0x1300
-    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
-    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
-    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
-
-cardp is missing being freed in the error handling path of the probe
-and the path of the disconnect, which will cause memory leak.
-
-This patch adds the missing kfree().
-
-Fixes: c305a19a0d0a ("libertas_tf: usb specific functions")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211020120345.2016045-2-wanghai38@huawei.com
+Signed-off-by: Anatolij Gustschin <agust@denx.de>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211013220532.24759-4-agust@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas_tf/if_usb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/boot/dts/charon.dts    | 2 +-
+ arch/powerpc/boot/dts/digsy_mtc.dts | 2 +-
+ arch/powerpc/boot/dts/lite5200.dts  | 2 +-
+ arch/powerpc/boot/dts/lite5200b.dts | 2 +-
+ arch/powerpc/boot/dts/media5200.dts | 2 +-
+ arch/powerpc/boot/dts/mpc5200b.dtsi | 2 +-
+ arch/powerpc/boot/dts/o2d.dts       | 2 +-
+ arch/powerpc/boot/dts/o2d.dtsi      | 2 +-
+ arch/powerpc/boot/dts/o2dnt2.dts    | 2 +-
+ arch/powerpc/boot/dts/o3dnt.dts     | 2 +-
+ arch/powerpc/boot/dts/pcm032.dts    | 2 +-
+ arch/powerpc/boot/dts/tqm5200.dts   | 2 +-
+ 12 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas_tf/if_usb.c b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-index 6ede6168bd85a..60941c319b421 100644
---- a/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-+++ b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-@@ -234,6 +234,7 @@ static int if_usb_probe(struct usb_interface *intf,
+diff --git a/arch/powerpc/boot/dts/charon.dts b/arch/powerpc/boot/dts/charon.dts
+index 408b486b13dff..cd589539f313f 100644
+--- a/arch/powerpc/boot/dts/charon.dts
++++ b/arch/powerpc/boot/dts/charon.dts
+@@ -35,7 +35,7 @@
+ 		};
+ 	};
  
- dealloc:
- 	if_usb_free(cardp);
-+	kfree(cardp);
- error:
- lbtf_deb_leave(LBTF_DEB_MAIN);
- 	return -ENOMEM;
-@@ -258,6 +259,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x08000000>;	// 128MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/digsy_mtc.dts b/arch/powerpc/boot/dts/digsy_mtc.dts
+index 0e5e9d3acf79f..19a14e62e65f4 100644
+--- a/arch/powerpc/boot/dts/digsy_mtc.dts
++++ b/arch/powerpc/boot/dts/digsy_mtc.dts
+@@ -16,7 +16,7 @@
+ 	model = "intercontrol,digsy-mtc";
+ 	compatible = "intercontrol,digsy-mtc";
  
- 	/* Unlink and free urb */
- 	if_usb_free(cardp);
-+	kfree(cardp);
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x02000000>;	// 32MB
+ 	};
  
- 	usb_set_intfdata(intf, NULL);
- 	usb_put_dev(interface_to_usbdev(intf));
+diff --git a/arch/powerpc/boot/dts/lite5200.dts b/arch/powerpc/boot/dts/lite5200.dts
+index cb2782dd6132c..e7b194775d783 100644
+--- a/arch/powerpc/boot/dts/lite5200.dts
++++ b/arch/powerpc/boot/dts/lite5200.dts
+@@ -32,7 +32,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/lite5200b.dts b/arch/powerpc/boot/dts/lite5200b.dts
+index 2b86c81f90485..547cbe726ff23 100644
+--- a/arch/powerpc/boot/dts/lite5200b.dts
++++ b/arch/powerpc/boot/dts/lite5200b.dts
+@@ -31,7 +31,7 @@
+ 		led4 { gpios = <&gpio_simple 2 1>; };
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x10000000>;	// 256MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/media5200.dts b/arch/powerpc/boot/dts/media5200.dts
+index 61cae9dcddef4..f3188018faceb 100644
+--- a/arch/powerpc/boot/dts/media5200.dts
++++ b/arch/powerpc/boot/dts/media5200.dts
+@@ -32,7 +32,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;	// 128MB RAM
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/mpc5200b.dtsi b/arch/powerpc/boot/dts/mpc5200b.dtsi
+index 648fe31795f49..8b796f3b11da7 100644
+--- a/arch/powerpc/boot/dts/mpc5200b.dtsi
++++ b/arch/powerpc/boot/dts/mpc5200b.dtsi
+@@ -33,7 +33,7 @@
+ 		};
+ 	};
+ 
+-	memory: memory {
++	memory: memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+diff --git a/arch/powerpc/boot/dts/o2d.dts b/arch/powerpc/boot/dts/o2d.dts
+index 24a46f65e5299..e0a8d3034417f 100644
+--- a/arch/powerpc/boot/dts/o2d.dts
++++ b/arch/powerpc/boot/dts/o2d.dts
+@@ -12,7 +12,7 @@
+ 	model = "ifm,o2d";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;  // 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o2d.dtsi b/arch/powerpc/boot/dts/o2d.dtsi
+index 6661955a2be47..b55a9e5bd828c 100644
+--- a/arch/powerpc/boot/dts/o2d.dtsi
++++ b/arch/powerpc/boot/dts/o2d.dtsi
+@@ -19,7 +19,7 @@
+ 	model = "ifm,o2d";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o2dnt2.dts b/arch/powerpc/boot/dts/o2dnt2.dts
+index eeba7f5507d5d..c2eedbd1f5fcb 100644
+--- a/arch/powerpc/boot/dts/o2dnt2.dts
++++ b/arch/powerpc/boot/dts/o2dnt2.dts
+@@ -12,7 +12,7 @@
+ 	model = "ifm,o2dnt2";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;  // 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/o3dnt.dts b/arch/powerpc/boot/dts/o3dnt.dts
+index fd00396b0593e..e4c1bdd412716 100644
+--- a/arch/powerpc/boot/dts/o3dnt.dts
++++ b/arch/powerpc/boot/dts/o3dnt.dts
+@@ -12,7 +12,7 @@
+ 	model = "ifm,o3dnt";
+ 	compatible = "ifm,o2d";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x04000000>;  // 64MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/pcm032.dts b/arch/powerpc/boot/dts/pcm032.dts
+index 780e13d99e7b8..1895bc95900cc 100644
+--- a/arch/powerpc/boot/dts/pcm032.dts
++++ b/arch/powerpc/boot/dts/pcm032.dts
+@@ -20,7 +20,7 @@
+ 	model = "phytec,pcm032";
+ 	compatible = "phytec,pcm032";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0x00000000 0x08000000>;	// 128MB
+ 	};
+ 
+diff --git a/arch/powerpc/boot/dts/tqm5200.dts b/arch/powerpc/boot/dts/tqm5200.dts
+index 9ed0bc78967e1..5bb25a9e40a01 100644
+--- a/arch/powerpc/boot/dts/tqm5200.dts
++++ b/arch/powerpc/boot/dts/tqm5200.dts
+@@ -32,7 +32,7 @@
+ 		};
+ 	};
+ 
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x04000000>;	// 64MB
+ 	};
 -- 
 2.33.0
 
