@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD75945BD9A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:36:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0298B45BC25
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245550AbhKXMjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:39:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35692 "EHLO mail.kernel.org"
+        id S244066AbhKXM0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:26:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245752AbhKXMhZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:37:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AF1560F90;
-        Wed, 24 Nov 2021 12:22:26 +0000 (UTC)
+        id S243627AbhKXMUy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:20:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E8FB61183;
+        Wed, 24 Nov 2021 12:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756547;
-        bh=sbsbhgyi8VXwf9KHei8AGigMxf/Pd8QAFK6+UQr0z/g=;
+        s=korg; t=1637755982;
+        bh=SEH46agP6ZMS85HjcoMU4AlhgQX8KdSJvWw7MBgZVyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t1Z0c9k8Ev3Kec6s8Y1uDp9CbIkmPLFUe5ahjFMAs6+fNno3o0UZg3R0XlVYPeY/z
-         D2wWSbr6aLe9xZ0b/rIQ8S/Iq30fufdybPVfMLO0Xzhn1Mm2IUml79TSCt7IcNGtJ7
-         tTGQicImw6hSSHqiIPL20z68wjikch/oIq9Ce79I=
+        b=nlLpJdwVquMYq80l44jCgSvUF1jgbjYeFnudr3my20W+wga62w7sVv53pZjZZ3NMI
+         Pgv2GOuboqwgp3QxIuG4hxMsF7rq1vtayJxh9eb19zqo6xqYT4tqeTli27Kw1x1gu2
+         UIq2zTSk6DsaZ5cTbpadrKMfcLfOdP7n8D3S5af0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 123/251] net: stream: dont purge sk_error_queue in sk_stream_kill_queues()
+Subject: [PATCH 4.9 094/207] crypto: qat - detect PFVF collision after ACK
 Date:   Wed, 24 Nov 2021 12:56:05 +0100
-Message-Id: <20211124115714.517767570@linuxfoundation.org>
+Message-Id: <20211124115707.119668808@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 24bcbe1cc69fa52dc4f7b5b2456678ed464724d8 ]
+[ Upstream commit 9b768e8a3909ac1ab39ed44a3933716da7761a6f ]
 
-sk_stream_kill_queues() can be called on close when there are
-still outstanding skbs to transmit. Those skbs may try to queue
-notifications to the error queue (e.g. timestamps).
-If sk_stream_kill_queues() purges the queue without taking
-its lock the queue may get corrupted, and skbs leaked.
+Detect a PFVF collision between the local and the remote function by
+checking if the message on the PFVF CSR has been overwritten.
+This is done after the remote function confirms that the message has
+been received, by clearing the interrupt bit, or the maximum number of
+attempts (ADF_IOV_MSG_ACK_MAX_RETRY) to check the CSR has been exceeded.
 
-This shows up as a warning about an rmem leak:
-
-WARNING: CPU: 24 PID: 0 at net/ipv4/af_inet.c:154 inet_sock_destruct+0x...
-
-The leak is always a multiple of 0x300 bytes (the value is in
-%rax on my builds, so RAX: 0000000000000300). 0x300 is truesize of
-an empty sk_buff. Indeed if we dump the socket state at the time
-of the warning the sk_error_queue is often (but not always)
-corrupted. The ->next pointer points back at the list head,
-but not the ->prev pointer. Indeed we can find the leaked skb
-by scanning the kernel memory for something that looks like
-an skb with ->sk = socket in question, and ->truesize = 0x300.
-The contents of ->cb[] of the skb confirms the suspicion that
-it is indeed a timestamp notification (as generated in
-__skb_complete_tx_timestamp()).
-
-Removing purging of sk_error_queue should be okay, since
-inet_sock_destruct() does it again once all socket refs
-are gone. Eric suggests this may cause sockets that go
-thru disconnect() to maintain notifications from the
-previous incarnations of the socket, but that should be
-okay since the race was there anyway, and disconnect()
-is not exactly dependable.
-
-Thanks to Jonathan Lemon and Omar Sandoval for help at various
-stages of tracing the issue.
-
-Fixes: cb9eff097831 ("net: new user space API for time stamping of incoming and outgoing packets")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Co-developed-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/stream.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/core/stream.c b/net/core/stream.c
-index 31839fb06d88c..cbe52b1690707 100644
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -195,9 +195,6 @@ void sk_stream_kill_queues(struct sock *sk)
- 	/* First the read buffer. */
- 	__skb_queue_purge(&sk->sk_receive_queue);
+diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+index c64481160b711..72fd2bbbe704e 100644
+--- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
++++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+@@ -195,6 +195,13 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
+ 		val = ADF_CSR_RD(pmisc_bar_addr, pf2vf_offset);
+ 	} while ((val & int_bit) && (count++ < ADF_IOV_MSG_ACK_MAX_RETRY));
  
--	/* Next, the error queue. */
--	__skb_queue_purge(&sk->sk_error_queue);
--
- 	/* Next, the write queue. */
- 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
- 
++	if (val != msg) {
++		dev_dbg(&GET_DEV(accel_dev),
++			"Collision - PFVF CSR overwritten by remote function\n");
++		ret = -EIO;
++		goto out;
++	}
++
+ 	if (val & int_bit) {
+ 		dev_dbg(&GET_DEV(accel_dev), "ACK not received from remote\n");
+ 		val &= ~int_bit;
 -- 
 2.33.0
 
