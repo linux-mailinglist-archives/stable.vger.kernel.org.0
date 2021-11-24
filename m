@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3085F45C085
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CC5245C086
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344302AbhKXNJb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:09:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47544 "EHLO mail.kernel.org"
+        id S1344330AbhKXNJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:09:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345681AbhKXNHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345640AbhKXNHb (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 08:07:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C599A61A35;
-        Wed, 24 Nov 2021 12:38:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE47C61A51;
+        Wed, 24 Nov 2021 12:38:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757523;
-        bh=QkQtZOfpZC+XSqFx76nj/wcWUm5b4Awzd0GIHVERIUc=;
+        s=korg; t=1637757526;
+        bh=RhUe3Z3K507WXCYyd0IF+vWIPOjBvl1LDXH9JIf+mHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E11UYh14Bdprei+z2TJUQfx+Enx2quMmm5H5DeIgXmuiM/0BdNOM7qbrg5xD0RNUp
-         S4W9A0oDAaKZNvpkMbGVm0FdFnQ0Xe4WgMfAuhIXD90m4jE0oBygXDUmwIPtNTW9FV
-         jSdxLE902DSZvuK9WTiumRbxmNQICdQgqWbozXkY=
+        b=py8fL1+9rbxTo/KtHuByB/zQb22T81SaI3c1VQ9hvSIlD6DhD4n0S+urrMor1srfu
+         xGQ044jK9MZbbJSqKInsWrDVxqUXUwO9JPoqXvSreH35cw6lucak8yVClMcx3pPtiO
+         eKEWKVdEJtoipvV/QekOQyIv3hboRXwT6dcefkjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anssi Hannula <anssi.hannula@bitwise.fi>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 197/323] serial: xilinx_uartps: Fix race condition causing stuck TX
-Date:   Wed, 24 Nov 2021 12:56:27 +0100
-Message-Id: <20211124115725.587668281@linuxfoundation.org>
+Subject: [PATCH 4.19 198/323] mips: cm: Convert to bitfield API to fix out-of-bounds access
+Date:   Wed, 24 Nov 2021 12:56:28 +0100
+Message-Id: <20211124115725.624324826@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
@@ -39,67 +42,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 88b20f84f0fe47409342669caf3e58a3fc64c316 ]
+[ Upstream commit 18b8f5b6fc53d097cadb94a93d8d6566ba88e389 ]
 
-xilinx_uartps .start_tx() clears TXEMPTY when enabling TXEMPTY to avoid
-any previous TXEVENT event asserting the UART interrupt. This clear
-operation is done immediately after filling the TX FIFO.
+mips_cm_error_report() extracts the cause and other cause from the error
+register using shifts.  This works fine for the former, as it is stored
+in the top bits, and the shift will thus remove all non-related bits.
+However, the latter is stored in the bottom bits, hence thus needs masking
+to get rid of non-related bits.  Without such masking, using it as an
+index into the cm2_causes[] array will lead to an out-of-bounds access,
+probably causing a crash.
 
-However, if the bytes inserted by cdns_uart_handle_tx() are consumed by
-the UART before the TXEMPTY is cleared, the clear operation eats the new
-TXEMPTY event as well, causing cdns_uart_isr() to never receive the
-TXEMPTY event. If there are bytes still queued in circbuf, TX will get
-stuck as they will never get transferred to FIFO (unless new bytes are
-queued to circbuf in which case .start_tx() is called again).
+Fix this by using FIELD_GET() instead.  Bite the bullet and convert all
+MIPS CM handling to the bitfield API, to improve readability and safety.
 
-While the racy missed TXEMPTY occurs fairly often with short data
-sequences (e.g. write 1 byte), in those cases circbuf is usually empty
-so no action on TXEMPTY would have been needed anyway. On the other
-hand, longer data sequences make the race much more unlikely as UART
-takes longer to consume the TX FIFO. Therefore it is rare for this race
-to cause visible issues in general.
-
-Fix the race by clearing the TXEMPTY bit in ISR *before* filling the
-FIFO.
-
-The TXEMPTY bit in ISR will only get asserted at the exact moment the
-TX FIFO *becomes* empty, so clearing the bit before filling FIFO does
-not cause an extra immediate assertion even if the FIFO is initially
-empty.
-
-This is hard to reproduce directly on a normal system, but inserting
-e.g. udelay(200) after cdns_uart_handle_tx(port), setting 4000000 baud,
-and then running "dd if=/dev/zero bs=128 of=/dev/ttyPS0 count=50"
-reliably reproduces the issue on my ZynqMP test system unless this fix
-is applied.
-
-Fixes: 85baf542d54e ("tty: xuartps: support 64 byte FIFO size")
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Link: https://lore.kernel.org/r/20211026102741.2910441-1-anssi.hannula@bitwise.fi
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3885c2b463f6a236 ("MIPS: CM: Add support for reporting CM cache errors")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/xilinx_uartps.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/mips/include/asm/mips-cm.h | 12 ++++++------
+ arch/mips/kernel/mips-cm.c      | 21 ++++++++++-----------
+ 2 files changed, 16 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
-index 23f9b0cdff086..c22bd40fc6f0b 100644
---- a/drivers/tty/serial/xilinx_uartps.c
-+++ b/drivers/tty/serial/xilinx_uartps.c
-@@ -591,9 +591,10 @@ static void cdns_uart_start_tx(struct uart_port *port)
- 	if (uart_circ_empty(&port->state->xmit))
+diff --git a/arch/mips/include/asm/mips-cm.h b/arch/mips/include/asm/mips-cm.h
+index 8bc5df49b0e1d..890e51b159e06 100644
+--- a/arch/mips/include/asm/mips-cm.h
++++ b/arch/mips/include/asm/mips-cm.h
+@@ -15,6 +15,7 @@
+ #ifndef __MIPS_ASM_MIPS_CM_H__
+ #define __MIPS_ASM_MIPS_CM_H__
+ 
++#include <linux/bitfield.h>
+ #include <linux/bitops.h>
+ #include <linux/errno.h>
+ 
+@@ -157,8 +158,8 @@ GCR_ACCESSOR_RO(32, 0x030, rev)
+ #define CM_GCR_REV_MINOR			GENMASK(7, 0)
+ 
+ #define CM_ENCODE_REV(major, minor) \
+-		(((major) << __ffs(CM_GCR_REV_MAJOR)) | \
+-		 ((minor) << __ffs(CM_GCR_REV_MINOR)))
++		(FIELD_PREP(CM_GCR_REV_MAJOR, major) | \
++		 FIELD_PREP(CM_GCR_REV_MINOR, minor))
+ 
+ #define CM_REV_CM2				CM_ENCODE_REV(6, 0)
+ #define CM_REV_CM2_5				CM_ENCODE_REV(7, 0)
+@@ -366,10 +367,10 @@ static inline int mips_cm_revision(void)
+ static inline unsigned int mips_cm_max_vp_width(void)
+ {
+ 	extern int smp_num_siblings;
+-	uint32_t cfg;
+ 
+ 	if (mips_cm_revision() >= CM_REV_CM3)
+-		return read_gcr_sys_config2() & CM_GCR_SYS_CONFIG2_MAXVPW;
++		return FIELD_GET(CM_GCR_SYS_CONFIG2_MAXVPW,
++				 read_gcr_sys_config2());
+ 
+ 	if (mips_cm_present()) {
+ 		/*
+@@ -377,8 +378,7 @@ static inline unsigned int mips_cm_max_vp_width(void)
+ 		 * number of VP(E)s, and if that ever changes then this will
+ 		 * need revisiting.
+ 		 */
+-		cfg = read_gcr_cl_config() & CM_GCR_Cx_CONFIG_PVPE;
+-		return (cfg >> __ffs(CM_GCR_Cx_CONFIG_PVPE)) + 1;
++		return FIELD_GET(CM_GCR_Cx_CONFIG_PVPE, read_gcr_cl_config()) + 1;
+ 	}
+ 
+ 	if (IS_ENABLED(CONFIG_SMP))
+diff --git a/arch/mips/kernel/mips-cm.c b/arch/mips/kernel/mips-cm.c
+index 50d3d74001cbe..51cfcb44e6703 100644
+--- a/arch/mips/kernel/mips-cm.c
++++ b/arch/mips/kernel/mips-cm.c
+@@ -183,8 +183,7 @@ static void mips_cm_probe_l2sync(void)
+ 	phys_addr_t addr;
+ 
+ 	/* L2-only sync was introduced with CM major revision 6 */
+-	major_rev = (read_gcr_rev() & CM_GCR_REV_MAJOR) >>
+-		__ffs(CM_GCR_REV_MAJOR);
++	major_rev = FIELD_GET(CM_GCR_REV_MAJOR, read_gcr_rev());
+ 	if (major_rev < 6)
  		return;
  
-+	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_ISR);
-+
- 	cdns_uart_handle_tx(port);
+@@ -267,13 +266,13 @@ void mips_cm_lock_other(unsigned int cluster, unsigned int core,
+ 	preempt_disable();
  
--	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_ISR);
- 	/* Enable the TX Empty interrupt */
- 	writel(CDNS_UART_IXR_TXEMPTY, port->membase + CDNS_UART_IER);
- }
+ 	if (cm_rev >= CM_REV_CM3) {
+-		val = core << __ffs(CM3_GCR_Cx_OTHER_CORE);
+-		val |= vp << __ffs(CM3_GCR_Cx_OTHER_VP);
++		val = FIELD_PREP(CM3_GCR_Cx_OTHER_CORE, core) |
++		      FIELD_PREP(CM3_GCR_Cx_OTHER_VP, vp);
+ 
+ 		if (cm_rev >= CM_REV_CM3_5) {
+ 			val |= CM_GCR_Cx_OTHER_CLUSTER_EN;
+-			val |= cluster << __ffs(CM_GCR_Cx_OTHER_CLUSTER);
+-			val |= block << __ffs(CM_GCR_Cx_OTHER_BLOCK);
++			val |= FIELD_PREP(CM_GCR_Cx_OTHER_CLUSTER, cluster);
++			val |= FIELD_PREP(CM_GCR_Cx_OTHER_BLOCK, block);
+ 		} else {
+ 			WARN_ON(cluster != 0);
+ 			WARN_ON(block != CM_GCR_Cx_OTHER_BLOCK_LOCAL);
+@@ -303,7 +302,7 @@ void mips_cm_lock_other(unsigned int cluster, unsigned int core,
+ 		spin_lock_irqsave(&per_cpu(cm_core_lock, curr_core),
+ 				  per_cpu(cm_core_lock_flags, curr_core));
+ 
+-		val = core << __ffs(CM_GCR_Cx_OTHER_CORENUM);
++		val = FIELD_PREP(CM_GCR_Cx_OTHER_CORENUM, core);
+ 	}
+ 
+ 	write_gcr_cl_other(val);
+@@ -347,8 +346,8 @@ void mips_cm_error_report(void)
+ 	cm_other = read_gcr_error_mult();
+ 
+ 	if (revision < CM_REV_CM3) { /* CM2 */
+-		cause = cm_error >> __ffs(CM_GCR_ERROR_CAUSE_ERRTYPE);
+-		ocause = cm_other >> __ffs(CM_GCR_ERROR_MULT_ERR2ND);
++		cause = FIELD_GET(CM_GCR_ERROR_CAUSE_ERRTYPE, cm_error);
++		ocause = FIELD_GET(CM_GCR_ERROR_MULT_ERR2ND, cm_other);
+ 
+ 		if (!cause)
+ 			return;
+@@ -390,8 +389,8 @@ void mips_cm_error_report(void)
+ 		ulong core_id_bits, vp_id_bits, cmd_bits, cmd_group_bits;
+ 		ulong cm3_cca_bits, mcp_bits, cm3_tr_bits, sched_bit;
+ 
+-		cause = cm_error >> __ffs64(CM3_GCR_ERROR_CAUSE_ERRTYPE);
+-		ocause = cm_other >> __ffs(CM_GCR_ERROR_MULT_ERR2ND);
++		cause = FIELD_GET(CM3_GCR_ERROR_CAUSE_ERRTYPE, cm_error);
++		ocause = FIELD_GET(CM_GCR_ERROR_MULT_ERR2ND, cm_other);
+ 
+ 		if (!cause)
+ 			return;
 -- 
 2.33.0
 
