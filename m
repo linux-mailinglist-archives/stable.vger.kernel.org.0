@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08B3C45C188
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7F4945C3AF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345931AbhKXNTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:19:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39546 "EHLO mail.kernel.org"
+        id S1349227AbhKXNlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:41:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344738AbhKXNRZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:17:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2866061130;
-        Wed, 24 Nov 2021 12:45:02 +0000 (UTC)
+        id S1350259AbhKXNji (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:39:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19FCF63235;
+        Wed, 24 Nov 2021 12:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757902;
-        bh=t7XKjPp64vQnyrM6nXwlFUPHHiKfhT6qKQqNC9lu44I=;
+        s=korg; t=1637758608;
+        bh=Yvl5GFFadhemRkaDtNao3krpIz35fleTxKCKG39Z1vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0PswYwMPpKgWasSbxuos5OUjtYPwqmDkVgp32bsvfRshmLb31x8TUXAuRxJ/ZxYdV
-         lbo8Jq+qq959ezDjichl8PNtfoGuns8yENLIISa+eI1KoqODYu/4VutbjnfHZz9FQY
-         U+ZTEt9Aa8+OaL/c6KwItlMPpcVTDkCot0yw9tIk=
+        b=HRflh/NTFC+JEx6acmq7gnazNrICHCINS4apgfe0AjG0f4/LajAb6cmplBSPP7zSS
+         WC1NkQJHjPfDrbRKi9N9BkfJFmR2ajaIKBgDakTlaMaKshMf9oRK0L4xJK23K6zgx3
+         3+eQh0ORPMXaSzaxNUcLPxWH4Qk56oM5V3FUCXvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, hongao <hongao@uniontech.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.19 314/323] drm/amdgpu: fix set scaling mode Full/Full aspect/Center not works on vga and dvi connectors
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 108/154] NFC: reorder the logic in nfc_{un,}register_device
 Date:   Wed, 24 Nov 2021 12:58:24 +0100
-Message-Id: <20211124115729.526546528@linuxfoundation.org>
+Message-Id: <20211124115705.780732462@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +41,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hongao <hongao@uniontech.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit bf552083916a7f8800477b5986940d1c9a31b953 upstream.
+[ Upstream commit 3e3b5dfcd16a3e254aab61bd1e8c417dd4503102 ]
 
-amdgpu_connector_vga_get_modes missed function amdgpu_get_native_mode
-which assign amdgpu_encoder->native_mode with *preferred_mode result in
-amdgpu_encoder->native_mode.clock always be 0. That will cause
-amdgpu_connector_set_property returned early on:
-if ((rmx_type != DRM_MODE_SCALE_NONE) &&
-	(amdgpu_encoder->native_mode.clock == 0))
-when we try to set scaling mode Full/Full aspect/Center.
-Add the missing function to amdgpu_connector_vga_get_mode can fix this.
-It also works on dvi connectors because
-amdgpu_connector_dvi_helper_funcs.get_mode use the same method.
+There is a potential UAF between the unregistration routine and the NFC
+netlink operations.
 
-Signed-off-by: hongao <hongao@uniontech.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The race that cause that UAF can be shown as below:
+
+ (FREE)                      |  (USE)
+nfcmrvl_nci_unregister_dev   |  nfc_genl_dev_up
+  nci_close_device           |
+  nci_unregister_device      |    nfc_get_device
+    nfc_unregister_device    |    nfc_dev_up
+      rfkill_destory         |
+      device_del             |      rfkill_blocked
+  ...                        |    ...
+
+The root cause for this race is concluded below:
+1. The rfkill_blocked (USE) in nfc_dev_up is supposed to be placed after
+the device_is_registered check.
+2. Since the netlink operations are possible just after the device_add
+in nfc_register_device, the nfc_dev_up() can happen anywhere during the
+rfkill creation process, which leads to data race.
+
+This patch reorder these actions to permit
+1. Once device_del is finished, the nfc_dev_up cannot dereference the
+rfkill object.
+2. The rfkill_register need to be placed after the device_add of nfc_dev
+because the parent device need to be created first. So this patch keeps
+the order but inject device_lock to prevent the data race.
+
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Fixes: be055b2f89b5 ("NFC: RFKILL support")
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211116152652.19217-1-linma@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/nfc/core.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-@@ -828,6 +828,7 @@ static int amdgpu_connector_vga_get_mode
+diff --git a/net/nfc/core.c b/net/nfc/core.c
+index eb377f87bcae8..6800470dd6df7 100644
+--- a/net/nfc/core.c
++++ b/net/nfc/core.c
+@@ -94,13 +94,13 @@ int nfc_dev_up(struct nfc_dev *dev)
  
- 	amdgpu_connector_get_edid(connector);
- 	ret = amdgpu_connector_ddc_get_modes(connector);
-+	amdgpu_get_native_mode(connector);
+ 	device_lock(&dev->dev);
  
- 	return ret;
+-	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
+-		rc = -ERFKILL;
++	if (!device_is_registered(&dev->dev)) {
++		rc = -ENODEV;
+ 		goto error;
+ 	}
+ 
+-	if (!device_is_registered(&dev->dev)) {
+-		rc = -ENODEV;
++	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
++		rc = -ERFKILL;
+ 		goto error;
+ 	}
+ 
+@@ -1117,11 +1117,7 @@ int nfc_register_device(struct nfc_dev *dev)
+ 	if (rc)
+ 		pr_err("Could not register llcp device\n");
+ 
+-	rc = nfc_genl_device_added(dev);
+-	if (rc)
+-		pr_debug("The userspace won't be notified that the device %s was added\n",
+-			 dev_name(&dev->dev));
+-
++	device_lock(&dev->dev);
+ 	dev->rfkill = rfkill_alloc(dev_name(&dev->dev), &dev->dev,
+ 				   RFKILL_TYPE_NFC, &nfc_rfkill_ops, dev);
+ 	if (dev->rfkill) {
+@@ -1130,6 +1126,12 @@ int nfc_register_device(struct nfc_dev *dev)
+ 			dev->rfkill = NULL;
+ 		}
+ 	}
++	device_unlock(&dev->dev);
++
++	rc = nfc_genl_device_added(dev);
++	if (rc)
++		pr_debug("The userspace won't be notified that the device %s was added\n",
++			 dev_name(&dev->dev));
+ 
+ 	return 0;
  }
+@@ -1146,10 +1148,17 @@ void nfc_unregister_device(struct nfc_dev *dev)
+ 
+ 	pr_debug("dev_name=%s\n", dev_name(&dev->dev));
+ 
++	rc = nfc_genl_device_removed(dev);
++	if (rc)
++		pr_debug("The userspace won't be notified that the device %s "
++			 "was removed\n", dev_name(&dev->dev));
++
++	device_lock(&dev->dev);
+ 	if (dev->rfkill) {
+ 		rfkill_unregister(dev->rfkill);
+ 		rfkill_destroy(dev->rfkill);
+ 	}
++	device_unlock(&dev->dev);
+ 
+ 	if (dev->ops->check_presence) {
+ 		device_lock(&dev->dev);
+@@ -1159,11 +1168,6 @@ void nfc_unregister_device(struct nfc_dev *dev)
+ 		cancel_work_sync(&dev->check_pres_work);
+ 	}
+ 
+-	rc = nfc_genl_device_removed(dev);
+-	if (rc)
+-		pr_debug("The userspace won't be notified that the device %s "
+-			 "was removed\n", dev_name(&dev->dev));
+-
+ 	nfc_llcp_unregister_device(dev);
+ 
+ 	mutex_lock(&nfc_devlist_mutex);
+-- 
+2.33.0
+
 
 
