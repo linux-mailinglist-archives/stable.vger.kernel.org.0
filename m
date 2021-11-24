@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CECF645BC3D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79BE145BED2
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:49:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244757AbhKXM1C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:27:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42284 "EHLO mail.kernel.org"
+        id S1346402AbhKXMvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:51:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244067AbhKXMZB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:25:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0F79611F0;
-        Wed, 24 Nov 2021 12:15:34 +0000 (UTC)
+        id S1346039AbhKXMsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:48:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26C456127C;
+        Wed, 24 Nov 2021 12:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756135;
-        bh=GJCVmO7Cr85FwfOEsCcwPxcnw2FZB4jidiV+M9gFrIM=;
+        s=korg; t=1637756904;
+        bh=0IqvRS0IJRKnNqDAY5t3blXGq9LRZKZOmBpJ5DNEVc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTkMpimDBbu5QaYjvoR/VHun+9Xu53peSOXD3T5/GhDqJWM7WuK/j3MD+aUIQiaNN
-         PkFUOgggoR2Ztu42Vc/Agh7arJt8CY4k/Jk7zTsHRm2+cOz7tAr5Zr8A8H6hkenCK7
-         6ZInfiId3m1/dh/sQ0N6Y9LtfqO7vVjSV2hSlc5E=
+        b=LGl5VxShc4dUEwtlXoHlyM/NaDm6hQJeRZrALh4WUzBuJnyG6If/okobRopVIpH0n
+         t+OzaRq2FO0ZePqasSEZHZhnQfo4/wk8tVBd0pQ+jFK0vgF3iQ6Xvl5tP9I86mh/Yg
+         xaoiGcKXYQcR7r4JRRLh70LFKu1ueWCvFdyBjm8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 184/207] platform/x86: hp_accel: Fix an error handling path in lis3lv02d_probe()
-Date:   Wed, 24 Nov 2021 12:57:35 +0100
-Message-Id: <20211124115709.928022163@linuxfoundation.org>
+Subject: [PATCH 4.14 214/251] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
+Date:   Wed, 24 Nov 2021 12:57:36 +0100
+Message-Id: <20211124115717.700544196@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit c961a7d2aa23ae19e0099fbcdf1040fb760eea83 ]
+[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
 
-If 'led_classdev_register()' fails, some additional resources should be
-released.
+In dcr-low.S we use cmpli with three arguments, instead of four
+arguments as defined in the ISA:
 
-Add the missing 'i8042_remove_filter()' and 'lis3lv02d_remove_fs()' calls
-that are already in the remove function but are missing here.
+	cmpli	cr0,r3,1024
 
-Fixes: a4c724d0723b ("platform: hp_accel: add a i8042 filter to remove HPQ6000 data from kb bus stream")
-Fixes: 9e0c79782143 ("lis3lv02d: merge with leds hp disk")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/5a4f218f8f16d2e3a7906b7ca3654ffa946895f8.1636314074.git.christophe.jaillet@wanadoo.fr
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
+User’s Manual" it shows cmpli having no L field, but implied to be 0 due
+to the core being 32-bit. It mentions that the ISA defines four
+arguments and recommends using cmplwi.
+
+It also corresponds to the old POWER instruction set, which had no L
+field there, a reserved bit instead.
+
+dcr-low.S is only built 32-bit, because it is only built when
+DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
+generated code (with gcc/gas) we see cmplwi as expected.
+
+Although gas is happy with the 3-argument version when building for
+32-bit, the LLVM assembler is not and errors out with:
+
+  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
+   cmpli 0,%r3,1024; ...
+           ^
+
+Switch to the cmplwi extended opcode, which avoids any confusion when
+reading the ISA, fixes the issue with the LLVM assembler, and also means
+the code could be built 64-bit in future (though that's very unlikely).
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
+Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/hp_accel.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/sysdev/dcr-low.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/hp_accel.c b/drivers/platform/x86/hp_accel.c
-index 403d966223ee9..76cb361b623cb 100644
---- a/drivers/platform/x86/hp_accel.c
-+++ b/drivers/platform/x86/hp_accel.c
-@@ -382,9 +382,11 @@ static int lis3lv02d_add(struct acpi_device *device)
- 	INIT_WORK(&hpled_led.work, delayed_set_status_worker);
- 	ret = led_classdev_register(NULL, &hpled_led.led_classdev);
- 	if (ret) {
-+		i8042_remove_filter(hp_accel_i8042_filter);
- 		lis3lv02d_joystick_disable(&lis3_dev);
- 		lis3lv02d_poweroff(&lis3_dev);
- 		flush_work(&hpled_led.work);
-+		lis3lv02d_remove_fs(&lis3_dev);
- 		return ret;
- 	}
+diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
+index e687bb2003ff0..5589fbe48bbdc 100644
+--- a/arch/powerpc/sysdev/dcr-low.S
++++ b/arch/powerpc/sysdev/dcr-low.S
+@@ -15,7 +15,7 @@
+ #include <asm/export.h>
  
+ #define DCR_ACCESS_PROLOG(table) \
+-	cmpli	cr0,r3,1024;	 \
++	cmplwi	cr0,r3,1024;	 \
+ 	rlwinm  r3,r3,4,18,27;   \
+ 	lis     r5,table@h;      \
+ 	ori     r5,r5,table@l;   \
 -- 
 2.33.0
 
