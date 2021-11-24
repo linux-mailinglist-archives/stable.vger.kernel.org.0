@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B21645B9E6
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:03:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6507845BCFF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:31:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229817AbhKXMGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:06:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60198 "EHLO mail.kernel.org"
+        id S1343734AbhKXMeo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:34:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242166AbhKXMF1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:05:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 672326101D;
-        Wed, 24 Nov 2021 12:02:17 +0000 (UTC)
+        id S245131AbhKXMcn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:32:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 442CA6135F;
+        Wed, 24 Nov 2021 12:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755338;
-        bh=O/9X8AXq6dYfPZyhzrphCNB0AqXBsPO37+i0IrdeJCQ=;
+        s=korg; t=1637756410;
+        bh=TnXwMQ/T/jEwFXNGHUxEOqGvj/xXrUg5Fc35nDDRcp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1PKZuzTJFQsWQ2vYKAXK69NjrS6VPltrlHbdsir54F9Uij9oHHaQ/eqtzLjJruMdO
-         UUfFDnunipzVqmOPi00k2x7JinV4Uh33N5oUljtoJU0/KiacXkND519Z29uwQ14mzf
-         RsOkp0etVBSj7JankK6YHrWX3fp+Vskrib6Ocizg=
+        b=ZCLotGe64ROQjVUXwTq3Jn5hisXrFl8gP6nGlZexUQSdKlUnb5AOsc09gOUt2vYRJ
+         MLodTUKE27cMeCHrvdCuK6Fy6JM4HQgQkcMCJE80/AI08j1YlMEhFXv/FxIXinSNBq
+         plL0bQKGKszLJQK6qjoXRhW9ls+iDtoGu137HzB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 016/162] ALSA: timer: Unconditionally unlink slave instances, too
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 077/251] mwifiex: Properly initialize private structure on interface type changes
 Date:   Wed, 24 Nov 2021 12:55:19 +0100
-Message-Id: <20211124115658.852148858@linuxfoundation.org>
+Message-Id: <20211124115712.934914035@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,55 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jonas Dreßler <verdre@v0yd.nl>
 
-commit ffdd98277f0a1d15a67a74ae09bee713df4c0dbc upstream.
+[ Upstream commit c606008b70627a2fc485732a53cc22f0f66d0981 ]
 
-Like the previous fix (commit c0317c0e8709 "ALSA: timer: Fix
-use-after-free problem"), we have to unlink slave timer instances
-immediately at snd_timer_stop(), too.  Otherwise it may leave a stale
-entry in the list if the slave instance is freed before actually
-running.
+When creating a new virtual interface in mwifiex_add_virtual_intf(), we
+update our internal driver states like bss_type, bss_priority, bss_role
+and bss_mode to reflect the mode the firmware will be set to.
 
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211105091517.21733-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When switching virtual interface mode using
+mwifiex_init_new_priv_params() though, we currently only update bss_mode
+and bss_role. In order for the interface mode switch to actually work,
+we also need to update bss_type to its proper value, so do that.
+
+This fixes a crash of the firmware (because the driver tries to execute
+commands that are invalid in AP mode) when switching from station mode
+to AP mode.
+
+Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210914195909.36035-9-verdre@v0yd.nl
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/timer.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/cfg80211.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/sound/core/timer.c
-+++ b/sound/core/timer.c
-@@ -566,23 +566,22 @@ static int snd_timer_stop1(struct snd_ti
- static int snd_timer_stop_slave(struct snd_timer_instance *timeri, bool stop)
- {
- 	unsigned long flags;
-+	bool running;
- 
- 	spin_lock_irqsave(&slave_active_lock, flags);
--	if (!(timeri->flags & SNDRV_TIMER_IFLG_RUNNING)) {
--		spin_unlock_irqrestore(&slave_active_lock, flags);
--		return -EBUSY;
--	}
-+	running = timeri->flags & SNDRV_TIMER_IFLG_RUNNING;
- 	timeri->flags &= ~SNDRV_TIMER_IFLG_RUNNING;
- 	if (timeri->timer) {
- 		spin_lock(&timeri->timer->lock);
- 		list_del_init(&timeri->ack_list);
- 		list_del_init(&timeri->active_list);
--		snd_timer_notify1(timeri, stop ? SNDRV_TIMER_EVENT_STOP :
--				  SNDRV_TIMER_EVENT_PAUSE);
-+		if (running)
-+			snd_timer_notify1(timeri, stop ? SNDRV_TIMER_EVENT_STOP :
-+					  SNDRV_TIMER_EVENT_PAUSE);
- 		spin_unlock(&timeri->timer->lock);
- 	}
- 	spin_unlock_irqrestore(&slave_active_lock, flags);
--	return 0;
-+	return running ? 0 : -EBUSY;
- }
- 
- /*
+diff --git a/drivers/net/wireless/marvell/mwifiex/cfg80211.c b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
+index 7bdcbe79d963d..a88bddc383894 100644
+--- a/drivers/net/wireless/marvell/mwifiex/cfg80211.c
++++ b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
+@@ -898,16 +898,20 @@ mwifiex_init_new_priv_params(struct mwifiex_private *priv,
+ 	switch (type) {
+ 	case NL80211_IFTYPE_STATION:
+ 	case NL80211_IFTYPE_ADHOC:
+-		priv->bss_role =  MWIFIEX_BSS_ROLE_STA;
++		priv->bss_role = MWIFIEX_BSS_ROLE_STA;
++		priv->bss_type = MWIFIEX_BSS_TYPE_STA;
+ 		break;
+ 	case NL80211_IFTYPE_P2P_CLIENT:
+-		priv->bss_role =  MWIFIEX_BSS_ROLE_STA;
++		priv->bss_role = MWIFIEX_BSS_ROLE_STA;
++		priv->bss_type = MWIFIEX_BSS_TYPE_P2P;
+ 		break;
+ 	case NL80211_IFTYPE_P2P_GO:
+-		priv->bss_role =  MWIFIEX_BSS_ROLE_UAP;
++		priv->bss_role = MWIFIEX_BSS_ROLE_UAP;
++		priv->bss_type = MWIFIEX_BSS_TYPE_P2P;
+ 		break;
+ 	case NL80211_IFTYPE_AP:
+ 		priv->bss_role = MWIFIEX_BSS_ROLE_UAP;
++		priv->bss_type = MWIFIEX_BSS_TYPE_UAP;
+ 		break;
+ 	default:
+ 		mwifiex_dbg(adapter, ERROR,
+-- 
+2.33.0
+
 
 
