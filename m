@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23E5E45C64C
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A860A45C418
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:43:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351688AbhKXOGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:06:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52680 "EHLO mail.kernel.org"
+        id S1346728AbhKXNp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:45:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356461AbhKXOEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:04:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E4A463326;
-        Wed, 24 Nov 2021 13:11:09 +0000 (UTC)
+        id S1353408AbhKXNmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:42:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EF2C632C6;
+        Wed, 24 Nov 2021 12:58:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759470;
-        bh=Vq5Am5qiF5RHogobmENh/hsKUiPBBXNNrWAEI+RKOOY=;
+        s=korg; t=1637758703;
+        bh=Yr6cHL9d+J0CyCW8VDXnUqj331sS8sCgqUJJS8uVf+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l84/swymp2LbB++xCwnorfCaaSLITxrTLaEZOiEyHxMzK37cWa7KwO0AahNpc6G7s
-         LdLwgi0WQ8mF93Vt0kuaho4shvToY0Mvq7DC+420j529HRRbAQmiBRD7302JHZOuDi
-         mDcC/0s0GjF6s+ruK2C4pNISDEmFe3jLRgo9fApo=
+        b=knVP14+y0swSIvwSmYOAOMRyVxnPpRpj0/vyZxvhTkolPmFiz9Rr0i9cI/5GlWddg
+         9FZ8NARh5iHdbznwp2KMPkRidhWoehytiIKOO1k3yRDSUzhMw3IYuE+PzKCpkSqNEp
+         Meo3UycXrEcsapr1XsmMDRYgdEOK+Egt3kiOZ2y8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.15 253/279] drm/i915: Fix type1 DVI DP dual mode adapter heuristic for modern platforms
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 144/154] scsi: ufs: core: Fix task management completion
 Date:   Wed, 24 Nov 2021 12:59:00 +0100
-Message-Id: <20211124115727.463612068@linuxfoundation.org>
+Message-Id: <20211124115707.147390215@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,152 +40,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 1977e8eb40ed53f0cac7db1a78295726f4ac0b24 upstream.
+commit f5ef336fd2e4c36dedae4e7ca66cf5349d6fda62 upstream.
 
-Looks like we never updated intel_bios_is_port_dp_dual_mode() when
-the VBT port mapping became erratic on modern platforms. This
-is causing us to look up the wrong child device and thus throwing
-the heuristic off (ie. we might end looking at a child device for
-a genuine DP++ port when we were supposed to look at one for a
-native HDMI port).
+The UFS driver uses blk_mq_tagset_busy_iter() when identifying task
+management requests to complete, however blk_mq_tagset_busy_iter() doesn't
+work.
 
-Fix it up by not using the outdated port_mapping[] in
-intel_bios_is_port_dp_dual_mode() and rely on
-intel_bios_encoder_data_lookup() instead.
+blk_mq_tagset_busy_iter() only iterates requests dispatched by the block
+layer. That appears as if it might have started since commit 37f4a24c2469
+("blk-mq: centralise related handling into blk_mq_get_driver_tag") which
+removed 'data->hctx->tags->rqs[rq->tag] = rq' from blk_mq_rq_ctx_init()
+which gets called:
 
+	blk_get_request
+		blk_mq_alloc_request
+			__blk_mq_alloc_request
+				blk_mq_rq_ctx_init
+
+Since UFS task management requests are not dispatched by the block layer,
+hctx->tags->rqs[rq->tag] remains NULL, and since blk_mq_tagset_busy_iter()
+relies on finding requests using hctx->tags->rqs[rq->tag], UFS task
+management requests are never found by blk_mq_tagset_busy_iter().
+
+By using blk_mq_tagset_busy_iter(), the UFS driver was relying on internal
+details of the block layer, which was fragile and subsequently got
+broken. Fix by removing the use of blk_mq_tagset_busy_iter() and having the
+driver keep track of task management requests.
+
+Link: https://lore.kernel.org/r/20210922091059.4040-1-adrian.hunter@intel.com
+Fixes: 1235fc569e0b ("scsi: ufs: core: Fix task management request completion timeout")
+Fixes: 69a6c269c097 ("scsi: ufs: Use blk_{get,put}_request() to allocate and free TMFs")
 Cc: stable@vger.kernel.org
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4138
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211025142147.23897-1-ville.syrjala@linux.intel.com
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit 32c2bc89c7420fad2959ee23ef5b6be8b05d2bde)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Tested-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[Adrian: Backport to v5.10]
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_bios.c |   85 ++++++++++++++++++++++--------
- 1 file changed, 63 insertions(+), 22 deletions(-)
+ drivers/scsi/ufs/ufshcd.c |   52 ++++++++++++++++++++--------------------------
+ drivers/scsi/ufs/ufshcd.h |    1 
+ 2 files changed, 24 insertions(+), 29 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_bios.c
-+++ b/drivers/gpu/drm/i915/display/intel_bios.c
-@@ -1692,6 +1692,39 @@ static u8 map_ddc_pin(struct drm_i915_pr
- 	return 0;
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -6099,27 +6099,6 @@ static irqreturn_t ufshcd_check_errors(s
+ 	return retval;
  }
  
-+static u8 dvo_port_type(u8 dvo_port)
-+{
-+	switch (dvo_port) {
-+	case DVO_PORT_HDMIA:
-+	case DVO_PORT_HDMIB:
-+	case DVO_PORT_HDMIC:
-+	case DVO_PORT_HDMID:
-+	case DVO_PORT_HDMIE:
-+	case DVO_PORT_HDMIF:
-+	case DVO_PORT_HDMIG:
-+	case DVO_PORT_HDMIH:
-+	case DVO_PORT_HDMII:
-+		return DVO_PORT_HDMIA;
-+	case DVO_PORT_DPA:
-+	case DVO_PORT_DPB:
-+	case DVO_PORT_DPC:
-+	case DVO_PORT_DPD:
-+	case DVO_PORT_DPE:
-+	case DVO_PORT_DPF:
-+	case DVO_PORT_DPG:
-+	case DVO_PORT_DPH:
-+	case DVO_PORT_DPI:
-+		return DVO_PORT_DPA;
-+	case DVO_PORT_MIPIA:
-+	case DVO_PORT_MIPIB:
-+	case DVO_PORT_MIPIC:
-+	case DVO_PORT_MIPID:
-+		return DVO_PORT_MIPIA;
-+	default:
-+		return dvo_port;
-+	}
-+}
-+
- static enum port __dvo_port_to_port(int n_ports, int n_dvo,
- 				    const int port_mapping[][3], u8 dvo_port)
+-struct ctm_info {
+-	struct ufs_hba	*hba;
+-	unsigned long	pending;
+-	unsigned int	ncpl;
+-};
+-
+-static bool ufshcd_compl_tm(struct request *req, void *priv, bool reserved)
+-{
+-	struct ctm_info *const ci = priv;
+-	struct completion *c;
+-
+-	WARN_ON_ONCE(reserved);
+-	if (test_bit(req->tag, &ci->pending))
+-		return true;
+-	ci->ncpl++;
+-	c = req->end_io_data;
+-	if (c)
+-		complete(c);
+-	return true;
+-}
+-
+ /**
+  * ufshcd_tmc_handler - handle task management function completion
+  * @hba: per adapter instance
+@@ -6130,14 +6109,22 @@ static bool ufshcd_compl_tm(struct reque
+  */
+ static irqreturn_t ufshcd_tmc_handler(struct ufs_hba *hba)
  {
-@@ -2622,35 +2655,17 @@ bool intel_bios_is_port_edp(struct drm_i
- 	return false;
- }
- 
--static bool child_dev_is_dp_dual_mode(const struct child_device_config *child,
--				      enum port port)
-+static bool child_dev_is_dp_dual_mode(const struct child_device_config *child)
- {
--	static const struct {
--		u16 dp, hdmi;
--	} port_mapping[] = {
--		/*
--		 * Buggy VBTs may declare DP ports as having
--		 * HDMI type dvo_port :( So let's check both.
--		 */
--		[PORT_B] = { DVO_PORT_DPB, DVO_PORT_HDMIB, },
--		[PORT_C] = { DVO_PORT_DPC, DVO_PORT_HDMIC, },
--		[PORT_D] = { DVO_PORT_DPD, DVO_PORT_HDMID, },
--		[PORT_E] = { DVO_PORT_DPE, DVO_PORT_HDMIE, },
--		[PORT_F] = { DVO_PORT_DPF, DVO_PORT_HDMIF, },
+-	struct request_queue *q = hba->tmf_queue;
+-	struct ctm_info ci = {
+-		.hba	 = hba,
+-		.pending = ufshcd_readl(hba, REG_UTP_TASK_REQ_DOOR_BELL),
 -	};
--
--	if (port == PORT_A || port >= ARRAY_SIZE(port_mapping))
--		return false;
--
- 	if ((child->device_type & DEVICE_TYPE_DP_DUAL_MODE_BITS) !=
- 	    (DEVICE_TYPE_DP_DUAL_MODE & DEVICE_TYPE_DP_DUAL_MODE_BITS))
- 		return false;
- 
--	if (child->dvo_port == port_mapping[port].dp)
-+	if (dvo_port_type(child->dvo_port) == DVO_PORT_DPA)
- 		return true;
- 
- 	/* Only accept a HDMI dvo_port as DP++ if it has an AUX channel */
--	if (child->dvo_port == port_mapping[port].hdmi &&
-+	if (dvo_port_type(child->dvo_port) == DVO_PORT_HDMIA &&
- 	    child->aux_channel != 0)
- 		return true;
- 
-@@ -2660,10 +2675,36 @@ static bool child_dev_is_dp_dual_mode(co
- bool intel_bios_is_port_dp_dual_mode(struct drm_i915_private *i915,
- 				     enum port port)
- {
-+	static const struct {
-+		u16 dp, hdmi;
-+	} port_mapping[] = {
-+		/*
-+		 * Buggy VBTs may declare DP ports as having
-+		 * HDMI type dvo_port :( So let's check both.
-+		 */
-+		[PORT_B] = { DVO_PORT_DPB, DVO_PORT_HDMIB, },
-+		[PORT_C] = { DVO_PORT_DPC, DVO_PORT_HDMIC, },
-+		[PORT_D] = { DVO_PORT_DPD, DVO_PORT_HDMID, },
-+		[PORT_E] = { DVO_PORT_DPE, DVO_PORT_HDMIE, },
-+		[PORT_F] = { DVO_PORT_DPF, DVO_PORT_HDMIF, },
-+	};
- 	const struct intel_bios_encoder_data *devdata;
- 
-+	if (HAS_DDI(i915)) {
-+		const struct intel_bios_encoder_data *devdata;
++	unsigned long pending, issued;
++	irqreturn_t ret = IRQ_NONE;
++	int tag;
 +
-+		devdata = intel_bios_encoder_data_lookup(i915, port);
++	pending = ufshcd_readl(hba, REG_UTP_TASK_REQ_DOOR_BELL);
 +
-+		return devdata && child_dev_is_dp_dual_mode(&devdata->child);
++	issued = hba->outstanding_tasks & ~pending;
++	for_each_set_bit(tag, &issued, hba->nutmrs) {
++		struct request *req = hba->tmf_rqs[tag];
++		struct completion *c = req->end_io_data;
+ 
+-	blk_mq_tagset_busy_iter(q->tag_set, ufshcd_compl_tm, &ci);
+-	return ci.ncpl ? IRQ_HANDLED : IRQ_NONE;
++		complete(c);
++		ret = IRQ_HANDLED;
 +	}
 +
-+	if (port == PORT_A || port >= ARRAY_SIZE(port_mapping))
-+		return false;
-+
- 	list_for_each_entry(devdata, &i915->vbt.display_devices, node) {
--		if (child_dev_is_dp_dual_mode(&devdata->child, port))
-+		if ((devdata->child.dvo_port == port_mapping[port].dp ||
-+		     devdata->child.dvo_port == port_mapping[port].hdmi) &&
-+		    child_dev_is_dp_dual_mode(&devdata->child))
- 			return true;
++	return ret;
+ }
+ 
+ /**
+@@ -6267,9 +6254,9 @@ static int __ufshcd_issue_tm_cmd(struct
+ 	ufshcd_hold(hba, false);
+ 
+ 	spin_lock_irqsave(host->host_lock, flags);
+-	blk_mq_start_request(req);
+ 
+ 	task_tag = req->tag;
++	hba->tmf_rqs[req->tag] = req;
+ 	treq->req_header.dword_0 |= cpu_to_be32(task_tag);
+ 
+ 	memcpy(hba->utmrdl_base_addr + task_tag, treq, sizeof(*treq));
+@@ -6313,6 +6300,7 @@ static int __ufshcd_issue_tm_cmd(struct
  	}
  
+ 	spin_lock_irqsave(hba->host->host_lock, flags);
++	hba->tmf_rqs[req->tag] = NULL;
+ 	__clear_bit(task_tag, &hba->outstanding_tasks);
+ 	spin_unlock_irqrestore(hba->host->host_lock, flags);
+ 
+@@ -9235,6 +9223,12 @@ int ufshcd_init(struct ufs_hba *hba, voi
+ 		err = PTR_ERR(hba->tmf_queue);
+ 		goto free_tmf_tag_set;
+ 	}
++	hba->tmf_rqs = devm_kcalloc(hba->dev, hba->nutmrs,
++				    sizeof(*hba->tmf_rqs), GFP_KERNEL);
++	if (!hba->tmf_rqs) {
++		err = -ENOMEM;
++		goto free_tmf_queue;
++	}
+ 
+ 	/* Reset the attached device */
+ 	ufshcd_vops_device_reset(hba);
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -734,6 +734,7 @@ struct ufs_hba {
+ 
+ 	struct blk_mq_tag_set tmf_tag_set;
+ 	struct request_queue *tmf_queue;
++	struct request **tmf_rqs;
+ 
+ 	struct uic_command *active_uic_cmd;
+ 	struct mutex uic_cmd_mutex;
 
 
