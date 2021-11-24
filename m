@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D6B845C3A6
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB39245C252
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:24:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350663AbhKXNlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:41:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34330 "EHLO mail.kernel.org"
+        id S245469AbhKXN1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:27:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349722AbhKXNji (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:39:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 512DF6322C;
-        Wed, 24 Nov 2021 12:56:37 +0000 (UTC)
+        id S1350261AbhKXNZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:25:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA2F8610A7;
+        Wed, 24 Nov 2021 12:49:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758597;
-        bh=ugWqr8UcQFycdxLEgR2jOF0/IWWvJRmU6HdmzdRh9ok=;
+        s=korg; t=1637758169;
+        bh=/shuj1JJUYEOLCvHE5CF2Jks4GmenQynGZ8qEF6Oxjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lgEgDXzfsY4gUvIJceVaniwsi5Frnl1iXzNrLyQ+j5fRnLIqrTaxsKvqLfi7raOza
-         WizLmFn2KmlU1SnUAyRN4miJaCs4XoyXMLcezHZPQOjdanqS11Xj/SvnKsKgCx+q2J
-         5AtQG/+qWrRPKjlbwGJPT8ZCf9DRjbHOSVpkgafM=
+        b=JOxNRl4uK8Q3ARc5mKuTvgsjwA1x4lTdP96od/oOuMW0ZKJUXu8/WjsZ7W4eFzVrU
+         8uMOe3SpT6IRbkZ6t3O33znidX8DQcR115vyurI71W3AW1HCIP/jY3Kmes/TOnaxt3
+         KTiQ1IopMw/o2If9LqrbrUwxZ6FwVtf+98awdnig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Brian Cain <bcain@codeaurora.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 122/154] hexagon: clean up timer-regs.h
+        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+        Philipp Rudo <prudo@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.4 082/100] s390/kexec: fix memory leak of ipl report buffer
 Date:   Wed, 24 Nov 2021 12:58:38 +0100
-Message-Id: <20211124115706.235276418@linuxfoundation.org>
+Message-Id: <20211124115657.508530353@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,132 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Baoquan He <bhe@redhat.com>
 
-commit 51f2ec593441d3d1ebc0d478fac3ea329c7c93ac upstream.
+commit 4aa9340584e37debef06fa99b56d064beb723891 upstream.
 
-When building allmodconfig, there is a warning about TIMER_ENABLE being
-redefined:
+unreferenced object 0x38000195000 (size 4096):
+  comm "kexec", pid 8548, jiffies 4294953647 (age 32443.270s)
+  hex dump (first 32 bytes):
+    00 00 00 c8 20 00 00 00 00 00 00 c0 02 80 00 00  .... ...........
+    40 40 40 40 40 40 40 40 00 00 00 00 00 00 00 00  @@@@@@@@........
+  backtrace:
+    [<0000000011a2f199>] __vmalloc_node_range+0xc0/0x140
+    [<0000000081fa2752>] vzalloc+0x5a/0x70
+    [<0000000063a4c92d>] ipl_report_finish+0x2c/0x180
+    [<00000000553304da>] kexec_file_add_ipl_report+0xf4/0x150
+    [<00000000862d033f>] kexec_file_add_components+0x124/0x160
+    [<000000000d2717bb>] arch_kexec_kernel_image_load+0x62/0x90
+    [<000000002e0373b6>] kimage_file_alloc_init+0x1aa/0x2e0
+    [<0000000060f2d14f>] __do_sys_kexec_file_load+0x17c/0x2c0
+    [<000000008c86fe5a>] __s390x_sys_kexec_file_load+0x40/0x50
+    [<000000001fdb9dac>] __do_syscall+0x1bc/0x1f0
+    [<000000003ee4258d>] system_call+0x78/0xa0
 
-  drivers/clocksource/timer-oxnas-rps.c:39:9: error: 'TIMER_ENABLE' macro redefined [-Werror,-Wmacro-redefined]
-  #define TIMER_ENABLE            BIT(7)
-          ^
-  arch/hexagon/include/asm/timer-regs.h:13:9: note: previous definition is here
-  #define TIMER_ENABLE            0
-           ^
-  1 error generated.
-
-The values in this header are only used in one file each, if they are
-used at all.  Remove the header and sink all of the constants into their
-respective files.
-
-TCX0_CLK_RATE is only used in arch/hexagon/include/asm/timex.h
-
-TIMER_ENABLE, RTOS_TIMER_INT, RTOS_TIMER_REGS_ADDR are only used in
-arch/hexagon/kernel/time.c.
-
-SLEEP_CLK_RATE and TIMER_CLR_ON_MATCH have both been unused since the
-file's introduction in commit 71e4a47f32f4 ("Hexagon: Add time and timer
-functions").
-
-TIMER_ENABLE is redefined as BIT(0) so the shift is moved into the
-definition, rather than its use.
-
-Link: https://lkml.kernel.org/r/20211115174250.1994179-3-nathan@kernel.org
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Acked-by: Brian Cain <bcain@codeaurora.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Reviewed-by: Philipp Rudo <prudo@redhat.com>
+Fixes: 99feaa717e55 ("s390/kexec_file: Create ipl report and pass to next kernel")
+Cc: <stable@vger.kernel.org> # v5.2: 20c76e242e70: s390/kexec: fix return code handling
+Cc: <stable@vger.kernel.org> # v5.2
+Link: https://lore.kernel.org/r/20211116033101.GD21646@MiWiFi-R3L-srv
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/hexagon/include/asm/timer-regs.h |   26 --------------------------
- arch/hexagon/include/asm/timex.h      |    3 +--
- arch/hexagon/kernel/time.c            |   12 ++++++++++--
- 3 files changed, 11 insertions(+), 30 deletions(-)
- delete mode 100644 arch/hexagon/include/asm/timer-regs.h
+ arch/s390/include/asm/kexec.h         |    6 ++++++
+ arch/s390/kernel/machine_kexec_file.c |   10 ++++++++++
+ 2 files changed, 16 insertions(+)
 
---- a/arch/hexagon/include/asm/timer-regs.h
-+++ /dev/null
-@@ -1,26 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-only */
--/*
-- * Timer support for Hexagon
-- *
-- * Copyright (c) 2010-2011, The Linux Foundation. All rights reserved.
-- */
--
--#ifndef _ASM_TIMER_REGS_H
--#define _ASM_TIMER_REGS_H
--
--/*  This stuff should go into a platform specific file  */
--#define TCX0_CLK_RATE		19200
--#define TIMER_ENABLE		0
--#define TIMER_CLR_ON_MATCH	1
--
--/*
-- * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
-- * release 1.1, and then it's "adjustable" and probably not defaulted.
-- */
--#define RTOS_TIMER_INT		3
--#ifdef CONFIG_HEXAGON_COMET
--#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
--#endif
--#define SLEEP_CLK_RATE		32000
--
--#endif
---- a/arch/hexagon/include/asm/timex.h
-+++ b/arch/hexagon/include/asm/timex.h
-@@ -7,11 +7,10 @@
- #define _ASM_TIMEX_H
+--- a/arch/s390/include/asm/kexec.h
++++ b/arch/s390/include/asm/kexec.h
+@@ -74,6 +74,12 @@ void *kexec_file_add_components(struct k
+ int arch_kexec_do_relocs(int r_type, void *loc, unsigned long val,
+ 			 unsigned long addr);
  
- #include <asm-generic/timex.h>
--#include <asm/timer-regs.h>
- #include <asm/hexagon_vm.h>
- 
- /* Using TCX0 as our clock.  CLOCK_TICK_RATE scheduled to be removed. */
--#define CLOCK_TICK_RATE              TCX0_CLK_RATE
-+#define CLOCK_TICK_RATE              19200
- 
- #define ARCH_HAS_READ_CURRENT_TIMER
- 
---- a/arch/hexagon/kernel/time.c
-+++ b/arch/hexagon/kernel/time.c
-@@ -17,9 +17,10 @@
- #include <linux/of_irq.h>
- #include <linux/module.h>
- 
--#include <asm/timer-regs.h>
- #include <asm/hexagon_vm.h>
- 
-+#define TIMER_ENABLE		BIT(0)
++#define ARCH_HAS_KIMAGE_ARCH
 +
- /*
-  * For the clocksource we need:
-  *	pcycle frequency (600MHz)
-@@ -33,6 +34,13 @@ cycles_t	pcycle_freq_mhz;
- cycles_t	thread_freq_mhz;
- cycles_t	sleep_clk_freq;
- 
-+/*
-+ * 8x50 HDD Specs 5-8.  Simulator co-sim not fixed until
-+ * release 1.1, and then it's "adjustable" and probably not defaulted.
-+ */
-+#define RTOS_TIMER_INT		3
-+#define RTOS_TIMER_REGS_ADDR	0xAB000000UL
++struct kimage_arch {
++	void *ipl_buf;
++};
 +
- static struct resource rtos_timer_resources[] = {
- 	{
- 		.start	= RTOS_TIMER_REGS_ADDR,
-@@ -80,7 +88,7 @@ static int set_next_event(unsigned long
- 	iowrite32(0, &rtos_timer->clear);
+ extern const struct kexec_file_ops s390_kexec_image_ops;
+ extern const struct kexec_file_ops s390_kexec_elf_ops;
  
- 	iowrite32(delta, &rtos_timer->match);
--	iowrite32(1 << TIMER_ENABLE, &rtos_timer->enable);
-+	iowrite32(TIMER_ENABLE, &rtos_timer->enable);
- 	return 0;
+--- a/arch/s390/kernel/machine_kexec_file.c
++++ b/arch/s390/kernel/machine_kexec_file.c
+@@ -12,6 +12,7 @@
+ #include <linux/kexec.h>
+ #include <linux/module_signature.h>
+ #include <linux/verification.h>
++#include <linux/vmalloc.h>
+ #include <asm/boot_data.h>
+ #include <asm/ipl.h>
+ #include <asm/setup.h>
+@@ -206,6 +207,7 @@ static int kexec_file_add_ipl_report(str
+ 		goto out;
+ 	buf.bufsz = data->report->size;
+ 	buf.memsz = buf.bufsz;
++	image->arch.ipl_buf = buf.buffer;
+ 
+ 	data->memsz += buf.memsz;
+ 
+@@ -327,3 +329,11 @@ int arch_kexec_kernel_image_probe(struct
+ 
+ 	return kexec_image_probe_default(image, buf, buf_len);
  }
- 
++
++int arch_kimage_file_post_load_cleanup(struct kimage *image)
++{
++	vfree(image->arch.ipl_buf);
++	image->arch.ipl_buf = NULL;
++
++	return kexec_image_post_load_cleanup_default(image);
++}
 
 
