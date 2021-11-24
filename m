@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFDB745BFB5
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:58:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E6B745BCA9
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347444AbhKXNBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:01:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33440 "EHLO mail.kernel.org"
+        id S243826AbhKXMbi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347179AbhKXM6S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:58:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4764E610F7;
-        Wed, 24 Nov 2021 12:33:38 +0000 (UTC)
+        id S1344014AbhKXMaZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71A6B61351;
+        Wed, 24 Nov 2021 12:18:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757218;
-        bh=Z3ct+PXhYfibFj8MIozC60owx8+WE18i9w1P3KpE2z4=;
+        s=korg; t=1637756317;
+        bh=q/yMmxQVahkM/nngcd2eGOFX28N+058c95kHpW28QdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1ZAcivKR/2ZHwEyTi+ToJKFp+Ua0F0gBCsA4CJbVaNAaywDp6B3J/CshqbBPQ7zS
-         b3B76RWk3VgbYatnujnQNCDz6pgJGqLo0awKot4r0qbzTb8X6tUTXF8annaB36CnWT
-         nUQJoc/XlacEuj1uDqoLPKou7p3Eu/CgHD3hcyUE=
+        b=pE5xiVdiI6z4cwjkBfN51NgElNE5EheQEkHktXQHr5+T3ko/6xH9xQqowRdVQk0uk
+         QrChfTK8bHYNusqDiV3Q+hi9aCkohSzZ7d7vzPB53LeKf9m8HCP/Iy7JIe17PYMFsa
+         zDh50e1yTcnc/eKFu944D0UzkYN3heN+PS+GGUT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 097/323] media: uvcvideo: Return -EIO for control errors
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 045/251] mwifiex: Read a PCI register after writing the TX ring write pointer
 Date:   Wed, 24 Nov 2021 12:54:47 +0100
-Message-Id: <20211124115722.243777251@linuxfoundation.org>
+Message-Id: <20211124115711.802334246@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Jonas Dreßler <verdre@v0yd.nl>
 
-[ Upstream commit ffccdde5f0e17d2f0d788a9d831a027187890eaa ]
+commit e5f4eb8223aa740237cd463246a7debcddf4eda1 upstream.
 
-The device is doing something unexpected with the control. Either because
-the protocol is not properly implemented or there has been a HW error.
+On the 88W8897 PCIe+USB card the firmware randomly crashes after setting
+the TX ring write pointer. The issue is present in the latest firmware
+version 15.68.19.p21 of the PCIe+USB card.
 
-Fixes v4l2-compliance:
+Those firmware crashes can be worked around by reading any PCI register
+of the card after setting that register, so read the PCI_VENDOR_ID
+register here. The reason this works is probably because we keep the bus
+from entering an ASPM state for a bit longer, because that's what causes
+the cards firmware to crash.
 
-Control ioctls (Input 0):
-                fail: v4l2-test-controls.cpp(448): s_ctrl returned an error (22)
-        test VIDIOC_G/S_CTRL: FAIL
-                fail: v4l2-test-controls.cpp(698): s_ext_ctrls returned an error (22)
-        test VIDIOC_G/S/TRY_EXT_CTRLS: FAIL
+This fixes a bug where during RX/TX traffic and with ASPM L1 substates
+enabled (the specific substates where the issue happens appear to be
+platform dependent), the firmware crashes and eventually a command
+timeout appears in the logs.
 
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109681
+Cc: stable@vger.kernel.org
+Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211011133224.15561-2-verdre@v0yd.nl
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/uvc/uvc_video.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wireless/marvell/mwifiex/pcie.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
-index 56b058d60a0dc..9c26e586bb01d 100644
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -117,6 +117,11 @@ int uvc_query_ctrl(struct uvc_device *dev, u8 query, u8 unit,
- 	case 5: /* Invalid unit */
- 	case 6: /* Invalid control */
- 	case 7: /* Invalid Request */
-+		/*
-+		 * The firmware has not properly implemented
-+		 * the control or there has been a HW error.
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.c
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+@@ -1316,6 +1316,14 @@ mwifiex_pcie_send_data(struct mwifiex_ad
+ 			ret = -1;
+ 			goto done_unmap;
+ 		}
++
++		/* The firmware (latest version 15.68.19.p21) of the 88W8897 PCIe+USB card
++		 * seems to crash randomly after setting the TX ring write pointer when
++		 * ASPM powersaving is enabled. A workaround seems to be keeping the bus
++		 * busy by reading a random register afterwards.
 +		 */
-+		return -EIO;
- 	case 8: /* Invalid value within range */
- 		return -EINVAL;
- 	default: /* reserved or unknown */
--- 
-2.33.0
-
++		mwifiex_read_reg(adapter, PCI_VENDOR_ID, &rx_val);
++
+ 		if ((mwifiex_pcie_txbd_not_full(card)) &&
+ 		    tx_param->next_pkt_len) {
+ 			/* have more packets and TxBD still can hold more */
 
 
