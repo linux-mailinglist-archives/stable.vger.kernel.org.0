@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6608945BF81
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:56:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 726D445BC7C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243201AbhKXM7O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:59:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35700 "EHLO mail.kernel.org"
+        id S244719AbhKXMbE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345430AbhKXM4D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:56:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D8EC61373;
-        Wed, 24 Nov 2021 12:32:12 +0000 (UTC)
+        id S245734AbhKXM3D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:29:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27F8F6113D;
+        Wed, 24 Nov 2021 12:17:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757132;
-        bh=7K2kOOr+Fr3Bv20Qi4jQYSFXYz8Q5AC5QsgcbvB2AYw=;
+        s=korg; t=1637756243;
+        bh=gUpxt3ve1Z2Aoy5XSvItD3V3+Y+Jh3KNP9x37YpbzBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VAXO8V+j3r2ZIMown9urgV3O2bKboGgePJvYaRy9dWb7OnGWBEKaCRKdKkoMGJvcB
-         qXxJkQ5tmYwvVIz0ipGtuQfLKJ4uUVaRIjjLivU2210hnvx6heweXp9UU82inGjSd2
-         gAydv076bU+2tvYADgQLJIJ4guvNsAQCZ8eqoVYk=
+        b=Rw6LbRAc74nrbCpbBkFglPaTOKJPQzX5IHHKRkQHiPKUpLIz2bdzb2WQBHzexQvuX
+         eRcLfcmG2DYfXQd14bQlVYxIbHO9rHbBjtUyxNVYjQlmHbPc+snUYw6f4Yo2DN9lkM
+         q5Puzu92jSPHLJ9TALWcSLivNUM0rTh2je4YpHoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9988f17cf72a1045a189@syzkaller.appspotmail.com,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 069/323] ALSA: mixer: oss: Fix racy access to slots
-Date:   Wed, 24 Nov 2021 12:54:19 +0100
-Message-Id: <20211124115721.188762055@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Dinoff <fdinoff@google.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.14 018/251] fuse: fix page stealing
+Date:   Wed, 24 Nov 2021 12:54:20 +0100
+Message-Id: <20211124115710.861588503@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,176 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 411cef6adfb38a5bb6bd9af3941b28198e7fb680 upstream.
+commit 712a951025c0667ff00b25afc360f74e639dfabe upstream.
 
-The OSS mixer can reassign the mapping slots dynamically via proc
-file.  Although the addition and deletion of those slots are protected
-by mixer->reg_mutex, the access to slots aren't, hence this may cause
-UAF when the slots in use are deleted concurrently.
+It is possible to trigger a crash by splicing anon pipe bufs to the fuse
+device.
 
-This patch applies the mixer->reg_mutex in all appropriate code paths
-(i.e. the ioctl functions) that may access slots.
+The reason for this is that anon_pipe_buf_release() will reuse buf->page if
+the refcount is 1, but that page might have already been stolen and its
+flags modified (e.g. PG_lru added).
 
-Reported-by: syzbot+9988f17cf72a1045a189@syzkaller.appspotmail.com
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/00000000000036adc005ceca9175@google.com
-Link: https://lore.kernel.org/r/20211020164846.922-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This happens in the unlikely case of fuse_dev_splice_write() getting around
+to calling pipe_buf_release() after a page has been stolen, added to the
+page cache and removed from the page cache.
+
+Fix by calling pipe_buf_release() right after the page was inserted into
+the page cache.  In this case the page has an elevated refcount so any
+release function will know that the page isn't reusable.
+
+Reported-by: Frank Dinoff <fdinoff@google.com>
+Link: https://lore.kernel.org/r/CAAmZXrsGg2xsP1CK+cbuEMumtrqdvD-NKnWzhNcvn71RV3c1yw@mail.gmail.com/
+Fixes: dd3bb14f44a6 ("fuse: support splice() writing to fuse device")
+Cc: <stable@vger.kernel.org> # v2.6.35
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/oss/mixer_oss.c |   43 +++++++++++++++++++++++++++++++++----------
- 1 file changed, 33 insertions(+), 10 deletions(-)
+ fs/fuse/dev.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/sound/core/oss/mixer_oss.c
-+++ b/sound/core/oss/mixer_oss.c
-@@ -145,11 +145,13 @@ static int snd_mixer_oss_devmask(struct
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	for (chn = 0; chn < 31; chn++) {
- 		pslot = &mixer->slots[chn];
- 		if (pslot->put_volume || pslot->put_recsrc)
- 			result |= 1 << chn;
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -897,6 +897,12 @@ static int fuse_try_move_page(struct fus
+ 		goto out_put_old;
  	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
  
-@@ -161,11 +163,13 @@ static int snd_mixer_oss_stereodevs(stru
++	/*
++	 * Release while we have extra ref on stolen page.  Otherwise
++	 * anon_pipe_buf_release() might think the page can be reused.
++	 */
++	pipe_buf_release(cs->pipe, buf);
++
+ 	get_page(newpage);
  
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	for (chn = 0; chn < 31; chn++) {
- 		pslot = &mixer->slots[chn];
- 		if (pslot->put_volume && pslot->stereo)
- 			result |= 1 << chn;
- 	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
+ 	if (!(buf->flags & PIPE_BUF_FLAG_LRU))
+@@ -2046,8 +2052,12 @@ static ssize_t fuse_dev_splice_write(str
  
-@@ -176,6 +180,7 @@ static int snd_mixer_oss_recmask(struct
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	if (mixer->put_recsrc && mixer->get_recsrc) {	/* exclusive */
- 		result = mixer->mask_recsrc;
- 	} else {
-@@ -187,6 +192,7 @@ static int snd_mixer_oss_recmask(struct
- 				result |= 1 << chn;
- 		}
- 	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
-@@ -197,11 +203,12 @@ static int snd_mixer_oss_get_recsrc(stru
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	if (mixer->put_recsrc && mixer->get_recsrc) {	/* exclusive */
--		int err;
- 		unsigned int index;
--		if ((err = mixer->get_recsrc(fmixer, &index)) < 0)
--			return err;
-+		result = mixer->get_recsrc(fmixer, &index);
-+		if (result < 0)
-+			goto unlock;
- 		result = 1 << index;
- 	} else {
- 		struct snd_mixer_oss_slot *pslot;
-@@ -216,7 +223,10 @@ static int snd_mixer_oss_get_recsrc(stru
- 			}
- 		}
- 	}
--	return mixer->oss_recsrc = result;
-+	mixer->oss_recsrc = result;
-+ unlock:
-+	mutex_unlock(&mixer->reg_mutex);
-+	return result;
- }
- 
- static int snd_mixer_oss_set_recsrc(struct snd_mixer_oss_file *fmixer, int recsrc)
-@@ -229,6 +239,7 @@ static int snd_mixer_oss_set_recsrc(stru
- 
- 	if (mixer == NULL)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	if (mixer->get_recsrc && mixer->put_recsrc) {	/* exclusive input */
- 		if (recsrc & ~mixer->oss_recsrc)
- 			recsrc &= ~mixer->oss_recsrc;
-@@ -254,6 +265,7 @@ static int snd_mixer_oss_set_recsrc(stru
- 			}
- 		}
- 	}
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
- 
-@@ -265,6 +277,7 @@ static int snd_mixer_oss_get_volume(stru
- 
- 	if (mixer == NULL || slot > 30)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	pslot = &mixer->slots[slot];
- 	left = pslot->volume[0];
- 	right = pslot->volume[1];
-@@ -272,15 +285,21 @@ static int snd_mixer_oss_get_volume(stru
- 		result = pslot->get_volume(fmixer, pslot, &left, &right);
- 	if (!pslot->stereo)
- 		right = left;
--	if (snd_BUG_ON(left < 0 || left > 100))
--		return -EIO;
--	if (snd_BUG_ON(right < 0 || right > 100))
--		return -EIO;
-+	if (snd_BUG_ON(left < 0 || left > 100)) {
-+		result = -EIO;
-+		goto unlock;
+ 	pipe_lock(pipe);
+ out_free:
+-	for (idx = 0; idx < nbuf; idx++)
+-		pipe_buf_release(pipe, &bufs[idx]);
++	for (idx = 0; idx < nbuf; idx++) {
++		struct pipe_buffer *buf = &bufs[idx];
++
++		if (buf->ops)
++			pipe_buf_release(pipe, buf);
 +	}
-+	if (snd_BUG_ON(right < 0 || right > 100)) {
-+		result = -EIO;
-+		goto unlock;
-+	}
- 	if (result >= 0) {
- 		pslot->volume[0] = left;
- 		pslot->volume[1] = right;
- 	 	result = (left & 0xff) | ((right & 0xff) << 8);
- 	}
-+ unlock:
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
- }
+ 	pipe_unlock(pipe);
  
-@@ -293,6 +312,7 @@ static int snd_mixer_oss_set_volume(stru
- 
- 	if (mixer == NULL || slot > 30)
- 		return -EIO;
-+	mutex_lock(&mixer->reg_mutex);
- 	pslot = &mixer->slots[slot];
- 	if (left > 100)
- 		left = 100;
-@@ -303,10 +323,13 @@ static int snd_mixer_oss_set_volume(stru
- 	if (pslot->put_volume)
- 		result = pslot->put_volume(fmixer, pslot, left, right);
- 	if (result < 0)
--		return result;
-+		goto unlock;
- 	pslot->volume[0] = left;
- 	pslot->volume[1] = right;
-- 	return (left & 0xff) | ((right & 0xff) << 8);
-+	result = (left & 0xff) | ((right & 0xff) << 8);
-+ unlock:
-+	mutex_lock(&mixer->reg_mutex);
-+	return result;
- }
- 
- static int snd_mixer_oss_ioctl1(struct snd_mixer_oss_file *fmixer, unsigned int cmd, unsigned long arg)
+ 	kfree(bufs);
 
 
