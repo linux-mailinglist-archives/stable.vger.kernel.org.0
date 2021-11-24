@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F9045C0E2
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:09:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BD9A45C588
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346593AbhKXNMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:12:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
+        id S1347595AbhKXN7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:59:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244841AbhKXNKJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:10:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05F8B613E6;
-        Wed, 24 Nov 2021 12:41:18 +0000 (UTC)
+        id S1349646AbhKXNyk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:54:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4805F611AE;
+        Wed, 24 Nov 2021 13:05:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757679;
-        bh=7I0PHql3K9Q97DrycBnylUF3ZWjp2VtEAXsQ+pnrZ3c=;
+        s=korg; t=1637759140;
+        bh=S4im4fJv67/iG+EaX7zYhOe7YAU6nFcHSIpgJCzzBxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dr1J/7pfIukA9i1B5owtSAnAf79yF5znpnz8KRgNNduUit5SOnGHD/GfW+Qa0yIwb
-         dhVvrSFUeG24x9yZXGWoPFfCcuAm4uf+Ce0uLTmXYGoMU8aTL1orNg2x+W+9qTteJk
-         7rgg6JdDsICRU9dXjn8SQnk+OtIKZZkQPyK5aU8g=
+        b=vS36HD6jo98JxJ8CRLVJzyJGbAyBNnW1inYXkqOozXJ24Tk/J3f6W5wMVioT0RfxC
+         YUHwItS/YTiayK1STaYp0cobLvnNqthl5jpKeUNPfzbYS1OYebC99RpzLgDScSsvaV
+         DLC4/RvwWhRwM+s/qUD4+rZHSqinYDzVOxIP5zxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 241/323] powerpc/bpf: Emit stf barrier instruction sequences for BPF_NOSPEC
-Date:   Wed, 24 Nov 2021 12:57:11 +0100
-Message-Id: <20211124115727.053959700@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Blakey <paulb@nvidia.com>,
+        Mark Bloch <mbloch@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 145/279] net/mlx5: E-Switch, Fix resetting of encap mode when entering switchdev
+Date:   Wed, 24 Nov 2021 12:57:12 +0100
+Message-Id: <20211124115723.786358308@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,158 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+From: Paul Blakey <paulb@nvidia.com>
 
-upstream commit b7540d62509453263604a155bf2d5f0ed450cba2
+[ Upstream commit d7751d6476185ff754b9dad2cba0c0a6e43ecadc ]
 
-Emit similar instruction sequences to commit a048a07d7f4535
-("powerpc/64s: Add support for a store forwarding barrier at kernel
-entry/exit") when encountering BPF_NOSPEC.
+E-Switch encap mode is relevant only when in switchdev mode.
+The RDMA driver can query the encap configuration via
+mlx5_eswitch_get_encap_mode(). Make sure it returns the currently
+used mode and not the set one.
 
-Mitigations are enabled depending on what the firmware advertises. In
-particular, we do not gate these mitigations based on current settings,
-just like in x86. Due to this, we don't need to take any action if
-mitigations are enabled or disabled at runtime.
+This reverts the cited commit which reset the encap mode
+on entering switchdev and fixes the original issue properly.
 
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/956570cbc191cd41f8274bed48ee757a86dac62a.1633464148.git.naveen.n.rao@linux.vnet.ibm.com
-[adjust macros to account for commits 0654186510a40e, 3a181237916310 and ef909ba954145e.
-adjust security feature checks to account for commit 84ed26fd00c514]
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9a64144d683a ("net/mlx5: E-Switch, Fix default encap mode")
+Signed-off-by: Paul Blakey <paulb@nvidia.com>
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/net/bpf_jit64.h      |    8 ++---
- arch/powerpc/net/bpf_jit_comp64.c |   56 +++++++++++++++++++++++++++++++++++---
- 2 files changed, 56 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch.c        | 9 +++++++--
+ .../net/ethernet/mellanox/mlx5/core/eswitch_offloads.c   | 7 -------
+ include/linux/mlx5/eswitch.h                             | 4 ++--
+ 3 files changed, 9 insertions(+), 11 deletions(-)
 
---- a/arch/powerpc/net/bpf_jit64.h
-+++ b/arch/powerpc/net/bpf_jit64.h
-@@ -20,18 +20,18 @@
-  * with our redzone usage.
-  *
-  *		[	prev sp		] <-------------
-- *		[   nv gpr save area	] 6*8		|
-+ *		[   nv gpr save area	] 5*8		|
-  *		[    tail_call_cnt	] 8		|
-- *		[    local_tmp_var	] 8		|
-+ *		[    local_tmp_var	] 16		|
-  * fp (r31) -->	[   ebpf stack space	] upto 512	|
-  *		[     frame header	] 32/112	|
-  * sp (r1) --->	[    stack pointer	] --------------
-  */
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+index ec136b4992045..5872cc8bf9532 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+@@ -1572,6 +1572,11 @@ int mlx5_eswitch_init(struct mlx5_core_dev *dev)
+ 	esw->enabled_vports = 0;
+ 	esw->mode = MLX5_ESWITCH_NONE;
+ 	esw->offloads.inline_mode = MLX5_INLINE_MODE_NONE;
++	if (MLX5_CAP_ESW_FLOWTABLE_FDB(dev, reformat) &&
++	    MLX5_CAP_ESW_FLOWTABLE_FDB(dev, decap))
++		esw->offloads.encap = DEVLINK_ESWITCH_ENCAP_MODE_BASIC;
++	else
++		esw->offloads.encap = DEVLINK_ESWITCH_ENCAP_MODE_NONE;
  
- /* for gpr non volatile registers BPG_REG_6 to 10 */
--#define BPF_PPC_STACK_SAVE	(6*8)
-+#define BPF_PPC_STACK_SAVE	(5*8)
- /* for bpf JIT code internal usage */
--#define BPF_PPC_STACK_LOCALS	16
-+#define BPF_PPC_STACK_LOCALS	24
- /* stack frame excluding BPF stack, ensure this is quadword aligned */
- #define BPF_PPC_STACKFRAME	(STACK_FRAME_MIN_SIZE + \
- 				 BPF_PPC_STACK_LOCALS + BPF_PPC_STACK_SAVE)
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -19,6 +19,7 @@
- #include <linux/if_vlan.h>
- #include <asm/kprobes.h>
- #include <linux/bpf.h>
-+#include <asm/security_features.h>
- 
- #include "bpf_jit64.h"
- 
-@@ -60,9 +61,9 @@ static inline bool bpf_has_stack_frame(s
-  *		[	prev sp		] <-------------
-  *		[	  ...       	] 		|
-  * sp (r1) --->	[    stack pointer	] --------------
-- *		[   nv gpr save area	] 6*8
-+ *		[   nv gpr save area	] 5*8
-  *		[    tail_call_cnt	] 8
-- *		[    local_tmp_var	] 8
-+ *		[    local_tmp_var	] 16
-  *		[   unused red zone	] 208 bytes protected
-  */
- static int bpf_jit_stack_local(struct codegen_context *ctx)
-@@ -70,12 +71,12 @@ static int bpf_jit_stack_local(struct co
- 	if (bpf_has_stack_frame(ctx))
- 		return STACK_FRAME_MIN_SIZE + ctx->stack_size;
- 	else
--		return -(BPF_PPC_STACK_SAVE + 16);
-+		return -(BPF_PPC_STACK_SAVE + 24);
+ 	dev->priv.eswitch = esw;
+ 	BLOCKING_INIT_NOTIFIER_HEAD(&esw->n_head);
+@@ -1934,7 +1939,7 @@ free_out:
+ 	return err;
  }
  
- static int bpf_jit_stack_tailcallcnt(struct codegen_context *ctx)
+-u8 mlx5_eswitch_mode(struct mlx5_core_dev *dev)
++u8 mlx5_eswitch_mode(const struct mlx5_core_dev *dev)
  {
--	return bpf_jit_stack_local(ctx) + 8;
-+	return bpf_jit_stack_local(ctx) + 16;
+ 	struct mlx5_eswitch *esw = dev->priv.eswitch;
+ 
+@@ -1948,7 +1953,7 @@ mlx5_eswitch_get_encap_mode(const struct mlx5_core_dev *dev)
+ 	struct mlx5_eswitch *esw;
+ 
+ 	esw = dev->priv.eswitch;
+-	return mlx5_esw_allowed(esw) ? esw->offloads.encap :
++	return (mlx5_eswitch_mode(dev) == MLX5_ESWITCH_OFFLOADS)  ? esw->offloads.encap :
+ 		DEVLINK_ESWITCH_ENCAP_MODE_NONE;
+ }
+ EXPORT_SYMBOL(mlx5_eswitch_get_encap_mode);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index 0d461e38add37..08534d562d5a9 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -3141,12 +3141,6 @@ int esw_offloads_enable(struct mlx5_eswitch *esw)
+ 	u64 mapping_id;
+ 	int err;
+ 
+-	if (MLX5_CAP_ESW_FLOWTABLE_FDB(esw->dev, reformat) &&
+-	    MLX5_CAP_ESW_FLOWTABLE_FDB(esw->dev, decap))
+-		esw->offloads.encap = DEVLINK_ESWITCH_ENCAP_MODE_BASIC;
+-	else
+-		esw->offloads.encap = DEVLINK_ESWITCH_ENCAP_MODE_NONE;
+-
+ 	mutex_init(&esw->offloads.termtbl_mutex);
+ 	mlx5_rdma_enable_roce(esw->dev);
+ 
+@@ -3244,7 +3238,6 @@ void esw_offloads_disable(struct mlx5_eswitch *esw)
+ 	esw_offloads_metadata_uninit(esw);
+ 	mlx5_rdma_disable_roce(esw->dev);
+ 	mutex_destroy(&esw->offloads.termtbl_mutex);
+-	esw->offloads.encap = DEVLINK_ESWITCH_ENCAP_MODE_NONE;
  }
  
- static int bpf_jit_stack_offsetof(struct codegen_context *ctx, int reg)
-@@ -268,11 +269,34 @@ static int bpf_jit_emit_tail_call(u32 *i
- 	return 0;
- }
+ static int esw_mode_from_devlink(u16 mode, u16 *mlx5_mode)
+diff --git a/include/linux/mlx5/eswitch.h b/include/linux/mlx5/eswitch.h
+index 4ab5c1fc1270d..a09ed4c8361b6 100644
+--- a/include/linux/mlx5/eswitch.h
++++ b/include/linux/mlx5/eswitch.h
+@@ -136,13 +136,13 @@ u32 mlx5_eswitch_get_vport_metadata_for_set(struct mlx5_eswitch *esw,
+ 				       ESW_TUN_OPTS_SLOW_TABLE_GOTO_VPORT)
+ #define ESW_TUN_SLOW_TABLE_GOTO_VPORT_MARK ESW_TUN_OPTS_MASK
  
-+/*
-+ * We spill into the redzone always, even if the bpf program has its own stackframe.
-+ * Offsets hardcoded based on BPF_PPC_STACK_SAVE -- see bpf_jit_stack_local()
-+ */
-+void bpf_stf_barrier(void);
-+
-+asm (
-+"		.global bpf_stf_barrier		;"
-+"	bpf_stf_barrier:			;"
-+"		std	21,-64(1)		;"
-+"		std	22,-56(1)		;"
-+"		sync				;"
-+"		ld	21,-64(1)		;"
-+"		ld	22,-56(1)		;"
-+"		ori	31,31,0			;"
-+"		.rept 14			;"
-+"		b	1f			;"
-+"	1:					;"
-+"		.endr				;"
-+"		blr				;"
-+);
-+
- /* Assemble the body code between the prologue & epilogue */
- static int bpf_jit_build_body(struct bpf_prog *fp, u32 *image,
- 			      struct codegen_context *ctx,
- 			      u32 *addrs, bool extra_pass)
+-u8 mlx5_eswitch_mode(struct mlx5_core_dev *dev);
++u8 mlx5_eswitch_mode(const struct mlx5_core_dev *dev);
+ u16 mlx5_eswitch_get_total_vports(const struct mlx5_core_dev *dev);
+ struct mlx5_core_dev *mlx5_eswitch_get_core_dev(struct mlx5_eswitch *esw);
+ 
+ #else  /* CONFIG_MLX5_ESWITCH */
+ 
+-static inline u8 mlx5_eswitch_mode(struct mlx5_core_dev *dev)
++static inline u8 mlx5_eswitch_mode(const struct mlx5_core_dev *dev)
  {
-+	enum stf_barrier_type stf_barrier = stf_barrier_type_get();
- 	const struct bpf_insn *insn = fp->insnsi;
- 	int flen = fp->len;
- 	int i, ret;
-@@ -615,6 +639,30 @@ emit_clear:
- 		 * BPF_ST NOSPEC (speculation barrier)
- 		 */
- 		case BPF_ST | BPF_NOSPEC:
-+			if (!security_ftr_enabled(SEC_FTR_FAVOUR_SECURITY) ||
-+					(!security_ftr_enabled(SEC_FTR_L1D_FLUSH_PR) &&
-+					(!security_ftr_enabled(SEC_FTR_L1D_FLUSH_HV) || !cpu_has_feature(CPU_FTR_HVMODE))))
-+				break;
-+
-+			switch (stf_barrier) {
-+			case STF_BARRIER_EIEIO:
-+				EMIT(0x7c0006ac | 0x02000000);
-+				break;
-+			case STF_BARRIER_SYNC_ORI:
-+				EMIT(PPC_INST_SYNC);
-+				PPC_LD(b2p[TMP_REG_1], 13, 0);
-+				PPC_ORI(31, 31, 0);
-+				break;
-+			case STF_BARRIER_FALLBACK:
-+				EMIT(PPC_INST_MFLR | ___PPC_RT(b2p[TMP_REG_1]));
-+				PPC_LI64(12, dereference_kernel_function_descriptor(bpf_stf_barrier));
-+				PPC_MTCTR(12);
-+				EMIT(PPC_INST_BCTR | 0x1);
-+				PPC_MTLR(b2p[TMP_REG_1]);
-+				break;
-+			case STF_BARRIER_NONE:
-+				break;
-+			}
- 			break;
- 
- 		/*
+ 	return MLX5_ESWITCH_NONE;
+ }
+-- 
+2.33.0
+
 
 
