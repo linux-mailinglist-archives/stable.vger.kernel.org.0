@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFD3245C070
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDC6745C4CE
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:48:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343566AbhKXNIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:08:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45542 "EHLO mail.kernel.org"
+        id S1350007AbhKXNvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:51:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346394AbhKXNGA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:06:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A77E561212;
-        Wed, 24 Nov 2021 12:38:05 +0000 (UTC)
+        id S1351521AbhKXNtp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:49:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8317F63354;
+        Wed, 24 Nov 2021 13:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757486;
-        bh=xMQ+ucItWHuNXUM2bQ1LG6mnEYghT3QmAa3pOEPTcrg=;
+        s=korg; t=1637759011;
+        bh=/unO2jc1AdsvwpIESGe4u7Z/eL4XQ2jr6rO8abw0EsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3y+hTgZFU9wcvbwLGBhvuIo4KcBve1ApAa/i+5xmlB1aU679nux1H3nIK/fuuT1L
-         vRybuYSYck8Zs/mLS7gYi7MrNHk7hFhkFyAlUBVIth9Gt2sxvQjo9dEcY6FB72lt1M
-         iIRZcLd79oLPEHL9y24XODmg9WykS8Tsuj0mWLHo=
+        b=cDifJ6xrVdPiC+TY+7Gz07kDPeFRzZ4QsGsRd43IHpf00zvI7BDxmjPOVG+qJpxta
+         petQx5UO5FIdbw+WLUuUs0VOHj5csXr/JT1b6v4U099KwZRUdyzkupMe4jDXjb3Ocb
+         6O/LC934yr2tNrq3e+bMdlBNCgnONCTEkifsLAEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 183/323] JFS: fix memleak in jfs_mount
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Takashi YOSHII <takasi-y@ops.dti.ne.jp>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 086/279] sh: math-emu: drop unused functions
 Date:   Wed, 24 Nov 2021 12:56:13 +0100
-Message-Id: <20211124115725.125120966@linuxfoundation.org>
+Message-Id: <20211124115721.687678169@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,156 +43,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit c48a14dca2cb57527dde6b960adbe69953935f10 ]
+[ Upstream commit e25c252a9b033523c626f039d4b9a304f12f6775 ]
 
-In jfs_mount, when diMount(ipaimap2) fails, it goes to errout35. However,
-the following code does not free ipaimap2 allocated by diReadSpecial.
+Delete ieee_fpe_handler() since it is not used. After that is done,
+delete denormal_to_double() since it is not used:
 
-Fix this by refactoring the error handling code of jfs_mount. To be
-specific, modify the lable name and free ipaimap2 when the above error
-ocurrs.
+.../arch/sh/math-emu/math.c:505:12: error: 'ieee_fpe_handler' defined but not used [-Werror=unused-function]
+  505 | static int ieee_fpe_handler(struct pt_regs *regs)
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+.../arch/sh/math-emu/math.c:477:13: error: 'denormal_to_double' defined but not used [-Werror=unused-function]
+  477 | static void denormal_to_double(struct sh_fpu_soft_struct *fpu, int n)
+
+Fixes: 7caf62de25554da3 ("sh: remove unused do_fpu_error")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Takashi YOSHII <takasi-y@ops.dti.ne.jp>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Rich Felker <dalias@libc.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_mount.c | 51 ++++++++++++++++++++--------------------------
- 1 file changed, 22 insertions(+), 29 deletions(-)
+ arch/sh/math-emu/math.c | 103 ----------------------------------------
+ 1 file changed, 103 deletions(-)
 
-diff --git a/fs/jfs/jfs_mount.c b/fs/jfs/jfs_mount.c
-index b5214c9ac47ac..f1a705d159043 100644
---- a/fs/jfs/jfs_mount.c
-+++ b/fs/jfs/jfs_mount.c
-@@ -93,14 +93,14 @@ int jfs_mount(struct super_block *sb)
- 	 * (initialize mount inode from the superblock)
- 	 */
- 	if ((rc = chkSuper(sb))) {
--		goto errout20;
-+		goto out;
- 	}
+diff --git a/arch/sh/math-emu/math.c b/arch/sh/math-emu/math.c
+index e8be0eca0444a..615ba932c398e 100644
+--- a/arch/sh/math-emu/math.c
++++ b/arch/sh/math-emu/math.c
+@@ -467,109 +467,6 @@ static int fpu_emulate(u16 code, struct sh_fpu_soft_struct *fregs, struct pt_reg
+ 		return id_sys(fregs, regs, code);
+ }
  
- 	ipaimap = diReadSpecial(sb, AGGREGATE_I, 0);
- 	if (ipaimap == NULL) {
- 		jfs_err("jfs_mount: Failed to read AGGREGATE_I");
- 		rc = -EIO;
--		goto errout20;
-+		goto out;
- 	}
- 	sbi->ipaimap = ipaimap;
- 
-@@ -111,7 +111,7 @@ int jfs_mount(struct super_block *sb)
- 	 */
- 	if ((rc = diMount(ipaimap))) {
- 		jfs_err("jfs_mount: diMount(ipaimap) failed w/rc = %d", rc);
--		goto errout21;
-+		goto err_ipaimap;
- 	}
- 
- 	/*
-@@ -120,7 +120,7 @@ int jfs_mount(struct super_block *sb)
- 	ipbmap = diReadSpecial(sb, BMAP_I, 0);
- 	if (ipbmap == NULL) {
- 		rc = -EIO;
--		goto errout22;
-+		goto err_umount_ipaimap;
- 	}
- 
- 	jfs_info("jfs_mount: ipbmap:0x%p", ipbmap);
-@@ -132,7 +132,7 @@ int jfs_mount(struct super_block *sb)
- 	 */
- 	if ((rc = dbMount(ipbmap))) {
- 		jfs_err("jfs_mount: dbMount failed w/rc = %d", rc);
--		goto errout22;
-+		goto err_ipbmap;
- 	}
- 
- 	/*
-@@ -151,7 +151,7 @@ int jfs_mount(struct super_block *sb)
- 		if (!ipaimap2) {
- 			jfs_err("jfs_mount: Failed to read AGGREGATE_I");
- 			rc = -EIO;
--			goto errout35;
-+			goto err_umount_ipbmap;
- 		}
- 		sbi->ipaimap2 = ipaimap2;
- 
-@@ -163,7 +163,7 @@ int jfs_mount(struct super_block *sb)
- 		if ((rc = diMount(ipaimap2))) {
- 			jfs_err("jfs_mount: diMount(ipaimap2) failed, rc = %d",
- 				rc);
--			goto errout35;
-+			goto err_ipaimap2;
- 		}
- 	} else
- 		/* Secondary aggregate inode table is not valid */
-@@ -180,7 +180,7 @@ int jfs_mount(struct super_block *sb)
- 		jfs_err("jfs_mount: Failed to read FILESYSTEM_I");
- 		/* open fileset secondary inode allocation map */
- 		rc = -EIO;
--		goto errout40;
-+		goto err_umount_ipaimap2;
- 	}
- 	jfs_info("jfs_mount: ipimap:0x%p", ipimap);
- 
-@@ -190,41 +190,34 @@ int jfs_mount(struct super_block *sb)
- 	/* initialize fileset inode allocation map */
- 	if ((rc = diMount(ipimap))) {
- 		jfs_err("jfs_mount: diMount failed w/rc = %d", rc);
--		goto errout41;
-+		goto err_ipimap;
- 	}
- 
--	goto out;
-+	return rc;
- 
- 	/*
- 	 *	unwind on error
- 	 */
--      errout41:		/* close fileset inode allocation map inode */
-+err_ipimap:
-+	/* close fileset inode allocation map inode */
- 	diFreeSpecial(ipimap);
+-/**
+- *	denormal_to_double - Given denormalized float number,
+- *	                     store double float
+- *
+- *	@fpu: Pointer to sh_fpu_soft structure
+- *	@n: Index to FP register
+- */
+-static void denormal_to_double(struct sh_fpu_soft_struct *fpu, int n)
+-{
+-	unsigned long du, dl;
+-	unsigned long x = fpu->fpul;
+-	int exp = 1023 - 126;
 -
--      errout40:		/* fileset closed */
+-	if (x != 0 && (x & 0x7f800000) == 0) {
+-		du = (x & 0x80000000);
+-		while ((x & 0x00800000) == 0) {
+-			x <<= 1;
+-			exp--;
+-		}
+-		x &= 0x007fffff;
+-		du |= (exp << 20) | (x >> 3);
+-		dl = x << 29;
 -
-+err_umount_ipaimap2:
- 	/* close secondary aggregate inode allocation map */
--	if (ipaimap2) {
-+	if (ipaimap2)
- 		diUnmount(ipaimap2, 1);
-+err_ipaimap2:
-+	/* close aggregate inodes */
-+	if (ipaimap2)
- 		diFreeSpecial(ipaimap2);
+-		fpu->fp_regs[n] = du;
+-		fpu->fp_regs[n+1] = dl;
+-	}
+-}
+-
+-/**
+- *	ieee_fpe_handler - Handle denormalized number exception
+- *
+- *	@regs: Pointer to register structure
+- *
+- *	Returns 1 when it's handled (should not cause exception).
+- */
+-static int ieee_fpe_handler(struct pt_regs *regs)
+-{
+-	unsigned short insn = *(unsigned short *)regs->pc;
+-	unsigned short finsn;
+-	unsigned long nextpc;
+-	int nib[4] = {
+-		(insn >> 12) & 0xf,
+-		(insn >> 8) & 0xf,
+-		(insn >> 4) & 0xf,
+-		insn & 0xf};
+-
+-	if (nib[0] == 0xb ||
+-	    (nib[0] == 0x4 && nib[2] == 0x0 && nib[3] == 0xb)) /* bsr & jsr */
+-		regs->pr = regs->pc + 4;
+-
+-	if (nib[0] == 0xa || nib[0] == 0xb) { /* bra & bsr */
+-		nextpc = regs->pc + 4 + ((short) ((insn & 0xfff) << 4) >> 3);
+-		finsn = *(unsigned short *) (regs->pc + 2);
+-	} else if (nib[0] == 0x8 && nib[1] == 0xd) { /* bt/s */
+-		if (regs->sr & 1)
+-			nextpc = regs->pc + 4 + ((char) (insn & 0xff) << 1);
+-		else
+-			nextpc = regs->pc + 4;
+-		finsn = *(unsigned short *) (regs->pc + 2);
+-	} else if (nib[0] == 0x8 && nib[1] == 0xf) { /* bf/s */
+-		if (regs->sr & 1)
+-			nextpc = regs->pc + 4;
+-		else
+-			nextpc = regs->pc + 4 + ((char) (insn & 0xff) << 1);
+-		finsn = *(unsigned short *) (regs->pc + 2);
+-	} else if (nib[0] == 0x4 && nib[3] == 0xb &&
+-		 (nib[2] == 0x0 || nib[2] == 0x2)) { /* jmp & jsr */
+-		nextpc = regs->regs[nib[1]];
+-		finsn = *(unsigned short *) (regs->pc + 2);
+-	} else if (nib[0] == 0x0 && nib[3] == 0x3 &&
+-		 (nib[2] == 0x0 || nib[2] == 0x2)) { /* braf & bsrf */
+-		nextpc = regs->pc + 4 + regs->regs[nib[1]];
+-		finsn = *(unsigned short *) (regs->pc + 2);
+-	} else if (insn == 0x000b) { /* rts */
+-		nextpc = regs->pr;
+-		finsn = *(unsigned short *) (regs->pc + 2);
+-	} else {
+-		nextpc = regs->pc + 2;
+-		finsn = insn;
 -	}
 -
--      errout35:
+-	if ((finsn & 0xf1ff) == 0xf0ad) { /* fcnvsd */
+-		struct task_struct *tsk = current;
 -
--	/* close aggregate block allocation map */
-+err_umount_ipbmap:	/* close aggregate block allocation map */
- 	dbUnmount(ipbmap, 1);
-+err_ipbmap:		/* close aggregate inodes */
- 	diFreeSpecial(ipbmap);
+-		if ((tsk->thread.xstate->softfpu.fpscr & (1 << 17))) {
+-			/* FPU error */
+-			denormal_to_double (&tsk->thread.xstate->softfpu,
+-					    (finsn >> 8) & 0xf);
+-			tsk->thread.xstate->softfpu.fpscr &=
+-				~(FPSCR_CAUSE_MASK | FPSCR_FLAG_MASK);
+-			task_thread_info(tsk)->status |= TS_USEDFPU;
+-		} else {
+-			force_sig_fault(SIGFPE, FPE_FLTINV,
+-					(void __user *)regs->pc);
+-		}
 -
--      errout22:		/* close aggregate inode allocation map */
+-		regs->pc = nextpc;
+-		return 1;
+-	}
 -
-+err_umount_ipaimap:	/* close aggregate inode allocation map */
- 	diUnmount(ipaimap, 1);
+-	return 0;
+-}
 -
--      errout21:		/* close aggregate inodes */
-+err_ipaimap:		/* close aggregate inodes */
- 	diFreeSpecial(ipaimap);
--      errout20:		/* aggregate closed */
--
--      out:
--
-+out:
- 	if (rc)
- 		jfs_err("Mount JFS Failure: %d", rc);
- 
+ /**
+  * fpu_init - Initialize FPU registers
+  * @fpu: Pointer to software emulated FPU registers.
 -- 
 2.33.0
 
