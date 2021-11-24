@@ -2,35 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DD8345BE57
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:43:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38A6F45BA9F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345134AbhKXMql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:46:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48796 "EHLO mail.kernel.org"
+        id S242576AbhKXMMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:12:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245130AbhKXMof (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:44:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5C9161264;
-        Wed, 24 Nov 2021 12:26:23 +0000 (UTC)
+        id S241239AbhKXMKj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:10:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E5A0610CE;
+        Wed, 24 Nov 2021 12:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756784;
-        bh=/FX/HvPV1wbd/mWSfwnt+7LoURga2Z4SLtXXZalJUT8=;
+        s=korg; t=1637755568;
+        bh=XMYwm58uhkqcSDfJic5WpKnfPDqX8zy5kJlsZo3SvZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zbC2G+Ec6mQ501nwYmDcnPJs+bTOoy/BISmFTyCBctGtZudLBy6/Lq2vgqdvdoWtO
-         Q1PMTOupbwHZcW9NtsFC1P2yeH4pBDQOGbD7IJTuGeAqgdwAQ5e4tZacQbZg4aTJHe
-         IKqSY25b2QxtvC4CNAkwdZDsKvkdGRs5A6bz5GQM=
+        b=d+ps1bDIGHGkYkJHuVNGD/d+ZcuKAFMA3t9Bpp7Z7iuGKLG35NGhgT04W3GwJDxJD
+         MhCx2CaRNHS1+xwuezsy1RZ8q+nFYa0CoWql6Fip6MBmQM7sMFDui5AgJpQBmyjSmj
+         iN5zVhJL3QgMbRmztTWruzMKN9tMgOFp3COPsKr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 204/251] usb: musb: tusb6010: check return value after calling platform_get_resource()
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Glauber Costa <glommer@parallels.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 143/162] mm: kmemleak: slob: respect SLAB_NOLEAKTRACE flag
 Date:   Wed, 24 Nov 2021 12:57:26 +0100
-Message-Id: <20211124115717.353182091@linuxfoundation.org>
+Message-Id: <20211124115702.909797382@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-[ Upstream commit 14651496a3de6807a17c310f63c894ea0c5d858e ]
+commit 34dbc3aaf5d9e89ba6cc5e24add9458c21ab1950 upstream.
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+When kmemleak is enabled for SLOB, system does not boot and does not
+print anything to the console.  At the very early stage in the boot
+process we hit infinite recursion from kmemleak_init() and eventually
+kernel crashes.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210915034925.2399823-1-yangyingliang@huawei.com
+kmemleak_init() specifies SLAB_NOLEAKTRACE for KMEM_CACHE(), but
+kmem_cache_create_usercopy() removes it because CACHE_CREATE_MASK is not
+valid for SLOB.
+
+Let's fix CACHE_CREATE_MASK and make kmemleak work with SLOB
+
+Link: https://lkml.kernel.org/r/20211115020850.3154366-1-rkovhaev@gmail.com
+Fixes: d8843922fba4 ("slab: Ignore internal flags in cache creation")
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Glauber Costa <glommer@parallels.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/tusb6010.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ mm/slab.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/musb/tusb6010.c b/drivers/usb/musb/tusb6010.c
-index 7d7cb1c5ec808..9a7b5b2d7ccc7 100644
---- a/drivers/usb/musb/tusb6010.c
-+++ b/drivers/usb/musb/tusb6010.c
-@@ -1108,6 +1108,11 @@ static int tusb_musb_init(struct musb *musb)
+--- a/mm/slab.h
++++ b/mm/slab.h
+@@ -133,7 +133,7 @@ static inline unsigned long kmem_cache_f
+ #define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE | SLAB_RECLAIM_ACCOUNT | \
+ 			  SLAB_TEMPORARY | SLAB_NOTRACK)
+ #else
+-#define SLAB_CACHE_FLAGS (0)
++#define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE)
+ #endif
  
- 	/* dma address for async dma */
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!mem) {
-+		pr_debug("no async dma resource?\n");
-+		ret = -ENODEV;
-+		goto done;
-+	}
- 	musb->async = mem->start;
- 
- 	/* dma address for sync dma */
--- 
-2.33.0
-
+ #define CACHE_CREATE_MASK (SLAB_CORE_FLAGS | SLAB_DEBUG_FLAGS | SLAB_CACHE_FLAGS)
 
 
