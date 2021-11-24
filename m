@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C8045BA50
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:06:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5680845BBE5
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242262AbhKXMJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:09:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34104 "EHLO mail.kernel.org"
+        id S242893AbhKXMZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236365AbhKXMIB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:08:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA09960FE7;
-        Wed, 24 Nov 2021 12:04:39 +0000 (UTC)
+        id S243495AbhKXMWt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:22:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89961610F7;
+        Wed, 24 Nov 2021 12:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755480;
-        bh=8cr3ZoFMncs/Dg1Rf9OzB0VOmW96d/RgGv4mrjh/nsI=;
+        s=korg; t=1637756022;
+        bh=xSEMB4xLMopOI2I+/OpL0exzmJsz+RaWAn39gnWlwvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tYtlLIQLn6uLTWF5FYvF7ORpjURKrcDJEB6d3wHzSA2gqiEyZxrCkSd+F/BU2LNQG
-         MieS2Sg9OzNcoXvNlw0uaZJ/c/QWDEZ+x2GsGhrPk+ZebIYbygWiyH7yYHgeXxg3Y7
-         vSFS/Pgb4RJXPhOvWYR35MrODPVfeOB8Mtfko19Q=
+        b=2AMVkfFVOeZ8qBO+bQFmJvfH72FksLYR5S5Fvw1NMm2xMKOpOGhuTNAR1qdogOImI
+         s/yZ/8XGFXGKLSLoFXmUVzulIcs3TBz7ZHSkjUUaa2ANPQ9EhU8WMNCZAoqBM58OE6
+         /JJM5NDQCFeAQfLAlg/0IguoxfD32aNE5F7LCla4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 110/162] USB: chipidea: fix interrupt deadlock
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 142/207] scsi: qla2xxx: Turn off target reset during issue_lip
 Date:   Wed, 24 Nov 2021 12:56:53 +0100
-Message-Id: <20211124115701.884789980@linuxfoundation.org>
+Message-Id: <20211124115708.617446374@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,97 +43,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Quinn Tran <qutran@marvell.com>
 
-commit 9aaa81c3366e8393a62374e3a1c67c69edc07b8a upstream.
+[ Upstream commit 0b7a9fd934a68ebfc1019811b7bdc1742072ad7b ]
 
-Chipidea core was calling the interrupt handler from non-IRQ context
-with interrupts enabled, something which can lead to a deadlock if
-there's an actual interrupt trying to take a lock that's already held
-(e.g. the controller lock in udc_irq()).
+When user uses issue_lip to do link bounce, driver sends additional target
+reset to remote device before resetting the link. The target reset would
+affect other paths with active I/Os. This patch will remove the unnecessary
+target reset.
 
-Add a wrapper that can be used to fake interrupts instead of calling the
-handler directly.
-
-Fixes: 3ecb3e09b042 ("usb: chipidea: Use extcon framework for VBUS and ID detect")
-Fixes: 876d4e1e8298 ("usb: chipidea: core: add wakeup support for extcon")
-Cc: Peter Chen <peter.chen@kernel.org>
-Cc: stable@vger.kernel.org      # 4.4
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211021083447.20078-1-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20211026115412.27691-4-njavali@marvell.com
+Fixes: 5854771e314e ("[SCSI] qla2xxx: Add ISPFX00 specific bus reset routine")
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/core.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/scsi/qla2xxx/qla_gbl.h |  2 --
+ drivers/scsi/qla2xxx/qla_mr.c  | 23 -----------------------
+ drivers/scsi/qla2xxx/qla_os.c  | 27 ++-------------------------
+ 3 files changed, 2 insertions(+), 50 deletions(-)
 
---- a/drivers/usb/chipidea/core.c
-+++ b/drivers/usb/chipidea/core.c
-@@ -518,7 +518,7 @@ int hw_device_reset(struct ci_hdrc *ci)
- 	return 0;
+diff --git a/drivers/scsi/qla2xxx/qla_gbl.h b/drivers/scsi/qla2xxx/qla_gbl.h
+index 6ca00813c71f0..4a1a16e6a8204 100644
+--- a/drivers/scsi/qla2xxx/qla_gbl.h
++++ b/drivers/scsi/qla2xxx/qla_gbl.h
+@@ -115,7 +115,6 @@ extern int ql2xasynctmfenable;
+ extern int ql2xgffidenable;
+ extern int ql2xenabledif;
+ extern int ql2xenablehba_err_chk;
+-extern int ql2xtargetreset;
+ extern int ql2xdontresethba;
+ extern uint64_t ql2xmaxlun;
+ extern int ql2xmdcapmask;
+@@ -655,7 +654,6 @@ extern void qlafx00_abort_iocb(srb_t *, struct abort_iocb_entry_fx00 *);
+ extern void qlafx00_fxdisc_iocb(srb_t *, struct fxdisc_entry_fx00 *);
+ extern void qlafx00_timer_routine(scsi_qla_host_t *);
+ extern int qlafx00_rescan_isp(scsi_qla_host_t *);
+-extern int qlafx00_loop_reset(scsi_qla_host_t *vha);
+ 
+ /* qla82xx related functions */
+ 
+diff --git a/drivers/scsi/qla2xxx/qla_mr.c b/drivers/scsi/qla2xxx/qla_mr.c
+index 15dff7099955b..b72cc4b1287d9 100644
+--- a/drivers/scsi/qla2xxx/qla_mr.c
++++ b/drivers/scsi/qla2xxx/qla_mr.c
+@@ -738,29 +738,6 @@ qlafx00_lun_reset(fc_port_t *fcport, uint64_t l, int tag)
+ 	return qla2x00_async_tm_cmd(fcport, TCF_LUN_RESET, l, tag);
  }
  
--static irqreturn_t ci_irq(int irq, void *data)
-+static irqreturn_t ci_irq_handler(int irq, void *data)
+-int
+-qlafx00_loop_reset(scsi_qla_host_t *vha)
+-{
+-	int ret;
+-	struct fc_port *fcport;
+-	struct qla_hw_data *ha = vha->hw;
+-
+-	if (ql2xtargetreset) {
+-		list_for_each_entry(fcport, &vha->vp_fcports, list) {
+-			if (fcport->port_type != FCT_TARGET)
+-				continue;
+-
+-			ret = ha->isp_ops->target_reset(fcport, 0, 0);
+-			if (ret != QLA_SUCCESS) {
+-				ql_dbg(ql_dbg_taskm, vha, 0x803d,
+-				    "Bus Reset failed: Reset=%d "
+-				    "d_id=%x.\n", ret, fcport->d_id.b24);
+-			}
+-		}
+-	}
+-	return QLA_SUCCESS;
+-}
+-
+ int
+ qlafx00_iospace_config(struct qla_hw_data *ha)
  {
- 	struct ci_hdrc *ci = data;
- 	irqreturn_t ret = IRQ_NONE;
-@@ -571,6 +571,15 @@ static irqreturn_t ci_irq(int irq, void
- 	return ret;
- }
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 65bbca715f57d..274b61ddee04a 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -180,12 +180,6 @@ MODULE_PARM_DESC(ql2xdbwr,
+ 		" 0 -- Regular doorbell.\n"
+ 		" 1 -- CAMRAM doorbell (faster).\n");
  
-+static void ci_irq(struct ci_hdrc *ci)
-+{
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	ci_irq_handler(ci->irq, ci);
-+	local_irq_restore(flags);
-+}
-+
- static int ci_vbus_notifier(struct notifier_block *nb, unsigned long event,
- 			    void *ptr)
+-int ql2xtargetreset = 1;
+-module_param(ql2xtargetreset, int, S_IRUGO);
+-MODULE_PARM_DESC(ql2xtargetreset,
+-		 "Enable target reset."
+-		 "Default is 1 - use hw defaults.");
+-
+ int ql2xgffidenable;
+ module_param(ql2xgffidenable, int, S_IRUGO);
+ MODULE_PARM_DESC(ql2xgffidenable,
+@@ -1401,27 +1395,10 @@ int
+ qla2x00_loop_reset(scsi_qla_host_t *vha)
  {
-@@ -584,7 +593,7 @@ static int ci_vbus_notifier(struct notif
+ 	int ret;
+-	struct fc_port *fcport;
+ 	struct qla_hw_data *ha = vha->hw;
  
- 	vbus->changed = true;
+-	if (IS_QLAFX00(ha)) {
+-		return qlafx00_loop_reset(vha);
+-	}
+-
+-	if (ql2xtargetreset == 1 && ha->flags.enable_target_reset) {
+-		list_for_each_entry(fcport, &vha->vp_fcports, list) {
+-			if (fcport->port_type != FCT_TARGET)
+-				continue;
+-
+-			ret = ha->isp_ops->target_reset(fcport, 0, 0);
+-			if (ret != QLA_SUCCESS) {
+-				ql_dbg(ql_dbg_taskm, vha, 0x802c,
+-				    "Bus Reset failed: Reset=%d "
+-				    "d_id=%x.\n", ret, fcport->d_id.b24);
+-			}
+-		}
+-	}
+-
++	if (IS_QLAFX00(ha))
++		return QLA_SUCCESS;
  
--	ci_irq(ci->irq, ci);
-+	ci_irq(ci);
- 	return NOTIFY_DONE;
- }
- 
-@@ -601,7 +610,7 @@ static int ci_id_notifier(struct notifie
- 
- 	id->changed = true;
- 
--	ci_irq(ci->irq, ci);
-+	ci_irq(ci);
- 	return NOTIFY_DONE;
- }
- 
-@@ -1023,7 +1032,7 @@ static int ci_hdrc_probe(struct platform
- 	}
- 
- 	platform_set_drvdata(pdev, ci);
--	ret = devm_request_irq(dev, ci->irq, ci_irq, IRQF_SHARED,
-+	ret = devm_request_irq(dev, ci->irq, ci_irq_handler, IRQF_SHARED,
- 			ci->platdata->name, ci);
- 	if (ret)
- 		goto stop;
-@@ -1138,11 +1147,11 @@ static void ci_extcon_wakeup_int(struct
- 
- 	if (!IS_ERR(cable_id->edev) && ci->is_otg &&
- 		(otgsc & OTGSC_IDIE) && (otgsc & OTGSC_IDIS))
--		ci_irq(ci->irq, ci);
-+		ci_irq(ci);
- 
- 	if (!IS_ERR(cable_vbus->edev) && ci->is_otg &&
- 		(otgsc & OTGSC_BSVIE) && (otgsc & OTGSC_BSVIS))
--		ci_irq(ci->irq, ci);
-+		ci_irq(ci);
- }
- 
- static int ci_controller_resume(struct device *dev)
+ 	if (ha->flags.enable_lip_full_login && !IS_CNA_CAPABLE(ha)) {
+ 		atomic_set(&vha->loop_state, LOOP_DOWN);
+-- 
+2.33.0
+
 
 
