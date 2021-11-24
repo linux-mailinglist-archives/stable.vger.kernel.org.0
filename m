@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDC6745C4CE
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:48:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3A3845C078
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350007AbhKXNvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:51:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42272 "EHLO mail.kernel.org"
+        id S245185AbhKXNJU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:09:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351521AbhKXNtp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:49:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8317F63354;
-        Wed, 24 Nov 2021 13:03:30 +0000 (UTC)
+        id S244614AbhKXNGi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:06:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C049661391;
+        Wed, 24 Nov 2021 12:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759011;
-        bh=/unO2jc1AdsvwpIESGe4u7Z/eL4XQ2jr6rO8abw0EsA=;
+        s=korg; t=1637757489;
+        bh=Na+VFDNc23vBqqieaWxvkvKx/dmnYxyU420PrkxYGvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cDifJ6xrVdPiC+TY+7Gz07kDPeFRzZ4QsGsRd43IHpf00zvI7BDxmjPOVG+qJpxta
-         petQx5UO5FIdbw+WLUuUs0VOHj5csXr/JT1b6v4U099KwZRUdyzkupMe4jDXjb3Ocb
-         6O/LC934yr2tNrq3e+bMdlBNCgnONCTEkifsLAEA=
+        b=geIB7wUdo4bBfZAgA/04dZACNe5W3/TLSWAMWBJCZ6kzpHk99DQ6s1vR6uF/WoPF7
+         CN47MUdLDfeo23fwt8ddTY4x1zvAPMm5UfPJbOB87Mh3nV8QVmQZM52uAFISwxBMAR
+         ZY8AQcmtbwUhdueHseJHH3O5VbIg3CnYRyQPFH2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Takashi YOSHII <takasi-y@ops.dti.ne.jp>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 086/279] sh: math-emu: drop unused functions
-Date:   Wed, 24 Nov 2021 12:56:13 +0100
-Message-Id: <20211124115721.687678169@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 184/323] ALSA: hda: Reduce udelay() at SKL+ position reporting
+Date:   Wed, 24 Nov 2021 12:56:14 +0100
+Message-Id: <20211124115725.155609311@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,145 +40,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit e25c252a9b033523c626f039d4b9a304f12f6775 ]
+[ Upstream commit 46243b85b0ec5d2cee7545e5ce18c015ce91957e ]
 
-Delete ieee_fpe_handler() since it is not used. After that is done,
-delete denormal_to_double() since it is not used:
+The position reporting on Intel Skylake and later chips via
+azx_get_pos_skl() contains a udelay(20) call for the capture streams.
+A call for this alone doesn't sound too harmful.  However, as the
+pointer PCM ops is one of the hottest path in the PCM operations --
+especially for the timer-scheduled operations like PulseAudio -- such
+a delay hogs CPU usage significantly in the total performance.
 
-.../arch/sh/math-emu/math.c:505:12: error: 'ieee_fpe_handler' defined but not used [-Werror=unused-function]
-  505 | static int ieee_fpe_handler(struct pt_regs *regs)
+The code there was taken from the original code in ASoC SST Skylake
+driver blindly.  The udelay() is a workaround for the case where the
+reported position is behind the period boundary at the timing
+triggered from interrupts; applications often expect that the full
+data is available for the whole period when returned (and also that's
+the definition of the ALSA PCM period).
 
-.../arch/sh/math-emu/math.c:477:13: error: 'denormal_to_double' defined but not used [-Werror=unused-function]
-  477 | static void denormal_to_double(struct sh_fpu_soft_struct *fpu, int n)
+OTOH, HD-audio (legacy) driver has already some workarounds for the
+delayed position reporting due to its relatively large FIFO, such as
+the BDL position adjustment and the delayed period-elapsed call in the
+work.  That said, the udelay() is almost superfluous for HD-audio
+driver unlike SST, and we can drop the udelay().
 
-Fixes: 7caf62de25554da3 ("sh: remove unused do_fpu_error")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Takashi YOSHII <takasi-y@ops.dti.ne.jp>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Rich Felker <dalias@libc.org>
+Though, the current code doesn't guarantee the full period readiness
+as mentioned in the above, but rather it checks the wallclock and
+detects the unexpected jump.  That's one missing piece, and the drop
+of udelay() needs a bit more sanity checks for the delayed handling.
+
+This patch implements those: the drop of udelay() call in
+azx_get_pos_skl() and the more proper check of hwptr in
+azx_position_ok().  The latter change is applied only for the case
+where the stream is running in the normal mode without
+no_period_wakeup flag.  When no_period_wakeup is set, it essentially
+ignores the period handling and rather concentrates only on the
+current position; which implies that we don't need to care about the
+period boundary at all.
+
+Fixes: f87e7f25893d ("ALSA: hda - Improved position reporting on SKL+")
+Reported-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210929072934.6809-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/math-emu/math.c | 103 ----------------------------------------
- 1 file changed, 103 deletions(-)
+ sound/pci/hda/hda_intel.c | 28 +++++++++++++++++++++++-----
+ 1 file changed, 23 insertions(+), 5 deletions(-)
 
-diff --git a/arch/sh/math-emu/math.c b/arch/sh/math-emu/math.c
-index e8be0eca0444a..615ba932c398e 100644
---- a/arch/sh/math-emu/math.c
-+++ b/arch/sh/math-emu/math.c
-@@ -467,109 +467,6 @@ static int fpu_emulate(u16 code, struct sh_fpu_soft_struct *fregs, struct pt_reg
- 		return id_sys(fregs, regs, code);
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 2cd8bfd5293b9..7d4b6c31dfe70 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -743,13 +743,17 @@ static int azx_intel_link_power(struct azx *chip, bool enable)
+  * the update-IRQ timing.  The IRQ is issued before actually the
+  * data is processed.  So, we need to process it afterwords in a
+  * workqueue.
++ *
++ * Returns 1 if OK to proceed, 0 for delay handling, -1 for skipping update
+  */
+ static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev)
+ {
+ 	struct snd_pcm_substream *substream = azx_dev->core.substream;
++	struct snd_pcm_runtime *runtime = substream->runtime;
+ 	int stream = substream->stream;
+ 	u32 wallclk;
+ 	unsigned int pos;
++	snd_pcm_uframes_t hwptr, target;
+ 
+ 	wallclk = azx_readl(chip, WALLCLK) - azx_dev->core.start_wallclk;
+ 	if (wallclk < (azx_dev->core.period_wallclk * 2) / 3)
+@@ -786,6 +790,24 @@ static int azx_position_ok(struct azx *chip, struct azx_dev *azx_dev)
+ 		/* NG - it's below the first next period boundary */
+ 		return chip->bdl_pos_adj ? 0 : -1;
+ 	azx_dev->core.start_wallclk += wallclk;
++
++	if (azx_dev->core.no_period_wakeup)
++		return 1; /* OK, no need to check period boundary */
++
++	if (runtime->hw_ptr_base != runtime->hw_ptr_interrupt)
++		return 1; /* OK, already in hwptr updating process */
++
++	/* check whether the period gets really elapsed */
++	pos = bytes_to_frames(runtime, pos);
++	hwptr = runtime->hw_ptr_base + pos;
++	if (hwptr < runtime->status->hw_ptr)
++		hwptr += runtime->buffer_size;
++	target = runtime->hw_ptr_interrupt + runtime->period_size;
++	if (hwptr < target) {
++		/* too early wakeup, process it later */
++		return chip->bdl_pos_adj ? 0 : -1;
++	}
++
+ 	return 1; /* OK, it's fine */
  }
  
--/**
-- *	denormal_to_double - Given denormalized float number,
-- *	                     store double float
-- *
-- *	@fpu: Pointer to sh_fpu_soft structure
-- *	@n: Index to FP register
-- */
--static void denormal_to_double(struct sh_fpu_soft_struct *fpu, int n)
--{
--	unsigned long du, dl;
--	unsigned long x = fpu->fpul;
--	int exp = 1023 - 126;
--
--	if (x != 0 && (x & 0x7f800000) == 0) {
--		du = (x & 0x80000000);
--		while ((x & 0x00800000) == 0) {
--			x <<= 1;
--			exp--;
--		}
--		x &= 0x007fffff;
--		du |= (exp << 20) | (x >> 3);
--		dl = x << 29;
--
--		fpu->fp_regs[n] = du;
--		fpu->fp_regs[n+1] = dl;
--	}
--}
--
--/**
-- *	ieee_fpe_handler - Handle denormalized number exception
-- *
-- *	@regs: Pointer to register structure
-- *
-- *	Returns 1 when it's handled (should not cause exception).
-- */
--static int ieee_fpe_handler(struct pt_regs *regs)
--{
--	unsigned short insn = *(unsigned short *)regs->pc;
--	unsigned short finsn;
--	unsigned long nextpc;
--	int nib[4] = {
--		(insn >> 12) & 0xf,
--		(insn >> 8) & 0xf,
--		(insn >> 4) & 0xf,
--		insn & 0xf};
--
--	if (nib[0] == 0xb ||
--	    (nib[0] == 0x4 && nib[2] == 0x0 && nib[3] == 0xb)) /* bsr & jsr */
--		regs->pr = regs->pc + 4;
--
--	if (nib[0] == 0xa || nib[0] == 0xb) { /* bra & bsr */
--		nextpc = regs->pc + 4 + ((short) ((insn & 0xfff) << 4) >> 3);
--		finsn = *(unsigned short *) (regs->pc + 2);
--	} else if (nib[0] == 0x8 && nib[1] == 0xd) { /* bt/s */
--		if (regs->sr & 1)
--			nextpc = regs->pc + 4 + ((char) (insn & 0xff) << 1);
--		else
--			nextpc = regs->pc + 4;
--		finsn = *(unsigned short *) (regs->pc + 2);
--	} else if (nib[0] == 0x8 && nib[1] == 0xf) { /* bf/s */
--		if (regs->sr & 1)
--			nextpc = regs->pc + 4;
--		else
--			nextpc = regs->pc + 4 + ((char) (insn & 0xff) << 1);
--		finsn = *(unsigned short *) (regs->pc + 2);
--	} else if (nib[0] == 0x4 && nib[3] == 0xb &&
--		 (nib[2] == 0x0 || nib[2] == 0x2)) { /* jmp & jsr */
--		nextpc = regs->regs[nib[1]];
--		finsn = *(unsigned short *) (regs->pc + 2);
--	} else if (nib[0] == 0x0 && nib[3] == 0x3 &&
--		 (nib[2] == 0x0 || nib[2] == 0x2)) { /* braf & bsrf */
--		nextpc = regs->pc + 4 + regs->regs[nib[1]];
--		finsn = *(unsigned short *) (regs->pc + 2);
--	} else if (insn == 0x000b) { /* rts */
--		nextpc = regs->pr;
--		finsn = *(unsigned short *) (regs->pc + 2);
--	} else {
--		nextpc = regs->pc + 2;
--		finsn = insn;
--	}
--
--	if ((finsn & 0xf1ff) == 0xf0ad) { /* fcnvsd */
--		struct task_struct *tsk = current;
--
--		if ((tsk->thread.xstate->softfpu.fpscr & (1 << 17))) {
--			/* FPU error */
--			denormal_to_double (&tsk->thread.xstate->softfpu,
--					    (finsn >> 8) & 0xf);
--			tsk->thread.xstate->softfpu.fpscr &=
--				~(FPSCR_CAUSE_MASK | FPSCR_FLAG_MASK);
--			task_thread_info(tsk)->status |= TS_USEDFPU;
--		} else {
--			force_sig_fault(SIGFPE, FPE_FLTINV,
--					(void __user *)regs->pc);
--		}
--
--		regs->pc = nextpc;
--		return 1;
--	}
--
--	return 0;
--}
--
- /**
-  * fpu_init - Initialize FPU registers
-  * @fpu: Pointer to software emulated FPU registers.
+@@ -983,11 +1005,7 @@ static unsigned int azx_get_pos_skl(struct azx *chip, struct azx_dev *azx_dev)
+ 	if (azx_dev->core.substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+ 		return azx_skl_get_dpib_pos(chip, azx_dev);
+ 
+-	/* For capture, we need to read posbuf, but it requires a delay
+-	 * for the possible boundary overlap; the read of DPIB fetches the
+-	 * actual posbuf
+-	 */
+-	udelay(20);
++	/* read of DPIB fetches the actual posbuf */
+ 	azx_skl_get_dpib_pos(chip, azx_dev);
+ 	return azx_get_pos_posbuf(chip, azx_dev);
+ }
 -- 
 2.33.0
 
