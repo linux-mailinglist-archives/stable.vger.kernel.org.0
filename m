@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC8A45BE48
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:43:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F78D45BA92
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244455AbhKXMqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:46:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50528 "EHLO mail.kernel.org"
+        id S242561AbhKXMME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:12:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345748AbhKXMoG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:44:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0153E61250;
-        Wed, 24 Nov 2021 12:26:07 +0000 (UTC)
+        id S242572AbhKXMKB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:10:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72F5C610F7;
+        Wed, 24 Nov 2021 12:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756768;
-        bh=2NLdfpJ5IQdSA6EvccIBEiaYn7yUicCVP71I+nke8wo=;
+        s=korg; t=1637755554;
+        bh=PUzI2ew/fY/tzYueukQC2Q8yX7MFw4JcFUDMaMqn1m4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yv8TtSEjSfxp8sBgvGRciaNFfdQeigSQrlz0aYL/A6CfddPULYoKNb8IqkLMznXyW
-         TS/WqjNNwsFBTz8R7FiUQjr6MXIalLNf4kLMaNK8L0skshtKLBS6/sTKGB5q4Ra2XF
-         y7CZLEqTLhmMxuJFKRvHDKWQnD7ln/V7YqDCt8p4=
+        b=0Jb7BPaYvQYPLS8idC/iPFFRYDX8yajx2JPpdmzK0VttjY06G3By0nM45e/3pL7gu
+         YlJ50geTOfk7ACfW5dkaB3Bxz3ViWYW2/1vRNO2dDnWnTPprtR3IVPLWbAPXrJcuVF
+         6bQPV253q4ycBNB+7ltuPopXA7NDx8Y8fmJuDPks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Paul Burton <paulburton@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 199/251] tracing: Resize tgid_map to pid_max, not PID_MAX_DEFAULT
-Date:   Wed, 24 Nov 2021 12:57:21 +0100
-Message-Id: <20211124115717.182800413@linuxfoundation.org>
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 139/162] NFC: reorder the logic in nfc_{un,}register_device
+Date:   Wed, 24 Nov 2021 12:57:22 +0100
+Message-Id: <20211124115702.783448797@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,176 +41,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paulburton@google.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit 4030a6e6a6a4a42ff8c18414c9e0c93e24cc70b8 upstream.
+[ Upstream commit 3e3b5dfcd16a3e254aab61bd1e8c417dd4503102 ]
 
-Currently tgid_map is sized at PID_MAX_DEFAULT entries, which means that
-on systems where pid_max is configured higher than PID_MAX_DEFAULT the
-ftrace record-tgid option doesn't work so well. Any tasks with PIDs
-higher than PID_MAX_DEFAULT are simply not recorded in tgid_map, and
-don't show up in the saved_tgids file.
+There is a potential UAF between the unregistration routine and the NFC
+netlink operations.
 
-In particular since systemd v243 & above configure pid_max to its
-highest possible 1<<22 value by default on 64 bit systems this renders
-the record-tgids option of little use.
+The race that cause that UAF can be shown as below:
 
-Increase the size of tgid_map to the configured pid_max instead,
-allowing it to cover the full range of PIDs up to the maximum value of
-PID_MAX_LIMIT if the system is configured that way.
+ (FREE)                      |  (USE)
+nfcmrvl_nci_unregister_dev   |  nfc_genl_dev_up
+  nci_close_device           |
+  nci_unregister_device      |    nfc_get_device
+    nfc_unregister_device    |    nfc_dev_up
+      rfkill_destory         |
+      device_del             |      rfkill_blocked
+  ...                        |    ...
 
-On 64 bit systems with pid_max == PID_MAX_LIMIT this will increase the
-size of tgid_map from 256KiB to 16MiB. Whilst this 64x increase in
-memory overhead sounds significant 64 bit systems are presumably best
-placed to accommodate it, and since tgid_map is only allocated when the
-record-tgid option is actually used presumably the user would rather it
-spends sufficient memory to actually record the tgids they expect.
+The root cause for this race is concluded below:
+1. The rfkill_blocked (USE) in nfc_dev_up is supposed to be placed after
+the device_is_registered check.
+2. Since the netlink operations are possible just after the device_add
+in nfc_register_device, the nfc_dev_up() can happen anywhere during the
+rfkill creation process, which leads to data race.
 
-The size of tgid_map could also increase for CONFIG_BASE_SMALL=y
-configurations, but these seem unlikely to be systems upon which people
-are both configuring a large pid_max and running ftrace with record-tgid
-anyway.
+This patch reorder these actions to permit
+1. Once device_del is finished, the nfc_dev_up cannot dereference the
+rfkill object.
+2. The rfkill_register need to be placed after the device_add of nfc_dev
+because the parent device need to be created first. So this patch keeps
+the order but inject device_lock to prevent the data race.
 
-Of note is that we only allocate tgid_map once, the first time that the
-record-tgid option is enabled. Therefore its size is only set once, to
-the value of pid_max at the time the record-tgid option is first
-enabled. If a user increases pid_max after that point, the saved_tgids
-file will not contain entries for any tasks with pids beyond the earlier
-value of pid_max.
-
-Link: https://lkml.kernel.org/r/20210701172407.889626-2-paulburton@google.com
-
-Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joel Fernandes <joelaf@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Paul Burton <paulburton@google.com>
-[ Fixed comment coding style ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Fixes: be055b2f89b5 ("NFC: RFKILL support")
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211116152652.19217-1-linma@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c |   62 ++++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 47 insertions(+), 15 deletions(-)
+ net/nfc/core.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1723,8 +1723,15 @@ void tracing_reset_all_online_cpus(void)
+diff --git a/net/nfc/core.c b/net/nfc/core.c
+index 1471e4b0aa2c6..8c7f221e1d125 100644
+--- a/net/nfc/core.c
++++ b/net/nfc/core.c
+@@ -106,13 +106,13 @@ int nfc_dev_up(struct nfc_dev *dev)
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
+-		rc = -ERFKILL;
++	if (!device_is_registered(&dev->dev)) {
++		rc = -ENODEV;
+ 		goto error;
  	}
- }
  
-+/*
-+ * The tgid_map array maps from pid to tgid; i.e. the value stored at index i
-+ * is the tgid last observed corresponding to pid=i.
-+ */
- static int *tgid_map;
+-	if (!device_is_registered(&dev->dev)) {
+-		rc = -ENODEV;
++	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
++		rc = -ERFKILL;
+ 		goto error;
+ 	}
  
-+/* The maximum valid index into tgid_map. */
-+static size_t tgid_map_max;
-+
- #define SAVED_CMDLINES_DEFAULT 128
- #define NO_CMDLINE_MAP UINT_MAX
- static arch_spinlock_t trace_cmdline_lock = __ARCH_SPIN_LOCK_UNLOCKED;
-@@ -1996,24 +2003,41 @@ void trace_find_cmdline(int pid, char co
- 	preempt_enable();
- }
+@@ -1120,11 +1120,7 @@ int nfc_register_device(struct nfc_dev *dev)
+ 	if (rc)
+ 		pr_err("Could not register llcp device\n");
  
-+static int *trace_find_tgid_ptr(int pid)
-+{
-+	/*
-+	 * Pairs with the smp_store_release in set_tracer_flag() to ensure that
-+	 * if we observe a non-NULL tgid_map then we also observe the correct
-+	 * tgid_map_max.
-+	 */
-+	int *map = smp_load_acquire(&tgid_map);
-+
-+	if (unlikely(!map || pid > tgid_map_max))
-+		return NULL;
-+
-+	return &map[pid];
-+}
-+
- int trace_find_tgid(int pid)
- {
--	if (unlikely(!tgid_map || !pid || pid > PID_MAX_DEFAULT))
--		return 0;
-+	int *ptr = trace_find_tgid_ptr(pid);
- 
--	return tgid_map[pid];
-+	return ptr ? *ptr : 0;
- }
- 
- static int trace_save_tgid(struct task_struct *tsk)
- {
-+	int *ptr;
-+
- 	/* treat recording of idle task as a success */
- 	if (!tsk->pid)
- 		return 1;
- 
--	if (unlikely(!tgid_map || tsk->pid > PID_MAX_DEFAULT))
-+	ptr = trace_find_tgid_ptr(tsk->pid);
-+	if (!ptr)
- 		return 0;
- 
--	tgid_map[tsk->pid] = tsk->tgid;
-+	*ptr = tsk->tgid;
- 	return 1;
- }
- 
-@@ -4353,6 +4377,8 @@ int trace_keep_overwrite(struct tracer *
- 
- int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
- {
-+	int *map;
-+
- 	if ((mask == TRACE_ITER_RECORD_TGID) ||
- 	    (mask == TRACE_ITER_RECORD_CMD))
- 		lockdep_assert_held(&event_mutex);
-@@ -4375,9 +4401,19 @@ int set_tracer_flag(struct trace_array *
- 		trace_event_enable_cmd_record(enabled);
- 
- 	if (mask == TRACE_ITER_RECORD_TGID) {
--		if (!tgid_map)
--			tgid_map = kzalloc((PID_MAX_DEFAULT + 1) * sizeof(*tgid_map),
--					   GFP_KERNEL);
-+		if (!tgid_map) {
-+			tgid_map_max = pid_max;
-+			map = kzalloc((tgid_map_max + 1) * sizeof(*tgid_map),
-+				      GFP_KERNEL);
-+
-+			/*
-+			 * Pairs with smp_load_acquire() in
-+			 * trace_find_tgid_ptr() to ensure that if it observes
-+			 * the tgid_map we just allocated then it also observes
-+			 * the corresponding tgid_map_max value.
-+			 */
-+			smp_store_release(&tgid_map, map);
-+		}
- 		if (!tgid_map) {
- 			tr->trace_flags &= ~TRACE_ITER_RECORD_TGID;
- 			return -ENOMEM;
-@@ -4752,18 +4788,14 @@ static void *saved_tgids_next(struct seq
- {
- 	int pid = ++(*pos);
- 
--	if (pid > PID_MAX_DEFAULT)
--		return NULL;
+-	rc = nfc_genl_device_added(dev);
+-	if (rc)
+-		pr_debug("The userspace won't be notified that the device %s was added\n",
+-			 dev_name(&dev->dev));
 -
--	return &tgid_map[pid];
-+	return trace_find_tgid_ptr(pid);
++	device_lock(&dev->dev);
+ 	dev->rfkill = rfkill_alloc(dev_name(&dev->dev), &dev->dev,
+ 				   RFKILL_TYPE_NFC, &nfc_rfkill_ops, dev);
+ 	if (dev->rfkill) {
+@@ -1133,6 +1129,12 @@ int nfc_register_device(struct nfc_dev *dev)
+ 			dev->rfkill = NULL;
+ 		}
+ 	}
++	device_unlock(&dev->dev);
++
++	rc = nfc_genl_device_added(dev);
++	if (rc)
++		pr_debug("The userspace won't be notified that the device %s was added\n",
++			 dev_name(&dev->dev));
+ 
+ 	return 0;
  }
+@@ -1149,10 +1151,17 @@ void nfc_unregister_device(struct nfc_dev *dev)
  
- static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
- {
--	if (!tgid_map || *pos > PID_MAX_DEFAULT)
--		return NULL;
-+	int pid = *pos;
+ 	pr_debug("dev_name=%s\n", dev_name(&dev->dev));
  
--	return &tgid_map[*pos];
-+	return trace_find_tgid_ptr(pid);
- }
++	rc = nfc_genl_device_removed(dev);
++	if (rc)
++		pr_debug("The userspace won't be notified that the device %s "
++			 "was removed\n", dev_name(&dev->dev));
++
++	device_lock(&dev->dev);
+ 	if (dev->rfkill) {
+ 		rfkill_unregister(dev->rfkill);
+ 		rfkill_destroy(dev->rfkill);
+ 	}
++	device_unlock(&dev->dev);
  
- static void saved_tgids_stop(struct seq_file *m, void *v)
+ 	if (dev->ops->check_presence) {
+ 		device_lock(&dev->dev);
+@@ -1162,11 +1171,6 @@ void nfc_unregister_device(struct nfc_dev *dev)
+ 		cancel_work_sync(&dev->check_pres_work);
+ 	}
+ 
+-	rc = nfc_genl_device_removed(dev);
+-	if (rc)
+-		pr_debug("The userspace won't be notified that the device %s "
+-			 "was removed\n", dev_name(&dev->dev));
+-
+ 	nfc_llcp_unregister_device(dev);
+ 
+ 	mutex_lock(&nfc_devlist_mutex);
+-- 
+2.33.0
+
 
 
