@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C46F45C55D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:53:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6F7F45C29C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:28:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352767AbhKXN5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:57:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44668 "EHLO mail.kernel.org"
+        id S1350784AbhKXNaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:30:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352479AbhKXNy6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:54:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05B5D61A62;
-        Wed, 24 Nov 2021 13:06:20 +0000 (UTC)
+        id S1350817AbhKXN2o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:28:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0932D6152A;
+        Wed, 24 Nov 2021 12:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759181;
-        bh=vFzyewjNr6FccMBf9WCAz3GHrxtCstL+Vni8xfYwaZI=;
+        s=korg; t=1637758280;
+        bh=anNM17j2qQ320cTbZ6Fs1UMAGeraF7RaUY0LOIlNUx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nxblS6teuls1wH9a5qSd9+6/5a19Zs9Yc5AwZu2Dn8ThqtiBjQ2+g2PVoYSa2xJEr
-         39G85F+fhuayjRH8BRn3chMhtvVeScM4y3ejy+fKI1NkoRmXtsOF3BPghY65+3Pem/
-         RCpxIzjtU2Au8Y7HygbydAXLVNtB2p0UH6xYaMaE=
+        b=UCzml8MCO+uK+QNod6sGRJ2v3zXsYUhFNvxMxSLgOg82c8zpTq+Bnik0c1ctNYbOa
+         1YslVXIJWNZjIcrnN0WDxX5DUUxZc20ZPo+JNkFxTKoyf0i3x2mTPc3MMgLx6DTkZ8
+         /sHWCi16Eb53SIyjUVKN4kUd5yeYJiLk0lGqSLU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicholas Nunley <nicholas.d.nunley@intel.com>,
-        Tony Brelinski <tony.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 126/279] iavf: dont clear a lock we dont hold
-Date:   Wed, 24 Nov 2021 12:56:53 +0100
-Message-Id: <20211124115723.158247067@linuxfoundation.org>
+Subject: [PATCH 5.10 018/154] ARM: BCM53016: Specify switch ports for Meraki MR32
+Date:   Wed, 24 Nov 2021 12:56:54 +0100
+Message-Id: <20211124115702.964650271@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Nunley <nicholas.d.nunley@intel.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-[ Upstream commit 2135a8d5c8186bc92901dc00f179ffd50e54c2ac ]
+[ Upstream commit 6abc4ca5a28070945e0d68cb4160b309bfbf4b8b ]
 
-In iavf_configure_clsflower() the function will bail out if it is unable
-to obtain the crit_section lock in a reasonable time. However, it will
-clear the lock when exiting, so fix this.
+the switch identifies itself as a BCM53012 (rev 5)...
+This patch has been tested & verified on OpenWrt's
+snapshot with Linux 5.10 (didn't test any older kernels).
+The MR32 is able to "talk to the network" as before with
+OpenWrt's SWITCHDEV b53 driver.
 
-Fixes: 640a8af5841f ("i40evf: Reorder configure_clsflower to avoid deadlock on error")
-Signed-off-by: Nicholas Nunley <nicholas.d.nunley@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+| b53-srab-switch 18007000.ethernet-switch: found switch: BCM53012, rev 5
+| libphy: dsa slave smi: probed
+| b53-srab-switch 18007000.ethernet-switch poe (uninitialized):
+|	PHY [dsa-0.0:00] driver [Generic PHY] (irq=POLL)
+| b53-srab-switch 18007000.ethernet-switch: Using legacy PHYLIB callbacks.
+|	Please migrate to PHYLINK!
+| DSA: tree 0 setup
+
+Reported-by: Rafał Miłecki <zajec5@gmail.com>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/bcm53016-meraki-mr32.dts | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 5664a1905e8bb..f64ccf6286ec1 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3041,8 +3041,10 @@ static int iavf_configure_clsflower(struct iavf_adapter *adapter,
- 		return -ENOMEM;
- 
- 	while (!mutex_trylock(&adapter->crit_lock)) {
--		if (--count == 0)
--			goto err;
-+		if (--count == 0) {
-+			kfree(filter);
-+			return err;
-+		}
- 		udelay(1);
- 	}
- 
+diff --git a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
+index 612d61852bfb9..577a4dc604d93 100644
+--- a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
++++ b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
+@@ -195,3 +195,25 @@
+ 		};
+ 	};
+ };
++
++&srab {
++	status = "okay";
++
++	ports {
++		port@0 {
++			reg = <0>;
++			label = "poe";
++		};
++
++		port@5 {
++			reg = <5>;
++			label = "cpu";
++			ethernet = <&gmac0>;
++
++			fixed-link {
++				speed = <1000>;
++				duplex-full;
++			};
++		};
++	};
++};
 -- 
 2.33.0
 
