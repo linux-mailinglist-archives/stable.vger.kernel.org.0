@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4476145B9B8
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:02:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F184B45BD23
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:32:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242033AbhKXME3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:04:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58978 "EHLO mail.kernel.org"
+        id S1343965AbhKXMfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:35:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242048AbhKXMED (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:04:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CCC160FBF;
-        Wed, 24 Nov 2021 12:00:53 +0000 (UTC)
+        id S1344355AbhKXMdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:33:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0A39611CA;
+        Wed, 24 Nov 2021 12:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755254;
-        bh=oZhXbpmweQro5ewwkKxk0Yd8mk+wgVBiyc+oC8/xaYg=;
+        s=korg; t=1637756445;
+        bh=T8kPapjxySRQi2XEtlStghEYlsOPqjHtXX/wn4lH+R0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsFc+CIihd/ybyA7Ldhp91JinS30mxqeR/D2YWm7AxsyMModhjgvaLRCYV8um+CPO
-         L3/JayGs82lkek3G+8lWiq/BEYS46WMkiqjS6hrb1oHLcp45BweOWmvmjH4Um68ERt
-         YErAxNdbPDCGUnZ76JILm7DpHc3ywz0tSGRVxtFA=
+        b=sxoHh8KELD6Pet2dyefpIkoC21mwD2pjd0KbVpwlWMyIwaU9FUfEHFp1fS8R5Aaf5
+         SXcFW/s4cXPhGoG5a+3h9UweP8Cqr5WJ0ITki+9QTPR6d4oBswjdhfoNG7w7sMCoQT
+         veW+mqUCYDaxfOsnGPSICkvzqtelxYSIrlNzMmb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.4 028/162] ath6kl: fix control-message timeout
+        stable@vger.kernel.org,
+        =?UTF-8?q?Andr=C3=A9=20Almeida?= <andrealmeid@collabora.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 089/251] ACPI: battery: Accept charges over the design capacity as full
 Date:   Wed, 24 Nov 2021 12:55:31 +0100
-Message-Id: <20211124115659.245278700@linuxfoundation.org>
+Message-Id: <20211124115713.342917452@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: André Almeida <andrealmeid@collabora.com>
 
-commit a066d28a7e729f808a3e6eff22e70c003091544e upstream.
+[ Upstream commit 2835f327bd1240508db2c89fe94a056faa53c49a ]
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+Some buggy firmware and/or brand new batteries can support a charge that's
+slightly over the reported design capacity. In such cases, the kernel will
+report to userspace that the charging state of the battery is "Unknown",
+when in reality the battery charge is "Full", at least from the design
+capacity point of view. Make the fallback condition accepts capacities
+over the designed capacity so userspace knows that is full.
 
-Fixes: 241b128b6b69 ("ath6kl: add back beginnings of USB support")
-Cc: stable@vger.kernel.org      # 3.4
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211025120522.6045-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: André Almeida <andrealmeid@collabora.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath6kl/usb.c |    2 +-
+ drivers/acpi/battery.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/ath/ath6kl/usb.c
-+++ b/drivers/net/wireless/ath/ath6kl/usb.c
-@@ -912,7 +912,7 @@ static int ath6kl_usb_submit_ctrl_in(str
- 				 req,
- 				 USB_DIR_IN | USB_TYPE_VENDOR |
- 				 USB_RECIP_DEVICE, value, index, buf,
--				 size, 2 * HZ);
-+				 size, 2000);
+diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+index 13e7b56e33aeb..30996effc491b 100644
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -193,7 +193,7 @@ static int acpi_battery_is_charged(struct acpi_battery *battery)
+ 		return 1;
  
- 	if (ret < 0) {
- 		ath6kl_warn("Failed to read usb control message: %d\n", ret);
+ 	/* fallback to using design values for broken batteries */
+-	if (battery->design_capacity == battery->capacity_now)
++	if (battery->design_capacity <= battery->capacity_now)
+ 		return 1;
+ 
+ 	/* we don't do any sort of metric based on percentages */
+-- 
+2.33.0
+
 
 
