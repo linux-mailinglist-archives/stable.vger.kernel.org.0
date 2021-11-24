@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D495845C63F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:03:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 836D745C64E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:03:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346882AbhKXOG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:06:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50840 "EHLO mail.kernel.org"
+        id S1351691AbhKXOGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:06:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356480AbhKXOEW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:04:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46B896330A;
-        Wed, 24 Nov 2021 13:11:16 +0000 (UTC)
+        id S1348765AbhKXOEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:04:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 030FC6331C;
+        Wed, 24 Nov 2021 13:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759476;
-        bh=InxKKQv0sbZGhXTbDmGawlOPc/XoakZhnQ3BIPrWTYw=;
+        s=korg; t=1637759496;
+        bh=FbbNEhmcIzY0h8QyWaJ2d1XU9PgVs/EuXzfXvZs22Rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yDlVuPpRJdYGKTw2RvYtA6oVwx561niHlPYMYmAQ9k3DQfdH9sG9S3FAfbgxIQmLo
-         l7D8DTjOOLK3F/gC1WHpCi8Kd6ysoLxXcFVhI4DE35RqQtuM4O9uWg4S1w4P2pQDU4
-         K2mFTUk/UmY2qAnwoNV+isb9B//62D3eqnqJtmeI=
+        b=S3cSNQWdA4PO0+JnVBG61CQuDcUYwpMWyPoz9w3zvhl2k41g/9AvUeWAUgN9vLApd
+         g0iK7au/tXmav6W5DJrq8durqF52Ze2QOAjKjNzivDrG3IR9zr5i61b3MyWuN0tE+L
+         3cLXadk8EcVYax3OmRf8itsuz0/QqlezOfjaq4q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Wilson <nate@chickenbrittle.com>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.15 228/279] udf: Fix crash after seekdir
-Date:   Wed, 24 Nov 2021 12:58:35 +0100
-Message-Id: <20211124115726.629065571@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Lukas Wunner <lukas@wunner.de>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 229/279] spi: fix use-after-free of the add_lock mutex
+Date:   Wed, 24 Nov 2021 12:58:36 +0100
+Message-Id: <20211124115726.660387569@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
 References: <20211124115718.776172708@linuxfoundation.org>
@@ -39,157 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Michael Walle <michael@walle.cc>
 
-commit a48fc69fe6588b48d878d69de223b91a386a7cb4 upstream.
+commit 6c53b45c71b4920b5e62f0ea8079a1da382b9434 upstream.
 
-udf_readdir() didn't validate the directory position it should start
-reading from. Thus when user uses lseek(2) on directory file descriptor
-it can trick udf_readdir() into reading from a position in the middle of
-directory entry which then upsets directory parsing code resulting in
-errors or even possible kernel crashes. Similarly when the directory is
-modified between two readdir calls, the directory position need not be
-valid anymore.
+Commit 6098475d4cb4 ("spi: Fix deadlock when adding SPI controllers on
+SPI buses") introduced a per-controller mutex. But mutex_unlock() of
+said lock is called after the controller is already freed:
 
-Add code to validate current offset in the directory. This is actually
-rather expensive for UDF as we need to read from the beginning of the
-directory and parse all directory entries. This is because in UDF a
-directory is just a stream of data containing directory entries and
-since file names are fully under user's control we cannot depend on
-detecting magic numbers and checksums in the header of directory entry
-as a malicious attacker could fake them. We skip this step if we detect
-that nothing changed since the last readdir call.
+  spi_unregister_controller(ctlr)
+  -> put_device(&ctlr->dev)
+    -> spi_controller_release(dev)
+  -> mutex_unlock(&ctrl->add_lock)
 
-Reported-by: Nathan Wilson <nate@chickenbrittle.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+Move the put_device() after the mutex_unlock().
+
+Fixes: 6098475d4cb4 ("spi: Fix deadlock when adding SPI controllers on SPI buses")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v5.15
+Link: https://lore.kernel.org/r/20211111083713.3335171-1-michael@walle.cc
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/dir.c   |   32 ++++++++++++++++++++++++++++++--
- fs/udf/namei.c |    3 +++
- fs/udf/super.c |    2 ++
- 3 files changed, 35 insertions(+), 2 deletions(-)
+ drivers/spi/spi.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/fs/udf/dir.c
-+++ b/fs/udf/dir.c
-@@ -31,6 +31,7 @@
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/bio.h>
-+#include <linux/iversion.h>
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -3020,12 +3020,6 @@ void spi_unregister_controller(struct sp
  
- #include "udf_i.h"
- #include "udf_sb.h"
-@@ -43,7 +44,7 @@ static int udf_readdir(struct file *file
- 	struct fileIdentDesc *fi = NULL;
- 	struct fileIdentDesc cfi;
- 	udf_pblk_t block, iblock;
--	loff_t nf_pos;
-+	loff_t nf_pos, emit_pos = 0;
- 	int flen;
- 	unsigned char *fname = NULL, *copy_name = NULL;
- 	unsigned char *nameptr;
-@@ -57,6 +58,7 @@ static int udf_readdir(struct file *file
- 	int i, num, ret = 0;
- 	struct extent_position epos = { NULL, 0, {0, 0} };
- 	struct super_block *sb = dir->i_sb;
-+	bool pos_valid = false;
+ 	device_del(&ctlr->dev);
  
- 	if (ctx->pos == 0) {
- 		if (!dir_emit_dot(file, ctx))
-@@ -67,6 +69,21 @@ static int udf_readdir(struct file *file
- 	if (nf_pos >= size)
- 		goto out;
+-	/* Release the last reference on the controller if its driver
+-	 * has not yet been converted to devm_spi_alloc_master/slave().
+-	 */
+-	if (!ctlr->devm_allocated)
+-		put_device(&ctlr->dev);
+-
+ 	/* free bus id */
+ 	mutex_lock(&board_lock);
+ 	if (found == ctlr)
+@@ -3034,6 +3028,12 @@ void spi_unregister_controller(struct sp
  
-+	/*
-+	 * Something changed since last readdir (either lseek was called or dir
-+	 * changed)?  We need to verify the position correctly points at the
-+	 * beginning of some dir entry so that the directory parsing code does
-+	 * not get confused. Since UDF does not have any reliable way of
-+	 * identifying beginning of dir entry (names are under user control),
-+	 * we need to scan the directory from the beginning.
+ 	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
+ 		mutex_unlock(&ctlr->add_lock);
++
++	/* Release the last reference on the controller if its driver
++	 * has not yet been converted to devm_spi_alloc_master/slave().
 +	 */
-+	if (!inode_eq_iversion(dir, file->f_version)) {
-+		emit_pos = nf_pos;
-+		nf_pos = 0;
-+	} else {
-+		pos_valid = true;
-+	}
-+
- 	fname = kmalloc(UDF_NAME_LEN, GFP_NOFS);
- 	if (!fname) {
- 		ret = -ENOMEM;
-@@ -122,13 +139,21 @@ static int udf_readdir(struct file *file
- 
- 	while (nf_pos < size) {
- 		struct kernel_lb_addr tloc;
-+		loff_t cur_pos = nf_pos;
- 
--		ctx->pos = (nf_pos >> 2) + 1;
-+		/* Update file position only if we got past the current one */
-+		if (nf_pos >= emit_pos) {
-+			ctx->pos = (nf_pos >> 2) + 1;
-+			pos_valid = true;
-+		}
- 
- 		fi = udf_fileident_read(dir, &nf_pos, &fibh, &cfi, &epos, &eloc,
- 					&elen, &offset);
- 		if (!fi)
- 			goto out;
-+		/* Still not at offset where user asked us to read from? */
-+		if (cur_pos < emit_pos)
-+			continue;
- 
- 		liu = le16_to_cpu(cfi.lengthOfImpUse);
- 		lfi = cfi.lengthFileIdent;
-@@ -186,8 +211,11 @@ static int udf_readdir(struct file *file
- 	} /* end while */
- 
- 	ctx->pos = (nf_pos >> 2) + 1;
-+	pos_valid = true;
- 
- out:
-+	if (pos_valid)
-+		file->f_version = inode_query_iversion(dir);
- 	if (fibh.sbh != fibh.ebh)
- 		brelse(fibh.ebh);
- 	brelse(fibh.sbh);
---- a/fs/udf/namei.c
-+++ b/fs/udf/namei.c
-@@ -30,6 +30,7 @@
- #include <linux/sched.h>
- #include <linux/crc-itu-t.h>
- #include <linux/exportfs.h>
-+#include <linux/iversion.h>
- 
- static inline int udf_match(int len1, const unsigned char *name1, int len2,
- 			    const unsigned char *name2)
-@@ -134,6 +135,8 @@ int udf_write_fi(struct inode *inode, st
- 			mark_buffer_dirty_inode(fibh->ebh, inode);
- 		mark_buffer_dirty_inode(fibh->sbh, inode);
- 	}
-+	inode_inc_iversion(inode);
-+
- 	return 0;
++	if (!ctlr->devm_allocated)
++		put_device(&ctlr->dev);
  }
+ EXPORT_SYMBOL_GPL(spi_unregister_controller);
  
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -57,6 +57,7 @@
- #include <linux/crc-itu-t.h>
- #include <linux/log2.h>
- #include <asm/byteorder.h>
-+#include <linux/iversion.h>
- 
- #include "udf_sb.h"
- #include "udf_i.h"
-@@ -149,6 +150,7 @@ static struct inode *udf_alloc_inode(str
- 	init_rwsem(&ei->i_data_sem);
- 	ei->cached_extent.lstart = -1;
- 	spin_lock_init(&ei->i_extent_cache_lock);
-+	inode_set_iversion(&ei->vfs_inode, 1);
- 
- 	return &ei->vfs_inode;
- }
 
 
