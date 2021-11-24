@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3EB045C352
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:34:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C776D45C179
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352724AbhKXNhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:37:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50294 "EHLO mail.kernel.org"
+        id S244244AbhKXNTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:19:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352293AbhKXNfg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:35:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 247F561B46;
-        Wed, 24 Nov 2021 12:54:37 +0000 (UTC)
+        id S1347148AbhKXNPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:15:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1F0E61A8E;
+        Wed, 24 Nov 2021 12:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758478;
-        bh=dxMeMWzvD+r0AC7RHCy7M+JSL7yW8kzN/l+dsq7v6Rk=;
+        s=korg; t=1637757833;
+        bh=/Or6VV6h/c/sT9ZMedJR4vcm/4fKsoKnR17pm6XPkaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I2ej0GnL3ySgszBP5Rz4SesgYDi+rBhu9HKDM7WdEjQts1C4XzNo8qVpclHf9GJQZ
-         rSNUPvxCd7yS0ubhnS1b9Jo6TIy4WkR06PSeKDHW2E3eB6MOk47op9jiBDQgtwfbpG
-         3U6LWktBU0n5OwFch2JBaVw2y0zVNwQdccAyW6xw=
+        b=dlYisiF4OET2XK5nBtOul8sRa3UzY8+aKc/gLcNkGi1d5r72cSQftfXTpZVFJgXY+
+         icd3ADaxqOl63nSghP38KZ7/Rtf99PqPm9DJfv79siM2+OGUDJF7C+mLVLQM3U+lk9
+         30qkZ9mGj1dewjcBrSQXxw0LXFY/xGzQ3YY9vT9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Brelinski <tony.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 084/154] iavf: prevent accidental free of filter structure
+Subject: [PATCH 4.19 290/323] MIPS: generic/yamon-dt: fix uninitialized variable error
 Date:   Wed, 24 Nov 2021 12:58:00 +0100
-Message-Id: <20211124115705.032668327@linuxfoundation.org>
+Message-Id: <20211124115728.693202643@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Colin Ian King <colin.i.king@googlemail.com>
 
-[ Upstream commit 4f0400803818f2642f066d3eacaf013f23554cc7 ]
+[ Upstream commit 255e51da15baed47531beefd02f222e4dc01f1c1 ]
 
-In iavf_config_clsflower, the filter structure could be accidentally
-released at the end, if iavf_parse_cls_flower or iavf_handle_tclass ever
-return a non-zero but positive value.
+In the case where fw_getenv returns an error when fetching values
+for ememsizea and memsize then variable phys_memsize is not assigned
+a variable and will be uninitialized on a zero check of phys_memsize.
+Fix this by initializing phys_memsize to zero.
 
-In this case, the function continues through to the end, and will call
-kfree() on the filter structure even though it has been added to the
-linked list.
+Cleans up cppcheck error:
+arch/mips/generic/yamon-dt.c:100:7: error: Uninitialized variable: phys_memsize [uninitvar]
 
-This can actually happen because iavf_parse_cls_flower will return
-a positive IAVF_ERR_CONFIG value instead of the traditional negative
-error codes.
-
-Fix this by ensuring that the kfree() check and error checks are
-similar. Use the more idiomatic "if (err)" to catch all non-zero error
-codes.
-
-Fixes: 0075fa0fadd0 ("i40evf: Add support to apply cloud filters")
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: f41d2430bbd6 ("MIPS: generic/yamon-dt: Support > 256MB of RAM")
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/generic/yamon-dt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index b0fe5aafd1b26..90a9379b4e467 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3027,11 +3027,11 @@ static int iavf_configure_clsflower(struct iavf_adapter *adapter,
- 	/* start out with flow type and eth type IPv4 to begin with */
- 	filter->f.flow_type = VIRTCHNL_TCP_V4_FLOW;
- 	err = iavf_parse_cls_flower(adapter, cls_flower, filter);
--	if (err < 0)
-+	if (err)
- 		goto err;
- 
- 	err = iavf_handle_tclass(adapter, tc, filter);
--	if (err < 0)
-+	if (err)
- 		goto err;
- 
- 	/* add filter to the list */
+diff --git a/arch/mips/generic/yamon-dt.c b/arch/mips/generic/yamon-dt.c
+index 7ba4ad5cc1d66..7b7ba0f76c60e 100644
+--- a/arch/mips/generic/yamon-dt.c
++++ b/arch/mips/generic/yamon-dt.c
+@@ -79,7 +79,7 @@ static unsigned int __init gen_fdt_mem_array(
+ __init int yamon_dt_append_memory(void *fdt,
+ 				  const struct yamon_mem_region *regions)
+ {
+-	unsigned long phys_memsize, memsize;
++	unsigned long phys_memsize = 0, memsize;
+ 	__be32 mem_array[2 * MAX_MEM_ARRAY_ENTRIES];
+ 	unsigned int mem_entries;
+ 	int i, err, mem_off;
 -- 
 2.33.0
 
