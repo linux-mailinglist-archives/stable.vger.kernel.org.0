@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C40A45BE3D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:42:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34B8A45BCB2
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344864AbhKXMpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:45:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50376 "EHLO mail.kernel.org"
+        id S243525AbhKXMbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345667AbhKXMoA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:44:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4270E61241;
-        Wed, 24 Nov 2021 12:25:55 +0000 (UTC)
+        id S245421AbhKXMZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:25:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BACB361245;
+        Wed, 24 Nov 2021 12:16:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756755;
-        bh=BVAvvbmMAMHe9+8XsfxSTIuvxQmnaWMmTsA5x82EkMI=;
+        s=korg; t=1637756171;
+        bh=MIv2PVE0hYJ/DibRIv6CQED5BS/nlyXUll2BwE/PMrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iRMaZW7MvgMSFjm2Iz6X6lM7CSCwNpuQJmagRKpkQ9GUxlCNCoM5J5rZGsDBvDIvF
-         o04867zR8D6pXsv3ug/gzG40/sMObG1tItzKq+DUeVjbaNMgmmVdziQgHH7ymZ6dY5
-         9ou4l0vKINSng0g9kMYlfdFPGRrch8QT/KmvqXYw=
+        b=brdXy9bSmnAtRp2N/880ngg8QVYKWmcSCS973VhFirnNIg7MN3bj+QfrAoGql59Fh
+         TwOOz/dcGY1z64pIKHyKef79LXk0uD/e8d0BQt4ukfzv4XnZmzRnedpvBYexH+F+/v
+         GNMiO22bFKxc8WB1AYTAyVaeAcmgfVHTn8eEuGkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Roman Gushchin <guro@fb.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 194/251] mm, oom: pagefault_out_of_memory: dont force global OOM for dying tasks
-Date:   Wed, 24 Nov 2021 12:57:16 +0100
-Message-Id: <20211124115717.020506599@linuxfoundation.org>
+        stable@vger.kernel.org, Roger Quadros <rogerq@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 166/207] ARM: dts: omap: fix gpmc,mux-add-data type
+Date:   Wed, 24 Nov 2021 12:57:17 +0100
+Message-Id: <20211124115709.370273038@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,74 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Roger Quadros <rogerq@kernel.org>
 
-commit 0b28179a6138a5edd9d82ad2687c05b3773c387b upstream.
+[ Upstream commit 51b9e22ffd3c4c56cbb7caae9750f70e55ffa603 ]
 
-Patch series "memcg: prohibit unconditional exceeding the limit of dying tasks", v3.
+gpmc,mux-add-data is not boolean.
 
-Memory cgroup charging allows killed or exiting tasks to exceed the hard
-limit.  It can be misused and allowed to trigger global OOM from inside
-a memcg-limited container.  On the other hand if memcg fails allocation,
-called from inside #PF handler it triggers global OOM from inside
-pagefault_out_of_memory().
+Fixes the below errors flagged by dtbs_check.
 
-To prevent these problems this patchset:
- (a) removes execution of out_of_memory() from
-     pagefault_out_of_memory(), becasue nobody can explain why it is
-     necessary.
- (b) allow memcg to fail allocation of dying/killed tasks.
+"ethernet@4,0:gpmc,mux-add-data: True is not of type 'array'"
 
-This patch (of 3):
-
-Any allocation failure during the #PF path will return with VM_FAULT_OOM
-which in turn results in pagefault_out_of_memory which in turn executes
-out_out_memory() and can kill a random task.
-
-An allocation might fail when the current task is the oom victim and
-there are no memory reserves left.  The OOM killer is already handled at
-the page allocator level for the global OOM and at the charging level
-for the memcg one.  Both have much more information about the scope of
-allocation/charge request.  This means that either the OOM killer has
-been invoked properly and didn't lead to the allocation success or it
-has been skipped because it couldn't have been invoked.  In both cases
-triggering it from here is pointless and even harmful.
-
-It makes much more sense to let the killed task die rather than to wake
-up an eternally hungry oom-killer and send him to choose a fatter victim
-for breakfast.
-
-Link: https://lkml.kernel.org/r/0828a149-786e-7c06-b70a-52d086818ea3@virtuozzo.com
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Suggested-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Roger Quadros <rogerq@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/oom_kill.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi         | 2 +-
+ arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/oom_kill.c
-+++ b/mm/oom_kill.c
-@@ -1112,6 +1112,9 @@ void pagefault_out_of_memory(void)
- 	if (mem_cgroup_oom_synchronize(true))
- 		return;
+diff --git a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+index 73e272fadc202..58d288fddd9c2 100644
+--- a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
++++ b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+@@ -28,7 +28,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
  
-+	if (fatal_signal_pending(current))
-+		return;
-+
- 	if (!mutex_trylock(&oom_lock))
- 		return;
- 	out_of_memory(&oc);
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
+diff --git a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+index 82e98ee3023ad..3dbeb7a6c569c 100644
+--- a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+@@ -25,7 +25,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
+ 
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
+-- 
+2.33.0
+
 
 
