@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5AD045C7DC
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:44:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60F5445C308
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:32:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347574AbhKXOrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:47:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49478 "EHLO mail.kernel.org"
+        id S1349864AbhKXNfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:35:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349348AbhKXOq5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:46:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 076F9632A9;
-        Wed, 24 Nov 2021 13:06:54 +0000 (UTC)
+        id S1349897AbhKXNdA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:33:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C754D61BE2;
+        Wed, 24 Nov 2021 12:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759215;
-        bh=G5y/s0TehVPSPxEhIAWPKd0206LwggIcVprMq4AFFOM=;
+        s=korg; t=1637758413;
+        bh=FAWz6gRsZOcH9Kvrml9LPVeQqespzp4gnFKsZBwwdq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cb0h8h6qljCHRPvcC45x8GnbDHtITelpZUNOqEAm3DfsFBHjIVQdNzp/oblyvx8mz
-         5kLSDkGXeueeEMsALO02VEG8G2Jrb1c+Q2mkwSeVdSkTamcdmAdUZ/1bkt9dx0SFVb
-         Ci6/w9E/S5V5B1o6VHDiaWVF13ZBEwUBjZnz1tD0=
+        b=DuFzmVFrY+1jT2E/yuR4BIl+HCkl8uuC7HSjUdJC47x0qluUybAJy7Z3OHGFUj/zT
+         m1slz3eZ0/OxT33uj1v+a1/ZO/6k0R2kaMMjPd9KuHTk2uoHGf50Algm6CRABu1n2J
+         jTk/uNwOluIn0PTB0rAtVS7qaSwKhC/6kloH7Rnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Jing-Ting Wu <jing-ting.wu@mediatek.com>,
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 170/279] NFC: add NCI_UNREG flag to eliminate the race
+Subject: [PATCH 5.10 061/154] sched/core: Mitigate race cpus_share_cache()/update_top_cache_domain()
 Date:   Wed, 24 Nov 2021 12:57:37 +0100
-Message-Id: <20211124115724.613968343@linuxfoundation.org>
+Message-Id: <20211124115704.296895162@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,121 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-[ Upstream commit 48b71a9e66c2eab60564b1b1c85f4928ed04e406 ]
+[ Upstream commit 42dc938a590c96eeb429e1830123fef2366d9c80 ]
 
-There are two sites that calls queue_work() after the
-destroy_workqueue() and lead to possible UAF.
+Nothing protects the access to the per_cpu variable sd_llc_id. When testing
+the same CPU (i.e. this_cpu == that_cpu), a race condition exists with
+update_top_cache_domain(). One scenario being:
 
-The first site is nci_send_cmd(), which can happen after the
-nci_close_device as below
+              CPU1                            CPU2
+  ==================================================================
 
-nfcmrvl_nci_unregister_dev   |  nfc_genl_dev_up
-  nci_close_device           |
-    flush_workqueue          |
-    del_timer_sync           |
-  nci_unregister_device      |    nfc_get_device
-    destroy_workqueue        |    nfc_dev_up
-    nfc_unregister_device    |      nci_dev_up
-      device_del             |        nci_open_device
-                             |          __nci_request
-                             |            nci_send_cmd
-                             |              queue_work !!!
+  per_cpu(sd_llc_id, CPUX) => 0
+                                    partition_sched_domains_locked()
+      				      detach_destroy_domains()
+  cpus_share_cache(CPUX, CPUX)          update_top_cache_domain(CPUX)
+    per_cpu(sd_llc_id, CPUX) => 0
+                                          per_cpu(sd_llc_id, CPUX) = CPUX
+    per_cpu(sd_llc_id, CPUX) => CPUX
+    return false
 
-Another site is nci_cmd_timer, awaked by the nci_cmd_work from the
-nci_send_cmd.
+ttwu_queue_cond() wouldn't catch smp_processor_id() == cpu and the result
+is a warning triggered from ttwu_queue_wakelist().
 
-  ...                        |  ...
-  nci_unregister_device      |  queue_work
-    destroy_workqueue        |
-    nfc_unregister_device    |  ...
-      device_del             |  nci_cmd_work
-                             |  mod_timer
-                             |  ...
-                             |  nci_cmd_timer
-                             |    queue_work !!!
+Avoid a such race in cpus_share_cache() by always returning true when
+this_cpu == that_cpu.
 
-For the above two UAF, the root cause is that the nfc_dev_up can race
-between the nci_unregister_device routine. Therefore, this patch
-introduce NCI_UNREG flag to easily eliminate the possible race. In
-addition, the mutex_lock in nci_close_device can act as a barrier.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Fixes: 6a2968aaf50c ("NFC: basic NCI protocol implementation")
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20211116152732.19238-1-linma@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 518cd6234178 ("sched: Only queue remote wakeups when crossing cache boundaries")
+Reported-by: Jing-Ting Wu <jing-ting.wu@mediatek.com>
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/20211104175120.857087-1-vincent.donnefort@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/nfc/nci_core.h |  1 +
- net/nfc/nci/core.c         | 19 +++++++++++++++++--
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ kernel/sched/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/net/nfc/nci_core.h b/include/net/nfc/nci_core.h
-index a964daedc17b6..ea8595651c384 100644
---- a/include/net/nfc/nci_core.h
-+++ b/include/net/nfc/nci_core.h
-@@ -30,6 +30,7 @@ enum nci_flag {
- 	NCI_UP,
- 	NCI_DATA_EXCHANGE,
- 	NCI_DATA_EXCHANGE_TO,
-+	NCI_UNREG,
- };
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index bc8ff11e60242..e456cce772a3a 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -2650,6 +2650,9 @@ out:
  
- /* NCI device states */
-diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
-index 39994dbb6a55b..e41e2e9e54984 100644
---- a/net/nfc/nci/core.c
-+++ b/net/nfc/nci/core.c
-@@ -476,6 +476,11 @@ static int nci_open_device(struct nci_dev *ndev)
- 
- 	mutex_lock(&ndev->req_lock);
- 
-+	if (test_bit(NCI_UNREG, &ndev->flags)) {
-+		rc = -ENODEV;
-+		goto done;
-+	}
-+
- 	if (test_bit(NCI_UP, &ndev->flags)) {
- 		rc = -EALREADY;
- 		goto done;
-@@ -548,6 +553,10 @@ done:
- static int nci_close_device(struct nci_dev *ndev)
+ bool cpus_share_cache(int this_cpu, int that_cpu)
  {
- 	nci_req_cancel(ndev, ENODEV);
++	if (this_cpu == that_cpu)
++		return true;
 +
-+	/* This mutex needs to be held as a barrier for
-+	 * caller nci_unregister_device
-+	 */
- 	mutex_lock(&ndev->req_lock);
+ 	return per_cpu(sd_llc_id, this_cpu) == per_cpu(sd_llc_id, that_cpu);
+ }
  
- 	if (!test_and_clear_bit(NCI_UP, &ndev->flags)) {
-@@ -585,8 +594,8 @@ static int nci_close_device(struct nci_dev *ndev)
- 
- 	del_timer_sync(&ndev->cmd_timer);
- 
--	/* Clear flags */
--	ndev->flags = 0;
-+	/* Clear flags except NCI_UNREG */
-+	ndev->flags &= BIT(NCI_UNREG);
- 
- 	mutex_unlock(&ndev->req_lock);
- 
-@@ -1273,6 +1282,12 @@ void nci_unregister_device(struct nci_dev *ndev)
- {
- 	struct nci_conn_info *conn_info, *n;
- 
-+	/* This set_bit is not protected with specialized barrier,
-+	 * However, it is fine because the mutex_lock(&ndev->req_lock);
-+	 * in nci_close_device() will help to emit one.
-+	 */
-+	set_bit(NCI_UNREG, &ndev->flags);
-+
- 	nci_close_device(ndev);
- 
- 	destroy_workqueue(ndev->cmd_wq);
 -- 
 2.33.0
 
