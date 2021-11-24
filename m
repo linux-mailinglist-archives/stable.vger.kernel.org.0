@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B19D345C275
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:26:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60ACD45C3CD
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345348AbhKXN3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:29:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56156 "EHLO mail.kernel.org"
+        id S1350882AbhKXNmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:42:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349008AbhKXN1I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:27:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90BA161B96;
-        Wed, 24 Nov 2021 12:50:24 +0000 (UTC)
+        id S1352277AbhKXNkw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:40:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7F2D63241;
+        Wed, 24 Nov 2021 12:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758225;
-        bh=4RiHdufeqRe2/PWGm6XyNLAsMoyonUedGo1hqfYFHBI=;
+        s=korg; t=1637758652;
+        bh=KTKNPK8DPeei4rVV00q0Pds4f+25TFbzPEnPkWrIyCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XG+Chv11kmc6QlTO9BD8MXkwtlBBSBMQj3nxKrMiO6Jz0D4DkG9lhyLfBQf2cTDEY
-         icdHBpv87a60eWdvuWSDuhnds8ZckcSILzqqVF2zv67+9iJCwRUlCzcbcEvZVLSSyf
-         3sy9+RbHTE7Hvausy2hTSO9lw1KQ/X2KM+AJjJoo=
+        b=xy/P6HlxthQ6WlZGOz2pYZt4yY1sSb1p3EwYSXTnODm89WPUwwE1cagyztfpSagdV
+         jFJcIYw93Lq/MlNhOajqsRp5jgRC5ZMNU1b4+LlrYU4m3z6dZayOPQblZpw4JxR58I
+         MX2U7ST4xL1uG41GAnTQnZ9hTH0Rr9Hu7EZ1A0xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 098/100] ice: Delete always true check of PF pointer
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.10 138/154] drm/udl: fix control-message timeout
 Date:   Wed, 24 Nov 2021 12:58:54 +0100
-Message-Id: <20211124115658.022579383@linuxfoundation.org>
+Message-Id: <20211124115706.954233488@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,32 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 2ff04286a9569675948f39cec2c6ad47c3584633 upstream.
+commit 5591c8f79db1729d9c5ac7f5b4d3a5c26e262d93 upstream.
 
-PF pointer is always valid when PCI core calls its .shutdown() and
-.remove() callbacks. There is no need to check it again.
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-Fixes: 837f08fdecbe ("ice: Add basic driver framework for Intel(R) E800 Series")
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5320918b9a87 ("drm/udl: initial UDL driver (v4)")
+Cc: stable@vger.kernel.org      # 3.4
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211025115353.5089-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/gpu/drm/udl/udl_connector.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -3005,9 +3005,6 @@ static void ice_remove(struct pci_dev *p
- 	struct ice_pf *pf = pci_get_drvdata(pdev);
- 	int i;
- 
--	if (!pf)
--		return;
--
- 	for (i = 0; i < ICE_MAX_RESET_WAIT; i++) {
- 		if (!ice_is_reset_in_progress(pf->state))
- 			break;
+--- a/drivers/gpu/drm/udl/udl_connector.c
++++ b/drivers/gpu/drm/udl/udl_connector.c
+@@ -30,7 +30,7 @@ static int udl_get_edid_block(void *data
+ 		ret = usb_control_msg(udl->udev,
+ 				      usb_rcvctrlpipe(udl->udev, 0),
+ 					  (0x02), (0x80 | (0x02 << 5)), bval,
+-					  0xA1, read_buff, 2, HZ);
++					  0xA1, read_buff, 2, 1000);
+ 		if (ret < 1) {
+ 			DRM_ERROR("Read EDID byte %d failed err %x\n", i, ret);
+ 			kfree(read_buff);
 
 
