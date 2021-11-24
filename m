@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 423AD45C395
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:38:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97CEE45C5CD
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:59:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343772AbhKXNkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:40:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51646 "EHLO mail.kernel.org"
+        id S1353743AbhKXOAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:00:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352808AbhKXNiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:38:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D573A6321F;
-        Wed, 24 Nov 2021 12:56:08 +0000 (UTC)
+        id S1355576AbhKXN6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:58:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FD01633D3;
+        Wed, 24 Nov 2021 13:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758569;
-        bh=rq6+LjhdFz9npwf8Khl6dyF5fpBEuCbii2vJz+6I5ps=;
+        s=korg; t=1637759283;
+        bh=tS1NwH1EDFSblDmrfea/xbaXP4yTyFtJWXHBppb9Pz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H/RlTkstLxQ+ggQYLY1tn2I4KAV0nDQFN1L2fccd9wJsHrem4q1x6iPUa98bXnpaA
-         zrljnSApEVJ/MbsNoaNzjRPfs2x3n1OiW9yp0tmsieh3LZqr8BH+tFuTBlFBVLSkIf
-         lh/Y0ny47t7ZRs17rJcm0etE0RlT/leJVSNyheJM=
+        b=fYknXsJ4WNKlk1GWuF4/nXDNvL9lH2nfdBK4O74dEj0/OcYrQM0johDq2rwXyYzna
+         FuZtml0FQIo79Ulfx64GsR1qcYOZIM9VTFVGYbfrnzo6KFshIEkJCfU70XDbwbCjct
+         PC3SymVtSYTGW6ecTURNNg+E+LNwxNR93I3VJCrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 079/154] net/smc: Make sure the link_id is unique
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 188/279] tun: fix bonding active backup with arp monitoring
 Date:   Wed, 24 Nov 2021 12:57:55 +0100
-Message-Id: <20211124115704.880993096@linuxfoundation.org>
+Message-Id: <20211124115725.227937368@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gu <guwen@linux.alibaba.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit cf4f5530bb55ef7d5a91036b26676643b80b1616 ]
+commit a31d27fbed5d518734cb60956303eb15089a7634 upstream.
 
-The link_id is supposed to be unique, but smcr_next_link_id() doesn't
-skip the used link_id as expected. So the patch fixes this.
+As stated in the bonding doc, trans_start must be set manually for drivers
+using NETIF_F_LLTX:
+ Drivers that use NETIF_F_LLTX flag must also update
+ netdev_queue->trans_start. If they do not, then the ARP monitor will
+ immediately fail any slaves using that driver, and those slaves will stay
+ down.
 
-Fixes: 026c381fb477 ("net/smc: introduce link_idx for link group array")
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Link: https://www.kernel.org/doc/html/v5.15/networking/bonding.html#arp-monitor-operation
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/smc_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/tun.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index c491dd8e67cda..109d790eaebe2 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -287,13 +287,14 @@ static u8 smcr_next_link_id(struct smc_link_group *lgr)
- 	int i;
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1010,6 +1010,7 @@ static netdev_tx_t tun_net_xmit(struct s
+ {
+ 	struct tun_struct *tun = netdev_priv(dev);
+ 	int txq = skb->queue_mapping;
++	struct netdev_queue *queue;
+ 	struct tun_file *tfile;
+ 	int len = skb->len;
  
- 	while (1) {
-+again:
- 		link_id = ++lgr->next_link_id;
- 		if (!link_id)	/* skip zero as link_id */
- 			link_id = ++lgr->next_link_id;
- 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
- 			if (smc_link_usable(&lgr->lnk[i]) &&
- 			    lgr->lnk[i].link_id == link_id)
--				continue;
-+				goto again;
- 		}
- 		break;
- 	}
--- 
-2.33.0
-
+@@ -1054,6 +1055,10 @@ static netdev_tx_t tun_net_xmit(struct s
+ 	if (ptr_ring_produce(&tfile->tx_ring, skb))
+ 		goto drop;
+ 
++	/* NETIF_F_LLTX requires to do our own update of trans_start */
++	queue = netdev_get_tx_queue(dev, txq);
++	queue->trans_start = jiffies;
++
+ 	/* Notify and wake up reader process */
+ 	if (tfile->flags & TUN_FASYNC)
+ 		kill_fasync(&tfile->fasync, SIGIO, POLL_IN);
 
 
