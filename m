@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3FBE45C103
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D352745C549
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:53:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345569AbhKXNOM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:14:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52018 "EHLO mail.kernel.org"
+        id S1352352AbhKXN4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:56:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347167AbhKXNML (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:12:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F308B61A85;
-        Wed, 24 Nov 2021 12:42:17 +0000 (UTC)
+        id S1354672AbhKXNwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:52:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F37E261212;
+        Wed, 24 Nov 2021 13:04:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757738;
-        bh=Hw4ioX8VStx2ymBPiv3NQlNyTTnqyXkxgYUBC6NSLPw=;
+        s=korg; t=1637759094;
+        bh=TDwMex5wZFK+gxD0fGodl1GiCvpfRAx0KSzSOeds54U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJ4UdB4cYgMXPOxNV7kdzMes9n8NkBvWquJ7a1Ho8DfbJIeC79iys/iI22TJhDdIV
-         HyKX96vnOFKlGpQ/xMRJ+I+o1Qa0lZ8Pvm024UHtpPqeK3zH9Zw2yViKp5gFTN51bS
-         B8nsoHzjs4TnJxZ2kb5Wx+eNlolmOwJqh27RFP4M=
+        b=Yo0zXxOsdAF/kGFTLNUXjJPgQz1GmdNQZDc8DU+0xQogN4R/Tfuo35T/A4TDDL8c8
+         eMmFGQ9ij1N7rUEiX9c4SE93kVvfhLKniHBRmRBMl6kzr4E/DfWQR7u5L9kWkpTylO
+         XsqzQDIMkr7IX4L6FlWjLWD7DktLJ+EsIpHoQgmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Tony Brelinski <tony.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 227/323] llc: fix out-of-bound array index in llc_sk_dev_hash()
-Date:   Wed, 24 Nov 2021 12:56:57 +0100
-Message-Id: <20211124115726.584860718@linuxfoundation.org>
+Subject: [PATCH 5.15 131/279] iavf: Fix for setting queues to 0
+Date:   Wed, 24 Nov 2021 12:56:58 +0100
+Message-Id: <20211124115723.327766871@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
 
-[ Upstream commit 8ac9dfd58b138f7e82098a4e0a0d46858b12215b ]
+[ Upstream commit 9a6e9e483a9684a34573fd9f9e30ecfb047cb8cb ]
 
-Both ifindex and LLC_SK_DEV_HASH_ENTRIES are signed.
+Now setting combine to 0 will be rejected with the
+appropriate error code.
+This has been implemented by adding a condition that checks
+the value of combine equal to zero.
+Without this patch, when the user requested it, no error was
+returned and combine was set to the default value for VF.
 
-This means that (ifindex % LLC_SK_DEV_HASH_ENTRIES) is negative
-if @ifindex is negative.
-
-We could simply make LLC_SK_DEV_HASH_ENTRIES unsigned.
-
-In this patch I chose to use hash_32() to get more entropy
-from @ifindex, like llc_sk_laddr_hashfn().
-
-UBSAN: array-index-out-of-bounds in ./include/net/llc.h:75:26
-index -43 is out of range for type 'hlist_head [64]'
-CPU: 1 PID: 20999 Comm: syz-executor.3 Not tainted 5.15.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:151
- __ubsan_handle_out_of_bounds.cold+0x62/0x6c lib/ubsan.c:291
- llc_sk_dev_hash include/net/llc.h:75 [inline]
- llc_sap_add_socket+0x49c/0x520 net/llc/llc_conn.c:697
- llc_ui_bind+0x680/0xd70 net/llc/af_llc.c:404
- __sys_bind+0x1e9/0x250 net/socket.c:1693
- __do_sys_bind net/socket.c:1704 [inline]
- __se_sys_bind net/socket.c:1702 [inline]
- __x64_sys_bind+0x6f/0xb0 net/socket.c:1702
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7fa503407ae9
-
-Fixes: 6d2e3ea28446 ("llc: use a device based hash table to speed up multicast delivery")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5520deb15326 ("iavf: Enable support for up to 16 queues")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/llc.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/iavf/iavf_ethtool.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/llc.h b/include/net/llc.h
-index df282d9b40170..9c10b121b49b0 100644
---- a/include/net/llc.h
-+++ b/include/net/llc.h
-@@ -72,7 +72,9 @@ struct llc_sap {
- static inline
- struct hlist_head *llc_sk_dev_hash(struct llc_sap *sap, int ifindex)
- {
--	return &sap->sk_dev_hash[ifindex % LLC_SK_DEV_HASH_ENTRIES];
-+	u32 bucket = hash_32(ifindex, LLC_SK_DEV_HASH_BITS);
-+
-+	return &sap->sk_dev_hash[bucket];
- }
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
+index 25ee0606e625f..144a776793597 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
+@@ -1787,7 +1787,7 @@ static int iavf_set_channels(struct net_device *netdev,
+ 	/* All of these should have already been checked by ethtool before this
+ 	 * even gets to us, but just to be sure.
+ 	 */
+-	if (num_req > adapter->vsi_res->num_queue_pairs)
++	if (num_req == 0 || num_req > adapter->vsi_res->num_queue_pairs)
+ 		return -EINVAL;
  
- static inline
+ 	if (num_req == adapter->num_active_queues)
 -- 
 2.33.0
 
