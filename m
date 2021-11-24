@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5396545C67D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D8A945C181
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351800AbhKXOKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:10:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55206 "EHLO mail.kernel.org"
+        id S1345022AbhKXNTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:19:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353604AbhKXOGQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:06:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6B7E633EB;
-        Wed, 24 Nov 2021 13:11:52 +0000 (UTC)
+        id S1348874AbhKXNRt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:17:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6AFC60551;
+        Wed, 24 Nov 2021 12:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759513;
-        bh=B536EK3DhJYpbOfYtBhSCY+lujpvzWO0y5FIzrnKslw=;
+        s=korg; t=1637757930;
+        bh=gzQ6H0anqmNUU+a26jRbXrCY0CKJi3+V9/gvkaOdZPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXZSsYcsZGgLYqzNgMGtKXlC9UD1a1+7fiWceXqX991B3+QmAbQfZyJ3M9X6XBT7i
-         LcUfwC2ORUZ0F5eOyPe5JKf0In5HEhNInfyjg/V6IdQYgndGxYEKKmVUsAE4C9hf+J
-         l9f/orJK8L1JZBQPv0ghqruPuZlL5T4R12XoTTyw=
+        b=AiFAEJfxLTnu74MajDLGktSS/eBGy4lyn8Ng9qPgqUipVJsFFHC+70Qr6baHhlIDm
+         X+gPmcoZ0WMUG6Gfy5zCnIyGuG23/9k5oZBtbJpdGkDWp7A6JTqnsw0dZwDfDrceDb
+         dT9FgMoXFJKKHXR+ie6tZvvbnh5Wk8ALlm+pFJLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>
-Subject: [PATCH 5.15 225/279] KVM: nVMX: dont use vcpu->arch.efer when checking host state on nested state load
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 4.19 322/323] usb: max-3421: Use driver data instead of maintaining a list of bound devices
 Date:   Wed, 24 Nov 2021 12:58:32 +0100
-Message-Id: <20211124115726.510075060@linuxfoundation.org>
+Message-Id: <20211124115729.790037135@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,91 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-commit af957eebfcc17433ee83ab85b1195a933ab5049c upstream.
+commit fc153aba3ef371d0d76eb88230ed4e0dee5b38f2 upstream.
 
-When loading nested state, don't use check vcpu->arch.efer to get the
-L1 host's 64-bit vs. 32-bit state and don't check it for consistency
-with respect to VM_EXIT_HOST_ADDR_SPACE_SIZE, as register state in vCPU
-may be stale when KVM_SET_NESTED_STATE is called---and architecturally
-does not exist.  When restoring L2 state in KVM, the CPU is placed in
-non-root where nested VMX code has no snapshot of L1 host state: VMX
-(conditionally) loads host state fields loaded on VM-exit, but they need
-not correspond to the state before entry.  A simple case occurs in KVM
-itself, where the host RIP field points to vmx_vmexit rather than the
-instruction following vmlaunch/vmresume.
+Instead of maintaining a single-linked list of devices that must be
+searched linearly in .remove() just use spi_set_drvdata() to remember the
+link between the spi device and the driver struct. Then the global list
+and the next member can be dropped.
 
-However, for the particular case of L1 being in 32- or 64-bit mode
-on entry, the exit controls can be treated instead as the source of
-truth regarding the state of L1 on entry, and can be used to check
-that vmcs12.VM_EXIT_HOST_ADDR_SPACE_SIZE matches vmcs12.HOST_EFER if
-vmcs12.VM_EXIT_LOAD_IA32_EFER is set.  The consistency check on CPU
-EFER vs. vmcs12.VM_EXIT_HOST_ADDR_SPACE_SIZE, instead, happens only
-on VM-Enter.  That's because, again, there's conceptually no "current"
-L1 EFER to check on KVM_SET_NESTED_STATE.
+This simplifies the driver, reduces the memory footprint and the time to
+search the list. Also it makes obvious that there is always a corresponding
+driver struct for a given device in .remove(), so the error path for
+!max3421_hcd can be dropped, too.
 
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20211115131837.195527-2-mlevitsk@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+As a side effect this fixes a data inconsistency when .probe() races with
+itself for a second max3421 device in manipulating max3421_hcd_list. A
+similar race is fixed in .remove(), too.
+
+Fixes: 2d53139f3162 ("Add support for using a MAX3421E chip as a host driver.")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20211018204028.2914597-1-u.kleine-koenig@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/usb/host/max3421-hcd.c |   25 +++++--------------------
+ 1 file changed, 5 insertions(+), 20 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2854,6 +2854,17 @@ static int nested_vmx_check_controls(str
- 	return 0;
- }
+--- a/drivers/usb/host/max3421-hcd.c
++++ b/drivers/usb/host/max3421-hcd.c
+@@ -125,8 +125,6 @@ struct max3421_hcd {
  
-+static int nested_vmx_check_address_space_size(struct kvm_vcpu *vcpu,
-+				       struct vmcs12 *vmcs12)
-+{
-+#ifdef CONFIG_X86_64
-+	if (CC(!!(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE) !=
-+		!!(vcpu->arch.efer & EFER_LMA)))
-+		return -EINVAL;
-+#endif
-+	return 0;
-+}
-+
- static int nested_vmx_check_host_state(struct kvm_vcpu *vcpu,
- 				       struct vmcs12 *vmcs12)
+ 	struct task_struct *spi_thread;
+ 
+-	struct max3421_hcd *next;
+-
+ 	enum max3421_rh_state rh_state;
+ 	/* lower 16 bits contain port status, upper 16 bits the change mask: */
+ 	u32 port_status;
+@@ -174,8 +172,6 @@ struct max3421_ep {
+ 	u8 retransmit;			/* packet needs retransmission */
+ };
+ 
+-static struct max3421_hcd *max3421_hcd_list;
+-
+ #define MAX3421_FIFO_SIZE	64
+ 
+ #define MAX3421_SPI_DIR_RD	0	/* read register from MAX3421 */
+@@ -1899,9 +1895,8 @@ max3421_probe(struct spi_device *spi)
+ 	}
+ 	set_bit(HCD_FLAG_POLL_RH, &hcd->flags);
+ 	max3421_hcd = hcd_to_max3421(hcd);
+-	max3421_hcd->next = max3421_hcd_list;
+-	max3421_hcd_list = max3421_hcd;
+ 	INIT_LIST_HEAD(&max3421_hcd->ep_list);
++	spi_set_drvdata(spi, max3421_hcd);
+ 
+ 	max3421_hcd->tx = kmalloc(sizeof(*max3421_hcd->tx), GFP_KERNEL);
+ 	if (!max3421_hcd->tx)
+@@ -1951,28 +1946,18 @@ error:
+ static int
+ max3421_remove(struct spi_device *spi)
  {
-@@ -2878,18 +2889,16 @@ static int nested_vmx_check_host_state(s
- 		return -EINVAL;
+-	struct max3421_hcd *max3421_hcd = NULL, **prev;
+-	struct usb_hcd *hcd = NULL;
++	struct max3421_hcd *max3421_hcd;
++	struct usb_hcd *hcd;
+ 	unsigned long flags;
  
- #ifdef CONFIG_X86_64
--	ia32e = !!(vcpu->arch.efer & EFER_LMA);
-+	ia32e = !!(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE);
- #else
- 	ia32e = false;
- #endif
+-	for (prev = &max3421_hcd_list; *prev; prev = &(*prev)->next) {
+-		max3421_hcd = *prev;
+-		hcd = max3421_to_hcd(max3421_hcd);
+-		if (hcd->self.controller == &spi->dev)
+-			break;
+-	}
+-	if (!max3421_hcd) {
+-		dev_err(&spi->dev, "no MAX3421 HCD found for SPI device %p\n",
+-			spi);
+-		return -ENODEV;
+-	}
++	max3421_hcd = spi_get_drvdata(spi);
++	hcd = max3421_to_hcd(max3421_hcd);
  
- 	if (ia32e) {
--		if (CC(!(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE)) ||
--		    CC(!(vmcs12->host_cr4 & X86_CR4_PAE)))
-+		if (CC(!(vmcs12->host_cr4 & X86_CR4_PAE)))
- 			return -EINVAL;
- 	} else {
--		if (CC(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE) ||
--		    CC(vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE) ||
-+		if (CC(vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE) ||
- 		    CC(vmcs12->host_cr4 & X86_CR4_PCIDE) ||
- 		    CC((vmcs12->host_rip) >> 32))
- 			return -EINVAL;
-@@ -3559,6 +3568,9 @@ static int nested_vmx_run(struct kvm_vcp
- 	if (nested_vmx_check_controls(vcpu, vmcs12))
- 		return nested_vmx_fail(vcpu, VMXERR_ENTRY_INVALID_CONTROL_FIELD);
+ 	usb_remove_hcd(hcd);
  
-+	if (nested_vmx_check_address_space_size(vcpu, vmcs12))
-+		return nested_vmx_fail(vcpu, VMXERR_ENTRY_INVALID_HOST_STATE_FIELD);
-+
- 	if (nested_vmx_check_host_state(vcpu, vmcs12))
- 		return nested_vmx_fail(vcpu, VMXERR_ENTRY_INVALID_HOST_STATE_FIELD);
+ 	spin_lock_irqsave(&max3421_hcd->lock, flags);
+ 
+ 	kthread_stop(max3421_hcd->spi_thread);
+-	*prev = max3421_hcd->next;
+ 
+ 	spin_unlock_irqrestore(&max3421_hcd->lock, flags);
  
 
 
