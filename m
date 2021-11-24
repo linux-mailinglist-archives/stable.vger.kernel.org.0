@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA7D745B9ED
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:03:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A5845BB8F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:18:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242352AbhKXMGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:06:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33050 "EHLO mail.kernel.org"
+        id S243635AbhKXMUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:20:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242119AbhKXMFz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:05:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5E3060FDA;
-        Wed, 24 Nov 2021 12:02:45 +0000 (UTC)
+        id S243778AbhKXMSv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:18:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58E4561075;
+        Wed, 24 Nov 2021 12:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755366;
-        bh=apf7TYrkHRTSmQxheXA6LGWGkZTFg0co63K6qKThD10=;
+        s=korg; t=1637755910;
+        bh=gk1r4jkUxjtNftgYn/FDJFOALJdADGptP6KCTKaCOL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zwRk3OusNkYXSq7HzKLJ75bkhLAWknHn+z9/2arpLdi4kVZZ/gI/MTltZ6L+8AP+c
-         wtyTbe+vwh0mvwHhbNfYh2JYfWHdvxTOsbQ1+x4o/1cPAKXZ0NzBWrYaWw+cudq8HN
-         nAmWsYJABYjRMStXwYtVh3dTx+TwD4s6VtMOq0Bs=
+        b=EaTGbB4XgWV9FrHkMlzmDQGDWLJZtNe/0NSa7Z0eoaWijg6liMe1WTXMC7hK/EJnR
+         ilq90wyMtBLKaAthkwnjG+sgQvyV5efsbboi9l1Fg2HhOIjQFlL4ctOUZvmOSmVItX
+         zBhLXtnzfdLNzTrXjw5vJ55u9g2flMAkzSMvxFJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 070/162] parisc/kgdb: add kgdb_roundup() to make kgdb work with idle polling
-Date:   Wed, 24 Nov 2021 12:56:13 +0100
-Message-Id: <20211124115700.590766959@linuxfoundation.org>
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 103/207] net: stream: dont purge sk_error_queue in sk_stream_kill_queues()
+Date:   Wed, 24 Nov 2021 12:56:14 +0100
+Message-Id: <20211124115707.410412949@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,76 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@stackframe.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 66e29fcda1824f0427966fbee2bd2c85bf362c82 ]
+[ Upstream commit 24bcbe1cc69fa52dc4f7b5b2456678ed464724d8 ]
 
-With idle polling, IPIs are not sent when a CPU idle, but queued
-and run later from do_idle(). The default kgdb_call_nmi_hook()
-implementation gets the pointer to struct pt_regs from get_irq_reqs(),
-which doesn't work in that case because it was not called from the
-IPI interrupt handler. Fix it by defining our own kgdb_roundup()
-function which sents an IPI_ENTER_KGDB. When that IPI is received
-on the target CPU kgdb_nmicallback() is called.
+sk_stream_kill_queues() can be called on close when there are
+still outstanding skbs to transmit. Those skbs may try to queue
+notifications to the error queue (e.g. timestamps).
+If sk_stream_kill_queues() purges the queue without taking
+its lock the queue may get corrupted, and skbs leaked.
 
-Signed-off-by: Sven Schnelle <svens@stackframe.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+This shows up as a warning about an rmem leak:
+
+WARNING: CPU: 24 PID: 0 at net/ipv4/af_inet.c:154 inet_sock_destruct+0x...
+
+The leak is always a multiple of 0x300 bytes (the value is in
+%rax on my builds, so RAX: 0000000000000300). 0x300 is truesize of
+an empty sk_buff. Indeed if we dump the socket state at the time
+of the warning the sk_error_queue is often (but not always)
+corrupted. The ->next pointer points back at the list head,
+but not the ->prev pointer. Indeed we can find the leaked skb
+by scanning the kernel memory for something that looks like
+an skb with ->sk = socket in question, and ->truesize = 0x300.
+The contents of ->cb[] of the skb confirms the suspicion that
+it is indeed a timestamp notification (as generated in
+__skb_complete_tx_timestamp()).
+
+Removing purging of sk_error_queue should be okay, since
+inet_sock_destruct() does it again once all socket refs
+are gone. Eric suggests this may cause sockets that go
+thru disconnect() to maintain notifications from the
+previous incarnations of the socket, but that should be
+okay since the race was there anyway, and disconnect()
+is not exactly dependable.
+
+Thanks to Jonathan Lemon and Omar Sandoval for help at various
+stages of tracing the issue.
+
+Fixes: cb9eff097831 ("net: new user space API for time stamping of incoming and outgoing packets")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/smp.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ net/core/stream.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/parisc/kernel/smp.c b/arch/parisc/kernel/smp.c
-index 52e85973a283c..5a2c4771e9d1f 100644
---- a/arch/parisc/kernel/smp.c
-+++ b/arch/parisc/kernel/smp.c
-@@ -32,6 +32,7 @@
- #include <linux/bitops.h>
- #include <linux/ftrace.h>
- #include <linux/cpu.h>
-+#include <linux/kgdb.h>
+diff --git a/net/core/stream.c b/net/core/stream.c
+index 6e41b20bf9f86..05b63feac7e57 100644
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -193,9 +193,6 @@ void sk_stream_kill_queues(struct sock *sk)
+ 	/* First the read buffer. */
+ 	__skb_queue_purge(&sk->sk_receive_queue);
  
- #include <linux/atomic.h>
- #include <asm/current.h>
-@@ -74,7 +75,10 @@ enum ipi_message_type {
- 	IPI_CALL_FUNC,
- 	IPI_CPU_START,
- 	IPI_CPU_STOP,
--	IPI_CPU_TEST
-+	IPI_CPU_TEST,
-+#ifdef CONFIG_KGDB
-+	IPI_ENTER_KGDB,
-+#endif
- };
- 
- 
-@@ -170,7 +174,12 @@ ipi_interrupt(int irq, void *dev_id)
- 			case IPI_CPU_TEST:
- 				smp_debug(100, KERN_DEBUG "CPU%d is alive!\n", this_cpu);
- 				break;
+-	/* Next, the error queue. */
+-	__skb_queue_purge(&sk->sk_error_queue);
 -
-+#ifdef CONFIG_KGDB
-+			case IPI_ENTER_KGDB:
-+				smp_debug(100, KERN_DEBUG "CPU%d ENTER_KGDB\n", this_cpu);
-+				kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
-+				break;
-+#endif
- 			default:
- 				printk(KERN_CRIT "Unknown IPI num on CPU%d: %lu\n",
- 					this_cpu, which);
-@@ -226,6 +235,12 @@ send_IPI_allbutself(enum ipi_message_type op)
- 	}
- }
+ 	/* Next, the write queue. */
+ 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
  
-+#ifdef CONFIG_KGDB
-+void kgdb_roundup_cpus(void)
-+{
-+	send_IPI_allbutself(IPI_ENTER_KGDB);
-+}
-+#endif
- 
- inline void 
- smp_send_stop(void)	{ send_IPI_allbutself(IPI_CPU_STOP); }
 -- 
 2.33.0
 
