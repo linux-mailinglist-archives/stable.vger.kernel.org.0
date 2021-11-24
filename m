@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2FC845BC9D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DBF545BF45
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243261AbhKXMb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:31:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49174 "EHLO mail.kernel.org"
+        id S1346160AbhKXM4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:56:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343763AbhKXM35 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:29:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0E8361156;
-        Wed, 24 Nov 2021 12:17:58 +0000 (UTC)
+        id S1346850AbhKXMyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:54:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4803E61875;
+        Wed, 24 Nov 2021 12:31:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756279;
-        bh=GJsHOiRCR/KGVaKLR+XJSggOGibu+QIA1lqZhG8IUHo=;
+        s=korg; t=1637757088;
+        bh=D70KnzKVdrdDB76JciFzBM/fRPXnNnIMaydokXlU/iE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZHnoCvoP3x2dQ24kSsrrWovCOlrq7CW812GUaKEH4xVrjee93iM4T9O8GPLFlRjJE
-         FaJuLgPq5odOSwdEVz5W6LFxNpL1KRyuiNkf9ZfJYqC973T+NbDYa+HJSaIMdVJ27L
-         Gcb3VEO9gqFqk1tTKzePB6MdPmr3APP7APm9YCDc=
+        b=vy9n0BFm3mAWOlIDeM3XcLleP2HtHQWsK4zMCjaetzs/UePZtN1iMFpyYBqCukLek
+         dzleAcgCjuYvdAnyqqvD3mZb6lPP1kkaiplyeRgWxWGCOql7so1fJ2wDaHpcdxX2YX
+         noZ03dJoyW7b9l7mWtIjg6lXjX/Lsoroc9oAcIwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Todd Kjos <tkjos@google.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 4.14 003/251] binder: use cred instead of task for selinux checks
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 055/323] mwifiex: Read a PCI register after writing the TX ring write pointer
 Date:   Wed, 24 Nov 2021 12:54:05 +0100
-Message-Id: <20211124115710.339663172@linuxfoundation.org>
+Message-Id: <20211124115720.727555169@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,287 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@google.com>
+From: Jonas Dreßler <verdre@v0yd.nl>
 
-commit 52f88693378a58094c538662ba652aff0253c4fe upstream.
+commit e5f4eb8223aa740237cd463246a7debcddf4eda1 upstream.
 
-Since binder was integrated with selinux, it has passed
-'struct task_struct' associated with the binder_proc
-to represent the source and target of transactions.
-The conversion of task to SID was then done in the hook
-implementations. It turns out that there are race conditions
-which can result in an incorrect security context being used.
+On the 88W8897 PCIe+USB card the firmware randomly crashes after setting
+the TX ring write pointer. The issue is present in the latest firmware
+version 15.68.19.p21 of the PCIe+USB card.
 
-Fix by using the 'struct cred' saved during binder_open and pass
-it to the selinux subsystem.
+Those firmware crashes can be worked around by reading any PCI register
+of the card after setting that register, so read the PCI_VENDOR_ID
+register here. The reason this works is probably because we keep the bus
+from entering an ASPM state for a bit longer, because that's what causes
+the cards firmware to crash.
 
-Cc: stable@vger.kernel.org # 5.14 (need backport for earlier stables)
-Fixes: 79af73079d75 ("Add security hooks to binder and implement the hooks for SELinux.")
-Suggested-by: Jann Horn <jannh@google.com>
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+This fixes a bug where during RX/TX traffic and with ASPM L1 substates
+enabled (the specific substates where the issue happens appear to be
+platform dependent), the firmware crashes and eventually a command
+timeout appears in the logs.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109681
+Cc: stable@vger.kernel.org
+Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211011133224.15561-2-verdre@v0yd.nl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/android/binder.c  |   12 ++++++------
- include/linux/lsm_hooks.h |   28 ++++++++++++++--------------
- include/linux/security.h  |   28 ++++++++++++++--------------
- security/security.c       |   14 +++++++-------
- security/selinux/hooks.c  |   31 +++++++++++++------------------
- 5 files changed, 54 insertions(+), 59 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/pcie.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2285,7 +2285,7 @@ static int binder_translate_binder(struc
- 		ret = -EINVAL;
- 		goto done;
- 	}
--	if (security_binder_transfer_binder(proc->tsk, target_proc->tsk)) {
-+	if (security_binder_transfer_binder(proc->cred, target_proc->cred)) {
- 		ret = -EPERM;
- 		goto done;
- 	}
-@@ -2331,7 +2331,7 @@ static int binder_translate_handle(struc
- 				  proc->pid, thread->pid, fp->handle);
- 		return -EINVAL;
- 	}
--	if (security_binder_transfer_binder(proc->tsk, target_proc->tsk)) {
-+	if (security_binder_transfer_binder(proc->cred, target_proc->cred)) {
- 		ret = -EPERM;
- 		goto done;
- 	}
-@@ -2415,7 +2415,7 @@ static int binder_translate_fd(int fd,
- 		ret = -EBADF;
- 		goto err_fget;
- 	}
--	ret = security_binder_transfer_file(proc->tsk, target_proc->tsk, file);
-+	ret = security_binder_transfer_file(proc->cred, target_proc->cred, file);
- 	if (ret < 0) {
- 		ret = -EPERM;
- 		goto err_security;
-@@ -2802,8 +2802,8 @@ static void binder_transaction(struct bi
- 			return_error_line = __LINE__;
- 			goto err_invalid_target_handle;
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.c
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+@@ -1330,6 +1330,14 @@ mwifiex_pcie_send_data(struct mwifiex_ad
+ 			ret = -1;
+ 			goto done_unmap;
  		}
--		if (security_binder_transaction(proc->tsk,
--						target_proc->tsk) < 0) {
-+		if (security_binder_transaction(proc->cred,
-+						target_proc->cred) < 0) {
- 			return_error = BR_FAILED_REPLY;
- 			return_error_param = -EPERM;
- 			return_error_line = __LINE__;
-@@ -4469,7 +4469,7 @@ static int binder_ioctl_set_ctx_mgr(stru
- 		ret = -EBUSY;
- 		goto out;
- 	}
--	ret = security_binder_set_context_mgr(proc->tsk);
-+	ret = security_binder_set_context_mgr(proc->cred);
- 	if (ret < 0)
- 		goto out;
- 	if (uid_valid(context->binder_context_mgr_uid)) {
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1170,22 +1170,22 @@
-  *
-  * @binder_set_context_mgr:
-  *	Check whether @mgr is allowed to be the binder context manager.
-- *	@mgr contains the task_struct for the task being registered.
-+ *	@mgr contains the struct cred for the current binder process.
-  *	Return 0 if permission is granted.
-  * @binder_transaction:
-  *	Check whether @from is allowed to invoke a binder transaction call
-  *	to @to.
-- *	@from contains the task_struct for the sending task.
-- *	@to contains the task_struct for the receiving task.
-+ *	@from contains the struct cred for the sending process.
-+ *	@to contains the struct cred for the receiving process.
-  * @binder_transfer_binder:
-  *	Check whether @from is allowed to transfer a binder reference to @to.
-- *	@from contains the task_struct for the sending task.
-- *	@to contains the task_struct for the receiving task.
-+ *	@from contains the struct cred for the sending process.
-+ *	@to contains the struct cred for the receiving process.
-  * @binder_transfer_file:
-  *	Check whether @from is allowed to transfer @file to @to.
-- *	@from contains the task_struct for the sending task.
-+ *	@from contains the struct cred for the sending process.
-  *	@file contains the struct file being transferred.
-- *	@to contains the task_struct for the receiving task.
-+ *	@to contains the struct cred for the receiving process.
-  *
-  * @ptrace_access_check:
-  *	Check permission before allowing the current process to trace the
-@@ -1353,13 +1353,13 @@
-  *	@ctxlen points to the place to put the length of @ctx.
-  */
- union security_list_options {
--	int (*binder_set_context_mgr)(struct task_struct *mgr);
--	int (*binder_transaction)(struct task_struct *from,
--					struct task_struct *to);
--	int (*binder_transfer_binder)(struct task_struct *from,
--					struct task_struct *to);
--	int (*binder_transfer_file)(struct task_struct *from,
--					struct task_struct *to,
-+	int (*binder_set_context_mgr)(const struct cred *mgr);
-+	int (*binder_transaction)(const struct cred *from,
-+					const struct cred *to);
-+	int (*binder_transfer_binder)(const struct cred *from,
-+					const struct cred *to);
-+	int (*binder_transfer_file)(const struct cred *from,
-+					const struct cred *to,
- 					struct file *file);
- 
- 	int (*ptrace_access_check)(struct task_struct *child,
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -197,13 +197,13 @@ static inline void security_free_mnt_opt
- extern int security_init(void);
- 
- /* Security operations */
--int security_binder_set_context_mgr(struct task_struct *mgr);
--int security_binder_transaction(struct task_struct *from,
--				struct task_struct *to);
--int security_binder_transfer_binder(struct task_struct *from,
--				    struct task_struct *to);
--int security_binder_transfer_file(struct task_struct *from,
--				  struct task_struct *to, struct file *file);
-+int security_binder_set_context_mgr(const struct cred *mgr);
-+int security_binder_transaction(const struct cred *from,
-+				const struct cred *to);
-+int security_binder_transfer_binder(const struct cred *from,
-+				    const struct cred *to);
-+int security_binder_transfer_file(const struct cred *from,
-+				  const struct cred *to, struct file *file);
- int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
- int security_ptrace_traceme(struct task_struct *parent);
- int security_capget(struct task_struct *target,
-@@ -424,25 +424,25 @@ static inline int security_init(void)
- 	return 0;
- }
- 
--static inline int security_binder_set_context_mgr(struct task_struct *mgr)
-+static inline int security_binder_set_context_mgr(const struct cred *mgr)
- {
- 	return 0;
- }
- 
--static inline int security_binder_transaction(struct task_struct *from,
--					      struct task_struct *to)
-+static inline int security_binder_transaction(const struct cred *from,
-+					      const struct cred *to)
- {
- 	return 0;
- }
- 
--static inline int security_binder_transfer_binder(struct task_struct *from,
--						  struct task_struct *to)
-+static inline int security_binder_transfer_binder(const struct cred *from,
-+						  const struct cred *to)
- {
- 	return 0;
- }
- 
--static inline int security_binder_transfer_file(struct task_struct *from,
--						struct task_struct *to,
-+static inline int security_binder_transfer_file(const struct cred *from,
-+						const struct cred *to,
- 						struct file *file)
- {
- 	return 0;
---- a/security/security.c
-+++ b/security/security.c
-@@ -222,25 +222,25 @@ EXPORT_SYMBOL(unregister_lsm_notifier);
- 
- /* Security operations */
- 
--int security_binder_set_context_mgr(struct task_struct *mgr)
-+int security_binder_set_context_mgr(const struct cred *mgr)
- {
- 	return call_int_hook(binder_set_context_mgr, 0, mgr);
- }
- 
--int security_binder_transaction(struct task_struct *from,
--				struct task_struct *to)
-+int security_binder_transaction(const struct cred *from,
-+				const struct cred *to)
- {
- 	return call_int_hook(binder_transaction, 0, from, to);
- }
- 
--int security_binder_transfer_binder(struct task_struct *from,
--				    struct task_struct *to)
-+int security_binder_transfer_binder(const struct cred *from,
-+				    const struct cred *to)
- {
- 	return call_int_hook(binder_transfer_binder, 0, from, to);
- }
- 
--int security_binder_transfer_file(struct task_struct *from,
--				  struct task_struct *to, struct file *file)
-+int security_binder_transfer_file(const struct cred *from,
-+				  const struct cred *to, struct file *file)
- {
- 	return call_int_hook(binder_transfer_file, 0, from, to, file);
- }
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2136,21 +2136,18 @@ static inline u32 open_file_to_av(struct
- 
- /* Hook functions begin here. */
- 
--static int selinux_binder_set_context_mgr(struct task_struct *mgr)
-+static int selinux_binder_set_context_mgr(const struct cred *mgr)
- {
--	u32 mysid = current_sid();
--	u32 mgrsid = task_sid(mgr);
--
--	return avc_has_perm(mysid, mgrsid, SECCLASS_BINDER,
-+	return avc_has_perm(current_sid(), cred_sid(mgr), SECCLASS_BINDER,
- 			    BINDER__SET_CONTEXT_MGR, NULL);
- }
- 
--static int selinux_binder_transaction(struct task_struct *from,
--				      struct task_struct *to)
-+static int selinux_binder_transaction(const struct cred *from,
-+				      const struct cred *to)
- {
- 	u32 mysid = current_sid();
--	u32 fromsid = task_sid(from);
--	u32 tosid = task_sid(to);
-+	u32 fromsid = cred_sid(from);
-+	u32 tosid = cred_sid(to);
- 	int rc;
- 
- 	if (mysid != fromsid) {
-@@ -2164,21 +2161,19 @@ static int selinux_binder_transaction(st
- 			    NULL);
- }
- 
--static int selinux_binder_transfer_binder(struct task_struct *from,
--					  struct task_struct *to)
-+static int selinux_binder_transfer_binder(const struct cred *from,
-+					  const struct cred *to)
- {
--	u32 fromsid = task_sid(from);
--	u32 tosid = task_sid(to);
--
--	return avc_has_perm(fromsid, tosid, SECCLASS_BINDER, BINDER__TRANSFER,
-+	return avc_has_perm(cred_sid(from), cred_sid(to),
-+			    SECCLASS_BINDER, BINDER__TRANSFER,
- 			    NULL);
- }
- 
--static int selinux_binder_transfer_file(struct task_struct *from,
--					struct task_struct *to,
-+static int selinux_binder_transfer_file(const struct cred *from,
-+					const struct cred *to,
- 					struct file *file)
- {
--	u32 sid = task_sid(to);
-+	u32 sid = cred_sid(to);
- 	struct file_security_struct *fsec = file->f_security;
- 	struct dentry *dentry = file->f_path.dentry;
- 	struct inode_security_struct *isec;
++
++		/* The firmware (latest version 15.68.19.p21) of the 88W8897 PCIe+USB card
++		 * seems to crash randomly after setting the TX ring write pointer when
++		 * ASPM powersaving is enabled. A workaround seems to be keeping the bus
++		 * busy by reading a random register afterwards.
++		 */
++		mwifiex_read_reg(adapter, PCI_VENDOR_ID, &rx_val);
++
+ 		if ((mwifiex_pcie_txbd_not_full(card)) &&
+ 		    tx_param->next_pkt_len) {
+ 			/* have more packets and TxBD still can hold more */
 
 
