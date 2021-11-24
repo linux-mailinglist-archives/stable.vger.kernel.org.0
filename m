@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FAAB45BAF3
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00A3545BE98
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233351AbhKXMPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46748 "EHLO mail.kernel.org"
+        id S244505AbhKXMtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:49:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242855AbhKXMND (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:13:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9A9E60C51;
-        Wed, 24 Nov 2021 12:07:11 +0000 (UTC)
+        id S245626AbhKXMqH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:46:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EA6E610A6;
+        Wed, 24 Nov 2021 12:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755632;
-        bh=bkuKDiyTvvvqQs8KsVOYJ8F3YZ0ajcqYqTq+bj/bjYQ=;
+        s=korg; t=1637756824;
+        bh=P1efQ1EJYZ7M3hPLIesNMPnifDK4J0i56+3LXQgiPIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwUdo+V/VfUuabaVmrXoPkc16qM9gfE1FVX6OvpeFrMzxpj3S1mWrcbvu2Klzj9mF
-         JPD0B1AZBCXckfueXfbrSu08aQXirZHIP1r+/5gY18mK0BkzdT1Pci/z8JKDMHkcWN
-         xj0B8jivXpgOCm1y3JSQH+u4GS23Qv0ZFTFe67H0=
+        b=z2X9RDqql6TSwuqDDBOvE6ehJDAYc0Riw9dpiPOgnZTg141MvOi3TyIqYrmP97USL
+         jq195suIzjc0inmLhmTkqPxf81fpzC0CDnP04Sz6ZoY34iUoxI9Qc6FpjECEv2k19r
+         JcGQhgcjTsTb0dvi44BByYr7l07iOjcTvJ/rY0TQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.4 158/162] batman-adv: Dont always reallocate the fragmentation skb head
-Date:   Wed, 24 Nov 2021 12:57:41 +0100
-Message-Id: <20211124115703.387715850@linuxfoundation.org>
+        stable@vger.kernel.org, Jing-Ting Wu <jing-ting.wu@mediatek.com>,
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 220/251] sched/core: Mitigate race cpus_share_cache()/update_top_cache_domain()
+Date:   Wed, 24 Nov 2021 12:57:42 +0100
+Message-Id: <20211124115717.918812279@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-commit 992b03b88e36254e26e9a4977ab948683e21bd9f upstream.
+[ Upstream commit 42dc938a590c96eeb429e1830123fef2366d9c80 ]
 
-When a packet is fragmented by batman-adv, the original batman-adv header
-is not modified. Only a new fragmentation is inserted between the original
-one and the ethernet header. The code must therefore make sure that it has
-a writable region of this size in the skbuff head.
+Nothing protects the access to the per_cpu variable sd_llc_id. When testing
+the same CPU (i.e. this_cpu == that_cpu), a race condition exists with
+update_top_cache_domain(). One scenario being:
 
-But it is not useful to always reallocate the skbuff by this size even when
-there would be more than enough headroom still in the skb. The reallocation
-is just to costly during in this codepath.
+              CPU1                            CPU2
+  ==================================================================
 
-Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.4 backported: adjust context, switch back to old return type +
-  labels ]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  per_cpu(sd_llc_id, CPUX) => 0
+                                    partition_sched_domains_locked()
+      				      detach_destroy_domains()
+  cpus_share_cache(CPUX, CPUX)          update_top_cache_domain(CPUX)
+    per_cpu(sd_llc_id, CPUX) => 0
+                                          per_cpu(sd_llc_id, CPUX) = CPUX
+    per_cpu(sd_llc_id, CPUX) => CPUX
+    return false
+
+ttwu_queue_cond() wouldn't catch smp_processor_id() == cpu and the result
+is a warning triggered from ttwu_queue_wakelist().
+
+Avoid a such race in cpus_share_cache() by always returning true when
+this_cpu == that_cpu.
+
+Fixes: 518cd6234178 ("sched: Only queue remote wakeups when crossing cache boundaries")
+Reported-by: Jing-Ting Wu <jing-ting.wu@mediatek.com>
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/20211104175120.857087-1-vincent.donnefort@arm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/fragmentation.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ kernel/sched/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -507,11 +507,13 @@ bool batadv_frag_send_packet(struct sk_b
- 		frag_header.no++;
- 	}
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 7cedada731c1b..544a1cb66d90d 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1852,6 +1852,9 @@ out:
  
--	/* Make room for the fragment header. */
--	if (batadv_skb_head_push(skb, header_size) < 0 ||
--	    pskb_expand_head(skb, header_size + ETH_HLEN, 0, GFP_ATOMIC) < 0)
-+	/* make sure that there is at least enough head for the fragmentation
-+	 * and ethernet headers
-+	 */
-+	if (skb_cow_head(skb, ETH_HLEN + header_size) < 0)
- 		goto out_err;
- 
-+	skb_push(skb, header_size);
- 	memcpy(skb->data, &frag_header, header_size);
- 
- 	/* Send the last fragment */
+ bool cpus_share_cache(int this_cpu, int that_cpu)
+ {
++	if (this_cpu == that_cpu)
++		return true;
++
+ 	return per_cpu(sd_llc_id, this_cpu) == per_cpu(sd_llc_id, that_cpu);
+ }
+ #endif /* CONFIG_SMP */
+-- 
+2.33.0
+
 
 
