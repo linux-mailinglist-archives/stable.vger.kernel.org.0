@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D62F545C093
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 762FA45C52B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346622AbhKXNJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:09:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45542 "EHLO mail.kernel.org"
+        id S1352327AbhKXNzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:55:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345506AbhKXNIB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:08:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37E3D61A57;
-        Wed, 24 Nov 2021 12:39:05 +0000 (UTC)
+        id S1354434AbhKXNur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:50:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 054886138D;
+        Wed, 24 Nov 2021 13:03:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757545;
-        bh=Pq5igLXoP1nUPJFy/Wh8nTB+AIjYnzMDlFVMhtLllK8=;
+        s=korg; t=1637759027;
+        bh=cscOIDw0U6YNMei0MsnO1G295KgXjmXa8uXwkoryhn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KW+8f8SuEbgUkgoktqXcl40Qt2Kkb2RrvZOR7SGMWlkj9FcqnvhZu5ayGqLjYS0pj
-         Zqop6rbRBoGdNlInlZRFFhoVlbGjEOnRidMxNcaAh5F/JmXrdubAeDJL0hgDyma2sq
-         jOwydMZ2nk12S68ZpsKrB7TVPQhPvR6A0xuXqaus=
+        b=BgizpuqMcZtO2Ilpu5msI7NmtUqR/BOlHcL/1J7Z99iW28TV2k1zwgdRcMh8XxP7q
+         ja7v4jGwZC83LmcTJKZdsd1yZ1w7zwr1PWiW7dDf0+30D+1VTbnxI0R6wpEKFWp5Ri
+         41pCdkj78YC/J68jNkM8CgY87alAhpzYR/1tnCv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Alex Elder <elder@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 205/323] NFS: Fix deadlocks in nfs_scan_commit_list()
-Date:   Wed, 24 Nov 2021 12:56:35 +0100
-Message-Id: <20211124115725.861637374@linuxfoundation.org>
+Subject: [PATCH 5.15 109/279] net/ipa: ipa_resource: Fix wrong for loop range
+Date:   Wed, 24 Nov 2021 12:56:36 +0100
+Message-Id: <20211124115722.547047488@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit 64a93dbf25d3a1368bb58ddf0f61d0a92d7479e3 ]
+[ Upstream commit 27df68d579c67ef6c39a5047559b6a7c08c96219 ]
 
-Partially revert commit 2ce209c42c01 ("NFS: Wait for requests that are
-locked on the commit list"), since it can lead to deadlocks between
-commit requests and nfs_join_page_group().
-For now we should assume that any locked requests on the commit list are
-either about to be removed and committed by another task, or the writes
-they describe are about to be retransmitted. In either case, we should
-not need to worry.
+The source group count was mistakenly assigned to both dst and src loops.
+Fix it to make IPA probe and work again.
 
-Fixes: 2ce209c42c01 ("NFS: Wait for requests that are locked on the commit list")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 4fd704b3608a ("net: ipa: record number of groups in data")
+Acked-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Reviewed-by: Marijn Suijten <marijn.suijten@somainline.org>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Reviewed-by: Alex Elder <elder@linaro.org>
+Link: https://lore.kernel.org/r/20211111183724.593478-1-konrad.dybcio@somainline.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/write.c | 17 ++---------------
- 1 file changed, 2 insertions(+), 15 deletions(-)
+ drivers/net/ipa/ipa_resource.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index d419d89b91f7c..ec0fd6b3d185a 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -1045,25 +1045,11 @@ nfs_scan_commit_list(struct list_head *src, struct list_head *dst,
- 	struct nfs_page *req, *tmp;
- 	int ret = 0;
+diff --git a/drivers/net/ipa/ipa_resource.c b/drivers/net/ipa/ipa_resource.c
+index e3da95d694099..06cec71993823 100644
+--- a/drivers/net/ipa/ipa_resource.c
++++ b/drivers/net/ipa/ipa_resource.c
+@@ -52,7 +52,7 @@ static bool ipa_resource_limits_valid(struct ipa *ipa,
+ 				return false;
+ 	}
  
--restart:
- 	list_for_each_entry_safe(req, tmp, src, wb_list) {
- 		kref_get(&req->wb_kref);
- 		if (!nfs_lock_request(req)) {
--			int status;
--
--			/* Prevent deadlock with nfs_lock_and_join_requests */
--			if (!list_empty(dst)) {
--				nfs_release_request(req);
--				continue;
--			}
--			/* Ensure we make progress to prevent livelock */
--			mutex_unlock(&NFS_I(cinfo->inode)->commit_mutex);
--			status = nfs_wait_on_request(req);
- 			nfs_release_request(req);
--			mutex_lock(&NFS_I(cinfo->inode)->commit_mutex);
--			if (status < 0)
--				break;
--			goto restart;
-+			continue;
- 		}
- 		nfs_request_remove_commit_list(req, cinfo);
- 		clear_bit(PG_COMMIT_TO_DS, &req->wb_flags);
-@@ -1911,6 +1897,7 @@ static int __nfs_commit_inode(struct inode *inode, int how,
- 	int may_wait = how & FLUSH_SYNC;
- 	int ret, nscan;
+-	group_count = data->rsrc_group_src_count;
++	group_count = data->rsrc_group_dst_count;
+ 	if (!group_count || group_count > IPA_RESOURCE_GROUP_MAX)
+ 		return false;
  
-+	how &= ~FLUSH_SYNC;
- 	nfs_init_cinfo_from_inode(&cinfo, inode);
- 	nfs_commit_begin(cinfo.mds);
- 	for (;;) {
 -- 
 2.33.0
 
