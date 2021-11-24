@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB47545C1E2
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E920745C0FB
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349744AbhKXNXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:23:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45544 "EHLO mail.kernel.org"
+        id S1348832AbhKXNOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:14:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345129AbhKXNVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:21:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1C6861502;
-        Wed, 24 Nov 2021 12:47:10 +0000 (UTC)
+        id S245385AbhKXNLS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:11:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 007B861A81;
+        Wed, 24 Nov 2021 12:41:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758031;
-        bh=SW3AfNa2m26m5kKJJFR4cvK/BdY6E9zm3IxGoMaMi7k=;
+        s=korg; t=1637757712;
+        bh=4tl9nfe5z7DcW0x5uIKgFg3K1vmUd9WveJsw5zzXOBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dkU8XV3M16Ho0J0hwypkmNWMttE3yYv7vlQ9GdptIxfAni2Wt5UoSt4UoZVh8Niy7
-         9v7uipQOsL5ZnqykDNZq1oa9DWgBoWcu/gK13eM2y5vskJbIBgF86GWUoqrqCSYER/
-         I5TNQ1RZlC/Xn18fT4i+RmOt98vsU3E/srSnWd3I=
+        b=PwrXT9KNE6+dkSHMFOFGFnocoMxusOHOmJDRCMI4n5AtKcxs0m2mYRwmhN+MOoWgP
+         zNQfTkcZbitjbMScBSd5TfjQtUWfzI8Z4WUM/Y998nuOdUzsQEXJpYi/vddTzPWFqu
+         pXBEiA4kXFQfxpRO6223y/jBrRR/S0SijxJzzoNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Wei Xu <xuwei5@hisilicon.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 005/100] arm64: dts: hisilicon: fix arm,sp805 compatible string
+        stable@vger.kernel.org, Shaoying Xu <shaoyi@amazon.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 251/323] ext4: fix lazy initialization next schedule time computation in more granular unit
 Date:   Wed, 24 Nov 2021 12:57:21 +0100
-Message-Id: <20211124115655.024304117@linuxfoundation.org>
+Message-Id: <20211124115727.375080042@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,61 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Shaoying Xu <shaoyi@amazon.com>
 
-[ Upstream commit 894d4f1f77d0e88f1f81af2e1e37333c1c41b631 ]
+commit 39fec6889d15a658c3a3ebb06fd69d3584ddffd3 upstream.
 
-According to Documentation/devicetree/bindings/watchdog/arm,sp805.yaml
-the compatible is:
-  compatible = "arm,sp805", "arm,primecell";
+Ext4 file system has default lazy inode table initialization setup once
+it is mounted. However, it has issue on computing the next schedule time
+that makes the timeout same amount in jiffies but different real time in
+secs if with various HZ values. Therefore, fix by measuring the current
+time in a more granular unit nanoseconds and make the next schedule time
+independent of the HZ value.
 
-The current compatible string doesn't exist at all. Fix it.
+Fixes: bfff68738f1c ("ext4: add support for lazy inode table initialization")
+Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210902164412.9994-2-shaoyi@amazon.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Wei Xu <xuwei5@hisilicon.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/hisilicon/hi3660.dtsi | 4 ++--
- arch/arm64/boot/dts/hisilicon/hi6220.dtsi | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ fs/ext4/super.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/hisilicon/hi3660.dtsi b/arch/arm64/boot/dts/hisilicon/hi3660.dtsi
-index 253cc345f143a..0c88b72094774 100644
---- a/arch/arm64/boot/dts/hisilicon/hi3660.dtsi
-+++ b/arch/arm64/boot/dts/hisilicon/hi3660.dtsi
-@@ -1086,7 +1086,7 @@
- 		};
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3026,8 +3026,8 @@ static int ext4_run_li_request(struct ex
+ 	struct ext4_group_desc *gdp = NULL;
+ 	ext4_group_t group, ngroups;
+ 	struct super_block *sb;
+-	unsigned long timeout = 0;
+ 	int ret = 0;
++	u64 start_time;
  
- 		watchdog0: watchdog@e8a06000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xe8a06000 0x0 0x1000>;
- 			interrupts = <GIC_SPI 44 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&crg_ctrl HI3660_OSC32K>;
-@@ -1094,7 +1094,7 @@
- 		};
+ 	sb = elr->lr_super;
+ 	ngroups = EXT4_SB(sb)->s_groups_count;
+@@ -3047,13 +3047,12 @@ static int ext4_run_li_request(struct ex
+ 		ret = 1;
  
- 		watchdog1: watchdog@e8a07000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xe8a07000 0x0 0x1000>;
- 			interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&crg_ctrl HI3660_OSC32K>;
-diff --git a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
-index 108e2a4227f66..568faaba7ace9 100644
---- a/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
-+++ b/arch/arm64/boot/dts/hisilicon/hi6220.dtsi
-@@ -839,7 +839,7 @@
- 		};
- 
- 		watchdog0: watchdog@f8005000 {
--			compatible = "arm,sp805-wdt", "arm,primecell";
-+			compatible = "arm,sp805", "arm,primecell";
- 			reg = <0x0 0xf8005000 0x0 0x1000>;
- 			interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&ao_ctrl HI6220_WDT0_PCLK>;
--- 
-2.33.0
-
+ 	if (!ret) {
+-		timeout = jiffies;
++		start_time = ktime_get_real_ns();
+ 		ret = ext4_init_inode_table(sb, group,
+ 					    elr->lr_timeout ? 0 : 1);
+ 		if (elr->lr_timeout == 0) {
+-			timeout = (jiffies - timeout) *
+-				  elr->lr_sbi->s_li_wait_mult;
+-			elr->lr_timeout = timeout;
++			elr->lr_timeout = nsecs_to_jiffies((ktime_get_real_ns() - start_time) *
++				  elr->lr_sbi->s_li_wait_mult);
+ 		}
+ 		elr->lr_next_sched = jiffies + elr->lr_timeout;
+ 		elr->lr_next_group = group + 1;
 
 
