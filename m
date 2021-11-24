@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A97A45C0A0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEE8D45C56B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:54:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343804AbhKXNJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:09:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47544 "EHLO mail.kernel.org"
+        id S1350773AbhKXN5k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:57:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348260AbhKXNJC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:09:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9873661213;
-        Wed, 24 Nov 2021 12:40:06 +0000 (UTC)
+        id S1352540AbhKXNze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:55:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 409176328F;
+        Wed, 24 Nov 2021 13:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757607;
-        bh=nrPkeaf8lbhM5YeqOYDoO6Den0Txo0b+K2mTz4Z+nYU=;
+        s=korg; t=1637759190;
+        bh=toY88Tonkz8nyYQ8YpbfkjxzrYejRJxWtQV0oXLoPjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/T+Imwn/6Of3LDU9beLMXUTDX1CjVC7f/xwtJiKdnh/0ydEPmYUp19DijsPCTx7p
-         RGfOxkIgmrcL7WEIazm9+QiW12P3qexCQrUjp993kLTG+8qWLFAnLdAizLrZxifP13
-         Ge9bII2+9m6HHF1fDtDG7ql4KMBYIaPwtqcR9ARQ=
+        b=WytOGWcVRfv14QY+2DhcJzYdqzP39eBxZDwDswVteyYn5YbnGni9Zy6VmJBAKKjFt
+         oj6BtH9TE2XvXV9fyDcUw/bKUjC3X/dZe6faHsSXJFTmYrSRmo1uZkzkbA/O1XAGgV
+         bj2SauBkESrsSRpfM0TtpTikpDYLvDbefMK4olAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jackie Liu <liuyun01@kylinos.cn>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Ying Xue <ying.xue@windriver.com>,
+        Jon Maloy <jmaloy@redhat.com>, Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 216/323] ar7: fix kernel builds for compiler test
+Subject: [PATCH 5.15 119/279] tipc: only accept encrypted MSG_CRYPTO msgs
 Date:   Wed, 24 Nov 2021 12:56:46 +0100
-Message-Id: <20211124115726.227830404@linuxfoundation.org>
+Message-Id: <20211124115722.916344345@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 28b7ee33a2122569ac065cad578bf23f50cc65c3 ]
+[ Upstream commit 271351d255b09e39c7f6437738cba595f9b235be ]
 
-TI AR7 Watchdog Timer is only build for 32bit.
+The MSG_CRYPTO msgs are always encrypted and sent to other nodes
+for keys' deployment. But when receiving in peers, if those nodes
+do not validate it and make sure it's encrypted, one could craft
+a malicious MSG_CRYPTO msg to deploy its key with no need to know
+other nodes' keys.
 
-Avoid error like:
-In file included from drivers/watchdog/ar7_wdt.c:29:
-./arch/mips/include/asm/mach-ar7/ar7.h: In function ‘ar7_is_titan’:
-./arch/mips/include/asm/mach-ar7/ar7.h:111:24: error: implicit declaration of function ‘KSEG1ADDR’; did you mean ‘CKSEG1ADDR’? [-Werror=implicit-function-declaration]
-  111 |  return (readl((void *)KSEG1ADDR(AR7_REGS_GPIO + 0x24)) & 0xffff) ==
-      |                        ^~~~~~~~~
-      |                        CKSEG1ADDR
+This patch is to do that by checking TIPC_SKB_CB(skb)->decrypted
+and discard it if this packet never got decrypted.
 
-Fixes: da2a68b3eb47 ("watchdog: Enable COMPILE_TEST where possible")
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210907024904.4127611-1-liu.yun@linux.dev
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Note that this is also a supplementary fix to CVE-2021-43267 that
+can be triggered by an unencrypted malicious MSG_CRYPTO msg.
+
+Fixes: 1ef6f7c9390f ("tipc: add automatic session key exchange")
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/tipc/link.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index fa7f4c61524d9..92fdc7dc2ede5 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1524,7 +1524,7 @@ config SIBYTE_WDOG
- 
- config AR7_WDT
- 	tristate "TI AR7 Watchdog Timer"
--	depends on AR7 || (MIPS && COMPILE_TEST)
-+	depends on AR7 || (MIPS && 32BIT && COMPILE_TEST)
- 	help
- 	  Hardware driver for the TI AR7 Watchdog Timer.
- 
+diff --git a/net/tipc/link.c b/net/tipc/link.c
+index 1b7a487c88419..09ae8448f394f 100644
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -1298,8 +1298,11 @@ static bool tipc_data_input(struct tipc_link *l, struct sk_buff *skb,
+ 		return false;
+ #ifdef CONFIG_TIPC_CRYPTO
+ 	case MSG_CRYPTO:
+-		tipc_crypto_msg_rcv(l->net, skb);
+-		return true;
++		if (TIPC_SKB_CB(skb)->decrypted) {
++			tipc_crypto_msg_rcv(l->net, skb);
++			return true;
++		}
++		fallthrough;
+ #endif
+ 	default:
+ 		pr_warn("Dropping received illegal msg type\n");
 -- 
 2.33.0
 
