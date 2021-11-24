@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A92E45C32F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:33:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 624B845C0EA
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:09:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348984AbhKXNgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:36:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51646 "EHLO mail.kernel.org"
+        id S1348411AbhKXNMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:12:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347583AbhKXNeG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:34:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A3BB6136A;
-        Wed, 24 Nov 2021 12:54:08 +0000 (UTC)
+        id S1347667AbhKXNK3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:10:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 911A061A6C;
+        Wed, 24 Nov 2021 12:41:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758449;
-        bh=T/VLGws0oxAJsjjoi9Cn7Me0fLjDhjG950pEH7pakLc=;
+        s=korg; t=1637757700;
+        bh=c7yLRFh/qPO1cPe8F9ONeJjPdkrpsC5lpe94My3zLeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s9bnY+sNDxBYyeH32jsR0kM8twWDa/aahaL2HX+PuHqxqIApu44shcOWKE5lMTnna
-         CcagEoUo5DET97ENxMz3Yg5qjxnMNrAw4+RdZxAgSP8C3PcH1rzJHx+tIoNgKtWT4H
-         vY0p+hrQQbKMsaHQSWvFCaVfXn51wu0zJas3mNzE=
+        b=MpTc8Q+2DGcRxDu4mSqgUGCYTisHDpF0uXY0b6FFzWQHFVtpOdRvhA2lpMbtAWXA9
+         4R5sL3HV14Skz846Wl69hwMQco5aKRysNJmqmlUx+99hPF4Yod3bjr/6jMAomcqB9c
+         8D4VvD0ku1zMHE+v5mWk9uVe5e/IsxRjj9v8O27Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Teng Qi <starmiku1207184332@gmail.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 042/154] iio: imu: st_lsm6dsx: Avoid potential array overflow in st_lsm6dsx_set_odr()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.19 248/323] PCI: Add PCI_EXP_DEVCTL_PAYLOAD_* macros
 Date:   Wed, 24 Nov 2021 12:57:18 +0100
-Message-Id: <20211124115703.708572970@linuxfoundation.org>
+Message-Id: <20211124115727.280476375@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Teng Qi <starmiku1207184332@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 94be878c882d8d784ff44c639bf55f3b029f85af ]
+commit 460275f124fb072dca218a6b43b6370eebbab20d upstream.
 
-The length of hw->settings->odr_table is 2 and ref_sensor->id is an enum
-variable whose value is between 0 and 5.
-However, the value ST_LSM6DSX_ID_MAX (i.e. 5) is not caught properly in
- switch (sensor->id) {
+Define a macro PCI_EXP_DEVCTL_PAYLOAD_* for every possible Max Payload
+Size in linux/pci_regs.h, in the same style as PCI_EXP_DEVCTL_READRQ_*.
 
-If ref_sensor->id is ST_LSM6DSX_ID_MAX, an array overflow will ocurrs in
-function st_lsm6dsx_check_odr():
-  odr_table = &sensor->hw->settings->odr_table[sensor->id];
-
-and in function st_lsm6dsx_set_odr():
-  reg = &hw->settings->odr_table[ref_sensor->id].reg;
-
-To avoid this array overflow, handle ST_LSM6DSX_ID_GYRO explicitly and
-return -EINVAL for the default case.
-
-The enum value ST_LSM6DSX_ID_MAX is only present as an easy way to check
-the limit and as such is never used, however this is not locally obvious.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Teng Qi <starmiku1207184332@gmail.com>
-Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Link: https://lore.kernel.org/r/20211011114003.976221-1-starmiku1207184332@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211005180952.6812-2-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/uapi/linux/pci_regs.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-index 2ab1ac5a2412f..558ca3843bb95 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -1465,6 +1465,8 @@ st_lsm6dsx_set_odr(struct st_lsm6dsx_sensor *sensor, u32 req_odr)
- 	int err;
- 
- 	switch (sensor->id) {
-+	case ST_LSM6DSX_ID_GYRO:
-+		break;
- 	case ST_LSM6DSX_ID_EXT0:
- 	case ST_LSM6DSX_ID_EXT1:
- 	case ST_LSM6DSX_ID_EXT2:
-@@ -1490,8 +1492,8 @@ st_lsm6dsx_set_odr(struct st_lsm6dsx_sensor *sensor, u32 req_odr)
- 		}
- 		break;
- 	}
--	default:
--		break;
-+	default: /* should never occur */
-+		return -EINVAL;
- 	}
- 
- 	if (req_odr > 0) {
--- 
-2.33.0
-
+--- a/include/uapi/linux/pci_regs.h
++++ b/include/uapi/linux/pci_regs.h
+@@ -497,6 +497,12 @@
+ #define  PCI_EXP_DEVCTL_URRE	0x0008	/* Unsupported Request Reporting En. */
+ #define  PCI_EXP_DEVCTL_RELAX_EN 0x0010 /* Enable relaxed ordering */
+ #define  PCI_EXP_DEVCTL_PAYLOAD	0x00e0	/* Max_Payload_Size */
++#define  PCI_EXP_DEVCTL_PAYLOAD_128B 0x0000 /* 128 Bytes */
++#define  PCI_EXP_DEVCTL_PAYLOAD_256B 0x0020 /* 256 Bytes */
++#define  PCI_EXP_DEVCTL_PAYLOAD_512B 0x0040 /* 512 Bytes */
++#define  PCI_EXP_DEVCTL_PAYLOAD_1024B 0x0060 /* 1024 Bytes */
++#define  PCI_EXP_DEVCTL_PAYLOAD_2048B 0x0080 /* 2048 Bytes */
++#define  PCI_EXP_DEVCTL_PAYLOAD_4096B 0x00a0 /* 4096 Bytes */
+ #define  PCI_EXP_DEVCTL_EXT_TAG	0x0100	/* Extended Tag Field Enable */
+ #define  PCI_EXP_DEVCTL_PHANTOM	0x0200	/* Phantom Functions Enable */
+ #define  PCI_EXP_DEVCTL_AUX_PME	0x0400	/* Auxiliary Power PM Enable */
 
 
