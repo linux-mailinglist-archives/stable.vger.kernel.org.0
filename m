@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B34045BB09
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:13:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C72345BFF3
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242967AbhKXMPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47096 "EHLO mail.kernel.org"
+        id S243495AbhKXND4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:03:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243573AbhKXMOL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:14:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 965EE610E8;
-        Wed, 24 Nov 2021 12:09:16 +0000 (UTC)
+        id S1347660AbhKXNBc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:01:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C4AF619EA;
+        Wed, 24 Nov 2021 12:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755757;
-        bh=i5IZgTlu9zgY0KdIW5G3K0QRC0Zp16AV/rIwZMwoqs8=;
+        s=korg; t=1637757308;
+        bh=2Fz1alJR0sRa2U93z50qxHzPvVUeyZ90gC0q24iS+fI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cmp/dq+NlCgPXq0QdQOiPvo7jv4DLp2M2MhA+8DmTKmSI5/iC/JFB2tHb6iNsO2t7
-         Z/595FwY+wEH8Z90Nq3f7PCjfau8d0V9kiQDEZOTBY/+Z8jXpxd++40Yoev2+Uuksu
-         cpZbDTOUeoXf1wF5c0JtrXY7UU3j2CxMIUANbZgA=
+        b=SdkX5tPj+GpDZyn3NTh9jCIODMrR/s9iTxUKJSfk97NBFAuNC2kONhfB+QAYL0v0t
+         RquAoju1eAt55pNPUhdC95eLfH0Osv2pdbW28mCb79cO6Hkddru4DMnKq3VUiROIcC
+         UVzsudsOeh4aJWHI9+oGlvX21CKGZhQD5ojgMSlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>,
-        Henrik Grimler <henrik@grimler.se>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 4.9 045/207] power: supply: max17042_battery: use VFSOC for capacity when no rsns
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 126/323] parisc/kgdb: add kgdb_roundup() to make kgdb work with idle polling
 Date:   Wed, 24 Nov 2021 12:55:16 +0100
-Message-Id: <20211124115705.393330577@linuxfoundation.org>
+Message-Id: <20211124115723.190249898@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henrik Grimler <henrik@grimler.se>
+From: Sven Schnelle <svens@stackframe.org>
 
-commit 223a3b82834f036a62aa831f67cbf1f1d644c6e2 upstream.
+[ Upstream commit 66e29fcda1824f0427966fbee2bd2c85bf362c82 ]
 
-On Galaxy S3 (i9300/i9305), which has the max17047 fuel gauge and no
-current sense resistor (rsns), the RepSOC register does not provide an
-accurate state of charge value. The reported value is wrong, and does
-not change over time. VFSOC however, which uses the voltage fuel gauge
-to determine the state of charge, always shows an accurate value.
+With idle polling, IPIs are not sent when a CPU idle, but queued
+and run later from do_idle(). The default kgdb_call_nmi_hook()
+implementation gets the pointer to struct pt_regs from get_irq_reqs(),
+which doesn't work in that case because it was not called from the
+IPI interrupt handler. Fix it by defining our own kgdb_roundup()
+function which sents an IPI_ENTER_KGDB. When that IPI is received
+on the target CPU kgdb_nmicallback() is called.
 
-For devices without current sense, VFSOC is already used for the
-soc-alert (0x0003 is written to MiscCFG register), so with this change
-the source of the alert and the PROP_CAPACITY value match.
-
-Fixes: 359ab9f5b154 ("power_supply: Add MAX17042 Fuel Gauge Driver")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Suggested-by: Wolfgang Wiedmeyer <wolfgit@wiedmeyer.de>
-Signed-off-by: Henrik Grimler <henrik@grimler.se>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/max17042_battery.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/parisc/kernel/smp.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -246,7 +246,10 @@ static int max17042_get_property(struct
- 		val->intval = data * 625 / 8;
- 		break;
- 	case POWER_SUPPLY_PROP_CAPACITY:
--		ret = regmap_read(map, MAX17042_RepSOC, &data);
-+		if (chip->pdata->enable_current_sense)
-+			ret = regmap_read(map, MAX17042_RepSOC, &data);
-+		else
-+			ret = regmap_read(map, MAX17042_VFSOC, &data);
- 		if (ret < 0)
- 			return ret;
+diff --git a/arch/parisc/kernel/smp.c b/arch/parisc/kernel/smp.c
+index 5e26dbede5fc2..ae4fc8769c38b 100644
+--- a/arch/parisc/kernel/smp.c
++++ b/arch/parisc/kernel/smp.c
+@@ -32,6 +32,7 @@
+ #include <linux/bitops.h>
+ #include <linux/ftrace.h>
+ #include <linux/cpu.h>
++#include <linux/kgdb.h>
  
+ #include <linux/atomic.h>
+ #include <asm/current.h>
+@@ -74,7 +75,10 @@ enum ipi_message_type {
+ 	IPI_CALL_FUNC,
+ 	IPI_CPU_START,
+ 	IPI_CPU_STOP,
+-	IPI_CPU_TEST
++	IPI_CPU_TEST,
++#ifdef CONFIG_KGDB
++	IPI_ENTER_KGDB,
++#endif
+ };
+ 
+ 
+@@ -170,7 +174,12 @@ ipi_interrupt(int irq, void *dev_id)
+ 			case IPI_CPU_TEST:
+ 				smp_debug(100, KERN_DEBUG "CPU%d is alive!\n", this_cpu);
+ 				break;
+-
++#ifdef CONFIG_KGDB
++			case IPI_ENTER_KGDB:
++				smp_debug(100, KERN_DEBUG "CPU%d ENTER_KGDB\n", this_cpu);
++				kgdb_nmicallback(raw_smp_processor_id(), get_irq_regs());
++				break;
++#endif
+ 			default:
+ 				printk(KERN_CRIT "Unknown IPI num on CPU%d: %lu\n",
+ 					this_cpu, which);
+@@ -226,6 +235,12 @@ send_IPI_allbutself(enum ipi_message_type op)
+ 	}
+ }
+ 
++#ifdef CONFIG_KGDB
++void kgdb_roundup_cpus(void)
++{
++	send_IPI_allbutself(IPI_ENTER_KGDB);
++}
++#endif
+ 
+ inline void 
+ smp_send_stop(void)	{ send_IPI_allbutself(IPI_CPU_STOP); }
+-- 
+2.33.0
+
 
 
