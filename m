@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32A2045C587
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3404D45C0E4
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:09:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343803AbhKXN7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:59:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42970 "EHLO mail.kernel.org"
+        id S1348022AbhKXNMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:12:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349658AbhKXNyk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:54:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 579B863270;
-        Wed, 24 Nov 2021 13:05:43 +0000 (UTC)
+        id S1347595AbhKXNKO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:10:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8713261A79;
+        Wed, 24 Nov 2021 12:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759144;
-        bh=Jzkxhr+SoOQtgojGFAfbJk4iwMTLcqy+wPMmkhkvSPQ=;
+        s=korg; t=1637757685;
+        bh=0ZdyZPsaU8WtkCDFRr4Z27JM/ySAtAZk51ZYzEA3Pzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eDMAy8VMI5FeOX6dmFSt1nGE4AHEGGNjBE+MB1AArv62WaDiAl2eO0L1g2DgKsiET
-         nOHIXdo0xN4u28vJATw9QzvpAkILeh06yjIYtElbKEsBgLQRNjP1Z6lgyGhVd3LEbO
-         M4so5KgKci4icaewcgidu95TVzQ+4HRlkPQvcu18=
+        b=sGaY2sOrAVyEbFRP5FLisGWO8imyz5uBzKGzmakw0vKC3Lpike/xhAKWXR5IJu17X
+         8iRs3i2iq0ocvMFv9jaO+awD3y9mFSJ1ePLYzmlrWbdANTQ6DyIFUrfiIyIOqnUrxt
+         jh0f1FHKArctB1C0vVb35x5/hEtONJIG+G5g/HH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Valentine Fatiev <valentinef@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 146/279] net/mlx5e: nullify cq->dbg pointer in mlx5_debug_cq_remove()
+        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Roman Gushchin <guro@fb.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 243/323] mm, oom: do not trigger out_of_memory from the #PF
 Date:   Wed, 24 Nov 2021 12:57:13 +0100
-Message-Id: <20211124115723.818446550@linuxfoundation.org>
+Message-Id: <20211124115727.115967139@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,102 +49,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentine Fatiev <valentinef@nvidia.com>
+From: Michal Hocko <mhocko@suse.com>
 
-[ Upstream commit 76ded29d3fcda4928da8849ffc446ea46871c1c2 ]
+commit 60e2793d440a3ec95abb5d6d4fc034a4b480472d upstream.
 
-Prior to this patch in case mlx5_core_destroy_cq() failed it proceeds
-to rest of destroy operations. mlx5_core_destroy_cq() could be called again
-by user and cause additional call of mlx5_debug_cq_remove().
-cq->dbg was not nullify in previous call and cause the crash.
+Any allocation failure during the #PF path will return with VM_FAULT_OOM
+which in turn results in pagefault_out_of_memory.  This can happen for 2
+different reasons.  a) Memcg is out of memory and we rely on
+mem_cgroup_oom_synchronize to perform the memcg OOM handling or b)
+normal allocation fails.
 
-Fix it by nullify cq->dbg pointer after removal.
+The latter is quite problematic because allocation paths already trigger
+out_of_memory and the page allocator tries really hard to not fail
+allocations.  Anyway, if the OOM killer has been already invoked there
+is no reason to invoke it again from the #PF path.  Especially when the
+OOM condition might be gone by that time and we have no way to find out
+other than allocate.
 
-Also proceed to destroy operations only if FW return 0
-for MLX5_CMD_OP_DESTROY_CQ command.
+Moreover if the allocation failed and the OOM killer hasn't been invoked
+then we are unlikely to do the right thing from the #PF context because
+we have already lost the allocation context and restictions and
+therefore might oom kill a task from a different NUMA domain.
 
-general protection fault, probably for non-canonical address 0x2000300004058: 0000 [#1] SMP PTI
-CPU: 5 PID: 1228 Comm: python Not tainted 5.15.0-rc5_for_upstream_min_debug_2021_10_14_11_06 #1
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-RIP: 0010:lockref_get+0x1/0x60
-Code: 5d e9 53 ff ff ff 48 8d 7f 70 e8 0a 2e 48 00 c7 85 d0 00 00 00 02
-00 00 00 c6 45 70 00 fb 5d c3 c3 cc cc cc cc cc cc cc cc 53 <48> 8b 17
-48 89 fb 85 d2 75 3d 48 89 d0 bf 64 00 00 00 48 89 c1 48
-RSP: 0018:ffff888137dd7a38 EFLAGS: 00010206
-RAX: 0000000000000000 RBX: ffff888107d5f458 RCX: 00000000fffffffe
-RDX: 000000000002c2b0 RSI: ffffffff8155e2e0 RDI: 0002000300004058
-RBP: ffff888137dd7a88 R08: 0002000300004058 R09: ffff8881144a9f88
-R10: 0000000000000000 R11: 0000000000000000 R12: ffff8881141d4000
-R13: ffff888137dd7c68 R14: ffff888137dd7d58 R15: ffff888137dd7cc0
-FS:  00007f4644f2a4c0(0000) GS:ffff8887a2d40000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000055b4500f4380 CR3: 0000000114f7a003 CR4: 0000000000170ea0
-Call Trace:
-  simple_recursive_removal+0x33/0x2e0
-  ? debugfs_remove+0x60/0x60
-  debugfs_remove+0x40/0x60
-  mlx5_debug_cq_remove+0x32/0x70 [mlx5_core]
-  mlx5_core_destroy_cq+0x41/0x1d0 [mlx5_core]
-  devx_obj_cleanup+0x151/0x330 [mlx5_ib]
-  ? __pollwait+0xd0/0xd0
-  ? xas_load+0x5/0x70
-  ? xa_load+0x62/0xa0
-  destroy_hw_idr_uobject+0x20/0x80 [ib_uverbs]
-  uverbs_destroy_uobject+0x3b/0x360 [ib_uverbs]
-  uobj_destroy+0x54/0xa0 [ib_uverbs]
-  ib_uverbs_cmd_verbs+0xaf2/0x1160 [ib_uverbs]
-  ? uverbs_finalize_object+0xd0/0xd0 [ib_uverbs]
-  ib_uverbs_ioctl+0xc4/0x1b0 [ib_uverbs]
-  __x64_sys_ioctl+0x3e4/0x8e0
+This all suggests that there is no legitimate reason to trigger
+out_of_memory from pagefault_out_of_memory so drop it.  Just to be sure
+that no #PF path returns with VM_FAULT_OOM without allocation print a
+warning that this is happening before we restart the #PF.
 
-Fixes: 94b960b9deff ("net/mlx5e: Fix memory leak in mlx5_core_destroy_cq() error path")
-Signed-off-by: Valentine Fatiev <valentinef@nvidia.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[VvS: #PF allocation can hit into limit of cgroup v1 kmem controller.
+This is a local problem related to memcg, however, it causes unnecessary
+global OOM kills that are repeated over and over again and escalate into a
+real disaster.  This has been broken since kmem accounting has been
+introduced for cgroup v1 (3.8).  There was no kmem specific reclaim for
+the separate limit so the only way to handle kmem hard limit was to return
+with ENOMEM.  In upstream the problem will be fixed by removing the
+outdated kmem limit, however stable and LTS kernels cannot do it and are
+still affected.  This patch fixes the problem and should be backported
+into stable/LTS.]
+
+Link: https://lkml.kernel.org/r/f5fd8dd8-0ad4-c524-5f65-920b01972a42@virtuozzo.com
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/cq.c      | 5 +++--
- drivers/net/ethernet/mellanox/mlx5/core/debugfs.c | 4 +++-
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ mm/oom_kill.c |   22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cq.c b/drivers/net/ethernet/mellanox/mlx5/core/cq.c
-index 02e77ffe5c3e4..5371ad0a12eb5 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/cq.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/cq.c
-@@ -164,13 +164,14 @@ int mlx5_core_destroy_cq(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq)
- 	MLX5_SET(destroy_cq_in, in, cqn, cq->cqn);
- 	MLX5_SET(destroy_cq_in, in, uid, cq->uid);
- 	err = mlx5_cmd_exec_in(dev, destroy_cq, in);
-+	if (err)
-+		return err;
- 
- 	synchronize_irq(cq->irqn);
--
- 	mlx5_cq_put(cq);
- 	wait_for_completion(&cq->free);
- 
--	return err;
-+	return 0;
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -1135,19 +1135,15 @@ bool out_of_memory(struct oom_control *o
  }
- EXPORT_SYMBOL(mlx5_core_destroy_cq);
  
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/debugfs.c b/drivers/net/ethernet/mellanox/mlx5/core/debugfs.c
-index 07c8d9811bc81..10d195042ab55 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/debugfs.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/debugfs.c
-@@ -507,6 +507,8 @@ void mlx5_debug_cq_remove(struct mlx5_core_dev *dev, struct mlx5_core_cq *cq)
- 	if (!mlx5_debugfs_root)
+ /*
+- * The pagefault handler calls here because it is out of memory, so kill a
+- * memory-hogging task. If oom_lock is held by somebody else, a parallel oom
+- * killing is already in progress so do nothing.
++ * The pagefault handler calls here because some allocation has failed. We have
++ * to take care of the memcg OOM here because this is the only safe context without
++ * any locks held but let the oom killer triggered from the allocation context care
++ * about the global OOM.
+  */
+ void pagefault_out_of_memory(void)
+ {
+-	struct oom_control oc = {
+-		.zonelist = NULL,
+-		.nodemask = NULL,
+-		.memcg = NULL,
+-		.gfp_mask = 0,
+-		.order = 0,
+-	};
++	static DEFINE_RATELIMIT_STATE(pfoom_rs, DEFAULT_RATELIMIT_INTERVAL,
++				      DEFAULT_RATELIMIT_BURST);
+ 
+ 	if (mem_cgroup_oom_synchronize(true))
+ 		return;
+@@ -1155,8 +1151,6 @@ void pagefault_out_of_memory(void)
+ 	if (fatal_signal_pending(current))
  		return;
  
--	if (cq->dbg)
-+	if (cq->dbg) {
- 		rem_res_tree(cq->dbg);
-+		cq->dbg = NULL;
-+	}
+-	if (!mutex_trylock(&oom_lock))
+-		return;
+-	out_of_memory(&oc);
+-	mutex_unlock(&oom_lock);
++	if (__ratelimit(&pfoom_rs))
++		pr_warn("Huh VM_FAULT_OOM leaked out to the #PF handler. Retrying PF\n");
  }
--- 
-2.33.0
-
 
 
