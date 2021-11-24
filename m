@@ -2,176 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7FEA45B637
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 09:05:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A05145B75D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 10:23:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240738AbhKXIIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 03:08:39 -0500
-Received: from mout.gmx.net ([212.227.17.20]:57147 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233552AbhKXIIi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 03:08:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1637741121;
-        bh=GveQo0h8sUt9oirjZ/UP5JvsVcwvbv9in8jSuu4a0qw=;
-        h=X-UI-Sender-Class:Subject:From:To:Cc:Date:In-Reply-To:References;
-        b=hgHJssc0u7riAOX4vO6VKmvvvB/PXWzOPGa1M8raYRthO3K0uBoje43NxhORp5buh
-         uGTUBe6+rJBk3EafSJFNdtZc1WZRHzFe7BaTfc7Ne1vwdKssdewrb5mZ1JuaS4B9DN
-         L/Dzn/zvaQMiV223VTq5suRe9lGHbX2bMWaz617g=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from machineone ([84.190.131.218]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MxUrx-1mR6hF3WIL-00xqmo; Wed, 24
- Nov 2021 09:05:20 +0100
-Message-ID: <a525098b284e323edf2abecb3efa907992abc843.camel@gmx.de>
-Subject: Re: [REGRESSION] Kernel 5.15 reboots / freezes upon ifup/ifdown
-From:   Stefan Dietrich <roots@gmx.de>
-To:     stable@vger.kernel.org, netdev@vger.kernel.org,
-        Thorsten Leemhuis <regressions@leemhuis.info>
-Cc:     regressions@lists.linux.dev
-Date:   Wed, 24 Nov 2021 09:05:20 +0100
-In-Reply-To: <924175a188159f4e03bd69908a91e606b574139b.camel@gmx.de>
-References: <924175a188159f4e03bd69908a91e606b574139b.camel@gmx.de>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        id S233688AbhKXJ0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 04:26:35 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:22228 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233575AbhKXJ0a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 04:26:30 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1637745800;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=BQgtvg2ZkWrUMM5zFkNCK/e0DkxhsLRFtdrJVemGxaU=;
+        b=TEmJz6M9xJY5+V+tZkqady3rkB/DnKiUKwEdREdig375M9BlbNhwPqKhtK6dXtWzbFttIq
+        EdElA/wj5YLZ7HQd3Be/hur4MxcBr8dZMf69f5rpel4QJZL/9OWOdrBnAOk5NsIDFcuYkY
+        PvWy/UILceKcWcctCyKmyFx0EWHN46E=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-594-p3BAhPuBPlSPRlpe50BdGg-1; Wed, 24 Nov 2021 04:23:17 -0500
+X-MC-Unique: p3BAhPuBPlSPRlpe50BdGg-1
+Received: by mail-qv1-f72.google.com with SMTP id kl17-20020a056214519100b003ba5b03606fso1541030qvb.0
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 01:23:17 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=BQgtvg2ZkWrUMM5zFkNCK/e0DkxhsLRFtdrJVemGxaU=;
+        b=Tl8MLM7EGjTBZkMoQSB94R0OEqmBSf2gIKegvms1YLamHSUjE6PAX+tWtevFfMcA3m
+         tr0egGOf7MEtutplfwuoSfJxk0U4Ub/y857wFTHXuH+xAW9l3GnZbh91XrmpzevUbJHc
+         xfwLNYzQLJPKLgZ54WMo0ze7zXPiOVktEzmSbvStME/39VJQO/rBrqf00N1d7hzQSGnU
+         0QPuwixR64WeB6BrIy73aONOMobhzjqEr9ZYj8vcrZ1beNBWL05DKvz+CuIUcYufs3+N
+         jIWAwKX1Jbd41VyLXeLgcZQWbSwZFkBxzLaBzCm6PP0Z60z6LUYC9cJzt7GYHcLfycsL
+         GKLA==
+X-Gm-Message-State: AOAM532QeNrqlkJioi1y1wHIG+20JYKY3Jlnm3xfzyHTpCj9K/5UOyd6
+        RzBab7TQ2m9RTR9azQcIhBDJUa2RzX7pd7LCc0zNtRwl0sC7Kpsvyt+u6Ib3mlCB8Zfj0/HdeGY
+        xdQSXFvfqMoaWzRYXlcFywWONz0cfB6u/
+X-Received: by 2002:a05:622a:54d:: with SMTP id m13mr5092358qtx.33.1637745797409;
+        Wed, 24 Nov 2021 01:23:17 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwNMS1eL8lahae3MPzJCH7hPnDtYZBGDghu1c5C5/qpg/nhkqSpg60V9WRgBDtDjpPW2wpna8JeaOAvRjH7+Z4=
+X-Received: by 2002:a05:622a:54d:: with SMTP id m13mr5092329qtx.33.1637745797213;
+ Wed, 24 Nov 2021 01:23:17 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:RorKLRjyJL0sDDEB0YEcICUx/+xtNhEFCJiON6jwGOE122Az3aH
- DXAtYDcppoTJjq+l45pVQXEVn1mpx4oFUgO/Y7nlrH7tYHlmVc1m1DzNh4l59yOpO3KRXfw
- GE++ibY+ArF6FMLcB/WF6bAHdnujs196tB7l9XlpWXlXmEJFAnz3I+sr6OorKPbwymjJHeH
- A7rVYfsXuZNt433HYA16A==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:hijyk411OrY=:1bBZRGWtG+S6l1S2Lt+bzI
- I6cocloq8rK72+rcav4CZQsPpoFK5nT7kh33Qyrjoii1tbyapHE5eBmvb6jvIxzH5UravFPBM
- vra/zVtvlqo8Hpso7qo8+p3bi9V/iV8P/0e+b1MscTwpCEuYl3LKLA8ZHFmBDz5+PotW/+9nF
- RI21Z4zCtspKMdEaehofM+OJR0B99LYeXsy1F1lLks4T63oAHjX0300c6Dn5nD39IC1qcelB3
- MYIh2m7Qmul65D1M/xPQ35AvvjcXXZII1hsXiu0q1ku3e4SPp4imKmjpBRhnFL183eu23POIm
- ZJv67sBGhNPlgAJX+a5QAZCxQaYm20JskguE+Ejoi98Qfb2r7utAGAGdelQYBoNKMQfDZJy04
- rLPQs2hOzmCH8UziLI7elJMme7UrymwuE3jRp8TvuLiNCtWa0ytoDnzee+oD8z0mgHaQ1aZf7
- B1TbFBcf1u4MwLhgczx5mCxOrJvUQYGpOWVBl3Yzx3AblRvKEijeyN5KZlqF3u/MB5AGnzPbn
- bFXhIjn28jVch8BlKiz4RkDvl7IRne6iFwY3ZyglUWzn3I8x3NE6B1v5SekR7Dg+XOC8/VsFg
- CCo/9DKNNpUwgIDw9mk2llBwhD4sJ/nO9giQrFWoxekN1yaSDyg+OAhqNvrS0c0pHwRADMd9O
- rFPNyoBXR/vY0swc1DA5oWWGSy25r+n6EjZ97qwhU+1QrulDhGcJ4Sti3CP9oDNgObwdKcBkW
- t755VZOFzws0biHC5DwmTeVkTmy/Ukn8eE6QSFbDMdCSUC8Jb08bBNU31+Paqoc9Awlq3zWeA
- zxAnmuotC6Hf6AsnkmZtV2KPcLJ9InUFh7PiqmWSiPrKayrNksj4zQTRUluZ9udwsfBMJxccr
- /avP5BmYYadr/SUUNVtXu9ZcC+bRqyawnRM9L2CzyIKGPnv+2EaS7Ol2yB8G9P7pJvGa66n58
- lGe6NnoUXNb5cChwqVhDEWTTbu5vYo8w0jG/wyF0PczfspDhUlzb09jGI6neWrQIasxBh67Hf
- 2uVI+k2rSGYKoZqaprzOuFWNgZSmiNLIoIbE5DXGAKe2cZXKMsyzu5KGGI0GLYHH6SQGfJYsw
- txMYK3f/pCa4Dg=
+References: <20211115165428.722074685@linuxfoundation.org> <20211115165430.669780058@linuxfoundation.org>
+ <CAFxkdAqahwaN0u6u34d4CrMW7rYL=6TpWk1CcOn+uGQdEgkuTQ@mail.gmail.com>
+ <CAOssrKd4gHrKNNttZZey9orZ=F+msx4Axa6Mi_XgZw-9M39h-Q@mail.gmail.com> <CAFxkdAqU0peBNm_SB3En99bU+o=a+05t-Bwyds0AUFb+2W=CFw@mail.gmail.com>
+In-Reply-To: <CAFxkdAqU0peBNm_SB3En99bU+o=a+05t-Bwyds0AUFb+2W=CFw@mail.gmail.com>
+From:   Miklos Szeredi <mszeredi@redhat.com>
+Date:   Wed, 24 Nov 2021 10:23:06 +0100
+Message-ID: <CAOssrKez1mnF4rWRvWgk4LJ2iDfX8xkpMKvgprFt+-ARs83=nA@mail.gmail.com>
+Subject: Re: [PATCH 5.15 056/917] fuse: fix page stealing
+To:     Justin Forbes <jmforbes@linuxtx.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Frank Dinoff <fdinoff@google.com>
+Content-Type: multipart/mixed; boundary="0000000000007a1a4d05d1856873"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Thorsten,
+--0000000000007a1a4d05d1856873
+Content-Type: text/plain; charset="UTF-8"
 
-thanks for the pointer. netdev should be in the loop now.
+On Wed, Nov 24, 2021 at 1:40 AM Justin Forbes <jmforbes@linuxtx.org> wrote:
+> Thanks, did a scratch build for that and dropped it in the bug. Only
+> one user has reported back, but the report was that it did not fix the
+> issue.  I have also gotten confirmation now that the issue is occuring
+> with 5.16-rc2.
 
+Okay.
 
-Stefan
+Morning light brings clarity to the mind.  Here's a patch that should
+definitely fix this bug, as well as the very unlikely race of the page
+being truncated from the page cache before pipe_buf_release() is
+called.
 
-On Wed, 2021-11-24 at 08:28 +0100, Stefan Dietrich wrote:
-> Summary: When attempting to rise or shut down a NIC manually or via
-> network-manager under 5.15, the machine reboots or freezes.
->
-> Occurs with: 5.15.4-051504-generic and earlier 5.15 mainline (
-> https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.15.4/) as well as
-> liquorix flavours.
-> Does not occur with: 5.14 and 5.13 (both with various flavours)
->
->
-> Hi all,
->
-> I'm experiencing a severe bug that causes the machine to reboot or
-> freeze when trying to login and/or rise/shutdown a NIC. Here's a
-> brief
-> description of scenarios I've tested:
->
-> Scenario 1: enp6s0 managed manually using /etc/networking/interfaces,
-> DHCP
-> a. Issuing ifdown enp6s0 in terminal will throw
-> 	"/etc/resolvconf/update.d/libc: Warning: /etc/resolv.conf is
-> 	not a symbolic link to /run/resolvconf/resolv.conf"
-> and cause the machine to reboot after ~10s of showing a blinking
-> cursor
->
-> b. Issuing shutdown -h now or trying to shutdown/reboot machine via
-> GUI:
-> shutdown will stop on "stop job is running for ifdown enp6s0" and
-> after
-> approx. 10..15s the countdown freezes. Repeated ALT-SysReq-REISUB
-> does
-> not reboot the machine, a hard reset is required.
->
-> --
->
-> Scenario 2: enp6s0 managed manually using /etc/networking/interfaces,
-> STATIC
-> a. Issuing ifdown enp6s0 in terminal will throw
-> 	"send_packet: Operation not permitted
-> 	dhclient.c:3010: Failed to send 300 byte long packet over
-> 	fallback interface."
-> and cause the machine to reboot after ~10s of blinking cursor.
->
-> b. Issuing shutdown -h now or trying to shutdown or reboot machine
-> via
-> GUI: shutdown will stop on "stop job is running for ifdown enp6s0"
-> and
-> after approx. 10..15s the countdown freezes. Repeated ALT-SysReq-
-> REISUB
-> does not reboot the machine, a hard reset is required.
->
-> --
->
-> Scenario 3: enp6s0 managed by network manager
-> a. After booting and logging in either via GUI or TTY, the display
-> will
-> stay blank and only show a blinking cursor and then freeze after
-> 5..10s. ALT-SysReq-REISUB does not reboot the machine, a hard reset
-> is
-> required.
->
-> --
->
-> Here's a snippet from the journal for Scenario 1a:
->
-> Nov 21 10:39:25 computer sudo[5606]:    user : TTY=3Dpts/0 ;
-> PWD=3D/home/user ; USER=3Droot ; COMMAND=3D/usr/sbin/ifdown enp6s0
-> Nov 21 10:39:25 computer sudo[5606]: pam_unix(sudo:session): session
-> opened for user root by (uid=3D0)
-> -- Reboot --
-> Nov 21 10:40:14 computer systemd-journald[478]: Journal started
->
-> --
->
-> I'm running Alder Lake i9 12900K but I have E-cores disabled in BIOS.
-> Here are some more specs with working kernel:
->
-> $ inxi -bxz
-> System:    Kernel: 5.14.0-19.2-liquorix-amd64 x86_64 bits: 64
-> compiler:
-> N/A Desktop: Xfce 4.16.3
->            Distro: Ubuntu 20.04.3 LTS (Focal Fossa)
-> Machine:   Type: Desktop System: ASUS product: N/A v: N/A serial: N/A
->            Mobo: ASUSTeK model: ROG STRIX Z690-A GAMING WIFI D4 v:
-> Rev
-> 1.xx serial: <filter>
->            UEFI [Legacy]: American Megatrends v: 0707 date:
-> 11/10/2021
-> CPU:       8-Core: 12th Gen Intel Core i9-12900K type: MT MCP arch:
-> N/A
-> speed: 5381 MHz max: 3201 MHz
-> Graphics:  Device-1: NVIDIA vendor: Gigabyte driver: nvidia v: 470.86
-> bus ID: 01:00.0
->            Display: server: X.Org 1.20.11 driver: nvidia tty: N/A
->            Message: Unable to show advanced data. Required tool
-> glxinfo
-> missing.
-> Network:   Device-1: Intel vendor: ASUSTeK driver: igc v: kernel
-> port:
-> 4000 bus ID: 06:00.0
->
->
-> Please advice how I may assist in debugging!
->
-> Thanks.
->
+Please test.
+
+Thanks,
+Miklos
+
+--0000000000007a1a4d05d1856873
+Content-Type: text/x-patch; charset="US-ASCII"; 
+	name="fuse-release-pipe-buf-after-its-last-use.patch"
+Content-Disposition: attachment; 
+	filename="fuse-release-pipe-buf-after-its-last-use.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <f_kwdbjjyl0>
+X-Attachment-Id: f_kwdbjjyl0
+
+RnJvbTogTWlrbG9zIFN6ZXJlZGkgPG1zemVyZWRpQHJlZGhhdC5jb20+ClN1YmplY3Q6IGZ1c2U6
+IHJlbGVhc2UgcGlwZSBidWYgYWZ0ZXIgbGFzdCB1c2UKCkNoZWNraW5nIGJ1Zi0+ZmxhZ3Mgc2hv
+dWxkIGJlIGRvbmUgYmVmb3JlIHRoZSBwaXBlX2J1Zl9yZWxlYXNlKCkgaXMgY2FsbGVkCm9uIHRo
+ZSBwaXBlIGJ1ZmZlciwgc2luY2UgcmVsZWFzaW5nIHRoZSBidWZmZXIgbWlnaHQgbW9kaWZ5IHRo
+ZSBmbGFncy4KClRoaXMgaXMgZXhhY3RseSB3aGF0IHBhZ2VfY2FjaGVfcGlwZV9idWZfcmVsZWFz
+ZSgpIGRvZXMsIGFuZCB3aGljaCByZXN1bHRzCmluIHRoZSBzYW1lIFZNX0JVR19PTl9QQUdFKFBh
+Z2VMUlUocGFnZSkpIHRoYXQgdGhlIG9yaWdpbmFsIHBhdGNoIHdhcwp0cnlpbmcgdG8gZml4LgoK
+UmVwb3J0ZWQtYnk6IEp1c3RpbiBGb3JiZXMgPGptZm9yYmVzQGxpbnV4dHgub3JnPgpGaXhlczog
+NzEyYTk1MTAyNWMwICgiZnVzZTogZml4IHBhZ2Ugc3RlYWxpbmciKQpDYzogPHN0YWJsZUB2Z2Vy
+Lmtlcm5lbC5vcmc+ICMgdjIuNi4zNQpTaWduZWQtb2ZmLWJ5OiBNaWtsb3MgU3plcmVkaSA8bXN6
+ZXJlZGlAcmVkaGF0LmNvbT4KLS0tCiBmcy9mdXNlL2Rldi5jIHwgICAxMCArKysrKy0tLS0tCiAx
+IGZpbGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspLCA1IGRlbGV0aW9ucygtKQoKLS0tIGEvZnMv
+ZnVzZS9kZXYuYworKysgYi9mcy9mdXNlL2Rldi5jCkBAIC04NDcsMTcgKzg0NywxNyBAQCBzdGF0
+aWMgaW50IGZ1c2VfdHJ5X21vdmVfcGFnZShzdHJ1Y3QgZnVzCiAKIAlyZXBsYWNlX3BhZ2VfY2Fj
+aGVfcGFnZShvbGRwYWdlLCBuZXdwYWdlKTsKIAorCWdldF9wYWdlKG5ld3BhZ2UpOworCisJaWYg
+KCEoYnVmLT5mbGFncyAmIFBJUEVfQlVGX0ZMQUdfTFJVKSkKKwkJbHJ1X2NhY2hlX2FkZChuZXdw
+YWdlKTsKKwogCS8qCiAJICogUmVsZWFzZSB3aGlsZSB3ZSBoYXZlIGV4dHJhIHJlZiBvbiBzdG9s
+ZW4gcGFnZS4gIE90aGVyd2lzZQogCSAqIGFub25fcGlwZV9idWZfcmVsZWFzZSgpIG1pZ2h0IHRo
+aW5rIHRoZSBwYWdlIGNhbiBiZSByZXVzZWQuCiAJICovCiAJcGlwZV9idWZfcmVsZWFzZShjcy0+
+cGlwZSwgYnVmKTsKIAotCWdldF9wYWdlKG5ld3BhZ2UpOwotCi0JaWYgKCEoYnVmLT5mbGFncyAm
+IFBJUEVfQlVGX0ZMQUdfTFJVKSkKLQkJbHJ1X2NhY2hlX2FkZChuZXdwYWdlKTsKLQogCWVyciA9
+IDA7CiAJc3Bpbl9sb2NrKCZjcy0+cmVxLT53YWl0cS5sb2NrKTsKIAlpZiAodGVzdF9iaXQoRlJf
+QUJPUlRFRCwgJmNzLT5yZXEtPmZsYWdzKSkK
+--0000000000007a1a4d05d1856873--
 
