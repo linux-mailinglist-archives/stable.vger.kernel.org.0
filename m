@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 624B845C0EA
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:09:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ABA545C1BA
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:19:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348411AbhKXNMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:12:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49338 "EHLO mail.kernel.org"
+        id S1346700AbhKXNVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:21:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347667AbhKXNK3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:10:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 911A061A6C;
-        Wed, 24 Nov 2021 12:41:39 +0000 (UTC)
+        id S1349412AbhKXNTJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:19:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDE8A61AFA;
+        Wed, 24 Nov 2021 12:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757700;
-        bh=c7yLRFh/qPO1cPe8F9ONeJjPdkrpsC5lpe94My3zLeI=;
+        s=korg; t=1637757989;
+        bh=CUSDUWwRVHFjbZttDqLPGZfzAjvFgpYBR1ad5DVNlz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MpTc8Q+2DGcRxDu4mSqgUGCYTisHDpF0uXY0b6FFzWQHFVtpOdRvhA2lpMbtAWXA9
-         4R5sL3HV14Skz846Wl69hwMQco5aKRysNJmqmlUx+99hPF4Yod3bjr/6jMAomcqB9c
-         8D4VvD0ku1zMHE+v5mWk9uVe5e/IsxRjj9v8O27Y=
+        b=CJQBS8digrpvB91YxrzTIbePhSJJS7HmQoD8g53uSxn+ExNtoXgan0mh75lfjtvXJ
+         uHutcumGw5ihrkwoGEs9VHWxnsPrUoVeydedgBD9e9ax/s/TcQNYBtxYLlUfnDKkNH
+         2N8e6c3tnbn34Q6D+q8DMFCLpl4C7adynRViB2fM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.19 248/323] PCI: Add PCI_EXP_DEVCTL_PAYLOAD_* macros
+        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 002/100] arm64: zynqmp: Fix serial compatible string
 Date:   Wed, 24 Nov 2021 12:57:18 +0100
-Message-Id: <20211124115727.280476375@linuxfoundation.org>
+Message-Id: <20211124115654.931421433@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Michal Simek <michal.simek@xilinx.com>
 
-commit 460275f124fb072dca218a6b43b6370eebbab20d upstream.
+[ Upstream commit 812fa2f0e9d33564bd0131a69750e0d165f4c82a ]
 
-Define a macro PCI_EXP_DEVCTL_PAYLOAD_* for every possible Max Payload
-Size in linux/pci_regs.h, in the same style as PCI_EXP_DEVCTL_READRQ_*.
+Based on commit 65a2c14d4f00 ("dt-bindings: serial: convert Cadence UART
+bindings to YAML") compatible string should look like differently that's
+why fix it to be aligned with dt binding.
 
-Link: https://lore.kernel.org/r/20211005180952.6812-2-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/89b36e0a6187cc6b05b27a035efdf79173bd4486.1628240307.git.michal.simek@xilinx.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/pci_regs.h |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/boot/dts/xilinx/zynqmp.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/uapi/linux/pci_regs.h
-+++ b/include/uapi/linux/pci_regs.h
-@@ -497,6 +497,12 @@
- #define  PCI_EXP_DEVCTL_URRE	0x0008	/* Unsupported Request Reporting En. */
- #define  PCI_EXP_DEVCTL_RELAX_EN 0x0010 /* Enable relaxed ordering */
- #define  PCI_EXP_DEVCTL_PAYLOAD	0x00e0	/* Max_Payload_Size */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_128B 0x0000 /* 128 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_256B 0x0020 /* 256 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_512B 0x0040 /* 512 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_1024B 0x0060 /* 1024 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_2048B 0x0080 /* 2048 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_4096B 0x00a0 /* 4096 Bytes */
- #define  PCI_EXP_DEVCTL_EXT_TAG	0x0100	/* Extended Tag Field Enable */
- #define  PCI_EXP_DEVCTL_PHANTOM	0x0200	/* Phantom Functions Enable */
- #define  PCI_EXP_DEVCTL_AUX_PME	0x0400	/* Auxiliary Power PM Enable */
+diff --git a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+index a2645262f8623..b92549fb32400 100644
+--- a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
++++ b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+@@ -582,7 +582,7 @@
+ 		};
+ 
+ 		uart0: serial@ff000000 {
+-			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
++			compatible = "xlnx,zynqmp-uart", "cdns,uart-r1p12";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 21 4>;
+@@ -591,7 +591,7 @@
+ 		};
+ 
+ 		uart1: serial@ff010000 {
+-			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
++			compatible = "xlnx,zynqmp-uart", "cdns,uart-r1p12";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 22 4>;
+-- 
+2.33.0
+
 
 
