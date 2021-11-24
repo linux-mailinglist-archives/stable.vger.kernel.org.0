@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82D5D45C126
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4540745C1E1
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347035AbhKXNPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:15:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56610 "EHLO mail.kernel.org"
+        id S1349738AbhKXNXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:23:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346035AbhKXNLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:11:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E20F61A80;
-        Wed, 24 Nov 2021 12:41:54 +0000 (UTC)
+        id S1349254AbhKXNVH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:21:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B835B61B08;
+        Wed, 24 Nov 2021 12:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757715;
-        bh=tnqyqeyXW3Bwsd24Il137clZkPiw8fFv9CZzmxu8VcM=;
+        s=korg; t=1637758036;
+        bh=sQQuDsAz4XaUdqpfDeZQWEr/ejmbJZi8Sa5xGXMaYqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bzp0r9mjUI6jFr1Cz9KMs5a4OSnsqEd8EmZHzNvp2GsjIIc7v+kBCxfFaOEvK/V8x
-         /S80gytFvFPoD3U91XNZHzXV9v1mKZgLEnGh3dD9E0F0z/5w0HADNNpdZtdPQcsglM
-         eCqL0MNpsyRSrA8Ijbfxd1c2kXPnuvvp2AOwxoew=
+        b=EE5H2LwT9LFqCfgW7d3GNJOJyGcx65/YBZ/JURZp9c8sAu8UxQ9aTD3Jvukz/8sic
+         Tk7ujR8dZZJ0wtSl2aLLHd/T0tAT4IlhK7IoNDTVp9TKtceNgsAbmWkfPE1tS8KMXl
+         jJIOMrA/m+AAAJ3WdiUWhn+y+CppA5g2M4zyKV74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.19 252/323] fortify: Explicitly disable Clang support
-Date:   Wed, 24 Nov 2021 12:57:22 +0100
-Message-Id: <20211124115727.406344540@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 007/100] usb: musb: tusb6010: check return value after calling platform_get_resource()
+Date:   Wed, 24 Nov 2021 12:57:23 +0100
+Message-Id: <20211124115655.087120632@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit a52f8a59aef46b59753e583bf4b28fccb069ce64 upstream.
+[ Upstream commit 14651496a3de6807a17c310f63c894ea0c5d858e ]
 
-Clang has never correctly compiled the FORTIFY_SOURCE defenses due to
-a couple bugs:
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-	Eliding inlines with matching __builtin_* names
-	https://bugs.llvm.org/show_bug.cgi?id=50322
-
-	Incorrect __builtin_constant_p() of some globals
-	https://bugs.llvm.org/show_bug.cgi?id=41459
-
-In the process of making improvements to the FORTIFY_SOURCE defenses, the
-first (silent) bug (coincidentally) becomes worked around, but exposes
-the latter which breaks the build. As such, Clang must not be used with
-CONFIG_FORTIFY_SOURCE until at least latter bug is fixed (in Clang 13),
-and the fortify routines have been rearranged.
-
-Update the Kconfig to reflect the reality of the current situation.
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/lkml/CAKwvOd=A+ueGV2ihdy5GtgR2fQbcXjjAtVxv3=cPjffpebZB7A@mail.gmail.com
-Cc: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210915034925.2399823-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/Kconfig |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/musb/tusb6010.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -191,6 +191,9 @@ config HARDENED_USERCOPY_PAGESPAN
- config FORTIFY_SOURCE
- 	bool "Harden common str/mem functions against buffer overflows"
- 	depends on ARCH_HAS_FORTIFY_SOURCE
-+	# https://bugs.llvm.org/show_bug.cgi?id=50322
-+	# https://bugs.llvm.org/show_bug.cgi?id=41459
-+	depends on !CC_IS_CLANG
- 	help
- 	  Detect overflows of buffers in common string and memory functions
- 	  where the compiler can determine and validate the buffer sizes.
+diff --git a/drivers/usb/musb/tusb6010.c b/drivers/usb/musb/tusb6010.c
+index 4ecfbf6bb1fa8..902507da8aa85 100644
+--- a/drivers/usb/musb/tusb6010.c
++++ b/drivers/usb/musb/tusb6010.c
+@@ -1103,6 +1103,11 @@ static int tusb_musb_init(struct musb *musb)
+ 
+ 	/* dma address for async dma */
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!mem) {
++		pr_debug("no async dma resource?\n");
++		ret = -ENODEV;
++		goto done;
++	}
+ 	musb->async = mem->start;
+ 
+ 	/* dma address for sync dma */
+-- 
+2.33.0
+
 
 
