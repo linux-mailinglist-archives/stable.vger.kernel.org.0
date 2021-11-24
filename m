@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38FAF45C3C5
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5270F45C270
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:26:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350710AbhKXNmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:42:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34764 "EHLO mail.kernel.org"
+        id S1344996AbhKXN3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:29:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350471AbhKXNkG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:40:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF17A610F7;
-        Wed, 24 Nov 2021 12:57:15 +0000 (UTC)
+        id S1348392AbhKXN0o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:26:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AC0461528;
+        Wed, 24 Nov 2021 12:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758636;
-        bh=ElcItOJ6kv1psmJy1pv0TJL5VC3ZKydx6pCc7pk2wOY=;
+        s=korg; t=1637758210;
+        bh=zf6St9Sb8A2iFPnPtTjZTBsgoSwaw5MNu4UE6T19GJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wikdhHU/dvnt2owaP+kCvcdqhvbkYgtMEhi492hLjq0SCXD36NECW3VjovoX0I7DF
-         pl7EVn3rTaa7OSup04mOXP7x5MR0K150dVc5EaDUWFNlnQbARJQutllnpMSILa07KM
-         siv5YL7Y1FkSDY75048s4JYnSU/EcxAFUnOPKqLs=
+        b=mdE32jQvIHGomyLQZ5HLESTUlMUESJ8yKc58YuVbPcmzzQisDk9CB7pth1QZhpj+k
+         QM0OonjImpLWsRoCAIOgMBNqxypjcspjPfbpb+O1i83B3hiGtugvrJ+CUefyvs0ZgO
+         y7MzWh1ncB5B/mZYQlSyn9DIssZu29ZC4M+ATeWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Chris Murphy <chris@colorremedies.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 134/154] btrfs: fix memory ordering between normal and ordered work functions
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 5.4 094/100] batman-adv: Reserve needed_*room for fragments
 Date:   Wed, 24 Nov 2021 12:58:50 +0100
-Message-Id: <20211124115706.640253372@linuxfoundation.org>
+Message-Id: <20211124115657.894008776@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,86 +39,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit 45da9c1767ac31857df572f0a909fbe88fd5a7e9 upstream.
+commit c5cbfc87558168ef4c3c27ce36eba6b83391db19 upstream.
 
-Ordered work functions aren't guaranteed to be handled by the same thread
-which executed the normal work functions. The only way execution between
-normal/ordered functions is synchronized is via the WORK_DONE_BIT,
-unfortunately the used bitops don't guarantee any ordering whatsoever.
+The batadv net_device is trying to propagate the needed_headroom and
+needed_tailroom from the lower devices. This is needed to avoid cost
+intensive reallocations using pskb_expand_head during the transmission.
 
-This manifested as seemingly inexplicable crashes on ARM64, where
-async_chunk::inode is seen as non-null in async_cow_submit which causes
-submit_compressed_extents to be called and crash occurs because
-async_chunk::inode suddenly became NULL. The call trace was similar to:
+But the fragmentation code split the skb's without adding extra room at the
+end/beginning of the various fragments. This reduced the performance of
+transmissions over complex scenarios (batadv on vxlan on wireguard) because
+the lower devices had to perform the reallocations at least once.
 
-    pc : submit_compressed_extents+0x38/0x3d0
-    lr : async_cow_submit+0x50/0xd0
-    sp : ffff800015d4bc20
-
-    <registers omitted for brevity>
-
-    Call trace:
-     submit_compressed_extents+0x38/0x3d0
-     async_cow_submit+0x50/0xd0
-     run_ordered_work+0xc8/0x280
-     btrfs_work_helper+0x98/0x250
-     process_one_work+0x1f0/0x4ac
-     worker_thread+0x188/0x504
-     kthread+0x110/0x114
-     ret_from_fork+0x10/0x18
-
-Fix this by adding respective barrier calls which ensure that all
-accesses preceding setting of WORK_DONE_BIT are strictly ordered before
-setting the flag. At the same time add a read barrier after reading of
-WORK_DONE_BIT in run_ordered_work which ensures all subsequent loads
-would be strictly ordered after reading the bit. This in turn ensures
-are all accesses before WORK_DONE_BIT are going to be strictly ordered
-before any access that can occur in ordered_func.
-
-Reported-by: Chris Murphy <lists@colorremedies.com>
-Fixes: 08a9ff326418 ("btrfs: Added btrfs_workqueue_struct implemented ordered execution based on kernel workqueue")
-CC: stable@vger.kernel.org # 4.4+
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2011928
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Tested-by: Chris Murphy <chris@colorremedies.com>
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/async-thread.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ net/batman-adv/fragmentation.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/async-thread.c
-+++ b/fs/btrfs/async-thread.c
-@@ -234,6 +234,13 @@ static void run_ordered_work(struct __bt
- 				  ordered_list);
- 		if (!test_bit(WORK_DONE_BIT, &work->flags))
- 			break;
-+		/*
-+		 * Orders all subsequent loads after reading WORK_DONE_BIT,
-+		 * paired with the smp_mb__before_atomic in btrfs_work_helper
-+		 * this guarantees that the ordered function will see all
-+		 * updates from ordinary work function.
-+		 */
-+		smp_rmb();
+--- a/net/batman-adv/fragmentation.c
++++ b/net/batman-adv/fragmentation.c
+@@ -391,6 +391,7 @@ out:
  
- 		/*
- 		 * we are going to call the ordered done function, but
-@@ -317,6 +324,13 @@ static void btrfs_work_helper(struct wor
- 	thresh_exec_hook(wq);
- 	work->func(work);
- 	if (need_order) {
-+		/*
-+		 * Ensures all memory accesses done in the work function are
-+		 * ordered before setting the WORK_DONE_BIT. Ensuring the thread
-+		 * which is going to executed the ordered work sees them.
-+		 * Pairs with the smp_rmb in run_ordered_work.
-+		 */
-+		smp_mb__before_atomic();
- 		set_bit(WORK_DONE_BIT, &work->flags);
- 		run_ordered_work(wq, work);
- 	} else {
+ /**
+  * batadv_frag_create() - create a fragment from skb
++ * @net_dev: outgoing device for fragment
+  * @skb: skb to create fragment from
+  * @frag_head: header to use in new fragment
+  * @fragment_size: size of new fragment
+@@ -401,22 +402,25 @@ out:
+  *
+  * Return: the new fragment, NULL on error.
+  */
+-static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
++static struct sk_buff *batadv_frag_create(struct net_device *net_dev,
++					  struct sk_buff *skb,
+ 					  struct batadv_frag_packet *frag_head,
+ 					  unsigned int fragment_size)
+ {
++	unsigned int ll_reserved = LL_RESERVED_SPACE(net_dev);
++	unsigned int tailroom = net_dev->needed_tailroom;
+ 	struct sk_buff *skb_fragment;
+ 	unsigned int header_size = sizeof(*frag_head);
+ 	unsigned int mtu = fragment_size + header_size;
+ 
+-	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
++	skb_fragment = dev_alloc_skb(ll_reserved + mtu + tailroom);
+ 	if (!skb_fragment)
+ 		goto err;
+ 
+ 	skb_fragment->priority = skb->priority;
+ 
+ 	/* Eat the last mtu-bytes of the skb */
+-	skb_reserve(skb_fragment, header_size + ETH_HLEN);
++	skb_reserve(skb_fragment, ll_reserved + header_size);
+ 	skb_split(skb, skb_fragment, skb->len - fragment_size);
+ 
+ 	/* Add the header */
+@@ -439,11 +443,12 @@ int batadv_frag_send_packet(struct sk_bu
+ 			    struct batadv_orig_node *orig_node,
+ 			    struct batadv_neigh_node *neigh_node)
+ {
++	struct net_device *net_dev = neigh_node->if_incoming->net_dev;
+ 	struct batadv_priv *bat_priv;
+ 	struct batadv_hard_iface *primary_if = NULL;
+ 	struct batadv_frag_packet frag_header;
+ 	struct sk_buff *skb_fragment;
+-	unsigned int mtu = neigh_node->if_incoming->net_dev->mtu;
++	unsigned int mtu = net_dev->mtu;
+ 	unsigned int header_size = sizeof(frag_header);
+ 	unsigned int max_fragment_size, num_fragments;
+ 	int ret;
+@@ -503,7 +508,7 @@ int batadv_frag_send_packet(struct sk_bu
+ 			goto put_primary_if;
+ 		}
+ 
+-		skb_fragment = batadv_frag_create(skb, &frag_header,
++		skb_fragment = batadv_frag_create(net_dev, skb, &frag_header,
+ 						  max_fragment_size);
+ 		if (!skb_fragment) {
+ 			ret = -ENOMEM;
 
 
