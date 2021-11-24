@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83B0745C4E9
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:49:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28B0245C0B8
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:07:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347295AbhKXNxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:53:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42104 "EHLO mail.kernel.org"
+        id S1344616AbhKXNKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:10:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354525AbhKXNvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:51:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2965861155;
-        Wed, 24 Nov 2021 13:04:22 +0000 (UTC)
+        id S1344678AbhKXNJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:09:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9479261A63;
+        Wed, 24 Nov 2021 12:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759062;
-        bh=gBLkBueN3XR4mRvguawLiob9dAk/rs3Twl2v3FNY7xE=;
+        s=korg; t=1637757640;
+        bh=n41eNGM86BcjQd4eM7Z6NGpYXo6Css2k/s/x64od6FQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKyxhjSRzgb82JUKTXHYfoPCpeYbgyZ7socS9IJDIcOi6n+srcxIMwt0foTO7/5zB
-         lAx+RiRHgE0qCmo2Qdoy/ixRjHBMF9sfUIuH2NksuvtBQ8c2fl3+JIOZAwv+oDcboc
-         AY7wuFQ5kepxmUPdEwuaremCrhcb/S4uM3ID272c=
+        b=N/sowpOHdCke5LILSpgvABnIcbsaw3EbkVkLPZW3iHUYRnqMpr9F3K5827eE/tBHZ
+         txf9k9/VIZEUyp0Izk92SnZgxXCKQkgnPWwDtkbD/pf+0mwGdgNEknsRV8z47aVZoy
+         A16UO3KtBrWrgtMM+eHcwZVMZJemVqgw/g9FnFHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sungjong Seo <sj1557.seo@samsung.com>,
-        Hyeong-Jun Kim <hj514.kim@samsung.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 088/279] f2fs: compress: disallow disabling compress on non-empty compressed file
-Date:   Wed, 24 Nov 2021 12:56:15 +0100
-Message-Id: <20211124115721.751215916@linuxfoundation.org>
+Subject: [PATCH 4.19 186/323] soc/tegra: Fix an error handling path in tegra_powergate_power_up()
+Date:   Wed, 24 Nov 2021 12:56:16 +0100
+Message-Id: <20211124115725.222867479@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyeong-Jun Kim <hj514.kim@samsung.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 02d58cd253d7536c412993573fc6b3b4454960eb ]
+[ Upstream commit 986b5094708e508baa452a23ffe809870934a7df ]
 
-Compresse file and normal file has differ in i_addr addressing,
-specifically addrs per inode/block. So, we will face data loss, if we
-disable the compression flag on non-empty files. Therefore we should
-disallow not only enabling but disabling the compression flag on
-non-empty files.
+If an error occurs after a successful tegra_powergate_enable_clocks()
+call, it must be undone by a tegra_powergate_disable_clocks() call, as
+already done in the below and above error handling paths of this function.
 
-Fixes: 4c8ff7095bef ("f2fs: support data compression")
-Signed-off-by: Sungjong Seo <sj1557.seo@samsung.com>
-Signed-off-by: Hyeong-Jun Kim <hj514.kim@samsung.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Update the 'goto' to branch at the correct place of the error handling
+path.
+
+Fixes: a38045121bf4 ("soc/tegra: pmc: Add generic PM domain support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/f2fs.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/soc/tegra/pmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index b339ae89c1ad1..c242274e3479b 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -4152,8 +4152,7 @@ static inline bool f2fs_disable_compressed_file(struct inode *inode)
+diff --git a/drivers/soc/tegra/pmc.c b/drivers/soc/tegra/pmc.c
+index f17a678154047..6c57e43787cbf 100644
+--- a/drivers/soc/tegra/pmc.c
++++ b/drivers/soc/tegra/pmc.c
+@@ -408,7 +408,7 @@ static int tegra_powergate_power_up(struct tegra_powergate *pg,
  
- 	if (!f2fs_compressed_file(inode))
- 		return true;
--	if (S_ISREG(inode->i_mode) &&
--		(get_dirty_pages(inode) || atomic_read(&fi->i_compr_blocks)))
-+	if (S_ISREG(inode->i_mode) && F2FS_HAS_BLOCKS(inode))
- 		return false;
+ 	err = reset_control_deassert(pg->reset);
+ 	if (err)
+-		goto powergate_off;
++		goto disable_clks;
  
- 	fi->i_flags &= ~F2FS_COMPR_FL;
+ 	usleep_range(10, 20);
+ 
 -- 
 2.33.0
 
