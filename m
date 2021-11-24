@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD72545BDBA
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:38:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1EA645BA02
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343579AbhKXMkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:40:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39882 "EHLO mail.kernel.org"
+        id S234674AbhKXMG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:06:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344659AbhKXMid (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:38:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7DFA613A8;
-        Wed, 24 Nov 2021 12:23:08 +0000 (UTC)
+        id S233185AbhKXMGP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:06:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1AA260F90;
+        Wed, 24 Nov 2021 12:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756589;
-        bh=Jt0QQUne7RV6TmHkLL9C2pb/W/qD6bz86e/2GOS3O2Y=;
+        s=korg; t=1637755385;
+        bh=i88b99ISnE/a0T9L4fAmUIOV6BjoOz67zNfpN0l1dTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bIp98xzbUskaw6Y3v5BJIY9UOoT46tgWoKKlH21FzdU7f69C6N7aCn5wf3L8wkTvp
-         i4C7zIJeY9vmpzo/cFMBqyxJm/4nmwukV6renEdg4hssm9Rq3nKS+q2nxuizskYpbp
-         HnBidTwXi8tg4loHzj2huc3tBLZzCFGjpbSFDbmo=
+        b=HZoLY5YDn05c7AUviXacNZQjSi4isUYcYyeKZLzKw3cESUj39l2i8/twZt2I22ASj
+         1w9fW+wl/KX+G2mLgC5VX/02n0v2BYCuNEijX4Gw+Oxksa0v295J1Bts81PP+1au9K
+         wzzKumx/USup+Dsf3q7hLUEfm0foyB94rWOv6t44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 136/251] net: phylink: avoid mvneta warning when setting pause parameters
-Date:   Wed, 24 Nov 2021 12:56:18 +0100
-Message-Id: <20211124115714.982506400@linuxfoundation.org>
+Subject: [PATCH 4.4 076/162] b43legacy: fix a lower bounds test
+Date:   Wed, 24 Nov 2021 12:56:19 +0100
+Message-Id: <20211124115700.774894499@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit fd8d9731bcdfb22d28e45bce789bcb211c868c78 ]
+[ Upstream commit c1c8380b0320ab757e60ed90efc8b1992a943256 ]
 
-mvneta does not support asymetric pause modes, and it flags this by the
-lack of AsymPause in the supported field. When setting pause modes, we
-check that pause->rx_pause == pause->tx_pause, but only when pause
-autoneg is enabled. When pause autoneg is disabled, we still allow
-pause->rx_pause != pause->tx_pause, which is incorrect when the MAC
-does not support asymetric pause, and causes mvneta to issue a warning.
+The problem is that "channel" is an unsigned int, when it's less 5 the
+value of "channel - 5" is not a negative number as one would expect but
+is very high positive value instead.
 
-Fix this by removing the test for pause->autoneg, so we always check
-that pause->rx_pause == pause->tx_pause for network devices that do not
-support AsymPause.
+This means that "start" becomes a very high positive value.  The result
+of that is that we never enter the "for (i = start; i <= end; i++) {"
+loop.  Instead of storing the result from b43legacy_radio_aci_detect()
+it just uses zero.
 
-Fixes: 9525ae83959b ("phylink: add phylink infrastructure")
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx devices")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Michael Büsch <m@bues.ch>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211006073542.GD8404@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phylink.c | 2 +-
+ drivers/net/wireless/b43legacy/radio.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
-index 17acecfda5420..89d8efe8753e5 100644
---- a/drivers/net/phy/phylink.c
-+++ b/drivers/net/phy/phylink.c
-@@ -1022,7 +1022,7 @@ int phylink_ethtool_set_pauseparam(struct phylink *pl,
- 		return -EOPNOTSUPP;
+diff --git a/drivers/net/wireless/b43legacy/radio.c b/drivers/net/wireless/b43legacy/radio.c
+index 9501420340a91..5b1e8890305c1 100644
+--- a/drivers/net/wireless/b43legacy/radio.c
++++ b/drivers/net/wireless/b43legacy/radio.c
+@@ -299,7 +299,7 @@ u8 b43legacy_radio_aci_scan(struct b43legacy_wldev *dev)
+ 			    & 0x7FFF);
+ 	b43legacy_set_all_gains(dev, 3, 8, 1);
  
- 	if (!phylink_test(pl->supported, Asym_Pause) &&
--	    !pause->autoneg && pause->rx_pause != pause->tx_pause)
-+	    pause->rx_pause != pause->tx_pause)
- 		return -EINVAL;
+-	start = (channel - 5 > 0) ? channel - 5 : 1;
++	start = (channel > 5) ? channel - 5 : 1;
+ 	end = (channel + 5 < 14) ? channel + 5 : 13;
  
- 	config->pause &= ~(MLO_PAUSE_AN | MLO_PAUSE_TXRX_MASK);
+ 	for (i = start; i <= end; i++) {
 -- 
 2.33.0
 
