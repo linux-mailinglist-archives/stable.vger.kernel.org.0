@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB9E645BFD9
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:59:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4B3445BAD0
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346057AbhKXNCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:02:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41112 "EHLO mail.kernel.org"
+        id S243651AbhKXMOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:14:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346754AbhKXNAU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:00:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A68661175;
-        Wed, 24 Nov 2021 12:34:30 +0000 (UTC)
+        id S243404AbhKXMOB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:14:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2C2F610A7;
+        Wed, 24 Nov 2021 12:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757270;
-        bh=ufrqD5GM6BCWE6ozeSLbaaPWgc65jOD7AnWNkV4ajrQ=;
+        s=korg; t=1637755716;
+        bh=RmU1RKhWGmFAK1Q1T8wTJbB4N/UMxf29ae1zfCjXNsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cMtOLrc2JOj6/Durfdp9WeD2JHjE9CP3yKepjlcHx4N68W2CqDdPSw89a9nT0ABNA
-         X5xfqYGJiCjVTRY/BwtfyNgcnhhWTGtc/BiMs5N5Ah4GLNr1TiQTyjLYw6dQHVsckI
-         LTXnOW9wpZWBmlQlwzG6OI5AkNXsqu7tX3oib3z0=
+        b=JGRcQJun4NOvtFV9N0HvEtPh7+4I3Hp11lsaEx/WzelP7kVbiTDcYmCGiJhjiUEK3
+         OqtQ8B6Wcj9jElUGnsoG12akQp5RfQVrAPC/r/9ccYYxa50WzboWCb4od4Pee9kzUd
+         3mzgU639B9MjLadicblF/tWEIH7nsg3L5Rjvm/bE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mengen Sun <mengensun@tencent.com>,
-        Menglong Dong <imagedong@tencent.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 112/323] workqueue: make sysfs of unbound kworker cpumask more clever
-Date:   Wed, 24 Nov 2021 12:55:02 +0100
-Message-Id: <20211124115722.737647454@linuxfoundation.org>
+        stable@vger.kernel.org, Amitkumar Karwar <akarwar@marvell.com>,
+        Johan Hovold <johan@kernel.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 032/207] mwifiex: fix division by zero in fw download path
+Date:   Wed, 24 Nov 2021 12:55:03 +0100
+Message-Id: <20211124115704.988689931@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,71 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Menglong Dong <imagedong@tencent.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit d25302e46592c97d29f70ccb1be558df31a9a360 ]
+commit 89f8765a11d8df49296d92c404067f9b5c58ee26 upstream.
 
-Some unfriendly component, such as dpdk, write the same mask to
-unbound kworker cpumask again and again. Every time it write to
-this interface some work is queue to cpu, even though the mask
-is same with the original mask.
+Add the missing endpoint sanity checks to probe() to avoid division by
+zero in mwifiex_write_data_sync() in case a malicious device has broken
+descriptors (or when doing descriptor fuzz testing).
 
-So, fix it by return success and do nothing if the cpumask is
-equal with the old one.
+Only add checks for the firmware-download boot stage, which require both
+command endpoints, for now. The driver looks like it will handle a
+missing endpoint during normal operation without oopsing, albeit not
+very gracefully as it will try to submit URBs to the default pipe and
+fail.
 
-Signed-off-by: Mengen Sun <mengensun@tencent.com>
-Signed-off-by: Menglong Dong <imagedong@tencent.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that USB core will reject URBs submitted for endpoints with zero
+wMaxPacketSize but that drivers doing packet-size calculations still
+need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
+endpoint descriptors with maxpacket=0")).
+
+Fixes: 4daffe354366 ("mwifiex: add support for Marvell USB8797 chipset")
+Cc: stable@vger.kernel.org      # 3.5
+Cc: Amitkumar Karwar <akarwar@marvell.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211027080819.6675-4-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/workqueue.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/usb.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 1573d1bf63007..b1bb6cb5802ec 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -5125,9 +5125,6 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
- 	int ret = -EINVAL;
- 	cpumask_var_t saved_cpumask;
- 
--	if (!zalloc_cpumask_var(&saved_cpumask, GFP_KERNEL))
--		return -ENOMEM;
--
- 	/*
- 	 * Not excluding isolated cpus on purpose.
- 	 * If the user wishes to include them, we allow that.
-@@ -5135,6 +5132,15 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
- 	cpumask_and(cpumask, cpumask, cpu_possible_mask);
- 	if (!cpumask_empty(cpumask)) {
- 		apply_wqattrs_lock();
-+		if (cpumask_equal(cpumask, wq_unbound_cpumask)) {
-+			ret = 0;
-+			goto out_unlock;
-+		}
-+
-+		if (!zalloc_cpumask_var(&saved_cpumask, GFP_KERNEL)) {
-+			ret = -ENOMEM;
-+			goto out_unlock;
-+		}
- 
- 		/* save the old wq_unbound_cpumask. */
- 		cpumask_copy(saved_cpumask, wq_unbound_cpumask);
-@@ -5147,10 +5153,11 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
- 		if (ret < 0)
- 			cpumask_copy(wq_unbound_cpumask, saved_cpumask);
- 
-+		free_cpumask_var(saved_cpumask);
-+out_unlock:
- 		apply_wqattrs_unlock();
+--- a/drivers/net/wireless/marvell/mwifiex/usb.c
++++ b/drivers/net/wireless/marvell/mwifiex/usb.c
+@@ -473,6 +473,22 @@ static int mwifiex_usb_probe(struct usb_
+ 		}
  	}
  
--	free_cpumask_var(saved_cpumask);
- 	return ret;
- }
++	switch (card->usb_boot_state) {
++	case USB8XXX_FW_DNLD:
++		/* Reject broken descriptors. */
++		if (!card->rx_cmd_ep || !card->tx_cmd_ep)
++			return -ENODEV;
++		if (card->bulk_out_maxpktsize == 0)
++			return -ENODEV;
++		break;
++	case USB8XXX_FW_READY:
++		/* Assume the driver can handle missing endpoints for now. */
++		break;
++	default:
++		WARN_ON(1);
++		return -ENODEV;
++	}
++
+ 	usb_set_intfdata(intf, card);
  
--- 
-2.33.0
-
+ 	ret = mwifiex_add_card(card, &add_remove_card_sem, &usb_ops,
 
 
