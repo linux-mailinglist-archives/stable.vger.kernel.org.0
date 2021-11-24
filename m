@@ -2,70 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B12145B7E0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 10:58:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2858745B7EB
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 11:00:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235462AbhKXKB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 05:01:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53962 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230410AbhKXKB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 05:01:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12DF460FE7;
-        Wed, 24 Nov 2021 09:58:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637747929;
-        bh=b3eKG/rQ7FZOGT31Dkme1e3OA8hFVQ82fpm34TJCNtM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oHSc2IkJMIaWDYqWxkYxeveN9vsXuWHttXOZX5e29Df0rbqweK+UcXREjnIEbS/6o
-         wckC6AHYJlLyNeBoYJFcc1R2GFBtZadj+/zfHFjsLJxbev75IxsQD6H7ZRPgkv2Vox
-         FONL/QyVPJfhgLf9K30B1IrBOFR6XlnMLfH0I/rg=
-Date:   Wed, 24 Nov 2021 10:57:47 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Todd Kjos <tkjos@google.com>
-Cc:     Paul Moore <paul@paul-moore.com>, arve@android.com,
-        tkjos@android.com, maco@android.com, christian@brauner.io,
-        jmorris@namei.org, serge@hallyn.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        keescook@chromium.org, jannh@google.com, jeffv@google.com,
-        zohar@linux.ibm.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-kernel@vger.kernel.org, joel@joelfernandes.org,
-        kernel-team@android.com, stable@vger.kernel.org
-Subject: Re: [PATCH] binder: fix test regression due to sender_euid change
-Message-ID: <YZ4Mm9ux0zVurjQk@kroah.com>
-References: <20211112180720.2858135-1-tkjos@google.com>
- <CAHC9VhQaHzrjdnr_DvZdPfWGiehC17yJVAJdVJMn8tOC1_Y+gA@mail.gmail.com>
- <CAHRSSEwUUUxXOnb2_fg1qnEXbCtD+G7KW8=xwKZFA5r-PKcPBg@mail.gmail.com>
+        id S240470AbhKXKDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 05:03:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45250 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240618AbhKXKDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 05:03:33 -0500
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 930E0C061574
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 02:00:23 -0800 (PST)
+Received: by mail-ed1-x52f.google.com with SMTP id r11so7746189edd.9
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 02:00:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=wv08yLz4zrdREkk9Z+j0+m1UWGNKOKoiKeinivXDeCk=;
+        b=OJJwsLaIgQnbJdIAvLKO6GpXiRo2em76pWFJyNBHQ00r++WiPqCKZtLi80cNFwoZmt
+         +cOzNRVf+Gh4UkrNZQLo5JVB4DZncUoo/rYEY7OxG8PrJnZcVqGGUtOrpp/HgErpuUbk
+         kZ1ALpkb5S8B2Yf/icfn/RnSabztBIkzxmP9eT0ATT3gKPGvqfzircWP3Q1sTuwmaSiI
+         9LJfdvBeuX9AXEAw3XjVz0Vo0sKMyVcvCVsRUkZQibfPhyH0h22B7zKzkpZDTiJPhrEj
+         HuJcJ5AxR08IpF9OTng7Skz2XgHtLKlK3g2nWtG8kiXu2A0nXMKbOsFJq2RKTGfU3c7B
+         E7dA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=wv08yLz4zrdREkk9Z+j0+m1UWGNKOKoiKeinivXDeCk=;
+        b=g+cNKR4OEDP0se+sHMIaf66KxoDTYNAj3pqd489yUJFwtyrVKV1G+6j4QquQLLaBJn
+         D+gTjk7eZ5Mt9QD9Qu60NYG6NwR7bLGsPLVXhzs7zlH35en4p1dBF42G2ZU43TAHNESB
+         VoqifOcy1l5e59JdhZqy6gm+XSoJiDXa9rUX6stYIvAM5Q2Xl0cXUsAAFqc7WaHomwYg
+         UMcSpBExOGQuMsydrt69YDtR1TU45OVbk4hmHZRQy1588GFZ8rJn2VdG/ntISDdjqFk1
+         PYvpqAr+l724zl4NyGmsQPY+L50GuFY43INl2RjAR0XqbrJeyokwHQKvC8/UgqLA8BF2
+         WdjA==
+X-Gm-Message-State: AOAM530Y8Gdjuz/PKdgqxBuGVBBAHTCT5raNr8tAXqqnkURXp5AKcDTn
+        KWFVl6FT9lAcNbKlvN8CLgCRD3RCTunWZp04WITl3p+ZTydpTw==
+X-Google-Smtp-Source: ABdhPJwuCKafaSGt1xUrGrxJj4GYEcW1UQxBcP2oFYfZ4sO0JTWHJr2zv8ieqzDYVLYM6+S8rfvLlsf2Invoi/zulCU=
+X-Received: by 2002:a17:906:7955:: with SMTP id l21mr19350893ejo.6.1637748020910;
+ Wed, 24 Nov 2021 02:00:20 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHRSSEwUUUxXOnb2_fg1qnEXbCtD+G7KW8=xwKZFA5r-PKcPBg@mail.gmail.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 24 Nov 2021 15:30:09 +0530
+Message-ID: <CA+G9fYv5fnntoa1vzXp52=TSxCK=U8fV8J-AbE+WmKH1w4ebwg@mail.gmail.com>
+Subject: qcom :apq8016-sbc.dtsi:412.21-414.5: ERROR (duplicate_label):
+ /soc/codec: Duplicate label 'lpass_codec' on /soc/codec and /soc@0/codec
+To:     linux-stable <stable@vger.kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Stephen Boyd <swboyd@chromium.org>,
+        lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 19, 2021 at 03:39:59PM -0800, Todd Kjos wrote:
-> On Fri, Nov 19, 2021 at 3:00 PM Paul Moore <paul@paul-moore.com> wrote:
-> >
-> > On Fri, Nov 12, 2021 at 1:07 PM Todd Kjos <tkjos@google.com> wrote:
-> > >
-> > > This is a partial revert of commit
-> > > 29bc22ac5e5b ("binder: use euid from cred instead of using task").
-> > > Setting sender_euid using proc->cred caused some Android system test
-> > > regressions that need further investigation. It is a partial
-> > > reversion because subsequent patches rely on proc->cred.
-> > >
-> > > Cc: stable@vger.kernel.org # 4.4+
-> > > Fixes: 29bc22ac5e5b ("binder: use euid from cred instead of using task")
-> > > Signed-off-by: Todd Kjos <tkjos@google.com>
-> > > Change-Id: I9b1769a3510fed250bb21859ef8beebabe034c66
-> 
-> Greg, I neglected to remove the "Change-Id" from my Android pre-submit
-> testing. Can you remove that, or would you like me to resubmit without
-> it?
+Regression found on arm64 gcc-11 builds
+Following build warnings / errors reported on stable-rc 5.4.
 
-Sorry, I missed it too.  It's already in my tree, no need to worry about
-it.
+metadata:
+    git_describe: v5.4.161-99-g60345e6d23ca
+    git_repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+    git_short_log: 60345e6d23ca (\"Linux 5.4.162-rc1\")
+    target_arch: arm64
+    toolchain: gcc-11
 
-greg k-h
+build error :
+--------------
+builds/linux/arch/arm64/boot/dts/qcom/apq8016-sbc.dtsi:412.21-414.5:
+ERROR (duplicate_label): /soc/codec: Duplicate label 'lpass_codec' on
+/soc/codec and /soc@0/codec
+ERROR: Input tree has errors, aborting (use -f to force output)
+make[3]: *** [scripts/Makefile.lib:285:
+arch/arm64/boot/dts/qcom/apq8016-sbc.dtb] Error 2
+
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+build link:
+-----------
+https://builds.tuxbuild.com//21MKqVm5LdLI4FQGooFsnEUB3jO/build.log
+
+build config:
+-------------
+https://builds.tuxbuild.com//21MKqVm5LdLI4FQGooFsnEUB3jO/config
+
+# To install tuxmake on your system globally
+# sudo pip3 install -U tuxmake
+tuxmake --runtime podman --target-arch arm64 --toolchain gcc-11
+--kconfig defconfig \
+      --kconfig-add
+https://builds.tuxbuild.com//21MKqVm5LdLI4FQGooFsnEUB3jO/config
+
+--
+Linaro LKFT
+https://lkft.linaro.org
