@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6946645C0B4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:07:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3505D45C4C1
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:48:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347745AbhKXNKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:10:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46520 "EHLO mail.kernel.org"
+        id S1354545AbhKXNvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:51:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243743AbhKXNJS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:09:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D41C0613A9;
-        Wed, 24 Nov 2021 12:40:33 +0000 (UTC)
+        id S1351827AbhKXNt3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:49:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22CB863355;
+        Wed, 24 Nov 2021 13:03:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757634;
-        bh=e0FtJO+qPc+zP0fT+2xfhd/MVzw2GLG+qAZAxEdy1ko=;
+        s=korg; t=1637758993;
+        bh=S1RHbH+sgXWCIKkgeaNozozTmPs19C4/3SpNVXY0/yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IVpvHbSBubZTrcSZHT4jFnyyclqn86LWhQOdxW8Bo5sE/uSOuBQaBehzhpHSpkTyC
-         gmpexxghucJILDU9T9Pc1bbKTT+W8MNqBaEhcU7d/ePPrlE9qMW/do9YXmWdaTXDPh
-         YBq+i5rnVnw9jqI6YbDO1BZrzzO+0mV8efIUXawA=
+        b=liiKHS7NfNxig7nJ6cpF0E4OKHt38TPU1maStsvNn65w2JzIFVXfrC2VLiJIe+/kr
+         2tC+u4OkEz5fxIdpAafntRcL41vsFBZofi24VQollsQ58Y8vW+o+jCr/o9RCSs8ixh
+         P7YneBbh4JEwNiAz30H5wXzdqNIfo4HjMlyqBZr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
+        Like Xu <likexu@tencent.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 194/323] ASoC: cs42l42: Correct some register default values
-Date:   Wed, 24 Nov 2021 12:56:24 +0100
-Message-Id: <20211124115725.488825877@linuxfoundation.org>
+Subject: [PATCH 5.15 098/279] perf/x86/vlbr: Add c->flags to vlbr event constraints
+Date:   Wed, 24 Nov 2021 12:56:25 +0100
+Message-Id: <20211124115722.161085316@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Like Xu <likexu@tencent.com>
 
-[ Upstream commit d591d4b32aa9552af14a0c7c586a2d3fe9ecc6e0 ]
+[ Upstream commit 5863702561e625903ec678551cb056a4b19e0b8a ]
 
-Some registers had wrong default values in cs42l42_reg_defaults[].
+Just like what we do in the x86_get_event_constraints(), the
+PERF_X86_EVENT_LBR_SELECT flag should also be propagated
+to event->hw.flags so that the host lbr driver can save/restore
+MSR_LBR_SELECT for the special vlbr event created by KVM or BPF.
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
-Link: https://lore.kernel.org/r/20211015133619.4698-4-rf@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 097e4311cda9 ("perf/x86: Add constraint to create guest LBR event without hw counter")
+Reported-by: Wanpeng Li <wanpengli@tencent.com>
+Signed-off-by: Like Xu <likexu@tencent.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Wanpeng Li <wanpengli@tencent.com>
+Link: https://lore.kernel.org/r/20211103091716.59906-1-likexu@tencent.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index 4cb3e11c66af7..f9d6534d4632d 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -95,7 +95,7 @@ static const struct reg_default cs42l42_reg_defaults[] = {
- 	{ CS42L42_ASP_RX_INT_MASK,		0x1F },
- 	{ CS42L42_ASP_TX_INT_MASK,		0x0F },
- 	{ CS42L42_CODEC_INT_MASK,		0x03 },
--	{ CS42L42_SRCPL_INT_MASK,		0xFF },
-+	{ CS42L42_SRCPL_INT_MASK,		0x7F },
- 	{ CS42L42_VPMON_INT_MASK,		0x01 },
- 	{ CS42L42_PLL_LOCK_INT_MASK,		0x01 },
- 	{ CS42L42_TSRS_PLUG_INT_MASK,		0x0F },
-@@ -132,7 +132,7 @@ static const struct reg_default cs42l42_reg_defaults[] = {
- 	{ CS42L42_MIXER_CHA_VOL,		0x3F },
- 	{ CS42L42_MIXER_ADC_VOL,		0x3F },
- 	{ CS42L42_MIXER_CHB_VOL,		0x3F },
--	{ CS42L42_EQ_COEF_IN0,			0x22 },
-+	{ CS42L42_EQ_COEF_IN0,			0x00 },
- 	{ CS42L42_EQ_COEF_IN1,			0x00 },
- 	{ CS42L42_EQ_COEF_IN2,			0x00 },
- 	{ CS42L42_EQ_COEF_IN3,			0x00 },
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index bc3f97f834011..c7f1cc433a6aa 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -2999,8 +2999,10 @@ intel_vlbr_constraints(struct perf_event *event)
+ {
+ 	struct event_constraint *c = &vlbr_constraint;
+ 
+-	if (unlikely(constraint_match(c, event->hw.config)))
++	if (unlikely(constraint_match(c, event->hw.config))) {
++		event->hw.flags |= c->flags;
+ 		return c;
++	}
+ 
+ 	return NULL;
+ }
 -- 
 2.33.0
 
