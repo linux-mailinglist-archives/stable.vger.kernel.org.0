@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7037F45BB7A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:17:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4114E45BD1D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:32:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243151AbhKXMUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:20:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48678 "EHLO mail.kernel.org"
+        id S1343618AbhKXMf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:35:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243331AbhKXMSK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:18:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEC976112D;
-        Wed, 24 Nov 2021 12:11:18 +0000 (UTC)
+        id S1343845AbhKXMd2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:33:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6356611AF;
+        Wed, 24 Nov 2021 12:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755879;
-        bh=U2vWZSCXWfeYo7OvMkU8L1M/+CKcvFhA9UzCXwRKQiI=;
+        s=korg; t=1637756439;
+        bh=p6xrtNg969+bJhypE7t3ArhbHV5cPjdrVOAfY+KMUcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=10O8Pfk8LPPMURZhZIurL4xBQ6PVGkkSPSekSlN6UHKvZ/H+MVeRrn5JOi7Tlq0cs
-         Y8c7etwkpvrXmnNF0A73jCu4AdYscIK40Bi+QYcTHMWfxHROn8lhtBsx5B9KAfzDw6
-         OSCjZ5YxScCiS06Dcd56M81bw5BB6eevwsllkzHM=
+        b=QsCkKZeVK7r/BDQjjsZ2UnMu2Ljxcggfw6/cKxFGJppTi9mZQ5pJqpdNBKTv5795Y
+         0bIq0P5VihXt+Lo4Lhe0KsSGY8JoQh9mQjqbtzZYkn8hV8aRpKiB8574CBzeWR+3ah
+         StcUMLhmWF6+kJ4tQDXwR8Vh+uUcLuQnZ02aYMIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 058/207] platform/x86: wmi: do not fail if disabling fails
+Subject: [PATCH 4.14 087/251] tracefs: Have tracefs directories not set OTH permission bits by default
 Date:   Wed, 24 Nov 2021 12:55:29 +0100
-Message-Id: <20211124115705.806301417@linuxfoundation.org>
+Message-Id: <20211124115713.278900707@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Barnabás Pőcze <pobrn@protonmail.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit 1975718c488a39128f1f515b23ae61a5a214cc3d ]
+[ Upstream commit 49d67e445742bbcb03106b735b2ab39f6e5c56bc ]
 
-Previously, `__query_block()` would fail if the
-second WCxx method call failed. However, the
-WQxx method might have succeeded, and potentially
-allocated memory for the result. Instead of
-throwing away the result and potentially
-leaking memory, ignore the result of
-the second WCxx call.
+The tracefs file system is by default mounted such that only root user can
+access it. But there are legitimate reasons to create a group and allow
+those added to the group to have access to tracing. By changing the
+permissions of the tracefs mount point to allow access, it will allow
+group access to the tracefs directory.
 
-Signed-off-by: Barnabás Pőcze <pobrn@protonmail.com>
-Link: https://lore.kernel.org/r/20210904175450.156801-25-pobrn@protonmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+There should not be any real reason to allow all access to the tracefs
+directory as it contains sensitive information. Have the default
+permission of directories being created not have any OTH (other) bits set,
+such that an admin that wants to give permission to a group has to first
+disable all OTH bits in the file system.
+
+Link: https://lkml.kernel.org/r/20210818153038.664127804@goodmis.org
+
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/wmi.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/tracefs/inode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/wmi.c b/drivers/platform/x86/wmi.c
-index 00d82e8443bdd..da06284c455dc 100644
---- a/drivers/platform/x86/wmi.c
-+++ b/drivers/platform/x86/wmi.c
-@@ -289,7 +289,14 @@ struct acpi_buffer *out)
- 	 * the WQxx method failed - we should disable collection anyway.
- 	 */
- 	if ((block->flags & ACPI_WMI_EXPENSIVE) && ACPI_SUCCESS(wc_status)) {
--		status = acpi_execute_simple_method(handle, wc_method, 0);
-+		/*
-+		 * Ignore whether this WCxx call succeeds or not since
-+		 * the previously executed WQxx method call might have
-+		 * succeeded, and returning the failing status code
-+		 * of this call would throw away the result of the WQxx
-+		 * call, potentially leaking memory.
-+		 */
-+		acpi_execute_simple_method(handle, wc_method, 0);
- 	}
+diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
+index bea8ad876bf9a..0c123c5e70e08 100644
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -427,7 +427,8 @@ static struct dentry *__create_dir(const char *name, struct dentry *parent,
+ 	if (unlikely(!inode))
+ 		return failed_creating(dentry);
  
- 	return status;
+-	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO;
++	/* Do not set bits for OTH */
++	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
+ 	inode->i_op = ops;
+ 	inode->i_fop = &simple_dir_operations;
+ 
 -- 
 2.33.0
 
