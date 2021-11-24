@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A978645BB01
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:13:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D969D45BCC4
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242727AbhKXMPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42356 "EHLO mail.kernel.org"
+        id S244408AbhKXMcX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:32:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243175AbhKXMN2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:13:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D763A61153;
-        Wed, 24 Nov 2021 12:08:00 +0000 (UTC)
+        id S1344137AbhKXMae (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A21C61152;
+        Wed, 24 Nov 2021 12:18:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755681;
-        bh=7kceqMDPmmIt7D3kVKnMRxAcHzsQJ5L5lGKetNWDrjs=;
+        s=korg; t=1637756335;
+        bh=THgP4rH70xVRkoHBS4u8T3uDzkeFVEtZQ5eSYf++wv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZp31IFHlIDKYVZiz1eVdfpxwf0PgufAmP3yJlbzBQ9oNH+adJ3W2IjDufeHXVkIu
-         pUdj2AK5INZD5q6i8vR+fN4zvCTIkSYPBuzqaUI2QN4k6p7P6hSdoxJXbwFXBxcRw0
-         YjlwExbz/eI/xWE+TSkcJw5DJYxWGO55JX/PezrM=
+        b=kvOws/7JbFwbvcKH68BnxpdbuP8/lrgj+3YadCDEF/RlDLrnpkt4c0/k1NvQKML4f
+         I0YYamiVrLvD+WZQdiPEd6kIXHLjgr7XJwDfVqW2DL8oDOayl6CQpy19qT513rEHe6
+         2vZcmHaV6h+gMlvI2Va9tq0pEkGaU+5Bx+mKkEjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Walt Jr. Brake" <mr.yming81@gmail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.9 003/207] xhci: Fix USB 3.1 enumeration issues by increasing roothub power-on-good delay
-Date:   Wed, 24 Nov 2021 12:54:34 +0100
-Message-Id: <20211124115704.055132125@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Rob Herring <robh@kernel.org>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 033/251] regulator: s5m8767: do not use reset value as DVS voltage if GPIO DVS is disabled
+Date:   Wed, 24 Nov 2021 12:54:35 +0100
+Message-Id: <20211124115711.385836276@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +40,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit e1959faf085b004e6c3afaaaa743381f00e7c015 upstream.
+commit b16bef60a9112b1e6daf3afd16484eb06e7ce792 upstream.
 
-Some USB 3.1 enumeration issues were reported after the hub driver removed
-the minimum 100ms limit for the power-on-good delay.
+The driver and its bindings, before commit 04f9f068a619 ("regulator:
+s5m8767: Modify parsing method of the voltage table of buck2/3/4") were
+requiring to provide at least one safe/default voltage for DVS registers
+if DVS GPIO is not being enabled.
 
-Since commit 90d28fb53d4a ("usb: core: reduce power-on-good delay time of
-root hub") the hub driver sets the power-on-delay based on the
-bPwrOn2PwrGood value in the hub descriptor.
+IOW, if s5m8767,pmic-buck2-uses-gpio-dvs is missing, the
+s5m8767,pmic-buck2-dvs-voltage should still be present and contain one
+voltage.
 
-xhci driver has a 20ms bPwrOn2PwrGood value for both roothubs based
-on xhci spec section 5.4.8, but it's clearly not enough for the
-USB 3.1 devices, causing enumeration issues.
+This requirement was coming from driver behavior matching this condition
+(none of DVS GPIO is enabled): it was always initializing the DVS
+selector pins to 0 and keeping the DVS enable setting at reset value
+(enabled).  Therefore if none of DVS GPIO is enabled in devicetree,
+driver was configuring the first DVS voltage for buck[234].
 
-Tests indicate full 100ms delay is needed.
+Mentioned commit 04f9f068a619 ("regulator: s5m8767: Modify parsing
+method of the voltage table of buck2/3/4") broke it because DVS voltage
+won't be parsed from devicetree if DVS GPIO is not enabled.  After the
+change, driver will configure bucks to use the register reset value as
+voltage which might have unpleasant effects.
 
-Reported-by: Walt Jr. Brake <mr.yming81@gmail.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Fixes: 90d28fb53d4a ("usb: core: reduce power-on-good delay time of root hub")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211105160036.549516-1-mathias.nyman@linux.intel.com
+Fix this by relaxing the bindings constrain: if DVS GPIO is not enabled
+in devicetree (therefore DVS voltage is also not parsed), explicitly
+disable it.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 04f9f068a619 ("regulator: s5m8767: Modify parsing method of the voltage table of buck2/3/4")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Message-Id: <20211008113723.134648-2-krzysztof.kozlowski@canonical.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-hub.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt |   21 +++-------
+ drivers/regulator/s5m8767.c                                     |   21 ++++------
+ 2 files changed, 17 insertions(+), 25 deletions(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -174,7 +174,6 @@ static void xhci_common_hub_descriptor(s
- {
- 	u16 temp;
+--- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
++++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
+@@ -13,6 +13,14 @@ common regulator binding documented in:
  
--	desc->bPwrOn2PwrGood = 10;	/* xhci section 5.4.9 says 20ms max */
- 	desc->bHubContrCurrent = 0;
  
- 	desc->bNbrPorts = ports;
-@@ -208,6 +207,7 @@ static void xhci_usb2_hub_descriptor(str
- 	desc->bDescriptorType = USB_DT_HUB;
- 	temp = 1 + (ports / 8);
- 	desc->bDescLength = USB_DT_HUB_NONVAR_SIZE + 2 * temp;
-+	desc->bPwrOn2PwrGood = 10;	/* xhci section 5.4.8 says 20ms */
+ Required properties of the main device node (the parent!):
++ - s5m8767,pmic-buck-ds-gpios: GPIO specifiers for three host gpio's used
++   for selecting GPIO DVS lines. It is one-to-one mapped to dvs gpio lines.
++
++ [1] If either of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
++     property is specified, then all the eight voltage values for the
++     's5m8767,pmic-buck[2/3/4]-dvs-voltage' should be specified.
++
++Optional properties of the main device node (the parent!):
+  - s5m8767,pmic-buck2-dvs-voltage: A set of 8 voltage values in micro-volt (uV)
+    units for buck2 when changing voltage using gpio dvs. Refer to [1] below
+    for additional information.
+@@ -25,19 +33,6 @@ Required properties of the main device n
+    units for buck4 when changing voltage using gpio dvs. Refer to [1] below
+    for additional information.
  
- 	/* The Device Removable bits are reported on a byte granularity.
- 	 * If the port doesn't exist within that byte, the bit is set to 0.
-@@ -258,6 +258,7 @@ static void xhci_usb3_hub_descriptor(str
- 	xhci_common_hub_descriptor(xhci, desc, ports);
- 	desc->bDescriptorType = USB_DT_SS_HUB;
- 	desc->bDescLength = USB_DT_SS_HUB_SIZE;
-+	desc->bPwrOn2PwrGood = 50;	/* usb 3.1 may fail if less than 100ms */
+- - s5m8767,pmic-buck-ds-gpios: GPIO specifiers for three host gpio's used
+-   for selecting GPIO DVS lines. It is one-to-one mapped to dvs gpio lines.
+-
+- [1] If none of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
+-     property is specified, the 's5m8767,pmic-buck[2/3/4]-dvs-voltage'
+-     property should specify atleast one voltage level (which would be a
+-     safe operating voltage).
+-
+-     If either of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
+-     property is specified, then all the eight voltage values for the
+-     's5m8767,pmic-buck[2/3/4]-dvs-voltage' should be specified.
+-
+-Optional properties of the main device node (the parent!):
+  - s5m8767,pmic-buck2-uses-gpio-dvs: 'buck2' can be controlled by gpio dvs.
+  - s5m8767,pmic-buck3-uses-gpio-dvs: 'buck3' can be controlled by gpio dvs.
+  - s5m8767,pmic-buck4-uses-gpio-dvs: 'buck4' can be controlled by gpio dvs.
+--- a/drivers/regulator/s5m8767.c
++++ b/drivers/regulator/s5m8767.c
+@@ -845,18 +845,15 @@ static int s5m8767_pmic_probe(struct pla
+ 	/* DS4 GPIO */
+ 	gpio_direction_output(pdata->buck_ds[2], 0x0);
  
- 	/* header decode latency should be zero for roothubs,
- 	 * see section 4.23.5.2.
+-	if (pdata->buck2_gpiodvs || pdata->buck3_gpiodvs ||
+-	   pdata->buck4_gpiodvs) {
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK2CTRL, 1 << 1,
+-				(pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK3CTRL, 1 << 1,
+-				(pdata->buck3_gpiodvs) ? (1 << 1) : (0 << 1));
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK4CTRL, 1 << 1,
+-				(pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
+-	}
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK2CTRL, 1 << 1,
++			   (pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK3CTRL, 1 << 1,
++			   (pdata->buck3_gpiodvs) ? (1 << 1) : (0 << 1));
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK4CTRL, 1 << 1,
++			   (pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
+ 
+ 	/* Initialize GPIO DVS registers */
+ 	for (i = 0; i < 8; i++) {
 
 
