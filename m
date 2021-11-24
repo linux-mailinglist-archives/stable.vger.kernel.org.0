@@ -2,139 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 011BE45C991
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 17:10:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 889BB45C992
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 17:11:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242598AbhKXQNv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 11:13:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43840 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242693AbhKXQNu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 11:13:50 -0500
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00CEEC061574
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 08:10:41 -0800 (PST)
-Received: by mail-pf1-x430.google.com with SMTP id x131so3082821pfc.12
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 08:10:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=zPaYXo4GuJYnFDGsMEbt649NY9wykqF20kSeh7wkSuc=;
-        b=PUT75qyd9o+Q1B2YHdHsiM2G+nDmL2CGZTe2SbvHdzmmvkfxY2GTNtA7exsla4mdjC
-         dtj5x/Z3dTAqp02JZcap3yl+IunvZEQS92CfSCMu7qFZJYCGBMsuYlgzkPjqcHqWBdJI
-         O1Pjo1XPHnUFvddx9YzH43vviMsDZtXFMorzJHFxIUlDhzjfL9lhgGl5CdWNcNvigCew
-         JygIj82haAwG7C4s5zZJDXRU5QGRPBDBg9xEE6iqtmODBmx4VW29eD8nMrS3bq9Zo2GW
-         foDIqZpZhaSsfQR8krsyuJO3OQbFmMmwjjupbXKqagr8mAdG3wOt27JZxPc5NNFwTaYv
-         9PYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=zPaYXo4GuJYnFDGsMEbt649NY9wykqF20kSeh7wkSuc=;
-        b=L7z/WjDCaTje/8lej3MPzgxAdryBz3VMScHPcBhwRrZE6hS3vhxHKf/cO2B3pG39M9
-         IEDkANMwQQWHrgqbBVIPPfFmsrkfd1vPRLXlY/8fgJl4oNkfu4q/l3QF2oZcn9wnDTQI
-         yB26ZS7xgE2cGoV8lfrmtyJKPe/W3rdHsF3Cd5Q7AVX88Q2SdU4lKjp8xZLJLG3APZv6
-         io73YkkYhhPeAHSh6KozS5df6ZgYzKRVi9aeeaEwY2BAhHtIAfCf+ML3VDGQX+CCMtqo
-         cH3lCgByHo7OVpZb/8NR1T7lDICLP98G5QncsmQON6jWBJflTcd2DA++bF8KpTt2XhWm
-         u+0w==
-X-Gm-Message-State: AOAM5331XX9pLl2YuTiFfr0RZR67c9tGraTPocvNzJ6ssKg6VHwXpx+B
-        uMh4ZysVlxXHXN8Sxc4XDP1fQttzvGM/YpKlY4s=
-X-Google-Smtp-Source: ABdhPJx2X6Wpx6EJCW9weUBYOhjh0NpA5OqsuPA/UENlCG++tRTxPZRBFvB36/KvnAGw8l6pX7yKOQ==
-X-Received: by 2002:a62:5a02:0:b0:4a2:a6ee:4d8e with SMTP id o2-20020a625a02000000b004a2a6ee4d8emr7255946pfb.47.1637770240380;
-        Wed, 24 Nov 2021 08:10:40 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j7sm198684pfc.74.2021.11.24.08.10.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Nov 2021 08:10:40 -0800 (PST)
-Message-ID: <619e6400.1c69fb81.ba20b.0ab1@mx.google.com>
-Date:   Wed, 24 Nov 2021 08:10:40 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S242693AbhKXQOU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 11:14:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35070 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S241850AbhKXQOR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 11:14:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDA1560555;
+        Wed, 24 Nov 2021 16:11:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637770267;
+        bh=mhLmVMbk0BJKOicWvUur/RgHJCebPGhLLSszX4OIlQc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rhlAhvby6NnTyGolJY8Vp+tuyzh93IQ1mn6oKfegqQhRDCv7FArcyMyzJz6lgXcxl
+         LKfJJqDQF2+ZEkHJxXxOwecLzfTfhZStMkQucNudsGXa0quW+O07n3BLypC2x100JJ
+         eHjpIQwuM2uOw7hxtJgW9JbPugMemc7dcih6lyNc=
+Date:   Wed, 24 Nov 2021 17:11:04 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Dmitry Osipenko <digetx@gmail.com>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thierry Reding <treding@nvidia.com>
+Subject: Re: [PATCH 5.10 000/154] 5.10.82-rc1 review
+Message-ID: <YZ5kGOT+ifbPgL+B@kroah.com>
+References: <20211124115702.361983534@linuxfoundation.org>
+ <CA+G9fYsmeKPRicvsjwT3gfQurf-k=15vm+kNCCKfOOoyAQE1oQ@mail.gmail.com>
+ <14fbe436-7bd0-5310-6e06-1c3b006b7916@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.292-162-g118b5f50cf5b5
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.4.y baseline: 87 runs,
- 1 regressions (v4.4.292-162-g118b5f50cf5b5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <14fbe436-7bd0-5310-6e06-1c3b006b7916@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y baseline: 87 runs, 1 regressions (v4.4.292-162-g118b5=
-f50cf5b5)
+On Wed, Nov 24, 2021 at 06:27:43PM +0300, Dmitry Osipenko wrote:
+> 24.11.2021 18:16, Naresh Kamboju пишет:
+> > On Wed, 24 Nov 2021 at 18:21, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> >>
+> >> This is the start of the stable review cycle for the 5.10.82 release.
+> >> There are 154 patches in this series, all will be posted as a response
+> >> to this one.  If anyone has any issues with these being applied, please
+> >> let me know.
+> >>
+> >> Responses should be made by Fri, 26 Nov 2021 11:56:36 +0000.
+> >> Anything received after that time might be too late.
+> >>
+> >> The whole patch series can be found in one patch at:
+> >>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.82-rc1.gz
+> >> or in the git tree and branch at:
+> >>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> >> and the diffstat can be found below.
+> >>
+> >> thanks,
+> >>
+> >> greg k-h
+> > 
+> > Regression found on arm gcc-11 builds
+> > As I have already reported,
+> > https://lore.kernel.org/stable/CA+G9fYskrxZvmrjhO32Q9r7mb1AtKdLBm4OvDNvt5v4PTgm4pA@mail.gmail.com/
+> > 
+> > drivers/cpuidle/cpuidle-tegra.c: In function 'tegra_cpuidle_probe':
+> > drivers/cpuidle/cpuidle-tegra.c:349:38: error:
+> > 'TEGRA_SUSPEND_NOT_READY' undeclared (first use in this function); did
+> > you mean 'TEGRA_SUSPEND_NONE'?
+> >   349 |  if (tegra_pmc_get_suspend_mode() == TEGRA_SUSPEND_NOT_READY)
+> >       |                                      ^~~~~~~~~~~~~~~~~~~~~~~
+> >       |                                      TEGRA_SUSPEND_NONE
+> > 
+> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> > 
+> > Due to the following patch,
+> > 
+> > cpuidle: tegra: Check whether PMC is ready
+> > [ Upstream commit bdb1ffdad3b73e4d0538098fc02e2ea87a6b27cd ]
+> 
+> Hi Greg and all,
+> 
+> Greg, could you please drop this patch from the stable trees? It
+> shouldn't be backported since the actual offending patch which causes
+> the "fixed" problem is still pending to be merged. I assumed that all
+> patches would be merged much earlier when was typing the commit message,
+> but only a part of patches were merged yet. Sorry for noticing this so late.
 
-Regressions Summary
--------------------
+Now dropped from both 5.15 and 5.10 queues, thanks.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
-el/v4.4.292-162-g118b5f50cf5b5/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.4.y
-  Describe: v4.4.292-162-g118b5f50cf5b5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      118b5f50cf5b541d1e26bbf2c24611f0104c545d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/619e29eb96950ba229f2efbf
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.292=
--162-g118b5f50cf5b5/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-p=
-anda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.292=
--162-g118b5f50cf5b5/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-p=
-anda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619e29eb96950ba=
-229f2efc2
-        failing since 0 day (last pass: v4.4.292, first fail: v4.4.292-160-=
-g4ba1793245b0)
-        2 lines
-
-    2021-11-24T12:02:31.447015  [   19.445617] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-24T12:02:31.488908  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/121
-    2021-11-24T12:02:31.498137  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-11-24T12:02:31.513249  [   19.513763] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+greg k-h
