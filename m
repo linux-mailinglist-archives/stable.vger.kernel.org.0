@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA18D45BBE8
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99C8945BE5A
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:43:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242551AbhKXMZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36606 "EHLO mail.kernel.org"
+        id S1345147AbhKXMqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:46:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243626AbhKXMXD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:23:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 904AB61078;
-        Wed, 24 Nov 2021 12:13:56 +0000 (UTC)
+        id S1344173AbhKXMop (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:44:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 556776140A;
+        Wed, 24 Nov 2021 12:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756037;
-        bh=Ng8Wx9JFD4clCDFuuDB/KVwGeLsotpyiH5oz957Eu2I=;
+        s=korg; t=1637756794;
+        bh=SnkH1IHw/xrUjZIfbxlnv8eDZcZIaUiTxKYPPCRzwiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0wp/6WY11vkK+ESP2o6yYkO+r3t2dmRtYxQPDKHM6SlMCFbK1G7GpAgaFJhTJgQn
-         jn3edSwVB6p7Stcu3jHAHzVpsL6EDAc499RSZcq+csPrbHtszVFM34lKROIyGhxmTr
-         gR7yyBn0ujx5iwHiOzm0c2oo3o/HHDr8R6QtKyDE=
+        b=yv5eh7Hlh+u3zynp+1tkwVh2vAL3EqXMIe82IVVPLipyo99KbrRdicPNWe1fIQvfs
+         kygGojYNqSyTnON8zikVVmHxWbKXjhzhDH1TjcA0LHhacfG17qtTFz1Pvt+NSyoPMJ
+         6+ZUuRgHe1nQRPugwERTXnZV9ab8fIv+JMXZo6DU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Guobin <huangguobin4@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 147/207] bonding: Fix a use-after-free problem when bond_sysfs_slave_add() failed
-Date:   Wed, 24 Nov 2021 12:56:58 +0100
-Message-Id: <20211124115708.776580363@linuxfoundation.org>
+Subject: [PATCH 4.14 177/251] scsi: qla2xxx: Turn off target reset during issue_lip
+Date:   Wed, 24 Nov 2021 12:56:59 +0100
+Message-Id: <20211124115716.418328225@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,197 +43,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Guobin <huangguobin4@huawei.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit b93c6a911a3fe926b00add28f3b932007827c4ca ]
+[ Upstream commit 0b7a9fd934a68ebfc1019811b7bdc1742072ad7b ]
 
-When I do fuzz test for bonding device interface, I got the following
-use-after-free Calltrace:
+When user uses issue_lip to do link bounce, driver sends additional target
+reset to remote device before resetting the link. The target reset would
+affect other paths with active I/Os. This patch will remove the unnecessary
+target reset.
 
-==================================================================
-BUG: KASAN: use-after-free in bond_enslave+0x1521/0x24f0
-Read of size 8 at addr ffff88825bc11c00 by task ifenslave/7365
-
-CPU: 5 PID: 7365 Comm: ifenslave Tainted: G            E     5.15.0-rc1+ #13
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
-Call Trace:
- dump_stack_lvl+0x6c/0x8b
- print_address_description.constprop.0+0x48/0x70
- kasan_report.cold+0x82/0xdb
- __asan_load8+0x69/0x90
- bond_enslave+0x1521/0x24f0
- bond_do_ioctl+0x3e0/0x450
- dev_ifsioc+0x2ba/0x970
- dev_ioctl+0x112/0x710
- sock_do_ioctl+0x118/0x1b0
- sock_ioctl+0x2e0/0x490
- __x64_sys_ioctl+0x118/0x150
- do_syscall_64+0x35/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f19159cf577
-Code: b3 66 90 48 8b 05 11 89 2c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 78
-RSP: 002b:00007ffeb3083c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007ffeb3084bca RCX: 00007f19159cf577
-RDX: 00007ffeb3083ce0 RSI: 0000000000008990 RDI: 0000000000000003
-RBP: 00007ffeb3084bc4 R08: 0000000000000040 R09: 0000000000000000
-R10: 00007ffeb3084bc0 R11: 0000000000000246 R12: 00007ffeb3083ce0
-R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffeb3083cb0
-
-Allocated by task 7365:
- kasan_save_stack+0x23/0x50
- __kasan_kmalloc+0x83/0xa0
- kmem_cache_alloc_trace+0x22e/0x470
- bond_enslave+0x2e1/0x24f0
- bond_do_ioctl+0x3e0/0x450
- dev_ifsioc+0x2ba/0x970
- dev_ioctl+0x112/0x710
- sock_do_ioctl+0x118/0x1b0
- sock_ioctl+0x2e0/0x490
- __x64_sys_ioctl+0x118/0x150
- do_syscall_64+0x35/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Freed by task 7365:
- kasan_save_stack+0x23/0x50
- kasan_set_track+0x20/0x30
- kasan_set_free_info+0x24/0x40
- __kasan_slab_free+0xf2/0x130
- kfree+0xd1/0x5c0
- slave_kobj_release+0x61/0x90
- kobject_put+0x102/0x180
- bond_sysfs_slave_add+0x7a/0xa0
- bond_enslave+0x11b6/0x24f0
- bond_do_ioctl+0x3e0/0x450
- dev_ifsioc+0x2ba/0x970
- dev_ioctl+0x112/0x710
- sock_do_ioctl+0x118/0x1b0
- sock_ioctl+0x2e0/0x490
- __x64_sys_ioctl+0x118/0x150
- do_syscall_64+0x35/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Last potentially related work creation:
- kasan_save_stack+0x23/0x50
- kasan_record_aux_stack+0xb7/0xd0
- insert_work+0x43/0x190
- __queue_work+0x2e3/0x970
- delayed_work_timer_fn+0x3e/0x50
- call_timer_fn+0x148/0x470
- run_timer_softirq+0x8a8/0xc50
- __do_softirq+0x107/0x55f
-
-Second to last potentially related work creation:
- kasan_save_stack+0x23/0x50
- kasan_record_aux_stack+0xb7/0xd0
- insert_work+0x43/0x190
- __queue_work+0x2e3/0x970
- __queue_delayed_work+0x130/0x180
- queue_delayed_work_on+0xa7/0xb0
- bond_enslave+0xe25/0x24f0
- bond_do_ioctl+0x3e0/0x450
- dev_ifsioc+0x2ba/0x970
- dev_ioctl+0x112/0x710
- sock_do_ioctl+0x118/0x1b0
- sock_ioctl+0x2e0/0x490
- __x64_sys_ioctl+0x118/0x150
- do_syscall_64+0x35/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The buggy address belongs to the object at ffff88825bc11c00
- which belongs to the cache kmalloc-1k of size 1024
-The buggy address is located 0 bytes inside of
- 1024-byte region [ffff88825bc11c00, ffff88825bc12000)
-The buggy address belongs to the page:
-page:ffffea00096f0400 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x25bc10
-head:ffffea00096f0400 order:3 compound_mapcount:0 compound_pincount:0
-flags: 0x57ff00000010200(slab|head|node=1|zone=2|lastcpupid=0x7ff)
-raw: 057ff00000010200 ffffea0009a71c08 ffff888240001968 ffff88810004dbc0
-raw: 0000000000000000 00000000000a000a 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff88825bc11b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff88825bc11b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff88825bc11c00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                   ^
- ffff88825bc11c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88825bc11d00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
-
-Put new_slave in bond_sysfs_slave_add() will cause use-after-free problems
-when new_slave is accessed in the subsequent error handling process. Since
-new_slave will be put in the subsequent error handling process, remove the
-unnecessary put to fix it.
-In addition, when sysfs_create_file() fails, if some files have been crea-
-ted successfully, we need to call sysfs_remove_file() to remove them.
-Since there are sysfs_create_files() & sysfs_remove_files() can be used,
-use these two functions instead.
-
-Fixes: 7afcaec49696 (bonding: use kobject_put instead of _del after kobject_add)
-Signed-off-by: Huang Guobin <huangguobin4@huawei.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20211026115412.27691-4-njavali@marvell.com
+Fixes: 5854771e314e ("[SCSI] qla2xxx: Add ISPFX00 specific bus reset routine")
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_sysfs_slave.c | 36 ++++++++------------------
- 1 file changed, 11 insertions(+), 25 deletions(-)
+ drivers/scsi/qla2xxx/qla_gbl.h |  2 --
+ drivers/scsi/qla2xxx/qla_mr.c  | 23 -----------------------
+ drivers/scsi/qla2xxx/qla_os.c  | 27 ++-------------------------
+ 3 files changed, 2 insertions(+), 50 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_sysfs_slave.c b/drivers/net/bonding/bond_sysfs_slave.c
-index 68bbac4715c35..1e1e77a40f182 100644
---- a/drivers/net/bonding/bond_sysfs_slave.c
-+++ b/drivers/net/bonding/bond_sysfs_slave.c
-@@ -112,15 +112,15 @@ static ssize_t ad_partner_oper_port_state_show(struct slave *slave, char *buf)
+diff --git a/drivers/scsi/qla2xxx/qla_gbl.h b/drivers/scsi/qla2xxx/qla_gbl.h
+index 89706341514e2..a9df91f7c1543 100644
+--- a/drivers/scsi/qla2xxx/qla_gbl.h
++++ b/drivers/scsi/qla2xxx/qla_gbl.h
+@@ -132,7 +132,6 @@ extern int ql2xasynctmfenable;
+ extern int ql2xgffidenable;
+ extern int ql2xenabledif;
+ extern int ql2xenablehba_err_chk;
+-extern int ql2xtargetreset;
+ extern int ql2xdontresethba;
+ extern uint64_t ql2xmaxlun;
+ extern int ql2xmdcapmask;
+@@ -724,7 +723,6 @@ extern void qlafx00_abort_iocb(srb_t *, struct abort_iocb_entry_fx00 *);
+ extern void qlafx00_fxdisc_iocb(srb_t *, struct fxdisc_entry_fx00 *);
+ extern void qlafx00_timer_routine(scsi_qla_host_t *);
+ extern int qlafx00_rescan_isp(scsi_qla_host_t *);
+-extern int qlafx00_loop_reset(scsi_qla_host_t *vha);
+ 
+ /* qla82xx related functions */
+ 
+diff --git a/drivers/scsi/qla2xxx/qla_mr.c b/drivers/scsi/qla2xxx/qla_mr.c
+index e23a3d4c36f39..66ee206026612 100644
+--- a/drivers/scsi/qla2xxx/qla_mr.c
++++ b/drivers/scsi/qla2xxx/qla_mr.c
+@@ -739,29 +739,6 @@ qlafx00_lun_reset(fc_port_t *fcport, uint64_t l, int tag)
+ 	return qla2x00_async_tm_cmd(fcport, TCF_LUN_RESET, l, tag);
  }
- static SLAVE_ATTR_RO(ad_partner_oper_port_state);
  
--static const struct slave_attribute *slave_attrs[] = {
--	&slave_attr_state,
--	&slave_attr_mii_status,
--	&slave_attr_link_failure_count,
--	&slave_attr_perm_hwaddr,
--	&slave_attr_queue_id,
--	&slave_attr_ad_aggregator_id,
--	&slave_attr_ad_actor_oper_port_state,
--	&slave_attr_ad_partner_oper_port_state,
-+static const struct attribute *slave_attrs[] = {
-+	&slave_attr_state.attr,
-+	&slave_attr_mii_status.attr,
-+	&slave_attr_link_failure_count.attr,
-+	&slave_attr_perm_hwaddr.attr,
-+	&slave_attr_queue_id.attr,
-+	&slave_attr_ad_aggregator_id.attr,
-+	&slave_attr_ad_actor_oper_port_state.attr,
-+	&slave_attr_ad_partner_oper_port_state.attr,
- 	NULL
- };
- 
-@@ -141,24 +141,10 @@ const struct sysfs_ops slave_sysfs_ops = {
- 
- int bond_sysfs_slave_add(struct slave *slave)
- {
--	const struct slave_attribute **a;
--	int err;
+-int
+-qlafx00_loop_reset(scsi_qla_host_t *vha)
+-{
+-	int ret;
+-	struct fc_port *fcport;
+-	struct qla_hw_data *ha = vha->hw;
 -
--	for (a = slave_attrs; *a; ++a) {
--		err = sysfs_create_file(&slave->kobj, &((*a)->attr));
--		if (err) {
--			kobject_put(&slave->kobj);
--			return err;
+-	if (ql2xtargetreset) {
+-		list_for_each_entry(fcport, &vha->vp_fcports, list) {
+-			if (fcport->port_type != FCT_TARGET)
+-				continue;
+-
+-			ret = ha->isp_ops->target_reset(fcport, 0, 0);
+-			if (ret != QLA_SUCCESS) {
+-				ql_dbg(ql_dbg_taskm, vha, 0x803d,
+-				    "Bus Reset failed: Reset=%d "
+-				    "d_id=%x.\n", ret, fcport->d_id.b24);
+-			}
+-		}
+-	}
+-	return QLA_SUCCESS;
+-}
+-
+ int
+ qlafx00_iospace_config(struct qla_hw_data *ha)
+ {
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index ea60c6e603c06..d0f52c123bfb3 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -188,12 +188,6 @@ MODULE_PARM_DESC(ql2xdbwr,
+ 		" 0 -- Regular doorbell.\n"
+ 		" 1 -- CAMRAM doorbell (faster).\n");
+ 
+-int ql2xtargetreset = 1;
+-module_param(ql2xtargetreset, int, S_IRUGO);
+-MODULE_PARM_DESC(ql2xtargetreset,
+-		 "Enable target reset."
+-		 "Default is 1 - use hw defaults.");
+-
+ int ql2xgffidenable;
+ module_param(ql2xgffidenable, int, S_IRUGO);
+ MODULE_PARM_DESC(ql2xgffidenable,
+@@ -1652,27 +1646,10 @@ int
+ qla2x00_loop_reset(scsi_qla_host_t *vha)
+ {
+ 	int ret;
+-	struct fc_port *fcport;
+ 	struct qla_hw_data *ha = vha->hw;
+ 
+-	if (IS_QLAFX00(ha)) {
+-		return qlafx00_loop_reset(vha);
+-	}
+-
+-	if (ql2xtargetreset == 1 && ha->flags.enable_target_reset) {
+-		list_for_each_entry(fcport, &vha->vp_fcports, list) {
+-			if (fcport->port_type != FCT_TARGET)
+-				continue;
+-
+-			ret = ha->isp_ops->target_reset(fcport, 0, 0);
+-			if (ret != QLA_SUCCESS) {
+-				ql_dbg(ql_dbg_taskm, vha, 0x802c,
+-				    "Bus Reset failed: Reset=%d "
+-				    "d_id=%x.\n", ret, fcport->d_id.b24);
+-			}
 -		}
 -	}
 -
--	return 0;
-+	return sysfs_create_files(&slave->kobj, slave_attrs);
- }
++	if (IS_QLAFX00(ha))
++		return QLA_SUCCESS;
  
- void bond_sysfs_slave_del(struct slave *slave)
- {
--	const struct slave_attribute **a;
--
--	for (a = slave_attrs; *a; ++a)
--		sysfs_remove_file(&slave->kobj, &((*a)->attr));
-+	sysfs_remove_files(&slave->kobj, slave_attrs);
- }
+ 	if (ha->flags.enable_lip_full_login && !IS_CNA_CAPABLE(ha)) {
+ 		atomic_set(&vha->loop_state, LOOP_DOWN);
 -- 
 2.33.0
 
