@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1760645BF48
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:53:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D6E445BC8D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346528AbhKXM4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:56:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60768 "EHLO mail.kernel.org"
+        id S245113AbhKXMbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242935AbhKXMyW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:54:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41E9C61362;
-        Wed, 24 Nov 2021 12:31:39 +0000 (UTC)
+        id S1343888AbhKXMaN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95E7161284;
+        Wed, 24 Nov 2021 12:18:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757099;
-        bh=vrrYg08xCnFtTkw7TIsfx+3JdENy8e19rVWX9tEBfwQ=;
+        s=korg; t=1637756293;
+        bh=J2USBgA3nvsI5S8KZizLVyZ3l0AWSw6m91TvFiqrA/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VHIkY/tN8gd5yYWdZsIoksi/YPbUPuHfYVLMxx8jiQ8i5dinQkmJ8ou6emCH4QkIw
-         av8Z256uZEEJqPkN0ttGtb1a/iQg3FjPgk4gWuozwYKU+6DFec2U0e08ABJoYFxybY
-         0yhSnIsRNLzF2d1uRycwm/wZZNx7+ybr7wuf6Yz4=
+        b=ylqUnNbERYDQCIfTItJ8XFX3rwAMvdmEMTwmEXmpSFBIf5UUWbAILaWqQBBGcs003
+         b4pP2CoBpsl382VVQsPZ/BE9975NGmvuEgYebc+Ucl7BC66p0p9Xbr17hMh09JEjLh
+         ifhuXrm5tZiN534TdEl4LdHNFRk5qBlrotfIUpOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 059/323] rsi: fix key enabled check causing unwanted encryption for vap_id > 0
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 007/251] ocfs2: fix data corruption on truncate
 Date:   Wed, 24 Nov 2021 12:54:09 +0100
-Message-Id: <20211124115720.858904140@linuxfoundation.org>
+Message-Id: <20211124115710.467437485@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,73 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+From: Jan Kara <jack@suse.cz>
 
-commit 99ac6018821253ec67f466086afb63fc18ea48e2 upstream.
+commit 839b63860eb3835da165642923120d305925561d upstream.
 
-My previous patch checked if encryption should be enabled by directly
-checking info->control.hw_key (like the downstream driver).
-However that missed that the control and driver_info members of
-struct ieee80211_tx_info are union fields.
+Patch series "ocfs2: Truncate data corruption fix".
 
-Due to this when rsi_core_xmit() updates fields in "tx_params"
-(driver_info) it can overwrite the control.hw_key, causing the result
-of the later test to be incorrect.
+As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
+corruption after conversion from inline format") didn't fix all the data
+corruption issues the customer started observing after 6dbf7bb55598
+("fs: Don't invalidate page buffers in block_write_full_page()") This
+time I have tracked them down to two bugs in ocfs2 truncation code.
 
-With the current structure layout the first byte of control.hw_key is
-overlayed with the vap_id so, since we only test if control.hw_key is
-NULL / non NULL, a non zero vap_id will incorrectly enable encryption.
+One bug (truncating page cache before clearing tail cluster and setting
+i_size) could cause data corruption even before 6dbf7bb55598, but before
+that commit it needed a race with page fault, after 6dbf7bb55598 it
+started to be pretty deterministic.
 
-In basic STA and AP modes the vap_id is always zero so it works but in
-P2P client mode a second VIF is created causing vap_id to be non zero
-and hence encryption to be enabled before keys have been set.
+Another bug (zeroing pages beyond old i_size) used to be harmless
+inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598
+in combination with the first bug it resulted in deterministic data
+corruption.
 
-Fix this by extracting the key presence flag to a new field in the driver
-private tx_params structure and populating it first.
+Although fixing only the first problem is needed to stop data
+corruption, I've fixed both issues to make the code more robust.
 
-Fixes: 314538041b56 ("rsi: fix AP mode with WPA failure due to encrypted EAPOL")
-Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-CC: stable@vger.kernel.org
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1630337206-12410-3-git-send-email-martin.fuzzey@flowbird.group
+This patch (of 2):
+
+ocfs2_truncate_file() did unmap invalidate page cache pages before
+zeroing partial tail cluster and setting i_size.  Thus some pages could
+be left (and likely have left if the cluster zeroing happened) in the
+page cache beyond i_size after truncate finished letting user possibly
+see stale data once the file was extended again.  Also the tail cluster
+zeroing was not guaranteed to finish before truncate finished causing
+possible stale data exposure.  The problem started to be particularly
+easy to hit after commit 6dbf7bb55598 "fs: Don't invalidate page buffers
+in block_write_full_page()" stopped invalidation of pages beyond i_size
+from page writeback path.
+
+Fix these problems by unmapping and invalidating pages in the page cache
+after the i_size is reduced and tail cluster is zeroed out.
+
+Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
+Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
+Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_core.c |    2 ++
- drivers/net/wireless/rsi/rsi_91x_hal.c  |    2 +-
- drivers/net/wireless/rsi/rsi_main.h     |    1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ fs/ocfs2/file.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/rsi/rsi_91x_core.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_core.c
-@@ -400,6 +400,8 @@ void rsi_core_xmit(struct rsi_common *co
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -490,10 +490,11 @@ int ocfs2_truncate_file(struct inode *in
+ 	 * greater than page size, so we have to truncate them
+ 	 * anyway.
+ 	 */
+-	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
+-	truncate_inode_pages(inode->i_mapping, new_i_size);
  
- 	info = IEEE80211_SKB_CB(skb);
- 	tx_params = (struct skb_info *)info->driver_data;
-+	/* info->driver_data and info->control part of union so make copy */
-+	tx_params->have_key = !!info->control.hw_key;
- 	wh = (struct ieee80211_hdr *)&skb->data[0];
- 	tx_params->sta_id = 0;
+ 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
++		unmap_mapping_range(inode->i_mapping,
++				    new_i_size + PAGE_SIZE - 1, 0, 1);
++		truncate_inode_pages(inode->i_mapping, new_i_size);
+ 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
+ 					       i_size_read(inode), 1);
+ 		if (status)
+@@ -512,6 +513,9 @@ int ocfs2_truncate_file(struct inode *in
+ 		goto bail_unlock_sem;
+ 	}
  
---- a/drivers/net/wireless/rsi/rsi_91x_hal.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
-@@ -193,7 +193,7 @@ int rsi_prepare_data_desc(struct rsi_com
- 		wh->frame_control |= cpu_to_le16(RSI_SET_PS_ENABLE);
- 
- 	if ((!(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)) &&
--	    info->control.hw_key) {
-+	    tx_params->have_key) {
- 		if (rsi_is_cipher_wep(common))
- 			ieee80211_size += 4;
- 		else
---- a/drivers/net/wireless/rsi/rsi_main.h
-+++ b/drivers/net/wireless/rsi/rsi_main.h
-@@ -135,6 +135,7 @@ struct skb_info {
- 	u8 internal_hdr_size;
- 	struct ieee80211_vif *vif;
- 	u8 vap_id;
-+	bool have_key;
- };
- 
- enum edca_queue {
++	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
++	truncate_inode_pages(inode->i_mapping, new_i_size);
++
+ 	status = ocfs2_commit_truncate(osb, inode, di_bh);
+ 	if (status < 0) {
+ 		mlog_errno(status);
 
 
