@@ -2,137 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76DFF45BEEB
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:49:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF80F45BC21
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245472AbhKXMwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:52:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56146 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344582AbhKXMuL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:50:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 139296134F;
-        Wed, 24 Nov 2021 12:29:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756952;
-        bh=qngYr5PnqQ6ZxqEuNGL+jgx7C+8m+DFmYQ47fhujrPY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ks0rS0EMmvkfEHxQDkL6wnepcKxtj/leSUiK0yxXBqB6Up++uT4+SyS1v4cDrZPuH
-         tVxRSAekt7YpmOF+uKP7rJfZLViN29ChARPtFDDuQJTUMbOboPezlIpdUmB3MmxDQ9
-         M0OrxR8vTMV46q/u0UkfQp1TGdmoBvIQhcwv3Qrs=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
-        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 251/251] hugetlbfs: flush TLBs correctly after huge_pmd_unshare
-Date:   Wed, 24 Nov 2021 12:58:13 +0100
-Message-Id: <20211124115719.054267430@linuxfoundation.org>
-X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S244518AbhKXM0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:26:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47802 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243717AbhKXMU6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 07:20:58 -0500
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62179C061D7F
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 04:05:58 -0800 (PST)
+Received: by mail-ed1-x536.google.com with SMTP id z5so9418992edd.3
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 04:05:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=d5ugsfg/Pze/nWnVXKXqo1YP5qI3YtashYr1KAa/7mk=;
+        b=KbxKiXU7WtozO9Y+uQmKQJbmIaChWdUAkN9CZwbWXskh6OHGhiqayNOHXzEdC5fYBV
+         0MczFno719aMzDQmasFZ5q5F70zRENScqcrDf/5dZnPARNIq5Kp/e9H5ctzVxVO08F8H
+         C0TosQcSjOpbtM0UTDidIzBBW8mg/35oSmlzIBoWxK31fz7FsyM5lvvvMeKLDl95t+WC
+         FV9TZOEsBmGA3XOrFFAO0sfwJLkU+c11Ab3eckR4Opj7+GTOBYfy3ysXwYhEYvNzCnRw
+         CXwa8nx+9hnUtb+aNcSjCIbvcY7CcyHS386vz2sHWy2nUTiQFn+7xL9gdppgrp9jIsIU
+         jKFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=d5ugsfg/Pze/nWnVXKXqo1YP5qI3YtashYr1KAa/7mk=;
+        b=0yXn6tnvqYmm35EVuevNzPP+N9k9s+/6a5qm7y1fv9qICrt1UHOF97S7YvszZh0hjk
+         AlYPuiqtCcBhImVbT6j61xTh/5uj1MnCvMfnrCFpR5HgsmcBuq4QXGYZl7XL/3OD4BvV
+         Z2Ks/9k8/X+KpdE9Q5gSsbpCERxJdnyRdv4g9ibPjM5SqXtj7GWTu5kW/JBKx4+rjmK6
+         jRlfvmo40XkhpNkKuw9Pmz+dvrQXCy5Dargau1ixcd9FluMY8NTfU8LM4eFU35z9QRl+
+         XF03gsu6O1h1yrdQtZK/IqwFI7wQqmv8D+/7aHenWZnXIx4Z8BhcnkMGNPMhugT3+woa
+         Rn5Q==
+X-Gm-Message-State: AOAM5327qrKkGmIH4rXkGIGejt3/PoCRForNrgTFUReFXuWLeXeSyFAR
+        UjuHirRQiiLBxtwohjr6tkslKvrlRHP9wD0S2rOCwsOlC+CW2g==
+X-Google-Smtp-Source: ABdhPJwm2yC8GgnWL6oM9V2BsbmMnmdEGnjpswAXcqEJDjGAIE7iVBnN8K9X1kpHGtaV5ZIyaZb9Nu5qaVdmmb2KkcA=
+X-Received: by 2002:a17:906:b50:: with SMTP id v16mr19854237ejg.384.1637755556060;
+ Wed, 24 Nov 2021 04:05:56 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 24 Nov 2021 17:35:44 +0530
+Message-ID: <CA+G9fYskrxZvmrjhO32Q9r7mb1AtKdLBm4OvDNvt5v4PTgm4pA@mail.gmail.com>
+Subject: cpuidle-tegra.c:349:38: error: 'TEGRA_SUSPEND_NOT_READY' undeclared
+To:     linux-stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+Regression found on arm gcc-11 builds
+Following build warnings / errors reported on stable-rc queue/5.10.
 
-commit a4a118f2eead1d6c49e00765de89878288d4b890 upstream.
+metadata:
+    git_describe: v5.10.81-155-gca79bd042925
+    git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc-queues
+    git_short_log: ca79bd042925 (\"x86/Kconfig: Fix an unused variable
+error in dell-smm-hwmon\")
+    target_arch: arm
+    toolchain: gcc-11
 
-When __unmap_hugepage_range() calls to huge_pmd_unshare() succeed, a TLB
-flush is missing.  This TLB flush must be performed before releasing the
-i_mmap_rwsem, in order to prevent an unshared PMDs page from being
-released and reused before the TLB flush took place.
+build error :
+--------------
+arch/arm/boot/dts/bcm53016-meraki-mr32.dts:204.4-14: Warning
+(reg_format): /srab@18007000/ports/port@0:reg: property has invalid
+length (4 bytes) (#address-cells == 2, #size-cells == 1)
+arch/arm/boot/dts/bcm53016-meraki-mr32.dts:209.4-14: Warning
+(reg_format): /srab@18007000/ports/port@5:reg: property has invalid
+length (4 bytes) (#address-cells == 2, #size-cells == 1)
+arch/arm/boot/dts/bcm53016-meraki-mr32.dtb: Warning
+(pci_device_bus_num): Failed prerequisite 'reg_format'
+arch/arm/boot/dts/bcm53016-meraki-mr32.dtb: Warning (i2c_bus_reg):
+Failed prerequisite 'reg_format'
+arch/arm/boot/dts/bcm53016-meraki-mr32.dtb: Warning (spi_bus_reg):
+Failed prerequisite 'reg_format'
+arch/arm/boot/dts/bcm53016-meraki-mr32.dts:203.10-206.5: Warning
+(avoid_default_addr_size): /srab@18007000/ports/port@0: Relying on
+default #address-cells value
+arch/arm/boot/dts/bcm53016-meraki-mr32.dts:203.10-206.5: Warning
+(avoid_default_addr_size): /srab@18007000/ports/port@0: Relying on
+default #size-cells value
+arch/arm/boot/dts/bcm53016-meraki-mr32.dts:208.10-217.5: Warning
+(avoid_default_addr_size): /srab@18007000/ports/port@5: Relying on
+default #address-cells value
+arch/arm/boot/dts/bcm53016-meraki-mr32.dts:208.10-217.5: Warning
+(avoid_default_addr_size): /srab@18007000/ports/port@5: Relying on
+default #size-cells value
 
-Arguably, a comprehensive solution would use mmu_gather interface to
-batch the TLB flushes and the PMDs page release, however it is not an
-easy solution: (1) try_to_unmap_one() and try_to_migrate_one() also call
-huge_pmd_unshare() and they cannot use the mmu_gather interface; and (2)
-deferring the release of the page reference for the PMDs page until
-after i_mmap_rwsem is dropeed can confuse huge_pmd_unshare() into
-thinking PMDs are shared when they are not.
+drivers/cpuidle/cpuidle-tegra.c: In function 'tegra_cpuidle_probe':
+drivers/cpuidle/cpuidle-tegra.c:349:38: error:
+'TEGRA_SUSPEND_NOT_READY' undeclared (first use in this function); did
+you mean 'TEGRA_SUSPEND_NONE'?
+  349 |  if (tegra_pmc_get_suspend_mode() == TEGRA_SUSPEND_NOT_READY)
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                      TEGRA_SUSPEND_NONE
 
-Fix __unmap_hugepage_range() by adding the missing TLB flush, and
-forcing a flush when unshare is successful.
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Fixes: 24669e58477e ("hugetlb: use mmu_gather instead of a temporary linked list for accumulating pages)" # 3.6
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+due to the following patch,
+cpuidle: tegra: Check whether PMC is ready
+[ Upstream commit bdb1ffdad3b73e4d0538098fc02e2ea87a6b27cd ]
 
----
- include/asm-generic/tlb.h |    6 ++++++
- mm/hugetlb.c              |   19 +++++++++++++++++++
- 2 files changed, 25 insertions(+)
+Check whether PMC is ready before proceeding with the cpuidle registration.
+This fixes racing with the PMC driver probe order, which results in a
+disabled deepest CC6 idling state if cpuidle driver is probed before the
+PMC.
 
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -196,6 +196,12 @@ static inline void tlb_remove_check_page
- #define tlb_end_vma	__tlb_end_vma
- #endif
- 
-+static inline void tlb_flush_pmd_range(struct mmu_gather *tlb,
-+				unsigned long address, unsigned long size)
-+{
-+	__tlb_adjust_range(tlb, address, size);
-+}
-+
- #ifndef __tlb_remove_tlb_entry
- #define __tlb_remove_tlb_entry(tlb, ptep, address) do { } while (0)
- #endif
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -3386,6 +3386,7 @@ void __unmap_hugepage_range(struct mmu_g
- 	unsigned long sz = huge_page_size(h);
- 	const unsigned long mmun_start = start;	/* For mmu_notifiers */
- 	const unsigned long mmun_end   = end;	/* For mmu_notifiers */
-+	bool force_flush = false;
- 
- 	WARN_ON(!is_vm_hugetlb_page(vma));
- 	BUG_ON(start & ~huge_page_mask(h));
-@@ -3407,6 +3408,8 @@ void __unmap_hugepage_range(struct mmu_g
- 		ptl = huge_pte_lock(h, mm, ptep);
- 		if (huge_pmd_unshare(mm, &address, ptep)) {
- 			spin_unlock(ptl);
-+			tlb_flush_pmd_range(tlb, address & PUD_MASK, PUD_SIZE);
-+			force_flush = true;
- 			continue;
- 		}
- 
-@@ -3463,6 +3466,22 @@ void __unmap_hugepage_range(struct mmu_g
- 	}
- 	mmu_notifier_invalidate_range_end(mm, mmun_start, mmun_end);
- 	tlb_end_vma(tlb, vma);
-+
-+	/*
-+	 * If we unshared PMDs, the TLB flush was not recorded in mmu_gather. We
-+	 * could defer the flush until now, since by holding i_mmap_rwsem we
-+	 * guaranteed that the last refernece would not be dropped. But we must
-+	 * do the flushing before we return, as otherwise i_mmap_rwsem will be
-+	 * dropped and the last reference to the shared PMDs page might be
-+	 * dropped as well.
-+	 *
-+	 * In theory we could defer the freeing of the PMD pages as well, but
-+	 * huge_pmd_unshare() relies on the exact page_count for the PMD page to
-+	 * detect sharing, so we cannot defer the release of the page either.
-+	 * Instead, do flush now.
-+	 */
-+	if (force_flush)
-+		tlb_flush_mmu(tlb);
- }
- 
- void __unmap_hugepage_range_final(struct mmu_gather *tlb,
+Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 
+build link:
+-----------
+https://builds.tuxbuild.com//21Ma7IQryRIdyeUb4V2IeX4ePy8/build.log
 
+build config:
+-------------
+https://builds.tuxbuild.com//21Ma7IQryRIdyeUb4V2IeX4ePy8/config
+
+# To install tuxmake on your system globally
+# sudo pip3 install -U tuxmake
+tuxmake --runtime podman --target-arch arm --toolchain gcc-10
+--kconfig defconfig  \
+      --kconfig-add
+https://builds.tuxbuild.com//21Ma7IQryRIdyeUb4V2IeX4ePy8/config
+
+--
+Linaro LKFT
+https://lkft.linaro.org
