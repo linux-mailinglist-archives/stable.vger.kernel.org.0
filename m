@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB74445BB6B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:17:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDB3E45BD8C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:36:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242753AbhKXMTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:19:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48530 "EHLO mail.kernel.org"
+        id S243545AbhKXMjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:39:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243182AbhKXMR6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:17:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2502461139;
-        Wed, 24 Nov 2021 12:11:15 +0000 (UTC)
+        id S1344468AbhKXMgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:36:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CB136120A;
+        Wed, 24 Nov 2021 12:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755876;
-        bh=pBkYxER+EN8Hfyz1ekNpIL6qF5G0qTENbmrLuw+4EUM=;
+        s=korg; t=1637756528;
+        bh=fKa8rAAyooEbN40y1+yfnuGUfr9qBhlVmquhIExR30w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clNzSjnevnYr96cs/g7mbRRe+F/4uhC5ETUqAWPJ0S7OX7S92cqYMSyke0pn5dYfk
-         ldmRp1celpHis4bVhE/CZmiaE+ejyGmW1XmtcaBj8Q1gOhrwC8yqdhOOM3v8rizIV+
-         58gd3FqEwhSjUVmt7aPnGdUA9/xtq7oeLRt7mVRk=
+        b=HDXaKQPJ909PQtT6qli1XeUTI3v0BfihuS0oPej0YzI6yzK01Gh0Oe/QNRP6H6FjF
+         lvpZaJaX9d/ac4u3wnvqXSPjECA62HCh5SVMJD8Ct41DLfkNFypLf6I263LDMNpIiP
+         zCNm7jSkxeviOSLog2VPgJbQrzIIflgMTiiT12z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+2cd8c5db4a85f0a04142@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 089/207] media: dvb-usb: fix ununit-value in az6027_rc_query
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 118/251] memstick: avoid out-of-range warning
 Date:   Wed, 24 Nov 2021 12:56:00 +0100
-Message-Id: <20211124115706.955344889@linuxfoundation.org>
+Message-Id: <20211124115714.331662477@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit afae4ef7d5ad913cab1316137854a36bea6268a5 ]
+[ Upstream commit 4853396f03c3019eccf5cd113e464231e9ddf0b3 ]
 
-Syzbot reported ununit-value bug in az6027_rc_query(). The problem was
-in missing state pointer initialization. Since this function does nothing
-we can simply initialize state to REMOTE_NO_KEY_PRESSED.
+clang-14 complains about a sanity check that always passes when the
+page size is 64KB or larger:
 
-Reported-and-tested-by: syzbot+2cd8c5db4a85f0a04142@syzkaller.appspotmail.com
+drivers/memstick/core/ms_block.c:1739:21: error: result of comparison of constant 65536 with expression of type 'unsigned short' is always false [-Werror,-Wtautological-constant-out-of-range-compare]
+        if (msb->page_size > PAGE_SIZE) {
+            ~~~~~~~~~~~~~~ ^ ~~~~~~~~~
 
-Fixes: 76f9a820c867 ("V4L/DVB: AZ6027: Initial import of the driver")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This is fine, it will still work on all architectures, so just shut
+up that warning with a cast.
+
+Fixes: 0ab30494bc4f ("memstick: add support for legacy memorysticks")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210927094520.696665-1-arnd@kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/az6027.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/memstick/core/ms_block.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/dvb-usb/az6027.c b/drivers/media/usb/dvb-usb/az6027.c
-index 2e711362847e4..382c8075ef524 100644
---- a/drivers/media/usb/dvb-usb/az6027.c
-+++ b/drivers/media/usb/dvb-usb/az6027.c
-@@ -394,6 +394,7 @@ static struct rc_map_table rc_map_az6027_table[] = {
- /* remote control stuff (does not work with my box) */
- static int az6027_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
- {
-+	*state = REMOTE_NO_KEY_PRESSED;
- 	return 0;
- }
+diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
+index 22de7f5ed0323..ffe8757406713 100644
+--- a/drivers/memstick/core/ms_block.c
++++ b/drivers/memstick/core/ms_block.c
+@@ -1730,7 +1730,7 @@ static int msb_init_card(struct memstick_dev *card)
+ 	msb->pages_in_block = boot_block->attr.block_size * 2;
+ 	msb->block_size = msb->page_size * msb->pages_in_block;
  
+-	if (msb->page_size > PAGE_SIZE) {
++	if ((size_t)msb->page_size > PAGE_SIZE) {
+ 		/* this isn't supported by linux at all, anyway*/
+ 		dbg("device page %d size isn't supported", msb->page_size);
+ 		return -EINVAL;
 -- 
 2.33.0
 
