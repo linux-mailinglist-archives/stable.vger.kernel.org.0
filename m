@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DBB645C534
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4C9A45C0A2
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352905AbhKXNzY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:55:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42272 "EHLO mail.kernel.org"
+        id S1345195AbhKXNJz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:09:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350148AbhKXNvf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:51:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD42763250;
-        Wed, 24 Nov 2021 13:04:31 +0000 (UTC)
+        id S1348259AbhKXNJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:09:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 762546112E;
+        Wed, 24 Nov 2021 12:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759072;
-        bh=wz2BgDrdXATOuIut9HiksyjNZr92zAn+60QAjRjiz9s=;
+        s=korg; t=1637757604;
+        bh=NufzgRR9jaHGr3RQ/AN4yYTC2QjS/MPP5Zd1zdSXEt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOoYolzIqJykH5YOxOVUi2xSZtZpoijQ2D2Bt4/eygyhLjXjw2vsogjgo3uafZz58
-         UU+oHqkHAFT4W967YwE7L3gDDHaEKojUyyMEU5yuiUUChVBmcXx1UjGoGtPw/hMq3I
-         vGg5nnfKUq8F7HlGTPSz5IKWOoM5rTfxOzaWcjHc=
+        b=dRtn7PedqGah75gDNhOZMzoF5LGySC5vmK5y6CX5FcWeqvQWyv4W/4yYiSTVKHfHm
+         eR07eKrYqrqalrg5ghx83eUmZPaFeHEYuhHr/48yuAj+QKChvji7+WmhRj5F76Vv5i
+         JHUcndn8oCGY4U0gRobnWbRlyLOnJP4v5KfAM+pg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 091/279] clk/ast2600: Fix soc revision for AHB
-Date:   Wed, 24 Nov 2021 12:56:18 +0100
-Message-Id: <20211124115721.928811786@linuxfoundation.org>
+Subject: [PATCH 4.19 189/323] serial: 8250_dw: Drop wrong use of ACPI_PTR()
+Date:   Wed, 24 Nov 2021 12:56:19 +0100
+Message-Id: <20211124115725.322945582@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,78 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit f45c5b1c27293f834682e89003f88b3512329ab4 ]
+[ Upstream commit ebabb77a2a115b6c5e68f7364b598310b5f61fb2 ]
 
-Move the soc revision parsing to the initial probe, saving the driver
-from parsing the register multiple times.
+ACPI_PTR() is more harmful than helpful. For example, in this case
+if CONFIG_ACPI=n, the ID table left unused which is not what we want.
 
-Use this variable to select the correct divisor table for the AHB clock.
-Before this fix the A2 would have used the A0 table.
+Instead of adding ifdeffery here and there, drop ACPI_PTR().
 
-Fixes: 2d491066ccd4 ("clk: ast2600: Fix AHB clock divider for A1")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Link: https://lore.kernel.org/r/20210922235449.213631-1-joel@jms.id.au
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 6a7320c4669f ("serial: 8250_dw: Add ACPI 5.0 support")
+Reported-by: Daniel Palmer <daniel@0x0f.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20211005134516.23218-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/tty/serial/8250/8250_dw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index bc3be5f3eae15..24dab2312bc6f 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -51,6 +51,8 @@ static DEFINE_SPINLOCK(aspeed_g6_clk_lock);
- static struct clk_hw_onecell_data *aspeed_g6_clk_data;
- 
- static void __iomem *scu_g6_base;
-+/* AST2600 revision: A0, A1, A2, etc */
-+static u8 soc_rev;
- 
- /*
-  * Clocks marked with CLK_IS_CRITICAL:
-@@ -191,9 +193,8 @@ static struct clk_hw *ast2600_calc_pll(const char *name, u32 val)
- static struct clk_hw *ast2600_calc_apll(const char *name, u32 val)
- {
- 	unsigned int mult, div;
--	u32 chip_id = readl(scu_g6_base + ASPEED_G6_SILICON_REV);
- 
--	if (((chip_id & CHIP_REVISION_ID) >> 16) >= 2) {
-+	if (soc_rev >= 2) {
- 		if (val & BIT(24)) {
- 			/* Pass through mode */
- 			mult = div = 1;
-@@ -707,7 +708,7 @@ static const u32 ast2600_a1_axi_ahb200_tbl[] = {
- static void __init aspeed_g6_cc(struct regmap *map)
- {
- 	struct clk_hw *hw;
--	u32 val, div, divbits, chip_id, axi_div, ahb_div;
-+	u32 val, div, divbits, axi_div, ahb_div;
- 
- 	clk_hw_register_fixed_rate(NULL, "clkin", NULL, 0, 25000000);
- 
-@@ -738,8 +739,7 @@ static void __init aspeed_g6_cc(struct regmap *map)
- 		axi_div = 2;
- 
- 	divbits = (val >> 11) & 0x3;
--	regmap_read(map, ASPEED_G6_SILICON_REV, &chip_id);
--	if (chip_id & BIT(16)) {
-+	if (soc_rev >= 1) {
- 		if (!divbits) {
- 			ahb_div = ast2600_a1_axi_ahb200_tbl[(val >> 8) & 0x3];
- 			if (val & BIT(16))
-@@ -784,6 +784,8 @@ static void __init aspeed_g6_cc_init(struct device_node *np)
- 	if (!scu_g6_base)
- 		return;
- 
-+	soc_rev = (readl(scu_g6_base + ASPEED_G6_SILICON_REV) & CHIP_REVISION_ID) >> 16;
-+
- 	aspeed_g6_clk_data = kzalloc(struct_size(aspeed_g6_clk_data, hws,
- 				      ASPEED_G6_NUM_CLKS), GFP_KERNEL);
- 	if (!aspeed_g6_clk_data)
+diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
+index 284e8d052fc3c..c73d0eddd9b8d 100644
+--- a/drivers/tty/serial/8250/8250_dw.c
++++ b/drivers/tty/serial/8250/8250_dw.c
+@@ -769,7 +769,7 @@ static struct platform_driver dw8250_platform_driver = {
+ 		.name		= "dw-apb-uart",
+ 		.pm		= &dw8250_pm_ops,
+ 		.of_match_table	= dw8250_of_match,
+-		.acpi_match_table = ACPI_PTR(dw8250_acpi_match),
++		.acpi_match_table = dw8250_acpi_match,
+ 	},
+ 	.probe			= dw8250_probe,
+ 	.remove			= dw8250_remove,
 -- 
 2.33.0
 
