@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22F7245C297
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:28:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24D3145C0AC
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:07:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350777AbhKXNak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:30:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60596 "EHLO mail.kernel.org"
+        id S1347570AbhKXNKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:10:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350756AbhKXN2f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:28:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3867B610E6;
-        Wed, 24 Nov 2021 12:51:08 +0000 (UTC)
+        id S1348357AbhKXNJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:09:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B98906124B;
+        Wed, 24 Nov 2021 12:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758268;
-        bh=HpeFUNsbzxu0oeLBzGfrdJpJldVwpo7oeRiX/ogBVrQ=;
+        s=korg; t=1637757619;
+        bh=mawGj9bAkOCUY1SQvO7k329OHtMuiLJXsMOHqPd/XFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D8iE0VperazG6uZmgK24MWNSzvzAyXsnz+zOACoaQisGTGwES3KbFeTQybC2rpmf0
-         p6MrawvliMP6MMiwlSEekS/GPQT3gWBBX0B3+fMdTUibKGSvWPcrSWOmRNLTncBSIC
-         eou11cLZ5efonBS/qpglqCeAbRTbHcf3FCpfyeAk=
+        b=AqFJV2iMeEQLUFKctgQ5edFXae88ReGIeKZuzmqozdec8eTWrJK03TknFAIA5s7Oh
+         Kq+fRUYoucz8O2uZTr3zvJvAfqmysYABi75JquEVS8G0fSrX8ik3+tp/8yL33uwj1z
+         4dpvMfmq9s2N1DskT41yVhqmSEQnPGvjNe5tmfOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 014/154] usb: musb: tusb6010: check return value after calling platform_get_resource()
+Subject: [PATCH 4.19 220/323] xen-pciback: Fix return in pm_ctrl_init()
 Date:   Wed, 24 Nov 2021 12:56:50 +0100
-Message-Id: <20211124115702.843378695@linuxfoundation.org>
+Message-Id: <20211124115726.358639210@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,37 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 14651496a3de6807a17c310f63c894ea0c5d858e ]
+[ Upstream commit 4745ea2628bb43a7ec34b71763b5a56407b33990 ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+Return NULL instead of passing to ERR_PTR while err is zero,
+this fix smatch warnings:
+drivers/xen/xen-pciback/conf_space_capability.c:163
+ pm_ctrl_init() warn: passing zero to 'ERR_PTR'
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210915034925.2399823-1-yangyingliang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a92336a1176b ("xen/pciback: Drop two backends, squash and cleanup some code.")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20211008074417.8260-1-yuehaibing@huawei.com
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/tusb6010.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/xen/xen-pciback/conf_space_capability.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/musb/tusb6010.c b/drivers/usb/musb/tusb6010.c
-index 0c2afed4131bc..038307f661985 100644
---- a/drivers/usb/musb/tusb6010.c
-+++ b/drivers/usb/musb/tusb6010.c
-@@ -1103,6 +1103,11 @@ static int tusb_musb_init(struct musb *musb)
+diff --git a/drivers/xen/xen-pciback/conf_space_capability.c b/drivers/xen/xen-pciback/conf_space_capability.c
+index e5694133ebe57..42f0f64fcba47 100644
+--- a/drivers/xen/xen-pciback/conf_space_capability.c
++++ b/drivers/xen/xen-pciback/conf_space_capability.c
+@@ -160,7 +160,7 @@ static void *pm_ctrl_init(struct pci_dev *dev, int offset)
+ 	}
  
- 	/* dma address for async dma */
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!mem) {
-+		pr_debug("no async dma resource?\n");
-+		ret = -ENODEV;
-+		goto done;
-+	}
- 	musb->async = mem->start;
+ out:
+-	return ERR_PTR(err);
++	return err ? ERR_PTR(err) : NULL;
+ }
  
- 	/* dma address for sync dma */
+ static const struct config_field caplist_pm[] = {
 -- 
 2.33.0
 
