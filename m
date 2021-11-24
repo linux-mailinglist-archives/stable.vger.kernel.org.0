@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F4A045BDC2
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:38:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 059A545B9DE
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:02:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345139AbhKXMkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:40:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40402 "EHLO mail.kernel.org"
+        id S242196AbhKXMFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:05:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344778AbhKXMim (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:38:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C87561214;
-        Wed, 24 Nov 2021 12:23:21 +0000 (UTC)
+        id S242112AbhKXMFH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:05:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5499060FE7;
+        Wed, 24 Nov 2021 12:01:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756602;
-        bh=PKTNeAXmqIrg25qHd2zISqRL9T6mCltyFgjlhaQuQqk=;
+        s=korg; t=1637755315;
+        bh=6q7xx1nxJjIt/5Z8wfWInI+bhoQRRwMKuFLZOJkW9jE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gifZeMwMCfe3vEvIRYygLdhkkyU80+UoDpd20cc5vBruXeKq6bttsZZTV+Dzt040l
-         1Vv5fLko3kIbYwxf9xFm6ZRF7a3DoOfwGjKv3TidOLnDGkoV1VDO/E/yRwJCAsAT0f
-         +o2TAYNPa7kY+hJpUiC/TtDtkLxCaKukJ6HoBj/s=
+        b=GYhp9X6SaBAxROKpCYb9HQXMVoe4P3PuZzE5ZS96mQJ37Z49nd+yj2oqy7ZVieOrm
+         uwm3d3bLwOmYVRW5Pz1BWJgkKlvpZt22kJaXBOZbkHGqOVdV+w2dfek63MUQ0Y9mnL
+         obWcPxRorfE7UYuajq5kelMuBM4pxflnQiB8euwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Dirk Bender <d.bender@phytec.de>,
+        Stefan Riedmueller <s.riedmueller@phytec.de>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 109/251] media: si470x: Avoid card name truncation
-Date:   Wed, 24 Nov 2021 12:55:51 +0100
-Message-Id: <20211124115714.025892898@linuxfoundation.org>
+Subject: [PATCH 4.4 049/162] media: mt9p031: Fix corrupted frame after restarting stream
+Date:   Wed, 24 Nov 2021 12:55:52 +0100
+Message-Id: <20211124115659.924621141@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +42,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Dirk Bender <d.bender@phytec.de>
 
-[ Upstream commit 2908249f3878a591f7918368fdf0b7b0a6c3158c ]
+[ Upstream commit 0961ba6dd211a4a52d1dd4c2d59be60ac2dc08c7 ]
 
-The "card" string only holds 31 characters (and the terminating NUL).
-In order to avoid truncation, use a shorter card description instead of
-the current result, "Silicon Labs Si470x FM Radio Re".
+To prevent corrupted frames after starting and stopping the sensor its
+datasheet specifies a specific pause sequence to follow:
 
-Suggested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 78656acdcf48 ("V4L/DVB (7038): USB radio driver for Silicon Labs Si470x FM Radio Receivers")
-Fixes: cc35bbddfe10 ("V4L/DVB (12416): radio-si470x: add i2c driver for si470x")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Stopping:
+	Set Pause_Restart Bit -> Set Restart Bit -> Set Chip_Enable Off
+
+Restarting:
+	Set Chip_Enable On -> Clear Pause_Restart Bit
+
+The Restart Bit is cleared automatically and must not be cleared
+manually as this would cause undefined behavior.
+
+Signed-off-by: Dirk Bender <d.bender@phytec.de>
+Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/si470x/radio-si470x-i2c.c | 2 +-
- drivers/media/radio/si470x/radio-si470x-usb.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/i2c/mt9p031.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/radio/si470x/radio-si470x-i2c.c b/drivers/media/radio/si470x/radio-si470x-i2c.c
-index 5275356143429..7e7fa23e17961 100644
---- a/drivers/media/radio/si470x/radio-si470x-i2c.c
-+++ b/drivers/media/radio/si470x/radio-si470x-i2c.c
-@@ -20,7 +20,7 @@
+diff --git a/drivers/media/i2c/mt9p031.c b/drivers/media/i2c/mt9p031.c
+index 0db15f528ac1c..fb60c9f42cb60 100644
+--- a/drivers/media/i2c/mt9p031.c
++++ b/drivers/media/i2c/mt9p031.c
+@@ -81,7 +81,9 @@
+ #define		MT9P031_PIXEL_CLOCK_INVERT		(1 << 15)
+ #define		MT9P031_PIXEL_CLOCK_SHIFT(n)		((n) << 8)
+ #define		MT9P031_PIXEL_CLOCK_DIVIDE(n)		((n) << 0)
+-#define MT9P031_FRAME_RESTART				0x0b
++#define MT9P031_RESTART					0x0b
++#define		MT9P031_FRAME_PAUSE_RESTART		(1 << 1)
++#define		MT9P031_FRAME_RESTART			(1 << 0)
+ #define MT9P031_SHUTTER_DELAY				0x0c
+ #define MT9P031_RST					0x0d
+ #define		MT9P031_RST_ENABLE			1
+@@ -448,9 +450,23 @@ static int mt9p031_set_params(struct mt9p031 *mt9p031)
+ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
+ {
+ 	struct mt9p031 *mt9p031 = to_mt9p031(subdev);
++	struct i2c_client *client = v4l2_get_subdevdata(subdev);
++	int val;
+ 	int ret;
  
- /* driver definitions */
- #define DRIVER_AUTHOR "Joonyoung Shim <jy0922.shim@samsung.com>";
--#define DRIVER_CARD "Silicon Labs Si470x FM Radio Receiver"
-+#define DRIVER_CARD "Silicon Labs Si470x FM Radio"
- #define DRIVER_DESC "I2C radio driver for Si470x FM Radio Receivers"
- #define DRIVER_VERSION "1.0.2"
+ 	if (!enable) {
++		/* enable pause restart */
++		val = MT9P031_FRAME_PAUSE_RESTART;
++		ret = mt9p031_write(client, MT9P031_RESTART, val);
++		if (ret < 0)
++			return ret;
++
++		/* enable restart + keep pause restart set */
++		val |= MT9P031_FRAME_RESTART;
++		ret = mt9p031_write(client, MT9P031_RESTART, val);
++		if (ret < 0)
++			return ret;
++
+ 		/* Stop sensor readout */
+ 		ret = mt9p031_set_output_control(mt9p031,
+ 						 MT9P031_OUTPUT_CONTROL_CEN, 0);
+@@ -470,6 +486,16 @@ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
+ 	if (ret < 0)
+ 		return ret;
  
-diff --git a/drivers/media/radio/si470x/radio-si470x-usb.c b/drivers/media/radio/si470x/radio-si470x-usb.c
-index aec528f52ca12..95581a8476191 100644
---- a/drivers/media/radio/si470x/radio-si470x-usb.c
-+++ b/drivers/media/radio/si470x/radio-si470x-usb.c
-@@ -25,7 +25,7 @@
- 
- /* driver definitions */
- #define DRIVER_AUTHOR "Tobias Lorenz <tobias.lorenz@gmx.net>"
--#define DRIVER_CARD "Silicon Labs Si470x FM Radio Receiver"
-+#define DRIVER_CARD "Silicon Labs Si470x FM Radio"
- #define DRIVER_DESC "USB radio driver for Si470x FM Radio Receivers"
- #define DRIVER_VERSION "1.0.10"
++	/*
++	 * - clear pause restart
++	 * - don't clear restart as clearing restart manually can cause
++	 *   undefined behavior
++	 */
++	val = MT9P031_FRAME_RESTART;
++	ret = mt9p031_write(client, MT9P031_RESTART, val);
++	if (ret < 0)
++		return ret;
++
+ 	return mt9p031_pll_enable(mt9p031);
+ }
  
 -- 
 2.33.0
