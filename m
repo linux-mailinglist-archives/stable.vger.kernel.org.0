@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD3E145C416
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:43:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7440E45C41A
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:43:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350638AbhKXNp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:45:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34766 "EHLO mail.kernel.org"
+        id S1349861AbhKXNp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:45:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353398AbhKXNmH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:42:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13EE5632A5;
-        Wed, 24 Nov 2021 12:58:16 +0000 (UTC)
+        id S1353407AbhKXNmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:42:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA4A7632A4;
+        Wed, 24 Nov 2021 12:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758697;
-        bh=yxuzI4yRLe+uspakbmPAENsxtkVxj4HMP8xPdnj4dZk=;
+        s=korg; t=1637758700;
+        bh=C9JyTFEP2I1MunIKWhszB52d9voWWeZuEe5OJS9CxuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ubR5K13uzQC3YfibaZDV4dEoiZaUMuq4rmY3EPFfqiKuZLBArFC7fGa3N/B9aLPAT
-         1D2otghcTGLbZmj8OBfG1D8hXRXX2/dFGLD6UaYtpyUHW6baL2hLEyA+xXCR+ZbXSt
-         5gY7DcCcMRCIOcAOzH6MB1Jd/daGq4Tu/oYIpmzI=
+        b=vd+WRA+ivlZkUN8ZfEnJpWEpjg6magvOyJOPn38hL/F3wYyiyLAkaaqetWSInLG+M
+         A/t/U3WB1CYAKlE3op3BJfvNDvOFkIgYXyUii5VBu647q/eGJwQYe/XhL3M8vdx3AQ
+         Xqm0Scaq0cwVz6vdMLlIE/bGgzoL5FThV0McdS5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Imre Deak <imre.deak@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.10 142/154] drm/i915/dp: Ensure sink rate values are always valid
-Date:   Wed, 24 Nov 2021 12:58:58 +0100
-Message-Id: <20211124115707.081364365@linuxfoundation.org>
+        stable@vger.kernel.org, hongao <hongao@uniontech.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 143/154] drm/amdgpu: fix set scaling mode Full/Full aspect/Center not works on vga and dvi connectors
+Date:   Wed, 24 Nov 2021 12:58:59 +0100
+Message-Id: <20211124115707.113567376@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
 References: <20211124115702.361983534@linuxfoundation.org>
@@ -42,93 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Imre Deak <imre.deak@intel.com>
+From: hongao <hongao@uniontech.com>
 
-commit 6c34bd4532a3f39952952ddc102737595729afc4 upstream.
+commit bf552083916a7f8800477b5986940d1c9a31b953 upstream.
 
-Atm, there are no sink rate values set for DP (vs. eDP) sinks until the
-DPCD capabilities are successfully read from the sink. During this time
-intel_dp->num_common_rates is 0 which can lead to a
+amdgpu_connector_vga_get_modes missed function amdgpu_get_native_mode
+which assign amdgpu_encoder->native_mode with *preferred_mode result in
+amdgpu_encoder->native_mode.clock always be 0. That will cause
+amdgpu_connector_set_property returned early on:
+if ((rmx_type != DRM_MODE_SCALE_NONE) &&
+	(amdgpu_encoder->native_mode.clock == 0))
+when we try to set scaling mode Full/Full aspect/Center.
+Add the missing function to amdgpu_connector_vga_get_mode can fix this.
+It also works on dvi connectors because
+amdgpu_connector_dvi_helper_funcs.get_mode use the same method.
 
-intel_dp->common_rates[-1]    (*)
-
-access, which is an undefined behaviour, in the following cases:
-
-- In intel_dp_sync_state(), if the encoder is enabled without a sink
-  connected to the encoder's connector (BIOS enabled a monitor, but the
-  user unplugged the monitor until the driver loaded).
-- In intel_dp_sync_state() if the encoder is enabled with a sink
-  connected, but for some reason the DPCD read has failed.
-- In intel_dp_compute_link_config() if modesetting a connector without
-  a sink connected on it.
-- In intel_dp_compute_link_config() if modesetting a connector with a
-  a sink connected on it, but before probing the connector first.
-
-To avoid the (*) access in all the above cases, make sure that the sink
-rate table - and hence the common rate table - is always valid, by
-setting a default minimum sink rate when registering the connector
-before anything could use it.
-
-I also considered setting all the DP link rates by default, so that
-modesetting with higher resolution modes also succeeds in the last two
-cases above. However in case a sink is not connected that would stop
-working after the first modeset, due to the LT fallback logic. So this
-would need more work, beyond the scope of this fix.
-
-As I mentioned in the previous patch, I don't think the issue this patch
-fixes is user visible, however it is an undefined behaviour by
-definition and triggers a BUG() in CONFIG_UBSAN builds, hence CC:stable.
-
-v2: Clear the default sink rates, before initializing these for eDP.
-
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4297
-Suggested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Acked-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211018143417.1452632-1-imre.deak@intel.com
-(cherry picked from commit 3f61ef9777c0ab0f03f4af0ed6fd3e5250537a8d)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: hongao <hongao@uniontech.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_dp.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -154,6 +154,12 @@ static void vlv_steal_power_sequencer(st
- 				      enum pipe pipe);
- static void intel_dp_unset_edid(struct intel_dp *intel_dp);
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -827,6 +827,7 @@ static int amdgpu_connector_vga_get_mode
  
-+static void intel_dp_set_default_sink_rates(struct intel_dp *intel_dp)
-+{
-+	intel_dp->sink_rates[0] = 162000;
-+	intel_dp->num_sink_rates = 1;
-+}
-+
- /* update sink rates from dpcd */
- static void intel_dp_set_sink_rates(struct intel_dp *intel_dp)
- {
-@@ -4678,6 +4684,9 @@ intel_edp_init_dpcd(struct intel_dp *int
- 	 */
- 	intel_psr_init_dpcd(intel_dp);
+ 	amdgpu_connector_get_edid(connector);
+ 	ret = amdgpu_connector_ddc_get_modes(connector);
++	amdgpu_get_native_mode(connector);
  
-+	/* Clear the default sink rates */
-+	intel_dp->num_sink_rates = 0;
-+
- 	/* Read the eDP 1.4+ supported link rates. */
- 	if (intel_dp->edp_dpcd[0] >= DP_EDP_14) {
- 		__le16 sink_rates[DP_MAX_SUPPORTED_RATES];
-@@ -7779,6 +7788,8 @@ intel_dp_init_connector(struct intel_dig
- 		return false;
- 
- 	intel_dp_set_source_rates(intel_dp);
-+	intel_dp_set_default_sink_rates(intel_dp);
-+	intel_dp_set_common_rates(intel_dp);
- 
- 	intel_dp->reset_link_params = true;
- 	intel_dp->pps_pipe = INVALID_PIPE;
+ 	return ret;
+ }
 
 
