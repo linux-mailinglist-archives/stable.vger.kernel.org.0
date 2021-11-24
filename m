@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2471C45BC19
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B1245BE71
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:46:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244348AbhKXMZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38272 "EHLO mail.kernel.org"
+        id S1343722AbhKXMq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:46:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245053AbhKXMYf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:24:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C3CF6108E;
-        Wed, 24 Nov 2021 12:15:11 +0000 (UTC)
+        id S243053AbhKXMoi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:44:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77EAD61279;
+        Wed, 24 Nov 2021 12:26:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756112;
-        bh=usEE6zflf0JThIlwKSzfmuqITTuKdTxDaYKZf87oCtQ=;
+        s=korg; t=1637756789;
+        bh=4FLFo4QtKGgZSNkxhZDuAi2pcLRTmHCDtelC4gPDTQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vr3psIwiFG8yyXUxCmPd1vbc5MCZ/ba14YpZeVhBj4s8l6k3bfl56be/qNB2q2tqB
-         HJtzPCsCLtGjZEAcmkTcdS/JwP4o0rqel3AO48yX6ufy5fQvci7SO2ImKXV62zSwsv
-         VCZCteCS4uAWa4oy3oNBEcUoP6rsjBe0eT/TN3GY=
+        b=JjzxFQo1l7ubTfLpXteN38zZ6DmgRW8tVasv3m6boKN4WFy0crgxPyoNxGhrb8ajk
+         b9IkRzPxQ67WW481kcIFJQKC0XqOP68Fx7zf3Y1UTETvM7JCfVxXIeH9TemWz6wA5H
+         nvG5KLzG+iySsAjqEvgf6mOT3v+wnNUVDyQdNLRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Matt Fleming <matt@console-pimps.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 177/207] sh: fix kconfig unmet dependency warning for FRAME_POINTER
+        stable@vger.kernel.org, Roger Quadros <rogerq@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 206/251] ARM: dts: omap: fix gpmc,mux-add-data type
 Date:   Wed, 24 Nov 2021 12:57:28 +0100
-Message-Id: <20211124115709.707520386@linuxfoundation.org>
+Message-Id: <20211124115717.422987600@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Roger Quadros <rogerq@kernel.org>
 
-[ Upstream commit fda1bc533094a7db68b11e7503d2c6c73993d12a ]
+[ Upstream commit 51b9e22ffd3c4c56cbb7caae9750f70e55ffa603 ]
 
-FRAME_POINTER depends on DEBUG_KERNEL so DWARF_UNWINDER should
-depend on DEBUG_KERNEL before selecting FRAME_POINTER.
+gpmc,mux-add-data is not boolean.
 
-WARNING: unmet direct dependencies detected for FRAME_POINTER
-  Depends on [n]: DEBUG_KERNEL [=n] && (M68K || UML || SUPERH [=y]) || ARCH_WANT_FRAME_POINTERS [=n]
-  Selected by [y]:
-  - DWARF_UNWINDER [=y]
+Fixes the below errors flagged by dtbs_check.
 
-Fixes: bd353861c735 ("sh: dwarf unwinder support.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Matt Fleming <matt@console-pimps.org>
-Cc: Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Rich Felker <dalias@libc.org>
+"ethernet@4,0:gpmc,mux-add-data: True is not of type 'array'"
+
+Signed-off-by: Roger Quadros <rogerq@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/Kconfig.debug | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi         | 2 +-
+ arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/sh/Kconfig.debug b/arch/sh/Kconfig.debug
-index 5f2bb4242c0f7..c50c397cbcf75 100644
---- a/arch/sh/Kconfig.debug
-+++ b/arch/sh/Kconfig.debug
-@@ -60,6 +60,7 @@ config DUMP_CODE
+diff --git a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+index 7f6aefd134514..e7534fe9c53cf 100644
+--- a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
++++ b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+@@ -29,7 +29,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
  
- config DWARF_UNWINDER
- 	bool "Enable the DWARF unwinder for stacktraces"
-+	depends on DEBUG_KERNEL
- 	select FRAME_POINTER
- 	depends on SUPERH32
- 	default n
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
+diff --git a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+index 82e98ee3023ad..3dbeb7a6c569c 100644
+--- a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+@@ -25,7 +25,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
+ 
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
 -- 
 2.33.0
 
