@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B464C45B9C5
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:02:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 100FF45BD36
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:33:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233826AbhKXMEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:04:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59370 "EHLO mail.kernel.org"
+        id S1344154AbhKXMga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:36:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234770AbhKXMEL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:04:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C68C6101D;
-        Wed, 24 Nov 2021 12:01:01 +0000 (UTC)
+        id S1343595AbhKXMe1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:34:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39DDE6137B;
+        Wed, 24 Nov 2021 12:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755262;
-        bh=nOFldo0WZG4J6k0QFrFceuT0aOxkSIdIRmmj90HWRWI=;
+        s=korg; t=1637756452;
+        bh=iMiSQysa73jwBc9OUzTzJvJcmqImLeoHVcWuSrD8heg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=crcrVWJZjzYFcI/w4vXYm8bpG8CAadaN+ukSTUMsgct0L5otCf63pntUfUL8DBr4q
-         6YoBH5QL0l56fj1/agWFjkwIICX+/82K2AD/2lb6AfGvRufDN0OitcFSfgwWnZC1F7
-         fcd0GOxZMefIGHvV3WPUl4ZrO4oD09mdyLEdRiPs=
+        b=G1cJAWAkddH7biIkH6UtdsVyIjB6LhqnoAKOiezFQ4e4y/WuMNFgBr/o2bGOYL4iD
+         ImnX2mg2Esp55dFPOGNk0Se9113PP5PHKfmoJht22m1aVDEHCrtAeuaI6Y+ELeCX+l
+         NtVVkxGUBuh7kreQz0JJvqE6MqvCGnzCewpX0jX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.4 031/162] mwifiex: Read a PCI register after writing the TX ring write pointer
+        stable@vger.kernel.org, Lasse Collin <lasse.collin@tukaani.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 092/251] lib/xz: Avoid overlapping memcpy() with invalid input with in-place decompression
 Date:   Wed, 24 Nov 2021 12:55:34 +0100
-Message-Id: <20211124115659.342666507@linuxfoundation.org>
+Message-Id: <20211124115713.445805045@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Dreßler <verdre@v0yd.nl>
+From: Lasse Collin <lasse.collin@tukaani.org>
 
-commit e5f4eb8223aa740237cd463246a7debcddf4eda1 upstream.
+[ Upstream commit 83d3c4f22a36d005b55f44628f46cc0d319a75e8 ]
 
-On the 88W8897 PCIe+USB card the firmware randomly crashes after setting
-the TX ring write pointer. The issue is present in the latest firmware
-version 15.68.19.p21 of the PCIe+USB card.
+With valid files, the safety margin described in lib/decompress_unxz.c
+ensures that these buffers cannot overlap. But if the uncompressed size
+of the input is larger than the caller thought, which is possible when
+the input file is invalid/corrupt, the buffers can overlap. Obviously
+the result will then be garbage (and usually the decoder will return
+an error too) but no other harm will happen when such an over-run occurs.
 
-Those firmware crashes can be worked around by reading any PCI register
-of the card after setting that register, so read the PCI_VENDOR_ID
-register here. The reason this works is probably because we keep the bus
-from entering an ASPM state for a bit longer, because that's what causes
-the cards firmware to crash.
+This change only affects uncompressed LZMA2 chunks and so this
+should have no effect on performance.
 
-This fixes a bug where during RX/TX traffic and with ASPM L1 substates
-enabled (the specific substates where the issue happens appear to be
-platform dependent), the firmware crashes and eventually a command
-timeout appears in the logs.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109681
-Cc: stable@vger.kernel.org
-Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211011133224.15561-2-verdre@v0yd.nl
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20211010213145.17462-2-xiang@kernel.org
+Signed-off-by: Lasse Collin <lasse.collin@tukaani.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mwifiex/pcie.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ lib/decompress_unxz.c |  2 +-
+ lib/xz/xz_dec_lzma2.c | 21 +++++++++++++++++++--
+ 2 files changed, 20 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/mwifiex/pcie.c
-+++ b/drivers/net/wireless/mwifiex/pcie.c
-@@ -1210,6 +1210,14 @@ mwifiex_pcie_send_data(struct mwifiex_ad
- 			ret = -1;
- 			goto done_unmap;
- 		}
-+
-+		/* The firmware (latest version 15.68.19.p21) of the 88W8897 PCIe+USB card
-+		 * seems to crash randomly after setting the TX ring write pointer when
-+		 * ASPM powersaving is enabled. A workaround seems to be keeping the bus
-+		 * busy by reading a random register afterwards.
+diff --git a/lib/decompress_unxz.c b/lib/decompress_unxz.c
+index 25d59a95bd668..abea25310ac73 100644
+--- a/lib/decompress_unxz.c
++++ b/lib/decompress_unxz.c
+@@ -167,7 +167,7 @@
+  * memeq and memzero are not used much and any remotely sane implementation
+  * is fast enough. memcpy/memmove speed matters in multi-call mode, but
+  * the kernel image is decompressed in single-call mode, in which only
+- * memcpy speed can matter and only if there is a lot of uncompressible data
++ * memmove speed can matter and only if there is a lot of uncompressible data
+  * (LZMA2 stores uncompressible chunks in uncompressed form). Thus, the
+  * functions below should just be kept small; it's probably not worth
+  * optimizing for speed.
+diff --git a/lib/xz/xz_dec_lzma2.c b/lib/xz/xz_dec_lzma2.c
+index 08c3c80499983..2c5197d6b944d 100644
+--- a/lib/xz/xz_dec_lzma2.c
++++ b/lib/xz/xz_dec_lzma2.c
+@@ -387,7 +387,14 @@ static void dict_uncompressed(struct dictionary *dict, struct xz_buf *b,
+ 
+ 		*left -= copy_size;
+ 
+-		memcpy(dict->buf + dict->pos, b->in + b->in_pos, copy_size);
++		/*
++		 * If doing in-place decompression in single-call mode and the
++		 * uncompressed size of the file is larger than the caller
++		 * thought (i.e. it is invalid input!), the buffers below may
++		 * overlap and cause undefined behavior with memcpy().
++		 * With valid inputs memcpy() would be fine here.
 +		 */
-+		mwifiex_read_reg(adapter, PCI_VENDOR_ID, &rx_val);
-+
- 		if ((mwifiex_pcie_txbd_not_full(card)) &&
- 		    tx_param->next_pkt_len) {
- 			/* have more packets and TxBD still can hold more */
++		memmove(dict->buf + dict->pos, b->in + b->in_pos, copy_size);
+ 		dict->pos += copy_size;
+ 
+ 		if (dict->full < dict->pos)
+@@ -397,7 +404,11 @@ static void dict_uncompressed(struct dictionary *dict, struct xz_buf *b,
+ 			if (dict->pos == dict->end)
+ 				dict->pos = 0;
+ 
+-			memcpy(b->out + b->out_pos, b->in + b->in_pos,
++			/*
++			 * Like above but for multi-call mode: use memmove()
++			 * to avoid undefined behavior with invalid input.
++			 */
++			memmove(b->out + b->out_pos, b->in + b->in_pos,
+ 					copy_size);
+ 		}
+ 
+@@ -421,6 +432,12 @@ static uint32_t dict_flush(struct dictionary *dict, struct xz_buf *b)
+ 		if (dict->pos == dict->end)
+ 			dict->pos = 0;
+ 
++		/*
++		 * These buffers cannot overlap even if doing in-place
++		 * decompression because in multi-call mode dict->buf
++		 * has been allocated by us in this file; it's not
++		 * provided by the caller like in single-call mode.
++		 */
+ 		memcpy(b->out + b->out_pos, dict->buf + dict->start,
+ 				copy_size);
+ 	}
+-- 
+2.33.0
+
 
 
