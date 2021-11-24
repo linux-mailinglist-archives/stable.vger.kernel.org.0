@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA95045BE83
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:46:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA08845BAB6
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344434AbhKXMrq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:47:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50376 "EHLO mail.kernel.org"
+        id S242751AbhKXMOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:14:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344784AbhKXMpi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:45:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DD6F61269;
-        Wed, 24 Nov 2021 12:26:48 +0000 (UTC)
+        id S242575AbhKXMMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:12:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74308610A1;
+        Wed, 24 Nov 2021 12:07:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756809;
-        bh=ivg2Xhd8htgta8PZ6DSn+eKqtKtOPPpkReiTN/UBQl4=;
+        s=korg; t=1637755629;
+        bh=KEqd/P9XT4dClN2JjwUhdQuONgaBrHN6ncMYyDQ/8ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xYR3EZDbI7uXX5ihyQd4x5CMnbZUBJZ4iJml7g8ddz7qK2jpoVU8Qj6UX8VXI/cHW
-         V3EP3BNdKA9xt51PK7RzgAyXf919pvC0bjpW3Iv3UTiTuAezpB6La4jUDpbFIXI3pW
-         ziuFh1j4Vp0+0oWNHwWiJFAk9zkMDggNhlKGmyQU=
+        b=XXWlL76tzIRwrrc7Nvq4nP5Jr2lwgFjrDX6c9kEO4fWCTL+umtmuSnu31IiUsCOc2
+         5QRNMuQlT741oKliRb08b4Nv1telMREELwTjw2CDpgwa/NNxSlXlvtQygk9uEy1Oos
+         DzcQxEdeLgQhP7GaFVnKbc4GU4cRv9jgzwHmLbsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Guanghui Feng <guanghuifeng@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 182/251] ACPI: PMIC: Fix intel_pmic_regs_handler() read accesses
-Date:   Wed, 24 Nov 2021 12:57:04 +0100
-Message-Id: <20211124115716.595255972@linuxfoundation.org>
+Subject: [PATCH 4.4 122/162] tty: tty_buffer: Fix the softlockup issue in flush_to_ldisc
+Date:   Wed, 24 Nov 2021 12:57:05 +0100
+Message-Id: <20211124115702.255557999@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,139 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Guanghui Feng <guanghuifeng@linux.alibaba.com>
 
-[ Upstream commit 009a789443fe4c8e6b1ecb7c16b4865c026184cd ]
+[ Upstream commit 3968ddcf05fb4b9409cd1859feb06a5b0550a1c1 ]
 
-The handling of PMIC register reads through writing 0 to address 4
-of the OpRegion is wrong. Instead of returning the read value
-through the value64, which is a no-op for function == ACPI_WRITE calls,
-store the value and then on a subsequent function == ACPI_READ with
-address == 3 (the address for the value field of the OpRegion)
-return the stored value.
+When running ltp testcase(ltp/testcases/kernel/pty/pty04.c) with arm64, there is a soft lockup,
+which look like this one:
 
-This has been tested on a Xiaomi Mi Pad 2 and makes the ACPI battery dev
-there mostly functional (unfortunately there are still other issues).
+  Workqueue: events_unbound flush_to_ldisc
+  Call trace:
+   dump_backtrace+0x0/0x1ec
+   show_stack+0x24/0x30
+   dump_stack+0xd0/0x128
+   panic+0x15c/0x374
+   watchdog_timer_fn+0x2b8/0x304
+   __run_hrtimer+0x88/0x2c0
+   __hrtimer_run_queues+0xa4/0x120
+   hrtimer_interrupt+0xfc/0x270
+   arch_timer_handler_phys+0x40/0x50
+   handle_percpu_devid_irq+0x94/0x220
+   __handle_domain_irq+0x88/0xf0
+   gic_handle_irq+0x84/0xfc
+   el1_irq+0xc8/0x180
+   slip_unesc+0x80/0x214 [slip]
+   tty_ldisc_receive_buf+0x64/0x80
+   tty_port_default_receive_buf+0x50/0x90
+   flush_to_ldisc+0xbc/0x110
+   process_one_work+0x1d4/0x4b0
+   worker_thread+0x180/0x430
+   kthread+0x11c/0x120
 
-Here are the SET() / GET() functions of the PMIC ACPI device,
-which use this OpRegion, which clearly show the new behavior to
-be correct:
+In the testcase pty04, The first process call the write syscall to send
+data to the pty master. At the same time, the workqueue will do the
+flush_to_ldisc to pop data in a loop until there is no more data left.
+When the sender and workqueue running in different core, the sender sends
+data fastly in full time which will result in workqueue doing work in loop
+for a long time and occuring softlockup in flush_to_ldisc with kernel
+configured without preempt. So I add need_resched check and cond_resched
+in the flush_to_ldisc loop to avoid it.
 
-OperationRegion (REGS, 0x8F, Zero, 0x50)
-Field (REGS, ByteAcc, NoLock, Preserve)
-{
-    CLNT,   8,
-    SA,     8,
-    OFF,    8,
-    VAL,    8,
-    RWM,    8
-}
-
-Method (GET, 3, Serialized)
-{
-    If ((AVBE == One))
-    {
-        CLNT = Arg0
-        SA = Arg1
-        OFF = Arg2
-        RWM = Zero
-        If ((AVBG == One))
-        {
-            GPRW = Zero
-        }
-    }
-
-    Return (VAL) /* \_SB_.PCI0.I2C7.PMI5.VAL_ */
-}
-
-Method (SET, 4, Serialized)
-{
-    If ((AVBE == One))
-    {
-        CLNT = Arg0
-        SA = Arg1
-        OFF = Arg2
-        VAL = Arg3
-        RWM = One
-        If ((AVBG == One))
-        {
-            GPRW = One
-        }
-    }
-}
-
-Fixes: 0afa877a5650 ("ACPI / PMIC: intel: add REGS operation region support")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Guanghui Feng <guanghuifeng@linux.alibaba.com>
+Link: https://lore.kernel.org/r/1633961304-24759-1-git-send-email-guanghuifeng@linux.alibaba.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/pmic/intel_pmic.c | 51 +++++++++++++++++++---------------
- 1 file changed, 28 insertions(+), 23 deletions(-)
+ drivers/tty/tty_buffer.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/acpi/pmic/intel_pmic.c b/drivers/acpi/pmic/intel_pmic.c
-index ca18e0d23df97..db63d3463617a 100644
---- a/drivers/acpi/pmic/intel_pmic.c
-+++ b/drivers/acpi/pmic/intel_pmic.c
-@@ -216,31 +216,36 @@ static acpi_status intel_pmic_regs_handler(u32 function,
- 		void *handler_context, void *region_context)
- {
- 	struct intel_pmic_opregion *opregion = region_context;
--	int result = 0;
-+	int result = -EINVAL;
+diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
+index 4706df20191b1..832aec1f145f9 100644
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -519,6 +519,9 @@ static void flush_to_ldisc(struct work_struct *work)
+ 		if (!count)
+ 			break;
+ 		head->read += count;
 +
-+	if (function == ACPI_WRITE) {
-+		switch (address) {
-+		case 0:
-+			return AE_OK;
-+		case 1:
-+			opregion->ctx.addr |= (*value64 & 0xff) << 8;
-+			return AE_OK;
-+		case 2:
-+			opregion->ctx.addr |= *value64 & 0xff;
-+			return AE_OK;
-+		case 3:
-+			opregion->ctx.val = *value64 & 0xff;
-+			return AE_OK;
-+		case 4:
-+			if (*value64) {
-+				result = regmap_write(opregion->regmap, opregion->ctx.addr,
-+						      opregion->ctx.val);
-+			} else {
-+				result = regmap_read(opregion->regmap, opregion->ctx.addr,
-+						     &opregion->ctx.val);
-+			}
-+			opregion->ctx.addr = 0;
-+		}
-+	}
- 
--	switch (address) {
--	case 0:
--		return AE_OK;
--	case 1:
--		opregion->ctx.addr |= (*value64 & 0xff) << 8;
-+	if (function == ACPI_READ && address == 3) {
-+		*value64 = opregion->ctx.val;
- 		return AE_OK;
--	case 2:
--		opregion->ctx.addr |= *value64 & 0xff;
--		return AE_OK;
--	case 3:
--		opregion->ctx.val = *value64 & 0xff;
--		return AE_OK;
--	case 4:
--		if (*value64) {
--			result = regmap_write(opregion->regmap, opregion->ctx.addr,
--					      opregion->ctx.val);
--		} else {
--			result = regmap_read(opregion->regmap, opregion->ctx.addr,
--					     &opregion->ctx.val);
--			if (result == 0)
--				*value64 = opregion->ctx.val;
--		}
--		memset(&opregion->ctx, 0x00, sizeof(opregion->ctx));
++		if (need_resched())
++			cond_resched();
  	}
  
- 	if (result < 0) {
+ 	mutex_unlock(&buf->lock);
 -- 
 2.33.0
 
