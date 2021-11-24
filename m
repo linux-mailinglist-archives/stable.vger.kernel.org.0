@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C46E45C102
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8394A45C511
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346175AbhKXNOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:14:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52010 "EHLO mail.kernel.org"
+        id S1348211AbhKXNyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:54:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347887AbhKXNMC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:12:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C81F861A89;
-        Wed, 24 Nov 2021 12:42:14 +0000 (UTC)
+        id S1354674AbhKXNwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:52:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5139861A09;
+        Wed, 24 Nov 2021 13:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757735;
-        bh=DDlsLqg8+tfUhd2h9Ae05lprsiz6+HYoDCa7z0KovnA=;
+        s=korg; t=1637759088;
+        bh=cZtbukhUh69LesKIUr/eJpEdWFV2bxE+zDTWXrwVJN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NRayowcOdzptb1LbeaLp+Pt1Q36X/zsJQjehRpSRaT/8A3Fno/BFY5/P4yIBOtcHl
-         KLa6ugYTywrSnT93H4vYxctidouF7pjkVCi2/xC0jmDoFAsUkgg0pvSRmiLJ+xBp92
-         v3vGMhyZ5F1OhbHU4vaAG4YKRpASLlIQC2/lPA+4=
+        b=TlPNGgun1a1OCQAoJoizHUpCs5QtzLSgkHwA86dQRNOIlr1amlPZfW+PQwoExvGHF
+         0t1PwTJmD+rGF1zQAstuK5FTIjIdNh4aO/OV8luHZCdSv3P+BkoShH5AHLRT2tTdtp
+         aAQGntP0VtWlzV/123oljRylnoKcXyQuvxSB+T9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Mitch Williams <mitch.a.williams@intel.com>,
+        Tony Brelinski <tony.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 226/323] zram: off by one in read_block_state()
+Subject: [PATCH 5.15 129/279] iavf: validate pointers
 Date:   Wed, 24 Nov 2021 12:56:56 +0100
-Message-Id: <20211124115726.554164015@linuxfoundation.org>
+Message-Id: <20211124115723.259663509@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Mitch Williams <mitch.a.williams@intel.com>
 
-[ Upstream commit a88e03cf3d190cf46bc4063a9b7efe87590de5f4 ]
+[ Upstream commit 131b0edc4028bb88bb472456b1ddba526cfb7036 ]
 
-snprintf() returns the number of bytes it would have printed if there
-were space.  But it does not count the NUL terminator.  So that means
-that if "count == copied" then this has already overflowed by one
-character.
+In some cases, the ethtool get_rxfh handler may be called with a null
+key or indir parameter. So check these pointers, or you will have a very
+bad day.
 
-This bug likely isn't super harmful in real life.
-
-Link: https://lkml.kernel.org/r/20210916130404.GA25094@kili
-Fixes: c0265342bff4 ("zram: introduce zram memory tracking")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 43a3d9ba34c9 ("i40evf: Allow PF driver to configure RSS")
+Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/zram/zram_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/iavf/iavf_ethtool.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
-index 104206a795015..5e05bfcecd7b7 100644
---- a/drivers/block/zram/zram_drv.c
-+++ b/drivers/block/zram/zram_drv.c
-@@ -699,7 +699,7 @@ static ssize_t read_block_state(struct file *file, char __user *buf,
- 			zram_test_flag(zram, index, ZRAM_WB) ? 'w' : '.',
- 			zram_test_flag(zram, index, ZRAM_HUGE) ? 'h' : '.');
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
+index 136c801f5584a..25ee0606e625f 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
+@@ -1859,14 +1859,13 @@ static int iavf_get_rxfh(struct net_device *netdev, u32 *indir, u8 *key,
  
--		if (count < copied) {
-+		if (count <= copied) {
- 			zram_slot_unlock(zram, index);
- 			break;
- 		}
+ 	if (hfunc)
+ 		*hfunc = ETH_RSS_HASH_TOP;
+-	if (!indir)
+-		return 0;
+-
+-	memcpy(key, adapter->rss_key, adapter->rss_key_size);
++	if (key)
++		memcpy(key, adapter->rss_key, adapter->rss_key_size);
+ 
+-	/* Each 32 bits pointed by 'indir' is stored with a lut entry */
+-	for (i = 0; i < adapter->rss_lut_size; i++)
+-		indir[i] = (u32)adapter->rss_lut[i];
++	if (indir)
++		/* Each 32 bits pointed by 'indir' is stored with a lut entry */
++		for (i = 0; i < adapter->rss_lut_size; i++)
++			indir[i] = (u32)adapter->rss_lut[i];
+ 
+ 	return 0;
+ }
 -- 
 2.33.0
 
