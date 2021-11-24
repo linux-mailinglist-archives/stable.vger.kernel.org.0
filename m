@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5342245C186
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B1845C228
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:22:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345506AbhKXNTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:19:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35228 "EHLO mail.kernel.org"
+        id S1350386AbhKXNZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:25:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244682AbhKXNRQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:17:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E3B561439;
-        Wed, 24 Nov 2021 12:44:56 +0000 (UTC)
+        id S1350059AbhKXNXi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:23:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84DF661B2E;
+        Wed, 24 Nov 2021 12:48:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757897;
-        bh=ftMJjk/rcubRpf0OAIbomDO4tHJC8nhMo8dvK4+T+ZA=;
+        s=korg; t=1637758120;
+        bh=xm/Nt/AF+cIdp7wvLiIXE8g+5MxNQ5Heref7j6lZe98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JtiguAgmjrVq8tdGys8RYZPkKWYUujDf7WlxGMPYAA3/626Muf1gp8P4/Gs5rU1Ek
-         FlDg/JMqFwlA3h7eUmhrokmFT9AUDG/XH24NC+ZU/2PenkKPvIyCS7/IopaairHMZd
-         qvicEqkT+xw6Ln3Gn6staKlHGpkv1T6K+LJgGAaw=
+        b=aap/A9+BboN/eWLBG/hMcVNH3k/Cxdw/ImG6bFZ55vcG55BEDTt3d1Rx+tCXOC/fE
+         atQBfpZzrAnlSoWAP5C5/eaSppe6NFftjASALWSUbgtCjyVKuPpjuLE5r6dDNPCL3u
+         BxvGC69Gq1RuaxWoXL/yAyb4E7MykHYZf84FXvdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
-        syzbot+bbf402b783eeb6d908db@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 312/323] cfg80211: call cfg80211_stop_ap when switch from P2P_GO type
+        stable@vger.kernel.org,
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
+        Tony Brelinski <tony.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 066/100] i40e: Fix creation of first queue by omitting it if is not power of two
 Date:   Wed, 24 Nov 2021 12:58:22 +0100
-Message-Id: <20211124115729.457628793@linuxfoundation.org>
+Message-Id: <20211124115657.010187107@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +43,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
+From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
 
-commit 563fbefed46ae4c1f70cffb8eb54c02df480b2c2 upstream.
+[ Upstream commit 2e6d218c1ec6fb9cd70693b78134cbc35ae0b5a9 ]
 
-If the userspace tools switch from NL80211_IFTYPE_P2P_GO to
-NL80211_IFTYPE_ADHOC via send_msg(NL80211_CMD_SET_INTERFACE), it
-does not call the cleanup cfg80211_stop_ap(), this leads to the
-initialization of in-use data. For example, this path re-init the
-sdata->assigned_chanctx_list while it is still an element of
-assigned_vifs list, and makes that linked list corrupt.
+Reject TCs creation with proper message if the first queue
+assignment is not equal to the power of two.
+The first queue number was checked too late in the second queue
+iteration, if second queue was configured at all. Now if first queue value
+is not a power of two, then trying to create qdisc will be rejected.
 
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
-Reported-by: syzbot+bbf402b783eeb6d908db@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20211027173722.777287-1-phind.uet@gmail.com
-Cc: stable@vger.kernel.org
-Fixes: ac800140c20e ("cfg80211: .stop_ap when interface is going down")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8f88b3034db3 ("i40e: Add infrastructure for queue channel support")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/util.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 59 +++++++--------------
+ 1 file changed, 19 insertions(+), 40 deletions(-)
 
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -950,6 +950,7 @@ int cfg80211_change_iface(struct cfg8021
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 5dbbb87423a52..d87771403b578 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -5731,24 +5731,6 @@ static void i40e_remove_queue_channels(struct i40e_vsi *vsi)
+ 	INIT_LIST_HEAD(&vsi->ch_list);
+ }
  
- 		switch (otype) {
- 		case NL80211_IFTYPE_AP:
-+		case NL80211_IFTYPE_P2P_GO:
- 			cfg80211_stop_ap(rdev, dev, true);
- 			break;
- 		case NL80211_IFTYPE_ADHOC:
+-/**
+- * i40e_is_any_channel - channel exist or not
+- * @vsi: ptr to VSI to which channels are associated with
+- *
+- * Returns true or false if channel(s) exist for associated VSI or not
+- **/
+-static bool i40e_is_any_channel(struct i40e_vsi *vsi)
+-{
+-	struct i40e_channel *ch, *ch_tmp;
+-
+-	list_for_each_entry_safe(ch, ch_tmp, &vsi->ch_list, list) {
+-		if (ch->initialized)
+-			return true;
+-	}
+-
+-	return false;
+-}
+-
+ /**
+  * i40e_get_max_queues_for_channel
+  * @vsi: ptr to VSI to which channels are associated with
+@@ -6256,26 +6238,15 @@ int i40e_create_queue_channel(struct i40e_vsi *vsi,
+ 	/* By default we are in VEPA mode, if this is the first VF/VMDq
+ 	 * VSI to be added switch to VEB mode.
+ 	 */
+-	if ((!(pf->flags & I40E_FLAG_VEB_MODE_ENABLED)) ||
+-	    (!i40e_is_any_channel(vsi))) {
+-		if (!is_power_of_2(vsi->tc_config.tc_info[0].qcount)) {
+-			dev_dbg(&pf->pdev->dev,
+-				"Failed to create channel. Override queues (%u) not power of 2\n",
+-				vsi->tc_config.tc_info[0].qcount);
+-			return -EINVAL;
+-		}
+ 
+-		if (!(pf->flags & I40E_FLAG_VEB_MODE_ENABLED)) {
+-			pf->flags |= I40E_FLAG_VEB_MODE_ENABLED;
++	if (!(pf->flags & I40E_FLAG_VEB_MODE_ENABLED)) {
++		pf->flags |= I40E_FLAG_VEB_MODE_ENABLED;
+ 
+-			if (vsi->type == I40E_VSI_MAIN) {
+-				if (pf->flags & I40E_FLAG_TC_MQPRIO)
+-					i40e_do_reset(pf, I40E_PF_RESET_FLAG,
+-						      true);
+-				else
+-					i40e_do_reset_safe(pf,
+-							   I40E_PF_RESET_FLAG);
+-			}
++		if (vsi->type == I40E_VSI_MAIN) {
++			if (pf->flags & I40E_FLAG_TC_MQPRIO)
++				i40e_do_reset(pf, I40E_PF_RESET_FLAG, true);
++			else
++				i40e_do_reset_safe(pf, I40E_PF_RESET_FLAG);
+ 		}
+ 		/* now onwards for main VSI, number of queues will be value
+ 		 * of TC0's queue count
+@@ -7567,12 +7538,20 @@ config_tc:
+ 			    vsi->seid);
+ 		need_reset = true;
+ 		goto exit;
+-	} else {
+-		dev_info(&vsi->back->pdev->dev,
+-			 "Setup channel (id:%u) utilizing num_queues %d\n",
+-			 vsi->seid, vsi->tc_config.tc_info[0].qcount);
++	} else if (enabled_tc &&
++		   (!is_power_of_2(vsi->tc_config.tc_info[0].qcount))) {
++		netdev_info(netdev,
++			    "Failed to create channel. Override queues (%u) not power of 2\n",
++			    vsi->tc_config.tc_info[0].qcount);
++		ret = -EINVAL;
++		need_reset = true;
++		goto exit;
+ 	}
+ 
++	dev_info(&vsi->back->pdev->dev,
++		 "Setup channel (id:%u) utilizing num_queues %d\n",
++		 vsi->seid, vsi->tc_config.tc_info[0].qcount);
++
+ 	if (pf->flags & I40E_FLAG_TC_MQPRIO) {
+ 		if (vsi->mqprio_qopt.max_rate[0]) {
+ 			u64 max_tx_rate = vsi->mqprio_qopt.max_rate[0];
+-- 
+2.33.0
+
 
 
