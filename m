@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B1D45BAD4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31CE745B9A2
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:01:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243022AbhKXMOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:14:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41248 "EHLO mail.kernel.org"
+        id S241892AbhKXMDj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:03:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243428AbhKXMOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:14:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D43C60232;
-        Wed, 24 Nov 2021 12:08:48 +0000 (UTC)
+        id S241968AbhKXMDg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:03:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8058A60F90;
+        Wed, 24 Nov 2021 12:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755728;
-        bh=BkKXLQNYfTkx2I0te5W41J5T9C5in+TRlC6OyCZ4Dn4=;
+        s=korg; t=1637755227;
+        bh=kPo5Y3JWeVQOSIja/7gSaYdDZpapx5TLEO0Jwmpe0Uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jy6nZ7ZJAj0R2Wok8L5G6Q1TlSYrrOutFOaJ63kD4jOUzdfDhk8WpHU2rWzKxqktz
-         OFhKky7xCFxf7xlxuXQS0HJKav26fA6zEY9shC4Yhdt/z8lcoVt3Wxi+IIUrL3Ng4l
-         /H8wfoBmloMrrCmru+jdjHbF7/joVw25lDhHeAVE=
+        b=LOBFT5D5NLfyAk2iMTQciNKno3d+bVLfnSxTvCFK2CGGDtFU9B/Ae0qOIobU8LUFe
+         dPJdr+1YnDGIzrLn5L2z5mk7onr8Ekh8n73urDZ8SArhwV1aWlrX0FF4qtr4ih+sLO
+         0FQbtTwTw/eKMHc4pQuZztf8YC3VwRFlDM4AHvz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 036/207] rtl8187: fix control-message timeouts
+        stable@vger.kernel.org, Phoenix Huang <phoenix@emc.com.tw>,
+        Yufei Du <yufeidu@cs.unc.edu>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.4 004/162] Input: elantench - fix misreporting trackpoint coordinates
 Date:   Wed, 24 Nov 2021 12:55:07 +0100
-Message-Id: <20211124115705.111417303@linuxfoundation.org>
+Message-Id: <20211124115658.473676079@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,87 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Phoenix Huang <phoenix@emc.com.tw>
 
-commit 2e9be536a213e838daed6ba42024dd68954ac061 upstream.
+commit be896bd3b72b44126c55768f14c22a8729b0992e upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+Some firmwares occasionally report bogus data from trackpoint, with X or Y
+displacement being too large (outside of [-127, 127] range). Let's drop such
+packets so that we do not generate jumps.
 
-Fixes: 605bebe23bf6 ("[PATCH] Add rtl8187 wireless driver")
-Cc: stable@vger.kernel.org      # 2.6.23
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211025120522.6045-4-johan@kernel.org
+Signed-off-by: Phoenix Huang <phoenix@emc.com.tw>
+Tested-by: Yufei Du <yufeidu@cs.unc.edu>
+Link: https://lore.kernel.org/r/20210729010940.5752-1-phoenix@emc.com.tw
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/input/mouse/elantech.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c
-+++ b/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c
-@@ -31,7 +31,7 @@ u8 rtl818x_ioread8_idx(struct rtl8187_pr
- 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits8, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits8, sizeof(val), 500);
- 
- 	val = priv->io_dmabuf->bits8;
- 	mutex_unlock(&priv->io_mutex);
-@@ -48,7 +48,7 @@ u16 rtl818x_ioread16_idx(struct rtl8187_
- 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits16, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits16, sizeof(val), 500);
- 
- 	val = priv->io_dmabuf->bits16;
- 	mutex_unlock(&priv->io_mutex);
-@@ -65,7 +65,7 @@ u32 rtl818x_ioread32_idx(struct rtl8187_
- 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits32, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits32, sizeof(val), 500);
- 
- 	val = priv->io_dmabuf->bits32;
- 	mutex_unlock(&priv->io_mutex);
-@@ -82,7 +82,7 @@ void rtl818x_iowrite8_idx(struct rtl8187
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits8, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits8, sizeof(val), 500);
- 
- 	mutex_unlock(&priv->io_mutex);
- }
-@@ -96,7 +96,7 @@ void rtl818x_iowrite16_idx(struct rtl818
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits16, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits16, sizeof(val), 500);
- 
- 	mutex_unlock(&priv->io_mutex);
- }
-@@ -110,7 +110,7 @@ void rtl818x_iowrite32_idx(struct rtl818
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits32, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits32, sizeof(val), 500);
- 
- 	mutex_unlock(&priv->io_mutex);
- }
-@@ -186,7 +186,7 @@ static void rtl8225_write_8051(struct ie
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			addr, 0x8225, &priv->io_dmabuf->bits16, sizeof(data),
--			HZ / 2);
-+			500);
- 
- 	mutex_unlock(&priv->io_mutex);
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -435,6 +435,19 @@ static void elantech_report_trackpoint(s
+ 	case 0x16008020U:
+ 	case 0x26800010U:
+ 	case 0x36808000U:
++
++		/*
++		 * This firmware misreport coordinates for trackpoint
++		 * occasionally. Discard packets outside of [-127, 127] range
++		 * to prevent cursor jumps.
++		 */
++		if (packet[4] == 0x80 || packet[5] == 0x80 ||
++		    packet[1] >> 7 == packet[4] >> 7 ||
++		    packet[2] >> 7 == packet[5] >> 7) {
++			elantech_debug("discarding packet [%6ph]\n", packet);
++			break;
++
++		}
+ 		x = packet[4] - (int)((packet[1]^0x80) << 1);
+ 		y = (int)((packet[2]^0x80) << 1) - packet[5];
  
 
 
