@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE07D45BEE5
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:49:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9F245BEE7
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:49:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344321AbhKXMvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:51:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55978 "EHLO mail.kernel.org"
+        id S1344428AbhKXMvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:51:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245041AbhKXMtx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:49:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E48D760E08;
-        Wed, 24 Nov 2021 12:28:52 +0000 (UTC)
+        id S1344262AbhKXMty (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:49:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 559D960FDA;
+        Wed, 24 Nov 2021 12:28:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756933;
-        bh=SChXYOXFDadWXM1Eqexk7TQnESs5DthwIXoZDiPRerg=;
+        s=korg; t=1637756935;
+        bh=JqONJJ1Fg6R2Kby+kUbwLShy4UCoqawuaBPxxqzij/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KEp1WuIXhUpYV8E1/pzrvxiNyVjWF5ur2opcnfo8Rd+dLB53O/dymTdL9/8gmWg7F
-         5X3FEo5+MYcVFWWrGWbm34CVg+1OzlvdEC2pakSW5bGie+D+yd9FgDhKOMFGbxdB6B
-         83AuOIf4AGGsuquotI+zbQZwK9wO7g+7Jn+LSReI=
+        b=tvpKSbWKG625Ks7EuHoz+3rknOvpF6SlqW3P5DnLkTf2tSDrbNYgB2uqyN1c8shA/
+         wErxg9tortgeAVFxQ9Lg+V5D2U5yL9EcExyWPkX7HhT1rOA/6PzJu5c7SMIXZW09om
+         e10k40cU1T7gXcpZL5GIdaSQaHdUOc1pyj0S+0wI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 4.14 248/251] RDMA/netlink: Add __maybe_unused to static inline in C file
-Date:   Wed, 24 Nov 2021 12:58:10 +0100
-Message-Id: <20211124115718.958807908@linuxfoundation.org>
+        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 249/251] ASoC: DAPM: Cover regression by kctl change notification fix
+Date:   Wed, 24 Nov 2021 12:58:11 +0100
+Message-Id: <20211124115718.991163028@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
 References: <20211124115710.214900256@linuxfoundation.org>
@@ -40,37 +39,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 83dde7498fefeb920b1def317421262317d178e5 upstream.
+commit 827b0913a9d9d07a0c3e559dbb20ca4d6d285a54 upstream.
 
-Like other commits in the tree add __maybe_unused to a static inline in a
-C file because some clang compilers will complain about unused code:
+The recent fix for DAPM to correct the kctl change notification by the
+commit 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change
+notifications") caused other regressions since it changed the behavior
+of snd_soc_dapm_set_pin() that is called from several API functions.
+Formerly it returned always 0 for success, but now it returns 0 or 1.
 
->> drivers/infiniband/core/nldev.c:2543:1: warning: unused function '__chk_RDMA_NL_NLDEV'
-   MODULE_ALIAS_RDMA_NETLINK(RDMA_NL_NLDEV, 5);
-   ^
+This patch addresses it, restoring the old behavior of
+snd_soc_dapm_set_pin() while keeping the fix in
+snd_soc_dapm_put_pin_switch().
 
-Fixes: e3bf14bdc17a ("rdma: Autoload netlink client modules")
-Link: https://lore.kernel.org/r/4a8101919b765e01d7fde6f27fd572c958deeb4a.1636267207.git.leonro@nvidia.com
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change notifications")
+Reported-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20211105090925.20575-1-tiwai@suse.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/rdma/rdma_netlink.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-dapm.c |   29 +++++++++++++++++++++++------
+ 1 file changed, 23 insertions(+), 6 deletions(-)
 
---- a/include/rdma/rdma_netlink.h
-+++ b/include/rdma/rdma_netlink.h
-@@ -24,7 +24,7 @@ enum rdma_nl_flags {
-  * constant as well and the compiler checks they are the same.
-  */
- #define MODULE_ALIAS_RDMA_NETLINK(_index, _val)                                \
--	static inline void __chk_##_index(void)                                \
-+	static inline void __maybe_unused __chk_##_index(void)                 \
- 	{                                                                      \
- 		BUILD_BUG_ON(_index != _val);                                  \
- 	}                                                                      \
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -2491,8 +2491,13 @@ static struct snd_soc_dapm_widget *dapm_
+ 	return NULL;
+ }
+ 
+-static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
+-				const char *pin, int status)
++/*
++ * set the DAPM pin status:
++ * returns 1 when the value has been updated, 0 when unchanged, or a negative
++ * error code; called from kcontrol put callback
++ */
++static int __snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
++				  const char *pin, int status)
+ {
+ 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
+ 	int ret = 0;
+@@ -2518,6 +2523,18 @@ static int snd_soc_dapm_set_pin(struct s
+ 	return ret;
+ }
+ 
++/*
++ * similar as __snd_soc_dapm_set_pin(), but returns 0 when successful;
++ * called from several API functions below
++ */
++static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
++				const char *pin, int status)
++{
++	int ret = __snd_soc_dapm_set_pin(dapm, pin, status);
++
++	return ret < 0 ? ret : 0;
++}
++
+ /**
+  * snd_soc_dapm_sync_unlocked - scan and power dapm paths
+  * @dapm: DAPM context
+@@ -3445,10 +3462,10 @@ int snd_soc_dapm_put_pin_switch(struct s
+ 	const char *pin = (const char *)kcontrol->private_value;
+ 	int ret;
+ 
+-	if (ucontrol->value.integer.value[0])
+-		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
+-	else
+-		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
++	mutex_lock_nested(&card->dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
++	ret = __snd_soc_dapm_set_pin(&card->dapm, pin,
++				     !!ucontrol->value.integer.value[0]);
++	mutex_unlock(&card->dapm_mutex);
+ 
+ 	snd_soc_dapm_sync(&card->dapm);
+ 	return ret;
 
 
