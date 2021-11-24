@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0AB445BD12
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:32:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC1CF45BFE7
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:59:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244604AbhKXMfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:35:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52018 "EHLO mail.kernel.org"
+        id S1346715AbhKXNCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:02:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243577AbhKXMbb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:31:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E3D961167;
-        Wed, 24 Nov 2021 12:19:43 +0000 (UTC)
+        id S1343770AbhKXNAq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:00:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1784B619E1;
+        Wed, 24 Nov 2021 12:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756384;
-        bh=opOnPafpuBBB6v2uuUKkjTqIxh8vuwvOEI0r+8axOuk=;
+        s=korg; t=1637757292;
+        bh=mDqSDRAhasWI07AIcKI0GSUOYRjeBcctGHPuXX1HRos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MCE969EmEborrC6O8cCXJV3axzIPSvDkwWAn893b4YUfptHu0UrNwwWQcBaAUtCPq
-         Z5E8TbzxoS7iUke++t676ddSNUpDkHt56mxj6m11DTLNEjlssbkGcgDPAy+BRPMZpK
-         QgISqEaGP3DJUqnExBMyENBmfzDEljgqfvQsbcVg=
+        b=CQ6VNQNC6aErgx6AHAepInsIFsWw0L5fqEqp3OxT171cuylb8RjF4bdFt2QaQUpd/
+         x0RN937ju+v4wlZ6UEMCB1oL2pBsnfr8ePRiWXDEFAiGKeNJl8dALWr/rPl4c0fQR1
+         oXToNBpeYShZHlnzgUjLU/pktI4X2BcQxXB8QBwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meeta Saggi <msaggi@purestorage.com>,
-        Eric Badger <ebadger@purestorage.com>,
-        Tony Luck <tony.luck@intel.com>
-Subject: [PATCH 4.14 035/251] EDAC/sb_edac: Fix top-of-high-memory value for Broadwell/Haswell
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 087/323] MIPS: lantiq: dma: reset correct number of channel
 Date:   Wed, 24 Nov 2021 12:54:37 +0100
-Message-Id: <20211124115711.464811671@linuxfoundation.org>
+Message-Id: <20211124115721.898005495@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Badger <ebadger@purestorage.com>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-commit 537bddd069c743759addf422d0b8f028ff0f8dbc upstream.
+[ Upstream commit 5ca9ce2ba4d5884cd94d1a856c675ab1242cd242 ]
 
-The computation of TOHM is off by one bit. This missed bit results in
-too low a value for TOHM, which can cause errors in regular memory to
-incorrectly report:
+Different SoCs have a different number of channels, e.g .:
+* amazon-se has 10 channels,
+* danube+ar9 have 20 channels,
+* vr9 has 28 channels,
+* ar10 has 24 channels.
 
-  EDAC MC0: 1 CE Error at MMIOH area, on addr 0x000000207fffa680 on any memory
+We can read the ID register and, depending on the reported
+number of channels, reset the appropriate number of channels.
 
-Fixes: 50d1bb93672f ("sb_edac: add support for Haswell based systems")
-Cc: stable@vger.kernel.org
-Reported-by: Meeta Saggi <msaggi@purestorage.com>
-Signed-off-by: Eric Badger <ebadger@purestorage.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Link: https://lore.kernel.org/r/20211010170127.848113-1-ebadger@purestorage.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/sb_edac.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/lantiq/xway/dma.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/edac/sb_edac.c
-+++ b/drivers/edac/sb_edac.c
-@@ -1014,7 +1014,7 @@ static u64 haswell_get_tohm(struct sbrid
- 	pci_read_config_dword(pvt->info.pci_vtd, HASWELL_TOHM_1, &reg);
- 	rc = ((reg << 6) | rc) << 26;
+diff --git a/arch/mips/lantiq/xway/dma.c b/arch/mips/lantiq/xway/dma.c
+index 45a622b72cd13..efee1c538a518 100644
+--- a/arch/mips/lantiq/xway/dma.c
++++ b/arch/mips/lantiq/xway/dma.c
+@@ -41,6 +41,7 @@
+ #define LTQ_DMA_PCTRL		0x44
+ #define LTQ_DMA_IRNEN		0xf4
  
--	return rc | 0x1ffffff;
-+	return rc | 0x3ffffff;
++#define DMA_ID_CHNR		GENMASK(26, 20)	/* channel number */
+ #define DMA_DESCPT		BIT(3)		/* descriptor complete irq */
+ #define DMA_TX			BIT(8)		/* TX channel direction */
+ #define DMA_CHAN_ON		BIT(0)		/* channel on / off bit */
+@@ -51,7 +52,6 @@
+ #define DMA_POLL		BIT(31)		/* turn on channel polling */
+ #define DMA_CLK_DIV4		BIT(6)		/* polling clock divider */
+ #define DMA_2W_BURST		BIT(1)		/* 2 word burst length */
+-#define DMA_MAX_CHANNEL		20		/* the soc has 20 channels */
+ #define DMA_ETOP_ENDIANNESS	(0xf << 8) /* endianness swap etop channels */
+ #define DMA_WEIGHT	(BIT(17) | BIT(16))	/* default channel wheight */
+ 
+@@ -218,7 +218,7 @@ ltq_dma_init(struct platform_device *pdev)
+ {
+ 	struct clk *clk;
+ 	struct resource *res;
+-	unsigned id;
++	unsigned int id, nchannels;
+ 	int i;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -240,17 +240,18 @@ ltq_dma_init(struct platform_device *pdev)
+ 	ltq_dma_w32(0, LTQ_DMA_IRNEN);
+ 
+ 	/* reset/configure each channel */
+-	for (i = 0; i < DMA_MAX_CHANNEL; i++) {
++	id = ltq_dma_r32(LTQ_DMA_ID);
++	nchannels = ((id & DMA_ID_CHNR) >> 20);
++	for (i = 0; i < nchannels; i++) {
+ 		ltq_dma_w32(i, LTQ_DMA_CS);
+ 		ltq_dma_w32(DMA_CHAN_RST, LTQ_DMA_CCTRL);
+ 		ltq_dma_w32(DMA_POLL | DMA_CLK_DIV4, LTQ_DMA_CPOLL);
+ 		ltq_dma_w32_mask(DMA_CHAN_ON, 0, LTQ_DMA_CCTRL);
+ 	}
+ 
+-	id = ltq_dma_r32(LTQ_DMA_ID);
+ 	dev_info(&pdev->dev,
+ 		"Init done - hw rev: %X, ports: %d, channels: %d\n",
+-		id & 0x1f, (id >> 16) & 0xf, id >> 20);
++		id & 0x1f, (id >> 16) & 0xf, nchannels);
+ 
+ 	return 0;
  }
- 
- static u64 knl_get_tolm(struct sbridge_pvt *pvt)
+-- 
+2.33.0
+
 
 
