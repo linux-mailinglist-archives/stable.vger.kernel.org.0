@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD52345BC16
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFF9E45BECD
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:49:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245462AbhKXMZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38380 "EHLO mail.kernel.org"
+        id S1345883AbhKXMux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:50:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245091AbhKXMYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:24:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5EC261100;
-        Wed, 24 Nov 2021 12:15:17 +0000 (UTC)
+        id S1346213AbhKXMsy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:48:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2165D610A5;
+        Wed, 24 Nov 2021 12:28:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756118;
-        bh=7ASz4s9MFKHWqv+yVY16d3CQA2XVH6e3T6lmo3g65W0=;
+        s=korg; t=1637756919;
+        bh=58wvV0nNtTfY2NbLUOQ9Odj5T5fmmH/wW4JaoLtaf5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2unToUKCHwmcKraquN8C8ILTJl4/rzHnemb6x2n9XG+kPPsVSNShhtgTiCTMmFxD2
-         WreLuvZ9TjmnSLkXHgspu2A5U535J6uFeFPdZtpt5OCWa563YSwbRRlrKa3btGViT1
-         phzSWS3e0V5d2UNDDKoD6zSscMjk9jhlbOY5/sTY=
+        b=CKY/2MYCeNLh1k8QupbE/1n8ozrbtGpiyo/eOThxzs9I3W8htup9Z7oQsxWAQkIgT
+         BsaYNPtinYPidOLDcU0e/C/EYevuSJLBHO9urfSZ0KzRyozvnALtiYv0ibuliBiNMM
+         mOgchTbk/Cn1v07JYlaGdG3XL/MiAruOCGuc0PT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        bcm-kernel-feedback-list@broadcom.com, linux-mips@vger.kernel.org,
-        Paul Burton <paulburton@kernel.org>,
-        Maxime Bizon <mbizon@freebox.fr>,
-        Ralf Baechle <ralf@linux-mips.org>,
+        stable@vger.kernel.org,
+        Guanghui Feng <guanghuifeng@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 179/207] mips: BCM63XX: ensure that CPU_SUPPORTS_32BIT_KERNEL is set
+Subject: [PATCH 4.14 208/251] tty: tty_buffer: Fix the softlockup issue in flush_to_ldisc
 Date:   Wed, 24 Nov 2021 12:57:30 +0100
-Message-Id: <20211124115709.768575005@linuxfoundation.org>
+Message-Id: <20211124115717.500828793@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,62 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Guanghui Feng <guanghuifeng@linux.alibaba.com>
 
-[ Upstream commit 5eeaafc8d69373c095e461bdb39e5c9b62228ac5 ]
+[ Upstream commit 3968ddcf05fb4b9409cd1859feb06a5b0550a1c1 ]
 
-Several header files need info on CONFIG_32BIT or CONFIG_64BIT,
-but kconfig symbol BCM63XX does not provide that info. This leads
-to many build errors, e.g.:
+When running ltp testcase(ltp/testcases/kernel/pty/pty04.c) with arm64, there is a soft lockup,
+which look like this one:
 
-   arch/mips/include/asm/page.h:196:13: error: use of undeclared identifier 'CAC_BASE'
-           return x - PAGE_OFFSET + PHYS_OFFSET;
-   arch/mips/include/asm/mach-generic/spaces.h:91:23: note: expanded from macro 'PAGE_OFFSET'
-   #define PAGE_OFFSET             (CAC_BASE + PHYS_OFFSET)
-   arch/mips/include/asm/io.h:134:28: error: use of undeclared identifier 'CAC_BASE'
-           return (void *)(address + PAGE_OFFSET - PHYS_OFFSET);
-   arch/mips/include/asm/mach-generic/spaces.h:91:23: note: expanded from macro 'PAGE_OFFSET'
-   #define PAGE_OFFSET             (CAC_BASE + PHYS_OFFSET)
+  Workqueue: events_unbound flush_to_ldisc
+  Call trace:
+   dump_backtrace+0x0/0x1ec
+   show_stack+0x24/0x30
+   dump_stack+0xd0/0x128
+   panic+0x15c/0x374
+   watchdog_timer_fn+0x2b8/0x304
+   __run_hrtimer+0x88/0x2c0
+   __hrtimer_run_queues+0xa4/0x120
+   hrtimer_interrupt+0xfc/0x270
+   arch_timer_handler_phys+0x40/0x50
+   handle_percpu_devid_irq+0x94/0x220
+   __handle_domain_irq+0x88/0xf0
+   gic_handle_irq+0x84/0xfc
+   el1_irq+0xc8/0x180
+   slip_unesc+0x80/0x214 [slip]
+   tty_ldisc_receive_buf+0x64/0x80
+   tty_port_default_receive_buf+0x50/0x90
+   flush_to_ldisc+0xbc/0x110
+   process_one_work+0x1d4/0x4b0
+   worker_thread+0x180/0x430
+   kthread+0x11c/0x120
 
-arch/mips/include/asm/uaccess.h:82:10: error: use of undeclared identifier '__UA_LIMIT'
-           return (__UA_LIMIT & (addr | (addr + size) | __ua_size(size))) == 0;
+In the testcase pty04, The first process call the write syscall to send
+data to the pty master. At the same time, the workqueue will do the
+flush_to_ldisc to pop data in a loop until there is no more data left.
+When the sender and workqueue running in different core, the sender sends
+data fastly in full time which will result in workqueue doing work in loop
+for a long time and occuring softlockup in flush_to_ldisc with kernel
+configured without preempt. So I add need_resched check and cond_resched
+in the flush_to_ldisc loop to avoid it.
 
-Selecting the SYS_HAS_CPU_BMIPS* symbols causes SYS_HAS_CPU_BMIPS to be
-set, which then selects CPU_SUPPORT_32BIT_KERNEL, which causes
-CONFIG_32BIT to be set. (a bit more indirect than v1 [RFC].)
-
-Fixes: e7300d04bd08 ("MIPS: BCM63xx: Add support for the Broadcom BCM63xx family of SOCs.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: bcm-kernel-feedback-list@broadcom.com
-Cc: linux-mips@vger.kernel.org
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Maxime Bizon <mbizon@freebox.fr>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Suggested-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Guanghui Feng <guanghuifeng@linux.alibaba.com>
+Link: https://lore.kernel.org/r/1633961304-24759-1-git-send-email-guanghuifeng@linux.alibaba.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig | 3 +++
+ drivers/tty/tty_buffer.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 3ab2a95673680..9708c319a7444 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -267,6 +267,9 @@ config BCM63XX
- 	select SYS_SUPPORTS_32BIT_KERNEL
- 	select SYS_SUPPORTS_BIG_ENDIAN
- 	select SYS_HAS_EARLY_PRINTK
-+	select SYS_HAS_CPU_BMIPS32_3300
-+	select SYS_HAS_CPU_BMIPS4350
-+	select SYS_HAS_CPU_BMIPS4380
- 	select SWAP_IO_SPACE
- 	select GPIOLIB
- 	select HAVE_CLK
+diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
+index cf11882d26025..a5b32dd056bef 100644
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -528,6 +528,9 @@ static void flush_to_ldisc(struct work_struct *work)
+ 		if (!count)
+ 			break;
+ 		head->read += count;
++
++		if (need_resched())
++			cond_resched();
+ 	}
+ 
+ 	mutex_unlock(&buf->lock);
 -- 
 2.33.0
 
