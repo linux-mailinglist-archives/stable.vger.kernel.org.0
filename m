@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4684545C013
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B44C845B9BD
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345515AbhKXNEo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:04:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39966 "EHLO mail.kernel.org"
+        id S242129AbhKXMEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:04:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347787AbhKXNDS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:03:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1774A611EE;
-        Wed, 24 Nov 2021 12:36:12 +0000 (UTC)
+        id S233670AbhKXMEO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:04:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2211C60FE7;
+        Wed, 24 Nov 2021 12:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757373;
-        bh=hjf3xry4z7OF52jAyoBoSTE4cJQO9+JN5+oo556tKqA=;
+        s=korg; t=1637755264;
+        bh=xEHQfIaOUSvRwynkvC1KzLVjH4f6yWTUSGB+6OYv9Sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wGy4LTwelpBrpz6aIKg6Mk66/BJ+d9qNHV8uc4dUYK0Eoxw+V8RyBqXi8OaPm181F
-         iIJO6ZcG384h+mKfpbVQYMe6BsWqapAaHX6Qx00Sl8gld0aQrmSxSzdNEHjpIz7iTR
-         l7ZspZA1Psuz7itnM6y4Psa5zQCnupokh802emEk=
+        b=UvC1jwiIWAF27x3deW3uB4llPVcGYRoSuMQ7nztQwnV3uUbsRYDxpqvvvpoOALNAS
+         KqokiYgu+6Pu5AGPuN/aYo1EBqqvYtyW2XwPUX5lU8ng4eZffMgMSslJw9Dkt3thVF
+         DKO8kiVWuIKAhOtRLgqZnA3f4uruN86PODTIIZKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 145/323] mmc: sdhci-omap: Fix NULL pointer exception if regulator is not configured
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 4.4 032/162] signal: Remove the bogus sigkill_pending in ptrace_stop
 Date:   Wed, 24 Nov 2021 12:55:35 +0100
-Message-Id: <20211124115723.817043671@linuxfoundation.org>
+Message-Id: <20211124115659.374236244@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +39,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 8e0e7bd38b1ec7f9e5d18725ad41828be4e09859 ]
+commit 7d613f9f72ec8f90ddefcae038fdae5adb8404b3 upstream.
 
-If sdhci-omap is configured for an unused device instance and the device
-is not set as disabled, we can get a NULL pointer dereference:
+The existence of sigkill_pending is a little silly as it is
+functionally a duplicate of fatal_signal_pending that is used in
+exactly one place.
 
-Unable to handle kernel NULL pointer dereference at virtual address
-00000045
-...
-(regulator_set_voltage) from [<c07d7008>] (mmc_regulator_set_ocr+0x44/0xd0)
-(mmc_regulator_set_ocr) from [<c07e2d80>] (sdhci_set_ios+0xa4/0x490)
-(sdhci_set_ios) from [<c07ea690>] (sdhci_omap_set_ios+0x124/0x160)
-(sdhci_omap_set_ios) from [<c07c8e94>] (mmc_power_up.part.0+0x3c/0x154)
-(mmc_power_up.part.0) from [<c07c9d20>] (mmc_start_host+0x88/0x9c)
-(mmc_start_host) from [<c07cad34>] (mmc_add_host+0x58/0x7c)
-(mmc_add_host) from [<c07e2574>] (__sdhci_add_host+0xf0/0x22c)
-(__sdhci_add_host) from [<c07eaf68>] (sdhci_omap_probe+0x318/0x72c)
-(sdhci_omap_probe) from [<c06a39d8>] (platform_probe+0x58/0xb8)
+Checking for pending fatal signals and returning early in ptrace_stop
+is actively harmful.  It casues the ptrace_stop called by
+ptrace_signal to return early before setting current->exit_code.
+Later when ptrace_signal reads the signal number from
+current->exit_code is undefined, making it unpredictable what will
+happen.
 
-AFAIK we are not seeing this with the devices configured in the mainline
-kernel but this can cause issues for folks bringing up their boards.
+Instead rely on the fact that schedule will not sleep if there is a
+pending signal that can awaken a task.
 
-Fixes: 7d326930d352 ("mmc: sdhci-omap: Add OMAP SDHCI driver")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210921110029.21944-2-tony@atomide.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Removing the explict sigkill_pending test fixes fixes ptrace_signal
+when ptrace_stop does not stop because current->exit_code is always
+set to to signr.
+
+Cc: stable@vger.kernel.org
+Fixes: 3d749b9e676b ("ptrace: simplify ptrace_stop()->sigkill_pending() path")
+Fixes: 1a669c2f16d4 ("Add arch_ptrace_stop")
+Link: https://lkml.kernel.org/r/87pmsyx29t.fsf@disp2133
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-omap.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/signal.c |   17 ++---------------
+ 1 file changed, 2 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-omap.c b/drivers/mmc/host/sdhci-omap.c
-index 05ade7a2dd243..f5bff9e710fb2 100644
---- a/drivers/mmc/host/sdhci-omap.c
-+++ b/drivers/mmc/host/sdhci-omap.c
-@@ -690,7 +690,8 @@ static void sdhci_omap_set_power(struct sdhci_host *host, unsigned char mode,
- {
- 	struct mmc_host *mmc = host->mmc;
- 
--	mmc_regulator_set_ocr(mmc, mmc->supply.vmmc, vdd);
-+	if (!IS_ERR(mmc->supply.vmmc))
-+		mmc_regulator_set_ocr(mmc, mmc->supply.vmmc, vdd);
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -1824,16 +1824,6 @@ static inline int may_ptrace_stop(void)
  }
  
- static int sdhci_omap_enable_dma(struct sdhci_host *host)
--- 
-2.33.0
-
+ /*
+- * Return non-zero if there is a SIGKILL that should be waking us up.
+- * Called with the siglock held.
+- */
+-static int sigkill_pending(struct task_struct *tsk)
+-{
+-	return	sigismember(&tsk->pending.signal, SIGKILL) ||
+-		sigismember(&tsk->signal->shared_pending.signal, SIGKILL);
+-}
+-
+-/*
+  * This must be called with current->sighand->siglock held.
+  *
+  * This should be the path for all ptrace stops.
+@@ -1858,15 +1848,10 @@ static void ptrace_stop(int exit_code, i
+ 		 * calling arch_ptrace_stop, so we must release it now.
+ 		 * To preserve proper semantics, we must do this before
+ 		 * any signal bookkeeping like checking group_stop_count.
+-		 * Meanwhile, a SIGKILL could come in before we retake the
+-		 * siglock.  That must prevent us from sleeping in TASK_TRACED.
+-		 * So after regaining the lock, we must check for SIGKILL.
+ 		 */
+ 		spin_unlock_irq(&current->sighand->siglock);
+ 		arch_ptrace_stop(exit_code, info);
+ 		spin_lock_irq(&current->sighand->siglock);
+-		if (sigkill_pending(current))
+-			return;
+ 	}
+ 
+ 	/*
+@@ -1875,6 +1860,8 @@ static void ptrace_stop(int exit_code, i
+ 	 * Also, transition to TRACED and updates to ->jobctl should be
+ 	 * atomic with respect to siglock and should be done after the arch
+ 	 * hook as siglock is released and regrabbed across it.
++	 * schedule() will not sleep if there is a pending signal that
++	 * can awaken the task.
+ 	 */
+ 	set_current_state(TASK_TRACED);
+ 
 
 
