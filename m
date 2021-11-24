@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B796E45C007
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8347845B9BB
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:02:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244875AbhKXNEK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:04:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39122 "EHLO mail.kernel.org"
+        id S242123AbhKXMEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:04:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346837AbhKXNC5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:02:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BB716108B;
-        Wed, 24 Nov 2021 12:36:03 +0000 (UTC)
+        id S240683AbhKXMEI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:04:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C39F60FDC;
+        Wed, 24 Nov 2021 12:00:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757364;
-        bh=w6+kxHL3jyEyze+jxjSIeKvCzUghPMO5MDrWnrSNKK4=;
+        s=korg; t=1637755259;
+        bh=ATdpEOBGZrEp9JVyAQlY3XkiF2y0sS6D9Hhdk1ZkUo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFJsrlP93Hd/oNekdFEhy5vJCwpe++fek1xagwJQY/umRdFKWAJuYobn67gxTPtqp
-         eDGbXcmAMNM57+bJ36NJFySp9naooydYwniBXg2REzu6xWkVAHeHVotrWbNGydtptc
-         poCQgSqCthVRcorZ1+eYY1iZNk1I8uYfmmJaX8ew=
+        b=pRvyJtsglyz6iO+AMgbJ8azNYp0iPz0whs7fZNPSY9sEW9Kg3JjRQHaEkQhB/E8Oq
+         7clhRXcn87pMBBPcva0aDRWIP7EJ6xhedcElkwNKhaJNVwIakKn1z4inriX5AMg5GG
+         3kh5vWWv1/r0Wnc2qndOFd3gXm938VlquXb8GF/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 143/323] b43legacy: fix a lower bounds test
+        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.4 030/162] wcn36xx: Fix HT40 capability for 2Ghz band
 Date:   Wed, 24 Nov 2021 12:55:33 +0100
-Message-Id: <20211124115723.753741120@linuxfoundation.org>
+Message-Id: <20211124115659.310349357@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-[ Upstream commit c1c8380b0320ab757e60ed90efc8b1992a943256 ]
+commit 960ae77f25631bbe4e3aafefe209b52e044baf31 upstream.
 
-The problem is that "channel" is an unsigned int, when it's less 5 the
-value of "channel - 5" is not a negative number as one would expect but
-is very high positive value instead.
+All wcn36xx controllers are supposed to support HT40 (and SGI40),
+This doubles the maximum bitrate/throughput with compatible APs.
 
-This means that "start" becomes a very high positive value.  The result
-of that is that we never enter the "for (i = start; i <= end; i++) {"
-loop.  Instead of storing the result from b43legacy_radio_aci_detect()
-it just uses zero.
+Tested with wcn3620 & wcn3680B.
 
-Fixes: 75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx devices")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Michael Büsch <m@bues.ch>
+Cc: stable@vger.kernel.org
+Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211006073542.GD8404@kili
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/1634737133-22336-1-git-send-email-loic.poulain@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/broadcom/b43legacy/radio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/wcn36xx/main.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/b43legacy/radio.c b/drivers/net/wireless/broadcom/b43legacy/radio.c
-index eab1c93878468..8f845db23766b 100644
---- a/drivers/net/wireless/broadcom/b43legacy/radio.c
-+++ b/drivers/net/wireless/broadcom/b43legacy/radio.c
-@@ -299,7 +299,7 @@ u8 b43legacy_radio_aci_scan(struct b43legacy_wldev *dev)
- 			    & 0x7FFF);
- 	b43legacy_set_all_gains(dev, 3, 8, 1);
- 
--	start = (channel - 5 > 0) ? channel - 5 : 1;
-+	start = (channel > 5) ? channel - 5 : 1;
- 	end = (channel + 5 < 14) ? channel + 5 : 13;
- 
- 	for (i = start; i <= end; i++) {
--- 
-2.33.0
-
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -127,7 +127,9 @@ static struct ieee80211_supported_band w
+ 		.cap =	IEEE80211_HT_CAP_GRN_FLD |
+ 			IEEE80211_HT_CAP_SGI_20 |
+ 			IEEE80211_HT_CAP_DSSSCCK40 |
+-			IEEE80211_HT_CAP_LSIG_TXOP_PROT,
++			IEEE80211_HT_CAP_LSIG_TXOP_PROT |
++			IEEE80211_HT_CAP_SGI_40 |
++			IEEE80211_HT_CAP_SUP_WIDTH_20_40,
+ 		.ht_supported = true,
+ 		.ampdu_factor = IEEE80211_HT_MAX_AMPDU_64K,
+ 		.ampdu_density = IEEE80211_HT_MPDU_DENSITY_16,
 
 
