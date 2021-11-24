@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5153845C3A9
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C01BE45C65B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:04:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348071AbhKXNlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:41:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60378 "EHLO mail.kernel.org"
+        id S1352032AbhKXOH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:07:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350257AbhKXNji (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:39:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 436CD6320F;
-        Wed, 24 Nov 2021 12:56:42 +0000 (UTC)
+        id S1351520AbhKXOFZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:05:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F184F63344;
+        Wed, 24 Nov 2021 13:11:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758602;
-        bh=IKwPofgKLC48bMDR5dDV0wr4niRdtc3cnrk94Doc37o=;
+        s=korg; t=1637759508;
+        bh=J438vGk2Oc8vtmR/8okWRbE8zX/XKOKGgDt1byfqg58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cijY2T34Oh3iRk0G57X4Z+KaQk8VH9y8w+N4CsvOdW5SPswZJ0z9va+D8ogm6NLyU
-         zsxBWRPxlzNLt4yzoq3z8m2nWtHANAxrCYDQbiY771C9FIjhawjq+TbCc/UblUH1t4
-         t4dYLrI1hZDKAEUcoXPMKB0UFrgd/JtzsXVpqMUg=
+        b=YLsJQxTknmDkPvbb1i6tWmt29+9VFwqpCPWDpE9aOc3eLRy3rXU0Ilzi8pFlVXLH1
+         VPMq34oiu1GGlXlpxH4YhfGw5PSfX0XLf+ZtVwkFwpeFmUO1qWwMeZoe0tHx1gMGea
+         7qfZaPFMmfzHlZYp3plWsHSZofXggPyihR1GKYDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>,
-        Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Andrei Vagin <avagin@gmail.com>,
-        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 124/154] ipc: WARN if trying to remove ipc object which is absent
+        stable@vger.kernel.org,
+        Seth Forshee <seth.forshee@digitalocean.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org,
+        Seth Forshee <sforshee@digitalocean.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>
+Subject: [PATCH 5.15 233/279] fs: handle circular mappings correctly
 Date:   Wed, 24 Nov 2021 12:58:40 +0100
-Message-Id: <20211124115706.297751155@linuxfoundation.org>
+Message-Id: <20211124115726.793674406@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,115 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-commit 126e8bee943e9926238c891e2df5b5573aee76bc upstream.
+commit 968219708108440b23bc292e0486e3cc1d9a1bed upstream.
 
-Patch series "shm: shm_rmid_forced feature fixes".
+When calling setattr_prepare() to determine the validity of the attributes the
+ia_{g,u}id fields contain the value that will be written to inode->i_{g,u}id.
+When the {g,u}id attribute of the file isn't altered and the caller's fs{g,u}id
+matches the current {g,u}id attribute the attribute change is allowed.
 
-Some time ago I met kernel crash after CRIU restore procedure,
-fortunately, it was CRIU restore, so, I had dump files and could do
-restore many times and crash reproduced easily.  After some
-investigation I've constructed the minimal reproducer.  It was found
-that it's use-after-free and it happens only if sysctl
-kernel.shm_rmid_forced = 1.
+The value in ia_{g,u}id does already account for idmapped mounts and will have
+taken the relevant idmapping into account. So in order to verify that the
+{g,u}id attribute isn't changed we simple need to compare the ia_{g,u}id value
+against the inode's i_{g,u}id value.
 
-The key of the problem is that the exit_shm() function not handles shp's
-object destroy when task->sysvshm.shm_clist contains items from
-different IPC namespaces.  In most cases this list will contain only
-items from one IPC namespace.
+This only has any meaning for idmapped mounts as idmapping helpers are
+idempotent without them. And for idmapped mounts this really only has a meaning
+when circular idmappings are used, i.e. mappings where e.g. id 1000 is mapped
+to id 1001 and id 1001 is mapped to id 1000. Such ciruclar mappings can e.g. be
+useful when sharing the same home directory between multiple users at the same
+time.
 
-How can this list contain object from different namespaces? The
-exit_shm() function is designed to clean up this list always when
-process leaves IPC namespace.  But we made a mistake a long time ago and
-did not add a exit_shm() call into the setns() syscall procedures.
+As an example consider a directory with two files: /source/file1 owned by
+{g,u}id 1000 and /source/file2 owned by {g,u}id 1001. Assume we create an
+idmapped mount at /target with an idmapping that maps files owned by {g,u}id
+1000 to being owned by {g,u}id 1001 and files owned by {g,u}id 1001 to being
+owned by {g,u}id 1000. In effect, the idmapped mount at /target switches the
+ownership of /source/file1 and source/file2, i.e. /target/file1 will be owned
+by {g,u}id 1001 and /target/file2 will be owned by {g,u}id 1000.
 
-The first idea was just to add this call to setns() syscall but it
-obviously changes semantics of setns() syscall and that's
-userspace-visible change.  So, I gave up on this idea.
+This means that a user with fs{g,u}id 1000 must be allowed to setattr
+/target/file2 from {g,u}id 1000 to {g,u}id 1000. Similar, a user with fs{g,u}id
+1001 must be allowed to setattr /target/file1 from {g,u}id 1001 to {g,u}id
+1001. Conversely, a user with fs{g,u}id 1000 must fail to setattr /target/file1
+from {g,u}id 1001 to {g,u}id 1000. And a user with fs{g,u}id 1001 must fail to
+setattr /target/file2 from {g,u}id 1000 to {g,u}id 1000. Both cases must fail
+with EPERM for non-capable callers.
 
-The first real attempt to address the issue was just to omit forced
-destroy if we meet shp object not from current task IPC namespace [1].
-But that was not the best idea because task->sysvshm.shm_clist was
-protected by rwsem which belongs to current task IPC namespace.  It
-means that list corruption may occur.
+Before this patch we could end up denying legitimate attribute changes and
+allowing invalid attribute changes when circular mappings are used. To even get
+into this situation the caller must've been privileged both to create that
+mapping and to create that idmapped mount.
 
-Second approach is just extend exit_shm() to properly handle shp's from
-different IPC namespaces [2].  This is really non-trivial thing, I've
-put a lot of effort into that but not believed that it's possible to
-make it fully safe, clean and clear.
+This hasn't been seen in the wild anywhere but came up when expanding the
+testsuite during work on a series of hardening patches. All idmapped fstests
+pass without any regressions and we add new tests to verify the behavior of
+circular mappings.
 
-Thanks to the efforts of Manfred Spraul working an elegant solution was
-designed.  Thanks a lot, Manfred!
-
-Eric also suggested the way to address the issue in ("[RFC][PATCH] shm:
-In shm_exit destroy all created and never attached segments") Eric's
-idea was to maintain a list of shm_clists one per IPC namespace, use
-lock-less lists.  But there is some extra memory consumption-related
-concerns.
-
-An alternative solution which was suggested by me was implemented in
-("shm: reset shm_clist on setns but omit forced shm destroy").  The idea
-is pretty simple, we add exit_shm() syscall to setns() but DO NOT
-destroy shm segments even if sysctl kernel.shm_rmid_forced = 1, we just
-clean up the task->sysvshm.shm_clist list.
-
-This chages semantics of setns() syscall a little bit but in comparision
-to the "naive" solution when we just add exit_shm() without any special
-exclusions this looks like a safer option.
-
-[1] https://lkml.org/lkml/2021/7/6/1108
-[2] https://lkml.org/lkml/2021/7/14/736
-
-This patch (of 2):
-
-Let's produce a warning if we trying to remove non-existing IPC object
-from IPC namespace kht/idr structures.
-
-This allows us to catch possible bugs when the ipc_rmid() function was
-called with inconsistent struct ipc_ids*, struct kern_ipc_perm*
-arguments.
-
-Link: https://lkml.kernel.org/r/20211027224348.611025-1-alexander.mikhalitsyn@virtuozzo.com
-Link: https://lkml.kernel.org/r/20211027224348.611025-2-alexander.mikhalitsyn@virtuozzo.com
-Co-developed-by: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
-Signed-off-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Greg KH <gregkh@linuxfoundation.org>
-Cc: Andrei Vagin <avagin@gmail.com>
-Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Cc: Vasily Averin <vvs@virtuozzo.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20211109145713.1868404-1-brauner@kernel.org
+Fixes: 2f221d6f7b88 ("attr: handle idmapped mounts")
+Cc: Seth Forshee <seth.forshee@digitalocean.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: stable@vger.kernel.org
+CC: linux-fsdevel@vger.kernel.org
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Seth Forshee <sforshee@digitalocean.com>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- ipc/util.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/attr.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/ipc/util.c
-+++ b/ipc/util.c
-@@ -446,8 +446,8 @@ static int ipcget_public(struct ipc_name
- static void ipc_kht_remove(struct ipc_ids *ids, struct kern_ipc_perm *ipcp)
+--- a/fs/attr.c
++++ b/fs/attr.c
+@@ -35,7 +35,7 @@ static bool chown_ok(struct user_namespa
+ 		     kuid_t uid)
  {
- 	if (ipcp->key != IPC_PRIVATE)
--		rhashtable_remove_fast(&ids->key_ht, &ipcp->khtnode,
--				       ipc_kht_params);
-+		WARN_ON_ONCE(rhashtable_remove_fast(&ids->key_ht, &ipcp->khtnode,
-+				       ipc_kht_params));
- }
- 
- /**
-@@ -462,7 +462,7 @@ void ipc_rmid(struct ipc_ids *ids, struc
+ 	kuid_t kuid = i_uid_into_mnt(mnt_userns, inode);
+-	if (uid_eq(current_fsuid(), kuid) && uid_eq(uid, kuid))
++	if (uid_eq(current_fsuid(), kuid) && uid_eq(uid, inode->i_uid))
+ 		return true;
+ 	if (capable_wrt_inode_uidgid(mnt_userns, inode, CAP_CHOWN))
+ 		return true;
+@@ -62,7 +62,7 @@ static bool chgrp_ok(struct user_namespa
  {
- 	int idx = ipcid_to_idx(ipcp->id);
- 
--	idr_remove(&ids->ipcs_idr, idx);
-+	WARN_ON_ONCE(idr_remove(&ids->ipcs_idr, idx) != ipcp);
- 	ipc_kht_remove(ids, ipcp);
- 	ids->in_use--;
- 	ipcp->deleted = true;
+ 	kgid_t kgid = i_gid_into_mnt(mnt_userns, inode);
+ 	if (uid_eq(current_fsuid(), i_uid_into_mnt(mnt_userns, inode)) &&
+-	    (in_group_p(gid) || gid_eq(gid, kgid)))
++	    (in_group_p(gid) || gid_eq(gid, inode->i_gid)))
+ 		return true;
+ 	if (capable_wrt_inode_uidgid(mnt_userns, inode, CAP_CHOWN))
+ 		return true;
 
 
