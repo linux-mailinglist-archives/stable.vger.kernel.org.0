@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7727045C273
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:26:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1638145C3CC
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345257AbhKXN3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:29:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56068 "EHLO mail.kernel.org"
+        id S1350858AbhKXNmt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:42:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348952AbhKXN1H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:27:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95B8461544;
-        Wed, 24 Nov 2021 12:50:18 +0000 (UTC)
+        id S1352262AbhKXNkw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:40:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77E9263249;
+        Wed, 24 Nov 2021 12:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758219;
-        bh=zzSW0xQXM86OxivIEd5k1n4tau/wo13mnGujFeeRgIQ=;
+        s=korg; t=1637758649;
+        bh=BDJFTQwpvH0m3wDHmGPC96Aph1DdABchxbX9TxAQV6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMIJuTO8Pe8Kpy0ZV6Zo7y9kAfuGF35oEyHlDt/YFH4k/WM9PHIQY95kpLo1qdbff
-         qP21h4kCDDCb3lbmGbXpSgsmZLHqhKUzoC7jHSPxeQCPRYMj4fE12Ty2Q1nDpw3Kul
-         VuJv48gucs5VgQ/AQ3E7rVhTaC18XjuJVGhNfb9A=
+        b=LDjuv9n9D6rb9jB2RoeEE2rpm3zjN3EGSMHzkj3GUivd4xhH3OR1dDxaHTejlXrtA
+         /maV0rFun4xSsSNf87exrSCnjZafJsj4soQ8DHSmDTAPVdh4EiY0cAygYKPwjc5kig
+         sp4k7vVwjzV2ErkX/o0og41Yv1rL0RyFVObQpUws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Subject: [PATCH 5.4 097/100] usb: max-3421: Use driver data instead of maintaining a list of bound devices
+        stable@vger.kernel.org, XiangBing Foo <XiangBing.Foo@amd.com>,
+        Martin Leung <Martin.Leung@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Alvin Lee <Alvin.Lee2@amd.com>,
+        Daniel Wheeler <Daniel.Wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 137/154] drm/amd/display: Update swizzle mode enums
 Date:   Wed, 24 Nov 2021 12:58:53 +0100
-Message-Id: <20211124115657.990465481@linuxfoundation.org>
+Message-Id: <20211124115706.734000387@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,95 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Alvin Lee <Alvin.Lee2@amd.com>
 
-commit fc153aba3ef371d0d76eb88230ed4e0dee5b38f2 upstream.
+commit 58065a1e524de30df9a2d8214661d5d7eed0a2d9 upstream.
 
-Instead of maintaining a single-linked list of devices that must be
-searched linearly in .remove() just use spi_set_drvdata() to remember the
-link between the spi device and the driver struct. Then the global list
-and the next member can be dropped.
+[Why]
+Swizzle mode enum for DC_SW_VAR_R_X was existing,
+but not mapped correctly.
 
-This simplifies the driver, reduces the memory footprint and the time to
-search the list. Also it makes obvious that there is always a corresponding
-driver struct for a given device in .remove(), so the error path for
-!max3421_hcd can be dropped, too.
+[How]
+Update mapping and conversion for DC_SW_VAR_R_X.
 
-As a side effect this fixes a data inconsistency when .probe() races with
-itself for a second max3421 device in manipulating max3421_hcd_list. A
-similar race is fixed in .remove(), too.
-
-Fixes: 2d53139f3162 ("Add support for using a MAX3421E chip as a host driver.")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20211018204028.2914597-1-u.kleine-koenig@pengutronix.de
+Reviewed-by: XiangBing Foo <XiangBing.Foo@amd.com>
+Reviewed-by: Martin Leung <Martin.Leung@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Alvin Lee <Alvin.Lee2@amd.com>
+Cc: stable@vger.kernel.org
+Tested-by: Daniel Wheeler <Daniel.Wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/max3421-hcd.c |   25 +++++--------------------
- 1 file changed, 5 insertions(+), 20 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c   |    4 +++-
+ drivers/gpu/drm/amd/display/dc/dml/display_mode_enums.h |    4 ++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/host/max3421-hcd.c
-+++ b/drivers/usb/host/max3421-hcd.c
-@@ -125,8 +125,6 @@ struct max3421_hcd {
- 
- 	struct task_struct *spi_thread;
- 
--	struct max3421_hcd *next;
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -1852,7 +1852,9 @@ static void swizzle_to_dml_params(
+ 	case DC_SW_VAR_D_X:
+ 		*sw_mode = dm_sw_var_d_x;
+ 		break;
 -
- 	enum max3421_rh_state rh_state;
- 	/* lower 16 bits contain port status, upper 16 bits the change mask: */
- 	u32 port_status;
-@@ -174,8 +172,6 @@ struct max3421_ep {
- 	u8 retransmit;			/* packet needs retransmission */
++	case DC_SW_VAR_R_X:
++		*sw_mode = dm_sw_var_r_x;
++		break;
+ 	default:
+ 		ASSERT(0); /* Not supported */
+ 		break;
+--- a/drivers/gpu/drm/amd/display/dc/dml/display_mode_enums.h
++++ b/drivers/gpu/drm/amd/display/dc/dml/display_mode_enums.h
+@@ -80,11 +80,11 @@ enum dm_swizzle_mode {
+ 	dm_sw_SPARE_13 = 24,
+ 	dm_sw_64kb_s_x = 25,
+ 	dm_sw_64kb_d_x = 26,
+-	dm_sw_SPARE_14 = 27,
++	dm_sw_64kb_r_x = 27,
+ 	dm_sw_SPARE_15 = 28,
+ 	dm_sw_var_s_x = 29,
+ 	dm_sw_var_d_x = 30,
+-	dm_sw_64kb_r_x,
++	dm_sw_var_r_x = 31,
+ 	dm_sw_gfx7_2d_thin_l_vp,
+ 	dm_sw_gfx7_2d_thin_gl,
  };
- 
--static struct max3421_hcd *max3421_hcd_list;
--
- #define MAX3421_FIFO_SIZE	64
- 
- #define MAX3421_SPI_DIR_RD	0	/* read register from MAX3421 */
-@@ -1882,9 +1878,8 @@ max3421_probe(struct spi_device *spi)
- 	}
- 	set_bit(HCD_FLAG_POLL_RH, &hcd->flags);
- 	max3421_hcd = hcd_to_max3421(hcd);
--	max3421_hcd->next = max3421_hcd_list;
--	max3421_hcd_list = max3421_hcd;
- 	INIT_LIST_HEAD(&max3421_hcd->ep_list);
-+	spi_set_drvdata(spi, max3421_hcd);
- 
- 	max3421_hcd->tx = kmalloc(sizeof(*max3421_hcd->tx), GFP_KERNEL);
- 	if (!max3421_hcd->tx)
-@@ -1934,28 +1929,18 @@ error:
- static int
- max3421_remove(struct spi_device *spi)
- {
--	struct max3421_hcd *max3421_hcd = NULL, **prev;
--	struct usb_hcd *hcd = NULL;
-+	struct max3421_hcd *max3421_hcd;
-+	struct usb_hcd *hcd;
- 	unsigned long flags;
- 
--	for (prev = &max3421_hcd_list; *prev; prev = &(*prev)->next) {
--		max3421_hcd = *prev;
--		hcd = max3421_to_hcd(max3421_hcd);
--		if (hcd->self.controller == &spi->dev)
--			break;
--	}
--	if (!max3421_hcd) {
--		dev_err(&spi->dev, "no MAX3421 HCD found for SPI device %p\n",
--			spi);
--		return -ENODEV;
--	}
-+	max3421_hcd = spi_get_drvdata(spi);
-+	hcd = max3421_to_hcd(max3421_hcd);
- 
- 	usb_remove_hcd(hcd);
- 
- 	spin_lock_irqsave(&max3421_hcd->lock, flags);
- 
- 	kthread_stop(max3421_hcd->spi_thread);
--	*prev = max3421_hcd->next;
- 
- 	spin_unlock_irqrestore(&max3421_hcd->lock, flags);
- 
 
 
