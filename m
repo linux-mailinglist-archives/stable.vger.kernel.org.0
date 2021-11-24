@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FD2645BF89
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:56:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1771D45BC92
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346283AbhKXM7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:59:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32872 "EHLO mail.kernel.org"
+        id S245143AbhKXMbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346975AbhKXM51 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:57:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6064A6187D;
-        Wed, 24 Nov 2021 12:33:02 +0000 (UTC)
+        id S243634AbhKXM1t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:27:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A0CD6126A;
+        Wed, 24 Nov 2021 12:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757183;
-        bh=BkKXLQNYfTkx2I0te5W41J5T9C5in+TRlC6OyCZ4Dn4=;
+        s=korg; t=1637756219;
+        bh=7kceqMDPmmIt7D3kVKnMRxAcHzsQJ5L5lGKetNWDrjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=midXiYF21d+8bP65RhULcvz1Xi2h5qsk7oN6dKM7jcjB9Oz0Yi+QCuwS/ItWMJD+/
-         Vr0ZHIgAbQwsyDa4zlNmWbDIzLxxkGSy8kSFcH5l+dkwU/aQOwzst6S18BxlH4lNzW
-         R0Y5RCkkCCRXRBXUi4aKboFKWefnyF5AvIBmHV74=
+        b=H7Zpb5nvGGSrJfL21CQ/XfQBYkd8oVuATh4p0d/NFZzR98W4eJqkDlp3gZrKMVwhQ
+         NQFYdQjEk4X2VeAz0gnBKiUJ0z5tELKPQoaqyeFsxZK5anxZEke/OwW6kRgmRGjDDz
+         gxi1RAAE1f6Ien9qoZQDNmOOjYPBiaRWHsO29Mb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 052/323] rtl8187: fix control-message timeouts
-Date:   Wed, 24 Nov 2021 12:54:02 +0100
-Message-Id: <20211124115720.631288034@linuxfoundation.org>
+        stable@vger.kernel.org, "Walt Jr. Brake" <mr.yming81@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 001/251] xhci: Fix USB 3.1 enumeration issues by increasing roothub power-on-good delay
+Date:   Wed, 24 Nov 2021 12:54:03 +0100
+Message-Id: <20211124115710.266856248@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,87 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 2e9be536a213e838daed6ba42024dd68954ac061 upstream.
+commit e1959faf085b004e6c3afaaaa743381f00e7c015 upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+Some USB 3.1 enumeration issues were reported after the hub driver removed
+the minimum 100ms limit for the power-on-good delay.
 
-Fixes: 605bebe23bf6 ("[PATCH] Add rtl8187 wireless driver")
-Cc: stable@vger.kernel.org      # 2.6.23
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211025120522.6045-4-johan@kernel.org
+Since commit 90d28fb53d4a ("usb: core: reduce power-on-good delay time of
+root hub") the hub driver sets the power-on-delay based on the
+bPwrOn2PwrGood value in the hub descriptor.
+
+xhci driver has a 20ms bPwrOn2PwrGood value for both roothubs based
+on xhci spec section 5.4.8, but it's clearly not enough for the
+USB 3.1 devices, causing enumeration issues.
+
+Tests indicate full 100ms delay is needed.
+
+Reported-by: Walt Jr. Brake <mr.yming81@gmail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Fixes: 90d28fb53d4a ("usb: core: reduce power-on-good delay time of root hub")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211105160036.549516-1-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/usb/host/xhci-hub.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c
-+++ b/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c
-@@ -31,7 +31,7 @@ u8 rtl818x_ioread8_idx(struct rtl8187_pr
- 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits8, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits8, sizeof(val), 500);
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -174,7 +174,6 @@ static void xhci_common_hub_descriptor(s
+ {
+ 	u16 temp;
  
- 	val = priv->io_dmabuf->bits8;
- 	mutex_unlock(&priv->io_mutex);
-@@ -48,7 +48,7 @@ u16 rtl818x_ioread16_idx(struct rtl8187_
- 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits16, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits16, sizeof(val), 500);
+-	desc->bPwrOn2PwrGood = 10;	/* xhci section 5.4.9 says 20ms max */
+ 	desc->bHubContrCurrent = 0;
  
- 	val = priv->io_dmabuf->bits16;
- 	mutex_unlock(&priv->io_mutex);
-@@ -65,7 +65,7 @@ u32 rtl818x_ioread32_idx(struct rtl8187_
- 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits32, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits32, sizeof(val), 500);
+ 	desc->bNbrPorts = ports;
+@@ -208,6 +207,7 @@ static void xhci_usb2_hub_descriptor(str
+ 	desc->bDescriptorType = USB_DT_HUB;
+ 	temp = 1 + (ports / 8);
+ 	desc->bDescLength = USB_DT_HUB_NONVAR_SIZE + 2 * temp;
++	desc->bPwrOn2PwrGood = 10;	/* xhci section 5.4.8 says 20ms */
  
- 	val = priv->io_dmabuf->bits32;
- 	mutex_unlock(&priv->io_mutex);
-@@ -82,7 +82,7 @@ void rtl818x_iowrite8_idx(struct rtl8187
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits8, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits8, sizeof(val), 500);
+ 	/* The Device Removable bits are reported on a byte granularity.
+ 	 * If the port doesn't exist within that byte, the bit is set to 0.
+@@ -258,6 +258,7 @@ static void xhci_usb3_hub_descriptor(str
+ 	xhci_common_hub_descriptor(xhci, desc, ports);
+ 	desc->bDescriptorType = USB_DT_SS_HUB;
+ 	desc->bDescLength = USB_DT_SS_HUB_SIZE;
++	desc->bPwrOn2PwrGood = 50;	/* usb 3.1 may fail if less than 100ms */
  
- 	mutex_unlock(&priv->io_mutex);
- }
-@@ -96,7 +96,7 @@ void rtl818x_iowrite16_idx(struct rtl818
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits16, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits16, sizeof(val), 500);
- 
- 	mutex_unlock(&priv->io_mutex);
- }
-@@ -110,7 +110,7 @@ void rtl818x_iowrite32_idx(struct rtl818
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			(unsigned long)addr, idx & 0x03,
--			&priv->io_dmabuf->bits32, sizeof(val), HZ / 2);
-+			&priv->io_dmabuf->bits32, sizeof(val), 500);
- 
- 	mutex_unlock(&priv->io_mutex);
- }
-@@ -186,7 +186,7 @@ static void rtl8225_write_8051(struct ie
- 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
- 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
- 			addr, 0x8225, &priv->io_dmabuf->bits16, sizeof(data),
--			HZ / 2);
-+			500);
- 
- 	mutex_unlock(&priv->io_mutex);
- 
+ 	/* header decode latency should be zero for roothubs,
+ 	 * see section 4.23.5.2.
 
 
