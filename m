@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 072DD45C2E6
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:31:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 331DC45C218
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:22:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349505AbhKXNeK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:34:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57670 "EHLO mail.kernel.org"
+        id S1350326AbhKXNZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:25:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351443AbhKXNbn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:31:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28F2561BD0;
-        Wed, 24 Nov 2021 12:52:53 +0000 (UTC)
+        id S1349433AbhKXNVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:21:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B52F961B1D;
+        Wed, 24 Nov 2021 12:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758373;
-        bh=BK13YRtjt4xo0x18ZkuwYfFykbkco/riE+U0evPBdqM=;
+        s=korg; t=1637758041;
+        bh=OUiFxJpxj+/5MpLORH9DKyxWdGQ9Uj4/WrY6UX+GzxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rYnr2XAYIyOqi6XJM9yFYiNMYVDqre73HrKeaGYxlbdYjQT+O56PWZ5veZJAkDfDR
-         zTDH07zFQimccl56ijVMHDrOYcJzwHcvj8r33GcAaf1GDalwwzSfBoJ9dJwWHF+xsm
-         4CuwXgGCb3sBkY1jVqi3y2BXgPton5gRak5t5OlA=
+        b=xdwZUY4BxvQ4CTuRG3dEAlptWQNxsCCQWTIo1paHet9PHInoZjfTmiv+To+HTKKnO
+         i7OpFLTP9PL/SH4P9t7YJUsqu5xhi50v1hc8g9/FxSwCrWkJx1jY5t+sU7QOTjqvLP
+         LjkNtdeXwWFF95eOin36I6bib+RDSTzDy9CZJt8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Lu Wei <luwei32@huawei.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/154] maple: fix wrong return value of maple_bus_init().
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 009/100] arm64: dts: qcom: msm8998: Fix CPU/L2 idle state latency and residency
 Date:   Wed, 24 Nov 2021 12:57:25 +0100
-Message-Id: <20211124115703.920442567@linuxfoundation.org>
+Message-Id: <20211124115655.149758380@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +42,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Wei <luwei32@huawei.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
 
-[ Upstream commit bde82ee391fa6d3ad054313c4aa7b726d32515ce ]
+[ Upstream commit 3f1dcaff642e75c1d2ad03f783fa8a3b1f56dd50 ]
 
-If KMEM_CACHE or maple_alloc_dev failed, the maple_bus_init() will return 0
-rather than error, because the retval is not changed after KMEM_CACHE or
-maple_alloc_dev failed.
+The entry/exit latency and minimum residency in state for the idle
+states of MSM8998 were ..bad: first of all, for all of them the
+timings were written for CPU sleep but the min-residency-us param
+was miscalculated (supposedly, while porting this from downstream);
+Then, the power collapse states are setting PC on both the CPU
+cluster *and* the L2 cache, which have different timings: in the
+specific case of L2 the times are higher so these ones should be
+taken into account instead of the CPU ones.
 
-Fixes: 17be2d2b1c33 ("sh: Add maple bus support for the SEGA Dreamcast.")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Lu Wei <luwei32@huawei.com>
-Acked-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Rich Felker <dalias@libc.org>
+This parameter misconfiguration was not giving particular issues
+because on MSM8998 there was no CPU scaling at all, so cluster/L2
+power collapse was rarely (if ever) hit.
+When CPU scaling is enabled, though, the wrong timings will produce
+SoC unstability shown to the user as random, apparently error-less,
+sudden reboots and/or lockups.
+
+This set of parameters are stabilizing the SoC when CPU scaling is
+ON and when power collapse is frequently hit.
+
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210901183123.1087392-3-angelogioacchino.delregno@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/sh/maple/maple.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8998.dtsi | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/sh/maple/maple.c b/drivers/sh/maple/maple.c
-index e5d7fb81ad665..44a931d41a132 100644
---- a/drivers/sh/maple/maple.c
-+++ b/drivers/sh/maple/maple.c
-@@ -835,8 +835,10 @@ static int __init maple_bus_init(void)
+diff --git a/arch/arm64/boot/dts/qcom/msm8998.dtsi b/arch/arm64/boot/dts/qcom/msm8998.dtsi
+index ccd535edbf4e1..dcb79003ca0e6 100644
+--- a/arch/arm64/boot/dts/qcom/msm8998.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8998.dtsi
+@@ -246,38 +246,42 @@
+ 			LITTLE_CPU_SLEEP_0: cpu-sleep-0-0 {
+ 				compatible = "arm,idle-state";
+ 				idle-state-name = "little-retention";
++				/* CPU Retention (C2D), L2 Active */
+ 				arm,psci-suspend-param = <0x00000002>;
+ 				entry-latency-us = <81>;
+ 				exit-latency-us = <86>;
+-				min-residency-us = <200>;
++				min-residency-us = <504>;
+ 			};
  
- 	maple_queue_cache = KMEM_CACHE(maple_buffer, SLAB_HWCACHE_ALIGN);
+ 			LITTLE_CPU_SLEEP_1: cpu-sleep-0-1 {
+ 				compatible = "arm,idle-state";
+ 				idle-state-name = "little-power-collapse";
++				/* CPU + L2 Power Collapse (C3, D4) */
+ 				arm,psci-suspend-param = <0x40000003>;
+-				entry-latency-us = <273>;
+-				exit-latency-us = <612>;
+-				min-residency-us = <1000>;
++				entry-latency-us = <814>;
++				exit-latency-us = <4562>;
++				min-residency-us = <9183>;
+ 				local-timer-stop;
+ 			};
  
--	if (!maple_queue_cache)
-+	if (!maple_queue_cache) {
-+		retval = -ENOMEM;
- 		goto cleanup_bothirqs;
-+	}
+ 			BIG_CPU_SLEEP_0: cpu-sleep-1-0 {
+ 				compatible = "arm,idle-state";
+ 				idle-state-name = "big-retention";
++				/* CPU Retention (C2D), L2 Active */
+ 				arm,psci-suspend-param = <0x00000002>;
+ 				entry-latency-us = <79>;
+ 				exit-latency-us = <82>;
+-				min-residency-us = <200>;
++				min-residency-us = <1302>;
+ 			};
  
- 	INIT_LIST_HEAD(&maple_waitq);
- 	INIT_LIST_HEAD(&maple_sentq);
-@@ -849,6 +851,7 @@ static int __init maple_bus_init(void)
- 		if (!mdev[i]) {
- 			while (i-- > 0)
- 				maple_free_dev(mdev[i]);
-+			retval = -ENOMEM;
- 			goto cleanup_cache;
- 		}
- 		baseunits[i] = mdev[i];
+ 			BIG_CPU_SLEEP_1: cpu-sleep-1-1 {
+ 				compatible = "arm,idle-state";
+ 				idle-state-name = "big-power-collapse";
++				/* CPU + L2 Power Collapse (C3, D4) */
+ 				arm,psci-suspend-param = <0x40000003>;
+-				entry-latency-us = <336>;
+-				exit-latency-us = <525>;
+-				min-residency-us = <1000>;
++				entry-latency-us = <724>;
++				exit-latency-us = <2027>;
++				min-residency-us = <9419>;
+ 				local-timer-stop;
+ 			};
+ 		};
 -- 
 2.33.0
 
