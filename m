@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B3E245C048
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:03:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56AFE45C474
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:46:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345484AbhKXNGh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:06:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46520 "EHLO mail.kernel.org"
+        id S1349700AbhKXNtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:49:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345470AbhKXNEn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:04:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BEF361A04;
-        Wed, 24 Nov 2021 12:37:08 +0000 (UTC)
+        id S1351311AbhKXNrl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:47:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8271261A08;
+        Wed, 24 Nov 2021 13:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757429;
-        bh=ba7OJ5zJD3+qN5ry1QYNEeab3gpRjeaTarwoS8KfAUE=;
+        s=korg; t=1637758909;
+        bh=DYyIzSGTQ8W6spGmBqd+117i5tD1eiwjX3gTuBDc7F4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OyCgk6CIq092+Fkf3nD7Urhcgyg2C9kpSPzE0065dq0DNxfZ+PUgoj3suRACBQFmM
-         d3cCRsrEbqz/1B2ZXqoPlVCAszJcSXSWlWRG2QkNoY/jhVDj+yYirOpQLkHam0Bchv
-         Xk1W53cOs2NlxSgQhPzQFjB3WcJDRj4Jz+8ipGMg=
+        b=TSYslFeAdCiqCJiU856O60dUPAttxpN1LeIneNZVnGzFGdR3c44JVWVEc4h3m3QI3
+         9FP0bjUdx2Cgd5dkUSOS2SPMAviltqPkMJcMyLh4fz7VaHtqwwwHj4Nc3lKJrLjGIa
+         2bbs1inQ7AG3s1/qb0j8EJmQNLgnKGBABrVU1Zu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Nicolas Chauvet <kwizart@gmail.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 166/323] samples/kretprobes: Fix return value if register_kretprobe() failed
-Date:   Wed, 24 Nov 2021 12:55:56 +0100
-Message-Id: <20211124115724.548321941@linuxfoundation.org>
+Subject: [PATCH 5.15 070/279] memory: tegra20-emc: Add runtime dependency on devfreq governor module
+Date:   Wed, 24 Nov 2021 12:55:57 +0100
+Message-Id: <20211124115721.121320398@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit f76fbbbb5061fe14824ba5807c44bd7400a6b4e1 ]
+[ Upstream commit 14b43c20c283de36131da0cb44f3170b9ffa7630 ]
 
-Use the actual return value instead of always -1 if register_kretprobe()
-failed.
+Tegra20 EMC driver uses simple devfreq governor. Add simple devfreq
+governor to the list of the Tegra20 EMC driver module softdeps to allow
+userspace initramfs tools like dracut to automatically pull the devfreq
+module into ramfs image together with the EMC module.
 
-E.g. without this patch:
-
- # insmod samples/kprobes/kretprobe_example.ko func=no_such_func
- insmod: ERROR: could not insert module samples/kprobes/kretprobe_example.ko: Operation not permitted
-
-With this patch:
-
- # insmod samples/kprobes/kretprobe_example.ko func=no_such_func
- insmod: ERROR: could not insert module samples/kprobes/kretprobe_example.ko: Unknown symbol in module
-
-Link: https://lkml.kernel.org/r/1635213091-24387-2-git-send-email-yangtiezhu@loongson.cn
-
-Fixes: 804defea1c02 ("Kprobes: move kprobe examples to samples/")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reported-by: Nicolas Chauvet <kwizart@gmail.com>
+Suggested-by: Nicolas Chauvet <kwizart@gmail.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20211019231524.888-1-digetx@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/kprobes/kretprobe_example.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/memory/tegra/tegra20-emc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/samples/kprobes/kretprobe_example.c b/samples/kprobes/kretprobe_example.c
-index 7f9060f435cde..da6de5e78e1dd 100644
---- a/samples/kprobes/kretprobe_example.c
-+++ b/samples/kprobes/kretprobe_example.c
-@@ -83,7 +83,7 @@ static int __init kretprobe_init(void)
- 	ret = register_kretprobe(&my_kretprobe);
- 	if (ret < 0) {
- 		pr_err("register_kretprobe failed, returned %d\n", ret);
--		return -1;
-+		return ret;
- 	}
- 	pr_info("Planted return probe at %s: %p\n",
- 			my_kretprobe.kp.symbol_name, my_kretprobe.kp.addr);
+diff --git a/drivers/memory/tegra/tegra20-emc.c b/drivers/memory/tegra/tegra20-emc.c
+index c3462dbc8c22b..6fc90f2160e93 100644
+--- a/drivers/memory/tegra/tegra20-emc.c
++++ b/drivers/memory/tegra/tegra20-emc.c
+@@ -1117,4 +1117,5 @@ module_platform_driver(tegra_emc_driver);
+ 
+ MODULE_AUTHOR("Dmitry Osipenko <digetx@gmail.com>");
+ MODULE_DESCRIPTION("NVIDIA Tegra20 EMC driver");
++MODULE_SOFTDEP("pre: governor_simpleondemand");
+ MODULE_LICENSE("GPL v2");
 -- 
 2.33.0
 
