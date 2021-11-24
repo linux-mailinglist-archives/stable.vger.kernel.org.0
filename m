@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79C2A45C0FC
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF6945C553
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:53:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244430AbhKXNOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:14:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53880 "EHLO mail.kernel.org"
+        id S1347356AbhKXN4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:56:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347702AbhKXNKW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:10:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A00061244;
-        Wed, 24 Nov 2021 12:41:30 +0000 (UTC)
+        id S1348279AbhKXNyn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:54:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E44C061A0D;
+        Wed, 24 Nov 2021 13:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757691;
-        bh=fbRDW4GzMnNPx6XtOaPS/giSOKA0M33SGAmnbuZODsA=;
+        s=korg; t=1637759149;
+        bh=++brxHt4CC12P5zWIi6VnMzoRJTADwvMrGMzy4WZQ0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2DvjaYS3LTQ+iVsAcY+Mk2mUOuibjk6M1hZfSwoMHx2p6gMhUxcuyMmD0FW7iYNQv
-         ymOVt819PkSZ3/Wvt5k9p8OmfyolXv3qTQ2RXWjPgQ7/EEGrMwOrfBxog/rLWAivKZ
-         fK3PQSxY/IpDN/qRQ9Sbmyse+rh5hLFm9JDM8CmM=
+        b=naFQyq3LN5fxnTmKaZ7d7v+HnxoC1W5/9u1wjJa05oI+GG+UJS5n8K+nSIyZiTYU9
+         X1KVvBUEoiSseSON2z03z4MPbq/4Rzul1WJlLwPjyVzopJAboF/H76RGNnw6yktbJt
+         k7/FY9VNOAwjaTMV+9oNvhTxnzvRtPXpVnZXqdq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.19 245/323] video: backlight: Drop maximum brightness override for brightness zero
+        stable@vger.kernel.org, Mark Bloch <mbloch@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 148/279] net/mlx5: E-Switch, rebuild lag only when needed
 Date:   Wed, 24 Nov 2021 12:57:15 +0100
-Message-Id: <20211124115727.177359655@linuxfoundation.org>
+Message-Id: <20211124115723.891138004@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Mark Bloch <mbloch@nvidia.com>
 
-commit 33a5471f8da976bf271a1ebbd6b9d163cb0cb6aa upstream.
+[ Upstream commit 2eb0cb31bc4ce2ede5460cf3ef433b40cf5f040d ]
 
-The note in c2adda27d202f ("video: backlight: Add of_find_backlight helper
-in backlight.c") says that gpio-backlight uses brightness as power state.
-This has been fixed since in ec665b756e6f7 ("backlight: gpio-backlight:
-Correct initial power state handling") and other backlight drivers do not
-require this workaround. Drop the workaround.
+A user can enable VFs without changing E-Switch mode, this can happen
+when a user moves straight to switchdev mode and only once in switchdev
+VFs are enabled via the sysfs interface.
 
-This fixes the case where e.g. pwm-backlight can perfectly well be set to
-brightness 0 on boot in DT, which without this patch leads to the display
-brightness to be max instead of off.
+The cited commit assumed this isn't possible and exposed a single
+API function where the E-switch calls into the lag code, breaks the lag
+and prevents any other lag operations to take place until the
+E-switch update has ended.
 
-Fixes: c2adda27d202f ("video: backlight: Add of_find_backlight helper in backlight.c")
-Cc: <stable@vger.kernel.org> # 5.4+
-Cc: <stable@vger.kernel.org> # 4.19.x: ec665b756e6f7: backlight: gpio-backlight: Correct initial power state handling
-Signed-off-by: Marek Vasut <marex@denx.de>
-Acked-by: Noralf Trønnes <noralf@tronnes.org>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Breaking the hardware lag when it isn't needed can make it such that
+hardware lag can't be enabled again.
+
+In the sysfs call path check if the current E-Switch mode is NONE,
+in the context of the function it can only mean the E-Switch is moving
+out of NONE mode and the hardware lag should be disabled and enabled
+once the mode change has ended. If the mode isn't NONE it means
+VFs are about to be enabled and such operation doesn't require
+toggling the hardware lag.
+
+Fixes: cac1eb2cf2e3 ("net/mlx5: Lag, properly lock eswitch if needed")
+Signed-off-by: Mark Bloch <mbloch@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/backlight.c |    6 ------
- 1 file changed, 6 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/video/backlight/backlight.c
-+++ b/drivers/video/backlight/backlight.c
-@@ -610,12 +610,6 @@ struct backlight_device *of_find_backlig
- 			of_node_put(np);
- 			if (!bd)
- 				return ERR_PTR(-EPROBE_DEFER);
--			/*
--			 * Note: gpio_backlight uses brightness as
--			 * power state during probe
--			 */
--			if (!bd->props.brightness)
--				bd->props.brightness = bd->props.max_brightness;
- 		}
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+index 5872cc8bf9532..51a8cecc4a7ce 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+@@ -1305,12 +1305,17 @@ abort:
+  */
+ int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int num_vfs)
+ {
++	bool toggle_lag;
+ 	int ret;
  
+ 	if (!mlx5_esw_allowed(esw))
+ 		return 0;
+ 
+-	mlx5_lag_disable_change(esw->dev);
++	toggle_lag = esw->mode == MLX5_ESWITCH_NONE;
++
++	if (toggle_lag)
++		mlx5_lag_disable_change(esw->dev);
++
+ 	down_write(&esw->mode_lock);
+ 	if (esw->mode == MLX5_ESWITCH_NONE) {
+ 		ret = mlx5_eswitch_enable_locked(esw, MLX5_ESWITCH_LEGACY, num_vfs);
+@@ -1324,7 +1329,10 @@ int mlx5_eswitch_enable(struct mlx5_eswitch *esw, int num_vfs)
+ 			esw->esw_funcs.num_vfs = num_vfs;
+ 	}
+ 	up_write(&esw->mode_lock);
+-	mlx5_lag_enable_change(esw->dev);
++
++	if (toggle_lag)
++		mlx5_lag_enable_change(esw->dev);
++
+ 	return ret;
+ }
+ 
+-- 
+2.33.0
+
 
 
