@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E0A45C1AB
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:17:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C76AE45C331
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:33:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347756AbhKXNUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:20:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35228 "EHLO mail.kernel.org"
+        id S1348959AbhKXNgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:36:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349243AbhKXNSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:18:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A015610E8;
-        Wed, 24 Nov 2021 12:45:55 +0000 (UTC)
+        id S1347110AbhKXNeF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:34:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7CC8611C5;
+        Wed, 24 Nov 2021 12:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757956;
-        bh=jl1gUPw+TDlktSwf6vjGt49t+8ULymjwZAHlvZHQuvw=;
+        s=korg; t=1637758446;
+        bh=OSnGHfoonZUMR5n0uTW0l0jcpsipm3GfZ/IacPzI8Yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jH1Ya3myVNS5BrOZBUisi+cncFFtjAEqGz1j8sQywd27ABuZF98DloWAL0TBbHttp
-         2E4Dxq9lYzGoBzWq4ovdLC32m6PWAMc+uUkvtLtqPlyJvpf2oI0IlGuyC5Q7wOSQgz
-         y09yPFT/o/bAkOj/KVJPdf//c4nkpFxRcPLyYqXU=
+        b=AWgLifDuBD/WX6KagBO0q5dRqKdfxuhRZdRBjN81kUGFlcUdpvAEuymEL6gw4FTqc
+         rWNsY2h2NPRexxcsKDU5qVbbaDL/wTRq5kvWUeKpgiQxuPoL8slTl2F0HSJEZfm7tD
+         DN29TQbRnAF+vPdXNgu377zFY/CVmqfFo2IU+lu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 001/100] arm64: zynqmp: Do not duplicate flash partition label property
+Subject: [PATCH 5.10 041/154] scsi: target: Fix alua_tg_pt_gps_count tracking
 Date:   Wed, 24 Nov 2021 12:57:17 +0100
-Message-Id: <20211124115654.900515301@linuxfoundation.org>
+Message-Id: <20211124115703.678247764@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,52 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 167721a5909f867f8c18c8e78ea58e705ad9bbd4 ]
+[ Upstream commit 1283c0d1a32bb924324481586b5d6e8e76f676ba ]
 
-In kernel 5.4, support has been added for reading MTD devices via the nvmem
-API.
-For this the mtd devices are registered as read-only NVMEM providers under
-sysfs with the same name as the flash partition label property.
+We can't free the tg_pt_gp in core_alua_set_tg_pt_gp_id() because it's
+still accessed via configfs. Its release must go through the normal
+configfs/refcount process.
 
-So if flash partition label property of multiple flash devices are
-identical then the second mtd device fails to get registered as a NVMEM
-provider.
+The max alua_tg_pt_gps_count check should probably have been done in
+core_alua_allocate_tg_pt_gp(), but with the current code userspace could
+have created 0x0000ffff + 1 groups, but only set the id for 0x0000ffff.
+Then it could have deleted a group with an ID set, and then set the ID for
+that extra group and it would work ok.
 
-This patch fixes the issue by having different label property for different
-flashes.
+It's unlikely, but just in case this patch continues to allow that type of
+behavior, and just fixes the kfree() while in use bug.
 
-Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Link: https://lore.kernel.org/r/6c4b9b9232b93d9e316a63c086540fd5bf6b8687.1623684253.git.michal.simek@xilinx.com
+Link: https://lore.kernel.org/r/20210930020422.92578-4-michael.christie@oracle.com
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/target/target_core_alua.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts b/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts
-index 2421ec71a201c..41a66787247b6 100644
---- a/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts
-+++ b/arch/arm64/boot/dts/xilinx/zynqmp-zc1751-xm016-dc2.dts
-@@ -131,7 +131,7 @@
- 		reg = <0>;
- 
- 		partition@0 {
--			label = "data";
-+			label = "spi0-data";
- 			reg = <0x0 0x100000>;
- 		};
- 	};
-@@ -149,7 +149,7 @@
- 		reg = <0>;
- 
- 		partition@0 {
--			label = "data";
-+			label = "spi1-data";
- 			reg = <0x0 0x84000>;
- 		};
- 	};
+diff --git a/drivers/target/target_core_alua.c b/drivers/target/target_core_alua.c
+index 6b72afee2f8b7..b240bd1ccb71d 100644
+--- a/drivers/target/target_core_alua.c
++++ b/drivers/target/target_core_alua.c
+@@ -1702,7 +1702,6 @@ int core_alua_set_tg_pt_gp_id(
+ 		pr_err("Maximum ALUA alua_tg_pt_gps_count:"
+ 			" 0x0000ffff reached\n");
+ 		spin_unlock(&dev->t10_alua.tg_pt_gps_lock);
+-		kmem_cache_free(t10_alua_tg_pt_gp_cache, tg_pt_gp);
+ 		return -ENOSPC;
+ 	}
+ again:
 -- 
 2.33.0
 
