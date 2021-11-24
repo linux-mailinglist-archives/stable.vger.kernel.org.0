@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD7DB45C06B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:04:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B1545C079
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244448AbhKXNHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:07:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45428 "EHLO mail.kernel.org"
+        id S245476AbhKXNJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:09:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347447AbhKXNFr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:05:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08EA861A4E;
-        Wed, 24 Nov 2021 12:37:56 +0000 (UTC)
+        id S1347025AbhKXNGu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:06:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 199CA611AE;
+        Wed, 24 Nov 2021 12:38:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757477;
-        bh=dTbH0i7TBawoAGp/2ffELNgpyy5kSn5WlC4gwW5Glw0=;
+        s=korg; t=1637757495;
+        bh=TXj3+ZDn57CThNULG9Z5xHtLGKynYNJh1LbIvJ3wu70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s08AWy7J6Iqwmwk9tCUAGt3IkaCBTzJpxL0z1w1iy1MmfyTa80CBAbYm2VMocUrDV
-         r3/cJsPFjpgmJ+S0xxYfsrk1C37XfbFxLHfp7aDwo7Cpz3Zpho4NisA9OrLhBX1G+U
-         GmJHP7A0Cwco/BaE1oPV3trlfHhhg0mIzeolsdbY=
+        b=PdaL8xXQ4KsrQJM7RKcOWKr0dGFFAIfd+LwIsURqsym7C9xKxfKE5EMylEuLn8VPp
+         ONq7UpulsHty+dEyA9F1ie7w/52Okk2fHU9bUZHkRT+CV/tymBisZPamCK7kmq7ZGn
+         3bg+vLOgnnDqwgsOiQovZMwG3YhXSzoK2gaxNDUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tor Vic <torvic9@mailbox.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 154/323] platform/x86: thinkpad_acpi: Fix bitwise vs. logical warning
-Date:   Wed, 24 Nov 2021 12:55:44 +0100
-Message-Id: <20211124115724.131489249@linuxfoundation.org>
+Subject: [PATCH 4.19 155/323] rsi: stop thread firstly in rsi_91x_init() error handling
+Date:   Wed, 24 Nov 2021 12:55:45 +0100
+Message-Id: <20211124115724.167588098@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
@@ -42,48 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit fd96e35ea7b95f1e216277805be89d66e4ae962d ]
+[ Upstream commit 515e7184bdf0a3ebf1757cc77fb046b4fe282189 ]
 
-A new warning in clang points out a use of bitwise OR with boolean
-expressions in this driver:
+When fail to init coex module, free 'common' and 'adapter' directly, but
+common->tx_thread which will access 'common' and 'adapter' is running at
+the same time. That will trigger the UAF bug.
 
-drivers/platform/x86/thinkpad_acpi.c:9061:11: error: use of bitwise '|' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
-        else if ((strlencmp(cmd, "level disengaged") == 0) |
-                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                                           ||
-drivers/platform/x86/thinkpad_acpi.c:9061:11: note: cast one or both operands to int to silence this warning
-1 error generated.
+==================================================================
+BUG: KASAN: use-after-free in rsi_tx_scheduler_thread+0x50f/0x520 [rsi_91x]
+Read of size 8 at addr ffff8880076dc000 by task Tx-Thread/124777
+CPU: 0 PID: 124777 Comm: Tx-Thread Not tainted 5.15.0-rc5+ #19
+Call Trace:
+ dump_stack_lvl+0xe2/0x152
+ print_address_description.constprop.0+0x21/0x140
+ ? rsi_tx_scheduler_thread+0x50f/0x520
+ kasan_report.cold+0x7f/0x11b
+ ? rsi_tx_scheduler_thread+0x50f/0x520
+ rsi_tx_scheduler_thread+0x50f/0x520
+...
 
-This should clearly be a logical OR so change it to fix the warning.
+Freed by task 111873:
+ kasan_save_stack+0x1b/0x40
+ kasan_set_track+0x1c/0x30
+ kasan_set_free_info+0x20/0x30
+ __kasan_slab_free+0x109/0x140
+ kfree+0x117/0x4c0
+ rsi_91x_init+0x741/0x8a0 [rsi_91x]
+ rsi_probe+0x9f/0x1750 [rsi_usb]
 
-Fixes: fe98a52ce754 ("ACPI: thinkpad-acpi: add sysfs support to fan subdriver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1476
-Reported-by: Tor Vic <torvic9@mailbox.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20211018182537.2316800-1-nathan@kernel.org
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Stop thread before free 'common' and 'adapter' to fix it.
+
+Fixes: 2108df3c4b18 ("rsi: add coex support")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211015040335.1021546-1-william.xuanziyang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/rsi/rsi_91x_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 35c7d3185fea3..fa8bcbe3d2762 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -9124,7 +9124,7 @@ static int fan_write_cmd_level(const char *cmd, int *rc)
- 
- 	if (strlencmp(cmd, "level auto") == 0)
- 		level = TP_EC_FAN_AUTO;
--	else if ((strlencmp(cmd, "level disengaged") == 0) |
-+	else if ((strlencmp(cmd, "level disengaged") == 0) ||
- 			(strlencmp(cmd, "level full-speed") == 0))
- 		level = TP_EC_FAN_FULLSPEED;
- 	else if (sscanf(cmd, "level %d", &level) != 1)
+diff --git a/drivers/net/wireless/rsi/rsi_91x_main.c b/drivers/net/wireless/rsi/rsi_91x_main.c
+index a376d3d78e42c..d90d8ab56fa28 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_main.c
++++ b/drivers/net/wireless/rsi/rsi_91x_main.c
+@@ -373,6 +373,7 @@ struct rsi_hw *rsi_91x_init(u16 oper_mode)
+ 	if (common->coex_mode > 1) {
+ 		if (rsi_coex_attach(common)) {
+ 			rsi_dbg(ERR_ZONE, "Failed to init coex module\n");
++			rsi_kill_thread(&common->tx_thread);
+ 			goto err;
+ 		}
+ 	}
 -- 
 2.33.0
 
