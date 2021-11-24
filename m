@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4BA845C1E0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DEF445C5A2
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:57:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349706AbhKXNXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:23:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45194 "EHLO mail.kernel.org"
+        id S1350591AbhKXN7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:59:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348733AbhKXNUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:20:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 923946128A;
-        Wed, 24 Nov 2021 12:47:05 +0000 (UTC)
+        id S1348208AbhKXN46 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:56:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 977EA63392;
+        Wed, 24 Nov 2021 13:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758026;
-        bh=h00z2kKRn84wX9YSnvmocwlC8bQBN+BoZgdwVROFi+Y=;
+        s=korg; t=1637759258;
+        bh=uNtTpnsTSiVV8aks5pnimutDQRMMDEBTXfJl/2sESUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDeqOL102xvoPLNFSauY71asOS1lLYQ4gXaib6wPd2iaEN5okmvq776xbduarTxCI
-         ziTpkQOwe5rP6QRDgazT81cwxc6aSkmgYkSGeEO6hpEJThVBKmRNSjxYrNX8g/5HX2
-         +TCRralMaX6PeKA+00kFIyDViTXPQVezzHTFhU3E=
+        b=fm2elAoZkMU2lELkPgXaqb6/0qLIUrFoXKfsMVFhGkLapvxNhpggcE674XSjNW/PE
+         BWNC8TGvGzNj/D+0SiXz48xirmJALtiW3jNEk0ZTo4zBgqIbfZJY/H2RWmPZbRsxvp
+         5Ee93FuoKYH5ZkL1ZrWmJtKfHNDsHY6MFFGIEXj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 032/100] f2fs: fix up f2fs_lookup tracepoints
+Subject: [PATCH 5.15 181/279] pinctrl: qcom: sm8350: Correct UFS and SDC offsets
 Date:   Wed, 24 Nov 2021 12:57:48 +0100
-Message-Id: <20211124115655.913843312@linuxfoundation.org>
+Message-Id: <20211124115724.996405823@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 70a9ac36ffd807ac506ed0b849f3e8ce3c6623f2 ]
+[ Upstream commit 62209e805b5c68577602a5803a71d8e2e11ee0d3 ]
 
-Fix up a misuse that the filename pointer isn't always valid in
-the ring buffer, and we should copy the content instead.
+The downstream TLMM binding covers a group of TLMM-related hardware
+blocks, but the upstream binding only captures the particular block
+related to controlling the TLMM pins from an OS. In the translation of
+the driver from downstream, the offset of 0x100000 was lost for the UFS
+and SDC pingroups.
 
-Fixes: 0c5e36db17f5 ("f2fs: trace f2fs_lookup")
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: d5d348a3271f ("pinctrl: qcom: Add SM8350 pinctrl driver")
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Link: https://lore.kernel.org/r/20211104170835.1993686-1-bjorn.andersson@linaro.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/f2fs.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/pinctrl/qcom/pinctrl-sm8350.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
-index 1796ff99c3e9c..a7613efc271ab 100644
---- a/include/trace/events/f2fs.h
-+++ b/include/trace/events/f2fs.h
-@@ -793,20 +793,20 @@ TRACE_EVENT(f2fs_lookup_start,
- 	TP_STRUCT__entry(
- 		__field(dev_t,	dev)
- 		__field(ino_t,	ino)
--		__field(const char *,	name)
-+		__string(name,	dentry->d_name.name)
- 		__field(unsigned int, flags)
- 	),
+diff --git a/drivers/pinctrl/qcom/pinctrl-sm8350.c b/drivers/pinctrl/qcom/pinctrl-sm8350.c
+index 4d8f8636c2b39..1c042d39380c6 100644
+--- a/drivers/pinctrl/qcom/pinctrl-sm8350.c
++++ b/drivers/pinctrl/qcom/pinctrl-sm8350.c
+@@ -1597,10 +1597,10 @@ static const struct msm_pingroup sm8350_groups[] = {
+ 	[200] = PINGROUP(200, qdss_gpio, _, _, _, _, _, _, _, _),
+ 	[201] = PINGROUP(201, _, _, _, _, _, _, _, _, _),
+ 	[202] = PINGROUP(202, _, _, _, _, _, _, _, _, _),
+-	[203] = UFS_RESET(ufs_reset, 0x1d8000),
+-	[204] = SDC_PINGROUP(sdc2_clk, 0x1cf000, 14, 6),
+-	[205] = SDC_PINGROUP(sdc2_cmd, 0x1cf000, 11, 3),
+-	[206] = SDC_PINGROUP(sdc2_data, 0x1cf000, 9, 0),
++	[203] = UFS_RESET(ufs_reset, 0xd8000),
++	[204] = SDC_PINGROUP(sdc2_clk, 0xcf000, 14, 6),
++	[205] = SDC_PINGROUP(sdc2_cmd, 0xcf000, 11, 3),
++	[206] = SDC_PINGROUP(sdc2_data, 0xcf000, 9, 0),
+ };
  
- 	TP_fast_assign(
- 		__entry->dev	= dir->i_sb->s_dev;
- 		__entry->ino	= dir->i_ino;
--		__entry->name	= dentry->d_name.name;
-+		__assign_str(name, dentry->d_name.name);
- 		__entry->flags	= flags;
- 	),
- 
- 	TP_printk("dev = (%d,%d), pino = %lu, name:%s, flags:%u",
- 		show_dev_ino(__entry),
--		__entry->name,
-+		__get_str(name),
- 		__entry->flags)
- );
- 
-@@ -820,7 +820,7 @@ TRACE_EVENT(f2fs_lookup_end,
- 	TP_STRUCT__entry(
- 		__field(dev_t,	dev)
- 		__field(ino_t,	ino)
--		__field(const char *,	name)
-+		__string(name,	dentry->d_name.name)
- 		__field(nid_t,	cino)
- 		__field(int,	err)
- 	),
-@@ -828,14 +828,14 @@ TRACE_EVENT(f2fs_lookup_end,
- 	TP_fast_assign(
- 		__entry->dev	= dir->i_sb->s_dev;
- 		__entry->ino	= dir->i_ino;
--		__entry->name	= dentry->d_name.name;
-+		__assign_str(name, dentry->d_name.name);
- 		__entry->cino	= ino;
- 		__entry->err	= err;
- 	),
- 
- 	TP_printk("dev = (%d,%d), pino = %lu, name:%s, ino:%u, err:%d",
- 		show_dev_ino(__entry),
--		__entry->name,
-+		__get_str(name),
- 		__entry->cino,
- 		__entry->err)
- );
+ static const struct msm_gpio_wakeirq_map sm8350_pdc_map[] = {
 -- 
 2.33.0
 
