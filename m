@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CB4745BD97
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:36:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EEB345BD95
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245450AbhKXMjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:39:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41822 "EHLO mail.kernel.org"
+        id S245444AbhKXMjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:39:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243822AbhKXMha (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243823AbhKXMha (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 07:37:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA46B61206;
-        Wed, 24 Nov 2021 12:22:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6031F61074;
+        Wed, 24 Nov 2021 12:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756559;
-        bh=/LZGhiREHhHEbjhchLME2d5lw8k2ufrX3yl5SBsolN8=;
+        s=korg; t=1637756562;
+        bh=E1znDqorjFAKd7cD//Xg1QRkHrQkWuqTbAWr7svadqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dU38n0Fm7jTuJRFi2skBuP4v2NlxwvGKxj7D+ibhpSBjF7z7SKZmdGrK+qgKDoFNo
-         WhS6jle7fvGdzxe31ZovsN5bxzZuYkL08AS0q+T6nqH0DEKX9xO7TepRendiJ9CfjA
-         Q+73UVqYoM8TNcEPcpqsLuVuKB2f1dqUrySenfpI=
+        b=Hg+Zj2lNKs4nYeWTQ5jcQZ59tRxt+1ZUtjhI9jPQIN1powbMKuC4vZNeIZF7gU3/3
+         klEbKF1rk9PCDnfgSQgX0welYFeUpxHK3x6FZvxehdzcItnK8CV8gxPvA9Wb8pnlHg
+         ZyCTxM5dw+0xTf2Jj5D/EmpKAYMTkODJhfChQ1BA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Francesco Dolcini <francesco.dolcini@toradex.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 127/251] phy: micrel: ksz8041nl: do not use power down mode
-Date:   Wed, 24 Nov 2021 12:56:09 +0100
-Message-Id: <20211124115714.665545411@linuxfoundation.org>
+Subject: [PATCH 4.14 128/251] PM: hibernate: fix sparse warnings
+Date:   Wed, 24 Nov 2021 12:56:10 +0100
+Message-Id: <20211124115714.697051737@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
 References: <20211124115710.214900256@linuxfoundation.org>
@@ -42,55 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-[ Upstream commit 2641b62d2fab52648e34cdc6994b2eacde2d27c1 ]
+[ Upstream commit 01de5fcd8b1ac0ca28d2bb0921226a54fdd62684 ]
 
-Some Micrel KSZ8041NL PHY chips exhibit continuous RX errors after using
-the power down mode bit (0.11). If the PHY is taken out of power down
-mode in a certain temperature range, the PHY enters a weird state which
-leads to continuously reporting RX errors. In that state, the MAC is not
-able to receive or send any Ethernet frames and the activity LED is
-constantly blinking. Since Linux is using the suspend callback when the
-interface is taken down, ending up in that state can easily happen
-during a normal startup.
+When building the kernel with sparse enabled 'C=1' the following
+warnings shows up:
 
-Micrel confirmed the issue in errata DS80000700A [*], caused by abnormal
-clock recovery when using power down mode. Even the latest revision (A4,
-Revision ID 0x1513) seems to suffer that problem, and according to the
-errata is not going to be fixed.
+kernel/power/swap.c:390:29: warning: incorrect type in assignment (different base types)
+kernel/power/swap.c:390:29:    expected int ret
+kernel/power/swap.c:390:29:    got restricted blk_status_t
 
-Remove the suspend/resume callback to avoid using the power down mode
-completely.
+This is due to function hib_wait_io() returns a 'blk_status_t' which is
+a bitwise u8. Commit 5416da01ff6e ("PM: hibernate: Remove
+blk_status_to_errno in hib_wait_io") seemed to have mixed up the return
+type. However, the 4e4cbee93d56 ("block: switch bios to blk_status_t")
+actually broke the behaviour by returning the wrong type.
 
-[*] https://ww1.microchip.com/downloads/en/DeviceDoc/80000700A.pdf
+Rework so function hib_wait_io() returns a 'int' instead of
+'blk_status_t' and make sure to call function
+blk_status_to_errno(hb->error)' when returning from function
+hib_wait_io() a int gets returned.
 
-Fixes: 1a5465f5d6a2 ("phy/micrel: Add suspend/resume support to Micrel PHYs")
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Acked-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4e4cbee93d56 ("block: switch bios to blk_status_t")
+Fixes: 5416da01ff6e ("PM: hibernate: Remove blk_status_to_errno in hib_wait_io")
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/micrel.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/power/swap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
-index ef5e5b621ec59..755aa67412923 100644
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -876,8 +876,9 @@ static struct phy_driver ksphy_driver[] = {
- 	.get_sset_count = kszphy_get_sset_count,
- 	.get_strings	= kszphy_get_strings,
- 	.get_stats	= kszphy_get_stats,
--	.suspend	= genphy_suspend,
--	.resume		= genphy_resume,
-+	/* No suspend/resume callbacks because of errata DS80000700A,
-+	 * receiver error following software power down.
-+	 */
- }, {
- 	.phy_id		= PHY_ID_KSZ8041RNLI,
- 	.phy_id_mask	= MICREL_PHY_ID_MASK,
+diff --git a/kernel/power/swap.c b/kernel/power/swap.c
+index 2bd3670a093de..8b37085a66903 100644
+--- a/kernel/power/swap.c
++++ b/kernel/power/swap.c
+@@ -292,7 +292,7 @@ static int hib_submit_io(int op, int op_flags, pgoff_t page_off, void *addr,
+ 	return error;
+ }
+ 
+-static blk_status_t hib_wait_io(struct hib_bio_batch *hb)
++static int hib_wait_io(struct hib_bio_batch *hb)
+ {
+ 	wait_event(hb->wait, atomic_read(&hb->count) == 0);
+ 	return blk_status_to_errno(hb->error);
 -- 
 2.33.0
 
