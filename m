@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6584145C398
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:38:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D495845C63F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:03:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348847AbhKXNky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:40:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33752 "EHLO mail.kernel.org"
+        id S1346882AbhKXOG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:06:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353029AbhKXNiv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:38:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F29263224;
-        Wed, 24 Nov 2021 12:56:27 +0000 (UTC)
+        id S1356480AbhKXOEW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:04:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46B896330A;
+        Wed, 24 Nov 2021 13:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758587;
-        bh=rjhtdDJs5SYZGs+43r87m39hnjGWHnIpAs3cBkpbzoA=;
+        s=korg; t=1637759476;
+        bh=InxKKQv0sbZGhXTbDmGawlOPc/XoakZhnQ3BIPrWTYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lwru/EMw4Bhy/15qoyRN1kFgJ9q8hU4YmaOWyAoCJ6xOpd68jEpYJ7iiOtBjMN9Hv
-         Kq/S2p6IW4g/NXeXSsQiPAhHzJCoDsvsUkzUdbgwKFBvWK7ByEL/zu0w8sIaGwvZVk
-         KB64l5iLyiNVSWhpqIiBRifhUJgYRgryWTW/OVZQ=
+        b=yDlVuPpRJdYGKTw2RvYtA6oVwx561niHlPYMYmAQ9k3DQfdH9sG9S3FAfbgxIQmLo
+         l7D8DTjOOLK3F/gC1WHpCi8Kd6ysoLxXcFVhI4DE35RqQtuM4O9uWg4S1w4P2pQDU4
+         K2mFTUk/UmY2qAnwoNV+isb9B//62D3eqnqJtmeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Henneman <henneman@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.10 119/154] arm64: vdso32: suppress error message for make mrproper
+        stable@vger.kernel.org, Nathan Wilson <nate@chickenbrittle.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.15 228/279] udf: Fix crash after seekdir
 Date:   Wed, 24 Nov 2021 12:58:35 +0100
-Message-Id: <20211124115706.136723741@linuxfoundation.org>
+Message-Id: <20211124115726.629065571@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +39,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 14831fad73f5ac30ac61760487d95a538e6ab3cb upstream.
+commit a48fc69fe6588b48d878d69de223b91a386a7cb4 upstream.
 
-When running the following command without arm-linux-gnueabi-gcc in
-one's $PATH, the following warning is observed:
+udf_readdir() didn't validate the directory position it should start
+reading from. Thus when user uses lseek(2) on directory file descriptor
+it can trick udf_readdir() into reading from a position in the middle of
+directory entry which then upsets directory parsing code resulting in
+errors or even possible kernel crashes. Similarly when the directory is
+modified between two readdir calls, the directory position need not be
+valid anymore.
 
-$ ARCH=arm64 CROSS_COMPILE_COMPAT=arm-linux-gnueabi- make -j72 LLVM=1 mrproper
-make[1]: arm-linux-gnueabi-gcc: No such file or directory
+Add code to validate current offset in the directory. This is actually
+rather expensive for UDF as we need to read from the beginning of the
+directory and parse all directory entries. This is because in UDF a
+directory is just a stream of data containing directory entries and
+since file names are fully under user's control we cannot depend on
+detecting magic numbers and checksums in the header of directory entry
+as a malicious attacker could fake them. We skip this step if we detect
+that nothing changed since the last readdir call.
 
-This is because KCONFIG is not run for mrproper, so CONFIG_CC_IS_CLANG
-is not set, and we end up eagerly evaluating various variables that try
-to invoke CC_COMPAT.
-
-This is a similar problem to what was observed in
-commit dc960bfeedb0 ("h8300: suppress error messages for 'make clean'")
-
-Reported-by: Lucas Henneman <henneman@google.com>
-Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20211019223646.1146945-4-ndesaulniers@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: Nathan Wilson <nate@chickenbrittle.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/kernel/vdso32/Makefile |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/udf/dir.c   |   32 ++++++++++++++++++++++++++++++--
+ fs/udf/namei.c |    3 +++
+ fs/udf/super.c |    2 ++
+ 3 files changed, 35 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/vdso32/Makefile
-+++ b/arch/arm64/kernel/vdso32/Makefile
-@@ -48,7 +48,8 @@ cc32-as-instr = $(call try-run,\
- # As a result we set our own flags here.
+--- a/fs/udf/dir.c
++++ b/fs/udf/dir.c
+@@ -31,6 +31,7 @@
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+ #include <linux/bio.h>
++#include <linux/iversion.h>
  
- # KBUILD_CPPFLAGS and NOSTDINC_FLAGS from top-level Makefile
--VDSO_CPPFLAGS := -D__KERNEL__ -nostdinc -isystem $(shell $(CC_COMPAT) -print-file-name=include)
-+VDSO_CPPFLAGS := -D__KERNEL__ -nostdinc
-+VDSO_CPPFLAGS += -isystem $(shell $(CC_COMPAT) -print-file-name=include 2>/dev/null)
- VDSO_CPPFLAGS += $(LINUXINCLUDE)
+ #include "udf_i.h"
+ #include "udf_sb.h"
+@@ -43,7 +44,7 @@ static int udf_readdir(struct file *file
+ 	struct fileIdentDesc *fi = NULL;
+ 	struct fileIdentDesc cfi;
+ 	udf_pblk_t block, iblock;
+-	loff_t nf_pos;
++	loff_t nf_pos, emit_pos = 0;
+ 	int flen;
+ 	unsigned char *fname = NULL, *copy_name = NULL;
+ 	unsigned char *nameptr;
+@@ -57,6 +58,7 @@ static int udf_readdir(struct file *file
+ 	int i, num, ret = 0;
+ 	struct extent_position epos = { NULL, 0, {0, 0} };
+ 	struct super_block *sb = dir->i_sb;
++	bool pos_valid = false;
  
- # Common C and assembly flags
+ 	if (ctx->pos == 0) {
+ 		if (!dir_emit_dot(file, ctx))
+@@ -67,6 +69,21 @@ static int udf_readdir(struct file *file
+ 	if (nf_pos >= size)
+ 		goto out;
+ 
++	/*
++	 * Something changed since last readdir (either lseek was called or dir
++	 * changed)?  We need to verify the position correctly points at the
++	 * beginning of some dir entry so that the directory parsing code does
++	 * not get confused. Since UDF does not have any reliable way of
++	 * identifying beginning of dir entry (names are under user control),
++	 * we need to scan the directory from the beginning.
++	 */
++	if (!inode_eq_iversion(dir, file->f_version)) {
++		emit_pos = nf_pos;
++		nf_pos = 0;
++	} else {
++		pos_valid = true;
++	}
++
+ 	fname = kmalloc(UDF_NAME_LEN, GFP_NOFS);
+ 	if (!fname) {
+ 		ret = -ENOMEM;
+@@ -122,13 +139,21 @@ static int udf_readdir(struct file *file
+ 
+ 	while (nf_pos < size) {
+ 		struct kernel_lb_addr tloc;
++		loff_t cur_pos = nf_pos;
+ 
+-		ctx->pos = (nf_pos >> 2) + 1;
++		/* Update file position only if we got past the current one */
++		if (nf_pos >= emit_pos) {
++			ctx->pos = (nf_pos >> 2) + 1;
++			pos_valid = true;
++		}
+ 
+ 		fi = udf_fileident_read(dir, &nf_pos, &fibh, &cfi, &epos, &eloc,
+ 					&elen, &offset);
+ 		if (!fi)
+ 			goto out;
++		/* Still not at offset where user asked us to read from? */
++		if (cur_pos < emit_pos)
++			continue;
+ 
+ 		liu = le16_to_cpu(cfi.lengthOfImpUse);
+ 		lfi = cfi.lengthFileIdent;
+@@ -186,8 +211,11 @@ static int udf_readdir(struct file *file
+ 	} /* end while */
+ 
+ 	ctx->pos = (nf_pos >> 2) + 1;
++	pos_valid = true;
+ 
+ out:
++	if (pos_valid)
++		file->f_version = inode_query_iversion(dir);
+ 	if (fibh.sbh != fibh.ebh)
+ 		brelse(fibh.ebh);
+ 	brelse(fibh.sbh);
+--- a/fs/udf/namei.c
++++ b/fs/udf/namei.c
+@@ -30,6 +30,7 @@
+ #include <linux/sched.h>
+ #include <linux/crc-itu-t.h>
+ #include <linux/exportfs.h>
++#include <linux/iversion.h>
+ 
+ static inline int udf_match(int len1, const unsigned char *name1, int len2,
+ 			    const unsigned char *name2)
+@@ -134,6 +135,8 @@ int udf_write_fi(struct inode *inode, st
+ 			mark_buffer_dirty_inode(fibh->ebh, inode);
+ 		mark_buffer_dirty_inode(fibh->sbh, inode);
+ 	}
++	inode_inc_iversion(inode);
++
+ 	return 0;
+ }
+ 
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -57,6 +57,7 @@
+ #include <linux/crc-itu-t.h>
+ #include <linux/log2.h>
+ #include <asm/byteorder.h>
++#include <linux/iversion.h>
+ 
+ #include "udf_sb.h"
+ #include "udf_i.h"
+@@ -149,6 +150,7 @@ static struct inode *udf_alloc_inode(str
+ 	init_rwsem(&ei->i_data_sem);
+ 	ei->cached_extent.lstart = -1;
+ 	spin_lock_init(&ei->i_extent_cache_lock);
++	inode_set_iversion(&ei->vfs_inode, 1);
+ 
+ 	return &ei->vfs_inode;
+ }
 
 
