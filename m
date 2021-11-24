@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C01BE45C65B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:04:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE5045C257
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:24:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352032AbhKXOH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:07:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51876 "EHLO mail.kernel.org"
+        id S1350646AbhKXN1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:27:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351520AbhKXOFZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:05:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F184F63344;
-        Wed, 24 Nov 2021 13:11:47 +0000 (UTC)
+        id S1349408AbhKXNZh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:25:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5C2161507;
+        Wed, 24 Nov 2021 12:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759508;
-        bh=J438vGk2Oc8vtmR/8okWRbE8zX/XKOKGgDt1byfqg58=;
+        s=korg; t=1637758175;
+        bh=rZrNPlBr7yta3IJte+jFr/CrB8iTRFbovUu1IVhaFiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLsJQxTknmDkPvbb1i6tWmt29+9VFwqpCPWDpE9aOc3eLRy3rXU0Ilzi8pFlVXLH1
-         VPMq34oiu1GGlXlpxH4YhfGw5PSfX0XLf+ZtVwkFwpeFmUO1qWwMeZoe0tHx1gMGea
-         7qfZaPFMmfzHlZYp3plWsHSZofXggPyihR1GKYDY=
+        b=m/dgABYWhE8yGQDas0jV4QM1rIZLehXva2Zfx1PR2Ds/h6vSBE3q6Ucepi8Nzj18a
+         AxE2OczYtS11/ujVjmOCowrK4OJGn2KlXvTcLmv+SS64I2xBMolwdda37GsDOBI2p8
+         jLZ91eytA+2gCiLNdFq2TQanGaDAY6SypaDXoDrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Seth Forshee <seth.forshee@digitalocean.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org,
-        Seth Forshee <sforshee@digitalocean.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 5.15 233/279] fs: handle circular mappings correctly
+        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Chris Murphy <chris@colorremedies.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 084/100] btrfs: fix memory ordering between normal and ordered work functions
 Date:   Wed, 24 Nov 2021 12:58:40 +0100
-Message-Id: <20211124115726.793674406@linuxfoundation.org>
+Message-Id: <20211124115657.571174470@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,87 +42,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian.brauner@ubuntu.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit 968219708108440b23bc292e0486e3cc1d9a1bed upstream.
+commit 45da9c1767ac31857df572f0a909fbe88fd5a7e9 upstream.
 
-When calling setattr_prepare() to determine the validity of the attributes the
-ia_{g,u}id fields contain the value that will be written to inode->i_{g,u}id.
-When the {g,u}id attribute of the file isn't altered and the caller's fs{g,u}id
-matches the current {g,u}id attribute the attribute change is allowed.
+Ordered work functions aren't guaranteed to be handled by the same thread
+which executed the normal work functions. The only way execution between
+normal/ordered functions is synchronized is via the WORK_DONE_BIT,
+unfortunately the used bitops don't guarantee any ordering whatsoever.
 
-The value in ia_{g,u}id does already account for idmapped mounts and will have
-taken the relevant idmapping into account. So in order to verify that the
-{g,u}id attribute isn't changed we simple need to compare the ia_{g,u}id value
-against the inode's i_{g,u}id value.
+This manifested as seemingly inexplicable crashes on ARM64, where
+async_chunk::inode is seen as non-null in async_cow_submit which causes
+submit_compressed_extents to be called and crash occurs because
+async_chunk::inode suddenly became NULL. The call trace was similar to:
 
-This only has any meaning for idmapped mounts as idmapping helpers are
-idempotent without them. And for idmapped mounts this really only has a meaning
-when circular idmappings are used, i.e. mappings where e.g. id 1000 is mapped
-to id 1001 and id 1001 is mapped to id 1000. Such ciruclar mappings can e.g. be
-useful when sharing the same home directory between multiple users at the same
-time.
+    pc : submit_compressed_extents+0x38/0x3d0
+    lr : async_cow_submit+0x50/0xd0
+    sp : ffff800015d4bc20
 
-As an example consider a directory with two files: /source/file1 owned by
-{g,u}id 1000 and /source/file2 owned by {g,u}id 1001. Assume we create an
-idmapped mount at /target with an idmapping that maps files owned by {g,u}id
-1000 to being owned by {g,u}id 1001 and files owned by {g,u}id 1001 to being
-owned by {g,u}id 1000. In effect, the idmapped mount at /target switches the
-ownership of /source/file1 and source/file2, i.e. /target/file1 will be owned
-by {g,u}id 1001 and /target/file2 will be owned by {g,u}id 1000.
+    <registers omitted for brevity>
 
-This means that a user with fs{g,u}id 1000 must be allowed to setattr
-/target/file2 from {g,u}id 1000 to {g,u}id 1000. Similar, a user with fs{g,u}id
-1001 must be allowed to setattr /target/file1 from {g,u}id 1001 to {g,u}id
-1001. Conversely, a user with fs{g,u}id 1000 must fail to setattr /target/file1
-from {g,u}id 1001 to {g,u}id 1000. And a user with fs{g,u}id 1001 must fail to
-setattr /target/file2 from {g,u}id 1000 to {g,u}id 1000. Both cases must fail
-with EPERM for non-capable callers.
+    Call trace:
+     submit_compressed_extents+0x38/0x3d0
+     async_cow_submit+0x50/0xd0
+     run_ordered_work+0xc8/0x280
+     btrfs_work_helper+0x98/0x250
+     process_one_work+0x1f0/0x4ac
+     worker_thread+0x188/0x504
+     kthread+0x110/0x114
+     ret_from_fork+0x10/0x18
 
-Before this patch we could end up denying legitimate attribute changes and
-allowing invalid attribute changes when circular mappings are used. To even get
-into this situation the caller must've been privileged both to create that
-mapping and to create that idmapped mount.
+Fix this by adding respective barrier calls which ensure that all
+accesses preceding setting of WORK_DONE_BIT are strictly ordered before
+setting the flag. At the same time add a read barrier after reading of
+WORK_DONE_BIT in run_ordered_work which ensures all subsequent loads
+would be strictly ordered after reading the bit. This in turn ensures
+are all accesses before WORK_DONE_BIT are going to be strictly ordered
+before any access that can occur in ordered_func.
 
-This hasn't been seen in the wild anywhere but came up when expanding the
-testsuite during work on a series of hardening patches. All idmapped fstests
-pass without any regressions and we add new tests to verify the behavior of
-circular mappings.
-
-Link: https://lore.kernel.org/r/20211109145713.1868404-1-brauner@kernel.org
-Fixes: 2f221d6f7b88 ("attr: handle idmapped mounts")
-Cc: Seth Forshee <seth.forshee@digitalocean.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: stable@vger.kernel.org
-CC: linux-fsdevel@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Seth Forshee <sforshee@digitalocean.com>
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Reported-by: Chris Murphy <lists@colorremedies.com>
+Fixes: 08a9ff326418 ("btrfs: Added btrfs_workqueue_struct implemented ordered execution based on kernel workqueue")
+CC: stable@vger.kernel.org # 4.4+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2011928
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Tested-by: Chris Murphy <chris@colorremedies.com>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/attr.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/async-thread.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/fs/attr.c
-+++ b/fs/attr.c
-@@ -35,7 +35,7 @@ static bool chown_ok(struct user_namespa
- 		     kuid_t uid)
- {
- 	kuid_t kuid = i_uid_into_mnt(mnt_userns, inode);
--	if (uid_eq(current_fsuid(), kuid) && uid_eq(uid, kuid))
-+	if (uid_eq(current_fsuid(), kuid) && uid_eq(uid, inode->i_uid))
- 		return true;
- 	if (capable_wrt_inode_uidgid(mnt_userns, inode, CAP_CHOWN))
- 		return true;
-@@ -62,7 +62,7 @@ static bool chgrp_ok(struct user_namespa
- {
- 	kgid_t kgid = i_gid_into_mnt(mnt_userns, inode);
- 	if (uid_eq(current_fsuid(), i_uid_into_mnt(mnt_userns, inode)) &&
--	    (in_group_p(gid) || gid_eq(gid, kgid)))
-+	    (in_group_p(gid) || gid_eq(gid, inode->i_gid)))
- 		return true;
- 	if (capable_wrt_inode_uidgid(mnt_userns, inode, CAP_CHOWN))
- 		return true;
+--- a/fs/btrfs/async-thread.c
++++ b/fs/btrfs/async-thread.c
+@@ -237,6 +237,13 @@ static void run_ordered_work(struct __bt
+ 				  ordered_list);
+ 		if (!test_bit(WORK_DONE_BIT, &work->flags))
+ 			break;
++		/*
++		 * Orders all subsequent loads after reading WORK_DONE_BIT,
++		 * paired with the smp_mb__before_atomic in btrfs_work_helper
++		 * this guarantees that the ordered function will see all
++		 * updates from ordinary work function.
++		 */
++		smp_rmb();
+ 
+ 		/*
+ 		 * we are going to call the ordered done function, but
+@@ -325,6 +332,13 @@ static void btrfs_work_helper(struct wor
+ 	thresh_exec_hook(wq);
+ 	work->func(work);
+ 	if (need_order) {
++		/*
++		 * Ensures all memory accesses done in the work function are
++		 * ordered before setting the WORK_DONE_BIT. Ensuring the thread
++		 * which is going to executed the ordered work sees them.
++		 * Pairs with the smp_rmb in run_ordered_work.
++		 */
++		smp_mb__before_atomic();
+ 		set_bit(WORK_DONE_BIT, &work->flags);
+ 		run_ordered_work(wq, work);
+ 	}
 
 
