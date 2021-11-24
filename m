@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 528EE45BFA6
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:57:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C125945BCAC
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347589AbhKXNAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:00:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39070 "EHLO mail.kernel.org"
+        id S242986AbhKXMbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347444AbhKXM6t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:58:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95F9C6023E;
-        Wed, 24 Nov 2021 12:33:47 +0000 (UTC)
+        id S1344012AbhKXMaZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1076361356;
+        Wed, 24 Nov 2021 12:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757228;
-        bh=fGFQjNNUdNrz52vfi3x9I5L+GYEXW1Vh5yiXJ8d4EGE=;
+        s=korg; t=1637756323;
+        bh=YkX/yYzMtt+QVuuXVc4nR8SPCesKPOcSwmWj7cwAYsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BbEIoaIZhq5Kom58HZcPiX6eaP1BFHlQzUdniw6FvoEt1D1KR1Mezpl+RAbSYq6Pv
-         K0yDB0hjI9MxB5VesvlSrEq9f1yxqOnd9qW8zfe6dhFJQ0hKt+jNloFIiSowkmw/C0
-         sP1rEVS6n1p0+I8KkCAXTLjJ3WwiDr9Y8VQbc3KY=
+        b=olksTqV7CmeKz3tAcLxr0hznliSh/90IhKpSaZYcc28Xe02+tep+G6YQs4sPE7Mcf
+         AbbIfgBqwq5GqfAP5sR+UOxOcGERF1yC3pPq6n5X6q+jU04fCKW5MAJvZQQGi0B+UF
+         XAUEC+fCUI8o5GQ7P62au5RpRHheLGM9gSrunTeM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadezda Lutovinova <lutovinova@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 099/323] media: s5p-mfc: Add checking to s5p_mfc_probe().
+        stable@vger.kernel.org, Benjamin Li <benl@squareup.com>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 047/251] wcn36xx: handle connection loss indication
 Date:   Wed, 24 Nov 2021 12:54:49 +0100
-Message-Id: <20211124115722.309923477@linuxfoundation.org>
+Message-Id: <20211124115711.872439083@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Benjamin Li <benl@squareup.com>
 
-[ Upstream commit cdfaf4752e6915a4b455ad4400133e540e4dc965 ]
+commit d6dbce453b19c64b96f3e927b10230f9a704b504 upstream.
 
-If of_device_get_match_data() return NULL,
-then null pointer dereference occurs in  s5p_mfc_init_pm().
-The patch adds checking if dev->variant is NULL.
+Firmware sends delete_sta_context_ind when it detects the AP has gone
+away in STA mode. Right now the handler for that indication only handles
+AP mode; fix it to also handle STA mode.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Benjamin Li <benl@squareup.com>
+Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210901180606.11686-1-benl@squareup.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/ath/wcn36xx/smd.c |   44 ++++++++++++++++++++++++---------
+ 1 file changed, 33 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-index 80bb58d31c3f6..0fc101bc58d67 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-@@ -1281,6 +1281,10 @@ static int s5p_mfc_probe(struct platform_device *pdev)
+--- a/drivers/net/wireless/ath/wcn36xx/smd.c
++++ b/drivers/net/wireless/ath/wcn36xx/smd.c
+@@ -2082,30 +2082,52 @@ static int wcn36xx_smd_delete_sta_contex
+ 					      size_t len)
+ {
+ 	struct wcn36xx_hal_delete_sta_context_ind_msg *rsp = buf;
+-	struct wcn36xx_vif *tmp;
++	struct wcn36xx_vif *vif_priv;
++	struct ieee80211_vif *vif;
++	struct ieee80211_bss_conf *bss_conf;
+ 	struct ieee80211_sta *sta;
++	bool found = false;
+ 
+ 	if (len != sizeof(*rsp)) {
+ 		wcn36xx_warn("Corrupted delete sta indication\n");
+ 		return -EIO;
  	}
  
- 	dev->variant = of_device_get_match_data(&pdev->dev);
-+	if (!dev->variant) {
-+		dev_err(&pdev->dev, "Failed to get device MFC hardware variant information\n");
-+		return -ENOENT;
-+	}
+-	wcn36xx_dbg(WCN36XX_DBG_HAL, "delete station indication %pM index %d\n",
+-		    rsp->addr2, rsp->sta_id);
++	wcn36xx_dbg(WCN36XX_DBG_HAL,
++		    "delete station indication %pM index %d reason %d\n",
++		    rsp->addr2, rsp->sta_id, rsp->reason_code);
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	dev->regs_base = devm_ioremap_resource(&pdev->dev, res);
--- 
-2.33.0
-
+-	list_for_each_entry(tmp, &wcn->vif_list, list) {
++	list_for_each_entry(vif_priv, &wcn->vif_list, list) {
+ 		rcu_read_lock();
+-		sta = ieee80211_find_sta(wcn36xx_priv_to_vif(tmp), rsp->addr2);
+-		if (sta)
+-			ieee80211_report_low_ack(sta, 0);
++		vif = wcn36xx_priv_to_vif(vif_priv);
++
++		if (vif->type == NL80211_IFTYPE_STATION) {
++			/* We could call ieee80211_find_sta too, but checking
++			 * bss_conf is clearer.
++			 */
++			bss_conf = &vif->bss_conf;
++			if (vif_priv->sta_assoc &&
++			    !memcmp(bss_conf->bssid, rsp->addr2, ETH_ALEN)) {
++				found = true;
++				wcn36xx_dbg(WCN36XX_DBG_HAL,
++					    "connection loss bss_index %d\n",
++					    vif_priv->bss_index);
++				ieee80211_connection_loss(vif);
++			}
++		} else {
++			sta = ieee80211_find_sta(vif, rsp->addr2);
++			if (sta) {
++				found = true;
++				ieee80211_report_low_ack(sta, 0);
++			}
++		}
++
+ 		rcu_read_unlock();
+-		if (sta)
++		if (found)
+ 			return 0;
+ 	}
+ 
+-	wcn36xx_warn("STA with addr %pM and index %d not found\n",
+-		     rsp->addr2,
+-		     rsp->sta_id);
++	wcn36xx_warn("BSS or STA with addr %pM not found\n", rsp->addr2);
+ 	return -ENOENT;
+ }
+ 
 
 
