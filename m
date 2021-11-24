@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE59745BAA0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D762F45BE58
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242585AbhKXMMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:12:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34874 "EHLO mail.kernel.org"
+        id S1345930AbhKXMqm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:46:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240896AbhKXMKk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:10:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1973C610FB;
-        Wed, 24 Nov 2021 12:06:10 +0000 (UTC)
+        id S245089AbhKXMog (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:44:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C83FB6125F;
+        Wed, 24 Nov 2021 12:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755571;
-        bh=Q5Rl8Pphjgz4d5Yz33eFNuGAleun2LGmGGye7LQbJLg=;
+        s=korg; t=1637756787;
+        bh=AUBpS3ubOHiAhI5sJh5pGe9SIkaMFAgSqepsC0LcDGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cgFcQrA0oVMb5EVt7UN+8IOBL95vGT2oXVTb5mJ3K7/etG3IFz+LkqUURilB45efj
-         fC35dZx6nAVBArl3ryv8OpSglx6vEehQu17GlB6OHOiitgBRLyn/junNT2MHTFdaRv
-         89kNsV18fFUkqd4lqBqLowX0xOh3GheehxxC4+58=
+        b=mO1VkgjJvnSm4cZzkDpm1oGK95BbHILupRup5pZCo8l8oFitDElOeURQo1ZCgAEQ0
+         G6q773XBOyuWdz8ffMjY5q9AHXv00MKRvMGcE5dWLzqdUJwmADVG9HI/vgcJj6B1aO
+         r77KA88s7A7m5QrFJdmgC0rZQsyltFO5EvdbhdJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Chris Murphy <chris@colorremedies.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.4 144/162] btrfs: fix memory ordering between normal and ordered work functions
+        stable@vger.kernel.org, Guo Zhi <qtxuning1999@sjtu.edu.cn>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 205/251] scsi: advansys: Fix kernel pointer leak
 Date:   Wed, 24 Nov 2021 12:57:27 +0100
-Message-Id: <20211124115702.940515815@linuxfoundation.org>
+Message-Id: <20211124115717.383456068@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,86 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Guo Zhi <qtxuning1999@sjtu.edu.cn>
 
-commit 45da9c1767ac31857df572f0a909fbe88fd5a7e9 upstream.
+[ Upstream commit d4996c6eac4c81b8872043e9391563f67f13e406 ]
 
-Ordered work functions aren't guaranteed to be handled by the same thread
-which executed the normal work functions. The only way execution between
-normal/ordered functions is synchronized is via the WORK_DONE_BIT,
-unfortunately the used bitops don't guarantee any ordering whatsoever.
+Pointers should be printed with %p or %px rather than cast to 'unsigned
+long' and printed with %lx.
 
-This manifested as seemingly inexplicable crashes on ARM64, where
-async_chunk::inode is seen as non-null in async_cow_submit which causes
-submit_compressed_extents to be called and crash occurs because
-async_chunk::inode suddenly became NULL. The call trace was similar to:
+Change %lx to %p to print the hashed pointer.
 
-    pc : submit_compressed_extents+0x38/0x3d0
-    lr : async_cow_submit+0x50/0xd0
-    sp : ffff800015d4bc20
-
-    <registers omitted for brevity>
-
-    Call trace:
-     submit_compressed_extents+0x38/0x3d0
-     async_cow_submit+0x50/0xd0
-     run_ordered_work+0xc8/0x280
-     btrfs_work_helper+0x98/0x250
-     process_one_work+0x1f0/0x4ac
-     worker_thread+0x188/0x504
-     kthread+0x110/0x114
-     ret_from_fork+0x10/0x18
-
-Fix this by adding respective barrier calls which ensure that all
-accesses preceding setting of WORK_DONE_BIT are strictly ordered before
-setting the flag. At the same time add a read barrier after reading of
-WORK_DONE_BIT in run_ordered_work which ensures all subsequent loads
-would be strictly ordered after reading the bit. This in turn ensures
-are all accesses before WORK_DONE_BIT are going to be strictly ordered
-before any access that can occur in ordered_func.
-
-Reported-by: Chris Murphy <lists@colorremedies.com>
-Fixes: 08a9ff326418 ("btrfs: Added btrfs_workqueue_struct implemented ordered execution based on kernel workqueue")
-CC: stable@vger.kernel.org # 4.4+
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2011928
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Tested-by: Chris Murphy <chris@colorremedies.com>
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210929122538.1158235-1-qtxuning1999@sjtu.edu.cn
+Signed-off-by: Guo Zhi <qtxuning1999@sjtu.edu.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/async-thread.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/scsi/advansys.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/async-thread.c
-+++ b/fs/btrfs/async-thread.c
-@@ -261,6 +261,13 @@ static void run_ordered_work(struct __bt
- 				  ordered_list);
- 		if (!test_bit(WORK_DONE_BIT, &work->flags))
- 			break;
-+		/*
-+		 * Orders all subsequent loads after reading WORK_DONE_BIT,
-+		 * paired with the smp_mb__before_atomic in btrfs_work_helper
-+		 * this guarantees that the ordered function will see all
-+		 * updates from ordinary work function.
-+		 */
-+		smp_rmb();
+diff --git a/drivers/scsi/advansys.c b/drivers/scsi/advansys.c
+index 24e57e770432b..6efd17692a55a 100644
+--- a/drivers/scsi/advansys.c
++++ b/drivers/scsi/advansys.c
+@@ -3370,8 +3370,8 @@ static void asc_prt_adv_board_info(struct seq_file *m, struct Scsi_Host *shost)
+ 		   shost->host_no);
  
- 		/*
- 		 * we are going to call the ordered done function, but
-@@ -310,6 +317,13 @@ static void normal_work_helper(struct bt
- 	thresh_exec_hook(wq);
- 	work->func(work);
- 	if (need_order) {
-+		/*
-+		 * Ensures all memory accesses done in the work function are
-+		 * ordered before setting the WORK_DONE_BIT. Ensuring the thread
-+		 * which is going to executed the ordered work sees them.
-+		 * Pairs with the smp_rmb in run_ordered_work.
-+		 */
-+		smp_mb__before_atomic();
- 		set_bit(WORK_DONE_BIT, &work->flags);
- 		run_ordered_work(wq);
- 	}
+ 	seq_printf(m,
+-		   " iop_base 0x%lx, cable_detect: %X, err_code %u\n",
+-		   (unsigned long)v->iop_base,
++		   " iop_base 0x%p, cable_detect: %X, err_code %u\n",
++		   v->iop_base,
+ 		   AdvReadWordRegister(iop_base,IOPW_SCSI_CFG1) & CABLE_DETECT,
+ 		   v->err_code);
+ 
+-- 
+2.33.0
+
 
 
