@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9661645BF43
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:53:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2822345BCA1
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346108AbhKXM4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:56:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33438 "EHLO mail.kernel.org"
+        id S245208AbhKXMba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346859AbhKXMyR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:54:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AF826187F;
-        Wed, 24 Nov 2021 12:31:32 +0000 (UTC)
+        id S1343818AbhKXMaH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6A9F610E8;
+        Wed, 24 Nov 2021 12:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757093;
-        bh=RbP+7S9DDypSmkgLXEUN7WhMvsrKV01L2KsMYceZQvM=;
+        s=korg; t=1637756287;
+        bh=zs3y7/UwMDHGcVsbwdhIOhK7Nehmn9XCw0Gd6mMCnX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIBeHrJSg6HEPlhpzzx63KRZl9eZdpoF+vuE5bqTuXp8OojPXECv4CrtpruBhPmkt
-         GyQneSi3dpwx+Mvx8FlftqgQyCUsTS07G9pKh7BBsuHIeDoQ7HN/PMAE9Im2j3gbTP
-         LD16EOaJ17Kt4sylNn/onxkzyqh5wPO34/GAl0v0=
+        b=Q9u/WIZietcLF0l7TB/wWf2A9y0HKuq8M+9GgSfQ4vGHxX+Rqkyqhy6OZsEbzRtRj
+         YStm0IPV0rVyg6LCj4esXliDz0UpdH98w7uHqqzSnZLjqyfpz3xcflI1ZT8Alwx2DE
+         15LcsGAIwWMK/P6sSvT9CMRxemsg215H0AAymrLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Li <benl@squareup.com>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 057/323] wcn36xx: handle connection loss indication
+        stable@vger.kernel.org, Neal Gompa <ngompa13@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 005/251] Input: i8042 - Add quirk for Fujitsu Lifebook T725
 Date:   Wed, 24 Nov 2021 12:54:07 +0100
-Message-Id: <20211124115720.789284601@linuxfoundation.org>
+Message-Id: <20211124115710.407173079@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,90 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Li <benl@squareup.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d6dbce453b19c64b96f3e927b10230f9a704b504 upstream.
+commit 16e28abb7290c4ca3b3a0f333ba067f34bb18c86 upstream.
 
-Firmware sends delete_sta_context_ind when it detects the AP has gone
-away in STA mode. Right now the handler for that indication only handles
-AP mode; fix it to also handle STA mode.
+Fujitsu Lifebook T725 laptop requires, like a few other similar
+models, the nomux and notimeout options to probe the touchpad
+properly.  This patch adds the corresponding quirk entries.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Benjamin Li <benl@squareup.com>
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210901180606.11686-1-benl@squareup.com
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1191980
+Tested-by: Neal Gompa <ngompa13@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20211103070019.13374-1-tiwai@suse.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/wcn36xx/smd.c |   44 ++++++++++++++++++++++++---------
- 1 file changed, 33 insertions(+), 11 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/net/wireless/ath/wcn36xx/smd.c
-+++ b/drivers/net/wireless/ath/wcn36xx/smd.c
-@@ -2340,30 +2340,52 @@ static int wcn36xx_smd_delete_sta_contex
- 					      size_t len)
- {
- 	struct wcn36xx_hal_delete_sta_context_ind_msg *rsp = buf;
--	struct wcn36xx_vif *tmp;
-+	struct wcn36xx_vif *vif_priv;
-+	struct ieee80211_vif *vif;
-+	struct ieee80211_bss_conf *bss_conf;
- 	struct ieee80211_sta *sta;
-+	bool found = false;
- 
- 	if (len != sizeof(*rsp)) {
- 		wcn36xx_warn("Corrupted delete sta indication\n");
- 		return -EIO;
- 	}
- 
--	wcn36xx_dbg(WCN36XX_DBG_HAL, "delete station indication %pM index %d\n",
--		    rsp->addr2, rsp->sta_id);
-+	wcn36xx_dbg(WCN36XX_DBG_HAL,
-+		    "delete station indication %pM index %d reason %d\n",
-+		    rsp->addr2, rsp->sta_id, rsp->reason_code);
- 
--	list_for_each_entry(tmp, &wcn->vif_list, list) {
-+	list_for_each_entry(vif_priv, &wcn->vif_list, list) {
- 		rcu_read_lock();
--		sta = ieee80211_find_sta(wcn36xx_priv_to_vif(tmp), rsp->addr2);
--		if (sta)
--			ieee80211_report_low_ack(sta, 0);
-+		vif = wcn36xx_priv_to_vif(vif_priv);
-+
-+		if (vif->type == NL80211_IFTYPE_STATION) {
-+			/* We could call ieee80211_find_sta too, but checking
-+			 * bss_conf is clearer.
-+			 */
-+			bss_conf = &vif->bss_conf;
-+			if (vif_priv->sta_assoc &&
-+			    !memcmp(bss_conf->bssid, rsp->addr2, ETH_ALEN)) {
-+				found = true;
-+				wcn36xx_dbg(WCN36XX_DBG_HAL,
-+					    "connection loss bss_index %d\n",
-+					    vif_priv->bss_index);
-+				ieee80211_connection_loss(vif);
-+			}
-+		} else {
-+			sta = ieee80211_find_sta(vif, rsp->addr2);
-+			if (sta) {
-+				found = true;
-+				ieee80211_report_low_ack(sta, 0);
-+			}
-+		}
-+
- 		rcu_read_unlock();
--		if (sta)
-+		if (found)
- 			return 0;
- 	}
- 
--	wcn36xx_warn("STA with addr %pM and index %d not found\n",
--		     rsp->addr2,
--		     rsp->sta_id);
-+	wcn36xx_warn("BSS or STA with addr %pM not found\n", rsp->addr2);
- 	return -ENOENT;
- }
- 
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -277,6 +277,13 @@ static const struct dmi_system_id __init
+ 		},
+ 	},
+ 	{
++		/* Fujitsu Lifebook T725 laptop */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
++		},
++	},
++	{
+ 		/* Fujitsu Lifebook U745 */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+@@ -845,6 +852,13 @@ static const struct dmi_system_id __init
+ 		},
+ 	},
+ 	{
++		/* Fujitsu Lifebook T725 laptop */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
++		},
++	},
++	{
+ 		/* Fujitsu U574 laptop */
+ 		/* https://bugzilla.kernel.org/show_bug.cgi?id=69731 */
+ 		.matches = {
 
 
