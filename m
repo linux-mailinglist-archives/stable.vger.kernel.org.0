@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00D6245C3F3
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEA3E45C648
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:03:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351198AbhKXNoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:44:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34330 "EHLO mail.kernel.org"
+        id S1351563AbhKXOGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:06:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353535AbhKXNn1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:43:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81C5363287;
-        Wed, 24 Nov 2021 12:58:37 +0000 (UTC)
+        id S1356557AbhKXOE3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:04:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D98E6335B;
+        Wed, 24 Nov 2021 13:11:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758718;
-        bh=SDGLMV+MLgbMexAeVVZkYtNMnG+usCvtNMqhaH/JzSc=;
+        s=korg; t=1637759490;
+        bh=HtLgXUO4bcEZdiWz+WrqF/fvocMQ1RU/S8Yp2K/eZn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gO9YabjT5WGBH913+TGSUsnF3Hq7UpJ/Bl9lhiht3f65iQwgJ66UENsKh9AJWzgNs
-         vMNisWWkF9nYM/lFgOups9AHR2f/2hSNhxAviseM0JWt8/LooVuABq/vpSfoOEFeOr
-         oGN3QetvDfNrAk6fS1mdQC8FVRvJAkMurJR8euqI=
+        b=EjX5GZBFS8Uly9ZfSB5ZMSRd4YWrvBOAG5WinHD62rFdFEtth8JUiU8vkc5GjQrXt
+         4sUCAXsfPFpu1+NH8BiXLiT+d4nHBL6jBgqZhDKPrfo1RnKGlYAa7M5udfg/fx1A9D
+         PARN6qIkdZgf0MEYmtWKY+23F+dyUnOST+EkXDo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 149/154] ASoC: DAPM: Cover regression by kctl change notification fix
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev@lists.ozlabs.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Thomas Backlund <tmb@iki.fi>
+Subject: [PATCH 5.15 258/279] signal/powerpc: On swapcontext failure force SIGSEGV
 Date:   Wed, 24 Nov 2021 12:59:05 +0100
-Message-Id: <20211124115707.297098480@linuxfoundation.org>
+Message-Id: <20211124115727.632627138@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,82 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit 827b0913a9d9d07a0c3e559dbb20ca4d6d285a54 upstream.
+commit 83a1f27ad773b1d8f0460d3a676114c7651918cc upstream.
 
-The recent fix for DAPM to correct the kctl change notification by the
-commit 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change
-notifications") caused other regressions since it changed the behavior
-of snd_soc_dapm_set_pin() that is called from several API functions.
-Formerly it returned always 0 for success, but now it returns 0 or 1.
+If the register state may be partial and corrupted instead of calling
+do_exit, call force_sigsegv(SIGSEGV).  Which properly kills the
+process with SIGSEGV and does not let any more userspace code execute,
+instead of just killing one thread of the process and potentially
+confusing everything.
 
-This patch addresses it, restoring the old behavior of
-snd_soc_dapm_set_pin() while keeping the fix in
-snd_soc_dapm_put_pin_switch().
-
-Fixes: 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change notifications")
-Reported-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211105090925.20575-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: linuxppc-dev@lists.ozlabs.org
+History-tree: git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+Fixes: 756f1ae8a44e ("PPC32: Rework signal code and add a swapcontext system call.")
+Fixes: 04879b04bf50 ("[PATCH] ppc64: VMX (Altivec) support & signal32 rework, from Ben Herrenschmidt")
+Link: https://lkml.kernel.org/r/20211020174406.17889-7-ebiederm@xmission.com
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Thomas Backlund <tmb@iki.fi>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-dapm.c |   29 +++++++++++++++++++++++------
- 1 file changed, 23 insertions(+), 6 deletions(-)
+ arch/powerpc/kernel/signal_32.c |    6 ++++--
+ arch/powerpc/kernel/signal_64.c |    9 ++++++---
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2555,8 +2555,13 @@ static struct snd_soc_dapm_widget *dapm_
- 	return NULL;
- }
+--- a/arch/powerpc/kernel/signal_32.c
++++ b/arch/powerpc/kernel/signal_32.c
+@@ -1062,8 +1062,10 @@ SYSCALL_DEFINE3(swapcontext, struct ucon
+ 	 * or if another thread unmaps the region containing the context.
+ 	 * We kill the task with a SIGSEGV in this situation.
+ 	 */
+-	if (do_setcontext(new_ctx, regs, 0))
+-		do_exit(SIGSEGV);
++	if (do_setcontext(new_ctx, regs, 0)) {
++		force_sigsegv(SIGSEGV);
++		return -EFAULT;
++	}
  
--static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
--				const char *pin, int status)
-+/*
-+ * set the DAPM pin status:
-+ * returns 1 when the value has been updated, 0 when unchanged, or a negative
-+ * error code; called from kcontrol put callback
-+ */
-+static int __snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
-+				  const char *pin, int status)
- {
- 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
- 	int ret = 0;
-@@ -2582,6 +2587,18 @@ static int snd_soc_dapm_set_pin(struct s
- 	return ret;
- }
+ 	set_thread_flag(TIF_RESTOREALL);
+ 	return 0;
+--- a/arch/powerpc/kernel/signal_64.c
++++ b/arch/powerpc/kernel/signal_64.c
+@@ -703,15 +703,18 @@ SYSCALL_DEFINE3(swapcontext, struct ucon
+ 	 * We kill the task with a SIGSEGV in this situation.
+ 	 */
  
-+/*
-+ * similar as __snd_soc_dapm_set_pin(), but returns 0 when successful;
-+ * called from several API functions below
-+ */
-+static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
-+				const char *pin, int status)
-+{
-+	int ret = __snd_soc_dapm_set_pin(dapm, pin, status);
-+
-+	return ret < 0 ? ret : 0;
-+}
-+
- /**
-  * snd_soc_dapm_sync_unlocked - scan and power dapm paths
-  * @dapm: DAPM context
-@@ -3586,10 +3603,10 @@ int snd_soc_dapm_put_pin_switch(struct s
- 	const char *pin = (const char *)kcontrol->private_value;
- 	int ret;
+-	if (__get_user_sigset(&set, &new_ctx->uc_sigmask))
+-		do_exit(SIGSEGV);
++	if (__get_user_sigset(&set, &new_ctx->uc_sigmask)) {
++		force_sigsegv(SIGSEGV);
++		return -EFAULT;
++	}
+ 	set_current_blocked(&set);
  
--	if (ucontrol->value.integer.value[0])
--		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
--	else
--		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
-+	mutex_lock_nested(&card->dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
-+	ret = __snd_soc_dapm_set_pin(&card->dapm, pin,
-+				     !!ucontrol->value.integer.value[0]);
-+	mutex_unlock(&card->dapm_mutex);
+ 	if (!user_read_access_begin(new_ctx, ctx_size))
+ 		return -EFAULT;
+ 	if (__unsafe_restore_sigcontext(current, NULL, 0, &new_ctx->uc_mcontext)) {
+ 		user_read_access_end();
+-		do_exit(SIGSEGV);
++		force_sigsegv(SIGSEGV);
++		return -EFAULT;
+ 	}
+ 	user_read_access_end();
  
- 	snd_soc_dapm_sync(&card->dapm);
- 	return ret;
 
 
