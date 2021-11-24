@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D46545BC15
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2471C45BC19
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245461AbhKXMZz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41754 "EHLO mail.kernel.org"
+        id S244348AbhKXMZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245041AbhKXMYe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:24:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE21F6108B;
-        Wed, 24 Nov 2021 12:15:08 +0000 (UTC)
+        id S245053AbhKXMYf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:24:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C3CF6108E;
+        Wed, 24 Nov 2021 12:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756109;
-        bh=yznRrrzCC1mHKhmefVH14Iy3uUMmCRt3MqZVyMl4NdI=;
+        s=korg; t=1637756112;
+        bh=usEE6zflf0JThIlwKSzfmuqITTuKdTxDaYKZf87oCtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eDh3O+RgzpJ7V82Hi/WANL7PA4KZ8xLqouEOI41p/Cbl70rwTOizwCccoDBb4DrwI
-         UtVcqQWdbN4NI9/+4vizZsZVRXtdwvD2ehzytgrDlgKuXvFysbSK+pZGkmfOveYz5A
-         zTaHQIjAE1/xxvsHT1aZY3YrIed0ozxTtZbtk0p8=
+        b=Vr3psIwiFG8yyXUxCmPd1vbc5MCZ/ba14YpZeVhBj4s8l6k3bfl56be/qNB2q2tqB
+         HJtzPCsCLtGjZEAcmkTcdS/JwP4o0rqel3AO48yX6ufy5fQvci7SO2ImKXV62zSwsv
+         VCZCteCS4uAWa4oy3oNBEcUoP6rsjBe0eT/TN3GY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Lu Wei <luwei32@huawei.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Matt Fleming <matt@console-pimps.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
         John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 176/207] maple: fix wrong return value of maple_bus_init().
-Date:   Wed, 24 Nov 2021 12:57:27 +0100
-Message-Id: <20211124115709.678003933@linuxfoundation.org>
+Subject: [PATCH 4.9 177/207] sh: fix kconfig unmet dependency warning for FRAME_POINTER
+Date:   Wed, 24 Nov 2021 12:57:28 +0100
+Message-Id: <20211124115709.707520386@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
 References: <20211124115703.941380739@linuxfoundation.org>
@@ -41,48 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Wei <luwei32@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit bde82ee391fa6d3ad054313c4aa7b726d32515ce ]
+[ Upstream commit fda1bc533094a7db68b11e7503d2c6c73993d12a ]
 
-If KMEM_CACHE or maple_alloc_dev failed, the maple_bus_init() will return 0
-rather than error, because the retval is not changed after KMEM_CACHE or
-maple_alloc_dev failed.
+FRAME_POINTER depends on DEBUG_KERNEL so DWARF_UNWINDER should
+depend on DEBUG_KERNEL before selecting FRAME_POINTER.
 
-Fixes: 17be2d2b1c33 ("sh: Add maple bus support for the SEGA Dreamcast.")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Lu Wei <luwei32@huawei.com>
-Acked-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+WARNING: unmet direct dependencies detected for FRAME_POINTER
+  Depends on [n]: DEBUG_KERNEL [=n] && (M68K || UML || SUPERH [=y]) || ARCH_WANT_FRAME_POINTERS [=n]
+  Selected by [y]:
+  - DWARF_UNWINDER [=y]
+
+Fixes: bd353861c735 ("sh: dwarf unwinder support.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Matt Fleming <matt@console-pimps.org>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 Signed-off-by: Rich Felker <dalias@libc.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/sh/maple/maple.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/sh/Kconfig.debug | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/sh/maple/maple.c b/drivers/sh/maple/maple.c
-index bec81c2404f78..1682fa3671bc3 100644
---- a/drivers/sh/maple/maple.c
-+++ b/drivers/sh/maple/maple.c
-@@ -835,8 +835,10 @@ static int __init maple_bus_init(void)
+diff --git a/arch/sh/Kconfig.debug b/arch/sh/Kconfig.debug
+index 5f2bb4242c0f7..c50c397cbcf75 100644
+--- a/arch/sh/Kconfig.debug
++++ b/arch/sh/Kconfig.debug
+@@ -60,6 +60,7 @@ config DUMP_CODE
  
- 	maple_queue_cache = KMEM_CACHE(maple_buffer, SLAB_HWCACHE_ALIGN);
- 
--	if (!maple_queue_cache)
-+	if (!maple_queue_cache) {
-+		retval = -ENOMEM;
- 		goto cleanup_bothirqs;
-+	}
- 
- 	INIT_LIST_HEAD(&maple_waitq);
- 	INIT_LIST_HEAD(&maple_sentq);
-@@ -849,6 +851,7 @@ static int __init maple_bus_init(void)
- 		if (!mdev[i]) {
- 			while (i-- > 0)
- 				maple_free_dev(mdev[i]);
-+			retval = -ENOMEM;
- 			goto cleanup_cache;
- 		}
- 		baseunits[i] = mdev[i];
+ config DWARF_UNWINDER
+ 	bool "Enable the DWARF unwinder for stacktraces"
++	depends on DEBUG_KERNEL
+ 	select FRAME_POINTER
+ 	depends on SUPERH32
+ 	default n
 -- 
 2.33.0
 
