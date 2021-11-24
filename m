@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C987D45C32D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:33:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B85D445C556
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:53:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347199AbhKXNgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:36:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46294 "EHLO mail.kernel.org"
+        id S1353114AbhKXN4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:56:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352076AbhKXNeA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:34:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 977256135F;
-        Wed, 24 Nov 2021 12:54:02 +0000 (UTC)
+        id S1349824AbhKXNyn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:54:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0BD860F58;
+        Wed, 24 Nov 2021 13:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758443;
-        bh=l4tHxrOOGBLqmc3toYEVXRi8C9IsnN2PFRJTQcIExAk=;
+        s=korg; t=1637759155;
+        bh=5grc4UgLcXyRgqJqReVQ6SYLRxvThk+x8KxCXyIeIUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QID0kZPJMPZ2f/Gx0HVcuW571bs5szmrbSDu/u/8kIG4VRuArHGyYIXGTKHVY4dzH
-         ZSeDoJ/mgWYum31jpKIuja0yXZvhkpvpsFWKBBBTzDszVL7vGeqVePDOB9MQIWZLgt
-         2HvjaSFLbrPMJHWWDx2GrxBdfdc3hcsi3799i9yg=
+        b=KuAIPeRGtcW7KKJHIIpFFwV9+SYFxy8oSfIm7C9BE1SGRjDyLUrXryCmQP8tTlF7T
+         /OYSuEc4Tco0IWYzbeswPJlZwpt/hgcQEYlDrvDnG/NaebyF26BK5l+Jm9tKITaaoe
+         if30xZraFRzuQrZC3qHVXFYAcvi5iETUDrV1bz9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Roi Dayan <roid@nvidia.com>,
+        Paul Blakey <paulb@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 040/154] scsi: target: Fix ordered tag handling
+Subject: [PATCH 5.15 149/279] net/mlx5e: CT, Fix multiple allocations and memleak of mod acts
 Date:   Wed, 24 Nov 2021 12:57:16 +0100
-Message-Id: <20211124115703.646996526@linuxfoundation.org>
+Message-Id: <20211124115723.922304833@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,264 +42,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Roi Dayan <roid@nvidia.com>
 
-[ Upstream commit ed1227e080990ffec5bf39006ec8a57358e6689a ]
+[ Upstream commit 806401c20a0f9c51b6c8fd7035671e6ca841f6c2 ]
 
-This patch fixes the following bugs:
+CT clear action offload adds additional mod hdr actions to the
+flow's original mod actions in order to clear the registers which
+hold ct_state.
+When such flow also includes encap action, a neigh update event
+can cause the driver to unoffload the flow and then reoffload it.
 
-1. If there are multiple ordered cmds queued and multiple simple cmds
-   completing, target_restart_delayed_cmds() could be called on different
-   CPUs and each instance could start a ordered cmd. They could then run in
-   different orders than they were queued.
+Each time this happens, the ct clear handling adds that same set
+of mod hdr actions to reset ct_state until the max of mod hdr
+actions is reached.
 
-2. target_restart_delayed_cmds() and target_handle_task_attr() can race
-   where:
+Also the driver never releases the allocated mod hdr actions and
+causing a memleak.
 
-   1. target_handle_task_attr() has passed the simple_cmds == 0 check.
+Fix above two issues by moving CT clear mod acts allocation
+into the parsing actions phase and only use it when offloading the rule.
+The release of mod acts will be done in the normal flow_put().
 
-   2. transport_complete_task_attr() then decrements simple_cmds to 0.
+ backtrace:
+    [<000000007316e2f3>] krealloc+0x83/0xd0
+    [<00000000ef157de1>] mlx5e_mod_hdr_alloc+0x147/0x300 [mlx5_core]
+    [<00000000970ce4ae>] mlx5e_tc_match_to_reg_set_and_get_id+0xd7/0x240 [mlx5_core]
+    [<0000000067c5fa17>] mlx5e_tc_match_to_reg_set+0xa/0x20 [mlx5_core]
+    [<00000000d032eb98>] mlx5_tc_ct_entry_set_registers.isra.0+0x36/0xc0 [mlx5_core]
+    [<00000000fd23b869>] mlx5_tc_ct_flow_offload+0x272/0x1f10 [mlx5_core]
+    [<000000004fc24acc>] mlx5e_tc_offload_fdb_rules.part.0+0x150/0x620 [mlx5_core]
+    [<00000000dc741c17>] mlx5e_tc_encap_flows_add+0x489/0x690 [mlx5_core]
+    [<00000000e92e49d7>] mlx5e_rep_update_flows+0x6e4/0x9b0 [mlx5_core]
+    [<00000000f60f5602>] mlx5e_rep_neigh_update+0x39a/0x5d0 [mlx5_core]
 
-   3. transport_complete_task_attr() runs target_restart_delayed_cmds() and
-      it does not see any cmds on the delayed_cmd_list.
-
-   4. target_handle_task_attr() adds the cmd to the delayed_cmd_list.
-
-   The cmd will then end up timing out.
-
-3. If we are sent > 1 ordered cmds and simple_cmds == 0, we can execute
-   them out of order, because target_handle_task_attr() will hit that
-   simple_cmds check first and return false for all ordered cmds sent.
-
-4. We run target_restart_delayed_cmds() after every cmd completion, so if
-   there is more than 1 simple cmd running, we start executing ordered cmds
-   after that first cmd instead of waiting for all of them to complete.
-
-5. Ordered cmds are not supposed to start until HEAD OF QUEUE and all older
-   cmds have completed, and not just simple.
-
-6. It's not a bug but it doesn't make sense to take the delayed_cmd_lock
-   for every cmd completion when ordered cmds are almost never used. Just
-   replacing that lock with an atomic increases IOPs by up to 10% when
-   completions are spread over multiple CPUs and there are multiple
-   sessions/ mqs/thread accessing the same device.
-
-This patch moves the queued delayed handling to a per device work to
-serialze the cmd executions for each device and adds a new counter to track
-HEAD_OF_QUEUE and SIMPLE cmds. We can then check the new counter to
-determine when to run the work on the completion path.
-
-Link: https://lore.kernel.org/r/20210930020422.92578-3-michael.christie@oracle.com
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 1ef3018f5af3 ("net/mlx5e: CT: Support clear action")
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Reviewed-by: Paul Blakey <paulb@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_device.c    |  2 +
- drivers/target/target_core_internal.h  |  1 +
- drivers/target/target_core_transport.c | 76 ++++++++++++++++++--------
- include/target/target_core_base.h      |  6 +-
- 4 files changed, 61 insertions(+), 24 deletions(-)
+ .../ethernet/mellanox/mlx5/core/en/tc_ct.c    | 26 ++++++++++++-------
+ .../ethernet/mellanox/mlx5/core/en/tc_ct.h    |  2 ++
+ .../net/ethernet/mellanox/mlx5/core/en_tc.c   |  8 ++++--
+ 3 files changed, 25 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
-index 405d82d447176..109f019d21480 100644
---- a/drivers/target/target_core_device.c
-+++ b/drivers/target/target_core_device.c
-@@ -758,6 +758,8 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
- 	INIT_LIST_HEAD(&dev->t10_alua.lba_map_list);
- 	spin_lock_init(&dev->t10_alua.lba_map_lock);
- 
-+	INIT_WORK(&dev->delayed_cmd_work, target_do_delayed_work);
-+
- 	dev->t10_wwn.t10_dev = dev;
- 	dev->t10_alua.t10_dev = dev;
- 
-diff --git a/drivers/target/target_core_internal.h b/drivers/target/target_core_internal.h
-index e7b3c6e5d5744..e4f072a680d41 100644
---- a/drivers/target/target_core_internal.h
-+++ b/drivers/target/target_core_internal.h
-@@ -150,6 +150,7 @@ int	transport_dump_vpd_ident(struct t10_vpd *, unsigned char *, int);
- void	transport_clear_lun_ref(struct se_lun *);
- sense_reason_t	target_cmd_size_check(struct se_cmd *cmd, unsigned int size);
- void	target_qf_do_work(struct work_struct *work);
-+void	target_do_delayed_work(struct work_struct *work);
- bool	target_check_wce(struct se_device *dev);
- bool	target_check_fua(struct se_device *dev);
- void	__target_execute_cmd(struct se_cmd *, bool);
-diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
-index 61b79804d462c..bca3a32a4bfb7 100644
---- a/drivers/target/target_core_transport.c
-+++ b/drivers/target/target_core_transport.c
-@@ -2065,32 +2065,35 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
- 	 */
- 	switch (cmd->sam_task_attr) {
- 	case TCM_HEAD_TAG:
-+		atomic_inc_mb(&dev->non_ordered);
- 		pr_debug("Added HEAD_OF_QUEUE for CDB: 0x%02x\n",
- 			 cmd->t_task_cdb[0]);
- 		return false;
- 	case TCM_ORDERED_TAG:
--		atomic_inc_mb(&dev->dev_ordered_sync);
-+		atomic_inc_mb(&dev->delayed_cmd_count);
- 
- 		pr_debug("Added ORDERED for CDB: 0x%02x to ordered list\n",
- 			 cmd->t_task_cdb[0]);
--
--		/*
--		 * Execute an ORDERED command if no other older commands
--		 * exist that need to be completed first.
--		 */
--		if (!atomic_read(&dev->simple_cmds))
--			return false;
- 		break;
- 	default:
- 		/*
- 		 * For SIMPLE and UNTAGGED Task Attribute commands
- 		 */
--		atomic_inc_mb(&dev->simple_cmds);
-+		atomic_inc_mb(&dev->non_ordered);
-+
-+		if (atomic_read(&dev->delayed_cmd_count) == 0)
-+			return false;
- 		break;
- 	}
- 
--	if (atomic_read(&dev->dev_ordered_sync) == 0)
--		return false;
-+	if (cmd->sam_task_attr != TCM_ORDERED_TAG) {
-+		atomic_inc_mb(&dev->delayed_cmd_count);
-+		/*
-+		 * We will account for this when we dequeue from the delayed
-+		 * list.
-+		 */
-+		atomic_dec_mb(&dev->non_ordered);
-+	}
- 
- 	spin_lock(&dev->delayed_cmd_lock);
- 	list_add_tail(&cmd->se_delayed_node, &dev->delayed_cmd_list);
-@@ -2098,6 +2101,12 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
- 
- 	pr_debug("Added CDB: 0x%02x Task Attr: 0x%02x to delayed CMD listn",
- 		cmd->t_task_cdb[0], cmd->sam_task_attr);
-+	/*
-+	 * We may have no non ordered cmds when this function started or we
-+	 * could have raced with the last simple/head cmd completing, so kick
-+	 * the delayed handler here.
-+	 */
-+	schedule_work(&dev->delayed_cmd_work);
- 	return true;
- }
- 
-@@ -2135,29 +2144,48 @@ EXPORT_SYMBOL(target_execute_cmd);
-  * Process all commands up to the last received ORDERED task attribute which
-  * requires another blocking boundary
-  */
--static void target_restart_delayed_cmds(struct se_device *dev)
-+void target_do_delayed_work(struct work_struct *work)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
+index 6c949abcd2e14..bc65151321ec2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
+@@ -1356,9 +1356,13 @@ mlx5_tc_ct_match_add(struct mlx5_tc_ct_priv *priv,
+ int
+ mlx5_tc_ct_parse_action(struct mlx5_tc_ct_priv *priv,
+ 			struct mlx5_flow_attr *attr,
++			struct mlx5e_tc_mod_hdr_acts *mod_acts,
+ 			const struct flow_action_entry *act,
+ 			struct netlink_ext_ack *extack)
  {
--	for (;;) {
-+	struct se_device *dev = container_of(work, struct se_device,
-+					     delayed_cmd_work);
++	bool clear_action = act->ct.action & TCA_CT_ACT_CLEAR;
++	int err;
 +
-+	spin_lock(&dev->delayed_cmd_lock);
-+	while (!dev->ordered_sync_in_progress) {
- 		struct se_cmd *cmd;
+ 	if (!priv) {
+ 		NL_SET_ERR_MSG_MOD(extack,
+ 				   "offload of ct action isn't available");
+@@ -1369,6 +1373,17 @@ mlx5_tc_ct_parse_action(struct mlx5_tc_ct_priv *priv,
+ 	attr->ct_attr.ct_action = act->ct.action;
+ 	attr->ct_attr.nf_ft = act->ct.flow_table;
  
--		spin_lock(&dev->delayed_cmd_lock);
--		if (list_empty(&dev->delayed_cmd_list)) {
--			spin_unlock(&dev->delayed_cmd_lock);
-+		if (list_empty(&dev->delayed_cmd_list))
- 			break;
--		}
- 
- 		cmd = list_entry(dev->delayed_cmd_list.next,
- 				 struct se_cmd, se_delayed_node);
++	if (!clear_action)
++		goto out;
 +
-+		if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
-+			/*
-+			 * Check if we started with:
-+			 * [ordered] [simple] [ordered]
-+			 * and we are now at the last ordered so we have to wait
-+			 * for the simple cmd.
-+			 */
-+			if (atomic_read(&dev->non_ordered) > 0)
-+				break;
++	err = mlx5_tc_ct_entry_set_registers(priv, mod_acts, 0, 0, 0, 0);
++	if (err) {
++		NL_SET_ERR_MSG_MOD(extack, "Failed to set registers for ct clear");
++		return err;
++	}
++	attr->action |= MLX5_FLOW_CONTEXT_ACTION_MOD_HDR;
 +
-+			dev->ordered_sync_in_progress = true;
-+		}
-+
- 		list_del(&cmd->se_delayed_node);
-+		atomic_dec_mb(&dev->delayed_cmd_count);
- 		spin_unlock(&dev->delayed_cmd_lock);
++out:
+ 	return 0;
+ }
  
-+		if (cmd->sam_task_attr != TCM_ORDERED_TAG)
-+			atomic_inc_mb(&dev->non_ordered);
-+
- 		cmd->transport_state |= CMD_T_SENT;
+@@ -1898,23 +1913,16 @@ __mlx5_tc_ct_flow_offload_clear(struct mlx5_tc_ct_priv *ct_priv,
  
- 		__target_execute_cmd(cmd, true);
+ 	memcpy(pre_ct_attr, attr, attr_sz);
  
--		if (cmd->sam_task_attr == TCM_ORDERED_TAG)
--			break;
-+		spin_lock(&dev->delayed_cmd_lock);
+-	err = mlx5_tc_ct_entry_set_registers(ct_priv, mod_acts, 0, 0, 0, 0);
+-	if (err) {
+-		ct_dbg("Failed to set register for ct clear");
+-		goto err_set_registers;
+-	}
+-
+ 	mod_hdr = mlx5_modify_header_alloc(priv->mdev, ct_priv->ns_type,
+ 					   mod_acts->num_actions,
+ 					   mod_acts->actions);
+ 	if (IS_ERR(mod_hdr)) {
+ 		err = PTR_ERR(mod_hdr);
+ 		ct_dbg("Failed to add create ct clear mod hdr");
+-		goto err_set_registers;
++		goto err_mod_hdr;
  	}
-+	spin_unlock(&dev->delayed_cmd_lock);
- }
  
- /*
-@@ -2175,14 +2203,17 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
- 		goto restart;
+ 	pre_ct_attr->modify_hdr = mod_hdr;
+-	pre_ct_attr->action |= MLX5_FLOW_CONTEXT_ACTION_MOD_HDR;
  
- 	if (cmd->sam_task_attr == TCM_SIMPLE_TAG) {
--		atomic_dec_mb(&dev->simple_cmds);
-+		atomic_dec_mb(&dev->non_ordered);
- 		dev->dev_cur_ordered_id++;
- 	} else if (cmd->sam_task_attr == TCM_HEAD_TAG) {
-+		atomic_dec_mb(&dev->non_ordered);
- 		dev->dev_cur_ordered_id++;
- 		pr_debug("Incremented dev_cur_ordered_id: %u for HEAD_OF_QUEUE\n",
- 			 dev->dev_cur_ordered_id);
- 	} else if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
--		atomic_dec_mb(&dev->dev_ordered_sync);
-+		spin_lock(&dev->delayed_cmd_lock);
-+		dev->ordered_sync_in_progress = false;
-+		spin_unlock(&dev->delayed_cmd_lock);
+ 	rule = mlx5_tc_rule_insert(priv, orig_spec, pre_ct_attr);
+ 	if (IS_ERR(rule)) {
+@@ -1930,7 +1938,7 @@ __mlx5_tc_ct_flow_offload_clear(struct mlx5_tc_ct_priv *ct_priv,
  
- 		dev->dev_cur_ordered_id++;
- 		pr_debug("Incremented dev_cur_ordered_id: %u for ORDERED\n",
-@@ -2191,7 +2222,8 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
- 	cmd->se_cmd_flags &= ~SCF_TASK_ATTR_SET;
+ err_insert:
+ 	mlx5_modify_header_dealloc(priv->mdev, mod_hdr);
+-err_set_registers:
++err_mod_hdr:
+ 	netdev_warn(priv->netdev,
+ 		    "Failed to offload ct clear flow, err %d\n", err);
+ 	kfree(pre_ct_attr);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.h b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.h
+index 363329f4aac61..99662af1e41a7 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.h
+@@ -110,6 +110,7 @@ int mlx5_tc_ct_add_no_trk_match(struct mlx5_flow_spec *spec);
+ int
+ mlx5_tc_ct_parse_action(struct mlx5_tc_ct_priv *priv,
+ 			struct mlx5_flow_attr *attr,
++			struct mlx5e_tc_mod_hdr_acts *mod_acts,
+ 			const struct flow_action_entry *act,
+ 			struct netlink_ext_ack *extack);
  
- restart:
--	target_restart_delayed_cmds(dev);
-+	if (atomic_read(&dev->delayed_cmd_count) > 0)
-+		schedule_work(&dev->delayed_cmd_work);
- }
+@@ -172,6 +173,7 @@ mlx5_tc_ct_add_no_trk_match(struct mlx5_flow_spec *spec)
+ static inline int
+ mlx5_tc_ct_parse_action(struct mlx5_tc_ct_priv *priv,
+ 			struct mlx5_flow_attr *attr,
++			struct mlx5e_tc_mod_hdr_acts *mod_acts,
+ 			const struct flow_action_entry *act,
+ 			struct netlink_ext_ack *extack)
+ {
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index d2e7b099b83ab..e3b320b6d85b9 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -3458,7 +3458,9 @@ static int parse_tc_nic_actions(struct mlx5e_priv *priv,
+ 			attr->dest_chain = act->chain_index;
+ 			break;
+ 		case FLOW_ACTION_CT:
+-			err = mlx5_tc_ct_parse_action(get_ct_priv(priv), attr, act, extack);
++			err = mlx5_tc_ct_parse_action(get_ct_priv(priv), attr,
++						      &parse_attr->mod_hdr_acts,
++						      act, extack);
+ 			if (err)
+ 				return err;
  
- static void transport_complete_qf(struct se_cmd *cmd)
-diff --git a/include/target/target_core_base.h b/include/target/target_core_base.h
-index 549947d407cfd..18a5dcd275f88 100644
---- a/include/target/target_core_base.h
-+++ b/include/target/target_core_base.h
-@@ -788,8 +788,9 @@ struct se_device {
- 	atomic_long_t		read_bytes;
- 	atomic_long_t		write_bytes;
- 	/* Active commands on this virtual SE device */
--	atomic_t		simple_cmds;
--	atomic_t		dev_ordered_sync;
-+	atomic_t		non_ordered;
-+	bool			ordered_sync_in_progress;
-+	atomic_t		delayed_cmd_count;
- 	atomic_t		dev_qf_count;
- 	u32			export_count;
- 	spinlock_t		delayed_cmd_lock;
-@@ -811,6 +812,7 @@ struct se_device {
- 	struct list_head	dev_sep_list;
- 	struct list_head	dev_tmr_list;
- 	struct work_struct	qf_work_queue;
-+	struct work_struct	delayed_cmd_work;
- 	struct list_head	delayed_cmd_list;
- 	struct list_head	state_list;
- 	struct list_head	qf_cmd_list;
+@@ -4009,7 +4011,9 @@ static int parse_tc_fdb_actions(struct mlx5e_priv *priv,
+ 				NL_SET_ERR_MSG_MOD(extack, "Sample action with connection tracking is not supported");
+ 				return -EOPNOTSUPP;
+ 			}
+-			err = mlx5_tc_ct_parse_action(get_ct_priv(priv), attr, act, extack);
++			err = mlx5_tc_ct_parse_action(get_ct_priv(priv), attr,
++						      &parse_attr->mod_hdr_acts,
++						      act, extack);
+ 			if (err)
+ 				return err;
+ 
 -- 
 2.33.0
 
