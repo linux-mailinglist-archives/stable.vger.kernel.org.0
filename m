@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A6EA45BB31
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:14:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 494CC45B9CB
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243050AbhKXMR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:17:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
+        id S242230AbhKXMFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:05:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242718AbhKXMP3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:15:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 779DF61053;
-        Wed, 24 Nov 2021 12:10:13 +0000 (UTC)
+        id S242047AbhKXMEb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:04:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66F7260FDA;
+        Wed, 24 Nov 2021 12:01:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755814;
-        bh=Xvip36oCyCXhVCDD2f1axnCfsa43jG9xmFBr55XnKVc=;
+        s=korg; t=1637755282;
+        bh=C4/KLSkTNWq4YoHJiqRDdm4Sr2IKkmWdkJ52saIL1Ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwDSw+ftdegZ2L+XeLnKanBP23dkEHMFJR5xf/Il9+UrfE9wFOhFteYjgxhWnL5aT
-         sCkNxb04h/tzm8QltKvTkd8HOUSeVqaXJK5CfTE5+X8/1DRSogaQBYkx6xH6RsVzaU
-         JroATx5PhEeAM166tpn8IgqoElEfe4E5+SG0tVFE=
+        b=Uivd3RZrC+E2LGiIPcF0IF63lZxD4QqE6iyITb3XXO9KjIkwm8pukV9zQUnj0/gYv
+         G/aydhTtrTCql+ZMvTDyuO71pIxOmDdski0IGNJRstI93ynDfPwaK828ohJsadWvZ5
+         equ9wyCOsRDUsNlmKw7wTIEVAikYsomXoFClqvHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+4d3749e9612c2cfab956@syzkaller.appspotmail.com,
-        Rajat Asthana <rajatasthana4@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 068/207] media: mceusb: return without resubmitting URB in case of -EPROTO error.
-Date:   Wed, 24 Nov 2021 12:55:39 +0100
-Message-Id: <20211124115706.125654219@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
+        stable@kernel.org, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.4 037/162] quota: check block number when reading the block in quota file
+Date:   Wed, 24 Nov 2021 12:55:40 +0100
+Message-Id: <20211124115659.549309597@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +39,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajat Asthana <rajatasthana4@gmail.com>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit 476db72e521983ecb847e4013b263072bb1110fc ]
+commit 9bf3d20331295b1ecb81f4ed9ef358c51699a050 upstream.
 
-Syzkaller reported a warning called "rcu detected stall in dummy_timer".
+The block number in the quota tree on disk should be smaller than the
+v2_disk_dqinfo.dqi_blocks. If the quota file was corrupted, we may be
+allocating an 'allocated' block and that would lead to a loop in a tree,
+which will probably trigger oops later. This patch adds a check for the
+block number in the quota tree to prevent such potential issue.
 
-The error seems to be an error in mceusb_dev_recv(). In the case of
--EPROTO error, the routine immediately resubmits the URB. Instead it
-should return without resubmitting URB.
-
-Reported-by: syzbot+4d3749e9612c2cfab956@syzkaller.appspotmail.com
-Signed-off-by: Rajat Asthana <rajatasthana4@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211008093821.1001186-2-yi.zhang@huawei.com
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Cc: stable@kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/rc/mceusb.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/quota/quota_tree.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/media/rc/mceusb.c b/drivers/media/rc/mceusb.c
-index d9f88a4a96bd1..b78d70685b1c3 100644
---- a/drivers/media/rc/mceusb.c
-+++ b/drivers/media/rc/mceusb.c
-@@ -1090,6 +1090,7 @@ static void mceusb_dev_recv(struct urb *urb)
- 	case -ECONNRESET:
- 	case -ENOENT:
- 	case -EILSEQ:
-+	case -EPROTO:
- 	case -ESHUTDOWN:
- 		usb_unlink_urb(urb);
- 		return;
--- 
-2.33.0
-
+--- a/fs/quota/quota_tree.c
++++ b/fs/quota/quota_tree.c
+@@ -481,6 +481,13 @@ static int remove_tree(struct qtree_mem_
+ 		goto out_buf;
+ 	}
+ 	newblk = le32_to_cpu(ref[get_index(info, dquot->dq_id, depth)]);
++	if (newblk < QT_TREEOFF || newblk >= info->dqi_blocks) {
++		quota_error(dquot->dq_sb, "Getting block too big (%u >= %u)",
++			    newblk, info->dqi_blocks);
++		ret = -EUCLEAN;
++		goto out_buf;
++	}
++
+ 	if (depth == info->dqi_qtree_depth - 1) {
+ 		ret = free_dqentry(info, dquot, newblk);
+ 		newblk = 0;
+@@ -580,6 +587,13 @@ static loff_t find_tree_dqentry(struct q
+ 	blk = le32_to_cpu(ref[get_index(info, dquot->dq_id, depth)]);
+ 	if (!blk)	/* No reference? */
+ 		goto out_buf;
++	if (blk < QT_TREEOFF || blk >= info->dqi_blocks) {
++		quota_error(dquot->dq_sb, "Getting block too big (%u >= %u)",
++			    blk, info->dqi_blocks);
++		ret = -EUCLEAN;
++		goto out_buf;
++	}
++
+ 	if (depth < info->dqi_qtree_depth - 1)
+ 		ret = find_tree_dqentry(info, dquot, blk, depth+1);
+ 	else
 
 
