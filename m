@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00A3545BE98
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 692BE45BCB5
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244505AbhKXMtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:49:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50528 "EHLO mail.kernel.org"
+        id S243970AbhKXMbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245626AbhKXMqH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:46:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EA6E610A6;
-        Wed, 24 Nov 2021 12:27:03 +0000 (UTC)
+        id S245376AbhKXMZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:25:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE5BD611C2;
+        Wed, 24 Nov 2021 12:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756824;
-        bh=P1efQ1EJYZ7M3hPLIesNMPnifDK4J0i56+3LXQgiPIQ=;
+        s=korg; t=1637756155;
+        bh=leETTxEOUjK8p6dO07fgcIaIw8pBK76xzUPEmbE259w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z2X9RDqql6TSwuqDDBOvE6ehJDAYc0Riw9dpiPOgnZTg141MvOi3TyIqYrmP97USL
-         jq195suIzjc0inmLhmTkqPxf81fpzC0CDnP04Sz6ZoY34iUoxI9Qc6FpjECEv2k19r
-         JcGQhgcjTsTb0dvi44BByYr7l07iOjcTvJ/rY0TQ=
+        b=pwk+Bncx08XgruarEDVqXUSe9jvWqKlhd/Ku0Tl58b7kPq5YvZrg9l3xLaEEiyTFz
+         KBLuGq+4YXWvuWwSmAZ1PeZfgGmXIbieTjMp501aLDzS2TfwLfq1wx3LjUBg4MYoA/
+         CcROwV67wMA62Ax4Qp7IhMUOpQXW6zEoydAHcw9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing-Ting Wu <jing-ting.wu@mediatek.com>,
-        Vincent Donnefort <vincent.donnefort@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 220/251] sched/core: Mitigate race cpus_share_cache()/update_top_cache_domain()
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Brian Cain <bcain@codeaurora.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 191/207] hexagon: export raw I/O routines for modules
 Date:   Wed, 24 Nov 2021 12:57:42 +0100
-Message-Id: <20211124115717.918812279@linuxfoundation.org>
+Message-Id: <20211124115710.139416502@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Donnefort <vincent.donnefort@arm.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 42dc938a590c96eeb429e1830123fef2366d9c80 ]
+commit ffb92ce826fd801acb0f4e15b75e4ddf0d189bde upstream.
 
-Nothing protects the access to the per_cpu variable sd_llc_id. When testing
-the same CPU (i.e. this_cpu == that_cpu), a race condition exists with
-update_top_cache_domain(). One scenario being:
+Patch series "Fixes for ARCH=hexagon allmodconfig", v2.
 
-              CPU1                            CPU2
-  ==================================================================
+This series fixes some issues noticed with ARCH=hexagon allmodconfig.
 
-  per_cpu(sd_llc_id, CPUX) => 0
-                                    partition_sched_domains_locked()
-      				      detach_destroy_domains()
-  cpus_share_cache(CPUX, CPUX)          update_top_cache_domain(CPUX)
-    per_cpu(sd_llc_id, CPUX) => 0
-                                          per_cpu(sd_llc_id, CPUX) = CPUX
-    per_cpu(sd_llc_id, CPUX) => CPUX
-    return false
+This patch (of 3):
 
-ttwu_queue_cond() wouldn't catch smp_processor_id() == cpu and the result
-is a warning triggered from ttwu_queue_wakelist().
+When building ARCH=hexagon allmodconfig, the following errors occur:
 
-Avoid a such race in cpus_share_cache() by always returning true when
-this_cpu == that_cpu.
+  ERROR: modpost: "__raw_readsl" [drivers/i3c/master/svc-i3c-master.ko] undefined!
+  ERROR: modpost: "__raw_writesl" [drivers/i3c/master/dw-i3c-master.ko] undefined!
+  ERROR: modpost: "__raw_readsl" [drivers/i3c/master/dw-i3c-master.ko] undefined!
+  ERROR: modpost: "__raw_writesl" [drivers/i3c/master/i3c-master-cdns.ko] undefined!
+  ERROR: modpost: "__raw_readsl" [drivers/i3c/master/i3c-master-cdns.ko] undefined!
 
-Fixes: 518cd6234178 ("sched: Only queue remote wakeups when crossing cache boundaries")
-Reported-by: Jing-Ting Wu <jing-ting.wu@mediatek.com>
-Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/20211104175120.857087-1-vincent.donnefort@arm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Export these symbols so that modules can use them without any errors.
+
+Link: https://lkml.kernel.org/r/20211115174250.1994179-1-nathan@kernel.org
+Link: https://lkml.kernel.org/r/20211115174250.1994179-2-nathan@kernel.org
+Fixes: 013bf24c3829 ("Hexagon: Provide basic implementation and/or stubs for I/O routines.")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Acked-by: Brian Cain <bcain@codeaurora.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/hexagon/lib/io.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 7cedada731c1b..544a1cb66d90d 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1852,6 +1852,9 @@ out:
+--- a/arch/hexagon/lib/io.c
++++ b/arch/hexagon/lib/io.c
+@@ -40,6 +40,7 @@ void __raw_readsw(const void __iomem *ad
+ 		*dst++ = *src;
  
- bool cpus_share_cache(int this_cpu, int that_cpu)
- {
-+	if (this_cpu == that_cpu)
-+		return true;
-+
- 	return per_cpu(sd_llc_id, this_cpu) == per_cpu(sd_llc_id, that_cpu);
  }
- #endif /* CONFIG_SMP */
--- 
-2.33.0
-
++EXPORT_SYMBOL(__raw_readsw);
+ 
+ /*
+  * __raw_writesw - read words a short at a time
+@@ -60,6 +61,7 @@ void __raw_writesw(void __iomem *addr, c
+ 
+ 
+ }
++EXPORT_SYMBOL(__raw_writesw);
+ 
+ /*  Pretty sure len is pre-adjusted for the length of the access already */
+ void __raw_readsl(const void __iomem *addr, void *data, int len)
+@@ -75,6 +77,7 @@ void __raw_readsl(const void __iomem *ad
+ 
+ 
+ }
++EXPORT_SYMBOL(__raw_readsl);
+ 
+ void __raw_writesl(void __iomem *addr, const void *data, int len)
+ {
+@@ -89,3 +92,4 @@ void __raw_writesl(void __iomem *addr, c
+ 
+ 
+ }
++EXPORT_SYMBOL(__raw_writesl);
 
 
