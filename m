@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E641745BEC8
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:48:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB11C45BAEE
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345720AbhKXMuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:50:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
+        id S242541AbhKXMP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:15:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346118AbhKXMsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:48:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAB6061350;
-        Wed, 24 Nov 2021 12:28:32 +0000 (UTC)
+        id S242545AbhKXML7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:11:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD1776108E;
+        Wed, 24 Nov 2021 12:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756913;
-        bh=oqjRiStuzTUWkysedtyWD9xY8PyFk2WaNXMA6Y7e1cU=;
+        s=korg; t=1637755609;
+        bh=1XdKKG3+X7+/tJAUrSoFzsj8tesFw2JSz667/79kxBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmD8RXy4oGz3/GNBWdmS7E01OT8oH+lpuIUuVnlnfUL8jbUjx2xiSgqpjcyBZ8wCW
-         MtY7QtJrmLhECNZ2yC5BS1/qgmrDoMfNv3SEGyI2aCwpmRlTYDaruaWtDtztht/LZh
-         BLJvLGWL+nvwI+MMJ0OprCuSAvqlMkz5K0qQZbWQ=
+        b=ZZJbUugDg0IQdj647h7FtaC/URLSNI502BU/PD27fzx40GuRmFpEISaIXCv+t1xVX
+         QTcDUoQkji+qZXRlKJQ55y89nCrxAEG9Ty4OoJuh0qT+4TwgxYI0l1nYjqaBCV0+y0
+         Pd0VXSScsLbbp6Lv6GFsAkcRSFwefDGGZnMO2j44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Matt Fleming <matt@console-pimps.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 217/251] sh: fix kconfig unmet dependency warning for FRAME_POINTER
+        =?UTF-8?q?Linus=20L=FCssing?= <linus.luessing@c0d3.blue>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sven Eckelmann <sven@narfation.org>
+Subject: [PATCH 4.4 156/162] batman-adv: Consider fragmentation for needed_headroom
 Date:   Wed, 24 Nov 2021 12:57:39 +0100
-Message-Id: <20211124115717.805659219@linuxfoundation.org>
+Message-Id: <20211124115703.325151383@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit fda1bc533094a7db68b11e7503d2c6c73993d12a ]
+commit 4ca23e2c2074465bff55ea14221175fecdf63c5f upstream.
 
-FRAME_POINTER depends on DEBUG_KERNEL so DWARF_UNWINDER should
-depend on DEBUG_KERNEL before selecting FRAME_POINTER.
+If a batman-adv packets has to be fragmented, then the original batman-adv
+packet header is not stripped away. Instead, only a new header is added in
+front of the packet after it was split.
 
-WARNING: unmet direct dependencies detected for FRAME_POINTER
-  Depends on [n]: DEBUG_KERNEL [=n] && (M68K || UML || SUPERH [=y]) || ARCH_WANT_FRAME_POINTERS [=n]
-  Selected by [y]:
-  - DWARF_UNWINDER [=y]
+This size must be considered to avoid cost intensive reallocations during
+the transmission through the various device layers.
 
-Fixes: bd353861c735 ("sh: dwarf unwinder support.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Matt Fleming <matt@console-pimps.org>
-Cc: Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Rich Felker <dalias@libc.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7bca68c7844b ("batman-adv: Add lower layer needed_(head|tail)room to own ones")
+Reported-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sh/Kconfig.debug | 1 +
- 1 file changed, 1 insertion(+)
+ net/batman-adv/hard-interface.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/sh/Kconfig.debug b/arch/sh/Kconfig.debug
-index d0767672640d8..4209405179262 100644
---- a/arch/sh/Kconfig.debug
-+++ b/arch/sh/Kconfig.debug
-@@ -61,6 +61,7 @@ config DUMP_CODE
+--- a/net/batman-adv/hard-interface.c
++++ b/net/batman-adv/hard-interface.c
+@@ -316,6 +316,9 @@ static void batadv_hardif_recalc_extra_s
+ 	needed_headroom = lower_headroom + (lower_header_len - ETH_HLEN);
+ 	needed_headroom += batadv_max_header_len();
  
- config DWARF_UNWINDER
- 	bool "Enable the DWARF unwinder for stacktraces"
-+	depends on DEBUG_KERNEL
- 	select FRAME_POINTER
- 	depends on SUPERH32
- 	default n
--- 
-2.33.0
-
++	/* fragmentation headers don't strip the unicast/... header */
++	needed_headroom += sizeof(struct batadv_frag_packet);
++
+ 	soft_iface->needed_headroom = needed_headroom;
+ 	soft_iface->needed_tailroom = lower_tailroom;
+ }
 
 
