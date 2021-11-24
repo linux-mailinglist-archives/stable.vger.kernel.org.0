@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83C2045C613
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E8C945C16F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346972AbhKXOFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:05:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50824 "EHLO mail.kernel.org"
+        id S1347527AbhKXNSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:18:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353582AbhKXOAf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:00:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25980632CB;
-        Wed, 24 Nov 2021 13:09:06 +0000 (UTC)
+        id S1348004AbhKXNQA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:16:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0C0B61ABE;
+        Wed, 24 Nov 2021 12:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759346;
-        bh=sJ6udqFJBxNLseHgsy5drVBNsnIIQCQ5L9fvkpsZKjQ=;
+        s=korg; t=1637757879;
+        bh=50l1+Z0pUB5053HhXjWFJONKY2gYv9tdCJEF7agVdiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWSpEj9oHzsYXBfFrawsuw5O3lHXgDtBFsYZ4fn7zNQFzeBA4UNXLKKS7/5i1E/Go
-         AhCa+8oRsdDyyS+zUZIGvBvotatBRfaK82pFU5ibuKNiEOAUvlikUquCg/xpSiur60
-         lZa8j3bmrQEjOKdz1Dve3ofEy9e674CpEotZpLHM=
+        b=SUqG9aStHjg/p6NOrHZRcdJd5ZhJmXW2C4ZiEZfdhJ7dCighazR4Cn2W5ThJ9kyf3
+         3KFU3bIDR9cDl9LIk9i2Kdir+/kXxrf9FKufm+INZIAETI/Ct5mbkvoWEFogPMD1hW
+         VWrwh99o+x6CpKA72nN5VwSn+sq3nJTsVz4P09vY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 210/279] powerpc/8xx: Fix pinned TLBs with CONFIG_STRICT_KERNEL_RWX
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Glauber Costa <glommer@parallels.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 307/323] mm: kmemleak: slob: respect SLAB_NOLEAKTRACE flag
 Date:   Wed, 24 Nov 2021 12:58:17 +0100
-Message-Id: <20211124115725.991965634@linuxfoundation.org>
+Message-Id: <20211124115729.279893626@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-commit 1e35eba4055149c578baf0318d2f2f89ea3c44a0 upstream.
+commit 34dbc3aaf5d9e89ba6cc5e24add9458c21ab1950 upstream.
 
-As spotted and explained in commit c12ab8dbc492 ("powerpc/8xx: Fix
-Oops with STRICT_KERNEL_RWX without DEBUG_RODATA_TEST"), the selection
-of STRICT_KERNEL_RWX without selecting DEBUG_RODATA_TEST has spotted
-the lack of the DIRTY bit in the pinned kernel data TLBs.
+When kmemleak is enabled for SLOB, system does not boot and does not
+print anything to the console.  At the very early stage in the boot
+process we hit infinite recursion from kmemleak_init() and eventually
+kernel crashes.
 
-This problem should have been detected a lot earlier if things had
-been working as expected. But due to an incredible level of chance or
-mishap, this went undetected because of a set of bugs: In fact the
-DTLBs were not pinned, because instead of setting the reserve bit
-in MD_CTR, it was set in MI_CTR that is the register for ITLBs.
+kmemleak_init() specifies SLAB_NOLEAKTRACE for KMEM_CACHE(), but
+kmem_cache_create_usercopy() removes it because CACHE_CREATE_MASK is not
+valid for SLOB.
 
-But then, another huge bug was there: the physical address was
-reset to 0 at the boundary between RO and RW areas, leading to the
-same physical space being mapped at both 0xc0000000 and 0xc8000000.
-This had by miracle no consequence until now because the entry was
-not really pinned so it was overwritten soon enough to go undetected.
+Let's fix CACHE_CREATE_MASK and make kmemleak work with SLOB
 
-Of course, now that we really pin the DTLBs, it must be fixed as well.
-
-Fixes: f76c8f6d257c ("powerpc/8xx: Add function to set pinned TLBs")
-Cc: stable@vger.kernel.org # v5.8+
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Depends-on: c12ab8dbc492 ("powerpc/8xx: Fix Oops with STRICT_KERNEL_RWX without DEBUG_RODATA_TEST")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/a21e9a057fe2d247a535aff0d157a54eefee017a.1636963688.git.christophe.leroy@csgroup.eu
+Link: https://lkml.kernel.org/r/20211115020850.3154366-1-rkovhaev@gmail.com
+Fixes: d8843922fba4 ("slab: Ignore internal flags in cache creation")
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Glauber Costa <glommer@parallels.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/head_8xx.S |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ mm/slab.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/head_8xx.S
-+++ b/arch/powerpc/kernel/head_8xx.S
-@@ -733,6 +733,7 @@ _GLOBAL(mmu_pin_tlb)
- #ifdef CONFIG_PIN_TLB_DATA
- 	LOAD_REG_IMMEDIATE(r6, PAGE_OFFSET)
- 	LOAD_REG_IMMEDIATE(r7, MI_SVALID | MI_PS8MEG | _PMD_ACCESSED)
-+	li	r8, 0
- #ifdef CONFIG_PIN_TLB_IMMR
- 	li	r0, 3
+--- a/mm/slab.h
++++ b/mm/slab.h
+@@ -148,7 +148,7 @@ static inline slab_flags_t kmem_cache_fl
+ #define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE | SLAB_RECLAIM_ACCOUNT | \
+ 			  SLAB_TEMPORARY | SLAB_ACCOUNT)
  #else
-@@ -741,26 +742,26 @@ _GLOBAL(mmu_pin_tlb)
- 	mtctr	r0
- 	cmpwi	r4, 0
- 	beq	4f
--	LOAD_REG_IMMEDIATE(r8, 0xf0 | _PAGE_RO | _PAGE_SPS | _PAGE_SH | _PAGE_PRESENT)
- 	LOAD_REG_ADDR(r9, _sinittext)
+-#define SLAB_CACHE_FLAGS (0)
++#define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE)
+ #endif
  
- 2:	ori	r0, r6, MD_EVALID
-+	ori	r12, r8, 0xf0 | _PAGE_RO | _PAGE_SPS | _PAGE_SH | _PAGE_PRESENT
- 	mtspr	SPRN_MD_CTR, r5
- 	mtspr	SPRN_MD_EPN, r0
- 	mtspr	SPRN_MD_TWC, r7
--	mtspr	SPRN_MD_RPN, r8
-+	mtspr	SPRN_MD_RPN, r12
- 	addi	r5, r5, 0x100
- 	addis	r6, r6, SZ_8M@h
- 	addis	r8, r8, SZ_8M@h
- 	cmplw	r6, r9
- 	bdnzt	lt, 2b
--
--4:	LOAD_REG_IMMEDIATE(r8, 0xf0 | _PAGE_DIRTY | _PAGE_SPS | _PAGE_SH | _PAGE_PRESENT)
-+4:
- 2:	ori	r0, r6, MD_EVALID
-+	ori	r12, r8, 0xf0 | _PAGE_DIRTY | _PAGE_SPS | _PAGE_SH | _PAGE_PRESENT
- 	mtspr	SPRN_MD_CTR, r5
- 	mtspr	SPRN_MD_EPN, r0
- 	mtspr	SPRN_MD_TWC, r7
--	mtspr	SPRN_MD_RPN, r8
-+	mtspr	SPRN_MD_RPN, r12
- 	addi	r5, r5, 0x100
- 	addis	r6, r6, SZ_8M@h
- 	addis	r8, r8, SZ_8M@h
-@@ -781,7 +782,7 @@ _GLOBAL(mmu_pin_tlb)
- #endif
- #if defined(CONFIG_PIN_TLB_IMMR) || defined(CONFIG_PIN_TLB_DATA)
- 	lis	r0, (MD_RSV4I | MD_TWAM)@h
--	mtspr	SPRN_MI_CTR, r0
-+	mtspr	SPRN_MD_CTR, r0
- #endif
- 	mtspr	SPRN_SRR1, r10
- 	mtspr	SPRN_SRR0, r11
+ /* Common flags available with current configuration */
 
 
