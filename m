@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4A0945BBF7
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BC0245BDF1
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245333AbhKXMZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42290 "EHLO mail.kernel.org"
+        id S1344569AbhKXMma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:42:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244910AbhKXMYV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:24:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD8C460295;
-        Wed, 24 Nov 2021 12:14:50 +0000 (UTC)
+        id S1344341AbhKXMk3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:40:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0162D610A1;
+        Wed, 24 Nov 2021 12:23:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756091;
-        bh=I3H8yzAtI8SujZBXtSUndW4JbdVuHlp/D7yI0ExIHTc=;
+        s=korg; t=1637756637;
+        bh=ViuG81GM7+tIlro50u32aN0A0xMWqqVY8TuJRKnrn8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=027oBbAVNQ1SoEM1R5rT7MtG2cIUBCkXO4uSWLKscYI1Q8RptBSRAlmkcbOnpPYfk
-         2cB/qBAlu1NlAEI77kBC6O3p3qwHsCjH2XM8AdlcZ4NhhuVRMa6CFqRM5+Ji/bGX6D
-         XtODTiNrblUnmiJGhoy+QJm0uww1cD3pbWASV7+g=
+        b=1MODWbkxnBtstQo11z6z7y+7m/mZZBGV4Z+jflRWAI+mtSBbW0RCTTj3IAKIY11on
+         rE6OQ14hw/q0PtG1GZekJaIvOAiUbE7eb8iUHKcfTHBbV3GTmXbhiw7OgiVulwz0Xq
+         s40cmtMNkH162YOnMjjALHOWA66ZmjPI0JvYx7KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 125/207] usb: gadget: hid: fix error code in do_config()
+Subject: [PATCH 4.14 154/251] RDMA/mlx4: Return missed an error if device doesnt support steering
 Date:   Wed, 24 Nov 2021 12:56:36 +0100
-Message-Id: <20211124115708.100454110@linuxfoundation.org>
+Message-Id: <20211124115715.629718272@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 68e7c510fdf4f6167404609da52e1979165649f6 ]
+[ Upstream commit f4e56ec4452f48b8292dcf0e1c4bdac83506fb8b ]
 
-Return an error code if usb_get_function() fails.  Don't return success.
+The error flow fixed in this patch is not possible because all kernel
+users of create QP interface check that device supports steering before
+set IB_QP_CREATE_NETIF_QP flag.
 
-Fixes: 4bc8a33f2407 ("usb: gadget: hid: convert to new interface of f_hid")
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20211011123739.GC15188@kili
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c1c98501121e ("IB/mlx4: Add support for steerable IB UD QPs")
+Link: https://lore.kernel.org/r/91c61f6e60eb0240f8bbc321fda7a1d2986dd03c.1634023677.git.leonro@nvidia.com
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/legacy/hid.c | 4 +++-
+ drivers/infiniband/hw/mlx4/qp.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/legacy/hid.c b/drivers/usb/gadget/legacy/hid.c
-index cccbb948821b2..a55d3761d777c 100644
---- a/drivers/usb/gadget/legacy/hid.c
-+++ b/drivers/usb/gadget/legacy/hid.c
-@@ -103,8 +103,10 @@ static int do_config(struct usb_configuration *c)
+diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
+index df1ecd29057f8..8862eb9a6fe43 100644
+--- a/drivers/infiniband/hw/mlx4/qp.c
++++ b/drivers/infiniband/hw/mlx4/qp.c
+@@ -1144,8 +1144,10 @@ static int create_qp_common(struct mlx4_ib_dev *dev, struct ib_pd *pd,
+ 			if (dev->steering_support ==
+ 			    MLX4_STEERING_MODE_DEVICE_MANAGED)
+ 				qp->flags |= MLX4_IB_QP_NETIF;
+-			else
++			else {
++				err = -EINVAL;
+ 				goto err;
++			}
+ 		}
  
- 	list_for_each_entry(e, &hidg_func_list, node) {
- 		e->f = usb_get_function(e->fi);
--		if (IS_ERR(e->f))
-+		if (IS_ERR(e->f)) {
-+			status = PTR_ERR(e->f);
- 			goto put;
-+		}
- 		status = usb_add_function(c, e->f);
- 		if (status < 0) {
- 			usb_put_function(e->f);
+ 		memcpy(&backup_cap, &init_attr->cap, sizeof(backup_cap));
 -- 
 2.33.0
 
