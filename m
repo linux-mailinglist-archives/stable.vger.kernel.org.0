@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0E8545BC30
+	by mail.lfdr.de (Postfix) with ESMTP id 008CF45BC2E
 	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244340AbhKXM0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:26:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36450 "EHLO mail.kernel.org"
+        id S240544AbhKXM0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:26:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243525AbhKXMUt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:20:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F205661167;
-        Wed, 24 Nov 2021 12:12:46 +0000 (UTC)
+        id S242718AbhKXMUw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:20:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1884A610E6;
+        Wed, 24 Nov 2021 12:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755967;
-        bh=IUrmM+C5WEfEndpTc3gWGArwxdR2hRJx0tW7bWJWWns=;
+        s=korg; t=1637755970;
+        bh=dpabKzcxBb2yn8fpXJLncwcTVdvfQsaPMiNVm1wfaGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vzCJa+yJjipGlSWii9zapnR6tJWeYjKhRpYNNbDk8eEN5M/QdxT3MxktYMbs5oJhl
-         aBNMIa6D/TguJTJ94UvtZpnF32wgQTxAkedswHq6XhMDrOjajyclafd1EohfgmWuxN
-         Ppf2mFS1bVXXColFLqgLMthNO1xIEphlQHGvFWDU=
+        b=dTziDBd20YvsOVrivsCwibLw1HN8vmFhLpMFacl2UOQst4KLKkULfkaE4HYb2KV0v
+         N/yE7+uTDW/lJQsZFS5chdLEito9lEzXvE5QdMC+G0YtXUDPltE22xzvbA62kP65O5
+         Cb6dEnlYVvwxbSlpv3aZsl1Vgp/IgiXRBsVTUrlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Kemnade <andreas@kemnade.info>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 120/207] arm: dts: omap3-gta04a4: accelerometer irq fix
-Date:   Wed, 24 Nov 2021 12:56:31 +0100
-Message-Id: <20211124115707.944334365@linuxfoundation.org>
+Subject: [PATCH 4.9 121/207] soc/tegra: Fix an error handling path in tegra_powergate_power_up()
+Date:   Wed, 24 Nov 2021 12:56:32 +0100
+Message-Id: <20211124115707.973975958@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
 References: <20211124115703.941380739@linuxfoundation.org>
@@ -40,34 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 884ea75d79a36faf3731ad9d6b9c29f58697638d ]
+[ Upstream commit 986b5094708e508baa452a23ffe809870934a7df ]
 
-Fix typo in pinctrl. It did only work because the bootloader
-seems to have initialized it.
+If an error occurs after a successful tegra_powergate_enable_clocks()
+call, it must be undone by a tegra_powergate_disable_clocks() call, as
+already done in the below and above error handling paths of this function.
 
-Fixes: ee327111953b ("ARM: dts: omap3-gta04: Define and use bma180 irq pin")
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Update the 'goto' to branch at the correct place of the error handling
+path.
+
+Fixes: a38045121bf4 ("soc/tegra: pmc: Add generic PM domain support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap3-gta04.dtsi | 2 +-
+ drivers/soc/tegra/pmc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
-index 7191506934494..338ee6bd0e0c0 100644
---- a/arch/arm/boot/dts/omap3-gta04.dtsi
-+++ b/arch/arm/boot/dts/omap3-gta04.dtsi
-@@ -352,7 +352,7 @@
- 		compatible = "bosch,bma180";
- 		reg = <0x41>;
- 		pinctrl-names = "default";
--		pintcrl-0 = <&bma180_pins>;
-+		pinctrl-0 = <&bma180_pins>;
- 		interrupt-parent = <&gpio4>;
- 		interrupts = <19 IRQ_TYPE_LEVEL_HIGH>; /* GPIO_115 */
- 	};
+diff --git a/drivers/soc/tegra/pmc.c b/drivers/soc/tegra/pmc.c
+index a12710c917a14..cb2ef789263b7 100644
+--- a/drivers/soc/tegra/pmc.c
++++ b/drivers/soc/tegra/pmc.c
+@@ -396,7 +396,7 @@ static int tegra_powergate_power_up(struct tegra_powergate *pg,
+ 
+ 	err = tegra_powergate_reset_deassert(pg);
+ 	if (err)
+-		goto powergate_off;
++		goto disable_clks;
+ 
+ 	usleep_range(10, 20);
+ 
 -- 
 2.33.0
 
