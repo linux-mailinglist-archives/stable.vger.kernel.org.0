@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 639FB45C3E4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E50AB45C274
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:26:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348484AbhKXNo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:44:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34332 "EHLO mail.kernel.org"
+        id S1345324AbhKXN3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:29:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350661AbhKXNlk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:41:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5339E6324D;
-        Wed, 24 Nov 2021 12:57:41 +0000 (UTC)
+        id S1349010AbhKXN1I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:27:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69BCD61B56;
+        Wed, 24 Nov 2021 12:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758661;
-        bh=Tc4Pkbm4JU8CTV1VpGw+EE+sAaRRvkdQhxqDCU8lybA=;
+        s=korg; t=1637758222;
+        bh=XCbR+A0WrLMbzFAmvpR6zv7QCPVmxTFYHAqNqOsHiHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rmisp+n8Q2aUhdYTuIZKDi/ssloIyEUAFMbmb3PS+IC3DAVwp3wEo4lfLdK7cb4ta
-         390+TdAqeDV/6gDSYEYjMI749wtXLcsFvDJ5L+f/ZAO5IT6+2QxAGkFUE/+LicY5M/
-         v+jcMmodVKn54tlbBWtuzfjRImlDnqlWLDBT4tBY=
+        b=oDm3zcolepoovrzMsrk83ZzD1NeJvMyETFv1qhFe8Ze0xMIuCyhnKH90Bb2Cca/qK
+         0aL5+PSNbWlDoxdEMoFs8lVfGRGpld7Y3k2k0w1/WDRKzLw/6WFTE2GlmR7OC0VS7O
+         AXYqNStEPMDbZOXMV2yjLo9dZ16VDWjrD7SfADOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vaibhav Gupta <vaibhavgupta40@gmail.com>,
-        Alexey Kuznetsov <axet@me.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Sohaib Mohamed <sohaib.amhmd@gmail.com>,
+        Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Hitoshi Mitake <h.mitake@gmail.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Paul Russel <rusty@rustcorp.com.au>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Pierre Gondois <pierre.gondois@arm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 111/154] e100: fix device suspend/resume
+Subject: [PATCH 5.4 071/100] perf bench: Fix two memory leaks detected with ASan
 Date:   Wed, 24 Nov 2021 12:58:27 +0100
-Message-Id: <20211124115705.874698867@linuxfoundation.org>
+Message-Id: <20211124115657.161360042@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,93 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Sohaib Mohamed <sohaib.amhmd@gmail.com>
 
-[ Upstream commit 5d2ca2e12dfb2aff3388ca57b06f570fa6206ced ]
+[ Upstream commit 92723ea0f11d92496687db8c9725248e9d1e5e1d ]
 
-As reported in [1], e100 was no longer working for suspend/resume
-cycles. The previous commit mentioned in the fixes appears to have
-broken things and this attempts to practice best known methods for
-device power management and keep wake-up working while allowing
-suspend/resume to work. To do this, I reorder a little bit of code
-and fix the resume path to make sure the device is enabled.
+ASan reports memory leaks while running:
 
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=214933
+  $ perf bench sched all
 
-Fixes: 69a74aef8a18 ("e100: use generic power management")
-Cc: Vaibhav Gupta <vaibhavgupta40@gmail.com>
-Reported-by: Alexey Kuznetsov <axet@me.com>
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Alexey Kuznetsov <axet@me.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e27454cc6352c422 ("perf bench: Add sched-messaging.c: Benchmark for scheduler and IPC mechanisms based on hackbench")
+Signed-off-by: Sohaib Mohamed <sohaib.amhmd@gmail.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Hitoshi Mitake <h.mitake@gmail.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Russel <rusty@rustcorp.com.au>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Pierre Gondois <pierre.gondois@arm.com>
+Link: http://lore.kernel.org/lkml/20211110022012.16620-1-sohaib.amhmd@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e100.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ tools/perf/bench/sched-messaging.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
-index ee86ea12fa379..9295a9a1efc73 100644
---- a/drivers/net/ethernet/intel/e100.c
-+++ b/drivers/net/ethernet/intel/e100.c
-@@ -2997,9 +2997,10 @@ static void __e100_shutdown(struct pci_dev *pdev, bool *enable_wake)
- 	struct net_device *netdev = pci_get_drvdata(pdev);
- 	struct nic *nic = netdev_priv(netdev);
- 
-+	netif_device_detach(netdev);
+diff --git a/tools/perf/bench/sched-messaging.c b/tools/perf/bench/sched-messaging.c
+index b142d87337be8..9e6e0ca6a2002 100644
+--- a/tools/perf/bench/sched-messaging.c
++++ b/tools/perf/bench/sched-messaging.c
+@@ -223,6 +223,8 @@ static unsigned int group(pthread_t *pth,
+ 		snd_ctx->out_fds[i] = fds[1];
+ 		if (!thread_mode)
+ 			close(fds[0]);
 +
- 	if (netif_running(netdev))
- 		e100_down(nic);
--	netif_device_detach(netdev);
- 
- 	if ((nic->flags & wol_magic) | e100_asf(nic)) {
- 		/* enable reverse auto-negotiation */
-@@ -3016,7 +3017,7 @@ static void __e100_shutdown(struct pci_dev *pdev, bool *enable_wake)
- 		*enable_wake = false;
++		free(ctx);
  	}
  
--	pci_clear_master(pdev);
-+	pci_disable_device(pdev);
- }
+ 	/* Now we have all the fds, fork the senders */
+@@ -239,6 +241,8 @@ static unsigned int group(pthread_t *pth,
+ 		for (i = 0; i < num_fds; i++)
+ 			close(snd_ctx->out_fds[i]);
  
- static int __e100_power_off(struct pci_dev *pdev, bool wake)
-@@ -3036,8 +3037,6 @@ static int __maybe_unused e100_suspend(struct device *dev_d)
- 
- 	__e100_shutdown(to_pci_dev(dev_d), &wake);
- 
--	device_wakeup_disable(dev_d);
--
- 	return 0;
- }
- 
-@@ -3045,6 +3044,14 @@ static int __maybe_unused e100_resume(struct device *dev_d)
- {
- 	struct net_device *netdev = dev_get_drvdata(dev_d);
- 	struct nic *nic = netdev_priv(netdev);
-+	int err;
++	free(snd_ctx);
 +
-+	err = pci_enable_device(to_pci_dev(dev_d));
-+	if (err) {
-+		netdev_err(netdev, "Resume cannot enable PCI device, aborting\n");
-+		return err;
-+	}
-+	pci_set_master(to_pci_dev(dev_d));
- 
- 	/* disable reverse auto-negotiation */
- 	if (nic->phy == phy_82552_v) {
-@@ -3056,10 +3063,11 @@ static int __maybe_unused e100_resume(struct device *dev_d)
- 		           smartspeed & ~(E100_82552_REV_ANEG));
- 	}
- 
--	netif_device_attach(netdev);
- 	if (netif_running(netdev))
- 		e100_up(nic);
- 
-+	netif_device_attach(netdev);
-+
- 	return 0;
+ 	/* Return number of children to reap */
+ 	return num_fds * 2;
  }
- 
 -- 
 2.33.0
 
