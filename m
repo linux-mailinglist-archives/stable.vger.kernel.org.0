@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B815045BB0F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:13:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7507845BFB0
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:58:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243312AbhKXMP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37610 "EHLO mail.kernel.org"
+        id S1345223AbhKXNAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:00:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242373AbhKXMOe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:14:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0F7E610E6;
-        Wed, 24 Nov 2021 12:09:26 +0000 (UTC)
+        id S1347520AbhKXM6z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:58:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BD726108D;
+        Wed, 24 Nov 2021 12:33:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755767;
-        bh=VI8v5IQiu/tKA0vNkfX5roS+XnOk7u4BuOYg353jHys=;
+        s=korg; t=1637757239;
+        bh=i+X33TndBvt8+eGxF8TCvm06ikTelnzKBn+mS0z/O6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xZLZ5Z7OR7FTuF6RnCUsYYyUiorPJP6ZJyTUREa2rjmEN0z4wVu2f0kP6REpNjXoi
-         Z1UcAGWoMh9amN/R6YwqpL8In2ZAVcrzCsyWhWBOfMXYg+t7HSlGSYAwH9y95TU6T7
-         3dXknnq3q2Tbk7P3rQ6+cVoLu6sJHwQO6SU6K+/A=
+        b=C+xFtYLq7qeWGZhc4UnW4qioSVjpO6zS7/SBAZz/WzdjuFu4oRBmKK1Ml2ThKl5Ga
+         9PyxljUSkzW/qP8d4EtvkJfcUAg3Z/ngeSgJwlRgRHQLqr7l1TaBAhPLDW7/SzqeFV
+         gnJwkpCUMOb6D5CRLhNmoZBUjuYt1UGTWvw5ouOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Reik Keutterling <spielkind@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 022/207] bpf: Prevent increasing bpf_jit_limit above max
+Subject: [PATCH 4.19 103/323] ACPICA: Avoid evaluating methods too early during system resume
 Date:   Wed, 24 Nov 2021 12:54:53 +0100
-Message-Id: <20211124115704.683110716@linuxfoundation.org>
+Message-Id: <20211124115722.447469289@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +40,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lmb@cloudflare.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit fadb7ff1a6c2c565af56b4aacdd086b067eed440 ]
+[ Upstream commit d3c4b6f64ad356c0d9ddbcf73fa471e6a841cc5c ]
 
-Restrict bpf_jit_limit to the maximum supported by the arch's JIT.
+ACPICA commit 0762982923f95eb652cf7ded27356b247c9774de
 
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20211014142554.53120-4-lmb@cloudflare.com
+During wakeup from system-wide sleep states, acpi_get_sleep_type_data()
+is called and it tries to get memory from the slab allocator in order
+to evaluate a control method, but if KFENCE is enabled in the kernel,
+the memory allocation attempt causes an IRQ work to be queued and a
+self-IPI to be sent to the CPU running the code which requires the
+memory controller to be ready, so if that happens too early in the
+wakeup path, it doesn't work.
+
+Prevent that from taking place by calling acpi_get_sleep_type_data()
+for S0 upfront, when preparing to enter a given sleep state, and
+saving the data obtained by it for later use during system wakeup.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214271
+Reported-by: Reik Keutterling <spielkind@gmail.com>
+Tested-by: Reik Keutterling <spielkind@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/filter.h     | 1 +
- kernel/bpf/core.c          | 4 +++-
- net/core/sysctl_net_core.c | 2 +-
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/acpi/acpica/acglobal.h  |  2 ++
+ drivers/acpi/acpica/hwesleep.c  |  8 ++------
+ drivers/acpi/acpica/hwsleep.c   | 11 ++++-------
+ drivers/acpi/acpica/hwxfsleep.c |  7 +++++++
+ 4 files changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/include/linux/filter.h b/include/linux/filter.h
-index 0837d904405a3..05be3d84655e4 100644
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -600,6 +600,7 @@ void bpf_warn_invalid_xdp_action(u32 act);
- extern int bpf_jit_enable;
- extern int bpf_jit_harden;
- extern long bpf_jit_limit;
-+extern long bpf_jit_limit_max;
+diff --git a/drivers/acpi/acpica/acglobal.h b/drivers/acpi/acpica/acglobal.h
+index 1e6204518496c..38712fa4dd9d2 100644
+--- a/drivers/acpi/acpica/acglobal.h
++++ b/drivers/acpi/acpica/acglobal.h
+@@ -224,6 +224,8 @@ extern struct acpi_bit_register_info
+     acpi_gbl_bit_register_info[ACPI_NUM_BITREG];
+ ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a);
+ ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b);
++ACPI_GLOBAL(u8, acpi_gbl_sleep_type_a_s0);
++ACPI_GLOBAL(u8, acpi_gbl_sleep_type_b_s0);
  
- typedef void (*bpf_jit_fill_hole_t)(void *area, unsigned int size);
+ /*****************************************************************************
+  *
+diff --git a/drivers/acpi/acpica/hwesleep.c b/drivers/acpi/acpica/hwesleep.c
+index e0ad3f11142e4..9516966124ae3 100644
+--- a/drivers/acpi/acpica/hwesleep.c
++++ b/drivers/acpi/acpica/hwesleep.c
+@@ -147,17 +147,13 @@ acpi_status acpi_hw_extended_sleep(u8 sleep_state)
  
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index df2ebce927ec4..3ce69c0276c09 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -212,6 +212,7 @@ struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
- int bpf_jit_enable   __read_mostly = IS_BUILTIN(CONFIG_BPF_JIT_ALWAYS_ON);
- int bpf_jit_harden   __read_mostly;
- long bpf_jit_limit   __read_mostly;
-+long bpf_jit_limit_max __read_mostly;
- 
- static atomic_long_t bpf_jit_current;
- 
-@@ -231,7 +232,8 @@ u64 __weak bpf_jit_alloc_exec_limit(void)
- static int __init bpf_jit_charge_init(void)
+ acpi_status acpi_hw_extended_wake_prep(u8 sleep_state)
  {
- 	/* Only used as heuristic here to derive limit. */
--	bpf_jit_limit = min_t(u64, round_up(bpf_jit_alloc_exec_limit() >> 2,
-+	bpf_jit_limit_max = bpf_jit_alloc_exec_limit();
-+	bpf_jit_limit = min_t(u64, round_up(bpf_jit_limit_max >> 2,
- 					    PAGE_SIZE), LONG_MAX);
- 	return 0;
- }
-diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
-index b4318c1b5b960..f62e177267c34 100644
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -368,7 +368,7 @@ static struct ctl_table net_core_table[] = {
- 		.mode		= 0600,
- 		.proc_handler	= proc_dolongvec_minmax_bpf_restricted,
- 		.extra1		= &long_one,
--		.extra2		= &long_max,
-+		.extra2		= &bpf_jit_limit_max,
- 	},
- #endif
- 	{
+-	acpi_status status;
+ 	u8 sleep_type_value;
+ 
+ 	ACPI_FUNCTION_TRACE(hw_extended_wake_prep);
+ 
+-	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
+-					  &acpi_gbl_sleep_type_a,
+-					  &acpi_gbl_sleep_type_b);
+-	if (ACPI_SUCCESS(status)) {
++	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
+ 		sleep_type_value =
+-		    ((acpi_gbl_sleep_type_a << ACPI_X_SLEEP_TYPE_POSITION) &
++		    ((acpi_gbl_sleep_type_a_s0 << ACPI_X_SLEEP_TYPE_POSITION) &
+ 		     ACPI_X_SLEEP_TYPE_MASK);
+ 
+ 		(void)acpi_write((u64)(sleep_type_value | ACPI_X_SLEEP_ENABLE),
+diff --git a/drivers/acpi/acpica/hwsleep.c b/drivers/acpi/acpica/hwsleep.c
+index d8b8fc2ff5633..f4282370947c8 100644
+--- a/drivers/acpi/acpica/hwsleep.c
++++ b/drivers/acpi/acpica/hwsleep.c
+@@ -179,7 +179,7 @@ acpi_status acpi_hw_legacy_sleep(u8 sleep_state)
+ 
+ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
+ {
+-	acpi_status status;
++	acpi_status status = AE_OK;
+ 	struct acpi_bit_register_info *sleep_type_reg_info;
+ 	struct acpi_bit_register_info *sleep_enable_reg_info;
+ 	u32 pm1a_control;
+@@ -192,10 +192,7 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
+ 	 * This is unclear from the ACPI Spec, but it is required
+ 	 * by some machines.
+ 	 */
+-	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
+-					  &acpi_gbl_sleep_type_a,
+-					  &acpi_gbl_sleep_type_b);
+-	if (ACPI_SUCCESS(status)) {
++	if (acpi_gbl_sleep_type_a_s0 != ACPI_SLEEP_TYPE_INVALID) {
+ 		sleep_type_reg_info =
+ 		    acpi_hw_get_bit_register_info(ACPI_BITREG_SLEEP_TYPE);
+ 		sleep_enable_reg_info =
+@@ -216,9 +213,9 @@ acpi_status acpi_hw_legacy_wake_prep(u8 sleep_state)
+ 
+ 			/* Insert the SLP_TYP bits */
+ 
+-			pm1a_control |= (acpi_gbl_sleep_type_a <<
++			pm1a_control |= (acpi_gbl_sleep_type_a_s0 <<
+ 					 sleep_type_reg_info->bit_position);
+-			pm1b_control |= (acpi_gbl_sleep_type_b <<
++			pm1b_control |= (acpi_gbl_sleep_type_b_s0 <<
+ 					 sleep_type_reg_info->bit_position);
+ 
+ 			/* Write the control registers and ignore any errors */
+diff --git a/drivers/acpi/acpica/hwxfsleep.c b/drivers/acpi/acpica/hwxfsleep.c
+index 3f22f7dd4556d..dc1e44ccaae20 100644
+--- a/drivers/acpi/acpica/hwxfsleep.c
++++ b/drivers/acpi/acpica/hwxfsleep.c
+@@ -288,6 +288,13 @@ acpi_status acpi_enter_sleep_state_prep(u8 sleep_state)
+ 		return_ACPI_STATUS(status);
+ 	}
+ 
++	status = acpi_get_sleep_type_data(ACPI_STATE_S0,
++					  &acpi_gbl_sleep_type_a_s0,
++					  &acpi_gbl_sleep_type_b_s0);
++	if (ACPI_FAILURE(status)) {
++		acpi_gbl_sleep_type_a_s0 = ACPI_SLEEP_TYPE_INVALID;
++	}
++
+ 	/* Execute the _PTS method (Prepare To Sleep) */
+ 
+ 	arg_list.count = 1;
 -- 
 2.33.0
 
