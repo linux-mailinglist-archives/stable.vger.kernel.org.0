@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7C6645BAF6
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 510CF45BE9D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242861AbhKXMPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
+        id S1343695AbhKXMtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:49:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242893AbhKXMNI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:13:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A2C0610D1;
-        Wed, 24 Nov 2021 12:07:17 +0000 (UTC)
+        id S244986AbhKXMqP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:46:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3828C60E0B;
+        Wed, 24 Nov 2021 12:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755638;
-        bh=xWotumGx3X6o8Xfw0oMVJXJbB55ceRoSFuKgT0o3hAE=;
+        s=korg; t=1637756826;
+        bh=lRPTUS005ve+oBZofRJLmAVkhHWw52d0yc4ha8/kfyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLYgemog2/c+82WgKXkdlGeBFXGFm8THKXx4UDY2gMqy9Jz35zOl1ysk5LMYBSMMm
-         Hxksy3VqEzh6w9Lr13dAcgZoSgh6Xl/2fLN1lwtWe0z1cIynrxc4bYQcvkLYVcK6C+
-         bV/y5Pk83kKWwc7RH8ln+ykJgKCkwhSWeYnwsAEA=
+        b=MGIJSK1DEskF7ZnQGKrbGb1930Ue2jpr0AX6uDZDzYNRjwCMp3iHWIkJ3Ta++B1ni
+         AGvvLzUbjSOFr3fE5eaZs0eVrtF8xETmzafsmtmEBtvrz9hGrIzRSdvPZf+Tvj4ivo
+         9QpGk7kHbZv/BVszq17Ut3jnpgC1E9k0/p5pWOhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.4 160/162] ASoC: DAPM: Cover regression by kctl change notification fix
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 221/251] net: bnx2x: fix variable dereferenced before check
 Date:   Wed, 24 Nov 2021 12:57:43 +0100
-Message-Id: <20211124115703.454093427@linuxfoundation.org>
+Message-Id: <20211124115717.959190374@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,82 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 827b0913a9d9d07a0c3e559dbb20ca4d6d285a54 upstream.
+[ Upstream commit f8885ac89ce310570e5391fe0bf0ec9c7c9b4fdc ]
 
-The recent fix for DAPM to correct the kctl change notification by the
-commit 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change
-notifications") caused other regressions since it changed the behavior
-of snd_soc_dapm_set_pin() that is called from several API functions.
-Formerly it returned always 0 for success, but now it returns 0 or 1.
+Smatch says:
+	bnx2x_init_ops.h:640 bnx2x_ilt_client_mem_op()
+	warn: variable dereferenced before check 'ilt' (see line 638)
 
-This patch addresses it, restoring the old behavior of
-snd_soc_dapm_set_pin() while keeping the fix in
-snd_soc_dapm_put_pin_switch().
+Move ilt_cli variable initialization _after_ ilt validation, because
+it's unsafe to deref the pointer before validation check.
 
-Fixes: 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change notifications")
-Reported-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211105090925.20575-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 523224a3b3cd ("bnx2x, cnic, bnx2i: use new FW/HSI")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-dapm.c |   29 +++++++++++++++++++++++------
- 1 file changed, 23 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2373,8 +2373,13 @@ static struct snd_soc_dapm_widget *dapm_
- 	return NULL;
- }
- 
--static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
--				const char *pin, int status)
-+/*
-+ * set the DAPM pin status:
-+ * returns 1 when the value has been updated, 0 when unchanged, or a negative
-+ * error code; called from kcontrol put callback
-+ */
-+static int __snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
-+				  const char *pin, int status)
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h
+index 1835d2e451c01..fc7fce642666c 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h
+@@ -635,11 +635,13 @@ static int bnx2x_ilt_client_mem_op(struct bnx2x *bp, int cli_num,
  {
- 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
- 	int ret = 0;
-@@ -2400,6 +2405,18 @@ static int snd_soc_dapm_set_pin(struct s
- 	return ret;
- }
+ 	int i, rc;
+ 	struct bnx2x_ilt *ilt = BP_ILT(bp);
+-	struct ilt_client_info *ilt_cli = &ilt->clients[cli_num];
++	struct ilt_client_info *ilt_cli;
  
-+/*
-+ * similar as __snd_soc_dapm_set_pin(), but returns 0 when successful;
-+ * called from several API functions below
-+ */
-+static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
-+				const char *pin, int status)
-+{
-+	int ret = __snd_soc_dapm_set_pin(dapm, pin, status);
+ 	if (!ilt || !ilt->lines)
+ 		return -1;
+ 
++	ilt_cli = &ilt->clients[cli_num];
 +
-+	return ret < 0 ? ret : 0;
-+}
-+
- /**
-  * snd_soc_dapm_sync_unlocked - scan and power dapm paths
-  * @dapm: DAPM context
-@@ -3294,10 +3311,10 @@ int snd_soc_dapm_put_pin_switch(struct s
- 	const char *pin = (const char *)kcontrol->private_value;
- 	int ret;
+ 	if (ilt_cli->flags & (ILT_CLIENT_SKIP_INIT | ILT_CLIENT_SKIP_MEM))
+ 		return 0;
  
--	if (ucontrol->value.integer.value[0])
--		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
--	else
--		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
-+	mutex_lock_nested(&card->dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
-+	ret = __snd_soc_dapm_set_pin(&card->dapm, pin,
-+				     !!ucontrol->value.integer.value[0]);
-+	mutex_unlock(&card->dapm_mutex);
- 
- 	snd_soc_dapm_sync(&card->dapm);
- 	return ret;
+-- 
+2.33.0
+
 
 
