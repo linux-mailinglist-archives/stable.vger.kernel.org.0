@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E4545BD1B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:32:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F1E645BFFE
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343946AbhKXMf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:35:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48576 "EHLO mail.kernel.org"
+        id S1343704AbhKXNEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:04:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343513AbhKXMdW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:33:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3D94611C1;
-        Wed, 24 Nov 2021 12:20:27 +0000 (UTC)
+        id S1346583AbhKXNCV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:02:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74EC66120E;
+        Wed, 24 Nov 2021 12:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756428;
-        bh=oehcgmk304cGqbJQRJWFO3w2iPk0lZBUvG+Ct+rgIZk=;
+        s=korg; t=1637757343;
+        bh=mZ0916M+tLlbHotbAInE5xo1EVF4XTAH17VkF6SyygE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OjzKEmffb6w9SLdUfcvqb8PUq+llevKdydnwGB78gGNrcG7rekOk0csDxpuCFwL/m
-         jEQrm2eEsfve/lI4KNXSJNR72AA29ojhEZ5rjMWE/iG3cDsD2u3lZ2oSUTH1D9+5GV
-         mbXXk2V+lftIS2IuCRSgXHREDvmaEYd4wMqe/Pzw=
+        b=WuVn2bon0PbIF7Hopbrm8zUhIaxxiXLysvskc3ObaVynfHoK7U87X5A03jCqNznBj
+         NqnrbGtsHnk2m1BW8JW1jvJXZfBmg/6mvXpC2ImCa/HV57kd1OpR1gAimh1Lx9SEoT
+         DMKN4ea0WVJlmGR3rbUQylm7oHvb6SLPYsjStCMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-ia64@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Chris Down <chris@chrisdown.name>,
-        Paul Gortmaker <paul.gortmaker@windriver.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 084/251] ia64: dont do IA64_CMPXCHG_DEBUG without CONFIG_PRINTK
+        stable@vger.kernel.org, Anel Orazgaliyeva <anelkz@amazon.de>,
+        Aman Priyadarshi <apeureka@amazon.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 136/323] cpuidle: Fix kobject memory leaks in error paths
 Date:   Wed, 24 Nov 2021 12:55:26 +0100
-Message-Id: <20211124115713.180318441@linuxfoundation.org>
+Message-Id: <20211124115723.522771321@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Anel Orazgaliyeva <anelkz@amazon.de>
 
-[ Upstream commit c15b5fc054c3d6c97e953617605235c5cb8ce979 ]
+[ Upstream commit e5f5a66c9aa9c331da5527c2e3fd9394e7091e01 ]
 
-When CONFIG_PRINTK is not set, the CMPXCHG_BUGCHECK() macro calls
-_printk(), but _printk() is a static inline function, not available
-as an extern.
-Since the purpose of the macro is to print the BUGCHECK info,
-make this config option depend on PRINTK.
+Commit c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
+fixes the cleanup of kobjects; however, it removes kfree() calls
+altogether, leading to memory leaks.
 
-Fixes multiple occurrences of this build error:
+Fix those and also defer the initialization of dev->kobj_dev until
+after the error check, so that we do not end up with a dangling
+pointer.
 
-../include/linux/printk.h:208:5: error: static declaration of '_printk' follows non-static declaration
-  208 | int _printk(const char *s, ...)
-      |     ^~~~~~~
-In file included from ../arch/ia64/include/asm/cmpxchg.h:5,
-../arch/ia64/include/uapi/asm/cmpxchg.h:146:28: note: previous declaration of '_printk' with type 'int(const char *, ...)'
-  146 |                 extern int _printk(const char *fmt, ...);
-
-Cc: linux-ia64@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Chris Down <chris@chrisdown.name>
-Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
+Fixes: c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
+Signed-off-by: Anel Orazgaliyeva <anelkz@amazon.de>
+Suggested-by: Aman Priyadarshi <apeureka@amazon.de>
+[ rjw: Subject edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/Kconfig.debug | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpuidle/sysfs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/ia64/Kconfig.debug b/arch/ia64/Kconfig.debug
-index 677c409425df2..c27c13ca77f47 100644
---- a/arch/ia64/Kconfig.debug
-+++ b/arch/ia64/Kconfig.debug
-@@ -42,7 +42,7 @@ config DISABLE_VHPT
+diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
+index 66979dc336807..d9b917529abaf 100644
+--- a/drivers/cpuidle/sysfs.c
++++ b/drivers/cpuidle/sysfs.c
+@@ -468,6 +468,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
+ 					   &kdev->kobj, "state%d", i);
+ 		if (ret) {
+ 			kobject_put(&kobj->kobj);
++			kfree(kobj);
+ 			goto error_state;
+ 		}
+ 		cpuidle_add_s2idle_attr_group(kobj);
+@@ -599,6 +600,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
+ 				   &kdev->kobj, "driver");
+ 	if (ret) {
+ 		kobject_put(&kdrv->kobj);
++		kfree(kdrv);
+ 		return ret;
+ 	}
  
- config IA64_DEBUG_CMPXCHG
- 	bool "Turn on compare-and-exchange bug checking (slow!)"
--	depends on DEBUG_KERNEL
-+	depends on DEBUG_KERNEL && PRINTK
- 	help
- 	  Selecting this option turns on bug checking for the IA-64
- 	  compare-and-exchange instructions.  This is slow!  Itaniums
+@@ -685,7 +687,6 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
+ 	if (!kdev)
+ 		return -ENOMEM;
+ 	kdev->dev = dev;
+-	dev->kobj_dev = kdev;
+ 
+ 	init_completion(&kdev->kobj_unregister);
+ 
+@@ -693,9 +694,11 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
+ 				   "cpuidle");
+ 	if (error) {
+ 		kobject_put(&kdev->kobj);
++		kfree(kdev);
+ 		return error;
+ 	}
+ 
++	dev->kobj_dev = kdev;
+ 	kobject_uevent(&kdev->kobj, KOBJ_ADD);
+ 
+ 	return 0;
 -- 
 2.33.0
 
