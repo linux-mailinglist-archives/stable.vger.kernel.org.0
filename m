@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3188445C192
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 528C645C287
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:27:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346692AbhKXNT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:19:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36592 "EHLO mail.kernel.org"
+        id S1351074AbhKXN3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:29:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346667AbhKXNRu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:17:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C65B60F5D;
-        Wed, 24 Nov 2021 12:45:32 +0000 (UTC)
+        id S1350634AbhKXN1j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:27:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7123661361;
+        Wed, 24 Nov 2021 12:50:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757933;
-        bh=qXO9zL7DKiI5S+DRKbWnkzpbkmi8Mg1ocP4lt6h76Jw=;
+        s=korg; t=1637758248;
+        bh=fuYPbwna/dhvQLXIgVHq5yzrgSNm4HjZNb5JUrxGlLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8rolWEGYJPNdmEID/mFcHEUwKEWPaaTUQClaU7tR7LMO6m8uM4vIS1x2PHDlCGys
-         +nDQ4x5C/w9pyerDUf4P/uZumXRw/+MsnJtQlZC9x9FHt1fYDte+LgtphWeYTP1Mxa
-         nHSMHibV8yUV0U5On0B/TpvKdA+CeRpiYQ43Ab6U=
+        b=LqP7VEuOXJq6hs8uzy9QNbjKIZtybAUy6CVmJiHJQwWgNviOc129M8AVFu9XTURZH
+         J0WeOEFEg26yuWPmk45wEFnv0ZcgAsZznOPfqFWGKfqFgA3Xo8WgV6wwRednto7OB1
+         HzJ2G/PZx60zJt3m234bRUBqHYTgQLsR7mYeo624=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
-        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 323/323] hugetlbfs: flush TLBs correctly after huge_pmd_unshare
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 077/100] tun: fix bonding active backup with arp monitoring
 Date:   Wed, 24 Nov 2021 12:58:33 +0100
-Message-Id: <20211124115729.826426341@linuxfoundation.org>
+Message-Id: <20211124115657.351198997@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,100 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit a4a118f2eead1d6c49e00765de89878288d4b890 upstream.
+commit a31d27fbed5d518734cb60956303eb15089a7634 upstream.
 
-When __unmap_hugepage_range() calls to huge_pmd_unshare() succeed, a TLB
-flush is missing.  This TLB flush must be performed before releasing the
-i_mmap_rwsem, in order to prevent an unshared PMDs page from being
-released and reused before the TLB flush took place.
+As stated in the bonding doc, trans_start must be set manually for drivers
+using NETIF_F_LLTX:
+ Drivers that use NETIF_F_LLTX flag must also update
+ netdev_queue->trans_start. If they do not, then the ARP monitor will
+ immediately fail any slaves using that driver, and those slaves will stay
+ down.
 
-Arguably, a comprehensive solution would use mmu_gather interface to
-batch the TLB flushes and the PMDs page release, however it is not an
-easy solution: (1) try_to_unmap_one() and try_to_migrate_one() also call
-huge_pmd_unshare() and they cannot use the mmu_gather interface; and (2)
-deferring the release of the page reference for the PMDs page until
-after i_mmap_rwsem is dropeed can confuse huge_pmd_unshare() into
-thinking PMDs are shared when they are not.
-
-Fix __unmap_hugepage_range() by adding the missing TLB flush, and
-forcing a flush when unshare is successful.
-
-Fixes: 24669e58477e ("hugetlb: use mmu_gather instead of a temporary linked list for accumulating pages)" # 3.6
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://www.kernel.org/doc/html/v5.15/networking/bonding.html#arp-monitor-operation
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/asm-generic/tlb.h |    6 ++++++
- mm/hugetlb.c              |   23 +++++++++++++++++++----
- 2 files changed, 25 insertions(+), 4 deletions(-)
+ drivers/net/tun.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -205,6 +205,12 @@ static inline void tlb_remove_check_page
- #define tlb_end_vma	__tlb_end_vma
- #endif
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1071,6 +1071,7 @@ static netdev_tx_t tun_net_xmit(struct s
+ {
+ 	struct tun_struct *tun = netdev_priv(dev);
+ 	int txq = skb->queue_mapping;
++	struct netdev_queue *queue;
+ 	struct tun_file *tfile;
+ 	int len = skb->len;
  
-+static inline void tlb_flush_pmd_range(struct mmu_gather *tlb,
-+				unsigned long address, unsigned long size)
-+{
-+	__tlb_adjust_range(tlb, address, size);
-+}
+@@ -1117,6 +1118,10 @@ static netdev_tx_t tun_net_xmit(struct s
+ 	if (ptr_ring_produce(&tfile->tx_ring, skb))
+ 		goto drop;
+ 
++	/* NETIF_F_LLTX requires to do our own update of trans_start */
++	queue = netdev_get_tx_queue(dev, txq);
++	queue->trans_start = jiffies;
 +
- #ifndef __tlb_remove_tlb_entry
- #define __tlb_remove_tlb_entry(tlb, ptep, address) do { } while (0)
- #endif
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -3425,6 +3425,7 @@ void __unmap_hugepage_range(struct mmu_g
- 	unsigned long sz = huge_page_size(h);
- 	unsigned long mmun_start = start;	/* For mmu_notifiers */
- 	unsigned long mmun_end   = end;		/* For mmu_notifiers */
-+	bool force_flush = false;
- 
- 	WARN_ON(!is_vm_hugetlb_page(vma));
- 	BUG_ON(start & ~huge_page_mask(h));
-@@ -3451,10 +3452,8 @@ void __unmap_hugepage_range(struct mmu_g
- 		ptl = huge_pte_lock(h, mm, ptep);
- 		if (huge_pmd_unshare(mm, &address, ptep)) {
- 			spin_unlock(ptl);
--			/*
--			 * We just unmapped a page of PMDs by clearing a PUD.
--			 * The caller's TLB flush range should cover this area.
--			 */
-+			tlb_flush_pmd_range(tlb, address & PUD_MASK, PUD_SIZE);
-+			force_flush = true;
- 			continue;
- 		}
- 
-@@ -3511,6 +3510,22 @@ void __unmap_hugepage_range(struct mmu_g
- 	}
- 	mmu_notifier_invalidate_range_end(mm, mmun_start, mmun_end);
- 	tlb_end_vma(tlb, vma);
-+
-+	/*
-+	 * If we unshared PMDs, the TLB flush was not recorded in mmu_gather. We
-+	 * could defer the flush until now, since by holding i_mmap_rwsem we
-+	 * guaranteed that the last refernece would not be dropped. But we must
-+	 * do the flushing before we return, as otherwise i_mmap_rwsem will be
-+	 * dropped and the last reference to the shared PMDs page might be
-+	 * dropped as well.
-+	 *
-+	 * In theory we could defer the freeing of the PMD pages as well, but
-+	 * huge_pmd_unshare() relies on the exact page_count for the PMD page to
-+	 * detect sharing, so we cannot defer the release of the page either.
-+	 * Instead, do flush now.
-+	 */
-+	if (force_flush)
-+		tlb_flush_mmu_tlbonly(tlb);
- }
- 
- void __unmap_hugepage_range_final(struct mmu_gather *tlb,
+ 	/* Notify and wake up reader process */
+ 	if (tfile->flags & TUN_FASYNC)
+ 		kill_fasync(&tfile->fasync, SIGIO, POLL_IN);
 
 
