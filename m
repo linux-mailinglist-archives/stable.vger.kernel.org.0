@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 712B445C36B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:35:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45A7945C133
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352814AbhKXNiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:38:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46294 "EHLO mail.kernel.org"
+        id S1347420AbhKXNPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:15:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352462AbhKXNgB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:36:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CF0261373;
-        Wed, 24 Nov 2021 12:54:55 +0000 (UTC)
+        id S1348562AbhKXNN2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:13:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C59B561221;
+        Wed, 24 Nov 2021 12:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758496;
-        bh=yJG8SUzlK8MQeZ0ZqUHBMQvIQAKWXmQAACiojp/WX8U=;
+        s=korg; t=1637757793;
+        bh=0IqvRS0IJRKnNqDAY5t3blXGq9LRZKZOmBpJ5DNEVc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xwo8t9P9pxS+8fVXMFjIr9Pf2tYJJHlkLUWS/eBveO/3oLRQl0Y8VsqUzopcQT1Tn
-         5pedzRM8BVlN+pmNf0TkE3kWk0SglAepbC7ACFodywwhDFKD52hu4cfChHPSOz2X30
-         v27rj60ItQ+ClEALO8ddBIdCAb7LAAwdac8qn074=
+        b=IR5np7auC0deEKC3dKKVvnGUDGtgW8I94nzRnkAx1Og5fQlH9E7EeS6hY9ON9RmvR
+         PJ8NXOls0H4rslbCLNdwPYbp4oSMN5MS5Qn+QqUQXsz5b7c0zbah+2CPoadY+mW8vz
+         Gq9+zI9kdYEpE3ldiRQskefhVnZ35HLrFOVYKgDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 072/154] tracing: Add length protection to histogram string copies
+Subject: [PATCH 4.19 278/323] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
 Date:   Wed, 24 Nov 2021 12:57:48 +0100
-Message-Id: <20211124115704.654987613@linuxfoundation.org>
+Message-Id: <20211124115728.286317451@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 938aa33f14657c9ed9deea348b7d6f14b6d69cb7 ]
+[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
 
-The string copies to the histogram storage has a max size of 256 bytes
-(defined by MAX_FILTER_STR_VAL). Only the string size of the event field
-needs to be copied to the event storage, but no more than what is in the
-event storage. Although nothing should be bigger than 256 bytes, there's
-no protection against overwriting of the storage if one day there is.
+In dcr-low.S we use cmpli with three arguments, instead of four
+arguments as defined in the ISA:
 
-Copy no more than the destination size, and enforce it.
+	cmpli	cr0,r3,1024
 
-Also had to turn MAX_FILTER_STR_VAL into an unsigned int, to keep the
-min() comparison of the string sizes of comparable types.
+This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
+User’s Manual" it shows cmpli having no L field, but implied to be 0 due
+to the core being 32-bit. It mentions that the ISA defines four
+arguments and recommends using cmplwi.
 
-Link: https://lore.kernel.org/all/CAHk-=wjREUihCGrtRBwfX47y_KrLCGjiq3t6QtoNJpmVrAEb1w@mail.gmail.com/
-Link: https://lkml.kernel.org/r/20211114132834.183429a4@rorschach.local.home
+It also corresponds to the old POWER instruction set, which had no L
+field there, a reserved bit instead.
 
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tom Zanussi <zanussi@kernel.org>
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Fixes: 63f84ae6b82b ("tracing/histogram: Do not copy the fixed-size char array field over the field size")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+dcr-low.S is only built 32-bit, because it is only built when
+DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
+generated code (with gcc/gas) we see cmplwi as expected.
+
+Although gas is happy with the 3-argument version when building for
+32-bit, the LLVM assembler is not and errors out with:
+
+  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
+   cmpli 0,%r3,1024; ...
+           ^
+
+Switch to the cmplwi extended opcode, which avoids any confusion when
+reading the ISA, fixes the issue with the LLVM assembler, and also means
+the code could be built 64-bit in future (though that's very unlikely).
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
+Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/trace_events.h     | 2 +-
- kernel/trace/trace_events_hist.c | 9 +++++++--
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ arch/powerpc/sysdev/dcr-low.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/trace_events.h b/include/linux/trace_events.h
-index d321fe5ad1a14..c57b79301a75e 100644
---- a/include/linux/trace_events.h
-+++ b/include/linux/trace_events.h
-@@ -571,7 +571,7 @@ struct trace_event_file {
+diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
+index e687bb2003ff0..5589fbe48bbdc 100644
+--- a/arch/powerpc/sysdev/dcr-low.S
++++ b/arch/powerpc/sysdev/dcr-low.S
+@@ -15,7 +15,7 @@
+ #include <asm/export.h>
  
- #define PERF_MAX_TRACE_SIZE	2048
- 
--#define MAX_FILTER_STR_VAL	256	/* Should handle KSYM_SYMBOL_LEN */
-+#define MAX_FILTER_STR_VAL	256U	/* Should handle KSYM_SYMBOL_LEN */
- 
- enum event_trigger_type {
- 	ETT_NONE		= (0),
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 642e4645f6406..c2ec467a5766b 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -2624,8 +2624,10 @@ static inline void __update_field_vars(struct tracing_map_elt *elt,
- 		if (val->flags & HIST_FIELD_FL_STRING) {
- 			char *str = elt_data->field_var_str[j++];
- 			char *val_str = (char *)(uintptr_t)var_val;
-+			unsigned int size;
- 
--			strscpy(str, val_str, val->size);
-+			size = min(val->size, STR_VAR_LEN_MAX);
-+			strscpy(str, val_str, size);
- 			var_val = (u64)(uintptr_t)str;
- 		}
- 		tracing_map_set_var(elt, var_idx, var_val);
-@@ -4465,6 +4467,7 @@ static void hist_trigger_elt_update(struct hist_trigger_data *hist_data,
- 			if (hist_field->flags & HIST_FIELD_FL_STRING) {
- 				unsigned int str_start, var_str_idx, idx;
- 				char *str, *val_str;
-+				unsigned int size;
- 
- 				str_start = hist_data->n_field_var_str +
- 					hist_data->n_save_var_str;
-@@ -4473,7 +4476,9 @@ static void hist_trigger_elt_update(struct hist_trigger_data *hist_data,
- 
- 				str = elt_data->field_var_str[idx];
- 				val_str = (char *)(uintptr_t)hist_val;
--				strscpy(str, val_str, hist_field->size);
-+
-+				size = min(hist_field->size, STR_VAR_LEN_MAX);
-+				strscpy(str, val_str, size);
- 
- 				hist_val = (u64)(uintptr_t)str;
- 			}
+ #define DCR_ACCESS_PROLOG(table) \
+-	cmpli	cr0,r3,1024;	 \
++	cmplwi	cr0,r3,1024;	 \
+ 	rlwinm  r3,r3,4,18,27;   \
+ 	lis     r5,table@h;      \
+ 	ori     r5,r5,table@l;   \
 -- 
 2.33.0
 
