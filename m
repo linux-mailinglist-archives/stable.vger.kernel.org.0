@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C2D45C5F0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:00:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B3C45C188
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353861AbhKXOCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:02:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48818 "EHLO mail.kernel.org"
+        id S1345931AbhKXNTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:19:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353699AbhKXOAo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:00:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A3946124C;
-        Wed, 24 Nov 2021 13:09:23 +0000 (UTC)
+        id S1344738AbhKXNRZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:17:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2866061130;
+        Wed, 24 Nov 2021 12:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759364;
-        bh=Pwizb7axEw5ynMLJ3luqOWFVqtMUOCr8iGZOMoKNqDo=;
+        s=korg; t=1637757902;
+        bh=t7XKjPp64vQnyrM6nXwlFUPHHiKfhT6qKQqNC9lu44I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mA6VbIQMWwcbLSvr5gkpBp/mv7rW4ntHhnt0sVTkRxNg3oOl7mBkeREpn0EAfxroI
-         /4IULT/kBM8Kpuo8Nz4uyfjQzjCydAuA4mJLNTgkrb5vTT5D2+2f+2+63rqIaY0XcW
-         35aSxpQLoifEyX9doiygW/lpmSLl6iycA+dZNWXY=
+        b=0PswYwMPpKgWasSbxuos5OUjtYPwqmDkVgp32bsvfRshmLb31x8TUXAuRxJ/ZxYdV
+         lbo8Jq+qq959ezDjichl8PNtfoGuns8yENLIISa+eI1KoqODYu/4VutbjnfHZz9FQY
+         U+ZTEt9Aa8+OaL/c6KwItlMPpcVTDkCot0yw9tIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Angelo Daros de Luca <luizluca@gmail.com>,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.15 216/279] pinctrl: ralink: include ralink_regs.h in pinctrl-mt7620.c
-Date:   Wed, 24 Nov 2021 12:58:23 +0100
-Message-Id: <20211124115726.206048999@linuxfoundation.org>
+        stable@vger.kernel.org, hongao <hongao@uniontech.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.19 314/323] drm/amdgpu: fix set scaling mode Full/Full aspect/Center not works on vga and dvi connectors
+Date:   Wed, 24 Nov 2021 12:58:24 +0100
+Message-Id: <20211124115729.526546528@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,32 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+From: hongao <hongao@uniontech.com>
 
-commit a5b9703fe11cd1d6d7a60102aa2abe686dc1867f upstream.
+commit bf552083916a7f8800477b5986940d1c9a31b953 upstream.
 
-mt7620.h, included by pinctrl-mt7620.c, mentions MT762X_SOC_MT7628AN
-declared in ralink_regs.h.
+amdgpu_connector_vga_get_modes missed function amdgpu_get_native_mode
+which assign amdgpu_encoder->native_mode with *preferred_mode result in
+amdgpu_encoder->native_mode.clock always be 0. That will cause
+amdgpu_connector_set_property returned early on:
+if ((rmx_type != DRM_MODE_SCALE_NONE) &&
+	(amdgpu_encoder->native_mode.clock == 0))
+when we try to set scaling mode Full/Full aspect/Center.
+Add the missing function to amdgpu_connector_vga_get_mode can fix this.
+It also works on dvi connectors because
+amdgpu_connector_dvi_helper_funcs.get_mode use the same method.
 
-Fixes: 745ec436de72 ("pinctrl: ralink: move MT7620 SoC pinmux config into a new 'pinctrl-mt7620.c' file")
+Signed-off-by: hongao <hongao@uniontech.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
-Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Link: https://lore.kernel.org/r/20211031064046.13533-1-sergio.paracuellos@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/ralink/pinctrl-mt7620.c |    1 +
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/pinctrl/ralink/pinctrl-mt7620.c
-+++ b/drivers/pinctrl/ralink/pinctrl-mt7620.c
-@@ -1,5 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -828,6 +828,7 @@ static int amdgpu_connector_vga_get_mode
  
-+#include <asm/mach-ralink/ralink_regs.h>
- #include <asm/mach-ralink/mt7620.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
+ 	amdgpu_connector_get_edid(connector);
+ 	ret = amdgpu_connector_ddc_get_modes(connector);
++	amdgpu_get_native_mode(connector);
+ 
+ 	return ret;
+ }
 
 
