@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8394A45C511
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A7245C2AA
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:28:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348211AbhKXNyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:54:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42982 "EHLO mail.kernel.org"
+        id S1349546AbhKXNbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:31:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354674AbhKXNwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:52:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5139861A09;
-        Wed, 24 Nov 2021 13:04:47 +0000 (UTC)
+        id S1350934AbhKXN26 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:28:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EE0B61178;
+        Wed, 24 Nov 2021 12:51:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759088;
-        bh=cZtbukhUh69LesKIUr/eJpEdWFV2bxE+zDTWXrwVJN4=;
+        s=korg; t=1637758287;
+        bh=t6AzhWTFVPennLsUMaqa2vYkOYQZYqkGok37nqKV0Xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlPNGgun1a1OCQAoJoizHUpCs5QtzLSgkHwA86dQRNOIlr1amlPZfW+PQwoExvGHF
-         0t1PwTJmD+rGF1zQAstuK5FTIjIdNh4aO/OV8luHZCdSv3P+BkoShH5AHLRT2tTdtp
-         aAQGntP0VtWlzV/123oljRylnoKcXyQuvxSB+T9U=
+        b=iq5i8N+H5Gztf+NcZonLHXme5deOYP6sU+/FMT9laId8Do7KTUePCPLE8d3zpdU92
+         oOn3K9i4iMF8iDUSWcLDvP5Kmf931D2VCXk2eCzGzGP8KA7fLpNZNociRcfQFUcxt1
+         089tMxwcSF1hxK8ifMOyI07nNEHhf6Ia6LiUyRnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mitch Williams <mitch.a.williams@intel.com>,
-        Tony Brelinski <tony.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 129/279] iavf: validate pointers
+Subject: [PATCH 5.10 020/154] arm64: dts: qcom: ipq6018: Fix qcom,controlled-remotely property
 Date:   Wed, 24 Nov 2021 12:56:56 +0100
-Message-Id: <20211124115723.259663509@linuxfoundation.org>
+Message-Id: <20211124115703.023702286@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitch Williams <mitch.a.williams@intel.com>
+From: Shawn Guo <shawn.guo@linaro.org>
 
-[ Upstream commit 131b0edc4028bb88bb472456b1ddba526cfb7036 ]
+[ Upstream commit 3509de752ea14c7e5781b3a56a4a0bf832f5723a ]
 
-In some cases, the ethtool get_rxfh handler may be called with a null
-key or indir parameter. So check these pointers, or you will have a very
-bad day.
+Property qcom,controlled-remotely should be boolean.  Fix it.
 
-Fixes: 43a3d9ba34c9 ("i40evf: Allow PF driver to configure RSS")
-Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210829111628.5543-2-shawn.guo@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_ethtool.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ arch/arm64/boot/dts/qcom/ipq6018.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-index 136c801f5584a..25ee0606e625f 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-@@ -1859,14 +1859,13 @@ static int iavf_get_rxfh(struct net_device *netdev, u32 *indir, u8 *key,
+diff --git a/arch/arm64/boot/dts/qcom/ipq6018.dtsi b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
+index 3ceb36cac512f..9cb8f7a052df9 100644
+--- a/arch/arm64/boot/dts/qcom/ipq6018.dtsi
++++ b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
+@@ -200,7 +200,7 @@
+ 			clock-names = "bam_clk";
+ 			#dma-cells = <1>;
+ 			qcom,ee = <1>;
+-			qcom,controlled-remotely = <1>;
++			qcom,controlled-remotely;
+ 			qcom,config-pipe-trust-reg = <0>;
+ 		};
  
- 	if (hfunc)
- 		*hfunc = ETH_RSS_HASH_TOP;
--	if (!indir)
--		return 0;
--
--	memcpy(key, adapter->rss_key, adapter->rss_key_size);
-+	if (key)
-+		memcpy(key, adapter->rss_key, adapter->rss_key_size);
- 
--	/* Each 32 bits pointed by 'indir' is stored with a lut entry */
--	for (i = 0; i < adapter->rss_lut_size; i++)
--		indir[i] = (u32)adapter->rss_lut[i];
-+	if (indir)
-+		/* Each 32 bits pointed by 'indir' is stored with a lut entry */
-+		for (i = 0; i < adapter->rss_lut_size; i++)
-+			indir[i] = (u32)adapter->rss_lut[i];
- 
- 	return 0;
- }
 -- 
 2.33.0
 
