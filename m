@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD89B45C399
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:38:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61B7E45C14D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350862AbhKXNk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:40:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51616 "EHLO mail.kernel.org"
+        id S1347091AbhKXNQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:16:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350383AbhKXNiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:38:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91FE36321D;
-        Wed, 24 Nov 2021 12:56:05 +0000 (UTC)
+        id S1348743AbhKXNN7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:13:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DDF0E61242;
+        Wed, 24 Nov 2021 12:43:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758566;
-        bh=cirMelDD1jA4y3zy6skNo3A/lbYbKdEROYnGlA3xii4=;
+        s=korg; t=1637757815;
+        bh=j9WPFj6m2DmX4szXNfQlp9MtXc8XY6ASzpBqMPa+Fp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLyOeho9/qb8NcVwzYqcOEqxyOmwzxdlzPUcJRiCA8/M8UZ2PYR6o+iXCMfn4ukn6
-         /h/UJx1bBHSFRx2I4NGjCxQjdf6pRP/Cht0CLeMbajJfl7Kam60o6C/23vuBXwea/4
-         +qA9/EakC80RgZLvhTTrqbIo6m8mviOBQBGRA5XI=
+        b=Np7v8GaOpKpDUr53YxUre4CRR/LDAm0jIDqI/U5XjHcPmGKlH86FC97jxizw9xnWc
+         CaNQSIpiBJdzXLtSt5ktAhD8CX2JGI0oI6pjbFWj0G482VSx+ufxkz17Chmk/YPBfL
+         TlV8Cxtr2rU6wL68bFPS+6VmIblLOpgd787xoieg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jing-Ting Wu <jing-ting.wu@mediatek.com>,
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 078/154] sock: fix /proc/net/sockstat underflow in sk_clone_lock()
-Date:   Wed, 24 Nov 2021 12:57:54 +0100
-Message-Id: <20211124115704.850428242@linuxfoundation.org>
+Subject: [PATCH 4.19 285/323] sched/core: Mitigate race cpus_share_cache()/update_top_cache_domain()
+Date:   Wed, 24 Nov 2021 12:57:55 +0100
+Message-Id: <20211124115728.520942061@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-[ Upstream commit 938cca9e4109b30ee1d476904538225a825e54eb ]
+[ Upstream commit 42dc938a590c96eeb429e1830123fef2366d9c80 ]
 
-sk_clone_lock() needs to call sock_inuse_add(1) before entering the
-sk_free_unlock_clone() error path, for __sk_free() from sk_free() from
-sk_free_unlock_clone() calls sock_inuse_add(-1).
+Nothing protects the access to the per_cpu variable sd_llc_id. When testing
+the same CPU (i.e. this_cpu == that_cpu), a race condition exists with
+update_top_cache_domain(). One scenario being:
 
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 648845ab7e200993 ("sock: Move the socket inuse to namespace.")
-Signed-off-by: David S. Miller <davem@davemloft.net>
+              CPU1                            CPU2
+  ==================================================================
+
+  per_cpu(sd_llc_id, CPUX) => 0
+                                    partition_sched_domains_locked()
+      				      detach_destroy_domains()
+  cpus_share_cache(CPUX, CPUX)          update_top_cache_domain(CPUX)
+    per_cpu(sd_llc_id, CPUX) => 0
+                                          per_cpu(sd_llc_id, CPUX) = CPUX
+    per_cpu(sd_llc_id, CPUX) => CPUX
+    return false
+
+ttwu_queue_cond() wouldn't catch smp_processor_id() == cpu and the result
+is a warning triggered from ttwu_queue_wakelist().
+
+Avoid a such race in cpus_share_cache() by always returning true when
+this_cpu == that_cpu.
+
+Fixes: 518cd6234178 ("sched: Only queue remote wakeups when crossing cache boundaries")
+Reported-by: Jing-Ting Wu <jing-ting.wu@mediatek.com>
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/20211104175120.857087-1-vincent.donnefort@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/sched/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 3da4cd632ba8e..6d9af4ef93d7a 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1896,8 +1896,10 @@ struct sock *sk_clone_lock(const struct sock *sk, const gfp_t priority)
- 	newsk->sk_prot_creator = prot;
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 013b1c6cb4ed9..32af895bd86b3 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1821,6 +1821,9 @@ out:
  
- 	/* SANITY */
--	if (likely(newsk->sk_net_refcnt))
-+	if (likely(newsk->sk_net_refcnt)) {
- 		get_net(sock_net(newsk));
-+		sock_inuse_add(sock_net(newsk), 1);
-+	}
- 	sk_node_init(&newsk->sk_node);
- 	sock_lock_init(newsk);
- 	bh_lock_sock(newsk);
-@@ -1968,8 +1970,6 @@ struct sock *sk_clone_lock(const struct sock *sk, const gfp_t priority)
- 	newsk->sk_err_soft = 0;
- 	newsk->sk_priority = 0;
- 	newsk->sk_incoming_cpu = raw_smp_processor_id();
--	if (likely(newsk->sk_net_refcnt))
--		sock_inuse_add(sock_net(newsk), 1);
- 
- 	/* Before updating sk_refcnt, we must commit prior changes to memory
- 	 * (Documentation/RCU/rculist_nulls.rst for details)
+ bool cpus_share_cache(int this_cpu, int that_cpu)
+ {
++	if (this_cpu == that_cpu)
++		return true;
++
+ 	return per_cpu(sd_llc_id, this_cpu) == per_cpu(sd_llc_id, that_cpu);
+ }
+ #endif /* CONFIG_SMP */
 -- 
 2.33.0
 
