@@ -2,139 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DF2445B2A8
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 04:29:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB9E45B2F4
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 05:03:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240214AbhKXDc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Nov 2021 22:32:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43844 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240842AbhKXDc5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Nov 2021 22:32:57 -0500
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25CFBC061574
-        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 19:29:47 -0800 (PST)
-Received: by mail-pl1-x633.google.com with SMTP id y7so754689plp.0
-        for <stable@vger.kernel.org>; Tue, 23 Nov 2021 19:29:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=D+FU0whd6DvO+2BFQTaK4qDh8R4FI+fw2MSVSv00lYg=;
-        b=BwhzmKvLoLRpb+LWoOXERm7KAsOXSaqCtJUUyf39V1sYloJnauu00mu/my5Wf3Ikhx
-         sL1on6WyHRoQCJDDNgDiulatTJnBo0vrZCwRCKT9Y+rBqE4flMTuol9yzBQW4rBL60JM
-         BIJrtdBgIjI+LVMYrOy1lvpB9YZn/jKqbqitP5zabMsP0z6vzuZxBJufnI52naeVi3Ch
-         58ib5Mjn/JHftnViNkoiXJ2oydV0KO2Bp4XTz5e1nxRk+m1vGWi6IcMf9p3abWDn1S9r
-         j8XBTT32+wWWACWrIiblLxCW1ShnodZY2MFrvGfgmDzAyDfeErvnROIH+7Gh+2M4F0RP
-         O66A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=D+FU0whd6DvO+2BFQTaK4qDh8R4FI+fw2MSVSv00lYg=;
-        b=FAziMCVmrTXEoLQy1UPGK+gevVqFcWIj7dmvIxlLWNZNFTdDWbOTttWPuzohWnByxV
-         OlxL4/a3g390FlyWr6r/0KPUgrGJbcCnjUUj6k2qsXkeVlv94UKFjlzm+cvfDbBilXzM
-         mVqdl5kDPuPEbP22hz0JOXmaqoBrPD1LXIDMKpZazyk+q6RaAJAjhRBRzMMppQyTWDXn
-         QXir8rTSgUfqlrOtHPyyZTaNMC96XuA+vaLn9jPcR9hlacefeEXVNd/lFpwFOrnrDZN3
-         MgBywt7/Sgef5UaYDHVpEUYN4Ae022cm8Trnj41SegCCEcr4S6sMfk6Imc+3F4k/sHCr
-         KDPA==
-X-Gm-Message-State: AOAM532SVJ5FbsW3WBb8/ymQMW8pYrES+O10gTq67hwNzXuAc6WT91DB
-        VLZflMSOdBV99W8cYsNFa07RYXpQhPLjKlni
-X-Google-Smtp-Source: ABdhPJx5eHnrVcE31etRBeLL6px6AT4xObYabzSEIBcjUPghWTiWV9JnnEC1GeekcOSXpNX0JCWiig==
-X-Received: by 2002:a17:90a:3b02:: with SMTP id d2mr3802815pjc.159.1637724586522;
-        Tue, 23 Nov 2021 19:29:46 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f1sm15696452pfj.184.2021.11.23.19.29.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Nov 2021 19:29:46 -0800 (PST)
-Message-ID: <619db1aa.1c69fb81.5b6f.a9b8@mx.google.com>
-Date:   Tue, 23 Nov 2021 19:29:46 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S240903AbhKXEG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Nov 2021 23:06:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60854 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240896AbhKXEG5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Nov 2021 23:06:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5600E60551;
+        Wed, 24 Nov 2021 04:03:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637726628;
+        bh=SMO+DJRmOxkS3j8P437pwB2kbDjs8mxcnAz6vHY49xY=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=INhmPlwoiHWX+GncK/tf5wgiqgdd2n0jxeYcfogSI6lXaSsqyZ2TdQBXLy2Dz2tG3
+         lbp/WnN2xRZhlcdP/CJYEOsHxe1lCIWFsfypLd/Lt9VFkPxIOxCBYpZpq6EEdA6XGZ
+         g0ImMPuHvjUE2cQdsKkk/SBYiTCOKz775yZ2w++4zYYL2eX78rVOsP7zIU+sAco+qx
+         FIXs733/VI1F7JzApmlTEWtDXD5rt13cWZvkMfqwATj1cWr9Zwfyrkkkj9UGi5YolB
+         SkNkpXy50MFoci21dx4KTVIqfbQutdHIjdjWa4fNa0wbOuOAyXkTXjpyY6IGsivGwv
+         pYuV0t0RzMlDA==
+Date:   Tue, 23 Nov 2021 20:03:47 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     netdev@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        Wei Wang <weiwan@google.com>,
+        David Miller <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        msizanoen1 <msizanoen@qtmlabs.xyz>, stable@vger.kernel.org
+Subject: Re: [PATCH net] ipv6: fix memory leak in fib6_rule_suppress
+Message-ID: <20211123200347.597e2daf@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20211123124832.15419-1-Jason@zx2c4.com>
+References: <20211123124832.15419-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.255-248-g9bebb52eb0312
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y baseline: 133 runs,
- 1 regressions (v4.14.255-248-g9bebb52eb0312)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 133 runs, 1 regressions (v4.14.255-248-g9b=
-ebb52eb0312)
+On Tue, 23 Nov 2021 13:48:32 +0100 Jason A. Donenfeld wrote:
+> The original author of this commit and commit message is anonymous and
+> is therefore unable to sign off on it. Greg suggested that I do the sign
+> off, extracting it from the bugzilla entry above, and post it properly.
+> The patch "seems to work" on first glance, but I haven't looked deeply
+> at it yet and therefore it doesn't have my Reviewed-by, even though I'm
+> submitting this patch on the author's behalf. And it should probably get
+> a good look from the v6 fib folks. The original author should be on this
+> thread to address issues that come off, and I'll shephard additional
+> versions that he has.
 
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.255-248-g9bebb52eb0312/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.255-248-g9bebb52eb0312
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9bebb52eb031239ad9ca05e144c2b177e615847f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/619d80e90ea379d63ff2efa8
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-55-248-g9bebb52eb0312/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline=
--panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-55-248-g9bebb52eb0312/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline=
--panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619d80e90ea379d=
-63ff2efab
-        failing since 10 days (last pass: v4.14.255, first fail: v4.14.255-=
-54-gb6f4d599e1d3)
-        2 lines
-
-    2021-11-24T00:01:27.657089  [   19.899658] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-24T00:01:27.704718  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/101
-    2021-11-24T00:01:27.714424  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-11-24T00:01:27.730128  [   19.974548] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+Does the fact that the author responded to the patch undermine the need
+for this special handling?
