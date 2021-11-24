@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D760745C5D4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4BA945C19E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:17:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352984AbhKXOAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:00:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48876 "EHLO mail.kernel.org"
+        id S1347096AbhKXNT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:19:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355791AbhKXN6z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:58:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22FE7633E2;
-        Wed, 24 Nov 2021 13:08:41 +0000 (UTC)
+        id S1348923AbhKXNSD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:18:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97B1461153;
+        Wed, 24 Nov 2021 12:45:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759322;
-        bh=qckGJ0je8XgnYTdwWQHY4/eXgo2grTbe4MqAnKjdjSI=;
+        s=korg; t=1637757948;
+        bh=x5qcFKYOyOmWl07vopDKLv6ZhkVqNZinvRTiY4oCImw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R5J49BgGBCvnTByvwZx+dTY7FOy80vPyVnZZbu6R0XEdnV6cStYAOxQYLfGlDBZ4V
-         RV/qnUXCbqy81B2OAzbqPoyycPyprlvVWpPGUnemj6UrJd5MerJPYtDI/lhYARecFT
-         ZyHVLZ1J3U2QTakgYbudIaMrnV2VzdH0ZXIhka7A=
+        b=j2ElQffD3bF8wQiOo1TaIJtjMNyoB2V2lj6IyjhIZgHWWVpwR83/z2pf4Gk9HQ7mN
+         bEWvCDJz71fI52dx+kHk+xeYZCB2IfnYbGufF2PrQYHobpbDv8WFC6wFcAy6U0uuJM
+         +7PhSw+dfSJs6zLcS4oZezDg4mW04cTSi/K7Irew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Wei Liu <wei.liu@kernel.org>
-Subject: [PATCH 5.15 203/279] x86/hyperv: Fix NULL deref in set_hv_tscchange_cb() if Hyper-V setup fails
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 300/323] NFC: reorder the logic in nfc_{un,}register_device
 Date:   Wed, 24 Nov 2021 12:58:10 +0100
-Message-Id: <20211124115725.757709770@linuxfoundation.org>
+Message-Id: <20211124115729.043646209@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +41,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit daf972118c517b91f74ff1731417feb4270625a4 upstream.
+[ Upstream commit 3e3b5dfcd16a3e254aab61bd1e8c417dd4503102 ]
 
-Check for a valid hv_vp_index array prior to derefencing hv_vp_index when
-setting Hyper-V's TSC change callback.  If Hyper-V setup failed in
-hyperv_init(), the kernel will still report that it's running under
-Hyper-V, but will have silently disabled nearly all functionality.
+There is a potential UAF between the unregistration routine and the NFC
+netlink operations.
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000010
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP
-  CPU: 4 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc2+ #75
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:set_hv_tscchange_cb+0x15/0xa0
-  Code: <8b> 04 82 8b 15 12 17 85 01 48 c1 e0 20 48 0d ee 00 01 00 f6 c6 08
-  ...
-  Call Trace:
-   kvm_arch_init+0x17c/0x280
-   kvm_init+0x31/0x330
-   vmx_init+0xba/0x13a
-   do_one_initcall+0x41/0x1c0
-   kernel_init_freeable+0x1f2/0x23b
-   kernel_init+0x16/0x120
-   ret_from_fork+0x22/0x30
+The race that cause that UAF can be shown as below:
 
-Fixes: 93286261de1b ("x86/hyperv: Reenlightenment notifications support")
-Cc: stable@vger.kernel.org
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Link: https://lore.kernel.org/r/20211104182239.1302956-2-seanjc@google.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ (FREE)                      |  (USE)
+nfcmrvl_nci_unregister_dev   |  nfc_genl_dev_up
+  nci_close_device           |
+  nci_unregister_device      |    nfc_get_device
+    nfc_unregister_device    |    nfc_dev_up
+      rfkill_destory         |
+      device_del             |      rfkill_blocked
+  ...                        |    ...
+
+The root cause for this race is concluded below:
+1. The rfkill_blocked (USE) in nfc_dev_up is supposed to be placed after
+the device_is_registered check.
+2. Since the netlink operations are possible just after the device_add
+in nfc_register_device, the nfc_dev_up() can happen anywhere during the
+rfkill creation process, which leads to data race.
+
+This patch reorder these actions to permit
+1. Once device_del is finished, the nfc_dev_up cannot dereference the
+rfkill object.
+2. The rfkill_register need to be placed after the device_add of nfc_dev
+because the parent device need to be created first. So this patch keeps
+the order but inject device_lock to prevent the data race.
+
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Fixes: be055b2f89b5 ("NFC: RFKILL support")
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211116152652.19217-1-linma@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/hyperv/hv_init.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/nfc/core.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
---- a/arch/x86/hyperv/hv_init.c
-+++ b/arch/x86/hyperv/hv_init.c
-@@ -147,6 +147,9 @@ void set_hv_tscchange_cb(void (*cb)(void
- 		return;
+diff --git a/net/nfc/core.c b/net/nfc/core.c
+index 947a470f929d6..ff646d1758d16 100644
+--- a/net/nfc/core.c
++++ b/net/nfc/core.c
+@@ -106,13 +106,13 @@ int nfc_dev_up(struct nfc_dev *dev)
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
+-		rc = -ERFKILL;
++	if (!device_is_registered(&dev->dev)) {
++		rc = -ENODEV;
+ 		goto error;
  	}
  
-+	if (!hv_vp_index)
-+		return;
-+
- 	hv_reenlightenment_cb = cb;
+-	if (!device_is_registered(&dev->dev)) {
+-		rc = -ENODEV;
++	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
++		rc = -ERFKILL;
+ 		goto error;
+ 	}
  
- 	/* Make sure callback is registered before we write to MSRs */
+@@ -1130,11 +1130,7 @@ int nfc_register_device(struct nfc_dev *dev)
+ 	if (rc)
+ 		pr_err("Could not register llcp device\n");
+ 
+-	rc = nfc_genl_device_added(dev);
+-	if (rc)
+-		pr_debug("The userspace won't be notified that the device %s was added\n",
+-			 dev_name(&dev->dev));
+-
++	device_lock(&dev->dev);
+ 	dev->rfkill = rfkill_alloc(dev_name(&dev->dev), &dev->dev,
+ 				   RFKILL_TYPE_NFC, &nfc_rfkill_ops, dev);
+ 	if (dev->rfkill) {
+@@ -1143,6 +1139,12 @@ int nfc_register_device(struct nfc_dev *dev)
+ 			dev->rfkill = NULL;
+ 		}
+ 	}
++	device_unlock(&dev->dev);
++
++	rc = nfc_genl_device_added(dev);
++	if (rc)
++		pr_debug("The userspace won't be notified that the device %s was added\n",
++			 dev_name(&dev->dev));
+ 
+ 	return 0;
+ }
+@@ -1159,10 +1161,17 @@ void nfc_unregister_device(struct nfc_dev *dev)
+ 
+ 	pr_debug("dev_name=%s\n", dev_name(&dev->dev));
+ 
++	rc = nfc_genl_device_removed(dev);
++	if (rc)
++		pr_debug("The userspace won't be notified that the device %s "
++			 "was removed\n", dev_name(&dev->dev));
++
++	device_lock(&dev->dev);
+ 	if (dev->rfkill) {
+ 		rfkill_unregister(dev->rfkill);
+ 		rfkill_destroy(dev->rfkill);
+ 	}
++	device_unlock(&dev->dev);
+ 
+ 	if (dev->ops->check_presence) {
+ 		device_lock(&dev->dev);
+@@ -1172,11 +1181,6 @@ void nfc_unregister_device(struct nfc_dev *dev)
+ 		cancel_work_sync(&dev->check_pres_work);
+ 	}
+ 
+-	rc = nfc_genl_device_removed(dev);
+-	if (rc)
+-		pr_debug("The userspace won't be notified that the device %s "
+-			 "was removed\n", dev_name(&dev->dev));
+-
+ 	nfc_llcp_unregister_device(dev);
+ 
+ 	mutex_lock(&nfc_devlist_mutex);
+-- 
+2.33.0
+
 
 
