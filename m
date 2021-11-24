@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 502D645C216
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:22:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CF0945C2E4
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:31:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350323AbhKXNZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:25:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45542 "EHLO mail.kernel.org"
+        id S1349353AbhKXNeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:34:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242820AbhKXNVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:21:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38BA161B07;
-        Wed, 24 Nov 2021 12:47:13 +0000 (UTC)
+        id S1351447AbhKXNbn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:31:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF978615E1;
+        Wed, 24 Nov 2021 12:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758033;
-        bh=MbljPlGWIgZ6aE1b8hrYn73E3WqClBJ8p6vdASrke7Y=;
+        s=korg; t=1637758365;
+        bh=w5Xb6WCzlZ8aPhmrZpZHwKQX/kb2t2tuhtwlxNHDG2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+wOVpCZmYZZGomIw4NhjYuDnFR6aXHWynRj2sGxLPOqcpyAGyLN9LBfwgJIODcHH
-         Usm9d6bhd/jXFRAcArwegT+o+BcDx+e9t3c0UO4qTrzmpWz43OgbRJdvrRN42bkwV7
-         Mzai/hui4ClQipG68SkhX643dQdpd/tr2NiG94ic=
+        b=kOtIsNsq7kggvhkSClSkiNFURcYLW99w64EwpKip+yf+IFC1iZf/9rqnUkusxYN5R
+         V0TxM64nIHoxfM98PlKbSeFRnbFePaLF+BhxbJz7kUqtZ3wa8pCxFNCgTH5LJZUY3T
+         Lzxm/hlgpbyFOz8fhE2kWwkizlTDC+6ftSrov9PU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 006/100] RDMA/bnxt_re: Check if the vlan is valid before reporting
+Subject: [PATCH 5.10 046/154] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
 Date:   Wed, 24 Nov 2021 12:57:22 +0100
-Message-Id: <20211124115655.055827454@linuxfoundation.org>
+Message-Id: <20211124115703.830238333@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Selvin Xavier <selvin.xavier@broadcom.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 6bda39149d4b8920fdb8744090653aca3daa792d ]
+[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
 
-When VF is configured with default vlan, HW strips the vlan from the
-packet and driver receives it in Rx completion. VLAN needs to be reported
-for UD work completion only if the vlan is configured on the host. Add a
-check for valid vlan in the UD receive path.
+In dcr-low.S we use cmpli with three arguments, instead of four
+arguments as defined in the ISA:
 
-Link: https://lore.kernel.org/r/1631709163-2287-12-git-send-email-selvin.xavier@broadcom.com
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+	cmpli	cr0,r3,1024
+
+This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
+User’s Manual" it shows cmpli having no L field, but implied to be 0 due
+to the core being 32-bit. It mentions that the ISA defines four
+arguments and recommends using cmplwi.
+
+It also corresponds to the old POWER instruction set, which had no L
+field there, a reserved bit instead.
+
+dcr-low.S is only built 32-bit, because it is only built when
+DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
+generated code (with gcc/gas) we see cmplwi as expected.
+
+Although gas is happy with the 3-argument version when building for
+32-bit, the LLVM assembler is not and errors out with:
+
+  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
+   cmpli 0,%r3,1024; ...
+           ^
+
+Switch to the cmplwi extended opcode, which avoids any confusion when
+reading the ISA, fixes the issue with the LLVM assembler, and also means
+the code could be built 64-bit in future (though that's very unlikely).
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
+Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/ib_verbs.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/powerpc/sysdev/dcr-low.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/ib_verbs.c b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
-index a96f9142fe08e..dd006b177b544 100644
---- a/drivers/infiniband/hw/bnxt_re/ib_verbs.c
-+++ b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
-@@ -3081,8 +3081,11 @@ static void bnxt_re_process_res_ud_wc(struct bnxt_re_qp *qp,
- 				      struct ib_wc *wc,
- 				      struct bnxt_qplib_cqe *cqe)
- {
-+	struct bnxt_re_dev *rdev;
-+	u16 vlan_id = 0;
- 	u8 nw_type;
+diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
+index efeeb1b885a17..329b9c4ae5429 100644
+--- a/arch/powerpc/sysdev/dcr-low.S
++++ b/arch/powerpc/sysdev/dcr-low.S
+@@ -11,7 +11,7 @@
+ #include <asm/export.h>
  
-+	rdev = qp->rdev;
- 	wc->opcode = IB_WC_RECV;
- 	wc->status = __rc_to_ib_wc_status(cqe->status);
- 
-@@ -3094,9 +3097,12 @@ static void bnxt_re_process_res_ud_wc(struct bnxt_re_qp *qp,
- 		memcpy(wc->smac, cqe->smac, ETH_ALEN);
- 		wc->wc_flags |= IB_WC_WITH_SMAC;
- 		if (cqe->flags & CQ_RES_UD_FLAGS_META_FORMAT_VLAN) {
--			wc->vlan_id = (cqe->cfa_meta & 0xFFF);
--			if (wc->vlan_id < 0x1000)
--				wc->wc_flags |= IB_WC_WITH_VLAN;
-+			vlan_id = (cqe->cfa_meta & 0xFFF);
-+		}
-+		/* Mark only if vlan_id is non zero */
-+		if (vlan_id && bnxt_re_check_if_vlan_valid(rdev, vlan_id)) {
-+			wc->vlan_id = vlan_id;
-+			wc->wc_flags |= IB_WC_WITH_VLAN;
- 		}
- 		nw_type = (cqe->flags & CQ_RES_UD_FLAGS_ROCE_IP_VER_MASK) >>
- 			   CQ_RES_UD_FLAGS_ROCE_IP_VER_SFT;
+ #define DCR_ACCESS_PROLOG(table) \
+-	cmpli	cr0,r3,1024;	 \
++	cmplwi	cr0,r3,1024;	 \
+ 	rlwinm  r3,r3,4,18,27;   \
+ 	lis     r5,table@h;      \
+ 	ori     r5,r5,table@l;   \
 -- 
 2.33.0
 
