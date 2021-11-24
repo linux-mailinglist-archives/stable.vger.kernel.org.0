@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21E3345BB30
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:14:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D5545B9C2
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242710AbhKXMR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:17:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47100 "EHLO mail.kernel.org"
+        id S233212AbhKXMEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:04:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243718AbhKXMPP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:15:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F3FF610CA;
-        Wed, 24 Nov 2021 12:10:08 +0000 (UTC)
+        id S242080AbhKXMEX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:04:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC25961056;
+        Wed, 24 Nov 2021 12:01:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755808;
-        bh=V7UmU5M+SBDr7VI4X2s/NYlrFzggs5XaFNUgQh2sRnw=;
+        s=korg; t=1637755273;
+        bh=IivnivW29gzAWz4COM1gCW6U3//IylW9OiVKrCyS7O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ho1fy0MzocbsOASWwlYsMh7UC4muA+zXIzcVA/6x1d+Vz36LwBsSmRuT57I2haBoZ
-         lNTpmwf9TEN/h8bOZvwM578Ha6xqmA3POv7JO5RWHuSXs+vXMB3f/alj/HVLdiI2xY
-         ctYEQH8oqP0kvix6w/tpJTiK9Ve1MFz+EOJm66oA=
+        b=OVE8CsHf3lgUIcsZhM16ByfAN5MApBspuwNiEUdLLcG1FdgRFHxbRAqN074rHSig7
+         WFa51oIxKxItGZM0Obe1yK7CXYcXfRCAjuRsR/4QZafOqA1Pw82pmSxYVsy4y3qzcS
+         E69eLIw2vhlEM6H+zEVkvtYce71NhGtMixbs2F0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 066/207] media: uvcvideo: Set capability in s_param
-Date:   Wed, 24 Nov 2021 12:55:37 +0100
-Message-Id: <20211124115706.063492020@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+9988f17cf72a1045a189@syzkaller.appspotmail.com,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 035/162] ALSA: mixer: oss: Fix racy access to slots
+Date:   Wed, 24 Nov 2021 12:55:38 +0100
+Message-Id: <20211124115659.477935881@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +40,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 97a2777a96070afb7da5d587834086c0b586c8cc ]
+commit 411cef6adfb38a5bb6bd9af3941b28198e7fb680 upstream.
 
-Fixes v4l2-compliance:
+The OSS mixer can reassign the mapping slots dynamically via proc
+file.  Although the addition and deletion of those slots are protected
+by mixer->reg_mutex, the access to slots aren't, hence this may cause
+UAF when the slots in use are deleted concurrently.
 
-Format ioctls (Input 0):
-                warn: v4l2-test-formats.cpp(1339): S_PARM is supported but doesn't report V4L2_CAP_TIMEPERFRAME
-                fail: v4l2-test-formats.cpp(1241): node->has_frmintervals && !cap->capability
+This patch applies the mixer->reg_mutex in all appropriate code paths
+(i.e. the ioctl functions) that may access slots.
 
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+9988f17cf72a1045a189@syzkaller.appspotmail.com
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/00000000000036adc005ceca9175@google.com
+Link: https://lore.kernel.org/r/20211020164846.922-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/uvc/uvc_v4l2.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ sound/core/oss/mixer_oss.c |   43 +++++++++++++++++++++++++++++++++----------
+ 1 file changed, 33 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
-index 4a270f88aa18c..2b1e06e825f0d 100644
---- a/drivers/media/usb/uvc/uvc_v4l2.c
-+++ b/drivers/media/usb/uvc/uvc_v4l2.c
-@@ -451,10 +451,13 @@ static int uvc_v4l2_set_streamparm(struct uvc_streaming *stream,
- 	uvc_simplify_fraction(&timeperframe.numerator,
- 		&timeperframe.denominator, 8, 333);
+--- a/sound/core/oss/mixer_oss.c
++++ b/sound/core/oss/mixer_oss.c
+@@ -144,11 +144,13 @@ static int snd_mixer_oss_devmask(struct
  
--	if (parm->type == V4L2_BUF_TYPE_VIDEO_CAPTURE)
-+	if (parm->type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
- 		parm->parm.capture.timeperframe = timeperframe;
--	else
-+		parm->parm.capture.capability = V4L2_CAP_TIMEPERFRAME;
-+	} else {
- 		parm->parm.output.timeperframe = timeperframe;
-+		parm->parm.output.capability = V4L2_CAP_TIMEPERFRAME;
-+	}
- 
- 	return 0;
+ 	if (mixer == NULL)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	for (chn = 0; chn < 31; chn++) {
+ 		pslot = &mixer->slots[chn];
+ 		if (pslot->put_volume || pslot->put_recsrc)
+ 			result |= 1 << chn;
+ 	}
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
  }
--- 
-2.33.0
-
+ 
+@@ -160,11 +162,13 @@ static int snd_mixer_oss_stereodevs(stru
+ 
+ 	if (mixer == NULL)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	for (chn = 0; chn < 31; chn++) {
+ 		pslot = &mixer->slots[chn];
+ 		if (pslot->put_volume && pslot->stereo)
+ 			result |= 1 << chn;
+ 	}
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
+ }
+ 
+@@ -175,6 +179,7 @@ static int snd_mixer_oss_recmask(struct
+ 
+ 	if (mixer == NULL)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	if (mixer->put_recsrc && mixer->get_recsrc) {	/* exclusive */
+ 		result = mixer->mask_recsrc;
+ 	} else {
+@@ -186,6 +191,7 @@ static int snd_mixer_oss_recmask(struct
+ 				result |= 1 << chn;
+ 		}
+ 	}
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
+ }
+ 
+@@ -196,11 +202,12 @@ static int snd_mixer_oss_get_recsrc(stru
+ 
+ 	if (mixer == NULL)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	if (mixer->put_recsrc && mixer->get_recsrc) {	/* exclusive */
+-		int err;
+ 		unsigned int index;
+-		if ((err = mixer->get_recsrc(fmixer, &index)) < 0)
+-			return err;
++		result = mixer->get_recsrc(fmixer, &index);
++		if (result < 0)
++			goto unlock;
+ 		result = 1 << index;
+ 	} else {
+ 		struct snd_mixer_oss_slot *pslot;
+@@ -215,7 +222,10 @@ static int snd_mixer_oss_get_recsrc(stru
+ 			}
+ 		}
+ 	}
+-	return mixer->oss_recsrc = result;
++	mixer->oss_recsrc = result;
++ unlock:
++	mutex_unlock(&mixer->reg_mutex);
++	return result;
+ }
+ 
+ static int snd_mixer_oss_set_recsrc(struct snd_mixer_oss_file *fmixer, int recsrc)
+@@ -228,6 +238,7 @@ static int snd_mixer_oss_set_recsrc(stru
+ 
+ 	if (mixer == NULL)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	if (mixer->get_recsrc && mixer->put_recsrc) {	/* exclusive input */
+ 		if (recsrc & ~mixer->oss_recsrc)
+ 			recsrc &= ~mixer->oss_recsrc;
+@@ -253,6 +264,7 @@ static int snd_mixer_oss_set_recsrc(stru
+ 			}
+ 		}
+ 	}
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
+ }
+ 
+@@ -264,6 +276,7 @@ static int snd_mixer_oss_get_volume(stru
+ 
+ 	if (mixer == NULL || slot > 30)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	pslot = &mixer->slots[slot];
+ 	left = pslot->volume[0];
+ 	right = pslot->volume[1];
+@@ -271,15 +284,21 @@ static int snd_mixer_oss_get_volume(stru
+ 		result = pslot->get_volume(fmixer, pslot, &left, &right);
+ 	if (!pslot->stereo)
+ 		right = left;
+-	if (snd_BUG_ON(left < 0 || left > 100))
+-		return -EIO;
+-	if (snd_BUG_ON(right < 0 || right > 100))
+-		return -EIO;
++	if (snd_BUG_ON(left < 0 || left > 100)) {
++		result = -EIO;
++		goto unlock;
++	}
++	if (snd_BUG_ON(right < 0 || right > 100)) {
++		result = -EIO;
++		goto unlock;
++	}
+ 	if (result >= 0) {
+ 		pslot->volume[0] = left;
+ 		pslot->volume[1] = right;
+ 	 	result = (left & 0xff) | ((right & 0xff) << 8);
+ 	}
++ unlock:
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
+ }
+ 
+@@ -292,6 +311,7 @@ static int snd_mixer_oss_set_volume(stru
+ 
+ 	if (mixer == NULL || slot > 30)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	pslot = &mixer->slots[slot];
+ 	if (left > 100)
+ 		left = 100;
+@@ -302,10 +322,13 @@ static int snd_mixer_oss_set_volume(stru
+ 	if (pslot->put_volume)
+ 		result = pslot->put_volume(fmixer, pslot, left, right);
+ 	if (result < 0)
+-		return result;
++		goto unlock;
+ 	pslot->volume[0] = left;
+ 	pslot->volume[1] = right;
+- 	return (left & 0xff) | ((right & 0xff) << 8);
++	result = (left & 0xff) | ((right & 0xff) << 8);
++ unlock:
++	mutex_lock(&mixer->reg_mutex);
++	return result;
+ }
+ 
+ static int snd_mixer_oss_ioctl1(struct snd_mixer_oss_file *fmixer, unsigned int cmd, unsigned long arg)
 
 
