@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0585545BA7E
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:08:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4A0945BBF7
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231450AbhKXMLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:11:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33882 "EHLO mail.kernel.org"
+        id S245333AbhKXMZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242372AbhKXMJS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:09:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B02A260174;
-        Wed, 24 Nov 2021 12:05:19 +0000 (UTC)
+        id S244910AbhKXMYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:24:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD8C460295;
+        Wed, 24 Nov 2021 12:14:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755520;
-        bh=v9pHMCjbcP4umAIkxK7QTpPF0wPM82LaS5Z/E0cUp8E=;
+        s=korg; t=1637756091;
+        bh=I3H8yzAtI8SujZBXtSUndW4JbdVuHlp/D7yI0ExIHTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lvED/3owTV/E2P8LecDKU7CIuqssvtISiCN6DLY4OuxybdA79oCtYLatgBCI+N4Yt
-         j3Ej4ZL3wggHCKEGcXvQNftf/DpCy7HgNPd3aJA+Ajtwn0tKfHw4E/H0xABJ6YCUdO
-         a01bXfgz1OdF9leuI3RTIJqEmd/JezX9VF/N3Nug=
+        b=027oBbAVNQ1SoEM1R5rT7MtG2cIUBCkXO4uSWLKscYI1Q8RptBSRAlmkcbOnpPYfk
+         2cB/qBAlu1NlAEI77kBC6O3p3qwHsCjH2XM8AdlcZ4NhhuVRMa6CFqRM5+Ji/bGX6D
+         XtODTiNrblUnmiJGhoy+QJm0uww1cD3pbWASV7+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 093/162] serial: 8250_dw: Drop wrong use of ACPI_PTR()
+Subject: [PATCH 4.9 125/207] usb: gadget: hid: fix error code in do_config()
 Date:   Wed, 24 Nov 2021 12:56:36 +0100
-Message-Id: <20211124115701.336025649@linuxfoundation.org>
+Message-Id: <20211124115708.100454110@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ebabb77a2a115b6c5e68f7364b598310b5f61fb2 ]
+[ Upstream commit 68e7c510fdf4f6167404609da52e1979165649f6 ]
 
-ACPI_PTR() is more harmful than helpful. For example, in this case
-if CONFIG_ACPI=n, the ID table left unused which is not what we want.
+Return an error code if usb_get_function() fails.  Don't return success.
 
-Instead of adding ifdeffery here and there, drop ACPI_PTR().
-
-Fixes: 6a7320c4669f ("serial: 8250_dw: Add ACPI 5.0 support")
-Reported-by: Daniel Palmer <daniel@0x0f.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20211005134516.23218-1-andriy.shevchenko@linux.intel.com
+Fixes: 4bc8a33f2407 ("usb: gadget: hid: convert to new interface of f_hid")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20211011123739.GC15188@kili
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_dw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/legacy/hid.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
-index 039837db65fcc..f3ed1eeaed4e1 100644
---- a/drivers/tty/serial/8250/8250_dw.c
-+++ b/drivers/tty/serial/8250/8250_dw.c
-@@ -607,7 +607,7 @@ static struct platform_driver dw8250_platform_driver = {
- 		.name		= "dw-apb-uart",
- 		.pm		= &dw8250_pm_ops,
- 		.of_match_table	= dw8250_of_match,
--		.acpi_match_table = ACPI_PTR(dw8250_acpi_match),
-+		.acpi_match_table = dw8250_acpi_match,
- 	},
- 	.probe			= dw8250_probe,
- 	.remove			= dw8250_remove,
+diff --git a/drivers/usb/gadget/legacy/hid.c b/drivers/usb/gadget/legacy/hid.c
+index cccbb948821b2..a55d3761d777c 100644
+--- a/drivers/usb/gadget/legacy/hid.c
++++ b/drivers/usb/gadget/legacy/hid.c
+@@ -103,8 +103,10 @@ static int do_config(struct usb_configuration *c)
+ 
+ 	list_for_each_entry(e, &hidg_func_list, node) {
+ 		e->f = usb_get_function(e->fi);
+-		if (IS_ERR(e->f))
++		if (IS_ERR(e->f)) {
++			status = PTR_ERR(e->f);
+ 			goto put;
++		}
+ 		status = usb_add_function(c, e->f);
+ 		if (status < 0) {
+ 			usb_put_function(e->f);
 -- 
 2.33.0
 
