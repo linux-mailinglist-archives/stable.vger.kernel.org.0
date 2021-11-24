@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 836D745C64E
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:03:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A1D45C262
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:26:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351691AbhKXOGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:06:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53830 "EHLO mail.kernel.org"
+        id S1345912AbhKXN2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:28:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348765AbhKXOEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:04:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 030FC6331C;
-        Wed, 24 Nov 2021 13:11:35 +0000 (UTC)
+        id S1349184AbhKXNZI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:25:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E49BF61B54;
+        Wed, 24 Nov 2021 12:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759496;
-        bh=FbbNEhmcIzY0h8QyWaJ2d1XU9PgVs/EuXzfXvZs22Rg=;
+        s=korg; t=1637758162;
+        bh=XP72+0wf/6KHC5lby0/S/FLqXYDmFsXqC/ZDkcohaV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3cSNQWdA4PO0+JnVBG61CQuDcUYwpMWyPoz9w3zvhl2k41g/9AvUeWAUgN9vLApd
-         g0iK7au/tXmav6W5DJrq8durqF52Ze2QOAjKjNzivDrG3IR9zr5i61b3MyWuN0tE+L
-         3cLXadk8EcVYax3OmRf8itsuz0/QqlezOfjaq4q0=
+        b=vrFXRlWj8CqHVJAX3orJBPWf4FP9/Hpdp5ARblLxk6g9SHq/Z0MEhpxJ8QGVRbNHa
+         /F8jpauY2cRVgSFqRsEUIyw8FKAyAhnnPPVpr8USDsNmld79wmPtKdKh2c+3EmWB+m
+         0kNtNJNPq099MP05JANjST8cStBYCPeuqxAQpwEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Lukas Wunner <lukas@wunner.de>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 229/279] spi: fix use-after-free of the add_lock mutex
+        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Glauber Costa <glommer@parallels.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 080/100] mm: kmemleak: slob: respect SLAB_NOLEAKTRACE flag
 Date:   Wed, 24 Nov 2021 12:58:36 +0100
-Message-Id: <20211124115726.660387569@linuxfoundation.org>
+Message-Id: <20211124115657.442966169@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-commit 6c53b45c71b4920b5e62f0ea8079a1da382b9434 upstream.
+commit 34dbc3aaf5d9e89ba6cc5e24add9458c21ab1950 upstream.
 
-Commit 6098475d4cb4 ("spi: Fix deadlock when adding SPI controllers on
-SPI buses") introduced a per-controller mutex. But mutex_unlock() of
-said lock is called after the controller is already freed:
+When kmemleak is enabled for SLOB, system does not boot and does not
+print anything to the console.  At the very early stage in the boot
+process we hit infinite recursion from kmemleak_init() and eventually
+kernel crashes.
 
-  spi_unregister_controller(ctlr)
-  -> put_device(&ctlr->dev)
-    -> spi_controller_release(dev)
-  -> mutex_unlock(&ctrl->add_lock)
+kmemleak_init() specifies SLAB_NOLEAKTRACE for KMEM_CACHE(), but
+kmem_cache_create_usercopy() removes it because CACHE_CREATE_MASK is not
+valid for SLOB.
 
-Move the put_device() after the mutex_unlock().
+Let's fix CACHE_CREATE_MASK and make kmemleak work with SLOB
 
-Fixes: 6098475d4cb4 ("spi: Fix deadlock when adding SPI controllers on SPI buses")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v5.15
-Link: https://lore.kernel.org/r/20211111083713.3335171-1-michael@walle.cc
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lkml.kernel.org/r/20211115020850.3154366-1-rkovhaev@gmail.com
+Fixes: d8843922fba4 ("slab: Ignore internal flags in cache creation")
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Glauber Costa <glommer@parallels.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ mm/slab.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -3020,12 +3020,6 @@ void spi_unregister_controller(struct sp
+--- a/mm/slab.h
++++ b/mm/slab.h
+@@ -211,7 +211,7 @@ static inline slab_flags_t kmem_cache_fl
+ #define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE | SLAB_RECLAIM_ACCOUNT | \
+ 			  SLAB_TEMPORARY | SLAB_ACCOUNT)
+ #else
+-#define SLAB_CACHE_FLAGS (0)
++#define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE)
+ #endif
  
- 	device_del(&ctlr->dev);
- 
--	/* Release the last reference on the controller if its driver
--	 * has not yet been converted to devm_spi_alloc_master/slave().
--	 */
--	if (!ctlr->devm_allocated)
--		put_device(&ctlr->dev);
--
- 	/* free bus id */
- 	mutex_lock(&board_lock);
- 	if (found == ctlr)
-@@ -3034,6 +3028,12 @@ void spi_unregister_controller(struct sp
- 
- 	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
- 		mutex_unlock(&ctlr->add_lock);
-+
-+	/* Release the last reference on the controller if its driver
-+	 * has not yet been converted to devm_spi_alloc_master/slave().
-+	 */
-+	if (!ctlr->devm_allocated)
-+		put_device(&ctlr->dev);
- }
- EXPORT_SYMBOL_GPL(spi_unregister_controller);
- 
+ /* Common flags available with current configuration */
 
 
