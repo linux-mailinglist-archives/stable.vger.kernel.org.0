@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 691F845C05E
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:04:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B85145C490
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:47:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243379AbhKXNHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:07:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47538 "EHLO mail.kernel.org"
+        id S1351516AbhKXNto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:49:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347326AbhKXNFc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:05:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7DE7613A3;
-        Wed, 24 Nov 2021 12:37:35 +0000 (UTC)
+        id S1354045AbhKXNso (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:48:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C49D61A0C;
+        Wed, 24 Nov 2021 13:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757456;
-        bh=3uznKvS2YSwo9UDBzMZsBGoD7cheUAVf2NW0SgOo+o4=;
+        s=korg; t=1637758935;
+        bh=w5Xb6WCzlZ8aPhmrZpZHwKQX/kb2t2tuhtwlxNHDG2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R66Ul+PMAbjeF5Id7JnZviJKK44+X6625QThaZP7I8E8ZCrpqJJHL5CwY+fLBfFnx
-         41Or2N9Ub/IIddSmp2CjxArf41ptub13m9/4FhA1YFr452EnbS76GvgpPNvUZFRm6t
-         ceReTeE/LrCwgN+b1ovWlNMcrgLGJgbAjP6RHMcY=
+        b=A/vkHVpaHA5445VEzP2GrMZJuEcuBkT+ysHkUkhLYiGswZujP/bL/ZZeFoDIiXorE
+         vVpT94faH9vgpyEkoQcWf5c/gaTvDTXqp2xGXauIm+6HC4LXdGdhNLq1R1gPYZZo0i
+         zO49kZVX2IVHe6nvAHLmJpxq3S3iDkygpmbtD24M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Martin KaFai Lau <kafai@fb.com>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 174/323] selftests/bpf: Fix fclose/pclose mismatch in test_progs
-Date:   Wed, 24 Nov 2021 12:56:04 +0100
-Message-Id: <20211124115724.822951670@linuxfoundation.org>
+Subject: [PATCH 5.15 078/279] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
+Date:   Wed, 24 Nov 2021 12:56:05 +0100
+Message-Id: <20211124115721.408342386@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Righi <andrea.righi@canonical.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit f48ad69097fe79d1de13c4d8fef556d4c11c5e68 ]
+[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
 
-Make sure to use pclose() to properly close the pipe opened by popen().
+In dcr-low.S we use cmpli with three arguments, instead of four
+arguments as defined in the ISA:
 
-Fixes: 81f77fd0deeb ("bpf: add selftest for stackmap with BPF_F_STACK_BUILD_ID")
-Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20211026143409.42666-1-andrea.righi@canonical.com
+	cmpli	cr0,r3,1024
+
+This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
+User’s Manual" it shows cmpli having no L field, but implied to be 0 due
+to the core being 32-bit. It mentions that the ISA defines four
+arguments and recommends using cmplwi.
+
+It also corresponds to the old POWER instruction set, which had no L
+field there, a reserved bit instead.
+
+dcr-low.S is only built 32-bit, because it is only built when
+DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
+generated code (with gcc/gas) we see cmplwi as expected.
+
+Although gas is happy with the 3-argument version when building for
+32-bit, the LLVM assembler is not and errors out with:
+
+  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
+   cmpli 0,%r3,1024; ...
+           ^
+
+Switch to the cmplwi extended opcode, which avoids any confusion when
+reading the ISA, fixes the issue with the LLVM assembler, and also means
+the code could be built 64-bit in future (though that's very unlikely).
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
+Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_progs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/sysdev/dcr-low.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/test_progs.c b/tools/testing/selftests/bpf/test_progs.c
-index bad3505d66e05..0fcd38ffcc24c 100644
---- a/tools/testing/selftests/bpf/test_progs.c
-+++ b/tools/testing/selftests/bpf/test_progs.c
-@@ -1112,7 +1112,7 @@ static int extract_build_id(char *build_id, size_t size)
+diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
+index efeeb1b885a17..329b9c4ae5429 100644
+--- a/arch/powerpc/sysdev/dcr-low.S
++++ b/arch/powerpc/sysdev/dcr-low.S
+@@ -11,7 +11,7 @@
+ #include <asm/export.h>
  
- 	if (getline(&line, &len, fp) == -1)
- 		goto err;
--	fclose(fp);
-+	pclose(fp);
- 
- 	if (len > size)
- 		len = size;
-@@ -1121,7 +1121,7 @@ static int extract_build_id(char *build_id, size_t size)
- 	free(line);
- 	return 0;
- err:
--	fclose(fp);
-+	pclose(fp);
- 	return -1;
- }
- 
+ #define DCR_ACCESS_PROLOG(table) \
+-	cmpli	cr0,r3,1024;	 \
++	cmplwi	cr0,r3,1024;	 \
+ 	rlwinm  r3,r3,4,18,27;   \
+ 	lis     r5,table@h;      \
+ 	ori     r5,r5,table@l;   \
 -- 
 2.33.0
 
