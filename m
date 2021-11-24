@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4670C45C12D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84FDA45C59F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:57:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347103AbhKXNPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:15:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56608 "EHLO mail.kernel.org"
+        id S1349151AbhKXN7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:59:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348544AbhKXNNZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:13:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A10761248;
-        Wed, 24 Nov 2021 12:43:00 +0000 (UTC)
+        id S1353201AbhKXN44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:56:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17CE9633BA;
+        Wed, 24 Nov 2021 13:07:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757780;
-        bh=LjySgigGEFpkpOaIZGBYUfKCdv1hq1lfUA+Da8866Sk=;
+        s=korg; t=1637759248;
+        bh=3DEEtA2d9eYMusYWKMLbgn+bfHLebArXs9TIeVEp3kA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vL6qqa09OdS1Yzl65cYDrPYtyqTnGPuSnGf99OwhmXcwHv+9B2wEDKw1A8zqgPXyF
-         mX+F8FMisoAtvza/RB8CCeX41GgjbyV4uUPcV0Ic8NR/nY8WhdNLekaGTW82MuKKVk
-         a8odzlLnADjwJvTEIr62eKtOwubp/YWFfB1HADXA=
+        b=Npt0Q+9EaQ+NH63Gw4kn6FP5CR4CCE5qp4fV/R6E17B+/Pr3LDexT8LC0uSptQczE
+         P/sYsTbMBN3kCLvr4D7Rny1BkJm3pE6VQ4e4RGm76YYssjBmkuKaIonbvRNglz7KsQ
+         iur9aNfu5eIEZvVFuUwWtibYVmRmBjFVBGhkziiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 275/323] scsi: target: Fix alua_tg_pt_gps_count tracking
+Subject: [PATCH 5.15 178/279] powerpc/pseries: rename numa_dist_table to form2_distances
 Date:   Wed, 24 Nov 2021 12:57:45 +0100
-Message-Id: <20211124115728.177953134@linuxfoundation.org>
+Message-Id: <20211124115724.893956338@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 1283c0d1a32bb924324481586b5d6e8e76f676ba ]
+[ Upstream commit 0bd81274e3f1195ee7c820ef02d62f31077c42c3 ]
 
-We can't free the tg_pt_gp in core_alua_set_tg_pt_gp_id() because it's
-still accessed via configfs. Its release must go through the normal
-configfs/refcount process.
+The name of the local variable holding the "form2" property address
+conflicts with the numa_distance_table global.
 
-The max alua_tg_pt_gps_count check should probably have been done in
-core_alua_allocate_tg_pt_gp(), but with the current code userspace could
-have created 0x0000ffff + 1 groups, but only set the id for 0x0000ffff.
-Then it could have deleted a group with an ID set, and then set the ID for
-that extra group and it would work ok.
+This patch does 's/numa_dist_table/form2_distances/g' over the function,
+which also renames numa_dist_table_length to form2_distances_length.
 
-It's unlikely, but just in case this patch continues to allow that type of
-behavior, and just fixes the kfree() while in use bug.
-
-Link: https://lore.kernel.org/r/20210930020422.92578-4-michael.christie@oracle.com
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211109064900.2041386-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_alua.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/mm/numa.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/target/target_core_alua.c b/drivers/target/target_core_alua.c
-index e46ca968009c0..804956c712a5a 100644
---- a/drivers/target/target_core_alua.c
-+++ b/drivers/target/target_core_alua.c
-@@ -1716,7 +1716,6 @@ int core_alua_set_tg_pt_gp_id(
- 		pr_err("Maximum ALUA alua_tg_pt_gps_count:"
- 			" 0x0000ffff reached\n");
- 		spin_unlock(&dev->t10_alua.tg_pt_gps_lock);
--		kmem_cache_free(t10_alua_tg_pt_gp_cache, tg_pt_gp);
- 		return -ENOSPC;
+diff --git a/arch/powerpc/mm/numa.c b/arch/powerpc/mm/numa.c
+index 6f14c8fb6359d..53e9901409163 100644
+--- a/arch/powerpc/mm/numa.c
++++ b/arch/powerpc/mm/numa.c
+@@ -376,9 +376,9 @@ static void initialize_form2_numa_distance_lookup_table(void)
+ {
+ 	int i, j;
+ 	struct device_node *root;
+-	const __u8 *numa_dist_table;
++	const __u8 *form2_distances;
+ 	const __be32 *numa_lookup_index;
+-	int numa_dist_table_length;
++	int form2_distances_length;
+ 	int max_numa_index, distance_index;
+ 
+ 	if (firmware_has_feature(FW_FEATURE_OPAL))
+@@ -392,20 +392,20 @@ static void initialize_form2_numa_distance_lookup_table(void)
+ 	max_numa_index = of_read_number(&numa_lookup_index[0], 1);
+ 
+ 	/* first element of the array is the size and is encode-int */
+-	numa_dist_table = of_get_property(root, "ibm,numa-distance-table", NULL);
+-	numa_dist_table_length = of_read_number((const __be32 *)&numa_dist_table[0], 1);
++	form2_distances = of_get_property(root, "ibm,numa-distance-table", NULL);
++	form2_distances_length = of_read_number((const __be32 *)&form2_distances[0], 1);
+ 	/* Skip the size which is encoded int */
+-	numa_dist_table += sizeof(__be32);
++	form2_distances += sizeof(__be32);
+ 
+-	pr_debug("numa_dist_table_len = %d, numa_dist_indexes_len = %d\n",
+-		 numa_dist_table_length, max_numa_index);
++	pr_debug("form2_distances_len = %d, numa_dist_indexes_len = %d\n",
++		 form2_distances_length, max_numa_index);
+ 
+ 	for (i = 0; i < max_numa_index; i++)
+ 		/* +1 skip the max_numa_index in the property */
+ 		numa_id_index_table[i] = of_read_number(&numa_lookup_index[i + 1], 1);
+ 
+ 
+-	if (numa_dist_table_length != max_numa_index * max_numa_index) {
++	if (form2_distances_length != max_numa_index * max_numa_index) {
+ 		WARN(1, "Wrong NUMA distance information\n");
+ 		/* consider everybody else just remote. */
+ 		for (i = 0;  i < max_numa_index; i++) {
+@@ -427,7 +427,7 @@ static void initialize_form2_numa_distance_lookup_table(void)
+ 			int nodeA = numa_id_index_table[i];
+ 			int nodeB = numa_id_index_table[j];
+ 
+-			numa_distance_table[nodeA][nodeB] = numa_dist_table[distance_index++];
++			numa_distance_table[nodeA][nodeB] = form2_distances[distance_index++];
+ 			pr_debug("dist[%d][%d]=%d ", nodeA, nodeB, numa_distance_table[nodeA][nodeB]);
+ 		}
  	}
- again:
 -- 
 2.33.0
 
