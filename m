@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5722545C48C
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:47:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD1A45C05F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:04:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351495AbhKXNtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:49:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40038 "EHLO mail.kernel.org"
+        id S1345687AbhKXNHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:07:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354041AbhKXNso (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:48:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 620FC61A3D;
-        Wed, 24 Nov 2021 13:02:08 +0000 (UTC)
+        id S1347267AbhKXNFc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:05:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A027E61155;
+        Wed, 24 Nov 2021 12:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758929;
-        bh=tyzeq0rDRn8ccEtvspRTVDyAiRCaZrRPAe2QYfyOtho=;
+        s=korg; t=1637757453;
+        bh=lA42VD3iRzmgxGMgpYLuBwmH0+VxrxRMBuAUeCPxQks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgcjkXXyxfeagHg7IgGy3Jyx1Q9u/HV5Y6msSFUpMXfI93bu0zK8EVoJaCfLlRTvG
-         4siDS7z3/M2W2xw1+Ch68IaxhzSs8NqgmqQyYASGCFk2c+UKFYh3xH+DwOIroHhdDf
-         d5fvwGqCbaPAFrYu9mp5lozzOJblxumoPk82kJrA=
+        b=cX2SE+DSRGIZ/KbQQBvJWsFUX8AG3DpDVC+xzy/tRFG0qWQqaC3wn4c+kDANwkr5u
+         3IXFv/0M475p2lsbOHYR/4RaOzFgCt2IceQhi+HrHLuvXRN5h9g5KGRstWsRKvqtCI
+         C1mSqryHrq48dxPAL197/CVAyIbGajOou66WjoCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 076/279] clk: at91: sama7g5: remove prescaler part of master clock
+Subject: [PATCH 4.19 173/323] crypto: pcrypt - Delay write to padata->info
 Date:   Wed, 24 Nov 2021 12:56:03 +0100
-Message-Id: <20211124115721.331172148@linuxfoundation.org>
+Message-Id: <20211124115724.791217245@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit facb87ad75603813bc3b1314f5a87377f020fcb8 ]
+[ Upstream commit 68b6dea802cea0dbdd8bd7ccc60716b5a32a5d8a ]
 
-On SAMA7G5 the prescaler part of master clock has been implemented as a
-changeable one. Everytime the prescaler is changed the PMC_SR.MCKRDY bit
-must be polled. Value 1 for PMC_SR.MCKRDY means the prescaler update is
-done. Driver polls for this bit until it becomes 1. On SAMA7G5 it has
-been discovered that in some conditions the PMC_SR.MCKRDY is not rising
-but the rate it provides it's stable. The workaround is to add a timeout
-when polling for PMC_SR.MCKRDY. At the moment, for SAMA7G5, the prescaler
-will be removed from Linux clock tree as all the frequencies for CPU could
-be obtained from PLL and also there will be less overhead when changing
-frequency via DVFS.
+These three events can race when pcrypt is used multiple times in a
+template ("pcrypt(pcrypt(...))"):
 
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20211011112719.3951784-14-claudiu.beznea@microchip.com
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+  1.  [taskA] The caller makes the crypto request via crypto_aead_encrypt()
+  2.  [kworkerB] padata serializes the inner pcrypt request
+  3.  [kworkerC] padata serializes the outer pcrypt request
+
+3 might finish before the call to crypto_aead_encrypt() returns in 1,
+resulting in two possible issues.
+
+First, a use-after-free of the crypto request's memory when, for
+example, taskA writes to the outer pcrypt request's padata->info in
+pcrypt_aead_enc() after kworkerC completes the request.
+
+Second, the outer pcrypt request overwrites the inner pcrypt request's
+return code with -EINPROGRESS, making a successful request appear to
+fail.  For instance, kworkerB writes the outer pcrypt request's
+padata->info in pcrypt_aead_done() and then taskA overwrites it
+in pcrypt_aead_enc().
+
+Avoid both situations by delaying the write of padata->info until after
+the inner crypto request's return code is checked.  This prevents the
+use-after-free by not touching the crypto request's memory after the
+next-inner crypto request is made, and stops padata->info from being
+overwritten.
+
+Fixes: 5068c7a883d16 ("crypto: pcrypt - Add pcrypt crypto parallelization wrapper")
+Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/at91/sama7g5.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ crypto/pcrypt.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/at91/sama7g5.c b/drivers/clk/at91/sama7g5.c
-index cf8c079aa086a..019e712f90d6f 100644
---- a/drivers/clk/at91/sama7g5.c
-+++ b/drivers/clk/at91/sama7g5.c
-@@ -982,16 +982,7 @@ static void __init sama7g5_pmc_setup(struct device_node *np)
- 	}
+diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
+index 85082574c5154..62e11835f220e 100644
+--- a/crypto/pcrypt.c
++++ b/crypto/pcrypt.c
+@@ -138,12 +138,14 @@ static void pcrypt_aead_enc(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
  
- 	parent_names[0] = "cpupll_divpmcck";
--	hw = at91_clk_register_master_pres(regmap, "cpuck", 1, parent_names,
--					   &mck0_layout, &mck0_characteristics,
--					   &pmc_mck0_lock,
--					   CLK_SET_RATE_PARENT, 0);
--	if (IS_ERR(hw))
--		goto err_free;
--
--	sama7g5_pmc->chws[PMC_CPU] = hw;
--
--	hw = at91_clk_register_master_div(regmap, "mck0", "cpuck",
-+	hw = at91_clk_register_master_div(regmap, "mck0", "cpupll_divpmcck",
- 					  &mck0_layout, &mck0_characteristics,
- 					  &pmc_mck0_lock, 0);
- 	if (IS_ERR(hw))
+-	padata->info = crypto_aead_encrypt(req);
++	ret = crypto_aead_encrypt(req);
+ 
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
+ 
++	padata->info = ret;
+ 	padata_do_serial(padata);
+ }
+ 
+@@ -180,12 +182,14 @@ static void pcrypt_aead_dec(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
+ 
+-	padata->info = crypto_aead_decrypt(req);
++	ret = crypto_aead_decrypt(req);
+ 
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
+ 
++	padata->info = ret;
+ 	padata_do_serial(padata);
+ }
+ 
 -- 
 2.33.0
 
