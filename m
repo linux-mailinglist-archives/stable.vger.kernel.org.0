@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD5845C001
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50B1D45BAD4
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343905AbhKXNED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:04:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41104 "EHLO mail.kernel.org"
+        id S243022AbhKXMOw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:14:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245592AbhKXNCV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:02:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B55160295;
-        Wed, 24 Nov 2021 12:35:35 +0000 (UTC)
+        id S243428AbhKXMOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:14:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D43C60232;
+        Wed, 24 Nov 2021 12:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757336;
-        bh=8oDn/mKKwZW39jfc27elu3K7XvGSEnv0UEF+EV8qVY0=;
+        s=korg; t=1637755728;
+        bh=BkKXLQNYfTkx2I0te5W41J5T9C5in+TRlC6OyCZ4Dn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RciA82v5WeAARf6dOoxqqkKYIrzK1m+3asuiEULfsERKpxwCu70SFxTy7kbGZda5j
-         yJQ/i4dueP6gSY7R7n6OOCKx4vGLsTQyseGxKm56h3vU0y1eOjWOZd3J77HZtbWRbu
-         4apFo5jA7kJwSo3eU7tUCRlNS9RrIZ13PtABvIWc=
+        b=jy6nZ7ZJAj0R2Wok8L5G6Q1TlSYrrOutFOaJ63kD4jOUzdfDhk8WpHU2rWzKxqktz
+         OFhKky7xCFxf7xlxuXQS0HJKav26fA6zEY9shC4Yhdt/z8lcoVt3Wxi+IIUrL3Ng4l
+         /H8wfoBmloMrrCmru+jdjHbF7/joVw25lDhHeAVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 117/323] smackfs: use __GFP_NOFAIL for smk_cipso_doi()
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 036/207] rtl8187: fix control-message timeouts
 Date:   Wed, 24 Nov 2021 12:55:07 +0100
-Message-Id: <20211124115722.900861919@linuxfoundation.org>
+Message-Id: <20211124115705.111417303@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +39,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit f91488ee15bd3cac467e2d6a361fc2d34d1052ae ]
+commit 2e9be536a213e838daed6ba42024dd68954ac061 upstream.
 
-syzbot is reporting kernel panic at smk_cipso_doi() due to memory
-allocation fault injection [1]. The reason for need to use panic() was
-not explained. But since no fix was proposed for 18 months, for now
-let's use __GFP_NOFAIL for utilizing syzbot resource on other bugs.
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-Link: https://syzkaller.appspot.com/bug?extid=89731ccb6fec15ce1c22 [1]
-Reported-by: syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 605bebe23bf6 ("[PATCH] Add rtl8187 wireless driver")
+Cc: stable@vger.kernel.org      # 2.6.23
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211025120522.6045-4-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/smack/smackfs.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index 25705a72d31bc..9fdf404a318f9 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -721,9 +721,7 @@ static void smk_cipso_doi(void)
- 		printk(KERN_WARNING "%s:%d remove rc = %d\n",
- 		       __func__, __LINE__, rc);
+--- a/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c
++++ b/drivers/net/wireless/realtek/rtl818x/rtl8187/rtl8225.c
+@@ -31,7 +31,7 @@ u8 rtl818x_ioread8_idx(struct rtl8187_pr
+ 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits8, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits8, sizeof(val), 500);
  
--	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL);
--	if (doip == NULL)
--		panic("smack:  Failed to initialize cipso DOI.\n");
-+	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL | __GFP_NOFAIL);
- 	doip->map.std = NULL;
- 	doip->doi = smk_cipso_doi_value;
- 	doip->type = CIPSO_V4_MAP_PASS;
--- 
-2.33.0
-
+ 	val = priv->io_dmabuf->bits8;
+ 	mutex_unlock(&priv->io_mutex);
+@@ -48,7 +48,7 @@ u16 rtl818x_ioread16_idx(struct rtl8187_
+ 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits16, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits16, sizeof(val), 500);
+ 
+ 	val = priv->io_dmabuf->bits16;
+ 	mutex_unlock(&priv->io_mutex);
+@@ -65,7 +65,7 @@ u32 rtl818x_ioread32_idx(struct rtl8187_
+ 	usb_control_msg(priv->udev, usb_rcvctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_GET_REG, RTL8187_REQT_READ,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits32, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits32, sizeof(val), 500);
+ 
+ 	val = priv->io_dmabuf->bits32;
+ 	mutex_unlock(&priv->io_mutex);
+@@ -82,7 +82,7 @@ void rtl818x_iowrite8_idx(struct rtl8187
+ 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits8, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits8, sizeof(val), 500);
+ 
+ 	mutex_unlock(&priv->io_mutex);
+ }
+@@ -96,7 +96,7 @@ void rtl818x_iowrite16_idx(struct rtl818
+ 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits16, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits16, sizeof(val), 500);
+ 
+ 	mutex_unlock(&priv->io_mutex);
+ }
+@@ -110,7 +110,7 @@ void rtl818x_iowrite32_idx(struct rtl818
+ 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
+ 			(unsigned long)addr, idx & 0x03,
+-			&priv->io_dmabuf->bits32, sizeof(val), HZ / 2);
++			&priv->io_dmabuf->bits32, sizeof(val), 500);
+ 
+ 	mutex_unlock(&priv->io_mutex);
+ }
+@@ -186,7 +186,7 @@ static void rtl8225_write_8051(struct ie
+ 	usb_control_msg(priv->udev, usb_sndctrlpipe(priv->udev, 0),
+ 			RTL8187_REQ_SET_REG, RTL8187_REQT_WRITE,
+ 			addr, 0x8225, &priv->io_dmabuf->bits16, sizeof(data),
+-			HZ / 2);
++			500);
+ 
+ 	mutex_unlock(&priv->io_mutex);
+ 
 
 
