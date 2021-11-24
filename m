@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F416845C5BF
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C101B45C0FF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353621AbhKXOAg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:00:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S1346085AbhKXNOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:14:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355582AbhKXN6e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:58:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A52B7613CF;
-        Wed, 24 Nov 2021 13:08:05 +0000 (UTC)
+        id S1343512AbhKXNLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:11:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5450C613D5;
+        Wed, 24 Nov 2021 12:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759286;
-        bh=f5fuJGsSfGXTcz1n1/xjwWKKfLePmyQrpapm88voYFQ=;
+        s=korg; t=1637757727;
+        bh=eK36jgu27/MC9jk/GRb2732biIOJb6QUwZd33yza+BM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GnrlkNbBkwkhIm+I+58eByx105ml+I1lyc4qQhXq8y7y0MKgikwQiZ49VbEyDMAO7
-         t4QIXbe1piQVb9VDvtrMnzPbeDfwLwE2up44f3z0+9v5yK99NFdwVi+hXPqNOq+lao
-         jCzuQaIxU/dNjoq8jbGAh2HFL1Ul8RO6aiecROog=
+        b=SSaYTKDoH6q1h60g7HBCe31FfDWFhTPbW2fI3ooL3CWFOo82xoy5c6AO4OLTECkqY
+         4glZTv0Ziu0McRAjXxvAnIPiaB1K2NhPfVl1O8R+okOZJgFzY34GVBOySXRcPy9CoD
+         vHXpHVAIKYVdz8EUwuJBJWXLw65ko2reeIZp04yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 158/279] net: dpaa2-eth: fix use-after-free in dpaa2_eth_remove
-Date:   Wed, 24 Nov 2021 12:57:25 +0100
-Message-Id: <20211124115724.221509683@linuxfoundation.org>
+        stable@vger.kernel.org, Rui Salvaterra <rsalvaterra@gmail.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bjorn Helgaas <helgaas@kernel.org>
+Subject: [PATCH 4.19 256/323] PCI: Add MSI masking quirk for Nvidia ION AHCI
+Date:   Wed, 24 Nov 2021 12:57:26 +0100
+Message-Id: <20211124115727.537972219@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 9b5a333272a48c2f8b30add7a874e46e8b26129c ]
+commit f21082fb20dbfb3e42b769b59ef21c2a7f2c7c1f upstream.
 
-Access to netdev after free_netdev() will cause use-after-free bug.
-Move debug log before free_netdev() call to avoid it.
+The ION AHCI device pretends that MSI masking isn't a thing, while it
+actually implements it and needs MSIs to be unmasked to work. Add a quirk
+to that effect.
 
-Fixes: 7472dd9f6499 ("staging: fsl-dpaa2/eth: Move print message")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Bjorn Helgaas <helgaas@kernel.org>
+Link: https://lore.kernel.org/r/CALjTZvbzYfBuLB+H=fj2J+9=DxjQ2Uqcy0if_PvmJ-nU-qEgkg@mail.gmail.com
+Link: https://lore.kernel.org/r/20211104180130.3825416-3-maz@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/quirks.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-index 7065c71ed7b86..f3e443f2d9cf9 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-@@ -4538,10 +4538,10 @@ static int dpaa2_eth_remove(struct fsl_mc_device *ls_dev)
- 
- 	fsl_mc_portal_free(priv->mc_io);
- 
--	free_netdev(net_dev);
--
- 	dev_dbg(net_dev->dev.parent, "Removed interface %s\n", net_dev->name);
- 
-+	free_netdev(net_dev);
-+
- 	return 0;
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -5579,3 +5579,9 @@ static void apex_pci_fixup_class(struct
  }
- 
--- 
-2.33.0
-
+ DECLARE_PCI_FIXUP_CLASS_HEADER(0x1ac1, 0x089a,
+ 			       PCI_CLASS_NOT_DEFINED, 8, apex_pci_fixup_class);
++
++static void nvidia_ion_ahci_fixup(struct pci_dev *pdev)
++{
++	pdev->dev_flags |= PCI_DEV_FLAGS_HAS_MSI_MASKING;
++}
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0ab8, nvidia_ion_ahci_fixup);
 
 
