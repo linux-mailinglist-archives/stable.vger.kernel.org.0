@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A68F845BD11
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:32:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71CB945BFDD
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:59:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343864AbhKXMfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:35:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48576 "EHLO mail.kernel.org"
+        id S1346858AbhKXNCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:02:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245183AbhKXMbW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:31:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1C396136F;
-        Wed, 24 Nov 2021 12:19:31 +0000 (UTC)
+        id S1346729AbhKXNAU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:00:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FD6C61994;
+        Wed, 24 Nov 2021 12:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756372;
-        bh=2Fsm3nztAYtX6C8ybsZoeJWKl/AV67cfZiLxQEht6OY=;
+        s=korg; t=1637757277;
+        bh=waUEVPSGfJRBfWFGwg0r+PuB888Sd927N4WVE8A0yd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1QLrXvS3scOB1qiiR0Lnkgqk5kyF0rANSa81/7T8qimqadKYRhB43bf5cAtuU30h
-         7L3nufxBbs0TOx23GJQajHVmNDhQF9zSFFA4EBxlxyak4gQVfhtCNvDSC4TsUWySHT
-         jQb+zW8hyddPwAYnX2qdVE/m8VY+9iXdNa8Vq9ts=
+        b=qnCv7AXyMUDo0ENJYhVpaBr0LE3jh0M/2YluyxduCyhHn1t9GxMtsjIH+ExmIrffs
+         sL45noaL8wmrjVA5lSqzxnQ0E1qYoIpdBUZ42pqgWLI00HCfpcGHOjjrNdDJsx5CGA
+         mirVQ5eUSS843hwnOA2DGF/Kkf0TQjq3kg6IQVQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
-        stable@kernel.org, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.14 062/251] quota: check block number when reading the block in quota file
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 114/323] mwl8k: Fix use-after-free in mwl8k_fw_state_machine()
 Date:   Wed, 24 Nov 2021 12:55:04 +0100
-Message-Id: <20211124115712.401841014@linuxfoundation.org>
+Message-Id: <20211124115722.804852203@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,54 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 9bf3d20331295b1ecb81f4ed9ef358c51699a050 upstream.
+[ Upstream commit 257051a235c17e33782b6e24a4b17f2d7915aaec ]
 
-The block number in the quota tree on disk should be smaller than the
-v2_disk_dqinfo.dqi_blocks. If the quota file was corrupted, we may be
-allocating an 'allocated' block and that would lead to a loop in a tree,
-which will probably trigger oops later. This patch adds a check for the
-block number in the quota tree to prevent such potential issue.
+When the driver fails to request the firmware, it calls its error
+handler. In the error handler, the driver detaches device from driver
+first before releasing the firmware, which can cause a use-after-free bug.
 
-Link: https://lore.kernel.org/r/20211008093821.1001186-2-yi.zhang@huawei.com
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Cc: stable@kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by releasing firmware first.
+
+The following log reveals it:
+
+[    9.007301 ] BUG: KASAN: use-after-free in mwl8k_fw_state_machine+0x320/0xba0
+[    9.010143 ] Workqueue: events request_firmware_work_func
+[    9.010830 ] Call Trace:
+[    9.010830 ]  dump_stack_lvl+0xa8/0xd1
+[    9.010830 ]  print_address_description+0x87/0x3b0
+[    9.010830 ]  kasan_report+0x172/0x1c0
+[    9.010830 ]  ? mutex_unlock+0xd/0x10
+[    9.010830 ]  ? mwl8k_fw_state_machine+0x320/0xba0
+[    9.010830 ]  ? mwl8k_fw_state_machine+0x320/0xba0
+[    9.010830 ]  __asan_report_load8_noabort+0x14/0x20
+[    9.010830 ]  mwl8k_fw_state_machine+0x320/0xba0
+[    9.010830 ]  ? mwl8k_load_firmware+0x5f0/0x5f0
+[    9.010830 ]  request_firmware_work_func+0x172/0x250
+[    9.010830 ]  ? read_lock_is_recursive+0x20/0x20
+[    9.010830 ]  ? process_one_work+0x7a1/0x1100
+[    9.010830 ]  ? request_firmware_nowait+0x460/0x460
+[    9.010830 ]  ? __this_cpu_preempt_check+0x13/0x20
+[    9.010830 ]  process_one_work+0x9bb/0x1100
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1634356979-6211-1-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/quota/quota_tree.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/net/wireless/marvell/mwl8k.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/quota/quota_tree.c
-+++ b/fs/quota/quota_tree.c
-@@ -487,6 +487,13 @@ static int remove_tree(struct qtree_mem_
- 		goto out_buf;
- 	}
- 	newblk = le32_to_cpu(ref[get_index(info, dquot->dq_id, depth)]);
-+	if (newblk < QT_TREEOFF || newblk >= info->dqi_blocks) {
-+		quota_error(dquot->dq_sb, "Getting block too big (%u >= %u)",
-+			    newblk, info->dqi_blocks);
-+		ret = -EUCLEAN;
-+		goto out_buf;
-+	}
-+
- 	if (depth == info->dqi_qtree_depth - 1) {
- 		ret = free_dqentry(info, dquot, newblk);
- 		newblk = 0;
-@@ -586,6 +593,13 @@ static loff_t find_tree_dqentry(struct q
- 	blk = le32_to_cpu(ref[get_index(info, dquot->dq_id, depth)]);
- 	if (!blk)	/* No reference? */
- 		goto out_buf;
-+	if (blk < QT_TREEOFF || blk >= info->dqi_blocks) {
-+		quota_error(dquot->dq_sb, "Getting block too big (%u >= %u)",
-+			    blk, info->dqi_blocks);
-+		ret = -EUCLEAN;
-+		goto out_buf;
-+	}
-+
- 	if (depth < info->dqi_qtree_depth - 1)
- 		ret = find_tree_dqentry(info, dquot, blk, depth+1);
- 	else
+diff --git a/drivers/net/wireless/marvell/mwl8k.c b/drivers/net/wireless/marvell/mwl8k.c
+index 6769b0c5a5cde..ee842797570b7 100644
+--- a/drivers/net/wireless/marvell/mwl8k.c
++++ b/drivers/net/wireless/marvell/mwl8k.c
+@@ -5793,8 +5793,8 @@ static void mwl8k_fw_state_machine(const struct firmware *fw, void *context)
+ fail:
+ 	priv->fw_state = FW_STATE_ERROR;
+ 	complete(&priv->firmware_loading_complete);
+-	device_release_driver(&priv->pdev->dev);
+ 	mwl8k_release_firmware(priv);
++	device_release_driver(&priv->pdev->dev);
+ }
+ 
+ #define MAX_RESTART_ATTEMPTS 1
+-- 
+2.33.0
+
 
 
