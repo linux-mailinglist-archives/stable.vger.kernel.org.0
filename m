@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C3345BEAA
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4356B45BC72
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344111AbhKXMtg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:49:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55372 "EHLO mail.kernel.org"
+        id S244017AbhKXMa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:30:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345348AbhKXMrh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:47:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 971A361261;
-        Wed, 24 Nov 2021 12:27:41 +0000 (UTC)
+        id S245042AbhKXM1i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:27:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 285A461264;
+        Wed, 24 Nov 2021 12:16:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756862;
-        bh=oiXDRBFnIVI7Q5WYRO+2hDorG94JA0o7BAWnSMOLOKw=;
+        s=korg; t=1637756208;
+        bh=vuZZSiMyIgN0Lkk4iQAig51nysQX1as3AXxskDF1Y5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ca806S9vsuZplr0Bur1yhFqWDvBAdS2cE3dm41zhVDW+kGYoZcBGu9kMEvBLgatPT
-         k0tncyzv21NZ6C52exkMwZpDYnJJWNLpidZAfGsowdcRL/kZG9tXuAh5Uoj/zIT0uF
-         QMd8blwIUD11QyhSEDCEmN2UEqsRAofV8NJRYA8s=
+        b=TpMjMRK9Af0wSVeaXcqHyfrN3uZjK25BZqlpimUr6qT2T6u6OBDh5GLVyA0wW7eRH
+         FqDVElYMs/wPomlrvtb6N7YM/ItVccZELYbP+d4M6DZuNPH4CBEB6yAeiZgd0sQFCS
+         mcN9eyA6Yrewd8li1eThkhOmC2moYvUHit56pYMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Antonov <alexander.antonov@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 232/251] perf/x86/intel/uncore: Fix filter_tid mask for CHA events on Skylake Server
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.9 203/207] batman-adv: Reserve needed_*room for fragments
 Date:   Wed, 24 Nov 2021 12:57:54 +0100
-Message-Id: <20211124115718.363509960@linuxfoundation.org>
+Message-Id: <20211124115710.523071677@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +39,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Antonov <alexander.antonov@linux.intel.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit e324234e0aa881b7841c7c713306403e12b069ff ]
+commit c5cbfc87558168ef4c3c27ce36eba6b83391db19 upstream.
 
-According Uncore Reference Manual: any of the CHA events may be filtered
-by Thread/Core-ID by using tid modifier in CHA Filter 0 Register.
-Update skx_cha_hw_config() to follow Uncore Guide.
+The batadv net_device is trying to propagate the needed_headroom and
+needed_tailroom from the lower devices. This is needed to avoid cost
+intensive reallocations using pskb_expand_head during the transmission.
 
-Fixes: cd34cd97b7b4 ("perf/x86/intel/uncore: Add Skylake server uncore support")
-Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20211115090334.3789-2-alexander.antonov@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But the fragmentation code split the skb's without adding extra room at the
+end/beginning of the various fragments. This reduced the performance of
+transmissions over complex scenarios (batadv on vxlan on wireguard) because
+the lower devices had to perform the reallocations at least once.
+
+Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+[ bp: 4.9 backported: adjust context. ]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/batman-adv/fragmentation.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 6b66285c6cede..9cce6d9fec1f4 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -3383,6 +3383,9 @@ static int skx_cha_hw_config(struct intel_uncore_box *box, struct perf_event *ev
- 	struct hw_perf_event_extra *reg1 = &event->hw.extra_reg;
- 	struct extra_reg *er;
- 	int idx = 0;
-+	/* Any of the CHA events may be filtered by Thread/Core-ID.*/
-+	if (event->hw.config & SNBEP_CBO_PMON_CTL_TID_EN)
-+		idx = SKX_CHA_MSR_PMON_BOX_FILTER_TID;
+--- a/net/batman-adv/fragmentation.c
++++ b/net/batman-adv/fragmentation.c
+@@ -394,6 +394,7 @@ out:
  
- 	for (er = skx_uncore_cha_extra_regs; er->msr; er++) {
- 		if (er->event != (event->hw.config & er->config_mask))
--- 
-2.33.0
-
+ /**
+  * batadv_frag_create - create a fragment from skb
++ * @net_dev: outgoing device for fragment
+  * @skb: skb to create fragment from
+  * @frag_head: header to use in new fragment
+  * @fragment_size: size of new fragment
+@@ -404,22 +405,25 @@ out:
+  *
+  * Return: the new fragment, NULL on error.
+  */
+-static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
++static struct sk_buff *batadv_frag_create(struct net_device *net_dev,
++					  struct sk_buff *skb,
+ 					  struct batadv_frag_packet *frag_head,
+ 					  unsigned int fragment_size)
+ {
++	unsigned int ll_reserved = LL_RESERVED_SPACE(net_dev);
++	unsigned int tailroom = net_dev->needed_tailroom;
+ 	struct sk_buff *skb_fragment;
+ 	unsigned int header_size = sizeof(*frag_head);
+ 	unsigned int mtu = fragment_size + header_size;
+ 
+-	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
++	skb_fragment = dev_alloc_skb(ll_reserved + mtu + tailroom);
+ 	if (!skb_fragment)
+ 		goto err;
+ 
+ 	skb_fragment->priority = skb->priority;
+ 
+ 	/* Eat the last mtu-bytes of the skb */
+-	skb_reserve(skb_fragment, header_size + ETH_HLEN);
++	skb_reserve(skb_fragment, ll_reserved + header_size);
+ 	skb_split(skb, skb_fragment, skb->len - fragment_size);
+ 
+ 	/* Add the header */
+@@ -443,11 +447,12 @@ int batadv_frag_send_packet(struct sk_bu
+ 			    struct batadv_orig_node *orig_node,
+ 			    struct batadv_neigh_node *neigh_node)
+ {
++	struct net_device *net_dev = neigh_node->if_incoming->net_dev;
+ 	struct batadv_priv *bat_priv;
+ 	struct batadv_hard_iface *primary_if = NULL;
+ 	struct batadv_frag_packet frag_header;
+ 	struct sk_buff *skb_fragment;
+-	unsigned int mtu = neigh_node->if_incoming->net_dev->mtu;
++	unsigned int mtu = net_dev->mtu;
+ 	unsigned int header_size = sizeof(frag_header);
+ 	unsigned int max_fragment_size, num_fragments;
+ 	int ret = -1;
+@@ -503,7 +508,7 @@ int batadv_frag_send_packet(struct sk_bu
+ 			goto out;
+ 		}
+ 
+-		skb_fragment = batadv_frag_create(skb, &frag_header,
++		skb_fragment = batadv_frag_create(net_dev, skb, &frag_header,
+ 						  max_fragment_size);
+ 		if (!skb_fragment)
+ 			goto out;
 
 
