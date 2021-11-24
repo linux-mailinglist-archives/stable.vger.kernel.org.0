@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B23745C2BD
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:29:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F03B45C2B9
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:29:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347802AbhKXNcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:32:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51680 "EHLO mail.kernel.org"
+        id S1346937AbhKXNcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:32:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351036AbhKXN3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1351038AbhKXN3m (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 08:29:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1A7561BA9;
-        Wed, 24 Nov 2021 12:51:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8EDF61BB2;
+        Wed, 24 Nov 2021 12:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758298;
-        bh=TIJ+vD1aPoa35CzXFWMlwjwUNUfZNddnOajKeY74Lao=;
+        s=korg; t=1637758301;
+        bh=oG/uIkjLf5CEuRpeIfPLBoyhAMHDQ+aFP2cDf3DGI9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zYu5MtIPtVbE5lDxcft+/TgwRtCsb8fbKJ6HTT7XtAbwE29DYftFuOx5tLbR875sy
-         lbg5WmEQIWm5B2q3fc8NQ3w1umobnvJVV4CTUzLAXy1VrLUii4KPiGlSITcUZ4nMPJ
-         +t/HZeW9nGPnBRLKY0uat1C0DboBb8fpyp7H9BKE=
+        b=BDp/PiEL/6/DQpwfy+qqvmDPKmXBm5FsBEVDvyq9LR6K2t28Hqtnz6065+W4EFqfu
+         Sgrw7kvjMplSzBnMM6mVurF5rGqvjyIZZ2WSTSJkjkPyIFND/7GOpm0s3dbIXE3mum
+         Auol45UGp5aA+Kj8KPFHuPLv2HWJguiRy48B/xPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 023/154] ASoC: SOF: Intel: hda-dai: fix potential locking issue
-Date:   Wed, 24 Nov 2021 12:56:59 +0100
-Message-Id: <20211124115703.117927919@linuxfoundation.org>
+        Stefan Riedmueller <s.riedmueller@phytec.de>,
+        Abel Vesa <abel.vesa@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 024/154] clk: imx: imx6ul: Move csi_sel mux to correct base register
+Date:   Wed, 24 Nov 2021 12:57:00 +0100
+Message-Id: <20211124115703.148790021@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
 References: <20211124115702.361983534@linuxfoundation.org>
@@ -41,51 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Stefan Riedmueller <s.riedmueller@phytec.de>
 
-[ Upstream commit a20f3b10de61add5e14b6ce4df982f4df2a4cbbc ]
+[ Upstream commit 2f9d61869640f732599ec36b984c2b5c46067519 ]
 
-The initial hdac_stream code was adapted a third time with the same
-locking issues. Move the spin_lock outside the loops and make sure the
-fields are protected on read/write.
+The csi_sel mux register is located in the CCM register base and not the
+CCM_ANALOG register base. So move it to the correct position in code.
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Acked-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210924192417.169243-5-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Otherwise changing the parent of the csi clock can lead to a complete
+system failure due to the CCM_ANALOG_PLL_SYS_TOG register being falsely
+modified.
+
+Also remove the SET_RATE_PARENT flag since one possible supply for the
+csi_sel mux is the system PLL which we don't want to modify.
+
+Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
+Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
+Link: https://lore.kernel.org/r/20210927072857.3940880-1-s.riedmueller@phytec.de
+Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda-dai.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/clk/imx/clk-imx6ul.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/intel/hda-dai.c b/sound/soc/sof/intel/hda-dai.c
-index c6cb8c212eca5..ef316311e959a 100644
---- a/sound/soc/sof/intel/hda-dai.c
-+++ b/sound/soc/sof/intel/hda-dai.c
-@@ -68,6 +68,7 @@ static struct hdac_ext_stream *
- 		return NULL;
- 	}
+diff --git a/drivers/clk/imx/clk-imx6ul.c b/drivers/clk/imx/clk-imx6ul.c
+index 5dbb6a9377324..206e4c43f68f8 100644
+--- a/drivers/clk/imx/clk-imx6ul.c
++++ b/drivers/clk/imx/clk-imx6ul.c
+@@ -161,7 +161,6 @@ static void __init imx6ul_clocks_init(struct device_node *ccm_node)
+ 	hws[IMX6UL_PLL5_BYPASS] = imx_clk_hw_mux_flags("pll5_bypass", base + 0xa0, 16, 1, pll5_bypass_sels, ARRAY_SIZE(pll5_bypass_sels), CLK_SET_RATE_PARENT);
+ 	hws[IMX6UL_PLL6_BYPASS] = imx_clk_hw_mux_flags("pll6_bypass", base + 0xe0, 16, 1, pll6_bypass_sels, ARRAY_SIZE(pll6_bypass_sels), CLK_SET_RATE_PARENT);
+ 	hws[IMX6UL_PLL7_BYPASS] = imx_clk_hw_mux_flags("pll7_bypass", base + 0x20, 16, 1, pll7_bypass_sels, ARRAY_SIZE(pll7_bypass_sels), CLK_SET_RATE_PARENT);
+-	hws[IMX6UL_CLK_CSI_SEL] = imx_clk_hw_mux_flags("csi_sel", base + 0x3c, 9, 2, csi_sels, ARRAY_SIZE(csi_sels), CLK_SET_RATE_PARENT);
  
-+	spin_lock_irq(&bus->reg_lock);
- 	list_for_each_entry(stream, &bus->stream_list, list) {
- 		struct hdac_ext_stream *hstream =
- 			stream_to_hdac_ext_stream(stream);
-@@ -107,12 +108,12 @@ static struct hdac_ext_stream *
- 		 * is updated in snd_hdac_ext_stream_decouple().
- 		 */
- 		if (!res->decoupled)
--			snd_hdac_ext_stream_decouple(bus, res, true);
--		spin_lock_irq(&bus->reg_lock);
-+			snd_hdac_ext_stream_decouple_locked(bus, res, true);
-+
- 		res->link_locked = 1;
- 		res->link_substream = substream;
--		spin_unlock_irq(&bus->reg_lock);
- 	}
-+	spin_unlock_irq(&bus->reg_lock);
+ 	/* Do not bypass PLLs initially */
+ 	clk_set_parent(hws[IMX6UL_PLL1_BYPASS]->clk, hws[IMX6UL_CLK_PLL1]->clk);
+@@ -270,6 +269,7 @@ static void __init imx6ul_clocks_init(struct device_node *ccm_node)
+ 	hws[IMX6UL_CLK_ECSPI_SEL]	  = imx_clk_hw_mux("ecspi_sel",	base + 0x38, 18, 1, ecspi_sels, ARRAY_SIZE(ecspi_sels));
+ 	hws[IMX6UL_CLK_LCDIF_PRE_SEL]	  = imx_clk_hw_mux_flags("lcdif_pre_sel", base + 0x38, 15, 3, lcdif_pre_sels, ARRAY_SIZE(lcdif_pre_sels), CLK_SET_RATE_PARENT);
+ 	hws[IMX6UL_CLK_LCDIF_SEL]	  = imx_clk_hw_mux("lcdif_sel",	base + 0x38, 9, 3, lcdif_sels, ARRAY_SIZE(lcdif_sels));
++	hws[IMX6UL_CLK_CSI_SEL]		  = imx_clk_hw_mux("csi_sel", base + 0x3c, 9, 2, csi_sels, ARRAY_SIZE(csi_sels));
  
- 	return res;
- }
+ 	hws[IMX6UL_CLK_LDB_DI0_DIV_SEL]  = imx_clk_hw_mux("ldb_di0", base + 0x20, 10, 1, ldb_di0_div_sels, ARRAY_SIZE(ldb_di0_div_sels));
+ 	hws[IMX6UL_CLK_LDB_DI1_DIV_SEL]  = imx_clk_hw_mux("ldb_di1", base + 0x20, 11, 1, ldb_di1_div_sels, ARRAY_SIZE(ldb_di1_div_sels));
 -- 
 2.33.0
 
