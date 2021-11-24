@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9264B45BEAD
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE79045BC6D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243968AbhKXMti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:49:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53242 "EHLO mail.kernel.org"
+        id S243770AbhKXMav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:30:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345387AbhKXMrj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:47:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93D7661268;
-        Wed, 24 Nov 2021 12:27:44 +0000 (UTC)
+        id S245064AbhKXM1i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:27:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B46FD61139;
+        Wed, 24 Nov 2021 12:16:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756865;
-        bh=URa0K+KCJM1LCCQSFou5R6A5wDbXfaMI6as2zgKG9Ug=;
+        s=korg; t=1637756211;
+        bh=bb6AUboTC2rVNQ51cRQTH1WCp7jbJ0x+7dtIjRf4ihY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oFNA+znPETq6MGIDFA5P/cti8jVUW9NAlcA304Egnw5A/9adUa2xiGUbMUNnk5D1c
-         UURYyWzqpvqlYI1MmJQp9VjoZnVBl3BA/FBwOsz36c+z3tpo/iBQYJVf00BpnR3tIq
-         AhNWu8U0gLMr/XTuAwUni1zUDKVk0nbIWxOsGFkk=
+        b=UNyOCt66Zkkf+iK8IoM147Fvg0zF/13Z9dEXx31+XMKa+bIMrhWNg3+f+qUK/BhMw
+         ldyGaZBTJW2qgkASyQ1u0WGXlHcF13Ns8kSbjPVsjRNWzF2QRBQFl0Yp0vj9/jriSp
+         PvRKXPGEoxbC+EPxHsevyUWS6/E1TuiGsUkfLPZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Antonov <alexander.antonov@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 233/251] perf/x86/intel/uncore: Fix IIO event constraints for Skylake Server
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.9 204/207] batman-adv: Dont always reallocate the fragmentation skb head
 Date:   Wed, 24 Nov 2021 12:57:55 +0100
-Message-Id: <20211124115718.398239941@linuxfoundation.org>
+Message-Id: <20211124115710.554706623@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Antonov <alexander.antonov@linux.intel.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 3866ae319c846a612109c008f43cba80b8c15e86 ]
+commit 992b03b88e36254e26e9a4977ab948683e21bd9f upstream.
 
-According to the latest uncore document, COMP_BUF_OCCUPANCY (0xd5) event
-can be collected on 2-3 counters. Update uncore IIO event constraints for
-Skylake Server.
+When a packet is fragmented by batman-adv, the original batman-adv header
+is not modified. Only a new fragmentation is inserted between the original
+one and the ethernet header. The code must therefore make sure that it has
+a writable region of this size in the skbuff head.
 
-Fixes: cd34cd97b7b4 ("perf/x86/intel/uncore: Add Skylake server uncore support")
-Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20211115090334.3789-3-alexander.antonov@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But it is not useful to always reallocate the skbuff by this size even when
+there would be more than enough headroom still in the skb. The reallocation
+is just to costly during in this codepath.
+
+Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+[ bp: 4.9 backported: adjust context. ]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/batman-adv/fragmentation.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 9cce6d9fec1f4..b039d416fef34 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -3453,6 +3453,7 @@ static struct event_constraint skx_uncore_iio_constraints[] = {
- 	UNCORE_EVENT_CONSTRAINT(0xc0, 0xc),
- 	UNCORE_EVENT_CONSTRAINT(0xc5, 0xc),
- 	UNCORE_EVENT_CONSTRAINT(0xd4, 0xc),
-+	UNCORE_EVENT_CONSTRAINT(0xd5, 0xc),
- 	EVENT_CONSTRAINT_END
- };
+--- a/net/batman-adv/fragmentation.c
++++ b/net/batman-adv/fragmentation.c
+@@ -528,11 +528,14 @@ int batadv_frag_send_packet(struct sk_bu
+ 		frag_header.no++;
+ 	}
  
--- 
-2.33.0
-
+-	/* Make room for the fragment header. */
+-	if (batadv_skb_head_push(skb, header_size) < 0 ||
+-	    pskb_expand_head(skb, header_size + ETH_HLEN, 0, GFP_ATOMIC) < 0)
++	/* make sure that there is at least enough head for the fragmentation
++	 * and ethernet headers
++	 */
++	ret = skb_cow_head(skb, ETH_HLEN + header_size);
++	if (ret < 0)
+ 		goto out;
+ 
++	skb_push(skb, header_size);
+ 	memcpy(skb->data, &frag_header, header_size);
+ 
+ 	/* Send the last fragment */
 
 
