@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8833F45BF6F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:55:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3890A45BC78
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345830AbhKXM6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:58:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60464 "EHLO mail.kernel.org"
+        id S243749AbhKXMbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345918AbhKXM4M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:56:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 756EF611C1;
-        Wed, 24 Nov 2021 12:32:15 +0000 (UTC)
+        id S245733AbhKXM3D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:29:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B16C36121F;
+        Wed, 24 Nov 2021 12:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757136;
-        bh=ORdil0lSCH5niHK5ARiMh6xV9T34JDvnkZDM1a6Q37c=;
+        s=korg; t=1637756246;
+        bh=jLNXBEAczsMj4zibSEOGiTLeHDPtviyawv+fVjtRHRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUMPRezWTCigbEAkVoOk8cBYJAyMk3pIuNxAb/nWWVufUgjzOH3QS1BIfMcGX8gTr
-         s1B1fZBgxtDlZAeCe1xD/gMSubSHBzSNTTXTNc0PaL5XeRLcvhXkkffxzMqJp6T6mz
-         wVVY9DlQvcTK7XVMAow4za0HzR0ZzWryhxUN4qgw=
+        b=D9a8F+2sSEFTjIqVI/KLTGEGi7XBG3/WCS/PIofzpdHAPCYD41u8GMRLOYBiXzaDw
+         KSvMsrNuyhrMTb3w4VthPyA1s8kjgfjODZJEqM5aKRLpsOa6zWCG3m/aLD7qKc3y/H
+         nih9xd/xbD8pQ84tcvIftuxBlV1/Giw8e3NBOP9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ace149a75a9a0a399ac7@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 070/323] ALSA: mixer: fix deadlock in snd_mixer_oss_set_volume
-Date:   Wed, 24 Nov 2021 12:54:20 +0100
-Message-Id: <20211124115721.226360832@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 019/251] x86/irq: Ensure PI wakeup handler is unregistered before module unload
+Date:   Wed, 24 Nov 2021 12:54:21 +0100
+Message-Id: <20211124115710.901610222@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 3ab7992018455ac63c33e9b3eaa7264e293e40f4 upstream.
+commit 6ff53f6a438f72998f56e82e76694a1df9d1ea2c upstream.
 
-In commit 411cef6adfb3 ("ALSA: mixer: oss: Fix racy access to slots")
-added mutex protection in snd_mixer_oss_set_volume(). Second
-mutex_lock() in same function looks like typo, fix it.
+Add a synchronize_rcu() after clearing the posted interrupt wakeup handler
+to ensure all readers, i.e. in-flight IRQ handlers, see the new handler
+before returning to the caller.  If the caller is an exiting module and
+is unregistering its handler, failure to wait could result in the IRQ
+handler jumping into an unloaded module.
 
-Reported-by: syzbot+ace149a75a9a0a399ac7@syzkaller.appspotmail.com
-Fixes: 411cef6adfb3 ("ALSA: mixer: oss: Fix racy access to slots")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20211024140315.16704-1-paskripkin@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The registration path doesn't require synchronization, as it's the
+caller's responsibility to not generate interrupts it cares about until
+after its handler is registered.
+
+Fixes: f6b3c72c2366 ("x86/irq: Define a global vector for VT-d Posted-Interrupts")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211009001107.3936588-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/oss/mixer_oss.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/irq.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/core/oss/mixer_oss.c
-+++ b/sound/core/oss/mixer_oss.c
-@@ -328,7 +328,7 @@ static int snd_mixer_oss_set_volume(stru
- 	pslot->volume[1] = right;
- 	result = (left & 0xff) | ((right & 0xff) << 8);
-  unlock:
--	mutex_lock(&mixer->reg_mutex);
-+	mutex_unlock(&mixer->reg_mutex);
- 	return result;
+--- a/arch/x86/kernel/irq.c
++++ b/arch/x86/kernel/irq.c
+@@ -274,8 +274,10 @@ void kvm_set_posted_intr_wakeup_handler(
+ {
+ 	if (handler)
+ 		kvm_posted_intr_wakeup_handler = handler;
+-	else
++	else {
+ 		kvm_posted_intr_wakeup_handler = dummy_handler;
++		synchronize_rcu();
++	}
  }
+ EXPORT_SYMBOL_GPL(kvm_set_posted_intr_wakeup_handler);
  
 
 
