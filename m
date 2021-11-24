@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C360945B9A4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:01:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 665DD45C011
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241913AbhKXMDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:03:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58666 "EHLO mail.kernel.org"
+        id S1345486AbhKXNEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:04:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241931AbhKXMDj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:03:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03D6660FDC;
-        Wed, 24 Nov 2021 12:00:28 +0000 (UTC)
+        id S1347784AbhKXNDS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:03:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 153A2619F9;
+        Wed, 24 Nov 2021 12:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755229;
-        bh=UoNthp+EN8gZcHIHGlsINQw8jw4EcFrnLFOeUNraEK0=;
+        s=korg; t=1637757370;
+        bh=n1IioQQzOH0POz7eaWR7ENdja0fn4A3UEsNKmpHT5UQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cC1TcXNCqv4ETlvJKM4IbYmFFfkmf0blmSAxoIgFqFpNM/J/1/xTce9URmw2vSPkf
-         6Lqik051HlRqelIBIVAUnTONUU7M8aZN5FNibVHm2kx0eeMYyE/ziHnYyzOW5J3q5w
-         FanfJlq052sBg9NyuRiwk4YGHiHn7UqvkP9njwrc=
+        b=xJBfPTkQP5ya7OiXu7dJdQuHKglRqE/qc2nQbqJa6xVR4tGXkNAzN2OP6lc/VJ5Bn
+         bCPbOhH9Hyc2tW7qNlAfE7Q4jcAy6lmrdckual3N1U4p+gnWNUWiIPvsjyd9kx+Esd
+         H90pbEov8ypkKH6EwS577SF5amUnSLiuFzWUe3Wg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Gompa <ngompa13@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.4 005/162] Input: i8042 - Add quirk for Fujitsu Lifebook T725
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 118/323] ARM: clang: Do not rely on lr register for stacktrace
 Date:   Wed, 24 Nov 2021 12:55:08 +0100
-Message-Id: <20211124115658.505872730@linuxfoundation.org>
+Message-Id: <20211124115722.931188595@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 16e28abb7290c4ca3b3a0f333ba067f34bb18c86 upstream.
+[ Upstream commit b3ea5d56f212ad81328c82454829a736197ebccc ]
 
-Fujitsu Lifebook T725 laptop requires, like a few other similar
-models, the nomux and notimeout options to probe the touchpad
-properly.  This patch adds the corresponding quirk entries.
+Currently the stacktrace on clang compiled arm kernel uses the 'lr'
+register to find the first frame address from pt_regs. However, that
+is wrong after calling another function, because the 'lr' register
+is used by 'bl' instruction and never be recovered.
 
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1191980
-Tested-by: Neal Gompa <ngompa13@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211103070019.13374-1-tiwai@suse.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+As same as gcc arm kernel, directly use the frame pointer (r11) of
+the pt_regs to find the first frame address.
+
+Note that this fixes kretprobe stacktrace issue only with
+CONFIG_UNWINDER_FRAME_POINTER=y. For the CONFIG_UNWINDER_ARM,
+we need another fix.
+
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/arm/kernel/stacktrace.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -277,6 +277,13 @@ static const struct dmi_system_id __init
- 		},
- 	},
- 	{
-+		/* Fujitsu Lifebook T725 laptop */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
-+		},
-+	},
-+	{
- 		/* Fujitsu Lifebook U745 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-@@ -917,6 +924,13 @@ static const struct dmi_system_id __init
- 		},
- 	},
- 	{
-+		/* Fujitsu Lifebook T725 laptop */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK T725"),
-+		},
-+	},
-+	{
- 		/* Fujitsu U574 laptop */
- 		/* https://bugzilla.kernel.org/show_bug.cgi?id=69731 */
- 		.matches = {
+diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
+index d23ab9ec130a3..a452b859f485f 100644
+--- a/arch/arm/kernel/stacktrace.c
++++ b/arch/arm/kernel/stacktrace.c
+@@ -53,8 +53,7 @@ int notrace unwind_frame(struct stackframe *frame)
+ 
+ 	frame->sp = frame->fp;
+ 	frame->fp = *(unsigned long *)(fp);
+-	frame->pc = frame->lr;
+-	frame->lr = *(unsigned long *)(fp + 4);
++	frame->pc = *(unsigned long *)(fp + 4);
+ #else
+ 	/* check current frame pointer is within bounds */
+ 	if (fp < low + 12 || fp > high - 4)
+-- 
+2.33.0
+
 
 
