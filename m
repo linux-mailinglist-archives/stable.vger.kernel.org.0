@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5565245BD93
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:36:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53E9045B9F3
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244338AbhKXMjb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:39:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35696 "EHLO mail.kernel.org"
+        id S242110AbhKXMG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:06:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245738AbhKXMhY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:37:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E1EF6108B;
-        Wed, 24 Nov 2021 12:22:35 +0000 (UTC)
+        id S231546AbhKXMFn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:05:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3929161052;
+        Wed, 24 Nov 2021 12:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756556;
-        bh=z1+vj2GcIKcD5oZ7Avk2TZlIDYuHN3SmekVQ3TWPHJA=;
+        s=korg; t=1637755353;
+        bh=2g6uoVwI8XWT0DCm0+zBjkaYZ7m+41pw/tE2yKLiexM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x3fgzYjjVUIQyD0tUzc08BrtB412OTQV/1FqYf1tqP30gHaSRM4YNP2D0DRDhwGiF
-         h10fEYdDCR6rtITkmmMyqBts1nfXLcR8hm4arcn++e7ok9DcfNrdSNgi4lxmrMT8e4
-         UeMZ15+CE5LgtN7ojABM5UN2llYiz6hahVXet7Y0=
+        b=zHV5EP4ObmrkPmbi14q4rXMZ1P3rysnX4HVXQw5Q5qBYNEUGYyI9SNtjmLdZLEar9
+         iLjAuFNgVn0jLhatg1qknRbJEAAk1rOkTAPqy0mn6o1PpDfNiGnkEhcpMhr8IlAlKm
+         9F4AYKelTX+15daDLs9JGoJXp6d2R6wbOhj2egmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 126/251] mwifiex: Send DELBA requests according to spec
+Subject: [PATCH 4.4 065/162] iwlwifi: mvm: disable RX-diversity in powersave
 Date:   Wed, 24 Nov 2021 12:56:08 +0100
-Message-Id: <20211124115714.627106119@linuxfoundation.org>
+Message-Id: <20211124115700.434171466@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Dreßler <verdre@v0yd.nl>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit cc8a8bc37466f79b24d972555237f3d591150602 ]
+[ Upstream commit e5322b9ab5f63536c41301150b7ce64605ce52cc ]
 
-While looking at on-air packets using Wireshark, I noticed we're never
-setting the initiator bit when sending DELBA requests to the AP: While
-we set the bit on our del_ba_param_set bitmask, we forget to actually
-copy that bitmask over to the command struct, which means we never
-actually set the initiator bit.
+Just like we have default SMPS mode as dynamic in powersave,
+we should not enable RX-diversity in powersave, to reduce
+power consumption when connected to a non-MIMO AP.
 
-Fix that and copy the bitmask over to the host_cmd_ds_11n_delba command
-struct.
-
-Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
-Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
-Acked-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211016153244.24353-5-verdre@v0yd.nl
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211017113927.fc896bc5cdaa.I1d11da71b8a5cbe921a37058d5f578f1b14a2023@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/11n.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/iwlwifi/mvm/utils.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/11n.c b/drivers/net/wireless/marvell/mwifiex/11n.c
-index 7252069149115..2844f937cc659 100644
---- a/drivers/net/wireless/marvell/mwifiex/11n.c
-+++ b/drivers/net/wireless/marvell/mwifiex/11n.c
-@@ -632,14 +632,15 @@ int mwifiex_send_delba(struct mwifiex_private *priv, int tid, u8 *peer_mac,
- 	uint16_t del_ba_param_set;
+diff --git a/drivers/net/wireless/iwlwifi/mvm/utils.c b/drivers/net/wireless/iwlwifi/mvm/utils.c
+index ad0f16909e2e2..3d089eb9dff51 100644
+--- a/drivers/net/wireless/iwlwifi/mvm/utils.c
++++ b/drivers/net/wireless/iwlwifi/mvm/utils.c
+@@ -923,6 +923,9 @@ bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm)
  
- 	memset(&delba, 0, sizeof(delba));
--	delba.del_ba_param_set = cpu_to_le16(tid << DELBA_TID_POS);
+ 	lockdep_assert_held(&mvm->mutex);
  
--	del_ba_param_set = le16_to_cpu(delba.del_ba_param_set);
-+	del_ba_param_set = tid << DELBA_TID_POS;
++	if (iwlmvm_mod_params.power_scheme != IWL_POWER_SCHEME_CAM)
++		return false;
 +
- 	if (initiator)
- 		del_ba_param_set |= IEEE80211_DELBA_PARAM_INITIATOR_MASK;
- 	else
- 		del_ba_param_set &= ~IEEE80211_DELBA_PARAM_INITIATOR_MASK;
+ 	if (num_of_ant(iwl_mvm_get_valid_rx_ant(mvm)) == 1)
+ 		return false;
  
-+	delba.del_ba_param_set = cpu_to_le16(del_ba_param_set);
- 	memcpy(&delba.peer_mac_addr, peer_mac, ETH_ALEN);
- 
- 	/* We don't wait for the response of this command */
 -- 
 2.33.0
 
