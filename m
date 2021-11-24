@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 555B645BC83
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E6DF45BC98
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245045AbhKXMbH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:31:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44278 "EHLO mail.kernel.org"
+        id S1343564AbhKXMbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343622AbhKXM3Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:29:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F278161059;
-        Wed, 24 Nov 2021 12:17:47 +0000 (UTC)
+        id S1343642AbhKXM30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:29:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72BDA60551;
+        Wed, 24 Nov 2021 12:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756268;
-        bh=a0sAXZosEXwTaOW5I52P6jMsdu19bmiS0g9ZVJiR2NQ=;
+        s=korg; t=1637756270;
+        bh=qd3AaXFFmuIehD7f2iErR14d7hKFPgRGTOUtdBN11Ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QKQbtZaBL4sJ8U+c7Pe8FRkfkifmG+/DjxxwfTmDfKHuXXZ4QUwOfYF0EaB+191Q0
-         7L6gHYCwOktLp2lLCAIpg0weFWCjAtU17jlB4GGMioT+KrW7H+j0r5nNbWcEEUQykK
-         alayyMKEVzk8UB0Mym6f9sIAn47JN9Ln2Jo58FZ4=
+        b=wVr0ndRlaoeVtu9oxmsXKFgH005fcJD+1s6K5is86itbtYX754Ec827UminuLWgA2
+         n6jc4aEvvj+Tsnc2kclbv5LCdZ/nCQzV+U5wE9MHQEXmV7xyGsfsc8UA4aqKqlN5sg
+         llWWSsZqwqCMgE80f6uvkgbXAHCm+Cl5KjrGhYiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Joe Jin <joe.jin@oracle.com>,
+        Dongli Zhang <dongli.zhang@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 026/251] bpf: Prevent increasing bpf_jit_limit above max
-Date:   Wed, 24 Nov 2021 12:54:28 +0100
-Message-Id: <20211124115711.153847422@linuxfoundation.org>
+Subject: [PATCH 4.14 027/251] xen/netfront: stop tx queues during live migration
+Date:   Wed, 24 Nov 2021 12:54:29 +0100
+Message-Id: <20211124115711.187798869@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
 References: <20211124115710.214900256@linuxfoundation.org>
@@ -40,69 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenz Bauer <lmb@cloudflare.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit fadb7ff1a6c2c565af56b4aacdd086b067eed440 ]
+[ Upstream commit 042b2046d0f05cf8124c26ff65dbb6148a4404fb ]
 
-Restrict bpf_jit_limit to the maximum supported by the arch's JIT.
+The tx queues are not stopped during the live migration. As a result, the
+ndo_start_xmit() may access netfront_info->queues which is freed by
+talk_to_netback()->xennet_destroy_queues().
 
-Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20211014142554.53120-4-lmb@cloudflare.com
+This patch is to netif_device_detach() at the beginning of xen-netfront
+resuming, and netif_device_attach() at the end of resuming.
+
+     CPU A                                CPU B
+
+ talk_to_netback()
+ -> if (info->queues)
+        xennet_destroy_queues(info);
+    to free netfront_info->queues
+
+                                        xennet_start_xmit()
+                                        to access netfront_info->queues
+
+  -> err = xennet_create_queues(info, &num_queues);
+
+The idea is borrowed from virtio-net.
+
+Cc: Joe Jin <joe.jin@oracle.com>
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/filter.h     | 1 +
- kernel/bpf/core.c          | 4 +++-
- net/core/sysctl_net_core.c | 2 +-
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/xen-netfront.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/include/linux/filter.h b/include/linux/filter.h
-index 5ca676d646529..7c0e616362f05 100644
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -730,6 +730,7 @@ extern int bpf_jit_enable;
- extern int bpf_jit_harden;
- extern int bpf_jit_kallsyms;
- extern long bpf_jit_limit;
-+extern long bpf_jit_limit_max;
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 1131397454bd4..89e6a50b53da5 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -1441,6 +1441,10 @@ static int netfront_resume(struct xenbus_device *dev)
  
- typedef void (*bpf_jit_fill_hole_t)(void *area, unsigned int size);
+ 	dev_dbg(&dev->dev, "%s\n", dev->nodename);
  
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index e7211b0fa27cf..485e319ba742a 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -295,6 +295,7 @@ int bpf_jit_enable   __read_mostly = IS_BUILTIN(CONFIG_BPF_JIT_ALWAYS_ON);
- int bpf_jit_harden   __read_mostly;
- int bpf_jit_kallsyms __read_mostly;
- long bpf_jit_limit   __read_mostly;
-+long bpf_jit_limit_max __read_mostly;
- 
- static __always_inline void
- bpf_get_prog_addr_region(const struct bpf_prog *prog,
-@@ -508,7 +509,8 @@ u64 __weak bpf_jit_alloc_exec_limit(void)
- static int __init bpf_jit_charge_init(void)
- {
- 	/* Only used as heuristic here to derive limit. */
--	bpf_jit_limit = min_t(u64, round_up(bpf_jit_alloc_exec_limit() >> 2,
-+	bpf_jit_limit_max = bpf_jit_alloc_exec_limit();
-+	bpf_jit_limit = min_t(u64, round_up(bpf_jit_limit_max >> 2,
- 					    PAGE_SIZE), LONG_MAX);
++	netif_tx_lock_bh(info->netdev);
++	netif_device_detach(info->netdev);
++	netif_tx_unlock_bh(info->netdev);
++
+ 	xennet_disconnect_backend(info);
  	return 0;
  }
-diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
-index 069e3c4fcc447..ac1a32d5cad3c 100644
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -410,7 +410,7 @@ static struct ctl_table net_core_table[] = {
- 		.mode		= 0600,
- 		.proc_handler	= proc_dolongvec_minmax_bpf_restricted,
- 		.extra1		= &long_one,
--		.extra2		= &long_max,
-+		.extra2		= &bpf_jit_limit_max,
- 	},
- #endif
- 	{
+@@ -1990,6 +1994,10 @@ static int xennet_connect(struct net_device *dev)
+ 	 * domain a kick because we've probably just requeued some
+ 	 * packets.
+ 	 */
++	netif_tx_lock_bh(np->netdev);
++	netif_device_attach(np->netdev);
++	netif_tx_unlock_bh(np->netdev);
++
+ 	netif_carrier_on(np->netdev);
+ 	for (j = 0; j < num_queues; ++j) {
+ 		queue = &np->queues[j];
 -- 
 2.33.0
 
