@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6CB345C65E
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58C3845C258
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:24:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351869AbhKXOHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:07:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51916 "EHLO mail.kernel.org"
+        id S1349206AbhKXN1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:27:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351582AbhKXOFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:05:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 556D76333C;
-        Wed, 24 Nov 2021 13:11:50 +0000 (UTC)
+        id S1348868AbhKXNZh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:25:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 013BC61B67;
+        Wed, 24 Nov 2021 12:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759510;
-        bh=OV0T2JPS0EtjdRspJ/JuY1a146QKnOp9P0d33wotH0g=;
+        s=korg; t=1637758178;
+        bh=3hASDUYPLjcaNZ3qvW+VwaDN0ZGKb2nxPc2pr74xnRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRSMZPLHxSbwzqQkLDYd1C/ZsUvLfUpsXsfK/FnAQyIGTtbAgUSILrp7QnF13MYgs
-         02IJ16AH399Jy2V7KUW8pqM191slZUqTXS6IVF/XpP/BfenFoSgpd61vRjPPuWZ+5o
-         H60xJwRiK8H3RtRJu3sJXofqQezygydPxV+5J9m0=
+        b=NK2ZaEK5Hp4FI1ZrJhmNchXfWjAF0d55jk8/L/IX0fOVrvH3KB6k/Sr2+yYmkMlhe
+         s00VkTsPgNFtj+P/Ut24L94WHEo3MH5HtwtaKqrmaxBW5ABIOZlzWmBrCNrF1qaPa0
+         Ri4wFonIl0//7ujo0DtfpDckk1ckX6o89cE1SyRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benedikt Spranger <b.spranger@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Kurt Kanzenbach <kurt@linutronix.de>
-Subject: [PATCH 5.15 234/279] net: stmmac: Fix signed/unsigned wreckage
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.4 085/100] parisc/sticon: fix reverse colors
 Date:   Wed, 24 Nov 2021 12:58:41 +0100
-Message-Id: <20211124115726.825822807@linuxfoundation.org>
+Message-Id: <20211124115657.605227506@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,116 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Sven Schnelle <svens@stackframe.org>
 
-commit 3751c3d34cd5a750c86d1c8eaf217d8faf7f9325 upstream.
+commit bec05f33ebc1006899c6d3e59a00c58881fe7626 upstream.
 
-The recent addition of timestamp correction to compensate the CDC error
-introduced a subtle signed/unsigned bug in stmmac_get_tx_hwtstamp() while
-it managed for some obscure reason to avoid that in stmmac_get_rx_hwtstamp().
+sticon_build_attr() checked the reverse argument and flipped
+background and foreground color, but returned the non-reverse
+value afterwards. Fix this and also add two local variables
+for foreground and background color to make the code easier
+to read.
 
-The issue is:
-
-    s64 adjust = 0;
-    u64 ns;
-
-    adjust += -(2 * (NSEC_PER_SEC / priv->plat->clk_ptp_rate));
-    ns += adjust;
-
-works by chance on 64bit, but falls apart on 32bit because the compiler
-knows that adjust fits into 32bit and then treats the addition as a u64 +
-u32 resulting in an off by ~2 seconds failure.
-
-The RX variant uses an u64 for adjust and does the adjustment via
-
-    ns -= adjust;
-
-because consistency is obviously overrated.
-
-Get rid of the pointless zero initialized adjust variable and do:
-
-	ns -= (2 * NSEC_PER_SEC) / priv->plat->clk_ptp_rate;
-
-which is obviously correct and spares the adjust obfuscation. Aside of that
-it yields a more accurate result because the multiplication takes place
-before the integer divide truncation and not afterwards.
-
-Stick the calculation into an inline so it can't be accidentally
-disimproved. Return an u32 from that inline as the result is guaranteed
-to fit which lets the compiler optimize the substraction.
-
-Cc: stable@vger.kernel.org
-Fixes: 3600be5f58c1 ("net: stmmac: add timestamp correction to rid CDC sync error")
-Reported-by: Benedikt Spranger <b.spranger@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Benedikt Spranger <b.spranger@linutronix.de>
-Tested-by: Kurt Kanzenbach <kurt@linutronix.de> # Intel EHL
-Link: https://lore.kernel.org/r/87mtm578cs.ffs@tglx
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   23 +++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+ drivers/video/console/sticon.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -511,6 +511,14 @@ bool stmmac_eee_init(struct stmmac_priv
- 	return true;
+--- a/drivers/video/console/sticon.c
++++ b/drivers/video/console/sticon.c
+@@ -291,13 +291,13 @@ static unsigned long sticon_getxy(struct
+ static u8 sticon_build_attr(struct vc_data *conp, u8 color, u8 intens,
+ 			    u8 blink, u8 underline, u8 reverse, u8 italic)
+ {
+-    u8 attr = ((color & 0x70) >> 1) | ((color & 7));
++	u8 fg = color & 7;
++	u8 bg = (color & 0x70) >> 4;
+ 
+-    if (reverse) {
+-	color = ((color >> 3) & 0x7) | ((color & 0x7) << 3);
+-    }
+-
+-    return attr;
++	if (reverse)
++		return (fg << 3) | bg;
++	else
++		return (bg << 3) | fg;
  }
  
-+static inline u32 stmmac_cdc_adjust(struct stmmac_priv *priv)
-+{
-+	/* Correct the clk domain crossing(CDC) error */
-+	if (priv->plat->has_gmac4 && priv->plat->clk_ptp_rate)
-+		return (2 * NSEC_PER_SEC) / priv->plat->clk_ptp_rate;
-+	return 0;
-+}
-+
- /* stmmac_get_tx_hwtstamp - get HW TX timestamps
-  * @priv: driver private structure
-  * @p : descriptor pointer
-@@ -524,7 +532,6 @@ static void stmmac_get_tx_hwtstamp(struc
- {
- 	struct skb_shared_hwtstamps shhwtstamp;
- 	bool found = false;
--	s64 adjust = 0;
- 	u64 ns = 0;
- 
- 	if (!priv->hwts_tx_en)
-@@ -543,12 +550,7 @@ static void stmmac_get_tx_hwtstamp(struc
- 	}
- 
- 	if (found) {
--		/* Correct the clk domain crossing(CDC) error */
--		if (priv->plat->has_gmac4 && priv->plat->clk_ptp_rate) {
--			adjust += -(2 * (NSEC_PER_SEC /
--					 priv->plat->clk_ptp_rate));
--			ns += adjust;
--		}
-+		ns -= stmmac_cdc_adjust(priv);
- 
- 		memset(&shhwtstamp, 0, sizeof(struct skb_shared_hwtstamps));
- 		shhwtstamp.hwtstamp = ns_to_ktime(ns);
-@@ -573,7 +575,6 @@ static void stmmac_get_rx_hwtstamp(struc
- {
- 	struct skb_shared_hwtstamps *shhwtstamp = NULL;
- 	struct dma_desc *desc = p;
--	u64 adjust = 0;
- 	u64 ns = 0;
- 
- 	if (!priv->hwts_rx_en)
-@@ -586,11 +587,7 @@ static void stmmac_get_rx_hwtstamp(struc
- 	if (stmmac_get_rx_timestamp_status(priv, p, np, priv->adv_ts)) {
- 		stmmac_get_timestamp(priv, desc, priv->adv_ts, &ns);
- 
--		/* Correct the clk domain crossing(CDC) error */
--		if (priv->plat->has_gmac4 && priv->plat->clk_ptp_rate) {
--			adjust += 2 * (NSEC_PER_SEC / priv->plat->clk_ptp_rate);
--			ns -= adjust;
--		}
-+		ns -= stmmac_cdc_adjust(priv);
- 
- 		netdev_dbg(priv->dev, "get valid RX hw timestamp %llu\n", ns);
- 		shhwtstamp = skb_hwtstamps(skb);
+ static void sticon_invert_region(struct vc_data *conp, u16 *p, int count)
 
 
