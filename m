@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BD3745BE2C
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42B1345BC08
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344370AbhKXMpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:45:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
+        id S243521AbhKXMZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343558AbhKXMkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:40:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF45961266;
-        Wed, 24 Nov 2021 12:24:02 +0000 (UTC)
+        id S244137AbhKXMXB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:23:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E539861052;
+        Wed, 24 Nov 2021 12:13:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756643;
-        bh=LWdpDxk79bHlSiSZw8RtTCoiolTLwV4YTOP/pbjM0ao=;
+        s=korg; t=1637756029;
+        bh=j1dDLAA5xFeV7uJcTZ1ri3BVmBrvnT3ACGQlQoLLuW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tafUjAEWI3LHGQrogBilI1mAYOXlnI93Gd8BullbReuxmgofrkRpHmj+nSNp3qDso
-         mpFhXZWMMqfzFAJIRV94NLtG1imNC7t/WTO5f/3UDBLKUn3HAydYorVsiy0DlfWN/4
-         AI+10E2HYv95Ul5PYUBtTHpHLfQv1Snvxt64sGEc=
+        b=tu56Eb/u/U3BPwTP27kKXjIOi15X6ojWldNZLARp9Yq2uKT4ljs4i1upm0TmTG3mj
+         TqxRw9CYl4yUHvhPW+JC557ZL1pTTSGdr1xEC404lK5dff40OXN92WyDCEvQSFwufQ
+         w+pO4VQeUwKt4vl96BPD7H/RVIwHjWlJ6z2dO19k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 156/251] ASoC: cs42l42: Defer probe if request_threaded_irq() returns EPROBE_DEFER
+Subject: [PATCH 4.9 127/207] scsi: csiostor: Uninitialized data in csio_ln_vnp_read_cbfn()
 Date:   Wed, 24 Nov 2021 12:56:38 +0100
-Message-Id: <20211124115715.691089328@linuxfoundation.org>
+Message-Id: <20211124115708.161206042@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 0306988789d9d91a18ff70bd2bf165d3ae0ef1dd ]
+[ Upstream commit f4875d509a0a78ad294a1a538d534b5ba94e685a ]
 
-The driver can run without an interrupt so if devm_request_threaded_irq()
-failed, the probe() just carried on. But if this was EPROBE_DEFER the
-driver would continue without an interrupt instead of deferring to wait
-for the interrupt to become available.
+This variable is just a temporary variable, used to do an endian
+conversion.  The problem is that the last byte is not initialized.  After
+the conversion is completely done, the last byte is discarded so it doesn't
+cause a problem.  But static checkers and the KMSan runtime checker can
+detect the uninitialized read and will complain about it.
 
-Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20211015133619.4698-6-rf@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20211006073242.GA8404@kili
+Fixes: 5036f0a0ecd3 ("[SCSI] csiostor: Fix sparse warnings.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/csiostor/csio_lnode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index a341c5b08434b..7ff8b9f269713 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -1805,8 +1805,9 @@ static int cs42l42_i2c_probe(struct i2c_client *i2c_client,
- 			NULL, cs42l42_irq_thread,
- 			IRQF_ONESHOT | IRQF_TRIGGER_LOW,
- 			"cs42l42", cs42l42);
--
--	if (ret != 0)
-+	if (ret == -EPROBE_DEFER)
-+		goto err_disable;
-+	else if (ret != 0)
- 		dev_err(&i2c_client->dev,
- 			"Failed to request IRQ: %d\n", ret);
+diff --git a/drivers/scsi/csiostor/csio_lnode.c b/drivers/scsi/csiostor/csio_lnode.c
+index 957767d383610..d1df694d9ed00 100644
+--- a/drivers/scsi/csiostor/csio_lnode.c
++++ b/drivers/scsi/csiostor/csio_lnode.c
+@@ -611,7 +611,7 @@ csio_ln_vnp_read_cbfn(struct csio_hw *hw, struct csio_mb *mbp)
+ 	struct fc_els_csp *csp;
+ 	struct fc_els_cssp *clsp;
+ 	enum fw_retval retval;
+-	__be32 nport_id;
++	__be32 nport_id = 0;
  
+ 	retval = FW_CMD_RETVAL_G(ntohl(rsp->alloc_to_len16));
+ 	if (retval != FW_SUCCESS) {
 -- 
 2.33.0
 
