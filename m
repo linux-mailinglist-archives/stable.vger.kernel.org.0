@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E49745C106
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8BBC45C512
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245009AbhKXNOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:14:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50778 "EHLO mail.kernel.org"
+        id S1347602AbhKXNyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:54:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347689AbhKXNML (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:12:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2414E61A7A;
-        Wed, 24 Nov 2021 12:42:24 +0000 (UTC)
+        id S1354675AbhKXNwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:52:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D304363217;
+        Wed, 24 Nov 2021 13:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757744;
-        bh=KUSEjjeRRCEtiMNCz674Wa9/yzHql4lH76/cT+oYqcU=;
+        s=korg; t=1637759097;
+        bh=2tKJaBA5c8WEaBp1u+IDUjcTiU1IhKkbgOVhBFGmA+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0aYTnutB4nAx8nWqZF/o5HeRtCfck2N1a7SIEEnq11GaTtBXiZ+H2oOrmCeftbbHz
-         n8Ms23MFOH8L86UulIf1PjHeR6mnyqZAX/UDcWNbe+kV7tiuZ2J6t9pZ6N7x7zh9Ru
-         81ZJYKvs+JAo8bB1qawVBE620z3uJHnrGYrOvquU=
+        b=LkICFexG7b/Q6S6Lo/m1Wx1m9x1jTYkuTz9t3UAmdVjRpRaWFtCE7+q8E/dMElqJ6
+         vx3Gh7xP+AsXuQvNTHVx5g4E6AK75U1vxM5pYk5SpsPzReRL7q75ou69dlZTzcbvrG
+         OPQNiUhu4SLO0pSvJhkexQHc86W5xeoYrE+TzhiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
+        stable@vger.kernel.org,
+        Akeem G Abodunrin <akeem.g.abodunrin@intel.com>,
+        George Kuruvinakunnel <george.kuruvinakunnel@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 229/323] arm64: pgtable: make __pte_to_phys/__phys_to_pte_val inline functions
+Subject: [PATCH 5.15 132/279] iavf: Restore VLAN filters after link down
 Date:   Wed, 24 Nov 2021 12:56:59 +0100
-Message-Id: <20211124115726.648662804@linuxfoundation.org>
+Message-Id: <20211124115723.358367615@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +42,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
 
-[ Upstream commit c7c386fbc20262c1d911c615c65db6a58667d92c ]
+[ Upstream commit 4293014230b887d94b68aa460ff00153454a3709 ]
 
-gcc warns about undefined behavior the vmalloc code when building
-with CONFIG_ARM64_PA_BITS_52, when the 'idx++' in the argument to
-__phys_to_pte_val() is evaluated twice:
+Restore VLAN filters after the link is brought down, and up - since all
+filters are deleted from HW during the netdev link down routine.
 
-mm/vmalloc.c: In function 'vmap_pfn_apply':
-mm/vmalloc.c:2800:58: error: operation on 'data->idx' may be undefined [-Werror=sequence-point]
- 2800 |         *pte = pte_mkspecial(pfn_pte(data->pfns[data->idx++], data->prot));
-      |                                                 ~~~~~~~~~^~
-arch/arm64/include/asm/pgtable-types.h:25:37: note: in definition of macro '__pte'
-   25 | #define __pte(x)        ((pte_t) { (x) } )
-      |                                     ^
-arch/arm64/include/asm/pgtable.h:80:15: note: in expansion of macro '__phys_to_pte_val'
-   80 |         __pte(__phys_to_pte_val((phys_addr_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot))
-      |               ^~~~~~~~~~~~~~~~~
-mm/vmalloc.c:2800:30: note: in expansion of macro 'pfn_pte'
- 2800 |         *pte = pte_mkspecial(pfn_pte(data->pfns[data->idx++], data->prot));
-      |                              ^~~~~~~
-
-I have no idea why this never showed up earlier, but the safest
-workaround appears to be changing those macros into inline functions
-so the arguments get evaluated only once.
-
-Cc: Matthew Wilcox <willy@infradead.org>
-Fixes: 75387b92635e ("arm64: handle 52-bit physical addresses in page table entries")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211105075414.2553155-1-arnd@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: ed1f5b58ea01 ("i40evf: remove VLAN filters on close")
+Signed-off-by: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
+Tested-by: George Kuruvinakunnel <george.kuruvinakunnel@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/pgtable.h | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf.h      |  1 +
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 35 ++++++++++++++++++---
+ 2 files changed, 31 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index f43519b710610..71a73ca1e2b05 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -64,9 +64,15 @@ extern unsigned long empty_zero_page[PAGE_SIZE / sizeof(unsigned long)];
-  * page table entry, taking care of 52-bit addresses.
-  */
- #ifdef CONFIG_ARM64_PA_BITS_52
--#define __pte_to_phys(pte)	\
--	((pte_val(pte) & PTE_ADDR_LOW) | ((pte_val(pte) & PTE_ADDR_HIGH) << 36))
--#define __phys_to_pte_val(phys)	(((phys) | ((phys) >> 36)) & PTE_ADDR_MASK)
-+static inline phys_addr_t __pte_to_phys(pte_t pte)
+diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
+index 68c80f04113c8..46312a4415baf 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf.h
++++ b/drivers/net/ethernet/intel/iavf/iavf.h
+@@ -39,6 +39,7 @@
+ #include "iavf_txrx.h"
+ #include "iavf_fdir.h"
+ #include "iavf_adv_rss.h"
++#include <linux/bitmap.h>
+ 
+ #define DEFAULT_DEBUG_LEVEL_SHIFT 3
+ #define PFX "iavf: "
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index d537d50525e3f..aaf8a2f396e46 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -687,6 +687,23 @@ static void iavf_del_vlan(struct iavf_adapter *adapter, u16 vlan)
+ 	spin_unlock_bh(&adapter->mac_vlan_list_lock);
+ }
+ 
++/**
++ * iavf_restore_filters
++ * @adapter: board private structure
++ *
++ * Restore existing non MAC filters when VF netdev comes back up
++ **/
++static void iavf_restore_filters(struct iavf_adapter *adapter)
 +{
-+	return (pte_val(pte) & PTE_ADDR_LOW) |
-+		((pte_val(pte) & PTE_ADDR_HIGH) << 36);
++	/* re-add all VLAN filters */
++	if (VLAN_ALLOWED(adapter)) {
++		u16 vid;
++
++		for_each_set_bit(vid, adapter->vsi.active_vlans, VLAN_N_VID)
++			iavf_add_vlan(adapter, vid);
++	}
 +}
-+static inline pteval_t __phys_to_pte_val(phys_addr_t phys)
-+{
-+	return (phys | (phys >> 36)) & PTE_ADDR_MASK;
-+}
- #else
- #define __pte_to_phys(pte)	(pte_val(pte) & PTE_ADDR_MASK)
- #define __phys_to_pte_val(phys)	(phys)
++
+ /**
+  * iavf_vlan_rx_add_vid - Add a VLAN filter to a device
+  * @netdev: network device struct
+@@ -700,8 +717,11 @@ static int iavf_vlan_rx_add_vid(struct net_device *netdev,
+ 
+ 	if (!VLAN_ALLOWED(adapter))
+ 		return -EIO;
++
+ 	if (iavf_add_vlan(adapter, vid) == NULL)
+ 		return -ENOMEM;
++
++	set_bit(vid, adapter->vsi.active_vlans);
+ 	return 0;
+ }
+ 
+@@ -716,11 +736,13 @@ static int iavf_vlan_rx_kill_vid(struct net_device *netdev,
+ {
+ 	struct iavf_adapter *adapter = netdev_priv(netdev);
+ 
+-	if (VLAN_ALLOWED(adapter)) {
+-		iavf_del_vlan(adapter, vid);
+-		return 0;
+-	}
+-	return -EIO;
++	if (!VLAN_ALLOWED(adapter))
++		return -EIO;
++
++	iavf_del_vlan(adapter, vid);
++	clear_bit(vid, adapter->vsi.active_vlans);
++
++	return 0;
+ }
+ 
+ /**
+@@ -3248,6 +3270,9 @@ static int iavf_open(struct net_device *netdev)
+ 
+ 	spin_unlock_bh(&adapter->mac_vlan_list_lock);
+ 
++	/* Restore VLAN filters that were removed with IFF_DOWN */
++	iavf_restore_filters(adapter);
++
+ 	iavf_configure(adapter);
+ 
+ 	iavf_up_complete(adapter);
 -- 
 2.33.0
 
