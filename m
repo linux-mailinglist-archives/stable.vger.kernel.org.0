@@ -2,38 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D0DC45C357
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:34:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 728A245C17A
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349000AbhKXNho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:37:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43336 "EHLO mail.kernel.org"
+        id S243322AbhKXNTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:19:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352295AbhKXNfg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:35:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F78961B29;
-        Wed, 24 Nov 2021 12:54:41 +0000 (UTC)
+        id S1347005AbhKXNPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:15:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 224F961AA7;
+        Wed, 24 Nov 2021 12:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758481;
-        bh=oJSqF44mCWNuVK2CaxR9tKyH0AfObnqeaIrtBPX7KQQ=;
+        s=korg; t=1637757836;
+        bh=cbAkr7roA/XUOtkCmC8I3swOMtrHElogX+dp0d5mgIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yNhvbOyqdm/5LenqmAxJ4fuSOsW2yNzh4Evx9bm2J2w50oGhJ8jzg0bSrn/CYU04v
-         ukWbhGCD8O8w0abu5qJ+4ZffCMTsaRnAXyCoQt09ZAi1iky77Z5ADa8oH4SaVg4xHe
-         OL4xrazznzYmGnCLPX2JFioK8jt7j9sFZh+SVEcc=
+        b=KRd6OXe0suvXn5DMIb4hO9dX9vLg5egxmCBoGIxu7O5SUukbMjQRF1E1n8WTKGE6Q
+         nMD6j/6E0bpkh9FQnzS5ZXb6IUV9zGRodr+MZPMDu5+JKyFHq6T3fofZ6YuiDrT8UG
+         Qwj6Rh8Ocv/a768nck0h/b99L46TKSj/47TMHQAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mitch Williams <mitch.a.williams@intel.com>,
-        Tony Brelinski <tony.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Artur Rojek <contact@artur-rojek.eu>,
+        Paul Cercueil <paul@crapouillou.net>,
+        linux-mips@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        linux-iio@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Jonas Gorski <jonas.gorski@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 085/154] iavf: validate pointers
+Subject: [PATCH 4.19 291/323] mips: bcm63xx: add support for clk_get_parent()
 Date:   Wed, 24 Nov 2021 12:58:01 +0100
-Message-Id: <20211124115705.067006611@linuxfoundation.org>
+Message-Id: <20211124115728.731315256@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +52,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitch Williams <mitch.a.williams@intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 131b0edc4028bb88bb472456b1ddba526cfb7036 ]
+[ Upstream commit e8f67482e5a4bc8d0b65d606d08cb60ee123b468 ]
 
-In some cases, the ethtool get_rxfh handler may be called with a null
-key or indir parameter. So check these pointers, or you will have a very
-bad day.
+BCM63XX selects HAVE_LEGACY_CLK but does not provide/support
+clk_get_parent(), so add a simple implementation of that
+function so that callers of it will build without errors.
 
-Fixes: 43a3d9ba34c9 ("i40evf: Allow PF driver to configure RSS")
-Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes these build errors:
+
+mips-linux-ld: drivers/iio/adc/ingenic-adc.o: in function `jz4770_adc_init_clk_div':
+ingenic-adc.c:(.text+0xe4): undefined reference to `clk_get_parent'
+mips-linux-ld: drivers/iio/adc/ingenic-adc.o: in function `jz4725b_adc_init_clk_div':
+ingenic-adc.c:(.text+0x1b8): undefined reference to `clk_get_parent'
+
+Fixes: e7300d04bd08 ("MIPS: BCM63xx: Add support for the Broadcom BCM63xx family of SOCs." )
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Cc: Artur Rojek <contact@artur-rojek.eu>
+Cc: Paul Cercueil <paul@crapouillou.net>
+Cc: linux-mips@vger.kernel.org
+Cc: Jonathan Cameron <jic23@kernel.org>
+Cc: Lars-Peter Clausen <lars@metafoo.de>
+Cc: linux-iio@vger.kernel.org
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: bcm-kernel-feedback-list@broadcom.com
+Cc: Jonas Gorski <jonas.gorski@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_ethtool.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ arch/mips/bcm63xx/clk.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-index 17ec36c4e6c19..5508ccbf9f57b 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-@@ -975,14 +975,13 @@ static int iavf_get_rxfh(struct net_device *netdev, u32 *indir, u8 *key,
+diff --git a/arch/mips/bcm63xx/clk.c b/arch/mips/bcm63xx/clk.c
+index 164115944a7fd..aba6e2d6a736c 100644
+--- a/arch/mips/bcm63xx/clk.c
++++ b/arch/mips/bcm63xx/clk.c
+@@ -381,6 +381,12 @@ void clk_disable(struct clk *clk)
  
- 	if (hfunc)
- 		*hfunc = ETH_RSS_HASH_TOP;
--	if (!indir)
--		return 0;
--
--	memcpy(key, adapter->rss_key, adapter->rss_key_size);
-+	if (key)
-+		memcpy(key, adapter->rss_key, adapter->rss_key_size);
+ EXPORT_SYMBOL(clk_disable);
  
--	/* Each 32 bits pointed by 'indir' is stored with a lut entry */
--	for (i = 0; i < adapter->rss_lut_size; i++)
--		indir[i] = (u32)adapter->rss_lut[i];
-+	if (indir)
-+		/* Each 32 bits pointed by 'indir' is stored with a lut entry */
-+		for (i = 0; i < adapter->rss_lut_size; i++)
-+			indir[i] = (u32)adapter->rss_lut[i];
- 
- 	return 0;
- }
++struct clk *clk_get_parent(struct clk *clk)
++{
++	return NULL;
++}
++EXPORT_SYMBOL(clk_get_parent);
++
+ unsigned long clk_get_rate(struct clk *clk)
+ {
+ 	if (!clk)
 -- 
 2.33.0
 
