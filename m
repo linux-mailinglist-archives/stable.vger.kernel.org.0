@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A9FA45B9FB
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BCB345BDB7
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:38:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232812AbhKXMGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:06:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
+        id S245631AbhKXMkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:40:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229829AbhKXMGG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:06:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71F4860FBF;
-        Wed, 24 Nov 2021 12:02:56 +0000 (UTC)
+        id S1344622AbhKXMib (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:38:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DBA16138F;
+        Wed, 24 Nov 2021 12:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755377;
-        bh=nXv4ra6pXhCM4yYVGly+C+AXwTucUzDhwrtTJ8VFQ5c=;
+        s=korg; t=1637756583;
+        bh=Y6mdpp1PkKu0mmsVgA/lCctJSMOrGaqRBF5B702YhkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f61PMWo6T9MT+y0EY5+uJnC7ULhcM+lBpiRplWXS0kvepSKeUTu4pjoD4KWbbZHGN
-         9eICTe3Vloo/9SKLEIvjF7iK+QUqUdelzMGo+nx9k/j3yjT80P44oktiQ+4+l/zoKM
-         PBP9Oc5RdtVELXlBna6qJ9+9CshtMjuGxebnYfmA=
+        b=tBOoqvS5WLLam2XH+YmmjTvW104xmNmpYRMLYMsDnv5kwDI0cDN99uDSZuSlVE6Lu
+         0AP6Iuv2PvduxwutUb5butBS7R68HgEFXlMfNgThL3OXPkFrDWGShab9xDQ7fVOCk9
+         c2gMGGcyhu1jynTozV+K7RdzdKvIJb2waFCTuaVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anel Orazgaliyeva <anelkz@amazon.de>,
-        Aman Priyadarshi <apeureka@amazon.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 073/162] cpuidle: Fix kobject memory leaks in error paths
+Subject: [PATCH 4.14 134/251] libertas: Fix possible memory leak in probe and disconnect
 Date:   Wed, 24 Nov 2021 12:56:16 +0100
-Message-Id: <20211124115700.680792875@linuxfoundation.org>
+Message-Id: <20211124115714.901869789@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +41,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anel Orazgaliyeva <anelkz@amazon.de>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit e5f5a66c9aa9c331da5527c2e3fd9394e7091e01 ]
+[ Upstream commit 9692151e2fe7a326bafe99836fd1f20a2cc3a049 ]
 
-Commit c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
-fixes the cleanup of kobjects; however, it removes kfree() calls
-altogether, leading to memory leaks.
+I got memory leak as follows when doing fault injection test:
 
-Fix those and also defer the initialization of dev->kobj_dev until
-after the error check, so that we do not end up with a dangling
-pointer.
+unreferenced object 0xffff88812c7d7400 (size 512):
+  comm "kworker/6:1", pid 176, jiffies 4295003332 (age 822.830s)
+  hex dump (first 32 bytes):
+    00 68 1e 04 81 88 ff ff 01 00 00 00 00 00 00 00  .h..............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
+    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
+    [<ffffffffa02c9873>] if_usb_probe+0x63/0x446 [usb8xxx]
+    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
+    [<ffffffff82b59630>] really_probe+0x190/0x480
+    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
+    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
+    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
+    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
+    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
+    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
+    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
+    [<ffffffff82b52e49>] device_add+0x829/0x1300
+    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
+    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
+    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
 
-Fixes: c343bf1ba5ef ("cpuidle: Fix three reference count leaks")
-Signed-off-by: Anel Orazgaliyeva <anelkz@amazon.de>
-Suggested-by: Aman Priyadarshi <apeureka@amazon.de>
-[ rjw: Subject edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+cardp is missing being freed in the error handling path of the probe
+and the path of the disconnect, which will cause memory leak.
+
+This patch adds the missing kfree().
+
+Fixes: 876c9d3aeb98 ("[PATCH] Marvell Libertas 8388 802.11b/g USB driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211020120345.2016045-3-wanghai38@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/sysfs.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/wireless/marvell/libertas/if_usb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
-index e7e92ed34f0c6..34c4a61a954fc 100644
---- a/drivers/cpuidle/sysfs.c
-+++ b/drivers/cpuidle/sysfs.c
-@@ -413,6 +413,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
- 					   &kdev->kobj, "state%d", i);
- 		if (ret) {
- 			kobject_put(&kobj->kobj);
-+			kfree(kobj);
- 			goto error_state;
- 		}
- 		kobject_uevent(&kobj->kobj, KOBJ_ADD);
-@@ -543,6 +544,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
- 				   &kdev->kobj, "driver");
- 	if (ret) {
- 		kobject_put(&kdrv->kobj);
-+		kfree(kdrv);
- 		return ret;
- 	}
+diff --git a/drivers/net/wireless/marvell/libertas/if_usb.c b/drivers/net/wireless/marvell/libertas/if_usb.c
+index aad82ff568835..bbfc89d9d65ab 100644
+--- a/drivers/net/wireless/marvell/libertas/if_usb.c
++++ b/drivers/net/wireless/marvell/libertas/if_usb.c
+@@ -288,6 +288,7 @@ err_add_card:
+ 	if_usb_reset_device(cardp);
+ dealloc:
+ 	if_usb_free(cardp);
++	kfree(cardp);
  
-@@ -629,7 +631,6 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 	if (!kdev)
- 		return -ENOMEM;
- 	kdev->dev = dev;
--	dev->kobj_dev = kdev;
+ error:
+ 	return r;
+@@ -312,6 +313,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
  
- 	init_completion(&kdev->kobj_unregister);
+ 	/* Unlink and free urb */
+ 	if_usb_free(cardp);
++	kfree(cardp);
  
-@@ -637,9 +638,11 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 				   "cpuidle");
- 	if (error) {
- 		kobject_put(&kdev->kobj);
-+		kfree(kdev);
- 		return error;
- 	}
- 
-+	dev->kobj_dev = kdev;
- 	kobject_uevent(&kdev->kobj, KOBJ_ADD);
- 
- 	return 0;
+ 	usb_set_intfdata(intf, NULL);
+ 	usb_put_dev(interface_to_usbdev(intf));
 -- 
 2.33.0
 
