@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B76845C2A5
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:28:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C80645C50E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351355AbhKXNbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:31:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56156 "EHLO mail.kernel.org"
+        id S1351908AbhKXNyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:54:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350937AbhKXN26 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:28:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D8B361BA3;
-        Wed, 24 Nov 2021 12:51:31 +0000 (UTC)
+        id S1354673AbhKXNwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:52:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C976D6321C;
+        Wed, 24 Nov 2021 13:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758292;
-        bh=fE5wT2FTzAnz5QSuEHMp5vK6WurJdaiPUDZI1BQi2qc=;
+        s=korg; t=1637759091;
+        bh=w97Br2S/Ea7HrBhqqZaONY2oNICyjg+mn3N+8B39+E4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZ6BrnWsA62qoSJNDDTfc5UZwoCT1nwbFVXN+cjRnveWIxc0AV0YBO+4iCrC73sTa
-         B7iMhkQQIflZbN5TQf3jRoNKhB5F/rXJ0l3jOXYsZviDjphM15PCuBb8rDiF9aETCJ
-         pxyEAVcly3ANLEXi1QDO62wqTKJjyPZ2nMbnbBSw=
+        b=k26Ciz3kt9QSbNQq0OFHQTDcHV5HnVhIxt2gbROrf4UHBb4deOE0xktLs7l4a2RsT
+         J4LspPtlgqVRhjcdvOn1PGt4PYPmWdlQJbhgc96w3a2lXU16r6VluZvUxd/3Zm53jP
+         CqHwcvB3xHwqmhjFcUzHvUzQIFcq5+Eb0LI42g7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Surabhi Boob <surabhi.boob@intel.com>,
+        Tony Brelinski <tony.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 021/154] arm64: dts: qcom: msm8916: Add unit name for /soc node
+Subject: [PATCH 5.15 130/279] iavf: Fix for the false positive ASQ/ARQ errors while issuing VF reset
 Date:   Wed, 24 Nov 2021 12:56:57 +0100
-Message-Id: <20211124115703.053986442@linuxfoundation.org>
+Message-Id: <20211124115723.296718401@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Surabhi Boob <surabhi.boob@intel.com>
 
-[ Upstream commit 7a62bfebc8c94bdb6eb8f54f49889dc6b5b79601 ]
+[ Upstream commit 321421b57a12e933f92b228e0e6d0b2c6541f41d ]
 
-This fixes the following warning when building with W=1:
-Warning (unit_address_vs_reg): /soc: node has a reg or ranges property,
-but no unit name
+While issuing VF Reset from the guest OS, the VF driver prints
+logs about critical / Overflow error detection. This is not an
+actual error since the VF_MBX_ARQLEN register is set to all FF's
+for a short period of time and the VF would catch the bits set if
+it was reading the register during that spike of time.
+This patch introduces an additional check to ignore this condition
+since the VF is in reset.
 
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20210921152120.6710-1-stephan@gerhold.net
+Fixes: 19b73d8efaa4 ("i40evf: Add additional check for reset")
+Signed-off-by: Surabhi Boob <surabhi.boob@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916.dtsi | 2 +-
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index b1ffc056eea0b..d26f9acf8e126 100644
---- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -384,7 +384,7 @@
- 		};
- 	};
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 43c33effd4177..d537d50525e3f 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -2355,7 +2355,7 @@ static void iavf_adminq_task(struct work_struct *work)
  
--	soc: soc {
-+	soc: soc@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		ranges = <0 0 0 0xffffffff>;
+ 	/* check for error indications */
+ 	val = rd32(hw, hw->aq.arq.len);
+-	if (val == 0xdeadbeef) /* indicates device in reset */
++	if (val == 0xdeadbeef || val == 0xffffffff) /* device in reset */
+ 		goto freedom;
+ 	oldval = val;
+ 	if (val & IAVF_VF_ARQLEN1_ARQVFE_MASK) {
 -- 
 2.33.0
 
