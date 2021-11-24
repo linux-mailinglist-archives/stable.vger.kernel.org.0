@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D88E645BC50
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7C6645BAF6
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244803AbhKXM1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:27:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41740 "EHLO mail.kernel.org"
+        id S242861AbhKXMPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:15:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243175AbhKXMZh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:25:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4948D61213;
-        Wed, 24 Nov 2021 12:15:57 +0000 (UTC)
+        id S242893AbhKXMNI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:13:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A2C0610D1;
+        Wed, 24 Nov 2021 12:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756157;
-        bh=bKq4lYb0lpF7Fc7iG6VFFMccq/G/q9YX1yhIEKmHINU=;
+        s=korg; t=1637755638;
+        bh=xWotumGx3X6o8Xfw0oMVJXJbB55ceRoSFuKgT0o3hAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VfJ9c3o81wzcK2fcm2+IN6zAG2TOBfZqKcX04SHEakjqzHzyl8lKE7Eu6yZLpit0w
-         qsBZ4Co5n2vEUWPYC2fNLM9rXyQTXY9GKbPuAgPcLS7KOLVqg5rRpsWHWK4TSmb11q
-         1vTc3FXam2uTQATfZZTdJNbxPS/cJnuVy8zGWts8=
+        b=yLYgemog2/c+82WgKXkdlGeBFXGFm8THKXx4UDY2gMqy9Jz35zOl1ysk5LMYBSMMm
+         Hxksy3VqEzh6w9Lr13dAcgZoSgh6Xl/2fLN1lwtWe0z1cIynrxc4bYQcvkLYVcK6C+
+         bV/y5Pk83kKWwc7RH8ln+ykJgKCkwhSWeYnwsAEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Glauber Costa <glommer@parallels.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 192/207] mm: kmemleak: slob: respect SLAB_NOLEAKTRACE flag
+        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.4 160/162] ASoC: DAPM: Cover regression by kctl change notification fix
 Date:   Wed, 24 Nov 2021 12:57:43 +0100
-Message-Id: <20211124115710.169334631@linuxfoundation.org>
+Message-Id: <20211124115703.454093427@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +39,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 34dbc3aaf5d9e89ba6cc5e24add9458c21ab1950 upstream.
+commit 827b0913a9d9d07a0c3e559dbb20ca4d6d285a54 upstream.
 
-When kmemleak is enabled for SLOB, system does not boot and does not
-print anything to the console.  At the very early stage in the boot
-process we hit infinite recursion from kmemleak_init() and eventually
-kernel crashes.
+The recent fix for DAPM to correct the kctl change notification by the
+commit 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change
+notifications") caused other regressions since it changed the behavior
+of snd_soc_dapm_set_pin() that is called from several API functions.
+Formerly it returned always 0 for success, but now it returns 0 or 1.
 
-kmemleak_init() specifies SLAB_NOLEAKTRACE for KMEM_CACHE(), but
-kmem_cache_create_usercopy() removes it because CACHE_CREATE_MASK is not
-valid for SLOB.
+This patch addresses it, restoring the old behavior of
+snd_soc_dapm_set_pin() while keeping the fix in
+snd_soc_dapm_put_pin_switch().
 
-Let's fix CACHE_CREATE_MASK and make kmemleak work with SLOB
-
-Link: https://lkml.kernel.org/r/20211115020850.3154366-1-rkovhaev@gmail.com
-Fixes: d8843922fba4 ("slab: Ignore internal flags in cache creation")
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Glauber Costa <glommer@parallels.com>
+Fixes: 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change notifications")
+Reported-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20211105090925.20575-1-tiwai@suse.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slab.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-dapm.c |   29 +++++++++++++++++++++++------
+ 1 file changed, 23 insertions(+), 6 deletions(-)
 
---- a/mm/slab.h
-+++ b/mm/slab.h
-@@ -139,7 +139,7 @@ static inline unsigned long kmem_cache_f
- #define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE | SLAB_RECLAIM_ACCOUNT | \
- 			  SLAB_TEMPORARY | SLAB_NOTRACK | SLAB_ACCOUNT)
- #else
--#define SLAB_CACHE_FLAGS (0)
-+#define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE)
- #endif
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -2373,8 +2373,13 @@ static struct snd_soc_dapm_widget *dapm_
+ 	return NULL;
+ }
  
- #define CACHE_CREATE_MASK (SLAB_CORE_FLAGS | SLAB_DEBUG_FLAGS | SLAB_CACHE_FLAGS)
+-static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
+-				const char *pin, int status)
++/*
++ * set the DAPM pin status:
++ * returns 1 when the value has been updated, 0 when unchanged, or a negative
++ * error code; called from kcontrol put callback
++ */
++static int __snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
++				  const char *pin, int status)
+ {
+ 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
+ 	int ret = 0;
+@@ -2400,6 +2405,18 @@ static int snd_soc_dapm_set_pin(struct s
+ 	return ret;
+ }
+ 
++/*
++ * similar as __snd_soc_dapm_set_pin(), but returns 0 when successful;
++ * called from several API functions below
++ */
++static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
++				const char *pin, int status)
++{
++	int ret = __snd_soc_dapm_set_pin(dapm, pin, status);
++
++	return ret < 0 ? ret : 0;
++}
++
+ /**
+  * snd_soc_dapm_sync_unlocked - scan and power dapm paths
+  * @dapm: DAPM context
+@@ -3294,10 +3311,10 @@ int snd_soc_dapm_put_pin_switch(struct s
+ 	const char *pin = (const char *)kcontrol->private_value;
+ 	int ret;
+ 
+-	if (ucontrol->value.integer.value[0])
+-		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
+-	else
+-		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
++	mutex_lock_nested(&card->dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
++	ret = __snd_soc_dapm_set_pin(&card->dapm, pin,
++				     !!ucontrol->value.integer.value[0]);
++	mutex_unlock(&card->dapm_mutex);
+ 
+ 	snd_soc_dapm_sync(&card->dapm);
+ 	return ret;
 
 
