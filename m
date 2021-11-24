@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFF9E45BECD
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:49:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 240DF45BAB0
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345883AbhKXMux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:50:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54982 "EHLO mail.kernel.org"
+        id S243570AbhKXMOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:14:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346213AbhKXMsy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:48:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2165D610A5;
-        Wed, 24 Nov 2021 12:28:38 +0000 (UTC)
+        id S242756AbhKXMLV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:11:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F04E61155;
+        Wed, 24 Nov 2021 12:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756919;
-        bh=58wvV0nNtTfY2NbLUOQ9Odj5T5fmmH/wW4JaoLtaf5I=;
+        s=korg; t=1637755580;
+        bh=U6fr/6p0i58nGXzlBnCBSljN+xNFCGxcSrUA6tQfn0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CKY/2MYCeNLh1k8QupbE/1n8ozrbtGpiyo/eOThxzs9I3W8htup9Z7oQsxWAQkIgT
-         BsaYNPtinYPidOLDcU0e/C/EYevuSJLBHO9urfSZ0KzRyozvnALtiYv0ibuliBiNMM
-         mOgchTbk/Cn1v07JYlaGdG3XL/MiAruOCGuc0PT4=
+        b=jtdtIUVKsr4oLOF94l48qLdHzQzpURXKVakY7lSYYpQkuC6qysfW0ws6kDwZI92MC
+         8fPqqVJ2lxcHfgLTsyEu+aKdFPerSFhtzhHEVd8TSscT6c4u/CY+MslHdghOWlQnNi
+         tLj0oBCrxa8VRI4qO45/l3Y5HhEVVE6fUyjSWSr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guanghui Feng <guanghuifeng@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 208/251] tty: tty_buffer: Fix the softlockup issue in flush_to_ldisc
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 4.4 147/162] drm/udl: fix control-message timeout
 Date:   Wed, 24 Nov 2021 12:57:30 +0100
-Message-Id: <20211124115717.500828793@linuxfoundation.org>
+Message-Id: <20211124115703.029323350@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guanghui Feng <guanghuifeng@linux.alibaba.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 3968ddcf05fb4b9409cd1859feb06a5b0550a1c1 ]
+commit 5591c8f79db1729d9c5ac7f5b4d3a5c26e262d93 upstream.
 
-When running ltp testcase(ltp/testcases/kernel/pty/pty04.c) with arm64, there is a soft lockup,
-which look like this one:
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-  Workqueue: events_unbound flush_to_ldisc
-  Call trace:
-   dump_backtrace+0x0/0x1ec
-   show_stack+0x24/0x30
-   dump_stack+0xd0/0x128
-   panic+0x15c/0x374
-   watchdog_timer_fn+0x2b8/0x304
-   __run_hrtimer+0x88/0x2c0
-   __hrtimer_run_queues+0xa4/0x120
-   hrtimer_interrupt+0xfc/0x270
-   arch_timer_handler_phys+0x40/0x50
-   handle_percpu_devid_irq+0x94/0x220
-   __handle_domain_irq+0x88/0xf0
-   gic_handle_irq+0x84/0xfc
-   el1_irq+0xc8/0x180
-   slip_unesc+0x80/0x214 [slip]
-   tty_ldisc_receive_buf+0x64/0x80
-   tty_port_default_receive_buf+0x50/0x90
-   flush_to_ldisc+0xbc/0x110
-   process_one_work+0x1d4/0x4b0
-   worker_thread+0x180/0x430
-   kthread+0x11c/0x120
-
-In the testcase pty04, The first process call the write syscall to send
-data to the pty master. At the same time, the workqueue will do the
-flush_to_ldisc to pop data in a loop until there is no more data left.
-When the sender and workqueue running in different core, the sender sends
-data fastly in full time which will result in workqueue doing work in loop
-for a long time and occuring softlockup in flush_to_ldisc with kernel
-configured without preempt. So I add need_resched check and cond_resched
-in the flush_to_ldisc loop to avoid it.
-
-Signed-off-by: Guanghui Feng <guanghuifeng@linux.alibaba.com>
-Link: https://lore.kernel.org/r/1633961304-24759-1-git-send-email-guanghuifeng@linux.alibaba.com
+Fixes: 5320918b9a87 ("drm/udl: initial UDL driver (v4)")
+Cc: stable@vger.kernel.org      # 3.4
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211025115353.5089-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_buffer.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/udl/udl_connector.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
-index cf11882d26025..a5b32dd056bef 100644
---- a/drivers/tty/tty_buffer.c
-+++ b/drivers/tty/tty_buffer.c
-@@ -528,6 +528,9 @@ static void flush_to_ldisc(struct work_struct *work)
- 		if (!count)
- 			break;
- 		head->read += count;
-+
-+		if (need_resched())
-+			cond_resched();
- 	}
- 
- 	mutex_unlock(&buf->lock);
--- 
-2.33.0
-
+--- a/drivers/gpu/drm/udl/udl_connector.c
++++ b/drivers/gpu/drm/udl/udl_connector.c
+@@ -37,7 +37,7 @@ static u8 *udl_get_edid(struct udl_devic
+ 		ret = usb_control_msg(udl->udev,
+ 				      usb_rcvctrlpipe(udl->udev, 0), (0x02),
+ 				      (0x80 | (0x02 << 5)), i << 8, 0xA1, rbuf, 2,
+-				      HZ);
++				      1000);
+ 		if (ret < 1) {
+ 			DRM_ERROR("Read EDID byte %d failed err %x\n", i, ret);
+ 			goto error;
 
 
