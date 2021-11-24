@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E4F145BB86
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:18:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B533345B9B9
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:02:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242721AbhKXMUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:20:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36026 "EHLO mail.kernel.org"
+        id S241957AbhKXMEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:04:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243517AbhKXMSR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:18:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66039610A8;
-        Wed, 24 Nov 2021 12:11:27 +0000 (UTC)
+        id S240238AbhKXMEG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:04:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E95C660FDA;
+        Wed, 24 Nov 2021 12:00:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755888;
-        bh=vt/kUNrq1/PKDVlv0B4kdHte0XI2Dw16MpAuLTNk32c=;
+        s=korg; t=1637755256;
+        bh=K35H2xcaZ5mFhnVe1Esz6Bitqc3Qw/yAuiN8Ew8C88c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMuDB+Y9S6uWVSl0pSqOeQf6Yf+r3VDoZvhk1K2entQSCK+Uyi8n+FSeAWBEgMcKt
-         NrR29b5IzuzFxOiB/S2uCielEMg2RbC+m++cwqD2ga+GmUkM1yuLOu/PrzUPNsVu3T
-         t9Z3po6+5YJZrCudBpRh4cZBYP2PpE2xUOapUGX8=
+        b=zPJMG6Qy/dQqTPdyU/MSXjGBzlmuMa8w1Ij5yO0z+UFxZYLwM6AEMuiFv+ePHnAC9
+         LsiA8KK5SHwPsoUKv6lE874/0RvnJS6ZJFBQEcREMWl3XqoeFCP/czl5noqXHLu4mF
+         qPvqGwnCxuxaW2fNGuiUpmcRz6qol4oY8FbZMJ1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 061/207] locking/lockdep: Avoid RCU-induced noinstr fail
+        stable@vger.kernel.org, Ingmar Klein <ingmar_klein@web.de>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 4.4 029/162] PCI: Mark Atheros QCA6174 to avoid bus reset
 Date:   Wed, 24 Nov 2021 12:55:32 +0100
-Message-Id: <20211124115705.897382355@linuxfoundation.org>
+Message-Id: <20211124115659.279768703@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Ingmar Klein <ingmar_klein@web.de>
 
-[ Upstream commit ce0b9c805dd66d5e49fd53ec5415ae398f4c56e6 ]
+commit e3f4bd3462f6f796594ecc0dda7144ed2d1e5a26 upstream.
 
-vmlinux.o: warning: objtool: look_up_lock_class()+0xc7: call to rcu_read_lock_any_held() leaves .noinstr.text section
+When passing the Atheros QCA6174 through to a virtual machine, the VM hangs
+at the point where the ath10k driver loads.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20210624095148.311980536@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Add a quirk to avoid bus resets on this device, which avoids the hang.
+
+[bhelgaas: commit log]
+Link: https://lore.kernel.org/r/08982e05-b6e8-5a8d-24ab-da1488ee50a8@web.de
+Signed-off-by: Ingmar Klein <ingmar_klein@web.de>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Pali Rohár <pali@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/locking/lockdep.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 9f56e3fac795a..05dd765e2cbca 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -695,7 +695,7 @@ look_up_lock_class(struct lockdep_map *lock, unsigned int subclass)
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
- 		return NULL;
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -3169,6 +3169,7 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_A
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x003c, quirk_no_bus_reset);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0033, quirk_no_bus_reset);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0034, quirk_no_bus_reset);
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x003e, quirk_no_bus_reset);
  
--	hlist_for_each_entry_rcu(class, hash_head, hash_entry) {
-+	hlist_for_each_entry_rcu_notrace(class, hash_head, hash_entry) {
- 		if (class->key == key) {
- 			/*
- 			 * Huh! same key, different name? Did someone trample
--- 
-2.33.0
-
+ /*
+  * Some TI KeyStone C667X devices do not support bus/hot reset.  The PCIESS
 
 
