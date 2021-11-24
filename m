@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A10045B61F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 09:02:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B301345B621
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 09:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231748AbhKXIFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 03:05:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58930 "EHLO mail.kernel.org"
+        id S240965AbhKXIGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 03:06:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240966AbhKXIFr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 03:05:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF93960F5D;
-        Wed, 24 Nov 2021 08:02:35 +0000 (UTC)
+        id S240972AbhKXIGQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 03:06:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8221160F5B;
+        Wed, 24 Nov 2021 08:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637740956;
-        bh=1lVZATJhY9cCAp1Am5qh4dq3z6QhzN9fVXBOqqAulzY=;
+        s=korg; t=1637740987;
+        bh=eUUTb4MA++G0X8hJsDBH+pQHmF9U6FlkfNB24uMyvGY=;
         h=Subject:To:Cc:From:Date:From;
-        b=09M9kXk7i/ZNHMTkFial/TrWkmm0lXMzo6hxKW3CMsRZjsDuXfgXVFywd3XNmqIUX
-         zpZRo/SCcTSuTuk9a89a7DXF9mo19f4HY1rlc5DLlMNoJfsUk66XgrEywZPuXdqU/e
-         cZ7P9sBe0KapuQo5K2fSqEgeJrhIXy9CgRt2VXdg=
-Subject: FAILED: patch "[PATCH] ice: Fix race conditions between virtchnl handling and VF ndo" failed to apply to 5.15-stable tree
-To:     brett.creeley@intel.com, anthony.l.nguyen@intel.com,
-        konrad0.jankowski@intel.com
+        b=aNFxJnqUtUbW5lKo+tk9CR2d6GdVIqoQYrlzceNLfc9wvvzbmEhVLpb4G+k8J+0yf
+         9Bb522kmLcwfifCqtqHl89RiDqDJ4eStwlk4Ode3HU2lbMg9mvR2ctJLLtCEbEoLtv
+         iwezOdbYgac5n+nHD+GzeZ/LhdIXs3ReXgM8d6Rk=
+Subject: FAILED: patch "[PATCH] staging: most: dim2: use device release method" failed to apply to 5.15-stable tree
+To:     nikita.yoush@cogentembedded.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 24 Nov 2021 09:02:30 +0100
-Message-ID: <1637740950240140@kroah.com>
+Date:   Wed, 24 Nov 2021 09:03:04 +0100
+Message-ID: <163774098420119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -46,175 +45,145 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e6ba5273d4ede03d075d7a116b8edad1f6115f4d Mon Sep 17 00:00:00 2001
-From: Brett Creeley <brett.creeley@intel.com>
-Date: Thu, 9 Sep 2021 14:38:09 -0700
-Subject: [PATCH] ice: Fix race conditions between virtchnl handling and VF ndo
- ops
+From d445aa402d60014a37a199fae2bba379696b007d Mon Sep 17 00:00:00 2001
+From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Date: Tue, 5 Oct 2021 17:34:50 +0300
+Subject: [PATCH] staging: most: dim2: use device release method
 
-The VF can be configured via the PF's ndo ops at the same time the PF is
-receiving/handling virtchnl messages. This has many issues, with
-one of them being the ndo op could be actively resetting a VF (i.e.
-resetting it to the default state and deleting/re-adding the VF's VSI)
-while a virtchnl message is being handled. The following error was seen
-because a VF ndo op was used to change a VF's trust setting while the
-VIRTCHNL_OP_CONFIG_VSI_QUEUES was ongoing:
+Commit 723de0f9171e ("staging: most: remove device from interface
+structure") moved registration of driver-provided struct device to
+the most subsystem. This updated dim2 driver as well.
 
-[35274.192484] ice 0000:88:00.0: Failed to set LAN Tx queue context, error: ICE_ERR_PARAM
-[35274.193074] ice 0000:88:00.0: VF 0 failed opcode 6, retval: -5
-[35274.193640] iavf 0000:88:01.0: PF returned error -5 (IAVF_ERR_PARAM) to our request 6
+However, struct device passed to register_device() becomes refcounted,
+and must not be explicitly deallocated, but must provide release method
+instead. Which is incompatible with managing it via devres.
 
-Fix this by making sure the virtchnl handling and VF ndo ops that
-trigger VF resets cannot run concurrently. This is done by adding a
-struct mutex cfg_lock to each VF structure. For VF ndo ops, the mutex
-will be locked around the critical operations and VFR. Since the ndo ops
-will trigger a VFR, the virtchnl thread will use mutex_trylock(). This
-is done because if any other thread (i.e. VF ndo op) has the mutex, then
-that means the current VF message being handled is no longer valid, so
-just ignore it.
+This patch makes the device structure allocated without devres, adds
+device release method, and moves device destruction there.
 
-This issue can be seen using the following commands:
+Fixes: 723de0f9171e ("staging: most: remove device from interface structure")
+Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Link: https://lore.kernel.org/r/20211005143448.8660-2-nikita.yoush@cogentembedded.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-for i in {0..50}; do
-        rmmod ice
-        modprobe ice
-
-        sleep 1
-
-        echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
-        echo 1 > /sys/class/net/ens785f1/device/sriov_numvfs
-
-        ip link set ens785f1 vf 0 trust on
-        ip link set ens785f0 vf 0 trust on
-
-        sleep 2
-
-        echo 0 > /sys/class/net/ens785f0/device/sriov_numvfs
-        echo 0 > /sys/class/net/ens785f1/device/sriov_numvfs
-        sleep 1
-        echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
-        echo 1 > /sys/class/net/ens785f1/device/sriov_numvfs
-
-        ip link set ens785f1 vf 0 trust on
-        ip link set ens785f0 vf 0 trust on
-done
-
-Fixes: 7c710869d64e ("ice: Add handlers for VF netdevice operations")
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-index 3f727df3b6fb..217ff5e9a6f1 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-@@ -650,6 +650,8 @@ void ice_free_vfs(struct ice_pf *pf)
- 			set_bit(ICE_VF_STATE_DIS, pf->vf[i].vf_states);
- 			ice_free_vf_res(&pf->vf[i]);
- 		}
-+
-+		mutex_destroy(&pf->vf[i].cfg_lock);
- 	}
- 
- 	if (ice_sriov_free_msix_res(pf))
-@@ -1946,6 +1948,8 @@ static void ice_set_dflt_settings_vfs(struct ice_pf *pf)
- 		ice_vf_fdir_init(vf);
- 
- 		ice_vc_set_dflt_vf_ops(&vf->vc_ops);
-+
-+		mutex_init(&vf->cfg_lock);
- 	}
+diff --git a/drivers/staging/most/dim2/dim2.c b/drivers/staging/most/dim2/dim2.c
+index 96cb5280a385..bd102329d8c8 100644
+--- a/drivers/staging/most/dim2/dim2.c
++++ b/drivers/staging/most/dim2/dim2.c
+@@ -727,6 +727,23 @@ static int get_dim2_clk_speed(const char *clock_speed, u8 *val)
+ 	return -EINVAL;
  }
  
-@@ -4135,6 +4139,8 @@ ice_set_vf_port_vlan(struct net_device *netdev, int vf_id, u16 vlan_id, u8 qos,
- 		return 0;
- 	}
- 
-+	mutex_lock(&vf->cfg_lock);
++static void dim2_release(struct device *d)
++{
++	struct dim2_hdm *dev = container_of(d, struct dim2_hdm, dev);
++	unsigned long flags;
 +
- 	vf->port_vlan_info = vlanprio;
++	kthread_stop(dev->netinfo_task);
++
++	spin_lock_irqsave(&dim_lock, flags);
++	dim_shutdown();
++	spin_unlock_irqrestore(&dim_lock, flags);
++
++	if (dev->disable_platform)
++		dev->disable_platform(to_platform_device(d->parent));
++
++	kfree(dev);
++}
++
+ /*
+  * dim2_probe - dim2 probe handler
+  * @pdev: platform device structure
+@@ -748,7 +765,7 @@ static int dim2_probe(struct platform_device *pdev)
  
- 	if (vf->port_vlan_info)
-@@ -4144,6 +4150,7 @@ ice_set_vf_port_vlan(struct net_device *netdev, int vf_id, u16 vlan_id, u8 qos,
- 		dev_info(dev, "Clearing port VLAN on VF %d\n", vf_id);
+ 	enum { MLB_INT_IDX, AHB0_INT_IDX };
  
- 	ice_vc_reset_vf(vf);
-+	mutex_unlock(&vf->cfg_lock);
+-	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
++	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+ 	if (!dev)
+ 		return -ENOMEM;
  
- 	return 0;
- }
-@@ -4683,6 +4690,15 @@ void ice_vc_process_vf_msg(struct ice_pf *pf, struct ice_rq_event_info *event)
- 		return;
+@@ -760,19 +777,21 @@ static int dim2_probe(struct platform_device *pdev)
+ 				      "microchip,clock-speed", &clock_speed);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "missing dt property clock-speed\n");
+-		return ret;
++		goto err_free_dev;
  	}
  
-+	/* VF is being configured in another context that triggers a VFR, so no
-+	 * need to process this message
-+	 */
-+	if (!mutex_trylock(&vf->cfg_lock)) {
-+		dev_info(dev, "VF %u is being configured in another context that will trigger a VFR, so there is no need to handle this message\n",
-+			 vf->vf_id);
-+		return;
+ 	ret = get_dim2_clk_speed(clock_speed, &dev->clk_speed);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "bad dt property clock-speed\n");
+-		return ret;
++		goto err_free_dev;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	dev->io_base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(dev->io_base))
+-		return PTR_ERR(dev->io_base);
++	if (IS_ERR(dev->io_base)) {
++		ret = PTR_ERR(dev->io_base);
++		goto err_free_dev;
 +	}
-+
- 	switch (v_opcode) {
- 	case VIRTCHNL_OP_VERSION:
- 		err = ops->get_ver_msg(vf, msg);
-@@ -4771,6 +4787,8 @@ void ice_vc_process_vf_msg(struct ice_pf *pf, struct ice_rq_event_info *event)
- 		dev_info(dev, "PF failed to honor VF %d, opcode %d, error %d\n",
- 			 vf_id, v_opcode, err);
- 	}
-+
-+	mutex_unlock(&vf->cfg_lock);
+ 
+ 	of_id = of_match_node(dim2_of_match, pdev->dev.of_node);
+ 	pdata = of_id->data;
+@@ -780,7 +799,7 @@ static int dim2_probe(struct platform_device *pdev)
+ 		if (pdata->enable) {
+ 			ret = pdata->enable(pdev);
+ 			if (ret)
+-				return ret;
++				goto err_free_dev;
+ 		}
+ 		dev->disable_platform = pdata->disable;
+ 		if (pdata->fcnt)
+@@ -875,24 +894,19 @@ static int dim2_probe(struct platform_device *pdev)
+ 	dev->most_iface.request_netinfo = request_netinfo;
+ 	dev->most_iface.driver_dev = &pdev->dev;
+ 	dev->most_iface.dev = &dev->dev;
+-	dev->dev.init_name = "dim2_state";
++	dev->dev.init_name = dev->name;
+ 	dev->dev.parent = &pdev->dev;
++	dev->dev.release = dim2_release;
+ 
+-	ret = most_register_interface(&dev->most_iface);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to register MOST interface\n");
+-		goto err_stop_thread;
+-	}
+-
+-	return 0;
++	return most_register_interface(&dev->most_iface);
+ 
+-err_stop_thread:
+-	kthread_stop(dev->netinfo_task);
+ err_shutdown_dim:
+ 	dim_shutdown();
+ err_disable_platform:
+ 	if (dev->disable_platform)
+ 		dev->disable_platform(pdev);
++err_free_dev:
++	kfree(dev);
+ 
+ 	return ret;
  }
+@@ -906,17 +920,8 @@ static int dim2_probe(struct platform_device *pdev)
+ static int dim2_remove(struct platform_device *pdev)
+ {
+ 	struct dim2_hdm *dev = platform_get_drvdata(pdev);
+-	unsigned long flags;
  
- /**
-@@ -4886,6 +4904,8 @@ int ice_set_vf_mac(struct net_device *netdev, int vf_id, u8 *mac)
- 		return -EINVAL;
- 	}
+ 	most_deregister_interface(&dev->most_iface);
+-	kthread_stop(dev->netinfo_task);
+-
+-	spin_lock_irqsave(&dim_lock, flags);
+-	dim_shutdown();
+-	spin_unlock_irqrestore(&dim_lock, flags);
+-
+-	if (dev->disable_platform)
+-		dev->disable_platform(pdev);
  
-+	mutex_lock(&vf->cfg_lock);
-+
- 	/* VF is notified of its new MAC via the PF's response to the
- 	 * VIRTCHNL_OP_GET_VF_RESOURCES message after the VF has been reset
- 	 */
-@@ -4904,6 +4924,7 @@ int ice_set_vf_mac(struct net_device *netdev, int vf_id, u8 *mac)
- 	}
- 
- 	ice_vc_reset_vf(vf);
-+	mutex_unlock(&vf->cfg_lock);
  	return 0;
  }
- 
-@@ -4938,11 +4959,15 @@ int ice_set_vf_trust(struct net_device *netdev, int vf_id, bool trusted)
- 	if (trusted == vf->trusted)
- 		return 0;
- 
-+	mutex_lock(&vf->cfg_lock);
-+
- 	vf->trusted = trusted;
- 	ice_vc_reset_vf(vf);
- 	dev_info(ice_pf_to_dev(pf), "VF %u is now %strusted\n",
- 		 vf_id, trusted ? "" : "un");
- 
-+	mutex_unlock(&vf->cfg_lock);
-+
- 	return 0;
- }
- 
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
-index 5ff93a08f54c..7e28ecbbe7af 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.h
-@@ -100,6 +100,11 @@ struct ice_vc_vf_ops {
- struct ice_vf {
- 	struct ice_pf *pf;
- 
-+	/* Used during virtchnl message handling and NDO ops against the VF
-+	 * that will trigger a VFR
-+	 */
-+	struct mutex cfg_lock;
-+
- 	u16 vf_id;			/* VF ID in the PF space */
- 	u16 lan_vsi_idx;		/* index into PF struct */
- 	u16 ctrl_vsi_idx;
 
