@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A42845C597
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BAD545C10B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350523AbhKXN7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:59:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47000 "EHLO mail.kernel.org"
+        id S1346264AbhKXNOR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:14:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353073AbhKXN4o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:56:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C6266124B;
-        Wed, 24 Nov 2021 13:07:04 +0000 (UTC)
+        id S1348101AbhKXNMc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:12:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 923BA61A87;
+        Wed, 24 Nov 2021 12:42:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759225;
-        bh=C7USxOIkcpRsRrptbiMZyuJXJgY3BvP+jWDsocl3OyE=;
+        s=korg; t=1637757766;
+        bh=r1WmjwjlC6jxKn/YidomiPIH0ZoPKcK7bHjyxb/w5Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M3zC0MTRcIxbWnNebE3ZfQXwSApu6SPSR/ehHojhEcGYyP09UtTf7UBxBaNwTJq+P
-         Mbk2Ud72T/qkW2etI5uVe/6LXj1JD8Re5dBUxNOEX9zroaKp1OLDuP4LP70fyC+OjV
-         cdp4bBqUFg0ssEERHLBOHIPmo5RSlZNma23IZWUM=
+        b=NOmjYxf7cA3pHMOVIf4YGs8FBVQbzyDHzR/hb7wM3A1MNtX/QVjx+KOkwxHp8+HEG
+         4RmCXMxB09bohT98bHNz++n1aaqxrpzzUsfozodgo0FfQ+NosJw21MyVdH2JeQY7sX
+         gxlcYwQv7Q+p5ylKfh4QC2glL1kQnq0ReuysjdH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sohaib Mohamed <sohaib.amhmd@gmail.com>,
-        Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Hitoshi Mitake <h.mitake@gmail.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Paul Russel <rusty@rustcorp.com.au>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Pierre Gondois <pierre.gondois@arm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 173/279] perf bench: Fix two memory leaks detected with ASan
+Subject: [PATCH 4.19 270/323] usb: host: ohci-tmio: check return value after calling platform_get_resource()
 Date:   Wed, 24 Nov 2021 12:57:40 +0100
-Message-Id: <20211124115724.716321669@linuxfoundation.org>
+Message-Id: <20211124115727.985767242@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sohaib Mohamed <sohaib.amhmd@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 92723ea0f11d92496687db8c9725248e9d1e5e1d ]
+[ Upstream commit 9eff2b2e59fda25051ab36cd1cb5014661df657b ]
 
-ASan reports memory leaks while running:
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-  $ perf bench sched all
-
-Fixes: e27454cc6352c422 ("perf bench: Add sched-messaging.c: Benchmark for scheduler and IPC mechanisms based on hackbench")
-Signed-off-by: Sohaib Mohamed <sohaib.amhmd@gmail.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Hitoshi Mitake <h.mitake@gmail.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Paul Russel <rusty@rustcorp.com.au>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Pierre Gondois <pierre.gondois@arm.com>
-Link: http://lore.kernel.org/lkml/20211110022012.16620-1-sohaib.amhmd@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20211011134920.118477-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/bench/sched-messaging.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/host/ohci-tmio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/bench/sched-messaging.c b/tools/perf/bench/sched-messaging.c
-index 488f6e6ba1a55..fa0ff4ce2b749 100644
---- a/tools/perf/bench/sched-messaging.c
-+++ b/tools/perf/bench/sched-messaging.c
-@@ -223,6 +223,8 @@ static unsigned int group(pthread_t *pth,
- 		snd_ctx->out_fds[i] = fds[1];
- 		if (!thread_mode)
- 			close(fds[0]);
-+
-+		free(ctx);
- 	}
+diff --git a/drivers/usb/host/ohci-tmio.c b/drivers/usb/host/ohci-tmio.c
+index 983a00e2988dc..702d78e0d903a 100644
+--- a/drivers/usb/host/ohci-tmio.c
++++ b/drivers/usb/host/ohci-tmio.c
+@@ -196,7 +196,7 @@ static int ohci_hcd_tmio_drv_probe(struct platform_device *dev)
+ 	if (usb_disabled())
+ 		return -ENODEV;
  
- 	/* Now we have all the fds, fork the senders */
-@@ -239,6 +241,8 @@ static unsigned int group(pthread_t *pth,
- 		for (i = 0; i < num_fds; i++)
- 			close(snd_ctx->out_fds[i]);
+-	if (!cell)
++	if (!cell || !regs || !config || !sram)
+ 		return -EINVAL;
  
-+	free(snd_ctx);
-+
- 	/* Return number of children to reap */
- 	return num_fds * 2;
- }
+ 	if (irq < 0)
 -- 
 2.33.0
 
