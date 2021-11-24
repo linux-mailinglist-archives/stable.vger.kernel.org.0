@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4144245BDB9
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:38:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8896245BB98
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:18:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344388AbhKXMkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:40:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39824 "EHLO mail.kernel.org"
+        id S243787AbhKXMVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:21:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344630AbhKXMic (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:38:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7621D613A3;
-        Wed, 24 Nov 2021 12:23:05 +0000 (UTC)
+        id S243826AbhKXMSx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:18:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96AF461059;
+        Wed, 24 Nov 2021 12:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756586;
-        bh=KPNdnvY897FfD9BLo2A3Z2x6qFr3e2b3FuKDsqCNAFQ=;
+        s=korg; t=1637755918;
+        bh=6Xjl0fvTVaxVWqAhEJYCvBXzA2KCthtw7ddZwQC8MZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YwQ2kw6sQxtlfn6G6wu9atJ3/36OdkXhuKN1yEU6UsUDNApROTl63+y3p3KU7BQC4
-         dDoG5hNE0YWxdZmiCOzFh8KQVG9QQJU78we1i/RHRwX7avWXa7NVzIbnuw8WnT9lv5
-         xigt7iqh3tcPBRRMDxSuRkJhY1rfWoaH13B6kHts=
+        b=LI14xU44NDZHRTMvBgX9/J++3K/C7JPbl8A0+uY8JimNc4/wEQsn4F5T/OdNVxP86
+         OLvpI6qz3ALOZAJb3AyN4KopQoIBOVyNlX4yg8DXPBNCwnsYvh5jcigDV4nMnnRTou
+         XUdtRDys5G+k673dtSPCX6kM6ueZ1sMyvnBgSB5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 135/251] net: amd-xgbe: Toggle PLL settings during rate change
+Subject: [PATCH 4.9 106/207] mwifiex: Send DELBA requests according to spec
 Date:   Wed, 24 Nov 2021 12:56:17 +0100
-Message-Id: <20211124115714.946535760@linuxfoundation.org>
+Message-Id: <20211124115707.498887947@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,108 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Jonas Dreßler <verdre@v0yd.nl>
 
-[ Upstream commit daf182d360e509a494db18666799f4e85d83dda0 ]
+[ Upstream commit cc8a8bc37466f79b24d972555237f3d591150602 ]
 
-For each rate change command submission, the FW has to do a phy
-power off sequence internally. For this to happen correctly, the
-PLL re-initialization control setting has to be turned off before
-sending mailbox commands and re-enabled once the command submission
-is complete.
+While looking at on-air packets using Wireshark, I noticed we're never
+setting the initiator bit when sending DELBA requests to the AP: While
+we set the bit on our del_ba_param_set bitmask, we forget to actually
+copy that bitmask over to the command struct, which means we never
+actually set the initiator bit.
 
-Without the PLL control setting, the link up takes longer time in a
-fixed phy configuration.
+Fix that and copy the bitmask over to the host_cmd_ds_11n_delba command
+struct.
 
-Fixes: 47f164deab22 ("amd-xgbe: Add PCI device support")
-Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
+Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
+Acked-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211016153244.24353-5-verdre@v0yd.nl
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-common.h |  8 ++++++++
- drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 20 +++++++++++++++++++-
- 2 files changed, 27 insertions(+), 1 deletion(-)
+ drivers/net/wireless/marvell/mwifiex/11n.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-common.h b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-index b2cd3bdba9f89..533b8519ec352 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-@@ -1331,6 +1331,10 @@
- #define MDIO_VEND2_PMA_CDR_CONTROL	0x8056
- #endif
+diff --git a/drivers/net/wireless/marvell/mwifiex/11n.c b/drivers/net/wireless/marvell/mwifiex/11n.c
+index c174e79e6df2b..b70eac7d2dd79 100644
+--- a/drivers/net/wireless/marvell/mwifiex/11n.c
++++ b/drivers/net/wireless/marvell/mwifiex/11n.c
+@@ -630,14 +630,15 @@ int mwifiex_send_delba(struct mwifiex_private *priv, int tid, u8 *peer_mac,
+ 	uint16_t del_ba_param_set;
  
-+#ifndef MDIO_VEND2_PMA_MISC_CTRL0
-+#define MDIO_VEND2_PMA_MISC_CTRL0	0x8090
-+#endif
+ 	memset(&delba, 0, sizeof(delba));
+-	delba.del_ba_param_set = cpu_to_le16(tid << DELBA_TID_POS);
+ 
+-	del_ba_param_set = le16_to_cpu(delba.del_ba_param_set);
++	del_ba_param_set = tid << DELBA_TID_POS;
 +
- #ifndef MDIO_CTRL1_SPEED1G
- #define MDIO_CTRL1_SPEED1G		(MDIO_CTRL1_SPEED10G & ~BMCR_SPEED100)
- #endif
-@@ -1389,6 +1393,10 @@
- #define XGBE_PMA_RX_RST_0_RESET_ON	0x10
- #define XGBE_PMA_RX_RST_0_RESET_OFF	0x00
+ 	if (initiator)
+ 		del_ba_param_set |= IEEE80211_DELBA_PARAM_INITIATOR_MASK;
+ 	else
+ 		del_ba_param_set &= ~IEEE80211_DELBA_PARAM_INITIATOR_MASK;
  
-+#define XGBE_PMA_PLL_CTRL_MASK		BIT(15)
-+#define XGBE_PMA_PLL_CTRL_ENABLE	BIT(15)
-+#define XGBE_PMA_PLL_CTRL_DISABLE	0x0000
-+
- /* Bit setting and getting macros
-  *  The get macro will extract the current bit field value from within
-  *  the variable
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-index bb6f0dcea6eab..4a4370a470fd1 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-@@ -1803,12 +1803,26 @@ static void xgbe_phy_rx_reset(struct xgbe_prv_data *pdata)
- 	}
- }
++	delba.del_ba_param_set = cpu_to_le16(del_ba_param_set);
+ 	memcpy(&delba.peer_mac_addr, peer_mac, ETH_ALEN);
  
-+static void xgbe_phy_pll_ctrl(struct xgbe_prv_data *pdata, bool enable)
-+{
-+	XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_VEND2_PMA_MISC_CTRL0,
-+			 XGBE_PMA_PLL_CTRL_MASK,
-+			 enable ? XGBE_PMA_PLL_CTRL_ENABLE
-+				: XGBE_PMA_PLL_CTRL_DISABLE);
-+
-+	/* Wait for command to complete */
-+	usleep_range(100, 200);
-+}
-+
- static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 					unsigned int cmd, unsigned int sub_cmd)
- {
- 	unsigned int s0 = 0;
- 	unsigned int wait;
- 
-+	/* Disable PLL re-initialization during FW command processing */
-+	xgbe_phy_pll_ctrl(pdata, false);
-+
- 	/* Log if a previous command did not complete */
- 	if (XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS)) {
- 		netif_dbg(pdata, link, pdata->netdev,
-@@ -1829,7 +1843,7 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 	wait = XGBE_RATECHANGE_COUNT;
- 	while (wait--) {
- 		if (!XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS))
--			return;
-+			goto reenable_pll;
- 
- 		usleep_range(1000, 2000);
- 	}
-@@ -1839,6 +1853,10 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 
- 	/* Reset on error */
- 	xgbe_phy_rx_reset(pdata);
-+
-+reenable_pll:
-+	/* Enable PLL re-initialization */
-+	xgbe_phy_pll_ctrl(pdata, true);
- }
- 
- static void xgbe_phy_rrc(struct xgbe_prv_data *pdata)
+ 	/* We don't wait for the response of this command */
 -- 
 2.33.0
 
