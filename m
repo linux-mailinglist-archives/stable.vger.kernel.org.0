@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DF545C1FC
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 740A545C196
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348130AbhKXNYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:24:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48366 "EHLO mail.kernel.org"
+        id S1346787AbhKXNTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:19:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347730AbhKXNWy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:22:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F47661B27;
-        Wed, 24 Nov 2021 12:47:51 +0000 (UTC)
+        id S1347532AbhKXNSB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:18:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C85CD61075;
+        Wed, 24 Nov 2021 12:45:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758071;
-        bh=gm0cpVCI22aiOYMS4Em0K9cCVtlp/8vv9YLJ18RclrI=;
+        s=korg; t=1637757942;
+        bh=rM49msQdah7pCfs5tUTF7Etgkb2uky14v0s9u7CRgLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/6b8tzb1X4oNuOYzR8zmTZxSTA0AulFE9SGtcRgvPZMAXyFF8fHwmNvJjV/6bDVC
-         PuTMXmqUtn18GByzW9/c4GOQwPN9OTByCI7nRovboFEccjAodjqdUJeJpZZl2VIVSS
-         aZ/9CLDqGq5Ti4e4bVkboHFE0TklOx8RS8ZpztBo=
+        b=0Q2DlRTqaNZSzwbDx9NRUJCCGQKhilJZHU2y/aUDJi/asgznb2/9VBzkMeRl9BSxc
+         PADSxFEdpHNX0FJpogWfA3nCrI7QmiQIFcc78UaeS2j4qvLTuSt38pf73l/G71fV0T
+         X1TzOJTxFI7QfgQ35w9LZUbyWrqeSaY0cxBC6OOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mitch Williams <mitch.a.williams@intel.com>,
-        Tony Brelinski <tony.brelinski@intel.com>,
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Dave Switzer <david.switzer@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 052/100] iavf: validate pointers
+Subject: [PATCH 4.19 298/323] i40e: Fix display error code in dmesg
 Date:   Wed, 24 Nov 2021 12:58:08 +0100
-Message-Id: <20211124115656.567644031@linuxfoundation.org>
+Message-Id: <20211124115728.976002794@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitch Williams <mitch.a.williams@intel.com>
+From: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
 
-[ Upstream commit 131b0edc4028bb88bb472456b1ddba526cfb7036 ]
+[ Upstream commit 5aff430d4e33a0b48a6b3d5beb06f79da23f9916 ]
 
-In some cases, the ethtool get_rxfh handler may be called with a null
-key or indir parameter. So check these pointers, or you will have a very
-bad day.
+Fix misleading display error in dmesg if tc filter return fail.
+Only i40e status error code should be converted to string, not linux
+error code. Otherwise, we return false information about the error.
 
-Fixes: 43a3d9ba34c9 ("i40evf: Allow PF driver to configure RSS")
-Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Fixes: 2f4b411a3d67 ("i40e: Enable cloud filters via tc-flower")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Dave Switzer <david.switzer@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_ethtool.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-index 758bef02a2a86..ad1e796e5544a 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-@@ -962,14 +962,13 @@ static int iavf_get_rxfh(struct net_device *netdev, u32 *indir, u8 *key,
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 222eb82d56109..51edc7fdc9b9e 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -7517,9 +7517,8 @@ static int i40e_configure_clsflower(struct i40e_vsi *vsi,
+ 		err = i40e_add_del_cloud_filter(vsi, filter, true);
  
- 	if (hfunc)
- 		*hfunc = ETH_RSS_HASH_TOP;
--	if (!indir)
--		return 0;
--
--	memcpy(key, adapter->rss_key, adapter->rss_key_size);
-+	if (key)
-+		memcpy(key, adapter->rss_key, adapter->rss_key_size);
+ 	if (err) {
+-		dev_err(&pf->pdev->dev,
+-			"Failed to add cloud filter, err %s\n",
+-			i40e_stat_str(&pf->hw, err));
++		dev_err(&pf->pdev->dev, "Failed to add cloud filter, err %d\n",
++			err);
+ 		goto err;
+ 	}
  
--	/* Each 32 bits pointed by 'indir' is stored with a lut entry */
--	for (i = 0; i < adapter->rss_lut_size; i++)
--		indir[i] = (u32)adapter->rss_lut[i];
-+	if (indir)
-+		/* Each 32 bits pointed by 'indir' is stored with a lut entry */
-+		for (i = 0; i < adapter->rss_lut_size; i++)
-+			indir[i] = (u32)adapter->rss_lut[i];
- 
- 	return 0;
- }
 -- 
 2.33.0
 
