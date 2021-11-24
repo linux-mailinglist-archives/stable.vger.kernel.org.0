@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1C3845C101
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE0FD45C55F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:54:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345190AbhKXNOK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:14:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51910 "EHLO mail.kernel.org"
+        id S1348264AbhKXN5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:57:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344981AbhKXNLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:11:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA66D61A86;
-        Wed, 24 Nov 2021 12:42:11 +0000 (UTC)
+        id S1352514AbhKXNzB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:55:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4679D632B2;
+        Wed, 24 Nov 2021 13:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757732;
-        bh=I0tUve/WlRsqERA4xGMy+lbErNcroBEfm1PZC94gaE4=;
+        s=korg; t=1637759187;
+        bh=c8/Cp6pkyJ4nAK+6uvW1BFIj5vI1A5OfUoWOTgTYBA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aglzCPKO4Idr84k555AXF3YKlEJnfjABPgTzfOPmnbcSpRXMIiVevReC9559EZ7a8
-         yvfm4xJagJhYCfsOoHPl8lMctTOKyH11eDhjIsKh3DpAhuUGvcm/RqDYSxl+pQaLz4
-         BVa7xzwz6EoHpwrujeiNp0TNm/ZVRegZUdHeDO8E=
+        b=fCJ22wJaHmf+ukVm9YY+gxmuMS91G8gGCM25SmX7wwfOP5P4PWD5A2XqUDKYCvNUQ
+         20hsI/bXg1oMqiNfNmnMnsQms2Scl1vRjC6u6UtskxOEEKn2ZKKQZcayAdUYRfWXw3
+         CSZzGlN/YsB4CRc9Ob/woebsnWlE5pw6OxNgz07M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Henry Burns <henryburns@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Brelinski <tony.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 225/323] mm/zsmalloc.c: close race window between zs_pool_dec_isolated() and zs_unregister_migration()
+Subject: [PATCH 5.15 128/279] iavf: prevent accidental free of filter structure
 Date:   Wed, 24 Nov 2021 12:56:55 +0100
-Message-Id: <20211124115726.524103898@linuxfoundation.org>
+Message-Id: <20211124115723.228277293@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit afe8605ca45424629fdddfd85984b442c763dc47 ]
+[ Upstream commit 4f0400803818f2642f066d3eacaf013f23554cc7 ]
 
-There is one possible race window between zs_pool_dec_isolated() and
-zs_unregister_migration() because wait_for_isolated_drain() checks the
-isolated count without holding class->lock and there is no order inside
-zs_pool_dec_isolated().  Thus the below race window could be possible:
+In iavf_config_clsflower, the filter structure could be accidentally
+released at the end, if iavf_parse_cls_flower or iavf_handle_tclass ever
+return a non-zero but positive value.
 
-  zs_pool_dec_isolated		zs_unregister_migration
-    check pool->destroying != 0
-				  pool->destroying = true;
-				  smp_mb();
-				  wait_for_isolated_drain()
-				    wait for pool->isolated_pages == 0
-    atomic_long_dec(&pool->isolated_pages);
-    atomic_long_read(&pool->isolated_pages) == 0
+In this case, the function continues through to the end, and will call
+kfree() on the filter structure even though it has been added to the
+linked list.
 
-Since we observe the pool->destroying (false) before atomic_long_dec()
-for pool->isolated_pages, waking pool->migration_wait up is missed.
+This can actually happen because iavf_parse_cls_flower will return
+a positive IAVF_ERR_CONFIG value instead of the traditional negative
+error codes.
 
-Fix this by ensure checking pool->destroying happens after the
-atomic_long_dec(&pool->isolated_pages).
+Fix this by ensuring that the kfree() check and error checks are
+similar. Use the more idiomatic "if (err)" to catch all non-zero error
+codes.
 
-Link: https://lkml.kernel.org/r/20210708115027.7557-1-linmiaohe@huawei.com
-Fixes: 701d678599d0 ("mm/zsmalloc.c: fix race condition in zs_destroy_pool")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Henry Burns <henryburns@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 0075fa0fadd0 ("i40evf: Add support to apply cloud filters")
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/zsmalloc.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index d52c005a060f1..11e81b3ff0cf3 100644
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -1904,10 +1904,11 @@ static inline void zs_pool_dec_isolated(struct zs_pool *pool)
- 	VM_BUG_ON(atomic_long_read(&pool->isolated_pages) <= 0);
- 	atomic_long_dec(&pool->isolated_pages);
- 	/*
--	 * There's no possibility of racing, since wait_for_isolated_drain()
--	 * checks the isolated count under &class->lock after enqueuing
--	 * on migration_wait.
-+	 * Checking pool->destroying must happen after atomic_long_dec()
-+	 * for pool->isolated_pages above. Paired with the smp_mb() in
-+	 * zs_unregister_migration().
- 	 */
-+	smp_mb__after_atomic();
- 	if (atomic_long_read(&pool->isolated_pages) == 0 && pool->destroying)
- 		wake_up_all(&pool->migration_wait);
- }
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 44ea67cb3716b..43c33effd4177 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -3054,11 +3054,11 @@ static int iavf_configure_clsflower(struct iavf_adapter *adapter,
+ 	/* start out with flow type and eth type IPv4 to begin with */
+ 	filter->f.flow_type = VIRTCHNL_TCP_V4_FLOW;
+ 	err = iavf_parse_cls_flower(adapter, cls_flower, filter);
+-	if (err < 0)
++	if (err)
+ 		goto err;
+ 
+ 	err = iavf_handle_tclass(adapter, tc, filter);
+-	if (err < 0)
++	if (err)
+ 		goto err;
+ 
+ 	/* add filter to the list */
 -- 
 2.33.0
 
