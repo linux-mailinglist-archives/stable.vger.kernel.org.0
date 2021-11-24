@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED29D45C394
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:38:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6982F45C1DF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348336AbhKXNkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:40:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51750 "EHLO mail.kernel.org"
+        id S1346859AbhKXNW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:22:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348855AbhKXNiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:38:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 568D263210;
-        Wed, 24 Nov 2021 12:56:12 +0000 (UTC)
+        id S1347697AbhKXNUy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:20:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B2FD61352;
+        Wed, 24 Nov 2021 12:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758572;
-        bh=QSqCYEMAf62OEoYS4OdQuGkXlIQKQh6bwBJcxa1BN2Y=;
+        s=korg; t=1637758020;
+        bh=lU/AhEQe/DdLXtk1zubBmRRJyOVRZeWa5760O/Q9GlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mLUJL48Dj/akb9oZLjJaOVNKISyGkmsyJFUkTZLAD+ioivtsCleAqzsroZ7mKe1iT
-         kPtw6E6QzMLkVEF+ZsHQKO3ZyxHyX/sTsMKee/P8XZxO/PawuEP0ClJdR4D0VCWGKI
-         x87wC+z+VyiZ18R6KoHttxxUvqZ3DpYphxCcXuCI=
+        b=QgTdB9vLLBqhns6uEG6dvBj2TH3P+RLYA58j9WFeFaoU/AwR07o3epce8YRd9Vefd
+         CymeTh3b6u9urKHsgemVPaI2hfDj4AYmNeYV/dKJ7NPmOkPv8tRfezC0YjMBdL8Tk8
+         +SRlIZsIWn0GIdcPYBBRlZp2yA4MPLZnu/w6TnC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arjun Roy <arjunroy@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Paul Mundt <lethal@linux-sh.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Miguel Ojeda <ojeda@kernel.org>, Rich Felker <dalias@libc.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 070/154] net-zerocopy: Refactor skb frag fast-forward op.
+Subject: [PATCH 5.4 030/100] sh: check return code of request_irq
 Date:   Wed, 24 Nov 2021 12:57:46 +0100
-Message-Id: <20211124115704.584102373@linuxfoundation.org>
+Message-Id: <20211124115655.849475090@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,97 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arjun Roy <arjunroy@google.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 7fba5309efe24e4f0284ef4b8663cdf401035e72 ]
+[ Upstream commit 0e38225c92c7964482a8bb6b3e37fde4319e965c ]
 
-Refactor skb frag fast-forwarding for tcp receive zerocopy. This is
-part of a patch set that introduces short-circuited hybrid copies
-for small receive operations, which results in roughly 33% fewer
-syscalls for small RPC scenarios.
+request_irq is marked __must_check, but the call in shx3_prepare_cpus
+has a void return type, so it can't propagate failure to the caller.
+Follow cues from hexagon and just print an error.
 
-skb_advance_to_frag(), given a skb and an offset into the skb,
-iterates from the first frag for the skb until we're at the frag
-specified by the offset. Assuming the offset provided refers to how
-many bytes in the skb are already read, the returned frag points to
-the next frag we may read from, while offset_frag is set to the number
-of bytes from this frag that we have already read.
-
-If frag is not null and offset_frag is equal to 0, then we may be able
-to map this frag's page into the process address space with
-vm_insert_page(). However, if offset_frag is not equal to 0, then we
-cannot do so.
-
-Signed-off-by: Arjun Roy <arjunroy@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c7936b9abcf5 ("sh: smp: Hook in to the generic IPI handler for SH-X3 SMP.")
+Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc: Paul Mundt <lethal@linux-sh.org>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
+Signed-off-by: Rich Felker <dalias@libc.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp.c | 35 ++++++++++++++++++++++++++---------
- 1 file changed, 26 insertions(+), 9 deletions(-)
+ arch/sh/kernel/cpu/sh4a/smp-shx3.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index ba6e4c6db3b0a..b3721cff45023 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1746,6 +1746,28 @@ int tcp_mmap(struct file *file, struct socket *sock,
- }
- EXPORT_SYMBOL(tcp_mmap);
+diff --git a/arch/sh/kernel/cpu/sh4a/smp-shx3.c b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
+index f8a2bec0f260b..1261dc7b84e8b 100644
+--- a/arch/sh/kernel/cpu/sh4a/smp-shx3.c
++++ b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
+@@ -73,8 +73,9 @@ static void shx3_prepare_cpus(unsigned int max_cpus)
+ 	BUILD_BUG_ON(SMP_MSG_NR >= 8);
  
-+static skb_frag_t *skb_advance_to_frag(struct sk_buff *skb, u32 offset_skb,
-+				       u32 *offset_frag)
-+{
-+	skb_frag_t *frag;
-+
-+	offset_skb -= skb_headlen(skb);
-+	if ((int)offset_skb < 0 || skb_has_frag_list(skb))
-+		return NULL;
-+
-+	frag = skb_shinfo(skb)->frags;
-+	while (offset_skb) {
-+		if (skb_frag_size(frag) > offset_skb) {
-+			*offset_frag = offset_skb;
-+			return frag;
-+		}
-+		offset_skb -= skb_frag_size(frag);
-+		++frag;
-+	}
-+	*offset_frag = 0;
-+	return frag;
-+}
-+
- static int tcp_copy_straggler_data(struct tcp_zerocopy_receive *zc,
- 				   struct sk_buff *skb, u32 copylen,
- 				   u32 *offset, u32 *seq)
-@@ -1872,6 +1894,8 @@ static int tcp_zerocopy_receive(struct sock *sk,
- 	curr_addr = address;
- 	while (length + PAGE_SIZE <= zc->length) {
- 		if (zc->recv_skip_hint < PAGE_SIZE) {
-+			u32 offset_frag;
-+
- 			/* If we're here, finish the current batch. */
- 			if (pg_idx) {
- 				ret = tcp_zerocopy_vm_insert_batch(vma, pages,
-@@ -1892,16 +1916,9 @@ static int tcp_zerocopy_receive(struct sock *sk,
- 				skb = tcp_recv_skb(sk, seq, &offset);
- 			}
- 			zc->recv_skip_hint = skb->len - offset;
--			offset -= skb_headlen(skb);
--			if ((int)offset < 0 || skb_has_frag_list(skb))
-+			frags = skb_advance_to_frag(skb, offset, &offset_frag);
-+			if (!frags || offset_frag)
- 				break;
--			frags = skb_shinfo(skb)->frags;
--			while (offset) {
--				if (skb_frag_size(frags) > offset)
--					goto out;
--				offset -= skb_frag_size(frags);
--				frags++;
--			}
- 		}
- 		if (skb_frag_size(frags) != PAGE_SIZE || skb_frag_off(frags)) {
- 			int remaining = zc->recv_skip_hint;
+ 	for (i = 0; i < SMP_MSG_NR; i++)
+-		request_irq(104 + i, ipi_interrupt_handler,
+-			    IRQF_PERCPU, "IPI", (void *)(long)i);
++		if (request_irq(104 + i, ipi_interrupt_handler,
++			    IRQF_PERCPU, "IPI", (void *)(long)i))
++			pr_err("Failed to request irq %d\n", i);
+ 
+ 	for (i = 0; i < max_cpus; i++)
+ 		set_cpu_present(i, true);
 -- 
 2.33.0
 
