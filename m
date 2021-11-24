@@ -2,33 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85F0145BF15
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:52:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0156445BF16
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:52:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345232AbhKXMzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:55:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60974 "EHLO mail.kernel.org"
+        id S1345247AbhKXMzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:55:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346233AbhKXMxK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:53:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3806E615E1;
-        Wed, 24 Nov 2021 12:30:52 +0000 (UTC)
+        id S1346252AbhKXMxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:53:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A209615A2;
+        Wed, 24 Nov 2021 12:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757052;
-        bh=Sn9NZOvgIdRdl4KeShZfgfK7cy/czSSbKuln5UZG/P0=;
+        s=korg; t=1637757055;
+        bh=3YiSKpf1WxHlwdfjiCvYeBvvwlM1oFwcd5UryWBJ7EY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJ+17L+Wv9+zy3tVAfOMkpf0HyIraSsqvxVy65GdwUOzdUfX2Cp8x1SksYod3gR9P
-         TPrK5zr1P1BFRnmySGhgtyIPy8rzRKjJcqUYcWiPsc8qJ1PX57IhEWxpPmir+pmAIz
-         UUmYTF1nhhHBcT9jhmWSli3cIvlHrjTgi0XtbAL8=
+        b=X8aYbNIDi0dVo5TM6cMYxnmXIoa0BEhjhFEx3oHJXJSkNaaN2Y8kcPjFalZcnCzR1
+         KuPT1sF3u8/lphwI4KsaiS0QeuzLGUjoZyoqq7qqvFot96Td2HgoD+nefEBUkVRaRo
+         PbMLznWpeZYKaRV3X2+oCgVmtOdx2RhUOztNxEZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 040/323] btrfs: call btrfs_check_rw_degradable only if there is a missing device
-Date:   Wed, 24 Nov 2021 12:53:50 +0100
-Message-Id: <20211124115720.227236077@linuxfoundation.org>
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>, X86 ML <x86@kernel.org>,
+        Daniel Xu <dxu@dxuuu.xyz>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Abhishek Sagar <sagar.abhishek@gmail.com>,
+        Andrii Nakryiko <andrii.nakryiko@gmail.com>,
+        Paul McKenney <paulmck@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 041/323] ia64: kprobes: Fix to pass correct trampoline address to the handler
+Date:   Wed, 24 Nov 2021 12:53:51 +0100
+Message-Id: <20211124115720.259123470@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
@@ -40,63 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 5c78a5e7aa835c4f08a7c90fe02d19f95a776f29 upstream.
+commit a7fe2378454cf46cd5e2776d05e72bbe8f0a468c upstream.
 
-In open_ctree() in btrfs_check_rw_degradable() [1], we check each block
-group individually if at least the minimum number of devices is available
-for that profile. If all the devices are available, then we don't have to
-check degradable.
+The following commit:
 
-[1]
-open_ctree()
-::
-3559 if (!sb_rdonly(sb) && !btrfs_check_rw_degradable(fs_info, NULL)) {
+   Commit e792ff804f49 ("ia64: kprobes: Use generic kretprobe trampoline handler")
 
-Also before calling btrfs_check_rw_degradable() in open_ctee() at the
-line number shown below [2] we call btrfs_read_chunk_tree() and down to
-add_missing_dev() to record number of missing devices.
+Passed the wrong trampoline address to __kretprobe_trampoline_handler(): it
+passes the descriptor address instead of function entry address.
 
-[2]
-open_ctree()
-::
-3454         ret = btrfs_read_chunk_tree(fs_info);
+Pass the right parameter.
 
-btrfs_read_chunk_tree()
-  read_one_chunk() / read_one_dev()
-    add_missing_dev()
+Also use correct symbol dereference function to get the function address
+from 'kretprobe_trampoline' - an IA64 special.
 
-So, check if there is any missing device before btrfs_check_rw_degradable()
-in open_ctree().
+Link: https://lkml.kernel.org/r/163163042696.489837.12551102356265354730.stgit@devnote2
 
-Also, with this the mount command could save ~16ms.[3] in the most
-common case, that is no device is missing.
-
-[3]
- 1) * 16934.96 us | btrfs_check_rw_degradable [btrfs]();
-
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: e792ff804f49 ("ia64: kprobes: Use generic kretprobe trampoline handler")
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: X86 ML <x86@kernel.org>
+Cc: Daniel Xu <dxu@dxuuu.xyz>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Abhishek Sagar <sagar.abhishek@gmail.com>
+Cc: Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Cc: Paul McKenney <paulmck@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/disk-io.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/ia64/kernel/kprobes.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3095,7 +3095,8 @@ retry_root_backup:
- 		goto fail_sysfs;
- 	}
+--- a/arch/ia64/kernel/kprobes.c
++++ b/arch/ia64/kernel/kprobes.c
+@@ -411,7 +411,8 @@ static void kretprobe_trampoline(void)
  
--	if (!sb_rdonly(sb) && !btrfs_check_rw_degradable(fs_info, NULL)) {
-+	if (!sb_rdonly(sb) && fs_info->fs_devices->missing_devices &&
-+	    !btrfs_check_rw_degradable(fs_info, NULL)) {
- 		btrfs_warn(fs_info,
- 		"writeable mount is not allowed due to too many missing devices");
- 		goto fail_sysfs;
+ int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+ {
+-	regs->cr_iip = __kretprobe_trampoline_handler(regs, kretprobe_trampoline, NULL);
++	regs->cr_iip = __kretprobe_trampoline_handler(regs,
++		dereference_function_descriptor(kretprobe_trampoline), NULL);
+ 	/*
+ 	 * By returning a non-zero value, we are telling
+ 	 * kprobe_handler() that we don't want the post_handler
+@@ -427,7 +428,7 @@ void __kprobes arch_prepare_kretprobe(st
+ 	ri->fp = NULL;
+ 
+ 	/* Replace the return addr with trampoline addr */
+-	regs->b0 = ((struct fnptr *)kretprobe_trampoline)->ip;
++	regs->b0 = (unsigned long)dereference_function_descriptor(kretprobe_trampoline);
+ }
+ 
+ /* Check the instruction in the slot is break */
+@@ -957,14 +958,14 @@ static struct kprobe trampoline_p = {
+ int __init arch_init_kprobes(void)
+ {
+ 	trampoline_p.addr =
+-		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip;
++		dereference_function_descriptor(kretprobe_trampoline);
+ 	return register_kprobe(&trampoline_p);
+ }
+ 
+ int __kprobes arch_trampoline_kprobe(struct kprobe *p)
+ {
+ 	if (p->addr ==
+-		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip)
++		dereference_function_descriptor(kretprobe_trampoline))
+ 		return 1;
+ 
+ 	return 0;
 
 
