@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D327845D071
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 23:50:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4E4045D074
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 23:50:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352257AbhKXWxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 17:53:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47354 "EHLO mail.kernel.org"
+        id S1352279AbhKXWx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 17:53:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352225AbhKXWxY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 17:53:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D395D610A6;
-        Wed, 24 Nov 2021 22:50:12 +0000 (UTC)
+        id S1352275AbhKXWxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 17:53:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6145961074;
+        Wed, 24 Nov 2021 22:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637794214;
-        bh=+jbzVrHpjt29zY3iDky6yyDKYmw8D3peBGhsujnawtA=;
+        s=k20201202; t=1637794215;
+        bh=tNw7IXH2ATiwBDBvEVhHXTTO+EmYp5CodJ+RQSvMjZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lfpr4GJ2yv0m2D6NTwBDlscAR4B+XiZmwgJXm05u31QtC+pMhnFEc1XK6HEpwdZqa
-         B6Q2loTV8wiLblqP547R3SIznjO5favdt725FSuVaK19SpSHmgOj52RY96boKL2zId
-         W3ndse0PXkK9NVG+jfF7RVaaTRmXhXizrrnHf+lDkU1LaXjEVhmuySj1cm0UcOOwG2
-         ZXC4tmqiMUjnh3+Qi5q50Ns3Xsc3w+H8YjH2r0xY2rGG5pxPaG4YLrmYLv2rC7waFO
-         1+2bq7UGFIdZcybZKv88ai0UAVOl4AUVQEeg8o+jOk6RbmFLgiOJNUllBO3MRn8M2l
-         Bd5Z89dl58cKQ==
+        b=fXJ/q/sX3MkO6CO4aupJYTMrgPAO4xEGHPHDnM1vJ6qKPj02bJJR5GrhI0MrqebnQ
+         P+xdvtSXC6FsaB2GKQBI1ONUNECrJ3G7Pa1orYRPTZDD9yhSB1u5oOp/9//6DYRABP
+         3lZgKfbv2fSCxZv0OlDou2TxSMS+2XjpAr7krRwGiYG3wpLUm3mF8rlT41LtQlr+Pm
+         UsOX9/UUPRzxHZatiH6gWpo327qAlcB0l8ALYtEaKO2NgQpwRxQ0vAWrkux1w3i0VU
+         eOydnvAGWhUnazO0ToxSGMnmdWncOX9KadAme91i9Z618Qp70uf2hfljZs9YNe9zkL
+         cXmAbEyLrSjeQ==
 From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     pali@kernel.org, stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 4.14 16/24] PCI: aardvark: Fix PCIe Max Payload Size setting
-Date:   Wed, 24 Nov 2021 23:49:25 +0100
-Message-Id: <20211124224933.24275-17-kabel@kernel.org>
+        Frederick Lawler <fred@fredlawl.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 4.14 17/24] PCI: Add PCI_EXP_LNKCTL2_TLS* macros
+Date:   Wed, 24 Nov 2021 23:49:26 +0100
+Message-Id: <20211124224933.24275-18-kabel@kernel.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20211124224933.24275-1-kabel@kernel.org>
 References: <20211124224933.24275-1-kabel@kernel.org>
@@ -42,50 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Frederick Lawler <fred@fredlawl.com>
 
-commit a4e17d65dafdd3513042d8f00404c9b6068a825c upstream.
+commit c80851f6ce63a6e313f8c7b4b6eb82c67aa4497b upstream.
 
-Change PCIe Max Payload Size setting in PCIe Device Control register to 512
-bytes to align with PCIe Link Initialization sequence as defined in Marvell
-Armada 3700 Functional Specification. According to the specification,
-maximal Max Payload Size supported by this device is 512 bytes.
+The Link Control 2 register is missing macros for Target Link Speeds.  Add
+those in.
 
-Without this kernel prints suspicious line:
-
-    pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 16384, max 512)
-
-With this change it changes to:
-
-    pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 512, max 512)
-
-Link: https://lore.kernel.org/r/20211005180952.6812-3-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org
+Signed-off-by: Frederick Lawler <fred@fredlawl.com>
+[bhelgaas: use "GT" instead of "GB"]
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 ---
- drivers/pci/host/pci-aardvark.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/uapi/linux/pci_regs.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/pci/host/pci-aardvark.c b/drivers/pci/host/pci-aardvark.c
-index fd5155b10c1d..fc198e6e7fa4 100644
---- a/drivers/pci/host/pci-aardvark.c
-+++ b/drivers/pci/host/pci-aardvark.c
-@@ -453,8 +453,9 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
- 	reg &= ~PCI_EXP_DEVCTL_RELAX_EN;
- 	reg &= ~PCI_EXP_DEVCTL_NOSNOOP_EN;
-+	reg &= ~PCI_EXP_DEVCTL_PAYLOAD;
- 	reg &= ~PCI_EXP_DEVCTL_READRQ;
--	reg |= PCI_EXP_DEVCTL_PAYLOAD; /* Set max payload size */
-+	reg |= PCI_EXP_DEVCTL_PAYLOAD_512B;
- 	reg |= PCI_EXP_DEVCTL_READRQ_512B;
- 	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
- 
+diff --git a/include/uapi/linux/pci_regs.h b/include/uapi/linux/pci_regs.h
+index c843929e0c4f..5db024aa00e9 100644
+--- a/include/uapi/linux/pci_regs.h
++++ b/include/uapi/linux/pci_regs.h
+@@ -654,6 +654,11 @@
+ #define  PCI_EXP_LNKCAP2_SLS_8_0GB	0x00000008 /* Supported Speed 8.0GT/s */
+ #define  PCI_EXP_LNKCAP2_CROSSLINK	0x00000100 /* Crosslink supported */
+ #define PCI_EXP_LNKCTL2		48	/* Link Control 2 */
++#define PCI_EXP_LNKCTL2_TLS		0x000f
++#define PCI_EXP_LNKCTL2_TLS_2_5GT	0x0001 /* Supported Speed 2.5GT/s */
++#define PCI_EXP_LNKCTL2_TLS_5_0GT	0x0002 /* Supported Speed 5GT/s */
++#define PCI_EXP_LNKCTL2_TLS_8_0GT	0x0003 /* Supported Speed 8GT/s */
++#define PCI_EXP_LNKCTL2_TLS_16_0GT	0x0004 /* Supported Speed 16GT/s */
+ #define PCI_EXP_LNKSTA2		50	/* Link Status 2 */
+ #define PCI_CAP_EXP_ENDPOINT_SIZEOF_V2	52	/* v2 endpoints with link end here */
+ #define PCI_EXP_SLTCAP2		52	/* Slot Capabilities 2 */
 -- 
 2.32.0
 
