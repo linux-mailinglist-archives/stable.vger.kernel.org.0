@@ -2,36 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BFD745BC63
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07A0B45BA91
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344264AbhKXMam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:30:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42144 "EHLO mail.kernel.org"
+        id S241237AbhKXMMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:12:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243896AbhKXM0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:26:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A45F661244;
-        Wed, 24 Nov 2021 12:16:16 +0000 (UTC)
+        id S242563AbhKXMJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:09:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC231610E6;
+        Wed, 24 Nov 2021 12:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756177;
-        bh=oLycPXMzTPUkby2xccObb9YfFIyDdYru9mqobGfVQCc=;
+        s=korg; t=1637755547;
+        bh=0wATiQxK/PELoTDrmyyKDTMZwmyhzwmp5iHD7Zc9jhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quItunblqq2R8q/IdINsbhldkNF64LdE9rYJZQZWmg6wZ/jv46W5Oo0PXKos3AbaY
-         BROX8P+1lRJYM9TUzeXkZqdi/HX44Vasoq3YBzErFijFlIMEy9mctKrGTDS51EnhQQ
-         qUmVisJDMZnOEK+Bun6OJwzxnOvsAK/hQJIjxYac=
+        b=iLoP31fKVOCQ5A6QP/3cC4LqT+oYwER2TJzYZFdgEShgRG2YQYajGZBTS1Hmn1Lz1
+         m5zUZpiX1uEixw02SygjKIV0hzVuVS3H8Axfu8pAMtYP30xxAnxoJAb/XnXt1YFLpX
+         jJD9tx3aw0i7X06hm6QoHcOc2EXQf74DvyEIJBBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guanghui Feng <guanghuifeng@linux.alibaba.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Artur Rojek <contact@artur-rojek.eu>,
+        Paul Cercueil <paul@crapouillou.net>,
+        linux-mips@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        linux-iio@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        bcm-kernel-feedback-list@broadcom.com,
+        Jonas Gorski <jonas.gorski@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 168/207] tty: tty_buffer: Fix the softlockup issue in flush_to_ldisc
+Subject: [PATCH 4.4 136/162] mips: bcm63xx: add support for clk_get_parent()
 Date:   Wed, 24 Nov 2021 12:57:19 +0100
-Message-Id: <20211124115709.440761742@linuxfoundation.org>
+Message-Id: <20211124115702.687341359@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +52,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guanghui Feng <guanghuifeng@linux.alibaba.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 3968ddcf05fb4b9409cd1859feb06a5b0550a1c1 ]
+[ Upstream commit e8f67482e5a4bc8d0b65d606d08cb60ee123b468 ]
 
-When running ltp testcase(ltp/testcases/kernel/pty/pty04.c) with arm64, there is a soft lockup,
-which look like this one:
+BCM63XX selects HAVE_LEGACY_CLK but does not provide/support
+clk_get_parent(), so add a simple implementation of that
+function so that callers of it will build without errors.
 
-  Workqueue: events_unbound flush_to_ldisc
-  Call trace:
-   dump_backtrace+0x0/0x1ec
-   show_stack+0x24/0x30
-   dump_stack+0xd0/0x128
-   panic+0x15c/0x374
-   watchdog_timer_fn+0x2b8/0x304
-   __run_hrtimer+0x88/0x2c0
-   __hrtimer_run_queues+0xa4/0x120
-   hrtimer_interrupt+0xfc/0x270
-   arch_timer_handler_phys+0x40/0x50
-   handle_percpu_devid_irq+0x94/0x220
-   __handle_domain_irq+0x88/0xf0
-   gic_handle_irq+0x84/0xfc
-   el1_irq+0xc8/0x180
-   slip_unesc+0x80/0x214 [slip]
-   tty_ldisc_receive_buf+0x64/0x80
-   tty_port_default_receive_buf+0x50/0x90
-   flush_to_ldisc+0xbc/0x110
-   process_one_work+0x1d4/0x4b0
-   worker_thread+0x180/0x430
-   kthread+0x11c/0x120
+Fixes these build errors:
 
-In the testcase pty04, The first process call the write syscall to send
-data to the pty master. At the same time, the workqueue will do the
-flush_to_ldisc to pop data in a loop until there is no more data left.
-When the sender and workqueue running in different core, the sender sends
-data fastly in full time which will result in workqueue doing work in loop
-for a long time and occuring softlockup in flush_to_ldisc with kernel
-configured without preempt. So I add need_resched check and cond_resched
-in the flush_to_ldisc loop to avoid it.
+mips-linux-ld: drivers/iio/adc/ingenic-adc.o: in function `jz4770_adc_init_clk_div':
+ingenic-adc.c:(.text+0xe4): undefined reference to `clk_get_parent'
+mips-linux-ld: drivers/iio/adc/ingenic-adc.o: in function `jz4725b_adc_init_clk_div':
+ingenic-adc.c:(.text+0x1b8): undefined reference to `clk_get_parent'
 
-Signed-off-by: Guanghui Feng <guanghuifeng@linux.alibaba.com>
-Link: https://lore.kernel.org/r/1633961304-24759-1-git-send-email-guanghuifeng@linux.alibaba.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e7300d04bd08 ("MIPS: BCM63xx: Add support for the Broadcom BCM63xx family of SOCs." )
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Cc: Artur Rojek <contact@artur-rojek.eu>
+Cc: Paul Cercueil <paul@crapouillou.net>
+Cc: linux-mips@vger.kernel.org
+Cc: Jonathan Cameron <jic23@kernel.org>
+Cc: Lars-Peter Clausen <lars@metafoo.de>
+Cc: linux-iio@vger.kernel.org
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: bcm-kernel-feedback-list@broadcom.com
+Cc: Jonas Gorski <jonas.gorski@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_buffer.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/mips/bcm63xx/clk.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
-index ca9c82ee6c35d..dfccc102c1ddd 100644
---- a/drivers/tty/tty_buffer.c
-+++ b/drivers/tty/tty_buffer.c
-@@ -536,6 +536,9 @@ static void flush_to_ldisc(struct work_struct *work)
- 		if (!count)
- 			break;
- 		head->read += count;
-+
-+		if (need_resched())
-+			cond_resched();
- 	}
+diff --git a/arch/mips/bcm63xx/clk.c b/arch/mips/bcm63xx/clk.c
+index 637565284732d..ef268c9aac80d 100644
+--- a/arch/mips/bcm63xx/clk.c
++++ b/arch/mips/bcm63xx/clk.c
+@@ -333,6 +333,12 @@ void clk_disable(struct clk *clk)
  
- 	mutex_unlock(&buf->lock);
+ EXPORT_SYMBOL(clk_disable);
+ 
++struct clk *clk_get_parent(struct clk *clk)
++{
++	return NULL;
++}
++EXPORT_SYMBOL(clk_get_parent);
++
+ unsigned long clk_get_rate(struct clk *clk)
+ {
+ 	return clk->rate;
 -- 
 2.33.0
 
