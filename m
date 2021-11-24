@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 203D145BA14
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2BFA45BB72
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:17:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242207AbhKXMHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:07:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60340 "EHLO mail.kernel.org"
+        id S242971AbhKXMTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:19:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242197AbhKXMFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:05:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3884761056;
-        Wed, 24 Nov 2021 12:01:50 +0000 (UTC)
+        id S242714AbhKXMRC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:17:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21A0A60C51;
+        Wed, 24 Nov 2021 12:10:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755310;
-        bh=R+InoCmYe1125Ct1qO4aIFakey8YpbsTDyv9iDEBhi8=;
+        s=korg; t=1637755845;
+        bh=E6xC2TBxTIvXTshqm9Z5PDEHQ7VUiWZQdGWelHONzpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uEpmIwB3d8muPPntdkviB8FOftaWvtgNihEaVS04XtP1ZuA3du0u9iz41iY+cpnQh
-         a8UfnCHjzve45K+MGrqJu8K1tkX/EUSlsse6uZuyciBD4f2+epeXayjkwaPo7rlCkL
-         oR+TYC0TBQIbi2epQyyZ6DxEMfwRJt7Q4Wpf0ILw=
+        b=yO0RV8R58+/zttCkd/ss9uLFC15KkBJiyeK5TGJlzPAyOUx/mNLsLZUZ7PTg5r8/9
+         thj8/OyWTItrJxiIIXdxiyAA6LsfLAqaHgGBf/IyYP7g7h0HFN15WA8psfwhBNwfUS
+         w+rmj7IW+cS2jrLxmqLSYOt6BbfqdeL5mpMGJIRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3f91de0b813cc3d19a80@syzkaller.appspotmail.com,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 047/162] smackfs: Fix use-after-free in netlbl_catmap_walk()
+Subject: [PATCH 4.9 079/207] mwl8k: Fix use-after-free in mwl8k_fw_state_machine()
 Date:   Wed, 24 Nov 2021 12:55:50 +0100
-Message-Id: <20211124115659.863006496@linuxfoundation.org>
+Message-Id: <20211124115706.462837949@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 0817534ff9ea809fac1322c5c8c574be8483ea57 ]
+[ Upstream commit 257051a235c17e33782b6e24a4b17f2d7915aaec ]
 
-Syzkaller reported use-after-free bug as described in [1]. The bug is
-triggered when smk_set_cipso() tries to free stale category bitmaps
-while there are concurrent reader(s) using the same bitmaps.
+When the driver fails to request the firmware, it calls its error
+handler. In the error handler, the driver detaches device from driver
+first before releasing the firmware, which can cause a use-after-free bug.
 
-Wait for RCU grace period to finish before freeing the category bitmaps
-in smk_set_cipso(). This makes sure that there are no more readers using
-the stale bitmaps and freeing them should be safe.
+Fix this by releasing firmware first.
 
-[1] https://lore.kernel.org/netdev/000000000000a814c505ca657a4e@google.com/
+The following log reveals it:
 
-Reported-by: syzbot+3f91de0b813cc3d19a80@syzkaller.appspotmail.com
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+[    9.007301 ] BUG: KASAN: use-after-free in mwl8k_fw_state_machine+0x320/0xba0
+[    9.010143 ] Workqueue: events request_firmware_work_func
+[    9.010830 ] Call Trace:
+[    9.010830 ]  dump_stack_lvl+0xa8/0xd1
+[    9.010830 ]  print_address_description+0x87/0x3b0
+[    9.010830 ]  kasan_report+0x172/0x1c0
+[    9.010830 ]  ? mutex_unlock+0xd/0x10
+[    9.010830 ]  ? mwl8k_fw_state_machine+0x320/0xba0
+[    9.010830 ]  ? mwl8k_fw_state_machine+0x320/0xba0
+[    9.010830 ]  __asan_report_load8_noabort+0x14/0x20
+[    9.010830 ]  mwl8k_fw_state_machine+0x320/0xba0
+[    9.010830 ]  ? mwl8k_load_firmware+0x5f0/0x5f0
+[    9.010830 ]  request_firmware_work_func+0x172/0x250
+[    9.010830 ]  ? read_lock_is_recursive+0x20/0x20
+[    9.010830 ]  ? process_one_work+0x7a1/0x1100
+[    9.010830 ]  ? request_firmware_nowait+0x460/0x460
+[    9.010830 ]  ? __this_cpu_preempt_check+0x13/0x20
+[    9.010830 ]  process_one_work+0x9bb/0x1100
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1634356979-6211-1-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smackfs.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/wireless/marvell/mwl8k.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index df082648eb0aa..845ed464fb8cd 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -859,6 +859,7 @@ static int smk_open_cipso(struct inode *inode, struct file *file)
- static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
- 				size_t count, loff_t *ppos, int format)
- {
-+	struct netlbl_lsm_catmap *old_cat;
- 	struct smack_known *skp;
- 	struct netlbl_lsm_secattr ncats;
- 	char mapcatset[SMK_CIPSOLEN];
-@@ -952,9 +953,11 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
+diff --git a/drivers/net/wireless/marvell/mwl8k.c b/drivers/net/wireless/marvell/mwl8k.c
+index 66cd38d4f199b..c6f008796ff16 100644
+--- a/drivers/net/wireless/marvell/mwl8k.c
++++ b/drivers/net/wireless/marvell/mwl8k.c
+@@ -5783,8 +5783,8 @@ static void mwl8k_fw_state_machine(const struct firmware *fw, void *context)
+ fail:
+ 	priv->fw_state = FW_STATE_ERROR;
+ 	complete(&priv->firmware_loading_complete);
+-	device_release_driver(&priv->pdev->dev);
+ 	mwl8k_release_firmware(priv);
++	device_release_driver(&priv->pdev->dev);
+ }
  
- 	rc = smk_netlbl_mls(maplevel, mapcatset, &ncats, SMK_CIPSOLEN);
- 	if (rc >= 0) {
--		netlbl_catmap_free(skp->smk_netlabel.attr.mls.cat);
-+		old_cat = skp->smk_netlabel.attr.mls.cat;
- 		skp->smk_netlabel.attr.mls.cat = ncats.attr.mls.cat;
- 		skp->smk_netlabel.attr.mls.lvl = ncats.attr.mls.lvl;
-+		synchronize_rcu();
-+		netlbl_catmap_free(old_cat);
- 		rc = count;
- 	}
- 
+ #define MAX_RESTART_ATTEMPTS 1
 -- 
 2.33.0
 
