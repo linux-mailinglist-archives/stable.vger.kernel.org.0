@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9817F45BF8E
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:56:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C27C645BF46
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345460AbhKXM7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:59:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33110 "EHLO mail.kernel.org"
+        id S1346172AbhKXM4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:56:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345796AbhKXM5u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:57:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AD40617E5;
-        Wed, 24 Nov 2021 12:33:05 +0000 (UTC)
+        id S1346849AbhKXMyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:54:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A854A611BF;
+        Wed, 24 Nov 2021 12:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757186;
-        bh=KKjPAI1lVlnPQVWx+EIyhzuCjSs0hL4ftHrfCQaq6lQ=;
+        s=korg; t=1637757085;
+        bh=VcyStWBYW/6pXX4Tk3d0H/jzTd0Mn4x+3CjxWdjlwOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rhjVSyHEUIuN+wNcdT2eQ3WXoWqMdY/o1dlMzPOxTOyur3Btg4pJTtiR0IoBuhGNt
-         yR6ww+PzQqrLYlq92IDevUwRjMByBtpXBEPpYCxdHfypni5ThjNL7gkNRQhjtNdeaz
-         6hO4HdB4GpQqPRClOuABC+n8VDzU2XZQbj3/4Rdw=
+        b=nQA29WARJVELDZli247XjLYX45pGSbKmo5KDvAEie5m7/K3LfiKIYlFGnKE/BK13P
+         ymy5Fuzu5CumCGAd1Q47V7Lx8V8XTlPQD+iH4Z0jl7Q0+e7BnkYephwK7ZADsm55T6
+         0wuhBLiPXCWA2jSURtVh0bgPzGV8lcv91dHCJ5o8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Austin Kim <austin.kim@lge.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 4.19 053/323] evm: mark evm_fixmode as __ro_after_init
-Date:   Wed, 24 Nov 2021 12:54:03 +0100
-Message-Id: <20211124115720.661812468@linuxfoundation.org>
+        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 054/323] wcn36xx: Fix HT40 capability for 2Ghz band
+Date:   Wed, 24 Nov 2021 12:54:04 +0100
+Message-Id: <20211124115720.693753771@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
@@ -39,31 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Austin Kim <austin.kim@lge.com>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-commit 32ba540f3c2a7ef61ed5a577ce25069a3d714fc9 upstream.
+commit 960ae77f25631bbe4e3aafefe209b52e044baf31 upstream.
 
-The evm_fixmode is only configurable by command-line option and it is never
-modified outside initcalls, so declaring it with __ro_after_init is better.
+All wcn36xx controllers are supposed to support HT40 (and SGI40),
+This doubles the maximum bitrate/throughput with compatible APs.
 
-Signed-off-by: Austin Kim <austin.kim@lge.com>
+Tested with wcn3620 & wcn3680B.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1634737133-22336-1-git-send-email-loic.poulain@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/evm/evm_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/wcn36xx/main.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/security/integrity/evm/evm_main.c
-+++ b/security/integrity/evm/evm_main.c
-@@ -59,7 +59,7 @@ static struct xattr_list evm_config_defa
- 
- LIST_HEAD(evm_config_xattrnames);
- 
--static int evm_fixmode;
-+static int evm_fixmode __ro_after_init;
- static int __init evm_set_fixmode(char *str)
- {
- 	if (strncmp(str, "fix", 3) == 0)
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -134,7 +134,9 @@ static struct ieee80211_supported_band w
+ 		.cap =	IEEE80211_HT_CAP_GRN_FLD |
+ 			IEEE80211_HT_CAP_SGI_20 |
+ 			IEEE80211_HT_CAP_DSSSCCK40 |
+-			IEEE80211_HT_CAP_LSIG_TXOP_PROT,
++			IEEE80211_HT_CAP_LSIG_TXOP_PROT |
++			IEEE80211_HT_CAP_SGI_40 |
++			IEEE80211_HT_CAP_SUP_WIDTH_20_40,
+ 		.ht_supported = true,
+ 		.ampdu_factor = IEEE80211_HT_MAX_AMPDU_64K,
+ 		.ampdu_density = IEEE80211_HT_MPDU_DENSITY_16,
 
 
