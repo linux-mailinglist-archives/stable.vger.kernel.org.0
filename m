@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1224C45BA89
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 905E845BE44
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:43:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242525AbhKXMLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:11:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34360 "EHLO mail.kernel.org"
+        id S245459AbhKXMqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:46:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242551AbhKXMJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:09:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4486A610C8;
-        Wed, 24 Nov 2021 12:05:44 +0000 (UTC)
+        id S1345715AbhKXMoD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:44:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E5696124D;
+        Wed, 24 Nov 2021 12:26:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755544;
-        bh=lRPTUS005ve+oBZofRJLmAVkhHWw52d0yc4ha8/kfyk=;
+        s=korg; t=1637756761;
+        bh=gFkHNSAYPKPl1wN+NS84UXxXrBHMmrC26H9QTnQrHF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mFy16rykqW89ZAUtF5zKiufiUS9ARZhWA4jDYbF1vCB6yfxOMu/U3xRbxpG6SjHtY
-         G6otBexX85syac7SBfazZyOOQmHqoKFhxZ8NhH9zhz7zBnqIuCVhT4nhcYJ7RkO1qs
-         rsqp5mcI6K5aQPGy40EhAXmZ90/nj5ucpr7W1hyo=
+        b=LIyj6f5luIcnCgJqIYm2abnfiIUVCvM/T4NPz3hjnlHTF6kGlkyLqqseRnKf5EVZO
+         d7vSg7mc+7wCAQR5vlXwEYjPmNuYgqzGm5lqI46ruH9NqznT5imqP0PRqyOMGWP12K
+         0C0kIqaZuyftmUS6yDYbJRpnGbYz/HkfDhEbM3AI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 135/162] net: bnx2x: fix variable dereferenced before check
+        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.14 196/251] s390/cio: check the subchannel validity for dev_busid
 Date:   Wed, 24 Nov 2021 12:57:18 +0100
-Message-Id: <20211124115702.656683156@linuxfoundation.org>
+Message-Id: <20211124115717.084019018@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-[ Upstream commit f8885ac89ce310570e5391fe0bf0ec9c7c9b4fdc ]
+commit a4751f157c194431fae9e9c493f456df8272b871 upstream.
 
-Smatch says:
-	bnx2x_init_ops.h:640 bnx2x_ilt_client_mem_op()
-	warn: variable dereferenced before check 'ilt' (see line 638)
+Check the validity of subchanel before reading other fields in
+the schib.
 
-Move ilt_cli variable initialization _after_ ilt validation, because
-it's unsafe to deref the pointer before validation check.
-
-Fixes: 523224a3b3cd ("bnx2x, cnic, bnx2i: use new FW/HSI")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d3683c055212 ("s390/cio: add dev_busid sysfs entry for each subchannel")
+CC: <stable@vger.kernel.org>
+Reported-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Link: https://lore.kernel.org/r/20211105154451.847288-1-vneethv@linux.ibm.com
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/s390/cio/css.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h
-index 1835d2e451c01..fc7fce642666c 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h
-@@ -635,11 +635,13 @@ static int bnx2x_ilt_client_mem_op(struct bnx2x *bp, int cli_num,
- {
- 	int i, rc;
- 	struct bnx2x_ilt *ilt = BP_ILT(bp);
--	struct ilt_client_info *ilt_cli = &ilt->clients[cli_num];
-+	struct ilt_client_info *ilt_cli;
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -337,8 +337,8 @@ static ssize_t dev_busid_show(struct dev
+ 	struct subchannel *sch = to_subchannel(dev);
+ 	struct pmcw *pmcw = &sch->schib.pmcw;
  
- 	if (!ilt || !ilt->lines)
- 		return -1;
- 
-+	ilt_cli = &ilt->clients[cli_num];
-+
- 	if (ilt_cli->flags & (ILT_CLIENT_SKIP_INIT | ILT_CLIENT_SKIP_MEM))
- 		return 0;
- 
--- 
-2.33.0
-
+-	if ((pmcw->st == SUBCHANNEL_TYPE_IO ||
+-	     pmcw->st == SUBCHANNEL_TYPE_MSG) && pmcw->dnv)
++	if ((pmcw->st == SUBCHANNEL_TYPE_IO && pmcw->dnv) ||
++	    (pmcw->st == SUBCHANNEL_TYPE_MSG && pmcw->w))
+ 		return sysfs_emit(buf, "0.%x.%04x\n", sch->schid.ssid,
+ 				  pmcw->dev);
+ 	else
 
 
