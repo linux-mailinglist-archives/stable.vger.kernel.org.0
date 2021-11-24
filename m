@@ -2,34 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F7DC45C5FD
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 508ED45C225
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:22:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348786AbhKXOEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:04:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47004 "EHLO mail.kernel.org"
+        id S1347034AbhKXNZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:25:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353620AbhKXOAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:00:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52A0C61B74;
-        Wed, 24 Nov 2021 13:09:11 +0000 (UTC)
+        id S1350022AbhKXNXf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:23:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0623561B32;
+        Wed, 24 Nov 2021 12:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759351;
-        bh=4Jz5er3Kn/YEzGSi9BMkk41sRxMHvzDZjIwrMeUwC64=;
+        s=korg; t=1637758110;
+        bh=SASZj+ZDP+pMjtCyY416qs1FQ1diMc9/UQPPN8hT5Jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dp8RLzc6v1gXnb3e6zSJ+viNBWG6Fte8fCn7osVi6P0Y/eoVgC9z031lS/XcGi2jG
-         s5/7paMk7afBx9F7oP2kulqQh8fL8JAckR5nM6ROCVmHZPGb99/8/OY18bwZS5xU+3
-         sh7NlP1zZJ3in+XJMLFG+hNiR5wx0d4tsu7FXcmg=
+        b=Zkca6qtUELTlClQxGoOsiRvmrzUGVBJ0qW2X2Ieci1k8TZKvbOZxpzY7lK5ty5WUm
+         gHGtRqGw0AkL7KFONTn7EAHdEr+KKEwClyhUu2bAjmS3/FgJ6WD/b9VNto+rGqQDk6
+         2PG/PyuXS4gTJJX/gjX1LEBHUVdGFq3tBiNewBwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 212/279] Revert "parisc: Reduce sigreturn trampoline to 3 instructions"
+        stable@vger.kernel.org,
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Michal Maloszewski <michal.maloszewski@intel.com>,
+        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        Witold Fijalkowski <witoldx.fijalkowski@intel.com>,
+        Jaroslaw Gawin <jaroslawx.gawin@intel.com>,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Brelinski <tony.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 063/100] i40e: Fix NULL ptr dereference on VSI filter sync
 Date:   Wed, 24 Nov 2021 12:58:19 +0100
-Message-Id: <20211124115726.066887681@linuxfoundation.org>
+Message-Id: <20211124115656.915862864@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,75 +47,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Michal Maloszewski <michal.maloszewski@intel.com>
 
-commit 79df39d535c7a3770856fe9f5aba8c0ad1eebdb6 upstream.
+[ Upstream commit 37d9e304acd903a445df8208b8a13d707902dea6 ]
 
-This reverts commit e4f2006f1287e7ea17660490569cff323772dac4.
+Remove the reason of null pointer dereference in sync VSI filters.
+Added new I40E_VSI_RELEASING flag to signalize deleting and releasing
+of VSI resources to sync this thread with sync filters subtask.
+Without this patch it is possible to start update the VSI filter list
+after VSI is removed, that's causing a kernel oops.
 
-This patch shows problems with signal handling. Revert it for now.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v5.15
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Michal Maloszewski <michal.maloszewski@intel.com>
+Reviewed-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Reviewed-by: Witold Fijalkowski <witoldx.fijalkowski@intel.com>
+Reviewed-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
+Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/include/asm/rt_sigframe.h |    2 +-
- arch/parisc/kernel/signal.c           |   13 +++++++------
- arch/parisc/kernel/signal32.h         |    2 +-
- 3 files changed, 9 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e.h      | 1 +
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 5 +++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/parisc/include/asm/rt_sigframe.h
-+++ b/arch/parisc/include/asm/rt_sigframe.h
-@@ -2,7 +2,7 @@
- #ifndef _ASM_PARISC_RT_SIGFRAME_H
- #define _ASM_PARISC_RT_SIGFRAME_H
- 
--#define SIGRETURN_TRAMP 3
-+#define SIGRETURN_TRAMP 4
- #define SIGRESTARTBLOCK_TRAMP 5 
- #define TRAMP_SIZE (SIGRETURN_TRAMP + SIGRESTARTBLOCK_TRAMP)
- 
---- a/arch/parisc/kernel/signal.c
-+++ b/arch/parisc/kernel/signal.c
-@@ -288,21 +288,22 @@ setup_rt_frame(struct ksignal *ksig, sig
- 	   already in userspace. The first words of tramp are used to
- 	   save the previous sigrestartblock trampoline that might be
- 	   on the stack. We start the sigreturn trampoline at 
--	   SIGRESTARTBLOCK_TRAMP. */
-+	   SIGRESTARTBLOCK_TRAMP+X. */
- 	err |= __put_user(in_syscall ? INSN_LDI_R25_1 : INSN_LDI_R25_0,
- 			&frame->tramp[SIGRESTARTBLOCK_TRAMP+0]);
--	err |= __put_user(INSN_BLE_SR2_R0, 
-+	err |= __put_user(INSN_LDI_R20,
- 			&frame->tramp[SIGRESTARTBLOCK_TRAMP+1]);
--	err |= __put_user(INSN_LDI_R20,
-+	err |= __put_user(INSN_BLE_SR2_R0,
- 			&frame->tramp[SIGRESTARTBLOCK_TRAMP+2]);
-+	err |= __put_user(INSN_NOP, &frame->tramp[SIGRESTARTBLOCK_TRAMP+3]);
- 
--	start = (unsigned long) &frame->tramp[SIGRESTARTBLOCK_TRAMP+0];
--	end = (unsigned long) &frame->tramp[SIGRESTARTBLOCK_TRAMP+3];
-+	start = (unsigned long) &frame->tramp[0];
-+	end = (unsigned long) &frame->tramp[TRAMP_SIZE];
- 	flush_user_dcache_range_asm(start, end);
- 	flush_user_icache_range_asm(start, end);
- 
- 	/* TRAMP Words 0-4, Length 5 = SIGRESTARTBLOCK_TRAMP
--	 * TRAMP Words 5-7, Length 3 = SIGRETURN_TRAMP
-+	 * TRAMP Words 5-9, Length 4 = SIGRETURN_TRAMP
- 	 * So the SIGRETURN_TRAMP is at the end of SIGRESTARTBLOCK_TRAMP
- 	 */
- 	rp = (unsigned long) &frame->tramp[SIGRESTARTBLOCK_TRAMP];
---- a/arch/parisc/kernel/signal32.h
-+++ b/arch/parisc/kernel/signal32.h
-@@ -36,7 +36,7 @@ struct compat_regfile {
-         compat_int_t rf_sar;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e.h b/drivers/net/ethernet/intel/i40e/i40e.h
+index e571c6116c4b7..e7e61b9a75ecd 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e.h
++++ b/drivers/net/ethernet/intel/i40e/i40e.h
+@@ -169,6 +169,7 @@ enum i40e_vsi_state_t {
+ 	__I40E_VSI_OVERFLOW_PROMISC,
+ 	__I40E_VSI_REINIT_REQUESTED,
+ 	__I40E_VSI_DOWN_REQUESTED,
++	__I40E_VSI_RELEASING,
+ 	/* This must be last as it determines the size of the BITMAP */
+ 	__I40E_VSI_STATE_SIZE__,
  };
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 917be10a5cf5c..dcad4a3191cb8 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -2609,7 +2609,8 @@ static void i40e_sync_filters_subtask(struct i40e_pf *pf)
  
--#define COMPAT_SIGRETURN_TRAMP 3
-+#define COMPAT_SIGRETURN_TRAMP 4
- #define COMPAT_SIGRESTARTBLOCK_TRAMP 5
- #define COMPAT_TRAMP_SIZE (COMPAT_SIGRETURN_TRAMP + \
- 				COMPAT_SIGRESTARTBLOCK_TRAMP)
+ 	for (v = 0; v < pf->num_alloc_vsi; v++) {
+ 		if (pf->vsi[v] &&
+-		    (pf->vsi[v]->flags & I40E_VSI_FLAG_FILTER_CHANGED)) {
++		    (pf->vsi[v]->flags & I40E_VSI_FLAG_FILTER_CHANGED) &&
++		    !test_bit(__I40E_VSI_RELEASING, pf->vsi[v]->state)) {
+ 			int ret = i40e_sync_vsi_filters(pf->vsi[v]);
+ 
+ 			if (ret) {
+@@ -13388,7 +13389,7 @@ int i40e_vsi_release(struct i40e_vsi *vsi)
+ 		dev_info(&pf->pdev->dev, "Can't remove PF VSI\n");
+ 		return -ENODEV;
+ 	}
+-
++	set_bit(__I40E_VSI_RELEASING, vsi->state);
+ 	uplink_seid = vsi->uplink_seid;
+ 	if (vsi->type != I40E_VSI_SRIOV) {
+ 		if (vsi->netdev_registered) {
+-- 
+2.33.0
+
 
 
