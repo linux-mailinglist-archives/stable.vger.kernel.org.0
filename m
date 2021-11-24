@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B575045C0EE
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:09:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0535F45C58D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348454AbhKXNMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:12:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51780 "EHLO mail.kernel.org"
+        id S1348907AbhKXN7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:59:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344550AbhKXNKg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:10:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83DAD61A70;
-        Wed, 24 Nov 2021 12:41:45 +0000 (UTC)
+        id S1352110AbhKXNyy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:54:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B11B260524;
+        Wed, 24 Nov 2021 13:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757706;
-        bh=eeV3uARxDyiX3+WOElroX7XkqSIzF1rVEQaTdSnA0/Q=;
+        s=korg; t=1637759168;
+        bh=6lAoik51YWxGd7Yk/OUJa2oexmgrS5rHC89SaK+VIao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v2Ex0gf3ID6369+jReyHJyIQyZ/+/VWY6+q4TcOmfdcJhek3lPOPxblwkbE2hQmmN
-         Se0CwMlwQ3PGKvy89q3bd+wXbkHqmq0zgl2SPSpxaA/P3XJE0R0bclUVZqRQ5UV5P2
-         FoYmTmUrUs7PMYCYg0Vvi5D/C+QQqIeCLdSB1xPM=
+        b=GKnJztDzPRbnd9FD6QWocxEA6/gPs9r1WxhvGuJE9YzJFQS9Zzy30Xj5WOE4mKYD6
+         i9FI84n134SOg2zdLNGJR+sCEwx7DtiCaV2T7K+9jjxQkbrm/FUlbQoYyOz7iBmLAt
+         0QsN6FrIW+5RA1CYbAXi1bhGJtjOyykW3WR+/KUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jane Malalane <jane.malalane@citrix.com>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 4.19 250/323] x86/cpu: Fix migration safety with X86_BUG_NULL_SEL
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        lijinlin <lijinlin3@huawei.com>, Wu Bo <wubo40@huawei.com>,
+        Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 153/279] scsi: core: sysfs: Fix hang when device state is set via sysfs
 Date:   Wed, 24 Nov 2021 12:57:20 +0100
-Message-Id: <20211124115727.342046908@linuxfoundation.org>
+Message-Id: <20211124115724.049668298@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,136 +43,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jane Malalane <jane.malalane@citrix.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-commit 415de44076640483648d6c0f6d645a9ee61328ad upstream.
+[ Upstream commit 4edd8cd4e86dd3047e5294bbefcc0a08f66a430f ]
 
-Currently, Linux probes for X86_BUG_NULL_SEL unconditionally which
-makes it unsafe to migrate in a virtualised environment as the
-properties across the migration pool might differ.
+This fixes a regression added with:
 
-To be specific, the case which goes wrong is:
+commit f0f82e2476f6 ("scsi: core: Fix capacity set to zero after
+offlinining device")
 
-1. Zen1 (or earlier) and Zen2 (or later) in a migration pool
-2. Linux boots on Zen2, probes and finds the absence of X86_BUG_NULL_SEL
-3. Linux is then migrated to Zen1
+The problem is that after iSCSI recovery, iscsid will call into the kernel
+to set the dev's state to running, and with that patch we now call
+scsi_rescan_device() with the state_mutex held. If the SCSI error handler
+thread is just starting to test the device in scsi_send_eh_cmnd() then it's
+going to try to grab the state_mutex.
 
-Linux is now running on a X86_BUG_NULL_SEL-impacted CPU while believing
-that the bug is fixed.
+We are then stuck, because when scsi_rescan_device() tries to send its I/O
+scsi_queue_rq() calls -> scsi_host_queue_ready() -> scsi_host_in_recovery()
+which will return true (the host state is still in recovery) and I/O will
+just be requeued. scsi_send_eh_cmnd() will then never be able to grab the
+state_mutex to finish error handling.
 
-The only way to address the problem is to fully trust the "no longer
-affected" CPUID bit when virtualised, because in the above case it would
-be clear deliberately to indicate the fact "you might migrate to
-somewhere which has this behaviour".
+To prevent the deadlock move the rescan-related code to after we drop the
+state_mutex.
 
-Zen3 adds the NullSelectorClearsBase CPUID bit to indicate that loading
-a NULL segment selector zeroes the base and limit fields, as well as
-just attributes. Zen2 also has this behaviour but doesn't have the NSCB
-bit.
+This also adds a check for if we are already in the running state. This
+prevents extra scans and helps the iscsid case where if the transport class
+has already onlined the device during its recovery process then we don't
+need userspace to do it again plus possibly block that daemon.
 
- [ bp: Minor touchups. ]
-
-Signed-off-by: Jane Malalane <jane.malalane@citrix.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-CC: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20211021104744.24126-1-jane.malalane@citrix.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20211105221048.6541-3-michael.christie@oracle.com
+Fixes: f0f82e2476f6 ("scsi: core: Fix capacity set to zero after offlinining device")
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: lijinlin <lijinlin3@huawei.com>
+Cc: Wu Bo <wubo40@huawei.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Wu Bo <wubo40@huawei.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/amd.c    |    2 +
- arch/x86/kernel/cpu/common.c |   44 ++++++++++++++++++++++++++++++++++++-------
- arch/x86/kernel/cpu/cpu.h    |    1 
- 3 files changed, 40 insertions(+), 7 deletions(-)
+ drivers/scsi/scsi_sysfs.c | 30 +++++++++++++++++++-----------
+ 1 file changed, 19 insertions(+), 11 deletions(-)
 
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -993,6 +993,8 @@ static void init_amd(struct cpuinfo_x86
- 	if (cpu_has(c, X86_FEATURE_IRPERF) &&
- 	    !cpu_has_amd_erratum(c, amd_erratum_1054))
- 		msr_set_bit(MSR_K7_HWCR, MSR_K7_HWCR_IRPERF_EN_BIT);
-+
-+	check_null_seg_clears_base(c);
- }
+diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+index 8bb79ccc9a8b5..9527e734a999a 100644
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -797,6 +797,7 @@ store_state_field(struct device *dev, struct device_attribute *attr,
+ 	int i, ret;
+ 	struct scsi_device *sdev = to_scsi_device(dev);
+ 	enum scsi_device_state state = 0;
++	bool rescan_dev = false;
  
- #ifdef CONFIG_X86_32
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -1254,9 +1254,8 @@ void __init early_cpu_init(void)
- 	early_identify_cpu(&boot_cpu_data);
- }
+ 	for (i = 0; i < ARRAY_SIZE(sdev_states); i++) {
+ 		const int len = strlen(sdev_states[i].name);
+@@ -815,20 +816,27 @@ store_state_field(struct device *dev, struct device_attribute *attr,
+ 	}
  
--static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
-+static bool detect_null_seg_behavior(void)
- {
--#ifdef CONFIG_X86_64
- 	/*
- 	 * Empirically, writing zero to a segment selector on AMD does
- 	 * not clear the base, whereas writing zero to a segment
-@@ -1277,10 +1276,43 @@ static void detect_null_seg_behavior(str
- 	wrmsrl(MSR_FS_BASE, 1);
- 	loadsegment(fs, 0);
- 	rdmsrl(MSR_FS_BASE, tmp);
--	if (tmp != 0)
--		set_cpu_bug(c, X86_BUG_NULL_SEG);
- 	wrmsrl(MSR_FS_BASE, old_base);
--#endif
-+	return tmp == 0;
-+}
-+
-+void check_null_seg_clears_base(struct cpuinfo_x86 *c)
-+{
-+	/* BUG_NULL_SEG is only relevant with 64bit userspace */
-+	if (!IS_ENABLED(CONFIG_X86_64))
-+		return;
-+
-+	/* Zen3 CPUs advertise Null Selector Clears Base in CPUID. */
-+	if (c->extended_cpuid_level >= 0x80000021 &&
-+	    cpuid_eax(0x80000021) & BIT(6))
-+		return;
-+
-+	/*
-+	 * CPUID bit above wasn't set. If this kernel is still running
-+	 * as a HV guest, then the HV has decided not to advertize
-+	 * that CPUID bit for whatever reason.	For example, one
-+	 * member of the migration pool might be vulnerable.  Which
-+	 * means, the bug is present: set the BUG flag and return.
-+	 */
-+	if (cpu_has(c, X86_FEATURE_HYPERVISOR)) {
-+		set_cpu_bug(c, X86_BUG_NULL_SEG);
-+		return;
+ 	mutex_lock(&sdev->state_mutex);
+-	ret = scsi_device_set_state(sdev, state);
+-	/*
+-	 * If the device state changes to SDEV_RUNNING, we need to
+-	 * run the queue to avoid I/O hang, and rescan the device
+-	 * to revalidate it. Running the queue first is necessary
+-	 * because another thread may be waiting inside
+-	 * blk_mq_freeze_queue_wait() and because that call may be
+-	 * waiting for pending I/O to finish.
+-	 */
+-	if (ret == 0 && state == SDEV_RUNNING) {
++	if (sdev->sdev_state == SDEV_RUNNING && state == SDEV_RUNNING) {
++		ret = count;
++	} else {
++		ret = scsi_device_set_state(sdev, state);
++		if (ret == 0 && state == SDEV_RUNNING)
++			rescan_dev = true;
 +	}
++	mutex_unlock(&sdev->state_mutex);
 +
-+	/*
-+	 * Zen2 CPUs also have this behaviour, but no CPUID bit.
-+	 * 0x18 is the respective family for Hygon.
-+	 */
-+	if ((c->x86 == 0x17 || c->x86 == 0x18) &&
-+	    detect_null_seg_behavior())
-+		return;
-+
-+	/* All the remaining ones are affected */
-+	set_cpu_bug(c, X86_BUG_NULL_SEG);
++	if (rescan_dev) {
++		/*
++		 * If the device state changes to SDEV_RUNNING, we need to
++		 * run the queue to avoid I/O hang, and rescan the device
++		 * to revalidate it. Running the queue first is necessary
++		 * because another thread may be waiting inside
++		 * blk_mq_freeze_queue_wait() and because that call may be
++		 * waiting for pending I/O to finish.
++		 */
+ 		blk_mq_run_hw_queues(sdev->request_queue, true);
+ 		scsi_rescan_device(dev);
+ 	}
+-	mutex_unlock(&sdev->state_mutex);
+ 
+ 	return ret == 0 ? count : -EINVAL;
  }
- 
- static void generic_identify(struct cpuinfo_x86 *c)
-@@ -1316,8 +1348,6 @@ static void generic_identify(struct cpui
- 
- 	get_model_name(c); /* Default name */
- 
--	detect_null_seg_behavior(c);
--
- 	/*
- 	 * ESPFIX is a strange bug.  All real CPUs have it.  Paravirt
- 	 * systems that run Linux at CPL > 0 may or may not have the
---- a/arch/x86/kernel/cpu/cpu.h
-+++ b/arch/x86/kernel/cpu/cpu.h
-@@ -76,6 +76,7 @@ extern int detect_extended_topology_earl
- extern int detect_extended_topology(struct cpuinfo_x86 *c);
- extern int detect_ht_early(struct cpuinfo_x86 *c);
- extern void detect_ht(struct cpuinfo_x86 *c);
-+extern void check_null_seg_clears_base(struct cpuinfo_x86 *c);
- 
- unsigned int aperfmperf_get_khz(int cpu);
- 
+-- 
+2.33.0
+
 
 
