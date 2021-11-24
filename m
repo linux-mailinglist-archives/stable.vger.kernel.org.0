@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 794D045BC90
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38DFE45BEA8
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245124AbhKXMbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:31:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42362 "EHLO mail.kernel.org"
+        id S1343669AbhKXMtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:49:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244830AbhKXM1S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:27:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEA5E61252;
-        Wed, 24 Nov 2021 12:16:42 +0000 (UTC)
+        id S1344062AbhKXMrf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:47:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7847561251;
+        Wed, 24 Nov 2021 12:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756203;
-        bh=SHkbJWUqwE3VLUCP9zE4yPTTjWNdUTWLp9SpfIPxvV8=;
+        s=korg; t=1637756859;
+        bh=HecDkF34Wdtb0CxINO5Ah9QMCghEass5ttd/R0X9H/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ihbS+ji46cl3P+AdqVAC3hw6Y7Y6dZaf+R8jpHBJlS6E9L9mJ3VWfwDwgR5mksOvX
-         GqMsX1By8QU0HnRbkcH+vseoomx4fgjMr2MR/k4Wfr8t8Ax+wv7zpAt8gNlCR5zT+o
-         clHezCaS94vaBgcV9RKetJS8vHQGLRVC7CxSSCZk=
+        b=gCk3oY8zUUTaLNKqchulshbIDTXBOQk1ZqYncbjGJ+XM470bFEKGt9BGq5oYQjkZF
+         0R9BWX905UEB0Rd6fR9z57znnB4ays+T3CGnPj+Jxbu1HZlczVw/KO7KTghRtONKH8
+         ShYm+ww9OfeDFK+YvFZKhOeDblTlk/h0mIf2p6IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        =?UTF-8?q?Linus=20L=FCssing?= <linus.luessing@c0d3.blue>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sven Eckelmann <sven@narfation.org>
-Subject: [PATCH 4.9 201/207] batman-adv: mcast: fix duplicate mcast packets from BLA backbone to mesh
-Date:   Wed, 24 Nov 2021 12:57:52 +0100
-Message-Id: <20211124115710.456883269@linuxfoundation.org>
+        stable@vger.kernel.org, Sohaib Mohamed <sohaib.amhmd@gmail.com>,
+        Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Hitoshi Mitake <h.mitake@gmail.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Paul Russel <rusty@rustcorp.com.au>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Pierre Gondois <pierre.gondois@arm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 231/251] perf bench: Fix two memory leaks detected with ASan
+Date:   Wed, 24 Nov 2021 12:57:53 +0100
+Message-Id: <20211124115718.330470816@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,198 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <linus.luessing@c0d3.blue>
+From: Sohaib Mohamed <sohaib.amhmd@gmail.com>
 
-commit 2369e827046920ef0599e6a36b975ac5c0a359c2 upstream.
+[ Upstream commit 92723ea0f11d92496687db8c9725248e9d1e5e1d ]
 
-Scenario:
-* Multicast frame send from BLA backbone gateways (multiple nodes
-  with their bat0 bridged together, with BLA enabled) sharing the same
-  LAN to nodes in the mesh
+ASan reports memory leaks while running:
 
-Issue:
-* Nodes receive the frame multiple times on bat0 from the mesh,
-  once from each foreign BLA backbone gateway which shares the same LAN
-  with another
+  $ perf bench sched all
 
-For multicast frames via batman-adv broadcast packets coming from the
-same BLA backbone but from different backbone gateways duplicates are
-currently detected via a CRC history of previously received packets.
-
-However this CRC so far was not performed for multicast frames received
-via batman-adv unicast packets. Fixing this by appyling the same check
-for such packets, too.
-
-Room for improvements in the future: Ideally we would introduce the
-possibility to not only claim a client, but a complete originator, too.
-This would allow us to only send a multicast-in-unicast packet from a BLA
-backbone gateway claiming the node and by that avoid potential redundant
-transmissions in the first place.
-
-Fixes: e5cf86d30a9b ("batman-adv: add broadcast duplicate check")
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.9 backported: adjust context, correct fixes line ]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e27454cc6352c422 ("perf bench: Add sched-messaging.c: Benchmark for scheduler and IPC mechanisms based on hackbench")
+Signed-off-by: Sohaib Mohamed <sohaib.amhmd@gmail.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Hitoshi Mitake <h.mitake@gmail.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Paul Russel <rusty@rustcorp.com.au>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Pierre Gondois <pierre.gondois@arm.com>
+Link: http://lore.kernel.org/lkml/20211110022012.16620-1-sohaib.amhmd@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bridge_loop_avoidance.c |  105 +++++++++++++++++++++++++++------
- 1 file changed, 88 insertions(+), 17 deletions(-)
+ tools/perf/bench/sched-messaging.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -1593,13 +1593,16 @@ int batadv_bla_init(struct batadv_priv *
+diff --git a/tools/perf/bench/sched-messaging.c b/tools/perf/bench/sched-messaging.c
+index f9d7641ae8338..b4e13db991e9e 100644
+--- a/tools/perf/bench/sched-messaging.c
++++ b/tools/perf/bench/sched-messaging.c
+@@ -226,6 +226,8 @@ static unsigned int group(pthread_t *pth,
+ 		snd_ctx->out_fds[i] = fds[1];
+ 		if (!thread_mode)
+ 			close(fds[0]);
++
++		free(ctx);
+ 	}
+ 
+ 	/* Now we have all the fds, fork the senders */
+@@ -242,6 +244,8 @@ static unsigned int group(pthread_t *pth,
+ 		for (i = 0; i < num_fds; i++)
+ 			close(snd_ctx->out_fds[i]);
+ 
++	free(snd_ctx);
++
+ 	/* Return number of children to reap */
+ 	return num_fds * 2;
  }
- 
- /**
-- * batadv_bla_check_bcast_duplist - Check if a frame is in the broadcast dup.
-+ * batadv_bla_check_duplist() - Check if a frame is in the broadcast dup.
-  * @bat_priv: the bat priv with all the soft interface information
-- * @skb: contains the bcast_packet to be checked
-- *
-- * check if it is on our broadcast list. Another gateway might
-- * have sent the same packet because it is connected to the same backbone,
-- * so we have to remove this duplicate.
-+ * @skb: contains the multicast packet to be checked
-+ * @payload_ptr: pointer to position inside the head buffer of the skb
-+ *  marking the start of the data to be CRC'ed
-+ * @orig: originator mac address, NULL if unknown
-+ *
-+ * Check if it is on our broadcast list. Another gateway might have sent the
-+ * same packet because it is connected to the same backbone, so we have to
-+ * remove this duplicate.
-  *
-  * This is performed by checking the CRC, which will tell us
-  * with a good chance that it is the same packet. If it is furthermore
-@@ -1608,19 +1611,17 @@ int batadv_bla_init(struct batadv_priv *
-  *
-  * Return: true if a packet is in the duplicate list, false otherwise.
-  */
--bool batadv_bla_check_bcast_duplist(struct batadv_priv *bat_priv,
--				    struct sk_buff *skb)
-+static bool batadv_bla_check_duplist(struct batadv_priv *bat_priv,
-+				     struct sk_buff *skb, u8 *payload_ptr,
-+				     const u8 *orig)
- {
--	int i, curr;
--	__be32 crc;
--	struct batadv_bcast_packet *bcast_packet;
- 	struct batadv_bcast_duplist_entry *entry;
- 	bool ret = false;
--
--	bcast_packet = (struct batadv_bcast_packet *)skb->data;
-+	int i, curr;
-+	__be32 crc;
- 
- 	/* calculate the crc ... */
--	crc = batadv_skb_crc32(skb, (u8 *)(bcast_packet + 1));
-+	crc = batadv_skb_crc32(skb, payload_ptr);
- 
- 	spin_lock_bh(&bat_priv->bla.bcast_duplist_lock);
- 
-@@ -1639,8 +1640,21 @@ bool batadv_bla_check_bcast_duplist(stru
- 		if (entry->crc != crc)
- 			continue;
- 
--		if (batadv_compare_eth(entry->orig, bcast_packet->orig))
--			continue;
-+		/* are the originators both known and not anonymous? */
-+		if (orig && !is_zero_ether_addr(orig) &&
-+		    !is_zero_ether_addr(entry->orig)) {
-+			/* If known, check if the new frame came from
-+			 * the same originator:
-+			 * We are safe to take identical frames from the
-+			 * same orig, if known, as multiplications in
-+			 * the mesh are detected via the (orig, seqno) pair.
-+			 * So we can be a bit more liberal here and allow
-+			 * identical frames from the same orig which the source
-+			 * host might have sent multiple times on purpose.
-+			 */
-+			if (batadv_compare_eth(entry->orig, orig))
-+				continue;
-+		}
- 
- 		/* this entry seems to match: same crc, not too old,
- 		 * and from another gw. therefore return true to forbid it.
-@@ -1656,7 +1670,14 @@ bool batadv_bla_check_bcast_duplist(stru
- 	entry = &bat_priv->bla.bcast_duplist[curr];
- 	entry->crc = crc;
- 	entry->entrytime = jiffies;
--	ether_addr_copy(entry->orig, bcast_packet->orig);
-+
-+	/* known originator */
-+	if (orig)
-+		ether_addr_copy(entry->orig, orig);
-+	/* anonymous originator */
-+	else
-+		eth_zero_addr(entry->orig);
-+
- 	bat_priv->bla.bcast_duplist_curr = curr;
- 
- out:
-@@ -1666,6 +1687,48 @@ out:
- }
- 
- /**
-+ * batadv_bla_check_ucast_duplist() - Check if a frame is in the broadcast dup.
-+ * @bat_priv: the bat priv with all the soft interface information
-+ * @skb: contains the multicast packet to be checked, decapsulated from a
-+ *  unicast_packet
-+ *
-+ * Check if it is on our broadcast list. Another gateway might have sent the
-+ * same packet because it is connected to the same backbone, so we have to
-+ * remove this duplicate.
-+ *
-+ * Return: true if a packet is in the duplicate list, false otherwise.
-+ */
-+static bool batadv_bla_check_ucast_duplist(struct batadv_priv *bat_priv,
-+					   struct sk_buff *skb)
-+{
-+	return batadv_bla_check_duplist(bat_priv, skb, (u8 *)skb->data, NULL);
-+}
-+
-+/**
-+ * batadv_bla_check_bcast_duplist() - Check if a frame is in the broadcast dup.
-+ * @bat_priv: the bat priv with all the soft interface information
-+ * @skb: contains the bcast_packet to be checked
-+ *
-+ * Check if it is on our broadcast list. Another gateway might have sent the
-+ * same packet because it is connected to the same backbone, so we have to
-+ * remove this duplicate.
-+ *
-+ * Return: true if a packet is in the duplicate list, false otherwise.
-+ */
-+bool batadv_bla_check_bcast_duplist(struct batadv_priv *bat_priv,
-+				    struct sk_buff *skb)
-+{
-+	struct batadv_bcast_packet *bcast_packet;
-+	u8 *payload_ptr;
-+
-+	bcast_packet = (struct batadv_bcast_packet *)skb->data;
-+	payload_ptr = (u8 *)(bcast_packet + 1);
-+
-+	return batadv_bla_check_duplist(bat_priv, skb, payload_ptr,
-+					bcast_packet->orig);
-+}
-+
-+/**
-  * batadv_bla_is_backbone_gw_orig - Check if the originator is a gateway for
-  *  the VLAN identified by vid.
-  * @bat_priv: the bat priv with all the soft interface information
-@@ -1879,6 +1942,14 @@ bool batadv_bla_rx(struct batadv_priv *b
- 			    packet_type == BATADV_UNICAST)
- 				goto handled;
- 
-+	/* potential duplicates from foreign BLA backbone gateways via
-+	 * multicast-in-unicast packets
-+	 */
-+	if (is_multicast_ether_addr(ethhdr->h_dest) &&
-+	    packet_type == BATADV_UNICAST &&
-+	    batadv_bla_check_ucast_duplist(bat_priv, skb))
-+		goto handled;
-+
- 	ether_addr_copy(search_claim.addr, ethhdr->h_source);
- 	search_claim.vid = vid;
- 	claim = batadv_claim_hash_find(bat_priv, &search_claim);
+-- 
+2.33.0
+
 
 
