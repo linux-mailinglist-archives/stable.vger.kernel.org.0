@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A872C45BBF4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA6CC45BDFB
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243994AbhKXMZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42284 "EHLO mail.kernel.org"
+        id S1345331AbhKXMmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:42:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244907AbhKXMYV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:24:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49769611EF;
-        Wed, 24 Nov 2021 12:14:40 +0000 (UTC)
+        id S1343607AbhKXMkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:40:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C60F9613A6;
+        Wed, 24 Nov 2021 12:24:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756080;
-        bh=DANHyUhkyh2QkW2UxzgTi2ylXMNXuZR/2kO69c4BXnY=;
+        s=korg; t=1637756659;
+        bh=floB/RUy7A7RDQh18dFaCVEvg6LqzdoDc3CgqLwMySs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SmjzhbJqgkF8C1UwGxb0yte2H2t/NO8CK/38yOOoAUBZKYCISm55macK++rXs1LNh
-         gD3GTknM1AFmRi3yQRo1VB1cdwtGIFhBSHodwxfO4oocB1eewso5qWhjLmXkYhZ+vl
-         AdoprTkbJzTSQHWMCzvKpJcJr5l/0ZsS0g3SOi4I=
+        b=q+YgkqtHmrLc2n5yMCzjdXDVYtnd/KTYfKdc33/iB+jtAhSTF8rs2O41KLGFZ9F3f
+         /Qa8u5h1TkXQjxWc3bteZdAC/G7jVMHoN/tWztHh4p3BlmYICdV0/9TkKqMftx3INN
+         rlNQ5mWiBq37d1H0LXHnuc59hinj7eHByJdM5yJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Baptiste Lepers <baptiste.lepers@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        John Johansen <john.johansen@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 131/207] pnfs/flexfiles: Fix misplaced barrier in nfs4_ff_layout_prepare_ds
+Subject: [PATCH 4.14 160/251] apparmor: fix error check
 Date:   Wed, 24 Nov 2021 12:56:42 +0100
-Message-Id: <20211124115708.281965301@linuxfoundation.org>
+Message-Id: <20211124115715.831064711@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,72 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baptiste Lepers <baptiste.lepers@gmail.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit a2915fa06227b056a8f9b0d79b61dca08ad5cfc6 ]
+[ Upstream commit d108370c644b153382632b3e5511ade575c91c86 ]
 
-_nfs4_pnfs_v3/v4_ds_connect do
-   some work
-   smp_wmb
-   ds->ds_clp = clp;
+clang static analysis reports this representative problem:
 
-And nfs4_ff_layout_prepare_ds currently does
-   smp_rmb
-   if(ds->ds_clp)
-      ...
+label.c:1463:16: warning: Assigned value is garbage or undefined
+        label->hname = name;
+                     ^ ~~~~
 
-This patch places the smp_rmb after the if. This ensures that following
-reads only happen once nfs4_ff_layout_prepare_ds has checked that data
-has been properly initialized.
+In aa_update_label_name(), this the problem block of code
 
-Fixes: d67ae825a59d6 ("pnfs/flexfiles: Add the FlexFile Layout Driver")
-Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+	if (aa_label_acntsxprint(&name, ...) == -1)
+		return res;
+
+On failure, aa_label_acntsxprint() has a more complicated return
+that just -1.  So check for a negative return.
+
+It was also noted that the aa_label_acntsxprint() main comment refers
+to a nonexistent parameter, so clean up the comment.
+
+Fixes: f1bd904175e8 ("apparmor: add the base fns() for domain labels")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/flexfilelayout/flexfilelayoutdev.c | 4 ++--
- fs/nfs/pnfs_nfs.c                         | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ security/apparmor/label.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/flexfilelayout/flexfilelayoutdev.c b/fs/nfs/flexfilelayout/flexfilelayoutdev.c
-index c8863563c6350..287ed99a7e513 100644
---- a/fs/nfs/flexfilelayout/flexfilelayoutdev.c
-+++ b/fs/nfs/flexfilelayout/flexfilelayoutdev.c
-@@ -383,10 +383,10 @@ nfs4_ff_layout_prepare_ds(struct pnfs_layout_segment *lseg, u32 ds_idx,
- 		goto out_fail;
+diff --git a/security/apparmor/label.c b/security/apparmor/label.c
+index 212a0f39ddae8..4e5450dee28a3 100644
+--- a/security/apparmor/label.c
++++ b/security/apparmor/label.c
+@@ -1431,7 +1431,7 @@ bool aa_update_label_name(struct aa_ns *ns, struct aa_label *label, gfp_t gfp)
+ 	if (label->hname || labels_ns(label) != ns)
+ 		return res;
  
- 	ds = mirror->mirror_ds->ds;
-+	if (READ_ONCE(ds->ds_clp))
-+		goto out;
- 	/* matching smp_wmb() in _nfs4_pnfs_v3/4_ds_connect */
- 	smp_rmb();
--	if (ds->ds_clp)
--		goto out;
+-	if (aa_label_acntsxprint(&name, ns, label, FLAGS_NONE, gfp) == -1)
++	if (aa_label_acntsxprint(&name, ns, label, FLAGS_NONE, gfp) < 0)
+ 		return res;
  
- 	/* FIXME: For now we assume the server sent only one version of NFS
- 	 * to use for the DS.
-diff --git a/fs/nfs/pnfs_nfs.c b/fs/nfs/pnfs_nfs.c
-index 53b4705abcc76..1f2da20946640 100644
---- a/fs/nfs/pnfs_nfs.c
-+++ b/fs/nfs/pnfs_nfs.c
-@@ -666,7 +666,7 @@ static int _nfs4_pnfs_v3_ds_connect(struct nfs_server *mds_srv,
- 	}
+ 	ls = labels_set(label);
+@@ -1681,7 +1681,7 @@ int aa_label_asxprint(char **strp, struct aa_ns *ns, struct aa_label *label,
  
- 	smp_wmb();
--	ds->ds_clp = clp;
-+	WRITE_ONCE(ds->ds_clp, clp);
- 	dprintk("%s [new] addr: %s\n", __func__, ds->ds_remotestr);
- out:
- 	return status;
-@@ -742,7 +742,7 @@ static int _nfs4_pnfs_v4_ds_connect(struct nfs_server *mds_srv,
- 	}
- 
- 	smp_wmb();
--	ds->ds_clp = clp;
-+	WRITE_ONCE(ds->ds_clp, clp);
- 	dprintk("%s [new] addr: %s\n", __func__, ds->ds_remotestr);
- out:
- 	return status;
+ /**
+  * aa_label_acntsxprint - allocate a __counted string buffer and print label
+- * @strp: buffer to write to. (MAY BE NULL if @size == 0)
++ * @strp: buffer to write to.
+  * @ns: namespace profile is being viewed from
+  * @label: label to view (NOT NULL)
+  * @flags: flags controlling what label info is printed
 -- 
 2.33.0
 
