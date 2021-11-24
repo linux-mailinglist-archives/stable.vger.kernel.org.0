@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E154345C2D6
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:29:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 158E945C4E5
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:49:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348584AbhKXNc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:32:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56068 "EHLO mail.kernel.org"
+        id S1354749AbhKXNw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:52:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348465AbhKXNaz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:30:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEF2F61BBD;
-        Wed, 24 Nov 2021 12:52:23 +0000 (UTC)
+        id S1354495AbhKXNuy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:50:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 870946322E;
+        Wed, 24 Nov 2021 13:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758344;
-        bh=/ahGexqzVTXG7JFQ0rzYJgACzFkUSORSyfe96ic9jA8=;
+        s=korg; t=1637759050;
+        bh=UGWsXtZD4HtpX0l6+YggKbhovcCPwxUC18g+pLyaXmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jtB+d8v8x1hhIlaQ8zzruLzR43Q74YGNPh/VMaI0JcUvReJUtUEb0nWdTEtXq5QoY
-         YSRovb0cbE2fbzZoZjjS1A3rtV+VFMXTHR54R2i7gir1fch5zVy0dPt7gc09proUFy
-         EOa+f+78QzVg4GCCt7qDAKcn/VJajcJE5D+3utkU=
+        b=NbmJDAuge5kZFydnXaEa7mxkzBmBEVueURWc89q3ok83dkine7dKAZyyLnAwqRnBR
+         UNLllwIWgNiqPuqlq8Rx4oYsoUMPpYc8bPsDaZEI668jluEOKVwpPLlXOLJHUUsMQd
+         CvINPDfxiRxTrznIRoZOY7XE4v2ph46PlUoNLbOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
-        <jerome.pouiller@silabs.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 006/154] staging: wfx: ensure IRQ is ready before enabling it
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 115/279] net: ipa: disable HOLB drop when updating timer
 Date:   Wed, 24 Nov 2021 12:56:42 +0100
-Message-Id: <20211124115702.583834371@linuxfoundation.org>
+Message-Id: <20211124115722.761705009@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,120 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jérôme Pouiller <jerome.pouiller@silabs.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit 5e57c668dc097c6c27c973504706edec53f79281 ]
+[ Upstream commit 816316cacad2b5abd5b41423cf04e4845239abd4 ]
 
-Since commit 5561770f80b1 ("staging: wfx: repair external IRQ for
-SDIO"), wfx_sdio_irq_subscribe() enforce the device to use IRQs.
-However, there is currently a race in this code. An IRQ may happen
-before the IRQ has been registered.
+The head-of-line blocking timer should only be modified when
+head-of-line drop is disabled.
 
-The problem has observed during debug session when the device crashes
-before the IRQ set up:
+One of the steps in recovering from a modem crash is to enable
+dropping of packets with timeout of 0 (immediate).  We don't know
+how the modem configured its endpoints, so before we program the
+timer, we need to ensure HOL_BLOCK is disabled.
 
-    [ 1.546] wfx-sdio mmc0:0001:1: started firmware 3.12.2 "WF200_ASIC_WFM_(Jenkins)_FW3.12.2" (API: 3.7, keyset: C0, caps: 0x00000002)
-    [ 2.559] wfx-sdio mmc0:0001:1: time out while polling control register
-    [ 3.565] wfx-sdio mmc0:0001:1: chip is abnormally long to answer
-    [ 6.563] wfx-sdio mmc0:0001:1: chip did not answer
-    [ 6.568] wfx-sdio mmc0:0001:1: hardware request CONFIGURATION (0x09) on vif 2 returned error -110
-    [ 6.577] wfx-sdio mmc0:0001:1: PDS bytes 0 to 12: chip didn't reply (corrupted file?)
-    [ 6.585] Unable to handle kernel NULL pointer dereference at virtual address 00000000
-    [ 6.592] pgd = c0004000
-    [ 6.595] [00000000] *pgd=00000000
-    [ 6.598] Internal error: Oops - BUG: 17 [#1] THUMB2
-    [ 6.603] Modules linked in:
-    [ 6.606] CPU: 0 PID: 23 Comm: kworker/u2:1 Not tainted 3.18.19 #78
-    [ 6.612] Workqueue: kmmcd mmc_rescan
-    [ 6.616] task: c176d100 ti: c0e50000 task.ti: c0e50000
-    [ 6.621] PC is at wake_up_process+0xa/0x14
-    [ 6.625] LR is at sdio_irq+0x61/0x250
-    [ 6.629] pc : [<c001e8ae>] lr : [<c00ec5bd>] psr: 600001b3
-    [ 6.629] sp : c0e51bd8 ip : c0e51cc8 fp : 00000001
-    [ 6.640] r10: 00000003 r9 : 00000000 r8 : c0003c34
-    [ 6.644] r7 : c0e51bd8 r6 : c0003c30 r5 : 00000001 r4 : c0e78c00
-    [ 6.651] r3 : 00000000 r2 : 00000000 r1 : 00000003 r0 : 00000000
-    [ 6.657] Flags: nZCv IRQs off FIQs on Mode SVC_32 ISA Thumb Segment kernel
-    [ 6.664] Control: 50c53c7d Table: 11fd8059 DAC: 00000015
-    [ 6.670] Process kworker/u2:1 (pid: 23, stack limit = 0xc0e501b0)
-    [ 6.676] Stack: (0xc0e51bd8 to 0xc0e52000)
-    [...]
-    [ 6.949] [<c001e8ae>] (wake_up_process) from [<c00ec5bd>] (sdio_irq+0x61/0x250)
-    [ 6.956] [<c00ec5bd>] (sdio_irq) from [<c0025099>] (handle_irq_event_percpu+0x17/0x92)
-    [ 6.964] [<c0025099>] (handle_irq_event_percpu) from [<c002512f>] (handle_irq_event+0x1b/0x24)
-    [ 6.973] [<c002512f>] (handle_irq_event) from [<c0026577>] (handle_level_irq+0x5d/0x76)
-    [ 6.981] [<c0026577>] (handle_level_irq) from [<c0024cc3>] (generic_handle_irq+0x13/0x1c)
-    [ 6.989] [<c0024cc3>] (generic_handle_irq) from [<c0024dd9>] (__handle_domain_irq+0x31/0x48)
-    [ 6.997] [<c0024dd9>] (__handle_domain_irq) from [<c0008359>] (ov_handle_irq+0x31/0xe0)
-    [ 7.005] [<c0008359>] (ov_handle_irq) from [<c000af5b>] (__irq_svc+0x3b/0x5c)
-    [ 7.013] Exception stack(0xc0e51c68 to 0xc0e51cb0)
-    [...]
-    [ 7.038] [<c000af5b>] (__irq_svc) from [<c01775aa>] (wait_for_common+0x9e/0xc4)
-    [ 7.045] [<c01775aa>] (wait_for_common) from [<c00e1dc3>] (mmc_wait_for_req+0x4b/0xdc)
-    [ 7.053] [<c00e1dc3>] (mmc_wait_for_req) from [<c00e1e83>] (mmc_wait_for_cmd+0x2f/0x34)
-    [ 7.061] [<c00e1e83>] (mmc_wait_for_cmd) from [<c00e7b2b>] (mmc_io_rw_direct_host+0x71/0xac)
-    [ 7.070] [<c00e7b2b>] (mmc_io_rw_direct_host) from [<c00e8f79>] (sdio_claim_irq+0x6b/0x116)
-    [ 7.078] [<c00e8f79>] (sdio_claim_irq) from [<c00d8415>] (wfx_sdio_irq_subscribe+0x19/0x94)
-    [ 7.086] [<c00d8415>] (wfx_sdio_irq_subscribe) from [<c00d5229>] (wfx_probe+0x189/0x2ac)
-    [ 7.095] [<c00d5229>] (wfx_probe) from [<c00d83bf>] (wfx_sdio_probe+0x8f/0xcc)
-    [ 7.102] [<c00d83bf>] (wfx_sdio_probe) from [<c00e7fbb>] (sdio_bus_probe+0x5f/0xa8)
-    [ 7.109] [<c00e7fbb>] (sdio_bus_probe) from [<c00be229>] (driver_probe_device+0x59/0x134)
-    [ 7.118] [<c00be229>] (driver_probe_device) from [<c00bd4d7>] (bus_for_each_drv+0x3f/0x4a)
-    [ 7.126] [<c00bd4d7>] (bus_for_each_drv) from [<c00be1a5>] (device_attach+0x3b/0x52)
-    [ 7.134] [<c00be1a5>] (device_attach) from [<c00bdc2b>] (bus_probe_device+0x17/0x4c)
-    [ 7.141] [<c00bdc2b>] (bus_probe_device) from [<c00bcd69>] (device_add+0x2c5/0x334)
-    [ 7.149] [<c00bcd69>] (device_add) from [<c00e80bf>] (sdio_add_func+0x23/0x44)
-    [ 7.156] [<c00e80bf>] (sdio_add_func) from [<c00e79eb>] (mmc_attach_sdio+0x187/0x1ec)
-    [ 7.164] [<c00e79eb>] (mmc_attach_sdio) from [<c00e31bd>] (mmc_rescan+0x18d/0x1fc)
-    [ 7.172] [<c00e31bd>] (mmc_rescan) from [<c001a14f>] (process_one_work+0xd7/0x170)
-    [ 7.179] [<c001a14f>] (process_one_work) from [<c001a59b>] (worker_thread+0x103/0x1bc)
-    [ 7.187] [<c001a59b>] (worker_thread) from [<c001c731>] (kthread+0x7d/0x90)
-    [ 7.194] [<c001c731>] (kthread) from [<c0008ce1>] (ret_from_fork+0x11/0x30)
-    [ 7.201] Code: 2103 b580 2200 af00 (681b) 46bd
-    [ 7.206] ---[ end trace 3ab50aced42eedb4 ]---
-
-Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
-Link: https://lore.kernel.org/r/20210913130203.1903622-33-Jerome.Pouiller@silabs.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 84f9bd12d46db ("soc: qcom: ipa: IPA endpoints")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wfx/bus_sdio.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/net/ipa/ipa_endpoint.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/staging/wfx/bus_sdio.c b/drivers/staging/wfx/bus_sdio.c
-index e06d7e1ebe9c3..61b8cc05f2935 100644
---- a/drivers/staging/wfx/bus_sdio.c
-+++ b/drivers/staging/wfx/bus_sdio.c
-@@ -120,19 +120,22 @@ static int wfx_sdio_irq_subscribe(void *priv)
- 		return ret;
+diff --git a/drivers/net/ipa/ipa_endpoint.c b/drivers/net/ipa/ipa_endpoint.c
+index 006da4642a0ba..ef790fd0ab56a 100644
+--- a/drivers/net/ipa/ipa_endpoint.c
++++ b/drivers/net/ipa/ipa_endpoint.c
+@@ -853,6 +853,7 @@ static void ipa_endpoint_init_hol_block_timer(struct ipa_endpoint *endpoint,
+ 	u32 offset;
+ 	u32 val;
+ 
++	/* This should only be changed when HOL_BLOCK_EN is disabled */
+ 	offset = IPA_REG_ENDP_INIT_HOL_BLOCK_TIMER_N_OFFSET(endpoint_id);
+ 	val = hol_block_timer_val(ipa, microseconds);
+ 	iowrite32(val, ipa->reg_virt + offset);
+@@ -883,6 +884,7 @@ void ipa_endpoint_modem_hol_block_clear_all(struct ipa *ipa)
+ 		if (endpoint->toward_ipa || endpoint->ee_id != GSI_EE_MODEM)
+ 			continue;
+ 
++		ipa_endpoint_init_hol_block_enable(endpoint, false);
+ 		ipa_endpoint_init_hol_block_timer(endpoint, 0);
+ 		ipa_endpoint_init_hol_block_enable(endpoint, true);
  	}
- 
-+	flags = irq_get_trigger_type(bus->of_irq);
-+	if (!flags)
-+		flags = IRQF_TRIGGER_HIGH;
-+	flags |= IRQF_ONESHOT;
-+	ret = devm_request_threaded_irq(&bus->func->dev, bus->of_irq, NULL,
-+					wfx_sdio_irq_handler_ext, flags,
-+					"wfx", bus);
-+	if (ret)
-+		return ret;
- 	sdio_claim_host(bus->func);
- 	cccr = sdio_f0_readb(bus->func, SDIO_CCCR_IENx, NULL);
- 	cccr |= BIT(0);
- 	cccr |= BIT(bus->func->num);
- 	sdio_f0_writeb(bus->func, cccr, SDIO_CCCR_IENx, NULL);
- 	sdio_release_host(bus->func);
--	flags = irq_get_trigger_type(bus->of_irq);
--	if (!flags)
--		flags = IRQF_TRIGGER_HIGH;
--	flags |= IRQF_ONESHOT;
--	return devm_request_threaded_irq(&bus->func->dev, bus->of_irq, NULL,
--					 wfx_sdio_irq_handler_ext, flags,
--					 "wfx", bus);
-+	return 0;
- }
- 
- static int wfx_sdio_irq_unsubscribe(void *priv)
 -- 
 2.33.0
 
