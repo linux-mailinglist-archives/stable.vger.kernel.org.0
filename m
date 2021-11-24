@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C3FA45BDD6
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:39:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5742245BA75
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:08:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343847AbhKXMlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:41:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41822 "EHLO mail.kernel.org"
+        id S242394AbhKXMLX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:11:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345009AbhKXMjF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:39:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF31B6120F;
-        Wed, 24 Nov 2021 12:23:39 +0000 (UTC)
+        id S242400AbhKXMJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:09:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FB6C61075;
+        Wed, 24 Nov 2021 12:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756620;
-        bh=MoAPyZQ8dBjT6Y4/5IiofA+Ju8ZfMzSAQNa7XYg6N+0=;
+        s=korg; t=1637755531;
+        bh=lA42VD3iRzmgxGMgpYLuBwmH0+VxrxRMBuAUeCPxQks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yDmPa19BhfESYl03JExJt0q2jyRMhzrlElCdm+IbiQ4TTaLCjwpXb0UYtTSv0JVfx
-         8PB4LCP2FZtUfmi5mdXHrvkchvC9kQ2VHQxJEFMqW3E7JCDq43jP26KgkQfu09Prfd
-         YEyGp4F10PV6VH/2du/iDBACDIXcSvvpNh5oyTiI=
+        b=ESTjLdSOMWsxYtvxM0V/T/ec73IOQ3VU4w7xOyL1Bebpn1xDETvChXzTXfUcWMKXA
+         oiKeCqmKr9sGvLjbNW93EkC+RrJc1+6AVUAIBOFNXgi33oU5+c/adGBhtNavVUwL7M
+         4KBBXva8ndmS5h3auMtrMhc+uiK0xm6B8QsY0p8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org,
+        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 148/251] memory: fsl_ifc: fix leak of irq and nand_irq in fsl_ifc_ctrl_probe
+Subject: [PATCH 4.4 087/162] crypto: pcrypt - Delay write to padata->info
 Date:   Wed, 24 Nov 2021 12:56:30 +0100
-Message-Id: <20211124115715.404649264@linuxfoundation.org>
+Message-Id: <20211124115701.134849986@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,71 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit 4ed2f3545c2e5acfbccd7f85fea5b1a82e9862d7 ]
+[ Upstream commit 68b6dea802cea0dbdd8bd7ccc60716b5a32a5d8a ]
 
-The error handling code of fsl_ifc_ctrl_probe is problematic. When
-fsl_ifc_ctrl_init fails or request_irq of fsl_ifc_ctrl_dev->irq fails,
-it forgets to free the irq and nand_irq. Meanwhile, if request_irq of
-fsl_ifc_ctrl_dev->nand_irq fails, it will still free nand_irq even if
-the request_irq is not successful.
+These three events can race when pcrypt is used multiple times in a
+template ("pcrypt(pcrypt(...))"):
 
-Fix this by refactoring the error handling code.
+  1.  [taskA] The caller makes the crypto request via crypto_aead_encrypt()
+  2.  [kworkerB] padata serializes the inner pcrypt request
+  3.  [kworkerC] padata serializes the outer pcrypt request
 
-Fixes: d2ae2e20fbdd ("driver/memory:Move Freescale IFC driver to a common driver")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20210925151434.8170-1-mudongliangabcd@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+3 might finish before the call to crypto_aead_encrypt() returns in 1,
+resulting in two possible issues.
+
+First, a use-after-free of the crypto request's memory when, for
+example, taskA writes to the outer pcrypt request's padata->info in
+pcrypt_aead_enc() after kworkerC completes the request.
+
+Second, the outer pcrypt request overwrites the inner pcrypt request's
+return code with -EINPROGRESS, making a successful request appear to
+fail.  For instance, kworkerB writes the outer pcrypt request's
+padata->info in pcrypt_aead_done() and then taskA overwrites it
+in pcrypt_aead_enc().
+
+Avoid both situations by delaying the write of padata->info until after
+the inner crypto request's return code is checked.  This prevents the
+use-after-free by not touching the crypto request's memory after the
+next-inner crypto request is made, and stops padata->info from being
+overwritten.
+
+Fixes: 5068c7a883d16 ("crypto: pcrypt - Add pcrypt crypto parallelization wrapper")
+Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/fsl_ifc.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ crypto/pcrypt.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
-index 38b945eb410f3..9c0e70b047c39 100644
---- a/drivers/memory/fsl_ifc.c
-+++ b/drivers/memory/fsl_ifc.c
-@@ -276,7 +276,7 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
+diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
+index 85082574c5154..62e11835f220e 100644
+--- a/crypto/pcrypt.c
++++ b/crypto/pcrypt.c
+@@ -138,12 +138,14 @@ static void pcrypt_aead_enc(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
  
- 	ret = fsl_ifc_ctrl_init(fsl_ifc_ctrl_dev);
- 	if (ret < 0)
--		goto err;
-+		goto err_unmap_nandirq;
+-	padata->info = crypto_aead_encrypt(req);
++	ret = crypto_aead_encrypt(req);
  
- 	init_waitqueue_head(&fsl_ifc_ctrl_dev->nand_wait);
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
  
-@@ -285,7 +285,7 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
- 	if (ret != 0) {
- 		dev_err(&dev->dev, "failed to install irq (%d)\n",
- 			fsl_ifc_ctrl_dev->irq);
--		goto err_irq;
-+		goto err_unmap_nandirq;
- 	}
++	padata->info = ret;
+ 	padata_do_serial(padata);
+ }
  
- 	if (fsl_ifc_ctrl_dev->nand_irq) {
-@@ -294,17 +294,16 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
- 		if (ret != 0) {
- 			dev_err(&dev->dev, "failed to install irq (%d)\n",
- 				fsl_ifc_ctrl_dev->nand_irq);
--			goto err_nandirq;
-+			goto err_free_irq;
- 		}
- 	}
+@@ -180,12 +182,14 @@ static void pcrypt_aead_dec(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
  
- 	return 0;
+-	padata->info = crypto_aead_decrypt(req);
++	ret = crypto_aead_decrypt(req);
  
--err_nandirq:
--	free_irq(fsl_ifc_ctrl_dev->nand_irq, fsl_ifc_ctrl_dev);
--	irq_dispose_mapping(fsl_ifc_ctrl_dev->nand_irq);
--err_irq:
-+err_free_irq:
- 	free_irq(fsl_ifc_ctrl_dev->irq, fsl_ifc_ctrl_dev);
-+err_unmap_nandirq:
-+	irq_dispose_mapping(fsl_ifc_ctrl_dev->nand_irq);
- 	irq_dispose_mapping(fsl_ifc_ctrl_dev->irq);
- err:
- 	iounmap(fsl_ifc_ctrl_dev->gregs);
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
+ 
++	padata->info = ret;
+ 	padata_do_serial(padata);
+ }
+ 
 -- 
 2.33.0
 
