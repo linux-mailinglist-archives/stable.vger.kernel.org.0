@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3112E45C3C3
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38FAF45C3C5
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350701AbhKXNmf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:42:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34766 "EHLO mail.kernel.org"
+        id S1350710AbhKXNmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:42:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350468AbhKXNkG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1350471AbhKXNkG (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 08:40:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDC196137B;
-        Wed, 24 Nov 2021 12:57:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF17A610F7;
+        Wed, 24 Nov 2021 12:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758633;
-        bh=Jlfirz+BwWLf5ecEDiZggdtR6MEbXDnXvmVQ5Yh6Mgg=;
+        s=korg; t=1637758636;
+        bh=ElcItOJ6kv1psmJy1pv0TJL5VC3ZKydx6pCc7pk2wOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbaT4WcxSG566K+yMv2rE80hOOdma290h+XCwzbv6iNq4/SqSwB9uS++SfzI/Aott
-         M1LYHUO4JauP8zY52tKrPg5c3W8W7R0pG78v3NrHTDa2vtPxtxMf15p4lk4QEh3OIO
-         C8o/6asxkR8ZO02h50lHs4A0NQ5Bt8cIQJXMEPiw=
+        b=wikdhHU/dvnt2owaP+kCvcdqhvbkYgtMEhi492hLjq0SCXD36NECW3VjovoX0I7DF
+         pl7EVn3rTaa7OSup04mOXP7x5MR0K150dVc5EaDUWFNlnQbARJQutllnpMSILa07KM
+         siv5YL7Y1FkSDY75048s4JYnSU/EcxAFUnOPKqLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 133/154] net: stmmac: socfpga: add runtime suspend/resume callback for stratix10 platform
-Date:   Wed, 24 Nov 2021 12:58:49 +0100
-Message-Id: <20211124115706.605336723@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Chris Murphy <chris@colorremedies.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 134/154] btrfs: fix memory ordering between normal and ordered work functions
+Date:   Wed, 24 Nov 2021 12:58:50 +0100
+Message-Id: <20211124115706.640253372@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
 References: <20211124115702.361983534@linuxfoundation.org>
@@ -39,58 +42,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Li <meng.li@windriver.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit 9119570039481d56350af1c636f040fb300b8cf3 upstream.
+commit 45da9c1767ac31857df572f0a909fbe88fd5a7e9 upstream.
 
-According to upstream commit 5ec55823438e("net: stmmac:
-add clocks management for gmac driver"), it improve clocks
-management for stmmac driver. So, it is necessary to implement
-the runtime callback in dwmac-socfpga driver because it doesn't
-use the common stmmac_pltfr_pm_ops instance. Otherwise, clocks
-are not disabled when system enters suspend status.
+Ordered work functions aren't guaranteed to be handled by the same thread
+which executed the normal work functions. The only way execution between
+normal/ordered functions is synchronized is via the WORK_DONE_BIT,
+unfortunately the used bitops don't guarantee any ordering whatsoever.
 
-Fixes: 5ec55823438e ("net: stmmac: add clocks management for gmac driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Meng Li <Meng.Li@windriver.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This manifested as seemingly inexplicable crashes on ARM64, where
+async_chunk::inode is seen as non-null in async_cow_submit which causes
+submit_compressed_extents to be called and crash occurs because
+async_chunk::inode suddenly became NULL. The call trace was similar to:
+
+    pc : submit_compressed_extents+0x38/0x3d0
+    lr : async_cow_submit+0x50/0xd0
+    sp : ffff800015d4bc20
+
+    <registers omitted for brevity>
+
+    Call trace:
+     submit_compressed_extents+0x38/0x3d0
+     async_cow_submit+0x50/0xd0
+     run_ordered_work+0xc8/0x280
+     btrfs_work_helper+0x98/0x250
+     process_one_work+0x1f0/0x4ac
+     worker_thread+0x188/0x504
+     kthread+0x110/0x114
+     ret_from_fork+0x10/0x18
+
+Fix this by adding respective barrier calls which ensure that all
+accesses preceding setting of WORK_DONE_BIT are strictly ordered before
+setting the flag. At the same time add a read barrier after reading of
+WORK_DONE_BIT in run_ordered_work which ensures all subsequent loads
+would be strictly ordered after reading the bit. This in turn ensures
+are all accesses before WORK_DONE_BIT are going to be strictly ordered
+before any access that can occur in ordered_func.
+
+Reported-by: Chris Murphy <lists@colorremedies.com>
+Fixes: 08a9ff326418 ("btrfs: Added btrfs_workqueue_struct implemented ordered execution based on kernel workqueue")
+CC: stable@vger.kernel.org # 4.4+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2011928
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Tested-by: Chris Murphy <chris@colorremedies.com>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c |   24 ++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ fs/btrfs/async-thread.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-@@ -485,8 +485,28 @@ static int socfpga_dwmac_resume(struct d
- }
- #endif /* CONFIG_PM_SLEEP */
+--- a/fs/btrfs/async-thread.c
++++ b/fs/btrfs/async-thread.c
+@@ -234,6 +234,13 @@ static void run_ordered_work(struct __bt
+ 				  ordered_list);
+ 		if (!test_bit(WORK_DONE_BIT, &work->flags))
+ 			break;
++		/*
++		 * Orders all subsequent loads after reading WORK_DONE_BIT,
++		 * paired with the smp_mb__before_atomic in btrfs_work_helper
++		 * this guarantees that the ordered function will see all
++		 * updates from ordinary work function.
++		 */
++		smp_rmb();
  
--static SIMPLE_DEV_PM_OPS(socfpga_dwmac_pm_ops, stmmac_suspend,
--					       socfpga_dwmac_resume);
-+static int __maybe_unused socfpga_dwmac_runtime_suspend(struct device *dev)
-+{
-+	struct net_device *ndev = dev_get_drvdata(dev);
-+	struct stmmac_priv *priv = netdev_priv(ndev);
-+
-+	stmmac_bus_clks_config(priv, false);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused socfpga_dwmac_runtime_resume(struct device *dev)
-+{
-+	struct net_device *ndev = dev_get_drvdata(dev);
-+	struct stmmac_priv *priv = netdev_priv(ndev);
-+
-+	return stmmac_bus_clks_config(priv, true);
-+}
-+
-+static const struct dev_pm_ops socfpga_dwmac_pm_ops = {
-+	SET_SYSTEM_SLEEP_PM_OPS(stmmac_suspend, socfpga_dwmac_resume)
-+	SET_RUNTIME_PM_OPS(socfpga_dwmac_runtime_suspend, socfpga_dwmac_runtime_resume, NULL)
-+};
- 
- static const struct socfpga_dwmac_ops socfpga_gen5_ops = {
- 	.set_phy_mode = socfpga_gen5_set_phy_mode,
+ 		/*
+ 		 * we are going to call the ordered done function, but
+@@ -317,6 +324,13 @@ static void btrfs_work_helper(struct wor
+ 	thresh_exec_hook(wq);
+ 	work->func(work);
+ 	if (need_order) {
++		/*
++		 * Ensures all memory accesses done in the work function are
++		 * ordered before setting the WORK_DONE_BIT. Ensuring the thread
++		 * which is going to executed the ordered work sees them.
++		 * Pairs with the smp_rmb in run_ordered_work.
++		 */
++		smp_mb__before_atomic();
+ 		set_bit(WORK_DONE_BIT, &work->flags);
+ 		run_ordered_work(wq, work);
+ 	} else {
 
 
