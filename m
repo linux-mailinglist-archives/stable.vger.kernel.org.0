@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5917645BDCC
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:39:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A7D945BB6E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:17:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345178AbhKXMlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:41:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41402 "EHLO mail.kernel.org"
+        id S242807AbhKXMTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:19:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344943AbhKXMjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:39:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4ED216109E;
-        Wed, 24 Nov 2021 12:23:24 +0000 (UTC)
+        id S242478AbhKXMRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:17:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1197F610FC;
+        Wed, 24 Nov 2021 12:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756604;
-        bh=g1efMLriyyWJo9DmvRT5ySnhOS8DWU62R55Zz4X0PgU=;
+        s=korg; t=1637755853;
+        bh=oOJPV2CNc0bd5QaZ5EFIK0Cp7xJoqO2+pimK1Z2tLv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SyByvQbE9qZh213ArUhGFhpdmMJnzw839qzP1dUs9LZgu3L6UB8jK6wp0MH/PxnwB
-         Hgk+GgkxyUQiT+xEheMOVI/v03J5BGfXuuwE11UYnyz2oqO/dYGjKslLhIu0JeqIQ2
-         40ikNeOhiZZLIbVTl6WmTvfFJU3I0TMK+IQCn5zw=
+        b=I0tfwfMzTN6KKZWvyzWXHZYCE8WFKTF7lf5JiGLBxqGZDpLZxrA/3l53kViELQWi2
+         W/ZgPmjNOFewNmC98k70BSqitIVrCzT5zcbi34Zof51ffdHOADOdInsixLI1AxmM3u
+         J0QN/Ie0W3yv4C0HH9PVPaH6Sv8RqD8AJEWP5zMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 110/251] media: cx23885: Fix snd_card_free call on null card pointer
-Date:   Wed, 24 Nov 2021 12:55:52 +0100
-Message-Id: <20211124115714.061250673@linuxfoundation.org>
+Subject: [PATCH 4.9 082/207] smackfs: use __GFP_NOFAIL for smk_cipso_doi()
+Date:   Wed, 24 Nov 2021 12:55:53 +0100
+Message-Id: <20211124115706.557759685@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit 7266dda2f1dfe151b12ef0c14eb4d4e622fb211c ]
+[ Upstream commit f91488ee15bd3cac467e2d6a361fc2d34d1052ae ]
 
-Currently a call to snd_card_new that fails will set card with a NULL
-pointer, this causes a null pointer dereference on the error cleanup
-path when card it passed to snd_card_free. Fix this by adding a new
-error exit path that does not call snd_card_free and exiting via this
-new path.
+syzbot is reporting kernel panic at smk_cipso_doi() due to memory
+allocation fault injection [1]. The reason for need to use panic() was
+not explained. But since no fix was proposed for 18 months, for now
+let's use __GFP_NOFAIL for utilizing syzbot resource on other bugs.
 
-Addresses-Coverity: ("Explicit null dereference")
-
-Fixes: 9e44d63246a9 ("[media] cx23885: Add ALSA support")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://syzkaller.appspot.com/bug?extid=89731ccb6fec15ce1c22 [1]
+Reported-by: syzbot <syzbot+89731ccb6fec15ce1c22@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx23885/cx23885-alsa.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/smack/smackfs.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/media/pci/cx23885/cx23885-alsa.c b/drivers/media/pci/cx23885/cx23885-alsa.c
-index d8c3637e492e3..a7f34af6c65b0 100644
---- a/drivers/media/pci/cx23885/cx23885-alsa.c
-+++ b/drivers/media/pci/cx23885/cx23885-alsa.c
-@@ -560,7 +560,7 @@ struct cx23885_audio_dev *cx23885_audio_register(struct cx23885_dev *dev)
- 			   SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
- 			THIS_MODULE, sizeof(struct cx23885_audio_dev), &card);
- 	if (err < 0)
--		goto error;
-+		goto error_msg;
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index e26e7fbb89657..cf1f92a04359a 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -716,9 +716,7 @@ static void smk_cipso_doi(void)
+ 		printk(KERN_WARNING "%s:%d remove rc = %d\n",
+ 		       __func__, __LINE__, rc);
  
- 	chip = (struct cx23885_audio_dev *) card->private_data;
- 	chip->dev = dev;
-@@ -586,6 +586,7 @@ struct cx23885_audio_dev *cx23885_audio_register(struct cx23885_dev *dev)
- 
- error:
- 	snd_card_free(card);
-+error_msg:
- 	pr_err("%s(): Failed to register analog audio adapter\n",
- 	       __func__);
- 
+-	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL);
+-	if (doip == NULL)
+-		panic("smack:  Failed to initialize cipso DOI.\n");
++	doip = kmalloc(sizeof(struct cipso_v4_doi), GFP_KERNEL | __GFP_NOFAIL);
+ 	doip->map.std = NULL;
+ 	doip->doi = smk_cipso_doi_value;
+ 	doip->type = CIPSO_V4_MAP_PASS;
 -- 
 2.33.0
 
