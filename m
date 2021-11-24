@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23C7845BF21
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:52:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC8D445BF20
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:52:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345967AbhKXMzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:55:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60464 "EHLO mail.kernel.org"
+        id S244566AbhKXMzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:55:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345001AbhKXMwd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:52:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E9A261178;
-        Wed, 24 Nov 2021 12:30:24 +0000 (UTC)
+        id S1345005AbhKXMwe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:52:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 659C261526;
+        Wed, 24 Nov 2021 12:30:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757025;
-        bh=EEPUsYZxYOvI+RwKc7gDv+zhEokxB95Xp8OLjEgAPa8=;
+        s=korg; t=1637757027;
+        bh=kFbhYlhRXHsZ5HUhktr+mIteVKflIUwGc7suEHSm9mM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vPZhkJZ28P6iL55Hg6uQlp1unZ6594JfaD/K2X1PwpG45Agyz0R4ycY6fCIpc4qq2
-         n5Il7BVhh9r4I+4LQ2zZvoRBheAWff/seYwQgdSt82rF+EZyVDzUz3CSahvWLerUK2
-         po7DEp3C0BC0cwADSZ22PTthZ4kFtIW5xeBMJJUU=
+        b=B6/1ZlVHHd4uxSF1gLCb6zatYvVA7KFGPixJQ2C8p+10gxUuDBytlr9dF2o2hl6y9
+         QbUI0pFG628JgMNJt2YlhecZBGiH1SMtz6NUYD87zgiXNzMZ/CyIBaPG9EFemKg0tO
+         JGNQVdv4sxclwMOQLyumnK27lMOjY8PUn9p3OThA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Pierre Ossman <pierre@ossman.eu>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Bryant Mairs <bryant@mai.rs>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 031/323] mmc: winbond: dont build on M68K
-Date:   Wed, 24 Nov 2021 12:53:41 +0100
-Message-Id: <20211124115719.924623433@linuxfoundation.org>
+Subject: [PATCH 4.19 032/323] drm: panel-orientation-quirks: Add quirk for Aya Neo 2021
+Date:   Wed, 24 Nov 2021 12:53:42 +0100
+Message-Id: <20211124115719.957925755@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
@@ -43,43 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Bryant Mairs <bryant@mai.rs>
 
-[ Upstream commit 162079f2dccd02cb4b6654defd32ca387dd6d4d4 ]
+[ Upstream commit def0c3697287f6e85d5ac68b21302966c95474f9 ]
 
-The Winbond MMC driver fails to build on ARCH=m68k so prevent
-that build config. Silences these build errors:
+Fixes screen orientation for the Aya Neo 2021 handheld gaming console.
 
-../drivers/mmc/host/wbsd.c: In function 'wbsd_request_end':
-../drivers/mmc/host/wbsd.c:212:28: error: implicit declaration of function 'claim_dma_lock' [-Werror=implicit-function-declaration]
-  212 |                 dmaflags = claim_dma_lock();
-../drivers/mmc/host/wbsd.c:215:17: error: implicit declaration of function 'release_dma_lock'; did you mean 'release_task'? [-Werror=implicit-function-declaration]
-  215 |                 release_dma_lock(dmaflags);
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Pierre Ossman <pierre@ossman.eu>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211017175949.23838-1-rdunlap@infradead.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Bryant Mairs <bryant@mai.rs>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211019142433.4295-1-bryant@mai.rs
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/mmc/host/Kconfig b/drivers/mmc/host/Kconfig
-index b7f809aa40c2c..2c11944686cf9 100644
---- a/drivers/mmc/host/Kconfig
-+++ b/drivers/mmc/host/Kconfig
-@@ -421,7 +421,7 @@ config MMC_OMAP_HS
- 
- config MMC_WBSD
- 	tristate "Winbond W83L51xD SD/MMC Card Interface support"
--	depends on ISA_DMA_API
-+	depends on ISA_DMA_API && !M68K
- 	help
- 	  This selects the Winbond(R) W83L51xD Secure digital and
-           Multimedia card Interface.
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index 652de972c3aea..48be8590ebe81 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -113,6 +113,12 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T103HAF"),
+ 		},
+ 		.driver_data = (void *)&lcd800x1280_rightside_up,
++	}, {	/* AYA NEO 2021 */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "AYADEVICE"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "AYA NEO 2021"),
++		},
++		.driver_data = (void *)&lcd800x1280_rightside_up,
+ 	}, {	/* GPD MicroPC (generic strings, also match on bios date) */
+ 		.matches = {
+ 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
 -- 
 2.33.0
 
