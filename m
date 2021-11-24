@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D0BB45BA31
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71CBE45BE07
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241489AbhKXMIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:08:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34672 "EHLO mail.kernel.org"
+        id S243946AbhKXMo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:44:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238596AbhKXMHT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:07:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F74661057;
-        Wed, 24 Nov 2021 12:04:09 +0000 (UTC)
+        id S1345166AbhKXMlC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:41:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2E57613AC;
+        Wed, 24 Nov 2021 12:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755450;
-        bh=1amyw4p/pR2dkuSIP8jGIwL8aFxQRH9mPElOX9TboCY=;
+        s=korg; t=1637756665;
+        bh=L2SyRh46sR1JQus6LNCy/BHfLyVnT71BgU5hc81mkBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rm5eRQ09L/JbHbaPPuZW7kTbKRXu5XhJwZLRCAEazqoXVE4cQGlBDklifFGvF0k5t
-         YfOcQlGKK7snPSwUCF/7F25wuxqPgwphRftYLZeBuQvGcPl4xuVnfrfvmVMiEHrHQS
-         ejqVHk6ouvrp0RjqAJcWDG8nodgCTxEbRtn9bhVo=
+        b=ep+qU3m0rrLrIBfW1RtLSHiS+EZPdQfRv2T30saz3PxgY5J7r2uzy7yDyux/gLUQF
+         OJ1LbiC84CDZ0uOKq6gmnttoXcDD1SIWuWVQwUqIxpkA23BjrccdtK1QzKIHa16Mbk
+         bHTT6R2Sn+Jd9qPu5yZ66mIWaZ544mP2vU4rG1gM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org,
+        Baptiste Lepers <baptiste.lepers@gmail.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 101/162] watchdog: f71808e_wdt: fix inaccurate report in WDIOC_GETTIMEOUT
+Subject: [PATCH 4.14 162/251] pnfs/flexfiles: Fix misplaced barrier in nfs4_ff_layout_prepare_ds
 Date:   Wed, 24 Nov 2021 12:56:44 +0100
-Message-Id: <20211124115701.589422613@linuxfoundation.org>
+Message-Id: <20211124115715.902097481@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +41,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Baptiste Lepers <baptiste.lepers@gmail.com>
 
-[ Upstream commit 164483c735190775f29d0dcbac0363adc51a068d ]
+[ Upstream commit a2915fa06227b056a8f9b0d79b61dca08ad5cfc6 ]
 
-The fintek watchdog timer can configure timeouts of second granularity
-only up to 255 seconds. Beyond that, the timeout needs to be configured
-with minute granularity. WDIOC_GETTIMEOUT should report the actual
-timeout configured, not just echo back the timeout configured by the
-user. Do so.
+_nfs4_pnfs_v3/v4_ds_connect do
+   some work
+   smp_wmb
+   ds->ds_clp = clp;
 
-Fixes: 96cb4eb019ce ("watchdog: f71808e_wdt: new watchdog driver for Fintek F71808E and F71882FG")
-Suggested-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Link: https://lore.kernel.org/r/5e17960fe8cc0e3cb2ba53de4730b75d9a0f33d5.1628525954.git-series.a.fatoum@pengutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+And nfs4_ff_layout_prepare_ds currently does
+   smp_rmb
+   if(ds->ds_clp)
+      ...
+
+This patch places the smp_rmb after the if. This ensures that following
+reads only happen once nfs4_ff_layout_prepare_ds has checked that data
+has been properly initialized.
+
+Fixes: d67ae825a59d6 ("pnfs/flexfiles: Add the FlexFile Layout Driver")
+Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/f71808e_wdt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/nfs/flexfilelayout/flexfilelayoutdev.c | 4 ++--
+ fs/nfs/pnfs_nfs.c                         | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index 2b12ef019ae02..96bf71802eff5 100644
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -225,15 +225,17 @@ static int watchdog_set_timeout(int timeout)
+diff --git a/fs/nfs/flexfilelayout/flexfilelayoutdev.c b/fs/nfs/flexfilelayout/flexfilelayoutdev.c
+index 2464b9b806988..17dee8fd9834f 100644
+--- a/fs/nfs/flexfilelayout/flexfilelayoutdev.c
++++ b/fs/nfs/flexfilelayout/flexfilelayoutdev.c
+@@ -428,10 +428,10 @@ nfs4_ff_layout_prepare_ds(struct pnfs_layout_segment *lseg, u32 ds_idx,
+ 		goto out_fail;
  
- 	mutex_lock(&watchdog.lock);
+ 	ds = mirror->mirror_ds->ds;
++	if (READ_ONCE(ds->ds_clp))
++		goto out;
+ 	/* matching smp_wmb() in _nfs4_pnfs_v3/4_ds_connect */
+ 	smp_rmb();
+-	if (ds->ds_clp)
+-		goto out;
  
--	watchdog.timeout = timeout;
- 	if (timeout > 0xff) {
- 		watchdog.timer_val = DIV_ROUND_UP(timeout, 60);
- 		watchdog.minutes_mode = true;
-+		timeout = watchdog.timer_val * 60;
- 	} else {
- 		watchdog.timer_val = timeout;
- 		watchdog.minutes_mode = false;
+ 	/* FIXME: For now we assume the server sent only one version of NFS
+ 	 * to use for the DS.
+diff --git a/fs/nfs/pnfs_nfs.c b/fs/nfs/pnfs_nfs.c
+index 29bdf1525d82b..5d7a69ffaaa29 100644
+--- a/fs/nfs/pnfs_nfs.c
++++ b/fs/nfs/pnfs_nfs.c
+@@ -635,7 +635,7 @@ static int _nfs4_pnfs_v3_ds_connect(struct nfs_server *mds_srv,
  	}
  
-+	watchdog.timeout = timeout;
-+
- 	mutex_unlock(&watchdog.lock);
+ 	smp_wmb();
+-	ds->ds_clp = clp;
++	WRITE_ONCE(ds->ds_clp, clp);
+ 	dprintk("%s [new] addr: %s\n", __func__, ds->ds_remotestr);
+ out:
+ 	return status;
+@@ -708,7 +708,7 @@ static int _nfs4_pnfs_v4_ds_connect(struct nfs_server *mds_srv,
+ 	}
  
- 	return 0;
+ 	smp_wmb();
+-	ds->ds_clp = clp;
++	WRITE_ONCE(ds->ds_clp, clp);
+ 	dprintk("%s [new] addr: %s\n", __func__, ds->ds_remotestr);
+ out:
+ 	return status;
 -- 
 2.33.0
 
