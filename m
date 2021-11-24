@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDDD845BE10
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9A945BA15
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244251AbhKXMod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:44:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50526 "EHLO mail.kernel.org"
+        id S241457AbhKXMHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:07:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344709AbhKXMme (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:42:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71AEE613AD;
-        Wed, 24 Nov 2021 12:25:09 +0000 (UTC)
+        id S242233AbhKXMGg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:06:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0001E60F5D;
+        Wed, 24 Nov 2021 12:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756710;
-        bh=xMQ+ucItWHuNXUM2bQ1LG6mnEYghT3QmAa3pOEPTcrg=;
+        s=korg; t=1637755407;
+        bh=HsEloWLUjPuL9/6uGs2l/ld0R+4N7e1poR7DefDRvrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLH+vgPKaOIE+Nt0uaCM+uM+8bZiaqvUo2GZR5i32nPS2fj5IRhmyNihMh209+GzQ
-         yIvdTb1paftljoc8QpR6aZf8IOwQQxc80MoNR6TDvZ1fv0IS0kGlWgSMLC36V2b3+7
-         E5XCeJ2m2/7XsICDAFhioJQ+8dUN0MhW0KrC6fps=
+        b=YeFMHadrqDJPQAhETgoR7t2d9l3g8WFpeH2ojHskh8MQ9Qx7PQCQiOYE6BrwEAYOi
+         dIEFFyBhPRa9Q7SDOU4aIxg5sZLoSR/uDQkTAE0IevfQUr8DppqzWuZ6JhuMrw4kCd
+         iKXtVZlqUmf65elRcorUBVhZED2Om1HsOUnhUHm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 144/251] JFS: fix memleak in jfs_mount
+Subject: [PATCH 4.4 083/162] mwifiex: Send DELBA requests according to spec
 Date:   Wed, 24 Nov 2021 12:56:26 +0100
-Message-Id: <20211124115715.266111648@linuxfoundation.org>
+Message-Id: <20211124115701.009615752@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,156 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Jonas Dreßler <verdre@v0yd.nl>
 
-[ Upstream commit c48a14dca2cb57527dde6b960adbe69953935f10 ]
+[ Upstream commit cc8a8bc37466f79b24d972555237f3d591150602 ]
 
-In jfs_mount, when diMount(ipaimap2) fails, it goes to errout35. However,
-the following code does not free ipaimap2 allocated by diReadSpecial.
+While looking at on-air packets using Wireshark, I noticed we're never
+setting the initiator bit when sending DELBA requests to the AP: While
+we set the bit on our del_ba_param_set bitmask, we forget to actually
+copy that bitmask over to the command struct, which means we never
+actually set the initiator bit.
 
-Fix this by refactoring the error handling code of jfs_mount. To be
-specific, modify the lable name and free ipaimap2 when the above error
-ocurrs.
+Fix that and copy the bitmask over to the host_cmd_ds_11n_delba command
+struct.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
+Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
+Acked-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211016153244.24353-5-verdre@v0yd.nl
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_mount.c | 51 ++++++++++++++++++++--------------------------
- 1 file changed, 22 insertions(+), 29 deletions(-)
+ drivers/net/wireless/mwifiex/11n.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/jfs/jfs_mount.c b/fs/jfs/jfs_mount.c
-index b5214c9ac47ac..f1a705d159043 100644
---- a/fs/jfs/jfs_mount.c
-+++ b/fs/jfs/jfs_mount.c
-@@ -93,14 +93,14 @@ int jfs_mount(struct super_block *sb)
- 	 * (initialize mount inode from the superblock)
- 	 */
- 	if ((rc = chkSuper(sb))) {
--		goto errout20;
-+		goto out;
- 	}
+diff --git a/drivers/net/wireless/mwifiex/11n.c b/drivers/net/wireless/mwifiex/11n.c
+index c174e79e6df2b..b70eac7d2dd79 100644
+--- a/drivers/net/wireless/mwifiex/11n.c
++++ b/drivers/net/wireless/mwifiex/11n.c
+@@ -630,14 +630,15 @@ int mwifiex_send_delba(struct mwifiex_private *priv, int tid, u8 *peer_mac,
+ 	uint16_t del_ba_param_set;
  
- 	ipaimap = diReadSpecial(sb, AGGREGATE_I, 0);
- 	if (ipaimap == NULL) {
- 		jfs_err("jfs_mount: Failed to read AGGREGATE_I");
- 		rc = -EIO;
--		goto errout20;
-+		goto out;
- 	}
- 	sbi->ipaimap = ipaimap;
+ 	memset(&delba, 0, sizeof(delba));
+-	delba.del_ba_param_set = cpu_to_le16(tid << DELBA_TID_POS);
  
-@@ -111,7 +111,7 @@ int jfs_mount(struct super_block *sb)
- 	 */
- 	if ((rc = diMount(ipaimap))) {
- 		jfs_err("jfs_mount: diMount(ipaimap) failed w/rc = %d", rc);
--		goto errout21;
-+		goto err_ipaimap;
- 	}
+-	del_ba_param_set = le16_to_cpu(delba.del_ba_param_set);
++	del_ba_param_set = tid << DELBA_TID_POS;
++
+ 	if (initiator)
+ 		del_ba_param_set |= IEEE80211_DELBA_PARAM_INITIATOR_MASK;
+ 	else
+ 		del_ba_param_set &= ~IEEE80211_DELBA_PARAM_INITIATOR_MASK;
  
- 	/*
-@@ -120,7 +120,7 @@ int jfs_mount(struct super_block *sb)
- 	ipbmap = diReadSpecial(sb, BMAP_I, 0);
- 	if (ipbmap == NULL) {
- 		rc = -EIO;
--		goto errout22;
-+		goto err_umount_ipaimap;
- 	}
++	delba.del_ba_param_set = cpu_to_le16(del_ba_param_set);
+ 	memcpy(&delba.peer_mac_addr, peer_mac, ETH_ALEN);
  
- 	jfs_info("jfs_mount: ipbmap:0x%p", ipbmap);
-@@ -132,7 +132,7 @@ int jfs_mount(struct super_block *sb)
- 	 */
- 	if ((rc = dbMount(ipbmap))) {
- 		jfs_err("jfs_mount: dbMount failed w/rc = %d", rc);
--		goto errout22;
-+		goto err_ipbmap;
- 	}
- 
- 	/*
-@@ -151,7 +151,7 @@ int jfs_mount(struct super_block *sb)
- 		if (!ipaimap2) {
- 			jfs_err("jfs_mount: Failed to read AGGREGATE_I");
- 			rc = -EIO;
--			goto errout35;
-+			goto err_umount_ipbmap;
- 		}
- 		sbi->ipaimap2 = ipaimap2;
- 
-@@ -163,7 +163,7 @@ int jfs_mount(struct super_block *sb)
- 		if ((rc = diMount(ipaimap2))) {
- 			jfs_err("jfs_mount: diMount(ipaimap2) failed, rc = %d",
- 				rc);
--			goto errout35;
-+			goto err_ipaimap2;
- 		}
- 	} else
- 		/* Secondary aggregate inode table is not valid */
-@@ -180,7 +180,7 @@ int jfs_mount(struct super_block *sb)
- 		jfs_err("jfs_mount: Failed to read FILESYSTEM_I");
- 		/* open fileset secondary inode allocation map */
- 		rc = -EIO;
--		goto errout40;
-+		goto err_umount_ipaimap2;
- 	}
- 	jfs_info("jfs_mount: ipimap:0x%p", ipimap);
- 
-@@ -190,41 +190,34 @@ int jfs_mount(struct super_block *sb)
- 	/* initialize fileset inode allocation map */
- 	if ((rc = diMount(ipimap))) {
- 		jfs_err("jfs_mount: diMount failed w/rc = %d", rc);
--		goto errout41;
-+		goto err_ipimap;
- 	}
- 
--	goto out;
-+	return rc;
- 
- 	/*
- 	 *	unwind on error
- 	 */
--      errout41:		/* close fileset inode allocation map inode */
-+err_ipimap:
-+	/* close fileset inode allocation map inode */
- 	diFreeSpecial(ipimap);
--
--      errout40:		/* fileset closed */
--
-+err_umount_ipaimap2:
- 	/* close secondary aggregate inode allocation map */
--	if (ipaimap2) {
-+	if (ipaimap2)
- 		diUnmount(ipaimap2, 1);
-+err_ipaimap2:
-+	/* close aggregate inodes */
-+	if (ipaimap2)
- 		diFreeSpecial(ipaimap2);
--	}
--
--      errout35:
--
--	/* close aggregate block allocation map */
-+err_umount_ipbmap:	/* close aggregate block allocation map */
- 	dbUnmount(ipbmap, 1);
-+err_ipbmap:		/* close aggregate inodes */
- 	diFreeSpecial(ipbmap);
--
--      errout22:		/* close aggregate inode allocation map */
--
-+err_umount_ipaimap:	/* close aggregate inode allocation map */
- 	diUnmount(ipaimap, 1);
--
--      errout21:		/* close aggregate inodes */
-+err_ipaimap:		/* close aggregate inodes */
- 	diFreeSpecial(ipaimap);
--      errout20:		/* aggregate closed */
--
--      out:
--
-+out:
- 	if (rc)
- 		jfs_err("Mount JFS Failure: %d", rc);
- 
+ 	/* We don't wait for the response of this command */
 -- 
 2.33.0
 
