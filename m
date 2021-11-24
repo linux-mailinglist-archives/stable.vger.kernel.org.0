@@ -2,147 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91ABE45D21D
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 01:32:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05B9045D33A
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 03:43:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345753AbhKYAfe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 19:35:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47368 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353131AbhKYAdd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 19:33:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BFBE610E9;
-        Thu, 25 Nov 2021 00:26:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637800018;
-        bh=9ceIYsMkWBTrb6zSgR3kObGhsimoVpHBAn+u9hJh8oo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YVArHE+Q69SeIjWqN7cgQo4misSd5CC5LPi27725TDvrbdDrkfNd5C9swreBfkHK8
-         07iuWamozyhFFTYNb/L6dYBpvhMjl/tAs3vOfwv0diseOGhI8NJzYaL2UChlh5krkP
-         cYtaC1k6xcD3P5TcSM023rBdD3wVC9HyHMdjHAcRgpkaIfBf7a56R+tGnkdBniXIm+
-         GegA2myqj6hv9MVX9zqoGFta+86W2E8avdcpVjtzc3bxAnNBYnHOxQpfZgZaWQ6okO
-         dlhGulWEPgCBiMOQXamcMj36Qp0/WLzFktO2vaJQbOifleKPbQnW1WiVpRsTnOPcgD
-         slL+V4ZJHMKkw==
-From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     pali@kernel.org, stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
-        Remi Pommarel <repk@triplefau.lt>,
-        Tomasz Maciej Nowak <tmn505@gmail.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.4 22/22] arm64: dts: marvell: armada-37xx: Set pcie_reset_pin to gpio function
-Date:   Thu, 25 Nov 2021 01:26:16 +0100
-Message-Id: <20211125002616.31363-23-kabel@kernel.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211125002616.31363-1-kabel@kernel.org>
-References: <20211125002616.31363-1-kabel@kernel.org>
+        id S238167AbhKYCqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 21:46:49 -0500
+Received: from ns1.ge0.cz ([171.25.221.142]:50472 "EHLO webhost1.gdx.cz"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S238798AbhKYCos (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 21:44:48 -0500
+X-Greylist: delayed 14360 seconds by postgrey-1.27 at vger.kernel.org; Wed, 24 Nov 2021 21:44:48 EST
+Received: from localhost (localhost [127.0.0.1])
+        by webhost1.gdx.cz (Postfix) with ESMTP id ECBA6CCA33;
+        Wed, 24 Nov 2021 22:53:49 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=akfv.cz; h=
+        x-mailer:content-transfer-encoding:content-type:content-type
+        :mime-version:date:date:subject:subject:from:from:reply-to; s=
+        default; t=1637790829; x=1639605230; bh=k7Kf7qWv5jE4PPhlqpbUJ7hv
+        RKNAIME5BRqhBTw/w6g=; b=OT+o+/KZ1449wf+q+uAoJraFUOAIpYZeEY5Fcyq3
+        fF4CGPn7gsNZxuztqmLJqiLdMIElq/xMoVVCuVSz+emv8Wg3AbirOzj3BQdZejs2
+        WHecPbB41s+oT05l36z6dg1KBbmzt1kim4xAHy/5fwAqCFgr6W+aQBkiQVIhQcYH
+        iq0=
+X-Virus-Scanned: Debian amavisd-new at webhost1.gdx.cz
+Received: from webhost1.gdx.cz ([127.0.0.1])
+        by localhost (webhost1.gdx.cz [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id qbN_WerCUpML; Wed, 24 Nov 2021 22:53:49 +0100 (CET)
+Received: from User (unknown [212.192.219.52])
+        (Authenticated sender: filip.vanek@akfv.cz)
+        by webhost1.gdx.cz (Postfix) with ESMTPA id CD7D8D4482;
+        Wed, 24 Nov 2021 14:49:40 +0100 (CET)
+Reply-To: <chimwai24@gmail.com>
+From:   "Chim Wai Kin" <filip.vanek@akfv.cz>
+To:     chimwai24@gmail.com
+Subject: PLEASE GET BACK SOON.
+Date:   Wed, 24 Nov 2021 05:49:43 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+        charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-Id: <20211124215349.ECBA6CCA33@webhost1.gdx.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <marek.behun@nic.cz>
+Dear Friend,
 
-commit 715878016984b2617f6c1f177c50039e12e7bd5b upstream.
+Please read carefully.
 
-We found out that we are unable to control the PERST# signal via the
-default pin dedicated to be PERST# pin (GPIO2[3] pin) on A3700 SOC when
-this pin is in EP_PCIE1_Resetn mode. There is a register in the PCIe
-register space called PERSTN_GPIO_EN (D0088004[3]), but changing the
-value of this register does not change the pin output when measuring
-with voltmeter.
+I would respectfully request that you keep the contents of this mail confidential and respect the integrity of the information you come by as a result of this mail. I contact you independently and no one is informed of this communication. We can work together for our common good.
 
-We do not know if this is a bug in the SOC, or if it works only when
-PCIe controller is in a certain state.
+I am Chim Wai Kin, Chairman of the risk management committee at OCBC WING HANG BANK here in Hong Kong. I am getting in touch with you regarding the estate of a customer and an investment placed under our banks management over
 
-Commit f4c7d053d7f7 ("PCI: aardvark: Wait for endpoint to be ready
-before training link") says that when this pin changes pinctrl mode
-from EP_PCIE1_Resetn to GPIO, the PERST# signal is asserted for a brief
-moment.
+10 years ago. In 2006, the subject matter; came to our office to engage in business discussions with our private banking division. He informed us that he had a financial portfolio of $18.75 million United States dollars, which he wished to have us invest on his behalf.
+However, this money has not been claimed. On further enquiries we found out that he was involved in an accident in Mainland China , which means he died intestate, He has no next of kin.
 
-So currently the situation is that on A3700 boards the PERST# signal is
-asserted in U-Boot (because the code in U-Boot issues reset via this pin
-via GPIO mode), and then in Linux by the obscure and undocumented
-mechanism described by the above mentioned commit.
+What I propose is that since I have exclusive access to his file, you will be made the beneficiary of these funds. My bank will contact you informing you that money has been willed to you. On verification, which will be the details I make available to my bank, my bank will make payments to you. You do not have to have known him. I know this might be a bit heavy for you but please trust me on this. For all your troubles I propose that we split the money in  half. In the banking circle this happens every time. The other option is that the
 
-We want to issue PERST# signal in a known way, therefore this patch
-changes the pcie_reset_pin function from "pcie" to "gpio" and adds the
-reset-gpios property to the PCIe node in device tree files of
-EspressoBin and Armada 3720 Dev Board (Turris Mox device tree already
-has this property and uDPU does not have a PCIe port).
+money will revert back to the state.Nobody is getting hurt; this is a  lifetime opportunity for us. I hold the KEY to these funds, and as a Chinese  National we see so much cash and funds being re-assigned daily. I would want  us to keep communication for now strictly by email.
 
-Signed-off-by: Marek Behún <marek.behun@nic.cz>
-Cc: Remi Pommarel <repk@triplefau.lt>
-Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
-Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
----
- arch/arm64/boot/dts/marvell/armada-3720-db.dts          | 3 +++
- arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts | 1 +
- arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts  | 4 ----
- arch/arm64/boot/dts/marvell/armada-37xx.dtsi            | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+Please, again, note I am a family man; I have a wife and children. I send you this mail not without a measure of fear as to the consequences, but I know  within me that nothing ventured is nothing gained and that success and riches
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-db.dts b/arch/arm64/boot/dts/marvell/armada-3720-db.dts
-index f2cc00594d64..3e5789f37206 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-db.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-db.dts
-@@ -128,6 +128,9 @@
- 
- /* CON15(V2.0)/CON17(V1.4) : PCIe / CON15(V2.0)/CON12(V1.4) :mini-PCIe */
- &pcie0 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
-+	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
- 	status = "okay";
- };
- 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
-index 6226e7e80980..a75bb2ea3506 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dts
-@@ -59,6 +59,7 @@
- 	phys = <&comphy1 0>;
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
-+	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
- };
- 
- /* J6 */
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-index de0eabff2935..16e73597bb78 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-@@ -127,10 +127,6 @@
- 	};
- };
- 
--&pcie_reset_pins {
--	function = "gpio";
--};
--
- &pcie0 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
-diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-index c28611c1c251..3d15e4ab3f53 100644
---- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-+++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-@@ -318,7 +318,7 @@
- 
- 				pcie_reset_pins: pcie-reset-pins {
- 					groups = "pcie1";
--					function = "pcie";
-+					function = "gpio";
- 				};
- 
- 				pcie_clkreq_pins: pcie-clkreq-pins {
--- 
-2.32.0
+never come easy or on a platter of gold. This is the one truth I have learned from my private banking clients. Do not betray my confidence. If we can be of one accord, we should act swiftly on this. Please pardon my writing mistakes.
 
+Please get back to me immediately with your details as follows so we may discuss more on this. EMAIL ME : chimwai24@gmail.com
+
+
+
+1. Full Names and address
+
+2. Telephone and fax number
+
+3. Means of identification.
+
+
+I await your response.
+
+Regards
+Chim Wai Kin
+
+chimwai24@gmail.com
