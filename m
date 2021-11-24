@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A30B945C259
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:24:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5242445C607
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349208AbhKXN1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:27:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48878 "EHLO mail.kernel.org"
+        id S1350835AbhKXOE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:04:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350364AbhKXNZh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:25:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 620CA61B62;
-        Wed, 24 Nov 2021 12:49:41 +0000 (UTC)
+        id S1353776AbhKXOCi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:02:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63F31613D0;
+        Wed, 24 Nov 2021 13:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758182;
-        bh=Zty3CVMBZk4RNp1kekEFFjSMGMoZUMY08NMObyzMbuk=;
+        s=korg; t=1637759420;
+        bh=o9ZgmHuMDnscFdkQdrLy1fHCKJ4iQp9UG8lRVVffQog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u9gv5ip4DWLP9Gmsw4otZFDD5znS0d8YdIGWpK99inJLspdLBXFwcUML3AhHeBJ/R
-         bchbPLZhIAcOZgxVwsPTEWryy6o+MGm/9Un7cFbK54OgGycjZLZ5+HTLWmTm7qJwMA
-         aqeusZw7aGM5O1yZmsTaOEzxMGE1+9qPx2dfS8fk=
+        b=WfxEYs91S236+x1PM4NO28l6iyTbnPjuydXZcfpVMfWMSmvFlOrq5WvNFlQTHjRsD
+         CkGrphv6vo90n+qAqiGMWCvSpM08Md4iFra5BU1X8BqB/LolSmrhGKsIyhPSknUEfN
+         ljopxbL/Sh3Ei3s7bMQHMY7NZep2ehK/0+wxlCh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
         syzbot+bbf402b783eeb6d908db@syzkaller.appspotmail.com,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 086/100] cfg80211: call cfg80211_stop_ap when switch from P2P_GO type
-Date:   Wed, 24 Nov 2021 12:58:42 +0100
-Message-Id: <20211124115657.633936265@linuxfoundation.org>
+Subject: [PATCH 5.15 236/279] cfg80211: call cfg80211_stop_ap when switch from P2P_GO type
+Date:   Wed, 24 Nov 2021 12:58:43 +0100
+Message-Id: <20211124115726.896931015@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,7 +64,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/wireless/util.c
 +++ b/net/wireless/util.c
-@@ -991,6 +991,7 @@ int cfg80211_change_iface(struct cfg8021
+@@ -1044,6 +1044,7 @@ int cfg80211_change_iface(struct cfg8021
  
  		switch (otype) {
  		case NL80211_IFTYPE_AP:
