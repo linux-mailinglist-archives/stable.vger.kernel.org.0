@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C54545B61E
+	by mail.lfdr.de (Postfix) with ESMTP id 9A10045B61F
 	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 09:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240964AbhKXIFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231748AbhKXIFr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 24 Nov 2021 03:05:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58916 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240960AbhKXIFm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 03:05:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F30F760F5D;
-        Wed, 24 Nov 2021 08:02:32 +0000 (UTC)
+        id S240966AbhKXIFr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 03:05:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF93960F5D;
+        Wed, 24 Nov 2021 08:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637740953;
-        bh=oyN2u/CJxXUM3Cds3C6qG4Q6OaAF04XE5gsExxO+DXw=;
+        s=korg; t=1637740956;
+        bh=1lVZATJhY9cCAp1Am5qh4dq3z6QhzN9fVXBOqqAulzY=;
         h=Subject:To:Cc:From:Date:From;
-        b=W40e/1qD2W9PGO9o9uuUcyWdow3R3ERzYhMVmJxGpLVb48pOU/pcnYzX5ajYlQHLK
-         2hFLhntRSFYG3gjEdDTlnLnAA0ylclSvunRFXH8FTyHNInEz/m30pPJzwLiyOqfnG2
-         eRfpFYqNySVyQrF+Uj2W7oVAYgeKyXSpQheSy6zs=
-Subject: FAILED: patch "[PATCH] ice: Fix race conditions between virtchnl handling and VF ndo" failed to apply to 5.10-stable tree
+        b=09M9kXk7i/ZNHMTkFial/TrWkmm0lXMzo6hxKW3CMsRZjsDuXfgXVFywd3XNmqIUX
+         zpZRo/SCcTSuTuk9a89a7DXF9mo19f4HY1rlc5DLlMNoJfsUk66XgrEywZPuXdqU/e
+         cZ7P9sBe0KapuQo5K2fSqEgeJrhIXy9CgRt2VXdg=
+Subject: FAILED: patch "[PATCH] ice: Fix race conditions between virtchnl handling and VF ndo" failed to apply to 5.15-stable tree
 To:     brett.creeley@intel.com, anthony.l.nguyen@intel.com,
         konrad0.jankowski@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 24 Nov 2021 09:02:29 +0100
-Message-ID: <163774094985111@kroah.com>
+Date:   Wed, 24 Nov 2021 09:02:30 +0100
+Message-ID: <1637740950240140@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
