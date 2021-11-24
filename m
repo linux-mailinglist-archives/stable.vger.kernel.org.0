@@ -2,114 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC44945D0A4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 23:57:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D016745D0BC
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 00:05:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345580AbhKXXAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 18:00:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52448 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243700AbhKXXAn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 18:00:43 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18888C061574
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 14:57:33 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id g14so17139667edb.8
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 14:57:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=mariadb.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kZ/Cy6oKXJuBsBkSEe6ykahv0AudUP/LRivoV/mGkv8=;
-        b=h6z6PNmew3L4EmqJUapMfQ73aM5Al6Ba8eOAJne3KmFdTj+9v3dIY0888+LVi6HgH/
-         RGesLXW9XCNayvrRP+Zr0FR9FYv7KAT5y+wGzw7/09dI1SIjE0Ru0TNkB2XLHSELQZB+
-         KOtfTyGGgIY4xWB0efZL6NOemCCtdXSRTgCrMrUI9/62iuEaLtBjnj3LbChvbTTdqVhQ
-         Ja5tgqB3wD/Vm7n66s/mxMWeaevH5sfarctFry44bmyIxE4i0Rhj+b4sfxAeWVEbKoSn
-         e/Ss3/NGDfYpzJGlx3WoPodQjnWCVa1lRGaISALPwm3uZPEqeNG6OoGmUBnRt5vzjCYD
-         wNIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kZ/Cy6oKXJuBsBkSEe6ykahv0AudUP/LRivoV/mGkv8=;
-        b=68ayVyxCEkcKHMq/DbyFZI1MiWM+Lz+3UJiDg3OoW0eOhx3DBf5bXZ97Hrw/tahznx
-         i6069Gm040Zms9ISem+JIqAikJVJmTA0MVViB+xA/RJe1yQv4TMAaSRKnFvfiy/WGCdo
-         gkE93IXVQYQegEx5K9Hxxp25vERKGEPsfsuD7n2owazcJDiOjW5FJmYhvD37qtgbG9DV
-         Fak8zrvF2F0SDo9vauLTX/g8j52UmqYo/hhvhz+h17pNDZmgIW0O1SVscDkuU3cxlbTz
-         FShKk7pPelVb+xYDEv+cRdBRQiu1/YQCwEpJ6ivq7Fa0TSCtPNsh0c8flwbRxdQlVX5O
-         lNKQ==
-X-Gm-Message-State: AOAM531+srt8iu3MWDyv/nwZ1KEQhUpfkMKWx6GGsGZCNSUj8M6icP60
-        LePUxKL62ZYsTUVO1bQI4snxIIiPspM4pnOrQsGLjg==
-X-Google-Smtp-Source: ABdhPJwCs5NYY9EfCsQ1LswfyhANXYbQm96NTJsvs5s8M3oFoYX9ZbguIlfrjP1n+0r1RIbD1X3X7+YlLgVzYWGTcs0=
-X-Received: by 2002:a05:6402:90c:: with SMTP id g12mr31022237edz.217.1637794651674;
- Wed, 24 Nov 2021 14:57:31 -0800 (PST)
+        id S1352381AbhKXXIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 18:08:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51010 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1352403AbhKXXIP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 18:08:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF8136108B;
+        Wed, 24 Nov 2021 23:05:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637795104;
+        bh=MJwDB1XRawIbDFMqqPVk7BXTtx+KK/yHMIhcl8k/thU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Knpg6B+D1hdlDgUvY63ndM6tXftYqOUn/HtFsPijrEnndj/DdRol8gYcEQsSJ49jX
+         4MPxlJcMGALZ0fF4aD1bvVQ37Afnrt87V4qB19+mmOFUTTmCuROyXeMPtZGVUqV6rn
+         sI3DOht+aANHhaNldOoe1FMmQq8C5gPj4pTnT1jURF2vhg1hDS0a7wHP1OOuXBYrJ5
+         zWp5uc4O7nK8XqNCmQfkq5IARfy5ZXNdNBosl1nzlEMIyoGTG9z8fwxpHGRNvLNiZk
+         fQm/Wdj4IxjPdh1WawaSci/eK5TpupnwyWu7Cmh6eIDshSSMaJ0b3iCIWjvAkU0fdP
+         FG0aEczfAVxng==
+From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     pali@kernel.org, stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 4.19 00/20] Armada 3720 PCIe fixes for 4.19
+Date:   Thu, 25 Nov 2021 00:04:40 +0100
+Message-Id: <20211124230500.27109-1-kabel@kernel.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-References: <c6d6bffe-1770-c51d-11c6-c5483bde1766@kernel.dk>
- <bd7289c8-0b01-4fcf-e584-273d372f8343@kernel.dk> <6d0ca779-3111-bc5e-88c0-22a98a6974b8@kernel.dk>
- <281147cc-7da4-8e45-2d6f-3f7c2a2ca229@kernel.dk> <c92f97e5-1a38-e23f-f371-c00261cacb6d@kernel.dk>
- <CABVffEN0LzLyrHifysGNJKpc_Szn7qPO4xy7aKvg7LTNc-Fpng@mail.gmail.com>
- <00d6e7ad-5430-4fca-7e26-0774c302be57@kernel.dk> <CABVffEM79CZ+4SW0+yP0+NioMX=sHhooBCEfbhqs6G6hex2YwQ@mail.gmail.com>
- <3aaac8b2-e2f6-6a84-1321-67409b2a3dce@kernel.dk> <98f8a00f-c634-4a1a-4eba-f97be5b2e801@kernel.dk>
- <YZ5lvtfqsZEllUJq@kroah.com> <c0a7ac89-2a8c-b1e3-00c2-96ee259582b4@kernel.dk>
-In-Reply-To: <c0a7ac89-2a8c-b1e3-00c2-96ee259582b4@kernel.dk>
-From:   Daniel Black <daniel@mariadb.org>
-Date:   Thu, 25 Nov 2021 09:57:20 +1100
-Message-ID: <CABVffEOXe=mhyW_-Ynz4Z9g_UxvVAms662vQjN9UBfF9NhWu8g@mail.gmail.com>
-Subject: Re: uring regression - lost write request
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        linux-block@vger.kernel.org, io-uring@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 25, 2021 at 3:22 AM Jens Axboe <axboe@kernel.dk> wrote:
->
-> On 11/24/21 9:18 AM, Greg Kroah-Hartman wrote:
-> > On Wed, Nov 24, 2021 at 09:10:25AM -0700, Jens Axboe wrote:
-> >> On 11/24/21 8:28 AM, Jens Axboe wrote:
-> >>> On 11/23/21 8:27 PM, Daniel Black wrote:
-> >>>> On Mon, Nov 15, 2021 at 7:55 AM Jens Axboe <axboe@kernel.dk> wrote:
+Hello Greg, Sasha,
 
-> >>>> I'm getting the same reproducer on 5.14.20
-> >>>> (https://bugzilla.redhat.com/show_bug.cgi?id=2018882#c3) though the
-> >>>> backport change logs indicate 5.14.19 has the patch.
-> >>>>
-> >>>> Anything missing?
-> >>>
-> >>> We might also need another patch that isn't in stable, I'm attaching
-> >>> it here. Any chance you can run 5.14.20/21 with this applied? If not,
-> >>> I'll do some sanity checking here and push it to -stable.
-> >>
-> >> Looks good to me - Greg, would you mind queueing this up for
-> >> 5.14-stable?
-> >
-> > 5.14 is end-of-life and not getting any more releases (the front page of
-> > kernel.org should show that.)
->
-> Oh, well I guess that settles that...
+this series for 4.19-stable backports all the fixes (and their
+dependencies) for Armada 3720 PCIe driver.
+These include:
+- fixes (and their dependencies) for pci-aardvark controller
+- fixes (and their dependencies) for pinctrl-armada-37xx driver
+- device-tree fixes
 
-Certainly does. Thanks for looking and finding the patch.
+Basically all fixes from upstream are taken, excluding those
+that need fix the emulated bridge, since that was introduced
+after 4.19. (Should we backport it? It concerns only mvebu and
+aardvark controllers...)
 
-> > If this needs to go anywhere else, please let me know.
->
-> Should be fine, previous 5.10 isn't affected and 5.15 is fine too as it
-> already has the patch.
+Marek
 
-Thank you
+Gregory CLEMENT (1):
+  pinctrl: armada-37xx: add missing pin: PCIe1 Wakeup
 
-https://github.com/MariaDB/server/commit/de7db5517de11a58d57d2a41d0bc6f38b6f92dd8
+Marek Behún (4):
+  PCI: aardvark: Improve link training
+  pinctrl: armada-37xx: Correct mpp definitions
+  pinctrl: armada-37xx: Correct PWM pins definitions
+  arm64: dts: marvell: armada-37xx: Set pcie_reset_pin to gpio function
 
-On Thu, Nov 25, 2021 at 9:52 AM Stefan Metzmacher <metze@samba.org> wrote:
-> Are 5.11 and 5.13 are affected,
+Miquel Raynal (1):
+  arm64: dts: marvell: armada-37xx: declare PCIe reset pin
 
-Yes.
+Pali Rohár (12):
+  PCI: aardvark: Train link immediately after enabling training
+  PCI: aardvark: Issue PERST via GPIO
+  PCI: aardvark: Replace custom macros by standard linux/pci_regs.h
+    macros
+  PCI: aardvark: Indicate error in 'val' when config read fails
+  PCI: aardvark: Don't touch PCIe registers if no card connected
+  PCI: aardvark: Fix compilation on s390
+  PCI: aardvark: Move PCIe reset card code to advk_pcie_train_link()
+  PCI: aardvark: Update comment about disabling link training
+  PCI: aardvark: Configure PCIe resources from 'ranges' DT property
+  PCI: aardvark: Fix PCIe Max Payload Size setting
+  PCI: aardvark: Fix link training
+  PCI: aardvark: Fix checking for link up via LTSSM state
 
-> these are hwe kernels for ubuntu,
-> I may need to open a bug for them...
+Remi Pommarel (1):
+  PCI: aardvark: Wait for endpoint to be ready before training link
 
-Yes please.
+Wen Yang (1):
+  PCI: aardvark: Fix a leaked reference by adding missing of_node_put()
+
+ .../pinctrl/marvell,armada-37xx-pinctrl.txt   |  26 +-
+ .../arm64/boot/dts/marvell/armada-3720-db.dts |   3 +
+ .../dts/marvell/armada-3720-espressobin.dts   |   3 +
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi  |   9 +
+ drivers/pci/controller/pci-aardvark.c         | 436 ++++++++++++++++--
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c   |  28 +-
+ 6 files changed, 434 insertions(+), 71 deletions(-)
+
+-- 
+2.32.0
+
