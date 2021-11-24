@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 546C345C4A9
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:48:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D5ED45C4AE
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354450AbhKXNus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:50:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41800 "EHLO mail.kernel.org"
+        id S1352001AbhKXNuu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:50:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354223AbhKXNtB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1354226AbhKXNtB (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 08:49:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69CE761A4F;
-        Wed, 24 Nov 2021 13:02:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F1D661A0B;
+        Wed, 24 Nov 2021 13:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758960;
-        bh=KWQyp4KUtiDZ2PSsjvtehTLYYsXDPgG/pPblwLRzOGk=;
+        s=korg; t=1637758963;
+        bh=4SocQtq8qZg7rNVIqVpPuI7ulAJS4JvkpVTR/mszbKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L4l9hHMaXpYPAK9POLc3yg7zQI9S8rCwDNpc02x85XEwqTU3yLRKlH7fZ0+Z8fWnk
-         h17iSy6okZb/CfchcV/o5ZfDs3MkJjzl1nbz4ri9/F1VSmQd1JQQchWh0HG2jBB0go
-         vgBM4L44KKRG06qxbFeVU6NyAX+0lXJvjRBYhfdY=
+        b=xdPooBKMBIpWVyoYLgTUBA+rxRWkn5Vy/CVJhDTZ/01iEWbfVvoj4RyF4owutaVxq
+         Gimn+JPjSSyiD02EHe34sLH1iLpFvpiqXaI7Dsp3qHaQ+gy/jTAB/i54Nsu7NrE4i9
+         5D8lAOwKIt65+m0K+2jH55hq4MKluI6mHQfU4o5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Derek Fang <derek.fang@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Li Yang <leoyang.li@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 054/279] ASoC: rt5682: fix a little pop while playback
-Date:   Wed, 24 Nov 2021 12:55:41 +0100
-Message-Id: <20211124115720.590366452@linuxfoundation.org>
+Subject: [PATCH 5.15 055/279] ARM: dts: ls1021a: move thermal-zones node out of soc/
+Date:   Wed, 24 Nov 2021 12:55:42 +0100
+Message-Id: <20211124115720.631275564@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
 References: <20211124115718.776172708@linuxfoundation.org>
@@ -40,175 +40,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Derek Fang <derek.fang@realtek.com>
+From: Li Yang <leoyang.li@nxp.com>
 
-[ Upstream commit 4b19e4a77cc6baa0f840e8bae62ab974667f6207 ]
+[ Upstream commit 1ee1500ef717eefb5d9bdaf97905cb81b4e69aa4 ]
 
-A little pop can be heard obviously from HP while playing a silent.
-This patch fixes it by using two functions:
-1. Enable HP 1bit output mode.
-2. Change the charge pump switch size during playback on and off.
+This fixes dtbs-check error from simple-bus schema:
+soc: thermal-zones: {'type': 'object'} is not allowed for {'cpu-thermal': ..... }
+        From schema: /home/leo/.local/lib/python3.8/site-packages/dtschema/schemas/simple-bus.yaml
 
-Signed-off-by: Derek Fang <derek.fang@realtek.com>
-Link: https://lore.kernel.org/r/20211014094054.811-1-derek.fang@realtek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5682.c | 56 +++++++++++++++++++++++++++++++++------
- sound/soc/codecs/rt5682.h | 20 ++++++++++++++
- 2 files changed, 68 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/ls1021a.dtsi | 66 +++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 33 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
-index 4a64cab99c55b..d550c0705c28b 100644
---- a/sound/soc/codecs/rt5682.c
-+++ b/sound/soc/codecs/rt5682.c
-@@ -46,6 +46,8 @@ static const struct reg_sequence patch_list[] = {
- 	{RT5682_SAR_IL_CMD_1, 0x22b7},
- 	{RT5682_SAR_IL_CMD_3, 0x0365},
- 	{RT5682_SAR_IL_CMD_6, 0x0110},
-+	{RT5682_CHARGE_PUMP_1, 0x0210},
-+	{RT5682_HP_LOGIC_CTRL_2, 0x0007},
+diff --git a/arch/arm/boot/dts/ls1021a.dtsi b/arch/arm/boot/dts/ls1021a.dtsi
+index 4fce81422943b..f3b8540750b61 100644
+--- a/arch/arm/boot/dts/ls1021a.dtsi
++++ b/arch/arm/boot/dts/ls1021a.dtsi
+@@ -329,39 +329,6 @@
+ 			#thermal-sensor-cells = <1>;
+ 		};
+ 
+-		thermal-zones {
+-			cpu_thermal: cpu-thermal {
+-				polling-delay-passive = <1000>;
+-				polling-delay = <5000>;
+-
+-				thermal-sensors = <&tmu 0>;
+-
+-				trips {
+-					cpu_alert: cpu-alert {
+-						temperature = <85000>;
+-						hysteresis = <2000>;
+-						type = "passive";
+-					};
+-					cpu_crit: cpu-crit {
+-						temperature = <95000>;
+-						hysteresis = <2000>;
+-						type = "critical";
+-					};
+-				};
+-
+-				cooling-maps {
+-					map0 {
+-						trip = <&cpu_alert>;
+-						cooling-device =
+-							<&cpu0 THERMAL_NO_LIMIT
+-							THERMAL_NO_LIMIT>,
+-							<&cpu1 THERMAL_NO_LIMIT
+-							THERMAL_NO_LIMIT>;
+-					};
+-				};
+-			};
+-		};
+-
+ 		dspi0: spi@2100000 {
+ 			compatible = "fsl,ls1021a-v1.0-dspi";
+ 			#address-cells = <1>;
+@@ -1016,4 +983,37 @@
+ 			big-endian;
+ 		};
+ 	};
++
++	thermal-zones {
++		cpu_thermal: cpu-thermal {
++			polling-delay-passive = <1000>;
++			polling-delay = <5000>;
++
++			thermal-sensors = <&tmu 0>;
++
++			trips {
++				cpu_alert: cpu-alert {
++					temperature = <85000>;
++					hysteresis = <2000>;
++					type = "passive";
++				};
++				cpu_crit: cpu-crit {
++					temperature = <95000>;
++					hysteresis = <2000>;
++					type = "critical";
++				};
++			};
++
++			cooling-maps {
++				map0 {
++					trip = <&cpu_alert>;
++					cooling-device =
++						<&cpu0 THERMAL_NO_LIMIT
++						THERMAL_NO_LIMIT>,
++						<&cpu1 THERMAL_NO_LIMIT
++						THERMAL_NO_LIMIT>;
++				};
++			};
++		};
++	};
  };
- 
- void rt5682_apply_patch_list(struct rt5682_priv *rt5682, struct device *dev)
-@@ -1515,21 +1517,29 @@ static int rt5682_hp_event(struct snd_soc_dapm_widget *w,
- 
- 	switch (event) {
- 	case SND_SOC_DAPM_PRE_PMU:
--		snd_soc_component_write(component,
--			RT5682_HP_LOGIC_CTRL_2, 0x0012);
--		snd_soc_component_write(component,
--			RT5682_HP_CTRL_2, 0x6000);
-+		snd_soc_component_update_bits(component, RT5682_HP_CTRL_2,
-+			RT5682_HP_C2_DAC_AMP_MUTE, 0);
-+		snd_soc_component_update_bits(component, RT5682_HP_LOGIC_CTRL_2,
-+			RT5682_HP_LC2_SIG_SOUR2_MASK, RT5682_HP_LC2_SIG_SOUR2_REG);
- 		snd_soc_component_update_bits(component,
- 			RT5682_DEPOP_1, 0x60, 0x60);
- 		snd_soc_component_update_bits(component,
- 			RT5682_DAC_ADC_DIG_VOL1, 0x00c0, 0x0080);
-+		snd_soc_component_update_bits(component, RT5682_HP_CTRL_2,
-+			RT5682_HP_C2_DAC_L_EN | RT5682_HP_C2_DAC_R_EN,
-+			RT5682_HP_C2_DAC_L_EN | RT5682_HP_C2_DAC_R_EN);
-+		usleep_range(5000, 10000);
-+		snd_soc_component_update_bits(component, RT5682_CHARGE_PUMP_1,
-+			RT5682_CP_SW_SIZE_MASK, RT5682_CP_SW_SIZE_L);
- 		break;
- 
- 	case SND_SOC_DAPM_POST_PMD:
-+		snd_soc_component_update_bits(component, RT5682_HP_CTRL_2,
-+			RT5682_HP_C2_DAC_L_EN | RT5682_HP_C2_DAC_R_EN, 0);
-+		snd_soc_component_update_bits(component, RT5682_CHARGE_PUMP_1,
-+			RT5682_CP_SW_SIZE_MASK, RT5682_CP_SW_SIZE_M);
- 		snd_soc_component_update_bits(component,
- 			RT5682_DEPOP_1, 0x60, 0x0);
--		snd_soc_component_write(component,
--			RT5682_HP_CTRL_2, 0x0000);
- 		snd_soc_component_update_bits(component,
- 			RT5682_DAC_ADC_DIG_VOL1, 0x00c0, 0x0000);
- 		break;
-@@ -1637,6 +1647,23 @@ static SOC_VALUE_ENUM_SINGLE_DECL(rt5682_adcdat_pin_enum,
- static const struct snd_kcontrol_new rt5682_adcdat_pin_ctrl =
- 	SOC_DAPM_ENUM("ADCDAT", rt5682_adcdat_pin_enum);
- 
-+static const unsigned int rt5682_hpo_sig_out_values[] = {
-+	2,
-+	7,
-+};
-+
-+static const char * const rt5682_hpo_sig_out_mode[] = {
-+	"Legacy",
-+	"OneBit",
-+};
-+
-+static SOC_VALUE_ENUM_SINGLE_DECL(rt5682_hpo_sig_out_enum,
-+	RT5682_HP_LOGIC_CTRL_2, 0, RT5682_HP_LC2_SIG_SOUR1_MASK,
-+	rt5682_hpo_sig_out_mode, rt5682_hpo_sig_out_values);
-+
-+static const struct snd_kcontrol_new rt5682_hpo_sig_demux =
-+	SOC_DAPM_ENUM("HPO Signal Demux", rt5682_hpo_sig_out_enum);
-+
- static const struct snd_soc_dapm_widget rt5682_dapm_widgets[] = {
- 	SND_SOC_DAPM_SUPPLY("LDO2", RT5682_PWR_ANLG_3, RT5682_PWR_LDO2_BIT,
- 		0, NULL, 0),
-@@ -1820,6 +1847,10 @@ static const struct snd_soc_dapm_widget rt5682_dapm_widgets[] = {
- 	SND_SOC_DAPM_SWITCH("HPOR Playback", SND_SOC_NOPM, 0, 0,
- 		&hpor_switch),
- 
-+	SND_SOC_DAPM_OUT_DRV("HPO Legacy", SND_SOC_NOPM, 0, 0, NULL, 0),
-+	SND_SOC_DAPM_OUT_DRV("HPO OneBit", SND_SOC_NOPM, 0, 0, NULL, 0),
-+	SND_SOC_DAPM_DEMUX("HPO Signal Demux", SND_SOC_NOPM, 0, 0, &rt5682_hpo_sig_demux),
-+
- 	/* CLK DET */
- 	SND_SOC_DAPM_SUPPLY("CLKDET SYS", RT5682_CLK_DET,
- 		RT5682_SYS_CLK_DET_SFT,	0, NULL, 0),
-@@ -1987,10 +2018,19 @@ static const struct snd_soc_dapm_route rt5682_dapm_routes[] = {
- 	{"HP Amp", NULL, "Charge Pump"},
- 	{"HP Amp", NULL, "CLKDET SYS"},
- 	{"HP Amp", NULL, "Vref1"},
--	{"HPOL Playback", "Switch", "HP Amp"},
--	{"HPOR Playback", "Switch", "HP Amp"},
-+
-+	{"HPO Signal Demux", NULL, "HP Amp"},
-+
-+	{"HPO Legacy", "Legacy", "HPO Signal Demux"},
-+	{"HPO OneBit", "OneBit", "HPO Signal Demux"},
-+
-+	{"HPOL Playback", "Switch", "HPO Legacy"},
-+	{"HPOR Playback", "Switch", "HPO Legacy"},
-+
- 	{"HPOL", NULL, "HPOL Playback"},
- 	{"HPOR", NULL, "HPOR Playback"},
-+	{"HPOL", NULL, "HPO OneBit"},
-+	{"HPOR", NULL, "HPO OneBit"},
- };
- 
- static int rt5682_set_tdm_slot(struct snd_soc_dai *dai, unsigned int tx_mask,
-diff --git a/sound/soc/codecs/rt5682.h b/sound/soc/codecs/rt5682.h
-index b59221048ebf9..8e3244a62c160 100644
---- a/sound/soc/codecs/rt5682.h
-+++ b/sound/soc/codecs/rt5682.h
-@@ -375,6 +375,14 @@
- #define RT5682_R_VOL_MASK			(0x3f)
- #define RT5682_R_VOL_SFT			0
- 
-+/* Headphone Amp Control 2 (0x0003) */
-+#define RT5682_HP_C2_DAC_AMP_MUTE_SFT		15
-+#define RT5682_HP_C2_DAC_AMP_MUTE		(0x1 << 15)
-+#define RT5682_HP_C2_DAC_L_EN_SFT		14
-+#define RT5682_HP_C2_DAC_L_EN			(0x1 << 14)
-+#define RT5682_HP_C2_DAC_R_EN_SFT		13
-+#define RT5682_HP_C2_DAC_R_EN			(0x1 << 13)
-+
- /*Headphone Amp L/R Analog Gain and Digital NG2 Gain Control (0x0005 0x0006)*/
- #define RT5682_G_HP				(0xf << 8)
- #define RT5682_G_HP_SFT				8
-@@ -1265,6 +1273,10 @@
- #define RT5682_HPA_CP_BIAS_6UA			(0x3 << 2)
- 
- /* Charge Pump Internal Register1 (0x0125) */
-+#define RT5682_CP_SW_SIZE_MASK			(0x7 << 8)
-+#define RT5682_CP_SW_SIZE_L			(0x4 << 8)
-+#define RT5682_CP_SW_SIZE_M			(0x2 << 8)
-+#define RT5682_CP_SW_SIZE_S			(0x1 << 8)
- #define RT5682_CP_CLK_HP_MASK			(0x3 << 4)
- #define RT5682_CP_CLK_HP_100KHZ			(0x0 << 4)
- #define RT5682_CP_CLK_HP_200KHZ			(0x1 << 4)
-@@ -1315,6 +1327,14 @@
- #define RT5682_DEB_STO_DAC_MASK			(0x7 << 4)
- #define RT5682_DEB_80_MS			(0x0 << 4)
- 
-+/* HP Behavior Logic Control 2 (0x01db) */
-+#define RT5682_HP_LC2_SIG_SOUR2_MASK		(0x1 << 4)
-+#define RT5682_HP_LC2_SIG_SOUR2_REG		(0x1 << 4)
-+#define RT5682_HP_LC2_SIG_SOUR2_DC_CAL		(0x0 << 4)
-+#define RT5682_HP_LC2_SIG_SOUR1_MASK		(0x7)
-+#define RT5682_HP_LC2_SIG_SOUR1_1BIT		(0x7)
-+#define RT5682_HP_LC2_SIG_SOUR1_LEGA		(0x2)
-+
- /* SAR ADC Inline Command Control 1 (0x0210) */
- #define RT5682_SAR_BUTT_DET_MASK		(0x1 << 15)
- #define RT5682_SAR_BUTT_DET_EN			(0x1 << 15)
 -- 
 2.33.0
 
