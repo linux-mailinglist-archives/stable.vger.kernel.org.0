@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5235245C23E
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:23:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 423AD45C395
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:38:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346633AbhKXN0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:26:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48368 "EHLO mail.kernel.org"
+        id S1343772AbhKXNkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:40:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348715AbhKXNYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:24:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4C1460F5B;
-        Wed, 24 Nov 2021 12:48:51 +0000 (UTC)
+        id S1352808AbhKXNiF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:38:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D573A6321F;
+        Wed, 24 Nov 2021 12:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758132;
-        bh=LnsjCsiDjV+3Z6nJ8J0l4++nkVSPwyLidA/IJqTgKxY=;
+        s=korg; t=1637758569;
+        bh=rq6+LjhdFz9npwf8Khl6dyF5fpBEuCbii2vJz+6I5ps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GAxqCew/tBAOTD7HctKlmi15egJMbEtymiZrIiHFcR+H4NVLlFwvfS4AcUNsO9jiP
-         YMF8a2/nC5UhkqG275grki5YlCbx2KvFzQi3Yk15aWyMsgxN/P9E34HG5oB0vwGCEH
-         Jn5OhOkRhFNDaQIcCBxCUgREE77VRhq/Nt72368M=
+        b=H/RlTkstLxQ+ggQYLY1tn2I4KAV0nDQFN1L2fccd9wJsHrem4q1x6iPUa98bXnpaA
+         zrljnSApEVJ/MbsNoaNzjRPfs2x3n1OiW9yp0tmsieh3LZqr8BH+tFuTBlFBVLSkIf
+         lh/Y0ny47t7ZRs17rJcm0etE0RlT/leJVSNyheJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        bcm-kernel-feedback-list@broadcom.com, linux-mips@vger.kernel.org,
-        Paul Burton <paulburton@kernel.org>,
-        Maxime Bizon <mbizon@freebox.fr>,
-        Ralf Baechle <ralf@linux-mips.org>,
+        stable@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 039/100] mips: BCM63XX: ensure that CPU_SUPPORTS_32BIT_KERNEL is set
+Subject: [PATCH 5.10 079/154] net/smc: Make sure the link_id is unique
 Date:   Wed, 24 Nov 2021 12:57:55 +0100
-Message-Id: <20211124115656.149393330@linuxfoundation.org>
+Message-Id: <20211124115704.880993096@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,62 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Wen Gu <guwen@linux.alibaba.com>
 
-[ Upstream commit 5eeaafc8d69373c095e461bdb39e5c9b62228ac5 ]
+[ Upstream commit cf4f5530bb55ef7d5a91036b26676643b80b1616 ]
 
-Several header files need info on CONFIG_32BIT or CONFIG_64BIT,
-but kconfig symbol BCM63XX does not provide that info. This leads
-to many build errors, e.g.:
+The link_id is supposed to be unique, but smcr_next_link_id() doesn't
+skip the used link_id as expected. So the patch fixes this.
 
-   arch/mips/include/asm/page.h:196:13: error: use of undeclared identifier 'CAC_BASE'
-           return x - PAGE_OFFSET + PHYS_OFFSET;
-   arch/mips/include/asm/mach-generic/spaces.h:91:23: note: expanded from macro 'PAGE_OFFSET'
-   #define PAGE_OFFSET             (CAC_BASE + PHYS_OFFSET)
-   arch/mips/include/asm/io.h:134:28: error: use of undeclared identifier 'CAC_BASE'
-           return (void *)(address + PAGE_OFFSET - PHYS_OFFSET);
-   arch/mips/include/asm/mach-generic/spaces.h:91:23: note: expanded from macro 'PAGE_OFFSET'
-   #define PAGE_OFFSET             (CAC_BASE + PHYS_OFFSET)
-
-arch/mips/include/asm/uaccess.h:82:10: error: use of undeclared identifier '__UA_LIMIT'
-           return (__UA_LIMIT & (addr | (addr + size) | __ua_size(size))) == 0;
-
-Selecting the SYS_HAS_CPU_BMIPS* symbols causes SYS_HAS_CPU_BMIPS to be
-set, which then selects CPU_SUPPORT_32BIT_KERNEL, which causes
-CONFIG_32BIT to be set. (a bit more indirect than v1 [RFC].)
-
-Fixes: e7300d04bd08 ("MIPS: BCM63xx: Add support for the Broadcom BCM63xx family of SOCs.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: bcm-kernel-feedback-list@broadcom.com
-Cc: linux-mips@vger.kernel.org
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Maxime Bizon <mbizon@freebox.fr>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Suggested-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 026c381fb477 ("net/smc: introduce link_idx for link group array")
+Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig | 3 +++
- 1 file changed, 3 insertions(+)
+ net/smc/smc_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 041d34975ea2c..9749818eed6d6 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -294,6 +294,9 @@ config BCM63XX
- 	select SYS_SUPPORTS_32BIT_KERNEL
- 	select SYS_SUPPORTS_BIG_ENDIAN
- 	select SYS_HAS_EARLY_PRINTK
-+	select SYS_HAS_CPU_BMIPS32_3300
-+	select SYS_HAS_CPU_BMIPS4350
-+	select SYS_HAS_CPU_BMIPS4380
- 	select SWAP_IO_SPACE
- 	select GPIOLIB
- 	select HAVE_CLK
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index c491dd8e67cda..109d790eaebe2 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -287,13 +287,14 @@ static u8 smcr_next_link_id(struct smc_link_group *lgr)
+ 	int i;
+ 
+ 	while (1) {
++again:
+ 		link_id = ++lgr->next_link_id;
+ 		if (!link_id)	/* skip zero as link_id */
+ 			link_id = ++lgr->next_link_id;
+ 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+ 			if (smc_link_usable(&lgr->lnk[i]) &&
+ 			    lgr->lnk[i].link_id == link_id)
+-				continue;
++				goto again;
+ 		}
+ 		break;
+ 	}
 -- 
 2.33.0
 
