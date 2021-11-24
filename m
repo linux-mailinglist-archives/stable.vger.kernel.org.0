@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BEB45BCA2
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CE8745BF42
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243289AbhKXMbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:31:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48064 "EHLO mail.kernel.org"
+        id S1346080AbhKXM4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:56:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343817AbhKXMaH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:30:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B875761261;
-        Wed, 24 Nov 2021 12:18:09 +0000 (UTC)
+        id S1346864AbhKXMyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:54:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 141EB61184;
+        Wed, 24 Nov 2021 12:31:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756290;
-        bh=mfNCZLaAmBKoo+z/0okwYsjElL4wB9gRfWJ3AH+IS6s=;
+        s=korg; t=1637757096;
+        bh=RLvSpLzynHyQTx2ximDLHvUcvVlx6qy5Xh4J6FyUBWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlI7Gi55hjDqGgae0/onm5hgcdhYj0Lzj6kpBydS5My/EeEO3/fzyY7af8En0wV7r
-         tD2BrmqUCn4ZocTf4i6tFXgJ3FjpSp7a53e0DyYUzHazY1ARhFqQA/NKgKueO1Pfw7
-         peC6q06QHeF9MgPuaPiyp4AHY+lqx0sHAt7HBPTE=
+        b=yAR8c/2653ILOyl6m5erbCKaCV/eectjfkdKxlsYIvI8cSnqXr4k4DHrZBw4j+x2t
+         EoQN8FWOf0Qlhf1ZJEgZ2FG4zi2MKpNqct45VGeXxVgua2l0+cVQE7qkdRp7/CwuHU
+         EZPv3X9wQc3rR0j9a2byswxDc/GhXStlCX0XUEh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 4.14 006/251] libata: fix read log timeout value
+        stable@vger.kernel.org,
+        Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 058/323] rsi: fix occasional initialisation failure with BT coex
 Date:   Wed, 24 Nov 2021 12:54:08 +0100
-Message-Id: <20211124115710.437266647@linuxfoundation.org>
+Message-Id: <20211124115720.826751499@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,88 +40,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-commit 68dbbe7d5b4fde736d104cbbc9a2fce875562012 upstream.
+commit 9b14ed6e11b72dd4806535449ca6c6962cb2369d upstream.
 
-Some ATA drives are very slow to respond to READ_LOG_EXT and
-READ_LOG_DMA_EXT commands issued from ata_dev_configure() when the
-device is revalidated right after resuming a system or inserting the
-ATA adapter driver (e.g. ahci). The default 5s timeout
-(ATA_EH_CMD_DFL_TIMEOUT) used for these commands is too short, causing
-errors during the device configuration. Ex:
+When BT coexistence is enabled (eg oper mode 13, which is the default)
+the initialisation on startup sometimes silently fails.
 
-...
-ata9: SATA max UDMA/133 abar m524288@0x9d200000 port 0x9d200400 irq 209
-ata9: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
-ata9.00: ATA-9: XXX  XXXXXXXXXXXXXXX, XXXXXXXX, max UDMA/133
-ata9.00: qc timeout (cmd 0x2f)
-ata9.00: Read log page 0x00 failed, Emask 0x4
-ata9.00: Read log page 0x00 failed, Emask 0x40
-ata9.00: NCQ Send/Recv Log not supported
-ata9.00: Read log page 0x08 failed, Emask 0x40
-ata9.00: 27344764928 sectors, multi 16: LBA48 NCQ (depth 32), AA
-ata9.00: Read log page 0x00 failed, Emask 0x40
-ata9.00: ATA Identify Device Log not supported
-ata9.00: failed to set xfermode (err_mask=0x40)
-ata9: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
-ata9.00: configured for UDMA/133
-...
+In a normal initialisation we see
+	usb 1-1.3: Product: Wireless USB Network Module
+	usb 1-1.3: Manufacturer: Redpine Signals, Inc.
+	usb 1-1.3: SerialNumber: 000000000001
+	rsi_91x: rsi_probe: Initialized os intf ops
+	rsi_91x: rsi_load_9116_firmware: Loading chunk 0
+	rsi_91x: rsi_load_9116_firmware: Loading chunk 1
+	rsi_91x: rsi_load_9116_firmware: Loading chunk 2
+	rsi_91x: Max Stations Allowed = 1
 
-The timeout error causes a soft reset of the drive link, followed in
-most cases by a successful revalidation as that give enough time to the
-drive to become fully ready to quickly process the read log commands.
-However, in some cases, this also fails resulting in the device being
-dropped.
+But sometimes the last log is missing and the wlan net device is
+not created.
 
-Fix this by using adding the ata_eh_revalidate_timeouts entries for the
-READ_LOG_EXT and READ_LOG_DMA_EXT commands. This defines a timeout
-increased to 15s, retriable one time.
+Running a userspace loop that resets the hardware via a GPIO shows the
+problem occurring ~5/100 resets.
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: stable@vger.kernel.org
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+The problem does not occur in oper mode 1 (wifi only).
+
+Adding logs shows that the initialisation state machine requests a MAC
+reset via rsi_send_reset_mac() but the firmware does not reply, leading
+to the initialisation sequence being incomplete.
+
+Fix this by delaying attaching the BT adapter until the wifi
+initialisation has completed.
+
+With this applied I have done > 300 reset loops with no errors.
+
+Fixes: 716b840c7641 ("rsi: handle BT traffic in driver")
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+CC: stable@vger.kernel.org
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1630337206-12410-2-git-send-email-martin.fuzzey@flowbird.group
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-eh.c |    8 ++++++++
- include/linux/libata.h  |    2 +-
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/wireless/rsi/rsi_91x_main.c |   16 +++++++++++++---
+ drivers/net/wireless/rsi/rsi_91x_mgmt.c |    3 +++
+ drivers/net/wireless/rsi/rsi_main.h     |    2 ++
+ 3 files changed, 18 insertions(+), 3 deletions(-)
 
---- a/drivers/ata/libata-eh.c
-+++ b/drivers/ata/libata-eh.c
-@@ -114,6 +114,12 @@ static const unsigned long ata_eh_identi
- 	ULONG_MAX,
+--- a/drivers/net/wireless/rsi/rsi_91x_main.c
++++ b/drivers/net/wireless/rsi/rsi_91x_main.c
+@@ -216,9 +216,10 @@ int rsi_read_pkt(struct rsi_common *comm
+ 			bt_pkt_type = frame_desc[offset + BT_RX_PKT_TYPE_OFST];
+ 			if (bt_pkt_type == BT_CARD_READY_IND) {
+ 				rsi_dbg(INFO_ZONE, "BT Card ready recvd\n");
+-				if (rsi_bt_ops.attach(common, &g_proto_ops))
+-					rsi_dbg(ERR_ZONE,
+-						"Failed to attach BT module\n");
++				if (common->fsm_state == FSM_MAC_INIT_DONE)
++					rsi_attach_bt(common);
++				else
++					common->bt_defer_attach = true;
+ 			} else {
+ 				if (common->bt_adapter)
+ 					rsi_bt_ops.recv_pkt(common->bt_adapter,
+@@ -283,6 +284,15 @@ void rsi_set_bt_context(void *priv, void
+ }
+ #endif
+ 
++void rsi_attach_bt(struct rsi_common *common)
++{
++#ifdef CONFIG_RSI_COEX
++	if (rsi_bt_ops.attach(common, &g_proto_ops))
++		rsi_dbg(ERR_ZONE,
++			"Failed to attach BT module\n");
++#endif
++}
++
+ /**
+  * rsi_91x_init() - This function initializes os interface operations.
+  * @void: Void.
+--- a/drivers/net/wireless/rsi/rsi_91x_mgmt.c
++++ b/drivers/net/wireless/rsi/rsi_91x_mgmt.c
+@@ -1761,6 +1761,9 @@ static int rsi_handle_ta_confirm_type(st
+ 				if (common->reinit_hw) {
+ 					complete(&common->wlan_init_completion);
+ 				} else {
++					if (common->bt_defer_attach)
++						rsi_attach_bt(common);
++
+ 					return rsi_mac80211_attach(common);
+ 				}
+ 			}
+--- a/drivers/net/wireless/rsi/rsi_main.h
++++ b/drivers/net/wireless/rsi/rsi_main.h
+@@ -287,6 +287,7 @@ struct rsi_common {
+ 	struct ieee80211_vif *roc_vif;
+ 
+ 	bool eapol4_confirm;
++	bool bt_defer_attach;
+ 	void *bt_adapter;
  };
  
-+static const unsigned long ata_eh_revalidate_timeouts[] = {
-+	15000,	/* Some drives are slow to read log pages when waking-up */
-+	15000,  /* combined time till here is enough even for media access */
-+	ULONG_MAX,
-+};
-+
- static const unsigned long ata_eh_flush_timeouts[] = {
- 	15000,	/* be generous with flush */
- 	15000,  /* ditto */
-@@ -150,6 +156,8 @@ static const struct ata_eh_cmd_timeout_e
- ata_eh_cmd_timeout_table[ATA_EH_CMD_TIMEOUT_TABLE_SIZE] = {
- 	{ .commands = CMDS(ATA_CMD_ID_ATA, ATA_CMD_ID_ATAPI),
- 	  .timeouts = ata_eh_identify_timeouts, },
-+	{ .commands = CMDS(ATA_CMD_READ_LOG_EXT, ATA_CMD_READ_LOG_DMA_EXT),
-+	  .timeouts = ata_eh_revalidate_timeouts, },
- 	{ .commands = CMDS(ATA_CMD_READ_NATIVE_MAX, ATA_CMD_READ_NATIVE_MAX_EXT),
- 	  .timeouts = ata_eh_other_timeouts, },
- 	{ .commands = CMDS(ATA_CMD_SET_MAX, ATA_CMD_SET_MAX_EXT),
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -409,7 +409,7 @@ enum {
- 	/* This should match the actual table size of
- 	 * ata_eh_cmd_timeout_table in libata-eh.c.
- 	 */
--	ATA_EH_CMD_TIMEOUT_TABLE_SIZE = 6,
-+	ATA_EH_CMD_TIMEOUT_TABLE_SIZE = 7,
+@@ -361,5 +362,6 @@ struct rsi_host_intf_ops {
  
- 	/* Horkage types. May be set by libata or controller on drives
- 	   (some horkage may be drive/controller pair dependent */
+ enum rsi_host_intf rsi_get_host_intf(void *priv);
+ void rsi_set_bt_context(void *priv, void *bt_context);
++void rsi_attach_bt(struct rsi_common *common);
+ 
+ #endif
 
 
