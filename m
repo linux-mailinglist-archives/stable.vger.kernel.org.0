@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB5045BA12
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E8F45BB20
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:14:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234531AbhKXMHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:07:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59452 "EHLO mail.kernel.org"
+        id S242396AbhKXMQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:16:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242114AbhKXMFK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:05:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C962560F5D;
-        Wed, 24 Nov 2021 12:02:00 +0000 (UTC)
+        id S243641AbhKXMOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:14:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CEAA61179;
+        Wed, 24 Nov 2021 12:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755321;
-        bh=Wo+FCY3TIJIGEF64MFe3E1s8UeFvOiwyquy9DDbRSs8=;
+        s=korg; t=1637755778;
+        bh=fKBZ8UgLuP8nM0/2CUs62qmfFwcH+GDa/HbJimkmt64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nUnLI8qFbTZ91wjkiCWKn6QWa8n315RMgJdaX24V3HtgSZT0jXIG45+jbv2s5oRwC
-         xpMSHx1XOQIEO80FkxoOu88KF4XHGyWVHaa5UFvHmBk5uV8SrWlr0cJHvA5yZJn5Z/
-         lRli6aSEwBna4BjASfRyJF1hu9PW75CdPVpem3fs=
+        b=V+lLrM8UOzal3JnVIzx8swJuxMOVbxXThxN54sLhbSJ35dMInHkqgHiWkkwfG2oRT
+         copViAEp09dPytPxhjYgwLkxkV/luxjj+NEPY5CL129Ot9kscko7EsmOfdSvFjZpeF
+         lCM5bFg2CaYR9wgVL8sXYTSnuoCKGn72E7uDhfYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Jin <joe.jin@oracle.com>,
-        Dongli Zhang <dongli.zhang@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 020/162] xen/netfront: stop tx queues during live migration
+        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
+        stable@kernel.org, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 052/207] quota: correct error number in free_dqentry()
 Date:   Wed, 24 Nov 2021 12:55:23 +0100
-Message-Id: <20211124115658.986486139@linuxfoundation.org>
+Message-Id: <20211124115705.610846538@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit 042b2046d0f05cf8124c26ff65dbb6148a4404fb ]
+commit d0e36a62bd4c60c09acc40e06ba4831a4d0bc75b upstream.
 
-The tx queues are not stopped during the live migration. As a result, the
-ndo_start_xmit() may access netfront_info->queues which is freed by
-talk_to_netback()->xennet_destroy_queues().
+Fix the error path in free_dqentry(), pass out the error number if the
+block to free is not correct.
 
-This patch is to netif_device_detach() at the beginning of xen-netfront
-resuming, and netif_device_attach() at the end of resuming.
-
-     CPU A                                CPU B
-
- talk_to_netback()
- -> if (info->queues)
-        xennet_destroy_queues(info);
-    to free netfront_info->queues
-
-                                        xennet_start_xmit()
-                                        to access netfront_info->queues
-
-  -> err = xennet_create_queues(info, &num_queues);
-
-The idea is borrowed from virtio-net.
-
-Cc: Joe Jin <joe.jin@oracle.com>
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1ccd14b9c271 ("quota: Split off quota tree handling into a separate file")
+Link: https://lore.kernel.org/r/20211008093821.1001186-3-yi.zhang@huawei.com
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Cc: stable@kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netfront.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/quota/quota_tree.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index 7d4c0c46a889d..6d4bf37c660f7 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -1454,6 +1454,10 @@ static int netfront_resume(struct xenbus_device *dev)
- 
- 	dev_dbg(&dev->dev, "%s\n", dev->nodename);
- 
-+	netif_tx_lock_bh(info->netdev);
-+	netif_device_detach(info->netdev);
-+	netif_tx_unlock_bh(info->netdev);
-+
- 	xennet_disconnect_backend(info);
- 	return 0;
- }
-@@ -2014,6 +2018,10 @@ static int xennet_connect(struct net_device *dev)
- 	 * domain a kick because we've probably just requeued some
- 	 * packets.
- 	 */
-+	netif_tx_lock_bh(np->netdev);
-+	netif_device_attach(np->netdev);
-+	netif_tx_unlock_bh(np->netdev);
-+
- 	netif_carrier_on(np->netdev);
- 	for (j = 0; j < num_queues; ++j) {
- 		queue = &np->queues[j];
--- 
-2.33.0
-
+--- a/fs/quota/quota_tree.c
++++ b/fs/quota/quota_tree.c
+@@ -422,6 +422,7 @@ static int free_dqentry(struct qtree_mem
+ 		quota_error(dquot->dq_sb, "Quota structure has offset to "
+ 			"other block (%u) than it should (%u)", blk,
+ 			(uint)(dquot->dq_off >> info->dqi_blocksize_bits));
++		ret = -EIO;
+ 		goto out_buf;
+ 	}
+ 	ret = read_blk(info, blk, buf);
 
 
