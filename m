@@ -2,100 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6560F45CD9E
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 21:06:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A49F545CDB5
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 21:12:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233616AbhKXUJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 15:09:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41392 "EHLO
+        id S235415AbhKXUQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 15:16:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243548AbhKXUJc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 15:09:32 -0500
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F846C061746
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 12:06:21 -0800 (PST)
-Received: by mail-lj1-x236.google.com with SMTP id k23so7900954lje.1
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 12:06:21 -0800 (PST)
+        with ESMTP id S244707AbhKXUQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 15:16:06 -0500
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43F64C061574
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 12:12:56 -0800 (PST)
+Received: by mail-pf1-x42f.google.com with SMTP id 8so3721193pfo.4
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 12:12:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=shutemov-name.20210112.gappssmtp.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=8PJKWzcbQpRMg5m74p+6M5/kpC7urCmsmIsgiELsr/0=;
-        b=2ZI5vegyIoG6acR+kes/uJROMaJ2aACSGz8fkks5dalVL6jEzk/bg1qADHSrxMw8Ak
-         ZLDvpgwSebeBHFwRnyP15LK3wqXoX6+W36RzJBA88un2EVbETvqS3aUhwPZl271ycToQ
-         NZ7x1Qx5L5Mbz9js5gkhQFof9aV1vjQOZ9v6Msim0ndNC0neZ+uGREpuzMTihwcVLVDP
-         XPAX6Z+PEVfcWC+bdm2ilovuhVcXcRTwdpGyLqpfmELKe7eFk0HvlJPdLWQ/ZTH4T+AF
-         G+VJMqLMFqxt94ukbvVZjntbjt/agckVjxLk5zSrtUBgtIZkK21l+aW+j5DnYXcjz6N2
-         IYig==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tw6028fmY5X7UUr088wPlwO8ubAcKDGWtWwraA1NGYc=;
+        b=54/L1VCIxwBNjVm6YakMQJAq8OSwEozeCqVpnwaNE9djhHzqSksPp6rihgm2yJn9wO
+         ZtQWqV/FLFdYr7OqPpRoH+1OOFMPNPVwAplJ2uyW78XEIAcZp5hkFmz5wxQR25TAiBML
+         ylZDTOeJ3FKx70+ZtvWAVU1rcKS8QQExizIG1f6BoRawBBKByK5LD2/9BIox3VBBSFc4
+         4huyXp692DDbQOpwVj0vcu8NdrQsSiimVfA7DDQKWjRvm6zvGn6hM0kHs+0jIDl3VDSQ
+         vR2NPnxPVOvIUXo5cMGXJvepFgERp6Em3S9EBqVp15Uhwbfwqg+M1VN3beSvEpaSlojI
+         w6iA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=8PJKWzcbQpRMg5m74p+6M5/kpC7urCmsmIsgiELsr/0=;
-        b=fD1i0XczVzxPausd58FX3JsYbd3gyjlPBoFsK8LWM7G7LXfA/aNxTxzflaqp2/Dxlg
-         UHziyzsHgMGHxy5mJKj1ngS3rVuA5zFhwdUrTucT5yyASTfnOplJRDE7kKE+JOlPgrpQ
-         El+7HaCa+1EqzkR1mUQ+RiRybwaK3xXpHNizF/hGWjDDsVLCgIT6o5ArkD0dppUqjKpG
-         Nx21W8ko6TB1bSuyp+zxxQ1RI0Nj9tbvWgvA5Qcg0uiUVxKSYFu218W7Po53UHXvFFj1
-         wQcZeY+X9IgC4k976CQcZ1CH/iHJUPuEms1fOOfZgIU/MCYrIpMpv2JGZohUtjzMAbvH
-         DN7Q==
-X-Gm-Message-State: AOAM531HoR6WJky4cUrM5VxDflzcPSPDOR/zULOI35sII1r0PTesB9H9
-        FM7vd3DK2GGB0dAaT1ANfNdA4g==
-X-Google-Smtp-Source: ABdhPJwS1eI5DF4E4Jhqei1WkuHP8bIqOzemopEz+xA19/4wma3Htfmcv9QuvhYnueV5DivwW/o8tg==
-X-Received: by 2002:a2e:a27c:: with SMTP id k28mr19256756ljm.98.1637784379894;
-        Wed, 24 Nov 2021 12:06:19 -0800 (PST)
-Received: from box.localdomain ([86.57.175.117])
-        by smtp.gmail.com with ESMTPSA id l18sm73720lfc.97.2021.11.24.12.06.18
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tw6028fmY5X7UUr088wPlwO8ubAcKDGWtWwraA1NGYc=;
+        b=BjDBxp9F1QUJ5Y6XSlfdUFiRvbLLEyM/lqPDIhRLz4z9T1xT1IZAL7hG9kA5un3iNQ
+         nZ6asOH+PV1cea0ZJgIhcux0IeF7INmrRPI1olNWFO3bfCwm8FbZ0PBE92PaPaSH4RP3
+         wrXYFgeNTSiDLCqPwp7ucGrtWpQnbVa4a1hmSWwWBr0YwYYId2If4mZN0ZoaEzJDak4T
+         HM0fRjk2oI9f+kJpmB6M3U0Or0lqNPRD/h3rwfy2+odd4lKoUgUL9deuH/vx489bpzbf
+         PWL3I7nxuQOrfwE6jmNtYt4G1H4xikg366Mmk0Qh1oQt4Xfbjg+2oNtWVypxVIbGkUOD
+         hj6Q==
+X-Gm-Message-State: AOAM531ezqG2lyXSePTGmKWlVvBUHdpMyrv43ua2Mv3cbjpcW/SFPuG/
+        7YWPHoNOTQFv4dmeqg0Tfv1E4YmcelwJp6hmaWw=
+X-Google-Smtp-Source: ABdhPJyw5hHYMblO/t0IY4HIsGgKvXsgHBDJc81dKCz+gYvzH+RM6yGDWbupu08SBtA3N638lSyQzA==
+X-Received: by 2002:a63:fe41:: with SMTP id x1mr12275752pgj.272.1637784775674;
+        Wed, 24 Nov 2021 12:12:55 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e6sm405827pgc.33.2021.11.24.12.12.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Nov 2021 12:06:19 -0800 (PST)
-Received: by box.localdomain (Postfix, from userid 1000)
-        id 8C7E1103635; Wed, 24 Nov 2021 23:06:18 +0300 (+03)
-Date:   Wed, 24 Nov 2021 23:06:18 +0300
-From:   "Kirill A. Shutemov" <kirill@shutemov.name>
-To:     Gang Li <ligang.bdlg@bytedance.com>
-Cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        stable@vger.kernel.org, songmuchun@bytedance.com,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] shmem: fix a race between shmem_unused_huge_shrink
- and shmem_evict_inode
-Message-ID: <20211124200618.adaxuxuksrinkigv@box.shutemov.name>
-References: <20211124094317.69719-1-ligang.bdlg@bytedance.com>
+        Wed, 24 Nov 2021 12:12:55 -0800 (PST)
+Message-ID: <619e9cc7.1c69fb81.dc21.18d9@mx.google.com>
+Date:   Wed, 24 Nov 2021 12:12:55 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211124094317.69719-1-ligang.bdlg@bytedance.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.217-324-g451ddd7eb93b
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y baseline: 107 runs,
+ 1 regressions (v4.19.217-324-g451ddd7eb93b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 24, 2021 at 05:43:16PM +0800, Gang Li wrote:
-> +move_back:
-> +		/* inodes that are on @list and will not be deleted must be moved back to
-> +		 * global list before iput for two reasons:
-> +		 * 1. iput in lock: iput call shmem_evict_inode, then cause deadlock.
-> +		 * 2. iput before lock: shmem_evict_inode may grab the inode on @list,
-> +		 *    which will cause race.
-> +		 */
-> +		spin_lock(&sbinfo->shrinklist_lock);
-> +		list_move(&info->shrinklist, &sbinfo->shrinklist);
-> +		sbinfo->shrinklist_len++;
-> +		spin_unlock(&sbinfo->shrinklist_lock);
-> +put:
->  		iput(inode);
->  	}
->  
-> -	spin_lock(&sbinfo->shrinklist_lock);
-> -	list_splice_tail(&list, &sbinfo->shrinklist);
-> -	sbinfo->shrinklist_len -= removed;
-> -	spin_unlock(&sbinfo->shrinklist_lock);
-> -
->  	return split;
->  }
+stable-rc/linux-4.19.y baseline: 107 runs, 1 regressions (v4.19.217-324-g45=
+1ddd7eb93b)
 
-Okay, I guess it works. Locking is not pretty, but well..
+Regressions Summary
+-------------------
 
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
--- 
- Kirill A. Shutemov
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.217-324-g451ddd7eb93b/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.217-324-g451ddd7eb93b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      451ddd7eb93b3648ea9e23132bd24faedb11279b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/619e63538fcd6644b0f2efc3
+
+  Results:     5 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+17-324-g451ddd7eb93b/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-=
+panda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+17-324-g451ddd7eb93b/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-=
+panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619e63538fcd664=
+4b0f2efc6
+        failing since 11 days (last pass: v4.19.216-17-gf1ca790424bd, first=
+ fail: v4.19.217)
+        2 lines
+
+    2021-11-24T16:07:34.219719  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/100
+    2021-11-24T16:07:34.228651  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2021-11-24T16:07:34.242849  <8>[   21.292999] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
