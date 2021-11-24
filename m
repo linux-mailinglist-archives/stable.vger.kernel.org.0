@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 785D945BE3A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:42:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 510ED45BA57
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:06:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344752AbhKXMpi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:45:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50308 "EHLO mail.kernel.org"
+        id S242465AbhKXMJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:09:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345649AbhKXMn6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:43:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4890F6140B;
-        Wed, 24 Nov 2021 12:25:50 +0000 (UTC)
+        id S242466AbhKXMIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:08:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38B326108D;
+        Wed, 24 Nov 2021 12:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756750;
-        bh=nSKf66MgJo9vgdCgwvZj4bByo8/6B9GGf4VuaHKq1Jg=;
+        s=korg; t=1637755490;
+        bh=VfAnDFPrThSiozoB6PVltjzOrirtCzeL6GLWNPHDRxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1sJ9QOr6jYtXnZkg1YRjuRtGDotzI1DeRcTaX91l15Os4UmdE500bfs4Lasjod6Yr
-         F53gEfdUtt5IVFNQ+/aYi64udOCOeu0jJyoWYcDNcppMHdcL/SOG0D05z3clY13b/Q
-         1VSv6lbJ6fmpe9qkaGi0+xVMjokZfiubJswfj3BA=
+        b=b/CE4tW4D4Vf1TPO7k6OOUwWuuEankfojgSKO1NyvYUSxq/9owXLrMWFgGHVO5fOa
+         z0EM2RqbG+Klr9kup4P36gUojRbmfHd8PA20keTpRM7PW88WsttKB+Q+IAk5B7pbRN
+         GGaJ3pGl3x+EMzN+OyRZOOI/awMA5HzjcyrTTT/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 175/251] watchdog: f71808e_wdt: fix inaccurate report in WDIOC_GETTIMEOUT
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.4 114/162] parisc/entry: fix trace test in syscall exit path
 Date:   Wed, 24 Nov 2021 12:56:57 +0100
-Message-Id: <20211124115716.355841658@linuxfoundation.org>
+Message-Id: <20211124115702.008509176@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Sven Schnelle <svens@stackframe.org>
 
-[ Upstream commit 164483c735190775f29d0dcbac0363adc51a068d ]
+commit 3ec18fc7831e7d79e2d536dd1f3bc0d3ba425e8a upstream.
 
-The fintek watchdog timer can configure timeouts of second granularity
-only up to 255 seconds. Beyond that, the timeout needs to be configured
-with minute granularity. WDIOC_GETTIMEOUT should report the actual
-timeout configured, not just echo back the timeout configured by the
-user. Do so.
+commit 8779e05ba8aa ("parisc: Fix ptrace check on syscall return")
+fixed testing of TI_FLAGS. This uncovered a bug in the test mask.
+syscall_restore_rfi is only used when the kernel needs to exit to
+usespace with single or block stepping and the recovery counter
+enabled. The test however used _TIF_SYSCALL_TRACE_MASK, which
+includes a lot of bits that shouldn't be tested here.
 
-Fixes: 96cb4eb019ce ("watchdog: f71808e_wdt: new watchdog driver for Fintek F71808E and F71882FG")
-Suggested-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Link: https://lore.kernel.org/r/5e17960fe8cc0e3cb2ba53de4730b75d9a0f33d5.1628525954.git-series.a.fatoum@pengutronix.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by using TIF_SINGLESTEP and TIF_BLOCKSTEP directly.
+
+I encountered this bug by enabling syscall tracepoints. Both in qemu and
+on real hardware. As soon as i enabled the tracepoint (sys_exit_read,
+but i guess it doesn't really matter which one), i got random page
+faults in userspace almost immediately.
+
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/watchdog/f71808e_wdt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/parisc/kernel/entry.S |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/f71808e_wdt.c b/drivers/watchdog/f71808e_wdt.c
-index ae4974701e5c7..6fe9daf2367b5 100644
---- a/drivers/watchdog/f71808e_wdt.c
-+++ b/drivers/watchdog/f71808e_wdt.c
-@@ -237,15 +237,17 @@ static int watchdog_set_timeout(int timeout)
+--- a/arch/parisc/kernel/entry.S
++++ b/arch/parisc/kernel/entry.S
+@@ -1850,7 +1850,7 @@ syscall_restore:
  
- 	mutex_lock(&watchdog.lock);
+ 	/* Are we being ptraced? */
+ 	LDREG	TI_FLAGS-THREAD_SZ_ALGN-FRAME_SIZE(%r30),%r19
+-	ldi	_TIF_SYSCALL_TRACE_MASK,%r2
++	ldi	_TIF_SINGLESTEP|_TIF_BLOCKSTEP,%r2
+ 	and,COND(=)	%r19,%r2,%r0
+ 	b,n	syscall_restore_rfi
  
--	watchdog.timeout = timeout;
- 	if (timeout > 0xff) {
- 		watchdog.timer_val = DIV_ROUND_UP(timeout, 60);
- 		watchdog.minutes_mode = true;
-+		timeout = watchdog.timer_val * 60;
- 	} else {
- 		watchdog.timer_val = timeout;
- 		watchdog.minutes_mode = false;
- 	}
- 
-+	watchdog.timeout = timeout;
-+
- 	mutex_unlock(&watchdog.lock);
- 
- 	return 0;
--- 
-2.33.0
-
 
 
