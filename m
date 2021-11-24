@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB1C145C5A9
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:57:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86B1445C13A
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353063AbhKXN7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:59:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46150 "EHLO mail.kernel.org"
+        id S1346022AbhKXNPs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:15:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350739AbhKXN5h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:57:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0D86633BC;
-        Wed, 24 Nov 2021 13:07:52 +0000 (UTC)
+        id S1348676AbhKXNNq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:13:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED11261AA6;
+        Wed, 24 Nov 2021 12:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759273;
-        bh=rHni45b9N8bbtKhNNzet3MwnCTEfRmZ0/6rtEHGNQyM=;
+        s=korg; t=1637757805;
+        bh=E3DFdjxnYwIRd6pWwC2vdVQ7BW6SGIlrFdxNjDJwNVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2GHHENUbwGtQexeJ5omUuPRJLeDwEDgmoh5XAddnhYEPJbyOJ3sB6+H+7CKBLb/nA
-         1p9b5tmvZFvoBiVLbB3si3ayZZdIBuPLxwS9lbnQ+IjpcllxMvpSxUFcWZyDt8ztPq
-         qQwMRS2gDiyyAU4GmU8EjZrvu6EgORuVO3SMxclc=
+        b=I2e4zB+yo3eO5rOTlaeH3gnhd6gBiDvgFudUCvH1wvdM3aVxYnTi6jeIzAK7bL3F4
+         oNOh3dJD9oxeLZak/EXiMyuuBSn1HjA/jwAje7LDtAWUjHYyw7yTmSZWNX5enU8yCv
+         M4Jt9/x5Ggym+ZOmKeftlxzEiM/ZOAY5k9nRrCkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 185/279] s390/kexec: fix return code handling
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Matt Fleming <matt@console-pimps.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 282/323] sh: fix kconfig unmet dependency warning for FRAME_POINTER
 Date:   Wed, 24 Nov 2021 12:57:52 +0100
-Message-Id: <20211124115725.119795149@linuxfoundation.org>
+Message-Id: <20211124115728.412985371@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,78 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 20c76e242e7025bd355619ba67beb243ba1a1e95 ]
+[ Upstream commit fda1bc533094a7db68b11e7503d2c6c73993d12a ]
 
-kexec_file_add_ipl_report ignores that ipl_report_finish may fail and
-can return an error pointer instead of a valid pointer.
-Fix this and simplify by returning NULL in case of an error and let
-the only caller handle this case.
+FRAME_POINTER depends on DEBUG_KERNEL so DWARF_UNWINDER should
+depend on DEBUG_KERNEL before selecting FRAME_POINTER.
 
-Fixes: 99feaa717e55 ("s390/kexec_file: Create ipl report and pass to next kernel")
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+WARNING: unmet direct dependencies detected for FRAME_POINTER
+  Depends on [n]: DEBUG_KERNEL [=n] && (M68K || UML || SUPERH [=y]) || ARCH_WANT_FRAME_POINTERS [=n]
+  Selected by [y]:
+  - DWARF_UNWINDER [=y]
+
+Fixes: bd353861c735 ("sh: dwarf unwinder support.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Matt Fleming <matt@console-pimps.org>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Rich Felker <dalias@libc.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/ipl.c                | 3 ++-
- arch/s390/kernel/machine_kexec_file.c | 8 +++++++-
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ arch/sh/Kconfig.debug | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-index e2cc35775b996..5ad1dde23dc59 100644
---- a/arch/s390/kernel/ipl.c
-+++ b/arch/s390/kernel/ipl.c
-@@ -2156,7 +2156,7 @@ void *ipl_report_finish(struct ipl_report *report)
+diff --git a/arch/sh/Kconfig.debug b/arch/sh/Kconfig.debug
+index 010b6c33bbba2..71acd3d9b9e83 100644
+--- a/arch/sh/Kconfig.debug
++++ b/arch/sh/Kconfig.debug
+@@ -58,6 +58,7 @@ config DUMP_CODE
  
- 	buf = vzalloc(report->size);
- 	if (!buf)
--		return ERR_PTR(-ENOMEM);
-+		goto out;
- 	ptr = buf;
- 
- 	memcpy(ptr, report->ipib, report->ipib->hdr.len);
-@@ -2195,6 +2195,7 @@ void *ipl_report_finish(struct ipl_report *report)
- 	}
- 
- 	BUG_ON(ptr > buf + report->size);
-+out:
- 	return buf;
- }
- 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index f9e4baa64b675..c1090f0b1f6a6 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -170,6 +170,7 @@ static int kexec_file_add_ipl_report(struct kimage *image,
- 	struct kexec_buf buf;
- 	unsigned long addr;
- 	void *ptr, *end;
-+	int ret;
- 
- 	buf.image = image;
- 
-@@ -199,7 +200,10 @@ static int kexec_file_add_ipl_report(struct kimage *image,
- 		ptr += len;
- 	}
- 
-+	ret = -ENOMEM;
- 	buf.buffer = ipl_report_finish(data->report);
-+	if (!buf.buffer)
-+		goto out;
- 	buf.bufsz = data->report->size;
- 	buf.memsz = buf.bufsz;
- 
-@@ -209,7 +213,9 @@ static int kexec_file_add_ipl_report(struct kimage *image,
- 		data->kernel_buf + offsetof(struct lowcore, ipl_parmblock_ptr);
- 	*lc_ipl_parmblock_ptr = (__u32)buf.mem;
- 
--	return kexec_add_buffer(&buf);
-+	ret = kexec_add_buffer(&buf);
-+out:
-+	return ret;
- }
- 
- void *kexec_file_add_components(struct kimage *image,
+ config DWARF_UNWINDER
+ 	bool "Enable the DWARF unwinder for stacktraces"
++	depends on DEBUG_KERNEL
+ 	select FRAME_POINTER
+ 	depends on SUPERH32
+ 	default n
 -- 
 2.33.0
 
