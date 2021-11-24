@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2ACF45BE16
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6E6645BAB8
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245231AbhKXMoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:44:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48802 "EHLO mail.kernel.org"
+        id S240896AbhKXMOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:14:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344269AbhKXMnE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:43:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F7BD61220;
-        Wed, 24 Nov 2021 12:25:28 +0000 (UTC)
+        id S242319AbhKXMLw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:11:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ED76610F9;
+        Wed, 24 Nov 2021 12:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756730;
-        bh=Hw4ioX8VStx2ymBPiv3NQlNyTTnqyXkxgYUBC6NSLPw=;
+        s=korg; t=1637755595;
+        bh=XJpxs3LuAxVLllPTjiLK+XplcoO1soIvLmz6KqklFzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u84NXNxEerxOgVaczRZOD/zsn4+A9Stpp+ArjJ3kkiTRlqpFTD+NBMlwHz1tYS/tB
-         pUcXCwGy2h4DNn+jsUiBaCyrEtQYB1tUNrf/qEXknpSCibYWpbRn5hwwtE0GZ5I+RT
-         cfIIVyW4tzHTGYvTGo+JaFeMaQrW4Bl2JURUyAdM=
+        b=tvuPIVqTXPN0oIEvQTs+rpRl6htxi8T7M/PLIzIYRmwRH94DbODste0AKumwSGCRK
+         2CanoHMFC29PG0JM4agRZ4vra+Y1ZZQK+bb/rvBrApyO5PkM2YnObXDNrTpSiwmsud
+         t2nh1reEY3YDB0r2ugVRiGG5HlE2LKww5hBd+VlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 185/251] llc: fix out-of-bound array index in llc_sk_dev_hash()
-Date:   Wed, 24 Nov 2021 12:57:07 +0100
-Message-Id: <20211124115716.700592954@linuxfoundation.org>
+Subject: [PATCH 4.4 125/162] scsi: target: Fix alua_tg_pt_gps_count tracking
+Date:   Wed, 24 Nov 2021 12:57:08 +0100
+Message-Id: <20211124115702.344398366@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 8ac9dfd58b138f7e82098a4e0a0d46858b12215b ]
+[ Upstream commit 1283c0d1a32bb924324481586b5d6e8e76f676ba ]
 
-Both ifindex and LLC_SK_DEV_HASH_ENTRIES are signed.
+We can't free the tg_pt_gp in core_alua_set_tg_pt_gp_id() because it's
+still accessed via configfs. Its release must go through the normal
+configfs/refcount process.
 
-This means that (ifindex % LLC_SK_DEV_HASH_ENTRIES) is negative
-if @ifindex is negative.
+The max alua_tg_pt_gps_count check should probably have been done in
+core_alua_allocate_tg_pt_gp(), but with the current code userspace could
+have created 0x0000ffff + 1 groups, but only set the id for 0x0000ffff.
+Then it could have deleted a group with an ID set, and then set the ID for
+that extra group and it would work ok.
 
-We could simply make LLC_SK_DEV_HASH_ENTRIES unsigned.
+It's unlikely, but just in case this patch continues to allow that type of
+behavior, and just fixes the kfree() while in use bug.
 
-In this patch I chose to use hash_32() to get more entropy
-from @ifindex, like llc_sk_laddr_hashfn().
-
-UBSAN: array-index-out-of-bounds in ./include/net/llc.h:75:26
-index -43 is out of range for type 'hlist_head [64]'
-CPU: 1 PID: 20999 Comm: syz-executor.3 Not tainted 5.15.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:151
- __ubsan_handle_out_of_bounds.cold+0x62/0x6c lib/ubsan.c:291
- llc_sk_dev_hash include/net/llc.h:75 [inline]
- llc_sap_add_socket+0x49c/0x520 net/llc/llc_conn.c:697
- llc_ui_bind+0x680/0xd70 net/llc/af_llc.c:404
- __sys_bind+0x1e9/0x250 net/socket.c:1693
- __do_sys_bind net/socket.c:1704 [inline]
- __se_sys_bind net/socket.c:1702 [inline]
- __x64_sys_bind+0x6f/0xb0 net/socket.c:1702
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7fa503407ae9
-
-Fixes: 6d2e3ea28446 ("llc: use a device based hash table to speed up multicast delivery")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210930020422.92578-4-michael.christie@oracle.com
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/llc.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/target/target_core_alua.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/include/net/llc.h b/include/net/llc.h
-index df282d9b40170..9c10b121b49b0 100644
---- a/include/net/llc.h
-+++ b/include/net/llc.h
-@@ -72,7 +72,9 @@ struct llc_sap {
- static inline
- struct hlist_head *llc_sk_dev_hash(struct llc_sap *sap, int ifindex)
- {
--	return &sap->sk_dev_hash[ifindex % LLC_SK_DEV_HASH_ENTRIES];
-+	u32 bucket = hash_32(ifindex, LLC_SK_DEV_HASH_BITS);
-+
-+	return &sap->sk_dev_hash[bucket];
- }
- 
- static inline
+diff --git a/drivers/target/target_core_alua.c b/drivers/target/target_core_alua.c
+index 1fe782f9ee816..f1e09e7704afe 100644
+--- a/drivers/target/target_core_alua.c
++++ b/drivers/target/target_core_alua.c
+@@ -1735,7 +1735,6 @@ int core_alua_set_tg_pt_gp_id(
+ 		pr_err("Maximum ALUA alua_tg_pt_gps_count:"
+ 			" 0x0000ffff reached\n");
+ 		spin_unlock(&dev->t10_alua.tg_pt_gps_lock);
+-		kmem_cache_free(t10_alua_tg_pt_gp_cache, tg_pt_gp);
+ 		return -ENOSPC;
+ 	}
+ again:
 -- 
 2.33.0
 
