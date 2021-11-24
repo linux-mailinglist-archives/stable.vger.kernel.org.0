@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D77845C1EB
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D94A245C2EE
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:31:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345685AbhKXNYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:24:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39544 "EHLO mail.kernel.org"
+        id S1349625AbhKXNeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:34:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349265AbhKXNS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:18:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9416161AED;
-        Wed, 24 Nov 2021 12:46:08 +0000 (UTC)
+        id S1351586AbhKXNci (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:32:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E484F61BD2;
+        Wed, 24 Nov 2021 12:53:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757969;
-        bh=7xoY8n8uQOFMeGwlpGixZjniBDpaU8T0lcYuoX6KMzA=;
+        s=korg; t=1637758388;
+        bh=tqpN3gXnWopqGetBBiFAQHr6fgZWEqZOJpnpFBjko/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qO1oMOVQAG9wW01ZsNRKUx2tJlDiI7misLtRfkTcFiOqsQts0zHMA9thPbn7g3/e7
-         WaAnjDKtn6shWFTRbra3O4je51bv8e1rjQLsZIuLdpFVnTXka/pWOokuB6CFr9Cvep
-         qyVvgIF58D3TmlcMP+yJrNn8Na23K+e5f6O0XMv8=
+        b=gAX+vVuLYeao2NDILuLfly05FCCmW2+u8iDW8Rl5xOMLnndopdgdiFdsiPLdo0sND
+         NB9FXS9XJsSsiR49oySNJpL8+AXjLoQdDsaWel1I1RgIrReqyrXDFIlNDyWfkztGRG
+         ZPuTu0F03Jicx635WKMp3o2BusNTGBu2MmRg3BCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stefan Riedmueller <s.riedmueller@phytec.de>,
-        Abel Vesa <abel.vesa@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 013/100] clk: imx: imx6ul: Move csi_sel mux to correct base register
-Date:   Wed, 24 Nov 2021 12:57:29 +0100
-Message-Id: <20211124115655.283163718@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 054/154] sh: define __BIG_ENDIAN for math-emu
+Date:   Wed, 24 Nov 2021 12:57:30 +0100
+Message-Id: <20211124115704.076582782@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Riedmueller <s.riedmueller@phytec.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 2f9d61869640f732599ec36b984c2b5c46067519 ]
+[ Upstream commit b929926f01f2d14635345d22eafcf60feed1085e ]
 
-The csi_sel mux register is located in the CCM register base and not the
-CCM_ANALOG register base. So move it to the correct position in code.
+Fix this by defining both ENDIAN macros in
+<asm/sfp-machine.h> so that they can be utilized in
+<math-emu/soft-fp.h> according to the latter's comment:
+/* Allow sfp-machine to have its own byte order definitions. */
 
-Otherwise changing the parent of the csi clock can lead to a complete
-system failure due to the CCM_ANALOG_PLL_SYS_TOG register being falsely
-modified.
+(This is what is done in arch/nds32/include/asm/sfp-machine.h.)
 
-Also remove the SET_RATE_PARENT flag since one possible supply for the
-csi_sel mux is the system PLL which we don't want to modify.
+This placates these build warnings:
 
-Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
-Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
-Link: https://lore.kernel.org/r/20210927072857.3940880-1-s.riedmueller@phytec.de
-Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
+In file included from ../arch/sh/math-emu/math.c:23:
+.../include/math-emu/single.h:50:21: warning: "__BIG_ENDIAN" is not defined, evaluates to 0 [-Wundef]
+   50 | #if __BYTE_ORDER == __BIG_ENDIAN
+In file included from ../arch/sh/math-emu/math.c:24:
+.../include/math-emu/double.h:59:21: warning: "__BIG_ENDIAN" is not defined, evaluates to 0 [-Wundef]
+   59 | #if __BYTE_ORDER == __BIG_ENDIAN
+
+Fixes: 4b565680d163 ("sh: math-emu support")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Rich Felker <dalias@libc.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-imx6ul.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/sh/include/asm/sfp-machine.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/clk/imx/clk-imx6ul.c b/drivers/clk/imx/clk-imx6ul.c
-index bc931988fe7b2..f3ac5a524f4ed 100644
---- a/drivers/clk/imx/clk-imx6ul.c
-+++ b/drivers/clk/imx/clk-imx6ul.c
-@@ -161,7 +161,6 @@ static void __init imx6ul_clocks_init(struct device_node *ccm_node)
- 	hws[IMX6UL_PLL5_BYPASS] = imx_clk_hw_mux_flags("pll5_bypass", base + 0xa0, 16, 1, pll5_bypass_sels, ARRAY_SIZE(pll5_bypass_sels), CLK_SET_RATE_PARENT);
- 	hws[IMX6UL_PLL6_BYPASS] = imx_clk_hw_mux_flags("pll6_bypass", base + 0xe0, 16, 1, pll6_bypass_sels, ARRAY_SIZE(pll6_bypass_sels), CLK_SET_RATE_PARENT);
- 	hws[IMX6UL_PLL7_BYPASS] = imx_clk_hw_mux_flags("pll7_bypass", base + 0x20, 16, 1, pll7_bypass_sels, ARRAY_SIZE(pll7_bypass_sels), CLK_SET_RATE_PARENT);
--	hws[IMX6UL_CLK_CSI_SEL] = imx_clk_hw_mux_flags("csi_sel", base + 0x3c, 9, 2, csi_sels, ARRAY_SIZE(csi_sels), CLK_SET_RATE_PARENT);
+diff --git a/arch/sh/include/asm/sfp-machine.h b/arch/sh/include/asm/sfp-machine.h
+index cbc7cf8c97ce6..2d2423478b71d 100644
+--- a/arch/sh/include/asm/sfp-machine.h
++++ b/arch/sh/include/asm/sfp-machine.h
+@@ -13,6 +13,14 @@
+ #ifndef _SFP_MACHINE_H
+ #define _SFP_MACHINE_H
  
- 	/* Do not bypass PLLs initially */
- 	clk_set_parent(hws[IMX6UL_PLL1_BYPASS]->clk, hws[IMX6UL_CLK_PLL1]->clk);
-@@ -270,6 +269,7 @@ static void __init imx6ul_clocks_init(struct device_node *ccm_node)
- 	hws[IMX6UL_CLK_ECSPI_SEL]	  = imx_clk_hw_mux("ecspi_sel",	base + 0x38, 18, 1, ecspi_sels, ARRAY_SIZE(ecspi_sels));
- 	hws[IMX6UL_CLK_LCDIF_PRE_SEL]	  = imx_clk_hw_mux_flags("lcdif_pre_sel", base + 0x38, 15, 3, lcdif_pre_sels, ARRAY_SIZE(lcdif_pre_sels), CLK_SET_RATE_PARENT);
- 	hws[IMX6UL_CLK_LCDIF_SEL]	  = imx_clk_hw_mux("lcdif_sel",	base + 0x38, 9, 3, lcdif_sels, ARRAY_SIZE(lcdif_sels));
-+	hws[IMX6UL_CLK_CSI_SEL]		  = imx_clk_hw_mux("csi_sel", base + 0x3c, 9, 2, csi_sels, ARRAY_SIZE(csi_sels));
- 
- 	hws[IMX6UL_CLK_LDB_DI0_DIV_SEL]  = imx_clk_hw_mux("ldb_di0", base + 0x20, 10, 1, ldb_di0_div_sels, ARRAY_SIZE(ldb_di0_div_sels));
- 	hws[IMX6UL_CLK_LDB_DI1_DIV_SEL]  = imx_clk_hw_mux("ldb_di1", base + 0x20, 11, 1, ldb_di1_div_sels, ARRAY_SIZE(ldb_di1_div_sels));
++#ifdef __BIG_ENDIAN__
++#define __BYTE_ORDER __BIG_ENDIAN
++#define __LITTLE_ENDIAN 0
++#else
++#define __BYTE_ORDER __LITTLE_ENDIAN
++#define __BIG_ENDIAN 0
++#endif
++
+ #define _FP_W_TYPE_SIZE		32
+ #define _FP_W_TYPE		unsigned long
+ #define _FP_WS_TYPE		signed long
 -- 
 2.33.0
 
