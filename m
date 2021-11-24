@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADFE445C09D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6266445C530
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343576AbhKXNJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:09:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49338 "EHLO mail.kernel.org"
+        id S1352895AbhKXNzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:55:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348129AbhKXNIh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:08:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 354CC610FE;
-        Wed, 24 Nov 2021 12:39:19 +0000 (UTC)
+        id S1354454AbhKXNus (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:50:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB9AA61C48;
+        Wed, 24 Nov 2021 13:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757559;
-        bh=CP2EQ2zYNwhL3aSgzRtGi1KRrPL+d36bH4v9kmBaU70=;
+        s=korg; t=1637759037;
+        bh=9RTPnMJsbayNZdLkUNr5pPiDYYDce+RXcoLXFwRYg2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ufu2B9YMM51LZpmwomqDrIWsK33EKA66+UgGcEaVr8JS126/uhePe6wRrwhZ+2PM7
-         +RgQWBANd+KT0qXrvsHHaIfoAgt4XuvHtAqn7ryR8aHahnf1+Danx4Z34p+EWD/jke
-         CqMzHBVJsyZKNP7bLYHQtFLbn886oxBI3OBRKNkU=
+        b=HxzEwIFHbq80xDZxYTXL6M1Wo4K/V1a/XSr9bYMPai8kYPpFNNKuPpJjFvHBd00az
+         Mi8BCUHbM3VfBdIq2GmN28qdOLgMXedP+ZvCvmFzbU1GHjCanB2Z18jkU0awTnSqsC
+         NSll8Gqvy6ZFpUfcCDRgNw6ojUQwvJhJH3r+20bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Miguel Ojeda <ojeda@kernel.org>,
+        stable@vger.kernel.org, Jan Fuchs <jf@simonwunderlich.de>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sven Eckelmann <sven@narfation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 209/323] auxdisplay: img-ascii-lcd: Fix lock-up when displaying empty string
+Subject: [PATCH 5.15 112/279] nl80211: fix radio statistics in survey dump
 Date:   Wed, 24 Nov 2021 12:56:39 +0100
-Message-Id: <20211124115725.986627946@linuxfoundation.org>
+Message-Id: <20211124115722.651275819@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +41,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit afcb5a811ff3ab3969f09666535eb6018a160358 ]
+[ Upstream commit ce6b69749961426c6d822215ded9e67154e1ad4f ]
 
-While writing an empty string to a device attribute is a no-op, and thus
-does not need explicit safeguards, the user can still write a single
-newline to an attribute file:
+Even if userspace specifies the NL80211_ATTR_SURVEY_RADIO_STATS
+attribute, we cannot get the statistics because we're not really
+parsing the incoming attributes properly any more.
 
-    echo > .../message
+Fix this by passing the attrbuf to nl80211_prepare_wdev_dump()
+and filling it there, if given, and using a local version only
+if no output is desired.
 
-If that happens, img_ascii_lcd_display() trims the newline, yielding an
-empty string, and causing an infinite loop in img_ascii_lcd_scroll().
+Since I'm touching it anyway, make nl80211_prepare_wdev_dump()
+static.
 
-Fix this by adding a check for empty strings.  Clear the display in case
-one is encountered.
-
-Fixes: 0cad855fbd083ee5 ("auxdisplay: img-ascii-lcd: driver for simple ASCII LCD displays")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+Fixes: 50508d941c18 ("cfg80211: use parallel_ops for genl")
+Reported-by: Jan Fuchs <jf@simonwunderlich.de>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Tested-by: Sven Eckelmann <sven@narfation.org>
+Link: https://lore.kernel.org/r/20211029092539.2851b4799386.If9736d4575ee79420cbec1bd930181e1d53c7317@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/auxdisplay/img-ascii-lcd.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/wireless/nl80211.c | 34 +++++++++++++++++++---------------
+ net/wireless/nl80211.h |  6 +-----
+ 2 files changed, 20 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/auxdisplay/img-ascii-lcd.c b/drivers/auxdisplay/img-ascii-lcd.c
-index 834509506ef64..c4bc6723acfa5 100644
---- a/drivers/auxdisplay/img-ascii-lcd.c
-+++ b/drivers/auxdisplay/img-ascii-lcd.c
-@@ -284,6 +284,16 @@ static int img_ascii_lcd_display(struct img_ascii_lcd_ctx *ctx,
- 	if (msg[count - 1] == '\n')
- 		count--;
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index bf7cd47525472..16b3d0cc0bdb0 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -922,33 +922,37 @@ nl80211_packet_pattern_policy[MAX_NL80211_PKTPAT + 1] = {
+ 	[NL80211_PKTPAT_OFFSET] = { .type = NLA_U32 },
+ };
  
-+	if (!count) {
-+		/* clear the LCD */
-+		devm_kfree(&ctx->pdev->dev, ctx->message);
-+		ctx->message = NULL;
-+		ctx->message_len = 0;
-+		memset(ctx->curr, ' ', ctx->cfg->num_chars);
-+		ctx->cfg->update(ctx);
-+		return 0;
-+	}
-+
- 	new_msg = devm_kmalloc(&ctx->pdev->dev, count + 1, GFP_KERNEL);
- 	if (!new_msg)
+-int nl80211_prepare_wdev_dump(struct netlink_callback *cb,
+-			      struct cfg80211_registered_device **rdev,
+-			      struct wireless_dev **wdev)
++static int nl80211_prepare_wdev_dump(struct netlink_callback *cb,
++				     struct cfg80211_registered_device **rdev,
++				     struct wireless_dev **wdev,
++				     struct nlattr **attrbuf)
+ {
+ 	int err;
+ 
+ 	if (!cb->args[0]) {
+-		struct nlattr **attrbuf;
++		struct nlattr **attrbuf_free = NULL;
+ 
+-		attrbuf = kcalloc(NUM_NL80211_ATTR, sizeof(*attrbuf),
+-				  GFP_KERNEL);
+-		if (!attrbuf)
+-			return -ENOMEM;
++		if (!attrbuf) {
++			attrbuf = kcalloc(NUM_NL80211_ATTR, sizeof(*attrbuf),
++					  GFP_KERNEL);
++			if (!attrbuf)
++				return -ENOMEM;
++			attrbuf_free = attrbuf;
++		}
+ 
+ 		err = nlmsg_parse_deprecated(cb->nlh,
+ 					     GENL_HDRLEN + nl80211_fam.hdrsize,
+ 					     attrbuf, nl80211_fam.maxattr,
+ 					     nl80211_policy, NULL);
+ 		if (err) {
+-			kfree(attrbuf);
++			kfree(attrbuf_free);
+ 			return err;
+ 		}
+ 
+ 		rtnl_lock();
+ 		*wdev = __cfg80211_wdev_from_attrs(NULL, sock_net(cb->skb->sk),
+ 						   attrbuf);
+-		kfree(attrbuf);
++		kfree(attrbuf_free);
+ 		if (IS_ERR(*wdev)) {
+ 			rtnl_unlock();
+ 			return PTR_ERR(*wdev);
+@@ -6001,7 +6005,7 @@ static int nl80211_dump_station(struct sk_buff *skb,
+ 	int sta_idx = cb->args[2];
+ 	int err;
+ 
+-	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev);
++	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev, NULL);
+ 	if (err)
+ 		return err;
+ 	/* nl80211_prepare_wdev_dump acquired it in the successful case */
+@@ -6896,7 +6900,7 @@ static int nl80211_dump_mpath(struct sk_buff *skb,
+ 	int path_idx = cb->args[2];
+ 	int err;
+ 
+-	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev);
++	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev, NULL);
+ 	if (err)
+ 		return err;
+ 	/* nl80211_prepare_wdev_dump acquired it in the successful case */
+@@ -7096,7 +7100,7 @@ static int nl80211_dump_mpp(struct sk_buff *skb,
+ 	int path_idx = cb->args[2];
+ 	int err;
+ 
+-	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev);
++	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev, NULL);
+ 	if (err)
+ 		return err;
+ 	/* nl80211_prepare_wdev_dump acquired it in the successful case */
+@@ -9518,7 +9522,7 @@ static int nl80211_dump_scan(struct sk_buff *skb, struct netlink_callback *cb)
+ 	int start = cb->args[2], idx = 0;
+ 	int err;
+ 
+-	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev);
++	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev, NULL);
+ 	if (err)
+ 		return err;
+ 	/* nl80211_prepare_wdev_dump acquired it in the successful case */
+@@ -9651,7 +9655,7 @@ static int nl80211_dump_survey(struct sk_buff *skb, struct netlink_callback *cb)
+ 	if (!attrbuf)
  		return -ENOMEM;
+ 
+-	res = nl80211_prepare_wdev_dump(cb, &rdev, &wdev);
++	res = nl80211_prepare_wdev_dump(cb, &rdev, &wdev, attrbuf);
+ 	if (res) {
+ 		kfree(attrbuf);
+ 		return res;
+diff --git a/net/wireless/nl80211.h b/net/wireless/nl80211.h
+index a3f387770f1bf..d642e3be4ee78 100644
+--- a/net/wireless/nl80211.h
++++ b/net/wireless/nl80211.h
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ /*
+  * Portions of this file
+- * Copyright (C) 2018, 2020 Intel Corporation
++ * Copyright (C) 2018, 2020-2021 Intel Corporation
+  */
+ #ifndef __NET_WIRELESS_NL80211_H
+ #define __NET_WIRELESS_NL80211_H
+@@ -22,10 +22,6 @@ static inline u64 wdev_id(struct wireless_dev *wdev)
+ 	       ((u64)wiphy_to_rdev(wdev->wiphy)->wiphy_idx << 32);
+ }
+ 
+-int nl80211_prepare_wdev_dump(struct netlink_callback *cb,
+-			      struct cfg80211_registered_device **rdev,
+-			      struct wireless_dev **wdev);
+-
+ int nl80211_parse_chandef(struct cfg80211_registered_device *rdev,
+ 			  struct genl_info *info,
+ 			  struct cfg80211_chan_def *chandef);
 -- 
 2.33.0
 
