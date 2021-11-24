@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF29A45BE76
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:46:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FDD245BA5E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:06:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345203AbhKXMrM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:47:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49656 "EHLO mail.kernel.org"
+        id S235362AbhKXMKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:10:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344260AbhKXMpK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:45:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B1B76128C;
-        Wed, 24 Nov 2021 12:26:37 +0000 (UTC)
+        id S239429AbhKXMIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:08:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C112C610CC;
+        Wed, 24 Nov 2021 12:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756797;
-        bh=0Wwd3oFwM3mOT/07W3rNCoDgmn1y3W3Lb5drW0M0Cl8=;
+        s=korg; t=1637755504;
+        bh=yskHZabqsvAjti3StZjV+B4KzqCQCGY0fwXULf/2qd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=orThIbDqHPMC3nTv3pxqzhKqVr4cLfw8dwa96i/YsdMTjFJ8oape3MuWSsYNQB1mW
-         7690gOGaw1ibZ3YDduDQx+tFe9zYKL0tINshxUfzV/vBE9u51Nj5qKq6MjLMxtYiJM
-         MiPYOleTHzIgNUnUcvAYtgShSO8hZi7inluDY5ww=
+        b=dIGMfm4OkI/QsIvz5hbyhEn/+VYzTR9UqDK1hS7i4kLW1VMnN4wsQ429tolocOzVR
+         wUI0Ct0NuKKd+AoK5xMSm0lHfY5pZspq1LLKxsWnKwcB9alszKF0h/jEr49FKLk8A/
+         a1aesOyL5inxxbR9fIMJIKDxdV1tEveOLWFNacjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 178/251] i2c: xlr: Fix a resource leak in the error handling path of xlr_i2c_probe()
-Date:   Wed, 24 Nov 2021 12:57:00 +0100
-Message-Id: <20211124115716.450246099@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 118/162] usb: musb: tusb6010: check return value after calling platform_get_resource()
+Date:   Wed, 24 Nov 2021 12:57:01 +0100
+Message-Id: <20211124115702.128914087@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 7f98960c046ee1136e7096aee168eda03aef8a5d ]
+[ Upstream commit 14651496a3de6807a17c310f63c894ea0c5d858e ]
 
-A successful 'clk_prepare()' call should be balanced by a corresponding
-'clk_unprepare()' call in the error handling path of the probe, as already
-done in the remove function.
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-More specifically, 'clk_prepare_enable()' is used, but 'clk_disable()' is
-also already called. So just the unprepare step has still to be done.
-
-Update the error handling path accordingly.
-
-Fixes: 75d31c2372e4 ("i2c: xlr: add support for Sigma Designs controller variant")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210915034925.2399823-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-xlr.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/musb/tusb6010.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-xlr.c b/drivers/i2c/busses/i2c-xlr.c
-index 484bfa15d58ee..dc9e20941efd1 100644
---- a/drivers/i2c/busses/i2c-xlr.c
-+++ b/drivers/i2c/busses/i2c-xlr.c
-@@ -434,11 +434,15 @@ static int xlr_i2c_probe(struct platform_device *pdev)
- 	i2c_set_adapdata(&priv->adap, priv);
- 	ret = i2c_add_numbered_adapter(&priv->adap);
- 	if (ret < 0)
--		return ret;
-+		goto err_unprepare_clk;
+diff --git a/drivers/usb/musb/tusb6010.c b/drivers/usb/musb/tusb6010.c
+index 85a57385958fd..f4297e5495958 100644
+--- a/drivers/usb/musb/tusb6010.c
++++ b/drivers/usb/musb/tusb6010.c
+@@ -1120,6 +1120,11 @@ static int tusb_musb_init(struct musb *musb)
  
- 	platform_set_drvdata(pdev, priv);
- 	dev_info(&priv->adap.dev, "Added I2C Bus.\n");
- 	return 0;
-+
-+err_unprepare_clk:
-+	clk_unprepare(clk);
-+	return ret;
- }
+ 	/* dma address for async dma */
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!mem) {
++		pr_debug("no async dma resource?\n");
++		ret = -ENODEV;
++		goto done;
++	}
+ 	musb->async = mem->start;
  
- static int xlr_i2c_remove(struct platform_device *pdev)
+ 	/* dma address for sync dma */
 -- 
 2.33.0
 
