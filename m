@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7F145BBAF
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:19:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97EDF45BA0C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243161AbhKXMWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:22:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36014 "EHLO mail.kernel.org"
+        id S242019AbhKXMHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:07:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242776AbhKXMUQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:20:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEEA76112F;
-        Wed, 24 Nov 2021 12:12:16 +0000 (UTC)
+        id S242215AbhKXMGb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:06:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3832610CA;
+        Wed, 24 Nov 2021 12:03:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755937;
-        bh=KamPzkE/xfJ+gfLl1puVcZOrLnIOvCVIa9+X2bpw5u8=;
+        s=korg; t=1637755402;
+        bh=cWLLOxP3dDEES0t8JMT7wgN6KyqwU7yqIcNmXd8gdiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O4ZNcloH27LgfTbpnOeEcPgEW0l/tuKMjnZVbSacx5exUBQZZG1cB9D8oAwSWZPIe
-         atYY32L4tR8pgisItgSOewFEZm0lnQOfa2wTl4QiGrrGS4vQfaHmE4gLFeZSVlzDm6
-         B/jlHpzYSKr0gKZqsTT/SC+ABWc/Kz/OT6g3fMTg=
+        b=dajkGr9K52VPCt5XJ2RzaQjH75xMcuwvzJfy+nzvCgbSZlJxiq5zJoo2NEJoa+LTk
+         W2agnZuCSOGp8yVPUzBRB2dSVd/QD7EK8Y4mP+2I0r2puP39Ox0nCTeoY0fP2lNh/1
+         hG2VKRy8egNkLb5dwCmTkDzsYL0H9b/ZtnyW4QFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 112/207] libertas_tf: Fix possible memory leak in probe and disconnect
-Date:   Wed, 24 Nov 2021 12:56:23 +0100
-Message-Id: <20211124115707.699917752@linuxfoundation.org>
+Subject: [PATCH 4.4 081/162] net: stream: dont purge sk_error_queue in sk_stream_kill_queues()
+Date:   Wed, 24 Nov 2021 12:56:24 +0100
+Message-Id: <20211124115700.936915826@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,70 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit d549107305b4634c81223a853701c06bcf657bc3 ]
+[ Upstream commit 24bcbe1cc69fa52dc4f7b5b2456678ed464724d8 ]
 
-I got memory leak as follows when doing fault injection test:
+sk_stream_kill_queues() can be called on close when there are
+still outstanding skbs to transmit. Those skbs may try to queue
+notifications to the error queue (e.g. timestamps).
+If sk_stream_kill_queues() purges the queue without taking
+its lock the queue may get corrupted, and skbs leaked.
 
-unreferenced object 0xffff88810a2ddc00 (size 512):
-  comm "kworker/6:1", pid 176, jiffies 4295009893 (age 757.220s)
-  hex dump (first 32 bytes):
-    00 50 05 18 81 88 ff ff 00 00 00 00 00 00 00 00  .P..............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
-    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
-    [<ffffffffa02a1530>] if_usb_probe+0x60/0x37c [libertas_tf_usb]
-    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
-    [<ffffffff82b59630>] really_probe+0x190/0x480
-    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
-    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
-    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
-    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
-    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
-    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
-    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
-    [<ffffffff82b52e49>] device_add+0x829/0x1300
-    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
-    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
-    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
+This shows up as a warning about an rmem leak:
 
-cardp is missing being freed in the error handling path of the probe
-and the path of the disconnect, which will cause memory leak.
+WARNING: CPU: 24 PID: 0 at net/ipv4/af_inet.c:154 inet_sock_destruct+0x...
 
-This patch adds the missing kfree().
+The leak is always a multiple of 0x300 bytes (the value is in
+%rax on my builds, so RAX: 0000000000000300). 0x300 is truesize of
+an empty sk_buff. Indeed if we dump the socket state at the time
+of the warning the sk_error_queue is often (but not always)
+corrupted. The ->next pointer points back at the list head,
+but not the ->prev pointer. Indeed we can find the leaked skb
+by scanning the kernel memory for something that looks like
+an skb with ->sk = socket in question, and ->truesize = 0x300.
+The contents of ->cb[] of the skb confirms the suspicion that
+it is indeed a timestamp notification (as generated in
+__skb_complete_tx_timestamp()).
 
-Fixes: c305a19a0d0a ("libertas_tf: usb specific functions")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211020120345.2016045-2-wanghai38@huawei.com
+Removing purging of sk_error_queue should be okay, since
+inet_sock_destruct() does it again once all socket refs
+are gone. Eric suggests this may cause sockets that go
+thru disconnect() to maintain notifications from the
+previous incarnations of the socket, but that should be
+okay since the race was there anyway, and disconnect()
+is not exactly dependable.
+
+Thanks to Jonathan Lemon and Omar Sandoval for help at various
+stages of tracing the issue.
+
+Fixes: cb9eff097831 ("net: new user space API for time stamping of incoming and outgoing packets")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas_tf/if_usb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/core/stream.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas_tf/if_usb.c b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-index 4b539209999b4..aaba324dbc39b 100644
---- a/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-+++ b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-@@ -234,6 +234,7 @@ static int if_usb_probe(struct usb_interface *intf,
+diff --git a/net/core/stream.c b/net/core/stream.c
+index 3089b014bb538..2c50c71cb806f 100644
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -194,9 +194,6 @@ void sk_stream_kill_queues(struct sock *sk)
+ 	/* First the read buffer. */
+ 	__skb_queue_purge(&sk->sk_receive_queue);
  
- dealloc:
- 	if_usb_free(cardp);
-+	kfree(cardp);
- error:
- lbtf_deb_leave(LBTF_DEB_MAIN);
- 	return -ENOMEM;
-@@ -258,6 +259,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
+-	/* Next, the error queue. */
+-	__skb_queue_purge(&sk->sk_error_queue);
+-
+ 	/* Next, the write queue. */
+ 	WARN_ON(!skb_queue_empty(&sk->sk_write_queue));
  
- 	/* Unlink and free urb */
- 	if_usb_free(cardp);
-+	kfree(cardp);
- 
- 	usb_set_intfdata(intf, NULL);
- 	usb_put_dev(interface_to_usbdev(intf));
 -- 
 2.33.0
 
