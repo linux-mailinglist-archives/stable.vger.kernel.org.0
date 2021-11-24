@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF7945C510
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 164A345C291
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352109AbhKXNyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:54:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41804 "EHLO mail.kernel.org"
+        id S1351264AbhKXNa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:30:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354671AbhKXNwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:52:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89B156120D;
-        Wed, 24 Nov 2021 13:04:44 +0000 (UTC)
+        id S1350732AbhKXN2b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:28:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0443061BA7;
+        Wed, 24 Nov 2021 12:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759085;
-        bh=cpcvhHxjUWUBTDOJGZJQwP3WhvKHaQpiUub6+d94qsc=;
+        s=korg; t=1637758259;
+        bh=mb8KwGPagJg7TMbYccfPOKOsxq3fYz/MuaH+/kw2nSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jGIl3YdyRQW7OCuCffpz8X3/xOuKMfjYwOGC72cbkxCEqjsPayy6SZquqPE1jjua/
-         BU/CDg+PYWaQwQhWt5Sd+mujOIRgChkKFPd0zX+XKbm7aibCGEKqsLb1kh5wHTJMwF
-         cVj8a+jInaaXmykit0Bxgez7HA537w0d60nPOrVM=
+        b=sdS8GIj5a6pp0iKSvY20lgksrhphtFSuDg/+ssJm+qdnp+IgpUWr17vbigBH+pc/R
+         viBPj0BW+rU0bIXgMUXFxRn6smRVHGz4xW5IpjG1XOIpno5Y4pueE3SdBquYu3AV3W
+         E4rZcMDSNHBcVq5NqywfljF45Yd05wx+EDdutWW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Selvin Xavier <selvin.xavier@broadcom.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 120/279] sock: fix /proc/net/sockstat underflow in sk_clone_lock()
+Subject: [PATCH 5.10 011/154] RDMA/bnxt_re: Check if the vlan is valid before reporting
 Date:   Wed, 24 Nov 2021 12:56:47 +0100
-Message-Id: <20211124115722.945668669@linuxfoundation.org>
+Message-Id: <20211124115702.752080429@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Selvin Xavier <selvin.xavier@broadcom.com>
 
-[ Upstream commit 938cca9e4109b30ee1d476904538225a825e54eb ]
+[ Upstream commit 6bda39149d4b8920fdb8744090653aca3daa792d ]
 
-sk_clone_lock() needs to call sock_inuse_add(1) before entering the
-sk_free_unlock_clone() error path, for __sk_free() from sk_free() from
-sk_free_unlock_clone() calls sock_inuse_add(-1).
+When VF is configured with default vlan, HW strips the vlan from the
+packet and driver receives it in Rx completion. VLAN needs to be reported
+for UD work completion only if the vlan is configured on the host. Add a
+check for valid vlan in the UD receive path.
 
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 648845ab7e200993 ("sock: Move the socket inuse to namespace.")
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/1631709163-2287-12-git-send-email-selvin.xavier@broadcom.com
+Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/bnxt_re/ib_verbs.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index c1601f75ec4b3..1b31e10181629 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -2043,8 +2043,10 @@ struct sock *sk_clone_lock(const struct sock *sk, const gfp_t priority)
- 	newsk->sk_prot_creator = prot;
+diff --git a/drivers/infiniband/hw/bnxt_re/ib_verbs.c b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+index 441952a5eca4a..10d77f50f818b 100644
+--- a/drivers/infiniband/hw/bnxt_re/ib_verbs.c
++++ b/drivers/infiniband/hw/bnxt_re/ib_verbs.c
+@@ -3368,8 +3368,11 @@ static void bnxt_re_process_res_ud_wc(struct bnxt_re_qp *qp,
+ 				      struct ib_wc *wc,
+ 				      struct bnxt_qplib_cqe *cqe)
+ {
++	struct bnxt_re_dev *rdev;
++	u16 vlan_id = 0;
+ 	u8 nw_type;
  
- 	/* SANITY */
--	if (likely(newsk->sk_net_refcnt))
-+	if (likely(newsk->sk_net_refcnt)) {
- 		get_net(sock_net(newsk));
-+		sock_inuse_add(sock_net(newsk), 1);
-+	}
- 	sk_node_init(&newsk->sk_node);
- 	sock_lock_init(newsk);
- 	bh_lock_sock(newsk);
-@@ -2115,8 +2117,6 @@ struct sock *sk_clone_lock(const struct sock *sk, const gfp_t priority)
- 	newsk->sk_err_soft = 0;
- 	newsk->sk_priority = 0;
- 	newsk->sk_incoming_cpu = raw_smp_processor_id();
--	if (likely(newsk->sk_net_refcnt))
--		sock_inuse_add(sock_net(newsk), 1);
++	rdev = qp->rdev;
+ 	wc->opcode = IB_WC_RECV;
+ 	wc->status = __rc_to_ib_wc_status(cqe->status);
  
- 	/* Before updating sk_refcnt, we must commit prior changes to memory
- 	 * (Documentation/RCU/rculist_nulls.rst for details)
+@@ -3381,9 +3384,12 @@ static void bnxt_re_process_res_ud_wc(struct bnxt_re_qp *qp,
+ 		memcpy(wc->smac, cqe->smac, ETH_ALEN);
+ 		wc->wc_flags |= IB_WC_WITH_SMAC;
+ 		if (cqe->flags & CQ_RES_UD_FLAGS_META_FORMAT_VLAN) {
+-			wc->vlan_id = (cqe->cfa_meta & 0xFFF);
+-			if (wc->vlan_id < 0x1000)
+-				wc->wc_flags |= IB_WC_WITH_VLAN;
++			vlan_id = (cqe->cfa_meta & 0xFFF);
++		}
++		/* Mark only if vlan_id is non zero */
++		if (vlan_id && bnxt_re_check_if_vlan_valid(rdev, vlan_id)) {
++			wc->vlan_id = vlan_id;
++			wc->wc_flags |= IB_WC_WITH_VLAN;
+ 		}
+ 		nw_type = (cqe->flags & CQ_RES_UD_FLAGS_ROCE_IP_VER_MASK) >>
+ 			   CQ_RES_UD_FLAGS_ROCE_IP_VER_SFT;
 -- 
 2.33.0
 
