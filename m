@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6422445BBFF
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF29A45BE76
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:46:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243963AbhKXMZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36812 "EHLO mail.kernel.org"
+        id S1345203AbhKXMrM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:47:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244251AbhKXMXL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:23:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE61561175;
-        Wed, 24 Nov 2021 12:14:01 +0000 (UTC)
+        id S1344260AbhKXMpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:45:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B1B76128C;
+        Wed, 24 Nov 2021 12:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756042;
-        bh=c46/3NevnXrmshmvsd3mQpGvD90qnjezmLcAsN/GfGs=;
+        s=korg; t=1637756797;
+        bh=0Wwd3oFwM3mOT/07W3rNCoDgmn1y3W3Lb5drW0M0Cl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nluR8eX+ggbtdk8D51pXP1ashViSPZZS5+2RyLKX4bE1uUZLRbh4FrXnbpMyTDXrq
-         5llXpzJkvoAAiE+XCL7dEF9jfLMKrpTq5Gq7wM+ub6vRgf9wWTgj3OnUK4ZXuLJWY0
-         Y8SvgDyqAOwvwOh3KzcJVRZdf5HYB2RnN4zD79nQ=
+        b=orThIbDqHPMC3nTv3pxqzhKqVr4cLfw8dwa96i/YsdMTjFJ8oape3MuWSsYNQB1mW
+         7690gOGaw1ibZ3YDduDQx+tFe9zYKL0tINshxUfzV/vBE9u51Nj5qKq6MjLMxtYiJM
+         MiPYOleTHzIgNUnUcvAYtgShSO8hZi7inluDY5ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 149/207] llc: fix out-of-bound array index in llc_sk_dev_hash()
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 178/251] i2c: xlr: Fix a resource leak in the error handling path of xlr_i2c_probe()
 Date:   Wed, 24 Nov 2021 12:57:00 +0100
-Message-Id: <20211124115708.838195997@linuxfoundation.org>
+Message-Id: <20211124115716.450246099@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 8ac9dfd58b138f7e82098a4e0a0d46858b12215b ]
+[ Upstream commit 7f98960c046ee1136e7096aee168eda03aef8a5d ]
 
-Both ifindex and LLC_SK_DEV_HASH_ENTRIES are signed.
+A successful 'clk_prepare()' call should be balanced by a corresponding
+'clk_unprepare()' call in the error handling path of the probe, as already
+done in the remove function.
 
-This means that (ifindex % LLC_SK_DEV_HASH_ENTRIES) is negative
-if @ifindex is negative.
+More specifically, 'clk_prepare_enable()' is used, but 'clk_disable()' is
+also already called. So just the unprepare step has still to be done.
 
-We could simply make LLC_SK_DEV_HASH_ENTRIES unsigned.
+Update the error handling path accordingly.
 
-In this patch I chose to use hash_32() to get more entropy
-from @ifindex, like llc_sk_laddr_hashfn().
-
-UBSAN: array-index-out-of-bounds in ./include/net/llc.h:75:26
-index -43 is out of range for type 'hlist_head [64]'
-CPU: 1 PID: 20999 Comm: syz-executor.3 Not tainted 5.15.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:151
- __ubsan_handle_out_of_bounds.cold+0x62/0x6c lib/ubsan.c:291
- llc_sk_dev_hash include/net/llc.h:75 [inline]
- llc_sap_add_socket+0x49c/0x520 net/llc/llc_conn.c:697
- llc_ui_bind+0x680/0xd70 net/llc/af_llc.c:404
- __sys_bind+0x1e9/0x250 net/socket.c:1693
- __do_sys_bind net/socket.c:1704 [inline]
- __se_sys_bind net/socket.c:1702 [inline]
- __x64_sys_bind+0x6f/0xb0 net/socket.c:1702
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7fa503407ae9
-
-Fixes: 6d2e3ea28446 ("llc: use a device based hash table to speed up multicast delivery")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 75d31c2372e4 ("i2c: xlr: add support for Sigma Designs controller variant")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/llc.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-xlr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/llc.h b/include/net/llc.h
-index 95e5ced4c1339..18dfd3e49a69f 100644
---- a/include/net/llc.h
-+++ b/include/net/llc.h
-@@ -72,7 +72,9 @@ struct llc_sap {
- static inline
- struct hlist_head *llc_sk_dev_hash(struct llc_sap *sap, int ifindex)
- {
--	return &sap->sk_dev_hash[ifindex % LLC_SK_DEV_HASH_ENTRIES];
-+	u32 bucket = hash_32(ifindex, LLC_SK_DEV_HASH_BITS);
+diff --git a/drivers/i2c/busses/i2c-xlr.c b/drivers/i2c/busses/i2c-xlr.c
+index 484bfa15d58ee..dc9e20941efd1 100644
+--- a/drivers/i2c/busses/i2c-xlr.c
++++ b/drivers/i2c/busses/i2c-xlr.c
+@@ -434,11 +434,15 @@ static int xlr_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(&priv->adap, priv);
+ 	ret = i2c_add_numbered_adapter(&priv->adap);
+ 	if (ret < 0)
+-		return ret;
++		goto err_unprepare_clk;
+ 
+ 	platform_set_drvdata(pdev, priv);
+ 	dev_info(&priv->adap.dev, "Added I2C Bus.\n");
+ 	return 0;
 +
-+	return &sap->sk_dev_hash[bucket];
++err_unprepare_clk:
++	clk_unprepare(clk);
++	return ret;
  }
  
- static inline
+ static int xlr_i2c_remove(struct platform_device *pdev)
 -- 
 2.33.0
 
