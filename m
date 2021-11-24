@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53BFC45C12B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1CF45C1DA
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347290AbhKXNPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:15:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51818 "EHLO mail.kernel.org"
+        id S1349390AbhKXNWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:22:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346158AbhKXNNM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:13:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A64961A8F;
-        Wed, 24 Nov 2021 12:42:51 +0000 (UTC)
+        id S1348491AbhKXNUx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:20:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABF9A61267;
+        Wed, 24 Nov 2021 12:46:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757772;
-        bh=YH/tOkbFfwAiuYXsO/uxLg9lFnn4JucT6IczIuLKy7k=;
+        s=korg; t=1637758008;
+        bh=RuXAnMAUReHuRn5YQmBLvHesUHnsrgsn60AyOpEc1dA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vf3//82jzR9mNnvLq20QCE1Ju93G0t9pa4RcOVznSKMSIrEyCqjxpwkLZeTqfNX9G
-         AVG6+rg/I00Ous2JgsDM1pxfOKuPJ7/OqKohi5cHpGK1jyEfhELVdrd8QEFJ44nMN6
-         5vQGVZz0CbX/WHmRToR6D/C7nTMNXVn/ZKvFAYPQ=
+        b=mQDY8d8V/Qz/VPF7j6zQE8nBkr4Zm0QWuo47M0IPQdpn4RI4x/cfy6CYsBxWqM68l
+         VnpZIlgeXMSMmMZ7E8J85N8bynNOOBpfIULkH9m1Z1lXoYP+V1wLw5aKx6q0oeY9yy
+         MU7g8BwAqoI3EAseppW7H+yJC9ixJ+Gw7Xw7Rhtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guanghui Feng <guanghuifeng@linux.alibaba.com>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Teng Qi <starmiku1207184332@gmail.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 272/323] tty: tty_buffer: Fix the softlockup issue in flush_to_ldisc
+Subject: [PATCH 5.4 026/100] iio: imu: st_lsm6dsx: Avoid potential array overflow in st_lsm6dsx_set_odr()
 Date:   Wed, 24 Nov 2021 12:57:42 +0100
-Message-Id: <20211124115728.059032052@linuxfoundation.org>
+Message-Id: <20211124115655.706451339@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guanghui Feng <guanghuifeng@linux.alibaba.com>
+From: Teng Qi <starmiku1207184332@gmail.com>
 
-[ Upstream commit 3968ddcf05fb4b9409cd1859feb06a5b0550a1c1 ]
+[ Upstream commit 94be878c882d8d784ff44c639bf55f3b029f85af ]
 
-When running ltp testcase(ltp/testcases/kernel/pty/pty04.c) with arm64, there is a soft lockup,
-which look like this one:
+The length of hw->settings->odr_table is 2 and ref_sensor->id is an enum
+variable whose value is between 0 and 5.
+However, the value ST_LSM6DSX_ID_MAX (i.e. 5) is not caught properly in
+ switch (sensor->id) {
 
-  Workqueue: events_unbound flush_to_ldisc
-  Call trace:
-   dump_backtrace+0x0/0x1ec
-   show_stack+0x24/0x30
-   dump_stack+0xd0/0x128
-   panic+0x15c/0x374
-   watchdog_timer_fn+0x2b8/0x304
-   __run_hrtimer+0x88/0x2c0
-   __hrtimer_run_queues+0xa4/0x120
-   hrtimer_interrupt+0xfc/0x270
-   arch_timer_handler_phys+0x40/0x50
-   handle_percpu_devid_irq+0x94/0x220
-   __handle_domain_irq+0x88/0xf0
-   gic_handle_irq+0x84/0xfc
-   el1_irq+0xc8/0x180
-   slip_unesc+0x80/0x214 [slip]
-   tty_ldisc_receive_buf+0x64/0x80
-   tty_port_default_receive_buf+0x50/0x90
-   flush_to_ldisc+0xbc/0x110
-   process_one_work+0x1d4/0x4b0
-   worker_thread+0x180/0x430
-   kthread+0x11c/0x120
+If ref_sensor->id is ST_LSM6DSX_ID_MAX, an array overflow will ocurrs in
+function st_lsm6dsx_check_odr():
+  odr_table = &sensor->hw->settings->odr_table[sensor->id];
 
-In the testcase pty04, The first process call the write syscall to send
-data to the pty master. At the same time, the workqueue will do the
-flush_to_ldisc to pop data in a loop until there is no more data left.
-When the sender and workqueue running in different core, the sender sends
-data fastly in full time which will result in workqueue doing work in loop
-for a long time and occuring softlockup in flush_to_ldisc with kernel
-configured without preempt. So I add need_resched check and cond_resched
-in the flush_to_ldisc loop to avoid it.
+and in function st_lsm6dsx_set_odr():
+  reg = &hw->settings->odr_table[ref_sensor->id].reg;
 
-Signed-off-by: Guanghui Feng <guanghuifeng@linux.alibaba.com>
-Link: https://lore.kernel.org/r/1633961304-24759-1-git-send-email-guanghuifeng@linux.alibaba.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To avoid this array overflow, handle ST_LSM6DSX_ID_GYRO explicitly and
+return -EINVAL for the default case.
+
+The enum value ST_LSM6DSX_ID_MAX is only present as an easy way to check
+the limit and as such is never used, however this is not locally obvious.
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Teng Qi <starmiku1207184332@gmail.com>
+Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Link: https://lore.kernel.org/r/20211011114003.976221-1-starmiku1207184332@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/tty_buffer.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
-index ee3aa57bc0e7b..6b0cb633679d9 100644
---- a/drivers/tty/tty_buffer.c
-+++ b/drivers/tty/tty_buffer.c
-@@ -529,6 +529,9 @@ static void flush_to_ldisc(struct work_struct *work)
- 		if (!count)
- 			break;
- 		head->read += count;
-+
-+		if (need_resched())
-+			cond_resched();
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+index 057a4b0100106..8850da8e25d69 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
+@@ -1015,6 +1015,8 @@ static int st_lsm6dsx_set_odr(struct st_lsm6dsx_sensor *sensor, u16 req_odr)
+ 	int err;
+ 
+ 	switch (sensor->id) {
++	case ST_LSM6DSX_ID_GYRO:
++		break;
+ 	case ST_LSM6DSX_ID_EXT0:
+ 	case ST_LSM6DSX_ID_EXT1:
+ 	case ST_LSM6DSX_ID_EXT2:
+@@ -1040,8 +1042,8 @@ static int st_lsm6dsx_set_odr(struct st_lsm6dsx_sensor *sensor, u16 req_odr)
+ 		}
+ 		break;
+ 	}
+-	default:
+-		break;
++	default: /* should never occur */
++		return -EINVAL;
  	}
  
- 	mutex_unlock(&buf->lock);
+ 	if (req_odr > 0) {
 -- 
 2.33.0
 
