@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D55445C617
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6F3645C38B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:37:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344668AbhKXOFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:05:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50840 "EHLO mail.kernel.org"
+        id S1350510AbhKXNkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:40:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353604AbhKXOAh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:00:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36E70632E6;
-        Wed, 24 Nov 2021 13:09:20 +0000 (UTC)
+        id S1349367AbhKXNiG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:38:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 507E26322A;
+        Wed, 24 Nov 2021 12:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759360;
-        bh=9+fEL5bRC2vbzDxSFxZxriKpVHTD61kOjmtxRdEj3xc=;
+        s=korg; t=1637758576;
+        bh=NrSlu56q8yV72/h3x54ISs9qgKaxdnM/7LLMfMyRo8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lwjyrAyk0nnnmQzmKfGYNp7Ur0cQUBq6/hHeyqsCkTZGWHBdemRUCpMe/FDVAPXgk
-         cuvP9wtO17E1ei8H0uPmkWZwkkqaaa5QRL1Z0gnT6l/qYRuD7VdtW3bO+9EsFWgvOc
-         lvCnAUPX6bc1Z5rcZjHoSFIOnmppXclT6Nxh2r2k=
+        b=Cpz+oaqi3x+kHYlAh4maGM0sVa6MF6WibrDlSOPI0H9AllQi0OzDY7R2j4v+XLy66
+         SZeP3+qfaiNHKVEHDk11T78oHLSSx32CupnZ1u6wpuy3VY0cddNCMD97lBcFnLWhe0
+         Cp0F3Oxr9zr9uAeCN5qFDOloUc/Of1NSh5SWYung=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
-        "Ewan D. Milne" <emilne@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.15 215/279] scsi: qla2xxx: Fix mailbox direction flags in qla2xxx_get_adapter_id()
-Date:   Wed, 24 Nov 2021 12:58:22 +0100
-Message-Id: <20211124115726.176576466@linuxfoundation.org>
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 107/154] NFC: reorganize the functions in nci_request
+Date:   Wed, 24 Nov 2021 12:58:23 +0100
+Message-Id: <20211124115705.748293983@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ewan D. Milne <emilne@redhat.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit 392006871bb26166bcfafa56faf49431c2cfaaa8 upstream.
+[ Upstream commit 86cdf8e38792545161dbe3350a7eced558ba4d15 ]
 
-The SCM changes set the flags in mcp->out_mb instead of mcp->in_mb so the
-data was not actually being read into the mcp->mb[] array from the adapter.
+There is a possible data race as shown below:
 
-Link: https://lore.kernel.org/r/20211108183012.13895-1-emilne@redhat.com
-Fixes: 9f2475fe7406 ("scsi: qla2xxx: SAN congestion management implementation")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Reviewed-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+thread-A in nci_request()       | thread-B in nci_close_device()
+                                | mutex_lock(&ndev->req_lock);
+test_bit(NCI_UP, &ndev->flags); |
+...                             | test_and_clear_bit(NCI_UP, &ndev->flags)
+mutex_lock(&ndev->req_lock);    |
+                                |
+
+This race will allow __nci_request() to be awaked while the device is
+getting removed.
+
+Similar to commit e2cb6b891ad2 ("bluetooth: eliminate the potential race
+condition when removing the HCI controller"). this patch alters the
+function sequence in nci_request() to prevent the data races between the
+nci_close_device().
+
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Fixes: 6a2968aaf50c ("NFC: basic NCI protocol implementation")
+Link: https://lore.kernel.org/r/20211115145600.8320-1-linma@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/nfc/nci/core.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -1695,10 +1695,8 @@ qla2x00_get_adapter_id(scsi_qla_host_t *
- 		mcp->in_mb |= MBX_13|MBX_12|MBX_11|MBX_10;
- 	if (IS_FWI2_CAPABLE(vha->hw))
- 		mcp->in_mb |= MBX_19|MBX_18|MBX_17|MBX_16;
--	if (IS_QLA27XX(vha->hw) || IS_QLA28XX(vha->hw)) {
--		mcp->in_mb |= MBX_15;
--		mcp->out_mb |= MBX_7|MBX_21|MBX_22|MBX_23;
--	}
-+	if (IS_QLA27XX(vha->hw) || IS_QLA28XX(vha->hw))
-+		mcp->in_mb |= MBX_15|MBX_21|MBX_22|MBX_23;
+diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
+index 32e8154363cab..5e55cb6c087a2 100644
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -144,12 +144,15 @@ inline int nci_request(struct nci_dev *ndev,
+ {
+ 	int rc;
  
- 	mcp->tov = MBX_TOV_SECONDS;
- 	mcp->flags = 0;
+-	if (!test_bit(NCI_UP, &ndev->flags))
+-		return -ENETDOWN;
+-
+ 	/* Serialize all requests */
+ 	mutex_lock(&ndev->req_lock);
+-	rc = __nci_request(ndev, req, opt, timeout);
++	/* check the state after obtaing the lock against any races
++	 * from nci_close_device when the device gets removed.
++	 */
++	if (test_bit(NCI_UP, &ndev->flags))
++		rc = __nci_request(ndev, req, opt, timeout);
++	else
++		rc = -ENETDOWN;
+ 	mutex_unlock(&ndev->req_lock);
+ 
+ 	return rc;
+-- 
+2.33.0
+
 
 
