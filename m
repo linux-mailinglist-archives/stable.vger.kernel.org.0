@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 596F745C1AD
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:17:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89DEA45C21C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:22:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348674AbhKXNUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:20:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35226 "EHLO mail.kernel.org"
+        id S1348757AbhKXNZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:25:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349240AbhKXNSy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:18:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3647E61AE4;
-        Wed, 24 Nov 2021 12:45:53 +0000 (UTC)
+        id S1348612AbhKXNWB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:22:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBE006128E;
+        Wed, 24 Nov 2021 12:47:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757953;
-        bh=lOINc8zJAMoX3k8oG/uZ9gevZh0lJ56ObrmXG8BE5yU=;
+        s=korg; t=1637758056;
+        bh=4FWpbJjc67hKE2N6NsHxiJw01NesjLwtiUBhXamYQdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ck2DmmB8jmSaS5t4ad5Q7xMBYOYFPZtlUBN6W0h7DAtN3QsVkUoRftKUEIEhUFnU3
-         dbvRwhvDUmz2Ehh7Bt8qA+0SexoGAv4JbygEmtuZkiTXrEpsjLfq3zkb0GjIc1nhtj
-         vHZJUi0r0iEHFRg7xXhg3c5HCzR8FbakW4qrW9Z4=
+        b=NUSVUPFy7G+WyZEc00pZ/N/omg+7zit1UXqRZRh+8NIWWQx4FaycfQmL1LIx+hOr/
+         /vpWVOCTnTIt0G8Nf7Qmk7XwrOiT+wl8lvsk3rtfYbzDL/CkWFXcr9lOXye78dzx8i
+         o0CNI01DJmMyWtvX+IlH51SC8fyjnjPt9fhGAQsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        linux-mips@vger.kernel.org, John Crispin <john@phrozen.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org,
-        Russell King <linux@armlinux.org.uk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 292/323] mips: lantiq: add support for clk_get_parent()
+Subject: [PATCH 5.4 046/100] perf tests: Remove bash construct from record+zstd_comp_decomp.sh
 Date:   Wed, 24 Nov 2021 12:58:02 +0100
-Message-Id: <20211124115728.764318250@linuxfoundation.org>
+Message-Id: <20211124115656.368537190@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +52,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit fc1aabb088860d6cf9dd03612b7a6f0de91ccac2 ]
+[ Upstream commit a9cdc1c5e3700a5200e5ca1f90b6958b6483845b ]
 
-Provide a simple implementation of clk_get_parent() in the
-lantiq subarch so that callers of it will build without errors.
+Commit 463538a383a2 ("perf tests: Fix test 68 zstd compression for
+s390") inadvertently removed the -g flag from all platforms rather than
+just s390, because the [[ ]] construct fails in sh. Changing to single
+brackets restores testing of call graphs and removes the following error
+from the output:
 
-Fixes this build error:
-ERROR: modpost: "clk_get_parent" [drivers/iio/adc/ingenic-adc.ko] undefined!
+  $ ./perf test -v 85
+  85: Zstd perf.data compression/decompression                        :
+  --- start ---
+  test child forked, pid 50643
+  Collecting compressed record file:
+  ./tests/shell/record+zstd_comp_decomp.sh: 15: [[: not found
 
-Fixes: 171bb2f19ed6 ("MIPS: Lantiq: Add initial support for Lantiq SoCs")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Suggested-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Cc: linux-mips@vger.kernel.org
-Cc: John Crispin <john@phrozen.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Jonathan Cameron <jic23@kernel.org>
-Cc: linux-iio@vger.kernel.org
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Acked-by: John Crispin <john@phrozen.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 463538a383a2 ("perf tests: Fix test 68 zstd compression for s390")
+Signed-off-by: James Clark <james.clark@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Link: https://lore.kernel.org/r/20211028134828.65774-3-james.clark@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/lantiq/clk.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/perf/tests/shell/record+zstd_comp_decomp.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/lantiq/clk.c b/arch/mips/lantiq/clk.c
-index a263d1b751ffe..a8e309dcd38d7 100644
---- a/arch/mips/lantiq/clk.c
-+++ b/arch/mips/lantiq/clk.c
-@@ -160,6 +160,12 @@ void clk_deactivate(struct clk *clk)
- }
- EXPORT_SYMBOL(clk_deactivate);
+diff --git a/tools/perf/tests/shell/record+zstd_comp_decomp.sh b/tools/perf/tests/shell/record+zstd_comp_decomp.sh
+index 045723b3d9928..c62af807198de 100755
+--- a/tools/perf/tests/shell/record+zstd_comp_decomp.sh
++++ b/tools/perf/tests/shell/record+zstd_comp_decomp.sh
+@@ -12,7 +12,7 @@ skip_if_no_z_record() {
  
-+struct clk *clk_get_parent(struct clk *clk)
-+{
-+	return NULL;
-+}
-+EXPORT_SYMBOL(clk_get_parent);
-+
- static inline u32 get_counter_resolution(void)
- {
- 	u32 res;
+ collect_z_record() {
+ 	echo "Collecting compressed record file:"
+-	[[ "$(uname -m)" != s390x ]] && gflag='-g'
++	[ "$(uname -m)" != s390x ] && gflag='-g'
+ 	$perf_tool record -o $trace_file $gflag -z -F 5000 -- \
+ 		dd count=500 if=/dev/urandom of=/dev/null
+ }
 -- 
 2.33.0
 
