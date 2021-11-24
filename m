@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14C3E45C60A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2823145C3C7
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351578AbhKXOE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:04:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48860 "EHLO mail.kernel.org"
+        id S1350714AbhKXNmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:42:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351789AbhKXOCx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:02:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29AD5613DA;
-        Wed, 24 Nov 2021 13:10:33 +0000 (UTC)
+        id S1349219AbhKXNkG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:40:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7882D6137D;
+        Wed, 24 Nov 2021 12:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759434;
-        bh=3Y1lWdcPaSVNYKEbev72Cpt/iYyFYzUMmH55npyFlNo=;
+        s=korg; t=1637758630;
+        bh=I4Fj5AWIxz0HBNrQX4HLVuZTC5yPXbA5VpMNR1c3KEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qxq5lHHv2bXRM4LEPYQFg/3mMYZdvT24kCWBs2Eqjr60mP9A6mVJPsz+aSql8d8O7
-         p5IUQnK9gYnO8Bhp7xjDdkd/p6AeJg/0r6Jd4MG/LHm2lPIXhgbrJzbEFTfBy6LkzK
-         roVKXc49ks6MLbLH+94EMhLjvWqfyfZKH+YyBW6E=
+        b=aHKleTCVL6S5KVPJoWimSBFxBxlayaY5yGr9yjjPvWY0fe4brZZH2yyhNN/+nccxH
+         ZKj5LSoIdmVucGYdE/KESZhhWNppaZR2Do4EIGXuYJlRjliwKobWxo56OejExICmD0
+         HQQ8eNCSkXKhRcR2+m9ofiRjfnqe6DvU6N80Nn+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Brost <matthew.brost@intel.com>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>
-Subject: [PATCH 5.15 241/279] drm/i915/guc: Fix outstanding G2H accounting
+        stable@vger.kernel.org, Nathan Wilson <nate@chickenbrittle.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.10 132/154] udf: Fix crash after seekdir
 Date:   Wed, 24 Nov 2021 12:58:48 +0100
-Message-Id: <20211124115727.056806087@linuxfoundation.org>
+Message-Id: <20211124115706.574308633@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,201 +39,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Brost <matthew.brost@intel.com>
+From: Jan Kara <jack@suse.cz>
 
-commit 669b949c1a44d0cb2bcd18ff6ab4fd0c21e7cf6f upstream.
+commit a48fc69fe6588b48d878d69de223b91a386a7cb4 upstream.
 
-A small race that could result in incorrect accounting of the number
-of outstanding G2H. Basically prior to this patch we did not increment
-the number of outstanding G2H if we encoutered a GT reset while sending
-a H2G. This was incorrect as the context state had already been updated
-to anticipate a G2H response thus the counter should be incremented.
+udf_readdir() didn't validate the directory position it should start
+reading from. Thus when user uses lseek(2) on directory file descriptor
+it can trick udf_readdir() into reading from a position in the middle of
+directory entry which then upsets directory parsing code resulting in
+errors or even possible kernel crashes. Similarly when the directory is
+modified between two readdir calls, the directory position need not be
+valid anymore.
 
-As part of this change we remove a legacy (now unused) path that was the
-last caller requiring a G2H response that was not guaranteed to loop.
-This allows us to simplify the accounting as we don't need to handle the
-case where the send fails due to the channel being busy.
+Add code to validate current offset in the directory. This is actually
+rather expensive for UDF as we need to read from the beginning of the
+directory and parse all directory entries. This is because in UDF a
+directory is just a stream of data containing directory entries and
+since file names are fully under user's control we cannot depend on
+detecting magic numbers and checksums in the header of directory entry
+as a malicious attacker could fake them. We skip this step if we detect
+that nothing changed since the last readdir call.
 
-Also always use helper when decrementing this value.
-
-v2 (Daniele): update GEM_BUG_ON check, pull in dead code removal from
-later patch, remove loop param from context_deregister.
-
-Fixes: f4eb1f3fe946 ("drm/i915/guc: Ensure G2H response has space in buffer")
-Signed-off-by: Matthew Brost <matthew.brost@intel.com>
-Signed-off-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Cc: <stable@vger.kernel.org>
-Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210909164744.31249-3-matthew.brost@intel.com
+Reported-by: Nathan Wilson <nate@chickenbrittle.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c |   79 ++++++++++------------
- 1 file changed, 37 insertions(+), 42 deletions(-)
+ fs/udf/dir.c   |   32 ++++++++++++++++++++++++++++++--
+ fs/udf/namei.c |    3 +++
+ fs/udf/super.c |    2 ++
+ 3 files changed, 35 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-@@ -352,20 +352,29 @@ static inline void set_lrc_desc_register
- 	xa_unlock_irqrestore(&guc->context_lookup, flags);
- }
+--- a/fs/udf/dir.c
++++ b/fs/udf/dir.c
+@@ -31,6 +31,7 @@
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+ #include <linux/bio.h>
++#include <linux/iversion.h>
  
-+static void decr_outstanding_submission_g2h(struct intel_guc *guc)
-+{
-+	if (atomic_dec_and_test(&guc->outstanding_submission_g2h))
-+		wake_up_all(&guc->ct.wq);
-+}
-+
- static int guc_submission_send_busy_loop(struct intel_guc *guc,
- 					 const u32 *action,
- 					 u32 len,
- 					 u32 g2h_len_dw,
- 					 bool loop)
- {
--	int err;
--
--	err = intel_guc_send_busy_loop(guc, action, len, g2h_len_dw, loop);
+ #include "udf_i.h"
+ #include "udf_sb.h"
+@@ -44,7 +45,7 @@ static int udf_readdir(struct file *file
+ 	struct fileIdentDesc *fi = NULL;
+ 	struct fileIdentDesc cfi;
+ 	udf_pblk_t block, iblock;
+-	loff_t nf_pos;
++	loff_t nf_pos, emit_pos = 0;
+ 	int flen;
+ 	unsigned char *fname = NULL, *copy_name = NULL;
+ 	unsigned char *nameptr;
+@@ -58,6 +59,7 @@ static int udf_readdir(struct file *file
+ 	int i, num, ret = 0;
+ 	struct extent_position epos = { NULL, 0, {0, 0} };
+ 	struct super_block *sb = dir->i_sb;
++	bool pos_valid = false;
+ 
+ 	if (ctx->pos == 0) {
+ 		if (!dir_emit_dot(file, ctx))
+@@ -68,6 +70,21 @@ static int udf_readdir(struct file *file
+ 	if (nf_pos >= size)
+ 		goto out;
+ 
 +	/*
-+	 * We always loop when a send requires a reply (i.e. g2h_len_dw > 0),
-+	 * so we don't handle the case where we don't get a reply because we
-+	 * aborted the send due to the channel being busy.
++	 * Something changed since last readdir (either lseek was called or dir
++	 * changed)?  We need to verify the position correctly points at the
++	 * beginning of some dir entry so that the directory parsing code does
++	 * not get confused. Since UDF does not have any reliable way of
++	 * identifying beginning of dir entry (names are under user control),
++	 * we need to scan the directory from the beginning.
 +	 */
-+	GEM_BUG_ON(g2h_len_dw && !loop);
- 
--	if (!err && g2h_len_dw)
-+	if (g2h_len_dw)
- 		atomic_inc(&guc->outstanding_submission_g2h);
- 
--	return err;
-+	return intel_guc_send_busy_loop(guc, action, len, g2h_len_dw, loop);
- }
- 
- int intel_guc_wait_for_pending_msg(struct intel_guc *guc,
-@@ -616,7 +625,7 @@ static void scrub_guc_desc_for_outstandi
- 		init_sched_state(ce);
- 
- 		if (pending_enable || destroyed || deregister) {
--			atomic_dec(&guc->outstanding_submission_g2h);
-+			decr_outstanding_submission_g2h(guc);
- 			if (deregister)
- 				guc_signal_context_fence(ce);
- 			if (destroyed) {
-@@ -635,7 +644,7 @@ static void scrub_guc_desc_for_outstandi
- 				intel_engine_signal_breadcrumbs(ce->engine);
- 			}
- 			intel_context_sched_disable_unpin(ce);
--			atomic_dec(&guc->outstanding_submission_g2h);
-+			decr_outstanding_submission_g2h(guc);
- 			spin_lock_irqsave(&ce->guc_state.lock, flags);
- 			guc_blocked_fence_complete(ce);
- 			spin_unlock_irqrestore(&ce->guc_state.lock, flags);
-@@ -1233,8 +1242,7 @@ static int register_context(struct intel
- }
- 
- static int __guc_action_deregister_context(struct intel_guc *guc,
--					   u32 guc_id,
--					   bool loop)
-+					   u32 guc_id)
- {
- 	u32 action[] = {
- 		INTEL_GUC_ACTION_DEREGISTER_CONTEXT,
-@@ -1243,16 +1251,16 @@ static int __guc_action_deregister_conte
- 
- 	return guc_submission_send_busy_loop(guc, action, ARRAY_SIZE(action),
- 					     G2H_LEN_DW_DEREGISTER_CONTEXT,
--					     loop);
-+					     true);
- }
- 
--static int deregister_context(struct intel_context *ce, u32 guc_id, bool loop)
-+static int deregister_context(struct intel_context *ce, u32 guc_id)
- {
- 	struct intel_guc *guc = ce_to_guc(ce);
- 
- 	trace_intel_context_deregister(ce);
- 
--	return __guc_action_deregister_context(guc, guc_id, loop);
-+	return __guc_action_deregister_context(guc, guc_id);
- }
- 
- static intel_engine_mask_t adjust_engine_mask(u8 class, intel_engine_mask_t mask)
-@@ -1340,26 +1348,23 @@ static int guc_lrc_desc_pin(struct intel
- 	 * registering this context.
- 	 */
- 	if (context_registered) {
-+		bool disabled;
-+		unsigned long flags;
++	if (!inode_eq_iversion(dir, file->f_version)) {
++		emit_pos = nf_pos;
++		nf_pos = 0;
++	} else {
++		pos_valid = true;
++	}
 +
- 		trace_intel_context_steal_guc_id(ce);
--		if (!loop) {
-+		GEM_BUG_ON(!loop);
-+
-+		/* Seal race with Reset */
-+		spin_lock_irqsave(&ce->guc_state.lock, flags);
-+		disabled = submission_disabled(guc);
-+		if (likely(!disabled)) {
- 			set_context_wait_for_deregister_to_register(ce);
- 			intel_context_get(ce);
--		} else {
--			bool disabled;
--			unsigned long flags;
--
--			/* Seal race with Reset */
--			spin_lock_irqsave(&ce->guc_state.lock, flags);
--			disabled = submission_disabled(guc);
--			if (likely(!disabled)) {
--				set_context_wait_for_deregister_to_register(ce);
--				intel_context_get(ce);
--			}
--			spin_unlock_irqrestore(&ce->guc_state.lock, flags);
--			if (unlikely(disabled)) {
--				reset_lrc_desc(guc, desc_idx);
--				return 0;	/* Will get registered later */
--			}
+ 	fname = kmalloc(UDF_NAME_LEN, GFP_NOFS);
+ 	if (!fname) {
+ 		ret = -ENOMEM;
+@@ -123,13 +140,21 @@ static int udf_readdir(struct file *file
+ 
+ 	while (nf_pos < size) {
+ 		struct kernel_lb_addr tloc;
++		loff_t cur_pos = nf_pos;
+ 
+-		ctx->pos = (nf_pos >> 2) + 1;
++		/* Update file position only if we got past the current one */
++		if (nf_pos >= emit_pos) {
++			ctx->pos = (nf_pos >> 2) + 1;
++			pos_valid = true;
 +		}
-+		spin_unlock_irqrestore(&ce->guc_state.lock, flags);
-+		if (unlikely(disabled)) {
-+			reset_lrc_desc(guc, desc_idx);
-+			return 0;	/* Will get registered later */
- 		}
  
- 		/*
-@@ -1367,13 +1372,9 @@ static int guc_lrc_desc_pin(struct intel
- 		 * context whose guc_id was stolen.
- 		 */
- 		with_intel_runtime_pm(runtime_pm, wakeref)
--			ret = deregister_context(ce, ce->guc_id, loop);
--		if (unlikely(ret == -EBUSY)) {
--			clr_context_wait_for_deregister_to_register(ce);
--			intel_context_put(ce);
--		} else if (unlikely(ret == -ENODEV)) {
-+			ret = deregister_context(ce, ce->guc_id);
-+		if (unlikely(ret == -ENODEV))
- 			ret = 0;	/* Will get registered later */
--		}
- 	} else {
- 		with_intel_runtime_pm(runtime_pm, wakeref)
- 			ret = register_context(ce, loop);
-@@ -1730,7 +1731,7 @@ static inline void guc_lrc_desc_unpin(st
- 	GEM_BUG_ON(context_enabled(ce));
+ 		fi = udf_fileident_read(dir, &nf_pos, &fibh, &cfi, &epos, &eloc,
+ 					&elen, &offset);
+ 		if (!fi)
+ 			goto out;
++		/* Still not at offset where user asked us to read from? */
++		if (cur_pos < emit_pos)
++			continue;
  
- 	clr_context_registered(ce);
--	deregister_context(ce, ce->guc_id, true);
-+	deregister_context(ce, ce->guc_id);
+ 		liu = le16_to_cpu(cfi.lengthOfImpUse);
+ 		lfi = cfi.lengthFileIdent;
+@@ -187,8 +212,11 @@ static int udf_readdir(struct file *file
+ 	} /* end while */
+ 
+ 	ctx->pos = (nf_pos >> 2) + 1;
++	pos_valid = true;
+ 
+ out:
++	if (pos_valid)
++		file->f_version = inode_query_iversion(dir);
+ 	if (fibh.sbh != fibh.ebh)
+ 		brelse(fibh.ebh);
+ 	brelse(fibh.sbh);
+--- a/fs/udf/namei.c
++++ b/fs/udf/namei.c
+@@ -30,6 +30,7 @@
+ #include <linux/sched.h>
+ #include <linux/crc-itu-t.h>
+ #include <linux/exportfs.h>
++#include <linux/iversion.h>
+ 
+ static inline int udf_match(int len1, const unsigned char *name1, int len2,
+ 			    const unsigned char *name2)
+@@ -135,6 +136,8 @@ int udf_write_fi(struct inode *inode, st
+ 			mark_buffer_dirty_inode(fibh->ebh, inode);
+ 		mark_buffer_dirty_inode(fibh->sbh, inode);
+ 	}
++	inode_inc_iversion(inode);
++
+ 	return 0;
  }
  
- static void __guc_context_destroy(struct intel_context *ce)
-@@ -2583,12 +2584,6 @@ g2h_context_lookup(struct intel_guc *guc
- 	return ce;
- }
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -57,6 +57,7 @@
+ #include <linux/crc-itu-t.h>
+ #include <linux/log2.h>
+ #include <asm/byteorder.h>
++#include <linux/iversion.h>
  
--static void decr_outstanding_submission_g2h(struct intel_guc *guc)
--{
--	if (atomic_dec_and_test(&guc->outstanding_submission_g2h))
--		wake_up_all(&guc->ct.wq);
--}
--
- int intel_guc_deregister_done_process_msg(struct intel_guc *guc,
- 					  const u32 *msg,
- 					  u32 len)
+ #include "udf_sb.h"
+ #include "udf_i.h"
+@@ -149,6 +150,7 @@ static struct inode *udf_alloc_inode(str
+ 	init_rwsem(&ei->i_data_sem);
+ 	ei->cached_extent.lstart = -1;
+ 	spin_lock_init(&ei->i_extent_cache_lock);
++	inode_set_iversion(&ei->vfs_inode, 1);
+ 
+ 	return &ei->vfs_inode;
+ }
 
 
