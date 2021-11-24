@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F2245B9EC
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:03:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D7B045B9F0
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242343AbhKXMGR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:06:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59452 "EHLO mail.kernel.org"
+        id S237227AbhKXMG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:06:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242036AbhKXMFu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:05:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0B0A61074;
-        Wed, 24 Nov 2021 12:02:40 +0000 (UTC)
+        id S236431AbhKXMFw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:05:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 030AF600EF;
+        Wed, 24 Nov 2021 12:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755361;
-        bh=IYdtnigu4aWmkhgRXz9+qN9cyxh8qymPil0T/Dmv0nM=;
+        s=korg; t=1637755363;
+        bh=L69go92Y+yQkk7S6ITdAON0QWpp26Ykm/JPM6rJDeaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UM5MFhRuHaIoFtplWKpDuBWKOv0E0+DThRq6esRi76NYbXptYZBj9zbxyDE1iaYTO
-         K+hAzHgygRzs1tZQlEZLV9ch+dyTAdX5bbVCAICaO6ouuIhNc1rfAK0AUpGH1nEAlm
-         2EN5LDMNzfjDKQYZkqSm4WMt6pKnQoG/fcjGj9DQ=
+        b=Uo4IIpeD7yncKCvJG8JrzXQBr6yJY+w8tDe9TsFLczmc6v3EwERNkRN948tx/rIBz
+         yqQSnz1GSPF0cAoco/DcccdPDL0463xhFWkV4rYsyY5jl9k3lRUqW4MfrRqbNoHj5E
+         XMsBLK3779gPrbc8wymi1Ole4SONJ2IOV6ZqtyOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 068/162] ARM: 9136/1: ARMv7-M uses BE-8, not BE-32
-Date:   Wed, 24 Nov 2021 12:56:11 +0100
-Message-Id: <20211124115700.527220139@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 069/162] parisc: fix warning in flush_tlb_all
+Date:   Wed, 24 Nov 2021 12:56:12 +0100
+Message-Id: <20211124115700.558043291@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
 References: <20211124115658.328640564@linuxfoundation.org>
@@ -41,45 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sven Schnelle <svens@stackframe.org>
 
-[ Upstream commit 345dac33f58894a56d17b92a41be10e16585ceff ]
+[ Upstream commit 1030d681319b43869e0d5b568b9d0226652d1a6f ]
 
-When configuring the kernel for big-endian, we set either BE-8 or BE-32
-based on the CPU architecture level. Until linux-4.4, we did not have
-any ARMv7-M platform allowing big-endian builds, but now i.MX/Vybrid
-is in that category, adn we get a build error because of this:
+I've got the following splat after enabling preemption:
 
-arch/arm/kernel/module-plts.c: In function 'get_module_plt':
-arch/arm/kernel/module-plts.c:60:46: error: implicit declaration of function '__opcode_to_mem_thumb32' [-Werror=implicit-function-declaration]
+[    3.724721] BUG: using __this_cpu_add() in preemptible [00000000] code: swapper/0/1
+[    3.734630] caller is __this_cpu_preempt_check+0x38/0x50
+[    3.740635] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc4-64bit+ #324
+[    3.744605] Hardware name: 9000/785/C8000
+[    3.744605] Backtrace:
+[    3.744605]  [<00000000401d9d58>] show_stack+0x74/0xb0
+[    3.744605]  [<0000000040c27bd4>] dump_stack_lvl+0x10c/0x188
+[    3.744605]  [<0000000040c27c84>] dump_stack+0x34/0x48
+[    3.744605]  [<0000000040c33438>] check_preemption_disabled+0x178/0x1b0
+[    3.744605]  [<0000000040c334f8>] __this_cpu_preempt_check+0x38/0x50
+[    3.744605]  [<00000000401d632c>] flush_tlb_all+0x58/0x2e0
+[    3.744605]  [<00000000401075c0>] 0x401075c0
+[    3.744605]  [<000000004010b8fc>] 0x4010b8fc
+[    3.744605]  [<00000000401080fc>] 0x401080fc
+[    3.744605]  [<00000000401d5224>] do_one_initcall+0x128/0x378
+[    3.744605]  [<0000000040102de8>] 0x40102de8
+[    3.744605]  [<0000000040c33864>] kernel_init+0x60/0x3a8
+[    3.744605]  [<00000000401d1020>] ret_from_kernel_thread+0x20/0x28
+[    3.744605]
 
-This comes down to picking the wrong default, ARMv7-M uses BE8
-like ARMv7-A does. Changing the default gets the kernel to compile
-and presumably works.
+Fix this by moving the __inc_irq_stat() into the locked section.
 
-https://lore.kernel.org/all/1455804123-2526139-2-git-send-email-arnd@arndb.de/
-
-Tested-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/parisc/mm/init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/mm/Kconfig b/arch/arm/mm/Kconfig
-index 71115afb71a05..f46089b24588f 100644
---- a/arch/arm/mm/Kconfig
-+++ b/arch/arm/mm/Kconfig
-@@ -724,7 +724,7 @@ config CPU_BIG_ENDIAN
- config CPU_ENDIAN_BE8
- 	bool
- 	depends on CPU_BIG_ENDIAN
--	default CPU_V6 || CPU_V6K || CPU_V7
-+	default CPU_V6 || CPU_V6K || CPU_V7 || CPU_V7M
- 	help
- 	  Support for the BE-8 (big-endian) mode on ARMv6 and ARMv7 processors.
+diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
+index d72f003106835..ad6545dafe039 100644
+--- a/arch/parisc/mm/init.c
++++ b/arch/parisc/mm/init.c
+@@ -940,9 +940,9 @@ void flush_tlb_all(void)
+ {
+ 	int do_recycle;
  
+-	__inc_irq_stat(irq_tlb_count);
+ 	do_recycle = 0;
+ 	spin_lock(&sid_lock);
++	__inc_irq_stat(irq_tlb_count);
+ 	if (dirty_space_ids > RECYCLE_THRESHOLD) {
+ 	    BUG_ON(recycle_inuse);  /* FIXME: Use a semaphore/wait queue here */
+ 	    get_dirty_sids(&recycle_ndirty,recycle_dirty_array);
+@@ -961,8 +961,8 @@ void flush_tlb_all(void)
+ #else
+ void flush_tlb_all(void)
+ {
+-	__inc_irq_stat(irq_tlb_count);
+ 	spin_lock(&sid_lock);
++	__inc_irq_stat(irq_tlb_count);
+ 	flush_tlb_all_local(NULL);
+ 	recycle_sids();
+ 	spin_unlock(&sid_lock);
 -- 
 2.33.0
 
