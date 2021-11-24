@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 558E945BE4A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:43:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BFD745BC63
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243387AbhKXMqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:46:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50524 "EHLO mail.kernel.org"
+        id S1344264AbhKXMam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:30:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345744AbhKXMoG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:44:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8CCB61248;
-        Wed, 24 Nov 2021 12:26:02 +0000 (UTC)
+        id S243896AbhKXM0d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:26:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A45F661244;
+        Wed, 24 Nov 2021 12:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756763;
-        bh=c7yLRFh/qPO1cPe8F9ONeJjPdkrpsC5lpe94My3zLeI=;
+        s=korg; t=1637756177;
+        bh=oLycPXMzTPUkby2xccObb9YfFIyDdYru9mqobGfVQCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wAFJxJ7HjUbN2S3OY/ZzmygYv+/RztCPJMgnYvEP8oHl+PHbt8C1eFZnPZTNlwB94
-         6P1LwI93vJc03CshFsaUJ1y5MhKGHmygnsnzrNAjfs/U+JEmjiUnAez+Tu+YI0izov
-         MC0K4kHwTyh+r9btmZNTNYl8Un1Y79tgudYzPN3Q=
+        b=quItunblqq2R8q/IdINsbhldkNF64LdE9rYJZQZWmg6wZ/jv46W5Oo0PXKos3AbaY
+         BROX8P+1lRJYM9TUzeXkZqdi/HX44Vasoq3YBzErFijFlIMEy9mctKrGTDS51EnhQQ
+         qUmVisJDMZnOEK+Bun6OJwzxnOvsAK/hQJIjxYac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.14 197/251] PCI: Add PCI_EXP_DEVCTL_PAYLOAD_* macros
+        Guanghui Feng <guanghuifeng@linux.alibaba.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 168/207] tty: tty_buffer: Fix the softlockup issue in flush_to_ldisc
 Date:   Wed, 24 Nov 2021 12:57:19 +0100
-Message-Id: <20211124115717.119569852@linuxfoundation.org>
+Message-Id: <20211124115709.440761742@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Guanghui Feng <guanghuifeng@linux.alibaba.com>
 
-commit 460275f124fb072dca218a6b43b6370eebbab20d upstream.
+[ Upstream commit 3968ddcf05fb4b9409cd1859feb06a5b0550a1c1 ]
 
-Define a macro PCI_EXP_DEVCTL_PAYLOAD_* for every possible Max Payload
-Size in linux/pci_regs.h, in the same style as PCI_EXP_DEVCTL_READRQ_*.
+When running ltp testcase(ltp/testcases/kernel/pty/pty04.c) with arm64, there is a soft lockup,
+which look like this one:
 
-Link: https://lore.kernel.org/r/20211005180952.6812-2-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+  Workqueue: events_unbound flush_to_ldisc
+  Call trace:
+   dump_backtrace+0x0/0x1ec
+   show_stack+0x24/0x30
+   dump_stack+0xd0/0x128
+   panic+0x15c/0x374
+   watchdog_timer_fn+0x2b8/0x304
+   __run_hrtimer+0x88/0x2c0
+   __hrtimer_run_queues+0xa4/0x120
+   hrtimer_interrupt+0xfc/0x270
+   arch_timer_handler_phys+0x40/0x50
+   handle_percpu_devid_irq+0x94/0x220
+   __handle_domain_irq+0x88/0xf0
+   gic_handle_irq+0x84/0xfc
+   el1_irq+0xc8/0x180
+   slip_unesc+0x80/0x214 [slip]
+   tty_ldisc_receive_buf+0x64/0x80
+   tty_port_default_receive_buf+0x50/0x90
+   flush_to_ldisc+0xbc/0x110
+   process_one_work+0x1d4/0x4b0
+   worker_thread+0x180/0x430
+   kthread+0x11c/0x120
+
+In the testcase pty04, The first process call the write syscall to send
+data to the pty master. At the same time, the workqueue will do the
+flush_to_ldisc to pop data in a loop until there is no more data left.
+When the sender and workqueue running in different core, the sender sends
+data fastly in full time which will result in workqueue doing work in loop
+for a long time and occuring softlockup in flush_to_ldisc with kernel
+configured without preempt. So I add need_resched check and cond_resched
+in the flush_to_ldisc loop to avoid it.
+
+Signed-off-by: Guanghui Feng <guanghuifeng@linux.alibaba.com>
+Link: https://lore.kernel.org/r/1633961304-24759-1-git-send-email-guanghuifeng@linux.alibaba.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/pci_regs.h |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/tty/tty_buffer.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/include/uapi/linux/pci_regs.h
-+++ b/include/uapi/linux/pci_regs.h
-@@ -497,6 +497,12 @@
- #define  PCI_EXP_DEVCTL_URRE	0x0008	/* Unsupported Request Reporting En. */
- #define  PCI_EXP_DEVCTL_RELAX_EN 0x0010 /* Enable relaxed ordering */
- #define  PCI_EXP_DEVCTL_PAYLOAD	0x00e0	/* Max_Payload_Size */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_128B 0x0000 /* 128 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_256B 0x0020 /* 256 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_512B 0x0040 /* 512 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_1024B 0x0060 /* 1024 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_2048B 0x0080 /* 2048 Bytes */
-+#define  PCI_EXP_DEVCTL_PAYLOAD_4096B 0x00a0 /* 4096 Bytes */
- #define  PCI_EXP_DEVCTL_EXT_TAG	0x0100	/* Extended Tag Field Enable */
- #define  PCI_EXP_DEVCTL_PHANTOM	0x0200	/* Phantom Functions Enable */
- #define  PCI_EXP_DEVCTL_AUX_PME	0x0400	/* Auxiliary Power PM Enable */
+diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
+index ca9c82ee6c35d..dfccc102c1ddd 100644
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -536,6 +536,9 @@ static void flush_to_ldisc(struct work_struct *work)
+ 		if (!count)
+ 			break;
+ 		head->read += count;
++
++		if (need_resched())
++			cond_resched();
+ 	}
+ 
+ 	mutex_unlock(&buf->lock);
+-- 
+2.33.0
+
 
 
