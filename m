@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22FE845C482
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:47:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 712C745C03A
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:03:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350380AbhKXNtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:49:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37520 "EHLO mail.kernel.org"
+        id S1347466AbhKXNFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:05:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351923AbhKXNrM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:47:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 618EE63320;
-        Wed, 24 Nov 2021 13:01:25 +0000 (UTC)
+        id S1348098AbhKXNDz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:03:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D967161A6D;
+        Wed, 24 Nov 2021 12:36:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758885;
-        bh=N4pZyzxPBr1YUKWUsNYCdgurQ+gKAbjlfviywyeJCSA=;
+        s=korg; t=1637757415;
+        bh=haTjemUGBbmDHxAEYNtFK+ZwVaeEI16tWXfR+8w+67A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=llTRvN9NQdU+vyUH35whECV0nxmujCVbzP81CcRHulqaD+aRWyf558Wklt+LXPSy6
-         JUYZVpdGB9tVhZrLZzYfiETjgo2B8nv2dmFP8Ky1QeczND0mrLiPhdL5tcePxoa/Na
-         Ey6Lo9ZoVynT4OBDiNMP5WUh06EsLDe5PiNSCO/I=
+        b=vFSIW8MESov8ImYLgOFIgGjy5U8iRd29vBUCmx1fIi8T0Oby4BaNhgUoouF/LOdJC
+         ruF48sZvrst4lbsVOnF6D/CA8MUkxFlvmnPdQvQr5VHKXbbwOajasn8XNbKYE9LNh5
+         18ptgOBkKFZUm1ukc3QXYXwyzYbyXMWgBhsTmMGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jessica Zhang <jesszhan@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 063/279] scsi: target: Fix ordered tag handling
-Date:   Wed, 24 Nov 2021 12:55:50 +0100
-Message-Id: <20211124115720.887138063@linuxfoundation.org>
+Subject: [PATCH 4.19 161/323] drm/msm: Fix potential NULL dereference in DPU SSPP
+Date:   Wed, 24 Nov 2021 12:55:51 +0100
+Message-Id: <20211124115724.365031407@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,264 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Jessica Zhang <jesszhan@codeaurora.org>
 
-[ Upstream commit ed1227e080990ffec5bf39006ec8a57358e6689a ]
+[ Upstream commit 8bf71a5719b6cc5b6ba358096081e5d50ea23ab6 ]
 
-This patch fixes the following bugs:
+Move initialization of sblk in _sspp_subblk_offset() after NULL check to
+avoid potential NULL pointer dereference.
 
-1. If there are multiple ordered cmds queued and multiple simple cmds
-   completing, target_restart_delayed_cmds() could be called on different
-   CPUs and each instance could start a ordered cmd. They could then run in
-   different orders than they were queued.
-
-2. target_restart_delayed_cmds() and target_handle_task_attr() can race
-   where:
-
-   1. target_handle_task_attr() has passed the simple_cmds == 0 check.
-
-   2. transport_complete_task_attr() then decrements simple_cmds to 0.
-
-   3. transport_complete_task_attr() runs target_restart_delayed_cmds() and
-      it does not see any cmds on the delayed_cmd_list.
-
-   4. target_handle_task_attr() adds the cmd to the delayed_cmd_list.
-
-   The cmd will then end up timing out.
-
-3. If we are sent > 1 ordered cmds and simple_cmds == 0, we can execute
-   them out of order, because target_handle_task_attr() will hit that
-   simple_cmds check first and return false for all ordered cmds sent.
-
-4. We run target_restart_delayed_cmds() after every cmd completion, so if
-   there is more than 1 simple cmd running, we start executing ordered cmds
-   after that first cmd instead of waiting for all of them to complete.
-
-5. Ordered cmds are not supposed to start until HEAD OF QUEUE and all older
-   cmds have completed, and not just simple.
-
-6. It's not a bug but it doesn't make sense to take the delayed_cmd_lock
-   for every cmd completion when ordered cmds are almost never used. Just
-   replacing that lock with an atomic increases IOPs by up to 10% when
-   completions are spread over multiple CPUs and there are multiple
-   sessions/ mqs/thread accessing the same device.
-
-This patch moves the queued delayed handling to a per device work to
-serialze the cmd executions for each device and adds a new counter to track
-HEAD_OF_QUEUE and SIMPLE cmds. We can then check the new counter to
-determine when to run the work on the completion path.
-
-Link: https://lore.kernel.org/r/20210930020422.92578-3-michael.christie@oracle.com
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jessica Zhang <jesszhan@codeaurora.org>
+Link: https://lore.kernel.org/r/20211020175733.3379-1-jesszhan@codeaurora.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_device.c    |  2 +
- drivers/target/target_core_internal.h  |  1 +
- drivers/target/target_core_transport.c | 76 ++++++++++++++++++--------
- include/target/target_core_base.h      |  6 +-
- 4 files changed, 61 insertions(+), 24 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
-index 8cb1fa0c05857..44bb380e7390c 100644
---- a/drivers/target/target_core_device.c
-+++ b/drivers/target/target_core_device.c
-@@ -772,6 +772,8 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
- 	INIT_LIST_HEAD(&dev->t10_alua.lba_map_list);
- 	spin_lock_init(&dev->t10_alua.lba_map_lock);
- 
-+	INIT_WORK(&dev->delayed_cmd_work, target_do_delayed_work);
-+
- 	dev->t10_wwn.t10_dev = dev;
- 	/*
- 	 * Use OpenFabrics IEEE Company ID: 00 14 05
-diff --git a/drivers/target/target_core_internal.h b/drivers/target/target_core_internal.h
-index a343bcfa2180f..a889a6237d9c1 100644
---- a/drivers/target/target_core_internal.h
-+++ b/drivers/target/target_core_internal.h
-@@ -151,6 +151,7 @@ int	transport_dump_vpd_ident(struct t10_vpd *, unsigned char *, int);
- void	transport_clear_lun_ref(struct se_lun *);
- sense_reason_t	target_cmd_size_check(struct se_cmd *cmd, unsigned int size);
- void	target_qf_do_work(struct work_struct *work);
-+void	target_do_delayed_work(struct work_struct *work);
- bool	target_check_wce(struct se_device *dev);
- bool	target_check_fua(struct se_device *dev);
- void	__target_execute_cmd(struct se_cmd *, bool);
-diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
-index e60abd230e90f..72edf5bd75ee6 100644
---- a/drivers/target/target_core_transport.c
-+++ b/drivers/target/target_core_transport.c
-@@ -2189,32 +2189,35 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
- 	 */
- 	switch (cmd->sam_task_attr) {
- 	case TCM_HEAD_TAG:
-+		atomic_inc_mb(&dev->non_ordered);
- 		pr_debug("Added HEAD_OF_QUEUE for CDB: 0x%02x\n",
- 			 cmd->t_task_cdb[0]);
- 		return false;
- 	case TCM_ORDERED_TAG:
--		atomic_inc_mb(&dev->dev_ordered_sync);
-+		atomic_inc_mb(&dev->delayed_cmd_count);
- 
- 		pr_debug("Added ORDERED for CDB: 0x%02x to ordered list\n",
- 			 cmd->t_task_cdb[0]);
--
--		/*
--		 * Execute an ORDERED command if no other older commands
--		 * exist that need to be completed first.
--		 */
--		if (!atomic_read(&dev->simple_cmds))
--			return false;
- 		break;
- 	default:
- 		/*
- 		 * For SIMPLE and UNTAGGED Task Attribute commands
- 		 */
--		atomic_inc_mb(&dev->simple_cmds);
-+		atomic_inc_mb(&dev->non_ordered);
-+
-+		if (atomic_read(&dev->delayed_cmd_count) == 0)
-+			return false;
- 		break;
- 	}
- 
--	if (atomic_read(&dev->dev_ordered_sync) == 0)
--		return false;
-+	if (cmd->sam_task_attr != TCM_ORDERED_TAG) {
-+		atomic_inc_mb(&dev->delayed_cmd_count);
-+		/*
-+		 * We will account for this when we dequeue from the delayed
-+		 * list.
-+		 */
-+		atomic_dec_mb(&dev->non_ordered);
-+	}
- 
- 	spin_lock(&dev->delayed_cmd_lock);
- 	list_add_tail(&cmd->se_delayed_node, &dev->delayed_cmd_list);
-@@ -2222,6 +2225,12 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
- 
- 	pr_debug("Added CDB: 0x%02x Task Attr: 0x%02x to delayed CMD listn",
- 		cmd->t_task_cdb[0], cmd->sam_task_attr);
-+	/*
-+	 * We may have no non ordered cmds when this function started or we
-+	 * could have raced with the last simple/head cmd completing, so kick
-+	 * the delayed handler here.
-+	 */
-+	schedule_work(&dev->delayed_cmd_work);
- 	return true;
- }
- 
-@@ -2259,29 +2268,48 @@ EXPORT_SYMBOL(target_execute_cmd);
-  * Process all commands up to the last received ORDERED task attribute which
-  * requires another blocking boundary
-  */
--static void target_restart_delayed_cmds(struct se_device *dev)
-+void target_do_delayed_work(struct work_struct *work)
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c
+index c25b52a6b2198..7db24e9df4b9b 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_sspp.c
+@@ -146,11 +146,13 @@ static inline int _sspp_subblk_offset(struct dpu_hw_pipe *ctx,
+ 		u32 *idx)
  {
--	for (;;) {
-+	struct se_device *dev = container_of(work, struct se_device,
-+					     delayed_cmd_work);
+ 	int rc = 0;
+-	const struct dpu_sspp_sub_blks *sblk = ctx->cap->sblk;
++	const struct dpu_sspp_sub_blks *sblk;
+ 
+-	if (!ctx)
++	if (!ctx || !ctx->cap || !ctx->cap->sblk)
+ 		return -EINVAL;
+ 
++	sblk = ctx->cap->sblk;
 +
-+	spin_lock(&dev->delayed_cmd_lock);
-+	while (!dev->ordered_sync_in_progress) {
- 		struct se_cmd *cmd;
+ 	switch (s_id) {
+ 	case DPU_SSPP_SRC:
+ 		*idx = sblk->src_blk.base;
+@@ -413,7 +415,7 @@ static void _dpu_hw_sspp_setup_scaler3(struct dpu_hw_pipe *ctx,
  
--		spin_lock(&dev->delayed_cmd_lock);
--		if (list_empty(&dev->delayed_cmd_list)) {
--			spin_unlock(&dev->delayed_cmd_lock);
-+		if (list_empty(&dev->delayed_cmd_list))
- 			break;
--		}
+ 	(void)pe;
+ 	if (_sspp_subblk_offset(ctx, DPU_SSPP_SCALER_QSEED3, &idx) || !sspp
+-		|| !scaler3_cfg || !ctx || !ctx->cap || !ctx->cap->sblk)
++		|| !scaler3_cfg)
+ 		return;
  
- 		cmd = list_entry(dev->delayed_cmd_list.next,
- 				 struct se_cmd, se_delayed_node);
-+
-+		if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
-+			/*
-+			 * Check if we started with:
-+			 * [ordered] [simple] [ordered]
-+			 * and we are now at the last ordered so we have to wait
-+			 * for the simple cmd.
-+			 */
-+			if (atomic_read(&dev->non_ordered) > 0)
-+				break;
-+
-+			dev->ordered_sync_in_progress = true;
-+		}
-+
- 		list_del(&cmd->se_delayed_node);
-+		atomic_dec_mb(&dev->delayed_cmd_count);
- 		spin_unlock(&dev->delayed_cmd_lock);
- 
-+		if (cmd->sam_task_attr != TCM_ORDERED_TAG)
-+			atomic_inc_mb(&dev->non_ordered);
-+
- 		cmd->transport_state |= CMD_T_SENT;
- 
- 		__target_execute_cmd(cmd, true);
- 
--		if (cmd->sam_task_attr == TCM_ORDERED_TAG)
--			break;
-+		spin_lock(&dev->delayed_cmd_lock);
- 	}
-+	spin_unlock(&dev->delayed_cmd_lock);
- }
- 
- /*
-@@ -2299,14 +2327,17 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
- 		goto restart;
- 
- 	if (cmd->sam_task_attr == TCM_SIMPLE_TAG) {
--		atomic_dec_mb(&dev->simple_cmds);
-+		atomic_dec_mb(&dev->non_ordered);
- 		dev->dev_cur_ordered_id++;
- 	} else if (cmd->sam_task_attr == TCM_HEAD_TAG) {
-+		atomic_dec_mb(&dev->non_ordered);
- 		dev->dev_cur_ordered_id++;
- 		pr_debug("Incremented dev_cur_ordered_id: %u for HEAD_OF_QUEUE\n",
- 			 dev->dev_cur_ordered_id);
- 	} else if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
--		atomic_dec_mb(&dev->dev_ordered_sync);
-+		spin_lock(&dev->delayed_cmd_lock);
-+		dev->ordered_sync_in_progress = false;
-+		spin_unlock(&dev->delayed_cmd_lock);
- 
- 		dev->dev_cur_ordered_id++;
- 		pr_debug("Incremented dev_cur_ordered_id: %u for ORDERED\n",
-@@ -2315,7 +2346,8 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
- 	cmd->se_cmd_flags &= ~SCF_TASK_ATTR_SET;
- 
- restart:
--	target_restart_delayed_cmds(dev);
-+	if (atomic_read(&dev->delayed_cmd_count) > 0)
-+		schedule_work(&dev->delayed_cmd_work);
- }
- 
- static void transport_complete_qf(struct se_cmd *cmd)
-diff --git a/include/target/target_core_base.h b/include/target/target_core_base.h
-index fb11c7693b257..2121a323fd6c3 100644
---- a/include/target/target_core_base.h
-+++ b/include/target/target_core_base.h
-@@ -812,8 +812,9 @@ struct se_device {
- 	atomic_long_t		read_bytes;
- 	atomic_long_t		write_bytes;
- 	/* Active commands on this virtual SE device */
--	atomic_t		simple_cmds;
--	atomic_t		dev_ordered_sync;
-+	atomic_t		non_ordered;
-+	bool			ordered_sync_in_progress;
-+	atomic_t		delayed_cmd_count;
- 	atomic_t		dev_qf_count;
- 	u32			export_count;
- 	spinlock_t		delayed_cmd_lock;
-@@ -834,6 +835,7 @@ struct se_device {
- 	struct list_head	dev_sep_list;
- 	struct list_head	dev_tmr_list;
- 	struct work_struct	qf_work_queue;
-+	struct work_struct	delayed_cmd_work;
- 	struct list_head	delayed_cmd_list;
- 	struct list_head	qf_cmd_list;
- 	/* Pointer to associated SE HBA */
+ 	dpu_hw_setup_scaler3(&ctx->hw, scaler3_cfg, idx,
 -- 
 2.33.0
 
