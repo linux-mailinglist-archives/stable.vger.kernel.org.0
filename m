@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D83C845BD0C
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:32:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 546FA45B98C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244694AbhKXMfI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:35:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51530 "EHLO mail.kernel.org"
+        id S240961AbhKXMDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:03:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245150AbhKXMbU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:31:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5250261361;
-        Wed, 24 Nov 2021 12:19:29 +0000 (UTC)
+        id S231266AbhKXMDH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:03:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6E8760F5D;
+        Wed, 24 Nov 2021 11:59:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756369;
-        bh=c8Zfvs25S92lKPy9RoOQGqfdnx+h92GTeWspcvixBFE=;
+        s=korg; t=1637755198;
+        bh=MFd5SpzuDGV9J/oedDhiKs5QkW7qmkAPOA7W464IzoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZxbGyoO3EFmlhyn/DQ7HHObUHPznKKx6jkq20jKLGROL20fxARsu8bBamnJ/K11Mj
-         6RZ5y+UONloF8t/0QcNnWeAz5lC4rr4n3DQvDad2tHO6YjSJB1XBxC/zVt3LF7+AJ6
-         4nS6CHubSQOwbyvY3GfETgi+sjXmb0RlWJ2mPtuo=
+        b=LLZNKKXXWTlHdqNsV9PFzuyMgPKIbQ2WC3nNbqEZODGUeQIWs8+gWcRyb1mM5QPCy
+         0ppahcYVfBChb54Avch6LzFxBGDH+g+A5JxQDvnLYXF+adubX65MP754xeFBlJzLTG
+         mpDjOgrSGGm2eP1V2MeyqQ9+r9SbNgCq+3HNOzMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 4.14 061/251] PCI: aardvark: Read all 16-bits from PCIE_MSI_PAYLOAD_REG
-Date:   Wed, 24 Nov 2021 12:55:03 +0100
-Message-Id: <20211124115712.371114031@linuxfoundation.org>
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Jann Horn <jannh@google.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.4 001/162] binder: use euid from cred instead of using task
+Date:   Wed, 24 Nov 2021 12:55:04 +0100
+Message-Id: <20211124115658.378170616@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,48 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Todd Kjos <tkjos@google.com>
 
-commit 95997723b6402cd6c53e0f9e7ac640ec64eaaff8 upstream.
+commit 29bc22ac5e5bc63275e850f0c8fc549e3d0e306b upstream.
 
-The PCIE_MSI_PAYLOAD_REG contains 16-bit MSI number, not only lower
-8 bits. Fix reading content of this register and add a comment
-describing the access to this register.
+Save the 'struct cred' associated with a binder process
+at initial open to avoid potential race conditions
+when converting to an euid.
 
-Link: https://lore.kernel.org/r/20211028185659.20329-4-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org
+Set a transaction's sender_euid from the 'struct cred'
+saved at binder_open() instead of looking up the euid
+from the binder proc's 'struct task'. This ensures
+the euid is associated with the security context that
+of the task that opened binder.
+
+Cc: stable@vger.kernel.org # 4.4+
+Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Suggested-by: Jann Horn <jannh@google.com>
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/pci/host/pci-aardvark.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/host/pci-aardvark.c
-+++ b/drivers/pci/host/pci-aardvark.c
-@@ -112,6 +112,7 @@
- #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
- #define PCIE_MSI_MASK_REG			(CONTROL_BASE_ADDR + 0x5C)
- #define PCIE_MSI_PAYLOAD_REG			(CONTROL_BASE_ADDR + 0x9C)
-+#define     PCIE_MSI_DATA_MASK			GENMASK(15, 0)
- 
- /* PCIe window configuration */
- #define OB_WIN_BASE_ADDR			0x4c00
-@@ -840,8 +841,12 @@ static void advk_pcie_handle_msi(struct
- 		if (!(BIT(msi_idx) & msi_status))
- 			continue;
- 
-+		/*
-+		 * msi_idx contains bits [4:0] of the msi_data and msi_data
-+		 * contains 16bit MSI interrupt number
-+		 */
- 		advk_writel(pcie, BIT(msi_idx), PCIE_MSI_STATUS_REG);
--		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & 0xFF;
-+		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & PCIE_MSI_DATA_MASK;
- 		generic_handle_irq(msi_data);
+
+---
+ drivers/android/binder.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -303,6 +303,7 @@ struct binder_proc {
+ 	struct mm_struct *vma_vm_mm;
+ 	struct task_struct *tsk;
+ 	struct files_struct *files;
++	const struct cred *cred;
+ 	struct hlist_node deferred_work_node;
+ 	int deferred_work;
+ 	void *buffer;
+@@ -1493,7 +1494,7 @@ static void binder_transaction(struct bi
+ 		t->from = thread;
+ 	else
+ 		t->from = NULL;
+-	t->sender_euid = task_euid(proc->tsk);
++	t->sender_euid = proc->cred->euid;
+ 	t->to_proc = target_proc;
+ 	t->to_thread = target_thread;
+ 	t->code = tr->code;
+@@ -3015,6 +3016,7 @@ static int binder_open(struct inode *nod
+ 		return -ENOMEM;
+ 	get_task_struct(current->group_leader);
+ 	proc->tsk = current->group_leader;
++	proc->cred = get_cred(filp->f_cred);
+ 	INIT_LIST_HEAD(&proc->todo);
+ 	init_waitqueue_head(&proc->wait);
+ 	proc->default_priority = task_nice(current);
+@@ -3220,6 +3222,7 @@ static void binder_deferred_release(stru
  	}
  
+ 	put_task_struct(proc->tsk);
++	put_cred(proc->cred);
+ 
+ 	binder_debug(BINDER_DEBUG_OPEN_CLOSE,
+ 		     "%s: %d threads %d, nodes %d (ref %d), refs %d, active transactions %d, buffers %d, pages %d\n",
 
 
