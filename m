@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A62245BACF
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB9E645BFD9
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:59:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242600AbhKXMOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:14:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37610 "EHLO mail.kernel.org"
+        id S1346057AbhKXNCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:02:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243389AbhKXMOA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:14:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 077036115B;
-        Wed, 24 Nov 2021 12:08:32 +0000 (UTC)
+        id S1346754AbhKXNAU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:00:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A68661175;
+        Wed, 24 Nov 2021 12:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755713;
-        bh=XdNp5BEcKzHqxCQE890MTFd55JmUkz7siSqjavlsTS4=;
+        s=korg; t=1637757270;
+        bh=ufrqD5GM6BCWE6ozeSLbaaPWgc65jOD7AnWNkV4ajrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bhQJM5Yq9sovpfZVi0quI+VRConM8PLXYQDY1HjOOkgMaxkAzBl1YbGAlnMgjykNe
-         cQQSpNniYfgkkaE/GAtJB0qKY6Obz5vG8luMgzqcbahU7h01F4RjN+0408SqktngYA
-         nrY1PbKz1IH4lMxpSpMHkT307SxDGQbd7L0/KbAg=
+        b=cMtOLrc2JOj6/Durfdp9WeD2JHjE9CP3yKepjlcHx4N68W2CqDdPSw89a9nT0ABNA
+         X5xfqYGJiCjVTRY/BwtfyNgcnhhWTGtc/BiMs5N5Ah4GLNr1TiQTyjLYw6dQHVsckI
+         LTXnOW9wpZWBmlQlwzG6OI5AkNXsqu7tX3oib3z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meeta Saggi <msaggi@purestorage.com>,
-        Eric Badger <ebadger@purestorage.com>,
-        Tony Luck <tony.luck@intel.com>
-Subject: [PATCH 4.9 031/207] EDAC/sb_edac: Fix top-of-high-memory value for Broadwell/Haswell
+        stable@vger.kernel.org, Mengen Sun <mengensun@tencent.com>,
+        Menglong Dong <imagedong@tencent.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 112/323] workqueue: make sysfs of unbound kworker cpumask more clever
 Date:   Wed, 24 Nov 2021 12:55:02 +0100
-Message-Id: <20211124115704.958091457@linuxfoundation.org>
+Message-Id: <20211124115722.737647454@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Badger <ebadger@purestorage.com>
+From: Menglong Dong <imagedong@tencent.com>
 
-commit 537bddd069c743759addf422d0b8f028ff0f8dbc upstream.
+[ Upstream commit d25302e46592c97d29f70ccb1be558df31a9a360 ]
 
-The computation of TOHM is off by one bit. This missed bit results in
-too low a value for TOHM, which can cause errors in regular memory to
-incorrectly report:
+Some unfriendly component, such as dpdk, write the same mask to
+unbound kworker cpumask again and again. Every time it write to
+this interface some work is queue to cpu, even though the mask
+is same with the original mask.
 
-  EDAC MC0: 1 CE Error at MMIOH area, on addr 0x000000207fffa680 on any memory
+So, fix it by return success and do nothing if the cpumask is
+equal with the old one.
 
-Fixes: 50d1bb93672f ("sb_edac: add support for Haswell based systems")
-Cc: stable@vger.kernel.org
-Reported-by: Meeta Saggi <msaggi@purestorage.com>
-Signed-off-by: Eric Badger <ebadger@purestorage.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Link: https://lore.kernel.org/r/20211010170127.848113-1-ebadger@purestorage.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mengen Sun <mengensun@tencent.com>
+Signed-off-by: Menglong Dong <imagedong@tencent.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/sb_edac.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/workqueue.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/drivers/edac/sb_edac.c
-+++ b/drivers/edac/sb_edac.c
-@@ -1009,7 +1009,7 @@ static u64 haswell_get_tohm(struct sbrid
- 	pci_read_config_dword(pvt->info.pci_vtd, HASWELL_TOHM_1, &reg);
- 	rc = ((reg << 6) | rc) << 26;
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index 1573d1bf63007..b1bb6cb5802ec 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -5125,9 +5125,6 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
+ 	int ret = -EINVAL;
+ 	cpumask_var_t saved_cpumask;
  
--	return rc | 0x1ffffff;
-+	return rc | 0x3ffffff;
+-	if (!zalloc_cpumask_var(&saved_cpumask, GFP_KERNEL))
+-		return -ENOMEM;
+-
+ 	/*
+ 	 * Not excluding isolated cpus on purpose.
+ 	 * If the user wishes to include them, we allow that.
+@@ -5135,6 +5132,15 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
+ 	cpumask_and(cpumask, cpumask, cpu_possible_mask);
+ 	if (!cpumask_empty(cpumask)) {
+ 		apply_wqattrs_lock();
++		if (cpumask_equal(cpumask, wq_unbound_cpumask)) {
++			ret = 0;
++			goto out_unlock;
++		}
++
++		if (!zalloc_cpumask_var(&saved_cpumask, GFP_KERNEL)) {
++			ret = -ENOMEM;
++			goto out_unlock;
++		}
+ 
+ 		/* save the old wq_unbound_cpumask. */
+ 		cpumask_copy(saved_cpumask, wq_unbound_cpumask);
+@@ -5147,10 +5153,11 @@ int workqueue_set_unbound_cpumask(cpumask_var_t cpumask)
+ 		if (ret < 0)
+ 			cpumask_copy(wq_unbound_cpumask, saved_cpumask);
+ 
++		free_cpumask_var(saved_cpumask);
++out_unlock:
+ 		apply_wqattrs_unlock();
+ 	}
+ 
+-	free_cpumask_var(saved_cpumask);
+ 	return ret;
  }
  
- static u64 knl_get_tolm(struct sbridge_pvt *pvt)
+-- 
+2.33.0
+
 
 
