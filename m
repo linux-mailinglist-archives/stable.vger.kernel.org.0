@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F43945BC88
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7380545BEA0
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245082AbhKXMbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:31:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42282 "EHLO mail.kernel.org"
+        id S1343910AbhKXMt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:49:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244323AbhKXM1D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:27:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC6E061241;
-        Wed, 24 Nov 2021 12:16:33 +0000 (UTC)
+        id S243823AbhKXMqg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:46:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89D2660F5D;
+        Wed, 24 Nov 2021 12:27:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756194;
-        bh=1BVPdN4QLiMMBKH9SxvscAvHKv04yir39+uRLmntIwQ=;
+        s=korg; t=1637756845;
+        bh=zvwwkz4a1864rySuag+u4+xUFnM3OUaTwLo+NVyf6so=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aNDg4KSn7QUAzJ8Fe2AZOFK2zVHuKvPdDZnxj6MecGREagMFdHCHNOAzTCvOwEW8q
-         iyIGvTew9XMZd4Uo/lvuEFYTlZ6mZUqiYylr8ACh5cHSfXyOUTckFXy6K4hzMubDSW
-         Nz6OoMCSqId5zMYjPEky4vn0gY0lwfc0IYpfv7fo=
+        b=j41lNLJcvsYX5iyThmK9EaplmiaYpEnPsUIUS3RaGWGuCLbZNE/u7ODwlQu+7/trZ
+         UydK/50dDk/Z6RR2trwXct1yVQBv9oOruc/cA7/Qcc2TUCHfobHZHHIxlSUaXUscqO
+         s0OK2/wD09UY5FGxeAvK+pBiyeH7MffMfI+7+kiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Martin Weinelt <martin@darmstadt.freifunk.net>,
-        Sven Eckelmann <sven@narfation.org>,
-        =?UTF-8?q?Linus=20L=FCssing?= <linus.luessing@c0d3.blue>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.9 198/207] batman-adv: Keep fragments equally sized
+        stable@vger.kernel.org,
+        Jonathan Davies <jonathan.davies@nutanix.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 227/251] net: virtio_net_hdr_to_skb: count transport header in UFO
 Date:   Wed, 24 Nov 2021 12:57:49 +0100
-Message-Id: <20211124115710.358366672@linuxfoundation.org>
+Message-Id: <20211124115718.178184981@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,110 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Jonathan Davies <jonathan.davies@nutanix.com>
 
-commit 1c2bcc766be44467809f1798cd4ceacafe20a852 upstream.
+[ Upstream commit cf9acc90c80ecbee00334aa85d92f4e74014bcff ]
 
-The batman-adv fragmentation packets have the design problem that they
-cannot be refragmented and cannot handle padding by the underlying link.
-The latter often leads to problems when networks are incorrectly configured
-and don't use a common MTU.
+virtio_net_hdr_to_skb does not set the skb's gso_size and gso_type
+correctly for UFO packets received via virtio-net that are a little over
+the GSO size. This can lead to problems elsewhere in the networking
+stack, e.g. ovs_vport_send dropping over-sized packets if gso_size is
+not set.
 
-The sender could for example fragment a 1271 byte frame (plus external
-ethernet header (14) and batadv unicast header (10)) to fit in a 1280 bytes
-large MTU of the underlying link (max. 1294 byte frames). This would create
-a 1294 bytes large frame (fragment 2) and a 55 bytes large frame
-(fragment 1). The extra 54 bytes are the fragment header (20) added to each
-fragment and the external ethernet header (14) for the second fragment.
+This is due to the comparison
 
-Let us assume that the next hop is then not able to transport 1294 bytes to
-its next hop. The 1294 byte large frame will be dropped but the 55 bytes
-large fragment will still be forwarded to its destination.
+  if (skb->len - p_off > gso_size)
 
-Or let us assume that the underlying hardware requires that each frame has
-a minimum size (e.g. 60 bytes). Then it will pad the 55 bytes frame to 60
-bytes. The receiver of the 60 bytes frame will no longer be able to
-correctly assemble the two frames together because it is not aware that 5
-bytes of the 60 bytes frame are padding and don't belong to the reassembled
-frame.
+not properly accounting for the transport layer header.
 
-This can partly be avoided by splitting frames more equally. In this
-example, the 675 and 674 bytes large fragment frames could both potentially
-reach its destination without being too large or too small.
+p_off includes the size of the transport layer header (thlen), so
+skb->len - p_off is the size of the TCP/UDP payload.
 
-Reported-by: Martin Weinelt <martin@darmstadt.freifunk.net>
-Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Acked-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.9 backported: adjust context. ]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+gso_size is read from the virtio-net header. For UFO, fragmentation
+happens at the IP level so does not need to include the UDP header.
+
+Hence the calculation could be comparing a TCP/UDP payload length with
+an IP payload length, causing legitimate virtio-net packets to have
+lack gso_type/gso_size information.
+
+Example: a UDP packet with payload size 1473 has IP payload size 1481.
+If the guest used UFO, it is not fragmented and the virtio-net header's
+flags indicate that it is a GSO frame (VIRTIO_NET_HDR_GSO_UDP), with
+gso_size = 1480 for an MTU of 1500.  skb->len will be 1515 and p_off
+will be 42, so skb->len - p_off = 1473.  Hence the comparison fails, and
+shinfo->gso_size and gso_type are not set as they should be.
+
+Instead, add the UDP header length before comparing to gso_size when
+using UFO. In this way, it is the size of the IP payload that is
+compared to gso_size.
+
+Fixes: 6dd912f82680 ("net: check untrusted gso_size at kernel entry")
+Signed-off-by: Jonathan Davies <jonathan.davies@nutanix.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/fragmentation.c |   20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ include/linux/virtio_net.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -396,7 +396,7 @@ out:
-  * batadv_frag_create - create a fragment from skb
-  * @skb: skb to create fragment from
-  * @frag_head: header to use in new fragment
-- * @mtu: size of new fragment
-+ * @fragment_size: size of new fragment
-  *
-  * Split the passed skb into two fragments: A new one with size matching the
-  * passed mtu and the old one with the rest. The new skb contains data from the
-@@ -406,11 +406,11 @@ out:
-  */
- static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
- 					  struct batadv_frag_packet *frag_head,
--					  unsigned int mtu)
-+					  unsigned int fragment_size)
- {
- 	struct sk_buff *skb_fragment;
- 	unsigned int header_size = sizeof(*frag_head);
--	unsigned int fragment_size = mtu - header_size;
-+	unsigned int mtu = fragment_size + header_size;
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index ca68826d84495..162761f72c142 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -118,10 +118,15 @@ retry:
  
- 	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
- 	if (!skb_fragment)
-@@ -449,7 +449,7 @@ int batadv_frag_send_packet(struct sk_bu
- 	struct sk_buff *skb_fragment;
- 	unsigned int mtu = neigh_node->if_incoming->net_dev->mtu;
- 	unsigned int header_size = sizeof(frag_header);
--	unsigned int max_fragment_size, max_packet_size;
-+	unsigned int max_fragment_size, num_fragments;
- 	int ret = -1;
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		u16 gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
++		unsigned int nh_off = p_off;
+ 		struct skb_shared_info *shinfo = skb_shinfo(skb);
  
- 	/* To avoid merge and refragmentation at next-hops we never send
-@@ -457,10 +457,15 @@ int batadv_frag_send_packet(struct sk_bu
- 	 */
- 	mtu = min_t(unsigned int, mtu, BATADV_FRAG_MAX_FRAG_SIZE);
- 	max_fragment_size = mtu - header_size;
--	max_packet_size = max_fragment_size * BATADV_FRAG_MAX_FRAGMENTS;
++		/* UFO may not include transport header in gso_size. */
++		if (gso_type & SKB_GSO_UDP)
++			nh_off -= thlen;
 +
-+	if (skb->len == 0 || max_fragment_size == 0)
-+		return -EINVAL;
-+
-+	num_fragments = (skb->len - 1) / max_fragment_size + 1;
-+	max_fragment_size = (skb->len - 1) / num_fragments + 1;
+ 		/* Too small packets are not really GSO ones. */
+-		if (skb->len - p_off > gso_size) {
++		if (skb->len - nh_off > gso_size) {
+ 			shinfo->gso_size = gso_size;
+ 			shinfo->gso_type = gso_type;
  
- 	/* Don't even try to fragment, if we need more than 16 fragments */
--	if (skb->len > max_packet_size)
-+	if (num_fragments > BATADV_FRAG_MAX_FRAGMENTS)
- 		goto out;
- 
- 	bat_priv = orig_node->bat_priv;
-@@ -498,7 +503,8 @@ int batadv_frag_send_packet(struct sk_bu
- 			goto out;
- 		}
- 
--		skb_fragment = batadv_frag_create(skb, &frag_header, mtu);
-+		skb_fragment = batadv_frag_create(skb, &frag_header,
-+						  max_fragment_size);
- 		if (!skb_fragment)
- 			goto out;
- 
+-- 
+2.33.0
+
 
 
