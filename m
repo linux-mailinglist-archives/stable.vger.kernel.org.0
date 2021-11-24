@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2932145BC10
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB88745BE55
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:43:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244220AbhKXMZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38016 "EHLO mail.kernel.org"
+        id S1345267AbhKXMqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:46:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245017AbhKXMYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:24:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30F6A611EE;
-        Wed, 24 Nov 2021 12:14:58 +0000 (UTC)
+        id S245104AbhKXMof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:44:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96F5661242;
+        Wed, 24 Nov 2021 12:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756098;
-        bh=uhUFfBpuoDu4WC0xjH4CkbA2dKcnwk3j6VeoLLPXras=;
+        s=korg; t=1637756776;
+        bh=6l2sv+fSHki9vKTLYP6LdsRBvFL0kmdpUkYh0hyGpB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5Q2qK+MCunfOvaYG4gsW12VC51JVKXCdbj+4pzYKQMn569JTVr90ycmWA73jc1ki
-         mYNmQh67OmaUKL1VQNantePee79ZHyHYxv269LuZC2gYreXF6rehmm7GQH6TormMxZ
-         7ZrS0u66MC3dgQLTpTLhdK4tSM7GxJnSau8ytVV8=
+        b=ELK+gjdiYMXNS25Uq5oIuy94nOLT5PeYC0DDLtV3w658mItmCVaNrL0Vw/rdv1loJ
+         0SuVO9A99IHSGUm07iWEyi0lMG7kaMD2NG5wo1w0Acets/0M61fqwN0QqnRfHBG//t
+         GNRIwiv+LXB0oi3C4KX8SfVe72b3GvpRLQQuQJQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anatolij Gustschin <agust@denx.de>,
-        Rob Herring <robh@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 172/207] powerpc/5200: dts: fix memory node unit name
-Date:   Wed, 24 Nov 2021 12:57:23 +0100
-Message-Id: <20211124115709.557156456@linuxfoundation.org>
+Subject: [PATCH 4.14 202/251] arm64: zynqmp: Fix serial compatible string
+Date:   Wed, 24 Nov 2021 12:57:24 +0100
+Message-Id: <20211124115717.285062090@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,189 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anatolij Gustschin <agust@denx.de>
+From: Michal Simek <michal.simek@xilinx.com>
 
-[ Upstream commit aed2886a5e9ffc8269a4220bff1e9e030d3d2eb1 ]
+[ Upstream commit 812fa2f0e9d33564bd0131a69750e0d165f4c82a ]
 
-Fixes build warnings:
-Warning (unit_address_vs_reg): /memory: node has a reg or ranges property, but no unit name
+Based on commit 65a2c14d4f00 ("dt-bindings: serial: convert Cadence UART
+bindings to YAML") compatible string should look like differently that's
+why fix it to be aligned with dt binding.
 
-Signed-off-by: Anatolij Gustschin <agust@denx.de>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211013220532.24759-4-agust@denx.de
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/89b36e0a6187cc6b05b27a035efdf79173bd4486.1628240307.git.michal.simek@xilinx.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/charon.dts    | 2 +-
- arch/powerpc/boot/dts/digsy_mtc.dts | 2 +-
- arch/powerpc/boot/dts/lite5200.dts  | 2 +-
- arch/powerpc/boot/dts/lite5200b.dts | 2 +-
- arch/powerpc/boot/dts/media5200.dts | 2 +-
- arch/powerpc/boot/dts/mpc5200b.dtsi | 2 +-
- arch/powerpc/boot/dts/o2d.dts       | 2 +-
- arch/powerpc/boot/dts/o2d.dtsi      | 2 +-
- arch/powerpc/boot/dts/o2dnt2.dts    | 2 +-
- arch/powerpc/boot/dts/o3dnt.dts     | 2 +-
- arch/powerpc/boot/dts/pcm032.dts    | 2 +-
- arch/powerpc/boot/dts/tqm5200.dts   | 2 +-
- 12 files changed, 12 insertions(+), 12 deletions(-)
+ arch/arm64/boot/dts/xilinx/zynqmp.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/charon.dts b/arch/powerpc/boot/dts/charon.dts
-index 0e00e508eaa6a..1c8fe20752e6a 100644
---- a/arch/powerpc/boot/dts/charon.dts
-+++ b/arch/powerpc/boot/dts/charon.dts
-@@ -39,7 +39,7 @@
+diff --git a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+index 0531843117f46..58028f23ad9aa 100644
+--- a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
++++ b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
+@@ -573,7 +573,7 @@
  		};
- 	};
  
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>;	// 128MB
- 	};
-diff --git a/arch/powerpc/boot/dts/digsy_mtc.dts b/arch/powerpc/boot/dts/digsy_mtc.dts
-index 955bff629df3c..bf511255f3ae8 100644
---- a/arch/powerpc/boot/dts/digsy_mtc.dts
-+++ b/arch/powerpc/boot/dts/digsy_mtc.dts
-@@ -20,7 +20,7 @@
- 	model = "intercontrol,digsy-mtc";
- 	compatible = "intercontrol,digsy-mtc";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x02000000>;	// 32MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/lite5200.dts b/arch/powerpc/boot/dts/lite5200.dts
-index 179a1785d6454..18d137a3393f0 100644
---- a/arch/powerpc/boot/dts/lite5200.dts
-+++ b/arch/powerpc/boot/dts/lite5200.dts
-@@ -36,7 +36,7 @@
+ 		uart0: serial@ff000000 {
+-			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
++			compatible = "xlnx,zynqmp-uart", "cdns,uart-r1p12";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 21 4>;
+@@ -582,7 +582,7 @@
  		};
- 	};
  
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
-diff --git a/arch/powerpc/boot/dts/lite5200b.dts b/arch/powerpc/boot/dts/lite5200b.dts
-index 5abb46c5cc951..29419cf81e044 100644
---- a/arch/powerpc/boot/dts/lite5200b.dts
-+++ b/arch/powerpc/boot/dts/lite5200b.dts
-@@ -35,7 +35,7 @@
- 		led4 { gpios = <&gpio_simple 2 1>; };
- 	};
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x10000000>;	// 256MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/media5200.dts b/arch/powerpc/boot/dts/media5200.dts
-index b5413cb85f134..3d57463bc49da 100644
---- a/arch/powerpc/boot/dts/media5200.dts
-+++ b/arch/powerpc/boot/dts/media5200.dts
-@@ -36,7 +36,7 @@
- 		};
- 	};
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;	// 128MB RAM
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/mpc5200b.dtsi b/arch/powerpc/boot/dts/mpc5200b.dtsi
-index 969b2200b2f97..ecfba675b5611 100644
---- a/arch/powerpc/boot/dts/mpc5200b.dtsi
-+++ b/arch/powerpc/boot/dts/mpc5200b.dtsi
-@@ -37,7 +37,7 @@
- 		};
- 	};
- 
--	memory: memory {
-+	memory: memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
-diff --git a/arch/powerpc/boot/dts/o2d.dts b/arch/powerpc/boot/dts/o2d.dts
-index 9f6dd4d889b32..5a676e8141caf 100644
---- a/arch/powerpc/boot/dts/o2d.dts
-+++ b/arch/powerpc/boot/dts/o2d.dts
-@@ -16,7 +16,7 @@
- 	model = "ifm,o2d";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;  // 128MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/o2d.dtsi b/arch/powerpc/boot/dts/o2d.dtsi
-index cf073e693f24d..1b4df5f64b580 100644
---- a/arch/powerpc/boot/dts/o2d.dtsi
-+++ b/arch/powerpc/boot/dts/o2d.dtsi
-@@ -23,7 +23,7 @@
- 	model = "ifm,o2d";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/o2dnt2.dts b/arch/powerpc/boot/dts/o2dnt2.dts
-index a0f5b97a4f06e..5184c461a205f 100644
---- a/arch/powerpc/boot/dts/o2dnt2.dts
-+++ b/arch/powerpc/boot/dts/o2dnt2.dts
-@@ -16,7 +16,7 @@
- 	model = "ifm,o2dnt2";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;  // 128MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/o3dnt.dts b/arch/powerpc/boot/dts/o3dnt.dts
-index acce49326491b..045b901719245 100644
---- a/arch/powerpc/boot/dts/o3dnt.dts
-+++ b/arch/powerpc/boot/dts/o3dnt.dts
-@@ -16,7 +16,7 @@
- 	model = "ifm,o3dnt";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x04000000>;  // 64MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/pcm032.dts b/arch/powerpc/boot/dts/pcm032.dts
-index 96b139bf50e9c..ac3f53c1a1f5b 100644
---- a/arch/powerpc/boot/dts/pcm032.dts
-+++ b/arch/powerpc/boot/dts/pcm032.dts
-@@ -26,7 +26,7 @@
- 	model = "phytec,pcm032";
- 	compatible = "phytec,pcm032";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;	// 128MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/tqm5200.dts b/arch/powerpc/boot/dts/tqm5200.dts
-index 1db07f6cf133c..68b9e8240fb5b 100644
---- a/arch/powerpc/boot/dts/tqm5200.dts
-+++ b/arch/powerpc/boot/dts/tqm5200.dts
-@@ -36,7 +36,7 @@
- 		};
- 	};
- 
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
+ 		uart1: serial@ff010000 {
+-			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
++			compatible = "xlnx,zynqmp-uart", "cdns,uart-r1p12";
+ 			status = "disabled";
+ 			interrupt-parent = <&gic>;
+ 			interrupts = <0 22 4>;
 -- 
 2.33.0
 
