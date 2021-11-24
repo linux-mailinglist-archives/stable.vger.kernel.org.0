@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E9A945BA15
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB22845BBB2
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:19:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241457AbhKXMHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:07:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
+        id S243301AbhKXMWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:22:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242233AbhKXMGg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:06:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0001E60F5D;
-        Wed, 24 Nov 2021 12:03:26 +0000 (UTC)
+        id S243289AbhKXMUT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:20:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B0C461154;
+        Wed, 24 Nov 2021 12:12:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755407;
-        bh=HsEloWLUjPuL9/6uGs2l/ld0R+4N7e1poR7DefDRvrs=;
+        s=korg; t=1637755945;
+        bh=pk0+bm9xr09aC9w5POZWfjWQfLFFWGbbOykC0qSKIGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YeFMHadrqDJPQAhETgoR7t2d9l3g8WFpeH2ojHskh8MQ9Qx7PQCQiOYE6BrwEAYOi
-         dIEFFyBhPRa9Q7SDOU4aIxg5sZLoSR/uDQkTAE0IevfQUr8DppqzWuZ6JhuMrw4kCd
-         iKXtVZlqUmf65elRcorUBVhZED2Om1HsOUnhUHm8=
+        b=1rB0T3AdA1GeVF8LwlDpG55vQB2MUK3uGdI+NwWUC0wdb6vdh/L/+tTjaaG4TmA+M
+         4Piutv/9BvxQgRw60EOChNKTmwygpmTpe6OhiLzhtlQ+DBubZeIBFpGenHLIJL3WMj
+         9MxG017+AnNaK5E1zRoiGuJjbtfYZ+9pciOPsbVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Junji Wei <weijunji@bytedance.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 083/162] mwifiex: Send DELBA requests according to spec
+Subject: [PATCH 4.9 115/207] RDMA/rxe: Fix wrong port_cap_flags
 Date:   Wed, 24 Nov 2021 12:56:26 +0100
-Message-Id: <20211124115701.009615752@linuxfoundation.org>
+Message-Id: <20211124115707.791471875@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Dreßler <verdre@v0yd.nl>
+From: Junji Wei <weijunji@bytedance.com>
 
-[ Upstream commit cc8a8bc37466f79b24d972555237f3d591150602 ]
+[ Upstream commit dcd3f985b20ffcc375f82ca0ca9f241c7025eb5e ]
 
-While looking at on-air packets using Wireshark, I noticed we're never
-setting the initiator bit when sending DELBA requests to the AP: While
-we set the bit on our del_ba_param_set bitmask, we forget to actually
-copy that bitmask over to the command struct, which means we never
-actually set the initiator bit.
+The port->attr.port_cap_flags should be set to enum
+ib_port_capability_mask_bits in ib_mad.h, not
+RDMA_CORE_CAP_PROT_ROCE_UDP_ENCAP.
 
-Fix that and copy the bitmask over to the host_cmd_ds_11n_delba command
-struct.
-
-Fixes: 5e6e3a92b9a4 ("wireless: mwifiex: initial commit for Marvell mwifiex driver")
-Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
-Acked-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211016153244.24353-5-verdre@v0yd.nl
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/20210831083223.65797-1-weijunji@bytedance.com
+Signed-off-by: Junji Wei <weijunji@bytedance.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mwifiex/11n.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_param.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mwifiex/11n.c b/drivers/net/wireless/mwifiex/11n.c
-index c174e79e6df2b..b70eac7d2dd79 100644
---- a/drivers/net/wireless/mwifiex/11n.c
-+++ b/drivers/net/wireless/mwifiex/11n.c
-@@ -630,14 +630,15 @@ int mwifiex_send_delba(struct mwifiex_private *priv, int tid, u8 *peer_mac,
- 	uint16_t del_ba_param_set;
- 
- 	memset(&delba, 0, sizeof(delba));
--	delba.del_ba_param_set = cpu_to_le16(tid << DELBA_TID_POS);
- 
--	del_ba_param_set = le16_to_cpu(delba.del_ba_param_set);
-+	del_ba_param_set = tid << DELBA_TID_POS;
-+
- 	if (initiator)
- 		del_ba_param_set |= IEEE80211_DELBA_PARAM_INITIATOR_MASK;
- 	else
- 		del_ba_param_set &= ~IEEE80211_DELBA_PARAM_INITIATOR_MASK;
- 
-+	delba.del_ba_param_set = cpu_to_le16(del_ba_param_set);
- 	memcpy(&delba.peer_mac_addr, peer_mac, ETH_ALEN);
- 
- 	/* We don't wait for the response of this command */
+diff --git a/drivers/infiniband/sw/rxe/rxe_param.h b/drivers/infiniband/sw/rxe/rxe_param.h
+index 13ed2cc6eaa2a..9f7817e12775a 100644
+--- a/drivers/infiniband/sw/rxe/rxe_param.h
++++ b/drivers/infiniband/sw/rxe/rxe_param.h
+@@ -144,7 +144,7 @@ enum rxe_port_param {
+ 	RXE_PORT_MAX_MTU		= IB_MTU_4096,
+ 	RXE_PORT_ACTIVE_MTU		= IB_MTU_256,
+ 	RXE_PORT_GID_TBL_LEN		= 1024,
+-	RXE_PORT_PORT_CAP_FLAGS		= RDMA_CORE_CAP_PROT_ROCE_UDP_ENCAP,
++	RXE_PORT_PORT_CAP_FLAGS		= IB_PORT_CM_SUP,
+ 	RXE_PORT_MAX_MSG_SZ		= 0x800000,
+ 	RXE_PORT_BAD_PKEY_CNTR		= 0,
+ 	RXE_PORT_QKEY_VIOL_CNTR		= 0,
 -- 
 2.33.0
 
