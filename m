@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D6E445BC8D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EFC845BF58
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:54:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245113AbhKXMbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:31:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49470 "EHLO mail.kernel.org"
+        id S1343834AbhKXM5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:57:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343888AbhKXMaN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:30:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95E7161284;
-        Wed, 24 Nov 2021 12:18:12 +0000 (UTC)
+        id S1345092AbhKXMzI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:55:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30F8661371;
+        Wed, 24 Nov 2021 12:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756293;
-        bh=J2USBgA3nvsI5S8KZizLVyZ3l0AWSw6m91TvFiqrA/w=;
+        s=korg; t=1637757102;
+        bh=tw7KXrm/weVEZe6AKHNiRuX42JTFN7zgnz1sr2as0J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ylqUnNbERYDQCIfTItJ8XFX3rwAMvdmEMTwmEXmpSFBIf5UUWbAILaWqQBBGcs003
-         b4pP2CoBpsl382VVQsPZ/BE9975NGmvuEgYebc+Ucl7BC66p0p9Xbr17hMh09JEjLh
-         ifhuXrm5tZiN534TdEl4LdHNFRk5qBlrotfIUpOo=
+        b=FZt793bCdgqJhmqN9tSubdfFrQMQX9V8XdBovuA8D9RcomauOigsa89wOtJLa79PE
+         WhvAtRQofN0d8H/LpZYSivLzjXSxcBieknwIOj0xaf69qLmnGmXJHYhUHQ6CbPtpd8
+         ll7oitSV0z/5Ag3TUcw5OHgKIZyXhjOXbZbShmI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 007/251] ocfs2: fix data corruption on truncate
-Date:   Wed, 24 Nov 2021 12:54:09 +0100
-Message-Id: <20211124115710.467437485@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 060/323] rsi: fix rate mask set leading to P2P failure
+Date:   Wed, 24 Nov 2021 12:54:10 +0100
+Message-Id: <20211124115720.891055962@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,91 +40,294 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-commit 839b63860eb3835da165642923120d305925561d upstream.
+commit b515d097053a71d624e0c5840b42cd4caa653941 upstream.
 
-Patch series "ocfs2: Truncate data corruption fix".
+P2P client mode was only working the first time.
+On subsequent connection attempts the group was successfully created but
+no data was sent (no transmitted data packets were seen with a sniffer).
 
-As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
-corruption after conversion from inline format") didn't fix all the data
-corruption issues the customer started observing after 6dbf7bb55598
-("fs: Don't invalidate page buffers in block_write_full_page()") This
-time I have tracked them down to two bugs in ocfs2 truncation code.
+The reason for this was that the hardware was being configured in fixed
+rate mode with rate RSI_RATE_1 (1Mbps) which is not valid in the 5GHz band.
 
-One bug (truncating page cache before clearing tail cluster and setting
-i_size) could cause data corruption even before 6dbf7bb55598, but before
-that commit it needed a race with page fault, after 6dbf7bb55598 it
-started to be pretty deterministic.
+In P2P mode wpa_supplicant uses NL80211_CMD_SET_TX_BITRATE_MASK to disallow
+the 11b rates in the 2.4GHz band which updated common->fixedrate_mask.
 
-Another bug (zeroing pages beyond old i_size) used to be harmless
-inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598
-in combination with the first bug it resulted in deterministic data
-corruption.
+rsi_set_min_rate() then used the fixedrate_mask to calculate the minimum
+allowed rate, or 0xffff = auto if none was found.
+However that calculation did not account for the different rate sets
+allowed in the different bands leading to the error.
 
-Although fixing only the first problem is needed to stop data
-corruption, I've fixed both issues to make the code more robust.
+Fixing set_min_rate() would result in 6Mb/s being used all the time
+which is not what we want either.
 
-This patch (of 2):
+The reason the problem did not occur on the first connection is that
+rsi_mac80211_set_rate_mask() only updated the fixedrate_mask for
+the *current* band. When it was called that was still 2.4GHz as the
+switch is done later. So the when set_min_rate() was subsequently
+called after the switch to 5GHz it still had a mask of zero, leading
+to defaulting to auto mode.
 
-ocfs2_truncate_file() did unmap invalidate page cache pages before
-zeroing partial tail cluster and setting i_size.  Thus some pages could
-be left (and likely have left if the cluster zeroing happened) in the
-page cache beyond i_size after truncate finished letting user possibly
-see stale data once the file was extended again.  Also the tail cluster
-zeroing was not guaranteed to finish before truncate finished causing
-possible stale data exposure.  The problem started to be particularly
-easy to hit after commit 6dbf7bb55598 "fs: Don't invalidate page buffers
-in block_write_full_page()" stopped invalidation of pages beyond i_size
-from page writeback path.
+Fix this by differentiating the case of a single rate being
+requested, in which case the hardware will be used in fixed rate
+mode with just that rate, and multiple rates being requested,
+in which case we remain in auto mode but the firmware rate selection
+algorithm is configured with a restricted set of rates.
 
-Fix these problems by unmapping and invalidating pages in the page cache
-after the i_size is reduced and tail cluster is zeroed out.
-
-Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
-Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
-Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: dad0d04fa7ba ("rsi: Add RS9113 wireless driver")
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+CC: stable@vger.kernel.org
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1630337206-12410-4-git-send-email-martin.fuzzey@flowbird.group
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/file.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/wireless/rsi/rsi_91x_hal.c      |    8 +--
+ drivers/net/wireless/rsi/rsi_91x_mac80211.c |   74 ++++++++--------------------
+ drivers/net/wireless/rsi/rsi_91x_mgmt.c     |   21 +++++--
+ drivers/net/wireless/rsi/rsi_main.h         |   12 +++-
+ 4 files changed, 50 insertions(+), 65 deletions(-)
 
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -490,10 +490,11 @@ int ocfs2_truncate_file(struct inode *in
- 	 * greater than page size, so we have to truncate them
- 	 * anyway.
- 	 */
--	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
--	truncate_inode_pages(inode->i_mapping, new_i_size);
+--- a/drivers/net/wireless/rsi/rsi_91x_hal.c
++++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
+@@ -204,15 +204,17 @@ int rsi_prepare_data_desc(struct rsi_com
+ 			RSI_WIFI_DATA_Q);
+ 	data_desc->header_len = ieee80211_size;
  
- 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
-+		unmap_mapping_range(inode->i_mapping,
-+				    new_i_size + PAGE_SIZE - 1, 0, 1);
-+		truncate_inode_pages(inode->i_mapping, new_i_size);
- 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
- 					       i_size_read(inode), 1);
- 		if (status)
-@@ -512,6 +513,9 @@ int ocfs2_truncate_file(struct inode *in
- 		goto bail_unlock_sem;
+-	if (common->min_rate != RSI_RATE_AUTO) {
++	if (common->rate_config[common->band].fixed_enabled) {
+ 		/* Send fixed rate */
++		u16 fixed_rate = common->rate_config[common->band].fixed_hw_rate;
++
+ 		data_desc->frame_info = cpu_to_le16(RATE_INFO_ENABLE);
+-		data_desc->rate_info = cpu_to_le16(common->min_rate);
++		data_desc->rate_info = cpu_to_le16(fixed_rate);
+ 
+ 		if (conf_is_ht40(&common->priv->hw->conf))
+ 			data_desc->bbp_info = cpu_to_le16(FULL40M_ENABLE);
+ 
+-		if ((common->vif_info[0].sgi) && (common->min_rate & 0x100)) {
++		if (common->vif_info[0].sgi && (fixed_rate & 0x100)) {
+ 		       /* Only MCS rates */
+ 			data_desc->rate_info |=
+ 				cpu_to_le16(ENABLE_SHORTGI_RATE);
+--- a/drivers/net/wireless/rsi/rsi_91x_mac80211.c
++++ b/drivers/net/wireless/rsi/rsi_91x_mac80211.c
+@@ -443,7 +443,6 @@ static int rsi_mac80211_add_interface(st
+ 	if ((vif->type == NL80211_IFTYPE_AP) ||
+ 	    (vif->type == NL80211_IFTYPE_P2P_GO)) {
+ 		rsi_send_rx_filter_frame(common, DISALLOW_BEACONS);
+-		common->min_rate = RSI_RATE_AUTO;
+ 		for (i = 0; i < common->max_stations; i++)
+ 			common->stations[i].sta = NULL;
+ 	}
+@@ -1143,20 +1142,32 @@ static int rsi_mac80211_set_rate_mask(st
+ 				      struct ieee80211_vif *vif,
+ 				      const struct cfg80211_bitrate_mask *mask)
+ {
++	const unsigned int mcs_offset = ARRAY_SIZE(rsi_rates);
+ 	struct rsi_hw *adapter = hw->priv;
+ 	struct rsi_common *common = adapter->priv;
+-	enum nl80211_band band = hw->conf.chandef.chan->band;
++	int i;
+ 
+ 	mutex_lock(&common->mutex);
+-	common->fixedrate_mask[band] = 0;
+ 
+-	if (mask->control[band].legacy == 0xfff) {
+-		common->fixedrate_mask[band] =
+-			(mask->control[band].ht_mcs[0] << 12);
+-	} else {
+-		common->fixedrate_mask[band] =
+-			mask->control[band].legacy;
++	for (i = 0; i < ARRAY_SIZE(common->rate_config); i++) {
++		struct rsi_rate_config *cfg = &common->rate_config[i];
++		u32 bm;
++
++		bm = mask->control[i].legacy | (mask->control[i].ht_mcs[0] << mcs_offset);
++		if (hweight32(bm) == 1) { /* single rate */
++			int rate_index = ffs(bm) - 1;
++
++			if (rate_index < mcs_offset)
++				cfg->fixed_hw_rate = rsi_rates[rate_index].hw_value;
++			else
++				cfg->fixed_hw_rate = rsi_mcsrates[rate_index - mcs_offset];
++			cfg->fixed_enabled = true;
++		} else {
++			cfg->configured_mask = bm;
++			cfg->fixed_enabled = false;
++		}
+ 	}
++
+ 	mutex_unlock(&common->mutex);
+ 
+ 	return 0;
+@@ -1292,46 +1303,6 @@ void rsi_indicate_pkt_to_os(struct rsi_c
+ 	ieee80211_rx_irqsafe(hw, skb);
+ }
+ 
+-static void rsi_set_min_rate(struct ieee80211_hw *hw,
+-			     struct ieee80211_sta *sta,
+-			     struct rsi_common *common)
+-{
+-	u8 band = hw->conf.chandef.chan->band;
+-	u8 ii;
+-	u32 rate_bitmap;
+-	bool matched = false;
+-
+-	common->bitrate_mask[band] = sta->supp_rates[band];
+-
+-	rate_bitmap = (common->fixedrate_mask[band] & sta->supp_rates[band]);
+-
+-	if (rate_bitmap & 0xfff) {
+-		/* Find out the min rate */
+-		for (ii = 0; ii < ARRAY_SIZE(rsi_rates); ii++) {
+-			if (rate_bitmap & BIT(ii)) {
+-				common->min_rate = rsi_rates[ii].hw_value;
+-				matched = true;
+-				break;
+-			}
+-		}
+-	}
+-
+-	common->vif_info[0].is_ht = sta->ht_cap.ht_supported;
+-
+-	if ((common->vif_info[0].is_ht) && (rate_bitmap >> 12)) {
+-		for (ii = 0; ii < ARRAY_SIZE(rsi_mcsrates); ii++) {
+-			if ((rate_bitmap >> 12) & BIT(ii)) {
+-				common->min_rate = rsi_mcsrates[ii];
+-				matched = true;
+-				break;
+-			}
+-		}
+-	}
+-
+-	if (!matched)
+-		common->min_rate = 0xffff;
+-}
+-
+ /**
+  * rsi_mac80211_sta_add() - This function notifies driver about a peer getting
+  *			    connected.
+@@ -1430,9 +1401,9 @@ static int rsi_mac80211_sta_add(struct i
+ 
+ 	if ((vif->type == NL80211_IFTYPE_STATION) ||
+ 	    (vif->type == NL80211_IFTYPE_P2P_CLIENT)) {
+-		rsi_set_min_rate(hw, sta, common);
++		common->bitrate_mask[common->band] = sta->supp_rates[common->band];
++		common->vif_info[0].is_ht = sta->ht_cap.ht_supported;
+ 		if (sta->ht_cap.ht_supported) {
+-			common->vif_info[0].is_ht = true;
+ 			common->bitrate_mask[NL80211_BAND_2GHZ] =
+ 					sta->supp_rates[NL80211_BAND_2GHZ];
+ 			if ((sta->ht_cap.cap & IEEE80211_HT_CAP_SGI_20) ||
+@@ -1506,7 +1477,6 @@ static int rsi_mac80211_sta_remove(struc
+ 		bss->qos = sta->wme;
+ 		common->bitrate_mask[NL80211_BAND_2GHZ] = 0;
+ 		common->bitrate_mask[NL80211_BAND_5GHZ] = 0;
+-		common->min_rate = 0xffff;
+ 		common->vif_info[0].is_ht = false;
+ 		common->vif_info[0].sgi = false;
+ 		common->vif_info[0].seq_start = 0;
+--- a/drivers/net/wireless/rsi/rsi_91x_mgmt.c
++++ b/drivers/net/wireless/rsi/rsi_91x_mgmt.c
+@@ -222,7 +222,7 @@ static void rsi_set_default_parameters(s
+ 	common->channel_width = BW_20MHZ;
+ 	common->rts_threshold = IEEE80211_MAX_RTS_THRESHOLD;
+ 	common->channel = 1;
+-	common->min_rate = 0xffff;
++	memset(&common->rate_config, 0, sizeof(common->rate_config));
+ 	common->fsm_state = FSM_CARD_NOT_READY;
+ 	common->iface_down = true;
+ 	common->endpoint = EP_2GHZ_20MHZ;
+@@ -1172,7 +1172,7 @@ static int rsi_send_auto_rate_request(st
+ 	u8 band = hw->conf.chandef.chan->band;
+ 	u8 num_supported_rates = 0;
+ 	u8 rate_table_offset, rate_offset = 0;
+-	u32 rate_bitmap;
++	u32 rate_bitmap, configured_rates;
+ 	u16 *selected_rates, min_rate;
+ 	bool is_ht = false, is_sgi = false;
+ 	u16 frame_len = sizeof(struct rsi_auto_rate);
+@@ -1222,6 +1222,10 @@ static int rsi_send_auto_rate_request(st
+ 			is_sgi = true;
  	}
  
-+	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
-+	truncate_inode_pages(inode->i_mapping, new_i_size);
++	/* Limit to any rates administratively configured by cfg80211 */
++	configured_rates = common->rate_config[band].configured_mask ?: 0xffffffff;
++	rate_bitmap &= configured_rates;
 +
- 	status = ocfs2_commit_truncate(osb, inode, di_bh);
- 	if (status < 0) {
- 		mlog_errno(status);
+ 	if (band == NL80211_BAND_2GHZ) {
+ 		if ((rate_bitmap == 0) && (is_ht))
+ 			min_rate = RSI_RATE_MCS0;
+@@ -1247,10 +1251,13 @@ static int rsi_send_auto_rate_request(st
+ 	num_supported_rates = jj;
+ 
+ 	if (is_ht) {
+-		for (ii = 0; ii < ARRAY_SIZE(mcs); ii++)
+-			selected_rates[jj++] = mcs[ii];
+-		num_supported_rates += ARRAY_SIZE(mcs);
+-		rate_offset += ARRAY_SIZE(mcs);
++		for (ii = 0; ii < ARRAY_SIZE(mcs); ii++) {
++			if (configured_rates & BIT(ii + ARRAY_SIZE(rsi_rates))) {
++				selected_rates[jj++] = mcs[ii];
++				num_supported_rates++;
++				rate_offset++;
++			}
++		}
+ 	}
+ 
+ 	sort(selected_rates, jj, sizeof(u16), &rsi_compare, NULL);
+@@ -1335,7 +1342,7 @@ void rsi_inform_bss_status(struct rsi_co
+ 					      qos_enable,
+ 					      aid, sta_id,
+ 					      vif);
+-		if (common->min_rate == 0xffff)
++		if (!common->rate_config[common->band].fixed_enabled)
+ 			rsi_send_auto_rate_request(common, sta, sta_id, vif);
+ 		if (opmode == RSI_OPMODE_STA &&
+ 		    !(assoc_cap & WLAN_CAPABILITY_PRIVACY) &&
+--- a/drivers/net/wireless/rsi/rsi_main.h
++++ b/drivers/net/wireless/rsi/rsi_main.h
+@@ -61,6 +61,7 @@ enum RSI_FSM_STATES {
+ extern u32 rsi_zone_enabled;
+ extern __printf(2, 3) void rsi_dbg(u32 zone, const char *fmt, ...);
+ 
++#define RSI_MAX_BANDS			2
+ #define RSI_MAX_VIFS                    3
+ #define NUM_EDCA_QUEUES                 4
+ #define IEEE80211_ADDR_LEN              6
+@@ -197,6 +198,12 @@ enum rsi_dfs_regions {
+ 	RSI_REGION_WORLD
+ };
+ 
++struct rsi_rate_config {
++	u32 configured_mask;	/* configured by mac80211 bits 0-11=legacy 12+ mcs */
++	u16 fixed_hw_rate;
++	bool fixed_enabled;
++};
++
+ struct rsi_common {
+ 	struct rsi_hw *priv;
+ 	struct vif_priv vif_info[RSI_MAX_VIFS];
+@@ -222,8 +229,8 @@ struct rsi_common {
+ 	u8 channel_width;
+ 
+ 	u16 rts_threshold;
+-	u16 bitrate_mask[2];
+-	u32 fixedrate_mask[2];
++	u32 bitrate_mask[RSI_MAX_BANDS];
++	struct rsi_rate_config rate_config[RSI_MAX_BANDS];
+ 
+ 	u8 rf_reset;
+ 	struct transmit_q_stats tx_stats;
+@@ -244,7 +251,6 @@ struct rsi_common {
+ 	u8 mac_id;
+ 	u8 radio_id;
+ 	u16 rate_pwr[20];
+-	u16 min_rate;
+ 
+ 	/* WMM algo related */
+ 	u8 selected_qnum;
 
 
