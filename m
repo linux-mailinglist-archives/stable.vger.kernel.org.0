@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE79045BC6D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4721645BC70
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243770AbhKXMav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:30:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41740 "EHLO mail.kernel.org"
+        id S243925AbhKXMax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:30:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245064AbhKXM1i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:27:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B46FD61139;
-        Wed, 24 Nov 2021 12:16:50 +0000 (UTC)
+        id S244116AbhKXM1n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:27:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBAEC6125F;
+        Wed, 24 Nov 2021 12:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756211;
-        bh=bb6AUboTC2rVNQ51cRQTH1WCp7jbJ0x+7dtIjRf4ihY=;
+        s=korg; t=1637756214;
+        bh=SyEY5IiO48FAb4rj+Fj4bafORYTGVHyZb4Rm939g6a4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UNyOCt66Zkkf+iK8IoM147Fvg0zF/13Z9dEXx31+XMKa+bIMrhWNg3+f+qUK/BhMw
-         ldyGaZBTJW2qgkASyQ1u0WGXlHcF13Ns8kSbjPVsjRNWzF2QRBQFl0Yp0vj9/jriSp
-         PvRKXPGEoxbC+EPxHsevyUWS6/E1TuiGsUkfLPZ8=
+        b=rfdw64s9xR0scHDT1A/unGgUd05k/XgXRU86LjqepffyaVKgmSnXgqZ7Cf8Et5njC
+         uBYMlWp77nYGvWzYO3CQxGts9piU/7zYKINxlWOTjUVdPg9U6Jcksz0YYB3paRRivT
+         Xz9LYh3uVsjrRCzmav8rjKjzjHRjJHWdWzXiaEJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.9 204/207] batman-adv: Dont always reallocate the fragmentation skb head
-Date:   Wed, 24 Nov 2021 12:57:55 +0100
-Message-Id: <20211124115710.554706623@linuxfoundation.org>
+        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 205/207] ASoC: DAPM: Cover regression by kctl change notification fix
+Date:   Wed, 24 Nov 2021 12:57:56 +0100
+Message-Id: <20211124115710.585316716@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
 References: <20211124115703.941380739@linuxfoundation.org>
@@ -39,48 +39,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 992b03b88e36254e26e9a4977ab948683e21bd9f upstream.
+commit 827b0913a9d9d07a0c3e559dbb20ca4d6d285a54 upstream.
 
-When a packet is fragmented by batman-adv, the original batman-adv header
-is not modified. Only a new fragmentation is inserted between the original
-one and the ethernet header. The code must therefore make sure that it has
-a writable region of this size in the skbuff head.
+The recent fix for DAPM to correct the kctl change notification by the
+commit 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change
+notifications") caused other regressions since it changed the behavior
+of snd_soc_dapm_set_pin() that is called from several API functions.
+Formerly it returned always 0 for success, but now it returns 0 or 1.
 
-But it is not useful to always reallocate the skbuff by this size even when
-there would be more than enough headroom still in the skb. The reallocation
-is just to costly during in this codepath.
+This patch addresses it, restoring the old behavior of
+snd_soc_dapm_set_pin() while keeping the fix in
+snd_soc_dapm_put_pin_switch().
 
-Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-[ bp: 4.9 backported: adjust context. ]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Fixes: 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change notifications")
+Reported-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20211105090925.20575-1-tiwai@suse.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/fragmentation.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ sound/soc/soc-dapm.c |   29 +++++++++++++++++++++++------
+ 1 file changed, 23 insertions(+), 6 deletions(-)
 
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -528,11 +528,14 @@ int batadv_frag_send_packet(struct sk_bu
- 		frag_header.no++;
- 	}
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -2406,8 +2406,13 @@ static struct snd_soc_dapm_widget *dapm_
+ 	return NULL;
+ }
  
--	/* Make room for the fragment header. */
--	if (batadv_skb_head_push(skb, header_size) < 0 ||
--	    pskb_expand_head(skb, header_size + ETH_HLEN, 0, GFP_ATOMIC) < 0)
-+	/* make sure that there is at least enough head for the fragmentation
-+	 * and ethernet headers
-+	 */
-+	ret = skb_cow_head(skb, ETH_HLEN + header_size);
-+	if (ret < 0)
- 		goto out;
+-static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
+-				const char *pin, int status)
++/*
++ * set the DAPM pin status:
++ * returns 1 when the value has been updated, 0 when unchanged, or a negative
++ * error code; called from kcontrol put callback
++ */
++static int __snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
++				  const char *pin, int status)
+ {
+ 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
+ 	int ret = 0;
+@@ -2433,6 +2438,18 @@ static int snd_soc_dapm_set_pin(struct s
+ 	return ret;
+ }
  
-+	skb_push(skb, header_size);
- 	memcpy(skb->data, &frag_header, header_size);
++/*
++ * similar as __snd_soc_dapm_set_pin(), but returns 0 when successful;
++ * called from several API functions below
++ */
++static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
++				const char *pin, int status)
++{
++	int ret = __snd_soc_dapm_set_pin(dapm, pin, status);
++
++	return ret < 0 ? ret : 0;
++}
++
+ /**
+  * snd_soc_dapm_sync_unlocked - scan and power dapm paths
+  * @dapm: DAPM context
+@@ -3327,10 +3344,10 @@ int snd_soc_dapm_put_pin_switch(struct s
+ 	const char *pin = (const char *)kcontrol->private_value;
+ 	int ret;
  
- 	/* Send the last fragment */
+-	if (ucontrol->value.integer.value[0])
+-		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
+-	else
+-		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
++	mutex_lock_nested(&card->dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
++	ret = __snd_soc_dapm_set_pin(&card->dapm, pin,
++				     !!ucontrol->value.integer.value[0]);
++	mutex_unlock(&card->dapm_mutex);
+ 
+ 	snd_soc_dapm_sync(&card->dapm);
+ 	return ret;
 
 
