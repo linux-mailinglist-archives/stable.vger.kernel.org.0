@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1EA645BA02
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA79D45BB93
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:18:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234674AbhKXMG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:06:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33366 "EHLO mail.kernel.org"
+        id S243742AbhKXMVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:21:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233185AbhKXMGP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:06:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1AA260F90;
-        Wed, 24 Nov 2021 12:03:04 +0000 (UTC)
+        id S243912AbhKXMS5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:18:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1819610D0;
+        Wed, 24 Nov 2021 12:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755385;
-        bh=i88b99ISnE/a0T9L4fAmUIOV6BjoOz67zNfpN0l1dTI=;
+        s=korg; t=1637755923;
+        bh=LSksjAl3MMuFcy6pGdLskRXObc1nBbEscx2oPHJsVCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZoLY5YDn05c7AUviXacNZQjSi4isUYcYyeKZLzKw3cESUj39l2i8/twZt2I22ASj
-         1w9fW+wl/KX+G2mLgC5VX/02n0v2BYCuNEijX4Gw+Oxksa0v295J1Bts81PP+1au9K
-         wzzKumx/USup+Dsf3q7hLUEfm0foyB94rWOv6t44=
+        b=yzjIN/DaJvXkPcNCTWt7UcNrvTL9PDF7kOGCCpQdrZMgUU05CtHwA4iMINEyxO1tN
+         kkuUPRuomUTjgPIyPPtZ2VDN9azzq90FWKLk4zNZJ2/s9+vKGhO7b3eVNRu7w4M/YO
+         b21j9Z+EooG+gM8jE98iq1LF+Wl7Q1fp0eUYBAFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+93dba5b91f0fed312cbd@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 076/162] b43legacy: fix a lower bounds test
+Subject: [PATCH 4.9 108/207] smackfs: use netlbl_cfg_cipsov4_del() for deleting cipso_v4_doi
 Date:   Wed, 24 Nov 2021 12:56:19 +0100
-Message-Id: <20211124115700.774894499@linuxfoundation.org>
+Message-Id: <20211124115707.570333643@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit c1c8380b0320ab757e60ed90efc8b1992a943256 ]
+[ Upstream commit 0934ad42bb2c5df90a1b9de690f93de735b622fe ]
 
-The problem is that "channel" is an unsigned int, when it's less 5 the
-value of "channel - 5" is not a negative number as one would expect but
-is very high positive value instead.
+syzbot is reporting UAF at cipso_v4_doi_search() [1], for smk_cipso_doi()
+is calling kfree() without removing from the cipso_v4_doi_list list after
+netlbl_cfg_cipsov4_map_add() returned an error. We need to use
+netlbl_cfg_cipsov4_del() in order to remove from the list and wait for
+RCU grace period before kfree().
 
-This means that "start" becomes a very high positive value.  The result
-of that is that we never enter the "for (i = start; i <= end; i++) {"
-loop.  Instead of storing the result from b43legacy_radio_aci_detect()
-it just uses zero.
-
-Fixes: 75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx devices")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Michael Büsch <m@bues.ch>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211006073542.GD8404@kili
+Link: https://syzkaller.appspot.com/bug?extid=93dba5b91f0fed312cbd [1]
+Reported-by: syzbot <syzbot+93dba5b91f0fed312cbd@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 6c2e8ac0953fccdd ("netlabel: Update kernel configuration API")
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/b43legacy/radio.c | 2 +-
+ security/smack/smackfs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/b43legacy/radio.c b/drivers/net/wireless/b43legacy/radio.c
-index 9501420340a91..5b1e8890305c1 100644
---- a/drivers/net/wireless/b43legacy/radio.c
-+++ b/drivers/net/wireless/b43legacy/radio.c
-@@ -299,7 +299,7 @@ u8 b43legacy_radio_aci_scan(struct b43legacy_wldev *dev)
- 			    & 0x7FFF);
- 	b43legacy_set_all_gains(dev, 3, 8, 1);
- 
--	start = (channel - 5 > 0) ? channel - 5 : 1;
-+	start = (channel > 5) ? channel - 5 : 1;
- 	end = (channel + 5 < 14) ? channel + 5 : 13;
- 
- 	for (i = start; i <= end; i++) {
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index cf1f92a04359a..ed5b89fbbd96f 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -735,7 +735,7 @@ static void smk_cipso_doi(void)
+ 	if (rc != 0) {
+ 		printk(KERN_WARNING "%s:%d map add rc = %d\n",
+ 		       __func__, __LINE__, rc);
+-		kfree(doip);
++		netlbl_cfg_cipsov4_del(doip->doi, &nai);
+ 		return;
+ 	}
+ }
 -- 
 2.33.0
 
