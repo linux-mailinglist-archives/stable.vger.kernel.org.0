@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54EF245C144
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:13:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47DAC45C2EC
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:31:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245559AbhKXNQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:16:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53912 "EHLO mail.kernel.org"
+        id S1349651AbhKXNeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:34:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348757AbhKXNOA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:14:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10D9B6126A;
-        Wed, 24 Nov 2021 12:43:40 +0000 (UTC)
+        id S1351590AbhKXNci (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:32:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4FD461185;
+        Wed, 24 Nov 2021 12:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757821;
-        bh=2iodbM1BE0NpXrnkO5lNNPKsyTOunAEJAc2f7GmqjsA=;
+        s=korg; t=1637758391;
+        bh=kmjelBk8Szbt6dCrtMKPhWCJXyYOFUwXRl/5PclR8yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQ+/Qx/9RLcAwFVv7EJP8DcHtkaiEUgj1J/6aMs3f5pDDX+H6diH6B3cO/NDORvUS
-         rP32C8id7Qj8KOreHr2O7w7w4nkA3vM1LSx9RQhmZGJGh0gipvnR93ZuCfOgv0I891
-         rd1YZ8uiIgCpb/0PtHj4B4cLBmdzbEXfz//XK/Ls=
+        b=Go5EDuf6THWbsvJB1Ud6vdUsAX/rzAsNq7vzrjTri01OunqJ/DZ92eAeCXdpZYmSU
+         GVsVFUxAuWeK1KHU01KbTVWOhISodeSlp+4qM7kzW3M+R0dLwfpKQjjF680AB67jpw
+         lkg1iY6effMg6f1D+yCTXiuEtiLMpZCSjao7ikf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org, Sungjong Seo <sj1557.seo@samsung.com>,
+        Hyeong-Jun Kim <hj514.kim@samsung.com>,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 260/323] arm64: zynqmp: Fix serial compatible string
-Date:   Wed, 24 Nov 2021 12:57:30 +0100
-Message-Id: <20211124115727.670626892@linuxfoundation.org>
+Subject: [PATCH 5.10 055/154] f2fs: compress: disallow disabling compress on non-empty compressed file
+Date:   Wed, 24 Nov 2021 12:57:31 +0100
+Message-Id: <20211124115704.108460246@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Simek <michal.simek@xilinx.com>
+From: Hyeong-Jun Kim <hj514.kim@samsung.com>
 
-[ Upstream commit 812fa2f0e9d33564bd0131a69750e0d165f4c82a ]
+[ Upstream commit 02d58cd253d7536c412993573fc6b3b4454960eb ]
 
-Based on commit 65a2c14d4f00 ("dt-bindings: serial: convert Cadence UART
-bindings to YAML") compatible string should look like differently that's
-why fix it to be aligned with dt binding.
+Compresse file and normal file has differ in i_addr addressing,
+specifically addrs per inode/block. So, we will face data loss, if we
+disable the compression flag on non-empty files. Therefore we should
+disallow not only enabling but disabling the compression flag on
+non-empty files.
 
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://lore.kernel.org/r/89b36e0a6187cc6b05b27a035efdf79173bd4486.1628240307.git.michal.simek@xilinx.com
+Fixes: 4c8ff7095bef ("f2fs: support data compression")
+Signed-off-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Hyeong-Jun Kim <hj514.kim@samsung.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/xilinx/zynqmp.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/f2fs/f2fs.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
-index 8a885ae647b7e..6478bca018197 100644
---- a/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
-+++ b/arch/arm64/boot/dts/xilinx/zynqmp.dtsi
-@@ -574,7 +574,7 @@
- 		};
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 2d7799bd30b10..bc488a7d01903 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3908,8 +3908,7 @@ static inline bool f2fs_disable_compressed_file(struct inode *inode)
  
- 		uart0: serial@ff000000 {
--			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
-+			compatible = "xlnx,zynqmp-uart", "cdns,uart-r1p12";
- 			status = "disabled";
- 			interrupt-parent = <&gic>;
- 			interrupts = <0 21 4>;
-@@ -583,7 +583,7 @@
- 		};
+ 	if (!f2fs_compressed_file(inode))
+ 		return true;
+-	if (S_ISREG(inode->i_mode) &&
+-		(get_dirty_pages(inode) || atomic_read(&fi->i_compr_blocks)))
++	if (S_ISREG(inode->i_mode) && F2FS_HAS_BLOCKS(inode))
+ 		return false;
  
- 		uart1: serial@ff010000 {
--			compatible = "cdns,uart-r1p12", "xlnx,xuartps";
-+			compatible = "xlnx,zynqmp-uart", "cdns,uart-r1p12";
- 			status = "disabled";
- 			interrupt-parent = <&gic>;
- 			interrupts = <0 22 4>;
+ 	fi->i_flags &= ~F2FS_COMPR_FL;
 -- 
 2.33.0
 
