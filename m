@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 723B945BB23
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:14:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F3B545BCD3
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242322AbhKXMQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:16:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49278 "EHLO mail.kernel.org"
+        id S245256AbhKXMcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:32:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243671AbhKXMOx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:14:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7286861181;
-        Wed, 24 Nov 2021 12:09:51 +0000 (UTC)
+        id S1344256AbhKXMam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 076FF61131;
+        Wed, 24 Nov 2021 12:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755791;
-        bh=KX+snrz288PpaC4aF8zeFUyd1faTVLRzfvV3PRrB66M=;
+        s=korg; t=1637756353;
+        bh=ORdil0lSCH5niHK5ARiMh6xV9T34JDvnkZDM1a6Q37c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mkZ904V2Layxbh1ZnqI+DfeVuOiQ7UqggXxpnShw8zbpZY5t6KGJyqX4J4xEguynW
-         xmmgTV6Fg1a3IVfMA3Pnv8xj8DASeCur7tzn948hWkIrj0PDFg5ZZ5N7zzl+lEDR3v
-         wAehJJevgM5OCiR3VVjXKVNhjRiwI7L4BvWEYP0g=
+        b=rTsLS2PwHVk4v3jgyGWD3C8ykeOP7trl0W497HQxHt1p+SAt2CfLeFbqoIJOqlRYr
+         jyw2gnR5KipisJJ3I91q3bNWaA5pPkJMMfN63w5aSOC6Xk75snApr0+isnh4LR4kX4
+         k+2HczKWsgCFrr6rtn+zS7eYo1fEDrW9N4CKyxfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 026/207] vmxnet3: do not stop tx queues after netif_device_detach()
-Date:   Wed, 24 Nov 2021 12:54:57 +0100
-Message-Id: <20211124115704.804872238@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+ace149a75a9a0a399ac7@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 056/251] ALSA: mixer: fix deadlock in snd_mixer_oss_set_volume
+Date:   Wed, 24 Nov 2021 12:54:58 +0100
+Message-Id: <20211124115712.196279347@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 9159f102402a64ac85e676b75cc1f9c62c5b4b73 ]
+commit 3ab7992018455ac63c33e9b3eaa7264e293e40f4 upstream.
 
-The netif_device_detach() conditionally stops all tx queues if the queues
-are running. There is no need to call netif_tx_stop_all_queues() again.
+In commit 411cef6adfb3 ("ALSA: mixer: oss: Fix racy access to slots")
+added mutex protection in snd_mixer_oss_set_volume(). Second
+mutex_lock() in same function looks like typo, fix it.
 
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+ace149a75a9a0a399ac7@syzkaller.appspotmail.com
+Fixes: 411cef6adfb3 ("ALSA: mixer: oss: Fix racy access to slots")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20211024140315.16704-1-paskripkin@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/vmxnet3/vmxnet3_drv.c | 1 -
- 1 file changed, 1 deletion(-)
+ sound/core/oss/mixer_oss.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
-index c999b10531c59..56a8031b56b37 100644
---- a/drivers/net/vmxnet3/vmxnet3_drv.c
-+++ b/drivers/net/vmxnet3/vmxnet3_drv.c
-@@ -3622,7 +3622,6 @@ vmxnet3_suspend(struct device *device)
- 	vmxnet3_free_intr_resources(adapter);
+--- a/sound/core/oss/mixer_oss.c
++++ b/sound/core/oss/mixer_oss.c
+@@ -328,7 +328,7 @@ static int snd_mixer_oss_set_volume(stru
+ 	pslot->volume[1] = right;
+ 	result = (left & 0xff) | ((right & 0xff) << 8);
+  unlock:
+-	mutex_lock(&mixer->reg_mutex);
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
+ }
  
- 	netif_device_detach(netdev);
--	netif_tx_stop_all_queues(netdev);
- 
- 	/* Create wake-up filters. */
- 	pmConf = adapter->pm_conf;
--- 
-2.33.0
-
 
 
