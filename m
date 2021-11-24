@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D6E145C591
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2058045C10D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349014AbhKXN7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:59:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S1343929AbhKXNOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:14:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353070AbhKXN4n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:56:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D6B5632A1;
-        Wed, 24 Nov 2021 13:06:57 +0000 (UTC)
+        id S1348351AbhKXNMc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:12:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D5761A84;
+        Wed, 24 Nov 2021 12:42:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759218;
-        bh=BlYd/U8THHIw243/HjfEvoNnvy6CPnMNnmxdlAQxViA=;
+        s=korg; t=1637757763;
+        bh=4FLFo4QtKGgZSNkxhZDuAi2pcLRTmHCDtelC4gPDTQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pUQATCdBtFYeGl+reaCuUP6D0yfpBq5LcjlZi3QS5/1jxBldYElbVo+SR42s3zCQ
-         IV0kLoFF+LQKqpF1MFzSNDYpheSxqh94t6ngYM0n1sng1poSvzNuDwt2sQ1JUmZ3Da
-         EDnmmGDOOTRH40WrQFk8hyngUi+lQsg5wQ5AfNs8=
+        b=cFrOcczFe+aLiG7543b6Pbrvwc/yi5s1GS0RMvOC0Gmzme1wbS2MBdhO76u1drhwh
+         1x4yUWz4yXqkS/sPpo0RSn0i+beHtcBFX5HHyvBQoX4cqLaOCl6KLvUfVkS0pD2+cn
+         ARbWhrlIXzC+qgcDzgXTFxgbDWVCEZHDNJC5JY7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vaibhav Gupta <vaibhavgupta40@gmail.com>,
-        Alexey Kuznetsov <axet@me.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Roger Quadros <rogerq@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 171/279] e100: fix device suspend/resume
-Date:   Wed, 24 Nov 2021 12:57:38 +0100
-Message-Id: <20211124115724.646661590@linuxfoundation.org>
+Subject: [PATCH 4.19 269/323] ARM: dts: omap: fix gpmc,mux-add-data type
+Date:   Wed, 24 Nov 2021 12:57:39 +0100
+Message-Id: <20211124115727.953808210@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,93 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Roger Quadros <rogerq@kernel.org>
 
-[ Upstream commit 5d2ca2e12dfb2aff3388ca57b06f570fa6206ced ]
+[ Upstream commit 51b9e22ffd3c4c56cbb7caae9750f70e55ffa603 ]
 
-As reported in [1], e100 was no longer working for suspend/resume
-cycles. The previous commit mentioned in the fixes appears to have
-broken things and this attempts to practice best known methods for
-device power management and keep wake-up working while allowing
-suspend/resume to work. To do this, I reorder a little bit of code
-and fix the resume path to make sure the device is enabled.
+gpmc,mux-add-data is not boolean.
 
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=214933
+Fixes the below errors flagged by dtbs_check.
 
-Fixes: 69a74aef8a18 ("e100: use generic power management")
-Cc: Vaibhav Gupta <vaibhavgupta40@gmail.com>
-Reported-by: Alexey Kuznetsov <axet@me.com>
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Alexey Kuznetsov <axet@me.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+"ethernet@4,0:gpmc,mux-add-data: True is not of type 'array'"
+
+Signed-off-by: Roger Quadros <rogerq@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e100.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi         | 2 +-
+ arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
-index 09ae1939e6db4..36d52246bdc66 100644
---- a/drivers/net/ethernet/intel/e100.c
-+++ b/drivers/net/ethernet/intel/e100.c
-@@ -3003,9 +3003,10 @@ static void __e100_shutdown(struct pci_dev *pdev, bool *enable_wake)
- 	struct net_device *netdev = pci_get_drvdata(pdev);
- 	struct nic *nic = netdev_priv(netdev);
+diff --git a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+index 7f6aefd134514..e7534fe9c53cf 100644
+--- a/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
++++ b/arch/arm/boot/dts/omap-gpmc-smsc9221.dtsi
+@@ -29,7 +29,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
  
-+	netif_device_detach(netdev);
-+
- 	if (netif_running(netdev))
- 		e100_down(nic);
--	netif_device_detach(netdev);
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
+diff --git a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+index 82e98ee3023ad..3dbeb7a6c569c 100644
+--- a/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
++++ b/arch/arm/boot/dts/omap3-overo-tobiduo-common.dtsi
+@@ -25,7 +25,7 @@
+ 		compatible = "smsc,lan9221","smsc,lan9115";
+ 		bank-width = <2>;
  
- 	if ((nic->flags & wol_magic) | e100_asf(nic)) {
- 		/* enable reverse auto-negotiation */
-@@ -3022,7 +3023,7 @@ static void __e100_shutdown(struct pci_dev *pdev, bool *enable_wake)
- 		*enable_wake = false;
- 	}
- 
--	pci_clear_master(pdev);
-+	pci_disable_device(pdev);
- }
- 
- static int __e100_power_off(struct pci_dev *pdev, bool wake)
-@@ -3042,8 +3043,6 @@ static int __maybe_unused e100_suspend(struct device *dev_d)
- 
- 	__e100_shutdown(to_pci_dev(dev_d), &wake);
- 
--	device_wakeup_disable(dev_d);
--
- 	return 0;
- }
- 
-@@ -3051,6 +3050,14 @@ static int __maybe_unused e100_resume(struct device *dev_d)
- {
- 	struct net_device *netdev = dev_get_drvdata(dev_d);
- 	struct nic *nic = netdev_priv(netdev);
-+	int err;
-+
-+	err = pci_enable_device(to_pci_dev(dev_d));
-+	if (err) {
-+		netdev_err(netdev, "Resume cannot enable PCI device, aborting\n");
-+		return err;
-+	}
-+	pci_set_master(to_pci_dev(dev_d));
- 
- 	/* disable reverse auto-negotiation */
- 	if (nic->phy == phy_82552_v) {
-@@ -3062,10 +3069,11 @@ static int __maybe_unused e100_resume(struct device *dev_d)
- 		           smartspeed & ~(E100_82552_REV_ANEG));
- 	}
- 
--	netif_device_attach(netdev);
- 	if (netif_running(netdev))
- 		e100_up(nic);
- 
-+	netif_device_attach(netdev);
-+
- 	return 0;
- }
- 
+-		gpmc,mux-add-data;
++		gpmc,mux-add-data = <0>;
+ 		gpmc,cs-on-ns = <0>;
+ 		gpmc,cs-rd-off-ns = <42>;
+ 		gpmc,cs-wr-off-ns = <36>;
 -- 
 2.33.0
 
