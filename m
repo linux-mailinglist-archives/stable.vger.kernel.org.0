@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7374F45BE7D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:46:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 066F345BBEB
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345264AbhKXMrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:47:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50282 "EHLO mail.kernel.org"
+        id S244037AbhKXMZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245747AbhKXMpe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:45:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F83861411;
-        Wed, 24 Nov 2021 12:26:39 +0000 (UTC)
+        id S244250AbhKXMXL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:23:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51D866104F;
+        Wed, 24 Nov 2021 12:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756800;
-        bh=mawGj9bAkOCUY1SQvO7k329OHtMuiLJXsMOHqPd/XFo=;
+        s=korg; t=1637756044;
+        bh=v5tLGlWErVUtjubjX3ljc6q1rLvSxwHd5Di/iz5XzOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKaAj4xaIvZVIPJO5aaTCIsBNWGQSI0cuW/6habMpyVpWnb18gZHdYQDIkziJQ3L2
-         W8kQo/MsJmc6LLyPoYgt6bYjWScYxfEInC/s3K0/0GTNeRPXE97hGyioDQTJsICJL8
-         wnHhNQhs9mV3T6q+Joc6P2xZjd5gx2Cdt/P4Z6Qg=
+        b=W3Wm0SUwUXfYEPb54SggBj61jvtE+ZPxgOKDhhEZE06OTkhSOHggQ8WVL4VI6Yl46
+         wPiqfHxaHVVMm/ESs1WqLF44oThf6j18oKMdajjbRBPyYBeE3rwk4ClXjKIvPUS0p/
+         /vOSBrJsWvdsS+o+NmS7onhjVJU1I8xBYIITx7PY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 179/251] xen-pciback: Fix return in pm_ctrl_init()
+Subject: [PATCH 4.9 150/207] nfc: pn533: Fix double free when pn533_fill_fragment_skbs() fails
 Date:   Wed, 24 Nov 2021 12:57:01 +0100
-Message-Id: <20211124115716.480843842@linuxfoundation.org>
+Message-Id: <20211124115708.867323443@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Chengfeng Ye <cyeaa@connect.ust.hk>
 
-[ Upstream commit 4745ea2628bb43a7ec34b71763b5a56407b33990 ]
+[ Upstream commit 9fec40f850658e00a14a7dd9e06f7fbc7e59cc4a ]
 
-Return NULL instead of passing to ERR_PTR while err is zero,
-this fix smatch warnings:
-drivers/xen/xen-pciback/conf_space_capability.c:163
- pm_ctrl_init() warn: passing zero to 'ERR_PTR'
+skb is already freed by dev_kfree_skb in pn533_fill_fragment_skbs,
+but follow error handler branch when pn533_fill_fragment_skbs()
+fails, skb is freed again, results in double free issue. Fix this
+by not free skb in error path of pn533_fill_fragment_skbs.
 
-Fixes: a92336a1176b ("xen/pciback: Drop two backends, squash and cleanup some code.")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20211008074417.8260-1-yuehaibing@huawei.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: 963a82e07d4e ("NFC: pn533: Split large Tx frames in chunks")
+Fixes: 93ad42020c2d ("NFC: pn533: Target mode Tx fragmentation support")
+Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xen-pciback/conf_space_capability.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nfc/pn533/pn533.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/xen/xen-pciback/conf_space_capability.c b/drivers/xen/xen-pciback/conf_space_capability.c
-index e5694133ebe57..42f0f64fcba47 100644
---- a/drivers/xen/xen-pciback/conf_space_capability.c
-+++ b/drivers/xen/xen-pciback/conf_space_capability.c
-@@ -160,7 +160,7 @@ static void *pm_ctrl_init(struct pci_dev *dev, int offset)
- 	}
+diff --git a/drivers/nfc/pn533/pn533.c b/drivers/nfc/pn533/pn533.c
+index 6c495664d2cb7..806309ee41657 100644
+--- a/drivers/nfc/pn533/pn533.c
++++ b/drivers/nfc/pn533/pn533.c
+@@ -2075,7 +2075,7 @@ static int pn533_fill_fragment_skbs(struct pn533 *dev, struct sk_buff *skb)
+ 		frag = pn533_alloc_skb(dev, frag_size);
+ 		if (!frag) {
+ 			skb_queue_purge(&dev->fragment_skb);
+-			break;
++			return -ENOMEM;
+ 		}
  
- out:
--	return ERR_PTR(err);
-+	return err ? ERR_PTR(err) : NULL;
- }
+ 		if (!dev->tgt_mode) {
+@@ -2145,7 +2145,7 @@ static int pn533_transceive(struct nfc_dev *nfc_dev,
+ 		/* jumbo frame ? */
+ 		if (skb->len > PN533_CMD_DATAEXCH_DATA_MAXLEN) {
+ 			rc = pn533_fill_fragment_skbs(dev, skb);
+-			if (rc <= 0)
++			if (rc < 0)
+ 				goto error;
  
- static const struct config_field caplist_pm[] = {
+ 			skb = skb_dequeue(&dev->fragment_skb);
+@@ -2217,7 +2217,7 @@ static int pn533_tm_send(struct nfc_dev *nfc_dev, struct sk_buff *skb)
+ 	/* let's split in multiple chunks if size's too big */
+ 	if (skb->len > PN533_CMD_DATAEXCH_DATA_MAXLEN) {
+ 		rc = pn533_fill_fragment_skbs(dev, skb);
+-		if (rc <= 0)
++		if (rc < 0)
+ 			goto error;
+ 
+ 		/* get the first skb */
 -- 
 2.33.0
 
