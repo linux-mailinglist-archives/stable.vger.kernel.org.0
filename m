@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 497EB45BFB1
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:58:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B8F445BB1F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:14:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345204AbhKXNA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:00:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39124 "EHLO mail.kernel.org"
+        id S242364AbhKXMQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:16:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347521AbhKXM6z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:58:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BDC06113E;
-        Wed, 24 Nov 2021 12:34:02 +0000 (UTC)
+        id S243642AbhKXMOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:14:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2CED610F7;
+        Wed, 24 Nov 2021 12:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757243;
-        bh=4OooTmRztQJKUj11q08dZdpILcJXu/3V0osD63y2+JQ=;
+        s=korg; t=1637755783;
+        bh=JX+6agdUbCVxfhax1pToneRS2tToK4gC3Zg0+8QpI10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n9RuIMYAlH0a4+/o+YGceZpVreC6Mn7W+vPfJFf9i8jYokFicZJ93FASMW9TCIBEk
-         9gayweTxZk4sdqJUc5gExW1qophMAaSDZHEu/Np9177JjrfbSNjasjOCvX12NRGpV5
-         D7XW/rfPdWcCgMeG4BZX8kZpw6ZKjqacr1/ocU44=
+        b=aDNDRYtQd3bGKg7b6HjvUYRUHYjdio5kaC3NuEOa9O45QcNYk9or3bfrV90jfVmiF
+         OSMaqB5hk53jd6GDszuDLBv3FhHs+nsMEz2zSX2PxbbqCvsHNbb5+VYu+K1xJqqt5L
+         Y3rCMeppcfLXXTffzFLkHETQ40vkGsRPIadbCyAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Joe Jin <joe.jin@oracle.com>,
+        Dongli Zhang <dongli.zhang@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 104/323] media: usb: dvd-usb: fix uninit-value bug in dibusb_read_eeprom_byte()
+Subject: [PATCH 4.9 023/207] xen/netfront: stop tx queues during live migration
 Date:   Wed, 24 Nov 2021 12:54:54 +0100
-Message-Id: <20211124115722.477696926@linuxfoundation.org>
+Message-Id: <20211124115704.713684410@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit 899a61a3305d49e8a712e9ab20d0db94bde5929f ]
+[ Upstream commit 042b2046d0f05cf8124c26ff65dbb6148a4404fb ]
 
-In dibusb_read_eeprom_byte(), if dibusb_i2c_msg() fails, val gets
-assigned an value that's not properly initialized.
-Using kzalloc() in place of kmalloc() for the buffer fixes this issue,
-as the val can now be set to 0 in the event dibusb_i2c_msg() fails.
+The tx queues are not stopped during the live migration. As a result, the
+ndo_start_xmit() may access netfront_info->queues which is freed by
+talk_to_netback()->xennet_destroy_queues().
 
-Reported-by: syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com
-Tested-by: syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This patch is to netif_device_detach() at the beginning of xen-netfront
+resuming, and netif_device_attach() at the end of resuming.
+
+     CPU A                                CPU B
+
+ talk_to_netback()
+ -> if (info->queues)
+        xennet_destroy_queues(info);
+    to free netfront_info->queues
+
+                                        xennet_start_xmit()
+                                        to access netfront_info->queues
+
+  -> err = xennet_create_queues(info, &num_queues);
+
+The idea is borrowed from virtio-net.
+
+Cc: Joe Jin <joe.jin@oracle.com>
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dibusb-common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/xen-netfront.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb/dibusb-common.c b/drivers/media/usb/dvb-usb/dibusb-common.c
-index fb1b4f2d5f9de..85b7838b3ede3 100644
---- a/drivers/media/usb/dvb-usb/dibusb-common.c
-+++ b/drivers/media/usb/dvb-usb/dibusb-common.c
-@@ -226,7 +226,7 @@ int dibusb_read_eeprom_byte(struct dvb_usb_device *d, u8 offs, u8 *val)
- 	u8 *buf;
- 	int rc;
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index ceaf6b30d683d..0971c09363cbf 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -1460,6 +1460,10 @@ static int netfront_resume(struct xenbus_device *dev)
  
--	buf = kmalloc(2, GFP_KERNEL);
-+	buf = kzalloc(2, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
+ 	dev_dbg(&dev->dev, "%s\n", dev->nodename);
  
++	netif_tx_lock_bh(info->netdev);
++	netif_device_detach(info->netdev);
++	netif_tx_unlock_bh(info->netdev);
++
+ 	xennet_disconnect_backend(info);
+ 	return 0;
+ }
+@@ -2020,6 +2024,10 @@ static int xennet_connect(struct net_device *dev)
+ 	 * domain a kick because we've probably just requeued some
+ 	 * packets.
+ 	 */
++	netif_tx_lock_bh(np->netdev);
++	netif_device_attach(np->netdev);
++	netif_tx_unlock_bh(np->netdev);
++
+ 	netif_carrier_on(np->netdev);
+ 	for (j = 0; j < num_queues; ++j) {
+ 		queue = &np->queues[j];
 -- 
 2.33.0
 
