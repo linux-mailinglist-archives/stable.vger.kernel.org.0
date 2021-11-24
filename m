@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 684ED45C311
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:32:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F63B45C107
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352192AbhKXNfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:35:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46294 "EHLO mail.kernel.org"
+        id S1346240AbhKXNOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:14:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351568AbhKXNc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:32:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C138061BD1;
-        Wed, 24 Nov 2021 12:53:01 +0000 (UTC)
+        id S1348003AbhKXNMZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:12:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 183CE6140B;
+        Wed, 24 Nov 2021 12:42:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758382;
-        bh=Tg+6A1slWOVltCdKUVh0hival0C3tyiewFxYm7nMwOc=;
+        s=korg; t=1637757753;
+        bh=Uf/Wcztr9Wvb/Kimt4by+bdPmpJPrLRDszZo1cXBh24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A1/9SykltyUMeXKmm4KjNB31FwNdNsqrIVR7JERbMpkaqEKJMkBfirs5vdY4uyUqF
-         MQKcHQcolEz4V6VjiCpCm3zuelWmSn0qdnzmi4wpJYfy+5q20KxoG46nLYn1A+uzPH
-         CvksqcILPJGQ1zto/aca8xj2svLSzFm1btw0CzVU=
+        b=M+3bbNYq2oXtV1HvY9Y3r9ydaK00nTp1lfNiCkeFZr73ygTI2FQ8bU2IabwB2z7w2
+         mjYTiQXZLebU6nWSKNgv5Z71pcz0r4T9tx22c2GPvXy4zpR0bmfdqo1Mf8NTXm7N3v
+         NYyRQ6fSHeNgw/SX/oN2576Yv4vTKgNCceCp9qBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Matt Fleming <matt@console-pimps.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 052/154] sh: fix kconfig unmet dependency warning for FRAME_POINTER
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>
+Subject: [PATCH 4.19 258/323] erofs: fix unsafe pagevec reuse of hooked pclusters
 Date:   Wed, 24 Nov 2021 12:57:28 +0100
-Message-Id: <20211124115704.014877809@linuxfoundation.org>
+Message-Id: <20211124115727.597633999@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +39,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit fda1bc533094a7db68b11e7503d2c6c73993d12a ]
+commit 86432a6dca9bed79111990851df5756d3eb5f57c upstream.
 
-FRAME_POINTER depends on DEBUG_KERNEL so DWARF_UNWINDER should
-depend on DEBUG_KERNEL before selecting FRAME_POINTER.
+There are pclusters in runtime marked with Z_EROFS_PCLUSTER_TAIL
+before actual I/O submission. Thus, the decompression chain can be
+extended if the following pcluster chain hooks such tail pcluster.
 
-WARNING: unmet direct dependencies detected for FRAME_POINTER
-  Depends on [n]: DEBUG_KERNEL [=n] && (M68K || UML || SUPERH [=y]) || ARCH_WANT_FRAME_POINTERS [=n]
-  Selected by [y]:
-  - DWARF_UNWINDER [=y]
+As the related comment mentioned, if some page is made of a hooked
+pcluster and another followed pcluster, it can be reused for in-place
+I/O (since I/O should be submitted anyway):
+ _______________________________________________________________
+|  tail (partial) page |          head (partial) page           |
+|_____PRIMARY_HOOKED___|____________PRIMARY_FOLLOWED____________|
 
-Fixes: bd353861c735 ("sh: dwarf unwinder support.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Matt Fleming <matt@console-pimps.org>
-Cc: Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Signed-off-by: Rich Felker <dalias@libc.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, it's by no means safe to reuse as pagevec since if such
+PRIMARY_HOOKED pclusters finally move into bypass chain without I/O
+submission. It's somewhat hard to reproduce with LZ4 and I just found
+it (general protection fault) by ro_fsstressing a LZMA image for long
+time.
+
+I'm going to actively clean up related code together with multi-page
+folio adaption in the next few months. Let's address it directly for
+easier backporting for now.
+
+Call trace for reference:
+  z_erofs_decompress_pcluster+0x10a/0x8a0 [erofs]
+  z_erofs_decompress_queue.isra.36+0x3c/0x60 [erofs]
+  z_erofs_runqueue+0x5f3/0x840 [erofs]
+  z_erofs_readahead+0x1e8/0x320 [erofs]
+  read_pages+0x91/0x270
+  page_cache_ra_unbounded+0x18b/0x240
+  filemap_get_pages+0x10a/0x5f0
+  filemap_read+0xa9/0x330
+  new_sync_read+0x11b/0x1a0
+  vfs_read+0xf1/0x190
+
+Link: https://lore.kernel.org/r/20211103182006.4040-1-xiang@kernel.org
+Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+Cc: <stable@vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sh/Kconfig.debug | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/erofs/unzip_pagevec.h |   13 ++++++++++---
+ drivers/staging/erofs/unzip_vle.c     |   17 +++++++++--------
+ 2 files changed, 19 insertions(+), 11 deletions(-)
 
-diff --git a/arch/sh/Kconfig.debug b/arch/sh/Kconfig.debug
-index 28a43d63bde1f..97b0e26cf05a1 100644
---- a/arch/sh/Kconfig.debug
-+++ b/arch/sh/Kconfig.debug
-@@ -57,6 +57,7 @@ config DUMP_CODE
+--- a/drivers/staging/erofs/unzip_pagevec.h
++++ b/drivers/staging/erofs/unzip_pagevec.h
+@@ -117,11 +117,18 @@ static inline void z_erofs_pagevec_ctor_
+ static inline bool
+ z_erofs_pagevec_ctor_enqueue(struct z_erofs_pagevec_ctor *ctor,
+ 			     struct page *page,
+-			     enum z_erofs_page_type type)
++			     enum z_erofs_page_type type,
++			     bool pvec_safereuse)
+ {
+-	if (unlikely(ctor->next == NULL && type))
+-		if (ctor->index + 1 == ctor->nr)
++	if (!ctor->next) {
++		/* some pages cannot be reused as pvec safely without I/O */
++		if (type == Z_EROFS_PAGE_TYPE_EXCLUSIVE && !pvec_safereuse)
++			type = Z_EROFS_VLE_PAGE_TYPE_TAIL_SHARED;
++
++		if (type != Z_EROFS_PAGE_TYPE_EXCLUSIVE &&
++		    ctor->index + 1 == ctor->nr)
+ 			return false;
++	}
  
- config DWARF_UNWINDER
- 	bool "Enable the DWARF unwinder for stacktraces"
-+	depends on DEBUG_KERNEL
- 	select FRAME_POINTER
- 	default n
- 	help
--- 
-2.33.0
-
+ 	if (unlikely(ctor->index >= ctor->nr))
+ 		z_erofs_pagevec_ctor_pagedown(ctor, false);
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -228,10 +228,10 @@ static inline bool try_to_reuse_as_compr
+ }
+ 
+ /* callers must be with work->lock held */
+-static int z_erofs_vle_work_add_page(
+-	struct z_erofs_vle_work_builder *builder,
+-	struct page *page,
+-	enum z_erofs_page_type type)
++static int z_erofs_vle_work_add_page(struct z_erofs_vle_work_builder *builder,
++				     struct page *page,
++				     enum z_erofs_page_type type,
++				     bool pvec_safereuse)
+ {
+ 	int ret;
+ 
+@@ -241,9 +241,9 @@ static int z_erofs_vle_work_add_page(
+ 		try_to_reuse_as_compressed_page(builder, page))
+ 		return 0;
+ 
+-	ret = z_erofs_pagevec_ctor_enqueue(&builder->vector, page, type);
++	ret = z_erofs_pagevec_ctor_enqueue(&builder->vector, page, type,
++					   pvec_safereuse);
+ 	builder->work->vcnt += (unsigned)ret;
+-
+ 	return ret ? 0 : -EAGAIN;
+ }
+ 
+@@ -688,14 +688,15 @@ hitted:
+ 		tight &= builder_is_followed(builder);
+ 
+ retry:
+-	err = z_erofs_vle_work_add_page(builder, page, page_type);
++	err = z_erofs_vle_work_add_page(builder, page, page_type,
++					builder_is_followed(builder));
+ 	/* should allocate an additional staging page for pagevec */
+ 	if (err == -EAGAIN) {
+ 		struct page *const newpage =
+ 			__stagingpage_alloc(page_pool, GFP_NOFS);
+ 
+ 		err = z_erofs_vle_work_add_page(builder,
+-			newpage, Z_EROFS_PAGE_TYPE_EXCLUSIVE);
++			newpage, Z_EROFS_PAGE_TYPE_EXCLUSIVE, true);
+ 		if (likely(!err))
+ 			goto retry;
+ 	}
 
 
