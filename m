@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9810745BA11
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EF2745BBB1
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:19:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240718AbhKXMHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:07:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33756 "EHLO mail.kernel.org"
+        id S243221AbhKXMWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:22:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235880AbhKXMGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:06:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AC6961059;
-        Wed, 24 Nov 2021 12:03:23 +0000 (UTC)
+        id S243284AbhKXMUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:20:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE2896113A;
+        Wed, 24 Nov 2021 12:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755404;
-        bh=Y9yYZzrUQsL7lyVicouM+0l6nEGFpGespzex3VvpJwQ=;
+        s=korg; t=1637755943;
+        bh=lA42VD3iRzmgxGMgpYLuBwmH0+VxrxRMBuAUeCPxQks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Hw8hu7hGgpt/Mlg/l89Eoq2wFsbepwBLSsl6FhrLpr8tLurbl2qPGorhX0tYomk4
-         9ssa5Myj6c7Mz5pj77EOPU7zABKNxkbEVmefskCPzh06PSptp1el+wLJpPZt/vmMCw
-         YLxZ8vHGQgSPwipHb7ghU+NfRiQoKJJWxUwAYpRU=
+        b=UdjG3tKHfN9gugDeK0bujANLBDCZWNd49R34oq5xc3C015emci3apErwGgXgc2hxj
+         fkzNaJZtW/CTfUYCLWsCo1NL8V2gKy5ORkRSuOJTxBNrFmPzC09KW8bQzaXl158V3q
+         w/2kCsrdHyRY+WNmILHsEmNDwi+Jxd14AEFg8qrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tor Vic <torvic9@mailbox.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 082/162] platform/x86: thinkpad_acpi: Fix bitwise vs. logical warning
+Subject: [PATCH 4.9 114/207] crypto: pcrypt - Delay write to padata->info
 Date:   Wed, 24 Nov 2021 12:56:25 +0100
-Message-Id: <20211124115700.969726384@linuxfoundation.org>
+Message-Id: <20211124115707.762194521@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit fd96e35ea7b95f1e216277805be89d66e4ae962d ]
+[ Upstream commit 68b6dea802cea0dbdd8bd7ccc60716b5a32a5d8a ]
 
-A new warning in clang points out a use of bitwise OR with boolean
-expressions in this driver:
+These three events can race when pcrypt is used multiple times in a
+template ("pcrypt(pcrypt(...))"):
 
-drivers/platform/x86/thinkpad_acpi.c:9061:11: error: use of bitwise '|' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
-        else if ((strlencmp(cmd, "level disengaged") == 0) |
-                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                                           ||
-drivers/platform/x86/thinkpad_acpi.c:9061:11: note: cast one or both operands to int to silence this warning
-1 error generated.
+  1.  [taskA] The caller makes the crypto request via crypto_aead_encrypt()
+  2.  [kworkerB] padata serializes the inner pcrypt request
+  3.  [kworkerC] padata serializes the outer pcrypt request
 
-This should clearly be a logical OR so change it to fix the warning.
+3 might finish before the call to crypto_aead_encrypt() returns in 1,
+resulting in two possible issues.
 
-Fixes: fe98a52ce754 ("ACPI: thinkpad-acpi: add sysfs support to fan subdriver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1476
-Reported-by: Tor Vic <torvic9@mailbox.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20211018182537.2316800-1-nathan@kernel.org
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+First, a use-after-free of the crypto request's memory when, for
+example, taskA writes to the outer pcrypt request's padata->info in
+pcrypt_aead_enc() after kworkerC completes the request.
+
+Second, the outer pcrypt request overwrites the inner pcrypt request's
+return code with -EINPROGRESS, making a successful request appear to
+fail.  For instance, kworkerB writes the outer pcrypt request's
+padata->info in pcrypt_aead_done() and then taskA overwrites it
+in pcrypt_aead_enc().
+
+Avoid both situations by delaying the write of padata->info until after
+the inner crypto request's return code is checked.  This prevents the
+use-after-free by not touching the crypto request's memory after the
+next-inner crypto request is made, and stops padata->info from being
+overwritten.
+
+Fixes: 5068c7a883d16 ("crypto: pcrypt - Add pcrypt crypto parallelization wrapper")
+Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/pcrypt.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 20c588af33d88..f3954af14f52f 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -8606,7 +8606,7 @@ static int fan_write_cmd_level(const char *cmd, int *rc)
+diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
+index 85082574c5154..62e11835f220e 100644
+--- a/crypto/pcrypt.c
++++ b/crypto/pcrypt.c
+@@ -138,12 +138,14 @@ static void pcrypt_aead_enc(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
  
- 	if (strlencmp(cmd, "level auto") == 0)
- 		level = TP_EC_FAN_AUTO;
--	else if ((strlencmp(cmd, "level disengaged") == 0) |
-+	else if ((strlencmp(cmd, "level disengaged") == 0) ||
- 			(strlencmp(cmd, "level full-speed") == 0))
- 		level = TP_EC_FAN_FULLSPEED;
- 	else if (sscanf(cmd, "level %d", &level) != 1)
+-	padata->info = crypto_aead_encrypt(req);
++	ret = crypto_aead_encrypt(req);
+ 
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
+ 
++	padata->info = ret;
+ 	padata_do_serial(padata);
+ }
+ 
+@@ -180,12 +182,14 @@ static void pcrypt_aead_dec(struct padata_priv *padata)
+ {
+ 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
+ 	struct aead_request *req = pcrypt_request_ctx(preq);
++	int ret;
+ 
+-	padata->info = crypto_aead_decrypt(req);
++	ret = crypto_aead_decrypt(req);
+ 
+-	if (padata->info == -EINPROGRESS)
++	if (ret == -EINPROGRESS)
+ 		return;
+ 
++	padata->info = ret;
+ 	padata_do_serial(padata);
+ }
+ 
 -- 
 2.33.0
 
