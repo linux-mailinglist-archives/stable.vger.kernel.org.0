@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07B7945C62A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C128545C271
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:26:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349437AbhKXOFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:05:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51876 "EHLO mail.kernel.org"
+        id S1345156AbhKXN3S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:29:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356027AbhKXOD1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:03:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AE3261241;
-        Wed, 24 Nov 2021 13:10:48 +0000 (UTC)
+        id S1347535AbhKXN04 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:26:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9C0161B7B;
+        Wed, 24 Nov 2021 12:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759448;
-        bh=OIKv9eyq5YnOjXWGc1lL+IrJ0Xkw/I4g+hcPAt/lWxc=;
+        s=korg; t=1637758216;
+        bh=yJ7VnkyhK3R6QJKSYHXhRcX1eu4mVicswVlKz0iA1gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IitQzBeCgSzj3uvF8RR3Mu9YGmq8ihNc7jLLVuae+vJG14RceeYB6GBBwhedML5Pv
-         P9NOq/nPTV40ifn0a1F2n9CLbncwPlVVUbDK3V3QJi5I7bxUx4LXuKL/2KsJFIyA+r
-         P2vcN8OzW9pfczUQTCea+VRxAW5RliLwAHpyHdj0=
+        b=V/G/gFKn7eUIrpYMwWNIERT/SdgcjpHSJw42WsQRdm3p8fyMKm0tPsd4/ErTsQWnz
+         aXBT7Ru6zrTa/UuQw/SMuL6MDANROugDBZa1UR+pq0HdYisA7VCDZwcjOB/+lumTn5
+         LheDcdx+TNuFOiNz6iE0Xty1oMcexkunWJebUjlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Brost <matthew.brost@intel.com>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>
-Subject: [PATCH 5.15 245/279] drm/i915/guc: Unwind context requests in reverse order
+        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 096/100] ASoC: DAPM: Cover regression by kctl change notification fix
 Date:   Wed, 24 Nov 2021 12:58:52 +0100
-Message-Id: <20211124115727.188877432@linuxfoundation.org>
+Message-Id: <20211124115657.958194751@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +39,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Brost <matthew.brost@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit c39f51cc980dd918c5b3da61d54c4725785e766e upstream.
+commit 827b0913a9d9d07a0c3e559dbb20ca4d6d285a54 upstream.
 
-When unwinding requests on a reset context, if other requests in the
-context are in the priority list the requests could be resubmitted out
-of seqno order. Traverse the list of active requests in reverse and
-append to the head of the priority list to fix this.
+The recent fix for DAPM to correct the kctl change notification by the
+commit 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change
+notifications") caused other regressions since it changed the behavior
+of snd_soc_dapm_set_pin() that is called from several API functions.
+Formerly it returned always 0 for success, but now it returns 0 or 1.
 
-Fixes: eb5e7da736f3 ("drm/i915/guc: Reset implementation for new GuC interface")
-Signed-off-by: Matthew Brost <matthew.brost@intel.com>
-Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+This patch addresses it, restoring the old behavior of
+snd_soc_dapm_set_pin() while keeping the fix in
+snd_soc_dapm_put_pin_switch().
+
+Fixes: 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change notifications")
+Reported-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210909164744.31249-4-matthew.brost@intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20211105090925.20575-1-tiwai@suse.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/soc-dapm.c |   29 +++++++++++++++++++++++------
+ 1 file changed, 23 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-@@ -807,9 +807,9 @@ __unwind_incomplete_requests(struct inte
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -2542,8 +2542,13 @@ static struct snd_soc_dapm_widget *dapm_
+ 	return NULL;
+ }
  
- 	spin_lock_irqsave(&sched_engine->lock, flags);
- 	spin_lock(&ce->guc_active.lock);
--	list_for_each_entry_safe(rq, rn,
--				 &ce->guc_active.requests,
--				 sched.link) {
-+	list_for_each_entry_safe_reverse(rq, rn,
-+					 &ce->guc_active.requests,
-+					 sched.link) {
- 		if (i915_request_completed(rq))
- 			continue;
+-static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
+-				const char *pin, int status)
++/*
++ * set the DAPM pin status:
++ * returns 1 when the value has been updated, 0 when unchanged, or a negative
++ * error code; called from kcontrol put callback
++ */
++static int __snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
++				  const char *pin, int status)
+ {
+ 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
+ 	int ret = 0;
+@@ -2569,6 +2574,18 @@ static int snd_soc_dapm_set_pin(struct s
+ 	return ret;
+ }
  
-@@ -824,7 +824,7 @@ __unwind_incomplete_requests(struct inte
- 		}
- 		GEM_BUG_ON(i915_sched_engine_is_empty(sched_engine));
++/*
++ * similar as __snd_soc_dapm_set_pin(), but returns 0 when successful;
++ * called from several API functions below
++ */
++static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
++				const char *pin, int status)
++{
++	int ret = __snd_soc_dapm_set_pin(dapm, pin, status);
++
++	return ret < 0 ? ret : 0;
++}
++
+ /**
+  * snd_soc_dapm_sync_unlocked - scan and power dapm paths
+  * @dapm: DAPM context
+@@ -3584,10 +3601,10 @@ int snd_soc_dapm_put_pin_switch(struct s
+ 	const char *pin = (const char *)kcontrol->private_value;
+ 	int ret;
  
--		list_add_tail(&rq->sched.link, pl);
-+		list_add(&rq->sched.link, pl);
- 		set_bit(I915_FENCE_FLAG_PQUEUE, &rq->fence.flags);
- 	}
- 	spin_unlock(&ce->guc_active.lock);
+-	if (ucontrol->value.integer.value[0])
+-		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
+-	else
+-		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
++	mutex_lock_nested(&card->dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
++	ret = __snd_soc_dapm_set_pin(&card->dapm, pin,
++				     !!ucontrol->value.integer.value[0]);
++	mutex_unlock(&card->dapm_mutex);
+ 
+ 	snd_soc_dapm_sync(&card->dapm);
+ 	return ret;
 
 
