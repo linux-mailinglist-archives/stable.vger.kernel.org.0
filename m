@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82C1445BA17
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87AE145BB1D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242186AbhKXMH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:07:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60282 "EHLO mail.kernel.org"
+        id S242203AbhKXMQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:16:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242183AbhKXMEz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:04:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D5016104F;
-        Wed, 24 Nov 2021 12:01:45 +0000 (UTC)
+        id S243639AbhKXMOm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:14:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8E6C61175;
+        Wed, 24 Nov 2021 12:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755305;
-        bh=N9ozRnxwDqK1lEmOchJO2K9+YsImoQAMV8H5wgwu/G8=;
+        s=korg; t=1637755775;
+        bh=2Fsm3nztAYtX6C8ybsZoeJWKl/AV67cfZiLxQEht6OY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dGUOKUEqQujfeCjuqVcPN5oFh8RluQOiIzFSNUEwgHtbWqtdluKS75jWpiIBHYazy
-         vmqwAQlQcfs/8S7cpjkpOWf9V7s1QD/MCmP24rqlfYGUJ4shcj/GynE0fOHkrrxSWO
-         wimyXKAS6w/zSQGdFckJ1XEsRhYaZ5ePaDRRP1gI=
+        b=0P/erWULetu9/fKhu6oR4Ug1xlVlgv4uaOTm5Pu+bsM8s8pUNer/9VFa/jcqqNwpk
+         TI3xj+G/66NuWRg6Khoj9LN4jaRgtxiJztQ8tgWejd3EFv0YZC9meTEbhlZ4zXPHLu
+         lQHoiDFZMYKI0UxKBcKovilSaRLj8bxXLQZWX/54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Pierre Ossman <pierre@ossman.eu>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 019/162] mmc: winbond: dont build on M68K
+        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
+        stable@kernel.org, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 051/207] quota: check block number when reading the block in quota file
 Date:   Wed, 24 Nov 2021 12:55:22 +0100
-Message-Id: <20211124115658.954449437@linuxfoundation.org>
+Message-Id: <20211124115705.580974669@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +39,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit 162079f2dccd02cb4b6654defd32ca387dd6d4d4 ]
+commit 9bf3d20331295b1ecb81f4ed9ef358c51699a050 upstream.
 
-The Winbond MMC driver fails to build on ARCH=m68k so prevent
-that build config. Silences these build errors:
+The block number in the quota tree on disk should be smaller than the
+v2_disk_dqinfo.dqi_blocks. If the quota file was corrupted, we may be
+allocating an 'allocated' block and that would lead to a loop in a tree,
+which will probably trigger oops later. This patch adds a check for the
+block number in the quota tree to prevent such potential issue.
 
-../drivers/mmc/host/wbsd.c: In function 'wbsd_request_end':
-../drivers/mmc/host/wbsd.c:212:28: error: implicit declaration of function 'claim_dma_lock' [-Werror=implicit-function-declaration]
-  212 |                 dmaflags = claim_dma_lock();
-../drivers/mmc/host/wbsd.c:215:17: error: implicit declaration of function 'release_dma_lock'; did you mean 'release_task'? [-Werror=implicit-function-declaration]
-  215 |                 release_dma_lock(dmaflags);
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Pierre Ossman <pierre@ossman.eu>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211017175949.23838-1-rdunlap@infradead.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211008093821.1001186-2-yi.zhang@huawei.com
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Cc: stable@kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/quota/quota_tree.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/mmc/host/Kconfig b/drivers/mmc/host/Kconfig
-index 2e6d2fff1096a..fb1231a882e65 100644
---- a/drivers/mmc/host/Kconfig
-+++ b/drivers/mmc/host/Kconfig
-@@ -377,7 +377,7 @@ config MMC_OMAP_HS
- 
- config MMC_WBSD
- 	tristate "Winbond W83L51xD SD/MMC Card Interface support"
--	depends on ISA_DMA_API
-+	depends on ISA_DMA_API && !M68K
- 	help
- 	  This selects the Winbond(R) W83L51xD Secure digital and
-           Multimedia card Interface.
--- 
-2.33.0
-
+--- a/fs/quota/quota_tree.c
++++ b/fs/quota/quota_tree.c
+@@ -487,6 +487,13 @@ static int remove_tree(struct qtree_mem_
+ 		goto out_buf;
+ 	}
+ 	newblk = le32_to_cpu(ref[get_index(info, dquot->dq_id, depth)]);
++	if (newblk < QT_TREEOFF || newblk >= info->dqi_blocks) {
++		quota_error(dquot->dq_sb, "Getting block too big (%u >= %u)",
++			    newblk, info->dqi_blocks);
++		ret = -EUCLEAN;
++		goto out_buf;
++	}
++
+ 	if (depth == info->dqi_qtree_depth - 1) {
+ 		ret = free_dqentry(info, dquot, newblk);
+ 		newblk = 0;
+@@ -586,6 +593,13 @@ static loff_t find_tree_dqentry(struct q
+ 	blk = le32_to_cpu(ref[get_index(info, dquot->dq_id, depth)]);
+ 	if (!blk)	/* No reference? */
+ 		goto out_buf;
++	if (blk < QT_TREEOFF || blk >= info->dqi_blocks) {
++		quota_error(dquot->dq_sb, "Getting block too big (%u >= %u)",
++			    blk, info->dqi_blocks);
++		ret = -EUCLEAN;
++		goto out_buf;
++	}
++
+ 	if (depth < info->dqi_qtree_depth - 1)
+ 		ret = find_tree_dqentry(info, dquot, blk, depth+1);
+ 	else
 
 
