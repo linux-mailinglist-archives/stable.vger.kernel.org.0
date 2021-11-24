@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A1AE45C562
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:54:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 119A745C29A
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:28:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347887AbhKXN5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:57:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
+        id S1349832AbhKXNap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:30:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352366AbhKXNy4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:54:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E45561504;
-        Wed, 24 Nov 2021 13:06:13 +0000 (UTC)
+        id S1350774AbhKXN2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:28:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 302A561167;
+        Wed, 24 Nov 2021 12:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759175;
-        bh=QmJe54iRhzz0vAi7dCGLFqgX+U7Ar1Wycuxbr4Ur1Kc=;
+        s=korg; t=1637758271;
+        bh=ISt9HPXrYaaW0N82FruUv60OvQHSwzSStOJjuRQJ4DE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DchSgYfmKUZvKbhJ08uDIS7umbDMJ/4m88r+b+YGMrlSgRmo8mjHegh+a/2LVhE7C
-         UpGQwKDHaZ7wlJ4LEn8kORK6113UcJ7I7CisCNvXQB8CjammHQ6edmvEvJbxHb/Uos
-         lJN52YQHhKQDuFkw+k2BBpkewqVRza8XF4DTvxI8=
+        b=1WqHnhO4/nWvRRxqiIWv9SOb2L/wexmqMb3iFvgMOvE0piMQB91mF5Dlp7/hX8SDd
+         C9suq2vXGoPLLm8sSYh7Jz5Cev9DQ9JgUO6ydne/GY5pjaOIobZUwTXf3sme5D+jjT
+         I0smx0W3ngRJUGvz0OQ/YxdXAFyYSlLpHCbwk1p0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicholas Nunley <nicholas.d.nunley@intel.com>,
-        Tony Brelinski <tony.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Sven Peter <sven@svenpeter.dev>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 124/279] iavf: check for null in iavf_fix_features
+Subject: [PATCH 5.10 015/154] usb: typec: tipd: Remove WARN_ON in tps6598x_block_read
 Date:   Wed, 24 Nov 2021 12:56:51 +0100
-Message-Id: <20211124115723.092541936@linuxfoundation.org>
+Message-Id: <20211124115702.874451845@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Nunley <nicholas.d.nunley@intel.com>
+From: Sven Peter <sven@svenpeter.dev>
 
-[ Upstream commit 8a4a126f4be88eb8b5f00a165ab58c35edf4ef76 ]
+[ Upstream commit b7a0a63f3fed57d413bb857de164ea9c3984bc4e ]
 
-If the driver has lost contact with the PF then it enters a disabled state
-and frees adapter->vf_res. However, ndo_fix_features can still be called on
-the interface, so we need to check for this condition first. Since we have
-no information on the features at this time simply leave them unmodified
-and return.
+Calling tps6598x_block_read with a higher than allowed len can be
+handled by just returning an error. There's no need to crash systems
+with panic-on-warn enabled.
 
-Fixes: c4445aedfe09 ("i40evf: Fix VLAN features")
-Signed-off-by: Nicholas Nunley <nicholas.d.nunley@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20210914140235.65955-3-sven@svenpeter.dev
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/typec/tps6598x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index cada4e0e40b48..12976ccca1b6e 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3442,7 +3442,8 @@ static netdev_features_t iavf_fix_features(struct net_device *netdev,
- {
- 	struct iavf_adapter *adapter = netdev_priv(netdev);
+diff --git a/drivers/usb/typec/tps6598x.c b/drivers/usb/typec/tps6598x.c
+index 30bfc314b743c..6cb5c8e2c8535 100644
+--- a/drivers/usb/typec/tps6598x.c
++++ b/drivers/usb/typec/tps6598x.c
+@@ -109,7 +109,7 @@ tps6598x_block_read(struct tps6598x *tps, u8 reg, void *val, size_t len)
+ 	u8 data[TPS_MAX_LEN + 1];
+ 	int ret;
  
--	if (!(adapter->vf_res->vf_cap_flags & VIRTCHNL_VF_OFFLOAD_VLAN))
-+	if (adapter->vf_res &&
-+	    !(adapter->vf_res->vf_cap_flags & VIRTCHNL_VF_OFFLOAD_VLAN))
- 		features &= ~(NETIF_F_HW_VLAN_CTAG_TX |
- 			      NETIF_F_HW_VLAN_CTAG_RX |
- 			      NETIF_F_HW_VLAN_CTAG_FILTER);
+-	if (WARN_ON(len + 1 > sizeof(data)))
++	if (len + 1 > sizeof(data))
+ 		return -EINVAL;
+ 
+ 	if (!tps->i2c_protocol)
 -- 
 2.33.0
 
