@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1553E45C3B8
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A417245C608
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344524AbhKXNmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:42:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32976 "EHLO mail.kernel.org"
+        id S1351566AbhKXOE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:04:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349075AbhKXNkE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:40:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AAAF6187A;
-        Wed, 24 Nov 2021 12:57:03 +0000 (UTC)
+        id S1353856AbhKXOCr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:02:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12BD161A83;
+        Wed, 24 Nov 2021 13:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758623;
-        bh=ma3+/MsV3dPimc2kWHKUSKOiOxAkRuw68gL41V3FpRE=;
+        s=korg; t=1637759428;
+        bh=/2Tq6dNpl8t9OkuSU7exCZ9+cBTBzWdwg+I335ELtqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V7c2s8lGRHhXx1GsyLgAbbHR4g1/PQ4rOhxHe3V+zMBzEahb4aiTzn6sK9QzaJtzL
-         xSTf9BlyQsgfXLseXGlUe1jZAjnNuRCj7y/EH4qgIlsEq1ma/nrk9EWlSAoxf8Mq6q
-         MTF2gKgEVq4abbPkj4QXq8Ue6Kn3CX3q+aY8TIfU=
+        b=BnbX2IEV7so6d1aBDIzk8bYoZHDhIv8OGnacQUHzZITnf9fDQSmrnqLdteBWSNc+X
+         m83hMrgKXjwrIK5iDG9e2T9bfQs1LgNeP11IyFZ9jwaU7VjAKmv1skc4GeoiejeyLl
+         qGCimYNMriPiOXOM3FwaeHBQxdZu01X5peL0Kf2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alistair Delva <adelva@google.com>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Serge Hallyn <serge@hallyn.com>, Jens Axboe <axboe@kernel.dk>,
-        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, kernel-team@android.com
-Subject: [PATCH 5.10 130/154] block: Check ADMIN before NICE for IOPRIO_CLASS_RT
+        stable@vger.kernel.org, XiangBing Foo <XiangBing.Foo@amd.com>,
+        Martin Leung <Martin.Leung@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Alvin Lee <Alvin.Lee2@amd.com>,
+        Daniel Wheeler <Daniel.Wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 239/279] drm/amd/display: Update swizzle mode enums
 Date:   Wed, 24 Nov 2021 12:58:46 +0100
-Message-Id: <20211124115706.507376250@linuxfoundation.org>
+Message-Id: <20211124115726.991024576@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alistair Delva <adelva@google.com>
+From: Alvin Lee <Alvin.Lee2@amd.com>
 
-commit 94c4b4fd25e6c3763941bdec3ad54f2204afa992 upstream.
+commit 58065a1e524de30df9a2d8214661d5d7eed0a2d9 upstream.
 
-Booting to Android userspace on 5.14 or newer triggers the following
-SELinux denial:
+[Why]
+Swizzle mode enum for DC_SW_VAR_R_X was existing,
+but not mapped correctly.
 
-avc: denied { sys_nice } for comm="init" capability=23
-     scontext=u:r:init:s0 tcontext=u:r:init:s0 tclass=capability
-     permissive=0
+[How]
+Update mapping and conversion for DC_SW_VAR_R_X.
 
-Init is PID 0 running as root, so it already has CAP_SYS_ADMIN. For
-better compatibility with older SEPolicy, check ADMIN before NICE.
-
-Fixes: 9d3a39a5f1e4 ("block: grant IOPRIO_CLASS_RT to CAP_SYS_NICE")
-Signed-off-by: Alistair Delva <adelva@google.com>
-Cc: Khazhismel Kumykov <khazhy@google.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Serge Hallyn <serge@hallyn.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org
-Cc: linux-security-module@vger.kernel.org
-Cc: kernel-team@android.com
-Cc: stable@vger.kernel.org # v5.14+
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Acked-by: Serge Hallyn <serge@hallyn.com>
-Link: https://lore.kernel.org/r/20211115181655.3608659-1-adelva@google.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: XiangBing Foo <XiangBing.Foo@amd.com>
+Reviewed-by: Martin Leung <Martin.Leung@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Alvin Lee <Alvin.Lee2@amd.com>
+Cc: stable@vger.kernel.org
+Tested-by: Daniel Wheeler <Daniel.Wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/ioprio.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c   |    4 +++-
+ drivers/gpu/drm/amd/display/dc/dml/display_mode_enums.h |    4 ++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
---- a/block/ioprio.c
-+++ b/block/ioprio.c
-@@ -69,7 +69,14 @@ int ioprio_check_cap(int ioprio)
- 
- 	switch (class) {
- 		case IOPRIO_CLASS_RT:
--			if (!capable(CAP_SYS_NICE) && !capable(CAP_SYS_ADMIN))
-+			/*
-+			 * Originally this only checked for CAP_SYS_ADMIN,
-+			 * which was implicitly allowed for pid 0 by security
-+			 * modules such as SELinux. Make sure we check
-+			 * CAP_SYS_ADMIN first to avoid a denial/avc for
-+			 * possibly missing CAP_SYS_NICE permission.
-+			 */
-+			if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_NICE))
- 				return -EPERM;
- 			fallthrough;
- 			/* rt has prio field too */
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -1854,7 +1854,9 @@ static void swizzle_to_dml_params(
+ 	case DC_SW_VAR_D_X:
+ 		*sw_mode = dm_sw_var_d_x;
+ 		break;
+-
++	case DC_SW_VAR_R_X:
++		*sw_mode = dm_sw_var_r_x;
++		break;
+ 	default:
+ 		ASSERT(0); /* Not supported */
+ 		break;
+--- a/drivers/gpu/drm/amd/display/dc/dml/display_mode_enums.h
++++ b/drivers/gpu/drm/amd/display/dc/dml/display_mode_enums.h
+@@ -80,11 +80,11 @@ enum dm_swizzle_mode {
+ 	dm_sw_SPARE_13 = 24,
+ 	dm_sw_64kb_s_x = 25,
+ 	dm_sw_64kb_d_x = 26,
+-	dm_sw_SPARE_14 = 27,
++	dm_sw_64kb_r_x = 27,
+ 	dm_sw_SPARE_15 = 28,
+ 	dm_sw_var_s_x = 29,
+ 	dm_sw_var_d_x = 30,
+-	dm_sw_64kb_r_x,
++	dm_sw_var_r_x = 31,
+ 	dm_sw_gfx7_2d_thin_l_vp,
+ 	dm_sw_gfx7_2d_thin_gl,
+ };
 
 
