@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA14B45C2F7
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:31:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64A7C45C58B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346323AbhKXNee (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:34:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60708 "EHLO mail.kernel.org"
+        id S1347483AbhKXN7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:59:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348725AbhKXNck (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:32:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9E0A61184;
-        Wed, 24 Nov 2021 12:53:13 +0000 (UTC)
+        id S1348282AbhKXNyn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:54:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 330FA63276;
+        Wed, 24 Nov 2021 13:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758394;
-        bh=amQlN9VOS3rj6dp6QmvtVWTVDS/i7SzH+MiLwgquSo8=;
+        s=korg; t=1637759146;
+        bh=mlYzLpR9vg+L9uMbUtboG0BkMswn5ra8hHYTdlk2q0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kKlKlDpJCsf9FPojIOSSZJRogOxwuC9ToNXcrgvCnK0CLPiVPkxeEAInJ2l0omUqO
-         t7FEQSxrPUFuFZhi0pHnOKj5nspBSG1hd1HpszBm80fN3qzPiOBAM6JjLdtFe+pFFQ
-         yMw/txm/q7QyrXQfKWP5/PB+cT/yFm3RG+xRFa38=
+        b=bK/asQgL5Jrx7fekLXwhnSKCvt58KJ8TSz+BadEc7n9/95Mm0NVBCkRPD/XytfxXH
+         Et5lG9TcfoNJDCwmB3wUZq6OkG/Hhi6wDMEumin9EtxemnQVOvtHZ26eCLkZjQs0Yj
+         J0777RyaYHwEKyNUKr88RSrNLb9nSHcBq/He37g4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Gilbert <dgilbert@interlog.com>,
-        Ye Bin <yebin10@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Neta Ostrovsky <netao@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 038/154] scsi: scsi_debug: Fix out-of-bound read in resp_readcap16()
+Subject: [PATCH 5.15 147/279] net/mlx5: Update error handler for UCTX and UMEM
 Date:   Wed, 24 Nov 2021 12:57:14 +0100
-Message-Id: <20211124115703.587065898@linuxfoundation.org>
+Message-Id: <20211124115723.851786111@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,87 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Neta Ostrovsky <netao@nvidia.com>
 
-[ Upstream commit 4e3ace0051e7e504b55d239daab8789dd89b863c ]
+[ Upstream commit ba50cd9451f6c49cf0841c0a4a146ff6a2822699 ]
 
-The following warning was observed running syzkaller:
+In the fast unload flow, the device state is set to internal error,
+which indicates that the driver started the destroy process.
+In this case, when a destroy command is being executed, it should return
+MLX5_CMD_STAT_OK.
+Fix MLX5_CMD_OP_DESTROY_UCTX and MLX5_CMD_OP_DESTROY_UMEM to return OK
+instead of EIO.
 
-[ 3813.830724] sg_write: data in/out 65466/242 bytes for SCSI command 0x9e-- guessing data in;
-[ 3813.830724]    program syz-executor not setting count and/or reply_len properly
-[ 3813.836956] ==================================================================
-[ 3813.839465] BUG: KASAN: stack-out-of-bounds in sg_copy_buffer+0x157/0x1e0
-[ 3813.841773] Read of size 4096 at addr ffff8883cf80f540 by task syz-executor/1549
-[ 3813.846612] Call Trace:
-[ 3813.846995]  dump_stack+0x108/0x15f
-[ 3813.847524]  print_address_description+0xa5/0x372
-[ 3813.848243]  kasan_report.cold+0x236/0x2a8
-[ 3813.849439]  check_memory_region+0x240/0x270
-[ 3813.850094]  memcpy+0x30/0x80
-[ 3813.850553]  sg_copy_buffer+0x157/0x1e0
-[ 3813.853032]  sg_copy_from_buffer+0x13/0x20
-[ 3813.853660]  fill_from_dev_buffer+0x135/0x370
-[ 3813.854329]  resp_readcap16+0x1ac/0x280
-[ 3813.856917]  schedule_resp+0x41f/0x1630
-[ 3813.858203]  scsi_debug_queuecommand+0xb32/0x17e0
-[ 3813.862699]  scsi_dispatch_cmd+0x330/0x950
-[ 3813.863329]  scsi_request_fn+0xd8e/0x1710
-[ 3813.863946]  __blk_run_queue+0x10b/0x230
-[ 3813.864544]  blk_execute_rq_nowait+0x1d8/0x400
-[ 3813.865220]  sg_common_write.isra.0+0xe61/0x2420
-[ 3813.871637]  sg_write+0x6c8/0xef0
-[ 3813.878853]  __vfs_write+0xe4/0x800
-[ 3813.883487]  vfs_write+0x17b/0x530
-[ 3813.884008]  ksys_write+0x103/0x270
-[ 3813.886268]  __x64_sys_write+0x77/0xc0
-[ 3813.886841]  do_syscall_64+0x106/0x360
-[ 3813.887415]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+This fixes a call trace in the umem release process -
+[ 2633.536695] Call Trace:
+[ 2633.537518]  ib_uverbs_remove_one+0xc3/0x140 [ib_uverbs]
+[ 2633.538596]  remove_client_context+0x8b/0xd0 [ib_core]
+[ 2633.539641]  disable_device+0x8c/0x130 [ib_core]
+[ 2633.540615]  __ib_unregister_device+0x35/0xa0 [ib_core]
+[ 2633.541640]  ib_unregister_device+0x21/0x30 [ib_core]
+[ 2633.542663]  __mlx5_ib_remove+0x38/0x90 [mlx5_ib]
+[ 2633.543640]  auxiliary_bus_remove+0x1e/0x30 [auxiliary]
+[ 2633.544661]  device_release_driver_internal+0x103/0x1f0
+[ 2633.545679]  bus_remove_device+0xf7/0x170
+[ 2633.546640]  device_del+0x181/0x410
+[ 2633.547606]  mlx5_rescan_drivers_locked.part.10+0x63/0x160 [mlx5_core]
+[ 2633.548777]  mlx5_unregister_device+0x27/0x40 [mlx5_core]
+[ 2633.549841]  mlx5_uninit_one+0x21/0xc0 [mlx5_core]
+[ 2633.550864]  remove_one+0x69/0xe0 [mlx5_core]
+[ 2633.551819]  pci_device_remove+0x3b/0xc0
+[ 2633.552731]  device_release_driver_internal+0x103/0x1f0
+[ 2633.553746]  unbind_store+0xf6/0x130
+[ 2633.554657]  kernfs_fop_write+0x116/0x190
+[ 2633.555567]  vfs_write+0xa5/0x1a0
+[ 2633.556407]  ksys_write+0x4f/0xb0
+[ 2633.557233]  do_syscall_64+0x5b/0x1a0
+[ 2633.558071]  entry_SYSCALL_64_after_hwframe+0x65/0xca
+[ 2633.559018] RIP: 0033:0x7f9977132648
+[ 2633.559821] Code: 89 02 48 c7 c0 ff ff ff ff eb b3 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 55 6f 2d 00 8b 00 85 c0 75 17 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 41 54 49 89 d4 55
+[ 2633.562332] RSP: 002b:00007fffb1a83888 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+[ 2633.563472] RAX: ffffffffffffffda RBX: 000000000000000c RCX: 00007f9977132648
+[ 2633.564541] RDX: 000000000000000c RSI: 000055b90546e230 RDI: 0000000000000001
+[ 2633.565596] RBP: 000055b90546e230 R08: 00007f9977406860 R09: 00007f9977a54740
+[ 2633.566653] R10: 0000000000000000 R11: 0000000000000246 R12: 00007f99774056e0
+[ 2633.567692] R13: 000000000000000c R14: 00007f9977400880 R15: 000000000000000c
+[ 2633.568725] ---[ end trace 10b4fe52945e544d ]---
 
-This issue can be reproduced with the following syzkaller log:
-
-r0 = openat(0xffffffffffffff9c, &(0x7f0000000040)='./file0\x00', 0x26e1, 0x0)
-r1 = syz_open_procfs(0xffffffffffffffff, &(0x7f0000000000)='fd/3\x00')
-open_by_handle_at(r1, &(0x7f00000003c0)=ANY=[@ANYRESHEX], 0x602000)
-r2 = syz_open_dev$sg(&(0x7f0000000000), 0x0, 0x40782)
-write$binfmt_aout(r2, &(0x7f0000000340)=ANY=[@ANYBLOB="00000000deff000000000000000000000000000000000000000000000000000047f007af9e107a41ec395f1bded7be24277a1501ff6196a83366f4e6362bc0ff2b247f68a972989b094b2da4fb3607fcf611a22dd04310d28c75039d"], 0x126)
-
-In resp_readcap16() we get "int alloc_len" value -1104926854, and then pass
-the huge arr_len to fill_from_dev_buffer(), but arr is only 32 bytes. This
-leads to OOB in sg_copy_buffer().
-
-To solve this issue, define alloc_len as u32.
-
-Link: https://lore.kernel.org/r/20211013033913.2551004-2-yebin10@huawei.com
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 6a6fabbfa3e8 ("net/mlx5: Update pci error handler entries and command translation")
+Signed-off-by: Neta Ostrovsky <netao@nvidia.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_debug.c | 4 ++--
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
-index b6540b92f5661..63504dc63d878 100644
---- a/drivers/scsi/scsi_debug.c
-+++ b/drivers/scsi/scsi_debug.c
-@@ -1855,7 +1855,7 @@ static int resp_readcap16(struct scsi_cmnd *scp,
- {
- 	unsigned char *cmd = scp->cmnd;
- 	unsigned char arr[SDEBUG_READCAP16_ARR_SZ];
--	int alloc_len;
-+	u32 alloc_len;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+index db5dfff585c99..c698e4b5381d7 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -334,6 +334,8 @@ static int mlx5_internal_err_ret_value(struct mlx5_core_dev *dev, u16 op,
+ 	case MLX5_CMD_OP_PAGE_FAULT_RESUME:
+ 	case MLX5_CMD_OP_QUERY_ESW_FUNCTIONS:
+ 	case MLX5_CMD_OP_DEALLOC_SF:
++	case MLX5_CMD_OP_DESTROY_UCTX:
++	case MLX5_CMD_OP_DESTROY_UMEM:
+ 		return MLX5_CMD_STAT_OK;
  
- 	alloc_len = get_unaligned_be32(cmd + 10);
- 	/* following just in case virtual_gb changed */
-@@ -1884,7 +1884,7 @@ static int resp_readcap16(struct scsi_cmnd *scp,
- 	}
- 
- 	return fill_from_dev_buffer(scp, arr,
--			    min_t(int, alloc_len, SDEBUG_READCAP16_ARR_SZ));
-+			    min_t(u32, alloc_len, SDEBUG_READCAP16_ARR_SZ));
- }
- 
- #define SDEBUG_MAX_TGTPGS_ARR_SZ 1412
+ 	case MLX5_CMD_OP_QUERY_HCA_CAP:
+@@ -459,9 +461,7 @@ static int mlx5_internal_err_ret_value(struct mlx5_core_dev *dev, u16 op,
+ 	case MLX5_CMD_OP_MODIFY_GENERAL_OBJECT:
+ 	case MLX5_CMD_OP_QUERY_GENERAL_OBJECT:
+ 	case MLX5_CMD_OP_CREATE_UCTX:
+-	case MLX5_CMD_OP_DESTROY_UCTX:
+ 	case MLX5_CMD_OP_CREATE_UMEM:
+-	case MLX5_CMD_OP_DESTROY_UMEM:
+ 	case MLX5_CMD_OP_ALLOC_MEMIC:
+ 	case MLX5_CMD_OP_MODIFY_XRQ:
+ 	case MLX5_CMD_OP_RELEASE_XRQ_ERROR:
 -- 
 2.33.0
 
