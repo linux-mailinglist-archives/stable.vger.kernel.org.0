@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6502845C332
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:33:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B575045C0EE
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:09:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348955AbhKXNgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:36:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51750 "EHLO mail.kernel.org"
+        id S1348454AbhKXNMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:12:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347634AbhKXNeI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:34:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 992BC61B66;
-        Wed, 24 Nov 2021 12:54:11 +0000 (UTC)
+        id S1344550AbhKXNKg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:10:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83DAD61A70;
+        Wed, 24 Nov 2021 12:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758452;
-        bh=A0IhG0duW+sokUwebqnXxg/iOEkbWqw7YJjmQJh7+Ow=;
+        s=korg; t=1637757706;
+        bh=eeV3uARxDyiX3+WOElroX7XkqSIzF1rVEQaTdSnA0/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGgiwW9DmsrKwXCyDstgU+5Ze27ISCwdK4KZdxYyTR0tlJdFOh+IHcBv9F8okCcBm
-         F+xvCmcmEav4O09tuMkBSsopHWIWqyUUaNMdnRhdn9HADX7cZu7HKpITiMzZMne+L3
-         M/IWQCBzxY7k0WeSNvwVD1aHrAvizczqMEg6YeQ4=
+        b=v2Ex0gf3ID6369+jReyHJyIQyZ/+/VWY6+q4TcOmfdcJhek3lPOPxblwkbE2hQmmN
+         Se0CwMlwQ3PGKvy89q3bd+wXbkHqmq0zgl2SPSpxaA/P3XJE0R0bclUVZqRQ5UV5P2
+         FoYmTmUrUs7PMYCYg0Vvi5D/C+QQqIeCLdSB1xPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anatolij Gustschin <agust@denx.de>,
-        Rob Herring <robh@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/154] powerpc/5200: dts: fix memory node unit name
-Date:   Wed, 24 Nov 2021 12:57:19 +0100
-Message-Id: <20211124115703.740294495@linuxfoundation.org>
+        stable@vger.kernel.org, Jane Malalane <jane.malalane@citrix.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 4.19 250/323] x86/cpu: Fix migration safety with X86_BUG_NULL_SEL
+Date:   Wed, 24 Nov 2021 12:57:20 +0100
+Message-Id: <20211124115727.342046908@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,191 +39,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anatolij Gustschin <agust@denx.de>
+From: Jane Malalane <jane.malalane@citrix.com>
 
-[ Upstream commit aed2886a5e9ffc8269a4220bff1e9e030d3d2eb1 ]
+commit 415de44076640483648d6c0f6d645a9ee61328ad upstream.
 
-Fixes build warnings:
-Warning (unit_address_vs_reg): /memory: node has a reg or ranges property, but no unit name
+Currently, Linux probes for X86_BUG_NULL_SEL unconditionally which
+makes it unsafe to migrate in a virtualised environment as the
+properties across the migration pool might differ.
 
-Signed-off-by: Anatolij Gustschin <agust@denx.de>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211013220532.24759-4-agust@denx.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To be specific, the case which goes wrong is:
+
+1. Zen1 (or earlier) and Zen2 (or later) in a migration pool
+2. Linux boots on Zen2, probes and finds the absence of X86_BUG_NULL_SEL
+3. Linux is then migrated to Zen1
+
+Linux is now running on a X86_BUG_NULL_SEL-impacted CPU while believing
+that the bug is fixed.
+
+The only way to address the problem is to fully trust the "no longer
+affected" CPUID bit when virtualised, because in the above case it would
+be clear deliberately to indicate the fact "you might migrate to
+somewhere which has this behaviour".
+
+Zen3 adds the NullSelectorClearsBase CPUID bit to indicate that loading
+a NULL segment selector zeroes the base and limit fields, as well as
+just attributes. Zen2 also has this behaviour but doesn't have the NSCB
+bit.
+
+ [ bp: Minor touchups. ]
+
+Signed-off-by: Jane Malalane <jane.malalane@citrix.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+CC: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20211021104744.24126-1-jane.malalane@citrix.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/boot/dts/charon.dts    | 2 +-
- arch/powerpc/boot/dts/digsy_mtc.dts | 2 +-
- arch/powerpc/boot/dts/lite5200.dts  | 2 +-
- arch/powerpc/boot/dts/lite5200b.dts | 2 +-
- arch/powerpc/boot/dts/media5200.dts | 2 +-
- arch/powerpc/boot/dts/mpc5200b.dtsi | 2 +-
- arch/powerpc/boot/dts/o2d.dts       | 2 +-
- arch/powerpc/boot/dts/o2d.dtsi      | 2 +-
- arch/powerpc/boot/dts/o2dnt2.dts    | 2 +-
- arch/powerpc/boot/dts/o3dnt.dts     | 2 +-
- arch/powerpc/boot/dts/pcm032.dts    | 2 +-
- arch/powerpc/boot/dts/tqm5200.dts   | 2 +-
- 12 files changed, 12 insertions(+), 12 deletions(-)
+ arch/x86/kernel/cpu/amd.c    |    2 +
+ arch/x86/kernel/cpu/common.c |   44 ++++++++++++++++++++++++++++++++++++-------
+ arch/x86/kernel/cpu/cpu.h    |    1 
+ 3 files changed, 40 insertions(+), 7 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/charon.dts b/arch/powerpc/boot/dts/charon.dts
-index 408b486b13dff..cd589539f313f 100644
---- a/arch/powerpc/boot/dts/charon.dts
-+++ b/arch/powerpc/boot/dts/charon.dts
-@@ -35,7 +35,7 @@
- 		};
- 	};
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -993,6 +993,8 @@ static void init_amd(struct cpuinfo_x86
+ 	if (cpu_has(c, X86_FEATURE_IRPERF) &&
+ 	    !cpu_has_amd_erratum(c, amd_erratum_1054))
+ 		msr_set_bit(MSR_K7_HWCR, MSR_K7_HWCR_IRPERF_EN_BIT);
++
++	check_null_seg_clears_base(c);
+ }
  
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x08000000>;	// 128MB
- 	};
-diff --git a/arch/powerpc/boot/dts/digsy_mtc.dts b/arch/powerpc/boot/dts/digsy_mtc.dts
-index 0e5e9d3acf79f..19a14e62e65f4 100644
---- a/arch/powerpc/boot/dts/digsy_mtc.dts
-+++ b/arch/powerpc/boot/dts/digsy_mtc.dts
-@@ -16,7 +16,7 @@
- 	model = "intercontrol,digsy-mtc";
- 	compatible = "intercontrol,digsy-mtc";
+ #ifdef CONFIG_X86_32
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1254,9 +1254,8 @@ void __init early_cpu_init(void)
+ 	early_identify_cpu(&boot_cpu_data);
+ }
  
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x02000000>;	// 32MB
- 	};
+-static void detect_null_seg_behavior(struct cpuinfo_x86 *c)
++static bool detect_null_seg_behavior(void)
+ {
+-#ifdef CONFIG_X86_64
+ 	/*
+ 	 * Empirically, writing zero to a segment selector on AMD does
+ 	 * not clear the base, whereas writing zero to a segment
+@@ -1277,10 +1276,43 @@ static void detect_null_seg_behavior(str
+ 	wrmsrl(MSR_FS_BASE, 1);
+ 	loadsegment(fs, 0);
+ 	rdmsrl(MSR_FS_BASE, tmp);
+-	if (tmp != 0)
+-		set_cpu_bug(c, X86_BUG_NULL_SEG);
+ 	wrmsrl(MSR_FS_BASE, old_base);
+-#endif
++	return tmp == 0;
++}
++
++void check_null_seg_clears_base(struct cpuinfo_x86 *c)
++{
++	/* BUG_NULL_SEG is only relevant with 64bit userspace */
++	if (!IS_ENABLED(CONFIG_X86_64))
++		return;
++
++	/* Zen3 CPUs advertise Null Selector Clears Base in CPUID. */
++	if (c->extended_cpuid_level >= 0x80000021 &&
++	    cpuid_eax(0x80000021) & BIT(6))
++		return;
++
++	/*
++	 * CPUID bit above wasn't set. If this kernel is still running
++	 * as a HV guest, then the HV has decided not to advertize
++	 * that CPUID bit for whatever reason.	For example, one
++	 * member of the migration pool might be vulnerable.  Which
++	 * means, the bug is present: set the BUG flag and return.
++	 */
++	if (cpu_has(c, X86_FEATURE_HYPERVISOR)) {
++		set_cpu_bug(c, X86_BUG_NULL_SEG);
++		return;
++	}
++
++	/*
++	 * Zen2 CPUs also have this behaviour, but no CPUID bit.
++	 * 0x18 is the respective family for Hygon.
++	 */
++	if ((c->x86 == 0x17 || c->x86 == 0x18) &&
++	    detect_null_seg_behavior())
++		return;
++
++	/* All the remaining ones are affected */
++	set_cpu_bug(c, X86_BUG_NULL_SEG);
+ }
  
-diff --git a/arch/powerpc/boot/dts/lite5200.dts b/arch/powerpc/boot/dts/lite5200.dts
-index cb2782dd6132c..e7b194775d783 100644
---- a/arch/powerpc/boot/dts/lite5200.dts
-+++ b/arch/powerpc/boot/dts/lite5200.dts
-@@ -32,7 +32,7 @@
- 		};
- 	};
+ static void generic_identify(struct cpuinfo_x86 *c)
+@@ -1316,8 +1348,6 @@ static void generic_identify(struct cpui
  
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
-diff --git a/arch/powerpc/boot/dts/lite5200b.dts b/arch/powerpc/boot/dts/lite5200b.dts
-index 2b86c81f90485..547cbe726ff23 100644
---- a/arch/powerpc/boot/dts/lite5200b.dts
-+++ b/arch/powerpc/boot/dts/lite5200b.dts
-@@ -31,7 +31,7 @@
- 		led4 { gpios = <&gpio_simple 2 1>; };
- 	};
+ 	get_model_name(c); /* Default name */
  
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x10000000>;	// 256MB
- 	};
+-	detect_null_seg_behavior(c);
+-
+ 	/*
+ 	 * ESPFIX is a strange bug.  All real CPUs have it.  Paravirt
+ 	 * systems that run Linux at CPL > 0 may or may not have the
+--- a/arch/x86/kernel/cpu/cpu.h
++++ b/arch/x86/kernel/cpu/cpu.h
+@@ -76,6 +76,7 @@ extern int detect_extended_topology_earl
+ extern int detect_extended_topology(struct cpuinfo_x86 *c);
+ extern int detect_ht_early(struct cpuinfo_x86 *c);
+ extern void detect_ht(struct cpuinfo_x86 *c);
++extern void check_null_seg_clears_base(struct cpuinfo_x86 *c);
  
-diff --git a/arch/powerpc/boot/dts/media5200.dts b/arch/powerpc/boot/dts/media5200.dts
-index 61cae9dcddef4..f3188018faceb 100644
---- a/arch/powerpc/boot/dts/media5200.dts
-+++ b/arch/powerpc/boot/dts/media5200.dts
-@@ -32,7 +32,7 @@
- 		};
- 	};
+ unsigned int aperfmperf_get_khz(int cpu);
  
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;	// 128MB RAM
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/mpc5200b.dtsi b/arch/powerpc/boot/dts/mpc5200b.dtsi
-index 648fe31795f49..8b796f3b11da7 100644
---- a/arch/powerpc/boot/dts/mpc5200b.dtsi
-+++ b/arch/powerpc/boot/dts/mpc5200b.dtsi
-@@ -33,7 +33,7 @@
- 		};
- 	};
- 
--	memory: memory {
-+	memory: memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
-diff --git a/arch/powerpc/boot/dts/o2d.dts b/arch/powerpc/boot/dts/o2d.dts
-index 24a46f65e5299..e0a8d3034417f 100644
---- a/arch/powerpc/boot/dts/o2d.dts
-+++ b/arch/powerpc/boot/dts/o2d.dts
-@@ -12,7 +12,7 @@
- 	model = "ifm,o2d";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;  // 128MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/o2d.dtsi b/arch/powerpc/boot/dts/o2d.dtsi
-index 6661955a2be47..b55a9e5bd828c 100644
---- a/arch/powerpc/boot/dts/o2d.dtsi
-+++ b/arch/powerpc/boot/dts/o2d.dtsi
-@@ -19,7 +19,7 @@
- 	model = "ifm,o2d";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/o2dnt2.dts b/arch/powerpc/boot/dts/o2dnt2.dts
-index eeba7f5507d5d..c2eedbd1f5fcb 100644
---- a/arch/powerpc/boot/dts/o2dnt2.dts
-+++ b/arch/powerpc/boot/dts/o2dnt2.dts
-@@ -12,7 +12,7 @@
- 	model = "ifm,o2dnt2";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;  // 128MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/o3dnt.dts b/arch/powerpc/boot/dts/o3dnt.dts
-index fd00396b0593e..e4c1bdd412716 100644
---- a/arch/powerpc/boot/dts/o3dnt.dts
-+++ b/arch/powerpc/boot/dts/o3dnt.dts
-@@ -12,7 +12,7 @@
- 	model = "ifm,o3dnt";
- 	compatible = "ifm,o2d";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x04000000>;  // 64MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/pcm032.dts b/arch/powerpc/boot/dts/pcm032.dts
-index 780e13d99e7b8..1895bc95900cc 100644
---- a/arch/powerpc/boot/dts/pcm032.dts
-+++ b/arch/powerpc/boot/dts/pcm032.dts
-@@ -20,7 +20,7 @@
- 	model = "phytec,pcm032";
- 	compatible = "phytec,pcm032";
- 
--	memory {
-+	memory@0 {
- 		reg = <0x00000000 0x08000000>;	// 128MB
- 	};
- 
-diff --git a/arch/powerpc/boot/dts/tqm5200.dts b/arch/powerpc/boot/dts/tqm5200.dts
-index 9ed0bc78967e1..5bb25a9e40a01 100644
---- a/arch/powerpc/boot/dts/tqm5200.dts
-+++ b/arch/powerpc/boot/dts/tqm5200.dts
-@@ -32,7 +32,7 @@
- 		};
- 	};
- 
--	memory {
-+	memory@0 {
- 		device_type = "memory";
- 		reg = <0x00000000 0x04000000>;	// 64MB
- 	};
--- 
-2.33.0
-
 
 
