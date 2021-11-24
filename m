@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 580FE45BFDF
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:59:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B53BD45BB04
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:13:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346922AbhKXNC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:02:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38730 "EHLO mail.kernel.org"
+        id S242985AbhKXMPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:15:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347542AbhKXNA0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:00:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA47B619A6;
-        Wed, 24 Nov 2021 12:34:45 +0000 (UTC)
+        id S243226AbhKXMNd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:13:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BD9261151;
+        Wed, 24 Nov 2021 12:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757286;
-        bh=RdyAUPeWHwqSaZcCBqjgldY7s4d+hnJI9k5HpUxAa28=;
+        s=korg; t=1637755684;
+        bh=1JmBukKjrnXRzprbhVQ9UrTE9mZVLG13AXjwuDHE1h4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yp70hIuGFG/FDJNtheBzTrYUgilt4rFr2MuX1tbbVle5j9wM+vEiNNWmi2W29pOLL
-         Bie1PRMJsonVZlQ2QVWjQX2QT8uIZkRw8IY8UYuPsr7s/qmQ+A+3KVlcShA2ntNFw2
-         jpLi0ywkFbBq6CKFbm2gJFZF2NSBDSxsGyu29gYc=
+        b=nCRmA3ZBKEvn6syO5Fa3FKafydl3luq4COpi5io3ZSwb9vOYF+VAyP61vSTKN2iKH
+         5zfigDj/gtMDp5IhonkxexYURzxG4tkEX6yvFuwiMy6yZmjekTSA0OCHDC5xUj7w/V
+         T0nf4xImQY/aCz1DczYYlzgoEW7on1pI2Eaf0fYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 085/323] platform/x86: wmi: do not fail if disabling fails
+        stable@vger.kernel.org, Phoenix Huang <phoenix@emc.com.tw>,
+        Yufei Du <yufeidu@cs.unc.edu>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 004/207] Input: elantench - fix misreporting trackpoint coordinates
 Date:   Wed, 24 Nov 2021 12:54:35 +0100
-Message-Id: <20211124115721.747018760@linuxfoundation.org>
+Message-Id: <20211124115704.085356383@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Barnabás Pőcze <pobrn@protonmail.com>
+From: Phoenix Huang <phoenix@emc.com.tw>
 
-[ Upstream commit 1975718c488a39128f1f515b23ae61a5a214cc3d ]
+commit be896bd3b72b44126c55768f14c22a8729b0992e upstream.
 
-Previously, `__query_block()` would fail if the
-second WCxx method call failed. However, the
-WQxx method might have succeeded, and potentially
-allocated memory for the result. Instead of
-throwing away the result and potentially
-leaking memory, ignore the result of
-the second WCxx call.
+Some firmwares occasionally report bogus data from trackpoint, with X or Y
+displacement being too large (outside of [-127, 127] range). Let's drop such
+packets so that we do not generate jumps.
 
-Signed-off-by: Barnabás Pőcze <pobrn@protonmail.com>
-Link: https://lore.kernel.org/r/20210904175450.156801-25-pobrn@protonmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Phoenix Huang <phoenix@emc.com.tw>
+Tested-by: Yufei Du <yufeidu@cs.unc.edu>
+Link: https://lore.kernel.org/r/20210729010940.5752-1-phoenix@emc.com.tw
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/wmi.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/input/mouse/elantech.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/platform/x86/wmi.c b/drivers/platform/x86/wmi.c
-index 35cdc3998eb59..387358af685c5 100644
---- a/drivers/platform/x86/wmi.c
-+++ b/drivers/platform/x86/wmi.c
-@@ -350,7 +350,14 @@ static acpi_status __query_block(struct wmi_block *wblock, u8 instance,
- 	 * the WQxx method failed - we should disable collection anyway.
- 	 */
- 	if ((block->flags & ACPI_WMI_EXPENSIVE) && ACPI_SUCCESS(wc_status)) {
--		status = acpi_execute_simple_method(handle, wc_method, 0);
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -431,6 +431,19 @@ static void elantech_report_trackpoint(s
+ 	case 0x16008020U:
+ 	case 0x26800010U:
+ 	case 0x36808000U:
++
 +		/*
-+		 * Ignore whether this WCxx call succeeds or not since
-+		 * the previously executed WQxx method call might have
-+		 * succeeded, and returning the failing status code
-+		 * of this call would throw away the result of the WQxx
-+		 * call, potentially leaking memory.
++		 * This firmware misreport coordinates for trackpoint
++		 * occasionally. Discard packets outside of [-127, 127] range
++		 * to prevent cursor jumps.
 +		 */
-+		acpi_execute_simple_method(handle, wc_method, 0);
- 	}
++		if (packet[4] == 0x80 || packet[5] == 0x80 ||
++		    packet[1] >> 7 == packet[4] >> 7 ||
++		    packet[2] >> 7 == packet[5] >> 7) {
++			elantech_debug("discarding packet [%6ph]\n", packet);
++			break;
++
++		}
+ 		x = packet[4] - (int)((packet[1]^0x80) << 1);
+ 		y = (int)((packet[2]^0x80) << 1) - packet[5];
  
- 	return status;
--- 
-2.33.0
-
 
 
