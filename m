@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D3D45BA59
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB5445BC07
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242567AbhKXMKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:10:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33614 "EHLO mail.kernel.org"
+        id S244106AbhKXMZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242491AbhKXMI0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:08:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 812CE61074;
-        Wed, 24 Nov 2021 12:04:55 +0000 (UTC)
+        id S243571AbhKXMXD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:23:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF9C7610FB;
+        Wed, 24 Nov 2021 12:13:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755496;
-        bh=khYJNpcupzLt8+e6KbrRx54/SFJt53RLNkfFZx4ONtI=;
+        s=korg; t=1637756039;
+        bh=piXX3gWPNpYFsdBBmwN9e8w0U+qxHyb0K69J3h53m34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlMwXAZusaqNw60XZz3uBiicp2ybI9qRx+BLrO3WupcpzIq/xxNHTncIfc68OiSYG
-         6DqsqHvn+6lmypruDOjjQMDn9jUUeHFd729Apvi7iYPLrL9P5fXILIEQNEYksSvGk9
-         PnArnxaYtzxoWlnxpDKugCGayarzJSHMvhukoJ2c=
+        b=UVUN/ahQCqmjVNs0GQWPe02bRf4o4EBc4bUbc2OXjGrYqVGRwOytowYn3lj3UlL2g
+         0uIOmrEqgFyxCQf5OHUOADdQSkHasyKTNSoSb7dMjs+ZIWFm3E8AUy7DQ2FAgSnvHq
+         h0cXLd0kmvnoUm89Y54JbyF+w8ulavUAeCMxPPAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Sven Eckelmann <sven@narfation.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 116/162] net: batman-adv: fix error handling
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Henry Burns <henryburns@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 148/207] mm/zsmalloc.c: close race window between zs_pool_dec_isolated() and zs_unregister_migration()
 Date:   Wed, 24 Nov 2021 12:56:59 +0100
-Message-Id: <20211124115702.068609532@linuxfoundation.org>
+Message-Id: <20211124115708.807769572@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,161 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-commit 6f68cd634856f8ca93bafd623ba5357e0f648c68 upstream.
+[ Upstream commit afe8605ca45424629fdddfd85984b442c763dc47 ]
 
-Syzbot reported ODEBUG warning in batadv_nc_mesh_free(). The problem was
-in wrong error handling in batadv_mesh_init().
+There is one possible race window between zs_pool_dec_isolated() and
+zs_unregister_migration() because wait_for_isolated_drain() checks the
+isolated count without holding class->lock and there is no order inside
+zs_pool_dec_isolated().  Thus the below race window could be possible:
 
-Before this patch batadv_mesh_init() was calling batadv_mesh_free() in case
-of any batadv_*_init() calls failure. This approach may work well, when
-there is some kind of indicator, which can tell which parts of batadv are
-initialized; but there isn't any.
+  zs_pool_dec_isolated		zs_unregister_migration
+    check pool->destroying != 0
+				  pool->destroying = true;
+				  smp_mb();
+				  wait_for_isolated_drain()
+				    wait for pool->isolated_pages == 0
+    atomic_long_dec(&pool->isolated_pages);
+    atomic_long_read(&pool->isolated_pages) == 0
 
-All written above lead to cleaning up uninitialized fields. Even if we hide
-ODEBUG warning by initializing bat_priv->nc.work, syzbot was able to hit
-GPF in batadv_nc_purge_paths(), because hash pointer in still NULL. [1]
+Since we observe the pool->destroying (false) before atomic_long_dec()
+for pool->isolated_pages, waking pool->migration_wait up is missed.
 
-To fix these bugs we can unwind batadv_*_init() calls one by one.
-It is good approach for 2 reasons: 1) It fixes bugs on error handling
-path 2) It improves the performance, since we won't call unneeded
-batadv_*_free() functions.
+Fix this by ensure checking pool->destroying happens after the
+atomic_long_dec(&pool->isolated_pages).
 
-So, this patch makes all batadv_*_init() clean up all allocated memory
-before returning with an error to no call correspoing batadv_*_free()
-and open-codes batadv_mesh_free() with proper order to avoid touching
-uninitialized fields.
-
-Link: https://lore.kernel.org/netdev/000000000000c87fbd05cef6bcb0@google.com/ [1]
-Reported-and-tested-by: syzbot+28b0702ada0bf7381f58@syzkaller.appspotmail.com
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Acked-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lkml.kernel.org/r/20210708115027.7557-1-linmiaohe@huawei.com
+Fixes: 701d678599d0 ("mm/zsmalloc.c: fix race condition in zs_destroy_pool")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Henry Burns <henryburns@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bridge_loop_avoidance.c |    8 ++++--
- net/batman-adv/main.c                  |   44 ++++++++++++++++++++++++---------
- net/batman-adv/network-coding.c        |    4 ++-
- net/batman-adv/translation-table.c     |    4 ++-
- 4 files changed, 44 insertions(+), 16 deletions(-)
+ mm/zsmalloc.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/batman-adv/bridge_loop_avoidance.c
-+++ b/net/batman-adv/bridge_loop_avoidance.c
-@@ -1346,10 +1346,14 @@ int batadv_bla_init(struct batadv_priv *
- 		return 0;
- 
- 	bat_priv->bla.claim_hash = batadv_hash_new(128);
--	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.claim_hash)
-+		return -ENOMEM;
- 
--	if (!bat_priv->bla.claim_hash || !bat_priv->bla.backbone_hash)
-+	bat_priv->bla.backbone_hash = batadv_hash_new(32);
-+	if (!bat_priv->bla.backbone_hash) {
-+		batadv_hash_destroy(bat_priv->bla.claim_hash);
- 		return -ENOMEM;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->bla.claim_hash,
- 				   &batadv_claim_hash_lock_class_key);
---- a/net/batman-adv/main.c
-+++ b/net/batman-adv/main.c
-@@ -159,24 +159,34 @@ int batadv_mesh_init(struct net_device *
- 	INIT_HLIST_HEAD(&bat_priv->softif_vlan_list);
- 
- 	ret = batadv_originator_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_orig;
-+	}
- 
- 	ret = batadv_tt_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_tt;
-+	}
- 
- 	ret = batadv_bla_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_bla;
-+	}
- 
- 	ret = batadv_dat_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_dat;
-+	}
- 
- 	ret = batadv_nc_mesh_init(bat_priv);
--	if (ret < 0)
--		goto err;
-+	if (ret < 0) {
-+		atomic_set(&bat_priv->mesh_state, BATADV_MESH_DEACTIVATING);
-+		goto err_nc;
-+	}
- 
- 	batadv_gw_init(bat_priv);
- 	batadv_mcast_init(bat_priv);
-@@ -186,8 +196,18 @@ int batadv_mesh_init(struct net_device *
- 
- 	return 0;
- 
--err:
--	batadv_mesh_free(soft_iface);
-+err_nc:
-+	batadv_dat_free(bat_priv);
-+err_dat:
-+	batadv_bla_free(bat_priv);
-+err_bla:
-+	batadv_tt_free(bat_priv);
-+err_tt:
-+	batadv_originator_free(bat_priv);
-+err_orig:
-+	batadv_purge_outstanding_packets(bat_priv, NULL);
-+	atomic_set(&bat_priv->mesh_state, BATADV_MESH_INACTIVE);
-+
- 	return ret;
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index 2b7bfd97587a0..b5c1cd4ba2a15 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -1962,10 +1962,11 @@ static inline void zs_pool_dec_isolated(struct zs_pool *pool)
+ 	VM_BUG_ON(atomic_long_read(&pool->isolated_pages) <= 0);
+ 	atomic_long_dec(&pool->isolated_pages);
+ 	/*
+-	 * There's no possibility of racing, since wait_for_isolated_drain()
+-	 * checks the isolated count under &class->lock after enqueuing
+-	 * on migration_wait.
++	 * Checking pool->destroying must happen after atomic_long_dec()
++	 * for pool->isolated_pages above. Paired with the smp_mb() in
++	 * zs_unregister_migration().
+ 	 */
++	smp_mb__after_atomic();
+ 	if (atomic_long_read(&pool->isolated_pages) == 0 && pool->destroying)
+ 		wake_up_all(&pool->migration_wait);
  }
- 
---- a/net/batman-adv/network-coding.c
-+++ b/net/batman-adv/network-coding.c
-@@ -159,8 +159,10 @@ int batadv_nc_mesh_init(struct batadv_pr
- 				   &batadv_nc_coding_hash_lock_class_key);
- 
- 	bat_priv->nc.decoding_hash = batadv_hash_new(128);
--	if (!bat_priv->nc.decoding_hash)
-+	if (!bat_priv->nc.decoding_hash) {
-+		batadv_hash_destroy(bat_priv->nc.coding_hash);
- 		goto err;
-+	}
- 
- 	batadv_hash_set_lock_class(bat_priv->nc.decoding_hash,
- 				   &batadv_nc_decoding_hash_lock_class_key);
---- a/net/batman-adv/translation-table.c
-+++ b/net/batman-adv/translation-table.c
-@@ -3833,8 +3833,10 @@ int batadv_tt_init(struct batadv_priv *b
- 		return ret;
- 
- 	ret = batadv_tt_global_init(bat_priv);
--	if (ret < 0)
-+	if (ret < 0) {
-+		batadv_tt_local_table_free(bat_priv);
- 		return ret;
-+	}
- 
- 	batadv_tvlv_handler_register(bat_priv, batadv_tt_tvlv_ogm_handler_v1,
- 				     batadv_tt_tvlv_unicast_handler_v1,
+-- 
+2.33.0
+
 
 
