@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FEC145C2A2
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1C3845C101
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348775AbhKXNaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:30:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56068 "EHLO mail.kernel.org"
+        id S1345190AbhKXNOK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:14:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350894AbhKXN2z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:28:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 357AD611B0;
-        Wed, 24 Nov 2021 12:51:22 +0000 (UTC)
+        id S1344981AbhKXNLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:11:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA66D61A86;
+        Wed, 24 Nov 2021 12:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758283;
-        bh=Z4G+ZhGmP7OM7oOG9aCWHtemOEHn3LNDlcSvS0gfkBw=;
+        s=korg; t=1637757732;
+        bh=I0tUve/WlRsqERA4xGMy+lbErNcroBEfm1PZC94gaE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CnRtlb2dBQmy6MoaoipvWtHVlr2d2CbsnFLg7YRDl+sAmPDNwloK+lL3S1tUb5/cJ
-         S6mxVmsmNnHblxRvsAyjTC7VWLJt7jmmEcSVSVPrm3RdveCa6QsTFOILwA6aMZ+4WY
-         OYRrtshWJAZi1SfqZA4XF2nM90DhMKVaDpKQ6wEw=
+        b=aglzCPKO4Idr84k555AXF3YKlEJnfjABPgTzfOPmnbcSpRXMIiVevReC9559EZ7a8
+         yvfm4xJagJhYCfsOoHPl8lMctTOKyH11eDhjIsKh3DpAhuUGvcm/RqDYSxl+pQaLz4
+         BVa7xzwz6EoHpwrujeiNp0TNm/ZVRegZUdHeDO8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Henry Burns <henryburns@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 019/154] arm64: dts: qcom: msm8998: Fix CPU/L2 idle state latency and residency
+Subject: [PATCH 4.19 225/323] mm/zsmalloc.c: close race window between zs_pool_dec_isolated() and zs_unregister_migration()
 Date:   Wed, 24 Nov 2021 12:56:55 +0100
-Message-Id: <20211124115702.994423081@linuxfoundation.org>
+Message-Id: <20211124115726.524103898@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,92 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 3f1dcaff642e75c1d2ad03f783fa8a3b1f56dd50 ]
+[ Upstream commit afe8605ca45424629fdddfd85984b442c763dc47 ]
 
-The entry/exit latency and minimum residency in state for the idle
-states of MSM8998 were ..bad: first of all, for all of them the
-timings were written for CPU sleep but the min-residency-us param
-was miscalculated (supposedly, while porting this from downstream);
-Then, the power collapse states are setting PC on both the CPU
-cluster *and* the L2 cache, which have different timings: in the
-specific case of L2 the times are higher so these ones should be
-taken into account instead of the CPU ones.
+There is one possible race window between zs_pool_dec_isolated() and
+zs_unregister_migration() because wait_for_isolated_drain() checks the
+isolated count without holding class->lock and there is no order inside
+zs_pool_dec_isolated().  Thus the below race window could be possible:
 
-This parameter misconfiguration was not giving particular issues
-because on MSM8998 there was no CPU scaling at all, so cluster/L2
-power collapse was rarely (if ever) hit.
-When CPU scaling is enabled, though, the wrong timings will produce
-SoC unstability shown to the user as random, apparently error-less,
-sudden reboots and/or lockups.
+  zs_pool_dec_isolated		zs_unregister_migration
+    check pool->destroying != 0
+				  pool->destroying = true;
+				  smp_mb();
+				  wait_for_isolated_drain()
+				    wait for pool->isolated_pages == 0
+    atomic_long_dec(&pool->isolated_pages);
+    atomic_long_read(&pool->isolated_pages) == 0
 
-This set of parameters are stabilizing the SoC when CPU scaling is
-ON and when power collapse is frequently hit.
+Since we observe the pool->destroying (false) before atomic_long_dec()
+for pool->isolated_pages, waking pool->migration_wait up is missed.
 
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20210901183123.1087392-3-angelogioacchino.delregno@somainline.org
+Fix this by ensure checking pool->destroying happens after the
+atomic_long_dec(&pool->isolated_pages).
+
+Link: https://lkml.kernel.org/r/20210708115027.7557-1-linmiaohe@huawei.com
+Fixes: 701d678599d0 ("mm/zsmalloc.c: fix race condition in zs_destroy_pool")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Henry Burns <henryburns@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8998.dtsi | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ mm/zsmalloc.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8998.dtsi b/arch/arm64/boot/dts/qcom/msm8998.dtsi
-index c45870600909f..9e04ac3f596d0 100644
---- a/arch/arm64/boot/dts/qcom/msm8998.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8998.dtsi
-@@ -300,38 +300,42 @@
- 			LITTLE_CPU_SLEEP_0: cpu-sleep-0-0 {
- 				compatible = "arm,idle-state";
- 				idle-state-name = "little-retention";
-+				/* CPU Retention (C2D), L2 Active */
- 				arm,psci-suspend-param = <0x00000002>;
- 				entry-latency-us = <81>;
- 				exit-latency-us = <86>;
--				min-residency-us = <200>;
-+				min-residency-us = <504>;
- 			};
- 
- 			LITTLE_CPU_SLEEP_1: cpu-sleep-0-1 {
- 				compatible = "arm,idle-state";
- 				idle-state-name = "little-power-collapse";
-+				/* CPU + L2 Power Collapse (C3, D4) */
- 				arm,psci-suspend-param = <0x40000003>;
--				entry-latency-us = <273>;
--				exit-latency-us = <612>;
--				min-residency-us = <1000>;
-+				entry-latency-us = <814>;
-+				exit-latency-us = <4562>;
-+				min-residency-us = <9183>;
- 				local-timer-stop;
- 			};
- 
- 			BIG_CPU_SLEEP_0: cpu-sleep-1-0 {
- 				compatible = "arm,idle-state";
- 				idle-state-name = "big-retention";
-+				/* CPU Retention (C2D), L2 Active */
- 				arm,psci-suspend-param = <0x00000002>;
- 				entry-latency-us = <79>;
- 				exit-latency-us = <82>;
--				min-residency-us = <200>;
-+				min-residency-us = <1302>;
- 			};
- 
- 			BIG_CPU_SLEEP_1: cpu-sleep-1-1 {
- 				compatible = "arm,idle-state";
- 				idle-state-name = "big-power-collapse";
-+				/* CPU + L2 Power Collapse (C3, D4) */
- 				arm,psci-suspend-param = <0x40000003>;
--				entry-latency-us = <336>;
--				exit-latency-us = <525>;
--				min-residency-us = <1000>;
-+				entry-latency-us = <724>;
-+				exit-latency-us = <2027>;
-+				min-residency-us = <9419>;
- 				local-timer-stop;
- 			};
- 		};
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index d52c005a060f1..11e81b3ff0cf3 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -1904,10 +1904,11 @@ static inline void zs_pool_dec_isolated(struct zs_pool *pool)
+ 	VM_BUG_ON(atomic_long_read(&pool->isolated_pages) <= 0);
+ 	atomic_long_dec(&pool->isolated_pages);
+ 	/*
+-	 * There's no possibility of racing, since wait_for_isolated_drain()
+-	 * checks the isolated count under &class->lock after enqueuing
+-	 * on migration_wait.
++	 * Checking pool->destroying must happen after atomic_long_dec()
++	 * for pool->isolated_pages above. Paired with the smp_mb() in
++	 * zs_unregister_migration().
+ 	 */
++	smp_mb__after_atomic();
+ 	if (atomic_long_read(&pool->isolated_pages) == 0 && pool->destroying)
+ 		wake_up_all(&pool->migration_wait);
+ }
 -- 
 2.33.0
 
