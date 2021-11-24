@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB73845BED0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:49:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51FB745BC3E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345899AbhKXMu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:50:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56468 "EHLO mail.kernel.org"
+        id S244367AbhKXM1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:27:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346057AbhKXMsf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:48:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AB966128E;
-        Wed, 24 Nov 2021 12:28:26 +0000 (UTC)
+        id S244903AbhKXMZC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:25:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20458610D1;
+        Wed, 24 Nov 2021 12:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756907;
-        bh=ohuo0QU48rv3K/ooxaBjdZAhGuDZ37MKhXsozrU9CF4=;
+        s=korg; t=1637756140;
+        bh=sZfcK3h30pLuy1ZFGf5xKrIdgPujIeAak6fUnnwsMio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EFCk8WSKWuLhB1toTYr+zn3n/asNGAWF7SPIBsZdEh4MX9P74zbK3bxsAXoJRaeCa
-         1lGeFSeejMTLy44tT8wbiObE9daOOAkyMS2WxMpGkcDAadA9dGqOyJoJcyOu0+WR7j
-         7oo2xYd6rHyVt4viNuTfec0Sivqvn+m5f32S39jw=
+        b=cgIAie0iO1BNAEgtZvvKKOT2NeL3FH3w2m6o/TuC0ZOxR6YK4Req7xdxR7/HABEO3
+         fmFHJHUzTLEY7gKA3xBDM/NopXp0nhXua/3ewlrqiv0Ednr1QC1JKWBxXtFBReBGzo
+         oG8F+zxSrSoefJy9jElXLq7SxQF8UElXKUcntnCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Paul Mundt <lethal@linux-sh.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Miguel Ojeda <ojeda@kernel.org>, Rich Felker <dalias@libc.org>,
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 215/251] sh: check return code of request_irq
+Subject: [PATCH 4.9 186/207] NFC: reorder the logic in nfc_{un,}register_device
 Date:   Wed, 24 Nov 2021 12:57:37 +0100
-Message-Id: <20211124115717.733248462@linuxfoundation.org>
+Message-Id: <20211124115709.988476537@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +41,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 0e38225c92c7964482a8bb6b3e37fde4319e965c ]
+[ Upstream commit 3e3b5dfcd16a3e254aab61bd1e8c417dd4503102 ]
 
-request_irq is marked __must_check, but the call in shx3_prepare_cpus
-has a void return type, so it can't propagate failure to the caller.
-Follow cues from hexagon and just print an error.
+There is a potential UAF between the unregistration routine and the NFC
+netlink operations.
 
-Fixes: c7936b9abcf5 ("sh: smp: Hook in to the generic IPI handler for SH-X3 SMP.")
-Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: Paul Mundt <lethal@linux-sh.org>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
-Signed-off-by: Rich Felker <dalias@libc.org>
+The race that cause that UAF can be shown as below:
+
+ (FREE)                      |  (USE)
+nfcmrvl_nci_unregister_dev   |  nfc_genl_dev_up
+  nci_close_device           |
+  nci_unregister_device      |    nfc_get_device
+    nfc_unregister_device    |    nfc_dev_up
+      rfkill_destory         |
+      device_del             |      rfkill_blocked
+  ...                        |    ...
+
+The root cause for this race is concluded below:
+1. The rfkill_blocked (USE) in nfc_dev_up is supposed to be placed after
+the device_is_registered check.
+2. Since the netlink operations are possible just after the device_add
+in nfc_register_device, the nfc_dev_up() can happen anywhere during the
+rfkill creation process, which leads to data race.
+
+This patch reorder these actions to permit
+1. Once device_del is finished, the nfc_dev_up cannot dereference the
+rfkill object.
+2. The rfkill_register need to be placed after the device_add of nfc_dev
+because the parent device need to be created first. So this patch keeps
+the order but inject device_lock to prevent the data race.
+
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Fixes: be055b2f89b5 ("NFC: RFKILL support")
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211116152652.19217-1-linma@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/kernel/cpu/sh4a/smp-shx3.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/nfc/core.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/arch/sh/kernel/cpu/sh4a/smp-shx3.c b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-index 0d3637c494bfe..c1f66c35e0c12 100644
---- a/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-+++ b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-@@ -76,8 +76,9 @@ static void shx3_prepare_cpus(unsigned int max_cpus)
- 	BUILD_BUG_ON(SMP_MSG_NR >= 8);
+diff --git a/net/nfc/core.c b/net/nfc/core.c
+index c699d64a0753a..32a2dfc08f480 100644
+--- a/net/nfc/core.c
++++ b/net/nfc/core.c
+@@ -106,13 +106,13 @@ int nfc_dev_up(struct nfc_dev *dev)
  
- 	for (i = 0; i < SMP_MSG_NR; i++)
--		request_irq(104 + i, ipi_interrupt_handler,
--			    IRQF_PERCPU, "IPI", (void *)(long)i);
-+		if (request_irq(104 + i, ipi_interrupt_handler,
-+			    IRQF_PERCPU, "IPI", (void *)(long)i))
-+			pr_err("Failed to request irq %d\n", i);
+ 	device_lock(&dev->dev);
  
- 	for (i = 0; i < max_cpus; i++)
- 		set_cpu_present(i, true);
+-	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
+-		rc = -ERFKILL;
++	if (!device_is_registered(&dev->dev)) {
++		rc = -ENODEV;
+ 		goto error;
+ 	}
+ 
+-	if (!device_is_registered(&dev->dev)) {
+-		rc = -ENODEV;
++	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
++		rc = -ERFKILL;
+ 		goto error;
+ 	}
+ 
+@@ -1133,11 +1133,7 @@ int nfc_register_device(struct nfc_dev *dev)
+ 	if (rc)
+ 		pr_err("Could not register llcp device\n");
+ 
+-	rc = nfc_genl_device_added(dev);
+-	if (rc)
+-		pr_debug("The userspace won't be notified that the device %s was added\n",
+-			 dev_name(&dev->dev));
+-
++	device_lock(&dev->dev);
+ 	dev->rfkill = rfkill_alloc(dev_name(&dev->dev), &dev->dev,
+ 				   RFKILL_TYPE_NFC, &nfc_rfkill_ops, dev);
+ 	if (dev->rfkill) {
+@@ -1146,6 +1142,12 @@ int nfc_register_device(struct nfc_dev *dev)
+ 			dev->rfkill = NULL;
+ 		}
+ 	}
++	device_unlock(&dev->dev);
++
++	rc = nfc_genl_device_added(dev);
++	if (rc)
++		pr_debug("The userspace won't be notified that the device %s was added\n",
++			 dev_name(&dev->dev));
+ 
+ 	return 0;
+ }
+@@ -1162,10 +1164,17 @@ void nfc_unregister_device(struct nfc_dev *dev)
+ 
+ 	pr_debug("dev_name=%s\n", dev_name(&dev->dev));
+ 
++	rc = nfc_genl_device_removed(dev);
++	if (rc)
++		pr_debug("The userspace won't be notified that the device %s "
++			 "was removed\n", dev_name(&dev->dev));
++
++	device_lock(&dev->dev);
+ 	if (dev->rfkill) {
+ 		rfkill_unregister(dev->rfkill);
+ 		rfkill_destroy(dev->rfkill);
+ 	}
++	device_unlock(&dev->dev);
+ 
+ 	if (dev->ops->check_presence) {
+ 		device_lock(&dev->dev);
+@@ -1175,11 +1184,6 @@ void nfc_unregister_device(struct nfc_dev *dev)
+ 		cancel_work_sync(&dev->check_pres_work);
+ 	}
+ 
+-	rc = nfc_genl_device_removed(dev);
+-	if (rc)
+-		pr_debug("The userspace won't be notified that the device %s "
+-			 "was removed\n", dev_name(&dev->dev));
+-
+ 	nfc_llcp_unregister_device(dev);
+ 
+ 	mutex_lock(&nfc_devlist_mutex);
 -- 
 2.33.0
 
