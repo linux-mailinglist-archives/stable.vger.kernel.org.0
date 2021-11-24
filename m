@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9CED45BBEC
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E55FE45BA66
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:07:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245291AbhKXMZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
+        id S242608AbhKXMKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:10:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244504AbhKXMXi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:23:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B564610A0;
-        Wed, 24 Nov 2021 12:14:09 +0000 (UTC)
+        id S242217AbhKXMIj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:08:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E77360C51;
+        Wed, 24 Nov 2021 12:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756049;
-        bh=VBmhEAGjHcz+ZDTTKPv9VefqqBfp+aeGDtv6M60YmDI=;
+        s=korg; t=1637755511;
+        bh=9L5S1wNQqgRAGnTg268+P/TH/VccBWxuhv9lCpuuxG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aKXl2zsPkd1K6OmzOLzB3H2bR22s3RQLEUH9de4cFGjU49iMm3O/4ohkK5E+KwgqQ
-         lyPXNnPEv4CW+CxTzHz6nQOwWzyk9LP0jswxLaAzbW/2ReJgKpaE6vgYh8ejUU4OEY
-         xDCMuBMKprziVbn4Jep1GsrsbsvRack9JTQe38Cw=
+        b=0xifp9Ot7xUZF8ubEiPwLoYnapXHg2aQnzJ3bsS251MxIFoIRSQ5NlnV4+5pYdXut
+         OnEmRLu/SnjkH9HWEPEPcoBQdG0Jgp1/Io5UTgssl+ZPIxnj/d1hrzA0F1T8m+WoVn
+         urGo71oCjcbR9TCAr+Z/GkvWdgwSlweCHJVy6MHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 152/207] USB: chipidea: fix interrupt deadlock
-Date:   Wed, 24 Nov 2021 12:57:03 +0100
-Message-Id: <20211124115708.932678518@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 121/162] usb: host: ohci-tmio: check return value after calling platform_get_resource()
+Date:   Wed, 24 Nov 2021 12:57:04 +0100
+Message-Id: <20211124115702.224399290@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,97 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 9aaa81c3366e8393a62374e3a1c67c69edc07b8a upstream.
+[ Upstream commit 9eff2b2e59fda25051ab36cd1cb5014661df657b ]
 
-Chipidea core was calling the interrupt handler from non-IRQ context
-with interrupts enabled, something which can lead to a deadlock if
-there's an actual interrupt trying to take a lock that's already held
-(e.g. the controller lock in udc_irq()).
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-Add a wrapper that can be used to fake interrupts instead of calling the
-handler directly.
-
-Fixes: 3ecb3e09b042 ("usb: chipidea: Use extcon framework for VBUS and ID detect")
-Fixes: 876d4e1e8298 ("usb: chipidea: core: add wakeup support for extcon")
-Cc: Peter Chen <peter.chen@kernel.org>
-Cc: stable@vger.kernel.org      # 4.4
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211021083447.20078-1-johan@kernel.org
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20211011134920.118477-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/core.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/usb/host/ohci-tmio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/chipidea/core.c
-+++ b/drivers/usb/chipidea/core.c
-@@ -516,7 +516,7 @@ int hw_device_reset(struct ci_hdrc *ci)
- 	return 0;
- }
+diff --git a/drivers/usb/host/ohci-tmio.c b/drivers/usb/host/ohci-tmio.c
+index 9c9e97294c18d..4d42ae3b2fd6d 100644
+--- a/drivers/usb/host/ohci-tmio.c
++++ b/drivers/usb/host/ohci-tmio.c
+@@ -199,7 +199,7 @@ static int ohci_hcd_tmio_drv_probe(struct platform_device *dev)
+ 	if (usb_disabled())
+ 		return -ENODEV;
  
--static irqreturn_t ci_irq(int irq, void *data)
-+static irqreturn_t ci_irq_handler(int irq, void *data)
- {
- 	struct ci_hdrc *ci = data;
- 	irqreturn_t ret = IRQ_NONE;
-@@ -569,6 +569,15 @@ static irqreturn_t ci_irq(int irq, void
- 	return ret;
- }
+-	if (!cell)
++	if (!cell || !regs || !config || !sram)
+ 		return -EINVAL;
  
-+static void ci_irq(struct ci_hdrc *ci)
-+{
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	ci_irq_handler(ci->irq, ci);
-+	local_irq_restore(flags);
-+}
-+
- static int ci_vbus_notifier(struct notifier_block *nb, unsigned long event,
- 			    void *ptr)
- {
-@@ -582,7 +591,7 @@ static int ci_vbus_notifier(struct notif
- 
- 	vbus->changed = true;
- 
--	ci_irq(ci->irq, ci);
-+	ci_irq(ci);
- 	return NOTIFY_DONE;
- }
- 
-@@ -599,7 +608,7 @@ static int ci_id_notifier(struct notifie
- 
- 	id->changed = true;
- 
--	ci_irq(ci->irq, ci);
-+	ci_irq(ci);
- 	return NOTIFY_DONE;
- }
- 
-@@ -1011,7 +1020,7 @@ static int ci_hdrc_probe(struct platform
- 	}
- 
- 	platform_set_drvdata(pdev, ci);
--	ret = devm_request_irq(dev, ci->irq, ci_irq, IRQF_SHARED,
-+	ret = devm_request_irq(dev, ci->irq, ci_irq_handler, IRQF_SHARED,
- 			ci->platdata->name, ci);
- 	if (ret)
- 		goto stop;
-@@ -1126,11 +1135,11 @@ static void ci_extcon_wakeup_int(struct
- 
- 	if (!IS_ERR(cable_id->edev) && ci->is_otg &&
- 		(otgsc & OTGSC_IDIE) && (otgsc & OTGSC_IDIS))
--		ci_irq(ci->irq, ci);
-+		ci_irq(ci);
- 
- 	if (!IS_ERR(cable_vbus->edev) && ci->is_otg &&
- 		(otgsc & OTGSC_BSVIE) && (otgsc & OTGSC_BSVIS))
--		ci_irq(ci->irq, ci);
-+		ci_irq(ci);
- }
- 
- static int ci_controller_resume(struct device *dev)
+ 	if (irq < 0)
+-- 
+2.33.0
+
 
 
