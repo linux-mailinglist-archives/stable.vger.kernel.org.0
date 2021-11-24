@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DD7C45BBBA
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:19:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D91E445BA2F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243269AbhKXMWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:22:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36414 "EHLO mail.kernel.org"
+        id S241317AbhKXMId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:08:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243324AbhKXMUp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:20:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EDD6611B0;
-        Wed, 24 Nov 2021 12:12:41 +0000 (UTC)
+        id S242189AbhKXMHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:07:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC6E760174;
+        Wed, 24 Nov 2021 12:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755962;
-        bh=cROOCRFi8kNEWkFex36JA+IT0AjCTWiBtubAa6sI2bA=;
+        s=korg; t=1637755436;
+        bh=kgM5a4OECnWlpLlyAAVznMsLRSNnkKqITK87Ez0ReNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08DmGd0wkbpaSFHKAWNQZ2hdVsB+UK0lJ/dd1s0buR7QYLXpjWPxoCFVbINeb7qlv
-         Mll3yNAj9VGfvRDpTA8kDmRgQZr+G6Ilx2l3nGuZpmTsCHbK9JQXrQjryGROe+pb3j
-         VK4k7VO74Eq78CZx26Llz8g6fYQnFjUAE288G+s8=
+        b=k5sqnTr1oEuSCoDA38BzJByVloWmjaUmeDOm7FC5YnCFTRjqQn5t28oKWhm/ncgYk
+         hBQqUGZ2L7U5QjaylSN6+y7pYZvl/wn2X5IWNHKzRzE3VjrbLUFv5gzsNcwMlgttfE
+         0d2y2N+i7Q85F5EmTPLqM1jvSKwNOKPwQfR3DAGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        stable@vger.kernel.org, Jackie Liu <liuyun01@kylinos.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 119/207] JFS: fix memleak in jfs_mount
-Date:   Wed, 24 Nov 2021 12:56:30 +0100
-Message-Id: <20211124115707.913721262@linuxfoundation.org>
+Subject: [PATCH 4.4 088/162] ARM: s3c: irq-s3c24xx: Fix return value check for s3c24xx_init_intc()
+Date:   Wed, 24 Nov 2021 12:56:31 +0100
+Message-Id: <20211124115701.173422827@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,155 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Jackie Liu <liuyun01@kylinos.cn>
 
-[ Upstream commit c48a14dca2cb57527dde6b960adbe69953935f10 ]
+[ Upstream commit 2aa717473ce96c93ae43a5dc8c23cedc8ce7dd9f ]
 
-In jfs_mount, when diMount(ipaimap2) fails, it goes to errout35. However,
-the following code does not free ipaimap2 allocated by diReadSpecial.
+The s3c24xx_init_intc() returns an error pointer upon failure, not NULL.
+let's add an error pointer check in s3c24xx_handle_irq.
 
-Fix this by refactoring the error handling code of jfs_mount. To be
-specific, modify the lable name and free ipaimap2 when the above error
-ocurrs.
+s3c_intc[0] is not NULL or ERR, we can simplify the code.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Fixes: 1f629b7a3ced ("ARM: S3C24XX: transform irq handling into a declarative form")
+Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+Link: https://lore.kernel.org/r/20210901123557.1043953-1-liu.yun@linux.dev
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_mount.c | 51 ++++++++++++++++++++--------------------------
- 1 file changed, 22 insertions(+), 29 deletions(-)
+ drivers/irqchip/irq-s3c24xx.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/fs/jfs/jfs_mount.c b/fs/jfs/jfs_mount.c
-index 103788ecc28c1..0c2aabba1fdbb 100644
---- a/fs/jfs/jfs_mount.c
-+++ b/fs/jfs/jfs_mount.c
-@@ -93,14 +93,14 @@ int jfs_mount(struct super_block *sb)
- 	 * (initialize mount inode from the superblock)
- 	 */
- 	if ((rc = chkSuper(sb))) {
--		goto errout20;
-+		goto out;
- 	}
+diff --git a/drivers/irqchip/irq-s3c24xx.c b/drivers/irqchip/irq-s3c24xx.c
+index c71914e8f596c..cd7fdce98359f 100644
+--- a/drivers/irqchip/irq-s3c24xx.c
++++ b/drivers/irqchip/irq-s3c24xx.c
+@@ -368,11 +368,25 @@ static inline int s3c24xx_handle_intc(struct s3c_irq_intc *intc,
+ asmlinkage void __exception_irq_entry s3c24xx_handle_irq(struct pt_regs *regs)
+ {
+ 	do {
+-		if (likely(s3c_intc[0]))
+-			if (s3c24xx_handle_intc(s3c_intc[0], regs, 0))
+-				continue;
++		/*
++		 * For platform based machines, neither ERR nor NULL can happen here.
++		 * The s3c24xx_handle_irq() will be set as IRQ handler iff this succeeds:
++		 *
++		 *    s3c_intc[0] = s3c24xx_init_intc()
++		 *
++		 * If this fails, the next calls to s3c24xx_init_intc() won't be executed.
++		 *
++		 * For DT machine, s3c_init_intc_of() could set the IRQ handler without
++		 * setting s3c_intc[0] only if it was called with num_ctrl=0. There is no
++		 * such code path, so again the s3c_intc[0] will have a valid pointer if
++		 * set_handle_irq() is called.
++		 *
++		 * Therefore in s3c24xx_handle_irq(), the s3c_intc[0] is always something.
++		 */
++		if (s3c24xx_handle_intc(s3c_intc[0], regs, 0))
++			continue;
  
- 	ipaimap = diReadSpecial(sb, AGGREGATE_I, 0);
- 	if (ipaimap == NULL) {
- 		jfs_err("jfs_mount: Failed to read AGGREGATE_I");
- 		rc = -EIO;
--		goto errout20;
-+		goto out;
- 	}
- 	sbi->ipaimap = ipaimap;
- 
-@@ -111,7 +111,7 @@ int jfs_mount(struct super_block *sb)
- 	 */
- 	if ((rc = diMount(ipaimap))) {
- 		jfs_err("jfs_mount: diMount(ipaimap) failed w/rc = %d", rc);
--		goto errout21;
-+		goto err_ipaimap;
- 	}
- 
- 	/*
-@@ -120,7 +120,7 @@ int jfs_mount(struct super_block *sb)
- 	ipbmap = diReadSpecial(sb, BMAP_I, 0);
- 	if (ipbmap == NULL) {
- 		rc = -EIO;
--		goto errout22;
-+		goto err_umount_ipaimap;
- 	}
- 
- 	jfs_info("jfs_mount: ipbmap:0x%p", ipbmap);
-@@ -132,7 +132,7 @@ int jfs_mount(struct super_block *sb)
- 	 */
- 	if ((rc = dbMount(ipbmap))) {
- 		jfs_err("jfs_mount: dbMount failed w/rc = %d", rc);
--		goto errout22;
-+		goto err_ipbmap;
- 	}
- 
- 	/*
-@@ -151,7 +151,7 @@ int jfs_mount(struct super_block *sb)
- 		if (!ipaimap2) {
- 			jfs_err("jfs_mount: Failed to read AGGREGATE_I");
- 			rc = -EIO;
--			goto errout35;
-+			goto err_umount_ipbmap;
- 		}
- 		sbi->ipaimap2 = ipaimap2;
- 
-@@ -163,7 +163,7 @@ int jfs_mount(struct super_block *sb)
- 		if ((rc = diMount(ipaimap2))) {
- 			jfs_err("jfs_mount: diMount(ipaimap2) failed, rc = %d",
- 				rc);
--			goto errout35;
-+			goto err_ipaimap2;
- 		}
- 	} else
- 		/* Secondary aggregate inode table is not valid */
-@@ -180,7 +180,7 @@ int jfs_mount(struct super_block *sb)
- 		jfs_err("jfs_mount: Failed to read FILESYSTEM_I");
- 		/* open fileset secondary inode allocation map */
- 		rc = -EIO;
--		goto errout40;
-+		goto err_umount_ipaimap2;
- 	}
- 	jfs_info("jfs_mount: ipimap:0x%p", ipimap);
- 
-@@ -190,41 +190,34 @@ int jfs_mount(struct super_block *sb)
- 	/* initialize fileset inode allocation map */
- 	if ((rc = diMount(ipimap))) {
- 		jfs_err("jfs_mount: diMount failed w/rc = %d", rc);
--		goto errout41;
-+		goto err_ipimap;
- 	}
- 
--	goto out;
-+	return rc;
- 
- 	/*
- 	 *	unwind on error
- 	 */
--      errout41:		/* close fileset inode allocation map inode */
-+err_ipimap:
-+	/* close fileset inode allocation map inode */
- 	diFreeSpecial(ipimap);
--
--      errout40:		/* fileset closed */
--
-+err_umount_ipaimap2:
- 	/* close secondary aggregate inode allocation map */
--	if (ipaimap2) {
-+	if (ipaimap2)
- 		diUnmount(ipaimap2, 1);
-+err_ipaimap2:
-+	/* close aggregate inodes */
-+	if (ipaimap2)
- 		diFreeSpecial(ipaimap2);
--	}
--
--      errout35:
--
--	/* close aggregate block allocation map */
-+err_umount_ipbmap:	/* close aggregate block allocation map */
- 	dbUnmount(ipbmap, 1);
-+err_ipbmap:		/* close aggregate inodes */
- 	diFreeSpecial(ipbmap);
--
--      errout22:		/* close aggregate inode allocation map */
--
-+err_umount_ipaimap:	/* close aggregate inode allocation map */
- 	diUnmount(ipaimap, 1);
--
--      errout21:		/* close aggregate inodes */
-+err_ipaimap:		/* close aggregate inodes */
- 	diFreeSpecial(ipaimap);
--      errout20:		/* aggregate closed */
--
--      out:
--
-+out:
- 	if (rc)
- 		jfs_err("Mount JFS Failure: %d", rc);
+-		if (s3c_intc[2])
++		if (!IS_ERR_OR_NULL(s3c_intc[2]))
+ 			if (s3c24xx_handle_intc(s3c_intc[2], regs, 64))
+ 				continue;
  
 -- 
 2.33.0
