@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA1745C15C
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:14:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 364FE45C1B5
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:18:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344875AbhKXNR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:17:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56608 "EHLO mail.kernel.org"
+        id S1348808AbhKXNVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:21:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347100AbhKXNPY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:15:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD59061ABC;
-        Wed, 24 Nov 2021 12:43:58 +0000 (UTC)
+        id S1349349AbhKXNTF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:19:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D069D61AF9;
+        Wed, 24 Nov 2021 12:46:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757839;
-        bh=DXPJin+CE2xZp1acdbPmxh1Z4QPChmnWizcEkUFwARI=;
+        s=korg; t=1637757975;
+        bh=mr5m1kRKNtM8q/hm5ZR5bqjCDDynuR6Dkjet3knk2ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o71NbiCQKtFyDvr68CDwv+Glqn0V/xD3Eq4ZHmaRc+gGGbnGu6XTOKye+6EtmBkJD
-         WCVdfXARj/q0m7k9ampwmvCfxzJkjJ5sxSIvJcyvlfOg/ZRC8Lu8/g9lwP2X++5g/n
-         LbDo1wGWiPuTOdDnB/he6Z5EdgWtx6nVtfSySKEk=
+        b=10Wut7VfF/2yW8IGFSAGZ0XV+s1LWFP8FGnMVGxQpeIHYAZQ880F3rIaTvnd0O2w2
+         FUok2nxZrSQuKySOjlqtqEsF4w5gD5a1atunLNqE5BG4cTmTju0rQS9VWHHmHwMKxA
+         joXgtiEsuheE8EZyvSwx6YqBA5fXG7nNRHrnVPow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
+        stable@vger.kernel.org, Guo Zhi <qtxuning1999@sjtu.edu.cn>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 261/323] scsi: lpfc: Fix list_add() corruption in lpfc_drain_txq()
+Subject: [PATCH 5.4 015/100] scsi: advansys: Fix kernel pointer leak
 Date:   Wed, 24 Nov 2021 12:57:31 +0100
-Message-Id: <20211124115727.701496602@linuxfoundation.org>
+Message-Id: <20211124115655.345545297@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Guo Zhi <qtxuning1999@sjtu.edu.cn>
 
-[ Upstream commit 99154581b05c8fb22607afb7c3d66c1bace6aa5d ]
+[ Upstream commit d4996c6eac4c81b8872043e9391563f67f13e406 ]
 
-When parsing the txq list in lpfc_drain_txq(), the driver attempts to pass
-the requests to the adapter. If such an attempt fails, a local "fail_msg"
-string is set and a log message output.  The job is then added to a
-completions list for cancellation.
+Pointers should be printed with %p or %px rather than cast to 'unsigned
+long' and printed with %lx.
 
-Processing of any further jobs from the txq list continues, but since
-"fail_msg" remains set, jobs are added to the completions list regardless
-of whether a wqe was passed to the adapter.  If successfully added to
-txcmplq, jobs are added to both lists resulting in list corruption.
+Change %lx to %p to print the hashed pointer.
 
-Fix by clearing the fail_msg string after adding a job to the completions
-list. This stops the subsequent jobs from being added to the completions
-list unless they had an appropriate failure.
-
-Link: https://lore.kernel.org/r/20210910233159.115896-2-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
+Link: https://lore.kernel.org/r/20210929122538.1158235-1-qtxuning1999@sjtu.edu.cn
+Signed-off-by: Guo Zhi <qtxuning1999@sjtu.edu.cn>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_sli.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/advansys.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 40d6537e64dd6..e72fc88aeb40e 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -19171,6 +19171,7 @@ lpfc_drain_txq(struct lpfc_hba *phba)
- 					fail_msg,
- 					piocbq->iotag, piocbq->sli4_xritag);
- 			list_add_tail(&piocbq->list, &completions);
-+			fail_msg = NULL;
- 		}
- 		spin_unlock_irqrestore(&pring->ring_lock, iflags);
- 	}
+diff --git a/drivers/scsi/advansys.c b/drivers/scsi/advansys.c
+index a242a62caaa16..7b3e52ff5f516 100644
+--- a/drivers/scsi/advansys.c
++++ b/drivers/scsi/advansys.c
+@@ -3366,8 +3366,8 @@ static void asc_prt_adv_board_info(struct seq_file *m, struct Scsi_Host *shost)
+ 		   shost->host_no);
+ 
+ 	seq_printf(m,
+-		   " iop_base 0x%lx, cable_detect: %X, err_code %u\n",
+-		   (unsigned long)v->iop_base,
++		   " iop_base 0x%p, cable_detect: %X, err_code %u\n",
++		   v->iop_base,
+ 		   AdvReadWordRegister(iop_base,IOPW_SCSI_CFG1) & CABLE_DETECT,
+ 		   v->err_code);
+ 
 -- 
 2.33.0
 
