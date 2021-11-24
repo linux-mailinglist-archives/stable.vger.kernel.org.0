@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3F0145BCFB
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:31:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0853045BAD8
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245594AbhKXMef (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:34:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49352 "EHLO mail.kernel.org"
+        id S243069AbhKXMOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:14:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244677AbhKXMc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:32:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51B6D611BF;
-        Wed, 24 Nov 2021 12:20:04 +0000 (UTC)
+        id S243447AbhKXMOD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:14:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C76060FD9;
+        Wed, 24 Nov 2021 12:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756404;
-        bh=J7R4Nebviss+8nipBfjO2GZErgKBnu2J7kiCeUlPvL8=;
+        s=korg; t=1637755733;
+        bh=LZK2UuE+aA/sL4+9/mNxxwyepbUbuW4WdsWmQDjpHXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=te6kb+gLGrIw8GVqdi2ZMXjCmb0vwdV4HCeVFQl1YcKRAQLt9Kyq6IoRBMe4e9hlN
-         fuw64R7xxOLp+NiGVIRDOhKepaL7lKDveEHWaGL7i79EoX9PfMJeZ7Fg+UaDnEjPei
-         R/zKtToURSVwmBcxAp7N4e6e/2RFWZBgqv3CigWc=
+        b=eVaBIAQ3kag7Bp31k3Cg8rDv4nERmAsyY9bS7FvHDDfMrcrrZNDsAUcfwremLjFnR
+         zyTCI/rXYNUxRJy/fdnncSlsIadGGbXVIZgvzXjiMJtCn7k5K/V03m9Dk3QXBpkWTT
+         02ndjsA0mUBooucwqK9WJz+WudJWBMkJKRdQiEa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 067/251] USB: iowarrior: fix control-message timeouts
+        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 038/207] wcn36xx: Fix HT40 capability for 2Ghz band
 Date:   Wed, 24 Nov 2021 12:55:09 +0100
-Message-Id: <20211124115712.574322277@linuxfoundation.org>
+Message-Id: <20211124115705.175166011@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,55 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-commit 79a4479a17b83310deb0b1a2a274fe5be12d2318 upstream.
+commit 960ae77f25631bbe4e3aafefe209b52e044baf31 upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+All wcn36xx controllers are supposed to support HT40 (and SGI40),
+This doubles the maximum bitrate/throughput with compatible APs.
 
-Use the common control-message timeout define for the five-second
-timeout and drop the driver-specific one.
+Tested with wcn3620 & wcn3680B.
 
-Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
-Cc: stable@vger.kernel.org      # 2.6.21
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211025115159.4954-3-johan@kernel.org
+Cc: stable@vger.kernel.org
+Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1634737133-22336-1-git-send-email-loic.poulain@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/misc/iowarrior.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/wcn36xx/main.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -103,10 +103,6 @@ struct iowarrior {
- /*    globals   */
- /*--------------*/
- 
--/*
-- *  USB spec identifies 5 second timeouts.
-- */
--#define GET_TIMEOUT 5
- #define USB_REQ_GET_REPORT  0x01
- //#if 0
- static int usb_get_report(struct usb_device *dev,
-@@ -118,7 +114,7 @@ static int usb_get_report(struct usb_dev
- 			       USB_DIR_IN | USB_TYPE_CLASS |
- 			       USB_RECIP_INTERFACE, (type << 8) + id,
- 			       inter->desc.bInterfaceNumber, buf, size,
--			       GET_TIMEOUT*HZ);
-+			       USB_CTRL_GET_TIMEOUT);
- }
- //#endif
- 
-@@ -133,7 +129,7 @@ static int usb_set_report(struct usb_int
- 			       USB_TYPE_CLASS | USB_RECIP_INTERFACE,
- 			       (type << 8) + id,
- 			       intf->cur_altsetting->desc.bInterfaceNumber, buf,
--			       size, HZ);
-+			       size, 1000);
- }
- 
- /*---------------------*/
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -129,7 +129,9 @@ static struct ieee80211_supported_band w
+ 		.cap =	IEEE80211_HT_CAP_GRN_FLD |
+ 			IEEE80211_HT_CAP_SGI_20 |
+ 			IEEE80211_HT_CAP_DSSSCCK40 |
+-			IEEE80211_HT_CAP_LSIG_TXOP_PROT,
++			IEEE80211_HT_CAP_LSIG_TXOP_PROT |
++			IEEE80211_HT_CAP_SGI_40 |
++			IEEE80211_HT_CAP_SUP_WIDTH_20_40,
+ 		.ht_supported = true,
+ 		.ampdu_factor = IEEE80211_HT_MAX_AMPDU_64K,
+ 		.ampdu_density = IEEE80211_HT_MPDU_DENSITY_16,
 
 
