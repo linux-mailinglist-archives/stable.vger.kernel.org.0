@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B49545BAF5
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2211C45BC53
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242869AbhKXMPd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47096 "EHLO mail.kernel.org"
+        id S244818AbhKXM1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:27:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242898AbhKXMNI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:13:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4C7A61108;
-        Wed, 24 Nov 2021 12:07:20 +0000 (UTC)
+        id S243509AbhKXMZm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:25:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D26A6112E;
+        Wed, 24 Nov 2021 12:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755641;
-        bh=OmHUSWRvgi4r8CBgiHvmpwAiI2R9iFhP0mo0Y9i35VU=;
+        s=korg; t=1637756160;
+        bh=sTK+5Vqde1OdfOU/XWFM6OGFf6/EGUAiKkUPGUNtyPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3GrNm/Sfuy76RmS6y6os4w/7pHUEf+NbLhelGZE1kAGUe/qnLqwdMxqfTRo1Sq5N
-         6lXcUBHLsp1oMuMCT78m8MJCr5OKMdvZ49MvDaU3blcHnHNzlfuaFsSMTidPVacGXu
-         Gx2qnyiH4MeqqPw71SQptRGRaMjDscb87eMcfAwA=
+        b=iOb5US2AIiJZWtlMLikzjimV/Vz/+sdT558o5nKUEYJTcvN+fVA/cI77T2soStvGY
+         aF+DAc/hzRgs+890OcyMbJfyUuKlJRmi1BxPmCeVtUXU/AvOyO3Q5uScBAkibYNhbl
+         8GdATYpzSJaWRw299WU/jqJhGYkq1yD6RWb1h4vA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Subject: [PATCH 4.4 161/162] usb: max-3421: Use driver data instead of maintaining a list of bound devices
+        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Chris Murphy <chris@colorremedies.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.9 193/207] btrfs: fix memory ordering between normal and ordered work functions
 Date:   Wed, 24 Nov 2021 12:57:44 +0100
-Message-Id: <20211124115703.485010038@linuxfoundation.org>
+Message-Id: <20211124115710.200276952@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,95 +42,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit fc153aba3ef371d0d76eb88230ed4e0dee5b38f2 upstream.
+commit 45da9c1767ac31857df572f0a909fbe88fd5a7e9 upstream.
 
-Instead of maintaining a single-linked list of devices that must be
-searched linearly in .remove() just use spi_set_drvdata() to remember the
-link between the spi device and the driver struct. Then the global list
-and the next member can be dropped.
+Ordered work functions aren't guaranteed to be handled by the same thread
+which executed the normal work functions. The only way execution between
+normal/ordered functions is synchronized is via the WORK_DONE_BIT,
+unfortunately the used bitops don't guarantee any ordering whatsoever.
 
-This simplifies the driver, reduces the memory footprint and the time to
-search the list. Also it makes obvious that there is always a corresponding
-driver struct for a given device in .remove(), so the error path for
-!max3421_hcd can be dropped, too.
+This manifested as seemingly inexplicable crashes on ARM64, where
+async_chunk::inode is seen as non-null in async_cow_submit which causes
+submit_compressed_extents to be called and crash occurs because
+async_chunk::inode suddenly became NULL. The call trace was similar to:
 
-As a side effect this fixes a data inconsistency when .probe() races with
-itself for a second max3421 device in manipulating max3421_hcd_list. A
-similar race is fixed in .remove(), too.
+    pc : submit_compressed_extents+0x38/0x3d0
+    lr : async_cow_submit+0x50/0xd0
+    sp : ffff800015d4bc20
 
-Fixes: 2d53139f3162 ("Add support for using a MAX3421E chip as a host driver.")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20211018204028.2914597-1-u.kleine-koenig@pengutronix.de
+    <registers omitted for brevity>
+
+    Call trace:
+     submit_compressed_extents+0x38/0x3d0
+     async_cow_submit+0x50/0xd0
+     run_ordered_work+0xc8/0x280
+     btrfs_work_helper+0x98/0x250
+     process_one_work+0x1f0/0x4ac
+     worker_thread+0x188/0x504
+     kthread+0x110/0x114
+     ret_from_fork+0x10/0x18
+
+Fix this by adding respective barrier calls which ensure that all
+accesses preceding setting of WORK_DONE_BIT are strictly ordered before
+setting the flag. At the same time add a read barrier after reading of
+WORK_DONE_BIT in run_ordered_work which ensures all subsequent loads
+would be strictly ordered after reading the bit. This in turn ensures
+are all accesses before WORK_DONE_BIT are going to be strictly ordered
+before any access that can occur in ordered_func.
+
+Reported-by: Chris Murphy <lists@colorremedies.com>
+Fixes: 08a9ff326418 ("btrfs: Added btrfs_workqueue_struct implemented ordered execution based on kernel workqueue")
+CC: stable@vger.kernel.org # 4.4+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2011928
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Tested-by: Chris Murphy <chris@colorremedies.com>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/max3421-hcd.c |   25 +++++--------------------
- 1 file changed, 5 insertions(+), 20 deletions(-)
+ fs/btrfs/async-thread.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/usb/host/max3421-hcd.c
-+++ b/drivers/usb/host/max3421-hcd.c
-@@ -121,8 +121,6 @@ struct max3421_hcd {
+--- a/fs/btrfs/async-thread.c
++++ b/fs/btrfs/async-thread.c
+@@ -283,6 +283,13 @@ static void run_ordered_work(struct __bt
+ 				  ordered_list);
+ 		if (!test_bit(WORK_DONE_BIT, &work->flags))
+ 			break;
++		/*
++		 * Orders all subsequent loads after reading WORK_DONE_BIT,
++		 * paired with the smp_mb__before_atomic in btrfs_work_helper
++		 * this guarantees that the ordered function will see all
++		 * updates from ordinary work function.
++		 */
++		smp_rmb();
  
- 	struct task_struct *spi_thread;
- 
--	struct max3421_hcd *next;
--
- 	enum max3421_rh_state rh_state;
- 	/* lower 16 bits contain port status, upper 16 bits the change mask: */
- 	u32 port_status;
-@@ -170,8 +168,6 @@ struct max3421_ep {
- 	u8 retransmit;			/* packet needs retransmission */
- };
- 
--static struct max3421_hcd *max3421_hcd_list;
--
- #define MAX3421_FIFO_SIZE	64
- 
- #define MAX3421_SPI_DIR_RD	0	/* read register from MAX3421 */
-@@ -1841,9 +1837,8 @@ max3421_probe(struct spi_device *spi)
+ 		/*
+ 		 * we are going to call the ordered done function, but
+@@ -368,6 +375,13 @@ static void normal_work_helper(struct bt
+ 	thresh_exec_hook(wq);
+ 	work->func(work);
+ 	if (need_order) {
++		/*
++		 * Ensures all memory accesses done in the work function are
++		 * ordered before setting the WORK_DONE_BIT. Ensuring the thread
++		 * which is going to executed the ordered work sees them.
++		 * Pairs with the smp_rmb in run_ordered_work.
++		 */
++		smp_mb__before_atomic();
+ 		set_bit(WORK_DONE_BIT, &work->flags);
+ 		run_ordered_work(wq, work);
  	}
- 	set_bit(HCD_FLAG_POLL_RH, &hcd->flags);
- 	max3421_hcd = hcd_to_max3421(hcd);
--	max3421_hcd->next = max3421_hcd_list;
--	max3421_hcd_list = max3421_hcd;
- 	INIT_LIST_HEAD(&max3421_hcd->ep_list);
-+	spi_set_drvdata(spi, max3421_hcd);
- 
- 	max3421_hcd->tx = kmalloc(sizeof(*max3421_hcd->tx), GFP_KERNEL);
- 	if (!max3421_hcd->tx) {
-@@ -1892,28 +1887,18 @@ error:
- static int
- max3421_remove(struct spi_device *spi)
- {
--	struct max3421_hcd *max3421_hcd = NULL, **prev;
--	struct usb_hcd *hcd = NULL;
-+	struct max3421_hcd *max3421_hcd;
-+	struct usb_hcd *hcd;
- 	unsigned long flags;
- 
--	for (prev = &max3421_hcd_list; *prev; prev = &(*prev)->next) {
--		max3421_hcd = *prev;
--		hcd = max3421_to_hcd(max3421_hcd);
--		if (hcd->self.controller == &spi->dev)
--			break;
--	}
--	if (!max3421_hcd) {
--		dev_err(&spi->dev, "no MAX3421 HCD found for SPI device %p\n",
--			spi);
--		return -ENODEV;
--	}
-+	max3421_hcd = spi_get_drvdata(spi);
-+	hcd = max3421_to_hcd(max3421_hcd);
- 
- 	usb_remove_hcd(hcd);
- 
- 	spin_lock_irqsave(&max3421_hcd->lock, flags);
- 
- 	kthread_stop(max3421_hcd->spi_thread);
--	*prev = max3421_hcd->next;
- 
- 	spin_unlock_irqrestore(&max3421_hcd->lock, flags);
- 
 
 
