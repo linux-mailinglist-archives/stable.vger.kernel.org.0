@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0364545C1E7
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1BA45C5CC
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:59:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346368AbhKXNYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:24:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39546 "EHLO mail.kernel.org"
+        id S1353437AbhKXOAu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:00:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349261AbhKXNS4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:18:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABD6261251;
-        Wed, 24 Nov 2021 12:45:58 +0000 (UTC)
+        id S1355583AbhKXN6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:58:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7B43633BF;
+        Wed, 24 Nov 2021 13:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757960;
-        bh=zhOUR5eBmmE/KSTcstVZXg+nI/BUaA1923/70sCiLjs=;
+        s=korg; t=1637759289;
+        bh=hM4gFqajZA5jzbpE4Ay+jgBfbRW8trW1zyk21FRcIdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KaNI0cjqhvs7YeygHA3/8M6IQAmEI8YCWF+Gvcj0iYs/Tjqam/NuEs4MMjAkofSQG
-         F5d/c6NMeje5KeGFisT9hYKtHnfZ+msu/h8RqEb8sP6+2VI/l7PhLCYJVLkc5SKE8k
-         6vuov+bmN252hk3gcQb6JNGWW4QNoheTqXdNaLhg=
+        b=rfRla68D/ECHdU0YrJW6svR1IAJVim+aGjMQX1iN7Qo1+p5TmR25UF2JWI0yE7ReD
+         mmXUz2Bs/8wQJ8F5l4xMIXl23ExuoSkneCNeZS1FXAugKhbat5SQde1qrUNDkvIQ+3
+         actCoNUPW+/vdqc7FpNYkc/No09lQ+/pHMWGTxQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        Jonathan Davies <jonathan.davies@nutanix.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 010/100] arm64: dts: qcom: msm8916: Add unit name for /soc node
+Subject: [PATCH 5.15 159/279] net: virtio_net_hdr_to_skb: count transport header in UFO
 Date:   Wed, 24 Nov 2021 12:57:26 +0100
-Message-Id: <20211124115655.180974919@linuxfoundation.org>
+Message-Id: <20211124115724.261402542@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Jonathan Davies <jonathan.davies@nutanix.com>
 
-[ Upstream commit 7a62bfebc8c94bdb6eb8f54f49889dc6b5b79601 ]
+[ Upstream commit cf9acc90c80ecbee00334aa85d92f4e74014bcff ]
 
-This fixes the following warning when building with W=1:
-Warning (unit_address_vs_reg): /soc: node has a reg or ranges property,
-but no unit name
+virtio_net_hdr_to_skb does not set the skb's gso_size and gso_type
+correctly for UFO packets received via virtio-net that are a little over
+the GSO size. This can lead to problems elsewhere in the networking
+stack, e.g. ovs_vport_send dropping over-sized packets if gso_size is
+not set.
 
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20210921152120.6710-1-stephan@gerhold.net
+This is due to the comparison
+
+  if (skb->len - p_off > gso_size)
+
+not properly accounting for the transport layer header.
+
+p_off includes the size of the transport layer header (thlen), so
+skb->len - p_off is the size of the TCP/UDP payload.
+
+gso_size is read from the virtio-net header. For UFO, fragmentation
+happens at the IP level so does not need to include the UDP header.
+
+Hence the calculation could be comparing a TCP/UDP payload length with
+an IP payload length, causing legitimate virtio-net packets to have
+lack gso_type/gso_size information.
+
+Example: a UDP packet with payload size 1473 has IP payload size 1481.
+If the guest used UFO, it is not fragmented and the virtio-net header's
+flags indicate that it is a GSO frame (VIRTIO_NET_HDR_GSO_UDP), with
+gso_size = 1480 for an MTU of 1500.  skb->len will be 1515 and p_off
+will be 42, so skb->len - p_off = 1473.  Hence the comparison fails, and
+shinfo->gso_size and gso_type are not set as they should be.
+
+Instead, add the UDP header length before comparing to gso_size when
+using UFO. In this way, it is the size of the IP payload that is
+compared to gso_size.
+
+Fixes: 6dd912f82680 ("net: check untrusted gso_size at kernel entry")
+Signed-off-by: Jonathan Davies <jonathan.davies@nutanix.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/virtio_net.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index 449843f2184d8..1063f64f73ca4 100644
---- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -358,7 +358,7 @@
- 		};
- 	};
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index b465f8f3e554f..04e87f4b9417c 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -120,10 +120,15 @@ retry:
  
--	soc: soc {
-+	soc: soc@0 {
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		ranges = <0 0 0 0xffffffff>;
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		u16 gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
++		unsigned int nh_off = p_off;
+ 		struct skb_shared_info *shinfo = skb_shinfo(skb);
+ 
++		/* UFO may not include transport header in gso_size. */
++		if (gso_type & SKB_GSO_UDP)
++			nh_off -= thlen;
++
+ 		/* Too small packets are not really GSO ones. */
+-		if (skb->len - p_off > gso_size) {
++		if (skb->len - nh_off > gso_size) {
+ 			shinfo->gso_size = gso_size;
+ 			shinfo->gso_type = gso_type;
+ 
 -- 
 2.33.0
 
