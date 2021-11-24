@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38A6F45BA9F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 765AF45BC13
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242576AbhKXMMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:12:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34838 "EHLO mail.kernel.org"
+        id S245455AbhKXMZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241239AbhKXMKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:10:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E5A0610CE;
-        Wed, 24 Nov 2021 12:06:07 +0000 (UTC)
+        id S245040AbhKXMYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:24:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94C1361206;
+        Wed, 24 Nov 2021 12:15:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755568;
-        bh=XMYwm58uhkqcSDfJic5WpKnfPDqX8zy5kJlsZo3SvZU=;
+        s=korg; t=1637756106;
+        bh=ohuo0QU48rv3K/ooxaBjdZAhGuDZ37MKhXsozrU9CF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+ps1bDIGHGkYkJHuVNGD/d+ZcuKAFMA3t9Bpp7Z7iuGKLG35NGhgT04W3GwJDxJD
-         MhCx2CaRNHS1+xwuezsy1RZ8q+nFYa0CoWql6Fip6MBmQM7sMFDui5AgJpQBmyjSmj
-         iN5zVhJL3QgMbRmztTWruzMKN9tMgOFp3COPsKr4=
+        b=qR3m85uJd+u4fmlCkHEEBaFWYJW5wObEaBeyZtlJojVYZwFzDGlYOgtOvQk5l/4q7
+         QDJS6b5W4mOEQ0aFSSAlY5b3Njq758S9DuolDDRV5H2VGFIf7fudP+8Uu2MNpfwDHh
+         MhH70QSavUWzyOlLw+YRA2b8mg0kyw4JBv/qQ5T8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Glauber Costa <glommer@parallels.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 143/162] mm: kmemleak: slob: respect SLAB_NOLEAKTRACE flag
+        stable@vger.kernel.org,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Paul Mundt <lethal@linux-sh.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Miguel Ojeda <ojeda@kernel.org>, Rich Felker <dalias@libc.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 175/207] sh: check return code of request_irq
 Date:   Wed, 24 Nov 2021 12:57:26 +0100
-Message-Id: <20211124115702.909797382@linuxfoundation.org>
+Message-Id: <20211124115709.648378592@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 34dbc3aaf5d9e89ba6cc5e24add9458c21ab1950 upstream.
+[ Upstream commit 0e38225c92c7964482a8bb6b3e37fde4319e965c ]
 
-When kmemleak is enabled for SLOB, system does not boot and does not
-print anything to the console.  At the very early stage in the boot
-process we hit infinite recursion from kmemleak_init() and eventually
-kernel crashes.
+request_irq is marked __must_check, but the call in shx3_prepare_cpus
+has a void return type, so it can't propagate failure to the caller.
+Follow cues from hexagon and just print an error.
 
-kmemleak_init() specifies SLAB_NOLEAKTRACE for KMEM_CACHE(), but
-kmem_cache_create_usercopy() removes it because CACHE_CREATE_MASK is not
-valid for SLOB.
-
-Let's fix CACHE_CREATE_MASK and make kmemleak work with SLOB
-
-Link: https://lkml.kernel.org/r/20211115020850.3154366-1-rkovhaev@gmail.com
-Fixes: d8843922fba4 ("slab: Ignore internal flags in cache creation")
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Glauber Costa <glommer@parallels.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c7936b9abcf5 ("sh: smp: Hook in to the generic IPI handler for SH-X3 SMP.")
+Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc: Paul Mundt <lethal@linux-sh.org>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
+Signed-off-by: Rich Felker <dalias@libc.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slab.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/sh/kernel/cpu/sh4a/smp-shx3.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/mm/slab.h
-+++ b/mm/slab.h
-@@ -133,7 +133,7 @@ static inline unsigned long kmem_cache_f
- #define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE | SLAB_RECLAIM_ACCOUNT | \
- 			  SLAB_TEMPORARY | SLAB_NOTRACK)
- #else
--#define SLAB_CACHE_FLAGS (0)
-+#define SLAB_CACHE_FLAGS (SLAB_NOLEAKTRACE)
- #endif
+diff --git a/arch/sh/kernel/cpu/sh4a/smp-shx3.c b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
+index 0d3637c494bfe..c1f66c35e0c12 100644
+--- a/arch/sh/kernel/cpu/sh4a/smp-shx3.c
++++ b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
+@@ -76,8 +76,9 @@ static void shx3_prepare_cpus(unsigned int max_cpus)
+ 	BUILD_BUG_ON(SMP_MSG_NR >= 8);
  
- #define CACHE_CREATE_MASK (SLAB_CORE_FLAGS | SLAB_DEBUG_FLAGS | SLAB_CACHE_FLAGS)
+ 	for (i = 0; i < SMP_MSG_NR; i++)
+-		request_irq(104 + i, ipi_interrupt_handler,
+-			    IRQF_PERCPU, "IPI", (void *)(long)i);
++		if (request_irq(104 + i, ipi_interrupt_handler,
++			    IRQF_PERCPU, "IPI", (void *)(long)i))
++			pr_err("Failed to request irq %d\n", i);
+ 
+ 	for (i = 0; i < max_cpus; i++)
+ 		set_cpu_present(i, true);
+-- 
+2.33.0
+
 
 
