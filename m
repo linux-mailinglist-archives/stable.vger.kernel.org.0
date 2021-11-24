@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B75F45C006
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B464C45B9C5
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:02:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244261AbhKXNEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:04:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39124 "EHLO mail.kernel.org"
+        id S233826AbhKXMEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:04:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346839AbhKXNC5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:02:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5BE061A3B;
-        Wed, 24 Nov 2021 12:36:06 +0000 (UTC)
+        id S234770AbhKXMEL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:04:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C68C6101D;
+        Wed, 24 Nov 2021 12:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757367;
-        bh=O5QelJJgUvwNzcgGNARjw7poLP5JMGp9vol6bHK9KAs=;
+        s=korg; t=1637755262;
+        bh=nOFldo0WZG4J6k0QFrFceuT0aOxkSIdIRmmj90HWRWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PX5lj8Ox5fpFDYtHRoRjz+uAb2Cgd9M+BnBVge9LVA+1Hxru/1KdCMqycwagj3HtV
-         mc84971N98hHCorSOkIf93sjpFSRl5bI2SCwvs9i86M4Ubi9a+Z+XIoL3Nl2nep+VL
-         mpUs7GTryWsPVgeB9qESBSYa1pFlPfnzqswklrQU=
+        b=crcrVWJZjzYFcI/w4vXYm8bpG8CAadaN+ukSTUMsgct0L5otCf63pntUfUL8DBr4q
+         6YoBH5QL0l56fj1/agWFjkwIICX+/82K2AD/2lb6AfGvRufDN0OitcFSfgwWnZC1F7
+         fcd0GOxZMefIGHvV3WPUl4ZrO4oD09mdyLEdRiPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 144/323] b43: fix a lower bounds test
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.4 031/162] mwifiex: Read a PCI register after writing the TX ring write pointer
 Date:   Wed, 24 Nov 2021 12:55:34 +0100
-Message-Id: <20211124115723.786022071@linuxfoundation.org>
+Message-Id: <20211124115659.342666507@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jonas Dreßler <verdre@v0yd.nl>
 
-[ Upstream commit 9b793db5fca44d01f72d3564a168171acf7c4076 ]
+commit e5f4eb8223aa740237cd463246a7debcddf4eda1 upstream.
 
-The problem is that "channel" is an unsigned int, when it's less 5 the
-value of "channel - 5" is not a negative number as one would expect but
-is very high positive value instead.
+On the 88W8897 PCIe+USB card the firmware randomly crashes after setting
+the TX ring write pointer. The issue is present in the latest firmware
+version 15.68.19.p21 of the PCIe+USB card.
 
-This means that "start" becomes a very high positive value.  The result
-of that is that we never enter the "for (i = start; i <= end; i++) {"
-loop.  Instead of storing the result from b43legacy_radio_aci_detect()
-it just uses zero.
+Those firmware crashes can be worked around by reading any PCI register
+of the card after setting that register, so read the PCI_VENDOR_ID
+register here. The reason this works is probably because we keep the bus
+from entering an ASPM state for a bit longer, because that's what causes
+the cards firmware to crash.
 
-Fixes: ef1a628d83fc ("b43: Implement dynamic PHY API")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Michael Büsch <m@bues.ch>
+This fixes a bug where during RX/TX traffic and with ASPM L1 substates
+enabled (the specific substates where the issue happens appear to be
+platform dependent), the firmware crashes and eventually a command
+timeout appears in the logs.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109681
+Cc: stable@vger.kernel.org
+Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211006073621.GE8404@kili
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211011133224.15561-2-verdre@v0yd.nl
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/broadcom/b43/phy_g.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mwifiex/pcie.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/b43/phy_g.c b/drivers/net/wireless/broadcom/b43/phy_g.c
-index f59c021664626..40e10d0b7cd73 100644
---- a/drivers/net/wireless/broadcom/b43/phy_g.c
-+++ b/drivers/net/wireless/broadcom/b43/phy_g.c
-@@ -2310,7 +2310,7 @@ static u8 b43_gphy_aci_scan(struct b43_wldev *dev)
- 	b43_phy_mask(dev, B43_PHY_G_CRS, 0x7FFF);
- 	b43_set_all_gains(dev, 3, 8, 1);
- 
--	start = (channel - 5 > 0) ? channel - 5 : 1;
-+	start = (channel > 5) ? channel - 5 : 1;
- 	end = (channel + 5 < 14) ? channel + 5 : 13;
- 
- 	for (i = start; i <= end; i++) {
--- 
-2.33.0
-
+--- a/drivers/net/wireless/mwifiex/pcie.c
++++ b/drivers/net/wireless/mwifiex/pcie.c
+@@ -1210,6 +1210,14 @@ mwifiex_pcie_send_data(struct mwifiex_ad
+ 			ret = -1;
+ 			goto done_unmap;
+ 		}
++
++		/* The firmware (latest version 15.68.19.p21) of the 88W8897 PCIe+USB card
++		 * seems to crash randomly after setting the TX ring write pointer when
++		 * ASPM powersaving is enabled. A workaround seems to be keeping the bus
++		 * busy by reading a random register afterwards.
++		 */
++		mwifiex_read_reg(adapter, PCI_VENDOR_ID, &rx_val);
++
+ 		if ((mwifiex_pcie_txbd_not_full(card)) &&
+ 		    tx_param->next_pkt_len) {
+ 			/* have more packets and TxBD still can hold more */
 
 
