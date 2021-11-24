@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F0945BC94
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5FD45BF82
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:56:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245164AbhKXMbU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:31:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46752 "EHLO mail.kernel.org"
+        id S1345915AbhKXM7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:59:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343541AbhKXM3R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:29:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D558361288;
-        Wed, 24 Nov 2021 12:17:34 +0000 (UTC)
+        id S1346019AbhKXM4R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:56:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76020611C9;
+        Wed, 24 Nov 2021 12:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756255;
-        bh=OZA0LGAms40l+5zSdSnsQhSebqeIpLwIkKVMxwC+9vo=;
+        s=korg; t=1637757145;
+        bh=mLpKvEUDIzgXLEuNj/tJb9F/V+Fi3J//Qk0Sdkbmjf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gaN9kcU6C7UU+8k33sAomXUydJP0PoKUt07t2mhWnoowna+y4cuBQScc43zL8MuLD
-         Uxn3BH3W2L8WIFEO/PGZ0OC9M8hOXrrftnB5Ep889ivzWg+plpHCrjX/4o7JYcsWmu
-         JqZXV/KnQp4K9C5HqYzqvMyUHvvZao2bgzdmKv3g=
+        b=yJwyRoJhV1lzdXr8zSFdQ32TqlGo4P7PEZQQsU99SYfWZZjo9iMNSVPO6iEIK+QOo
+         NfWzm0we8Gd4xdh1DFMLHMhqDBpXADOckYrutk/1g5xfI/xGiRDBKnvHz5FrYJJZvu
+         KkjSIMieW/5ETWV1epmxrVHlAH97IWSdXsrwSmxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Dmitry Bogdanov <d.bogdanov@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 021/251] scsi: qla2xxx: Fix unmap of already freed sgl
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.19 073/323] PCI: aardvark: Do not unmask unused interrupts
 Date:   Wed, 24 Nov 2021 12:54:23 +0100
-Message-Id: <20211124115710.979243187@linuxfoundation.org>
+Message-Id: <20211124115721.335822991@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,90 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Bogdanov <d.bogdanov@yadro.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 4a8f71014b4d56c4fb287607e844c0a9f68f46d9 ]
+commit 1fb95d7d3c7a926b002fe8a6bd27a1cb428b46dc upstream.
 
-The sgl is freed in the target stack in target_release_cmd_kref() before
-calling qlt_free_cmd() but there is an unmap of sgl in qlt_free_cmd() that
-causes a panic if sgl is not yet DMA unmapped:
+There are lot of undocumented interrupt bits. To prevent unwanted
+spurious interrupts, fix all *_ALL_MASK macros to define all interrupt
+bits, so that driver can properly mask all interrupts, including those
+which are undocumented.
 
-NIP dma_direct_unmap_sg+0xdc/0x180
-LR  dma_direct_unmap_sg+0xc8/0x180
-Call Trace:
- ql_dbg_prefix+0x68/0xc0 [qla2xxx] (unreliable)
- dma_unmap_sg_attrs+0x54/0xf0
- qlt_unmap_sg.part.19+0x54/0x1c0 [qla2xxx]
- qlt_free_cmd+0x124/0x1d0 [qla2xxx]
- tcm_qla2xxx_release_cmd+0x4c/0xa0 [tcm_qla2xxx]
- target_put_sess_cmd+0x198/0x370 [target_core_mod]
- transport_generic_free_cmd+0x6c/0x1b0 [target_core_mod]
- tcm_qla2xxx_complete_free+0x6c/0x90 [tcm_qla2xxx]
-
-The sgl may be left unmapped in error cases of response sending.  For
-instance, qlt_rdy_to_xfer() maps sgl and exits when session is being
-deleted keeping the sgl mapped.
-
-This patch removes use-after-free of the sgl and ensures that the sgl is
-unmapped for any command that was not sent to firmware.
-
-Link: https://lore.kernel.org/r/20211018122650.11846-1-d.bogdanov@yadro.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211005180952.6812-8-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index bd8f9b03386ad..cb2db1c1e9f2a 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -3095,8 +3095,7 @@ int qlt_xmit_response(struct qla_tgt_cmd *cmd, int xmit_type,
- 			"RESET-RSP online/active/old-count/new-count = %d/%d/%d/%d.\n",
- 			vha->flags.online, qla2x00_reset_active(vha),
- 			cmd->reset_count, qpair->chip_reset);
--		spin_unlock_irqrestore(qpair->qp_lock_ptr, flags);
--		return 0;
-+		goto out_unmap_unlock;
- 	}
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -99,13 +99,13 @@
+ #define     PCIE_ISR0_MSI_INT_PENDING		BIT(24)
+ #define     PCIE_ISR0_INTX_ASSERT(val)		BIT(16 + (val))
+ #define     PCIE_ISR0_INTX_DEASSERT(val)	BIT(20 + (val))
+-#define	    PCIE_ISR0_ALL_MASK			GENMASK(26, 0)
++#define     PCIE_ISR0_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_ISR1_REG				(CONTROL_BASE_ADDR + 0x48)
+ #define PCIE_ISR1_MASK_REG			(CONTROL_BASE_ADDR + 0x4C)
+ #define     PCIE_ISR1_POWER_STATE_CHANGE	BIT(4)
+ #define     PCIE_ISR1_FLUSH			BIT(5)
+ #define     PCIE_ISR1_INTX_ASSERT(val)		BIT(8 + (val))
+-#define     PCIE_ISR1_ALL_MASK			GENMASK(11, 4)
++#define     PCIE_ISR1_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_MSI_ADDR_LOW_REG			(CONTROL_BASE_ADDR + 0x50)
+ #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
+ #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
+@@ -150,7 +150,7 @@
+ #define     PCIE_IRQ_MSI_INT2_DET		BIT(21)
+ #define     PCIE_IRQ_RC_DBELL_DET		BIT(22)
+ #define     PCIE_IRQ_EP_STATUS			BIT(23)
+-#define     PCIE_IRQ_ALL_MASK			0xfff0fb
++#define     PCIE_IRQ_ALL_MASK			GENMASK(31, 0)
+ #define     PCIE_IRQ_ENABLE_INTS_MASK		PCIE_IRQ_CORE_INT
  
- 	/* Does F/W have an IOCBs for this request */
-@@ -3218,10 +3217,6 @@ int qlt_rdy_to_xfer(struct qla_tgt_cmd *cmd)
- 	prm.sg = NULL;
- 	prm.req_cnt = 1;
- 
--	/* Calculate number of entries and segments required */
--	if (qlt_pci_map_calc_cnt(&prm) != 0)
--		return -EAGAIN;
--
- 	if (!qpair->fw_started || (cmd->reset_count != qpair->chip_reset) ||
- 	    (cmd->sess && cmd->sess->deleted)) {
- 		/*
-@@ -3237,6 +3232,10 @@ int qlt_rdy_to_xfer(struct qla_tgt_cmd *cmd)
- 		return 0;
- 	}
- 
-+	/* Calculate number of entries and segments required */
-+	if (qlt_pci_map_calc_cnt(&prm) != 0)
-+		return -EAGAIN;
-+
- 	spin_lock_irqsave(qpair->qp_lock_ptr, flags);
- 	/* Does F/W have an IOCBs for this request */
- 	res = qlt_check_reserve_free_req(qpair, prm.req_cnt);
-@@ -3671,9 +3670,6 @@ void qlt_free_cmd(struct qla_tgt_cmd *cmd)
- 
- 	BUG_ON(cmd->cmd_in_wq);
- 
--	if (cmd->sg_mapped)
--		qlt_unmap_sg(cmd->vha, cmd);
--
- 	if (!cmd->q_full)
- 		qlt_decr_num_pend_cmds(cmd->vha);
- 
--- 
-2.33.0
-
+ /* Transaction types */
 
 
