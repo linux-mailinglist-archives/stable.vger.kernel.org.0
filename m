@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 728D245D067
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 23:49:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4477E45D068
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 23:50:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352196AbhKXWxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 17:53:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47138 "EHLO mail.kernel.org"
+        id S1352199AbhKXWxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 17:53:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352215AbhKXWxH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 17:53:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 708506108B;
-        Wed, 24 Nov 2021 22:49:55 +0000 (UTC)
+        id S1352220AbhKXWxJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 17:53:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 469D66109D;
+        Wed, 24 Nov 2021 22:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637794196;
-        bh=wAztoczSmazOqT4JMKeXPg2ysOl76LQulKNIbsV40yQ=;
+        s=k20201202; t=1637794198;
+        bh=WqOr2e+1G6O5xvrRKN9cZ1xHjTUfDZNkwFKKdR0jvLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/u+NiHQZvZKdbmW97oRXDcR31MmMrqf1lcCHWOFy+gGUEo2xZp94sNXV61CQB8mQ
-         021gvZCfmiTv9LaLLPCtoGQX0iUTYbxg+Cz0dpxTBtRg/Zl0bHopKh81PoXk50UFtB
-         mtJ98VYAmaW05rHGLUt5fhywcI6v20w3VsZmwv2DC+8ev+q1qGq+yArW0ZwXhLf7ll
-         /5CdQCdKmgATbiTfaNyB/KItY0U3MWRzH5pEO25VQsL1E7CKd8Lp9zRb5aU8wCB8/5
-         tXbxq9hwity7DdTEIeAvial/WlaWBJh7mFiSKkGrEnIpm0IbTmvRL0m1RxXoKMLwGi
-         9LxB0lsTyAtKA==
+        b=keyQu9+WuYXZ0fKVSYc2vdSPKfKV3u9U/rB5wcvPG4hWGNnacxsCpZ7ZnA4Va5d82
+         4IQnYRnvorEzf3RYqQmTysvCI6t0FRjRNPcMxoC5cXlUgondszF2hx+lUhIesZsIzk
+         IoJBFiCpSc3U5lKKVzDfxxACbwBKWxATI7K8JKj33adXVsudhOA9C0GSB7p6rL7Yme
+         gWpzHOJ4IpZB2l7IUe7tPBacm3QSxxiGe3H2MowdFyWZLrxmQ9OQF3fPdon7CJw3Vb
+         gaSB/R7srppP2CRLka0b+77KIaLB4zSNUbcPz/miBSXi25vjqblmizQE3Sx/yjpsO0
+         R5RJHTEWupufA==
 From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     pali@kernel.org, stable@vger.kernel.org,
         Tomasz Maciej Nowak <tmn505@gmail.com>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>,
         Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 4.14 06/24] PCI: aardvark: Issue PERST via GPIO
-Date:   Wed, 24 Nov 2021 23:49:15 +0100
-Message-Id: <20211124224933.24275-7-kabel@kernel.org>
+Subject: [PATCH 4.14 07/24] PCI: aardvark: Replace custom macros by standard linux/pci_regs.h macros
+Date:   Wed, 24 Nov 2021 23:49:16 +0100
+Message-Id: <20211124224933.24275-8-kabel@kernel.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20211124224933.24275-1-kabel@kernel.org>
 References: <20211124224933.24275-1-kabel@kernel.org>
@@ -46,130 +47,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit 5169a9851daaa2782a7bd2bb83d5b1bd224b2879 upstream.
+commit 96be36dbffacea0aa9e6ec4839583e79faa141a1 upstream.
 
-Add support for issuing PERST via GPIO specified in 'reset-gpios'
-property (as described in PCI device tree bindings).
+PCI-E capability macros are already defined in linux/pci_regs.h.
+Remove their reimplementation in pcie-aardvark.
 
-Some buggy cards (e.g. Compex WLE900VX or WLE1216) are not detected
-after reboot when PERST is not issued during driver initialization.
-
-If bootloader already enabled link training then issuing PERST has no
-effect for some buggy cards (e.g. Compex WLE900VX) and these cards are
-not detected. We therefore clear the LINK_TRAINING_EN register before.
-
-It was observed that Compex WLE900VX card needs to be in PERST reset
-for at least 10ms if bootloader enabled link training.
-
-Tested on Turris MOX.
-
-Link: https://lore.kernel.org/r/20200430080625.26070-6-pali@kernel.org
+Link: https://lore.kernel.org/r/20200430080625.26070-9-pali@kernel.org
 Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 ---
- drivers/pci/host/pci-aardvark.c | 44 ++++++++++++++++++++++++++++++++-
- 1 file changed, 43 insertions(+), 1 deletion(-)
+ drivers/pci/host/pci-aardvark.c | 42 +++++++++++++++------------------
+ 1 file changed, 19 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/pci/host/pci-aardvark.c b/drivers/pci/host/pci-aardvark.c
-index 714d81462297..0cfec5660c69 100644
+index 0cfec5660c69..3ad6b6245f94 100644
 --- a/drivers/pci/host/pci-aardvark.c
 +++ b/drivers/pci/host/pci-aardvark.c
-@@ -12,6 +12,7 @@
-  */
- 
- #include <linux/delay.h>
-+#include <linux/gpio.h>
- #include <linux/interrupt.h>
- #include <linux/irq.h>
- #include <linux/irqdomain.h>
-@@ -20,6 +21,7 @@
- #include <linux/init.h>
- #include <linux/platform_device.h>
- #include <linux/of_address.h>
-+#include <linux/of_gpio.h>
- #include <linux/of_pci.h>
- 
- /* PCIe core registers */
-@@ -214,6 +216,7 @@ struct advk_pcie {
- 	u16 msi_msg;
- 	int root_bus_nr;
- 	int link_gen;
-+	struct gpio_desc *reset_gpio;
- };
- 
- static inline void advk_writel(struct advk_pcie *pcie, u32 val, u64 reg)
-@@ -349,6 +352,25 @@ static void advk_pcie_train_link(struct advk_pcie *pcie)
- 	dev_err(dev, "link never came up\n");
+@@ -29,17 +29,7 @@
+ #define     PCIE_CORE_CMD_IO_ACCESS_EN				BIT(0)
+ #define     PCIE_CORE_CMD_MEM_ACCESS_EN				BIT(1)
+ #define     PCIE_CORE_CMD_MEM_IO_REQ_EN				BIT(2)
+-#define PCIE_CORE_DEV_CTRL_STATS_REG				0xc8
+-#define     PCIE_CORE_DEV_CTRL_STATS_RELAX_ORDER_DISABLE	(0 << 4)
+-#define     PCIE_CORE_DEV_CTRL_STATS_MAX_PAYLOAD_SZ_SHIFT	5
+-#define     PCIE_CORE_DEV_CTRL_STATS_SNOOP_DISABLE		(0 << 11)
+-#define     PCIE_CORE_DEV_CTRL_STATS_MAX_RD_REQ_SIZE_SHIFT	12
+-#define     PCIE_CORE_DEV_CTRL_STATS_MAX_RD_REQ_SZ		0x2
+-#define PCIE_CORE_LINK_CTRL_STAT_REG				0xd0
+-#define     PCIE_CORE_LINK_L0S_ENTRY				BIT(0)
+-#define     PCIE_CORE_LINK_TRAINING				BIT(5)
+-#define     PCIE_CORE_LINK_SPEED_SHIFT				16
+-#define     PCIE_CORE_LINK_WIDTH_SHIFT				20
++#define PCIE_CORE_PCIEXP_CAP					0xc0
+ #define PCIE_CORE_ERR_CAPCTL_REG				0x118
+ #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX			BIT(5)
+ #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX_EN			BIT(6)
+@@ -229,6 +219,11 @@ static inline u32 advk_readl(struct advk_pcie *pcie, u64 reg)
+ 	return readl(pcie->base + reg);
  }
  
-+static void advk_pcie_issue_perst(struct advk_pcie *pcie)
++static inline u16 advk_read16(struct advk_pcie *pcie, u64 reg)
 +{
-+	u32 reg;
-+
-+	if (!pcie->reset_gpio)
-+		return;
-+
-+	/* PERST does not work for some cards when link training is enabled */
-+	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
-+	reg &= ~LINK_TRAINING_EN;
-+	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
-+
-+	/* 10ms delay is needed for some cards */
-+	dev_info(&pcie->pdev->dev, "issuing PERST via reset GPIO for 10ms\n");
-+	gpiod_set_value_cansleep(pcie->reset_gpio, 1);
-+	usleep_range(10000, 11000);
-+	gpiod_set_value_cansleep(pcie->reset_gpio, 0);
++	return advk_readl(pcie, (reg & ~0x3)) >> ((reg & 0x3) * 8);
 +}
 +
- static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ static int advk_pcie_link_up(struct advk_pcie *pcie)
  {
- 	u32 reg;
-@@ -358,6 +380,8 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 	for (i = 0; i < 8; i++)
- 		advk_pcie_set_ob_win(pcie, i, 0, 0, 0, 0, 0, 0, 0);
- 
-+	advk_pcie_issue_perst(pcie);
-+
- 	/* Set to Direct mode */
- 	reg = advk_readl(pcie, CTRL_CONFIG_REG);
- 	reg &= ~(CTRL_MODE_MASK << CTRL_MODE_SHIFT);
-@@ -430,7 +454,8 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 
- 	/*
- 	 * PERST# signal could have been asserted by pinctrl subsystem before
--	 * probe() callback has been called, making the endpoint going into
-+	 * probe() callback has been called or issued explicitly by reset gpio
-+	 * function advk_pcie_issue_perst(), making the endpoint going into
- 	 * fundamental reset. As required by PCI Express spec a delay for at
- 	 * least 100ms after such a reset before link training is needed.
+ 	u32 val, ltssm_state;
+@@ -301,16 +296,16 @@ static int advk_pcie_train_at_gen(struct advk_pcie *pcie, int gen)
+ 	 * Start link training immediately after enabling it.
+ 	 * This solves problems for some buggy cards.
  	 */
-@@ -1075,6 +1100,23 @@ static int advk_pcie_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+-	reg = advk_readl(pcie, PCIE_CORE_LINK_CTRL_STAT_REG);
+-	reg |= PCIE_CORE_LINK_TRAINING;
+-	advk_writel(pcie, reg, PCIE_CORE_LINK_CTRL_STAT_REG);
++	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKCTL);
++	reg |= PCI_EXP_LNKCTL_RL;
++	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKCTL);
  
-+	pcie->reset_gpio = devm_fwnode_get_index_gpiod_from_child(dev, "reset",
-+								  0,
-+								  dev_fwnode(dev),
-+								  GPIOD_OUT_LOW,
-+								  "pcie1-reset");
-+	ret = PTR_ERR_OR_ZERO(pcie->reset_gpio);
-+	if (ret) {
-+		if (ret == -ENOENT) {
-+			pcie->reset_gpio = NULL;
-+		} else {
-+			if (ret != -EPROBE_DEFER)
-+				dev_err(dev, "Failed to get reset-gpio: %i\n",
-+					ret);
-+			return ret;
-+		}
-+	}
-+
- 	ret = of_pci_get_max_link_speed(dev->of_node);
- 	if (ret <= 0 || ret > 3)
- 		pcie->link_gen = 3;
+ 	ret = advk_pcie_wait_for_link(pcie);
+ 	if (ret)
+ 		return ret;
+ 
+-	reg = advk_readl(pcie, PCIE_CORE_LINK_CTRL_STAT_REG);
+-	neg_gen = (reg >> PCIE_CORE_LINK_SPEED_SHIFT) & 0xf;
++	reg = advk_read16(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKSTA);
++	neg_gen = reg & PCI_EXP_LNKSTA_CLS;
+ 
+ 	return neg_gen;
+ }
+@@ -400,13 +395,14 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 		PCIE_CORE_ERR_CAPCTL_ECRC_CHCK_RCV;
+ 	advk_writel(pcie, reg, PCIE_CORE_ERR_CAPCTL_REG);
+ 
+-	/* Set PCIe Device Control and Status 1 PF0 register */
+-	reg = PCIE_CORE_DEV_CTRL_STATS_RELAX_ORDER_DISABLE |
+-		(7 << PCIE_CORE_DEV_CTRL_STATS_MAX_PAYLOAD_SZ_SHIFT) |
+-		PCIE_CORE_DEV_CTRL_STATS_SNOOP_DISABLE |
+-		(PCIE_CORE_DEV_CTRL_STATS_MAX_RD_REQ_SZ <<
+-		 PCIE_CORE_DEV_CTRL_STATS_MAX_RD_REQ_SIZE_SHIFT);
+-	advk_writel(pcie, reg, PCIE_CORE_DEV_CTRL_STATS_REG);
++	/* Set PCIe Device Control register */
++	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
++	reg &= ~PCI_EXP_DEVCTL_RELAX_EN;
++	reg &= ~PCI_EXP_DEVCTL_NOSNOOP_EN;
++	reg &= ~PCI_EXP_DEVCTL_READRQ;
++	reg |= PCI_EXP_DEVCTL_PAYLOAD; /* Set max payload size */
++	reg |= PCI_EXP_DEVCTL_READRQ_512B;
++	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
+ 
+ 	/* Program PCIe Control 2 to disable strict ordering */
+ 	reg = PCIE_CORE_CTRL2_RESERVED |
 -- 
 2.32.0
 
