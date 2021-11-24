@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A681345BEBC
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE20545BEC1
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345313AbhKXMuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:50:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51740 "EHLO mail.kernel.org"
+        id S1345593AbhKXMud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:50:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345827AbhKXMsR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:48:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 502EA6121F;
-        Wed, 24 Nov 2021 12:28:08 +0000 (UTC)
+        id S1344371AbhKXMsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:48:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5673461283;
+        Wed, 24 Nov 2021 12:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756888;
-        bh=U6fr/6p0i58nGXzlBnCBSljN+xNFCGxcSrUA6tQfn0U=;
+        s=korg; t=1637756891;
+        bh=zYXwbgEYWgxlYP9C7v/XibW1lWqX/jwOOw5A2yKDD6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIDS2A8gGFArjo8b4gqaUaKb9w1kgtukmnobqhKRg1jqAmU27JnY44EQpwoy03KaT
-         O+ietgqR5OZaBqMJgA20sjSEYWIIIvohUgTYxLUff1IwC8GeduYZtrlCFEK9rE+RZc
-         nFONqC5mvyYSEF+jykLWELuCzMOVxaRx0n/a9yXA=
+        b=03htBlCsX0gjtkSJ/WHn8Suu2Aoy46RUQI1Wu37eqFPgCyFZycN/uUab98AIb6mSw
+         XRfFYk+O9jsbJNVH2ADj6IUPk2QN4NtttoVxpzb34WTJedxpliYnkdugYVnbcs42Kq
+         sGvsfFoy8V9Dk2Pw+GEPplxuLhE2Wjh85QMfHmNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4.14 240/251] drm/udl: fix control-message timeout
-Date:   Wed, 24 Nov 2021 12:58:02 +0100
-Message-Id: <20211124115718.675903835@linuxfoundation.org>
+        stable@vger.kernel.org, hongao <hongao@uniontech.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.14 241/251] drm/amdgpu: fix set scaling mode Full/Full aspect/Center not works on vga and dvi connectors
+Date:   Wed, 24 Nov 2021 12:58:03 +0100
+Message-Id: <20211124115718.706518208@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
 References: <20211124115710.214900256@linuxfoundation.org>
@@ -39,33 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: hongao <hongao@uniontech.com>
 
-commit 5591c8f79db1729d9c5ac7f5b4d3a5c26e262d93 upstream.
+commit bf552083916a7f8800477b5986940d1c9a31b953 upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+amdgpu_connector_vga_get_modes missed function amdgpu_get_native_mode
+which assign amdgpu_encoder->native_mode with *preferred_mode result in
+amdgpu_encoder->native_mode.clock always be 0. That will cause
+amdgpu_connector_set_property returned early on:
+if ((rmx_type != DRM_MODE_SCALE_NONE) &&
+	(amdgpu_encoder->native_mode.clock == 0))
+when we try to set scaling mode Full/Full aspect/Center.
+Add the missing function to amdgpu_connector_vga_get_mode can fix this.
+It also works on dvi connectors because
+amdgpu_connector_dvi_helper_funcs.get_mode use the same method.
 
-Fixes: 5320918b9a87 ("drm/udl: initial UDL driver (v4)")
-Cc: stable@vger.kernel.org      # 3.4
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211025115353.5089-1-johan@kernel.org
+Signed-off-by: hongao <hongao@uniontech.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/udl/udl_connector.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/udl/udl_connector.c
-+++ b/drivers/gpu/drm/udl/udl_connector.c
-@@ -37,7 +37,7 @@ static u8 *udl_get_edid(struct udl_devic
- 		ret = usb_control_msg(udl->udev,
- 				      usb_rcvctrlpipe(udl->udev, 0), (0x02),
- 				      (0x80 | (0x02 << 5)), i << 8, 0xA1, rbuf, 2,
--				      HZ);
-+				      1000);
- 		if (ret < 1) {
- 			DRM_ERROR("Read EDID byte %d failed err %x\n", i, ret);
- 			goto error;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -844,6 +844,7 @@ static int amdgpu_connector_vga_get_mode
+ 
+ 	amdgpu_connector_get_edid(connector);
+ 	ret = amdgpu_connector_ddc_get_modes(connector);
++	amdgpu_get_native_mode(connector);
+ 
+ 	return ret;
+ }
 
 
