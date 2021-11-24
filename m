@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE2F45BDA4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4321845BB68
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:17:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245470AbhKXMjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:39:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60996 "EHLO mail.kernel.org"
+        id S242673AbhKXMT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:19:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344161AbhKXMga (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:36:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0777F60295;
-        Wed, 24 Nov 2021 12:21:54 +0000 (UTC)
+        id S242667AbhKXMR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:17:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 544626112E;
+        Wed, 24 Nov 2021 12:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756515;
-        bh=hBkzl/fBvpz534zxeQZnVJSm+nBHd2M1rJj7xY6iww8=;
+        s=korg; t=1637755867;
+        bh=QLo7X4veSQzcnt+X4EWgkfW/JZAOSB5JIo9fCs7GtxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lT0kigXU2ju59VIofwQAUUC9958N4v2gl9ageAh4ajD/zWs7GQZgiyAY3YOGlIIA6
-         7af9fLN91l9mRg34MyvSy4DGxhfv7V6kNHzS1X7Hjqi1QoVZw2j4AbZIM8qzZgDfOu
-         OQx+gaK2LaQnqXnY7FZCccM3C4xhIJBaK32n9xqY=
+        b=YBVv6ziBz/kBfUSWRxeO2Doj9ZchkjpWcj328l+25mRHOpjzd04zjun+2LSSaFCWH
+         spIcWvwlihSuP6PZ5rfHL639PEqHo2wmF1nLpox5WJqYbL70kzBgVzLVsGqSWQXM8z
+         xF7JMdvuWWdPyTdR6jNPOkTIlGQ9YOok+aTLq+bE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 114/251] crypto: qat - disregard spurious PFVF interrupts
-Date:   Wed, 24 Nov 2021 12:55:56 +0100
-Message-Id: <20211124115714.188784226@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 086/207] parisc: fix warning in flush_tlb_all
+Date:   Wed, 24 Nov 2021 12:55:57 +0100
+Message-Id: <20211124115706.677580481@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Sven Schnelle <svens@stackframe.org>
 
-[ Upstream commit 18fcba469ba5359c1de7e3fb16f7b9e8cd1b8e02 ]
+[ Upstream commit 1030d681319b43869e0d5b568b9d0226652d1a6f ]
 
-Upon receiving a PFVF message, check if the interrupt bit is set in the
-message. If it is not, that means that the interrupt was probably
-triggered by a collision. In this case, disregard the message and
-re-enable the interrupts.
+I've got the following splat after enabling preemption:
 
-Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+[    3.724721] BUG: using __this_cpu_add() in preemptible [00000000] code: swapper/0/1
+[    3.734630] caller is __this_cpu_preempt_check+0x38/0x50
+[    3.740635] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc4-64bit+ #324
+[    3.744605] Hardware name: 9000/785/C8000
+[    3.744605] Backtrace:
+[    3.744605]  [<00000000401d9d58>] show_stack+0x74/0xb0
+[    3.744605]  [<0000000040c27bd4>] dump_stack_lvl+0x10c/0x188
+[    3.744605]  [<0000000040c27c84>] dump_stack+0x34/0x48
+[    3.744605]  [<0000000040c33438>] check_preemption_disabled+0x178/0x1b0
+[    3.744605]  [<0000000040c334f8>] __this_cpu_preempt_check+0x38/0x50
+[    3.744605]  [<00000000401d632c>] flush_tlb_all+0x58/0x2e0
+[    3.744605]  [<00000000401075c0>] 0x401075c0
+[    3.744605]  [<000000004010b8fc>] 0x4010b8fc
+[    3.744605]  [<00000000401080fc>] 0x401080fc
+[    3.744605]  [<00000000401d5224>] do_one_initcall+0x128/0x378
+[    3.744605]  [<0000000040102de8>] 0x40102de8
+[    3.744605]  [<0000000040c33864>] kernel_init+0x60/0x3a8
+[    3.744605]  [<00000000401d1020>] ret_from_kernel_thread+0x20/0x28
+[    3.744605]
+
+Fix this by moving the __inc_irq_stat() into the locked section.
+
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 6 ++++++
- drivers/crypto/qat/qat_common/adf_vf_isr.c    | 6 ++++++
- 2 files changed, 12 insertions(+)
+ arch/parisc/mm/init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-index 72fd2bbbe704e..180016e157771 100644
---- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-+++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-@@ -250,6 +250,11 @@ void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
+diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
+index dbbe3932f833c..7bdc449615e85 100644
+--- a/arch/parisc/mm/init.c
++++ b/arch/parisc/mm/init.c
+@@ -940,9 +940,9 @@ void flush_tlb_all(void)
+ {
+ 	int do_recycle;
  
- 	/* Read message from the VF */
- 	msg = ADF_CSR_RD(pmisc_addr, hw_data->get_pf2vf_offset(vf_nr));
-+	if (!(msg & ADF_VF2PF_INT)) {
-+		dev_info(&GET_DEV(accel_dev),
-+			 "Spurious VF2PF interrupt, msg %X. Ignored\n", msg);
-+		goto out;
-+	}
- 
- 	/* To ACK, clear the VF2PFINT bit */
- 	msg &= ~ADF_VF2PF_INT;
-@@ -333,6 +338,7 @@ void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
- 	if (resp && adf_iov_putmsg(accel_dev, resp, vf_nr))
- 		dev_err(&GET_DEV(accel_dev), "Failed to send response to VF\n");
- 
-+out:
- 	/* re-enable interrupt on PF from this VF */
- 	adf_enable_vf2pf_interrupts(accel_dev, (1 << vf_nr));
- 	return;
-diff --git a/drivers/crypto/qat/qat_common/adf_vf_isr.c b/drivers/crypto/qat/qat_common/adf_vf_isr.c
-index ef90902c8200d..86274e3c6781d 100644
---- a/drivers/crypto/qat/qat_common/adf_vf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_vf_isr.c
-@@ -123,6 +123,11 @@ static void adf_pf2vf_bh_handler(void *data)
- 
- 	/* Read the message from PF */
- 	msg = ADF_CSR_RD(pmisc_bar_addr, hw_data->get_pf2vf_offset(0));
-+	if (!(msg & ADF_PF2VF_INT)) {
-+		dev_info(&GET_DEV(accel_dev),
-+			 "Spurious PF2VF interrupt, msg %X. Ignored\n", msg);
-+		goto out;
-+	}
- 
- 	if (!(msg & ADF_PF2VF_MSGORIGIN_SYSTEM))
- 		/* Ignore legacy non-system (non-kernel) PF2VF messages */
-@@ -171,6 +176,7 @@ static void adf_pf2vf_bh_handler(void *data)
- 	msg &= ~ADF_PF2VF_INT;
- 	ADF_CSR_WR(pmisc_bar_addr, hw_data->get_pf2vf_offset(0), msg);
- 
-+out:
- 	/* Re-enable PF2VF interrupts */
- 	adf_enable_pf2vf_interrupts(accel_dev);
- 	return;
+-	__inc_irq_stat(irq_tlb_count);
+ 	do_recycle = 0;
+ 	spin_lock(&sid_lock);
++	__inc_irq_stat(irq_tlb_count);
+ 	if (dirty_space_ids > RECYCLE_THRESHOLD) {
+ 	    BUG_ON(recycle_inuse);  /* FIXME: Use a semaphore/wait queue here */
+ 	    get_dirty_sids(&recycle_ndirty,recycle_dirty_array);
+@@ -961,8 +961,8 @@ void flush_tlb_all(void)
+ #else
+ void flush_tlb_all(void)
+ {
+-	__inc_irq_stat(irq_tlb_count);
+ 	spin_lock(&sid_lock);
++	__inc_irq_stat(irq_tlb_count);
+ 	flush_tlb_all_local(NULL);
+ 	recycle_sids();
+ 	spin_unlock(&sid_lock);
 -- 
 2.33.0
 
