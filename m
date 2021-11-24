@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1205C45BB05
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:13:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42A5045B990
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:00:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242992AbhKXMPp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
+        id S241860AbhKXMDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:03:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243571AbhKXMOL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:14:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04C15610E9;
-        Wed, 24 Nov 2021 12:09:10 +0000 (UTC)
+        id S241872AbhKXMDO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:03:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 331FF600EF;
+        Wed, 24 Nov 2021 12:00:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755751;
-        bh=wsel/oPhDrlbelfIGtth+R89IrUdAAlfnvbGN9q1wmc=;
+        s=korg; t=1637755204;
+        bh=hE/KIvjporwLZdJC7wBgnwCtWXPOABD3VpNH3yv5xTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ufdNECRoX7AzEcQIe/pQge/9eZssRnrSKQzVDgcUZya9xhdjEpLfSdL69QpxRDmui
-         +l8nwIOuUYBEZqs+X8aCrHsujEZgnuei67VLGWyy9iYACS65gb2dNK1uzfZfCbRFWd
-         BYNUhQhHZ4/Fr7TfQsx6xugIXKeOmod6jQQ3qfwQ=
+        b=ElPP+V1nQxuh8hyy80VZtAvhlyjg8qT/WvsjJ0KDWaq1DtNL3ebBYJErIfOFKRQhU
+         P1AP377KXj+04GBpGamnQyJ8wprpmm375TkX+wrq02G9Bw+SuaBQ4T2OHflW2Hux5a
+         htLfLsJs8x2l4o7yNgGkqPVQYmc8ujtt1KZ+NrVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Maciej Rozycki <macro@orcam.me.uk>, linux-mips@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4.9 043/207] signal/mips: Update (_save|_restore)_fp_context to fail with -EFAULT
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 011/162] ALSA: ua101: fix division by zero at probe
 Date:   Wed, 24 Nov 2021 12:55:14 +0100
-Message-Id: <20211124115705.332785434@linuxfoundation.org>
+Message-Id: <20211124115658.692366462@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 95bf9d646c3c3f95cb0be7e703b371db8da5be68 upstream.
+commit 55f261b73a7e1cb254577c3536cef8f415de220a upstream.
 
-When an instruction to save or restore a register from the stack fails
-in _save_fp_context or _restore_fp_context return with -EFAULT.  This
-change was made to r2300_fpu.S[1] but it looks like it got lost with
-the introduction of EX2[2].  This is also what the other implementation
-of _save_fp_context and _restore_fp_context in r4k_fpu.S does, and
-what is needed for the callers to be able to handle the error.
+Add the missing endpoint max-packet sanity check to probe() to avoid
+division by zero in alloc_stream_buffers() in case a malicious device
+has broken descriptors (or when doing descriptor fuzz testing).
 
-Furthermore calling do_exit(SIGSEGV) from bad_stack is wrong because
-it does not terminate the entire process it just terminates a single
-thread.
+Note that USB core will reject URBs submitted for endpoints with zero
+wMaxPacketSize but that drivers doing packet-size calculations still
+need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
+endpoint descriptors with maxpacket=0")).
 
-As the changed code was the only caller of arch/mips/kernel/syscall.c:bad_stack
-remove the problematic and now unused helper function.
-
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Maciej Rozycki <macro@orcam.me.uk>
-Cc: linux-mips@vger.kernel.org
-[1] 35938a00ba86 ("MIPS: Fix ISA I FP sigcontext access violation handling")
-[2] f92722dc4545 ("MIPS: Correct MIPS I FP sigcontext layout")
-Cc: stable@vger.kernel.org
-Fixes: f92722dc4545 ("MIPS: Correct MIPS I FP sigcontext layout")
-Acked-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Link: https://lkml.kernel.org/r/20211020174406.17889-5-ebiederm@xmission.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Fixes: 63978ab3e3e9 ("sound: add Edirol UA-101 support")
+Cc: stable@vger.kernel.org      # 2.6.34
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211026095401.26522-1-johan@kernel.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/kernel/r2300_fpu.S |    4 ++--
- arch/mips/kernel/syscall.c   |    9 ---------
- 2 files changed, 2 insertions(+), 11 deletions(-)
+ sound/usb/misc/ua101.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/mips/kernel/r2300_fpu.S
-+++ b/arch/mips/kernel/r2300_fpu.S
-@@ -27,8 +27,8 @@
- #define EX2(a,b)						\
- 9:	a,##b;							\
- 	.section __ex_table,"a";				\
--	PTR	9b,bad_stack;					\
--	PTR	9b+4,bad_stack;					\
-+	PTR	9b,fault;					\
-+	PTR	9b+4,fault;					\
- 	.previous
+--- a/sound/usb/misc/ua101.c
++++ b/sound/usb/misc/ua101.c
+@@ -1032,7 +1032,7 @@ static int detect_usb_format(struct ua10
+ 		fmt_playback->bSubframeSize * ua->playback.channels;
  
- 	.set	noreorder
---- a/arch/mips/kernel/syscall.c
-+++ b/arch/mips/kernel/syscall.c
-@@ -244,12 +244,3 @@ SYSCALL_DEFINE3(cachectl, char *, addr,
- {
- 	return -ENOSYS;
- }
--
--/*
-- * If we ever come here the user sp is bad.  Zap the process right away.
-- * Due to the bad stack signaling wouldn't work.
-- */
--asmlinkage void bad_stack(void)
--{
--	do_exit(SIGSEGV);
--}
+ 	epd = &ua->intf[INTF_CAPTURE]->altsetting[1].endpoint[0].desc;
+-	if (!usb_endpoint_is_isoc_in(epd)) {
++	if (!usb_endpoint_is_isoc_in(epd) || usb_endpoint_maxp(epd) == 0) {
+ 		dev_err(&ua->dev->dev, "invalid capture endpoint\n");
+ 		return -ENXIO;
+ 	}
+@@ -1040,7 +1040,7 @@ static int detect_usb_format(struct ua10
+ 	ua->capture.max_packet_bytes = le16_to_cpu(epd->wMaxPacketSize);
+ 
+ 	epd = &ua->intf[INTF_PLAYBACK]->altsetting[1].endpoint[0].desc;
+-	if (!usb_endpoint_is_isoc_out(epd)) {
++	if (!usb_endpoint_is_isoc_out(epd) || usb_endpoint_maxp(epd) == 0) {
+ 		dev_err(&ua->dev->dev, "invalid playback endpoint\n");
+ 		return -ENXIO;
+ 	}
 
 
