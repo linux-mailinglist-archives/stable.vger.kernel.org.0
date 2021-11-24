@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EF0845C3DA
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DE1B45C603
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348115AbhKXNo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:44:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35812 "EHLO mail.kernel.org"
+        id S1350840AbhKXOEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:04:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350666AbhKXNlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:41:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB08463267;
-        Wed, 24 Nov 2021 12:57:53 +0000 (UTC)
+        id S1350835AbhKXOBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:01:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4C3C632EC;
+        Wed, 24 Nov 2021 13:09:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758674;
-        bh=OrJbV9ePKqEHBMmKkGn+YhUCQT/PHCaWlFHYkLlyn1g=;
+        s=korg; t=1637759391;
+        bh=4NRCtwfMiFc7Gi/1y4lICIIBH1/SOrSIwPxOzmD4nyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g63qoVqrdA5/lfA90TxSCZ16mvpKPZnSJgYK7CXLE4taNQuX1LieaVKCAbs0T8Lwc
-         YP56NT8yH3MaFcMdXlwn6GqDrlAYMLN/e85qsPJCm0I7DwQjSsqbfW65JGDXwXs2Mc
-         oQSRTGrDAH4k8QxqjzYohKEmRcqS4ZVXQ6Pr7wwc=
+        b=HFsiIBstDPrqepEKhoDcMkgJ2Vnh9BDUQ7EGMYij2gjsPgai/vnHNPocUAXqTm+P/
+         UsxMDIgq/t0O+sndpd94+nNj12cqLwdzPIbH+9bStp0NceTAw1NMRO+qO5KUUq6eZH
+         wrCMzCQDBa8h77jYcXlREfwECElzZ3lWJ3HyHFPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Antonov <alexander.antonov@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 115/154] perf/x86/intel/uncore: Fix filter_tid mask for CHA events on Skylake Server
+        stable@vger.kernel.org, Peter Gonda <pgonda@google.com>,
+        Marc Orr <marcorr@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Nathan Tempelman <natet@google.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 224/279] KVM: SEV: Disallow COPY_ENC_CONTEXT_FROM if target has created vCPUs
 Date:   Wed, 24 Nov 2021 12:58:31 +0100
-Message-Id: <20211124115706.003680111@linuxfoundation.org>
+Message-Id: <20211124115726.473855152@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Antonov <alexander.antonov@linux.intel.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit e324234e0aa881b7841c7c713306403e12b069ff ]
+commit 79b11142763791bdead8b6460052cbdde8e08e2f upstream.
 
-According Uncore Reference Manual: any of the CHA events may be filtered
-by Thread/Core-ID by using tid modifier in CHA Filter 0 Register.
-Update skx_cha_hw_config() to follow Uncore Guide.
+Reject COPY_ENC_CONTEXT_FROM if the destination VM has created vCPUs.
+KVM relies on SEV activation to occur before vCPUs are created, e.g. to
+set VMCB flags and intercepts correctly.
 
-Fixes: cd34cd97b7b4 ("perf/x86/intel/uncore: Add Skylake server uncore support")
-Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20211115090334.3789-2-alexander.antonov@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 54526d1fd593 ("KVM: x86: Support KVM VMs sharing SEV context")
+Cc: stable@vger.kernel.org
+Cc: Peter Gonda <pgonda@google.com>
+Cc: Marc Orr <marcorr@google.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: Nathan Tempelman <natet@google.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20211109215101.2211373-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/svm/sev.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index c01b51d1cbdff..229884f4134cb 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -3545,6 +3545,9 @@ static int skx_cha_hw_config(struct intel_uncore_box *box, struct perf_event *ev
- 	struct hw_perf_event_extra *reg1 = &event->hw.extra_reg;
- 	struct extra_reg *er;
- 	int idx = 0;
-+	/* Any of the CHA events may be filtered by Thread/Core-ID.*/
-+	if (event->hw.config & SNBEP_CBO_PMON_CTL_TID_EN)
-+		idx = SKX_CHA_MSR_PMON_BOX_FILTER_TID;
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -1787,7 +1787,12 @@ int svm_vm_copy_asid_from(struct kvm *kv
+ 	mutex_unlock(&source_kvm->lock);
+ 	mutex_lock(&kvm->lock);
  
- 	for (er = skx_uncore_cha_extra_regs; er->msr; er++) {
- 		if (er->event != (event->hw.config & er->config_mask))
--- 
-2.33.0
-
+-	if (sev_guest(kvm)) {
++	/*
++	 * Disallow out-of-band SEV/SEV-ES init if the target is already an
++	 * SEV guest, or if vCPUs have been created.  KVM relies on vCPUs being
++	 * created after SEV/SEV-ES initialization, e.g. to init intercepts.
++	 */
++	if (sev_guest(kvm) || kvm->created_vcpus) {
+ 		ret = -EINVAL;
+ 		goto e_mirror_unlock;
+ 	}
 
 
