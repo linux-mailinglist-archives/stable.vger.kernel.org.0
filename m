@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7305F45BF05
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:51:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEEBC45BF1F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:52:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344490AbhKXMyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:54:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56146 "EHLO mail.kernel.org"
+        id S1345935AbhKXMzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:55:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344850AbhKXMwM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:52:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E06E61361;
-        Wed, 24 Nov 2021 12:30:13 +0000 (UTC)
+        id S244980AbhKXMwW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:52:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2F566136F;
+        Wed, 24 Nov 2021 12:30:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757013;
-        bh=vsgf6ojtPPh3+XJs3JAtHG1BYesGktGJ+DpxM5unH7M=;
+        s=korg; t=1637757019;
+        bh=XuS2Uc+HnWYC8La9zX/lTUMGTl0PfqQylEnp5mJWJS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dyqyWzcpZl0bSh5+jiFMPzIqBC5GnsRuEEBFD34Aia44DtZkG6Vabfm5r+SLfPTUE
-         4FSW4N9npUOu0FEbKDsI21U78ANCYD+j3Ba/VhAN7QBNR4x3x3GtHJCHdzFyC5yvbw
-         +UiHMov6mixJL8kwSM35CS4VxlA5OsFH3XlETZ7w=
+        b=NAacaRuQKhCiGg4JSpk7pgf3PnrKFGrMrtCgDrVaZj7tVkGO1xP6aBJhYPot4ENmF
+         KL8A/p9mX8XOKnHtYPThoNeh2GN7YsnT/cAQoqbtIZqEf7GDA/Ixl4TOdCmmp39GhR
+         MQQMocNUV+Dlix96mjZRqXcLx0DO0Wlkz1Z5wppc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        stable@vger.kernel.org, Erik Ekman <erik@kryo.se>,
+        Martin Habets <habetsm.xilinx@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 028/323] cavium: Fix return values of the probe function
-Date:   Wed, 24 Nov 2021 12:53:38 +0100
-Message-Id: <20211124115719.828367938@linuxfoundation.org>
+Subject: [PATCH 4.19 029/323] sfc: Dont use netif_info before net_device setup
+Date:   Wed, 24 Nov 2021 12:53:39 +0100
+Message-Id: <20211124115719.858053489@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
@@ -40,42 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Erik Ekman <erik@kryo.se>
 
-[ Upstream commit c69b2f46876825c726bd8a97c7fa852d8932bc32 ]
+[ Upstream commit bf6abf345dfa77786aca554bc58c64bd428ecb1d ]
 
-During the process of driver probing, the probe function should return < 0
-for failure, otherwise, the kernel will treat value > 0 as success.
+Use pci_info instead to avoid unnamed/uninitialized noise:
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+[197088.688729] sfc 0000:01:00.0: Solarflare NIC detected
+[197088.690333] sfc 0000:01:00.0: Part Number : SFN5122F
+[197088.729061] sfc 0000:01:00.0 (unnamed net_device) (uninitialized): no SR-IOV VFs probed
+[197088.729071] sfc 0000:01:00.0 (unnamed net_device) (uninitialized): no PTP support
+
+Inspired by fa44821a4ddd ("sfc: don't use netif_info et al before
+net_device is registered") from Heiner Kallweit.
+
+Signed-off-by: Erik Ekman <erik@kryo.se>
+Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/thunder/nicvf_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/sfc/ptp.c         | 4 ++--
+ drivers/net/ethernet/sfc/siena_sriov.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_main.c b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-index 99eea9e6a8ea6..0fbb0dee2dcfd 100644
---- a/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-+++ b/drivers/net/ethernet/cavium/thunder/nicvf_main.c
-@@ -1223,7 +1223,7 @@ static int nicvf_register_misc_interrupt(struct nicvf *nic)
- 	if (ret < 0) {
- 		netdev_err(nic->netdev,
- 			   "Req for #%d msix vectors failed\n", nic->num_vec);
--		return 1;
-+		return ret;
- 	}
+diff --git a/drivers/net/ethernet/sfc/ptp.c b/drivers/net/ethernet/sfc/ptp.c
+index d47151dbe804d..c0a810f740341 100644
+--- a/drivers/net/ethernet/sfc/ptp.c
++++ b/drivers/net/ethernet/sfc/ptp.c
+@@ -651,7 +651,7 @@ static int efx_ptp_get_attributes(struct efx_nic *efx)
+ 	} else if (rc == -EINVAL) {
+ 		fmt = MC_CMD_PTP_OUT_GET_ATTRIBUTES_SECONDS_NANOSECONDS;
+ 	} else if (rc == -EPERM) {
+-		netif_info(efx, probe, efx->net_dev, "no PTP support\n");
++		pci_info(efx->pci_dev, "no PTP support\n");
+ 		return rc;
+ 	} else {
+ 		efx_mcdi_display_error(efx, MC_CMD_PTP, sizeof(inbuf),
+@@ -827,7 +827,7 @@ static int efx_ptp_disable(struct efx_nic *efx)
+ 	 * should only have been called during probe.
+ 	 */
+ 	if (rc == -ENOSYS || rc == -EPERM)
+-		netif_info(efx, probe, efx->net_dev, "no PTP support\n");
++		pci_info(efx->pci_dev, "no PTP support\n");
+ 	else if (rc)
+ 		efx_mcdi_display_error(efx, MC_CMD_PTP,
+ 				       MC_CMD_PTP_IN_DISABLE_LEN,
+diff --git a/drivers/net/ethernet/sfc/siena_sriov.c b/drivers/net/ethernet/sfc/siena_sriov.c
+index da7b94f346049..30d58f72725df 100644
+--- a/drivers/net/ethernet/sfc/siena_sriov.c
++++ b/drivers/net/ethernet/sfc/siena_sriov.c
+@@ -1059,7 +1059,7 @@ void efx_siena_sriov_probe(struct efx_nic *efx)
+ 		return;
  
- 	sprintf(nic->irq_name[irq], "%s Mbox", "NICVF");
-@@ -1242,7 +1242,7 @@ static int nicvf_register_misc_interrupt(struct nicvf *nic)
- 	if (!nicvf_check_pf_ready(nic)) {
- 		nicvf_disable_intr(nic, NICVF_INTR_MBOX, 0);
- 		nicvf_unregister_interrupts(nic);
--		return 1;
-+		return -EIO;
+ 	if (efx_siena_sriov_cmd(efx, false, &efx->vi_scale, &count)) {
+-		netif_info(efx, probe, efx->net_dev, "no SR-IOV VFs probed\n");
++		pci_info(efx->pci_dev, "no SR-IOV VFs probed\n");
+ 		return;
  	}
- 
- 	return 0;
+ 	if (count > 0 && count > max_vfs)
 -- 
 2.33.0
 
