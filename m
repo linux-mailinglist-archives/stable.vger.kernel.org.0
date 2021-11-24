@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF3C45B9D0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:02:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B9ED45BB73
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:17:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240238AbhKXMFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:05:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59914 "EHLO mail.kernel.org"
+        id S242648AbhKXMTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:19:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242141AbhKXMEj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:04:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C53B060FDC;
-        Wed, 24 Nov 2021 12:01:29 +0000 (UTC)
+        id S242104AbhKXMQm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:16:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A2846108B;
+        Wed, 24 Nov 2021 12:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755290;
-        bh=3bLmcBH1/hrLdW5lIhf4FwCa4jdXgsaVGTjr8V1oMmM=;
+        s=korg; t=1637755827;
+        bh=AEtsryqMgiz7txJQbTtIKhhazF22c3vMUYB4VyAzqyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oSbUgG/ckoafc6VwtoOvj1OnDBwI5hRgxEQ72N6MjwKKqkUVPN4qXnxQCQFXuJ2PQ
-         VIJ9F/7mi6HFz95YIuAaMHZKHSOLsqa35yan+TNL5b8jwNngHNoyLRUfYkBcc8uXb1
-         8LYGUvY7nqIKbgIghKI3s8TTEFp/OfXZq2HqE6N0=
+        b=Gup6D7g5HU0C7wDPyKSoaTD53NA5lhkMgi1DUjei5TZq6gAsU3BmX4HeSPV31lLEs
+         vPBgB/eE6/JYpLSPrgLWcSz7FZSR7xBg+Jcbb36M7Bi3qpR2ftqlkWEiwyxTankXjM
+         YRI9IE/tJHd2L9HiG+xDz7xCVqJg1hFM2v+XUK3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 040/162] USB: serial: keyspan: fix memleak on probe errors
-Date:   Wed, 24 Nov 2021 12:55:43 +0100
-Message-Id: <20211124115659.643131303@linuxfoundation.org>
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Tuo Li <islituo@gmail.com>, Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 073/207] ath: dfs_pattern_detector: Fix possible null-pointer dereference in channel_detector_create()
+Date:   Wed, 24 Nov 2021 12:55:44 +0100
+Message-Id: <20211124115706.279082926@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,98 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Tuo Li <islituo@gmail.com>
 
-commit 910c996335c37552ee30fcb837375b808bb4f33b upstream.
+[ Upstream commit 4b6012a7830b813799a7faf40daa02a837e0fd5b ]
 
-I got memory leak as follows when doing fault injection test:
+kzalloc() is used to allocate memory for cd->detectors, and if it fails,
+channel_detector_exit() behind the label fail will be called:
+  channel_detector_exit(dpd, cd);
 
-unreferenced object 0xffff888258228440 (size 64):
-  comm "kworker/7:2", pid 2005, jiffies 4294989509 (age 824.540s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
-    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
-    [<ffffffffa02ac0e4>] keyspan_port_probe+0xa4/0x5d0 [keyspan]
-    [<ffffffffa0294c07>] usb_serial_device_probe+0x97/0x1d0 [usbserial]
-    [<ffffffff82b50ca7>] really_probe+0x167/0x460
-    [<ffffffff82b51099>] __driver_probe_device+0xf9/0x180
-    [<ffffffff82b51173>] driver_probe_device+0x53/0x130
-    [<ffffffff82b516f5>] __device_attach_driver+0x105/0x130
-    [<ffffffff82b4cfe9>] bus_for_each_drv+0x129/0x190
-    [<ffffffff82b50a69>] __device_attach+0x1c9/0x270
-    [<ffffffff82b518d0>] device_initial_probe+0x20/0x30
-    [<ffffffff82b4f062>] bus_probe_device+0x142/0x160
-    [<ffffffff82b4a4e9>] device_add+0x829/0x1300
-    [<ffffffffa0295fda>] usb_serial_probe.cold+0xc9b/0x14ac [usbserial]
-    [<ffffffffa02266aa>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
-    [<ffffffff82b50ca7>] really_probe+0x167/0x460
+In channel_detector_exit(), cd->detectors is dereferenced through:
+  struct pri_detector *de = cd->detectors[i];
 
-If keyspan_port_probe() fails to allocate memory for an out_buffer[i] or
-in_buffer[i], the previously allocated memory for out_buffer or
-in_buffer needs to be freed on the error handling path, otherwise a
-memory leak will result.
+To fix this possible null-pointer dereference, check cd->detectors before
+the for loop to dereference cd->detectors.
 
-Fixes: bad41a5bf177 ("USB: keyspan: fix port DMA-buffer allocations")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Link: https://lore.kernel.org/r/20211015085543.1203011-1-wanghai38@huawei.com
-Cc: stable@vger.kernel.org      # 3.12
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Tuo Li <islituo@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210805153854.154066-1-islituo@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/keyspan.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/net/wireless/ath/dfs_pattern_detector.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/keyspan.c
-+++ b/drivers/usb/serial/keyspan.c
-@@ -2417,22 +2417,22 @@ static int keyspan_port_probe(struct usb
- 	for (i = 0; i < ARRAY_SIZE(p_priv->in_buffer); ++i) {
- 		p_priv->in_buffer[i] = kzalloc(IN_BUFLEN, GFP_KERNEL);
- 		if (!p_priv->in_buffer[i])
--			goto err_in_buffer;
-+			goto err_free_in_buffer;
+diff --git a/drivers/net/wireless/ath/dfs_pattern_detector.c b/drivers/net/wireless/ath/dfs_pattern_detector.c
+index 78146607f16e8..acd85e5069346 100644
+--- a/drivers/net/wireless/ath/dfs_pattern_detector.c
++++ b/drivers/net/wireless/ath/dfs_pattern_detector.c
+@@ -182,10 +182,12 @@ static void channel_detector_exit(struct dfs_pattern_detector *dpd,
+ 	if (cd == NULL)
+ 		return;
+ 	list_del(&cd->head);
+-	for (i = 0; i < dpd->num_radar_types; i++) {
+-		struct pri_detector *de = cd->detectors[i];
+-		if (de != NULL)
+-			de->exit(de);
++	if (cd->detectors) {
++		for (i = 0; i < dpd->num_radar_types; i++) {
++			struct pri_detector *de = cd->detectors[i];
++			if (de != NULL)
++				de->exit(de);
++		}
  	}
- 
- 	for (i = 0; i < ARRAY_SIZE(p_priv->out_buffer); ++i) {
- 		p_priv->out_buffer[i] = kzalloc(OUT_BUFLEN, GFP_KERNEL);
- 		if (!p_priv->out_buffer[i])
--			goto err_out_buffer;
-+			goto err_free_out_buffer;
- 	}
- 
- 	p_priv->inack_buffer = kzalloc(INACK_BUFLEN, GFP_KERNEL);
- 	if (!p_priv->inack_buffer)
--		goto err_inack_buffer;
-+		goto err_free_out_buffer;
- 
- 	p_priv->outcont_buffer = kzalloc(OUTCONT_BUFLEN, GFP_KERNEL);
- 	if (!p_priv->outcont_buffer)
--		goto err_outcont_buffer;
-+		goto err_free_inack_buffer;
- 
- 	p_priv->device_details = d_details;
- 
-@@ -2478,15 +2478,14 @@ static int keyspan_port_probe(struct usb
- 
- 	return 0;
- 
--err_outcont_buffer:
-+err_free_inack_buffer:
- 	kfree(p_priv->inack_buffer);
--err_inack_buffer:
-+err_free_out_buffer:
- 	for (i = 0; i < ARRAY_SIZE(p_priv->out_buffer); ++i)
- 		kfree(p_priv->out_buffer[i]);
--err_out_buffer:
-+err_free_in_buffer:
- 	for (i = 0; i < ARRAY_SIZE(p_priv->in_buffer); ++i)
- 		kfree(p_priv->in_buffer[i]);
--err_in_buffer:
- 	kfree(p_priv);
- 
- 	return -ENOMEM;
+ 	kfree(cd->detectors);
+ 	kfree(cd);
+-- 
+2.33.0
+
 
 
