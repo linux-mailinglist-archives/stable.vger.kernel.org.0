@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F186145BD10
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:32:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51A0C45B9A5
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:01:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243494AbhKXMfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:35:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48574 "EHLO mail.kernel.org"
+        id S241968AbhKXMDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:03:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245610AbhKXMbW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:31:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94496611B0;
-        Wed, 24 Nov 2021 12:19:37 +0000 (UTC)
+        id S241944AbhKXMDd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:03:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54B2860FBF;
+        Wed, 24 Nov 2021 12:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756378;
-        bh=McNWQySjmbqTpzoI/yucNrWGksWbLX7pdR8n0lDL/Ws=;
+        s=korg; t=1637755223;
+        bh=F1ERx63qDf/ivTGkbgRwAP5ePGateUto2IvphXWFpfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CMFpDJlWYzkcH7nnLYOD7VYVOOM04A6AMW38oYBI5yrIPIAL1iQquuGOu6C/RlXdr
-         ueG2pxkriassvPNDVz/BEEiV6rPq+HIqNIbT4RLGQKlh1Sl60284yYubwMe9PHlSRh
-         zM8XyHYT69uE81BTGggCo97hHJiF9NRu8GrpFRI0=
+        b=KFG1egR7VsDcqxg8LBoYGLYqQUTOGdmWmOKQPjJxJxaNWmhHiyNIlAYAc66EiCYDQ
+         foSSVjSXpRpix5jpiho7wRw3T5cjTsv+fwl6TrPT6KdIIjsTnkL3CNj2ViDlIpploO
+         zQu0XXTDIcx1F9t0eoxRpUOv8g6nD+wpX1n/rMnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.14 064/251] pinctrl: core: fix possible memory leak in pinctrl_enable()
+        stable@vger.kernel.org, "Walt Jr. Brake" <mr.yming81@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.4 003/162] xhci: Fix USB 3.1 enumeration issues by increasing roothub power-on-good delay
 Date:   Wed, 24 Nov 2021 12:55:06 +0100
-Message-Id: <20211124115712.466073347@linuxfoundation.org>
+Message-Id: <20211124115658.443872039@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit c7892ae13e461ed20154321eb792e07ebe38f5b3 upstream.
+commit e1959faf085b004e6c3afaaaa743381f00e7c015 upstream.
 
-I got memory leak as follows when doing fault injection test:
+Some USB 3.1 enumeration issues were reported after the hub driver removed
+the minimum 100ms limit for the power-on-good delay.
 
-unreferenced object 0xffff888020a7a680 (size 64):
-  comm "i2c-mcp23018-41", pid 23090, jiffies 4295160544 (age 8.680s)
-  hex dump (first 32 bytes):
-    00 48 d3 1e 80 88 ff ff 00 1a 56 c1 ff ff ff ff  .H........V.....
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000083c79b35>] kmem_cache_alloc_trace+0x16d/0x360
-    [<0000000051803c95>] pinctrl_init_controller+0x6ed/0xb70
-    [<0000000064346707>] pinctrl_register+0x27/0x80
-    [<0000000029b0e186>] devm_pinctrl_register+0x5b/0xe0
-    [<00000000391f5a3e>] mcp23s08_probe_one+0x968/0x118a [pinctrl_mcp23s08]
-    [<000000006112c039>] mcp230xx_probe+0x266/0x560 [pinctrl_mcp23s08_i2c]
+Since commit 90d28fb53d4a ("usb: core: reduce power-on-good delay time of
+root hub") the hub driver sets the power-on-delay based on the
+bPwrOn2PwrGood value in the hub descriptor.
 
-If pinctrl_claim_hogs() fails, the 'pindesc' allocated in pinctrl_register_one_pin()
-need be freed.
+xhci driver has a 20ms bPwrOn2PwrGood value for both roothubs based
+on xhci spec section 5.4.8, but it's clearly not enough for the
+USB 3.1 devices, causing enumeration issues.
 
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 950b0d91dc10 ("pinctrl: core: Fix regression caused by delayed work for hogs")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211022014323.1156924-1-yangyingliang@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Tests indicate full 100ms delay is needed.
+
+Reported-by: Walt Jr. Brake <mr.yming81@gmail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Fixes: 90d28fb53d4a ("usb: core: reduce power-on-good delay time of root hub")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211105160036.549516-1-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/host/xhci-hub.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/pinctrl/core.c
-+++ b/drivers/pinctrl/core.c
-@@ -2061,6 +2061,8 @@ int pinctrl_enable(struct pinctrl_dev *p
- 	if (error) {
- 		dev_err(pctldev->dev, "could not claim hogs: %i\n",
- 			error);
-+		pinctrl_free_pindescs(pctldev, pctldev->desc->pins,
-+				      pctldev->desc->npins);
- 		mutex_destroy(&pctldev->mutex);
- 		kfree(pctldev);
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -156,7 +156,6 @@ static void xhci_common_hub_descriptor(s
+ {
+ 	u16 temp;
  
+-	desc->bPwrOn2PwrGood = 10;	/* xhci section 5.4.9 says 20ms max */
+ 	desc->bHubContrCurrent = 0;
+ 
+ 	desc->bNbrPorts = ports;
+@@ -190,6 +189,7 @@ static void xhci_usb2_hub_descriptor(str
+ 	desc->bDescriptorType = USB_DT_HUB;
+ 	temp = 1 + (ports / 8);
+ 	desc->bDescLength = USB_DT_HUB_NONVAR_SIZE + 2 * temp;
++	desc->bPwrOn2PwrGood = 10;	/* xhci section 5.4.8 says 20ms */
+ 
+ 	/* The Device Removable bits are reported on a byte granularity.
+ 	 * If the port doesn't exist within that byte, the bit is set to 0.
+@@ -240,6 +240,7 @@ static void xhci_usb3_hub_descriptor(str
+ 	xhci_common_hub_descriptor(xhci, desc, ports);
+ 	desc->bDescriptorType = USB_DT_SS_HUB;
+ 	desc->bDescLength = USB_DT_SS_HUB_SIZE;
++	desc->bPwrOn2PwrGood = 50;	/* usb 3.1 may fail if less than 100ms */
+ 
+ 	/* header decode latency should be zero for roothubs,
+ 	 * see section 4.23.5.2.
 
 
