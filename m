@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E646045BC2C
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B55AA45BDE2
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:39:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244574AbhKXM0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:26:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34640 "EHLO mail.kernel.org"
+        id S1343592AbhKXMlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:41:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243579AbhKXMUw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:20:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0A2561151;
-        Wed, 24 Nov 2021 12:12:52 +0000 (UTC)
+        id S1344044AbhKXMjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:39:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F20E660F58;
+        Wed, 24 Nov 2021 12:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755973;
-        bh=MoAPyZQ8dBjT6Y4/5IiofA+Ju8ZfMzSAQNa7XYg6N+0=;
+        s=korg; t=1637756628;
+        bh=I3H8yzAtI8SujZBXtSUndW4JbdVuHlp/D7yI0ExIHTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lbNsvPZAif+rsX5O1BTbz7d44/8ypJoniVdwZzmC/KJ4iH6XnJ2vizj27KBNs/46K
-         VMSkfy2KnadyXrkjhniUsp4kVtEYiq0OHQX+GjaL831h2gvqXaFPq1yYp1kPRxzk9C
-         WekSYWuv2KI8HcO4FIrmKMBwVwXB18Ld7GRldRjk=
+        b=AWeesbfxANJw02x4KUabUSS9mmZkBPI3mLyoyOrZVkyHKq5wnknrj3vBaRiESgwR2
+         aGC9pEhuc+yWRQv+UBZyZ0xaIE643yVvZQEkIyyrRHW3/rSBbqTv/CeroVlY71ABUr
+         97j4YuejSHbTQmmsUb8VxvN0jmrfY6OHWIdUf9tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 122/207] memory: fsl_ifc: fix leak of irq and nand_irq in fsl_ifc_ctrl_probe
+Subject: [PATCH 4.14 151/251] usb: gadget: hid: fix error code in do_config()
 Date:   Wed, 24 Nov 2021 12:56:33 +0100
-Message-Id: <20211124115708.010642473@linuxfoundation.org>
+Message-Id: <20211124115715.518428597@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,71 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4ed2f3545c2e5acfbccd7f85fea5b1a82e9862d7 ]
+[ Upstream commit 68e7c510fdf4f6167404609da52e1979165649f6 ]
 
-The error handling code of fsl_ifc_ctrl_probe is problematic. When
-fsl_ifc_ctrl_init fails or request_irq of fsl_ifc_ctrl_dev->irq fails,
-it forgets to free the irq and nand_irq. Meanwhile, if request_irq of
-fsl_ifc_ctrl_dev->nand_irq fails, it will still free nand_irq even if
-the request_irq is not successful.
+Return an error code if usb_get_function() fails.  Don't return success.
 
-Fix this by refactoring the error handling code.
-
-Fixes: d2ae2e20fbdd ("driver/memory:Move Freescale IFC driver to a common driver")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20210925151434.8170-1-mudongliangabcd@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Fixes: 4bc8a33f2407 ("usb: gadget: hid: convert to new interface of f_hid")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20211011123739.GC15188@kili
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/fsl_ifc.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/usb/gadget/legacy/hid.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
-index 38b945eb410f3..9c0e70b047c39 100644
---- a/drivers/memory/fsl_ifc.c
-+++ b/drivers/memory/fsl_ifc.c
-@@ -276,7 +276,7 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
+diff --git a/drivers/usb/gadget/legacy/hid.c b/drivers/usb/gadget/legacy/hid.c
+index cccbb948821b2..a55d3761d777c 100644
+--- a/drivers/usb/gadget/legacy/hid.c
++++ b/drivers/usb/gadget/legacy/hid.c
+@@ -103,8 +103,10 @@ static int do_config(struct usb_configuration *c)
  
- 	ret = fsl_ifc_ctrl_init(fsl_ifc_ctrl_dev);
- 	if (ret < 0)
--		goto err;
-+		goto err_unmap_nandirq;
- 
- 	init_waitqueue_head(&fsl_ifc_ctrl_dev->nand_wait);
- 
-@@ -285,7 +285,7 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
- 	if (ret != 0) {
- 		dev_err(&dev->dev, "failed to install irq (%d)\n",
- 			fsl_ifc_ctrl_dev->irq);
--		goto err_irq;
-+		goto err_unmap_nandirq;
- 	}
- 
- 	if (fsl_ifc_ctrl_dev->nand_irq) {
-@@ -294,17 +294,16 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
- 		if (ret != 0) {
- 			dev_err(&dev->dev, "failed to install irq (%d)\n",
- 				fsl_ifc_ctrl_dev->nand_irq);
--			goto err_nandirq;
-+			goto err_free_irq;
- 		}
- 	}
- 
- 	return 0;
- 
--err_nandirq:
--	free_irq(fsl_ifc_ctrl_dev->nand_irq, fsl_ifc_ctrl_dev);
--	irq_dispose_mapping(fsl_ifc_ctrl_dev->nand_irq);
--err_irq:
-+err_free_irq:
- 	free_irq(fsl_ifc_ctrl_dev->irq, fsl_ifc_ctrl_dev);
-+err_unmap_nandirq:
-+	irq_dispose_mapping(fsl_ifc_ctrl_dev->nand_irq);
- 	irq_dispose_mapping(fsl_ifc_ctrl_dev->irq);
- err:
- 	iounmap(fsl_ifc_ctrl_dev->gregs);
+ 	list_for_each_entry(e, &hidg_func_list, node) {
+ 		e->f = usb_get_function(e->fi);
+-		if (IS_ERR(e->f))
++		if (IS_ERR(e->f)) {
++			status = PTR_ERR(e->f);
+ 			goto put;
++		}
+ 		status = usb_add_function(c, e->f);
+ 		if (status < 0) {
+ 			usb_put_function(e->f);
 -- 
 2.33.0
 
