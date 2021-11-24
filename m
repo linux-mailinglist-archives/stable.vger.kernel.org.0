@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2914445BEA5
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABF4745BC6A
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243823AbhKXMte (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:49:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51026 "EHLO mail.kernel.org"
+        id S242755AbhKXMat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:30:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345239AbhKXMqk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:46:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3D3361059;
-        Wed, 24 Nov 2021 12:27:29 +0000 (UTC)
+        id S244326AbhKXM1C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:27:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4442B61215;
+        Wed, 24 Nov 2021 12:16:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756850;
-        bh=uHKFiYKvLom1ZbjdbOSpRyYHgX43UF/zeB9hYkHanDE=;
+        s=korg; t=1637756197;
+        bh=ugDfog9+kyYY/7Lp+YOX7sp07BZmsfiuCzCdydLZ3EA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iCo9JMbV+2lQTnN5RYd+KNRf7SPFF3U/ydQkL4os8S+WcU9vV06gpJ8TSOHyv+7K7
-         3ErU36pBuwcWBm9Uo2lidprQ4+gokD4TwUrq283vamtOg42B3lU1cUjJpyNVCJbE8I
-         5LhIUmEjlnGujwgr6a19NbdqWPcNjsfJ4eMsM+rY=
+        b=LCQs6WEmZWY60/VLY8nq6OrECYeCbix3wI0m5Oe4gmbT++o2PdT9nyJxGZOTWtA/F
+         UDYbOVscE1njTsULfmxQ//lc4aVa3jQO23wfHkzDcLjpTeDoFIHGjenEFOqKLQhx7d
+         IpZ71N3jXBcFProg96ZJwxXUUSoTHn6nYtv2Qcds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Michal Maloszewski <michal.maloszewski@intel.com>,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Witold Fijalkowski <witoldx.fijalkowski@intel.com>,
-        Jaroslaw Gawin <jaroslawx.gawin@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Tony Brelinski <tony.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 228/251] i40e: Fix NULL ptr dereference on VSI filter sync
+        =?UTF-8?q?Linus=20L=FCssing?= <linus.luessing@c0d3.blue>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sven Eckelmann <sven@narfation.org>
+Subject: [PATCH 4.9 199/207] batman-adv: Fix own OGM check in aggregated OGMs
 Date:   Wed, 24 Nov 2021 12:57:50 +0100
-Message-Id: <20211124115718.209582579@linuxfoundation.org>
+Message-Id: <20211124115710.392591096@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,68 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Maloszewski <michal.maloszewski@intel.com>
+From: Linus Lüssing <linus.luessing@c0d3.blue>
 
-[ Upstream commit 37d9e304acd903a445df8208b8a13d707902dea6 ]
+commit d8bf0c01642275c7dca1e5d02c34e4199c200b1f upstream.
 
-Remove the reason of null pointer dereference in sync VSI filters.
-Added new I40E_VSI_RELEASING flag to signalize deleting and releasing
-of VSI resources to sync this thread with sync filters subtask.
-Without this patch it is possible to start update the VSI filter list
-after VSI is removed, that's causing a kernel oops.
+The own OGM check is currently misplaced and can lead to the following
+issues:
 
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Signed-off-by: Michal Maloszewski <michal.maloszewski@intel.com>
-Reviewed-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Reviewed-by: Witold Fijalkowski <witoldx.fijalkowski@intel.com>
-Reviewed-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
-Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For one thing we might receive an aggregated OGM from a neighbor node
+which has our own OGM in the first place. We would then not only skip
+our own OGM but erroneously also any other, following OGM in the
+aggregate.
+
+For another, we might receive an OGM aggregate which has our own OGM in
+a place other then the first one. Then we would wrongly not skip this
+OGM, leading to populating the orginator and gateway table with ourself.
+
+Fixes: 9323158ef9f4 ("batman-adv: OGMv2 - implement originators logic")
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+[ bp: 4.9 backported: adjust context, correct fixes line ]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e.h      | 1 +
- drivers/net/ethernet/intel/i40e/i40e_main.c | 5 +++--
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ net/batman-adv/bat_v_ogm.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e.h b/drivers/net/ethernet/intel/i40e/i40e.h
-index d0c1bf5441d84..438e2675bc132 100644
---- a/drivers/net/ethernet/intel/i40e/i40e.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e.h
-@@ -163,6 +163,7 @@ enum i40e_vsi_state_t {
- 	__I40E_VSI_OVERFLOW_PROMISC,
- 	__I40E_VSI_REINIT_REQUESTED,
- 	__I40E_VSI_DOWN_REQUESTED,
-+	__I40E_VSI_RELEASING,
- 	/* This must be last as it determines the size of the BITMAP */
- 	__I40E_VSI_STATE_SIZE__,
- };
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 1555d32ddb962..44a9c8aa3067a 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -2415,7 +2415,8 @@ static void i40e_sync_filters_subtask(struct i40e_pf *pf)
+--- a/net/batman-adv/bat_v_ogm.c
++++ b/net/batman-adv/bat_v_ogm.c
+@@ -690,6 +690,12 @@ static void batadv_v_ogm_process(const s
+ 		   ntohl(ogm_packet->seqno), ogm_throughput, ogm_packet->ttl,
+ 		   ogm_packet->version, ntohs(ogm_packet->tvlv_len));
  
- 	for (v = 0; v < pf->num_alloc_vsi; v++) {
- 		if (pf->vsi[v] &&
--		    (pf->vsi[v]->flags & I40E_VSI_FLAG_FILTER_CHANGED)) {
-+		    (pf->vsi[v]->flags & I40E_VSI_FLAG_FILTER_CHANGED) &&
-+		    !test_bit(__I40E_VSI_RELEASING, pf->vsi[v]->state)) {
- 			int ret = i40e_sync_vsi_filters(pf->vsi[v]);
++	if (batadv_is_my_mac(bat_priv, ogm_packet->orig)) {
++		batadv_dbg(BATADV_DBG_BATMAN, bat_priv,
++			   "Drop packet: originator packet from ourself\n");
++		return;
++	}
++
+ 	/* If the troughput metric is 0, immediately drop the packet. No need to
+ 	 * create orig_node / neigh_node for an unusable route.
+ 	 */
+@@ -788,11 +794,6 @@ int batadv_v_ogm_packet_recv(struct sk_b
+ 	if (batadv_is_my_mac(bat_priv, ethhdr->h_source))
+ 		return NET_RX_DROP;
  
- 			if (ret) {
-@@ -10098,7 +10099,7 @@ int i40e_vsi_release(struct i40e_vsi *vsi)
- 		dev_info(&pf->pdev->dev, "Can't remove PF VSI\n");
- 		return -ENODEV;
- 	}
+-	ogm_packet = (struct batadv_ogm2_packet *)skb->data;
 -
-+	set_bit(__I40E_VSI_RELEASING, vsi->state);
- 	uplink_seid = vsi->uplink_seid;
- 	if (vsi->type != I40E_VSI_SRIOV) {
- 		if (vsi->netdev_registered) {
--- 
-2.33.0
-
+-	if (batadv_is_my_mac(bat_priv, ogm_packet->orig))
+-		return NET_RX_DROP;
+-
+ 	batadv_inc_counter(bat_priv, BATADV_CNT_MGMT_RX);
+ 	batadv_add_counter(bat_priv, BATADV_CNT_MGMT_RX_BYTES,
+ 			   skb->len + ETH_HLEN);
 
 
