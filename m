@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D7B045B9F0
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BDFC45BB9E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:18:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237227AbhKXMG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:06:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60698 "EHLO mail.kernel.org"
+        id S243867AbhKXMVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:21:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236431AbhKXMFw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:05:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 030AF600EF;
-        Wed, 24 Nov 2021 12:02:42 +0000 (UTC)
+        id S243740AbhKXMSr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:18:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6852360551;
+        Wed, 24 Nov 2021 12:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755363;
-        bh=L69go92Y+yQkk7S6ITdAON0QWpp26Ykm/JPM6rJDeaQ=;
+        s=korg; t=1637755905;
+        bh=Q29ulYPi6AUc+UPzBQv3++uX996anwmsf39T4ouyrq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uo4IIpeD7yncKCvJG8JrzXQBr6yJY+w8tDe9TsFLczmc6v3EwERNkRN948tx/rIBz
-         yqQSnz1GSPF0cAoco/DcccdPDL0463xhFWkV4rYsyY5jl9k3lRUqW4MfrRqbNoHj5E
-         XMsBLK3779gPrbc8wymi1Ole4SONJ2IOV6ZqtyOs=
+        b=MtcTPOfgOshIa/q9S0hrDwAgracGHmjj/6DrvI4nlZf+NX7HWN7pf1wSg4DcmEQgK
+         k1/Tvolqvf6u0drP1JkKFhURj3jCWO1mhcI97P/OXzXqyzbA2/4yPdrHNxV7zIGpEZ
+         JIG6cMfYPVEnMKlrTDNMXx8YoS+3QR/PbQv4F/bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 069/162] parisc: fix warning in flush_tlb_all
+        stable@vger.kernel.org, Sven Eckelmann <seckelmann@datto.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 101/207] ath10k: fix max antenna gain unit
 Date:   Wed, 24 Nov 2021 12:56:12 +0100
-Message-Id: <20211124115700.558043291@linuxfoundation.org>
+Message-Id: <20211124115707.350929278@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,66 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@stackframe.org>
+From: Sven Eckelmann <seckelmann@datto.com>
 
-[ Upstream commit 1030d681319b43869e0d5b568b9d0226652d1a6f ]
+[ Upstream commit 0a491167fe0cf9f26062462de2a8688b96125d48 ]
 
-I've got the following splat after enabling preemption:
+Most of the txpower for the ath10k firmware is stored as twicepower (0.5 dB
+steps). This isn't the case for max_antenna_gain - which is still expected
+by the firmware as dB.
 
-[    3.724721] BUG: using __this_cpu_add() in preemptible [00000000] code: swapper/0/1
-[    3.734630] caller is __this_cpu_preempt_check+0x38/0x50
-[    3.740635] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc4-64bit+ #324
-[    3.744605] Hardware name: 9000/785/C8000
-[    3.744605] Backtrace:
-[    3.744605]  [<00000000401d9d58>] show_stack+0x74/0xb0
-[    3.744605]  [<0000000040c27bd4>] dump_stack_lvl+0x10c/0x188
-[    3.744605]  [<0000000040c27c84>] dump_stack+0x34/0x48
-[    3.744605]  [<0000000040c33438>] check_preemption_disabled+0x178/0x1b0
-[    3.744605]  [<0000000040c334f8>] __this_cpu_preempt_check+0x38/0x50
-[    3.744605]  [<00000000401d632c>] flush_tlb_all+0x58/0x2e0
-[    3.744605]  [<00000000401075c0>] 0x401075c0
-[    3.744605]  [<000000004010b8fc>] 0x4010b8fc
-[    3.744605]  [<00000000401080fc>] 0x401080fc
-[    3.744605]  [<00000000401d5224>] do_one_initcall+0x128/0x378
-[    3.744605]  [<0000000040102de8>] 0x40102de8
-[    3.744605]  [<0000000040c33864>] kernel_init+0x60/0x3a8
-[    3.744605]  [<00000000401d1020>] ret_from_kernel_thread+0x20/0x28
-[    3.744605]
+The firmware is converting it from dB to the internal (twicepower)
+representation when it calculates the limits of a channel. This can be seen
+in tpc_stats when configuring "12" as max_antenna_gain. Instead of the
+expected 12 (6 dB), the tpc_stats shows 24 (12 dB).
 
-Fix this by moving the __inc_irq_stat() into the locked section.
+Tested on QCA9888 and IPQ4019 with firmware 10.4-3.5.3-00057.
 
-Signed-off-by: Sven Schnelle <svens@stackframe.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 02256930d9b8 ("ath10k: use proper tx power unit")
+Signed-off-by: Sven Eckelmann <seckelmann@datto.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20190611172131.6064-1-sven@narfation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/mm/init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/mac.c | 6 +++---
+ drivers/net/wireless/ath/ath10k/wmi.h | 3 +++
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
-index d72f003106835..ad6545dafe039 100644
---- a/arch/parisc/mm/init.c
-+++ b/arch/parisc/mm/init.c
-@@ -940,9 +940,9 @@ void flush_tlb_all(void)
- {
- 	int do_recycle;
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 314cac2ce0879..41fb17cece622 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -980,7 +980,7 @@ static int ath10k_monitor_vdev_start(struct ath10k *ar, int vdev_id)
+ 	arg.channel.min_power = 0;
+ 	arg.channel.max_power = channel->max_power * 2;
+ 	arg.channel.max_reg_power = channel->max_reg_power * 2;
+-	arg.channel.max_antenna_gain = channel->max_antenna_gain * 2;
++	arg.channel.max_antenna_gain = channel->max_antenna_gain;
  
--	__inc_irq_stat(irq_tlb_count);
- 	do_recycle = 0;
- 	spin_lock(&sid_lock);
-+	__inc_irq_stat(irq_tlb_count);
- 	if (dirty_space_ids > RECYCLE_THRESHOLD) {
- 	    BUG_ON(recycle_inuse);  /* FIXME: Use a semaphore/wait queue here */
- 	    get_dirty_sids(&recycle_ndirty,recycle_dirty_array);
-@@ -961,8 +961,8 @@ void flush_tlb_all(void)
- #else
- void flush_tlb_all(void)
- {
--	__inc_irq_stat(irq_tlb_count);
- 	spin_lock(&sid_lock);
-+	__inc_irq_stat(irq_tlb_count);
- 	flush_tlb_all_local(NULL);
- 	recycle_sids();
- 	spin_unlock(&sid_lock);
+ 	reinit_completion(&ar->vdev_setup_done);
+ 
+@@ -1416,7 +1416,7 @@ static int ath10k_vdev_start_restart(struct ath10k_vif *arvif,
+ 	arg.channel.min_power = 0;
+ 	arg.channel.max_power = chandef->chan->max_power * 2;
+ 	arg.channel.max_reg_power = chandef->chan->max_reg_power * 2;
+-	arg.channel.max_antenna_gain = chandef->chan->max_antenna_gain * 2;
++	arg.channel.max_antenna_gain = chandef->chan->max_antenna_gain;
+ 
+ 	if (arvif->vdev_type == WMI_VDEV_TYPE_AP) {
+ 		arg.ssid = arvif->u.ap.ssid;
+@@ -3019,7 +3019,7 @@ static int ath10k_update_channel_list(struct ath10k *ar)
+ 			ch->min_power = 0;
+ 			ch->max_power = channel->max_power * 2;
+ 			ch->max_reg_power = channel->max_reg_power * 2;
+-			ch->max_antenna_gain = channel->max_antenna_gain * 2;
++			ch->max_antenna_gain = channel->max_antenna_gain;
+ 			ch->reg_class_id = 0; /* FIXME */
+ 
+ 			/* FIXME: why use only legacy modes, why not any
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index cce028ea9b57d..5f718210ce682 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -1802,7 +1802,9 @@ struct wmi_channel {
+ 	union {
+ 		__le32 reginfo1;
+ 		struct {
++			/* note: power unit is 1 dBm */
+ 			u8 antenna_max;
++			/* note: power unit is 0.5 dBm */
+ 			u8 max_tx_power;
+ 		} __packed;
+ 	} __packed;
+@@ -1821,6 +1823,7 @@ struct wmi_channel_arg {
+ 	u32 min_power;
+ 	u32 max_power;
+ 	u32 max_reg_power;
++	/* note: power unit is 1 dBm */
+ 	u32 max_antenna_gain;
+ 	u32 reg_class_id;
+ 	enum wmi_phy_mode mode;
 -- 
 2.33.0
 
