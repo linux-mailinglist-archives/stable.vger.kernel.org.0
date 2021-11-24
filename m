@@ -2,1210 +2,550 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E92D045C98C
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 17:10:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6157445C98D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 17:10:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241414AbhKXQNe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 11:13:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43764 "EHLO
+        id S242675AbhKXQNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 11:13:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229829AbhKXQNe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 11:13:34 -0500
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA1F3C061574
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 08:10:24 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id u80so3092319pfc.9
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 08:10:24 -0800 (PST)
+        with ESMTP id S229829AbhKXQNh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 11:13:37 -0500
+Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45358C061714
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 08:10:27 -0800 (PST)
+Received: by mail-io1-xd31.google.com with SMTP id z18so3884914iof.5
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 08:10:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Gzk5XIRxTRshFzQYVQst28jQRwK7H4O5Fa0YZaoXY0c=;
-        b=DiUDFZAhSjxA62wIJSDCEgzxjZpcFkHhP0X9nWyli+GhDXDm/BA2zxmFe+XCq/LQP4
-         eWiFVYX+NSHNGNWnLj9DxsJAmuJWR3/yBDGJLIaQgIsozW6WC4NQo7hTVl8Uhy1nVQrA
-         rMmxSYl+zYbX36+em70Rit1ceNlPn8u1DfFlRUS2BkaW6+bAKUucH2j1NDluo6kJRTEZ
-         RM9nBfDawmU1TGpBcoX8Fm3fLA3Y7fIB2IintEy/fRg3E2k0C/cNhqRxTj3mlfOiFhWv
-         K5RQdbqLZ9s9uXenO6gVX5yZ2aEgpXe+Y5Cfv3No0kfkrowapgogIJI48Ebk4VrqzEGD
-         jxIw==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language;
+        bh=5JFV8OOrlpEiXRvxxXIRx3QBohQI3UDhC+RUdQmv1J0=;
+        b=pSHombFXI+tPzc1zNv3rt9mv0LondDWOecIqVn5Vgmg86q1c+Ws1fe/LTjDaprRGzb
+         wL6ytwVSAE0lZ/Mq5eoEk7ShOYSOEF2tQFXlTjEacHMFx8yBkzPrA5z38FRGXgbTkRsu
+         /mrJENkz91+kDiGYbzOqMx3yss8+ZuHLBwefnsxTgWnnBi8gEaeZl5/D3Bp1P/FO0z8s
+         RSLs7wPTztgmsZdy2ti/IdQ+VtWKekTOWpuM6a7kT/cTGExzr2BYlRgh6psnmfKR6Jhl
+         1mW5cdAWK5HrYzRe2wh3l6Itsq5BaW+S0w81SobvINkNPb/SES3C1jpUppv2rGfouDeZ
+         7k2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Gzk5XIRxTRshFzQYVQst28jQRwK7H4O5Fa0YZaoXY0c=;
-        b=S1g6ZzfGj1O5CosnL3K+I18/qW/c+RWOMrx6Jtrj3ODGRgkielgelIh1qFU68w9r/R
-         dQlhXvv9dZVfm+TYc8oOdfixnzjYhbSfdt7W48gdHLb4l7AH0AoJy2ogTxpeGP2gYb/h
-         q2fIJFndXWqJLrhQuY6p8BMsEDeZhl3CQspvV7HB7hQC+zn2Ns628hnwS9JPPNvv8Oj7
-         48HgcC/NYZl3uYrXgNAZWBsPDMHku3UYLrf1X/qP8CqJTVka2XqeQnlWWsAlAJvkuGVI
-         2G1yLYP+J7t2/QHWAoDHevBhLc4KyTzrvdtSXn1MNH4FwN73n1Vgo63DMlFwnnvGEE6u
-         dcwA==
-X-Gm-Message-State: AOAM532OLUzpOJJqxGaD8n9ajuwx75AC05GUlQHYKVgSVD5eaniFSi8f
-        d4EFOvSbG1bt2vUB3ZRdBR/9vNsJT5SEvqmLwK8=
-X-Google-Smtp-Source: ABdhPJy4K7ThdF9Vf12AXxiIdwal7LqkaN5iRN/cePzC0TlRmQLQM48jfpwhA8til9w7YsdL5S7/2Q==
-X-Received: by 2002:a65:6a05:: with SMTP id m5mr10781084pgu.427.1637770223495;
-        Wed, 24 Nov 2021 08:10:23 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a26sm156941pfh.161.2021.11.24.08.10.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Nov 2021 08:10:23 -0800 (PST)
-Message-ID: <619e63ef.1c69fb81.dd1f.07ca@mx.google.com>
-Date:   Wed, 24 Nov 2021 08:10:23 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language;
+        bh=5JFV8OOrlpEiXRvxxXIRx3QBohQI3UDhC+RUdQmv1J0=;
+        b=R8Flc3crovjwG7rTGjwN9ZBFA1BTTP/8plFkj+rRium2EBDGrcdHOVB7UMZJ+PwATk
+         /4FDDuDJOcqNGDkdZ6n87vcCOVmGXuhoPiTPVZPeE1VMPDDKAk57hB+netB3l1Yhg2TB
+         +G1UJFdXnW/Dgr1b5GdTQ2JaAJITP5iMZ1jLGuJFpqmd9EJ23jAwTeaWnQ4/R/gA06an
+         2FNzPheHnDHfVjaEOvKo05w9vMrkFx2r5vxCtOOfmjSFj/8q0ypElRTdi9YhQvQV7PoN
+         1FwPNu+PGf48VlHNvG6qtCwkfr05+aawtZFy4FG54hmhwFzZrLAuW7shmWetJ7CzSkR9
+         AhHQ==
+X-Gm-Message-State: AOAM533iGoJL71OwOvfyp+B+R05H2piKMuHWTO0JIJfgC4MiUlmB/ELl
+        GXIDJh2sTKAN8PiXAdhCHwTJdA==
+X-Google-Smtp-Source: ABdhPJwaToTLmiQjaY3vBf5Es2u/aT4IhHLcVgsMmEjG28ONWy0ceySd3aK+1VxmNZZ2vl+p+YIPww==
+X-Received: by 2002:a5d:944a:: with SMTP id x10mr14903565ior.18.1637770226650;
+        Wed, 24 Nov 2021 08:10:26 -0800 (PST)
+Received: from [192.168.1.30] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id y8sm137249iox.32.2021.11.24.08.10.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 24 Nov 2021 08:10:26 -0800 (PST)
+Subject: Re: uring regression - lost write request
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Daniel Black <daniel@mariadb.org>
+Cc:     Salvatore Bonaccorso <carnil@debian.org>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        linux-block@vger.kernel.org, io-uring@vger.kernel.org,
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+References: <CABVffENnJ8JkP7EtuUTqi+VkJDBFU37w1UXe4Q3cB7-ixxh0VA@mail.gmail.com>
+ <YXz0roPH+stjFygk@eldamar.lan>
+ <CABVffEO4mBTuiLzvny1G1ocO7PvTpKYTCS5TO2fbaevu2TqdGQ@mail.gmail.com>
+ <CABVffEMy+gWfkuEg4UOTZe3p_k0Ryxey921Hw2De8MyE=JafeA@mail.gmail.com>
+ <f4f2ff29-abdd-b448-f58f-7ea99c35eb2b@kernel.dk>
+ <ef299d5b-cc48-6c92-024d-27024b671fd3@kernel.dk>
+ <CABVffEOpuViC9OyOuZg28sRfGK4GRc8cV0CnkOU2cM0RJyRhPw@mail.gmail.com>
+ <e9b4d07e-d43d-9b3c-ac4c-f8b88bb987d4@kernel.dk>
+ <1bd48c9b-c462-115c-d077-1b724d7e4d10@kernel.dk>
+ <c6d6bffe-1770-c51d-11c6-c5483bde1766@kernel.dk>
+ <bd7289c8-0b01-4fcf-e584-273d372f8343@kernel.dk>
+ <6d0ca779-3111-bc5e-88c0-22a98a6974b8@kernel.dk>
+ <281147cc-7da4-8e45-2d6f-3f7c2a2ca229@kernel.dk>
+ <c92f97e5-1a38-e23f-f371-c00261cacb6d@kernel.dk>
+ <CABVffEN0LzLyrHifysGNJKpc_Szn7qPO4xy7aKvg7LTNc-Fpng@mail.gmail.com>
+ <00d6e7ad-5430-4fca-7e26-0774c302be57@kernel.dk>
+ <CABVffEM79CZ+4SW0+yP0+NioMX=sHhooBCEfbhqs6G6hex2YwQ@mail.gmail.com>
+ <3aaac8b2-e2f6-6a84-1321-67409b2a3dce@kernel.dk>
+Message-ID: <98f8a00f-c634-4a1a-4eba-f97be5b2e801@kernel.dk>
+Date:   Wed, 24 Nov 2021 09:10:25 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.292-161-g719b6ae9e13f
-X-Kernelci-Report-Type: build
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.4 build: 183 builds: 5 failed, 178 passed, 6 errors,
- 35 warnings (v4.4.292-161-g719b6ae9e13f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <3aaac8b2-e2f6-6a84-1321-67409b2a3dce@kernel.dk>
+Content-Type: multipart/mixed;
+ boundary="------------808A073775A4081ECB9B4918"
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 build: 183 builds: 5 failed, 178 passed, 6 errors, 35 w=
-arnings (v4.4.292-161-g719b6ae9e13f)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.4=
-/kernel/v4.4.292-161-g719b6ae9e13f/
-
-Tree: stable-rc
-Branch: queue/4.4
-Git Describe: v4.4.292-161-g719b6ae9e13f
-Git Commit: 719b6ae9e13f0e8a542a6260af03313cb1104b87
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 6 unique architectures
-
-Build Failures Detected:
-
-arm:
-    rpc_defconfig: (gcc-10) FAIL
-
-mips:
-    fuloong2e_defconfig: (gcc-10) FAIL
-    ip27_defconfig: (gcc-10) FAIL
-    ip28_defconfig: (gcc-10) FAIL
-    lemote2f_defconfig: (gcc-10) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-
-arm64:
-    defconfig (gcc-10): 1 warning
-
-arm:
-    clps711x_defconfig (gcc-10): 1 warning
-    davinci_all_defconfig (gcc-10): 1 warning
-    lpc32xx_defconfig (gcc-10): 1 warning
-    mini2440_defconfig (gcc-10): 1 warning
-    mxs_defconfig (gcc-10): 1 warning
-    omap1_defconfig (gcc-10): 1 warning
-    rpc_defconfig (gcc-10): 2 errors
-    s3c2410_defconfig (gcc-10): 1 warning
-    s3c6400_defconfig (gcc-10): 2 warnings
-
-i386:
-    i386_defconfig (gcc-10): 2 warnings
-
-mips:
-    fuloong2e_defconfig (gcc-10): 2 errors
-    ip22_defconfig (gcc-10): 1 warning
-    lemote2f_defconfig (gcc-10): 2 errors
-    mtx1_defconfig (gcc-10): 3 warnings
-
-x86_64:
-    allnoconfig (gcc-10): 4 warnings
-    tinyconfig (gcc-10): 3 warnings
-    x86_64_defconfig (gcc-10): 6 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 6 warnings
-
-Errors summary:
-
-    4    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=
-=80=98-mhard-float=E2=80=99
-    1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
-    1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
-h=3D=E2=80=99
-
-Warnings summary:
-
-    7    arch/x86/kernel/process.c:456: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
-    4    arch/x86/entry/entry_64.S:487: Warning: no instruction mnemonic su=
-ffix given and no register operands; using default for `btr'
-    4    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic s=
-uffix given and no register operands; using default for `sysret'
-    3    ld: warning: creating DT_TEXTREL in a PIE
-    3    drivers/tty/serial/samsung.c:1780:34: warning: array =E2=80=98s3c2=
-4xx_uart_dt_match=E2=80=99 assumed to have one element
-    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
-d-only section `.head.text'
-    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
-d-only section `.head.text'
-    1    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argum=
-ent 5 of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer withou=
-t a cast [-Wint-conversion]
-    1    drivers/net/ethernet/apm/xgene/xgene_enet_main.c:32:36: warning: a=
-rray =E2=80=98xgene_enet_acpi_match=E2=80=99 assumed to have one element
-    1    drivers/mmc/host/sdhci-s3c.c:429:34: warning: array =E2=80=98sdhci=
-_s3c_dt_match=E2=80=99 assumed to have one element
-    1    drivers/gpio/gpio-omap.c:1161:34: warning: array =E2=80=98omap_gpi=
-o_match=E2=80=99 assumed to have one element
-    1    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =E2=80=98c=
-onst=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate =E2=80=
-=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate =E2=80=
-=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate=
- =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
-n mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:487: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:456: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:456: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bcm_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-clps711x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate =E2=
-=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate =E2=80=98con=
-st=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
-smatches
-
-Warnings:
-    drivers/net/ethernet/apm/xgene/xgene_enet_main.c:32:36: warning: array =
-=E2=80=98xgene_enet_acpi_match=E2=80=99 assumed to have one element
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 =
-section mismatches
-
-Errors:
-    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
-=98-mhard-float=E2=80=99
-    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
-=98-mhard-float=E2=80=99
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argument 5=
- of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer without a c=
-ast [-Wint-conversion]
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
-=98-mhard-float=E2=80=99
-    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=80=
-=98-mhard-float=E2=80=99
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate =E2=80=98con=
-st=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ls1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
-gs, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
-gs, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/tty/serial/samsung.c:1780:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mv78xx0_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =E2=80=98const=
-=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/gpio/gpio-omap.c:1161:34: warning: array =E2=80=98omap_gpio_mat=
-ch=E2=80=99 assumed to have one element
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-realview-smp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
- mismatches
-
-Errors:
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
-    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
-=E2=80=99
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/tty/serial/samsung.c:1780:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/mmc/host/sdhci-s3c.c:429:34: warning: array =E2=80=98sdhci_s3c_=
-dt_match=E2=80=99 assumed to have one element
-    drivers/tty/serial/samsung.c:1780:34: warning: array =E2=80=98s3c24xx_u=
-art_dt_match=E2=80=99 assumed to have one element
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sead3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-sead3micro_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
- mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:487: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:456: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 6 warnings, 0 s=
-ection mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:487: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:456: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:456: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-6 warnings, 0 section mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:487: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    arch/x86/kernel/process.c:456: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    arch/x86/kernel/process.c:456: Warning: no instruction mnemonic suffix =
-given and no register operands; using default for `btr'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-xway_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
+This is a multi-part message in MIME format.
+--------------808A073775A4081ECB9B4918
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+On 11/24/21 8:28 AM, Jens Axboe wrote:
+> On 11/23/21 8:27 PM, Daniel Black wrote:
+>> On Mon, Nov 15, 2021 at 7:55 AM Jens Axboe <axboe@kernel.dk> wrote:
+>>>
+>>> On 11/14/21 1:33 PM, Daniel Black wrote:
+>>>> On Fri, Nov 12, 2021 at 10:44 AM Jens Axboe <axboe@kernel.dk> wrote:
+>>>>>
+>>>>> Alright, give this one a go if you can. Against -git, but will apply to
+>>>>> 5.15 as well.
+>>>>
+>>>>
+>>>> Works. Thank you very much.
+>>>>
+>>>> https://jira.mariadb.org/browse/MDEV-26674?page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel&focusedCommentId=205599#comment-205599
+>>>>
+>>>> Tested-by: Marko Mäkelä <marko.makela@mariadb.com>
+>>>
+>>> The patch is already upstream (and in the 5.15 stable queue), and I
+>>> provided 5.14 patches too.
+>>
+>> Jens,
+>>
+>> I'm getting the same reproducer on 5.14.20
+>> (https://bugzilla.redhat.com/show_bug.cgi?id=2018882#c3) though the
+>> backport change logs indicate 5.14.19 has the patch.
+>>
+>> Anything missing?
+> 
+> We might also need another patch that isn't in stable, I'm attaching
+> it here. Any chance you can run 5.14.20/21 with this applied? If not,
+> I'll do some sanity checking here and push it to -stable.
+
+Looks good to me - Greg, would you mind queueing this up for
+5.14-stable?
+
+-- 
+Jens Axboe
+
+
+--------------808A073775A4081ECB9B4918
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-io-wq-split-bounded-and-unbounded-work-into-separate.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-io-wq-split-bounded-and-unbounded-work-into-separate.pa";
+ filename*1="tch"
+
+From 99e6a29dbda79e5e050be1ffd38dd36622f61af5 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Wed, 24 Nov 2021 08:26:11 -0700
+Subject: [PATCH] io-wq: split bounded and unbounded work into separate lists
+
+commit f95dc207b93da9c88ddbb7741ec3730c6657b88e upstream.
+
+We've got a few issues that all boil down to the fact that we have one
+list of pending work items, yet two different types of workers to
+serve them. This causes some oddities around workers switching type and
+even hashed work vs regular work on the same bounded list.
+
+Just separate them out cleanly, similarly to how we already do
+accounting of what is running. That provides a clean separation and
+removes some corner cases that can cause stalls when handling IO
+that is punted to io-wq.
+
+Fixes: ecc53c48c13d ("io-wq: check max_worker limits if a worker transitions bound state")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
-For more info write to <info@kernelci.org>
+ fs/io-wq.c | 156 +++++++++++++++++++++++------------------------------
+ 1 file changed, 68 insertions(+), 88 deletions(-)
+
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 0890d85ba285..7d63299b4776 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -32,7 +32,7 @@ enum {
+ };
+ 
+ enum {
+-	IO_WQE_FLAG_STALLED	= 1,	/* stalled on hash */
++	IO_ACCT_STALLED_BIT	= 0,	/* stalled on hash */
+ };
+ 
+ /*
+@@ -71,25 +71,24 @@ struct io_wqe_acct {
+ 	unsigned max_workers;
+ 	int index;
+ 	atomic_t nr_running;
++	struct io_wq_work_list work_list;
++	unsigned long flags;
+ };
+ 
+ enum {
+ 	IO_WQ_ACCT_BOUND,
+ 	IO_WQ_ACCT_UNBOUND,
++	IO_WQ_ACCT_NR,
+ };
+ 
+ /*
+  * Per-node worker thread pool
+  */
+ struct io_wqe {
+-	struct {
+-		raw_spinlock_t lock;
+-		struct io_wq_work_list work_list;
+-		unsigned flags;
+-	} ____cacheline_aligned_in_smp;
++	raw_spinlock_t lock;
++	struct io_wqe_acct acct[2];
+ 
+ 	int node;
+-	struct io_wqe_acct acct[2];
+ 
+ 	struct hlist_nulls_head free_list;
+ 	struct list_head all_list;
+@@ -195,11 +194,10 @@ static void io_worker_exit(struct io_worker *worker)
+ 	do_exit(0);
+ }
+ 
+-static inline bool io_wqe_run_queue(struct io_wqe *wqe)
+-	__must_hold(wqe->lock)
++static inline bool io_acct_run_queue(struct io_wqe_acct *acct)
+ {
+-	if (!wq_list_empty(&wqe->work_list) &&
+-	    !(wqe->flags & IO_WQE_FLAG_STALLED))
++	if (!wq_list_empty(&acct->work_list) &&
++	    !test_bit(IO_ACCT_STALLED_BIT, &acct->flags))
+ 		return true;
+ 	return false;
+ }
+@@ -208,7 +206,8 @@ static inline bool io_wqe_run_queue(struct io_wqe *wqe)
+  * Check head of free list for an available worker. If one isn't available,
+  * caller must create one.
+  */
+-static bool io_wqe_activate_free_worker(struct io_wqe *wqe)
++static bool io_wqe_activate_free_worker(struct io_wqe *wqe,
++					struct io_wqe_acct *acct)
+ 	__must_hold(RCU)
+ {
+ 	struct hlist_nulls_node *n;
+@@ -222,6 +221,10 @@ static bool io_wqe_activate_free_worker(struct io_wqe *wqe)
+ 	hlist_nulls_for_each_entry_rcu(worker, n, &wqe->free_list, nulls_node) {
+ 		if (!io_worker_get(worker))
+ 			continue;
++		if (io_wqe_get_acct(worker) != acct) {
++			io_worker_release(worker);
++			continue;
++		}
+ 		if (wake_up_process(worker->task)) {
+ 			io_worker_release(worker);
+ 			return true;
+@@ -340,7 +343,7 @@ static void io_wqe_dec_running(struct io_worker *worker)
+ 	if (!(worker->flags & IO_WORKER_F_UP))
+ 		return;
+ 
+-	if (atomic_dec_and_test(&acct->nr_running) && io_wqe_run_queue(wqe)) {
++	if (atomic_dec_and_test(&acct->nr_running) && io_acct_run_queue(acct)) {
+ 		atomic_inc(&acct->nr_running);
+ 		atomic_inc(&wqe->wq->worker_refs);
+ 		io_queue_worker_create(wqe, worker, acct);
+@@ -355,29 +358,10 @@ static void __io_worker_busy(struct io_wqe *wqe, struct io_worker *worker,
+ 			     struct io_wq_work *work)
+ 	__must_hold(wqe->lock)
+ {
+-	bool worker_bound, work_bound;
+-
+-	BUILD_BUG_ON((IO_WQ_ACCT_UNBOUND ^ IO_WQ_ACCT_BOUND) != 1);
+-
+ 	if (worker->flags & IO_WORKER_F_FREE) {
+ 		worker->flags &= ~IO_WORKER_F_FREE;
+ 		hlist_nulls_del_init_rcu(&worker->nulls_node);
+ 	}
+-
+-	/*
+-	 * If worker is moving from bound to unbound (or vice versa), then
+-	 * ensure we update the running accounting.
+-	 */
+-	worker_bound = (worker->flags & IO_WORKER_F_BOUND) != 0;
+-	work_bound = (work->flags & IO_WQ_WORK_UNBOUND) == 0;
+-	if (worker_bound != work_bound) {
+-		int index = work_bound ? IO_WQ_ACCT_UNBOUND : IO_WQ_ACCT_BOUND;
+-		io_wqe_dec_running(worker);
+-		worker->flags ^= IO_WORKER_F_BOUND;
+-		wqe->acct[index].nr_workers--;
+-		wqe->acct[index ^ 1].nr_workers++;
+-		io_wqe_inc_running(worker);
+-	 }
+ }
+ 
+ /*
+@@ -419,44 +403,23 @@ static bool io_wait_on_hash(struct io_wqe *wqe, unsigned int hash)
+ 	return ret;
+ }
+ 
+-/*
+- * We can always run the work if the worker is currently the same type as
+- * the work (eg both are bound, or both are unbound). If they are not the
+- * same, only allow it if incrementing the worker count would be allowed.
+- */
+-static bool io_worker_can_run_work(struct io_worker *worker,
+-				   struct io_wq_work *work)
+-{
+-	struct io_wqe_acct *acct;
+-
+-	if (!(worker->flags & IO_WORKER_F_BOUND) !=
+-	    !(work->flags & IO_WQ_WORK_UNBOUND))
+-		return true;
+-
+-	/* not the same type, check if we'd go over the limit */
+-	acct = io_work_get_acct(worker->wqe, work);
+-	return acct->nr_workers < acct->max_workers;
+-}
+-
+-static struct io_wq_work *io_get_next_work(struct io_wqe *wqe,
++static struct io_wq_work *io_get_next_work(struct io_wqe_acct *acct,
+ 					   struct io_worker *worker)
+ 	__must_hold(wqe->lock)
+ {
+ 	struct io_wq_work_node *node, *prev;
+ 	struct io_wq_work *work, *tail;
+ 	unsigned int stall_hash = -1U;
++	struct io_wqe *wqe = worker->wqe;
+ 
+-	wq_list_for_each(node, prev, &wqe->work_list) {
++	wq_list_for_each(node, prev, &acct->work_list) {
+ 		unsigned int hash;
+ 
+ 		work = container_of(node, struct io_wq_work, list);
+ 
+-		if (!io_worker_can_run_work(worker, work))
+-			break;
+-
+ 		/* not hashed, can run anytime */
+ 		if (!io_wq_is_hashed(work)) {
+-			wq_list_del(&wqe->work_list, node, prev);
++			wq_list_del(&acct->work_list, node, prev);
+ 			return work;
+ 		}
+ 
+@@ -467,7 +430,7 @@ static struct io_wq_work *io_get_next_work(struct io_wqe *wqe,
+ 		/* hashed, can run if not already running */
+ 		if (!test_and_set_bit(hash, &wqe->wq->hash->map)) {
+ 			wqe->hash_tail[hash] = NULL;
+-			wq_list_cut(&wqe->work_list, &tail->list, prev);
++			wq_list_cut(&acct->work_list, &tail->list, prev);
+ 			return work;
+ 		}
+ 		if (stall_hash == -1U)
+@@ -483,12 +446,12 @@ static struct io_wq_work *io_get_next_work(struct io_wqe *wqe,
+ 		 * Set this before dropping the lock to avoid racing with new
+ 		 * work being added and clearing the stalled bit.
+ 		 */
+-		wqe->flags |= IO_WQE_FLAG_STALLED;
++		set_bit(IO_ACCT_STALLED_BIT, &acct->flags);
+ 		raw_spin_unlock(&wqe->lock);
+ 		unstalled = io_wait_on_hash(wqe, stall_hash);
+ 		raw_spin_lock(&wqe->lock);
+ 		if (unstalled) {
+-			wqe->flags &= ~IO_WQE_FLAG_STALLED;
++			clear_bit(IO_ACCT_STALLED_BIT, &acct->flags);
+ 			if (wq_has_sleeper(&wqe->wq->hash->wait))
+ 				wake_up(&wqe->wq->hash->wait);
+ 		}
+@@ -525,6 +488,7 @@ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work);
+ static void io_worker_handle_work(struct io_worker *worker)
+ 	__releases(wqe->lock)
+ {
++	struct io_wqe_acct *acct = io_wqe_get_acct(worker);
+ 	struct io_wqe *wqe = worker->wqe;
+ 	struct io_wq *wq = wqe->wq;
+ 	bool do_kill = test_bit(IO_WQ_BIT_EXIT, &wq->state);
+@@ -539,7 +503,7 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 		 * can't make progress, any work completion or insertion will
+ 		 * clear the stalled flag.
+ 		 */
+-		work = io_get_next_work(wqe, worker);
++		work = io_get_next_work(acct, worker);
+ 		if (work)
+ 			__io_worker_busy(wqe, worker, work);
+ 
+@@ -575,7 +539,7 @@ static void io_worker_handle_work(struct io_worker *worker)
+ 				/* serialize hash clear with wake_up() */
+ 				spin_lock_irq(&wq->hash->wait.lock);
+ 				clear_bit(hash, &wq->hash->map);
+-				wqe->flags &= ~IO_WQE_FLAG_STALLED;
++				clear_bit(IO_ACCT_STALLED_BIT, &acct->flags);
+ 				spin_unlock_irq(&wq->hash->wait.lock);
+ 				if (wq_has_sleeper(&wq->hash->wait))
+ 					wake_up(&wq->hash->wait);
+@@ -594,6 +558,7 @@ static void io_worker_handle_work(struct io_worker *worker)
+ static int io_wqe_worker(void *data)
+ {
+ 	struct io_worker *worker = data;
++	struct io_wqe_acct *acct = io_wqe_get_acct(worker);
+ 	struct io_wqe *wqe = worker->wqe;
+ 	struct io_wq *wq = wqe->wq;
+ 	char buf[TASK_COMM_LEN];
+@@ -609,7 +574,7 @@ static int io_wqe_worker(void *data)
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ loop:
+ 		raw_spin_lock_irq(&wqe->lock);
+-		if (io_wqe_run_queue(wqe)) {
++		if (io_acct_run_queue(acct)) {
+ 			io_worker_handle_work(worker);
+ 			goto loop;
+ 		}
+@@ -777,12 +742,13 @@ static void io_run_cancel(struct io_wq_work *work, struct io_wqe *wqe)
+ 
+ static void io_wqe_insert_work(struct io_wqe *wqe, struct io_wq_work *work)
+ {
++	struct io_wqe_acct *acct = io_work_get_acct(wqe, work);
+ 	unsigned int hash;
+ 	struct io_wq_work *tail;
+ 
+ 	if (!io_wq_is_hashed(work)) {
+ append:
+-		wq_list_add_tail(&work->list, &wqe->work_list);
++		wq_list_add_tail(&work->list, &acct->work_list);
+ 		return;
+ 	}
+ 
+@@ -792,7 +758,7 @@ static void io_wqe_insert_work(struct io_wqe *wqe, struct io_wq_work *work)
+ 	if (!tail)
+ 		goto append;
+ 
+-	wq_list_add_after(&work->list, &tail->list, &wqe->work_list);
++	wq_list_add_after(&work->list, &tail->list, &acct->work_list);
+ }
+ 
+ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
+@@ -814,10 +780,10 @@ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
+ 
+ 	raw_spin_lock_irqsave(&wqe->lock, flags);
+ 	io_wqe_insert_work(wqe, work);
+-	wqe->flags &= ~IO_WQE_FLAG_STALLED;
++	clear_bit(IO_ACCT_STALLED_BIT, &acct->flags);
+ 
+ 	rcu_read_lock();
+-	do_create = !io_wqe_activate_free_worker(wqe);
++	do_create = !io_wqe_activate_free_worker(wqe, acct);
+ 	rcu_read_unlock();
+ 
+ 	raw_spin_unlock_irqrestore(&wqe->lock, flags);
+@@ -870,6 +836,7 @@ static inline void io_wqe_remove_pending(struct io_wqe *wqe,
+ 					 struct io_wq_work *work,
+ 					 struct io_wq_work_node *prev)
+ {
++	struct io_wqe_acct *acct = io_work_get_acct(wqe, work);
+ 	unsigned int hash = io_get_work_hash(work);
+ 	struct io_wq_work *prev_work = NULL;
+ 
+@@ -881,7 +848,7 @@ static inline void io_wqe_remove_pending(struct io_wqe *wqe,
+ 		else
+ 			wqe->hash_tail[hash] = NULL;
+ 	}
+-	wq_list_del(&wqe->work_list, &work->list, prev);
++	wq_list_del(&acct->work_list, &work->list, prev);
+ }
+ 
+ static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
+@@ -890,22 +857,27 @@ static void io_wqe_cancel_pending_work(struct io_wqe *wqe,
+ 	struct io_wq_work_node *node, *prev;
+ 	struct io_wq_work *work;
+ 	unsigned long flags;
++	int i;
+ 
+ retry:
+ 	raw_spin_lock_irqsave(&wqe->lock, flags);
+-	wq_list_for_each(node, prev, &wqe->work_list) {
+-		work = container_of(node, struct io_wq_work, list);
+-		if (!match->fn(work, match->data))
+-			continue;
+-		io_wqe_remove_pending(wqe, work, prev);
+-		raw_spin_unlock_irqrestore(&wqe->lock, flags);
+-		io_run_cancel(work, wqe);
+-		match->nr_pending++;
+-		if (!match->cancel_all)
+-			return;
++	for (i = 0; i < IO_WQ_ACCT_NR; i++) {
++		struct io_wqe_acct *acct = io_get_acct(wqe, i == 0);
+ 
+-		/* not safe to continue after unlock */
+-		goto retry;
++		wq_list_for_each(node, prev, &acct->work_list) {
++			work = container_of(node, struct io_wq_work, list);
++			if (!match->fn(work, match->data))
++				continue;
++			io_wqe_remove_pending(wqe, work, prev);
++			raw_spin_unlock_irqrestore(&wqe->lock, flags);
++			io_run_cancel(work, wqe);
++			match->nr_pending++;
++			if (!match->cancel_all)
++				return;
++
++			/* not safe to continue after unlock */
++			goto retry;
++		}
+ 	}
+ 	raw_spin_unlock_irqrestore(&wqe->lock, flags);
+ }
+@@ -966,18 +938,24 @@ static int io_wqe_hash_wake(struct wait_queue_entry *wait, unsigned mode,
+ 			    int sync, void *key)
+ {
+ 	struct io_wqe *wqe = container_of(wait, struct io_wqe, wait);
++	int i;
+ 
+ 	list_del_init(&wait->entry);
+ 
+ 	rcu_read_lock();
+-	io_wqe_activate_free_worker(wqe);
++	for (i = 0; i < IO_WQ_ACCT_NR; i++) {
++		struct io_wqe_acct *acct = &wqe->acct[i];
++
++		if (test_and_clear_bit(IO_ACCT_STALLED_BIT, &acct->flags))
++			io_wqe_activate_free_worker(wqe, acct);
++	}
+ 	rcu_read_unlock();
+ 	return 1;
+ }
+ 
+ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ {
+-	int ret, node;
++	int ret, node, i;
+ 	struct io_wq *wq;
+ 
+ 	if (WARN_ON_ONCE(!data->free_work || !data->do_work))
+@@ -1012,18 +990,20 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ 		cpumask_copy(wqe->cpu_mask, cpumask_of_node(node));
+ 		wq->wqes[node] = wqe;
+ 		wqe->node = alloc_node;
+-		wqe->acct[IO_WQ_ACCT_BOUND].index = IO_WQ_ACCT_BOUND;
+-		wqe->acct[IO_WQ_ACCT_UNBOUND].index = IO_WQ_ACCT_UNBOUND;
+ 		wqe->acct[IO_WQ_ACCT_BOUND].max_workers = bounded;
+-		atomic_set(&wqe->acct[IO_WQ_ACCT_BOUND].nr_running, 0);
+ 		wqe->acct[IO_WQ_ACCT_UNBOUND].max_workers =
+ 					task_rlimit(current, RLIMIT_NPROC);
+-		atomic_set(&wqe->acct[IO_WQ_ACCT_UNBOUND].nr_running, 0);
+-		wqe->wait.func = io_wqe_hash_wake;
+ 		INIT_LIST_HEAD(&wqe->wait.entry);
++		wqe->wait.func = io_wqe_hash_wake;
++		for (i = 0; i < IO_WQ_ACCT_NR; i++) {
++			struct io_wqe_acct *acct = &wqe->acct[i];
++
++			acct->index = i;
++			atomic_set(&acct->nr_running, 0);
++			INIT_WQ_LIST(&acct->work_list);
++		}
+ 		wqe->wq = wq;
+ 		raw_spin_lock_init(&wqe->lock);
+-		INIT_WQ_LIST(&wqe->work_list);
+ 		INIT_HLIST_NULLS_HEAD(&wqe->free_list, 0);
+ 		INIT_LIST_HEAD(&wqe->all_list);
+ 	}
+-- 
+2.34.0
+
+
+--------------808A073775A4081ECB9B4918--
