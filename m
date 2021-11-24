@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8699345BB0B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:13:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1444945B99E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:01:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243092AbhKXMPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
+        id S241930AbhKXMDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:03:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243590AbhKXMOR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:14:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10C2A61167;
-        Wed, 24 Nov 2021 12:09:21 +0000 (UTC)
+        id S241880AbhKXMD0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:03:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E41E600EF;
+        Wed, 24 Nov 2021 12:00:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755762;
-        bh=SyIgJonikiJt1EbgWGSy0aJla4w6QQhUYei9Rg5Nsog=;
+        s=korg; t=1637755217;
+        bh=CSnFPTXe4NL97Uz+GIvfszQ2cxP8rajF35gfNCvRN+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K1BVks9WFzo2ANXz9C8Fwdnib9zWjN4R5MtWO9TfLTVB/YIJ6FjydlrYCfxQiQYkI
-         Z7fJnG4OtzLQeZxG4vgUJIeuWxoJ40I4gWRJ4s/MzpQfQnni8MctQ2utqHDX/H9EYe
-         jPG67nfjZTWQocVeeh8Zuq2dghCN0ZP4uW6QHaVg=
+        b=W6wa1Itgmz0JfPwJr6JsuYGgl8IWtQqaMqs9qHmt0PdqjQG7U1XqCBq3tr43UJ5Qp
+         HV20RLXZCnJhvOB8aUP4kZ5hOAtD5B0z3shVrbuCyMcYZC+QYt2/ewmwnJkUqSOi0h
+         w2ZJLSb001Rev+SbA4/qAILraX4iNkCBwtporpz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 4.9 047/207] serial: core: Fix initializing and restoring termios speed
+        stable@vger.kernel.org, Wang Wensheng <wangwensheng4@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 015/162] ALSA: timer: Fix use-after-free problem
 Date:   Wed, 24 Nov 2021 12:55:18 +0100
-Message-Id: <20211124115705.457220783@linuxfoundation.org>
+Message-Id: <20211124115658.819548980@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,108 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Wang Wensheng <wangwensheng4@huawei.com>
 
-commit 027b57170bf8bb6999a28e4a5f3d78bf1db0f90c upstream.
+commit c0317c0e87094f5b5782b6fdef5ae0a4b150496c upstream.
 
-Since commit edc6afc54968 ("tty: switch to ktermios and new framework")
-termios speed is no longer stored only in c_cflag member but also in new
-additional c_ispeed and c_ospeed members. If BOTHER flag is set in c_cflag
-then termios speed is stored only in these new members.
+When the timer instance was add into ack_list but was not currently in
+process, the user could stop it via snd_timer_stop1() without delete it
+from the ack_list. Then the user could free the timer instance and when
+it was actually processed UAF occurred.
 
-Therefore to correctly restore termios speed it is required to store also
-ispeed and ospeed members, not only cflag member.
+This issue could be reproduced via testcase snd_timer01 in ltp - running
+several instances of that testcase at the same time.
 
-In case only cflag member with BOTHER flag is restored then functions
-tty_termios_baud_rate() and tty_termios_input_baud_rate() returns baudrate
-stored in c_ospeed / c_ispeed member, which is zero as it was not restored
-too. If reported baudrate is invalid (e.g. zero) then serial core functions
-report fallback baudrate value 9600. So it means that in this case original
-baudrate is lost and kernel changes it to value 9600.
+What I actually met was that the ack_list of the timer broken and the
+kernel went into deadloop with irqoff. That could be detected by
+hardlockup detector on board or when we run it on qemu, we could use gdb
+to dump the ack_list when the console has no response.
 
-Simple reproducer of this issue is to boot kernel with following command
-line argument: "console=ttyXXX,86400" (where ttyXXX is the device name).
-For speed 86400 there is no Bnnn constant and therefore kernel has to
-represent this speed via BOTHER c_cflag. Which means that speed is stored
-only in c_ospeed and c_ispeed members, not in c_cflag anymore.
+To fix this issue, we delete the timer instance from ack_list and
+active_list unconditionally in snd_timer_stop1().
 
-If bootloader correctly configures serial device to speed 86400 then kernel
-prints boot log to early console at speed speed 86400 without any issue.
-But after kernel starts initializing real console device ttyXXX then speed
-is changed to fallback value 9600 because information about speed was lost.
-
-This patch fixes above issue by storing and restoring also ispeed and
-ospeed members, which are required for BOTHER flag.
-
-Fixes: edc6afc54968 ("[PATCH] tty: switch to ktermios and new framework")
-Cc: stable@vger.kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20211002130900.9518-1-pali@kernel.org
+Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211103033517.80531-1-wangwensheng4@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/serial_core.c |   16 ++++++++++++++--
- include/linux/console.h          |    2 ++
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ sound/core/timer.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -209,7 +209,11 @@ static int uart_port_startup(struct tty_
- 	if (retval == 0) {
- 		if (uart_console(uport) && uport->cons->cflag) {
- 			tty->termios.c_cflag = uport->cons->cflag;
-+			tty->termios.c_ispeed = uport->cons->ispeed;
-+			tty->termios.c_ospeed = uport->cons->ospeed;
- 			uport->cons->cflag = 0;
-+			uport->cons->ispeed = 0;
-+			uport->cons->ospeed = 0;
- 		}
- 		/*
- 		 * Initialise the hardware port settings.
-@@ -277,8 +281,11 @@ static void uart_shutdown(struct tty_str
- 		/*
- 		 * Turn off DTR and RTS early.
- 		 */
--		if (uport && uart_console(uport) && tty)
-+		if (uport && uart_console(uport) && tty) {
- 			uport->cons->cflag = tty->termios.c_cflag;
-+			uport->cons->ispeed = tty->termios.c_ispeed;
-+			uport->cons->ospeed = tty->termios.c_ospeed;
-+		}
- 
- 		if (!tty || C_HUPCL(tty))
- 			uart_clear_mctrl(uport, TIOCM_DTR | TIOCM_RTS);
-@@ -2059,8 +2066,11 @@ uart_set_options(struct uart_port *port,
- 	 * Allow the setting of the UART parameters with a NULL console
- 	 * too:
- 	 */
--	if (co)
-+	if (co) {
- 		co->cflag = termios.c_cflag;
-+		co->ispeed = termios.c_ispeed;
-+		co->ospeed = termios.c_ospeed;
-+	}
- 
- 	return 0;
- }
-@@ -2198,6 +2208,8 @@ int uart_resume_port(struct uart_driver
- 		 */
- 		memset(&termios, 0, sizeof(struct ktermios));
- 		termios.c_cflag = uport->cons->cflag;
-+		termios.c_ispeed = uport->cons->ispeed;
-+		termios.c_ospeed = uport->cons->ospeed;
- 
- 		/*
- 		 * If that's unset, use the tty termios setting.
---- a/include/linux/console.h
-+++ b/include/linux/console.h
-@@ -135,6 +135,8 @@ struct console {
- 	short	flags;
- 	short	index;
- 	int	cflag;
-+	uint	ispeed;
-+	uint	ospeed;
- 	void	*data;
- 	struct	 console *next;
- };
+--- a/sound/core/timer.c
++++ b/sound/core/timer.c
+@@ -525,13 +525,13 @@ static int snd_timer_stop1(struct snd_ti
+ 	if (!timer)
+ 		return -EINVAL;
+ 	spin_lock_irqsave(&timer->lock, flags);
++	list_del_init(&timeri->ack_list);
++	list_del_init(&timeri->active_list);
+ 	if (!(timeri->flags & (SNDRV_TIMER_IFLG_RUNNING |
+ 			       SNDRV_TIMER_IFLG_START))) {
+ 		result = -EBUSY;
+ 		goto unlock;
+ 	}
+-	list_del_init(&timeri->ack_list);
+-	list_del_init(&timeri->active_list);
+ 	if (timer->card && timer->card->shutdown)
+ 		goto unlock;
+ 	if (stop) {
 
 
