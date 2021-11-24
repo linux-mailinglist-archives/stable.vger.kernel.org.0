@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF89145BC00
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF0E45BE84
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:46:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243397AbhKXMZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38016 "EHLO mail.kernel.org"
+        id S1344459AbhKXMrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:47:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244451AbhKXMXe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:23:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE3F96109D;
-        Wed, 24 Nov 2021 12:14:06 +0000 (UTC)
+        id S1344741AbhKXMph (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:45:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED2A461423;
+        Wed, 24 Nov 2021 12:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756047;
-        bh=tFGTaT77JZFxI/VUzBar6Lpl+pYtrphfByvjZPpwnog=;
+        s=korg; t=1637756803;
+        bh=giHqpNyX+dk2PKGM51L2xyWTRFUxP4xdrgQf0Sm6jGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jdx+D7hwq8oFGhPNLoHqIA4JqRWkHdyPgKeM10gQfnNAylVumBwGyDVH5FDd6BTUa
-         MJBVSvWbAfcT2piP6+iDrwxO+xRYn02wMwenlmZwHOEeOhezKrbZWXLqs+RcgDQiPa
-         Z/VzmZ04TFP5r1jH9oW2uMziNwJ/5I3uUDIjg8/w=
+        b=TDwC2Bij6LyS7WKJPPpmtrNUcUg5vCuzhhVfMk+g+HoIZ2sHPM/oVQzGAZ7NDPYz0
+         uRwavJc5J4VTnxsj7e3nKUsUycMbye+5ZZTK5FNyuhnhRvSAORYiDaB6m9SiDAmt0c
+         zsNfoT1bb7KTHsVE4v9zeS/7FR+jTI2UoAqFj2Gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 151/207] vsock: prevent unnecessary refcnt inc for nonblocking connect
+Subject: [PATCH 4.14 180/251] net: davinci_emac: Fix interrupt pacing disable
 Date:   Wed, 24 Nov 2021 12:57:02 +0100
-Message-Id: <20211124115708.901588208@linuxfoundation.org>
+Message-Id: <20211124115716.514310593@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-[ Upstream commit c7cd82b90599fa10915f41e3dd9098a77d0aa7b6 ]
+[ Upstream commit d52bcb47bdf971a59a2467975d2405fcfcb2fa19 ]
 
-Currently vosck_connect() increments sock refcount for nonblocking
-socket each time it's called, which can lead to memory leak if
-it's called multiple times because connect timeout function decrements
-sock refcount only once.
+This patch allows to use 0 for `coal->rx_coalesce_usecs` param to
+disable rx irq coalescing.
 
-Fixes it by making vsock_connect() return -EALREADY immediately when
-sock state is already SS_CONNECTING.
+Previously we could enable rx irq coalescing via ethtool
+(For ex: `ethtool -C eth0 rx-usecs 2000`) but we couldn't disable
+it because this part rejects 0 value:
 
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+       if (!coal->rx_coalesce_usecs)
+               return -EINVAL;
+
+Fixes: 84da2658a619 ("TI DaVinci EMAC : Implement interrupt pacing functionality.")
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Link: https://lore.kernel.org/r/20211101152343.4193233-1-bigunclemax@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/ti/davinci_emac.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 2fecdfe49bae3..95470d628d34b 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1173,6 +1173,8 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
- 		 * non-blocking call.
- 		 */
- 		err = -EALREADY;
-+		if (flags & O_NONBLOCK)
-+			goto out;
- 		break;
- 	default:
- 		if ((sk->sk_state == VSOCK_SS_LISTEN) ||
+diff --git a/drivers/net/ethernet/ti/davinci_emac.c b/drivers/net/ethernet/ti/davinci_emac.c
+index e1ee9da38df7e..da536385075aa 100644
+--- a/drivers/net/ethernet/ti/davinci_emac.c
++++ b/drivers/net/ethernet/ti/davinci_emac.c
+@@ -426,8 +426,20 @@ static int emac_set_coalesce(struct net_device *ndev,
+ 	u32 int_ctrl, num_interrupts = 0;
+ 	u32 prescale = 0, addnl_dvdr = 1, coal_intvl = 0;
+ 
+-	if (!coal->rx_coalesce_usecs)
+-		return -EINVAL;
++	if (!coal->rx_coalesce_usecs) {
++		priv->coal_intvl = 0;
++
++		switch (priv->version) {
++		case EMAC_VERSION_2:
++			emac_ctrl_write(EMAC_DM646X_CMINTCTRL, 0);
++			break;
++		default:
++			emac_ctrl_write(EMAC_CTRL_EWINTTCNT, 0);
++			break;
++		}
++
++		return 0;
++	}
+ 
+ 	coal_intvl = coal->rx_coalesce_usecs;
+ 
 -- 
 2.33.0
 
