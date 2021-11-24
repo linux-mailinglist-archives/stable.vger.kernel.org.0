@@ -2,106 +2,221 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DF5545B3B6
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 06:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68D1445B3BE
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 06:11:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229499AbhKXFHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 00:07:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36226 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229482AbhKXFH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 00:07:29 -0500
-Received: from mail-ua1-x935.google.com (mail-ua1-x935.google.com [IPv6:2607:f8b0:4864:20::935])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B83B8C061574;
-        Tue, 23 Nov 2021 21:04:20 -0800 (PST)
-Received: by mail-ua1-x935.google.com with SMTP id n6so2590537uak.1;
-        Tue, 23 Nov 2021 21:04:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=DLu60VdNpOFl5EO9/7C3ti11HMjzdJ7VrkBrvpessEs=;
-        b=ZmpBtOKZ968zAOt4BZ3YTiTNXpcuA4vuSgMYfs3hRqd2RroaG/un059x910LRziuNj
-         Yjdsxh5uh1uWdO7Az80NOO7vTn0nf6gDRSGfln6Mjys8RMvJuuwhkfKwD/KsQlvlaoub
-         3s/KuLvkErcTLl9meacZmroxC5ccsd0+8MEiKS3+TVoCCAJnrmAydYTxMfTsR9tIswfs
-         DZYh2XMuCmlkhIIkG0UHOCRNt6dqVSGlzIs4D/QOMq1MTnOxPLTX2T/AC21hj7vahbZG
-         gua+qo0wJDJZZU7Dc2yDXrqmTvHcSXKeNr59vu/MAu2fbGZf5aYswBF0mbZOl12h2DEd
-         Ceqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=DLu60VdNpOFl5EO9/7C3ti11HMjzdJ7VrkBrvpessEs=;
-        b=xmJnM4i6CzOGhpwaktGUBB9pkaUhM7AEToFVOAFM7pWlGBa3XyqfGbcicle3sJevwr
-         yiIcvxi2iCymF2g1/VuXqzC2OeRLIshSinhXaeRT14n9ivV2hdqqgV+EbsNoULR9tLOs
-         u8D4+O1ZIOw9YDVq4zFPvSR7FFCSwm9p+ykN764COSohMk5Y9YcFafwKppzeDTgJ65DD
-         4iaQHnVHs3SmmCwUn5le4s2TXwhPjnFLQxXBUw9eNW4ZaAsSaZQsjGHPWyQ98n4aa1o3
-         Wwq175LX+DwnZUK/P+VQ9HJKRxf4OdHStTs0dsa2WnayvmeD3yfaK7qAqz8jaJoDJ1VV
-         UlFg==
-X-Gm-Message-State: AOAM533NDrgJ/PcGXwx/iABUDFLvEcKJXLcnMP++KVYHynyr2TL2QcP2
-        SEmHlNmzoPkoWMpCoas7rEOp71OMsJQPRKewv00jUd8Dw88=
-X-Google-Smtp-Source: ABdhPJwOnnT724UYAqiDlX6LuZAkXcfixTfv9zwkx8MH9wn1QQ8mMrl0B8HNAKS5eWTEQzwmhH1CNJHCvxoBaKesjmg=
-X-Received: by 2002:ab0:4465:: with SMTP id m92mr5493316uam.47.1637730259696;
- Tue, 23 Nov 2021 21:04:19 -0800 (PST)
+        id S229555AbhKXFOw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 00:14:52 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:53734 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229482AbhKXFOv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 00:14:51 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 640F41FD37;
+        Wed, 24 Nov 2021 05:11:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1637730701; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=4bewt07Nn8devyRr1m4C78ZgxUFTlBUyZDqP1VULo3s=;
+        b=RY8s+KIIzuLwSFlUORNHPsA/U6zRSyBTrYRRuFIavzy4nq/FyvYoOjtNEhmJ6N80xRS8R5
+        BXAmHlrKnBVWSBDw68jHcVir91CrvWGSs83Pi3nWo557s+EVPbvYadr6gbJ8JP9UC5mGjb
+        Jh6nVEF/G1lBXVsUSwnshrDqW+PP6OA=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 2C9CE13EC2;
+        Wed, 24 Nov 2021 05:11:41 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id hwtCCY3JnWF4ZQAAMHmgww
+        (envelope-from <jgross@suse.com>); Wed, 24 Nov 2021 05:11:41 +0000
+Subject: Re: [PATCH v4] xen: detect uninitialized xenbus in xenbus_init
+To:     Stefano Stabellini <sstabellini@kernel.org>
+Cc:     boris.ostrovsky@oracle.com, xen-devel@lists.xenproject.org,
+        linux-kernel@vger.kernel.org, jbeulich@suse.com,
+        Stefano Stabellini <stefano.stabellini@xilinx.com>,
+        stable@vger.kernel.org
+References: <20211123210748.1910236-1-sstabellini@kernel.org>
+From:   Juergen Gross <jgross@suse.com>
+Message-ID: <b7e7ea7f-f08a-61b4-8980-757470d50b55@suse.com>
+Date:   Wed, 24 Nov 2021 06:11:40 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-References: <20211124014511.12510-1-linkinjeon@kernel.org>
-In-Reply-To: <20211124014511.12510-1-linkinjeon@kernel.org>
-From:   Hyunchul Lee <hyc.lee@gmail.com>
-Date:   Wed, 24 Nov 2021 14:04:08 +0900
-Message-ID: <CANFS6baukT-PLGj2gdJajmTM=mP=2tRi2Ef=KP56zhYxEcPtTQ@mail.gmail.com>
-Subject: Re: [PATCH] ksmbd: fix memleak in get_file_stream_info()
-To:     Namjae Jeon <linkinjeon@kernel.org>
-Cc:     linux-cifs <linux-cifs@vger.kernel.org>, stable@vger.kernel.org,
-        Coverity Scan <scan-admin@coverity.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20211123210748.1910236-1-sstabellini@kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="aJA5RZ5toJwqVz2G9rOvSw0xcuhrcHCY1"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-2021=EB=85=84 11=EC=9B=94 24=EC=9D=BC (=EC=88=98) =EC=98=A4=ED=9B=84 1:46, =
-Namjae Jeon <linkinjeon@kernel.org>=EB=8B=98=EC=9D=B4 =EC=9E=91=EC=84=B1:
->
-> Fix memleak in get_file_stream_info()
->
-> Fixes: 34061d6b76a4 ("ksmbd: validate OutputBufferLength of QUERY_DIR, QU=
-ERY_INFO, IOCTL requests")
-> Cc: stable@vger.kernel.org # v5.15
-> Reported-by: Coverity Scan <scan-admin@coverity.com>
-> Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-> ---
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--aJA5RZ5toJwqVz2G9rOvSw0xcuhrcHCY1
+Content-Type: multipart/mixed; boundary="Ns8snLW1kN0xBnRuYJOXOP7mLlTcLo22F";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Stefano Stabellini <sstabellini@kernel.org>
+Cc: boris.ostrovsky@oracle.com, xen-devel@lists.xenproject.org,
+ linux-kernel@vger.kernel.org, jbeulich@suse.com,
+ Stefano Stabellini <stefano.stabellini@xilinx.com>, stable@vger.kernel.org
+Message-ID: <b7e7ea7f-f08a-61b4-8980-757470d50b55@suse.com>
+Subject: Re: [PATCH v4] xen: detect uninitialized xenbus in xenbus_init
+References: <20211123210748.1910236-1-sstabellini@kernel.org>
+In-Reply-To: <20211123210748.1910236-1-sstabellini@kernel.org>
 
-Acked-by: Hyunchul Lee <hyc.lee@gmail.com>
+--Ns8snLW1kN0xBnRuYJOXOP7mLlTcLo22F
+Content-Type: multipart/mixed;
+ boundary="------------061B0C4405AEAC3907F4670A"
+Content-Language: en-US
 
->  fs/ksmbd/smb2pdu.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-> index 2067d5bab1b0..c70972b49da8 100644
-> --- a/fs/ksmbd/smb2pdu.c
-> +++ b/fs/ksmbd/smb2pdu.c
-> @@ -4496,8 +4496,10 @@ static void get_file_stream_info(struct ksmbd_work=
- *work,
->                                      ":%s", &stream_name[XATTR_NAME_STREA=
-M_LEN]);
->
->                 next =3D sizeof(struct smb2_file_stream_info) + streamlen=
- * 2;
-> -               if (next > buf_free_len)
-> +               if (next > buf_free_len) {
-> +                       kfree(stream_buf);
->                         break;
-> +               }
->
->                 file_info =3D (struct smb2_file_stream_info *)&rsp->Buffe=
-r[nbytes];
->                 streamlen  =3D smbConvertToUTF16((__le16 *)file_info->Str=
-eamName,
-> --
-> 2.25.1
->
+This is a multi-part message in MIME format.
+--------------061B0C4405AEAC3907F4670A
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+
+On 23.11.21 22:07, Stefano Stabellini wrote:
+> From: Stefano Stabellini <stefano.stabellini@xilinx.com>
+>=20
+> If the xenstore page hasn't been allocated properly, reading the value
+> of the related hvm_param (HVM_PARAM_STORE_PFN) won't actually return
+> error. Instead, it will succeed and return zero. Instead of attempting
+> to xen_remap a bad guest physical address, detect this condition and
+> return early.
+>=20
+> Note that although a guest physical address of zero for
+> HVM_PARAM_STORE_PFN is theoretically possible, it is not a good choice
+> and zero has never been validly used in that capacity.
+>=20
+> Also recognize all bits set as an invalid value.
+>=20
+> For 32-bit Linux, any pfn above ULONG_MAX would get truncated. Pfns
+> above ULONG_MAX should never be passed by the Xen tools to HVM guests
+> anyway, so check for this condition and return early.
+>=20
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
+
+Reviewed-by: Juergen Gross <jgross@suse.com>
 
 
---=20
-Thanks,
-Hyunchul
+Juergen
+
+--------------061B0C4405AEAC3907F4670A
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: OpenPGP public key
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------061B0C4405AEAC3907F4670A--
+
+--Ns8snLW1kN0xBnRuYJOXOP7mLlTcLo22F--
+
+--aJA5RZ5toJwqVz2G9rOvSw0xcuhrcHCY1
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmGdyYwFAwAAAAAACgkQsN6d1ii/Ey9t
+9Af7BryVncllwJue+nkoKn5NECVjU0Z44G781fGbdEHgIB7/eYJMt6NDHSb8XWunirVHpM/LV/+G
+gkH10AtqDxFl8SCTiMNbMLMkhawOQ7StJyWestPcY8f5OD0wsdBHlfz6RwzeGMQIcpDtIcmhBxKu
+bJ8CkZTqs5ufX54QRt5ft9CpDpwEyoZ5fvcsYkGE7XMkjpT80Dk5UN7OzWJ8XGA8nGsU6/NQHuOw
+NA6A5GGHbx6A6dbOs0hHMA/b6FcO4PGL3CoxP5OYrfGvDJIDRrlxxBSd9J2R1V2JtaiP1CtFG+Mm
+Md2QNnTzS6tbvVgwFhI0Iy04Ak6btVckua45ur/Y3w==
+=sr4U
+-----END PGP SIGNATURE-----
+
+--aJA5RZ5toJwqVz2G9rOvSw0xcuhrcHCY1--
