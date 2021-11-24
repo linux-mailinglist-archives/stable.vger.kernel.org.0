@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1921145C3DC
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D577345C63C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:03:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348576AbhKXNo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:44:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32918 "EHLO mail.kernel.org"
+        id S1351943AbhKXOGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:06:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353381AbhKXNmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:42:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A80163245;
-        Wed, 24 Nov 2021 12:57:59 +0000 (UTC)
+        id S1356456AbhKXOEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:04:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1861A61A7F;
+        Wed, 24 Nov 2021 13:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758680;
-        bh=dtjZJbxr3hLbtzNJc9/6bVILUTPwX5vFAIYsC7SVm6Q=;
+        s=korg; t=1637759461;
+        bh=Bt+q9YLteaeVPTPzih/fySnXKnrWJVSHrvYFctOy03E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CEzBUDkpXvhWcppnP5Lh8Z0nr+0O28BEnqIaP3cpUQx5b7Y2+CCj0OSz/ZiH9439M
-         eUpHen7e0f4TrFLWsOYhBDZOG/QukJG6ZkC7pNsMLnwJU7+OWVewyfQdJy3hXNnncg
-         Rm/g1mVbhtiodghe/zLgZ/RSfjiJOuiLxkkktaTs=
+        b=eTotsOh0NrFebrW8R0XUMvXIFvrgbS0wlapp3grscORToyBeCOM4J1xXZ/MuZqFD6
+         wqXvhv/XPRyZCKaNQaHOVN+H4kw7rN1x/fBZVI80/3AjzMKnuf+wbk37kAYRZ2qetE
+         viO1ZHKcx4qW4VPPmeVwIM7kHG9uNlpHT8YfO0hQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jeremy Cline <jcline@redhat.com>,
         Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
         Karol Herbst <kherbst@redhat.com>
-Subject: [PATCH 5.10 141/154] drm/nouveau: clean up all clients on device removal
+Subject: [PATCH 5.15 250/279] drm/nouveau: clean up all clients on device removal
 Date:   Wed, 24 Nov 2021 12:58:57 +0100
-Message-Id: <20211124115707.050459844@linuxfoundation.org>
+Message-Id: <20211124115727.369121110@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -85,7 +85,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/gpu/drm/nouveau/nouveau_drm.c
 +++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
-@@ -628,6 +628,7 @@ fail_alloc:
+@@ -633,6 +633,7 @@ fail_alloc:
  static void
  nouveau_drm_device_fini(struct drm_device *dev)
  {
@@ -93,7 +93,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	struct nouveau_drm *drm = nouveau_drm(dev);
  
  	if (nouveau_pmops_runtime()) {
-@@ -652,6 +653,24 @@ nouveau_drm_device_fini(struct drm_devic
+@@ -657,6 +658,24 @@ nouveau_drm_device_fini(struct drm_devic
  	nouveau_ttm_fini(drm);
  	nouveau_vga_fini(drm);
  
@@ -118,7 +118,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	nouveau_cli_fini(&drm->client);
  	nouveau_cli_fini(&drm->master);
  	nvif_parent_dtor(&drm->parent);
-@@ -1108,6 +1127,16 @@ nouveau_drm_postclose(struct drm_device
+@@ -1112,6 +1131,16 @@ nouveau_drm_postclose(struct drm_device
  {
  	struct nouveau_cli *cli = nouveau_cli(fpriv);
  	struct nouveau_drm *drm = nouveau_drm(dev);
@@ -135,7 +135,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	pm_runtime_get_sync(dev->dev);
  
-@@ -1124,6 +1153,7 @@ nouveau_drm_postclose(struct drm_device
+@@ -1128,6 +1157,7 @@ nouveau_drm_postclose(struct drm_device
  	kfree(cli);
  	pm_runtime_mark_last_busy(dev->dev);
  	pm_runtime_put_autosuspend(dev->dev);
