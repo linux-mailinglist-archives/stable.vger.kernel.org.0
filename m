@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1E5D45C67F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 155D545C681
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:07:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351974AbhKXOKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:10:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55246 "EHLO mail.kernel.org"
+        id S1352280AbhKXOKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:10:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354173AbhKXOGX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1354169AbhKXOGX (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 09:06:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CBC06340B;
-        Wed, 24 Nov 2021 13:12:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3936F61215;
+        Wed, 24 Nov 2021 13:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759532;
-        bh=7FTQ8/gxlvbvrFJTGtkteEtqdzdALgYlyljQb25Qd2I=;
+        s=korg; t=1637759535;
+        bh=zzSW0xQXM86OxivIEd5k1n4tau/wo13mnGujFeeRgIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mUJgnhKoEBT1SWvb+0ELV4wW/5YFmIaL5U75A5g5EkL+IzEvtSLylUStlROM+snrK
-         80kHo/e5NbSpFwS44hsDQvztZRB6PFOloOOM/k8iKffbmyLVHTfhiSqhQ9lFlHExNA
-         h1icbYR7GSU0b8qZF8mL1knwGZA3+1NrJWpSZEr4=
+        b=lIGZ+mtgnmmdnL2QTYxEw2tygUzFWGARX3lNSUrjKFKTf59/5yVckJwto2Nfkzobi
+         lPILjr1sXQmT5KpnYRzS/ugw4SjGZVGM9atGKk4FmMQFb2dGr73PRHd1SchM/7s4XS
+         neC/TThKBSArHYS5bb4DQOm6gBJL0N9JryyxFtEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 272/279] ASoC: rsnd: fixup DMAEngine API
-Date:   Wed, 24 Nov 2021 12:59:19 +0100
-Message-Id: <20211124115728.079201649@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 5.15 273/279] usb: max-3421: Use driver data instead of maintaining a list of bound devices
+Date:   Wed, 24 Nov 2021 12:59:20 +0100
+Message-Id: <20211124115728.119498354@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
 References: <20211124115718.776172708@linuxfoundation.org>
@@ -42,66 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-commit 2ce1b21cb3326e12af3c72c47e1d294b19d73947 upstream.
+commit fc153aba3ef371d0d76eb88230ed4e0dee5b38f2 upstream.
 
-commit d5bb69dc54ec1 ("ASoC: sh: rcar: dma: : use proper DMAENGINE
-API for termination") updated DMAEngine API _all() to _sync(),
-but it should be _async().
-_all() and _async() are almost same, the difference is only return
-error code. _sync() will call dmaengine_synchronize() and will be
-kernel panic.
-This patch is needed for v5.15 or later.
+Instead of maintaining a single-linked list of devices that must be
+searched linearly in .remove() just use spi_set_drvdata() to remember the
+link between the spi device and the driver struct. Then the global list
+and the next member can be dropped.
 
-[   27.293264] BUG: scheduling while atomic: irq/130-ec70000/131/0x00000003
-[   27.300084] 2 locks held by irq/130-ec70000/131:
-[   27.304743]  #0: ffff0004c274d908 (&group->lock){....}-{2:2}, at: _snd_pcm_stream_lock_irqsave+0x48/0x54
-[   27.314344]  #1: ffff0004c1788c60 (&priv->lock#2){....}-{2:2}, at: rsnd_soc_dai_trigger+0x70/0x7bc
-[   27.323409] irq event stamp: 206
-[   27.326664] hardirqs last  enabled at (205): [<ffff80001082de50>] _raw_spin_unlock_irq+0x50/0xa0
-[   27.335529] hardirqs last disabled at (206): [<ffff80001082d9e4>] _raw_spin_lock_irqsave+0xc4/0xd0
-[   27.344564] softirqs last  enabled at (0): [<ffff800010037324>] copy_process+0x644/0x1b10
-[   27.352819] softirqs last disabled at (0): [<0000000000000000>] 0x0
-[   27.359142] CPU: 0 PID: 131 Comm: irq/130-ec70000 Not tainted 5.14.0-rc1+ #918
-[   27.366429] Hardware name: Renesas H3ULCB Kingfisher board based on r8a77950 (DT)
-[   27.373975] Call trace:
-[   27.376442]  dump_backtrace+0x0/0x1b4
-[   27.380141]  show_stack+0x24/0x30
-[   27.383488]  dump_stack_lvl+0x8c/0xb8
-[   27.387184]  dump_stack+0x18/0x34
-[   27.390528]  __schedule_bug+0x8c/0x9c
-[   27.394224]  __schedule+0x790/0x8dc
-[   27.397746]  schedule+0x7c/0x110
-[   27.401003]  synchronize_irq+0x94/0xd0
-[   27.404786]  rcar_dmac_device_synchronize+0x20/0x2c
-[   27.409710]  rsnd_dmaen_stop+0x50/0x64
-[   27.413495]  rsnd_soc_dai_trigger+0x554/0x7bc
-[   27.417890]  snd_soc_pcm_dai_trigger+0xe8/0x264
+This simplifies the driver, reduces the memory footprint and the time to
+search the list. Also it makes obvious that there is always a corresponding
+driver struct for a given device in .remove(), so the error path for
+!max3421_hcd can be dropped, too.
 
-Cc: <stable@kernel.org>
-Fixes: commit d5bb69dc54ec1 ("ASoC: sh: rcar: dma: : use proper DMAENGINE API for termination")
-Link: https://lore.kernel.org/r/TY2PR01MB3692889E1A7476C4322CC296D8AE9@TY2PR01MB3692.jpnprd01.prod.outlook.com
-Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87mtmfz36o.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+As a side effect this fixes a data inconsistency when .probe() races with
+itself for a second max3421 device in manipulating max3421_hcd_list. A
+similar race is fixed in .remove(), too.
+
+Fixes: 2d53139f3162 ("Add support for using a MAX3421E chip as a host driver.")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20211018204028.2914597-1-u.kleine-koenig@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sh/rcar/dma.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/max3421-hcd.c |   25 +++++--------------------
+ 1 file changed, 5 insertions(+), 20 deletions(-)
 
---- a/sound/soc/sh/rcar/dma.c
-+++ b/sound/soc/sh/rcar/dma.c
-@@ -102,7 +102,7 @@ static int rsnd_dmaen_stop(struct rsnd_m
- 	struct rsnd_dmaen *dmaen = rsnd_dma_to_dmaen(dma);
+--- a/drivers/usb/host/max3421-hcd.c
++++ b/drivers/usb/host/max3421-hcd.c
+@@ -125,8 +125,6 @@ struct max3421_hcd {
  
- 	if (dmaen->chan)
--		dmaengine_terminate_sync(dmaen->chan);
-+		dmaengine_terminate_async(dmaen->chan);
+ 	struct task_struct *spi_thread;
  
- 	return 0;
- }
+-	struct max3421_hcd *next;
+-
+ 	enum max3421_rh_state rh_state;
+ 	/* lower 16 bits contain port status, upper 16 bits the change mask: */
+ 	u32 port_status;
+@@ -174,8 +172,6 @@ struct max3421_ep {
+ 	u8 retransmit;			/* packet needs retransmission */
+ };
+ 
+-static struct max3421_hcd *max3421_hcd_list;
+-
+ #define MAX3421_FIFO_SIZE	64
+ 
+ #define MAX3421_SPI_DIR_RD	0	/* read register from MAX3421 */
+@@ -1882,9 +1878,8 @@ max3421_probe(struct spi_device *spi)
+ 	}
+ 	set_bit(HCD_FLAG_POLL_RH, &hcd->flags);
+ 	max3421_hcd = hcd_to_max3421(hcd);
+-	max3421_hcd->next = max3421_hcd_list;
+-	max3421_hcd_list = max3421_hcd;
+ 	INIT_LIST_HEAD(&max3421_hcd->ep_list);
++	spi_set_drvdata(spi, max3421_hcd);
+ 
+ 	max3421_hcd->tx = kmalloc(sizeof(*max3421_hcd->tx), GFP_KERNEL);
+ 	if (!max3421_hcd->tx)
+@@ -1934,28 +1929,18 @@ error:
+ static int
+ max3421_remove(struct spi_device *spi)
+ {
+-	struct max3421_hcd *max3421_hcd = NULL, **prev;
+-	struct usb_hcd *hcd = NULL;
++	struct max3421_hcd *max3421_hcd;
++	struct usb_hcd *hcd;
+ 	unsigned long flags;
+ 
+-	for (prev = &max3421_hcd_list; *prev; prev = &(*prev)->next) {
+-		max3421_hcd = *prev;
+-		hcd = max3421_to_hcd(max3421_hcd);
+-		if (hcd->self.controller == &spi->dev)
+-			break;
+-	}
+-	if (!max3421_hcd) {
+-		dev_err(&spi->dev, "no MAX3421 HCD found for SPI device %p\n",
+-			spi);
+-		return -ENODEV;
+-	}
++	max3421_hcd = spi_get_drvdata(spi);
++	hcd = max3421_to_hcd(max3421_hcd);
+ 
+ 	usb_remove_hcd(hcd);
+ 
+ 	spin_lock_irqsave(&max3421_hcd->lock, flags);
+ 
+ 	kthread_stop(max3421_hcd->spi_thread);
+-	*prev = max3421_hcd->next;
+ 
+ 	spin_unlock_irqrestore(&max3421_hcd->lock, flags);
+ 
 
 
