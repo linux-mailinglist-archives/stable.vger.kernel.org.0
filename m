@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F0AA45C278
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:26:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D26245C3C4
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245313AbhKXN3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:29:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48368 "EHLO mail.kernel.org"
+        id S1350706AbhKXNmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:42:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344962AbhKXN0h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:26:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8455D61501;
-        Wed, 24 Nov 2021 12:50:00 +0000 (UTC)
+        id S1350380AbhKXNkG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:40:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 677C36137C;
+        Wed, 24 Nov 2021 12:57:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758201;
-        bh=wo7PaFGWPDRSDPvwVc1okJxngLoA5D51+yPFQnqM2OU=;
+        s=korg; t=1637758627;
+        bh=j6LmsfujTSsjvxghVRRp9C8OpB2/z36cdVI7ykD2Q6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t+GJ9LmGSpH0ogIkBqFB9iV0516a8XvYWBoXbNsKZ64PNR1b2N255XJZ34GX8tNk1
-         4kldM5Uax/VJlNa+VvEi9lKdryUms7u1TzC8sd1GjA2WbkRgTKzFyXGdliE3EIXa8c
-         wLrKV98GmW3ohW9+Cis6AqiUNHPHfYvMSMVVvVg4=
+        b=EveVTPhgggX2rZsU8STRQuHroTy9O8XkG6DAqu5uwt6zS/XVXUPceN6wH+VFkoCPP
+         y6zC9dPkXRBddw9C3aZBHycuqNSjnfIXLw2AKRPPWPbdCcCSSTvxXw0B94+7vZX/Ho
+         rKy75zOHK7YHARhfsiWa7X6C3qNpKryXUpuMji6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jordan Vrtanoski <jordan.vrtanoski@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Stefan Chulski <stefanc@marvell.com>,
-        Marcin Wojtas <mw@semihalf.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 091/100] Revert "net: mvpp2: disable force link UP during port init procedure"
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>
+Subject: [PATCH 5.10 131/154] KVM: nVMX: dont use vcpu->arch.efer when checking host state on nested state load
 Date:   Wed, 24 Nov 2021 12:58:47 +0100
-Message-Id: <20211124115657.793360445@linuxfoundation.org>
+Message-Id: <20211124115706.537355429@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +39,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-This reverts commit f595e44b161a3c751943c256b6de80dc57d5fcf8 which is
-commit 87508224485323ce2d4e7fb929ec80f51adcc238 upstream.
+commit af957eebfcc17433ee83ab85b1195a933ab5049c upstream.
 
-It causes reported problems so should be removed.
+When loading nested state, don't use check vcpu->arch.efer to get the
+L1 host's 64-bit vs. 32-bit state and don't check it for consistency
+with respect to VM_EXIT_HOST_ADDR_SPACE_SIZE, as register state in vCPU
+may be stale when KVM_SET_NESTED_STATE is called---and architecturally
+does not exist.  When restoring L2 state in KVM, the CPU is placed in
+non-root where nested VMX code has no snapshot of L1 host state: VMX
+(conditionally) loads host state fields loaded on VM-exit, but they need
+not correspond to the state before entry.  A simple case occurs in KVM
+itself, where the host RIP field points to vmx_vmexit rather than the
+instruction following vmlaunch/vmresume.
 
-Link: https://lore.kernel.org/r/YZv1SBrYTXmorcLJ@shell.armlinux.org.uk
-Reported-by: Jordan Vrtanoski <jordan.vrtanoski@gmail.com>
-Reported-by: Russell King <linux@armlinux.org.uk>
-Cc: Stefan Chulski <stefanc@marvell.com>
-Cc: Marcin Wojtas <mw@semihalf.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
+However, for the particular case of L1 being in 32- or 64-bit mode
+on entry, the exit controls can be treated instead as the source of
+truth regarding the state of L1 on entry, and can be used to check
+that vmcs12.VM_EXIT_HOST_ADDR_SPACE_SIZE matches vmcs12.HOST_EFER if
+vmcs12.VM_EXIT_LOAD_IA32_EFER is set.  The consistency check on CPU
+EFER vs. vmcs12.VM_EXIT_HOST_ADDR_SPACE_SIZE, instead, happens only
+on VM-Enter.  That's because, again, there's conceptually no "current"
+L1 EFER to check on KVM_SET_NESTED_STATE.
+
+Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20211115131837.195527-2-mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c |   14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
+ arch/x86/kvm/vmx/nested.c |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -4545,7 +4545,7 @@ static int mvpp2_port_init(struct mvpp2_
- 	struct mvpp2 *priv = port->priv;
- 	struct mvpp2_txq_pcpu *txq_pcpu;
- 	unsigned int thread;
--	int queue, err, val;
-+	int queue, err;
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2851,6 +2851,17 @@ static int nested_vmx_check_controls(str
+ 	return 0;
+ }
  
- 	/* Checks for hardware constraints */
- 	if (port->first_rxq + port->nrxqs >
-@@ -4559,18 +4559,6 @@ static int mvpp2_port_init(struct mvpp2_
- 	mvpp2_egress_disable(port);
- 	mvpp2_port_disable(port);
++static int nested_vmx_check_address_space_size(struct kvm_vcpu *vcpu,
++				       struct vmcs12 *vmcs12)
++{
++#ifdef CONFIG_X86_64
++	if (CC(!!(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE) !=
++		!!(vcpu->arch.efer & EFER_LMA)))
++		return -EINVAL;
++#endif
++	return 0;
++}
++
+ static int nested_vmx_check_host_state(struct kvm_vcpu *vcpu,
+ 				       struct vmcs12 *vmcs12)
+ {
+@@ -2875,18 +2886,16 @@ static int nested_vmx_check_host_state(s
+ 		return -EINVAL;
  
--	if (mvpp2_is_xlg(port->phy_interface)) {
--		val = readl(port->base + MVPP22_XLG_CTRL0_REG);
--		val &= ~MVPP22_XLG_CTRL0_FORCE_LINK_PASS;
--		val |= MVPP22_XLG_CTRL0_FORCE_LINK_DOWN;
--		writel(val, port->base + MVPP22_XLG_CTRL0_REG);
--	} else {
--		val = readl(port->base + MVPP2_GMAC_AUTONEG_CONFIG);
--		val &= ~MVPP2_GMAC_FORCE_LINK_PASS;
--		val |= MVPP2_GMAC_FORCE_LINK_DOWN;
--		writel(val, port->base + MVPP2_GMAC_AUTONEG_CONFIG);
--	}
--
- 	port->tx_time_coal = MVPP2_TXDONE_COAL_USEC;
+ #ifdef CONFIG_X86_64
+-	ia32e = !!(vcpu->arch.efer & EFER_LMA);
++	ia32e = !!(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE);
+ #else
+ 	ia32e = false;
+ #endif
  
- 	port->txqs = devm_kcalloc(dev, port->ntxqs, sizeof(*port->txqs),
+ 	if (ia32e) {
+-		if (CC(!(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE)) ||
+-		    CC(!(vmcs12->host_cr4 & X86_CR4_PAE)))
++		if (CC(!(vmcs12->host_cr4 & X86_CR4_PAE)))
+ 			return -EINVAL;
+ 	} else {
+-		if (CC(vmcs12->vm_exit_controls & VM_EXIT_HOST_ADDR_SPACE_SIZE) ||
+-		    CC(vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE) ||
++		if (CC(vmcs12->vm_entry_controls & VM_ENTRY_IA32E_MODE) ||
+ 		    CC(vmcs12->host_cr4 & X86_CR4_PCIDE) ||
+ 		    CC((vmcs12->host_rip) >> 32))
+ 			return -EINVAL;
+@@ -3555,6 +3564,9 @@ static int nested_vmx_run(struct kvm_vcp
+ 	if (nested_vmx_check_controls(vcpu, vmcs12))
+ 		return nested_vmx_fail(vcpu, VMXERR_ENTRY_INVALID_CONTROL_FIELD);
+ 
++	if (nested_vmx_check_address_space_size(vcpu, vmcs12))
++		return nested_vmx_fail(vcpu, VMXERR_ENTRY_INVALID_HOST_STATE_FIELD);
++
+ 	if (nested_vmx_check_host_state(vcpu, vmcs12))
+ 		return nested_vmx_fail(vcpu, VMXERR_ENTRY_INVALID_HOST_STATE_FIELD);
+ 
 
 
