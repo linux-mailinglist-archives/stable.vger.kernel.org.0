@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FA8B45C2B3
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:28:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D934045C540
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:53:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349660AbhKXNb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:31:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57704 "EHLO mail.kernel.org"
+        id S1353030AbhKXNzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:55:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351049AbhKXN3m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:29:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6571D61548;
-        Wed, 24 Nov 2021 12:51:52 +0000 (UTC)
+        id S1352030AbhKXNwy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:52:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93F1E63273;
+        Wed, 24 Nov 2021 13:05:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758313;
-        bh=8gin4xYFGZZvnvIufp+YTmpLpY//PfSLSiDa2pG5IrQ=;
+        s=korg; t=1637759113;
+        bh=29GL2qkkrAhf/3tt4guf60qRp+JD6OnSf+PZGy3yaPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1VJhCOsDwjwy+VvQjT1ZJPGbvmgYGragFTSOI9iRYyX1tRSBKMWQvCq5GWTSLjmGd
-         0h6CiM35Spd6uh4YS3N0YS7cHpEUi71nf1VwvAdlrs08G0xFkFJFLUwfEpUHaIErGB
-         A7MhEO3LbYCAjEnuzAjXdv8dTzR7La9BAAjrTNeA=
+        b=0eQWaa09PKuYWynV81J+sHi1Tgg/g/LCV/gCHUX/eKozRhYLLg0/TWj0WdtHh7vPZ
+         i9i7ZrpeN7ANuULWqeFyMIBKzzB7Lz3aOPmYYfnHCVlV7vF3fs/f84c3rTBeOw5hFu
+         trW5PEyENUwHgjAp/ZOsMJvn/ZIKcStYs3gNjgj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <bard.liao@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/154] ASoC: Intel: sof_sdw: add missing quirk for Dell SKU 0A45
+Subject: [PATCH 5.15 137/279] gpio: rockchip: needs GENERIC_IRQ_CHIP to fix build errors
 Date:   Wed, 24 Nov 2021 12:57:04 +0100
-Message-Id: <20211124115703.278367629@linuxfoundation.org>
+Message-Id: <20211124115723.522271135@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 64ba6d2ce72ffde70dc5a1794917bf1573203716 ]
+[ Upstream commit d6912b1251b47e6b04ea8c8881dfb35a6e7a3e29 ]
 
-This device is based on SDCA codecs but with a single amplifier
-instead of two.
+gpio-rockchip uses interfaces that are provided by the Kconfig
+symbol GENERIC_IRQ_CHIP, so the driver should select that symbol
+in order to prevent build errors.
 
-BugLink: https://github.com/thesofproject/linux/issues/3161
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20211004213512.220836-6-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes these build errors (and more):
+
+aarch64-linux-ld: drivers/gpio/gpio-rockchip.o: in function `rockchip_irq_disable':
+gpio-rockchip.c:(.text+0x454): undefined reference to `irq_gc_mask_set_bit'
+aarch64-linux-ld: drivers/gpio/gpio-rockchip.o: in function `rockchip_irq_enable':
+gpio-rockchip.c:(.text+0x478): undefined reference to `irq_gc_mask_clr_bit'
+aarch64-linux-ld: drivers/gpio/gpio-rockchip.o: in function `rockchip_interrupts_register':
+gpio-rockchip.c:(.text+0x518): undefined reference to `irq_generic_chip_ops'
+aarch64-linux-ld: gpio-rockchip.c:(.text+0x594): undefined reference to `__irq_alloc_domain_generic_chips'
+aarch64-linux-ld: gpio-rockchip.c:(.text+0x5cc): undefined reference to `irq_get_domain_generic_chip'
+aarch64-linux-ld: gpio-rockchip.c:(.text+0x5e0): undefined reference to `irq_gc_ack_set_bit'
+aarch64-linux-ld: gpio-rockchip.c:(.text+0x604): undefined reference to `irq_gc_set_wake'
+
+Fixes: 936ee2675eee ("gpio/rockchip: add driver for rockchip gpio")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpio/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 25548555d8d79..d9b864856be19 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -187,6 +187,16 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 					SOF_RT715_DAI_ID_FIX |
- 					SOF_SDW_FOUR_SPK),
- 	},
-+	{
-+		.callback = sof_sdw_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0A45")
-+		},
-+		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-+					RT711_JD2 |
-+					SOF_RT715_DAI_ID_FIX),
-+	},
- 	/* AlderLake devices */
- 	{
- 		.callback = sof_sdw_quirk_cb,
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index fae5141251e5d..947474f6abb45 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -523,6 +523,7 @@ config GPIO_REG
+ config GPIO_ROCKCHIP
+ 	tristate "Rockchip GPIO support"
+ 	depends on ARCH_ROCKCHIP || COMPILE_TEST
++	select GENERIC_IRQ_CHIP
+ 	select GPIOLIB_IRQCHIP
+ 	default ARCH_ROCKCHIP
+ 	help
 -- 
 2.33.0
 
