@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3889345C68F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1AC45C3DF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352429AbhKXOKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:10:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53616 "EHLO mail.kernel.org"
+        id S1349727AbhKXNoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:44:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354079AbhKXOGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:06:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0BA961A8A;
-        Wed, 24 Nov 2021 13:12:36 +0000 (UTC)
+        id S1344551AbhKXNmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:42:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B4E96328B;
+        Wed, 24 Nov 2021 12:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759557;
-        bh=TIJM1pxBBJ+mMUKMF2ObPNl1rqFzcxcbvLVor8dt0d4=;
+        s=korg; t=1637758694;
+        bh=sXOgTOAj1t81oWB7sL+Gbffblj/VmaIpUcgMltDWyd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ws+KyHC/HIWBwluhG7UmCw28zSyqEmLXos8rUGLxsnLqWEwLvGtGj6jRhAfrfxVH6
-         ODF7E3FKzSLRHrG6dInzzjk1Q40CsAyqvC6/4GTpQlSK3FlYo6Q1ciQx2/D/1dSi5b
-         LM97+iycXT8z4y9GFuossLJOeztmSoZ4t/q6848I=
+        b=iiZSQaQBl4a4NEDBCq6LY8CeQ4XYUeEBMlrVDXD7NLryBYeA3uHTbuNX1StdLHi+m
+         fj40MwjPDzMutRZYAhG9pBc4Qh53PLLeJXdKc9VRDXMkJUHkRlOEvs2Pd/AduqAA7m
+         a5n7BGFtYgZNozxRUyQ0WbS/+Zwwz52V8Q6/NbDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, H Peter Anvin <hpa@zytor.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Thomas Backlund <tmb@iki.fi>
-Subject: [PATCH 5.15 262/279] signal/vm86_32: Properly send SIGSEGV when the vm86 state cannot be saved.
-Date:   Wed, 24 Nov 2021 12:59:09 +0100
-Message-Id: <20211124115727.763428513@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 5.10 154/154] x86/Kconfig: Fix an unused variable error in dell-smm-hwmon
+Date:   Wed, 24 Nov 2021 12:59:10 +0100
+Message-Id: <20211124115707.456833096@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 1fbd60df8a852d9c55de8cd3621899cf4c72a5b7 upstream.
+commit ef775a0e36c6a81c5b07cb228c02f967133fe768 upstream.
 
-Update save_v86_state to always complete all of it's work except
-possibly some of the copies to userspace even if save_v86_state takes
-a fault.  This ensures that the kernel is always in a sane state, even
-if userspace has done something silly.
+When CONFIG_PROC_FS is not set, there is a build warning (turned
+into an error):
 
-When save_v86_state takes a fault update it to force userspace to take
-a SIGSEGV and terminate the userspace application.
+  ../drivers/hwmon/dell-smm-hwmon.c: In function 'i8k_init_procfs':
+  ../drivers/hwmon/dell-smm-hwmon.c:624:24: error: unused variable 'data' [-Werror=unused-variable]
+    struct dell_smm_data *data = dev_get_drvdata(dev);
 
-As Andy pointed out in review of the first version of this change
-there are races between sigaction and the application terinating.  Now
-that the code has been modified to always perform all save_v86_state's
-work (except possibly copying to userspace) those races do not matter
-from a kernel perspective.
+Make I8K depend on PROC_FS and HWMON (instead of selecting HWMON -- it
+is strongly preferred to not select entire subsystems).
 
-Forcing the userspace application to terminate (by resetting it's
-handler to SIGDFL) is there to keep everything as close to the current
-behavior as possible while removing the unique (and difficult to
-maintain) use of do_exit.
+Build tested in all possible combinations of SENSORS_DELL_SMM, I8K, and
+PROC_FS.
 
-If this new SIGSEGV happens during handle_signal the next time around
-the exit_to_user_mode_loop, SIGSEGV will be delivered to userspace.
-
-All of the callers of handle_vm86_trap and handle_vm86_fault run the
-exit_to_user_mode_loop before they return to userspace any signal sent
-to the current task during their execution will be delivered to the
-current task before that tasks exits to usermode.
-
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: x86@kernel.org
-Cc: H Peter Anvin <hpa@zytor.com>
-v1: https://lkml.kernel.org/r/20211020174406.17889-10-ebiederm@xmission.com
-Link: https://lkml.kernel.org/r/877de1xcr6.fsf_-_@disp2133
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Thomas Backlund <tmb@iki.fi>
+Fixes: 039ae58503f3 ("hwmon: Allow to compile dell-smm-hwmon driver without /proc/i8k")
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Pali Rohár <pali@kernel.org>
+Link: https://lkml.kernel.org/r/20210910071921.16777-1-rdunlap@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/vm86_32.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/Kconfig |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/vm86_32.c
-+++ b/arch/x86/kernel/vm86_32.c
-@@ -142,6 +142,7 @@ void save_v86_state(struct kernel_vm86_r
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1266,7 +1266,8 @@ config TOSHIBA
  
- 	user_access_end();
- 
-+exit_vm86:
- 	preempt_disable();
- 	tsk->thread.sp0 = vm86->saved_sp0;
- 	tsk->thread.sysenter_cs = __KERNEL_CS;
-@@ -161,7 +162,8 @@ Efault_end:
- 	user_access_end();
- Efault:
- 	pr_alert("could not access userspace vm86 info\n");
--	do_exit(SIGSEGV);
-+	force_sigsegv(SIGSEGV);
-+	goto exit_vm86;
- }
- 
- static int do_vm86_irq_handling(int subfunction, int irqnumber);
+ config I8K
+ 	tristate "Dell i8k legacy laptop support"
+-	select HWMON
++	depends on HWMON
++	depends on PROC_FS
+ 	select SENSORS_DELL_SMM
+ 	help
+ 	  This option enables legacy /proc/i8k userspace interface in hwmon
 
 
