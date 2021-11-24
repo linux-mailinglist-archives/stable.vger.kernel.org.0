@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DBF545BF45
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:53:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6045845BF4B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:53:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346160AbhKXM4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:56:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33426 "EHLO mail.kernel.org"
+        id S1346052AbhKXM4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:56:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346850AbhKXMyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346854AbhKXMyR (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 07:54:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4803E61875;
-        Wed, 24 Nov 2021 12:31:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36677615E2;
+        Wed, 24 Nov 2021 12:31:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757088;
-        bh=D70KnzKVdrdDB76JciFzBM/fRPXnNnIMaydokXlU/iE=;
+        s=korg; t=1637757090;
+        bh=LXtHIW9KbU64rtv60UAbq7v3Qp9hpog1g+Pc/AZKf6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vy9n0BFm3mAWOlIDeM3XcLleP2HtHQWsK4zMCjaetzs/UePZtN1iMFpyYBqCukLek
-         dzleAcgCjuYvdAnyqqvD3mZb6lPP1kkaiplyeRgWxWGCOql7so1fJ2wDaHpcdxX2YX
-         noZ03dJoyW7b9l7mWtIjg6lXjX/Lsoroc9oAcIwM=
+        b=JbPr5+zYIfzEeBiwoMXznK7LkgMtskI6ZC1flblU713560qEsLOV4um42o0O0aiIu
+         QIXjC6JL3zXdLZx0ol2PzvC2V75G1o1Tcpcju9V95wq/LjwZNzZ11PjtFcJuESzxqf
+         Oc58WmkwBLMrsv8O34/Iv6jFVCZNxtbe8eS9s/Jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Jonas=20Dre=C3=9Fler?= <verdre@v0yd.nl>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 055/323] mwifiex: Read a PCI register after writing the TX ring write pointer
-Date:   Wed, 24 Nov 2021 12:54:05 +0100
-Message-Id: <20211124115720.727555169@linuxfoundation.org>
+        =?UTF-8?q?Reimar=20D=C3=B6ffinger?= <Reimar.Doeffinger@gmx.de>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 4.19 056/323] libata: fix checking of DMA state
+Date:   Wed, 24 Nov 2021 12:54:06 +0100
+Message-Id: <20211124115720.757914373@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
@@ -40,51 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Dreßler <verdre@v0yd.nl>
+From: Reimar Döffinger <Reimar.Doeffinger@gmx.de>
 
-commit e5f4eb8223aa740237cd463246a7debcddf4eda1 upstream.
+commit f971a85439bd25dc7b4d597cf5e4e8dc7ffc884b upstream.
 
-On the 88W8897 PCIe+USB card the firmware randomly crashes after setting
-the TX ring write pointer. The issue is present in the latest firmware
-version 15.68.19.p21 of the PCIe+USB card.
+Checking if DMA is enabled should be done via the
+ata_dma_enabled helper function, since the init state
+0xff indicates disabled.
+This meant that ATA_CMD_READ_LOG_DMA_EXT was used and probed
+for before DMA was enabled, which caused hangs for some combinations
+of controllers and devices.
+It might also have caused it to be incorrectly disabled as broken,
+but there have been no reports of that.
 
-Those firmware crashes can be worked around by reading any PCI register
-of the card after setting that register, so read the PCI_VENDOR_ID
-register here. The reason this works is probably because we keep the bus
-from entering an ASPM state for a bit longer, because that's what causes
-the cards firmware to crash.
-
-This fixes a bug where during RX/TX traffic and with ASPM L1 substates
-enabled (the specific substates where the issue happens appear to be
-platform dependent), the firmware crashes and eventually a command
-timeout appears in the logs.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=109681
 Cc: stable@vger.kernel.org
-Signed-off-by: Jonas Dreßler <verdre@v0yd.nl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211011133224.15561-2-verdre@v0yd.nl
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=195895
+Signed-off-by: Reimar Döffinger <Reimar.Doeffinger@gmx.de>
+Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/marvell/mwifiex/pcie.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/ata/libata-core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/pcie.c
-+++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
-@@ -1330,6 +1330,14 @@ mwifiex_pcie_send_data(struct mwifiex_ad
- 			ret = -1;
- 			goto done_unmap;
- 		}
-+
-+		/* The firmware (latest version 15.68.19.p21) of the 88W8897 PCIe+USB card
-+		 * seems to crash randomly after setting the TX ring write pointer when
-+		 * ASPM powersaving is enabled. A workaround seems to be keeping the bus
-+		 * busy by reading a random register afterwards.
-+		 */
-+		mwifiex_read_reg(adapter, PCI_VENDOR_ID, &rx_val);
-+
- 		if ((mwifiex_pcie_txbd_not_full(card)) &&
- 		    tx_param->next_pkt_len) {
- 			/* have more packets and TxBD still can hold more */
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -2073,7 +2073,7 @@ unsigned int ata_read_log_page(struct at
+ 
+ retry:
+ 	ata_tf_init(dev, &tf);
+-	if (dev->dma_mode && ata_id_has_read_log_dma_ext(dev->id) &&
++	if (ata_dma_enabled(dev) && ata_id_has_read_log_dma_ext(dev->id) &&
+ 	    !(dev->horkage & ATA_HORKAGE_NO_DMA_LOG)) {
+ 		tf.command = ATA_CMD_READ_LOG_DMA_EXT;
+ 		tf.protocol = ATA_PROT_DMA;
 
 
