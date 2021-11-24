@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 623DE45C09A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0455D45C2D1
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:29:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346726AbhKXNJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:09:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51818 "EHLO mail.kernel.org"
+        id S1348761AbhKXNcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:32:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348229AbhKXNJA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:09:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6C2B610A1;
-        Wed, 24 Nov 2021 12:39:24 +0000 (UTC)
+        id S1348658AbhKXNap (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:30:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E74E061BC2;
+        Wed, 24 Nov 2021 12:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757565;
-        bh=f87D2RB4NZhf9JACyxt4BE2xBfihr3GK3rOau+/RW+Y=;
+        s=korg; t=1637758341;
+        bh=ZqJljDphuKdeHOn5RS+GpUkZPitLaXlIykVrdPvKGsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZcFPBBs6laX5qx0yjUT7uT0mx+bvbXmK81sR9qNhsw9K1wvEqtnRUsGm7MLh1AIV
-         D6z528aguCAeARygO61fGnP3VMmeCz6sO5VEiv7RS+5fsetywDkfKOU+FWWuCmUH8X
-         fdkeqpMcJ+hbNdu1qQHwDUsZCExMtBBD+X/bSAlc=
+        b=uAR2AS8rT1CX+Hdm7nwujWFuK55IclYxYcFmxcUMw8FFgpk/NopFfvKruP+Oxmtm5
+         TUhHjWg6hcBbiMul13WoB6Pj27cK9Gp3Ql2ir28bQYgBTVg8XPrp9oLlW0C+BLe1Nt
+         dfKREAdGnha8AUoxdKDQhcOxD/4D7ncGthRK9QVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin van der Gracht <robin@protonic.nl>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Miguel Ojeda <ojeda@kernel.org>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 211/323] auxdisplay: ht16k33: Fix frame buffer device blanking
+Subject: [PATCH 5.10 005/154] arm64: dts: allwinner: a100: Fix thermal zone node name
 Date:   Wed, 24 Nov 2021 12:56:41 +0100
-Message-Id: <20211124115726.053338119@linuxfoundation.org>
+Message-Id: <20211124115702.539550607@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 840fe258332544aa7321921e1723d37b772af7a9 ]
+[ Upstream commit 5c34c4e46e601554bfa370b23c8ae3c3c734e9f7 ]
 
-As the ht16k33 frame buffer sub-driver does not register an
-fb_ops.fb_blank() handler, blanking does not work:
+The thermal zones one the A100 are called $device-thermal-zone.
 
-    $ echo 1 > /sys/class/graphics/fb0/blank
-    sh: write error: Invalid argument
+However, the thermal zone binding explicitly requires that zones are
+called *-thermal. Let's fix it.
 
-Fix this by providing a handler that always returns zero, to make sure
-blank events will be sent to the actual device handling the backlight.
-
-Reported-by: Robin van der Gracht <robin@protonic.nl>
-Suggested-by: Robin van der Gracht <robin@protonic.nl>
-Fixes: 8992da44c6805d53 ("auxdisplay: ht16k33: Driver for LED controller")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20210901091852.479202-50-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/auxdisplay/ht16k33.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/auxdisplay/ht16k33.c b/drivers/auxdisplay/ht16k33.c
-index f6927871fa4e8..03a87dd1f625e 100644
---- a/drivers/auxdisplay/ht16k33.c
-+++ b/drivers/auxdisplay/ht16k33.c
-@@ -219,6 +219,15 @@ static const struct backlight_ops ht16k33_bl_ops = {
- 	.check_fb	= ht16k33_bl_check_fb,
- };
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
+index cc321c04f1219..f6d7d7f7fdabe 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a100.dtsi
+@@ -343,19 +343,19 @@
+ 	};
  
-+/*
-+ * Blank events will be passed to the actual device handling the backlight when
-+ * we return zero here.
-+ */
-+static int ht16k33_blank(int blank, struct fb_info *info)
-+{
-+	return 0;
-+}
-+
- static int ht16k33_mmap(struct fb_info *info, struct vm_area_struct *vma)
- {
- 	struct ht16k33_priv *priv = info->par;
-@@ -231,6 +240,7 @@ static struct fb_ops ht16k33_fb_ops = {
- 	.owner = THIS_MODULE,
- 	.fb_read = fb_sys_read,
- 	.fb_write = fb_sys_write,
-+	.fb_blank = ht16k33_blank,
- 	.fb_fillrect = sys_fillrect,
- 	.fb_copyarea = sys_copyarea,
- 	.fb_imageblit = sys_imageblit,
+ 	thermal-zones {
+-		cpu-thermal-zone {
++		cpu-thermal {
+ 			polling-delay-passive = <0>;
+ 			polling-delay = <0>;
+ 			thermal-sensors = <&ths 0>;
+ 		};
+ 
+-		ddr-thermal-zone {
++		ddr-thermal {
+ 			polling-delay-passive = <0>;
+ 			polling-delay = <0>;
+ 			thermal-sensors = <&ths 2>;
+ 		};
+ 
+-		gpu-thermal-zone {
++		gpu-thermal {
+ 			polling-delay-passive = <0>;
+ 			polling-delay = <0>;
+ 			thermal-sensors = <&ths 1>;
 -- 
 2.33.0
 
