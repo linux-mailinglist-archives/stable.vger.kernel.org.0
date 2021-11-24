@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1D1945BE18
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1B8345BE1A
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243020AbhKXMoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:44:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48798 "EHLO mail.kernel.org"
+        id S244641AbhKXMoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:44:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344270AbhKXMnE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344277AbhKXMnE (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 07:43:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A85F6121D;
-        Wed, 24 Nov 2021 12:25:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B978D61222;
+        Wed, 24 Nov 2021 12:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756732;
-        bh=DLFjeQoQeEoxkSxT6aelxlTa6P0E+xy3uZ0hAp3TnqA=;
+        s=korg; t=1637756735;
+        bh=ibt9JvqigcOkavofXQ4optZRvoO6N3kghVPFWsKBl2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VsJ5WWbhO2asFTD1g2eNVz+JHhiIChMMbbn+udCeavG1m1c0oBZkPuRiEIYoOaJil
-         RBJcmCjKBoTH6K/tHwj3k8fNGhOJezTzawiam5l9NWKxurp5DufagWs1ZPAH7/5M/3
-         oSolq33LiGE9xZqhj9D3NIfe1jvafbSuEhuyVflA=
+        b=0YkjhTg5LcboTXIqjtVNvmABC9GHQPsH3BlLgqoYW9cRMcCaETKij2JfiuQY8Tqdy
+         lxhD9Sgib399hTb5YBJwLaeQ9sfF/SigdKIKXj/ipXcnGJmB/yRx4CFsF7dDA3q1vF
+         4l3Ilf3NjTTnSaexTAVsGEnig8sNdEEDd/wylyKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Eiichi Tsukata <eiichi.tsukata@nutanix.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 186/251] nfc: pn533: Fix double free when pn533_fill_fragment_skbs() fails
-Date:   Wed, 24 Nov 2021 12:57:08 +0100
-Message-Id: <20211124115716.731340797@linuxfoundation.org>
+Subject: [PATCH 4.14 187/251] vsock: prevent unnecessary refcnt inc for nonblocking connect
+Date:   Wed, 24 Nov 2021 12:57:09 +0100
+Message-Id: <20211124115716.772116788@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
 References: <20211124115710.214900256@linuxfoundation.org>
@@ -42,57 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengfeng Ye <cyeaa@connect.ust.hk>
+From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
 
-[ Upstream commit 9fec40f850658e00a14a7dd9e06f7fbc7e59cc4a ]
+[ Upstream commit c7cd82b90599fa10915f41e3dd9098a77d0aa7b6 ]
 
-skb is already freed by dev_kfree_skb in pn533_fill_fragment_skbs,
-but follow error handler branch when pn533_fill_fragment_skbs()
-fails, skb is freed again, results in double free issue. Fix this
-by not free skb in error path of pn533_fill_fragment_skbs.
+Currently vosck_connect() increments sock refcount for nonblocking
+socket each time it's called, which can lead to memory leak if
+it's called multiple times because connect timeout function decrements
+sock refcount only once.
 
-Fixes: 963a82e07d4e ("NFC: pn533: Split large Tx frames in chunks")
-Fixes: 93ad42020c2d ("NFC: pn533: Target mode Tx fragmentation support")
-Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Fixes it by making vsock_connect() return -EALREADY immediately when
+sock state is already SS_CONNECTING.
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/pn533/pn533.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/vmw_vsock/af_vsock.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nfc/pn533/pn533.c b/drivers/nfc/pn533/pn533.c
-index e3026e20f1696..52a1a2cae6c74 100644
---- a/drivers/nfc/pn533/pn533.c
-+++ b/drivers/nfc/pn533/pn533.c
-@@ -2084,7 +2084,7 @@ static int pn533_fill_fragment_skbs(struct pn533 *dev, struct sk_buff *skb)
- 		frag = pn533_alloc_skb(dev, frag_size);
- 		if (!frag) {
- 			skb_queue_purge(&dev->fragment_skb);
--			break;
-+			return -ENOMEM;
- 		}
- 
- 		if (!dev->tgt_mode) {
-@@ -2154,7 +2154,7 @@ static int pn533_transceive(struct nfc_dev *nfc_dev,
- 		/* jumbo frame ? */
- 		if (skb->len > PN533_CMD_DATAEXCH_DATA_MAXLEN) {
- 			rc = pn533_fill_fragment_skbs(dev, skb);
--			if (rc <= 0)
-+			if (rc < 0)
- 				goto error;
- 
- 			skb = skb_dequeue(&dev->fragment_skb);
-@@ -2226,7 +2226,7 @@ static int pn533_tm_send(struct nfc_dev *nfc_dev, struct sk_buff *skb)
- 	/* let's split in multiple chunks if size's too big */
- 	if (skb->len > PN533_CMD_DATAEXCH_DATA_MAXLEN) {
- 		rc = pn533_fill_fragment_skbs(dev, skb);
--		if (rc <= 0)
-+		if (rc < 0)
- 			goto error;
- 
- 		/* get the first skb */
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 02a171916dd2b..8b211d164beea 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1166,6 +1166,8 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
+ 		 * non-blocking call.
+ 		 */
+ 		err = -EALREADY;
++		if (flags & O_NONBLOCK)
++			goto out;
+ 		break;
+ 	default:
+ 		if ((sk->sk_state == TCP_LISTEN) ||
 -- 
 2.33.0
 
