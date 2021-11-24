@@ -2,37 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B58E445C59B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 500E745C31B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:32:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350559AbhKXN72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:59:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45462 "EHLO mail.kernel.org"
+        id S1349407AbhKXNfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:35:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353111AbhKXN4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:56:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D38136124F;
-        Wed, 24 Nov 2021 13:07:18 +0000 (UTC)
+        id S1351820AbhKXNdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:33:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E663D61B42;
+        Wed, 24 Nov 2021 12:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759239;
-        bh=oIPjv98Pj0MvpxF1IEhezwRQodIOeK4JnPNBxGngxHo=;
+        s=korg; t=1637758434;
+        bh=4FWpbJjc67hKE2N6NsHxiJw01NesjLwtiUBhXamYQdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M2odErYFu/jXWAaMVuSP3wbA237BKfmSIKrZwR+4nSNtr1ewRw2PxTKIsvTyxxXAS
-         eGQvWU8MJ8APsci0/Fs1TzgBRVs/TPwLelXuCfUQuo7g9yxZjz59BKfgJ8yJck5C90
-         P8R8SM9uQ8Yu/f4HoMgxMXszVXZtoO0tJFfZsK4I=
+        b=zCKokSdzhG7imCrNdMlN5m7J4dTQoinFnqh4Lqfmci/KWcBXoIIsbfbOd07Cg6Hqh
+         g3PRaxhhG+Cpq4pGvDIeKpvV6vCVUkXclwF78mGDfqwgFh5hPEVxI79q++RJ92JeC/
+         ci1GLYP099+VOGou02hHCf05TkNHrbxu/qd5USWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Schwab <schwab@suse.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 175/279] riscv: fix building external modules
-Date:   Wed, 24 Nov 2021 12:57:42 +0100
-Message-Id: <20211124115724.791647522@linuxfoundation.org>
+Subject: [PATCH 5.10 067/154] perf tests: Remove bash construct from record+zstd_comp_decomp.sh
+Date:   Wed, 24 Nov 2021 12:57:43 +0100
+Message-Id: <20211124115704.482090973@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +52,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Schwab <schwab@suse.de>
+From: James Clark <james.clark@arm.com>
 
-[ Upstream commit 5a19c7e06236a9c55dfc001bb4d1a8f1950d23e7 ]
+[ Upstream commit a9cdc1c5e3700a5200e5ca1f90b6958b6483845b ]
 
-When building external modules, vdso_prepare should not be run.  If the
-kernel sources are read-only, it will fail.
+Commit 463538a383a2 ("perf tests: Fix test 68 zstd compression for
+s390") inadvertently removed the -g flag from all platforms rather than
+just s390, because the [[ ]] construct fails in sh. Changing to single
+brackets restores testing of call graphs and removes the following error
+from the output:
 
-Fixes: fde9c59aebaf ("riscv: explicitly use symbol offsets for VDSO")
-Signed-off-by: Andreas Schwab <schwab@suse.de>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+  $ ./perf test -v 85
+  85: Zstd perf.data compression/decompression                        :
+  --- start ---
+  test child forked, pid 50643
+  Collecting compressed record file:
+  ./tests/shell/record+zstd_comp_decomp.sh: 15: [[: not found
+
+Fixes: 463538a383a2 ("perf tests: Fix test 68 zstd compression for s390")
+Signed-off-by: James Clark <james.clark@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Link: https://lore.kernel.org/r/20211028134828.65774-3-james.clark@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/Makefile | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/tests/shell/record+zstd_comp_decomp.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
-index 0eb4568fbd290..41f3a75fe2ec8 100644
---- a/arch/riscv/Makefile
-+++ b/arch/riscv/Makefile
-@@ -108,11 +108,13 @@ PHONY += vdso_install
- vdso_install:
- 	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso $@
+diff --git a/tools/perf/tests/shell/record+zstd_comp_decomp.sh b/tools/perf/tests/shell/record+zstd_comp_decomp.sh
+index 045723b3d9928..c62af807198de 100755
+--- a/tools/perf/tests/shell/record+zstd_comp_decomp.sh
++++ b/tools/perf/tests/shell/record+zstd_comp_decomp.sh
+@@ -12,7 +12,7 @@ skip_if_no_z_record() {
  
-+ifeq ($(KBUILD_EXTMOD),)
- ifeq ($(CONFIG_MMU),y)
- prepare: vdso_prepare
- vdso_prepare: prepare0
- 	$(Q)$(MAKE) $(build)=arch/riscv/kernel/vdso include/generated/vdso-offsets.h
- endif
-+endif
- 
- ifneq ($(CONFIG_XIP_KERNEL),y)
- ifeq ($(CONFIG_RISCV_M_MODE)$(CONFIG_SOC_CANAAN),yy)
+ collect_z_record() {
+ 	echo "Collecting compressed record file:"
+-	[[ "$(uname -m)" != s390x ]] && gflag='-g'
++	[ "$(uname -m)" != s390x ] && gflag='-g'
+ 	$perf_tool record -o $trace_file $gflag -z -F 5000 -- \
+ 		dd count=500 if=/dev/urandom of=/dev/null
+ }
 -- 
 2.33.0
 
