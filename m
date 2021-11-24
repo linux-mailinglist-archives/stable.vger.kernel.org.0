@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5579045BA06
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD42C45BDA8
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:36:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234400AbhKXMHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:07:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58978 "EHLO mail.kernel.org"
+        id S244796AbhKXMjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:39:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242257AbhKXMFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:05:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F8E96104F;
-        Wed, 24 Nov 2021 12:02:20 +0000 (UTC)
+        id S1344146AbhKXMg2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:36:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC9C4611F2;
+        Wed, 24 Nov 2021 12:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755341;
-        bh=Uex9h7YseuhlAs0JCsyeFQpH1/CR2LdViy8pLjB+99k=;
+        s=korg; t=1637756512;
+        bh=SEH46agP6ZMS85HjcoMU4AlhgQX8KdSJvWw7MBgZVyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ElFmKW6J2C+/6BuvTB1M/kTnBqgHRZilHHlI0DEm02L0q5eEATzPLlhFf4hXi7Bhh
-         s3wIa/YR0cm2wL/jaJKgVJ/NuExAC4AXPP+jl2Vr/utpyGJrDBi41CN8KiC2G3F2Vx
-         OTE0EWJTkUNDxp5umcP1PiKWM40qNpfWVUvul7yo=
+        b=hQupKTFNXfxWdzenlt5SJIfAcuFym0NPpaB9biZNKgyRg2Nl7k/vyFDcsxA/Dwqyf
+         J0Jt2OUaCHXgjorS6gzlwJSPD5WyRApeyyPhbLnJUPlqmmN4JtnfZO6jy9tyfZJQg5
+         jd3N5VZLezy0OyZzyxEmCBO1YDH4ZFmmUBODVgFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Tuo Li <islituo@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 052/162] media: s5p-mfc: fix possible null-pointer dereference in s5p_mfc_probe()
+Subject: [PATCH 4.14 113/251] crypto: qat - detect PFVF collision after ACK
 Date:   Wed, 24 Nov 2021 12:55:55 +0100
-Message-Id: <20211124115700.025858518@linuxfoundation.org>
+Message-Id: <20211124115714.159770440@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 8515965e5e33f4feb56134348c95953f3eadfb26 ]
+[ Upstream commit 9b768e8a3909ac1ab39ed44a3933716da7761a6f ]
 
-The variable pdev is assigned to dev->plat_dev, and dev->plat_dev is
-checked in:
-  if (!dev->plat_dev)
+Detect a PFVF collision between the local and the remote function by
+checking if the message on the PFVF CSR has been overwritten.
+This is done after the remote function confirms that the message has
+been received, by clearing the interrupt bit, or the maximum number of
+attempts (ADF_IOV_MSG_ACK_MAX_RETRY) to check the CSR has been exceeded.
 
-This indicates both dev->plat_dev and pdev can be NULL. If so, the
-function dev_err() is called to print error information.
-  dev_err(&pdev->dev, "No platform data specified\n");
-
-However, &pdev->dev is an illegal address, and it is dereferenced in
-dev_err().
-
-To fix this possible null-pointer dereference, replace dev_err() with
-mfc_err().
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Co-developed-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-index 7727789dbda14..daa5b4dea092c 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-@@ -1102,7 +1102,7 @@ static int s5p_mfc_probe(struct platform_device *pdev)
- 	spin_lock_init(&dev->condlock);
- 	dev->plat_dev = pdev;
- 	if (!dev->plat_dev) {
--		dev_err(&pdev->dev, "No platform data specified\n");
-+		mfc_err("No platform data specified\n");
- 		return -ENODEV;
- 	}
+diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+index c64481160b711..72fd2bbbe704e 100644
+--- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
++++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+@@ -195,6 +195,13 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
+ 		val = ADF_CSR_RD(pmisc_bar_addr, pf2vf_offset);
+ 	} while ((val & int_bit) && (count++ < ADF_IOV_MSG_ACK_MAX_RETRY));
  
++	if (val != msg) {
++		dev_dbg(&GET_DEV(accel_dev),
++			"Collision - PFVF CSR overwritten by remote function\n");
++		ret = -EIO;
++		goto out;
++	}
++
+ 	if (val & int_bit) {
+ 		dev_dbg(&GET_DEV(accel_dev), "ACK not received from remote\n");
+ 		val &= ~int_bit;
 -- 
 2.33.0
 
