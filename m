@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 836B245C37D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:36:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2119645C138
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346285AbhKXNjk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:39:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55788 "EHLO mail.kernel.org"
+        id S1343915AbhKXNPq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:15:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352277AbhKXNhh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:37:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E10C63214;
-        Wed, 24 Nov 2021 12:55:52 +0000 (UTC)
+        id S1348672AbhKXNNn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:13:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AAE161AAA;
+        Wed, 24 Nov 2021 12:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758552;
-        bh=lRPTUS005ve+oBZofRJLmAVkhHWw52d0yc4ha8/kfyk=;
+        s=korg; t=1637757802;
+        bh=54Fc3/FReXOvSaUKoTCRD1aHduVlwM/2aAoBw+BObaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HfgBM0aUHIWhFJWNNlQkbJrcJeXfd0HppYkLge653HSNUIiq3rKI9m5rSGrZQbhhk
-         ro5/FXlKmKHX3Q9wdeN8ESWkDZEffMlhKoyuKIrIq/Yf2WfhXwyE+GCx2yxmIaJSmP
-         B4oUkKxdyf1UnmRDdiFgC8CkJvCJYK6eIDTKKI10=
+        b=Fpzn1/V0qxG55x18Jp0Q+KckW8OaP2R8nj06a7QheV3JMXrm8ACqmICQc2ER9X1wZ
+         H/4RUtYjDdHvIsozRCehsEGs0XvoTl9Pu9Ya7VA9UNm4nj3rmPS7LFXHOK37EXgJAg
+         tooENeLL6yK1CAAmtF9e11lehDqpm1NdsZUyXAv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/154] net: bnx2x: fix variable dereferenced before check
-Date:   Wed, 24 Nov 2021 12:57:50 +0100
-Message-Id: <20211124115704.725488506@linuxfoundation.org>
+Subject: [PATCH 4.19 281/323] f2fs: fix up f2fs_lookup tracepoints
+Date:   Wed, 24 Nov 2021 12:57:51 +0100
+Message-Id: <20211124115728.380771090@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit f8885ac89ce310570e5391fe0bf0ec9c7c9b4fdc ]
+[ Upstream commit 70a9ac36ffd807ac506ed0b849f3e8ce3c6623f2 ]
 
-Smatch says:
-	bnx2x_init_ops.h:640 bnx2x_ilt_client_mem_op()
-	warn: variable dereferenced before check 'ilt' (see line 638)
+Fix up a misuse that the filename pointer isn't always valid in
+the ring buffer, and we should copy the content instead.
 
-Move ilt_cli variable initialization _after_ ilt validation, because
-it's unsafe to deref the pointer before validation check.
-
-Fixes: 523224a3b3cd ("bnx2x, cnic, bnx2i: use new FW/HSI")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0c5e36db17f5 ("f2fs: trace f2fs_lookup")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/trace/events/f2fs.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h
-index 1835d2e451c01..fc7fce642666c 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_init_ops.h
-@@ -635,11 +635,13 @@ static int bnx2x_ilt_client_mem_op(struct bnx2x *bp, int cli_num,
- {
- 	int i, rc;
- 	struct bnx2x_ilt *ilt = BP_ILT(bp);
--	struct ilt_client_info *ilt_cli = &ilt->clients[cli_num];
-+	struct ilt_client_info *ilt_cli;
+diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
+index 795698925d206..52e6456bdb922 100644
+--- a/include/trace/events/f2fs.h
++++ b/include/trace/events/f2fs.h
+@@ -751,20 +751,20 @@ TRACE_EVENT(f2fs_lookup_start,
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,	dev)
+ 		__field(ino_t,	ino)
+-		__field(const char *,	name)
++		__string(name,	dentry->d_name.name)
+ 		__field(unsigned int, flags)
+ 	),
  
- 	if (!ilt || !ilt->lines)
- 		return -1;
+ 	TP_fast_assign(
+ 		__entry->dev	= dir->i_sb->s_dev;
+ 		__entry->ino	= dir->i_ino;
+-		__entry->name	= dentry->d_name.name;
++		__assign_str(name, dentry->d_name.name);
+ 		__entry->flags	= flags;
+ 	),
  
-+	ilt_cli = &ilt->clients[cli_num];
-+
- 	if (ilt_cli->flags & (ILT_CLIENT_SKIP_INIT | ILT_CLIENT_SKIP_MEM))
- 		return 0;
+ 	TP_printk("dev = (%d,%d), pino = %lu, name:%s, flags:%u",
+ 		show_dev_ino(__entry),
+-		__entry->name,
++		__get_str(name),
+ 		__entry->flags)
+ );
  
+@@ -778,7 +778,7 @@ TRACE_EVENT(f2fs_lookup_end,
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,	dev)
+ 		__field(ino_t,	ino)
+-		__field(const char *,	name)
++		__string(name,	dentry->d_name.name)
+ 		__field(nid_t,	cino)
+ 		__field(int,	err)
+ 	),
+@@ -786,14 +786,14 @@ TRACE_EVENT(f2fs_lookup_end,
+ 	TP_fast_assign(
+ 		__entry->dev	= dir->i_sb->s_dev;
+ 		__entry->ino	= dir->i_ino;
+-		__entry->name	= dentry->d_name.name;
++		__assign_str(name, dentry->d_name.name);
+ 		__entry->cino	= ino;
+ 		__entry->err	= err;
+ 	),
+ 
+ 	TP_printk("dev = (%d,%d), pino = %lu, name:%s, ino:%u, err:%d",
+ 		show_dev_ino(__entry),
+-		__entry->name,
++		__get_str(name),
+ 		__entry->cino,
+ 		__entry->err)
+ );
 -- 
 2.33.0
 
