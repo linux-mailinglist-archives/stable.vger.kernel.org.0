@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D410445BFD5
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:59:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A79F745BCCF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345871AbhKXNCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:02:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38604 "EHLO mail.kernel.org"
+        id S244914AbhKXMco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:32:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346583AbhKXNAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:00:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF0F260FE7;
-        Wed, 24 Nov 2021 12:34:20 +0000 (UTC)
+        id S1344261AbhKXMam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83B4D6115A;
+        Wed, 24 Nov 2021 12:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757261;
-        bh=F4rPWllSq7SHkPNYYsmao31WVHhY4AoWTWYx55Bm8Eg=;
+        s=korg; t=1637756359;
+        bh=W9Lm2qyFpay6X2mn4aqdnOgWJNZ6+dMrEGLlH1wEwyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wnu996vznmAKY/yppM0YHX6wqMabEpHBsEBpUA71c2NotplajPfzTO2/avAIQOWHC
-         nIIlt91Dhy/m0tnkogNDfUgNKI246kMuqSswvl2TsirGOR6Mvlqr//LyReIMERRDhA
-         Cz5VN/qnmDFU8dKdmVfBXSEJPJXTHCyP/llJ2APg=
+        b=CBOVs+XU974af1I0+3s70MCVKEkBiFWWLjhUmGqoM8L/FMfB8IlpMQ9yUqawbTEtG
+         pN8N+SePKdCu+L4X72wrhr2gcLw/Ibi/gmIwAPa8V/8Rc+PJG5XqZm4pDljaUEBm1e
+         rRQesFlkPj1BVoD15dJqqCXpO5In+xgdpwTQTh6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 109/323] memstick: r592: Fix a UAF bug when removing the driver
-Date:   Wed, 24 Nov 2021 12:54:59 +0100
-Message-Id: <20211124115722.646794985@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.14 058/251] PCI: aardvark: Do not clear status bits of masked interrupts
+Date:   Wed, 24 Nov 2021 12:55:00 +0100
+Message-Id: <20211124115712.268509376@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 738216c1953e802aa9f930c5d15b8f9092c847ff ]
+commit a7ca6d7fa3c02c032db5440ff392d96c04684c21 upstream.
 
-In r592_remove(), the driver will free dma after freeing the host, which
-may cause a UAF bug.
+The PCIE_ISR1_REG says which interrupts are currently set / active,
+including those which are masked.
 
-The following log reveals it:
+The driver currently reads this register and looks if some unmasked
+interrupts are active, and if not, it clears status bits of _all_
+interrupts, including the masked ones.
 
-[   45.361796 ] BUG: KASAN: use-after-free in r592_remove+0x269/0x350 [r592]
-[   45.364286 ] Call Trace:
-[   45.364472 ]  dump_stack_lvl+0xa8/0xd1
-[   45.364751 ]  print_address_description+0x87/0x3b0
-[   45.365137 ]  kasan_report+0x172/0x1c0
-[   45.365415 ]  ? r592_remove+0x269/0x350 [r592]
-[   45.365834 ]  ? r592_remove+0x269/0x350 [r592]
-[   45.366168 ]  __asan_report_load8_noabort+0x14/0x20
-[   45.366531 ]  r592_remove+0x269/0x350 [r592]
-[   45.378785 ]
-[   45.378903 ] Allocated by task 4674:
-[   45.379162 ]  ____kasan_kmalloc+0xb5/0xe0
-[   45.379455 ]  __kasan_kmalloc+0x9/0x10
-[   45.379730 ]  __kmalloc+0x150/0x280
-[   45.379984 ]  memstick_alloc_host+0x2a/0x190
-[   45.380664 ]
-[   45.380781 ] Freed by task 5509:
-[   45.381014 ]  kasan_set_track+0x3d/0x70
-[   45.381293 ]  kasan_set_free_info+0x23/0x40
-[   45.381635 ]  ____kasan_slab_free+0x10b/0x140
-[   45.381950 ]  __kasan_slab_free+0x11/0x20
-[   45.382241 ]  slab_free_freelist_hook+0x81/0x150
-[   45.382575 ]  kfree+0x13e/0x290
-[   45.382805 ]  memstick_free+0x1c/0x20
-[   45.383070 ]  device_release+0x9c/0x1d0
-[   45.383349 ]  kobject_put+0x2ef/0x4c0
-[   45.383616 ]  put_device+0x1f/0x30
-[   45.383865 ]  memstick_free_host+0x24/0x30
-[   45.384162 ]  r592_remove+0x242/0x350 [r592]
-[   45.384473 ]  pci_device_remove+0xa9/0x250
+This is incorrect, since, for example, some drivers may poll these bits.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/1634383581-11055-1-git-send-email-zheyuma97@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Remove this clearing, and also remove this early return statement
+completely, since it does not change functionality in any way.
+
+Link: https://lore.kernel.org/r/20211005180952.6812-7-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/memstick/host/r592.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/pci/host/pci-aardvark.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/memstick/host/r592.c b/drivers/memstick/host/r592.c
-index 4559593ecd5a9..4728a42d54b88 100644
---- a/drivers/memstick/host/r592.c
-+++ b/drivers/memstick/host/r592.c
-@@ -840,15 +840,15 @@ static void r592_remove(struct pci_dev *pdev)
- 	}
- 	memstick_remove_host(dev->host);
+--- a/drivers/pci/host/pci-aardvark.c
++++ b/drivers/pci/host/pci-aardvark.c
+@@ -863,12 +863,6 @@ static void advk_pcie_handle_int(struct
+ 	isr1_mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
+ 	isr1_status = isr1_val & ((~isr1_mask) & PCIE_ISR1_ALL_MASK);
  
-+	if (dev->dummy_dma_page)
-+		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
-+			dev->dummy_dma_page_physical_address);
-+
- 	free_irq(dev->irq, dev);
- 	iounmap(dev->mmio);
- 	pci_release_regions(pdev);
- 	pci_disable_device(pdev);
- 	memstick_free_host(dev->host);
+-	if (!isr0_status && !isr1_status) {
+-		advk_writel(pcie, isr0_val, PCIE_ISR0_REG);
+-		advk_writel(pcie, isr1_val, PCIE_ISR1_REG);
+-		return;
+-	}
 -
--	if (dev->dummy_dma_page)
--		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
--			dev->dummy_dma_page_physical_address);
- }
- 
- #ifdef CONFIG_PM_SLEEP
--- 
-2.33.0
-
+ 	/* Process MSI interrupts */
+ 	if (isr0_status & PCIE_ISR0_MSI_INT_PENDING)
+ 		advk_pcie_handle_msi(pcie);
 
 
