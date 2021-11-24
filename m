@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39B0E45BD59
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:34:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB1945BFF4
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343637AbhKXMhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:37:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52032 "EHLO mail.kernel.org"
+        id S244992AbhKXND5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:03:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344160AbhKXMf3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:35:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07CFA6139F;
-        Wed, 24 Nov 2021 12:21:39 +0000 (UTC)
+        id S1344211AbhKXNBc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:01:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C1CF619E5;
+        Wed, 24 Nov 2021 12:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756500;
-        bh=Q0iVTnW0UUWj/MGIy+a7Z2i9YAx1Nh9hx+WYO7uayhU=;
+        s=korg; t=1637757312;
+        bh=qZWSO5bigsvV/ZSSccr784tM8nU8t48E328AmeL17G0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eEu1Bb3WWFKQsChaZ3SXERhN1Ow8O+XuRXvSZVhJ6CYZYmTTdLuwOidnnBh2aYaJX
-         kCuOB86knMV2ujyXO5XYe5eN2MGsCIspRU/vZt9IbzILb9pxmptwXnHd2/vD68BCVI
-         O/MlgPCx6Y3/q2NUUL22uAVX5eFwyDLj95/AiZSs=
+        b=FwE3J1bkDCNrpKH8YPUaOVB6JsSZosJ/sAIxbNYBbHOMo7nPEOSIVmu2M7nmVvnxR
+         2ICauCZT2EDpXPt6UBQfuwwMK8LYFV9oAPKyTujLzPplNXQV+ZmYvFCyUZSGX8Ox4j
+         mXJQEtU2F2mlKUyJ7qwmRgFfHvcjzGT71f28Tsm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Wang <yun.wang@linux.alibaba.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 075/251] x86: Increase exception stack sizes
+Subject: [PATCH 4.19 127/323] Bluetooth: fix init and cleanup of sco_conn.timeout_work
 Date:   Wed, 24 Nov 2021 12:55:17 +0100
-Message-Id: <20211124115712.863030563@linuxfoundation.org>
+Message-Id: <20211124115723.228796729@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit 7fae4c24a2b84a66c7be399727aca11e7a888462 ]
+[ Upstream commit 49d8a5606428ca0962d09050a5af81461ff90fbb ]
 
-It turns out that a single page of stack is trivial to overflow with
-all the tracing gunk enabled. Raise the exception stacks to 2 pages,
-which is still half the interrupt stacks, which are at 4 pages.
+Before freeing struct sco_conn, all delayed timeout work should be
+cancelled. Otherwise, sco_sock_timeout could potentially use the
+sco_conn after it has been freed.
 
-Reported-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/YUIO9Ye98S5Eb68w@hirez.programming.kicks-ass.net
+Additionally, sco_conn.timeout_work should be initialized when the
+connection is allocated, not when the channel is added. This is
+because an sco_conn can create channels with multiple sockets over its
+lifetime, which happens if sockets are released but the connection
+isn't deleted.
+
+Fixes: ba316be1b6a0 ("Bluetooth: schedule SCO timeouts with delayed_work")
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/page_64_types.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/sco.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/include/asm/page_64_types.h b/arch/x86/include/asm/page_64_types.h
-index 50c8baaca4b06..4c807635e6244 100644
---- a/arch/x86/include/asm/page_64_types.h
-+++ b/arch/x86/include/asm/page_64_types.h
-@@ -20,7 +20,7 @@
- #define THREAD_SIZE  (PAGE_SIZE << THREAD_SIZE_ORDER)
- #define CURRENT_MASK (~(THREAD_SIZE - 1))
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index d052b454dc4e1..1e0a1c0a56b57 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -133,6 +133,7 @@ static struct sco_conn *sco_conn_add(struct hci_conn *hcon)
+ 		return NULL;
  
--#define EXCEPTION_STACK_ORDER (0 + KASAN_STACK_ORDER)
-+#define EXCEPTION_STACK_ORDER (1 + KASAN_STACK_ORDER)
- #define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
+ 	spin_lock_init(&conn->lock);
++	INIT_DELAYED_WORK(&conn->timeout_work, sco_sock_timeout);
  
- #define DEBUG_STACK_ORDER (EXCEPTION_STACK_ORDER + 1)
+ 	hcon->sco_data = conn;
+ 	conn->hcon = hcon;
+@@ -196,11 +197,11 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
+ 		sco_chan_del(sk, err);
+ 		bh_unlock_sock(sk);
+ 		sock_put(sk);
+-
+-		/* Ensure no more work items will run before freeing conn. */
+-		cancel_delayed_work_sync(&conn->timeout_work);
+ 	}
+ 
++	/* Ensure no more work items will run before freeing conn. */
++	cancel_delayed_work_sync(&conn->timeout_work);
++
+ 	hcon->sco_data = NULL;
+ 	kfree(conn);
+ }
+@@ -213,8 +214,6 @@ static void __sco_chan_add(struct sco_conn *conn, struct sock *sk,
+ 	sco_pi(sk)->conn = conn;
+ 	conn->sk = sk;
+ 
+-	INIT_DELAYED_WORK(&conn->timeout_work, sco_sock_timeout);
+-
+ 	if (parent)
+ 		bt_accept_enqueue(parent, sk, true);
+ }
 -- 
 2.33.0
 
