@@ -2,37 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D026645C210
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE6E45C323
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:32:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344915AbhKXNZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:25:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40792 "EHLO mail.kernel.org"
+        id S1347271AbhKXNfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:35:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347798AbhKXNT6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:19:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61AF161AFC;
-        Wed, 24 Nov 2021 12:46:42 +0000 (UTC)
+        id S1351812AbhKXNdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:33:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86F1E61BE6;
+        Wed, 24 Nov 2021 12:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758002;
-        bh=brTZpfZ9a4tgGsaTeii1veeHFtOQqLFlH1A2pmxSj2A=;
+        s=korg; t=1637758425;
+        bh=s6LoJdA0yBdZfCmH1XLToBR43YG/thl1yu65YycWPFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCSMSlrA8EjvpB0r5X6Q00oUMyHdJJCRl1qk4L4kDgAT6mYG0aFowIIHTtlFaRntv
-         WBro9qCMNdXAqmLAMRspAESmh+7dwBdrrzGIZwdTizw1/xb1NWilzDrV58uH/8csE5
-         AU2YXqgYxB1JHnh00mZklj/IwRxby7BVA10evUso=
+        b=pa1qP9EsLz5LiIuLtaayk65jViSeE7uCdylkZxdI5UXlPinnr5ZMZmIznTuApAqp0
+         7FrGb3qpjWwzphOylCQ4qCsAzNiJZ0NoNUkGCkx1NPfQ9wWQs0vPVneceJSekKCRnB
+         5uyo8wcX5Tzr0K/ZQL1LCrQHiUPSlz44Hom/fVzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@redhat.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 024/100] scsi: target: Fix ordered tag handling
-Date:   Wed, 24 Nov 2021 12:57:40 +0100
-Message-Id: <20211124115655.641790688@linuxfoundation.org>
+Subject: [PATCH 5.10 065/154] perf bpf: Avoid memory leak from perf_env__insert_btf()
+Date:   Wed, 24 Nov 2021 12:57:41 +0100
+Message-Id: <20211124115704.416438690@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,264 +55,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit ed1227e080990ffec5bf39006ec8a57358e6689a ]
+[ Upstream commit 4924b1f7c46711762fd0e65c135ccfbcfd6ded1f ]
 
-This patch fixes the following bugs:
+perf_env__insert_btf() doesn't insert if a duplicate BTF id is
+encountered and this causes a memory leak. Modify the function to return
+a success/error value and then free the memory if insertion didn't
+happen.
 
-1. If there are multiple ordered cmds queued and multiple simple cmds
-   completing, target_restart_delayed_cmds() could be called on different
-   CPUs and each instance could start a ordered cmd. They could then run in
-   different orders than they were queued.
+v2. Adds a return -1 when the insertion error occurs in
+    perf_env__fetch_btf. This doesn't affect anything as the result is
+    never checked.
 
-2. target_restart_delayed_cmds() and target_handle_task_attr() can race
-   where:
-
-   1. target_handle_task_attr() has passed the simple_cmds == 0 check.
-
-   2. transport_complete_task_attr() then decrements simple_cmds to 0.
-
-   3. transport_complete_task_attr() runs target_restart_delayed_cmds() and
-      it does not see any cmds on the delayed_cmd_list.
-
-   4. target_handle_task_attr() adds the cmd to the delayed_cmd_list.
-
-   The cmd will then end up timing out.
-
-3. If we are sent > 1 ordered cmds and simple_cmds == 0, we can execute
-   them out of order, because target_handle_task_attr() will hit that
-   simple_cmds check first and return false for all ordered cmds sent.
-
-4. We run target_restart_delayed_cmds() after every cmd completion, so if
-   there is more than 1 simple cmd running, we start executing ordered cmds
-   after that first cmd instead of waiting for all of them to complete.
-
-5. Ordered cmds are not supposed to start until HEAD OF QUEUE and all older
-   cmds have completed, and not just simple.
-
-6. It's not a bug but it doesn't make sense to take the delayed_cmd_lock
-   for every cmd completion when ordered cmds are almost never used. Just
-   replacing that lock with an atomic increases IOPs by up to 10% when
-   completions are spread over multiple CPUs and there are multiple
-   sessions/ mqs/thread accessing the same device.
-
-This patch moves the queued delayed handling to a per device work to
-serialze the cmd executions for each device and adds a new counter to track
-HEAD_OF_QUEUE and SIMPLE cmds. We can then check the new counter to
-determine when to run the work on the completion path.
-
-Link: https://lore.kernel.org/r/20210930020422.92578-3-michael.christie@oracle.com
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 3792cb2ff43b1b19 ("perf bpf: Save BTF in a rbtree in perf_env")
+Signed-off-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20211112074525.121633-1-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_device.c    |  2 +
- drivers/target/target_core_internal.h  |  1 +
- drivers/target/target_core_transport.c | 76 ++++++++++++++++++--------
- include/target/target_core_base.h      |  6 +-
- 4 files changed, 61 insertions(+), 24 deletions(-)
+ tools/perf/util/bpf-event.c | 6 +++++-
+ tools/perf/util/env.c       | 5 ++++-
+ tools/perf/util/env.h       | 2 +-
+ 3 files changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/target/target_core_device.c b/drivers/target/target_core_device.c
-index 2d19f0e332b01..20fe287039857 100644
---- a/drivers/target/target_core_device.c
-+++ b/drivers/target/target_core_device.c
-@@ -758,6 +758,8 @@ struct se_device *target_alloc_device(struct se_hba *hba, const char *name)
- 	INIT_LIST_HEAD(&dev->t10_alua.lba_map_list);
- 	spin_lock_init(&dev->t10_alua.lba_map_lock);
+diff --git a/tools/perf/util/bpf-event.c b/tools/perf/util/bpf-event.c
+index c8101575dbf45..4eb02762104ba 100644
+--- a/tools/perf/util/bpf-event.c
++++ b/tools/perf/util/bpf-event.c
+@@ -109,7 +109,11 @@ static int perf_env__fetch_btf(struct perf_env *env,
+ 	node->data_size = data_size;
+ 	memcpy(node->data, data, data_size);
  
-+	INIT_WORK(&dev->delayed_cmd_work, target_do_delayed_work);
-+
- 	dev->t10_wwn.t10_dev = dev;
- 	dev->t10_alua.t10_dev = dev;
- 
-diff --git a/drivers/target/target_core_internal.h b/drivers/target/target_core_internal.h
-index e7b3c6e5d5744..e4f072a680d41 100644
---- a/drivers/target/target_core_internal.h
-+++ b/drivers/target/target_core_internal.h
-@@ -150,6 +150,7 @@ int	transport_dump_vpd_ident(struct t10_vpd *, unsigned char *, int);
- void	transport_clear_lun_ref(struct se_lun *);
- sense_reason_t	target_cmd_size_check(struct se_cmd *cmd, unsigned int size);
- void	target_qf_do_work(struct work_struct *work);
-+void	target_do_delayed_work(struct work_struct *work);
- bool	target_check_wce(struct se_device *dev);
- bool	target_check_fua(struct se_device *dev);
- void	__target_execute_cmd(struct se_cmd *, bool);
-diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
-index 5cf9e7677926f..f52fe40002259 100644
---- a/drivers/target/target_core_transport.c
-+++ b/drivers/target/target_core_transport.c
-@@ -2021,32 +2021,35 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
- 	 */
- 	switch (cmd->sam_task_attr) {
- 	case TCM_HEAD_TAG:
-+		atomic_inc_mb(&dev->non_ordered);
- 		pr_debug("Added HEAD_OF_QUEUE for CDB: 0x%02x\n",
- 			 cmd->t_task_cdb[0]);
- 		return false;
- 	case TCM_ORDERED_TAG:
--		atomic_inc_mb(&dev->dev_ordered_sync);
-+		atomic_inc_mb(&dev->delayed_cmd_count);
- 
- 		pr_debug("Added ORDERED for CDB: 0x%02x to ordered list\n",
- 			 cmd->t_task_cdb[0]);
--
--		/*
--		 * Execute an ORDERED command if no other older commands
--		 * exist that need to be completed first.
--		 */
--		if (!atomic_read(&dev->simple_cmds))
--			return false;
- 		break;
- 	default:
- 		/*
- 		 * For SIMPLE and UNTAGGED Task Attribute commands
- 		 */
--		atomic_inc_mb(&dev->simple_cmds);
-+		atomic_inc_mb(&dev->non_ordered);
-+
-+		if (atomic_read(&dev->delayed_cmd_count) == 0)
-+			return false;
- 		break;
- 	}
- 
--	if (atomic_read(&dev->dev_ordered_sync) == 0)
--		return false;
-+	if (cmd->sam_task_attr != TCM_ORDERED_TAG) {
-+		atomic_inc_mb(&dev->delayed_cmd_count);
-+		/*
-+		 * We will account for this when we dequeue from the delayed
-+		 * list.
-+		 */
-+		atomic_dec_mb(&dev->non_ordered);
+-	perf_env__insert_btf(env, node);
++	if (!perf_env__insert_btf(env, node)) {
++		/* Insertion failed because of a duplicate. */
++		free(node);
++		return -1;
 +	}
- 
- 	spin_lock(&dev->delayed_cmd_lock);
- 	list_add_tail(&cmd->se_delayed_node, &dev->delayed_cmd_list);
-@@ -2054,6 +2057,12 @@ static bool target_handle_task_attr(struct se_cmd *cmd)
- 
- 	pr_debug("Added CDB: 0x%02x Task Attr: 0x%02x to delayed CMD listn",
- 		cmd->t_task_cdb[0], cmd->sam_task_attr);
-+	/*
-+	 * We may have no non ordered cmds when this function started or we
-+	 * could have raced with the last simple/head cmd completing, so kick
-+	 * the delayed handler here.
-+	 */
-+	schedule_work(&dev->delayed_cmd_work);
- 	return true;
+ 	return 0;
  }
  
-@@ -2091,29 +2100,48 @@ EXPORT_SYMBOL(target_execute_cmd);
-  * Process all commands up to the last received ORDERED task attribute which
-  * requires another blocking boundary
-  */
--static void target_restart_delayed_cmds(struct se_device *dev)
-+void target_do_delayed_work(struct work_struct *work)
+diff --git a/tools/perf/util/env.c b/tools/perf/util/env.c
+index f0dceb527ca38..d81ed1bc14bdc 100644
+--- a/tools/perf/util/env.c
++++ b/tools/perf/util/env.c
+@@ -71,12 +71,13 @@ out:
+ 	return node;
+ }
+ 
+-void perf_env__insert_btf(struct perf_env *env, struct btf_node *btf_node)
++bool perf_env__insert_btf(struct perf_env *env, struct btf_node *btf_node)
  {
--	for (;;) {
-+	struct se_device *dev = container_of(work, struct se_device,
-+					     delayed_cmd_work);
-+
-+	spin_lock(&dev->delayed_cmd_lock);
-+	while (!dev->ordered_sync_in_progress) {
- 		struct se_cmd *cmd;
+ 	struct rb_node *parent = NULL;
+ 	__u32 btf_id = btf_node->id;
+ 	struct btf_node *node;
+ 	struct rb_node **p;
++	bool ret = true;
  
--		spin_lock(&dev->delayed_cmd_lock);
--		if (list_empty(&dev->delayed_cmd_list)) {
--			spin_unlock(&dev->delayed_cmd_lock);
-+		if (list_empty(&dev->delayed_cmd_list))
- 			break;
--		}
- 
- 		cmd = list_entry(dev->delayed_cmd_list.next,
- 				 struct se_cmd, se_delayed_node);
-+
-+		if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
-+			/*
-+			 * Check if we started with:
-+			 * [ordered] [simple] [ordered]
-+			 * and we are now at the last ordered so we have to wait
-+			 * for the simple cmd.
-+			 */
-+			if (atomic_read(&dev->non_ordered) > 0)
-+				break;
-+
-+			dev->ordered_sync_in_progress = true;
-+		}
-+
- 		list_del(&cmd->se_delayed_node);
-+		atomic_dec_mb(&dev->delayed_cmd_count);
- 		spin_unlock(&dev->delayed_cmd_lock);
- 
-+		if (cmd->sam_task_attr != TCM_ORDERED_TAG)
-+			atomic_inc_mb(&dev->non_ordered);
-+
- 		cmd->transport_state |= CMD_T_SENT;
- 
- 		__target_execute_cmd(cmd, true);
- 
--		if (cmd->sam_task_attr == TCM_ORDERED_TAG)
--			break;
-+		spin_lock(&dev->delayed_cmd_lock);
+ 	down_write(&env->bpf_progs.lock);
+ 	p = &env->bpf_progs.btfs.rb_node;
+@@ -90,6 +91,7 @@ void perf_env__insert_btf(struct perf_env *env, struct btf_node *btf_node)
+ 			p = &(*p)->rb_right;
+ 		} else {
+ 			pr_debug("duplicated btf %u\n", btf_id);
++			ret = false;
+ 			goto out;
+ 		}
  	}
-+	spin_unlock(&dev->delayed_cmd_lock);
+@@ -99,6 +101,7 @@ void perf_env__insert_btf(struct perf_env *env, struct btf_node *btf_node)
+ 	env->bpf_progs.btfs_cnt++;
+ out:
+ 	up_write(&env->bpf_progs.lock);
++	return ret;
  }
  
- /*
-@@ -2131,14 +2159,17 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
- 		goto restart;
+ struct btf_node *perf_env__find_btf(struct perf_env *env, __u32 btf_id)
+diff --git a/tools/perf/util/env.h b/tools/perf/util/env.h
+index a129726520064..01378a955dd5e 100644
+--- a/tools/perf/util/env.h
++++ b/tools/perf/util/env.h
+@@ -143,7 +143,7 @@ void perf_env__insert_bpf_prog_info(struct perf_env *env,
+ 				    struct bpf_prog_info_node *info_node);
+ struct bpf_prog_info_node *perf_env__find_bpf_prog_info(struct perf_env *env,
+ 							__u32 prog_id);
+-void perf_env__insert_btf(struct perf_env *env, struct btf_node *btf_node);
++bool perf_env__insert_btf(struct perf_env *env, struct btf_node *btf_node);
+ struct btf_node *perf_env__find_btf(struct perf_env *env, __u32 btf_id);
  
- 	if (cmd->sam_task_attr == TCM_SIMPLE_TAG) {
--		atomic_dec_mb(&dev->simple_cmds);
-+		atomic_dec_mb(&dev->non_ordered);
- 		dev->dev_cur_ordered_id++;
- 	} else if (cmd->sam_task_attr == TCM_HEAD_TAG) {
-+		atomic_dec_mb(&dev->non_ordered);
- 		dev->dev_cur_ordered_id++;
- 		pr_debug("Incremented dev_cur_ordered_id: %u for HEAD_OF_QUEUE\n",
- 			 dev->dev_cur_ordered_id);
- 	} else if (cmd->sam_task_attr == TCM_ORDERED_TAG) {
--		atomic_dec_mb(&dev->dev_ordered_sync);
-+		spin_lock(&dev->delayed_cmd_lock);
-+		dev->ordered_sync_in_progress = false;
-+		spin_unlock(&dev->delayed_cmd_lock);
- 
- 		dev->dev_cur_ordered_id++;
- 		pr_debug("Incremented dev_cur_ordered_id: %u for ORDERED\n",
-@@ -2147,7 +2178,8 @@ static void transport_complete_task_attr(struct se_cmd *cmd)
- 	cmd->se_cmd_flags &= ~SCF_TASK_ATTR_SET;
- 
- restart:
--	target_restart_delayed_cmds(dev);
-+	if (atomic_read(&dev->delayed_cmd_count) > 0)
-+		schedule_work(&dev->delayed_cmd_work);
- }
- 
- static void transport_complete_qf(struct se_cmd *cmd)
-diff --git a/include/target/target_core_base.h b/include/target/target_core_base.h
-index 7c9716fe731e2..59d7ebb8bbaf4 100644
---- a/include/target/target_core_base.h
-+++ b/include/target/target_core_base.h
-@@ -781,8 +781,9 @@ struct se_device {
- 	atomic_long_t		read_bytes;
- 	atomic_long_t		write_bytes;
- 	/* Active commands on this virtual SE device */
--	atomic_t		simple_cmds;
--	atomic_t		dev_ordered_sync;
-+	atomic_t		non_ordered;
-+	bool			ordered_sync_in_progress;
-+	atomic_t		delayed_cmd_count;
- 	atomic_t		dev_qf_count;
- 	u32			export_count;
- 	spinlock_t		delayed_cmd_lock;
-@@ -804,6 +805,7 @@ struct se_device {
- 	struct list_head	dev_sep_list;
- 	struct list_head	dev_tmr_list;
- 	struct work_struct	qf_work_queue;
-+	struct work_struct	delayed_cmd_work;
- 	struct list_head	delayed_cmd_list;
- 	struct list_head	state_list;
- 	struct list_head	qf_cmd_list;
+ int perf_env__numa_node(struct perf_env *env, int cpu);
 -- 
 2.33.0
 
