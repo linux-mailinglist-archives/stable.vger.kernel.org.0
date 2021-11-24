@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42B1345BC08
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EDC845BA7C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243521AbhKXMZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:25:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36508 "EHLO mail.kernel.org"
+        id S241572AbhKXMLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:11:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244137AbhKXMXB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:23:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E539861052;
-        Wed, 24 Nov 2021 12:13:48 +0000 (UTC)
+        id S242275AbhKXMJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:09:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8CD16101D;
+        Wed, 24 Nov 2021 12:05:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756029;
+        s=korg; t=1637755528;
         bh=j1dDLAA5xFeV7uJcTZ1ri3BVmBrvnT3ACGQlQoLLuW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tu56Eb/u/U3BPwTP27kKXjIOi15X6ojWldNZLARp9Yq2uKT4ljs4i1upm0TmTG3mj
-         TqxRw9CYl4yUHvhPW+JC557ZL1pTTSGdr1xEC404lK5dff40OXN92WyDCEvQSFwufQ
-         w+pO4VQeUwKt4vl96BPD7H/RVIwHjWlJ6z2dO19k=
+        b=kq/JqvLEyyqRUSAlkDV+ycaYeGBM36YxcjQhO1jhs1Eff1RnzU4DMPKNF7ZNI/q78
+         r9Q2FG2eL8bqEkm+sTxR8IHMr+BWZGtnLYJXKuXY+kmHbrsd8e+R+YgxCvR9XGh9rD
+         1tyMEG02rUt2zgzMFxcdgPtczGq1YBXwqyQm4TH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 127/207] scsi: csiostor: Uninitialized data in csio_ln_vnp_read_cbfn()
-Date:   Wed, 24 Nov 2021 12:56:38 +0100
-Message-Id: <20211124115708.161206042@linuxfoundation.org>
+Subject: [PATCH 4.4 096/162] scsi: csiostor: Uninitialized data in csio_ln_vnp_read_cbfn()
+Date:   Wed, 24 Nov 2021 12:56:39 +0100
+Message-Id: <20211124115701.433627405@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
