@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13FAF45BAE3
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A528845BC18
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240855AbhKXMPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33914 "EHLO mail.kernel.org"
+        id S244350AbhKXMZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:25:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242750AbhKXMLU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:11:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDBCE6104F;
-        Wed, 24 Nov 2021 12:06:16 +0000 (UTC)
+        id S245052AbhKXMYf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:24:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D0DC61074;
+        Wed, 24 Nov 2021 12:15:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755577;
-        bh=gds4oHFyROa3JTEUIdwUap7ISPton9GKqcqF0QpFDeQ=;
+        s=korg; t=1637756114;
+        bh=wPrmmHmvB56jqEavEjnxHpgQFBXTl7D0wdSo4uCMJX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQOKYpDSRWuB1N/eILfSSFmOJJ95bGK4UU2jf9j2noe+WhNwfuv1rk74uSpIjV2kR
-         K3Kc3T1eFVj9mOSPcU+lItxAVD6BKmSgV6KyogSjVhLnIWNGg2VioiTwfgeX1CFaip
-         s9EXRc1RG6SZLvu01Pv+ATslJvXrXRo8hQhCulfo=
+        b=sLx6Ue78UxJ0WD/QF2qEEVmzIGQT9dDpzw1fg+fKIAvxYlhTp8IxUGaw0LfZO/9kU
+         hiZChav3igG6gOSGw679EtXF6v9v78JAcRUNnSAL62fCLMdUpbKUNioTCer3PzCoJJ
+         q9GLWFxT+gLO5Zgi3XLyFS1Svmi3Ynu29Bz34g3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
-        syzbot+bbf402b783eeb6d908db@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.4 146/162] cfg80211: call cfg80211_stop_ap when switch from P2P_GO type
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 178/207] sh: define __BIG_ENDIAN for math-emu
 Date:   Wed, 24 Nov 2021 12:57:29 +0100
-Message-Id: <20211124115703.000074135@linuxfoundation.org>
+Message-Id: <20211124115709.738023241@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 563fbefed46ae4c1f70cffb8eb54c02df480b2c2 upstream.
+[ Upstream commit b929926f01f2d14635345d22eafcf60feed1085e ]
 
-If the userspace tools switch from NL80211_IFTYPE_P2P_GO to
-NL80211_IFTYPE_ADHOC via send_msg(NL80211_CMD_SET_INTERFACE), it
-does not call the cleanup cfg80211_stop_ap(), this leads to the
-initialization of in-use data. For example, this path re-init the
-sdata->assigned_chanctx_list while it is still an element of
-assigned_vifs list, and makes that linked list corrupt.
+Fix this by defining both ENDIAN macros in
+<asm/sfp-machine.h> so that they can be utilized in
+<math-emu/soft-fp.h> according to the latter's comment:
+/* Allow sfp-machine to have its own byte order definitions. */
 
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
-Reported-by: syzbot+bbf402b783eeb6d908db@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20211027173722.777287-1-phind.uet@gmail.com
-Cc: stable@vger.kernel.org
-Fixes: ac800140c20e ("cfg80211: .stop_ap when interface is going down")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+(This is what is done in arch/nds32/include/asm/sfp-machine.h.)
+
+This placates these build warnings:
+
+In file included from ../arch/sh/math-emu/math.c:23:
+.../include/math-emu/single.h:50:21: warning: "__BIG_ENDIAN" is not defined, evaluates to 0 [-Wundef]
+   50 | #if __BYTE_ORDER == __BIG_ENDIAN
+In file included from ../arch/sh/math-emu/math.c:24:
+.../include/math-emu/double.h:59:21: warning: "__BIG_ENDIAN" is not defined, evaluates to 0 [-Wundef]
+   59 | #if __BYTE_ORDER == __BIG_ENDIAN
+
+Fixes: 4b565680d163 ("sh: math-emu support")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Rich Felker <dalias@libc.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/util.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/sh/include/asm/sfp-machine.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -963,6 +963,7 @@ int cfg80211_change_iface(struct cfg8021
+diff --git a/arch/sh/include/asm/sfp-machine.h b/arch/sh/include/asm/sfp-machine.h
+index d3c548443f2a6..dd195c6f3b9d8 100644
+--- a/arch/sh/include/asm/sfp-machine.h
++++ b/arch/sh/include/asm/sfp-machine.h
+@@ -25,6 +25,14 @@
+ #ifndef _SFP_MACHINE_H
+ #define _SFP_MACHINE_H
  
- 		switch (otype) {
- 		case NL80211_IFTYPE_AP:
-+		case NL80211_IFTYPE_P2P_GO:
- 			cfg80211_stop_ap(rdev, dev, true);
- 			break;
- 		case NL80211_IFTYPE_ADHOC:
++#ifdef __BIG_ENDIAN__
++#define __BYTE_ORDER __BIG_ENDIAN
++#define __LITTLE_ENDIAN 0
++#else
++#define __BYTE_ORDER __LITTLE_ENDIAN
++#define __BIG_ENDIAN 0
++#endif
++
+ #define _FP_W_TYPE_SIZE		32
+ #define _FP_W_TYPE		unsigned long
+ #define _FP_WS_TYPE		signed long
+-- 
+2.33.0
+
 
 
