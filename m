@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E742C45C63A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:03:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE0245C3D5
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350233AbhKXOGR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:06:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50758 "EHLO mail.kernel.org"
+        id S1346789AbhKXNoP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:44:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356430AbhKXOEQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:04:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D6476140D;
-        Wed, 24 Nov 2021 13:10:53 +0000 (UTC)
+        id S1350609AbhKXNlg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:41:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C073663228;
+        Wed, 24 Nov 2021 12:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759453;
-        bh=quIe4/uXnU5hwY/ldEROEovl5U5E+Zhjpr5Bb6h1PF8=;
+        s=korg; t=1637758655;
+        bh=30zxiKmj7xAbjW+X7BdIPF20oj7jLWpezvIT1fL2POE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JyoKDkAZCCTBuYg5Qfs0ZwJC3o164h0zXvX1Oyr87z6FQ6PqSVyqKut3tGP/9ToS
-         FOcipPG96ktCTE3NkKac/vuQwz5QygsQyVpeZOxm8LACPWP6p7E/wpwNAbcZPFmqPk
-         OUQr977+spQvUh3a1VZyDbG3+Cev0OzKD4S1xEFw=
+        b=EylDT9bTYuYbV0kKuxX2Xf+MOVdM5toWqoIJEvFxC4ywtLOBwuwWehB/6n7KjfDtd
+         8y6/OHGmJ6YrDEpXn9mLFb7VZALbfCqm5XWu17Ynp21zlFyFm1sc1wliw/N3wCVX8h
+         OkWBtFgaUSLKDm8Ndvy+wvBbtKw1b54XrCLLMnEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand K Mistry <amistry@google.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH 5.15 247/279] drm/prime: Fix use after free in mmap with drm_gem_ttm_mmap
-Date:   Wed, 24 Nov 2021 12:58:54 +0100
-Message-Id: <20211124115727.260910762@linuxfoundation.org>
+        stable@vger.kernel.org, Jeremy Cline <jcline@redhat.com>,
+        Lyude Paul <lyude@redhat.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>
+Subject: [PATCH 5.10 139/154] drm/nouveau: Add a dedicated mutex for the clients list
+Date:   Wed, 24 Nov 2021 12:58:55 +0100
+Message-Id: <20211124115706.986683807@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,58 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand K Mistry <amistry@google.com>
+From: Jeremy Cline <jcline@redhat.com>
 
-commit 8244a3bc27b3efd057da154b8d7e414670d5044f upstream.
+commit abae9164a421bc4a41a3769f01ebcd1f9d955e0e upstream.
 
-drm_gem_ttm_mmap() drops a reference to the gem object on success. If
-the gem object's refcount == 1 on entry to drm_gem_prime_mmap(), that
-drop will free the gem object, and the subsequent drm_gem_object_get()
-will be a UAF. Fix by grabbing a reference before calling the mmap
-helper.
+Rather than protecting the nouveau_drm clients list with the lock within
+the "client" nouveau_cli, add a dedicated lock to serialize access to
+the list. This is both clearer and necessary to avoid lockdep being
+upset with us when we need to iterate through all the clients in the
+list and potentially lock their mutex, which is the same class as the
+lock protecting the entire list.
 
-This issue was forseen when the reference dropping was adding in
-commit 9786b65bc61ac ("drm/ttm: fix mmap refcounting"):
-  "For that to work properly the drm_gem_object_get() call in
-  drm_gem_ttm_mmap() must be moved so it happens before calling
-  obj->funcs->mmap(), otherwise the gem refcount would go down
-  to zero."
-
-Signed-off-by: Anand K Mistry <amistry@google.com>
-Fixes: 9786b65bc61a ("drm/ttm: fix mmap refcounting")
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.5+
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210930085932.1.I8043d61cc238e0168e2f4ca5f4783223434aa587@changeid
+Cc: stable@vger.kernel.org # 5.4+
+Signed-off-by: Jeremy Cline <jcline@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Reviewed-by: Ben Skeggs <bskeggs@redhat.com>
+Tested-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201125202648.5220-3-jcline@redhat.com
+Link: https://gitlab.freedesktop.org/drm/nouveau/-/merge_requests/14
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_prime.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_drm.c |   10 ++++++----
+ drivers/gpu/drm/nouveau/nouveau_drv.h |    5 +++++
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/drm_prime.c
-+++ b/drivers/gpu/drm/drm_prime.c
-@@ -719,11 +719,13 @@ int drm_gem_prime_mmap(struct drm_gem_ob
- 	if (obj->funcs && obj->funcs->mmap) {
- 		vma->vm_ops = obj->funcs->vm_ops;
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -557,6 +557,7 @@ nouveau_drm_device_init(struct drm_devic
+ 		nvkm_dbgopt(nouveau_debug, "DRM");
  
-+		drm_gem_object_get(obj);
- 		ret = obj->funcs->mmap(obj, vma);
--		if (ret)
-+		if (ret) {
-+			drm_gem_object_put(obj);
- 			return ret;
-+		}
- 		vma->vm_private_data = obj;
--		drm_gem_object_get(obj);
- 		return 0;
- 	}
+ 	INIT_LIST_HEAD(&drm->clients);
++	mutex_init(&drm->clients_lock);
+ 	spin_lock_init(&drm->tile.lock);
  
+ 	/* workaround an odd issue on nvc1 by disabling the device's
+@@ -654,6 +655,7 @@ nouveau_drm_device_fini(struct drm_devic
+ 	nouveau_cli_fini(&drm->client);
+ 	nouveau_cli_fini(&drm->master);
+ 	nvif_parent_dtor(&drm->parent);
++	mutex_destroy(&drm->clients_lock);
+ 	kfree(drm);
+ }
+ 
+@@ -1086,9 +1088,9 @@ nouveau_drm_open(struct drm_device *dev,
+ 
+ 	fpriv->driver_priv = cli;
+ 
+-	mutex_lock(&drm->client.mutex);
++	mutex_lock(&drm->clients_lock);
+ 	list_add(&cli->head, &drm->clients);
+-	mutex_unlock(&drm->client.mutex);
++	mutex_unlock(&drm->clients_lock);
+ 
+ done:
+ 	if (ret && cli) {
+@@ -1114,9 +1116,9 @@ nouveau_drm_postclose(struct drm_device
+ 		nouveau_abi16_fini(cli->abi16);
+ 	mutex_unlock(&cli->mutex);
+ 
+-	mutex_lock(&drm->client.mutex);
++	mutex_lock(&drm->clients_lock);
+ 	list_del(&cli->head);
+-	mutex_unlock(&drm->client.mutex);
++	mutex_unlock(&drm->clients_lock);
+ 
+ 	nouveau_cli_fini(cli);
+ 	kfree(cli);
+--- a/drivers/gpu/drm/nouveau/nouveau_drv.h
++++ b/drivers/gpu/drm/nouveau/nouveau_drv.h
+@@ -142,6 +142,11 @@ struct nouveau_drm {
+ 
+ 	struct list_head clients;
+ 
++	/**
++	 * @clients_lock: Protects access to the @clients list of &struct nouveau_cli.
++	 */
++	struct mutex clients_lock;
++
+ 	u8 old_pm_cap;
+ 
+ 	struct {
 
 
