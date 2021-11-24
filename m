@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4046A45BCC1
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4FB545BA1B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242954AbhKXMcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:32:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38272 "EHLO mail.kernel.org"
+        id S242007AbhKXMHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:07:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243296AbhKXMUU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:20:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD9C161131;
-        Wed, 24 Nov 2021 12:12:27 +0000 (UTC)
+        id S242282AbhKXMGk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:06:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F242660FBF;
+        Wed, 24 Nov 2021 12:03:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755948;
-        bh=xqVALZlNQfC1BHtDBPx9Qlj03SZPArGR0HpXbatcAuw=;
+        s=korg; t=1637755410;
+        bh=SVJ1+bjXfGnfETTDv75CBkHb2qQU6zm3q6RJWGvy200=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1JXJGl1R82ssOeg8O9OPoKZwha3vERB5DfBKhyLmsv2rrXunu2fDeN3jdt9qx9hoM
-         6KUwARZ2Ek2YN3KoTCB8/IBnkFrmrsnjS2pxlsa9RpPZAUS0Nd3eps08/wu9PQ6t1P
-         6uuV7ePtS+LG0EwbrFOgxjjin4REsqCWsrmYO4Yo=
+        b=jpak3Rj909j5S1oO6P5tj0AjDNpRWLyMoJnrqu6oCp+EBvhzvD8Ry21d0ndFpBh1g
+         2UX/sj2aZlFVQhxYjrWdRDoiHRQh6Ds3qtjt+Eu+dKQta4kldEJfrdi1PeIRHgU+KA
+         eNPAw2imjXqxLbJjbrfjfCk2nw8lSQAMDt/j+azw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jackie Liu <liuyun01@kylinos.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+93dba5b91f0fed312cbd@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 116/207] ARM: s3c: irq-s3c24xx: Fix return value check for s3c24xx_init_intc()
+Subject: [PATCH 4.4 084/162] smackfs: use netlbl_cfg_cipsov4_del() for deleting cipso_v4_doi
 Date:   Wed, 24 Nov 2021 12:56:27 +0100
-Message-Id: <20211124115707.821799701@linuxfoundation.org>
+Message-Id: <20211124115701.039259914@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit 2aa717473ce96c93ae43a5dc8c23cedc8ce7dd9f ]
+[ Upstream commit 0934ad42bb2c5df90a1b9de690f93de735b622fe ]
 
-The s3c24xx_init_intc() returns an error pointer upon failure, not NULL.
-let's add an error pointer check in s3c24xx_handle_irq.
+syzbot is reporting UAF at cipso_v4_doi_search() [1], for smk_cipso_doi()
+is calling kfree() without removing from the cipso_v4_doi_list list after
+netlbl_cfg_cipsov4_map_add() returned an error. We need to use
+netlbl_cfg_cipsov4_del() in order to remove from the list and wait for
+RCU grace period before kfree().
 
-s3c_intc[0] is not NULL or ERR, we can simplify the code.
-
-Fixes: 1f629b7a3ced ("ARM: S3C24XX: transform irq handling into a declarative form")
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-Link: https://lore.kernel.org/r/20210901123557.1043953-1-liu.yun@linux.dev
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://syzkaller.appspot.com/bug?extid=93dba5b91f0fed312cbd [1]
+Reported-by: syzbot <syzbot+93dba5b91f0fed312cbd@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 6c2e8ac0953fccdd ("netlabel: Update kernel configuration API")
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-s3c24xx.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ security/smack/smackfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-s3c24xx.c b/drivers/irqchip/irq-s3c24xx.c
-index c25ce5af091ad..e92ab62cc87d9 100644
---- a/drivers/irqchip/irq-s3c24xx.c
-+++ b/drivers/irqchip/irq-s3c24xx.c
-@@ -368,11 +368,25 @@ static inline int s3c24xx_handle_intc(struct s3c_irq_intc *intc,
- asmlinkage void __exception_irq_entry s3c24xx_handle_irq(struct pt_regs *regs)
- {
- 	do {
--		if (likely(s3c_intc[0]))
--			if (s3c24xx_handle_intc(s3c_intc[0], regs, 0))
--				continue;
-+		/*
-+		 * For platform based machines, neither ERR nor NULL can happen here.
-+		 * The s3c24xx_handle_irq() will be set as IRQ handler iff this succeeds:
-+		 *
-+		 *    s3c_intc[0] = s3c24xx_init_intc()
-+		 *
-+		 * If this fails, the next calls to s3c24xx_init_intc() won't be executed.
-+		 *
-+		 * For DT machine, s3c_init_intc_of() could set the IRQ handler without
-+		 * setting s3c_intc[0] only if it was called with num_ctrl=0. There is no
-+		 * such code path, so again the s3c_intc[0] will have a valid pointer if
-+		 * set_handle_irq() is called.
-+		 *
-+		 * Therefore in s3c24xx_handle_irq(), the s3c_intc[0] is always something.
-+		 */
-+		if (s3c24xx_handle_intc(s3c_intc[0], regs, 0))
-+			continue;
- 
--		if (s3c_intc[2])
-+		if (!IS_ERR_OR_NULL(s3c_intc[2]))
- 			if (s3c24xx_handle_intc(s3c_intc[2], regs, 64))
- 				continue;
- 
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 40c8b2b8a4722..ce30b61c56171 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -740,7 +740,7 @@ static void smk_cipso_doi(void)
+ 	if (rc != 0) {
+ 		printk(KERN_WARNING "%s:%d map add rc = %d\n",
+ 		       __func__, __LINE__, rc);
+-		kfree(doip);
++		netlbl_cfg_cipsov4_del(doip->doi, &nai);
+ 		return;
+ 	}
+ }
 -- 
 2.33.0
 
