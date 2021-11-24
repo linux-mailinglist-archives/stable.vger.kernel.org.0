@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63E5C45BB61
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:17:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45F9545B9D8
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:02:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242321AbhKXMTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:19:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49258 "EHLO mail.kernel.org"
+        id S236935AbhKXMF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:05:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242493AbhKXMQw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:16:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF30061100;
-        Wed, 24 Nov 2021 12:10:39 +0000 (UTC)
+        id S242171AbhKXMEw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:04:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2DEC61052;
+        Wed, 24 Nov 2021 12:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755840;
-        bh=zqqkFx/omr5n5IvJLSH3YWicnLaayEf/zl3DEO8ju6o=;
+        s=korg; t=1637755303;
+        bh=GfOpFnXAiHmX3z8uL6XtcSjQjINziKqF1YSeaM9QeMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmB9B57YjVoh504SrlMEh1H0/s5rlkIfL88/FU0f1deUp/6FGgiRg2cmYg/rm3Cir
-         E6+ncNoBGCITAbWxP7ORTqn6q2t9w/0FXQfx6/1PuVAYjJ9L4WfpANERsVOflkmxtz
-         M0LfLkZFmCRKyxFvQgjnTWT6CAIPzMx2feYqpBCc=
+        b=haQC7ixAPXFNpYk0dZkaoSg10k4nY0nhoNJSFSgTZv2yHvKhFx8UDOjL2Do2AT7Mi
+         KFYxwu/jNyEjw/km12JCXRulorfi7qhIPncChDmMMjoz4JonZltuFPb29ru3U0VBDo
+         0Y09soLYs1FpM9iF578HBX8TXlJ1ftLTyW4CkKWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lasse Collin <lasse.collin@tukaani.org>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 077/207] lib/xz: Validate the value before assigning it to an enum variable
+Subject: [PATCH 4.4 045/162] MIPS: lantiq: dma: add small delay after reset
 Date:   Wed, 24 Nov 2021 12:55:48 +0100
-Message-Id: <20211124115706.401089165@linuxfoundation.org>
+Message-Id: <20211124115659.800790426@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lasse Collin <lasse.collin@tukaani.org>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit 4f8d7abaa413c34da9d751289849dbfb7c977d05 ]
+[ Upstream commit c12aa581f6d5e80c3c3675ab26a52c2b3b62f76e ]
 
-This might matter, for example, if the underlying type of enum xz_check
-was a signed char. In such a case the validation wouldn't have caught an
-unsupported header. I don't know if this problem can occur in the kernel
-on any arch but it's still good to fix it because some people might copy
-the XZ code to their own projects from Linux instead of the upstream
-XZ Embedded repository.
+Reading the DMA registers immediately after the reset causes
+Data Bus Error. Adding a small delay fixes this issue.
 
-This change may increase the code size by a few bytes. An alternative
-would have been to use an unsigned int instead of enum xz_check but
-using an enumeration looks cleaner.
-
-Link: https://lore.kernel.org/r/20211010213145.17462-3-xiang@kernel.org
-Signed-off-by: Lasse Collin <lasse.collin@tukaani.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/xz/xz_dec_stream.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/mips/lantiq/xway/dma.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/lib/xz/xz_dec_stream.c b/lib/xz/xz_dec_stream.c
-index ac809b1e64f78..9e5b9ab537fea 100644
---- a/lib/xz/xz_dec_stream.c
-+++ b/lib/xz/xz_dec_stream.c
-@@ -402,12 +402,12 @@ static enum xz_ret dec_stream_header(struct xz_dec *s)
- 	 * we will accept other check types too, but then the check won't
- 	 * be verified and a warning (XZ_UNSUPPORTED_CHECK) will be given.
- 	 */
-+	if (s->temp.buf[HEADER_MAGIC_SIZE + 1] > XZ_CHECK_MAX)
-+		return XZ_OPTIONS_ERROR;
-+
- 	s->check_type = s->temp.buf[HEADER_MAGIC_SIZE + 1];
+diff --git a/arch/mips/lantiq/xway/dma.c b/arch/mips/lantiq/xway/dma.c
+index 34a116e840d8b..932161284213c 100644
+--- a/arch/mips/lantiq/xway/dma.c
++++ b/arch/mips/lantiq/xway/dma.c
+@@ -21,6 +21,7 @@
+ #include <linux/dma-mapping.h>
+ #include <linux/module.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/err.h>
  
- #ifdef XZ_DEC_ANY_CHECK
--	if (s->check_type > XZ_CHECK_MAX)
--		return XZ_OPTIONS_ERROR;
--
- 	if (s->check_type > XZ_CHECK_CRC32)
- 		return XZ_UNSUPPORTED_CHECK;
- #else
+ #include <lantiq_soc.h>
+@@ -232,6 +233,8 @@ ltq_dma_init(struct platform_device *pdev)
+ 	clk_enable(clk);
+ 	ltq_dma_w32_mask(0, DMA_RESET, LTQ_DMA_CTRL);
+ 
++	usleep_range(1, 10);
++
+ 	/* disable all interrupts */
+ 	ltq_dma_w32(0, LTQ_DMA_IRNEN);
+ 
 -- 
 2.33.0
 
