@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F4145BFD4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:59:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 251EC45BACC
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344165AbhKXNCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:02:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38602 "EHLO mail.kernel.org"
+        id S241439AbhKXMOs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:14:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346592AbhKXNAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:00:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4734461205;
-        Wed, 24 Nov 2021 12:34:24 +0000 (UTC)
+        id S243366AbhKXMN6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:13:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60667610A8;
+        Wed, 24 Nov 2021 12:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757264;
-        bh=iMiSQysa73jwBc9OUzTzJvJcmqImLeoHVcWuSrD8heg=;
+        s=korg; t=1637755707;
+        bh=THgP4rH70xVRkoHBS4u8T3uDzkeFVEtZQ5eSYf++wv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cg+bL+GtflvXrMsjVVC7v447UqnhUjHpmmfxax3tOPW+BBb475xKaDv6IB8tx0sEU
-         L/XMxxvHuBmmIiA6chD6DufHKIdPGOY+63cNEXSpPUlObNAQu4iDPROxXecSYzmKid
-         fePm4jdZNdE8gU7U8/3AKUB1gmhJe0/IZLBos8Xk=
+        b=rTd50sSzcQ5OEzl2Iu6n/wgkA1VmoHWrns7PzUJgT0mZiVbQhCZlb9NeLAZfRO9NM
+         4M9MEd1ioFbRauwnTwJeHeU6fSiRmCRO6Yeus0nFFy+E9vGdGcGq29FyO7h+hkbEcq
+         X75XdoJkQrUMM7XeAx59PGmiTMNkMO7tOsnpczVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lasse Collin <lasse.collin@tukaani.org>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 110/323] lib/xz: Avoid overlapping memcpy() with invalid input with in-place decompression
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Rob Herring <robh@kernel.org>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 029/207] regulator: s5m8767: do not use reset value as DVS voltage if GPIO DVS is disabled
 Date:   Wed, 24 Nov 2021 12:55:00 +0100
-Message-Id: <20211124115722.677204150@linuxfoundation.org>
+Message-Id: <20211124115704.895826216@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +40,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lasse Collin <lasse.collin@tukaani.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 83d3c4f22a36d005b55f44628f46cc0d319a75e8 ]
+commit b16bef60a9112b1e6daf3afd16484eb06e7ce792 upstream.
 
-With valid files, the safety margin described in lib/decompress_unxz.c
-ensures that these buffers cannot overlap. But if the uncompressed size
-of the input is larger than the caller thought, which is possible when
-the input file is invalid/corrupt, the buffers can overlap. Obviously
-the result will then be garbage (and usually the decoder will return
-an error too) but no other harm will happen when such an over-run occurs.
+The driver and its bindings, before commit 04f9f068a619 ("regulator:
+s5m8767: Modify parsing method of the voltage table of buck2/3/4") were
+requiring to provide at least one safe/default voltage for DVS registers
+if DVS GPIO is not being enabled.
 
-This change only affects uncompressed LZMA2 chunks and so this
-should have no effect on performance.
+IOW, if s5m8767,pmic-buck2-uses-gpio-dvs is missing, the
+s5m8767,pmic-buck2-dvs-voltage should still be present and contain one
+voltage.
 
-Link: https://lore.kernel.org/r/20211010213145.17462-2-xiang@kernel.org
-Signed-off-by: Lasse Collin <lasse.collin@tukaani.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This requirement was coming from driver behavior matching this condition
+(none of DVS GPIO is enabled): it was always initializing the DVS
+selector pins to 0 and keeping the DVS enable setting at reset value
+(enabled).  Therefore if none of DVS GPIO is enabled in devicetree,
+driver was configuring the first DVS voltage for buck[234].
+
+Mentioned commit 04f9f068a619 ("regulator: s5m8767: Modify parsing
+method of the voltage table of buck2/3/4") broke it because DVS voltage
+won't be parsed from devicetree if DVS GPIO is not enabled.  After the
+change, driver will configure bucks to use the register reset value as
+voltage which might have unpleasant effects.
+
+Fix this by relaxing the bindings constrain: if DVS GPIO is not enabled
+in devicetree (therefore DVS voltage is also not parsed), explicitly
+disable it.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 04f9f068a619 ("regulator: s5m8767: Modify parsing method of the voltage table of buck2/3/4")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Message-Id: <20211008113723.134648-2-krzysztof.kozlowski@canonical.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/decompress_unxz.c |  2 +-
- lib/xz/xz_dec_lzma2.c | 21 +++++++++++++++++++--
- 2 files changed, 20 insertions(+), 3 deletions(-)
+ Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt |   21 +++-------
+ drivers/regulator/s5m8767.c                                     |   21 ++++------
+ 2 files changed, 17 insertions(+), 25 deletions(-)
 
-diff --git a/lib/decompress_unxz.c b/lib/decompress_unxz.c
-index 25d59a95bd668..abea25310ac73 100644
---- a/lib/decompress_unxz.c
-+++ b/lib/decompress_unxz.c
-@@ -167,7 +167,7 @@
-  * memeq and memzero are not used much and any remotely sane implementation
-  * is fast enough. memcpy/memmove speed matters in multi-call mode, but
-  * the kernel image is decompressed in single-call mode, in which only
-- * memcpy speed can matter and only if there is a lot of uncompressible data
-+ * memmove speed can matter and only if there is a lot of uncompressible data
-  * (LZMA2 stores uncompressible chunks in uncompressed form). Thus, the
-  * functions below should just be kept small; it's probably not worth
-  * optimizing for speed.
-diff --git a/lib/xz/xz_dec_lzma2.c b/lib/xz/xz_dec_lzma2.c
-index 08c3c80499983..2c5197d6b944d 100644
---- a/lib/xz/xz_dec_lzma2.c
-+++ b/lib/xz/xz_dec_lzma2.c
-@@ -387,7 +387,14 @@ static void dict_uncompressed(struct dictionary *dict, struct xz_buf *b,
+--- a/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
++++ b/Documentation/devicetree/bindings/regulator/samsung,s5m8767.txt
+@@ -13,6 +13,14 @@ common regulator binding documented in:
  
- 		*left -= copy_size;
  
--		memcpy(dict->buf + dict->pos, b->in + b->in_pos, copy_size);
-+		/*
-+		 * If doing in-place decompression in single-call mode and the
-+		 * uncompressed size of the file is larger than the caller
-+		 * thought (i.e. it is invalid input!), the buffers below may
-+		 * overlap and cause undefined behavior with memcpy().
-+		 * With valid inputs memcpy() would be fine here.
-+		 */
-+		memmove(dict->buf + dict->pos, b->in + b->in_pos, copy_size);
- 		dict->pos += copy_size;
+ Required properties of the main device node (the parent!):
++ - s5m8767,pmic-buck-ds-gpios: GPIO specifiers for three host gpio's used
++   for selecting GPIO DVS lines. It is one-to-one mapped to dvs gpio lines.
++
++ [1] If either of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
++     property is specified, then all the eight voltage values for the
++     's5m8767,pmic-buck[2/3/4]-dvs-voltage' should be specified.
++
++Optional properties of the main device node (the parent!):
+  - s5m8767,pmic-buck2-dvs-voltage: A set of 8 voltage values in micro-volt (uV)
+    units for buck2 when changing voltage using gpio dvs. Refer to [1] below
+    for additional information.
+@@ -25,19 +33,6 @@ Required properties of the main device n
+    units for buck4 when changing voltage using gpio dvs. Refer to [1] below
+    for additional information.
  
- 		if (dict->full < dict->pos)
-@@ -397,7 +404,11 @@ static void dict_uncompressed(struct dictionary *dict, struct xz_buf *b,
- 			if (dict->pos == dict->end)
- 				dict->pos = 0;
+- - s5m8767,pmic-buck-ds-gpios: GPIO specifiers for three host gpio's used
+-   for selecting GPIO DVS lines. It is one-to-one mapped to dvs gpio lines.
+-
+- [1] If none of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
+-     property is specified, the 's5m8767,pmic-buck[2/3/4]-dvs-voltage'
+-     property should specify atleast one voltage level (which would be a
+-     safe operating voltage).
+-
+-     If either of the 's5m8767,pmic-buck[2/3/4]-uses-gpio-dvs' optional
+-     property is specified, then all the eight voltage values for the
+-     's5m8767,pmic-buck[2/3/4]-dvs-voltage' should be specified.
+-
+-Optional properties of the main device node (the parent!):
+  - s5m8767,pmic-buck2-uses-gpio-dvs: 'buck2' can be controlled by gpio dvs.
+  - s5m8767,pmic-buck3-uses-gpio-dvs: 'buck3' can be controlled by gpio dvs.
+  - s5m8767,pmic-buck4-uses-gpio-dvs: 'buck4' can be controlled by gpio dvs.
+--- a/drivers/regulator/s5m8767.c
++++ b/drivers/regulator/s5m8767.c
+@@ -845,18 +845,15 @@ static int s5m8767_pmic_probe(struct pla
+ 	/* DS4 GPIO */
+ 	gpio_direction_output(pdata->buck_ds[2], 0x0);
  
--			memcpy(b->out + b->out_pos, b->in + b->in_pos,
-+			/*
-+			 * Like above but for multi-call mode: use memmove()
-+			 * to avoid undefined behavior with invalid input.
-+			 */
-+			memmove(b->out + b->out_pos, b->in + b->in_pos,
- 					copy_size);
- 		}
+-	if (pdata->buck2_gpiodvs || pdata->buck3_gpiodvs ||
+-	   pdata->buck4_gpiodvs) {
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK2CTRL, 1 << 1,
+-				(pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK3CTRL, 1 << 1,
+-				(pdata->buck3_gpiodvs) ? (1 << 1) : (0 << 1));
+-		regmap_update_bits(s5m8767->iodev->regmap_pmic,
+-				S5M8767_REG_BUCK4CTRL, 1 << 1,
+-				(pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
+-	}
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK2CTRL, 1 << 1,
++			   (pdata->buck2_gpiodvs) ? (1 << 1) : (0 << 1));
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK3CTRL, 1 << 1,
++			   (pdata->buck3_gpiodvs) ? (1 << 1) : (0 << 1));
++	regmap_update_bits(s5m8767->iodev->regmap_pmic,
++			   S5M8767_REG_BUCK4CTRL, 1 << 1,
++			   (pdata->buck4_gpiodvs) ? (1 << 1) : (0 << 1));
  
-@@ -421,6 +432,12 @@ static uint32_t dict_flush(struct dictionary *dict, struct xz_buf *b)
- 		if (dict->pos == dict->end)
- 			dict->pos = 0;
- 
-+		/*
-+		 * These buffers cannot overlap even if doing in-place
-+		 * decompression because in multi-call mode dict->buf
-+		 * has been allocated by us in this file; it's not
-+		 * provided by the caller like in single-call mode.
-+		 */
- 		memcpy(b->out + b->out_pos, dict->buf + dict->start,
- 				copy_size);
- 	}
--- 
-2.33.0
-
+ 	/* Initialize GPIO DVS registers */
+ 	for (i = 0; i < 8; i++) {
 
 
