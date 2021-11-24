@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A56D545BC42
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AEBE45BC3F
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242783AbhKXM1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:27:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42290 "EHLO mail.kernel.org"
+        id S242538AbhKXM1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:27:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244905AbhKXMZC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245254AbhKXMZC (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 07:25:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B4E9610FE;
-        Wed, 24 Nov 2021 12:15:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FA92610A1;
+        Wed, 24 Nov 2021 12:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756143;
-        bh=VMCMeR/LsVhWwQNY53W4zZXhXZSc3Gtr5bb1ktanws4=;
+        s=korg; t=1637756145;
+        bh=0G2XniffQhCNYLj6ZHVwiH4fWdd69vWoyDrsMa7vgxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qg01BQjRGAX0sW1AWB/IKLS8ekcEx/a9Haxz5TxfrfSZ9I+vLGMFagkQGQRhAUWtu
-         6En/RkXySCEH8jfcB9MmnptXZrUhy731QVxrtTQJWaY9hFyTpGjrJ/wk47sk/ulsnB
-         Fd6x7B9vJsGkJ4S7cOTjES9Zvob6SFvXhoUCB/w4=
+        b=xJxp9kIrvlVRqufxZz7VDfd/3tmdY0vqwY/HGsyxEBySpUdhA8edk3Bo8SouNK/BH
+         xtr+vzi4xdBUEh70nrBCj4pwTb0KeULtWwc4lLAdKyLGhRBD9s2+B8evI5NZsF5eFL
+         7hU406Akd+pKY2bYowEyLxxQdZkXQa3WZ3yiM8gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sohaib Mohamed <sohaib.amhmd@gmail.com>,
-        Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Hitoshi Mitake <h.mitake@gmail.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Paul Russel <rusty@rustcorp.com.au>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Pierre Gondois <pierre.gondois@arm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Alexander Antonov <alexander.antonov@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 187/207] perf bench: Fix two memory leaks detected with ASan
-Date:   Wed, 24 Nov 2021 12:57:38 +0100
-Message-Id: <20211124115710.018937321@linuxfoundation.org>
+Subject: [PATCH 4.9 188/207] perf/x86/intel/uncore: Fix filter_tid mask for CHA events on Skylake Server
+Date:   Wed, 24 Nov 2021 12:57:39 +0100
+Message-Id: <20211124115710.048469484@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
 References: <20211124115703.941380739@linuxfoundation.org>
@@ -49,54 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sohaib Mohamed <sohaib.amhmd@gmail.com>
+From: Alexander Antonov <alexander.antonov@linux.intel.com>
 
-[ Upstream commit 92723ea0f11d92496687db8c9725248e9d1e5e1d ]
+[ Upstream commit e324234e0aa881b7841c7c713306403e12b069ff ]
 
-ASan reports memory leaks while running:
+According Uncore Reference Manual: any of the CHA events may be filtered
+by Thread/Core-ID by using tid modifier in CHA Filter 0 Register.
+Update skx_cha_hw_config() to follow Uncore Guide.
 
-  $ perf bench sched all
-
-Fixes: e27454cc6352c422 ("perf bench: Add sched-messaging.c: Benchmark for scheduler and IPC mechanisms based on hackbench")
-Signed-off-by: Sohaib Mohamed <sohaib.amhmd@gmail.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Hitoshi Mitake <h.mitake@gmail.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Paul Russel <rusty@rustcorp.com.au>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Pierre Gondois <pierre.gondois@arm.com>
-Link: http://lore.kernel.org/lkml/20211110022012.16620-1-sohaib.amhmd@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: cd34cd97b7b4 ("perf/x86/intel/uncore: Add Skylake server uncore support")
+Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Link: https://lore.kernel.org/r/20211115090334.3789-2-alexander.antonov@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/bench/sched-messaging.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/events/intel/uncore_snbep.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/perf/bench/sched-messaging.c b/tools/perf/bench/sched-messaging.c
-index 6a111e775210f..9322fd166bdaf 100644
---- a/tools/perf/bench/sched-messaging.c
-+++ b/tools/perf/bench/sched-messaging.c
-@@ -225,6 +225,8 @@ static unsigned int group(pthread_t *pth,
- 		snd_ctx->out_fds[i] = fds[1];
- 		if (!thread_mode)
- 			close(fds[0]);
-+
-+		free(ctx);
- 	}
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
+index 686dd4339370f..cfd7b85f97889 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -3363,6 +3363,9 @@ static int skx_cha_hw_config(struct intel_uncore_box *box, struct perf_event *ev
+ 	struct hw_perf_event_extra *reg1 = &event->hw.extra_reg;
+ 	struct extra_reg *er;
+ 	int idx = 0;
++	/* Any of the CHA events may be filtered by Thread/Core-ID.*/
++	if (event->hw.config & SNBEP_CBO_PMON_CTL_TID_EN)
++		idx = SKX_CHA_MSR_PMON_BOX_FILTER_TID;
  
- 	/* Now we have all the fds, fork the senders */
-@@ -241,6 +243,8 @@ static unsigned int group(pthread_t *pth,
- 		for (i = 0; i < num_fds; i++)
- 			close(snd_ctx->out_fds[i]);
- 
-+	free(snd_ctx);
-+
- 	/* Return number of children to reap */
- 	return num_fds * 2;
- }
+ 	for (er = skx_uncore_cha_extra_regs; er->msr; er++) {
+ 		if (er->event != (event->hw.config & er->config_mask))
 -- 
 2.33.0
 
