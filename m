@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54B3D45C0FE
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 179E645C2E0
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:31:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344540AbhKXNOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:14:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56612 "EHLO mail.kernel.org"
+        id S1347391AbhKXNeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:34:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345564AbhKXNLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:11:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 333E0613D0;
-        Wed, 24 Nov 2021 12:42:01 +0000 (UTC)
+        id S1351441AbhKXNbn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:31:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A648615A6;
+        Wed, 24 Nov 2021 12:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757721;
-        bh=KOE7QOMhpEINvh2hGUqlrpZHncZ0wr/2/1qNtEkU/Xk=;
+        s=korg; t=1637758371;
+        bh=lU/AhEQe/DdLXtk1zubBmRRJyOVRZeWa5760O/Q9GlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Np/UO5THl6DhEOcQ5NEFW5nSy/Y7QNtIsevc8Y4ZCvHaDlO7sdpBmwEDS5bkHoI1d
-         eJc6fTH5P/WOAI/5iI74Gkeg1g/YIU2NOy4zGG2anDWc8ygQIuam2ryQ7rV3FO8X98
-         44ABbzZKfh8b7Y3AwiHxoaYQak+PZJcoTqPWY744=
+        b=2uUkVZFJfYbxj9YKkShjR/H58CIMZeCQ0f4vqGptKuaUJD/UHGl3fKmohdyIQW5f0
+         WBWv+EzKCbyTB0OXYj7p+WHeHVNUR8DrWiKRONqfoYNoju/UbBN7Rlam4RRzf2XK7P
+         F9LuDKWv3w+V86hydGLdH7JUH/XM0UApZVHPk2mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Bjorn Helgaas <helgaas@kernel.org>
-Subject: [PATCH 4.19 254/323] PCI/MSI: Destroy sysfs before freeing entries
+        stable@vger.kernel.org,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Paul Mundt <lethal@linux-sh.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Miguel Ojeda <ojeda@kernel.org>, Rich Felker <dalias@libc.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 048/154] sh: check return code of request_irq
 Date:   Wed, 24 Nov 2021 12:57:24 +0100
-Message-Id: <20211124115727.476442786@linuxfoundation.org>
+Message-Id: <20211124115703.889804044@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 3735459037114d31e5acd9894fad9aed104231a0 upstream.
+[ Upstream commit 0e38225c92c7964482a8bb6b3e37fde4319e965c ]
 
-free_msi_irqs() frees the MSI entries before destroying the sysfs entries
-which are exposing them. Nothing prevents a concurrent free while a sysfs
-file is read and accesses the possibly freed entry.
+request_irq is marked __must_check, but the call in shx3_prepare_cpus
+has a void return type, so it can't propagate failure to the caller.
+Follow cues from hexagon and just print an error.
 
-Move the sysfs release ahead of freeing the entries.
-
-Fixes: 1c51b50c2995 ("PCI/MSI: Export MSI mode using attributes, not kobjects")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Bjorn Helgaas <helgaas@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87sfw5305m.ffs@tglx
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: c7936b9abcf5 ("sh: smp: Hook in to the generic IPI handler for SH-X3 SMP.")
+Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc: Paul Mundt <lethal@linux-sh.org>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
+Signed-off-by: Rich Felker <dalias@libc.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/msi.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ arch/sh/kernel/cpu/sh4a/smp-shx3.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -372,18 +372,6 @@ static void free_msi_irqs(struct pci_dev
- 			for (i = 0; i < entry->nvec_used; i++)
- 				BUG_ON(irq_has_action(entry->irq + i));
+diff --git a/arch/sh/kernel/cpu/sh4a/smp-shx3.c b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
+index f8a2bec0f260b..1261dc7b84e8b 100644
+--- a/arch/sh/kernel/cpu/sh4a/smp-shx3.c
++++ b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
+@@ -73,8 +73,9 @@ static void shx3_prepare_cpus(unsigned int max_cpus)
+ 	BUILD_BUG_ON(SMP_MSG_NR >= 8);
  
--	pci_msi_teardown_msi_irqs(dev);
--
--	list_for_each_entry_safe(entry, tmp, msi_list, list) {
--		if (entry->msi_attrib.is_msix) {
--			if (list_is_last(&entry->list, msi_list))
--				iounmap(entry->mask_base);
--		}
--
--		list_del(&entry->list);
--		free_msi_entry(entry);
--	}
--
- 	if (dev->msi_irq_groups) {
- 		sysfs_remove_groups(&dev->dev.kobj, dev->msi_irq_groups);
- 		msi_attrs = dev->msi_irq_groups[0]->attrs;
-@@ -399,6 +387,18 @@ static void free_msi_irqs(struct pci_dev
- 		kfree(dev->msi_irq_groups);
- 		dev->msi_irq_groups = NULL;
- 	}
-+
-+	pci_msi_teardown_msi_irqs(dev);
-+
-+	list_for_each_entry_safe(entry, tmp, msi_list, list) {
-+		if (entry->msi_attrib.is_msix) {
-+			if (list_is_last(&entry->list, msi_list))
-+				iounmap(entry->mask_base);
-+		}
-+
-+		list_del(&entry->list);
-+		free_msi_entry(entry);
-+	}
- }
+ 	for (i = 0; i < SMP_MSG_NR; i++)
+-		request_irq(104 + i, ipi_interrupt_handler,
+-			    IRQF_PERCPU, "IPI", (void *)(long)i);
++		if (request_irq(104 + i, ipi_interrupt_handler,
++			    IRQF_PERCPU, "IPI", (void *)(long)i))
++			pr_err("Failed to request irq %d\n", i);
  
- static void pci_intx_for_msi(struct pci_dev *dev, int enable)
+ 	for (i = 0; i < max_cpus; i++)
+ 		set_cpu_present(i, true);
+-- 
+2.33.0
+
 
 
