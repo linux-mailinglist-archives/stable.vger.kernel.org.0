@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F69D45C32E
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:33:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4670C45C12D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:12:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347188AbhKXNgE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:36:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46292 "EHLO mail.kernel.org"
+        id S1347103AbhKXNPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:15:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352072AbhKXNeA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:34:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32C0A61B26;
-        Wed, 24 Nov 2021 12:53:56 +0000 (UTC)
+        id S1348544AbhKXNNZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:13:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A10761248;
+        Wed, 24 Nov 2021 12:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758437;
-        bh=sVLH/3bPoTcclJCjnqTxHfTrKiW3x4IU7q64XrNSqD4=;
+        s=korg; t=1637757780;
+        bh=LjySgigGEFpkpOaIZGBYUfKCdv1hq1lfUA+Da8866Sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LO2RbcKYOAs3kNtN2tLHFEqKBIFCeK/FGRNi3SGnf05veHnk/tD60dQrrOqYjAPoM
-         zyfPFMl38z8DCsbxw4wkIeiniclNiEVbg1D5vk+JJqseu29fM5rr0Ed0byz8wa8qsP
-         zp2GWjLIuNnQu72/gj/rWTtMKsE/ijJJtkx3A0/M=
+        b=vL6qqa09OdS1Yzl65cYDrPYtyqTnGPuSnGf99OwhmXcwHv+9B2wEDKw1A8zqgPXyF
+         mX+F8FMisoAtvza/RB8CCeX41GgjbyV4uUPcV0Ic8NR/nY8WhdNLekaGTW82MuKKVk
+         a8odzlLnADjwJvTEIr62eKtOwubp/YWFfB1HADXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/154] drm/nouveau: hdmigv100.c: fix corrupted HDMI Vendor InfoFrame
-Date:   Wed, 24 Nov 2021 12:57:44 +0100
-Message-Id: <20211124115704.513619510@linuxfoundation.org>
+Subject: [PATCH 4.19 275/323] scsi: target: Fix alua_tg_pt_gps_count tracking
+Date:   Wed, 24 Nov 2021 12:57:45 +0100
+Message-Id: <20211124115728.177953134@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 3cc1ae1fa70ab369e4645e38ce335a19438093ad ]
+[ Upstream commit 1283c0d1a32bb924324481586b5d6e8e76f676ba ]
 
-gv100_hdmi_ctrl() writes vendor_infoframe.subpack0_high to 0x6f0110, and
-then overwrites it with 0. Just drop the overwrite with 0, that's clearly
-a mistake.
+We can't free the tg_pt_gp in core_alua_set_tg_pt_gp_id() because it's
+still accessed via configfs. Its release must go through the normal
+configfs/refcount process.
 
-Because of this issue the HDMI VIC is 0 instead of 1 in the HDMI Vendor
-InfoFrame when transmitting 4kp30.
+The max alua_tg_pt_gps_count check should probably have been done in
+core_alua_allocate_tg_pt_gp(), but with the current code userspace could
+have created 0x0000ffff + 1 groups, but only set the id for 0x0000ffff.
+Then it could have deleted a group with an ID set, and then set the ID for
+that extra group and it would work ok.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 290ffeafcc1a ("drm/nouveau/disp/gv100: initial support")
-Reviewed-by: Ben Skeggs <bskeggs@redhat.com>
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/3d3bd0f7-c150-2479-9350-35d394ee772d@xs4all.nl
+It's unlikely, but just in case this patch continues to allow that type of
+behavior, and just fixes the kfree() while in use bug.
+
+Link: https://lore.kernel.org/r/20210930020422.92578-4-michael.christie@oracle.com
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigv100.c | 1 -
+ drivers/target/target_core_alua.c | 1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigv100.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigv100.c
-index 6e3c450eaacef..3ff49344abc77 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigv100.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigv100.c
-@@ -62,7 +62,6 @@ gv100_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet,
- 		nvkm_wr32(device, 0x6f0108 + hdmi, vendor_infoframe.header);
- 		nvkm_wr32(device, 0x6f010c + hdmi, vendor_infoframe.subpack0_low);
- 		nvkm_wr32(device, 0x6f0110 + hdmi, vendor_infoframe.subpack0_high);
--		nvkm_wr32(device, 0x6f0110 + hdmi, 0x00000000);
- 		nvkm_wr32(device, 0x6f0114 + hdmi, 0x00000000);
- 		nvkm_wr32(device, 0x6f0118 + hdmi, 0x00000000);
- 		nvkm_wr32(device, 0x6f011c + hdmi, 0x00000000);
+diff --git a/drivers/target/target_core_alua.c b/drivers/target/target_core_alua.c
+index e46ca968009c0..804956c712a5a 100644
+--- a/drivers/target/target_core_alua.c
++++ b/drivers/target/target_core_alua.c
+@@ -1716,7 +1716,6 @@ int core_alua_set_tg_pt_gp_id(
+ 		pr_err("Maximum ALUA alua_tg_pt_gps_count:"
+ 			" 0x0000ffff reached\n");
+ 		spin_unlock(&dev->t10_alua.tg_pt_gps_lock);
+-		kmem_cache_free(t10_alua_tg_pt_gp_cache, tg_pt_gp);
+ 		return -ENOSPC;
+ 	}
+ again:
 -- 
 2.33.0
 
