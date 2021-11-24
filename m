@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F9245BD38
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:33:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B885545BB2B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:14:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344379AbhKXMgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:36:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60996 "EHLO mail.kernel.org"
+        id S242853AbhKXMRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:17:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343613AbhKXMea (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:34:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92C586137C;
-        Wed, 24 Nov 2021 12:20:54 +0000 (UTC)
+        id S243713AbhKXMPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:15:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D6336109D;
+        Wed, 24 Nov 2021 12:10:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756455;
-        bh=zqqkFx/omr5n5IvJLSH3YWicnLaayEf/zl3DEO8ju6o=;
+        s=korg; t=1637755804;
+        bh=vztLzOr4nWOxS4kqpPZSFPvpeLB5f0Thi1CD+HofyI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fUWcSThoG99opQnaTMg2fakZZV/HdNDmeyD7uilLoa8lwzhjn4ReNt0+VeW61g2QD
-         ijOcbHb+lh1kPaVhpK74U4HhHzXEkUTuwPrN2sjQl4zliEeuzft8xQ+2K1sjC5Gk3M
-         tiRByh9V+Sxq4ZcCrgr0JNYK4mSiHG0w+0acjlkk=
+        b=J8+rcEyc7iZuCoVoGNk/aDQfGxHSYQD0dryjj57nU0jWuYHtg0kA8jfJ8KHZfdDDa
+         RmXkU/hdG4LJkUcvtGi22QrNV3w1EqaFilI8ArGeb2kJ56yNMvPv6azXNCekgNlLd/
+         qArkdj5w7aTFOlbEhwiE1ivfel7rQf+zdM+/kU7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lasse Collin <lasse.collin@tukaani.org>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        stable@vger.kernel.org, Dirk Bender <d.bender@phytec.de>,
+        Stefan Riedmueller <s.riedmueller@phytec.de>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 093/251] lib/xz: Validate the value before assigning it to an enum variable
+Subject: [PATCH 4.9 064/207] media: mt9p031: Fix corrupted frame after restarting stream
 Date:   Wed, 24 Nov 2021 12:55:35 +0100
-Message-Id: <20211124115713.480988732@linuxfoundation.org>
+Message-Id: <20211124115705.996858744@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lasse Collin <lasse.collin@tukaani.org>
+From: Dirk Bender <d.bender@phytec.de>
 
-[ Upstream commit 4f8d7abaa413c34da9d751289849dbfb7c977d05 ]
+[ Upstream commit 0961ba6dd211a4a52d1dd4c2d59be60ac2dc08c7 ]
 
-This might matter, for example, if the underlying type of enum xz_check
-was a signed char. In such a case the validation wouldn't have caught an
-unsupported header. I don't know if this problem can occur in the kernel
-on any arch but it's still good to fix it because some people might copy
-the XZ code to their own projects from Linux instead of the upstream
-XZ Embedded repository.
+To prevent corrupted frames after starting and stopping the sensor its
+datasheet specifies a specific pause sequence to follow:
 
-This change may increase the code size by a few bytes. An alternative
-would have been to use an unsigned int instead of enum xz_check but
-using an enumeration looks cleaner.
+Stopping:
+	Set Pause_Restart Bit -> Set Restart Bit -> Set Chip_Enable Off
 
-Link: https://lore.kernel.org/r/20211010213145.17462-3-xiang@kernel.org
-Signed-off-by: Lasse Collin <lasse.collin@tukaani.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Restarting:
+	Set Chip_Enable On -> Clear Pause_Restart Bit
+
+The Restart Bit is cleared automatically and must not be cleared
+manually as this would cause undefined behavior.
+
+Signed-off-by: Dirk Bender <d.bender@phytec.de>
+Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/xz/xz_dec_stream.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/i2c/mt9p031.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/lib/xz/xz_dec_stream.c b/lib/xz/xz_dec_stream.c
-index ac809b1e64f78..9e5b9ab537fea 100644
---- a/lib/xz/xz_dec_stream.c
-+++ b/lib/xz/xz_dec_stream.c
-@@ -402,12 +402,12 @@ static enum xz_ret dec_stream_header(struct xz_dec *s)
- 	 * we will accept other check types too, but then the check won't
- 	 * be verified and a warning (XZ_UNSUPPORTED_CHECK) will be given.
- 	 */
-+	if (s->temp.buf[HEADER_MAGIC_SIZE + 1] > XZ_CHECK_MAX)
-+		return XZ_OPTIONS_ERROR;
-+
- 	s->check_type = s->temp.buf[HEADER_MAGIC_SIZE + 1];
+diff --git a/drivers/media/i2c/mt9p031.c b/drivers/media/i2c/mt9p031.c
+index 237737fec09c1..e6159faff45af 100644
+--- a/drivers/media/i2c/mt9p031.c
++++ b/drivers/media/i2c/mt9p031.c
+@@ -81,7 +81,9 @@
+ #define		MT9P031_PIXEL_CLOCK_INVERT		(1 << 15)
+ #define		MT9P031_PIXEL_CLOCK_SHIFT(n)		((n) << 8)
+ #define		MT9P031_PIXEL_CLOCK_DIVIDE(n)		((n) << 0)
+-#define MT9P031_FRAME_RESTART				0x0b
++#define MT9P031_RESTART					0x0b
++#define		MT9P031_FRAME_PAUSE_RESTART		(1 << 1)
++#define		MT9P031_FRAME_RESTART			(1 << 0)
+ #define MT9P031_SHUTTER_DELAY				0x0c
+ #define MT9P031_RST					0x0d
+ #define		MT9P031_RST_ENABLE			1
+@@ -448,9 +450,23 @@ static int mt9p031_set_params(struct mt9p031 *mt9p031)
+ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
+ {
+ 	struct mt9p031 *mt9p031 = to_mt9p031(subdev);
++	struct i2c_client *client = v4l2_get_subdevdata(subdev);
++	int val;
+ 	int ret;
  
- #ifdef XZ_DEC_ANY_CHECK
--	if (s->check_type > XZ_CHECK_MAX)
--		return XZ_OPTIONS_ERROR;
--
- 	if (s->check_type > XZ_CHECK_CRC32)
- 		return XZ_UNSUPPORTED_CHECK;
- #else
+ 	if (!enable) {
++		/* enable pause restart */
++		val = MT9P031_FRAME_PAUSE_RESTART;
++		ret = mt9p031_write(client, MT9P031_RESTART, val);
++		if (ret < 0)
++			return ret;
++
++		/* enable restart + keep pause restart set */
++		val |= MT9P031_FRAME_RESTART;
++		ret = mt9p031_write(client, MT9P031_RESTART, val);
++		if (ret < 0)
++			return ret;
++
+ 		/* Stop sensor readout */
+ 		ret = mt9p031_set_output_control(mt9p031,
+ 						 MT9P031_OUTPUT_CONTROL_CEN, 0);
+@@ -470,6 +486,16 @@ static int mt9p031_s_stream(struct v4l2_subdev *subdev, int enable)
+ 	if (ret < 0)
+ 		return ret;
+ 
++	/*
++	 * - clear pause restart
++	 * - don't clear restart as clearing restart manually can cause
++	 *   undefined behavior
++	 */
++	val = MT9P031_FRAME_RESTART;
++	ret = mt9p031_write(client, MT9P031_RESTART, val);
++	if (ret < 0)
++		return ret;
++
+ 	return mt9p031_pll_enable(mt9p031);
+ }
+ 
 -- 
 2.33.0
 
