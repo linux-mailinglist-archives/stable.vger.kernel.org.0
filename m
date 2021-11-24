@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53AF445BA64
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:07:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC26245BE14
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230515AbhKXMKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:10:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59452 "EHLO mail.kernel.org"
+        id S243582AbhKXMog (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:44:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240749AbhKXMIP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:08:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5627661106;
-        Wed, 24 Nov 2021 12:04:45 +0000 (UTC)
+        id S1344234AbhKXMmm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:42:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DA1A61401;
+        Wed, 24 Nov 2021 12:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755485;
-        bh=hG+kOrq7ZtlF/QFwBMiJU5REfemqnYd31UxELI5snfE=;
+        s=korg; t=1637756721;
+        bh=jT/8A8Y1sg1F60qNUNPOGGswM2LgQvQGCL4U+19B91s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1v4FEB17qBmW0twigfILnZ7WxX0N2k8yCwtqovmBSYAWF+bCBM0HnceZ5EQ8qKGf6
-         Mmgt4LpsS9QnjI6b6nQTocgvOZ+ncT/Qu3Tunang54V9VOEQTeL00HRX58TFCUQjVk
-         veF23xPL0TS0Zv+aIHSnHl8GmBmDk5b/SibB9kXw=
+        b=PD+1G6M7D7AHZBzgGFdJ/PRmSYsgMNZvc5OENZAqrpTgYE3rWXr0cS63AzrMc/UyU
+         xA9w85MKRK/Niq2KqqLcfclN47UuW4wkCGjlgABZHy+jVPyzQOFLrTquOCdlamJ2+5
+         Mh0Fu05kYSr/Crq8i4B0oYEFBJaVjkhvaIqzNd3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Roman Gushchin <guro@fb.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 112/162] mm, oom: pagefault_out_of_memory: dont force global OOM for dying tasks
-Date:   Wed, 24 Nov 2021 12:56:55 +0100
-Message-Id: <20211124115701.948179390@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        linux-m68k@lists.linux-m68k.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 174/251] m68k: set a default value for MEMORY_RESERVE
+Date:   Wed, 24 Nov 2021 12:56:56 +0100
+Message-Id: <20211124115716.317461738@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,74 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 0b28179a6138a5edd9d82ad2687c05b3773c387b upstream.
+[ Upstream commit 1aaa557b2db95c9506ed0981bc34505c32d6b62b ]
 
-Patch series "memcg: prohibit unconditional exceeding the limit of dying tasks", v3.
+'make randconfig' can produce a .config file with
+"CONFIG_MEMORY_RESERVE=" (no value) since it has no default.
+When a subsequent 'make all' is done, kconfig restarts the config
+and prompts for a value for MEMORY_RESERVE. This breaks
+scripting/automation where there is no interactive user input.
 
-Memory cgroup charging allows killed or exiting tasks to exceed the hard
-limit.  It can be misused and allowed to trigger global OOM from inside
-a memcg-limited container.  On the other hand if memcg fails allocation,
-called from inside #PF handler it triggers global OOM from inside
-pagefault_out_of_memory().
+Add a default value for MEMORY_RESERVE. (Any integer value will
+work here for kconfig.)
 
-To prevent these problems this patchset:
- (a) removes execution of out_of_memory() from
-     pagefault_out_of_memory(), becasue nobody can explain why it is
-     necessary.
- (b) allow memcg to fail allocation of dying/killed tasks.
+Fixes a kconfig warning:
 
-This patch (of 3):
+.config:214:warning: symbol value '' invalid for MEMORY_RESERVE
+* Restart config...
+Memory reservation (MiB) (MEMORY_RESERVE) [] (NEW)
 
-Any allocation failure during the #PF path will return with VM_FAULT_OOM
-which in turn results in pagefault_out_of_memory which in turn executes
-out_out_memory() and can kill a random task.
-
-An allocation might fail when the current task is the oom victim and
-there are no memory reserves left.  The OOM killer is already handled at
-the page allocator level for the global OOM and at the charging level
-for the memcg one.  Both have much more information about the scope of
-allocation/charge request.  This means that either the OOM killer has
-been invoked properly and didn't lead to the allocation success or it
-has been skipped because it couldn't have been invoked.  In both cases
-triggering it from here is pointless and even harmful.
-
-It makes much more sense to let the killed task die rather than to wake
-up an eternally hungry oom-killer and send him to choose a fatter victim
-for breakfast.
-
-Link: https://lkml.kernel.org/r/0828a149-786e-7c06-b70a-52d086818ea3@virtuozzo.com
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Suggested-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2") # from beginning of git history
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Greg Ungerer <gerg@linux-m68k.org>
+Cc: linux-m68k@lists.linux-m68k.org
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/oom_kill.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/m68k/Kconfig.machine | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/oom_kill.c
-+++ b/mm/oom_kill.c
-@@ -761,6 +761,9 @@ void pagefault_out_of_memory(void)
- 	if (mem_cgroup_oom_synchronize(true))
- 		return;
+diff --git a/arch/m68k/Kconfig.machine b/arch/m68k/Kconfig.machine
+index 5cd57b4d36156..4a1697fa9a37d 100644
+--- a/arch/m68k/Kconfig.machine
++++ b/arch/m68k/Kconfig.machine
+@@ -185,6 +185,7 @@ config INIT_LCD
+ config MEMORY_RESERVE
+ 	int "Memory reservation (MiB)"
+ 	depends on (UCSIMM || UCDIMM)
++	default 0
+ 	help
+ 	  Reserve certain memory regions on 68x328 based boards.
  
-+	if (fatal_signal_pending(current))
-+		return;
-+
- 	if (!mutex_trylock(&oom_lock))
- 		return;
- 
+-- 
+2.33.0
+
 
 
