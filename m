@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 978C545C641
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:03:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD3E145C416
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:43:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352003AbhKXOG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:06:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50826 "EHLO mail.kernel.org"
+        id S1350638AbhKXNp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:45:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356459AbhKXOEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:04:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA1E761A8B;
-        Wed, 24 Nov 2021 13:11:03 +0000 (UTC)
+        id S1353398AbhKXNmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:42:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13EE5632A5;
+        Wed, 24 Nov 2021 12:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759464;
-        bh=7zVrVmV9jJTb5PlV1VlzDL0SGJx/XoXZS0EgV5cuZWo=;
+        s=korg; t=1637758697;
+        bh=yxuzI4yRLe+uspakbmPAENsxtkVxj4HMP8xPdnj4dZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7eWFgtKpU985xCtOhKU8C5/ldWgVwp9UtVD7dxP2fx3VZ5L5igBAeT95VrUoTDS+
-         1erXIWhPSVl9fQ4YH1INGa62UyYBDNLwrtURtCtBGGyE2LvqJfG6whsKYeHmP6Swkt
-         8lIwvsepOQHGqaW7GNPi7X/ddypw59ZBToQHEOtQ=
+        b=ubR5K13uzQC3YfibaZDV4dEoiZaUMuq4rmY3EPFfqiKuZLBArFC7fGa3N/B9aLPAT
+         1D2otghcTGLbZmj8OBfG1D8hXRXX2/dFGLD6UaYtpyUHW6baL2hLEyA+xXCR+ZbXSt
+         5gY7DcCcMRCIOcAOzH6MB1Jd/daGq4Tu/oYIpmzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <ville.syrjala@linux.intel.com>, Imre Deak <imre.deak@intel.com>,
         Jani Nikula <jani.nikula@intel.com>,
         Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.15 251/279] drm/i915/dp: Ensure sink rate values are always valid
+Subject: [PATCH 5.10 142/154] drm/i915/dp: Ensure sink rate values are always valid
 Date:   Wed, 24 Nov 2021 12:58:58 +0100
-Message-Id: <20211124115727.401266902@linuxfoundation.org>
+Message-Id: <20211124115707.081364365@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -98,9 +98,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/gpu/drm/i915/display/intel_dp.c
 +++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -111,6 +111,12 @@ bool intel_dp_is_edp(struct intel_dp *in
+@@ -154,6 +154,12 @@ static void vlv_steal_power_sequencer(st
+ 				      enum pipe pipe);
  static void intel_dp_unset_edid(struct intel_dp *intel_dp);
- static int intel_dp_dsc_compute_bpp(struct intel_dp *intel_dp, u8 dsc_max_bpc);
  
 +static void intel_dp_set_default_sink_rates(struct intel_dp *intel_dp)
 +{
@@ -111,7 +111,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  /* update sink rates from dpcd */
  static void intel_dp_set_sink_rates(struct intel_dp *intel_dp)
  {
-@@ -2462,6 +2468,9 @@ intel_edp_init_dpcd(struct intel_dp *int
+@@ -4678,6 +4684,9 @@ intel_edp_init_dpcd(struct intel_dp *int
  	 */
  	intel_psr_init_dpcd(intel_dp);
  
@@ -121,7 +121,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	/* Read the eDP 1.4+ supported link rates. */
  	if (intel_dp->edp_dpcd[0] >= DP_EDP_14) {
  		__le16 sink_rates[DP_MAX_SUPPORTED_RATES];
-@@ -5296,6 +5305,8 @@ intel_dp_init_connector(struct intel_dig
+@@ -7779,6 +7788,8 @@ intel_dp_init_connector(struct intel_dig
  		return false;
  
  	intel_dp_set_source_rates(intel_dp);
@@ -129,6 +129,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	intel_dp_set_common_rates(intel_dp);
  
  	intel_dp->reset_link_params = true;
- 	intel_dp->pps.pps_pipe = INVALID_PIPE;
+ 	intel_dp->pps_pipe = INVALID_PIPE;
 
 
