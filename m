@@ -2,109 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE6845C808
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:52:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95B1F45C811
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:53:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348599AbhKXOzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:55:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53292 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344961AbhKXOzg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:55:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6990D60524;
-        Wed, 24 Nov 2021 14:52:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637765547;
-        bh=5dhCOHOPDLaykpUjwDvndyMO8fDWAczCxAEVkK7Z7WM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=pxZMCdE36FKsG3OKrHfqS8gJ/XQb+zDkgcjWs1LT1CwIW6boCLsAc62ocselrpKPc
-         do1tVWsaG4Fm5fpODLW3v0sz1ovCTL9oSrw0M211Nd5u0FDuAFQ/EG6lu5/9bTKcLQ
-         hcL5k+GW46zEtP7RRGxygNDt+KWrCqkcuW4y9GzagvtATa5m/TfiKuY1jL0tS9P0Lg
-         xuCLDg6JqNaeLjtgx/nZ2sn8KZFLdcgN0vGmLa333f2d886diok6nCi9bfS7PabdnA
-         LKdtZ6gTTkzXkJvIP8bTPeCwJlJW7ZSqg+4xyE9CDrFnIdHx+Eddut/ZnTqXQmz+B0
-         Qo3k1AQcPC+UQ==
-From:   SeongJae Park <sj@kernel.org>
-To:     akpm@linux-foundation.org
-Cc:     shakeelb@google.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, SeongJae Park <sj@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] mm/damon/core: Avoid fake load reports due to uninterruptible sleeps
-Date:   Wed, 24 Nov 2021 14:52:19 +0000
-Message-Id: <20211124145219.32866-1-sj@kernel.org>
-X-Mailer: git-send-email 2.17.1
+        id S1350950AbhKXO4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:56:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53766 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350927AbhKXO4u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 09:56:50 -0500
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 240FCC061574
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 06:53:41 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id b13so2066342plg.2
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 06:53:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=gRDWikNNLDvfEfzR+w48ZAck9AKGtTe6I06FB0YBbgs=;
+        b=qyLNfE59wgXVGwAo7n24yxGRvEKxP8I4gZj7HkMLqnLvjRi9oYNx64n3Df3L3v4ecl
+         CJaamYGAn/wg+S6lkaasDnHJ2/Xitsbb7WzT4sj4e93lCwhvrR1T+griN1tEYtU/t2sS
+         54zkoKkoqCYYAL5DGKomPDnqpDRWdvqmKEQ0ITYsGIzyWiPlSVfZlYnWuWIVJ0QbjJp2
+         bq23sSfYU8rGSBq8IxJ6QtbDRFaSgMrpdG6Agq4TiH4FyeopYoe0vK210LYsOO/bgWeO
+         yvxXocr7HwlGVaRZEmHqslzHUAACtqNgGo+Ed0Wb9IvS5nKZY5wLCD4cAgApdS0ZL4+B
+         bf5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=gRDWikNNLDvfEfzR+w48ZAck9AKGtTe6I06FB0YBbgs=;
+        b=c8tzWrwZ3hmd0AGR3UzikocAtmiBlKrW4RC99Imii+Ti70po1arXKFppfd+aB3swBh
+         u8gWCF9hICWMtPiLY8mBSpW0t8W9lRcPERXgrwOaCf0qHC2GyHX2uW4CXV9iGkb7Fqda
+         E0N+F5e0m0MS9i5qZYvqYoIkq2E5XASmDjncPo1Loy2Cw30B5ERlSnX6Oa1QYGWOpeuB
+         rOYGkKeph8c2DVrOq5KAqjezLGgVsH2qxOGfV6aRW1/Teyum3fQ27DyUHW9RcTWstynu
+         yE4m0m4GibexzIR4LECZ67TejSLszTeAzyOeNICsA9vr8E66b7FP6C/rPSX4Va/qdk6n
+         7O3w==
+X-Gm-Message-State: AOAM533RRfVEM9edVVUoB8EF4K0lAWMTrJtGZ2gGdjvilc0IvEE07Jon
+        bDGDvk/mbt+6EEP6l3PzVQb2ZVai7uhQYqYs
+X-Google-Smtp-Source: ABdhPJxzdjkOZBOcXRcNbCX4iIdgEenHfQbGxx5GPoShQFPaM88KGL7B0+j3K9XtjaTlGZcQplKJgw==
+X-Received: by 2002:a17:90b:1c06:: with SMTP id oc6mr16042999pjb.126.1637765620542;
+        Wed, 24 Nov 2021 06:53:40 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id fw21sm4797537pjb.25.2021.11.24.06.53.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Nov 2021 06:53:40 -0800 (PST)
+Message-ID: <619e51f4.1c69fb81.59388.b326@mx.google.com>
+Date:   Wed, 24 Nov 2021 06:53:40 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.81-156-g7f9de6888cf8a
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.10.y baseline: 74 runs,
+ 1 regressions (v5.10.81-156-g7f9de6888cf8a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Because DAMON sleeps in uninterruptible mode, /proc/loadavg reports fake
-load while DAMON is turned on, though it is doing nothing.  This can
-confuse users[1].  To avoid the case, this commit makes DAMON sleeps in
-idle mode.
+stable-rc/linux-5.10.y baseline: 74 runs, 1 regressions (v5.10.81-156-g7f9d=
+e6888cf8a)
 
-[1] https://lore.kernel.org/all/11868371.O9o76ZdvQC@natalenko.name/
+Regressions Summary
+-------------------
 
-Fixes: 2224d8485492 ("mm: introduce Data Access MONitor (DAMON)")
-Reported-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Cc: <stable@vger.kernel.org> # 5.15.x
----
-I think this needs to be applied on v5.15.y, but this cannot cleanly
-applied there as is.  I will back-port this on v5.15.y and post later
-once this is merged in the mainline.
+platform           | arch   | lab           | compiler | defconfig         =
+           | regressions
+-------------------+--------+---------------+----------+-------------------=
+-----------+------------
+hp-11A-G6-EE-grunt | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...6-=
+chromebook | 1          =
 
- mm/damon/core.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/mm/damon/core.c b/mm/damon/core.c
-index daacd9536c7c..7813f47aadc9 100644
---- a/mm/damon/core.c
-+++ b/mm/damon/core.c
-@@ -12,6 +12,8 @@
- #include <linux/kthread.h>
- #include <linux/mm.h>
- #include <linux/random.h>
-+#include <linux/sched.h>
-+#include <linux/sched/debug.h>
- #include <linux/slab.h>
- #include <linux/string.h>
- 
-@@ -976,12 +978,25 @@ static unsigned long damos_wmark_wait_us(struct damos *scheme)
- 	return 0;
- }
- 
-+/* sleep for @usecs in idle mode */
-+static void __sched damon_usleep_idle(unsigned long usecs)
-+{
-+	ktime_t exp = ktime_add_us(ktime_get(), usecs);
-+	u64 delta = usecs * NSEC_PER_USEC / 100;	/* allow 1% error */
-+
-+	for (;;) {
-+		__set_current_state(TASK_IDLE);
-+		if (!schedule_hrtimeout_range(&exp, delta, HRTIMER_MODE_ABS))
-+			break;
-+	}
-+}
-+
- static void kdamond_usleep(unsigned long usecs)
- {
- 	if (usecs > 100 * 1000)
--		schedule_timeout_interruptible(usecs_to_jiffies(usecs));
-+		schedule_timeout_idle(usecs_to_jiffies(usecs));
- 	else
--		usleep_range(usecs, usecs + 1);
-+		damon_usleep_idle(usecs);
- }
- 
- /* Returns negative error code if it's not activated but should return */
-@@ -1036,7 +1051,7 @@ static int kdamond_fn(void *data)
- 				ctx->callback.after_sampling(ctx))
- 			done = true;
- 
--		usleep_range(ctx->sample_interval, ctx->sample_interval + 1);
-+		kdamond_usleep(ctx->sample_interval);
- 
- 		if (ctx->primitive.check_accesses)
- 			max_nr_accesses = ctx->primitive.check_accesses(ctx);
--- 
-2.17.1
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.81-156-g7f9de6888cf8a/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.81-156-g7f9de6888cf8a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7f9de6888cf8aeb1cc2a6f25c670bce87279fbba =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch   | lab           | compiler | defconfig         =
+           | regressions
+-------------------+--------+---------------+----------+-------------------=
+-----------+------------
+hp-11A-G6-EE-grunt | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...6-=
+chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/619e297885207cce94f2efac
+
+  Results:     17 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.8=
+1-156-g7f9de6888cf8a/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-coll=
+abora/baseline-hp-11A-G6-EE-grunt.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.8=
+1-156-g7f9de6888cf8a/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-coll=
+abora/baseline-hp-11A-G6-EE-grunt.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619e297885207cc=
+e94f2efaf
+        new failure (last pass: v5.10.81-147-gbad6572223b92)
+        1 lines
+
+    2021-11-24T12:00:47.123566  kern  :emerg : __common_interrupt: 1.55 No =
+irq handler for vector
+    2021-11-24T12:00:47.133710  <8>[   11.037518] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D1>   =
+
+ =20
