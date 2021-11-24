@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 812DB45C446
+	by mail.lfdr.de (Postfix) with ESMTP id 2BB9045C445
 	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350975AbhKXNrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:47:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34752 "EHLO mail.kernel.org"
+        id S1348798AbhKXNrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:47:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351197AbhKXNoy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:44:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49ABA6330B;
-        Wed, 24 Nov 2021 13:00:08 +0000 (UTC)
+        id S1351203AbhKXNoz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:44:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0631619E5;
+        Wed, 24 Nov 2021 13:00:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758808;
-        bh=3JAE28fSKA6qnrcEMQx9bPFgXNxbVen5lGwA92srAMo=;
+        s=korg; t=1637758811;
+        bh=LOG9WnLn28cbYUpFvQiUcl1ZWBBk4ZsgMO4oVHwY1Qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJ1SJutkFvTI8C2BuYeGw936/DsrxvefIIBZ0cBt9He+ALgkt8RHoDjGGKFY4Izy6
-         24wo5CiT7OZbQ7FRYEHDTc3Nn7URgc5Wom59waHEcQQKdho7pF4IWDVlJOl5R9hk+x
-         XIVi6dyVVb9RpLsZbhjMHV9aNrB9V2xSm0xBSKhM=
+        b=lmjeq9ELQqjEjNAtXOejTRioWIIYS0e5lc9JjAKBFZrpCH7ZbQCXS2WMVUgwvmZLg
+         PQjdpCiFWYgO6ynRG3lIlO80UIfmPfaEZleVlfSRwmNyUYKMpM2tNn5q1gJZVOoWgF
+         nowKCyr2uabyiS2pV/wWF4yunUHh0u0L4hiHWt98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 035/279] ASoC: SOF: Intel: hda-dai: fix potential locking issue
-Date:   Wed, 24 Nov 2021 12:55:22 +0100
-Message-Id: <20211124115719.956299138@linuxfoundation.org>
+Subject: [PATCH 5.15 036/279] scsi: core: Fix scsi_mode_sense() buffer length handling
+Date:   Wed, 24 Nov 2021 12:55:23 +0100
+Message-Id: <20211124115719.987179200@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
 References: <20211124115718.776172708@linuxfoundation.org>
@@ -41,51 +40,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-[ Upstream commit a20f3b10de61add5e14b6ce4df982f4df2a4cbbc ]
+[ Upstream commit 17b49bcbf8351d3dbe57204468ac34f033ed60bc ]
 
-The initial hdac_stream code was adapted a third time with the same
-locking issues. Move the spin_lock outside the loops and make sure the
-fields are protected on read/write.
+Several problems exist with scsi_mode_sense() buffer length handling:
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Acked-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210924192417.169243-5-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+ 1) The allocation length field of the MODE SENSE(10) command is 16-bits,
+    occupying bytes 7 and 8 of the CDB. With this command, access to mode
+    pages larger than 255 bytes is thus possible. However, the CDB
+    allocation length field is set by assigning len to byte 8 only, thus
+    truncating buffer length larger than 255.
+
+ 2) If scsi_mode_sense() is called with len smaller than 8 with
+    sdev->use_10_for_ms set, or smaller than 4 otherwise, the buffer length
+    is increased to 8 and 4 respectively, and the buffer is zero filled
+    with these increased values, thus corrupting the memory following the
+    buffer.
+
+Fix these 2 problems by using put_unaligned_be16() to set the allocation
+length field of MODE SENSE(10) CDB and by returning an error when len is
+too small.
+
+Furthermore, if len is larger than 255B, always try MODE SENSE(10) first,
+even if the device driver did not set sdev->use_10_for_ms. In case of
+invalid opcode error for MODE SENSE(10), access to mode pages larger than
+255 bytes are not retried using MODE SENSE(6). To avoid buffer length
+overflows for the MODE_SENSE(10) case, check that len is smaller than 65535
+bytes.
+
+While at it, also fix the folowing:
+
+ * Use get_unaligned_be16() to retrieve the mode data length and block
+   descriptor length fields of the mode sense reply header instead of using
+   an open coded calculation.
+
+ * Fix the kdoc dbd argument explanation: the DBD bit stands for Disable
+   Block Descriptor, which is the opposite of what the dbd argument
+   description was.
+
+Link: https://lore.kernel.org/r/20210820070255.682775-2-damien.lemoal@wdc.com
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda-dai.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/scsi/scsi_lib.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/sof/intel/hda-dai.c b/sound/soc/sof/intel/hda-dai.c
-index c1f9f0f584647..6704dbcd101cd 100644
---- a/sound/soc/sof/intel/hda-dai.c
-+++ b/sound/soc/sof/intel/hda-dai.c
-@@ -68,6 +68,7 @@ static struct hdac_ext_stream *
- 		return NULL;
- 	}
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+index 0e023547ff15a..ef4361b2d1423 100644
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -2074,7 +2074,7 @@ EXPORT_SYMBOL_GPL(scsi_mode_select);
+ /**
+  *	scsi_mode_sense - issue a mode sense, falling back from 10 to six bytes if necessary.
+  *	@sdev:	SCSI device to be queried
+- *	@dbd:	set if mode sense will allow block descriptors to be returned
++ *	@dbd:	set to prevent mode sense from returning block descriptors
+  *	@modepage: mode page being requested
+  *	@buffer: request buffer (may not be smaller than eight bytes)
+  *	@len:	length of request buffer.
+@@ -2109,18 +2109,18 @@ scsi_mode_sense(struct scsi_device *sdev, int dbd, int modepage,
+ 		sshdr = &my_sshdr;
  
-+	spin_lock_irq(&bus->reg_lock);
- 	list_for_each_entry(stream, &bus->stream_list, list) {
- 		struct hdac_ext_stream *hstream =
- 			stream_to_hdac_ext_stream(stream);
-@@ -107,12 +108,12 @@ static struct hdac_ext_stream *
- 		 * is updated in snd_hdac_ext_stream_decouple().
- 		 */
- 		if (!res->decoupled)
--			snd_hdac_ext_stream_decouple(bus, res, true);
--		spin_lock_irq(&bus->reg_lock);
-+			snd_hdac_ext_stream_decouple_locked(bus, res, true);
-+
- 		res->link_locked = 1;
- 		res->link_substream = substream;
--		spin_unlock_irq(&bus->reg_lock);
- 	}
-+	spin_unlock_irq(&bus->reg_lock);
+  retry:
+-	use_10_for_ms = sdev->use_10_for_ms;
++	use_10_for_ms = sdev->use_10_for_ms || len > 255;
  
- 	return res;
- }
+ 	if (use_10_for_ms) {
+-		if (len < 8)
+-			len = 8;
++		if (len < 8 || len > 65535)
++			return -EINVAL;
+ 
+ 		cmd[0] = MODE_SENSE_10;
+-		cmd[8] = len;
++		put_unaligned_be16(len, &cmd[7]);
+ 		header_length = 8;
+ 	} else {
+ 		if (len < 4)
+-			len = 4;
++			return -EINVAL;
+ 
+ 		cmd[0] = MODE_SENSE;
+ 		cmd[4] = len;
+@@ -2144,9 +2144,15 @@ scsi_mode_sense(struct scsi_device *sdev, int dbd, int modepage,
+ 			if ((sshdr->sense_key == ILLEGAL_REQUEST) &&
+ 			    (sshdr->asc == 0x20) && (sshdr->ascq == 0)) {
+ 				/*
+-				 * Invalid command operation code
++				 * Invalid command operation code: retry using
++				 * MODE SENSE(6) if this was a MODE SENSE(10)
++				 * request, except if the request mode page is
++				 * too large for MODE SENSE single byte
++				 * allocation length field.
+ 				 */
+ 				if (use_10_for_ms) {
++					if (len > 255)
++						return -EIO;
+ 					sdev->use_10_for_ms = 0;
+ 					goto retry;
+ 				}
+@@ -2170,12 +2176,11 @@ scsi_mode_sense(struct scsi_device *sdev, int dbd, int modepage,
+ 		data->longlba = 0;
+ 		data->block_descriptor_length = 0;
+ 	} else if (use_10_for_ms) {
+-		data->length = buffer[0]*256 + buffer[1] + 2;
++		data->length = get_unaligned_be16(&buffer[0]) + 2;
+ 		data->medium_type = buffer[2];
+ 		data->device_specific = buffer[3];
+ 		data->longlba = buffer[4] & 0x01;
+-		data->block_descriptor_length = buffer[6]*256
+-			+ buffer[7];
++		data->block_descriptor_length = get_unaligned_be16(&buffer[6]);
+ 	} else {
+ 		data->length = buffer[0] + 1;
+ 		data->medium_type = buffer[1];
 -- 
 2.33.0
 
