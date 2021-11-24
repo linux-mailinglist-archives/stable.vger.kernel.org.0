@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0F4145C55A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:53:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22F7245C297
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:28:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348205AbhKXN46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:56:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44604 "EHLO mail.kernel.org"
+        id S1350777AbhKXNak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:30:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352134AbhKXNyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:54:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C101C61265;
-        Wed, 24 Nov 2021 13:06:10 +0000 (UTC)
+        id S1350756AbhKXN2f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:28:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3867B610E6;
+        Wed, 24 Nov 2021 12:51:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759171;
-        bh=aTfY5c3c8ehatYi9dHUTmsamzQ4VrgR0m8+ZwGzvSII=;
+        s=korg; t=1637758268;
+        bh=HpeFUNsbzxu0oeLBzGfrdJpJldVwpo7oeRiX/ogBVrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+sqw8rEDFFSCJDtmXvFc8vMyf4i/zHhGNYUN6eIDjEmfgZU6yQnFyVVI3XscCtcP
-         CXUCwZymtDPXKz1tOz+gNldU73oq6DUvpZo7g22Q49ELBfCkMcCuhuKRQnar0dnnOx
-         35gjgO3uBChvi7TTgWIM6FBLEMG3rg1sviOKj06w=
+        b=D8iE0VperazG6uZmgK24MWNSzvzAyXsnz+zOACoaQisGTGwES3KbFeTQybC2rpmf0
+         p6MrawvliMP6MMiwlSEekS/GPQT3gWBBX0B3+fMdTUibKGSvWPcrSWOmRNLTncBSIC
+         eou11cLZ5efonBS/qpglqCeAbRTbHcf3FCpfyeAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 123/279] iavf: Fix return of set the new channel count
+Subject: [PATCH 5.10 014/154] usb: musb: tusb6010: check return value after calling platform_get_resource()
 Date:   Wed, 24 Nov 2021 12:56:50 +0100
-Message-Id: <20211124115723.061093409@linuxfoundation.org>
+Message-Id: <20211124115702.843378695@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Palczewski <mateusz.palczewski@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 4e5e6b5d9d1334d3490326b6922a2daaf56a867f ]
+[ Upstream commit 14651496a3de6807a17c310f63c894ea0c5d858e ]
 
-Fixed return correct code from set the new channel count.
-Implemented by check if reset is done in appropriate time.
-This solution give a extra time to pf for reset vf in case
-when user want set new channel count for all vfs.
-Without this patch it is possible to return misleading output
-code to user and vf reset not to be correctly performed by pf.
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-Fixes: 5520deb15326 ("iavf: Enable support for up to 16 queues")
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20210915034925.2399823-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_ethtool.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/usb/musb/tusb6010.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-index 5a359a0a20ecc..136c801f5584a 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-@@ -1776,6 +1776,7 @@ static int iavf_set_channels(struct net_device *netdev,
- {
- 	struct iavf_adapter *adapter = netdev_priv(netdev);
- 	u32 num_req = ch->combined_count;
-+	int i;
+diff --git a/drivers/usb/musb/tusb6010.c b/drivers/usb/musb/tusb6010.c
+index 0c2afed4131bc..038307f661985 100644
+--- a/drivers/usb/musb/tusb6010.c
++++ b/drivers/usb/musb/tusb6010.c
+@@ -1103,6 +1103,11 @@ static int tusb_musb_init(struct musb *musb)
  
- 	if ((adapter->vf_res->vf_cap_flags & VIRTCHNL_VF_OFFLOAD_ADQ) &&
- 	    adapter->num_tc) {
-@@ -1798,6 +1799,20 @@ static int iavf_set_channels(struct net_device *netdev,
- 	adapter->num_req_queues = num_req;
- 	adapter->flags |= IAVF_FLAG_REINIT_ITR_NEEDED;
- 	iavf_schedule_reset(adapter);
-+
-+	/* wait for the reset is done */
-+	for (i = 0; i < IAVF_RESET_WAIT_COMPLETE_COUNT; i++) {
-+		msleep(IAVF_RESET_WAIT_MS);
-+		if (adapter->flags & IAVF_FLAG_RESET_PENDING)
-+			continue;
-+		break;
+ 	/* dma address for async dma */
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!mem) {
++		pr_debug("no async dma resource?\n");
++		ret = -ENODEV;
++		goto done;
 +	}
-+	if (i == IAVF_RESET_WAIT_COMPLETE_COUNT) {
-+		adapter->flags &= ~IAVF_FLAG_REINIT_ITR_NEEDED;
-+		adapter->num_active_queues = num_req;
-+		return -EOPNOTSUPP;
-+	}
-+
- 	return 0;
- }
+ 	musb->async = mem->start;
  
+ 	/* dma address for sync dma */
 -- 
 2.33.0
 
