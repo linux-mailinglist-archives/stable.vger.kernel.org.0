@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61B7E45C14D
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:13:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5235245C23E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:23:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347091AbhKXNQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:16:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53882 "EHLO mail.kernel.org"
+        id S1346633AbhKXN0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:26:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348743AbhKXNN7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:13:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDF0E61242;
-        Wed, 24 Nov 2021 12:43:34 +0000 (UTC)
+        id S1348715AbhKXNYk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:24:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4C1460F5B;
+        Wed, 24 Nov 2021 12:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757815;
-        bh=j9WPFj6m2DmX4szXNfQlp9MtXc8XY6ASzpBqMPa+Fp4=;
+        s=korg; t=1637758132;
+        bh=LnsjCsiDjV+3Z6nJ8J0l4++nkVSPwyLidA/IJqTgKxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Np7v8GaOpKpDUr53YxUre4CRR/LDAm0jIDqI/U5XjHcPmGKlH86FC97jxizw9xnWc
-         CaNQSIpiBJdzXLtSt5ktAhD8CX2JGI0oI6pjbFWj0G482VSx+ufxkz17Chmk/YPBfL
-         TlV8Cxtr2rU6wL68bFPS+6VmIblLOpgd787xoieg=
+        b=GAxqCew/tBAOTD7HctKlmi15egJMbEtymiZrIiHFcR+H4NVLlFwvfS4AcUNsO9jiP
+         YMF8a2/nC5UhkqG275grki5YlCbx2KvFzQi3Yk15aWyMsgxN/P9E34HG5oB0vwGCEH
+         Jn5OhOkRhFNDaQIcCBxCUgREE77VRhq/Nt72368M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing-Ting Wu <jing-ting.wu@mediatek.com>,
-        Vincent Donnefort <vincent.donnefort@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        bcm-kernel-feedback-list@broadcom.com, linux-mips@vger.kernel.org,
+        Paul Burton <paulburton@kernel.org>,
+        Maxime Bizon <mbizon@freebox.fr>,
+        Ralf Baechle <ralf@linux-mips.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 285/323] sched/core: Mitigate race cpus_share_cache()/update_top_cache_domain()
+Subject: [PATCH 5.4 039/100] mips: BCM63XX: ensure that CPU_SUPPORTS_32BIT_KERNEL is set
 Date:   Wed, 24 Nov 2021 12:57:55 +0100
-Message-Id: <20211124115728.520942061@linuxfoundation.org>
+Message-Id: <20211124115656.149393330@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Donnefort <vincent.donnefort@arm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 42dc938a590c96eeb429e1830123fef2366d9c80 ]
+[ Upstream commit 5eeaafc8d69373c095e461bdb39e5c9b62228ac5 ]
 
-Nothing protects the access to the per_cpu variable sd_llc_id. When testing
-the same CPU (i.e. this_cpu == that_cpu), a race condition exists with
-update_top_cache_domain(). One scenario being:
+Several header files need info on CONFIG_32BIT or CONFIG_64BIT,
+but kconfig symbol BCM63XX does not provide that info. This leads
+to many build errors, e.g.:
 
-              CPU1                            CPU2
-  ==================================================================
+   arch/mips/include/asm/page.h:196:13: error: use of undeclared identifier 'CAC_BASE'
+           return x - PAGE_OFFSET + PHYS_OFFSET;
+   arch/mips/include/asm/mach-generic/spaces.h:91:23: note: expanded from macro 'PAGE_OFFSET'
+   #define PAGE_OFFSET             (CAC_BASE + PHYS_OFFSET)
+   arch/mips/include/asm/io.h:134:28: error: use of undeclared identifier 'CAC_BASE'
+           return (void *)(address + PAGE_OFFSET - PHYS_OFFSET);
+   arch/mips/include/asm/mach-generic/spaces.h:91:23: note: expanded from macro 'PAGE_OFFSET'
+   #define PAGE_OFFSET             (CAC_BASE + PHYS_OFFSET)
 
-  per_cpu(sd_llc_id, CPUX) => 0
-                                    partition_sched_domains_locked()
-      				      detach_destroy_domains()
-  cpus_share_cache(CPUX, CPUX)          update_top_cache_domain(CPUX)
-    per_cpu(sd_llc_id, CPUX) => 0
-                                          per_cpu(sd_llc_id, CPUX) = CPUX
-    per_cpu(sd_llc_id, CPUX) => CPUX
-    return false
+arch/mips/include/asm/uaccess.h:82:10: error: use of undeclared identifier '__UA_LIMIT'
+           return (__UA_LIMIT & (addr | (addr + size) | __ua_size(size))) == 0;
 
-ttwu_queue_cond() wouldn't catch smp_processor_id() == cpu and the result
-is a warning triggered from ttwu_queue_wakelist().
+Selecting the SYS_HAS_CPU_BMIPS* symbols causes SYS_HAS_CPU_BMIPS to be
+set, which then selects CPU_SUPPORT_32BIT_KERNEL, which causes
+CONFIG_32BIT to be set. (a bit more indirect than v1 [RFC].)
 
-Avoid a such race in cpus_share_cache() by always returning true when
-this_cpu == that_cpu.
-
-Fixes: 518cd6234178 ("sched: Only queue remote wakeups when crossing cache boundaries")
-Reported-by: Jing-Ting Wu <jing-ting.wu@mediatek.com>
-Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/20211104175120.857087-1-vincent.donnefort@arm.com
+Fixes: e7300d04bd08 ("MIPS: BCM63xx: Add support for the Broadcom BCM63xx family of SOCs.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: bcm-kernel-feedback-list@broadcom.com
+Cc: linux-mips@vger.kernel.org
+Cc: Paul Burton <paulburton@kernel.org>
+Cc: Maxime Bizon <mbizon@freebox.fr>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Suggested-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 3 +++
+ arch/mips/Kconfig | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 013b1c6cb4ed9..32af895bd86b3 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1821,6 +1821,9 @@ out:
- 
- bool cpus_share_cache(int this_cpu, int that_cpu)
- {
-+	if (this_cpu == that_cpu)
-+		return true;
-+
- 	return per_cpu(sd_llc_id, this_cpu) == per_cpu(sd_llc_id, that_cpu);
- }
- #endif /* CONFIG_SMP */
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 041d34975ea2c..9749818eed6d6 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -294,6 +294,9 @@ config BCM63XX
+ 	select SYS_SUPPORTS_32BIT_KERNEL
+ 	select SYS_SUPPORTS_BIG_ENDIAN
+ 	select SYS_HAS_EARLY_PRINTK
++	select SYS_HAS_CPU_BMIPS32_3300
++	select SYS_HAS_CPU_BMIPS4350
++	select SYS_HAS_CPU_BMIPS4380
+ 	select SWAP_IO_SPACE
+ 	select GPIOLIB
+ 	select HAVE_CLK
 -- 
 2.33.0
 
