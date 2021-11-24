@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62B6445C26F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:26:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A16945C60D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344721AbhKXN3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:29:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48376 "EHLO mail.kernel.org"
+        id S1347846AbhKXOFA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:05:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348387AbhKXN0o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:26:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D488961B7F;
-        Wed, 24 Nov 2021 12:50:12 +0000 (UTC)
+        id S1355803AbhKXODC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:03:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 946A561A85;
+        Wed, 24 Nov 2021 13:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758213;
-        bh=TkjCtc4SKaJ5DnbaxXampQkbTvSHxCp28Lj73JYw0Kg=;
+        s=korg; t=1637759443;
+        bh=Nhv6m9EJLgrKwV0PtY41aAOJl4lGmX3GumIHb60Xyms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TBY3QJqH2nWMmbS9OzFSpwuJDqUMREhSQmC0ZBJR7wnPZeBEzvmY1Jp9oFdon5GGZ
-         WzoN4M8bMdDTDpxRwBW4QkoTE+fGhkGjd992i70HOPhkBl6xfu+3bYoA+KAxUpofk8
-         J5dV/SXdnZzIVCemLkpMhCVlDUFcpo4MTQffbm+4=
+        b=X+pa4yxf/0DRCQ6l6Y0bFW8jwk8ayqsJOvDieCz4WVzdNCg+o2ruORYXflnTVAJJF
+         gw8clpJVsIVavorKhxIy0OPwFLiWRwtL3v1dWvWTtAvrzIEpFPlXGZGIqP5A/3oEcS
+         hXmbfWdmdInlJtZO/50mDZCL73nwj84RLqBsKm38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 5.4 095/100] batman-adv: Dont always reallocate the fragmentation skb head
+        stable@vger.kernel.org,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        Matthew Brost <matthew.brost@intel.com>,
+        John Harrison <John.C.Harrison@Intel.com>
+Subject: [PATCH 5.15 244/279] drm/i915/guc: Dont drop ce->guc_active.lock when unwinding context
 Date:   Wed, 24 Nov 2021 12:58:51 +0100
-Message-Id: <20211124115657.924237603@linuxfoundation.org>
+Message-Id: <20211124115727.156660561@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Matthew Brost <matthew.brost@intel.com>
 
-commit 992b03b88e36254e26e9a4977ab948683e21bd9f upstream.
+commit 88209a8ecb8b8752322908a3c3362a001bdc3a39 upstream.
 
-When a packet is fragmented by batman-adv, the original batman-adv header
-is not modified. Only a new fragmentation is inserted between the original
-one and the ethernet header. The code must therefore make sure that it has
-a writable region of this size in the skbuff head.
+Don't drop ce->guc_active.lock when unwinding a context after reset.
+At one point we had to drop this because of a lock inversion but that is
+no longer the case. It is much safer to hold the lock so let's do that.
 
-But it is not useful to always reallocate the skbuff by this size even when
-there would be more than enough headroom still in the skb. The reallocation
-is just to costly during in this codepath.
-
-Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Fixes: eb5e7da736f3 ("drm/i915/guc: Reset implementation for new GuC interface")
+Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Signed-off-by: Matthew Brost <matthew.brost@intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210909164744.31249-5-matthew.brost@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/fragmentation.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -527,13 +527,14 @@ int batadv_frag_send_packet(struct sk_bu
- 		frag_header.no++;
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+@@ -814,8 +814,6 @@ __unwind_incomplete_requests(struct inte
+ 			continue;
+ 
+ 		list_del_init(&rq->sched.link);
+-		spin_unlock(&ce->guc_active.lock);
+-
+ 		__i915_request_unsubmit(rq);
+ 
+ 		/* Push the request back into the queue for later resubmission. */
+@@ -828,8 +826,6 @@ __unwind_incomplete_requests(struct inte
+ 
+ 		list_add_tail(&rq->sched.link, pl);
+ 		set_bit(I915_FENCE_FLAG_PQUEUE, &rq->fence.flags);
+-
+-		spin_lock(&ce->guc_active.lock);
  	}
- 
--	/* Make room for the fragment header. */
--	if (batadv_skb_head_push(skb, header_size) < 0 ||
--	    pskb_expand_head(skb, header_size + ETH_HLEN, 0, GFP_ATOMIC) < 0) {
--		ret = -ENOMEM;
-+	/* make sure that there is at least enough head for the fragmentation
-+	 * and ethernet headers
-+	 */
-+	ret = skb_cow_head(skb, ETH_HLEN + header_size);
-+	if (ret < 0)
- 		goto put_primary_if;
--	}
- 
-+	skb_push(skb, header_size);
- 	memcpy(skb->data, &frag_header, header_size);
- 
- 	/* Send the last fragment */
+ 	spin_unlock(&ce->guc_active.lock);
+ 	spin_unlock_irqrestore(&sched_engine->lock, flags);
 
 
