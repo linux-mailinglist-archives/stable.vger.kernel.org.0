@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC34145C69B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:07:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB8AF45C69D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:07:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351896AbhKXOKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:10:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56332 "EHLO mail.kernel.org"
+        id S1354636AbhKXOKc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:10:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354351AbhKXOH1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:07:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EDD361242;
-        Wed, 24 Nov 2021 13:12:55 +0000 (UTC)
+        id S1354375AbhKXOHa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:07:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3649061279;
+        Wed, 24 Nov 2021 13:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759575;
-        bh=qga7bKfNy0GUN1l9l6rNWveOX+HjHy/FBsRGpx5ufgc=;
+        s=korg; t=1637759579;
+        bh=aFGjPOEyvYYrq9hUl8JsUt66mkjNLeOBV2XhmY2th9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=frbvahRKS1R7iQrRdtaob5mXmOvWKJZnKN5oL1Zefgzgt/1StspNNzPc3XYrA0twZ
-         kkjNuOYi2rM/DW5HOKZyF5pAl3IkzzyOf+FnWe5iBt0eFTgDDxupPQSzRB4gCy+gNu
-         NWPz0IplomNUzrcGRioJhX7IcwYNscqwXlWb56qE=
+        b=I0Bi8j8uMdD5MB5y7EZVLu+tw16bIBbJ9ECkU50E9JDDEhxAx9Cf6/PIlclRPxFkP
+         EQSyDf01kE2cd5aiEx3I92DFSpRnyKfkMlN548x1P5KUVy75vY7y7XTXTW/n4frOiJ
+         ORlf6NC9AJXk3tBTZt0cjHLdpMTv1ySQhX6MJth8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.15 268/279] RDMA/netlink: Add __maybe_unused to static inline in C file
-Date:   Wed, 24 Nov 2021 12:59:15 +0100
-Message-Id: <20211124115727.954173747@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+43fd005b5a1b4d10781e@syzkaller.appspotmail.com,
+        Dmitrii Banshchikov <me@ubique.spb.ru>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.15 269/279] bpf: Forbid bpf_ktime_get_coarse_ns and bpf_timer_* in tracing progs
+Date:   Wed, 24 Nov 2021 12:59:16 +0100
+Message-Id: <20211124115727.986479247@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
 References: <20211124115718.776172708@linuxfoundation.org>
@@ -40,37 +41,207 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Dmitrii Banshchikov <me@ubique.spb.ru>
 
-commit 83dde7498fefeb920b1def317421262317d178e5 upstream.
+commit 5e0bc3082e2e403ac0753e099c2b01446bb35578 upstream.
 
-Like other commits in the tree add __maybe_unused to a static inline in a
-C file because some clang compilers will complain about unused code:
+Use of bpf_ktime_get_coarse_ns() and bpf_timer_* helpers in tracing
+progs may result in locking issues.
 
->> drivers/infiniband/core/nldev.c:2543:1: warning: unused function '__chk_RDMA_NL_NLDEV'
-   MODULE_ALIAS_RDMA_NETLINK(RDMA_NL_NLDEV, 5);
-   ^
+bpf_ktime_get_coarse_ns() uses ktime_get_coarse_ns() time accessor that
+isn't safe for any context:
+======================================================
+WARNING: possible circular locking dependency detected
+5.15.0-syzkaller #0 Not tainted
+------------------------------------------------------
+syz-executor.4/14877 is trying to acquire lock:
+ffffffff8cb30008 (tk_core.seq.seqcount){----}-{0:0}, at: ktime_get_coarse_ts64+0x25/0x110 kernel/time/timekeeping.c:2255
 
-Fixes: e3bf14bdc17a ("rdma: Autoload netlink client modules")
-Link: https://lore.kernel.org/r/4a8101919b765e01d7fde6f27fd572c958deeb4a.1636267207.git.leonro@nvidia.com
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+but task is already holding lock:
+ffffffff90dbf200 (&obj_hash[i].lock){-.-.}-{2:2}, at: debug_object_deactivate+0x61/0x400 lib/debugobjects.c:735
+
+which lock already depends on the new lock.
+
+the existing dependency chain (in reverse order) is:
+
+-> #1 (&obj_hash[i].lock){-.-.}-{2:2}:
+       lock_acquire+0x19f/0x4d0 kernel/locking/lockdep.c:5625
+       __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+       _raw_spin_lock_irqsave+0xd1/0x120 kernel/locking/spinlock.c:162
+       __debug_object_init+0xd9/0x1860 lib/debugobjects.c:569
+       debug_hrtimer_init kernel/time/hrtimer.c:414 [inline]
+       debug_init kernel/time/hrtimer.c:468 [inline]
+       hrtimer_init+0x20/0x40 kernel/time/hrtimer.c:1592
+       ntp_init_cmos_sync kernel/time/ntp.c:676 [inline]
+       ntp_init+0xa1/0xad kernel/time/ntp.c:1095
+       timekeeping_init+0x512/0x6bf kernel/time/timekeeping.c:1639
+       start_kernel+0x267/0x56e init/main.c:1030
+       secondary_startup_64_no_verify+0xb1/0xbb
+
+-> #0 (tk_core.seq.seqcount){----}-{0:0}:
+       check_prev_add kernel/locking/lockdep.c:3051 [inline]
+       check_prevs_add kernel/locking/lockdep.c:3174 [inline]
+       validate_chain+0x1dfb/0x8240 kernel/locking/lockdep.c:3789
+       __lock_acquire+0x1382/0x2b00 kernel/locking/lockdep.c:5015
+       lock_acquire+0x19f/0x4d0 kernel/locking/lockdep.c:5625
+       seqcount_lockdep_reader_access+0xfe/0x230 include/linux/seqlock.h:103
+       ktime_get_coarse_ts64+0x25/0x110 kernel/time/timekeeping.c:2255
+       ktime_get_coarse include/linux/timekeeping.h:120 [inline]
+       ktime_get_coarse_ns include/linux/timekeeping.h:126 [inline]
+       ____bpf_ktime_get_coarse_ns kernel/bpf/helpers.c:173 [inline]
+       bpf_ktime_get_coarse_ns+0x7e/0x130 kernel/bpf/helpers.c:171
+       bpf_prog_a99735ebafdda2f1+0x10/0xb50
+       bpf_dispatcher_nop_func include/linux/bpf.h:721 [inline]
+       __bpf_prog_run include/linux/filter.h:626 [inline]
+       bpf_prog_run include/linux/filter.h:633 [inline]
+       BPF_PROG_RUN_ARRAY include/linux/bpf.h:1294 [inline]
+       trace_call_bpf+0x2cf/0x5d0 kernel/trace/bpf_trace.c:127
+       perf_trace_run_bpf_submit+0x7b/0x1d0 kernel/events/core.c:9708
+       perf_trace_lock+0x37c/0x440 include/trace/events/lock.h:39
+       trace_lock_release+0x128/0x150 include/trace/events/lock.h:58
+       lock_release+0x82/0x810 kernel/locking/lockdep.c:5636
+       __raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:149 [inline]
+       _raw_spin_unlock_irqrestore+0x75/0x130 kernel/locking/spinlock.c:194
+       debug_hrtimer_deactivate kernel/time/hrtimer.c:425 [inline]
+       debug_deactivate kernel/time/hrtimer.c:481 [inline]
+       __run_hrtimer kernel/time/hrtimer.c:1653 [inline]
+       __hrtimer_run_queues+0x2f9/0xa60 kernel/time/hrtimer.c:1749
+       hrtimer_interrupt+0x3b3/0x1040 kernel/time/hrtimer.c:1811
+       local_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1086 [inline]
+       __sysvec_apic_timer_interrupt+0xf9/0x270 arch/x86/kernel/apic/apic.c:1103
+       sysvec_apic_timer_interrupt+0x8c/0xb0 arch/x86/kernel/apic/apic.c:1097
+       asm_sysvec_apic_timer_interrupt+0x12/0x20
+       __raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:152 [inline]
+       _raw_spin_unlock_irqrestore+0xd4/0x130 kernel/locking/spinlock.c:194
+       try_to_wake_up+0x702/0xd20 kernel/sched/core.c:4118
+       wake_up_process kernel/sched/core.c:4200 [inline]
+       wake_up_q+0x9a/0xf0 kernel/sched/core.c:953
+       futex_wake+0x50f/0x5b0 kernel/futex/waitwake.c:184
+       do_futex+0x367/0x560 kernel/futex/syscalls.c:127
+       __do_sys_futex kernel/futex/syscalls.c:199 [inline]
+       __se_sys_futex+0x401/0x4b0 kernel/futex/syscalls.c:180
+       do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+       do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+       entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+There is a possible deadlock with bpf_timer_* set of helpers:
+hrtimer_start()
+  lock_base();
+  trace_hrtimer...()
+    perf_event()
+      bpf_run()
+        bpf_timer_start()
+          hrtimer_start()
+            lock_base()         <- DEADLOCK
+
+Forbid use of bpf_ktime_get_coarse_ns() and bpf_timer_* helpers in
+BPF_PROG_TYPE_KPROBE, BPF_PROG_TYPE_TRACEPOINT, BPF_PROG_TYPE_PERF_EVENT
+and BPF_PROG_TYPE_RAW_TRACEPOINT prog types.
+
+Fixes: d05512618056 ("bpf: Add bpf_ktime_get_coarse_ns helper")
+Fixes: b00628b1c7d5 ("bpf: Introduce bpf timers.")
+Reported-by: syzbot+43fd005b5a1b4d10781e@syzkaller.appspotmail.com
+Signed-off-by: Dmitrii Banshchikov <me@ubique.spb.ru>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20211113142227.566439-2-me@ubique.spb.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/rdma/rdma_netlink.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/bpf/cgroup.c      |    2 ++
+ kernel/bpf/helpers.c     |    2 --
+ kernel/bpf/verifier.c    |    7 +++++++
+ kernel/trace/bpf_trace.c |    2 --
+ net/core/filter.c        |    6 ++++++
+ net/ipv4/bpf_tcp_ca.c    |    2 ++
+ 6 files changed, 17 insertions(+), 4 deletions(-)
 
---- a/include/rdma/rdma_netlink.h
-+++ b/include/rdma/rdma_netlink.h
-@@ -30,7 +30,7 @@ enum rdma_nl_flags {
-  * constant as well and the compiler checks they are the same.
-  */
- #define MODULE_ALIAS_RDMA_NETLINK(_index, _val)                                \
--	static inline void __chk_##_index(void)                                \
-+	static inline void __maybe_unused __chk_##_index(void)                 \
- 	{                                                                      \
- 		BUILD_BUG_ON(_index != _val);                                  \
- 	}                                                                      \
+--- a/kernel/bpf/cgroup.c
++++ b/kernel/bpf/cgroup.c
+@@ -1773,6 +1773,8 @@ sysctl_func_proto(enum bpf_func_id func_
+ 		return &bpf_sysctl_get_new_value_proto;
+ 	case BPF_FUNC_sysctl_set_new_value:
+ 		return &bpf_sysctl_set_new_value_proto;
++	case BPF_FUNC_ktime_get_coarse_ns:
++		return &bpf_ktime_get_coarse_ns_proto;
+ 	default:
+ 		return cgroup_base_func_proto(func_id, prog);
+ 	}
+--- a/kernel/bpf/helpers.c
++++ b/kernel/bpf/helpers.c
+@@ -1367,8 +1367,6 @@ bpf_base_func_proto(enum bpf_func_id fun
+ 		return &bpf_ktime_get_ns_proto;
+ 	case BPF_FUNC_ktime_get_boot_ns:
+ 		return &bpf_ktime_get_boot_ns_proto;
+-	case BPF_FUNC_ktime_get_coarse_ns:
+-		return &bpf_ktime_get_coarse_ns_proto;
+ 	case BPF_FUNC_ringbuf_output:
+ 		return &bpf_ringbuf_output_proto;
+ 	case BPF_FUNC_ringbuf_reserve:
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -11451,6 +11451,13 @@ static int check_map_prog_compatibility(
+ 		}
+ 	}
+ 
++	if (map_value_has_timer(map)) {
++		if (is_tracing_prog_type(prog_type)) {
++			verbose(env, "tracing progs cannot use bpf_timer yet\n");
++			return -EINVAL;
++		}
++	}
++
+ 	if ((bpf_prog_is_dev_bound(prog->aux) || bpf_map_is_dev_bound(map)) &&
+ 	    !bpf_offload_prog_map_match(prog, map)) {
+ 		verbose(env, "offload device mismatch between prog and map\n");
+--- a/kernel/trace/bpf_trace.c
++++ b/kernel/trace/bpf_trace.c
+@@ -1037,8 +1037,6 @@ bpf_tracing_func_proto(enum bpf_func_id
+ 		return &bpf_ktime_get_ns_proto;
+ 	case BPF_FUNC_ktime_get_boot_ns:
+ 		return &bpf_ktime_get_boot_ns_proto;
+-	case BPF_FUNC_ktime_get_coarse_ns:
+-		return &bpf_ktime_get_coarse_ns_proto;
+ 	case BPF_FUNC_tail_call:
+ 		return &bpf_tail_call_proto;
+ 	case BPF_FUNC_get_current_pid_tgid:
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -7162,6 +7162,8 @@ sock_filter_func_proto(enum bpf_func_id
+ #endif
+ 	case BPF_FUNC_sk_storage_get:
+ 		return &bpf_sk_storage_get_cg_sock_proto;
++	case BPF_FUNC_ktime_get_coarse_ns:
++		return &bpf_ktime_get_coarse_ns_proto;
+ 	default:
+ 		return bpf_base_func_proto(func_id);
+ 	}
+@@ -10306,6 +10308,8 @@ sk_reuseport_func_proto(enum bpf_func_id
+ 		return &sk_reuseport_load_bytes_relative_proto;
+ 	case BPF_FUNC_get_socket_cookie:
+ 		return &bpf_get_socket_ptr_cookie_proto;
++	case BPF_FUNC_ktime_get_coarse_ns:
++		return &bpf_ktime_get_coarse_ns_proto;
+ 	default:
+ 		return bpf_base_func_proto(func_id);
+ 	}
+@@ -10787,6 +10791,8 @@ bpf_sk_base_func_proto(enum bpf_func_id
+ 	case BPF_FUNC_skc_to_udp6_sock:
+ 		func = &bpf_skc_to_udp6_sock_proto;
+ 		break;
++	case BPF_FUNC_ktime_get_coarse_ns:
++		return &bpf_ktime_get_coarse_ns_proto;
+ 	default:
+ 		return bpf_base_func_proto(func_id);
+ 	}
+--- a/net/ipv4/bpf_tcp_ca.c
++++ b/net/ipv4/bpf_tcp_ca.c
+@@ -212,6 +212,8 @@ bpf_tcp_ca_get_func_proto(enum bpf_func_
+ 		    offsetof(struct tcp_congestion_ops, release))
+ 			return &bpf_sk_getsockopt_proto;
+ 		return NULL;
++	case BPF_FUNC_ktime_get_coarse_ns:
++		return &bpf_ktime_get_coarse_ns_proto;
+ 	default:
+ 		return bpf_base_func_proto(func_id);
+ 	}
 
 
