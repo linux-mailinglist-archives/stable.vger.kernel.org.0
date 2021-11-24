@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B821645BB8B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:18:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC4C845BD98
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:36:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243344AbhKXMUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:20:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36414 "EHLO mail.kernel.org"
+        id S245495AbhKXMjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:39:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243692AbhKXMSp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:18:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D15A460232;
-        Wed, 24 Nov 2021 12:11:41 +0000 (UTC)
+        id S244365AbhKXMhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:37:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E7C86138B;
+        Wed, 24 Nov 2021 12:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755902;
-        bh=1vnFhOXJSZ8Vi7qsov5nOLUMlv3K3HGCaBs35V6Sl8w=;
+        s=korg; t=1637756564;
+        bh=SBGpa9OdqBCb/JB7OFKP0OR7Q24+0yzVoNoXMuL7Ogk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EEv4E7myc+2d/aL/BXXj/NfYd9VtHGE3LhAUauOdSG5NpkTDdW15R7r4YIVXJYY2O
-         afiMGIJSQaha3hwB6fqNQS9h9D9vGRpa1ZjUaWfOsr71zSsKwiH1PZTbdSASgEhYea
-         kq36wys5SOFZQpRZNI8G702mSb+5pKaTrqnS+fmE=
+        b=mHiZvwZYhphaqd/VXWXzdnHdcS/2U5oVdFGfF/cK70qnUz6do/8K3lvAAF6wQT7Ce
+         SV1StbP361pVQzArwzDXgle2i3GJ18BNvmx10gi1J7LYMSOziPNLefMX1c5rM2HMpd
+         b4SidsJNlBUqd0fKIQf/MH8vMqAeCKW8n4AFPjJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+93dba5b91f0fed312cbd@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 100/207] hwmon: Fix possible memleak in __hwmon_device_register()
+Subject: [PATCH 4.14 129/251] smackfs: use netlbl_cfg_cipsov4_del() for deleting cipso_v4_doi
 Date:   Wed, 24 Nov 2021 12:56:11 +0100
-Message-Id: <20211124115707.320515572@linuxfoundation.org>
+Message-Id: <20211124115714.737516581@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit ada61aa0b1184a8fda1a89a340c7d6cc4e59aee5 ]
+[ Upstream commit 0934ad42bb2c5df90a1b9de690f93de735b622fe ]
 
-I got memory leak as follows when doing fault injection test:
+syzbot is reporting UAF at cipso_v4_doi_search() [1], for smk_cipso_doi()
+is calling kfree() without removing from the cipso_v4_doi_list list after
+netlbl_cfg_cipsov4_map_add() returned an error. We need to use
+netlbl_cfg_cipsov4_del() in order to remove from the list and wait for
+RCU grace period before kfree().
 
-unreferenced object 0xffff888102740438 (size 8):
-  comm "27", pid 859, jiffies 4295031351 (age 143.992s)
-  hex dump (first 8 bytes):
-    68 77 6d 6f 6e 30 00 00                          hwmon0..
-  backtrace:
-    [<00000000544b5996>] __kmalloc_track_caller+0x1a6/0x300
-    [<00000000df0d62b9>] kvasprintf+0xad/0x140
-    [<00000000d3d2a3da>] kvasprintf_const+0x62/0x190
-    [<000000005f8f0f29>] kobject_set_name_vargs+0x56/0x140
-    [<00000000b739e4b9>] dev_set_name+0xb0/0xe0
-    [<0000000095b69c25>] __hwmon_device_register+0xf19/0x1e50 [hwmon]
-    [<00000000a7e65b52>] hwmon_device_register_with_info+0xcb/0x110 [hwmon]
-    [<000000006f181e86>] devm_hwmon_device_register_with_info+0x85/0x100 [hwmon]
-    [<0000000081bdc567>] tmp421_probe+0x2d2/0x465 [tmp421]
-    [<00000000502cc3f8>] i2c_device_probe+0x4e1/0xbb0
-    [<00000000f90bda3b>] really_probe+0x285/0xc30
-    [<000000007eac7b77>] __driver_probe_device+0x35f/0x4f0
-    [<000000004953d43d>] driver_probe_device+0x4f/0x140
-    [<000000002ada2d41>] __device_attach_driver+0x24c/0x330
-    [<00000000b3977977>] bus_for_each_drv+0x15d/0x1e0
-    [<000000005bf2a8e3>] __device_attach+0x267/0x410
-
-When device_register() returns an error, the name allocated in
-dev_set_name() will be leaked, the put_device() should be used
-instead of calling hwmon_dev_release() to give up the device
-reference, then the name will be freed in kobject_cleanup().
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: bab2243ce189 ("hwmon: Introduce hwmon_device_register_with_groups")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211012112758.2681084-1-yangyingliang@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://syzkaller.appspot.com/bug?extid=93dba5b91f0fed312cbd [1]
+Reported-by: syzbot <syzbot+93dba5b91f0fed312cbd@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 6c2e8ac0953fccdd ("netlabel: Update kernel configuration API")
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/hwmon.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ security/smack/smackfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
-index e0a1a118514f9..8b11d2fdf80ab 100644
---- a/drivers/hwmon/hwmon.c
-+++ b/drivers/hwmon/hwmon.c
-@@ -592,8 +592,10 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
- 	dev_set_drvdata(hdev, drvdata);
- 	dev_set_name(hdev, HWMON_ID_FORMAT, id);
- 	err = device_register(hdev);
--	if (err)
--		goto free_hwmon;
-+	if (err) {
-+		put_device(hdev);
-+		goto ida_remove;
-+	}
- 
- 	if (chip && chip->ops->is_visible && chip->ops->read &&
- 	    chip->info[0]->type == hwmon_chip &&
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 9fdf404a318f9..a9c516362170a 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -740,7 +740,7 @@ static void smk_cipso_doi(void)
+ 	if (rc != 0) {
+ 		printk(KERN_WARNING "%s:%d map add rc = %d\n",
+ 		       __func__, __LINE__, rc);
+-		kfree(doip);
++		netlbl_cfg_cipsov4_del(doip->doi, &nai);
+ 		return;
+ 	}
+ }
 -- 
 2.33.0
 
