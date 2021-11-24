@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67EA345C649
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:03:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8505C45C3DD
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:41:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351630AbhKXOGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:06:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53632 "EHLO mail.kernel.org"
+        id S1348615AbhKXNo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:44:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356574AbhKXOEc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:04:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D472D6331F;
-        Wed, 24 Nov 2021 13:11:32 +0000 (UTC)
+        id S1350364AbhKXNmE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:42:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 295B86326F;
+        Wed, 24 Nov 2021 12:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759493;
-        bh=drOOjcV+aRgZ/mmAP4zeIn+mwO6sFw3ncXIhB1lvmvU=;
+        s=korg; t=1637758682;
+        bh=zzSW0xQXM86OxivIEd5k1n4tau/wo13mnGujFeeRgIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F98gxW8RrKa3tiBEehSN+TE8g6GK0CEwzh1p+K0pQFlGLtjk3SIV4+2NvJuNzkB0r
-         lKsG+cg6GvA875i7MZVmq1+twb/OATaG82A1RpBNifInz5ulwy2pRgMQkHN8qpJirO
-         NkpuZPfrOwqX5p4ruiF8+OPIYhls9hgcQmJTvt/I=
+        b=TUqYFsXMM98entRfzqDGNUMFD89o4EtRXt3UqmCTF+OwMeHnRSSNpmUwmJXhjYq6t
+         59kkw3vYRzqJPTSa9znvqTxF1KJKxn9q3wCM676+DS5FuwgvGEV+MXyxygzDh7kAnL
+         uqYoPsv9oaqGf4MB2uMBfgbFxmarOh0I94T+HSZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Thomas Backlund <tmb@iki.fi>
-Subject: [PATCH 5.15 259/279] signal/s390: Use force_sigsegv in default_trap_handler
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 5.10 150/154] usb: max-3421: Use driver data instead of maintaining a list of bound devices
 Date:   Wed, 24 Nov 2021 12:59:06 +0100
-Message-Id: <20211124115727.665407024@linuxfoundation.org>
+Message-Id: <20211124115707.329283471@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-commit 9bc508cf0791c8e5a37696de1a046d746fcbd9d8 upstream.
+commit fc153aba3ef371d0d76eb88230ed4e0dee5b38f2 upstream.
 
-Reading the history it is unclear why default_trap_handler calls
-do_exit.  It is not even menthioned in the commit where the change
-happened.  My best guess is that because it is unknown why the
-exception happened it was desired to guarantee the process never
-returned to userspace.
+Instead of maintaining a single-linked list of devices that must be
+searched linearly in .remove() just use spi_set_drvdata() to remember the
+link between the spi device and the driver struct. Then the global list
+and the next member can be dropped.
 
-Using do_exit(SIGSEGV) has the problem that it will only terminate one
-thread of a process, leaving the process in an undefined state.
+This simplifies the driver, reduces the memory footprint and the time to
+search the list. Also it makes obvious that there is always a corresponding
+driver struct for a given device in .remove(), so the error path for
+!max3421_hcd can be dropped, too.
 
-Use force_sigsegv(SIGSEGV) instead which effectively has the same
-behavior except that is uses the ordinary signal mechanism and
-terminates all threads of a process and is generally well defined.
+As a side effect this fixes a data inconsistency when .probe() races with
+itself for a second max3421 device in manipulating max3421_hcd_list. A
+similar race is fixed in .remove(), too.
 
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Fixes: ca2ab03237ec ("[PATCH] s390: core changes")
-History Tree: https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Link: https://lkml.kernel.org/r/20211020174406.17889-11-ebiederm@xmission.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Thomas Backlund <tmb@iki.fi>
+Fixes: 2d53139f3162 ("Add support for using a MAX3421E chip as a host driver.")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20211018204028.2914597-1-u.kleine-koenig@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/traps.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/max3421-hcd.c |   25 +++++--------------------
+ 1 file changed, 5 insertions(+), 20 deletions(-)
 
---- a/arch/s390/kernel/traps.c
-+++ b/arch/s390/kernel/traps.c
-@@ -84,7 +84,7 @@ static void default_trap_handler(struct
+--- a/drivers/usb/host/max3421-hcd.c
++++ b/drivers/usb/host/max3421-hcd.c
+@@ -125,8 +125,6 @@ struct max3421_hcd {
+ 
+ 	struct task_struct *spi_thread;
+ 
+-	struct max3421_hcd *next;
+-
+ 	enum max3421_rh_state rh_state;
+ 	/* lower 16 bits contain port status, upper 16 bits the change mask: */
+ 	u32 port_status;
+@@ -174,8 +172,6 @@ struct max3421_ep {
+ 	u8 retransmit;			/* packet needs retransmission */
+ };
+ 
+-static struct max3421_hcd *max3421_hcd_list;
+-
+ #define MAX3421_FIFO_SIZE	64
+ 
+ #define MAX3421_SPI_DIR_RD	0	/* read register from MAX3421 */
+@@ -1882,9 +1878,8 @@ max3421_probe(struct spi_device *spi)
+ 	}
+ 	set_bit(HCD_FLAG_POLL_RH, &hcd->flags);
+ 	max3421_hcd = hcd_to_max3421(hcd);
+-	max3421_hcd->next = max3421_hcd_list;
+-	max3421_hcd_list = max3421_hcd;
+ 	INIT_LIST_HEAD(&max3421_hcd->ep_list);
++	spi_set_drvdata(spi, max3421_hcd);
+ 
+ 	max3421_hcd->tx = kmalloc(sizeof(*max3421_hcd->tx), GFP_KERNEL);
+ 	if (!max3421_hcd->tx)
+@@ -1934,28 +1929,18 @@ error:
+ static int
+ max3421_remove(struct spi_device *spi)
  {
- 	if (user_mode(regs)) {
- 		report_user_fault(regs, SIGSEGV, 0);
--		do_exit(SIGSEGV);
-+		force_sigsegv(SIGSEGV);
- 	} else
- 		die(regs, "Unknown program exception");
- }
+-	struct max3421_hcd *max3421_hcd = NULL, **prev;
+-	struct usb_hcd *hcd = NULL;
++	struct max3421_hcd *max3421_hcd;
++	struct usb_hcd *hcd;
+ 	unsigned long flags;
+ 
+-	for (prev = &max3421_hcd_list; *prev; prev = &(*prev)->next) {
+-		max3421_hcd = *prev;
+-		hcd = max3421_to_hcd(max3421_hcd);
+-		if (hcd->self.controller == &spi->dev)
+-			break;
+-	}
+-	if (!max3421_hcd) {
+-		dev_err(&spi->dev, "no MAX3421 HCD found for SPI device %p\n",
+-			spi);
+-		return -ENODEV;
+-	}
++	max3421_hcd = spi_get_drvdata(spi);
++	hcd = max3421_to_hcd(max3421_hcd);
+ 
+ 	usb_remove_hcd(hcd);
+ 
+ 	spin_lock_irqsave(&max3421_hcd->lock, flags);
+ 
+ 	kthread_stop(max3421_hcd->spi_thread);
+-	*prev = max3421_hcd->next;
+ 
+ 	spin_unlock_irqrestore(&max3421_hcd->lock, flags);
+ 
 
 
