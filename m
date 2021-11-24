@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 267E245BFC5
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:58:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2E6E45BCCB
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347665AbhKXNBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:01:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39968 "EHLO mail.kernel.org"
+        id S244750AbhKXMc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:32:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345492AbhKXM7b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:59:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E41356137A;
-        Wed, 24 Nov 2021 12:34:08 +0000 (UTC)
+        id S1344195AbhKXMai (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C96061353;
+        Wed, 24 Nov 2021 12:19:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757249;
-        bh=9nz0x7iTpe50Pw2n8ju7MYMoLXnaSly4sFR4aWZPcHY=;
+        s=korg; t=1637756347;
+        bh=Y3qF/cDXSfTxftZwMyDOSHa/r+PpkDPpBigcRGhW2K4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X8gT7Byj9bmuqPEo7IN8LpISj7iCC5JGh1zUblIWcWAfmBOjxXKLiqxmmjuG+WJ8r
-         oHM5sGDmcch6TlgI9nvycUND8Kf3xpKCyuDI8DrAsUlPnQhzHdPc8JDM0S9YqDVJnO
-         udKPrxqHYp5ZhBGgZV/dT5LOJ3D1/6SoQCb3WYPI=
+        b=E00DAg7YMDE53ABjlbMKD8JUidxCJASHI1GnLj3oeLEHjTxFcGS3wblc07I2bgAol
+         4AAm7ClSPhTZL7YFYYbDjEozRI4FauX/qQcrtngC6X7zCGey7NRxgOTMUtciSmdRJh
+         6AUYtav2z9PJP0DuylsyG42KmCLPNnswu+qAAIIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Tuo Li <islituo@gmail.com>, Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 106/323] ath: dfs_pattern_detector: Fix possible null-pointer dereference in channel_detector_create()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Subject: [PATCH 4.14 054/251] serial: core: Fix initializing and restoring termios speed
 Date:   Wed, 24 Nov 2021 12:54:56 +0100
-Message-Id: <20211124115722.541295204@linuxfoundation.org>
+Message-Id: <20211124115712.126766727@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +39,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 4b6012a7830b813799a7faf40daa02a837e0fd5b ]
+commit 027b57170bf8bb6999a28e4a5f3d78bf1db0f90c upstream.
 
-kzalloc() is used to allocate memory for cd->detectors, and if it fails,
-channel_detector_exit() behind the label fail will be called:
-  channel_detector_exit(dpd, cd);
+Since commit edc6afc54968 ("tty: switch to ktermios and new framework")
+termios speed is no longer stored only in c_cflag member but also in new
+additional c_ispeed and c_ospeed members. If BOTHER flag is set in c_cflag
+then termios speed is stored only in these new members.
 
-In channel_detector_exit(), cd->detectors is dereferenced through:
-  struct pri_detector *de = cd->detectors[i];
+Therefore to correctly restore termios speed it is required to store also
+ispeed and ospeed members, not only cflag member.
 
-To fix this possible null-pointer dereference, check cd->detectors before
-the for loop to dereference cd->detectors.
+In case only cflag member with BOTHER flag is restored then functions
+tty_termios_baud_rate() and tty_termios_input_baud_rate() returns baudrate
+stored in c_ospeed / c_ispeed member, which is zero as it was not restored
+too. If reported baudrate is invalid (e.g. zero) then serial core functions
+report fallback baudrate value 9600. So it means that in this case original
+baudrate is lost and kernel changes it to value 9600.
 
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210805153854.154066-1-islituo@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Simple reproducer of this issue is to boot kernel with following command
+line argument: "console=ttyXXX,86400" (where ttyXXX is the device name).
+For speed 86400 there is no Bnnn constant and therefore kernel has to
+represent this speed via BOTHER c_cflag. Which means that speed is stored
+only in c_ospeed and c_ispeed members, not in c_cflag anymore.
+
+If bootloader correctly configures serial device to speed 86400 then kernel
+prints boot log to early console at speed speed 86400 without any issue.
+But after kernel starts initializing real console device ttyXXX then speed
+is changed to fallback value 9600 because information about speed was lost.
+
+This patch fixes above issue by storing and restoring also ispeed and
+ospeed members, which are required for BOTHER flag.
+
+Fixes: edc6afc54968 ("[PATCH] tty: switch to ktermios and new framework")
+Cc: stable@vger.kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Link: https://lore.kernel.org/r/20211002130900.9518-1-pali@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/dfs_pattern_detector.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/tty/serial/serial_core.c |   16 ++++++++++++++--
+ include/linux/console.h          |    2 ++
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/dfs_pattern_detector.c b/drivers/net/wireless/ath/dfs_pattern_detector.c
-index a274eb0d19688..a0ad6e48a35b4 100644
---- a/drivers/net/wireless/ath/dfs_pattern_detector.c
-+++ b/drivers/net/wireless/ath/dfs_pattern_detector.c
-@@ -182,10 +182,12 @@ static void channel_detector_exit(struct dfs_pattern_detector *dpd,
- 	if (cd == NULL)
- 		return;
- 	list_del(&cd->head);
--	for (i = 0; i < dpd->num_radar_types; i++) {
--		struct pri_detector *de = cd->detectors[i];
--		if (de != NULL)
--			de->exit(de);
-+	if (cd->detectors) {
-+		for (i = 0; i < dpd->num_radar_types; i++) {
-+			struct pri_detector *de = cd->detectors[i];
-+			if (de != NULL)
-+				de->exit(de);
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -232,7 +232,11 @@ static int uart_port_startup(struct tty_
+ 	if (retval == 0) {
+ 		if (uart_console(uport) && uport->cons->cflag) {
+ 			tty->termios.c_cflag = uport->cons->cflag;
++			tty->termios.c_ispeed = uport->cons->ispeed;
++			tty->termios.c_ospeed = uport->cons->ospeed;
+ 			uport->cons->cflag = 0;
++			uport->cons->ispeed = 0;
++			uport->cons->ospeed = 0;
+ 		}
+ 		/*
+ 		 * Initialise the hardware port settings.
+@@ -300,8 +304,11 @@ static void uart_shutdown(struct tty_str
+ 		/*
+ 		 * Turn off DTR and RTS early.
+ 		 */
+-		if (uport && uart_console(uport) && tty)
++		if (uport && uart_console(uport) && tty) {
+ 			uport->cons->cflag = tty->termios.c_cflag;
++			uport->cons->ispeed = tty->termios.c_ispeed;
++			uport->cons->ospeed = tty->termios.c_ospeed;
 +		}
- 	}
- 	kfree(cd->detectors);
- 	kfree(cd);
--- 
-2.33.0
-
+ 
+ 		if (!tty || C_HUPCL(tty))
+ 			uart_port_dtr_rts(uport, 0);
+@@ -2076,8 +2083,11 @@ uart_set_options(struct uart_port *port,
+ 	 * Allow the setting of the UART parameters with a NULL console
+ 	 * too:
+ 	 */
+-	if (co)
++	if (co) {
+ 		co->cflag = termios.c_cflag;
++		co->ispeed = termios.c_ispeed;
++		co->ospeed = termios.c_ospeed;
++	}
+ 
+ 	return 0;
+ }
+@@ -2211,6 +2221,8 @@ int uart_resume_port(struct uart_driver
+ 		 */
+ 		memset(&termios, 0, sizeof(struct ktermios));
+ 		termios.c_cflag = uport->cons->cflag;
++		termios.c_ispeed = uport->cons->ispeed;
++		termios.c_ospeed = uport->cons->ospeed;
+ 
+ 		/*
+ 		 * If that's unset, use the tty termios setting.
+--- a/include/linux/console.h
++++ b/include/linux/console.h
+@@ -145,6 +145,8 @@ struct console {
+ 	short	flags;
+ 	short	index;
+ 	int	cflag;
++	uint	ispeed;
++	uint	ospeed;
+ 	void	*data;
+ 	struct	 console *next;
+ };
 
 
