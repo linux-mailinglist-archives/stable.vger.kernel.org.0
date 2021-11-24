@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7D2245C5C4
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:59:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C671E45C1EC
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355927AbhKXOAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:00:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45462 "EHLO mail.kernel.org"
+        id S1346587AbhKXNYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:24:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355621AbhKXN6k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:58:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03D37633B2;
-        Wed, 24 Nov 2021 13:08:19 +0000 (UTC)
+        id S1349275AbhKXNS6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:18:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CA9761268;
+        Wed, 24 Nov 2021 12:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759300;
-        bh=6dIbdzmzdMEt0tr5Q3/4n4O1qlmxBX4aA4vaSz78uKw=;
+        s=korg; t=1637757971;
+        bh=uRNWClVskT9WVh4BxglVj0+Aj3iFwlXKVsIuFTg1pPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LWbR1I6xDnbA2ceRgIO57RdhPgdhkGlCKZ5XqePwD07n2SrkkQM7jQv0QbpvWdUJF
-         0d7hWwmrzTA6NQHqJiVsgndjYSnFjJXKTmJAxoyWU1FKyDcXh3Fgap/Q+i8imBt4Cd
-         UkCnBLz7b85BInyQVXIXN6OqQW6x723TwtOQxIpQ=
+        b=mrnlpuV8B6E/oWUM1FOIaGatHXyRf1ORhrPockqSudCgUgiGZ39fPzbdt2Mqeogm5
+         OMUllm0+bKZkfO3lD+NdsoTKuJio+LCj5MGK3KVXLzzBa0txvovob44gr4AbePjaeY
+         YZBY5Obau+x1CMrQCqB6NJIgj/8BcbfZSs2VR9Ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Eryk Rybak <eryk.roch.rybak@intel.com>,
-        Tony Brelinski <tony.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 163/279] i40e: Fix ping is lost after configuring ADq on VF
+Subject: [PATCH 5.4 014/100] ASoC: nau8824: Add DMI quirk mechanism for active-high jack-detect
 Date:   Wed, 24 Nov 2021 12:57:30 +0100
-Message-Id: <20211124115724.397186509@linuxfoundation.org>
+Message-Id: <20211124115655.314319508@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,182 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eryk Rybak <eryk.roch.rybak@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 9e0a603cb7dce2a19d98116d42de84b6db26d716 ]
+[ Upstream commit 92d3360108f1839ca40451bad20ff67dd24a1964 ]
 
-Properly reconfigure VF VSIs after VF request ADQ.
-Created new function to update queue mapping and queue pairs per TC
-with AQ update VSI. This sets proper RSS size on NIC.
-VFs num_queue_pairs should not be changed during setup of queue maps.
-Previously, VF main VSI in ADQ had configured too many queues and had
-wrong RSS size, which lead to packets not being consumed and drops in
-connectivity.
+Add a quirk mechanism to allow specifying that active-high jack-detection
+should be used on platforms where this info is not available in devicetree.
 
-Fixes: bc6d33c8d93f ("i40e: Fix the number of queues available to be mapped for use")
-Co-developed-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Signed-off-by: Eryk Rybak <eryk.roch.rybak@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+And add an entry for the Cyberbook T116 tablet to the DMI table, so that
+jack-detection will work properly on this tablet.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20211002211459.110124-2-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e.h        |  1 +
- drivers/net/ethernet/intel/i40e/i40e_main.c   | 64 ++++++++++++++++++-
- .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 17 +++--
- 3 files changed, 74 insertions(+), 8 deletions(-)
+ sound/soc/codecs/nau8824.c | 40 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e.h b/drivers/net/ethernet/intel/i40e/i40e.h
-index d7db443abeafa..b10bc59c5700f 100644
---- a/drivers/net/ethernet/intel/i40e/i40e.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e.h
-@@ -1248,6 +1248,7 @@ void i40e_ptp_restore_hw_time(struct i40e_pf *pf);
- void i40e_ptp_init(struct i40e_pf *pf);
- void i40e_ptp_stop(struct i40e_pf *pf);
- int i40e_ptp_alloc_pins(struct i40e_pf *pf);
-+int i40e_update_adq_vsi_queues(struct i40e_vsi *vsi, int vsi_offset);
- int i40e_is_vsi_uplink_mode_veb(struct i40e_vsi *vsi);
- i40e_status i40e_get_partition_bw_setting(struct i40e_pf *pf);
- i40e_status i40e_set_partition_bw_setting(struct i40e_pf *pf);
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index dc78ffac10371..42e26ee5b6d5f 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -1801,6 +1801,8 @@ static void i40e_vsi_setup_queue_map(struct i40e_vsi *vsi,
+diff --git a/sound/soc/codecs/nau8824.c b/sound/soc/codecs/nau8824.c
+index 15bd8335f6678..c8ccfa2fff848 100644
+--- a/sound/soc/codecs/nau8824.c
++++ b/sound/soc/codecs/nau8824.c
+@@ -8,6 +8,7 @@
  
- 	sections = I40E_AQ_VSI_PROP_QUEUE_MAP_VALID;
- 	offset = 0;
-+	/* zero out queue mapping, it will get updated on the end of the function */
-+	memset(ctxt->info.queue_mapping, 0, sizeof(ctxt->info.queue_mapping));
+ #include <linux/module.h>
+ #include <linux/delay.h>
++#include <linux/dmi.h>
+ #include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/regmap.h>
+@@ -27,6 +28,12 @@
  
- 	if (vsi->type == I40E_VSI_MAIN) {
- 		/* This code helps add more queue to the VSI if we have
-@@ -1817,10 +1819,12 @@ static void i40e_vsi_setup_queue_map(struct i40e_vsi *vsi,
- 	}
+ #include "nau8824.h"
  
- 	/* Number of queues per enabled TC */
--	if (vsi->type == I40E_VSI_MAIN)
-+	if (vsi->type == I40E_VSI_MAIN ||
-+	    (vsi->type == I40E_VSI_SRIOV && vsi->num_queue_pairs != 0))
- 		num_tc_qps = vsi->num_queue_pairs;
- 	else
- 		num_tc_qps = vsi->alloc_queue_pairs;
++#define NAU8824_JD_ACTIVE_HIGH			BIT(0)
 +
- 	if (enabled_tc && (vsi->back->flags & I40E_FLAG_DCB_ENABLED)) {
- 		/* Find numtc from enabled TC bitmap */
- 		for (i = 0, numtc = 0; i < I40E_MAX_TRAFFIC_CLASS; i++) {
-@@ -1898,10 +1902,12 @@ static void i40e_vsi_setup_queue_map(struct i40e_vsi *vsi,
- 		}
- 		ctxt->info.tc_mapping[i] = cpu_to_le16(qmap);
- 	}
--	/* Do not change previously set num_queue_pairs for PFs */
-+	/* Do not change previously set num_queue_pairs for PFs and VFs*/
- 	if ((vsi->type == I40E_VSI_MAIN && numtc != 1) ||
--	    vsi->type != I40E_VSI_MAIN)
-+	    (vsi->type == I40E_VSI_SRIOV && vsi->num_queue_pairs == 0) ||
-+	    (vsi->type != I40E_VSI_MAIN && vsi->type != I40E_VSI_SRIOV))
- 		vsi->num_queue_pairs = offset;
-+
- 	/* Scheduler section valid can only be set for ADD VSI */
- 	if (is_add) {
- 		sections |= I40E_AQ_VSI_PROP_SCHED_VALID;
-@@ -5438,6 +5444,58 @@ static void i40e_vsi_update_queue_map(struct i40e_vsi *vsi,
- 	       sizeof(vsi->info.tc_mapping));
++static int nau8824_quirk;
++static int quirk_override = -1;
++module_param_named(quirk, quirk_override, uint, 0444);
++MODULE_PARM_DESC(quirk, "Board-specific quirk override");
+ 
+ static int nau8824_config_sysclk(struct nau8824 *nau8824,
+ 	int clk_id, unsigned int freq);
+@@ -1875,6 +1882,34 @@ static int nau8824_read_device_properties(struct device *dev,
+ 	return 0;
  }
  
-+/**
-+ * i40e_update_adq_vsi_queues - update queue mapping for ADq VSI
-+ * @vsi: the VSI being reconfigured
-+ * @vsi_offset: offset from main VF VSI
-+ */
-+int i40e_update_adq_vsi_queues(struct i40e_vsi *vsi, int vsi_offset)
++/* Please keep this list alphabetically sorted */
++static const struct dmi_system_id nau8824_quirk_table[] = {
++	{
++		/* Cyberbook T116 rugged tablet */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Default string"),
++			DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "20170531"),
++		},
++		.driver_data = (void *)(NAU8824_JD_ACTIVE_HIGH),
++	},
++	{}
++};
++
++static void nau8824_check_quirks(void)
 +{
-+	struct i40e_vsi_context ctxt = {};
-+	struct i40e_pf *pf;
-+	struct i40e_hw *hw;
-+	int ret;
++	const struct dmi_system_id *dmi_id;
 +
-+	if (!vsi)
-+		return I40E_ERR_PARAM;
-+	pf = vsi->back;
-+	hw = &pf->hw;
-+
-+	ctxt.seid = vsi->seid;
-+	ctxt.pf_num = hw->pf_id;
-+	ctxt.vf_num = vsi->vf_id + hw->func_caps.vf_base_id + vsi_offset;
-+	ctxt.uplink_seid = vsi->uplink_seid;
-+	ctxt.connection_type = I40E_AQ_VSI_CONN_TYPE_NORMAL;
-+	ctxt.flags = I40E_AQ_VSI_TYPE_VF;
-+	ctxt.info = vsi->info;
-+
-+	i40e_vsi_setup_queue_map(vsi, &ctxt, vsi->tc_config.enabled_tc,
-+				 false);
-+	if (vsi->reconfig_rss) {
-+		vsi->rss_size = min_t(int, pf->alloc_rss_size,
-+				      vsi->num_queue_pairs);
-+		ret = i40e_vsi_config_rss(vsi);
-+		if (ret) {
-+			dev_info(&pf->pdev->dev, "Failed to reconfig rss for num_queues\n");
-+			return ret;
-+		}
-+		vsi->reconfig_rss = false;
++	if (quirk_override != -1) {
++		nau8824_quirk = quirk_override;
++		return;
 +	}
 +
-+	ret = i40e_aq_update_vsi_params(hw, &ctxt, NULL);
-+	if (ret) {
-+		dev_info(&pf->pdev->dev, "Update vsi config failed, err %s aq_err %s\n",
-+			 i40e_stat_str(hw, ret),
-+			 i40e_aq_str(hw, hw->aq.asq_last_status));
-+		return ret;
-+	}
-+	/* update the local VSI info with updated queue map */
-+	i40e_vsi_update_queue_map(vsi, &ctxt);
-+	vsi->info.valid_sections = 0;
-+
-+	return ret;
++	dmi_id = dmi_first_match(nau8824_quirk_table);
++	if (dmi_id)
++		nau8824_quirk = (unsigned long)dmi_id->driver_data;
 +}
 +
- /**
-  * i40e_vsi_config_tc - Configure VSI Tx Scheduler for given TC map
-  * @vsi: VSI to be configured
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index 815661632e7a7..2102db11972a7 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -2220,11 +2220,12 @@ static int i40e_vc_config_queues_msg(struct i40e_vf *vf, u8 *msg)
- 	struct virtchnl_vsi_queue_config_info *qci =
- 	    (struct virtchnl_vsi_queue_config_info *)msg;
- 	struct virtchnl_queue_pair_info *qpi;
--	struct i40e_pf *pf = vf->pf;
- 	u16 vsi_id, vsi_queue_id = 0;
--	u16 num_qps_all = 0;
-+	struct i40e_pf *pf = vf->pf;
- 	i40e_status aq_ret = 0;
- 	int i, j = 0, idx = 0;
-+	struct i40e_vsi *vsi;
-+	u16 num_qps_all = 0;
+ static int nau8824_i2c_probe(struct i2c_client *i2c,
+ 	const struct i2c_device_id *id)
+ {
+@@ -1899,6 +1934,11 @@ static int nau8824_i2c_probe(struct i2c_client *i2c,
+ 	nau8824->irq = i2c->irq;
+ 	sema_init(&nau8824->jd_sem, 1);
  
- 	if (!test_bit(I40E_VF_STATE_ACTIVE, &vf->vf_states)) {
- 		aq_ret = I40E_ERR_PARAM;
-@@ -2313,9 +2314,15 @@ static int i40e_vc_config_queues_msg(struct i40e_vf *vf, u8 *msg)
- 		pf->vsi[vf->lan_vsi_idx]->num_queue_pairs =
- 			qci->num_queue_pairs;
- 	} else {
--		for (i = 0; i < vf->num_tc; i++)
--			pf->vsi[vf->ch[i].vsi_idx]->num_queue_pairs =
--			       vf->ch[i].num_qps;
-+		for (i = 0; i < vf->num_tc; i++) {
-+			vsi = pf->vsi[vf->ch[i].vsi_idx];
-+			vsi->num_queue_pairs = vf->ch[i].num_qps;
++	nau8824_check_quirks();
 +
-+			if (i40e_update_adq_vsi_queues(vsi, i)) {
-+				aq_ret = I40E_ERR_CONFIG;
-+				goto error_param;
-+			}
-+		}
- 	}
++	if (nau8824_quirk & NAU8824_JD_ACTIVE_HIGH)
++		nau8824->jkdet_polarity = 0;
++
+ 	nau8824_print_device_properties(nau8824);
  
- error_param:
+ 	ret = regmap_read(nau8824->regmap, NAU8824_REG_I2C_DEVICE_ID, &value);
 -- 
 2.33.0
 
