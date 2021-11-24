@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31CE745B9A2
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:01:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B47B45BD0E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:32:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241892AbhKXMDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:03:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58608 "EHLO mail.kernel.org"
+        id S244712AbhKXMfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:35:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241968AbhKXMDg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:03:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8058A60F90;
-        Wed, 24 Nov 2021 12:00:26 +0000 (UTC)
+        id S245623AbhKXMbW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:31:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CA7061178;
+        Wed, 24 Nov 2021 12:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755227;
-        bh=kPo5Y3JWeVQOSIja/7gSaYdDZpapx5TLEO0Jwmpe0Uk=;
+        s=korg; t=1637756380;
+        bh=Zfl6Mzx7Wck22GmN37gVFkiXUWqLneZp62EFCFkZ8Jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOBFT5D5NLfyAk2iMTQciNKno3d+bVLfnSxTvCFK2CGGDtFU9B/Ae0qOIobU8LUFe
-         dPJdr+1YnDGIzrLn5L2z5mk7onr8Ekh8n73urDZ8SArhwV1aWlrX0FF4qtr4ih+sLO
-         0FQbtTwTw/eKMHc4pQuZztf8YC3VwRFlDM4AHvz8=
+        b=2TUu3Y75Zm56VdvFLvsyWfzljxt7wgqv2sSg9xptXKog7WhvnAQNL5zngNadszz2j
+         4BUj2CI5xjdWxVeCg7u/gporfQ+B+FiHy3Mk4b/qvh8wkkwrotLRb3yhcIwYkCG3YV
+         el5sA6x+/huOKPbgYYaWCCJFgHGdY5YR3CjMf2Z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phoenix Huang <phoenix@emc.com.tw>,
-        Yufei Du <yufeidu@cs.unc.edu>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.4 004/162] Input: elantench - fix misreporting trackpoint coordinates
+        stable@vger.kernel.org, Pekka Korpinen <pekka.korpinen@iki.fi>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 065/251] iio: dac: ad5446: Fix ad5622_write() return value
 Date:   Wed, 24 Nov 2021 12:55:07 +0100
-Message-Id: <20211124115658.473676079@linuxfoundation.org>
+Message-Id: <20211124115712.504170220@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phoenix Huang <phoenix@emc.com.tw>
+From: Pekka Korpinen <pekka.korpinen@iki.fi>
 
-commit be896bd3b72b44126c55768f14c22a8729b0992e upstream.
+commit 558df982d4ead9cac628153d0d7b60feae05ddc8 upstream.
 
-Some firmwares occasionally report bogus data from trackpoint, with X or Y
-displacement being too large (outside of [-127, 127] range). Let's drop such
-packets so that we do not generate jumps.
+On success i2c_master_send() returns the number of bytes written. The
+call from iio_write_channel_info(), however, expects the return value to
+be zero on success.
 
-Signed-off-by: Phoenix Huang <phoenix@emc.com.tw>
-Tested-by: Yufei Du <yufeidu@cs.unc.edu>
-Link: https://lore.kernel.org/r/20210729010940.5752-1-phoenix@emc.com.tw
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+This bug causes incorrect consumption of the sysfs buffer in
+iio_write_channel_info(). When writing more than two characters to
+out_voltage0_raw, the ad5446 write handler is called multiple times
+causing unexpected behavior.
+
+Fixes: 3ec36a2cf0d5 ("iio:ad5446: Add support for I2C based DACs")
+Signed-off-by: Pekka Korpinen <pekka.korpinen@iki.fi>
+Link: https://lore.kernel.org/r/20210929185755.2384-1-pekka.korpinen@iki.fi
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/mouse/elantech.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/iio/dac/ad5446.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -435,6 +435,19 @@ static void elantech_report_trackpoint(s
- 	case 0x16008020U:
- 	case 0x26800010U:
- 	case 0x36808000U:
-+
-+		/*
-+		 * This firmware misreport coordinates for trackpoint
-+		 * occasionally. Discard packets outside of [-127, 127] range
-+		 * to prevent cursor jumps.
-+		 */
-+		if (packet[4] == 0x80 || packet[5] == 0x80 ||
-+		    packet[1] >> 7 == packet[4] >> 7 ||
-+		    packet[2] >> 7 == packet[5] >> 7) {
-+			elantech_debug("discarding packet [%6ph]\n", packet);
-+			break;
-+
-+		}
- 		x = packet[4] - (int)((packet[1]^0x80) << 1);
- 		y = (int)((packet[2]^0x80) << 1) - packet[5];
+--- a/drivers/iio/dac/ad5446.c
++++ b/drivers/iio/dac/ad5446.c
+@@ -510,8 +510,15 @@ static int ad5622_write(struct ad5446_st
+ {
+ 	struct i2c_client *client = to_i2c_client(st->dev);
+ 	__be16 data = cpu_to_be16(val);
++	int ret;
  
+-	return i2c_master_send(client, (char *)&data, sizeof(data));
++	ret = i2c_master_send(client, (char *)&data, sizeof(data));
++	if (ret < 0)
++		return ret;
++	if (ret != sizeof(data))
++		return -EIO;
++
++	return 0;
+ }
+ 
+ /**
 
 
