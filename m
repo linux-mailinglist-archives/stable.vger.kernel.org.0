@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 117F445C02F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:03:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 680D545C428
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:44:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344077AbhKXNFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:05:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41106 "EHLO mail.kernel.org"
+        id S1349436AbhKXNpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:45:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347999AbhKXNDr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:03:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D343D6108E;
-        Wed, 24 Nov 2021 12:36:43 +0000 (UTC)
+        id S1347943AbhKXNo3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:44:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82A15632DD;
+        Wed, 24 Nov 2021 12:59:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757404;
-        bh=0dlSy1l9ZmvEzgN8+wRVkVgBw3bcQQaIJQTdKQHEHqA=;
+        s=korg; t=1637758777;
+        bh=anNM17j2qQ320cTbZ6Fs1UMAGeraF7RaUY0LOIlNUx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMnY/HsjydX8zdfZrcJH+j/RZDCEUe0GAIZY2WXxL7+7Q3ai1bhiNUS2CQQgoERM1
-         qIEkATbgke/O+cDERdYDhJ5MzbSqzxMev9Oqj9yFK0F2+DeNS48x2zU8yhBngODro3
-         JU8K5qQ6hD7idefVzIm1Y2pdgxGc3ZAMKFqBl5pc=
+        b=A72teeAEtJo8+t9TqmvUMZdPy9h2n9ZZdShsY09kcEl6UGpC6RRoDivszKeyl5KZB
+         knhehg3phAMa2KGz01+j4AnMdwPtzt91Z7g5vsy0pSVuhNfIsuhCetbjE1p+0Yqvdq
+         zC0yoN4wulXLmpNuOKuWgM2XISeP5VZ6W7aOzH10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 123/323] parisc: fix warning in flush_tlb_all
+        stable@vger.kernel.org,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 026/279] ARM: BCM53016: Specify switch ports for Meraki MR32
 Date:   Wed, 24 Nov 2021 12:55:13 +0100
-Message-Id: <20211124115723.089859178@linuxfoundation.org>
+Message-Id: <20211124115719.649959394@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,66 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@stackframe.org>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-[ Upstream commit 1030d681319b43869e0d5b568b9d0226652d1a6f ]
+[ Upstream commit 6abc4ca5a28070945e0d68cb4160b309bfbf4b8b ]
 
-I've got the following splat after enabling preemption:
+the switch identifies itself as a BCM53012 (rev 5)...
+This patch has been tested & verified on OpenWrt's
+snapshot with Linux 5.10 (didn't test any older kernels).
+The MR32 is able to "talk to the network" as before with
+OpenWrt's SWITCHDEV b53 driver.
 
-[    3.724721] BUG: using __this_cpu_add() in preemptible [00000000] code: swapper/0/1
-[    3.734630] caller is __this_cpu_preempt_check+0x38/0x50
-[    3.740635] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.15.0-rc4-64bit+ #324
-[    3.744605] Hardware name: 9000/785/C8000
-[    3.744605] Backtrace:
-[    3.744605]  [<00000000401d9d58>] show_stack+0x74/0xb0
-[    3.744605]  [<0000000040c27bd4>] dump_stack_lvl+0x10c/0x188
-[    3.744605]  [<0000000040c27c84>] dump_stack+0x34/0x48
-[    3.744605]  [<0000000040c33438>] check_preemption_disabled+0x178/0x1b0
-[    3.744605]  [<0000000040c334f8>] __this_cpu_preempt_check+0x38/0x50
-[    3.744605]  [<00000000401d632c>] flush_tlb_all+0x58/0x2e0
-[    3.744605]  [<00000000401075c0>] 0x401075c0
-[    3.744605]  [<000000004010b8fc>] 0x4010b8fc
-[    3.744605]  [<00000000401080fc>] 0x401080fc
-[    3.744605]  [<00000000401d5224>] do_one_initcall+0x128/0x378
-[    3.744605]  [<0000000040102de8>] 0x40102de8
-[    3.744605]  [<0000000040c33864>] kernel_init+0x60/0x3a8
-[    3.744605]  [<00000000401d1020>] ret_from_kernel_thread+0x20/0x28
-[    3.744605]
+| b53-srab-switch 18007000.ethernet-switch: found switch: BCM53012, rev 5
+| libphy: dsa slave smi: probed
+| b53-srab-switch 18007000.ethernet-switch poe (uninitialized):
+|	PHY [dsa-0.0:00] driver [Generic PHY] (irq=POLL)
+| b53-srab-switch 18007000.ethernet-switch: Using legacy PHYLIB callbacks.
+|	Please migrate to PHYLINK!
+| DSA: tree 0 setup
 
-Fix this by moving the __inc_irq_stat() into the locked section.
-
-Signed-off-by: Sven Schnelle <svens@stackframe.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: Rafał Miłecki <zajec5@gmail.com>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/mm/init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/bcm53016-meraki-mr32.dts | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
-index 10a52664e29f0..038fcb6c76dc1 100644
---- a/arch/parisc/mm/init.c
-+++ b/arch/parisc/mm/init.c
-@@ -895,9 +895,9 @@ void flush_tlb_all(void)
- {
- 	int do_recycle;
- 
--	__inc_irq_stat(irq_tlb_count);
- 	do_recycle = 0;
- 	spin_lock(&sid_lock);
-+	__inc_irq_stat(irq_tlb_count);
- 	if (dirty_space_ids > RECYCLE_THRESHOLD) {
- 	    BUG_ON(recycle_inuse);  /* FIXME: Use a semaphore/wait queue here */
- 	    get_dirty_sids(&recycle_ndirty,recycle_dirty_array);
-@@ -916,8 +916,8 @@ void flush_tlb_all(void)
- #else
- void flush_tlb_all(void)
- {
--	__inc_irq_stat(irq_tlb_count);
- 	spin_lock(&sid_lock);
-+	__inc_irq_stat(irq_tlb_count);
- 	flush_tlb_all_local(NULL);
- 	recycle_sids();
- 	spin_unlock(&sid_lock);
+diff --git a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
+index 612d61852bfb9..577a4dc604d93 100644
+--- a/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
++++ b/arch/arm/boot/dts/bcm53016-meraki-mr32.dts
+@@ -195,3 +195,25 @@
+ 		};
+ 	};
+ };
++
++&srab {
++	status = "okay";
++
++	ports {
++		port@0 {
++			reg = <0>;
++			label = "poe";
++		};
++
++		port@5 {
++			reg = <5>;
++			label = "cpu";
++			ethernet = <&gmac0>;
++
++			fixed-link {
++				speed = <1000>;
++				duplex-full;
++			};
++		};
++	};
++};
 -- 
 2.33.0
 
