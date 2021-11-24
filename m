@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A07E345C296
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:28:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70FAF45C0AB
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:07:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351289AbhKXNaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:30:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60584 "EHLO mail.kernel.org"
+        id S244644AbhKXNKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:10:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350753AbhKXN2f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:28:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F57361164;
-        Wed, 24 Nov 2021 12:51:05 +0000 (UTC)
+        id S1348355AbhKXNJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:09:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C29FA61216;
+        Wed, 24 Nov 2021 12:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758265;
-        bh=mVpHQABtPFRK6n6ACLZPD/QroWJz+FMsFfzCvGxlFsA=;
+        s=korg; t=1637757616;
+        bh=42Y5+rXmA77QcjkgrSDGAwSlv9NS8sOO5evVFIAFJgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gHSZ8pHcBZnU9Y7JRC5GFChRy/FicI7dzxrWNtvvTF674GYRzHLHllO6mwSJPnEhv
-         dwckESeitvV/Z0B+BvJYZKeelLiurAp8oShtI6r9hnU3mM3IY1sroxaOUxjZRF38bB
-         l9h7crVq91w+2rrNPXk3M8gLiYLJ+yxHI1see8Tk=
+        b=CXl2k5InhxsCFBwWU+qBBaqXtlTfkKuMSbgD2h07KVMN2ZN/m/FdHcsepfPTo/xGq
+         ZgNxbRPqCYGPWBIl7XzUjmjy/4loiCWjhowN8o2C9YYZEVmh9ymJ8T0UXYskh1gkb4
+         wyAOvfJSlOCkGn60JeRIqpHQg2ohrjLG/u1nwUXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 013/154] bus: ti-sysc: Use context lost quirk for otg
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 219/323] i2c: xlr: Fix a resource leak in the error handling path of xlr_i2c_probe()
 Date:   Wed, 24 Nov 2021 12:56:49 +0100
-Message-Id: <20211124115702.812978830@linuxfoundation.org>
+Message-Id: <20211124115726.325958403@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 9067839ff45a528bcb015cc2f24f656126b91e3f ]
+[ Upstream commit 7f98960c046ee1136e7096aee168eda03aef8a5d ]
 
-Let's use SYSC_QUIRK_REINIT_ON_CTX_LOST quirk for am335x otg instead of
-SYSC_QUIRK_REINIT_ON_RESUME quirk as we can now handle the context loss
-in a more generic way.
+A successful 'clk_prepare()' call should be balanced by a corresponding
+'clk_unprepare()' call in the error handling path of the probe, as already
+done in the remove function.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+More specifically, 'clk_prepare_enable()' is used, but 'clk_disable()' is
+also already called. So just the unprepare step has still to be done.
+
+Update the error handling path accordingly.
+
+Fixes: 75d31c2372e4 ("i2c: xlr: add support for Sigma Designs controller variant")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-xlr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 1622b0f268230..43603dc9da430 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -1563,7 +1563,7 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
- 		   0xffffffff, SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
- 	SYSC_QUIRK("usb_otg_hs", 0, 0, 0x10, -ENODEV, 0x4ea2080d, 0xffffffff,
- 		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY |
--		   SYSC_QUIRK_REINIT_ON_RESUME),
-+		   SYSC_QUIRK_REINIT_ON_CTX_LOST),
- 	SYSC_QUIRK("wdt", 0, 0, 0x10, 0x14, 0x502a0500, 0xfffff0f0,
- 		   SYSC_MODULE_QUIRK_WDT),
- 	/* PRUSS on am3, am4 and am5 */
+diff --git a/drivers/i2c/busses/i2c-xlr.c b/drivers/i2c/busses/i2c-xlr.c
+index 34cd4b3085402..dda6cb848405b 100644
+--- a/drivers/i2c/busses/i2c-xlr.c
++++ b/drivers/i2c/busses/i2c-xlr.c
+@@ -433,11 +433,15 @@ static int xlr_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(&priv->adap, priv);
+ 	ret = i2c_add_numbered_adapter(&priv->adap);
+ 	if (ret < 0)
+-		return ret;
++		goto err_unprepare_clk;
+ 
+ 	platform_set_drvdata(pdev, priv);
+ 	dev_info(&priv->adap.dev, "Added I2C Bus.\n");
+ 	return 0;
++
++err_unprepare_clk:
++	clk_unprepare(clk);
++	return ret;
+ }
+ 
+ static int xlr_i2c_remove(struct platform_device *pdev)
 -- 
 2.33.0
 
