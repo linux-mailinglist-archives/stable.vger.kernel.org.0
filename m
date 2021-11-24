@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2996C45C059
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:04:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0697145C48B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:47:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347238AbhKXNHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:07:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45300 "EHLO mail.kernel.org"
+        id S1346337AbhKXNtl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:49:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346845AbhKXNFU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:05:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72B146120C;
-        Wed, 24 Nov 2021 12:37:26 +0000 (UTC)
+        id S1354038AbhKXNso (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:48:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5FC363342;
+        Wed, 24 Nov 2021 13:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757447;
-        bh=ahLQv8n0239UxK63HqCs86SES8azDU9NV6jTKoaFB0c=;
+        s=korg; t=1637758922;
+        bh=KFya8t7XucbD4ytnXfZ1+zfqS0YsfWJVp8FuMTEXMeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDco3KRdN00fusevxq4T5WinkVxhMbiM2encN2g40DI2LTi4aToyqPiiEGNKdMYge
-         qPMfH9RBUdm/4pJs56BKA7vlFyfESXbPvh4aOE/IirCNyhkpuPae0PrFW7f0b1/d0W
-         jP0KTyLp/+hjyiyltADBApGKIMkrZ8gq/DdOlDKg=
+        b=ClgJMJ2zVS5XzFZCfbSaAfMRoFU2M2nDFeD8RB6lmlgNYM8XHhwMN+y1veMeHqy+b
+         tNumlwehGdFkMfWRKqo7VmoqKEO2QILf4lh73eIuYzpdfo18/4nXaNx+/67Y/q+SGd
+         YKho/+1jYUWO0pISrXeNUon0YfQ++ECFrfTVq8K4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 171/323] net: amd-xgbe: Toggle PLL settings during rate change
+        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 074/279] ALSA: gus: fix null pointer dereference on pointer block
 Date:   Wed, 24 Nov 2021 12:56:01 +0100
-Message-Id: <20211124115724.716328079@linuxfoundation.org>
+Message-Id: <20211124115721.264698383@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,108 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Chengfeng Ye <cyeaa@connect.ust.hk>
 
-[ Upstream commit daf182d360e509a494db18666799f4e85d83dda0 ]
+[ Upstream commit a0d21bb3279476c777434c40d969ea88ca64f9aa ]
 
-For each rate change command submission, the FW has to do a phy
-power off sequence internally. For this to happen correctly, the
-PLL re-initialization control setting has to be turned off before
-sending mailbox commands and re-enabled once the command submission
-is complete.
+The pointer block return from snd_gf1_dma_next_block could be
+null, so there is a potential null pointer dereference issue.
+Fix this by adding a null check before dereference.
 
-Without the PLL control setting, the link up takes longer time in a
-fixed phy configuration.
-
-Fixes: 47f164deab22 ("amd-xgbe: Add PCI device support")
-Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
+Link: https://lore.kernel.org/r/20211024104611.9919-1-cyeaa@connect.ust.hk
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-common.h |  8 ++++++++
- drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 20 +++++++++++++++++++-
- 2 files changed, 27 insertions(+), 1 deletion(-)
+ sound/isa/gus/gus_dma.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-common.h b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-index b2cd3bdba9f89..533b8519ec352 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-@@ -1331,6 +1331,10 @@
- #define MDIO_VEND2_PMA_CDR_CONTROL	0x8056
- #endif
- 
-+#ifndef MDIO_VEND2_PMA_MISC_CTRL0
-+#define MDIO_VEND2_PMA_MISC_CTRL0	0x8090
-+#endif
-+
- #ifndef MDIO_CTRL1_SPEED1G
- #define MDIO_CTRL1_SPEED1G		(MDIO_CTRL1_SPEED10G & ~BMCR_SPEED100)
- #endif
-@@ -1389,6 +1393,10 @@
- #define XGBE_PMA_RX_RST_0_RESET_ON	0x10
- #define XGBE_PMA_RX_RST_0_RESET_OFF	0x00
- 
-+#define XGBE_PMA_PLL_CTRL_MASK		BIT(15)
-+#define XGBE_PMA_PLL_CTRL_ENABLE	BIT(15)
-+#define XGBE_PMA_PLL_CTRL_DISABLE	0x0000
-+
- /* Bit setting and getting macros
-  *  The get macro will extract the current bit field value from within
-  *  the variable
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-index 54753c8a6a9d7..714aead72c579 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-@@ -1966,12 +1966,26 @@ static void xgbe_phy_rx_reset(struct xgbe_prv_data *pdata)
+diff --git a/sound/isa/gus/gus_dma.c b/sound/isa/gus/gus_dma.c
+index a1c770d826dda..6d664dd8dde0b 100644
+--- a/sound/isa/gus/gus_dma.c
++++ b/sound/isa/gus/gus_dma.c
+@@ -126,6 +126,8 @@ static void snd_gf1_dma_interrupt(struct snd_gus_card * gus)
  	}
- }
- 
-+static void xgbe_phy_pll_ctrl(struct xgbe_prv_data *pdata, bool enable)
-+{
-+	XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_VEND2_PMA_MISC_CTRL0,
-+			 XGBE_PMA_PLL_CTRL_MASK,
-+			 enable ? XGBE_PMA_PLL_CTRL_ENABLE
-+				: XGBE_PMA_PLL_CTRL_DISABLE);
-+
-+	/* Wait for command to complete */
-+	usleep_range(100, 200);
-+}
-+
- static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 					unsigned int cmd, unsigned int sub_cmd)
- {
- 	unsigned int s0 = 0;
- 	unsigned int wait;
- 
-+	/* Disable PLL re-initialization during FW command processing */
-+	xgbe_phy_pll_ctrl(pdata, false);
-+
- 	/* Log if a previous command did not complete */
- 	if (XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS)) {
- 		netif_dbg(pdata, link, pdata->netdev,
-@@ -1992,7 +2006,7 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 	wait = XGBE_RATECHANGE_COUNT;
- 	while (wait--) {
- 		if (!XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS))
--			return;
-+			goto reenable_pll;
- 
- 		usleep_range(1000, 2000);
- 	}
-@@ -2002,6 +2016,10 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 
- 	/* Reset on error */
- 	xgbe_phy_rx_reset(pdata);
-+
-+reenable_pll:
-+	/* Enable PLL re-initialization */
-+	xgbe_phy_pll_ctrl(pdata, true);
- }
- 
- static void xgbe_phy_rrc(struct xgbe_prv_data *pdata)
+ 	block = snd_gf1_dma_next_block(gus);
+ 	spin_unlock(&gus->dma_lock);
++	if (!block)
++		return;
+ 	snd_gf1_dma_program(gus, block->addr, block->buf_addr, block->count, (unsigned short) block->cmd);
+ 	kfree(block);
+ #if 0
 -- 
 2.33.0
 
