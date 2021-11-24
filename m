@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3AD745BD46
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:34:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C38E45BB2C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:14:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344532AbhKXMhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:37:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49472 "EHLO mail.kernel.org"
+        id S242901AbhKXMRP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:17:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343720AbhKXMeo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:34:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B9C2610F7;
-        Wed, 24 Nov 2021 12:21:05 +0000 (UTC)
+        id S243716AbhKXMPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:15:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0839610F9;
+        Wed, 24 Nov 2021 12:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756466;
-        bh=oYQU6Whe+ZZrvOb/R4woe+Uz6MG65XzdwQ9RNNM0Hq8=;
+        s=korg; t=1637755811;
+        bh=dTg/yNAUnvDS1H7l1tqqToSBagvSeQxGASeVqlgRDO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r6qt8q1HoZAuUNpnOpEB2YUDYj0i8GEehwPKc2S0kNktVN+sDw+Jr+x4h9jqGcYZW
-         IA55KpQGUQ6X37IZN/xfrblmR8tbPgBUlMM8uwOMrVt/9qHtc1Rt+5Oew+w7xaaCwy
-         r0dqf4Rff4iAKCABSAJBu/QqD+usLLb1Ke9+4K8s=
+        b=VokHjmlhk3dOTBfSIicQUmYsCcwdHo2dL5H6ms4con+FC+gfKPUqCYthR76oo3lwY
+         5M274T7gbzYHMEkjHi+fS+yVhBvzJA/mwBPwcWNIeulFRSUGcxPlpwd7m+/WMsYz2q
+         pg2hss4UEqQgMZ9MZuDYVxwvmULjcpiQi2sQVRj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Tuo Li <islituo@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 096/251] PM: hibernate: Get block device exclusively in swsusp_check()
+Subject: [PATCH 4.9 067/207] media: s5p-mfc: fix possible null-pointer dereference in s5p_mfc_probe()
 Date:   Wed, 24 Nov 2021 12:55:38 +0100
-Message-Id: <20211124115713.583198259@linuxfoundation.org>
+Message-Id: <20211124115706.095187944@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,98 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Tuo Li <islituo@gmail.com>
 
-[ Upstream commit 39fbef4b0f77f9c89c8f014749ca533643a37c9f ]
+[ Upstream commit 8515965e5e33f4feb56134348c95953f3eadfb26 ]
 
-The following kernel crash can be triggered:
+The variable pdev is assigned to dev->plat_dev, and dev->plat_dev is
+checked in:
+  if (!dev->plat_dev)
 
-[   89.266592] ------------[ cut here ]------------
-[   89.267427] kernel BUG at fs/buffer.c:3020!
-[   89.268264] invalid opcode: 0000 [#1] SMP KASAN PTI
-[   89.269116] CPU: 7 PID: 1750 Comm: kmmpd-loop0 Not tainted 5.10.0-862.14.0.6.x86_64-08610-gc932cda3cef4-dirty #20
-[   89.273169] RIP: 0010:submit_bh_wbc.isra.0+0x538/0x6d0
-[   89.277157] RSP: 0018:ffff888105ddfd08 EFLAGS: 00010246
-[   89.278093] RAX: 0000000000000005 RBX: ffff888124231498 RCX: ffffffffb2772612
-[   89.279332] RDX: 1ffff11024846293 RSI: 0000000000000008 RDI: ffff888124231498
-[   89.280591] RBP: ffff8881248cc000 R08: 0000000000000001 R09: ffffed1024846294
-[   89.281851] R10: ffff88812423149f R11: ffffed1024846293 R12: 0000000000003800
-[   89.283095] R13: 0000000000000001 R14: 0000000000000000 R15: ffff8881161f7000
-[   89.284342] FS:  0000000000000000(0000) GS:ffff88839b5c0000(0000) knlGS:0000000000000000
-[   89.285711] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   89.286701] CR2: 00007f166ebc01a0 CR3: 0000000435c0e000 CR4: 00000000000006e0
-[   89.287919] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   89.289138] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   89.290368] Call Trace:
-[   89.290842]  write_mmp_block+0x2ca/0x510
-[   89.292218]  kmmpd+0x433/0x9a0
-[   89.294902]  kthread+0x2dd/0x3e0
-[   89.296268]  ret_from_fork+0x22/0x30
-[   89.296906] Modules linked in:
+This indicates both dev->plat_dev and pdev can be NULL. If so, the
+function dev_err() is called to print error information.
+  dev_err(&pdev->dev, "No platform data specified\n");
 
-by running the following commands:
+However, &pdev->dev is an illegal address, and it is dereferenced in
+dev_err().
 
- 1. mkfs.ext4 -O mmp  /dev/sda -b 1024
- 2. mount /dev/sda /home/test
- 3. echo "/dev/sda" > /sys/power/resume
+To fix this possible null-pointer dereference, replace dev_err() with
+mfc_err().
 
-That happens because swsusp_check() calls set_blocksize() on the
-target partition which confuses the file system:
-
-       Thread1                       Thread2
-mount /dev/sda /home/test
-get s_mmp_bh  --> has mapped flag
-start kmmpd thread
-				echo "/dev/sda" > /sys/power/resume
-				  resume_store
-				    software_resume
-				      swsusp_check
-				        set_blocksize
-					  truncate_inode_pages_range
-					    truncate_cleanup_page
-					      block_invalidatepage
-					        discard_buffer --> clean mapped flag
-write_mmp_block
-  submit_bh
-    submit_bh_wbc
-      BUG_ON(!buffer_mapped(bh))
-
-To address this issue, modify swsusp_check() to open the target block
-device with exclusive access.
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Tuo Li <islituo@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/swap.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/platform/s5p-mfc/s5p_mfc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/power/swap.c b/kernel/power/swap.c
-index d7cdc426ee380..2bd3670a093de 100644
---- a/kernel/power/swap.c
-+++ b/kernel/power/swap.c
-@@ -1526,9 +1526,10 @@ end:
- int swsusp_check(void)
- {
- 	int error;
-+	void *holder;
+diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
+index 8051c13456922..0ff972b8d9671 100644
+--- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
++++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
+@@ -1160,7 +1160,7 @@ static int s5p_mfc_probe(struct platform_device *pdev)
+ 	spin_lock_init(&dev->condlock);
+ 	dev->plat_dev = pdev;
+ 	if (!dev->plat_dev) {
+-		dev_err(&pdev->dev, "No platform data specified\n");
++		mfc_err("No platform data specified\n");
+ 		return -ENODEV;
+ 	}
  
- 	hib_resume_bdev = blkdev_get_by_dev(swsusp_resume_device,
--					    FMODE_READ, NULL);
-+					    FMODE_READ | FMODE_EXCL, &holder);
- 	if (!IS_ERR(hib_resume_bdev)) {
- 		set_blocksize(hib_resume_bdev, PAGE_SIZE);
- 		clear_page(swsusp_header);
-@@ -1550,7 +1551,7 @@ int swsusp_check(void)
- 
- put:
- 		if (error)
--			blkdev_put(hib_resume_bdev, FMODE_READ);
-+			blkdev_put(hib_resume_bdev, FMODE_READ | FMODE_EXCL);
- 		else
- 			pr_debug("PM: Image signature found, resuming\n");
- 	} else {
 -- 
 2.33.0
 
