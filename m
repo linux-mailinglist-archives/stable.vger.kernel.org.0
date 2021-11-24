@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44F9745BD13
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:32:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87CFE45BAC8
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343877AbhKXMfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:35:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52032 "EHLO mail.kernel.org"
+        id S243644AbhKXMOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:14:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243359AbhKXMbc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:31:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C42161151;
-        Wed, 24 Nov 2021 12:19:46 +0000 (UTC)
+        id S242903AbhKXMN4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:13:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87D9561075;
+        Wed, 24 Nov 2021 12:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756386;
-        bh=gG2A73eHaLzf28OVdDyxSEVi7UA03PQtGCK3zRd+aHo=;
+        s=korg; t=1637755693;
+        bh=J2USBgA3nvsI5S8KZizLVyZ3l0AWSw6m91TvFiqrA/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1aUJFuJQX4F6Av1L9A2p+Yepe75xyRAdQnFVzqefYSTn0nz9dj2MNYzeKQzygPpy
-         dgtWqYfsArpSr1hMBWFl34kW18Y/b0228wExRWubJP766Jb+Gw2JdEUR5eTmOY2ysb
-         Te9U2Y4TPHeizCrncbGJO7vp8/9uR4CQtMnYK7y0=
+        b=ZiwavtpHEDv5iQhsDoUc8eoXOlY6owKej2Gy4DQIxeiLAfpkzUEMphhxldLHTARNR
+         k1rdYM5gnNw1EIcv9RbPKJEBVsoCCUANHtOO/LdAk+ZPnhF1YtS/0NmMtpTnQe2amv
+         139nL5QsQMJaQvxTknJCxmC8iJ3H++bRJXjY1MhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amitkumar Karwar <akarwar@marvell.com>,
-        Johan Hovold <johan@kernel.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 036/251] mwifiex: fix division by zero in fw download path
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 007/207] ocfs2: fix data corruption on truncate
 Date:   Wed, 24 Nov 2021 12:54:38 +0100
-Message-Id: <20211124115711.497881205@linuxfoundation.org>
+Message-Id: <20211124115704.178237795@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jan Kara <jack@suse.cz>
 
-commit 89f8765a11d8df49296d92c404067f9b5c58ee26 upstream.
+commit 839b63860eb3835da165642923120d305925561d upstream.
 
-Add the missing endpoint sanity checks to probe() to avoid division by
-zero in mwifiex_write_data_sync() in case a malicious device has broken
-descriptors (or when doing descriptor fuzz testing).
+Patch series "ocfs2: Truncate data corruption fix".
 
-Only add checks for the firmware-download boot stage, which require both
-command endpoints, for now. The driver looks like it will handle a
-missing endpoint during normal operation without oopsing, albeit not
-very gracefully as it will try to submit URBs to the default pipe and
-fail.
+As further testing has shown, commit 5314454ea3f ("ocfs2: fix data
+corruption after conversion from inline format") didn't fix all the data
+corruption issues the customer started observing after 6dbf7bb55598
+("fs: Don't invalidate page buffers in block_write_full_page()") This
+time I have tracked them down to two bugs in ocfs2 truncation code.
 
-Note that USB core will reject URBs submitted for endpoints with zero
-wMaxPacketSize but that drivers doing packet-size calculations still
-need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
-endpoint descriptors with maxpacket=0")).
+One bug (truncating page cache before clearing tail cluster and setting
+i_size) could cause data corruption even before 6dbf7bb55598, but before
+that commit it needed a race with page fault, after 6dbf7bb55598 it
+started to be pretty deterministic.
 
-Fixes: 4daffe354366 ("mwifiex: add support for Marvell USB8797 chipset")
-Cc: stable@vger.kernel.org      # 3.5
-Cc: Amitkumar Karwar <akarwar@marvell.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211027080819.6675-4-johan@kernel.org
+Another bug (zeroing pages beyond old i_size) used to be harmless
+inefficiency before commit 6dbf7bb55598.  But after commit 6dbf7bb55598
+in combination with the first bug it resulted in deterministic data
+corruption.
+
+Although fixing only the first problem is needed to stop data
+corruption, I've fixed both issues to make the code more robust.
+
+This patch (of 2):
+
+ocfs2_truncate_file() did unmap invalidate page cache pages before
+zeroing partial tail cluster and setting i_size.  Thus some pages could
+be left (and likely have left if the cluster zeroing happened) in the
+page cache beyond i_size after truncate finished letting user possibly
+see stale data once the file was extended again.  Also the tail cluster
+zeroing was not guaranteed to finish before truncate finished causing
+possible stale data exposure.  The problem started to be particularly
+easy to hit after commit 6dbf7bb55598 "fs: Don't invalidate page buffers
+in block_write_full_page()" stopped invalidation of pages beyond i_size
+from page writeback path.
+
+Fix these problems by unmapping and invalidating pages in the page cache
+after the i_size is reduced and tail cluster is zeroed out.
+
+Link: https://lkml.kernel.org/r/20211025150008.29002-1-jack@suse.cz
+Link: https://lkml.kernel.org/r/20211025151332.11301-1-jack@suse.cz
+Fixes: ccd979bdbce9 ("[PATCH] OCFS2: The Second Oracle Cluster Filesystem")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/marvell/mwifiex/usb.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ fs/ocfs2/file.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/usb.c
-+++ b/drivers/net/wireless/marvell/mwifiex/usb.c
-@@ -491,6 +491,22 @@ static int mwifiex_usb_probe(struct usb_
- 		}
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -490,10 +490,11 @@ int ocfs2_truncate_file(struct inode *in
+ 	 * greater than page size, so we have to truncate them
+ 	 * anyway.
+ 	 */
+-	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
+-	truncate_inode_pages(inode->i_mapping, new_i_size);
+ 
+ 	if (OCFS2_I(inode)->ip_dyn_features & OCFS2_INLINE_DATA_FL) {
++		unmap_mapping_range(inode->i_mapping,
++				    new_i_size + PAGE_SIZE - 1, 0, 1);
++		truncate_inode_pages(inode->i_mapping, new_i_size);
+ 		status = ocfs2_truncate_inline(inode, di_bh, new_i_size,
+ 					       i_size_read(inode), 1);
+ 		if (status)
+@@ -512,6 +513,9 @@ int ocfs2_truncate_file(struct inode *in
+ 		goto bail_unlock_sem;
  	}
  
-+	switch (card->usb_boot_state) {
-+	case USB8XXX_FW_DNLD:
-+		/* Reject broken descriptors. */
-+		if (!card->rx_cmd_ep || !card->tx_cmd_ep)
-+			return -ENODEV;
-+		if (card->bulk_out_maxpktsize == 0)
-+			return -ENODEV;
-+		break;
-+	case USB8XXX_FW_READY:
-+		/* Assume the driver can handle missing endpoints for now. */
-+		break;
-+	default:
-+		WARN_ON(1);
-+		return -ENODEV;
-+	}
++	unmap_mapping_range(inode->i_mapping, new_i_size + PAGE_SIZE - 1, 0, 1);
++	truncate_inode_pages(inode->i_mapping, new_i_size);
 +
- 	usb_set_intfdata(intf, card);
- 
- 	ret = mwifiex_add_card(card, &card->fw_done, &usb_ops,
+ 	status = ocfs2_commit_truncate(osb, inode, di_bh);
+ 	if (status < 0) {
+ 		mlog_errno(status);
 
 
