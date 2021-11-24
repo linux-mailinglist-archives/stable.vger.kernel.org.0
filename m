@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8497245CE27
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 21:36:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3E8D45CE32
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 21:39:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237169AbhKXUjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 15:39:49 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:33359 "EHLO
+        id S238142AbhKXUmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 15:42:55 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:58764 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237136AbhKXUjt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 15:39:49 -0500
+        by vger.kernel.org with ESMTP id S237976AbhKXUmz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 15:42:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1637786199;
+        s=mimecast20190719; t=1637786384;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
         bh=dC1QYD3NyFjEmuqvZfKv1zs/1/64EChxP+RokAn3IHE=;
-        b=F22OAN4rzT2RBilJxLr1s4oWufdkt1WGWCsq3jJvGIKllNhrAuVenrMCWGRyjrra0TFpV9
-        VawqxRYaAo8NSPGGtEzQw+wB7iiQ+jxja5cfS3HV4FaMbOcE5bpWxfpMysuso31UDWpwuN
-        LjT2tKxS7FnFTc9xCXOqxDciUHjuHZM=
+        b=cpdQGwGCcX9XTdZWR+m8dLmpbitEGwA3oeTQsXLly7IsrMGrYnV40F7dVt7X8sOvlcqjKa
+        LCcamr2otB63l8wQJjHwj7CRfiXnPyvqbCFv7lN9vb2yJpd6qU09wXhfeZNB8jHU1m9gYh
+        xwUXAIn3MlXyuRGqp86c78gusv025dU=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-122-zHH3fjrxPrSyt_RbGxj1sg-1; Wed, 24 Nov 2021 15:36:37 -0500
-X-MC-Unique: zHH3fjrxPrSyt_RbGxj1sg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+ us-mta-343-nT4qftA5MT-dbcwyPLL8KQ-1; Wed, 24 Nov 2021 15:39:41 -0500
+X-MC-Unique: nT4qftA5MT-dbcwyPLL8KQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9E017101F028;
-        Wed, 24 Nov 2021 20:36:36 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 54ED8192FDA0;
+        Wed, 24 Nov 2021 20:39:40 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.39.194.11])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C254D4068;
-        Wed, 24 Nov 2021 20:35:31 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 50A4A10114AE;
+        Wed, 24 Nov 2021 20:39:23 +0000 (UTC)
 From:   David Hildenbrand <david@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
@@ -42,13 +42,13 @@ Cc:     linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org,
         Vivek Goyal <vgoyal@redhat.com>,
         Philipp Rudo <prudo@redhat.com>
 Subject: [PATCH for 4.9-stable] proc/vmcore: fix clearing user buffer by properly using clear_user()
-Date:   Wed, 24 Nov 2021 21:35:30 +0100
-Message-Id: <20211124203530.26170-1-david@redhat.com>
-In-Reply-To: <linux-4.14.y>
-References: <linux-4.14.y>
+Date:   Wed, 24 Nov 2021 21:39:22 +0100
+Message-Id: <20211124203922.26422-1-david@redhat.com>
+In-Reply-To: <163758401712010@kroah.com>
+References: <163758401712010@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
