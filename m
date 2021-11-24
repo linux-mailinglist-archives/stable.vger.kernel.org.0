@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5585345C050
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:03:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9D245C489
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:47:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345756AbhKXNG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:06:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43482 "EHLO mail.kernel.org"
+        id S1351503AbhKXNtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:49:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346182AbhKXNFC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:05:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B07C61100;
-        Wed, 24 Nov 2021 12:37:17 +0000 (UTC)
+        id S1354024AbhKXNsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:48:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B6E1619FA;
+        Wed, 24 Nov 2021 13:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757438;
-        bh=/eLrtlCY+6c8td0wbKuiD5ABxPfhVCGBTJbR3XLDzFU=;
+        s=korg; t=1637758919;
+        bh=4DyyEtNrK2l1kT1TJVpafuPHJpxdwGkvrvskdSft5cI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cmzh0pvWFee6KtWX7CJTakWeNxUrRGoLWOYWZF6mQQbGb7MScCYQSt2nbA++wvOFP
-         tTmxSnvoJ9Lp4scl3x/sXyXqopTfQnacOIJKqD/Z1U6sm/MTyyGTLgTAujAZFN0YNr
-         dKMAMz7yGczMWycgGgXKlY0yCawjbXXsxNdNHe+0=
+        b=DUu/LiieKt6+Tcfjmr5zzx+ryuI8xKSDk4LftHi6Bg374lDBj2yCEsX9q11nLRNlg
+         JBpgzTrLakcB6ltfNlWtwsUoz4WpEuAMC60SeY5Pt9P9pIT1tEhiXkjy6FUiqpmYps
+         N5RrWN/li86gI0HoZTz0EkmR8omzJQ+/dYhJtDGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 169/323] libertas: Fix possible memory leak in probe and disconnect
-Date:   Wed, 24 Nov 2021 12:55:59 +0100
-Message-Id: <20211124115724.656226422@linuxfoundation.org>
+Subject: [PATCH 5.15 073/279] arm64: dts: qcom: Fix node name of rpm-msg-ram device nodes
+Date:   Wed, 24 Nov 2021 12:56:00 +0100
+Message-Id: <20211124115721.231517400@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,72 +40,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 9692151e2fe7a326bafe99836fd1f20a2cc3a049 ]
+[ Upstream commit 179811bebc7b91e0f9d0adee9bfa3d2af9c43869 ]
 
-I got memory leak as follows when doing fault injection test:
+According to the new DT schema for qcom,rpm-msg-ram the node name
+should be sram@. memory@ is reserved for definition of physical RAM
+(usable by Linux).
 
-unreferenced object 0xffff88812c7d7400 (size 512):
-  comm "kworker/6:1", pid 176, jiffies 4295003332 (age 822.830s)
-  hex dump (first 32 bytes):
-    00 68 1e 04 81 88 ff ff 01 00 00 00 00 00 00 00  .h..............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff8167939c>] slab_post_alloc_hook+0x9c/0x490
-    [<ffffffff8167f627>] kmem_cache_alloc_trace+0x1f7/0x470
-    [<ffffffffa02c9873>] if_usb_probe+0x63/0x446 [usb8xxx]
-    [<ffffffffa022668a>] usb_probe_interface+0x1aa/0x3c0 [usbcore]
-    [<ffffffff82b59630>] really_probe+0x190/0x480
-    [<ffffffff82b59a19>] __driver_probe_device+0xf9/0x180
-    [<ffffffff82b59af3>] driver_probe_device+0x53/0x130
-    [<ffffffff82b5a075>] __device_attach_driver+0x105/0x130
-    [<ffffffff82b55949>] bus_for_each_drv+0x129/0x190
-    [<ffffffff82b593c9>] __device_attach+0x1c9/0x270
-    [<ffffffff82b5a250>] device_initial_probe+0x20/0x30
-    [<ffffffff82b579c2>] bus_probe_device+0x142/0x160
-    [<ffffffff82b52e49>] device_add+0x829/0x1300
-    [<ffffffffa02229b1>] usb_set_configuration+0xb01/0xcc0 [usbcore]
-    [<ffffffffa0235c4e>] usb_generic_driver_probe+0x6e/0x90 [usbcore]
-    [<ffffffffa022641f>] usb_probe_device+0x6f/0x130 [usbcore]
+This fixes the following dtbs_check error on various device trees:
+memory@60000: 'device_type' is a required property
+        From schema: dtschema/schemas/memory.yaml
 
-cardp is missing being freed in the error handling path of the probe
-and the path of the disconnect, which will cause memory leak.
-
-This patch adds the missing kfree().
-
-Fixes: 876c9d3aeb98 ("[PATCH] Marvell Libertas 8388 802.11b/g USB driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211020120345.2016045-3-wanghai38@huawei.com
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20211018110009.30837-1-stephan@gerhold.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas/if_usb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/qcom/msm8916.dtsi |    2 +-
+ arch/arm64/boot/dts/qcom/msm8994.dtsi |    2 +-
+ arch/arm64/boot/dts/qcom/msm8996.dtsi |    2 +-
+ arch/arm64/boot/dts/qcom/msm8998.dtsi |    2 +-
+ arch/arm64/boot/dts/qcom/qcs404.dtsi  |    2 +-
+ arch/arm64/boot/dts/qcom/sdm630.dtsi  |    2 +-
+ arch/arm64/boot/dts/qcom/sm6125.dtsi  |    2 +-
+ 7 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas/if_usb.c b/drivers/net/wireless/marvell/libertas/if_usb.c
-index 9e82ec12564bb..f29a154d995c8 100644
---- a/drivers/net/wireless/marvell/libertas/if_usb.c
-+++ b/drivers/net/wireless/marvell/libertas/if_usb.c
-@@ -288,6 +288,7 @@ err_add_card:
- 	if_usb_reset_device(cardp);
- dealloc:
- 	if_usb_free(cardp);
-+	kfree(cardp);
+--- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+@@ -445,7 +445,7 @@
+ 			};
+ 		};
  
- error:
- 	return r;
-@@ -312,6 +313,7 @@ static void if_usb_disconnect(struct usb_interface *intf)
+-		rpm_msg_ram: memory@60000 {
++		rpm_msg_ram: sram@60000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x00060000 0x8000>;
+ 		};
+--- a/arch/arm64/boot/dts/qcom/msm8994.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+@@ -715,7 +715,7 @@
+ 			reg = <0xfc400000 0x2000>;
+ 		};
  
- 	/* Unlink and free urb */
- 	if_usb_free(cardp);
-+	kfree(cardp);
+-		rpm_msg_ram: memory@fc428000 {
++		rpm_msg_ram: sram@fc428000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0xfc428000 0x4000>;
+ 		};
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -638,7 +638,7 @@
+ 			};
+ 		};
  
- 	usb_set_intfdata(intf, NULL);
- 	usb_put_dev(interface_to_usbdev(intf));
--- 
-2.33.0
-
+-		rpm_msg_ram: memory@68000 {
++		rpm_msg_ram: sram@68000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x00068000 0x6000>;
+ 		};
+--- a/arch/arm64/boot/dts/qcom/msm8998.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8998.dtsi
+@@ -861,7 +861,7 @@
+ 			reg = <0x00100000 0xb0000>;
+ 		};
+ 
+-		rpm_msg_ram: memory@778000 {
++		rpm_msg_ram: sram@778000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x00778000 0x7000>;
+ 		};
+--- a/arch/arm64/boot/dts/qcom/qcs404.dtsi
++++ b/arch/arm64/boot/dts/qcom/qcs404.dtsi
+@@ -318,7 +318,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		rpm_msg_ram: memory@60000 {
++		rpm_msg_ram: sram@60000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x00060000 0x6000>;
+ 		};
+--- a/arch/arm64/boot/dts/qcom/sdm630.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm630.dtsi
+@@ -541,7 +541,7 @@
+ 					<&sleep_clk>;
+ 		};
+ 
+-		rpm_msg_ram: memory@778000 {
++		rpm_msg_ram: sram@778000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x00778000 0x7000>;
+ 		};
+--- a/arch/arm64/boot/dts/qcom/sm6125.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm6125.dtsi
+@@ -380,7 +380,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		rpm_msg_ram: memory@45f0000 {
++		rpm_msg_ram: sram@45f0000 {
+ 			compatible = "qcom,rpm-msg-ram";
+ 			reg = <0x045f0000 0x7000>;
+ 		};
 
 
