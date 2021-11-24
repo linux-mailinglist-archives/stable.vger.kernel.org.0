@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACDB345C1EF
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 990F945C360
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:34:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343577AbhKXNYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:24:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43816 "EHLO mail.kernel.org"
+        id S1350401AbhKXNiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:38:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349531AbhKXNWH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:22:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AA0961356;
-        Wed, 24 Nov 2021 12:47:40 +0000 (UTC)
+        id S1352457AbhKXNgB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:36:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3861261C32;
+        Wed, 24 Nov 2021 12:54:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758061;
-        bh=wslb0M9DhLRFPvieXXOc0EHz/b0ugL8ONxAuUIk18Ko=;
+        s=korg; t=1637758490;
+        bh=9E/5LVHUBUrhqFl3d0NRmKrKFLVng70JmW3JgCy9bB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enljkdApQh5UoTJ4quMRi7M6j8RRpEBn+oeh1q9HO4c9grAj4WvlyBMWX2VfWXzX/
-         QQvAPrkZVDgAFBOgwO5kLHJ5pQ0G4VH7QKGiaKXRTAOvfG5YUifEYbAzgw8ToqiFqa
-         bcxK55EUP5gvu1nCSF9k6z0ZE2vdCdvxMnoFGEL8=
+        b=2mrkTSxHyttfDVariCPvImdEHeotmDzI846bOG7e5+yzvz7uATkV5vB7UqCtHXowe
+         q8cpoBLYdeuvDj+AD3lIdyQE95PQ2znM0jZI7HhpyL/QIprrNqVgk5Jx4KDFmdRoP6
+         2V3y+MDpBZftSZYXihgBr+enAw4crLwdrcLuCqg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Nunley <nicholas.d.nunley@intel.com>,
-        Tony Brelinski <tony.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 048/100] iavf: check for null in iavf_fix_features
+Subject: [PATCH 5.10 088/154] MIPS: generic/yamon-dt: fix uninitialized variable error
 Date:   Wed, 24 Nov 2021 12:58:04 +0100
-Message-Id: <20211124115656.439740569@linuxfoundation.org>
+Message-Id: <20211124115705.157611492@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Nunley <nicholas.d.nunley@intel.com>
+From: Colin Ian King <colin.i.king@googlemail.com>
 
-[ Upstream commit 8a4a126f4be88eb8b5f00a165ab58c35edf4ef76 ]
+[ Upstream commit 255e51da15baed47531beefd02f222e4dc01f1c1 ]
 
-If the driver has lost contact with the PF then it enters a disabled state
-and frees adapter->vf_res. However, ndo_fix_features can still be called on
-the interface, so we need to check for this condition first. Since we have
-no information on the features at this time simply leave them unmodified
-and return.
+In the case where fw_getenv returns an error when fetching values
+for ememsizea and memsize then variable phys_memsize is not assigned
+a variable and will be uninitialized on a zero check of phys_memsize.
+Fix this by initializing phys_memsize to zero.
 
-Fixes: c4445aedfe09 ("i40evf: Fix VLAN features")
-Signed-off-by: Nicholas Nunley <nicholas.d.nunley@intel.com>
-Tested-by: Tony Brelinski <tony.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Cleans up cppcheck error:
+arch/mips/generic/yamon-dt.c:100:7: error: Uninitialized variable: phys_memsize [uninitvar]
+
+Fixes: f41d2430bbd6 ("MIPS: generic/yamon-dt: Support > 256MB of RAM")
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/mips/generic/yamon-dt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index bc46c262b42d8..d6a239ba0240e 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3425,7 +3425,8 @@ static netdev_features_t iavf_fix_features(struct net_device *netdev,
+diff --git a/arch/mips/generic/yamon-dt.c b/arch/mips/generic/yamon-dt.c
+index a3aa22c77cadc..a07a5edbcda78 100644
+--- a/arch/mips/generic/yamon-dt.c
++++ b/arch/mips/generic/yamon-dt.c
+@@ -75,7 +75,7 @@ static unsigned int __init gen_fdt_mem_array(
+ __init int yamon_dt_append_memory(void *fdt,
+ 				  const struct yamon_mem_region *regions)
  {
- 	struct iavf_adapter *adapter = netdev_priv(netdev);
- 
--	if (!(adapter->vf_res->vf_cap_flags & VIRTCHNL_VF_OFFLOAD_VLAN))
-+	if (adapter->vf_res &&
-+	    !(adapter->vf_res->vf_cap_flags & VIRTCHNL_VF_OFFLOAD_VLAN))
- 		features &= ~(NETIF_F_HW_VLAN_CTAG_TX |
- 			      NETIF_F_HW_VLAN_CTAG_RX |
- 			      NETIF_F_HW_VLAN_CTAG_FILTER);
+-	unsigned long phys_memsize, memsize;
++	unsigned long phys_memsize = 0, memsize;
+ 	__be32 mem_array[2 * MAX_MEM_ARRAY_ENTRIES];
+ 	unsigned int mem_entries;
+ 	int i, err, mem_off;
 -- 
 2.33.0
 
