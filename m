@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2D0745C2C8
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:29:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C85D45C09C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349720AbhKXNcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:32:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60408 "EHLO mail.kernel.org"
+        id S1345936AbhKXNJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:09:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351256AbhKXNaZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:30:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2CBB615A7;
-        Wed, 24 Nov 2021 12:52:01 +0000 (UTC)
+        id S1348203AbhKXNI6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:08:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1633E6069B;
+        Wed, 24 Nov 2021 12:39:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758322;
-        bh=OXA71uP9NRZyclYMUe01xxTp0HU8RDER5d0J8mQ1w9A=;
+        s=korg; t=1637757562;
+        bh=3p/7ZJzVYMw8pVUFOj+yycIR8hkF5fIuEl2FGbaZgVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjcqfW6RbkROTHNIOEW3chG982Yrci0BDyJY4IGuH/Gmc/VKrreoE/BsYBxMzZuhG
-         CIWrMcjBdbu1pq5Gr9rXhVfwBTGchUhj5YVwnky/CS4RnhcHjTWylDIa2X6mvKu/+S
-         JkW/aerIXi0PPffPUihAUa499p2+Fqof+DxUgBCw=
+        b=1gdL/kgg/OOHjPAnCDDafDUC5ub/prrfp9DR6Tnw7SaVmlAHZKr8cxvTshYuVaD/t
+         5Z4n/CcsnxMXiCxsUA8038yVGvIrX4UDVeKwsmNbIcbO0oJvpWZ7eUZlV+GNOWCWgI
+         3A+LPOLSH2RGuHdh7lHtT4kTcKfPVcPgAKAlenVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Robin van der Gracht <robin@protonic.nl>,
+        Miguel Ojeda <ojeda@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 004/154] arm64: dts: allwinner: h5: Fix GPU thermal zone node name
+Subject: [PATCH 4.19 210/323] auxdisplay: ht16k33: Connect backlight to fbdev
 Date:   Wed, 24 Nov 2021 12:56:40 +0100
-Message-Id: <20211124115702.506236915@linuxfoundation.org>
+Message-Id: <20211124115726.021994622@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit 94a0f2b0e4e0953d8adf319c44244ef7a57de32c ]
+[ Upstream commit 80f9eb70fd9276938f0a131f76d438021bfd8b34 ]
 
-The GPU thermal zone is named gpu_thermal. However, the underscore is
-an invalid character for a node name and the thermal zone binding
-explicitly requires that zones are called *-thermal. Let's fix it.
+Currently /sys/class/graphics/fb0/bl_curve is not accessible (-ENODEV),
+as the driver does not connect the backlight to the frame buffer device.
+Fix this moving backlight initialization up, and filling in
+fb_info.bl_dev.
 
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20210901091852.479202-48-maxime@cerno.tech
+Fixes: 8992da44c6805d53 ("auxdisplay: ht16k33: Driver for LED controller")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Robin van der Gracht <robin@protonic.nl>
+Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/auxdisplay/ht16k33.c | 56 ++++++++++++++++++------------------
+ 1 file changed, 28 insertions(+), 28 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
-index 10489e5086956..0ee8a5adf02b0 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h5.dtsi
-@@ -204,7 +204,7 @@
- 			};
- 		};
+diff --git a/drivers/auxdisplay/ht16k33.c b/drivers/auxdisplay/ht16k33.c
+index 194370ae37dd0..f6927871fa4e8 100644
+--- a/drivers/auxdisplay/ht16k33.c
++++ b/drivers/auxdisplay/ht16k33.c
+@@ -418,6 +418,33 @@ static int ht16k33_probe(struct i2c_client *client,
+ 	if (err)
+ 		return err;
  
--		gpu_thermal {
-+		gpu-thermal {
- 			polling-delay-passive = <0>;
- 			polling-delay = <0>;
- 			thermal-sensors = <&ths 1>;
++	/* Backlight */
++	memset(&bl_props, 0, sizeof(struct backlight_properties));
++	bl_props.type = BACKLIGHT_RAW;
++	bl_props.max_brightness = MAX_BRIGHTNESS;
++
++	bl = devm_backlight_device_register(&client->dev, DRIVER_NAME"-bl",
++					    &client->dev, priv,
++					    &ht16k33_bl_ops, &bl_props);
++	if (IS_ERR(bl)) {
++		dev_err(&client->dev, "failed to register backlight\n");
++		return PTR_ERR(bl);
++	}
++
++	err = of_property_read_u32(node, "default-brightness-level",
++				   &dft_brightness);
++	if (err) {
++		dft_brightness = MAX_BRIGHTNESS;
++	} else if (dft_brightness > MAX_BRIGHTNESS) {
++		dev_warn(&client->dev,
++			 "invalid default brightness level: %u, using %u\n",
++			 dft_brightness, MAX_BRIGHTNESS);
++		dft_brightness = MAX_BRIGHTNESS;
++	}
++
++	bl->props.brightness = dft_brightness;
++	ht16k33_bl_update_status(bl);
++
+ 	/* Framebuffer (2 bytes per column) */
+ 	BUILD_BUG_ON(PAGE_SIZE < HT16K33_FB_SIZE);
+ 	fbdev->buffer = (unsigned char *) get_zeroed_page(GFP_KERNEL);
+@@ -450,6 +477,7 @@ static int ht16k33_probe(struct i2c_client *client,
+ 	fbdev->info->screen_size = HT16K33_FB_SIZE;
+ 	fbdev->info->fix = ht16k33_fb_fix;
+ 	fbdev->info->var = ht16k33_fb_var;
++	fbdev->info->bl_dev = bl;
+ 	fbdev->info->pseudo_palette = NULL;
+ 	fbdev->info->flags = FBINFO_FLAG_DEFAULT;
+ 	fbdev->info->par = priv;
+@@ -462,34 +490,6 @@ static int ht16k33_probe(struct i2c_client *client,
+ 	if (err)
+ 		goto err_fbdev_unregister;
+ 
+-	/* Backlight */
+-	memset(&bl_props, 0, sizeof(struct backlight_properties));
+-	bl_props.type = BACKLIGHT_RAW;
+-	bl_props.max_brightness = MAX_BRIGHTNESS;
+-
+-	bl = devm_backlight_device_register(&client->dev, DRIVER_NAME"-bl",
+-					    &client->dev, priv,
+-					    &ht16k33_bl_ops, &bl_props);
+-	if (IS_ERR(bl)) {
+-		dev_err(&client->dev, "failed to register backlight\n");
+-		err = PTR_ERR(bl);
+-		goto err_fbdev_unregister;
+-	}
+-
+-	err = of_property_read_u32(node, "default-brightness-level",
+-				   &dft_brightness);
+-	if (err) {
+-		dft_brightness = MAX_BRIGHTNESS;
+-	} else if (dft_brightness > MAX_BRIGHTNESS) {
+-		dev_warn(&client->dev,
+-			 "invalid default brightness level: %u, using %u\n",
+-			 dft_brightness, MAX_BRIGHTNESS);
+-		dft_brightness = MAX_BRIGHTNESS;
+-	}
+-
+-	bl->props.brightness = dft_brightness;
+-	ht16k33_bl_update_status(bl);
+-
+ 	ht16k33_fb_queue(priv);
+ 	return 0;
+ 
 -- 
 2.33.0
 
