@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3096745C2BB
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:29:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EE4045C0C6
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:08:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243442AbhKXNcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:32:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51758 "EHLO mail.kernel.org"
+        id S1348034AbhKXNLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:11:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351035AbhKXN3m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:29:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80A2861BB6;
-        Wed, 24 Nov 2021 12:51:46 +0000 (UTC)
+        id S1346442AbhKXNJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:09:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C62DC613CF;
+        Wed, 24 Nov 2021 12:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758307;
-        bh=ulB1My15wYls2WJEtMMxhL4d1kPvMOfZCnCYtDGanM4=;
+        s=korg; t=1637757649;
+        bh=fHM3LPgbIUhuM62LAmVgpEdG4KDm0aho28ccMpZIaYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1h4jFzw8Vio2SFqAdqqYB3ra9al+eHzAk2blfyXNG2B+UbnFHHk8SExS3uz4vc4QE
-         iMAe7bEgLH6ekfK7NNLqc0zGdxPWZHZfUoBQ1P7d27p9Irj4RxYeq6W5Tq4HL3uG0G
-         A7lsl0wVX9lnVcj5Jva95EYBCxsG4TkBUfQB0H1g=
+        b=sO6wvc2nDNJln9dNzMffjt4MxeC/LPVX+dbKVMs/5C6+2eUpfF8hnl3z2kcCro3LE
+         8nS3Tlt+NZ4wH/if9S823ftQ6/Yn+27An01+gbHZdh8wpWUYIivqRp02ebT1Hx9+2A
+         1mmTw21dvm4KvGlzCawW1hx5jE3eE13sLQE3sr8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Zhi <qtxuning1999@sjtu.edu.cn>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 026/154] scsi: advansys: Fix kernel pointer leak
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 232/323] USB: chipidea: fix interrupt deadlock
 Date:   Wed, 24 Nov 2021 12:57:02 +0100
-Message-Id: <20211124115703.207636807@linuxfoundation.org>
+Message-Id: <20211124115726.748666989@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +39,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Zhi <qtxuning1999@sjtu.edu.cn>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit d4996c6eac4c81b8872043e9391563f67f13e406 ]
+commit 9aaa81c3366e8393a62374e3a1c67c69edc07b8a upstream.
 
-Pointers should be printed with %p or %px rather than cast to 'unsigned
-long' and printed with %lx.
+Chipidea core was calling the interrupt handler from non-IRQ context
+with interrupts enabled, something which can lead to a deadlock if
+there's an actual interrupt trying to take a lock that's already held
+(e.g. the controller lock in udc_irq()).
 
-Change %lx to %p to print the hashed pointer.
+Add a wrapper that can be used to fake interrupts instead of calling the
+handler directly.
 
-Link: https://lore.kernel.org/r/20210929122538.1158235-1-qtxuning1999@sjtu.edu.cn
-Signed-off-by: Guo Zhi <qtxuning1999@sjtu.edu.cn>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3ecb3e09b042 ("usb: chipidea: Use extcon framework for VBUS and ID detect")
+Fixes: 876d4e1e8298 ("usb: chipidea: core: add wakeup support for extcon")
+Cc: Peter Chen <peter.chen@kernel.org>
+Cc: stable@vger.kernel.org      # 4.4
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211021083447.20078-1-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/advansys.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/chipidea/core.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/advansys.c b/drivers/scsi/advansys.c
-index c2c7850ff7b42..727d8f019eddd 100644
---- a/drivers/scsi/advansys.c
-+++ b/drivers/scsi/advansys.c
-@@ -3366,8 +3366,8 @@ static void asc_prt_adv_board_info(struct seq_file *m, struct Scsi_Host *shost)
- 		   shost->host_no);
+--- a/drivers/usb/chipidea/core.c
++++ b/drivers/usb/chipidea/core.c
+@@ -532,7 +532,7 @@ int hw_device_reset(struct ci_hdrc *ci)
+ 	return 0;
+ }
  
- 	seq_printf(m,
--		   " iop_base 0x%lx, cable_detect: %X, err_code %u\n",
--		   (unsigned long)v->iop_base,
-+		   " iop_base 0x%p, cable_detect: %X, err_code %u\n",
-+		   v->iop_base,
- 		   AdvReadWordRegister(iop_base,IOPW_SCSI_CFG1) & CABLE_DETECT,
- 		   v->err_code);
+-static irqreturn_t ci_irq(int irq, void *data)
++static irqreturn_t ci_irq_handler(int irq, void *data)
+ {
+ 	struct ci_hdrc *ci = data;
+ 	irqreturn_t ret = IRQ_NONE;
+@@ -585,6 +585,15 @@ static irqreturn_t ci_irq(int irq, void
+ 	return ret;
+ }
  
--- 
-2.33.0
-
++static void ci_irq(struct ci_hdrc *ci)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	ci_irq_handler(ci->irq, ci);
++	local_irq_restore(flags);
++}
++
+ static int ci_cable_notifier(struct notifier_block *nb, unsigned long event,
+ 			     void *ptr)
+ {
+@@ -594,7 +603,7 @@ static int ci_cable_notifier(struct noti
+ 	cbl->connected = event;
+ 	cbl->changed = true;
+ 
+-	ci_irq(ci->irq, ci);
++	ci_irq(ci);
+ 	return NOTIFY_DONE;
+ }
+ 
+@@ -1048,7 +1057,7 @@ static int ci_hdrc_probe(struct platform
+ 		}
+ 	}
+ 
+-	ret = devm_request_irq(dev, ci->irq, ci_irq, IRQF_SHARED,
++	ret = devm_request_irq(dev, ci->irq, ci_irq_handler, IRQF_SHARED,
+ 			ci->platdata->name, ci);
+ 	if (ret)
+ 		goto stop;
+@@ -1170,11 +1179,11 @@ static void ci_extcon_wakeup_int(struct
+ 
+ 	if (!IS_ERR(cable_id->edev) && ci->is_otg &&
+ 		(otgsc & OTGSC_IDIE) && (otgsc & OTGSC_IDIS))
+-		ci_irq(ci->irq, ci);
++		ci_irq(ci);
+ 
+ 	if (!IS_ERR(cable_vbus->edev) && ci->is_otg &&
+ 		(otgsc & OTGSC_BSVIE) && (otgsc & OTGSC_BSVIS))
+-		ci_irq(ci->irq, ci);
++		ci_irq(ci);
+ }
+ 
+ static int ci_controller_resume(struct device *dev)
 
 
