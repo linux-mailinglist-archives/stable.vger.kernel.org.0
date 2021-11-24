@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA4245C392
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:38:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA9C745C286
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:27:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350757AbhKXNks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:40:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51988 "EHLO mail.kernel.org"
+        id S1351070AbhKXN3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:29:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352820AbhKXNiG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:38:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D1E963220;
-        Wed, 24 Nov 2021 12:56:18 +0000 (UTC)
+        id S1350637AbhKXN1j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:27:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B08A6112F;
+        Wed, 24 Nov 2021 12:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758578;
-        bh=ZNIibILEGUTyxirCUNE1KA9JQyaxUDrEgv+/7LB4lWY=;
+        s=korg; t=1637758245;
+        bh=cUfu5AHfRIlEBExVrqqAJuHyLHK4s/gCQpGS0EuTu4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uclmzc75NM8tv/pX47Q5g0AgUrDhhaiacRlTDHEb1Xr46IyecCkh6jHOIYlcgBtd6
-         astdInjJukWn/5ONmeAdpEP9ZarXqmO7p9UEq9JwrBeUeJddS8PPxZZU04ez/J5M6O
-         NeIPmOXVov4bu/GIMS6lYaZW6HSiB+Grk/WX5UnI=
+        b=dpdNCVM3rrmdfdb7Wdms3YKSxNLrOqK0Na4BFMvto5hJHbJZJ6VnyGrxxkqIcswcZ
+         mD8r0IcC2DBHdKiqr1PHM41vX1hcrkS7ijPtSHUU8NU7493/inx7E0byNIf9/y/TSJ
+         HO3wbZawDFIjFG4X5uWbJbPqYfbv+M3+Ri2AI7DA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Antonov <alexander.antonov@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 116/154] perf/x86/intel/uncore: Fix IIO event constraints for Skylake Server
+        stable@vger.kernel.org, Lucas Henneman <henneman@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.4 076/100] arm64: vdso32: suppress error message for make mrproper
 Date:   Wed, 24 Nov 2021 12:58:32 +0100
-Message-Id: <20211124115706.036836214@linuxfoundation.org>
+Message-Id: <20211124115657.311477296@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-References: <20211124115702.361983534@linuxfoundation.org>
+In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
+References: <20211124115654.849735859@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Antonov <alexander.antonov@linux.intel.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 3866ae319c846a612109c008f43cba80b8c15e86 ]
+commit 14831fad73f5ac30ac61760487d95a538e6ab3cb upstream.
 
-According to the latest uncore document, COMP_BUF_OCCUPANCY (0xd5) event
-can be collected on 2-3 counters. Update uncore IIO event constraints for
-Skylake Server.
+When running the following command without arm-linux-gnueabi-gcc in
+one's $PATH, the following warning is observed:
 
-Fixes: cd34cd97b7b4 ("perf/x86/intel/uncore: Add Skylake server uncore support")
-Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20211115090334.3789-3-alexander.antonov@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+$ ARCH=arm64 CROSS_COMPILE_COMPAT=arm-linux-gnueabi- make -j72 LLVM=1 mrproper
+make[1]: arm-linux-gnueabi-gcc: No such file or directory
+
+This is because KCONFIG is not run for mrproper, so CONFIG_CC_IS_CLANG
+is not set, and we end up eagerly evaluating various variables that try
+to invoke CC_COMPAT.
+
+This is a similar problem to what was observed in
+commit dc960bfeedb0 ("h8300: suppress error messages for 'make clean'")
+
+Reported-by: Lucas Henneman <henneman@google.com>
+Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20211019223646.1146945-4-ndesaulniers@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/events/intel/uncore_snbep.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/kernel/vdso32/Makefile |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 229884f4134cb..ba26792d96731 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -3615,6 +3615,7 @@ static struct event_constraint skx_uncore_iio_constraints[] = {
- 	UNCORE_EVENT_CONSTRAINT(0xc0, 0xc),
- 	UNCORE_EVENT_CONSTRAINT(0xc5, 0xc),
- 	UNCORE_EVENT_CONSTRAINT(0xd4, 0xc),
-+	UNCORE_EVENT_CONSTRAINT(0xd5, 0xc),
- 	EVENT_CONSTRAINT_END
- };
+--- a/arch/arm64/kernel/vdso32/Makefile
++++ b/arch/arm64/kernel/vdso32/Makefile
+@@ -32,7 +32,8 @@ cc32-as-instr = $(call try-run,\
+ # As a result we set our own flags here.
  
--- 
-2.33.0
-
+ # KBUILD_CPPFLAGS and NOSTDINC_FLAGS from top-level Makefile
+-VDSO_CPPFLAGS := -D__KERNEL__ -nostdinc -isystem $(shell $(CC_COMPAT) -print-file-name=include)
++VDSO_CPPFLAGS := -D__KERNEL__ -nostdinc
++VDSO_CPPFLAGS += -isystem $(shell $(CC_COMPAT) -print-file-name=include 2>/dev/null)
+ VDSO_CPPFLAGS += $(LINUXINCLUDE)
+ 
+ # Common C and assembly flags
 
 
