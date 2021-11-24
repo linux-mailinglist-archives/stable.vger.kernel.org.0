@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79BE145BED2
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:49:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38B7F45BC41
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346402AbhKXMvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:51:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56444 "EHLO mail.kernel.org"
+        id S244264AbhKXM1F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:27:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346039AbhKXMsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:48:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26C456127C;
-        Wed, 24 Nov 2021 12:28:24 +0000 (UTC)
+        id S244882AbhKXMZC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:25:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E6FC60C51;
+        Wed, 24 Nov 2021 12:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756904;
-        bh=0IqvRS0IJRKnNqDAY5t3blXGq9LRZKZOmBpJ5DNEVc4=;
+        s=korg; t=1637756138;
+        bh=3Fkc7DpxJ8dtEtcRdfTJ7/qOAYUmLG6xRV/tv3CWwzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGl5VxShc4dUEwtlXoHlyM/NaDm6hQJeRZrALh4WUzBuJnyG6If/okobRopVIpH0n
-         t+OzaRq2FO0ZePqasSEZHZhnQfo4/wk8tVBd0pQ+jFK0vgF3iQ6Xvl5tP9I86mh/Yg
-         xaoiGcKXYQcR7r4JRRLh70LFKu1ueWCvFdyBjm8E=
+        b=vpRqAmeTFL1jAFyIXycC1xogLb13WlqA6k45xqEW44NUx7b9qLWF1Js6f7f034MRh
+         Ida4VgKscggfknYdnbfldJ4pYYTsXvr0BxrOkigifpj6KsuckXJbsWXGbt0/TQhdPs
+         wl3hWkNTADinmtykzSwcfn233eFmdN1iYm5WD0x4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 214/251] powerpc/dcr: Use cmplwi instead of 3-argument cmpli
+Subject: [PATCH 4.9 185/207] NFC: reorganize the functions in nci_request
 Date:   Wed, 24 Nov 2021 12:57:36 +0100
-Message-Id: <20211124115717.700544196@linuxfoundation.org>
+Message-Id: <20211124115709.958456628@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit fef071be57dc43679a32d5b0e6ee176d6f12e9f2 ]
+[ Upstream commit 86cdf8e38792545161dbe3350a7eced558ba4d15 ]
 
-In dcr-low.S we use cmpli with three arguments, instead of four
-arguments as defined in the ISA:
+There is a possible data race as shown below:
 
-	cmpli	cr0,r3,1024
+thread-A in nci_request()       | thread-B in nci_close_device()
+                                | mutex_lock(&ndev->req_lock);
+test_bit(NCI_UP, &ndev->flags); |
+...                             | test_and_clear_bit(NCI_UP, &ndev->flags)
+mutex_lock(&ndev->req_lock);    |
+                                |
 
-This appears to be a PPC440-ism, looking at the "PPC440x5 CPU Core
-User’s Manual" it shows cmpli having no L field, but implied to be 0 due
-to the core being 32-bit. It mentions that the ISA defines four
-arguments and recommends using cmplwi.
+This race will allow __nci_request() to be awaked while the device is
+getting removed.
 
-It also corresponds to the old POWER instruction set, which had no L
-field there, a reserved bit instead.
+Similar to commit e2cb6b891ad2 ("bluetooth: eliminate the potential race
+condition when removing the HCI controller"). this patch alters the
+function sequence in nci_request() to prevent the data races between the
+nci_close_device().
 
-dcr-low.S is only built 32-bit, because it is only built when
-DCR_NATIVE=y, which is only selected by 40x and 44x. Looking at the
-generated code (with gcc/gas) we see cmplwi as expected.
-
-Although gas is happy with the 3-argument version when building for
-32-bit, the LLVM assembler is not and errors out with:
-
-  arch/powerpc/sysdev/dcr-low.S:27:10: error: invalid operand for instruction
-   cmpli 0,%r3,1024; ...
-           ^
-
-Switch to the cmplwi extended opcode, which avoids any confusion when
-reading the ISA, fixes the issue with the LLVM assembler, and also means
-the code could be built 64-bit in future (though that's very unlikely).
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-BugLink: https://github.com/ClangBuiltLinux/linux/issues/1419
-Link: https://lore.kernel.org/r/20211014024424.528848-1-mpe@ellerman.id.au
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Fixes: 6a2968aaf50c ("NFC: basic NCI protocol implementation")
+Link: https://lore.kernel.org/r/20211115145600.8320-1-linma@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/dcr-low.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/nfc/nci/core.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/sysdev/dcr-low.S b/arch/powerpc/sysdev/dcr-low.S
-index e687bb2003ff0..5589fbe48bbdc 100644
---- a/arch/powerpc/sysdev/dcr-low.S
-+++ b/arch/powerpc/sysdev/dcr-low.S
-@@ -15,7 +15,7 @@
- #include <asm/export.h>
+diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
+index bff6ba84d3979..19518a231e571 100644
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -157,12 +157,15 @@ inline int nci_request(struct nci_dev *ndev,
+ {
+ 	int rc;
  
- #define DCR_ACCESS_PROLOG(table) \
--	cmpli	cr0,r3,1024;	 \
-+	cmplwi	cr0,r3,1024;	 \
- 	rlwinm  r3,r3,4,18,27;   \
- 	lis     r5,table@h;      \
- 	ori     r5,r5,table@l;   \
+-	if (!test_bit(NCI_UP, &ndev->flags))
+-		return -ENETDOWN;
+-
+ 	/* Serialize all requests */
+ 	mutex_lock(&ndev->req_lock);
+-	rc = __nci_request(ndev, req, opt, timeout);
++	/* check the state after obtaing the lock against any races
++	 * from nci_close_device when the device gets removed.
++	 */
++	if (test_bit(NCI_UP, &ndev->flags))
++		rc = __nci_request(ndev, req, opt, timeout);
++	else
++		rc = -ENETDOWN;
+ 	mutex_unlock(&ndev->req_lock);
+ 
+ 	return rc;
 -- 
 2.33.0
 
