@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6266445C530
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31F3D45C2A4
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352895AbhKXNzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:55:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41816 "EHLO mail.kernel.org"
+        id S1348523AbhKXNbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:31:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354454AbhKXNus (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:50:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB9AA61C48;
-        Wed, 24 Nov 2021 13:03:56 +0000 (UTC)
+        id S1350938AbhKXN26 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:28:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5002861527;
+        Wed, 24 Nov 2021 12:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759037;
-        bh=9RTPnMJsbayNZdLkUNr5pPiDYYDce+RXcoLXFwRYg2U=;
+        s=korg; t=1637758289;
+        bh=I1NDbiP/OZcVSxcRizSJiaW68LTtAtJEcjCXt0+/oh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxzEwIFHbq80xDZxYTXL6M1Wo4K/V1a/XSr9bYMPai8kYPpFNNKuPpJjFvHBd00az
-         Mi8BCUHbM3VfBdIq2GmN28qdOLgMXedP+ZvCvmFzbU1GHjCanB2Z18jkU0awTnSqsC
-         NSll8Gqvy6ZFpUfcCDRgNw6ojUQwvJhJH3r+20bQ=
+        b=pQre5HihtJbIQZ+lDnZgYWBp2g5m6t5CSNvmaR2HII3Q/ZPZwzWDebxIP7jc8mPNB
+         bRJ0Iv/GKefTJ6rUSXnapB1uzSa8vNfZTDpZcF1qvute+te0m3TaUyYNZUa5HTZ4vR
+         BIihvGKJBDAb9HSbDNV4wwpxKLms7m78vYMpjlis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Fuchs <jf@simonwunderlich.de>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sven Eckelmann <sven@narfation.org>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 112/279] nl80211: fix radio statistics in survey dump
+Subject: [PATCH 5.10 003/154] ARM: dts: sunxi: Fix OPPs node name
 Date:   Wed, 24 Nov 2021 12:56:39 +0100
-Message-Id: <20211124115722.651275819@linuxfoundation.org>
+Message-Id: <20211124115702.477447706@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,154 +40,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit ce6b69749961426c6d822215ded9e67154e1ad4f ]
+[ Upstream commit ffbe853a3f5a37fa0a511265b21abf097ffdbe45 ]
 
-Even if userspace specifies the NL80211_ATTR_SURVEY_RADIO_STATS
-attribute, we cannot get the statistics because we're not really
-parsing the incoming attributes properly any more.
+The operating-points-v2 nodes are named inconsistently, but mostly
+either opp_table0 or gpu-opp-table.  However, the underscore is an
+invalid character for a node name and the thermal zone binding
+explicitly requires that zones are called opp-table-*. Let's fix it.
 
-Fix this by passing the attrbuf to nl80211_prepare_wdev_dump()
-and filling it there, if given, and using a local version only
-if no output is desired.
-
-Since I'm touching it anyway, make nl80211_prepare_wdev_dump()
-static.
-
-Fixes: 50508d941c18 ("cfg80211: use parallel_ops for genl")
-Reported-by: Jan Fuchs <jf@simonwunderlich.de>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Tested-by: Sven Eckelmann <sven@narfation.org>
-Link: https://lore.kernel.org/r/20211029092539.2851b4799386.If9736d4575ee79420cbec1bd930181e1d53c7317@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20210901091852.479202-43-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 34 +++++++++++++++++++---------------
- net/wireless/nl80211.h |  6 +-----
- 2 files changed, 20 insertions(+), 20 deletions(-)
+ arch/arm/boot/dts/sun8i-a33.dtsi                      | 4 ++--
+ arch/arm/boot/dts/sun8i-a83t.dtsi                     | 4 ++--
+ arch/arm/boot/dts/sun8i-h3.dtsi                       | 4 ++--
+ arch/arm64/boot/dts/allwinner/sun50i-a64-cpu-opp.dtsi | 2 +-
+ arch/arm64/boot/dts/allwinner/sun50i-h5-cpu-opp.dtsi  | 2 +-
+ arch/arm64/boot/dts/allwinner/sun50i-h6-cpu-opp.dtsi  | 2 +-
+ 6 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index bf7cd47525472..16b3d0cc0bdb0 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -922,33 +922,37 @@ nl80211_packet_pattern_policy[MAX_NL80211_PKTPAT + 1] = {
- 	[NL80211_PKTPAT_OFFSET] = { .type = NLA_U32 },
- };
+diff --git a/arch/arm/boot/dts/sun8i-a33.dtsi b/arch/arm/boot/dts/sun8i-a33.dtsi
+index c458f5fb124fb..46f4242e9f95d 100644
+--- a/arch/arm/boot/dts/sun8i-a33.dtsi
++++ b/arch/arm/boot/dts/sun8i-a33.dtsi
+@@ -46,7 +46,7 @@
+ #include <dt-bindings/thermal/thermal.h>
  
--int nl80211_prepare_wdev_dump(struct netlink_callback *cb,
--			      struct cfg80211_registered_device **rdev,
--			      struct wireless_dev **wdev)
-+static int nl80211_prepare_wdev_dump(struct netlink_callback *cb,
-+				     struct cfg80211_registered_device **rdev,
-+				     struct wireless_dev **wdev,
-+				     struct nlattr **attrbuf)
- {
- 	int err;
+ / {
+-	cpu0_opp_table: opp_table0 {
++	cpu0_opp_table: opp-table-cpu {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
  
- 	if (!cb->args[0]) {
--		struct nlattr **attrbuf;
-+		struct nlattr **attrbuf_free = NULL;
+@@ -164,7 +164,7 @@
+ 		io-channels = <&ths>;
+ 	};
  
--		attrbuf = kcalloc(NUM_NL80211_ATTR, sizeof(*attrbuf),
--				  GFP_KERNEL);
--		if (!attrbuf)
--			return -ENOMEM;
-+		if (!attrbuf) {
-+			attrbuf = kcalloc(NUM_NL80211_ATTR, sizeof(*attrbuf),
-+					  GFP_KERNEL);
-+			if (!attrbuf)
-+				return -ENOMEM;
-+			attrbuf_free = attrbuf;
-+		}
+-	mali_opp_table: gpu-opp-table {
++	mali_opp_table: opp-table-gpu {
+ 		compatible = "operating-points-v2";
  
- 		err = nlmsg_parse_deprecated(cb->nlh,
- 					     GENL_HDRLEN + nl80211_fam.hdrsize,
- 					     attrbuf, nl80211_fam.maxattr,
- 					     nl80211_policy, NULL);
- 		if (err) {
--			kfree(attrbuf);
-+			kfree(attrbuf_free);
- 			return err;
- 		}
+ 		opp-144000000 {
+diff --git a/arch/arm/boot/dts/sun8i-a83t.dtsi b/arch/arm/boot/dts/sun8i-a83t.dtsi
+index c010b27fdb6a6..a746e449b0bae 100644
+--- a/arch/arm/boot/dts/sun8i-a83t.dtsi
++++ b/arch/arm/boot/dts/sun8i-a83t.dtsi
+@@ -200,7 +200,7 @@
+ 		status = "disabled";
+ 	};
  
- 		rtnl_lock();
- 		*wdev = __cfg80211_wdev_from_attrs(NULL, sock_net(cb->skb->sk),
- 						   attrbuf);
--		kfree(attrbuf);
-+		kfree(attrbuf_free);
- 		if (IS_ERR(*wdev)) {
- 			rtnl_unlock();
- 			return PTR_ERR(*wdev);
-@@ -6001,7 +6005,7 @@ static int nl80211_dump_station(struct sk_buff *skb,
- 	int sta_idx = cb->args[2];
- 	int err;
+-	cpu0_opp_table: opp_table0 {
++	cpu0_opp_table: opp-table-cluster0 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
  
--	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev);
-+	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev, NULL);
- 	if (err)
- 		return err;
- 	/* nl80211_prepare_wdev_dump acquired it in the successful case */
-@@ -6896,7 +6900,7 @@ static int nl80211_dump_mpath(struct sk_buff *skb,
- 	int path_idx = cb->args[2];
- 	int err;
+@@ -253,7 +253,7 @@
+ 		};
+ 	};
  
--	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev);
-+	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev, NULL);
- 	if (err)
- 		return err;
- 	/* nl80211_prepare_wdev_dump acquired it in the successful case */
-@@ -7096,7 +7100,7 @@ static int nl80211_dump_mpp(struct sk_buff *skb,
- 	int path_idx = cb->args[2];
- 	int err;
+-	cpu1_opp_table: opp_table1 {
++	cpu1_opp_table: opp-table-cluster1 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
  
--	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev);
-+	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev, NULL);
- 	if (err)
- 		return err;
- 	/* nl80211_prepare_wdev_dump acquired it in the successful case */
-@@ -9518,7 +9522,7 @@ static int nl80211_dump_scan(struct sk_buff *skb, struct netlink_callback *cb)
- 	int start = cb->args[2], idx = 0;
- 	int err;
+diff --git a/arch/arm/boot/dts/sun8i-h3.dtsi b/arch/arm/boot/dts/sun8i-h3.dtsi
+index 4e89701df91f8..ae4f933abb895 100644
+--- a/arch/arm/boot/dts/sun8i-h3.dtsi
++++ b/arch/arm/boot/dts/sun8i-h3.dtsi
+@@ -44,7 +44,7 @@
+ #include <dt-bindings/thermal/thermal.h>
  
--	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev);
-+	err = nl80211_prepare_wdev_dump(cb, &rdev, &wdev, NULL);
- 	if (err)
- 		return err;
- 	/* nl80211_prepare_wdev_dump acquired it in the successful case */
-@@ -9651,7 +9655,7 @@ static int nl80211_dump_survey(struct sk_buff *skb, struct netlink_callback *cb)
- 	if (!attrbuf)
- 		return -ENOMEM;
+ / {
+-	cpu0_opp_table: opp_table0 {
++	cpu0_opp_table: opp-table-cpu {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
  
--	res = nl80211_prepare_wdev_dump(cb, &rdev, &wdev);
-+	res = nl80211_prepare_wdev_dump(cb, &rdev, &wdev, attrbuf);
- 	if (res) {
- 		kfree(attrbuf);
- 		return res;
-diff --git a/net/wireless/nl80211.h b/net/wireless/nl80211.h
-index a3f387770f1bf..d642e3be4ee78 100644
---- a/net/wireless/nl80211.h
-+++ b/net/wireless/nl80211.h
-@@ -1,7 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- /*
-  * Portions of this file
-- * Copyright (C) 2018, 2020 Intel Corporation
-+ * Copyright (C) 2018, 2020-2021 Intel Corporation
+@@ -112,7 +112,7 @@
+ 		};
+ 	};
+ 
+-	gpu_opp_table: gpu-opp-table {
++	gpu_opp_table: opp-table-gpu {
+ 		compatible = "operating-points-v2";
+ 
+ 		opp-120000000 {
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-cpu-opp.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64-cpu-opp.dtsi
+index 578c37490d901..e39db51eb4489 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-cpu-opp.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-cpu-opp.dtsi
+@@ -4,7 +4,7 @@
   */
- #ifndef __NET_WIRELESS_NL80211_H
- #define __NET_WIRELESS_NL80211_H
-@@ -22,10 +22,6 @@ static inline u64 wdev_id(struct wireless_dev *wdev)
- 	       ((u64)wiphy_to_rdev(wdev->wiphy)->wiphy_idx << 32);
- }
  
--int nl80211_prepare_wdev_dump(struct netlink_callback *cb,
--			      struct cfg80211_registered_device **rdev,
--			      struct wireless_dev **wdev);
--
- int nl80211_parse_chandef(struct cfg80211_registered_device *rdev,
- 			  struct genl_info *info,
- 			  struct cfg80211_chan_def *chandef);
+ / {
+-	cpu0_opp_table: opp_table0 {
++	cpu0_opp_table: opp-table-cpu {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
+ 
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h5-cpu-opp.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h5-cpu-opp.dtsi
+index b2657201957eb..1afad8b437d72 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h5-cpu-opp.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h5-cpu-opp.dtsi
+@@ -2,7 +2,7 @@
+ // Copyright (C) 2020 Chen-Yu Tsai <wens@csie.org>
+ 
+ / {
+-	cpu_opp_table: cpu-opp-table {
++	cpu_opp_table: opp-table-cpu {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
+ 
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6-cpu-opp.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h6-cpu-opp.dtsi
+index 1a5eddc5a40f3..653452926d857 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h6-cpu-opp.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h6-cpu-opp.dtsi
+@@ -3,7 +3,7 @@
+ // Copyright (C) 2020 Clément Péron <peron.clem@gmail.com>
+ 
+ / {
+-	cpu_opp_table: cpu-opp-table {
++	cpu_opp_table: opp-table-cpu {
+ 		compatible = "allwinner,sun50i-h6-operating-points";
+ 		nvmem-cells = <&cpu_speed_grade>;
+ 		opp-shared;
 -- 
 2.33.0
 
