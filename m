@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD0C45C01C
+	by mail.lfdr.de (Postfix) with ESMTP id 8657745C01D
 	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:02:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346195AbhKXNFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:05:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43482 "EHLO mail.kernel.org"
+        id S1346197AbhKXNFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:05:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347901AbhKXND3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:03:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D719619F8;
-        Wed, 24 Nov 2021 12:36:19 +0000 (UTC)
+        id S1347903AbhKXNDa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:03:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4069B619FA;
+        Wed, 24 Nov 2021 12:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757379;
-        bh=4zFrEyqGqyh9lv76sY/B+Y+9jcgs335YIhtxFt09pJk=;
+        s=korg; t=1637757382;
+        bh=2CbjySJAbEzhMA4RziGQfFcLkfkGcrG2Z2Ae6HCgGzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FNlvgTEZQZryftAjHzb8iEAblib1H/3+++qqFpC9EPL46ihb07FHJcErIzFZ0qnAA
-         P8x5prv7ThLfN9xHCyfG5KeiShOwzDo4gcSdbF3kYsjvcjTpE67CkrX6srNQZI79KT
-         E2RTksJeLBuJS382pYRnnq98FAQRMTkmYF0hVWr4=
+        b=QU6IGYOgyDYklbwNuskU00CrgWuZ3IAmu5XrvaegzNGWBA5ezS957GcpQWxrQfAu9
+         xjSXm6mo682tzysVR7NcMcizFyqVBrQvzRIeUJ4epRDNuZMEGx3tz0N78LXqyM8uGl
+         u2QlIyT7WBAAHqsVsCDD1HDx0WEGzTD7BmAeGo4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 147/323] memstick: jmb38x_ms: use appropriate free function in jmb38x_ms_alloc_host()
-Date:   Wed, 24 Nov 2021 12:55:37 +0100
-Message-Id: <20211124115723.889815665@linuxfoundation.org>
+Subject: [PATCH 4.19 148/323] hwmon: Fix possible memleak in __hwmon_device_register()
+Date:   Wed, 24 Nov 2021 12:55:38 +0100
+Message-Id: <20211124115723.921495600@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
@@ -40,37 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit beae4a6258e64af609ad5995cc6b6056eb0d898e ]
+[ Upstream commit ada61aa0b1184a8fda1a89a340c7d6cc4e59aee5 ]
 
-The "msh" pointer is device managed, meaning that memstick_alloc_host()
-calls device_initialize() on it.  That means that it can't be free
-using kfree() but must instead be freed with memstick_free_host().
-Otherwise it leads to a tiny memory leak of device resources.
+I got memory leak as follows when doing fault injection test:
 
-Fixes: 60fdd931d577 ("memstick: add support for JMicron jmb38x MemoryStick host controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20211011123912.GD15188@kili
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+unreferenced object 0xffff888102740438 (size 8):
+  comm "27", pid 859, jiffies 4295031351 (age 143.992s)
+  hex dump (first 8 bytes):
+    68 77 6d 6f 6e 30 00 00                          hwmon0..
+  backtrace:
+    [<00000000544b5996>] __kmalloc_track_caller+0x1a6/0x300
+    [<00000000df0d62b9>] kvasprintf+0xad/0x140
+    [<00000000d3d2a3da>] kvasprintf_const+0x62/0x190
+    [<000000005f8f0f29>] kobject_set_name_vargs+0x56/0x140
+    [<00000000b739e4b9>] dev_set_name+0xb0/0xe0
+    [<0000000095b69c25>] __hwmon_device_register+0xf19/0x1e50 [hwmon]
+    [<00000000a7e65b52>] hwmon_device_register_with_info+0xcb/0x110 [hwmon]
+    [<000000006f181e86>] devm_hwmon_device_register_with_info+0x85/0x100 [hwmon]
+    [<0000000081bdc567>] tmp421_probe+0x2d2/0x465 [tmp421]
+    [<00000000502cc3f8>] i2c_device_probe+0x4e1/0xbb0
+    [<00000000f90bda3b>] really_probe+0x285/0xc30
+    [<000000007eac7b77>] __driver_probe_device+0x35f/0x4f0
+    [<000000004953d43d>] driver_probe_device+0x4f/0x140
+    [<000000002ada2d41>] __device_attach_driver+0x24c/0x330
+    [<00000000b3977977>] bus_for_each_drv+0x15d/0x1e0
+    [<000000005bf2a8e3>] __device_attach+0x267/0x410
+
+When device_register() returns an error, the name allocated in
+dev_set_name() will be leaked, the put_device() should be used
+instead of calling hwmon_dev_release() to give up the device
+reference, then the name will be freed in kobject_cleanup().
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: bab2243ce189 ("hwmon: Introduce hwmon_device_register_with_groups")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20211012112758.2681084-1-yangyingliang@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/host/jmb38x_ms.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/hwmon.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/memstick/host/jmb38x_ms.c b/drivers/memstick/host/jmb38x_ms.c
-index 29f5021d21ea6..0610d3c9f1318 100644
---- a/drivers/memstick/host/jmb38x_ms.c
-+++ b/drivers/memstick/host/jmb38x_ms.c
-@@ -907,7 +907,7 @@ static struct memstick_host *jmb38x_ms_alloc_host(struct jmb38x_ms *jm, int cnt)
+diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
+index d34de21d43adb..c4051a3e63c29 100644
+--- a/drivers/hwmon/hwmon.c
++++ b/drivers/hwmon/hwmon.c
+@@ -631,8 +631,10 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
+ 	dev_set_drvdata(hdev, drvdata);
+ 	dev_set_name(hdev, HWMON_ID_FORMAT, id);
+ 	err = device_register(hdev);
+-	if (err)
+-		goto free_hwmon;
++	if (err) {
++		put_device(hdev);
++		goto ida_remove;
++	}
  
- 	iounmap(host->addr);
- err_out_free:
--	kfree(msh);
-+	memstick_free_host(msh);
- 	return NULL;
- }
- 
+ 	if (dev && dev->of_node && chip && chip->ops->read &&
+ 	    chip->info[0]->type == hwmon_chip &&
 -- 
 2.33.0
 
