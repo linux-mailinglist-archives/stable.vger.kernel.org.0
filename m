@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB6445BFD3
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:59:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14A9345BCD0
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345748AbhKXNCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:02:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38620 "EHLO mail.kernel.org"
+        id S245249AbhKXMco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:32:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345741AbhKXNAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:00:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 756F160E94;
-        Wed, 24 Nov 2021 12:34:27 +0000 (UTC)
+        id S1344262AbhKXMam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DD3161355;
+        Wed, 24 Nov 2021 12:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757268;
-        bh=dNrSxTnoCVLLjsQAZc8rgxLxELIajzBjpIq6pIbRNM4=;
+        s=korg; t=1637756362;
+        bh=1cvafm65JXaolPe3YL4q9jfyfQdAGSm8DerpvBfTj6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0GcE+8MqfzHnl7FEl1v4NiUAxB4KXnz5/5Lip0tWw45876XbWzoL1H5KRaYQUpFcK
-         XZBQZQjruB+pODX6f/2JKeM+KN/QtDzY0NCHahcjpsr3ej7lIWz4rygXlyTFXjd+SB
-         N1DNwMRr5GusAIpgrT+TVdRtXCA99Mg9FDflHN5I=
+        b=T62P8SZS1igj1C7ENiA/p3a/dBOC/Mrvvviq7x526v8LSQ5t1Cb9UAngKgPfOo+Mw
+         vgckhdq+sWkuD+Skp2I2IOVqRwxJQ91BGvQpMylE6EyLydyJIdQKFN9pkrqkjY0/Lc
+         mOtFjP+CddC3O8lqwFgIdEprlV+gYkcPbc+4GZLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lasse Collin <lasse.collin@tukaani.org>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 111/323] lib/xz: Validate the value before assigning it to an enum variable
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.14 059/251] PCI: aardvark: Do not unmask unused interrupts
 Date:   Wed, 24 Nov 2021 12:55:01 +0100
-Message-Id: <20211124115722.707390857@linuxfoundation.org>
+Message-Id: <20211124115712.300763446@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lasse Collin <lasse.collin@tukaani.org>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 4f8d7abaa413c34da9d751289849dbfb7c977d05 ]
+commit 1fb95d7d3c7a926b002fe8a6bd27a1cb428b46dc upstream.
 
-This might matter, for example, if the underlying type of enum xz_check
-was a signed char. In such a case the validation wouldn't have caught an
-unsupported header. I don't know if this problem can occur in the kernel
-on any arch but it's still good to fix it because some people might copy
-the XZ code to their own projects from Linux instead of the upstream
-XZ Embedded repository.
+There are lot of undocumented interrupt bits. To prevent unwanted
+spurious interrupts, fix all *_ALL_MASK macros to define all interrupt
+bits, so that driver can properly mask all interrupts, including those
+which are undocumented.
 
-This change may increase the code size by a few bytes. An alternative
-would have been to use an unsigned int instead of enum xz_check but
-using an enumeration looks cleaner.
-
-Link: https://lore.kernel.org/r/20211010213145.17462-3-xiang@kernel.org
-Signed-off-by: Lasse Collin <lasse.collin@tukaani.org>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211005180952.6812-8-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/xz/xz_dec_stream.c | 6 +++---
+ drivers/pci/host/pci-aardvark.c |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/lib/xz/xz_dec_stream.c b/lib/xz/xz_dec_stream.c
-index bd1d182419d7e..0b161f90d8d80 100644
---- a/lib/xz/xz_dec_stream.c
-+++ b/lib/xz/xz_dec_stream.c
-@@ -402,12 +402,12 @@ static enum xz_ret dec_stream_header(struct xz_dec *s)
- 	 * we will accept other check types too, but then the check won't
- 	 * be verified and a warning (XZ_UNSUPPORTED_CHECK) will be given.
- 	 */
-+	if (s->temp.buf[HEADER_MAGIC_SIZE + 1] > XZ_CHECK_MAX)
-+		return XZ_OPTIONS_ERROR;
-+
- 	s->check_type = s->temp.buf[HEADER_MAGIC_SIZE + 1];
+--- a/drivers/pci/host/pci-aardvark.c
++++ b/drivers/pci/host/pci-aardvark.c
+@@ -100,13 +100,13 @@
+ #define     PCIE_ISR0_MSI_INT_PENDING		BIT(24)
+ #define     PCIE_ISR0_INTX_ASSERT(val)		BIT(16 + (val))
+ #define     PCIE_ISR0_INTX_DEASSERT(val)	BIT(20 + (val))
+-#define	    PCIE_ISR0_ALL_MASK			GENMASK(26, 0)
++#define     PCIE_ISR0_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_ISR1_REG				(CONTROL_BASE_ADDR + 0x48)
+ #define PCIE_ISR1_MASK_REG			(CONTROL_BASE_ADDR + 0x4C)
+ #define     PCIE_ISR1_POWER_STATE_CHANGE	BIT(4)
+ #define     PCIE_ISR1_FLUSH			BIT(5)
+ #define     PCIE_ISR1_INTX_ASSERT(val)		BIT(8 + (val))
+-#define     PCIE_ISR1_ALL_MASK			GENMASK(11, 4)
++#define     PCIE_ISR1_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_MSI_ADDR_LOW_REG			(CONTROL_BASE_ADDR + 0x50)
+ #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
+ #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
+@@ -169,7 +169,7 @@
+ #define     PCIE_IRQ_MSI_INT2_DET		BIT(21)
+ #define     PCIE_IRQ_RC_DBELL_DET		BIT(22)
+ #define     PCIE_IRQ_EP_STATUS			BIT(23)
+-#define     PCIE_IRQ_ALL_MASK			0xfff0fb
++#define     PCIE_IRQ_ALL_MASK			GENMASK(31, 0)
+ #define     PCIE_IRQ_ENABLE_INTS_MASK		PCIE_IRQ_CORE_INT
  
- #ifdef XZ_DEC_ANY_CHECK
--	if (s->check_type > XZ_CHECK_MAX)
--		return XZ_OPTIONS_ERROR;
--
- 	if (s->check_type > XZ_CHECK_CRC32)
- 		return XZ_UNSUPPORTED_CHECK;
- #else
--- 
-2.33.0
-
+ /* Transaction types */
 
 
