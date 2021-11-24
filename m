@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2E6E45BCCB
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C3F45BCD4
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244750AbhKXMc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:32:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48064 "EHLO mail.kernel.org"
+        id S245281AbhKXMcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:32:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344195AbhKXMai (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:30:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C96061353;
-        Wed, 24 Nov 2021 12:19:06 +0000 (UTC)
+        id S1344258AbhKXMam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2C156112F;
+        Wed, 24 Nov 2021 12:19:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756347;
-        bh=Y3qF/cDXSfTxftZwMyDOSHa/r+PpkDPpBigcRGhW2K4=;
+        s=korg; t=1637756350;
+        bh=7K2kOOr+Fr3Bv20Qi4jQYSFXYz8Q5AC5QsgcbvB2AYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E00DAg7YMDE53ABjlbMKD8JUidxCJASHI1GnLj3oeLEHjTxFcGS3wblc07I2bgAol
-         4AAm7ClSPhTZL7YFYYbDjEozRI4FauX/qQcrtngC6X7zCGey7NRxgOTMUtciSmdRJh
-         6AUYtav2z9PJP0DuylsyG42KmCLPNnswu+qAAIIA=
+        b=g/ryfVKz+QOY2Mn5bSti80Ls1uIf59bvHxzuCr0KYY1iuDgEKZJOWaeWgopiHaz7E
+         3/cYUyP07uIozFre37ve2m7/BuE6styxd/EYLMOwN8wuIS21OcUvVgb6Lu0oFUgsXQ
+         evuomUJGV4QYoBOqg+kvqEIQq+3avOxuJaTb1J/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 4.14 054/251] serial: core: Fix initializing and restoring termios speed
-Date:   Wed, 24 Nov 2021 12:54:56 +0100
-Message-Id: <20211124115712.126766727@linuxfoundation.org>
+        syzbot+9988f17cf72a1045a189@syzkaller.appspotmail.com,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 055/251] ALSA: mixer: oss: Fix racy access to slots
+Date:   Wed, 24 Nov 2021 12:54:57 +0100
+Message-Id: <20211124115712.158516332@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
 References: <20211124115710.214900256@linuxfoundation.org>
@@ -39,108 +40,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 027b57170bf8bb6999a28e4a5f3d78bf1db0f90c upstream.
+commit 411cef6adfb38a5bb6bd9af3941b28198e7fb680 upstream.
 
-Since commit edc6afc54968 ("tty: switch to ktermios and new framework")
-termios speed is no longer stored only in c_cflag member but also in new
-additional c_ispeed and c_ospeed members. If BOTHER flag is set in c_cflag
-then termios speed is stored only in these new members.
+The OSS mixer can reassign the mapping slots dynamically via proc
+file.  Although the addition and deletion of those slots are protected
+by mixer->reg_mutex, the access to slots aren't, hence this may cause
+UAF when the slots in use are deleted concurrently.
 
-Therefore to correctly restore termios speed it is required to store also
-ispeed and ospeed members, not only cflag member.
+This patch applies the mixer->reg_mutex in all appropriate code paths
+(i.e. the ioctl functions) that may access slots.
 
-In case only cflag member with BOTHER flag is restored then functions
-tty_termios_baud_rate() and tty_termios_input_baud_rate() returns baudrate
-stored in c_ospeed / c_ispeed member, which is zero as it was not restored
-too. If reported baudrate is invalid (e.g. zero) then serial core functions
-report fallback baudrate value 9600. So it means that in this case original
-baudrate is lost and kernel changes it to value 9600.
-
-Simple reproducer of this issue is to boot kernel with following command
-line argument: "console=ttyXXX,86400" (where ttyXXX is the device name).
-For speed 86400 there is no Bnnn constant and therefore kernel has to
-represent this speed via BOTHER c_cflag. Which means that speed is stored
-only in c_ospeed and c_ispeed members, not in c_cflag anymore.
-
-If bootloader correctly configures serial device to speed 86400 then kernel
-prints boot log to early console at speed speed 86400 without any issue.
-But after kernel starts initializing real console device ttyXXX then speed
-is changed to fallback value 9600 because information about speed was lost.
-
-This patch fixes above issue by storing and restoring also ispeed and
-ospeed members, which are required for BOTHER flag.
-
-Fixes: edc6afc54968 ("[PATCH] tty: switch to ktermios and new framework")
-Cc: stable@vger.kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20211002130900.9518-1-pali@kernel.org
+Reported-by: syzbot+9988f17cf72a1045a189@syzkaller.appspotmail.com
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/00000000000036adc005ceca9175@google.com
+Link: https://lore.kernel.org/r/20211020164846.922-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/serial_core.c |   16 ++++++++++++++--
- include/linux/console.h          |    2 ++
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ sound/core/oss/mixer_oss.c |   43 +++++++++++++++++++++++++++++++++----------
+ 1 file changed, 33 insertions(+), 10 deletions(-)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -232,7 +232,11 @@ static int uart_port_startup(struct tty_
- 	if (retval == 0) {
- 		if (uart_console(uport) && uport->cons->cflag) {
- 			tty->termios.c_cflag = uport->cons->cflag;
-+			tty->termios.c_ispeed = uport->cons->ispeed;
-+			tty->termios.c_ospeed = uport->cons->ospeed;
- 			uport->cons->cflag = 0;
-+			uport->cons->ispeed = 0;
-+			uport->cons->ospeed = 0;
- 		}
- 		/*
- 		 * Initialise the hardware port settings.
-@@ -300,8 +304,11 @@ static void uart_shutdown(struct tty_str
- 		/*
- 		 * Turn off DTR and RTS early.
- 		 */
--		if (uport && uart_console(uport) && tty)
-+		if (uport && uart_console(uport) && tty) {
- 			uport->cons->cflag = tty->termios.c_cflag;
-+			uport->cons->ispeed = tty->termios.c_ispeed;
-+			uport->cons->ospeed = tty->termios.c_ospeed;
-+		}
+--- a/sound/core/oss/mixer_oss.c
++++ b/sound/core/oss/mixer_oss.c
+@@ -145,11 +145,13 @@ static int snd_mixer_oss_devmask(struct
  
- 		if (!tty || C_HUPCL(tty))
- 			uart_port_dtr_rts(uport, 0);
-@@ -2076,8 +2083,11 @@ uart_set_options(struct uart_port *port,
- 	 * Allow the setting of the UART parameters with a NULL console
- 	 * too:
- 	 */
--	if (co)
-+	if (co) {
- 		co->cflag = termios.c_cflag;
-+		co->ispeed = termios.c_ispeed;
-+		co->ospeed = termios.c_ospeed;
-+	}
- 
- 	return 0;
+ 	if (mixer == NULL)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	for (chn = 0; chn < 31; chn++) {
+ 		pslot = &mixer->slots[chn];
+ 		if (pslot->put_volume || pslot->put_recsrc)
+ 			result |= 1 << chn;
+ 	}
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
  }
-@@ -2211,6 +2221,8 @@ int uart_resume_port(struct uart_driver
- 		 */
- 		memset(&termios, 0, sizeof(struct ktermios));
- 		termios.c_cflag = uport->cons->cflag;
-+		termios.c_ispeed = uport->cons->ispeed;
-+		termios.c_ospeed = uport->cons->ospeed;
  
- 		/*
- 		 * If that's unset, use the tty termios setting.
---- a/include/linux/console.h
-+++ b/include/linux/console.h
-@@ -145,6 +145,8 @@ struct console {
- 	short	flags;
- 	short	index;
- 	int	cflag;
-+	uint	ispeed;
-+	uint	ospeed;
- 	void	*data;
- 	struct	 console *next;
- };
+@@ -161,11 +163,13 @@ static int snd_mixer_oss_stereodevs(stru
+ 
+ 	if (mixer == NULL)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	for (chn = 0; chn < 31; chn++) {
+ 		pslot = &mixer->slots[chn];
+ 		if (pslot->put_volume && pslot->stereo)
+ 			result |= 1 << chn;
+ 	}
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
+ }
+ 
+@@ -176,6 +180,7 @@ static int snd_mixer_oss_recmask(struct
+ 
+ 	if (mixer == NULL)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	if (mixer->put_recsrc && mixer->get_recsrc) {	/* exclusive */
+ 		result = mixer->mask_recsrc;
+ 	} else {
+@@ -187,6 +192,7 @@ static int snd_mixer_oss_recmask(struct
+ 				result |= 1 << chn;
+ 		}
+ 	}
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
+ }
+ 
+@@ -197,11 +203,12 @@ static int snd_mixer_oss_get_recsrc(stru
+ 
+ 	if (mixer == NULL)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	if (mixer->put_recsrc && mixer->get_recsrc) {	/* exclusive */
+-		int err;
+ 		unsigned int index;
+-		if ((err = mixer->get_recsrc(fmixer, &index)) < 0)
+-			return err;
++		result = mixer->get_recsrc(fmixer, &index);
++		if (result < 0)
++			goto unlock;
+ 		result = 1 << index;
+ 	} else {
+ 		struct snd_mixer_oss_slot *pslot;
+@@ -216,7 +223,10 @@ static int snd_mixer_oss_get_recsrc(stru
+ 			}
+ 		}
+ 	}
+-	return mixer->oss_recsrc = result;
++	mixer->oss_recsrc = result;
++ unlock:
++	mutex_unlock(&mixer->reg_mutex);
++	return result;
+ }
+ 
+ static int snd_mixer_oss_set_recsrc(struct snd_mixer_oss_file *fmixer, int recsrc)
+@@ -229,6 +239,7 @@ static int snd_mixer_oss_set_recsrc(stru
+ 
+ 	if (mixer == NULL)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	if (mixer->get_recsrc && mixer->put_recsrc) {	/* exclusive input */
+ 		if (recsrc & ~mixer->oss_recsrc)
+ 			recsrc &= ~mixer->oss_recsrc;
+@@ -254,6 +265,7 @@ static int snd_mixer_oss_set_recsrc(stru
+ 			}
+ 		}
+ 	}
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
+ }
+ 
+@@ -265,6 +277,7 @@ static int snd_mixer_oss_get_volume(stru
+ 
+ 	if (mixer == NULL || slot > 30)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	pslot = &mixer->slots[slot];
+ 	left = pslot->volume[0];
+ 	right = pslot->volume[1];
+@@ -272,15 +285,21 @@ static int snd_mixer_oss_get_volume(stru
+ 		result = pslot->get_volume(fmixer, pslot, &left, &right);
+ 	if (!pslot->stereo)
+ 		right = left;
+-	if (snd_BUG_ON(left < 0 || left > 100))
+-		return -EIO;
+-	if (snd_BUG_ON(right < 0 || right > 100))
+-		return -EIO;
++	if (snd_BUG_ON(left < 0 || left > 100)) {
++		result = -EIO;
++		goto unlock;
++	}
++	if (snd_BUG_ON(right < 0 || right > 100)) {
++		result = -EIO;
++		goto unlock;
++	}
+ 	if (result >= 0) {
+ 		pslot->volume[0] = left;
+ 		pslot->volume[1] = right;
+ 	 	result = (left & 0xff) | ((right & 0xff) << 8);
+ 	}
++ unlock:
++	mutex_unlock(&mixer->reg_mutex);
+ 	return result;
+ }
+ 
+@@ -293,6 +312,7 @@ static int snd_mixer_oss_set_volume(stru
+ 
+ 	if (mixer == NULL || slot > 30)
+ 		return -EIO;
++	mutex_lock(&mixer->reg_mutex);
+ 	pslot = &mixer->slots[slot];
+ 	if (left > 100)
+ 		left = 100;
+@@ -303,10 +323,13 @@ static int snd_mixer_oss_set_volume(stru
+ 	if (pslot->put_volume)
+ 		result = pslot->put_volume(fmixer, pslot, left, right);
+ 	if (result < 0)
+-		return result;
++		goto unlock;
+ 	pslot->volume[0] = left;
+ 	pslot->volume[1] = right;
+- 	return (left & 0xff) | ((right & 0xff) << 8);
++	result = (left & 0xff) | ((right & 0xff) << 8);
++ unlock:
++	mutex_lock(&mixer->reg_mutex);
++	return result;
+ }
+ 
+ static int snd_mixer_oss_ioctl1(struct snd_mixer_oss_file *fmixer, unsigned int cmd, unsigned long arg)
 
 
