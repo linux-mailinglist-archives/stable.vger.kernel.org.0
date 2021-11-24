@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C981A45C622
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1B4B45C391
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:38:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353984AbhKXOFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:05:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52680 "EHLO mail.kernel.org"
+        id S1348289AbhKXNks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:40:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353752AbhKXOCg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 09:02:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7633F63319;
-        Wed, 24 Nov 2021 13:10:13 +0000 (UTC)
+        id S1353007AbhKXNir (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:38:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B6E8617E5;
+        Wed, 24 Nov 2021 12:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759414;
-        bh=iVwT131v2V/K3sQNfO6yc4L7ZfCBxABnnfdOBa+1MpY=;
+        s=korg; t=1637758584;
+        bh=A/iPSYYNvU4GKF5Bd17Q+I5mQpN+x5d4con1NK7xMFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=udjAZ+Ekg3gXiOWBgprL03q+ysixPekRi8QDfdZvhoRuPaCz9D+yR0RABBXbFSCLV
-         VBmQ4skjUxbqYzlMpXKInqvKMeyUvM5PxcFftFC0azaU9CCDR3sGBuYRudHz2iCs58
-         M253RCAXr58itA58lFAbAKuMUfHFWXS8Qr3+QEjQ=
+        b=Dc+phTbiEa1Ab+hYpgLZFXtD8sPMrFiJwTVZqvvDyZw3Ytb/nFycd+3tW5FVYad7P
+         GWiu3EDmsDmFdawX1lXIUj2E++BnSEONzWANXP449KHjF5v01P6n0Y+x6McqXsHD9o
+         wTxI/jTToHgTWqmFCBEh4oRhc938S894bQRRjMpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH 5.15 226/279] drm/cma-helper: Release non-coherent memory with dma_free_noncoherent()
-Date:   Wed, 24 Nov 2021 12:58:33 +0100
-Message-Id: <20211124115726.556860793@linuxfoundation.org>
+        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
+        Punit Agrawal <punitagrawal@gmail.com>,
+        Michael Riesch <michael.riesch@wolfvision.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 118/154] net: stmmac: dwmac-rk: Fix ethernet on rk3399 based devices
+Date:   Wed, 24 Nov 2021 12:58:34 +0100
+Message-Id: <20211124115706.097197178@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
-References: <20211124115718.776172708@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zimmermann <tzimmermann@suse.de>
+From: Punit Agrawal <punitagrawal@gmail.com>
 
-commit 995f54ea962e03ec08b8bc6a4fe11a32b420edd3 upstream.
+commit aec3f415f7244b7747a7952596971adb0df2f568 upstream.
 
-The GEM CMA helpers allocate non-coherent (i.e., cached) backing storage
-with dma_alloc_noncoherent(), but release it with dma_free_wc(). Fix this
-with a call to dma_free_noncoherent(). Writecombining storage is still
-released with dma_free_wc().
+Commit 2d26f6e39afb ("net: stmmac: dwmac-rk: fix unbalanced pm_runtime_enable warnings")
+while getting rid of a runtime PM warning ended up breaking ethernet
+on rk3399 based devices. By dropping an extra reference to the device,
+the commit ends up enabling suspend / resume of the ethernet device -
+which appears to be broken.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Fixes: cf8ccbc72d61 ("drm: Add support for GEM buffers backed by non-coherent memory")
-Acked-by: Paul Cercueil <paul@crapouillou.net>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.14+
-Link: https://patchwork.freedesktop.org/patch/msgid/20210708175146.10618-1-tzimmermann@suse.de
+While the issue with runtime pm is being investigated, partially
+revert commit 2d26f6e39afb to restore the network on rk3399.
+
+Fixes: 2d26f6e39afb ("net: stmmac: dwmac-rk: fix unbalanced pm_runtime_enable warnings")
+Suggested-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Punit Agrawal <punitagrawal@gmail.com>
+Cc: Michael Riesch <michael.riesch@wolfvision.net>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20210929135049.3426058-1-punitagrawal@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_gem_cma_helper.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/gpu/drm/drm_gem_cma_helper.c
-+++ b/drivers/gpu/drm/drm_gem_cma_helper.c
-@@ -210,8 +210,13 @@ void drm_gem_cma_free_object(struct drm_
- 			dma_buf_vunmap(gem_obj->import_attach->dmabuf, &map);
- 		drm_prime_gem_destroy(gem_obj, cma_obj->sgt);
- 	} else if (cma_obj->vaddr) {
--		dma_free_wc(gem_obj->dev->dev, cma_obj->base.size,
--			    cma_obj->vaddr, cma_obj->paddr);
-+		if (cma_obj->map_noncoherent)
-+			dma_free_noncoherent(gem_obj->dev->dev, cma_obj->base.size,
-+					     cma_obj->vaddr, cma_obj->paddr,
-+					     DMA_TO_DEVICE);
-+		else
-+			dma_free_wc(gem_obj->dev->dev, cma_obj->base.size,
-+				    cma_obj->vaddr, cma_obj->paddr);
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.c
+@@ -21,6 +21,7 @@
+ #include <linux/delay.h>
+ #include <linux/mfd/syscon.h>
+ #include <linux/regmap.h>
++#include <linux/pm_runtime.h>
+ 
+ #include "stmmac_platform.h"
+ 
+@@ -1335,6 +1336,8 @@ static int rk_gmac_powerup(struct rk_pri
+ 		return ret;
  	}
  
- 	drm_gem_object_release(gem_obj);
++	pm_runtime_get_sync(dev);
++
+ 	if (bsp_priv->integrated_phy)
+ 		rk_gmac_integrated_phy_powerup(bsp_priv);
+ 
+@@ -1346,6 +1349,8 @@ static void rk_gmac_powerdown(struct rk_
+ 	if (gmac->integrated_phy)
+ 		rk_gmac_integrated_phy_powerdown(gmac);
+ 
++	pm_runtime_put_sync(&gmac->pdev->dev);
++
+ 	phy_power_on(gmac, false);
+ 	gmac_clk_enable(gmac, false);
+ }
 
 
