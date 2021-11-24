@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8B9045C1E9
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:21:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 684ED45C311
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:32:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244738AbhKXNYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:24:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39542 "EHLO mail.kernel.org"
+        id S1352192AbhKXNfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:35:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349264AbhKXNS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:18:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68A3261261;
-        Wed, 24 Nov 2021 12:46:05 +0000 (UTC)
+        id S1351568AbhKXNc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:32:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C138061BD1;
+        Wed, 24 Nov 2021 12:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757966;
-        bh=A8grbP04A6YB3RAO8z6CJcLZPEYRULMRDWYYr3pr1YM=;
+        s=korg; t=1637758382;
+        bh=Tg+6A1slWOVltCdKUVh0hival0C3tyiewFxYm7nMwOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Ef1BUkZlS5w92BQhH8xjH4+9iEcKp/dxlxoTxxdIxV3lZ/UDaGxbujsqXQq+cDMC
-         m5v5VpFlf4CWNbc2K7aaV/XRJxiSDanHgTZZQkpmo5BpfhMvqfLnYPWjiFX0DxiuWQ
-         At10QNPL51IOXG2pDnBzTC1eXTuC9b+sa1jBVb10=
+        b=A1/9SykltyUMeXKmm4KjNB31FwNdNsqrIVR7JERbMpkaqEKJMkBfirs5vdY4uyUqF
+         MQKcHQcolEz4V6VjiCpCm3zuelWmSn0qdnzmi4wpJYfy+5q20KxoG46nLYn1A+uzPH
+         CvksqcILPJGQ1zto/aca8xj2svLSzFm1btw0CzVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 012/100] ASoC: SOF: Intel: hda-dai: fix potential locking issue
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Matt Fleming <matt@console-pimps.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 052/154] sh: fix kconfig unmet dependency warning for FRAME_POINTER
 Date:   Wed, 24 Nov 2021 12:57:28 +0100
-Message-Id: <20211124115655.244777597@linuxfoundation.org>
+Message-Id: <20211124115704.014877809@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit a20f3b10de61add5e14b6ce4df982f4df2a4cbbc ]
+[ Upstream commit fda1bc533094a7db68b11e7503d2c6c73993d12a ]
 
-The initial hdac_stream code was adapted a third time with the same
-locking issues. Move the spin_lock outside the loops and make sure the
-fields are protected on read/write.
+FRAME_POINTER depends on DEBUG_KERNEL so DWARF_UNWINDER should
+depend on DEBUG_KERNEL before selecting FRAME_POINTER.
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Acked-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210924192417.169243-5-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+WARNING: unmet direct dependencies detected for FRAME_POINTER
+  Depends on [n]: DEBUG_KERNEL [=n] && (M68K || UML || SUPERH [=y]) || ARCH_WANT_FRAME_POINTERS [=n]
+  Selected by [y]:
+  - DWARF_UNWINDER [=y]
+
+Fixes: bd353861c735 ("sh: dwarf unwinder support.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Matt Fleming <matt@console-pimps.org>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Rich Felker <dalias@libc.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda-dai.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/sh/Kconfig.debug | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/sof/intel/hda-dai.c b/sound/soc/sof/intel/hda-dai.c
-index 3f645200d3a5c..b3cdd10c83ae1 100644
---- a/sound/soc/sof/intel/hda-dai.c
-+++ b/sound/soc/sof/intel/hda-dai.c
-@@ -67,6 +67,7 @@ static struct hdac_ext_stream *
- 		return NULL;
- 	}
+diff --git a/arch/sh/Kconfig.debug b/arch/sh/Kconfig.debug
+index 28a43d63bde1f..97b0e26cf05a1 100644
+--- a/arch/sh/Kconfig.debug
++++ b/arch/sh/Kconfig.debug
+@@ -57,6 +57,7 @@ config DUMP_CODE
  
-+	spin_lock_irq(&bus->reg_lock);
- 	list_for_each_entry(stream, &bus->stream_list, list) {
- 		struct hdac_ext_stream *hstream =
- 			stream_to_hdac_ext_stream(stream);
-@@ -106,12 +107,12 @@ static struct hdac_ext_stream *
- 		 * is updated in snd_hdac_ext_stream_decouple().
- 		 */
- 		if (!res->decoupled)
--			snd_hdac_ext_stream_decouple(bus, res, true);
--		spin_lock_irq(&bus->reg_lock);
-+			snd_hdac_ext_stream_decouple_locked(bus, res, true);
-+
- 		res->link_locked = 1;
- 		res->link_substream = substream;
--		spin_unlock_irq(&bus->reg_lock);
- 	}
-+	spin_unlock_irq(&bus->reg_lock);
- 
- 	return res;
- }
+ config DWARF_UNWINDER
+ 	bool "Enable the DWARF unwinder for stacktraces"
++	depends on DEBUG_KERNEL
+ 	select FRAME_POINTER
+ 	default n
+ 	help
 -- 
 2.33.0
 
