@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 950B845BFF6
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:01:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FB5045BA12
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245518AbhKXND6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:03:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38604 "EHLO mail.kernel.org"
+        id S234531AbhKXMHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:07:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346573AbhKXNCO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:02:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6C1E611EF;
-        Wed, 24 Nov 2021 12:35:29 +0000 (UTC)
+        id S242114AbhKXMFK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:05:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C962560F5D;
+        Wed, 24 Nov 2021 12:02:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757330;
-        bh=lnzBVUyKSSvDvO9SrOk/TcJOJiWQDNMMljmjLlLaQCY=;
+        s=korg; t=1637755321;
+        bh=Wo+FCY3TIJIGEF64MFe3E1s8UeFvOiwyquy9DDbRSs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yho6/2iB/qJsDGb8JrTNxiDwIaWVaKNFBnOEMfa5QnSk0h/zhsormYBOZ2vp4QKPi
-         rHSKhXFlnChEu+CPzG1fW3EoopL73HSoPnnZwwxniu84WYXOh1vrfVQpy8Y1tbDqRQ
-         sR0vbIWAW27a+C/hMrVMypitZQb4g2FgNQg53PKQ=
+        b=nUnLI8qFbTZ91wjkiCWKn6QWa8n315RMgJdaX24V3HtgSZT0jXIG45+jbv2s5oRwC
+         xpMSHx1XOQIEO80FkxoOu88KF4XHGyWVHaa5UFvHmBk5uV8SrWlr0cJHvA5yZJn5Z/
+         lRli6aSEwBna4BjASfRyJF1hu9PW75CdPVpem3fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Houlong Wei <houlong.wei@mediatek.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Joe Jin <joe.jin@oracle.com>,
+        Dongli Zhang <dongli.zhang@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 133/323] media: mtk-vpu: Fix a resource leak in the error handling path of mtk_vpu_probe()
+Subject: [PATCH 4.4 020/162] xen/netfront: stop tx queues during live migration
 Date:   Wed, 24 Nov 2021 12:55:23 +0100
-Message-Id: <20211124115723.421163689@linuxfoundation.org>
+Message-Id: <20211124115658.986486139@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit 2143ad413c05c7be24c3a92760e367b7f6aaac92 ]
+[ Upstream commit 042b2046d0f05cf8124c26ff65dbb6148a4404fb ]
 
-A successful 'clk_prepare()' call should be balanced by a corresponding
-'clk_unprepare()' call in the error handling path of the probe, as already
-done in the remove function.
+The tx queues are not stopped during the live migration. As a result, the
+ndo_start_xmit() may access netfront_info->queues which is freed by
+talk_to_netback()->xennet_destroy_queues().
 
-Update the error handling path accordingly.
+This patch is to netif_device_detach() at the beginning of xen-netfront
+resuming, and netif_device_attach() at the end of resuming.
 
-Fixes: 3003a180ef6b ("[media] VPU: mediatek: support Mediatek VPU")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Houlong Wei <houlong.wei@mediatek.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+     CPU A                                CPU B
+
+ talk_to_netback()
+ -> if (info->queues)
+        xennet_destroy_queues(info);
+    to free netfront_info->queues
+
+                                        xennet_start_xmit()
+                                        to access netfront_info->queues
+
+  -> err = xennet_create_queues(info, &num_queues);
+
+The idea is borrowed from virtio-net.
+
+Cc: Joe Jin <joe.jin@oracle.com>
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mtk-vpu/mtk_vpu.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/xen-netfront.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/media/platform/mtk-vpu/mtk_vpu.c b/drivers/media/platform/mtk-vpu/mtk_vpu.c
-index f8d35e3ac1dcc..9b57fb2857285 100644
---- a/drivers/media/platform/mtk-vpu/mtk_vpu.c
-+++ b/drivers/media/platform/mtk-vpu/mtk_vpu.c
-@@ -818,7 +818,8 @@ static int mtk_vpu_probe(struct platform_device *pdev)
- 	vpu->wdt.wq = create_singlethread_workqueue("vpu_wdt");
- 	if (!vpu->wdt.wq) {
- 		dev_err(dev, "initialize wdt workqueue failed\n");
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto clk_unprepare;
- 	}
- 	INIT_WORK(&vpu->wdt.ws, vpu_wdt_reset_func);
- 	mutex_init(&vpu->vpu_mutex);
-@@ -917,6 +918,8 @@ disable_vpu_clk:
- 	vpu_clock_disable(vpu);
- workqueue_destroy:
- 	destroy_workqueue(vpu->wdt.wq);
-+clk_unprepare:
-+	clk_unprepare(vpu->clk);
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 7d4c0c46a889d..6d4bf37c660f7 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -1454,6 +1454,10 @@ static int netfront_resume(struct xenbus_device *dev)
  
- 	return ret;
+ 	dev_dbg(&dev->dev, "%s\n", dev->nodename);
+ 
++	netif_tx_lock_bh(info->netdev);
++	netif_device_detach(info->netdev);
++	netif_tx_unlock_bh(info->netdev);
++
+ 	xennet_disconnect_backend(info);
+ 	return 0;
  }
+@@ -2014,6 +2018,10 @@ static int xennet_connect(struct net_device *dev)
+ 	 * domain a kick because we've probably just requeued some
+ 	 * packets.
+ 	 */
++	netif_tx_lock_bh(np->netdev);
++	netif_device_attach(np->netdev);
++	netif_tx_unlock_bh(np->netdev);
++
+ 	netif_carrier_on(np->netdev);
+ 	for (j = 0; j < num_queues; ++j) {
+ 		queue = &np->queues[j];
 -- 
 2.33.0
 
