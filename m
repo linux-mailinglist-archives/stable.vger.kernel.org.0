@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 387FC45BDED
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:39:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EC2545BC26
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344397AbhKXMm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:42:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38946 "EHLO mail.kernel.org"
+        id S244065AbhKXM0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:26:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344327AbhKXMk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:40:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E234A60C51;
-        Wed, 24 Nov 2021 12:23:53 +0000 (UTC)
+        id S243600AbhKXMUx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:20:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD6AE611C5;
+        Wed, 24 Nov 2021 12:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756634;
-        bh=j1dDLAA5xFeV7uJcTZ1ri3BVmBrvnT3ACGQlQoLLuW4=;
+        s=korg; t=1637755979;
+        bh=brWaVM0oKxJrmC9J7xuYPodrmOcZ2Av1iT2a8e2VsNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uivYkpq5JUFjEu0Pu/Rc3KulGApjDRndfKOKGEGbcT+iOEGRMtVG4/T5psWqUJqyO
-         FAJuZ90Wxj0DTGWA9tN0fWoBYMWMNaIJbqM/pwjxPr7s5sxDMdczX9oTH0WG/Ri16K
-         u8SHkukcrgqrRgN5tgXLEZdpOoqvjmwhvOxugfro=
+        b=ys7TyDO+U/aM4WOLvVByZFjRmRcS4K89DphJWE71j3WIhkJ6SwzQIfC7c4HiSkfeQ
+         93tgs9DXlPY22Psi++qK4wEh1udftJoNWQeT25RGdp9Cz4OxJ04ElvZQdvbkEB3g4L
+         QU6fYBunkom8/nCFoeqgHbvkh4duY+DRv/7EcgtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 153/251] scsi: csiostor: Uninitialized data in csio_ln_vnp_read_cbfn()
+Subject: [PATCH 4.9 124/207] serial: 8250_dw: Drop wrong use of ACPI_PTR()
 Date:   Wed, 24 Nov 2021 12:56:35 +0100
-Message-Id: <20211124115715.593123187@linuxfoundation.org>
+Message-Id: <20211124115708.069972756@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit f4875d509a0a78ad294a1a538d534b5ba94e685a ]
+[ Upstream commit ebabb77a2a115b6c5e68f7364b598310b5f61fb2 ]
 
-This variable is just a temporary variable, used to do an endian
-conversion.  The problem is that the last byte is not initialized.  After
-the conversion is completely done, the last byte is discarded so it doesn't
-cause a problem.  But static checkers and the KMSan runtime checker can
-detect the uninitialized read and will complain about it.
+ACPI_PTR() is more harmful than helpful. For example, in this case
+if CONFIG_ACPI=n, the ID table left unused which is not what we want.
 
-Link: https://lore.kernel.org/r/20211006073242.GA8404@kili
-Fixes: 5036f0a0ecd3 ("[SCSI] csiostor: Fix sparse warnings.")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Instead of adding ifdeffery here and there, drop ACPI_PTR().
+
+Fixes: 6a7320c4669f ("serial: 8250_dw: Add ACPI 5.0 support")
+Reported-by: Daniel Palmer <daniel@0x0f.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20211005134516.23218-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/csiostor/csio_lnode.c | 2 +-
+ drivers/tty/serial/8250/8250_dw.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/csiostor/csio_lnode.c b/drivers/scsi/csiostor/csio_lnode.c
-index 957767d383610..d1df694d9ed00 100644
---- a/drivers/scsi/csiostor/csio_lnode.c
-+++ b/drivers/scsi/csiostor/csio_lnode.c
-@@ -611,7 +611,7 @@ csio_ln_vnp_read_cbfn(struct csio_hw *hw, struct csio_mb *mbp)
- 	struct fc_els_csp *csp;
- 	struct fc_els_cssp *clsp;
- 	enum fw_retval retval;
--	__be32 nport_id;
-+	__be32 nport_id = 0;
- 
- 	retval = FW_CMD_RETVAL_G(ntohl(rsp->alloc_to_len16));
- 	if (retval != FW_SUCCESS) {
+diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
+index 22d65a33059e1..aa9cc5e1c91cc 100644
+--- a/drivers/tty/serial/8250/8250_dw.c
++++ b/drivers/tty/serial/8250/8250_dw.c
+@@ -637,7 +637,7 @@ static struct platform_driver dw8250_platform_driver = {
+ 		.name		= "dw-apb-uart",
+ 		.pm		= &dw8250_pm_ops,
+ 		.of_match_table	= dw8250_of_match,
+-		.acpi_match_table = ACPI_PTR(dw8250_acpi_match),
++		.acpi_match_table = dw8250_acpi_match,
+ 	},
+ 	.probe			= dw8250_probe,
+ 	.remove			= dw8250_remove,
 -- 
 2.33.0
 
