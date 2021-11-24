@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5270F45C270
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:26:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BC4D45C60C
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344996AbhKXN3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:29:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48370 "EHLO mail.kernel.org"
+        id S1347765AbhKXOE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:04:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348392AbhKXN0o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:26:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AC0461528;
-        Wed, 24 Nov 2021 12:50:09 +0000 (UTC)
+        id S1355637AbhKXODC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:03:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CC5863307;
+        Wed, 24 Nov 2021 13:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758210;
-        bh=zf6St9Sb8A2iFPnPtTjZTBsgoSwaw5MNu4UE6T19GJU=;
+        s=korg; t=1637759440;
+        bh=K2qaNJ5FeRn//q+1kSIzHb+F+d0uGdwhzvYCs5PiHYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mdE32jQvIHGomyLQZ5HLESTUlMUESJ8yKc58YuVbPcmzzQisDk9CB7pth1QZhpj+k
-         QM0OonjImpLWsRoCAIOgMBNqxypjcspjPfbpb+O1i83B3hiGtugvrJ+CUefyvs0ZgO
-         y7MzWh1ncB5B/mZYQlSyn9DIssZu29ZC4M+ATeWw=
+        b=GFgQJv/o7kPWzhR73sqrckXskZXKbrygxhrqUhL1kJu/X5X+F9DIscuvUzS2LR1RO
+         G+rc3mpQsx+iyOMI6kBNpR4lPyXCuNhcDjdbZcharPzVGGbqFJaheUBBDeGgDViSEn
+         PlQ4XoU/JKBG0HT3gwS8Z9XSbFV58Aes0LNm4mK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 5.4 094/100] batman-adv: Reserve needed_*room for fragments
+        stable@vger.kernel.org, Matthew Brost <matthew.brost@intel.com>,
+        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
+        John Harrison <John.C.Harrison@Intel.com>
+Subject: [PATCH 5.15 243/279] drm/i915/guc: Workaround reset G2H is received after schedule done G2H
 Date:   Wed, 24 Nov 2021 12:58:50 +0100
-Message-Id: <20211124115657.894008776@linuxfoundation.org>
+Message-Id: <20211124115727.126490625@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,89 +40,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Matthew Brost <matthew.brost@intel.com>
 
-commit c5cbfc87558168ef4c3c27ce36eba6b83391db19 upstream.
+commit 1ca36cff0166b0483fe3b99e711e9c800ebbfaa4 upstream.
 
-The batadv net_device is trying to propagate the needed_headroom and
-needed_tailroom from the lower devices. This is needed to avoid cost
-intensive reallocations using pskb_expand_head during the transmission.
+If the context is reset as a result of the request cancellation the
+context reset G2H is received after schedule disable done G2H which is
+the wrong order. The schedule disable done G2H release the waiting
+request cancellation code which resubmits the context. This races
+with the context reset G2H which also wants to resubmit the context but
+in this case it really should be a NOP as request cancellation code owns
+the resubmit. Use some clever tricks of checking the context state to
+seal this race until the GuC firmware is fixed.
 
-But the fragmentation code split the skb's without adding extra room at the
-end/beginning of the various fragments. This reduced the performance of
-transmissions over complex scenarios (batadv on vxlan on wireguard) because
-the lower devices had to perform the reallocations at least once.
+v2:
+ (Checkpatch)
+  - Fix typos
+v3:
+ (Daniele)
+  - State that is a bug in the GuC firmware
 
-Fixes: ee75ed88879a ("batman-adv: Fragment and send skbs larger than mtu")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Fixes: 62eaf0ae217d ("drm/i915/guc: Support request cancellation")
+Signed-off-by: Matthew Brost <matthew.brost@intel.com>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210909164744.31249-7-matthew.brost@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/batman-adv/fragmentation.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c |   41 ++++++++++++++++++----
+ 1 file changed, 35 insertions(+), 6 deletions(-)
 
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -391,6 +391,7 @@ out:
- 
- /**
-  * batadv_frag_create() - create a fragment from skb
-+ * @net_dev: outgoing device for fragment
-  * @skb: skb to create fragment from
-  * @frag_head: header to use in new fragment
-  * @fragment_size: size of new fragment
-@@ -401,22 +402,25 @@ out:
-  *
-  * Return: the new fragment, NULL on error.
-  */
--static struct sk_buff *batadv_frag_create(struct sk_buff *skb,
-+static struct sk_buff *batadv_frag_create(struct net_device *net_dev,
-+					  struct sk_buff *skb,
- 					  struct batadv_frag_packet *frag_head,
- 					  unsigned int fragment_size)
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+@@ -838,17 +838,33 @@ __unwind_incomplete_requests(struct inte
+ static void __guc_reset_context(struct intel_context *ce, bool stalled)
  {
-+	unsigned int ll_reserved = LL_RESERVED_SPACE(net_dev);
-+	unsigned int tailroom = net_dev->needed_tailroom;
- 	struct sk_buff *skb_fragment;
- 	unsigned int header_size = sizeof(*frag_head);
- 	unsigned int mtu = fragment_size + header_size;
+ 	struct i915_request *rq;
++	unsigned long flags;
+ 	u32 head;
++	bool skip = false;
  
--	skb_fragment = netdev_alloc_skb(NULL, mtu + ETH_HLEN);
-+	skb_fragment = dev_alloc_skb(ll_reserved + mtu + tailroom);
- 	if (!skb_fragment)
- 		goto err;
+ 	intel_context_get(ce);
  
- 	skb_fragment->priority = skb->priority;
+ 	/*
+-	 * GuC will implicitly mark the context as non-schedulable
+-	 * when it sends the reset notification. Make sure our state
+-	 * reflects this change. The context will be marked enabled
+-	 * on resubmission.
++	 * GuC will implicitly mark the context as non-schedulable when it sends
++	 * the reset notification. Make sure our state reflects this change. The
++	 * context will be marked enabled on resubmission.
++	 *
++	 * XXX: If the context is reset as a result of the request cancellation
++	 * this G2H is received after the schedule disable complete G2H which is
++	 * wrong as this creates a race between the request cancellation code
++	 * re-submitting the context and this G2H handler. This is a bug in the
++	 * GuC but can be worked around in the meantime but converting this to a
++	 * NOP if a pending enable is in flight as this indicates that a request
++	 * cancellation has occurred.
+ 	 */
+-	clr_context_enabled(ce);
++	spin_lock_irqsave(&ce->guc_state.lock, flags);
++	if (likely(!context_pending_enable(ce)))
++		clr_context_enabled(ce);
++	else
++		skip = true;
++	spin_unlock_irqrestore(&ce->guc_state.lock, flags);
++	if (unlikely(skip))
++		goto out_put;
  
- 	/* Eat the last mtu-bytes of the skb */
--	skb_reserve(skb_fragment, header_size + ETH_HLEN);
-+	skb_reserve(skb_fragment, ll_reserved + header_size);
- 	skb_split(skb, skb_fragment, skb->len - fragment_size);
+ 	rq = intel_context_find_active_request(ce);
+ 	if (!rq) {
+@@ -867,6 +883,7 @@ static void __guc_reset_context(struct i
+ out_replay:
+ 	guc_reset_state(ce, head, stalled);
+ 	__unwind_incomplete_requests(ce);
++out_put:
+ 	intel_context_put(ce);
+ }
  
- 	/* Add the header */
-@@ -439,11 +443,12 @@ int batadv_frag_send_packet(struct sk_bu
- 			    struct batadv_orig_node *orig_node,
- 			    struct batadv_neigh_node *neigh_node)
- {
-+	struct net_device *net_dev = neigh_node->if_incoming->net_dev;
- 	struct batadv_priv *bat_priv;
- 	struct batadv_hard_iface *primary_if = NULL;
- 	struct batadv_frag_packet frag_header;
- 	struct sk_buff *skb_fragment;
--	unsigned int mtu = neigh_node->if_incoming->net_dev->mtu;
-+	unsigned int mtu = net_dev->mtu;
- 	unsigned int header_size = sizeof(frag_header);
- 	unsigned int max_fragment_size, num_fragments;
- 	int ret;
-@@ -503,7 +508,7 @@ int batadv_frag_send_packet(struct sk_bu
- 			goto put_primary_if;
+@@ -1618,6 +1635,13 @@ static void guc_context_cancel_request(s
+ 			guc_reset_state(ce, intel_ring_wrap(ce->ring, rq->head),
+ 					true);
  		}
++
++		/*
++		 * XXX: Racey if context is reset, see comment in
++		 * __guc_reset_context().
++		 */
++		flush_work(&ce_to_guc(ce)->ct.requests.worker);
++
+ 		guc_context_unblock(ce);
+ 	}
+ }
+@@ -2732,7 +2756,12 @@ static void guc_handle_context_reset(str
+ {
+ 	trace_intel_context_reset(ce);
  
--		skb_fragment = batadv_frag_create(skb, &frag_header,
-+		skb_fragment = batadv_frag_create(net_dev, skb, &frag_header,
- 						  max_fragment_size);
- 		if (!skb_fragment) {
- 			ret = -ENOMEM;
+-	if (likely(!intel_context_is_banned(ce))) {
++	/*
++	 * XXX: Racey if request cancellation has occurred, see comment in
++	 * __guc_reset_context().
++	 */
++	if (likely(!intel_context_is_banned(ce) &&
++		   !context_blocked(ce))) {
+ 		capture_error_state(guc, ce);
+ 		guc_context_replay(ce);
+ 	}
 
 
