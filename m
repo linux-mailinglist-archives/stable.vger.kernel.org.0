@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 155D545C681
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:07:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B7D445C680
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:07:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352280AbhKXOKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:10:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52682 "EHLO mail.kernel.org"
+        id S1352259AbhKXOKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:10:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354169AbhKXOGX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1354166AbhKXOGX (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 09:06:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3936F61215;
-        Wed, 24 Nov 2021 13:12:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 644D061250;
+        Wed, 24 Nov 2021 13:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637759535;
-        bh=zzSW0xQXM86OxivIEd5k1n4tau/wo13mnGujFeeRgIQ=;
+        s=korg; t=1637759538;
+        bh=xSBZ8Mq8P12rQ/RVyTY/uWr8p1BS2iqM9TvzQiwL16Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lIGZ+mtgnmmdnL2QTYxEw2tygUzFWGARX3lNSUrjKFKTf59/5yVckJwto2Nfkzobi
-         lPILjr1sXQmT5KpnYRzS/ugw4SjGZVGM9atGKk4FmMQFb2dGr73PRHd1SchM/7s4XS
-         neC/TThKBSArHYS5bb4DQOm6gBJL0N9JryyxFtEg=
+        b=HWrsdomhy/+mpYXQpAUyti1lTS8MP5yrl0b+1s58JLIVA9cD6B6DuNn2xLhURPaEk
+         zD/Jl1iPaQd+s7DfenmlT0XOdC18lZzQppj1UIvllSDkVyVWSxX6+7yz3uGL6+qfOF
+         MZ5zDOA17LH8iitvAqSyMvtwUbjbMcx5wH1290Mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Subject: [PATCH 5.15 273/279] usb: max-3421: Use driver data instead of maintaining a list of bound devices
-Date:   Wed, 24 Nov 2021 12:59:20 +0100
-Message-Id: <20211124115728.119498354@linuxfoundation.org>
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        Tony Brelinski <tony.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.15 274/279] ice: Fix VF true promiscuous mode
+Date:   Wed, 24 Nov 2021 12:59:21 +0100
+Message-Id: <20211124115728.156766494@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
 References: <20211124115718.776172708@linuxfoundation.org>
@@ -40,95 +40,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Brett Creeley <brett.creeley@intel.com>
 
-commit fc153aba3ef371d0d76eb88230ed4e0dee5b38f2 upstream.
+commit 1a8c7778bcde5981463a5b9f9b2caa44a327ff93 upstream.
 
-Instead of maintaining a single-linked list of devices that must be
-searched linearly in .remove() just use spi_set_drvdata() to remember the
-link between the spi device and the driver struct. Then the global list
-and the next member can be dropped.
+When a VF requests promiscuous mode and it's trusted and true promiscuous
+mode is enabled the PF driver attempts to enable unicast and/or
+multicast promiscuous mode filters based on the request. This is fine,
+but there are a couple issues with the current code.
 
-This simplifies the driver, reduces the memory footprint and the time to
-search the list. Also it makes obvious that there is always a corresponding
-driver struct for a given device in .remove(), so the error path for
-!max3421_hcd can be dropped, too.
+[1] The define to configure the unicast promiscuous mode mask also
+    includes bits to configure the multicast promiscuous mode mask, which
+    causes multicast to be set/cleared unintentionally.
+[2] All 4 cases for enable/disable unicast/multicast mode are not
+    handled in the promiscuous mode message handler, which causes
+    unexpected results regarding the current promiscuous mode settings.
 
-As a side effect this fixes a data inconsistency when .probe() races with
-itself for a second max3421 device in manipulating max3421_hcd_list. A
-similar race is fixed in .remove(), too.
+To fix [1] make sure any promiscuous mask defines include the correct
+bits for each of the promiscuous modes.
 
-Fixes: 2d53139f3162 ("Add support for using a MAX3421E chip as a host driver.")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Link: https://lore.kernel.org/r/20211018204028.2914597-1-u.kleine-koenig@pengutronix.de
+To fix [2] make sure that all 4 cases are handled since there are 2 bits
+(FLAG_VF_UNICAST_PROMISC and FLAG_VF_MULTICAST_PROMISC) that can be
+either set or cleared. Also, since either unicast and/or multicast
+promiscuous configuration can fail, introduce two separate error values
+to handle each of these cases.
+
+Fixes: 01b5e89aab49 ("ice: Add VF promiscuous support")
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/max3421-hcd.c |   25 +++++--------------------
- 1 file changed, 5 insertions(+), 20 deletions(-)
+ drivers/net/ethernet/intel/ice/ice.h             |    5 -
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c |   78 +++++++++++------------
+ 2 files changed, 40 insertions(+), 43 deletions(-)
 
---- a/drivers/usb/host/max3421-hcd.c
-+++ b/drivers/usb/host/max3421-hcd.c
-@@ -125,8 +125,6 @@ struct max3421_hcd {
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -139,13 +139,10 @@
+ #define ice_for_each_q_vector(vsi, i) \
+ 	for ((i) = 0; (i) < (vsi)->num_q_vectors; (i)++)
  
- 	struct task_struct *spi_thread;
+-#define ICE_UCAST_PROMISC_BITS (ICE_PROMISC_UCAST_TX | ICE_PROMISC_MCAST_TX | \
+-				ICE_PROMISC_UCAST_RX | ICE_PROMISC_MCAST_RX)
++#define ICE_UCAST_PROMISC_BITS (ICE_PROMISC_UCAST_TX | ICE_PROMISC_UCAST_RX)
  
--	struct max3421_hcd *next;
--
- 	enum max3421_rh_state rh_state;
- 	/* lower 16 bits contain port status, upper 16 bits the change mask: */
- 	u32 port_status;
-@@ -174,8 +172,6 @@ struct max3421_ep {
- 	u8 retransmit;			/* packet needs retransmission */
- };
+ #define ICE_UCAST_VLAN_PROMISC_BITS (ICE_PROMISC_UCAST_TX | \
+-				     ICE_PROMISC_MCAST_TX | \
+ 				     ICE_PROMISC_UCAST_RX | \
+-				     ICE_PROMISC_MCAST_RX | \
+ 				     ICE_PROMISC_VLAN_TX  | \
+ 				     ICE_PROMISC_VLAN_RX)
  
--static struct max3421_hcd *max3421_hcd_list;
--
- #define MAX3421_FIFO_SIZE	64
- 
- #define MAX3421_SPI_DIR_RD	0	/* read register from MAX3421 */
-@@ -1882,9 +1878,8 @@ max3421_probe(struct spi_device *spi)
- 	}
- 	set_bit(HCD_FLAG_POLL_RH, &hcd->flags);
- 	max3421_hcd = hcd_to_max3421(hcd);
--	max3421_hcd->next = max3421_hcd_list;
--	max3421_hcd_list = max3421_hcd;
- 	INIT_LIST_HEAD(&max3421_hcd->ep_list);
-+	spi_set_drvdata(spi, max3421_hcd);
- 
- 	max3421_hcd->tx = kmalloc(sizeof(*max3421_hcd->tx), GFP_KERNEL);
- 	if (!max3421_hcd->tx)
-@@ -1934,28 +1929,18 @@ error:
- static int
- max3421_remove(struct spi_device *spi)
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+@@ -2952,6 +2952,7 @@ bool ice_is_any_vf_in_promisc(struct ice
+ static int ice_vc_cfg_promiscuous_mode_msg(struct ice_vf *vf, u8 *msg)
  {
--	struct max3421_hcd *max3421_hcd = NULL, **prev;
--	struct usb_hcd *hcd = NULL;
-+	struct max3421_hcd *max3421_hcd;
-+	struct usb_hcd *hcd;
- 	unsigned long flags;
+ 	enum virtchnl_status_code v_ret = VIRTCHNL_STATUS_SUCCESS;
++	enum ice_status mcast_status = 0, ucast_status = 0;
+ 	bool rm_promisc, alluni = false, allmulti = false;
+ 	struct virtchnl_promisc_info *info =
+ 	    (struct virtchnl_promisc_info *)msg;
+@@ -3041,52 +3042,51 @@ static int ice_vc_cfg_promiscuous_mode_m
+ 			goto error_param;
+ 		}
+ 	} else {
+-		enum ice_status status;
+-		u8 promisc_m;
++		u8 mcast_m, ucast_m;
  
--	for (prev = &max3421_hcd_list; *prev; prev = &(*prev)->next) {
--		max3421_hcd = *prev;
--		hcd = max3421_to_hcd(max3421_hcd);
--		if (hcd->self.controller == &spi->dev)
--			break;
--	}
--	if (!max3421_hcd) {
--		dev_err(&spi->dev, "no MAX3421 HCD found for SPI device %p\n",
--			spi);
--		return -ENODEV;
--	}
-+	max3421_hcd = spi_get_drvdata(spi);
-+	hcd = max3421_to_hcd(max3421_hcd);
+-		if (alluni) {
+-			if (vf->port_vlan_info || vsi->num_vlan)
+-				promisc_m = ICE_UCAST_VLAN_PROMISC_BITS;
+-			else
+-				promisc_m = ICE_UCAST_PROMISC_BITS;
+-		} else if (allmulti) {
+-			if (vf->port_vlan_info || vsi->num_vlan)
+-				promisc_m = ICE_MCAST_VLAN_PROMISC_BITS;
+-			else
+-				promisc_m = ICE_MCAST_PROMISC_BITS;
++		if (vf->port_vlan_info || vsi->num_vlan > 1) {
++			mcast_m = ICE_MCAST_VLAN_PROMISC_BITS;
++			ucast_m = ICE_UCAST_VLAN_PROMISC_BITS;
+ 		} else {
+-			if (vf->port_vlan_info || vsi->num_vlan)
+-				promisc_m = ICE_UCAST_VLAN_PROMISC_BITS;
+-			else
+-				promisc_m = ICE_UCAST_PROMISC_BITS;
++			mcast_m = ICE_MCAST_PROMISC_BITS;
++			ucast_m = ICE_UCAST_PROMISC_BITS;
+ 		}
  
- 	usb_remove_hcd(hcd);
+-		/* Configure multicast/unicast with or without VLAN promiscuous
+-		 * mode
+-		 */
+-		status = ice_vf_set_vsi_promisc(vf, vsi, promisc_m, rm_promisc);
+-		if (status) {
+-			dev_err(dev, "%sable Tx/Rx filter promiscuous mode on VF-%d failed, error: %s\n",
+-				rm_promisc ? "dis" : "en", vf->vf_id,
+-				ice_stat_str(status));
+-			v_ret = ice_err_to_virt_err(status);
+-			goto error_param;
+-		} else {
+-			dev_dbg(dev, "%sable Tx/Rx filter promiscuous mode on VF-%d succeeded\n",
+-				rm_promisc ? "dis" : "en", vf->vf_id);
++		ucast_status = ice_vf_set_vsi_promisc(vf, vsi, ucast_m,
++						      !alluni);
++		if (ucast_status) {
++			dev_err(dev, "%sable Tx/Rx filter promiscuous mode on VF-%d failed\n",
++				alluni ? "en" : "dis", vf->vf_id);
++			v_ret = ice_err_to_virt_err(ucast_status);
++		}
++
++		mcast_status = ice_vf_set_vsi_promisc(vf, vsi, mcast_m,
++						      !allmulti);
++		if (mcast_status) {
++			dev_err(dev, "%sable Tx/Rx filter promiscuous mode on VF-%d failed\n",
++				allmulti ? "en" : "dis", vf->vf_id);
++			v_ret = ice_err_to_virt_err(mcast_status);
+ 		}
+ 	}
  
- 	spin_lock_irqsave(&max3421_hcd->lock, flags);
+-	if (allmulti &&
+-	    !test_and_set_bit(ICE_VF_STATE_MC_PROMISC, vf->vf_states))
+-		dev_info(dev, "VF %u successfully set multicast promiscuous mode\n", vf->vf_id);
+-	else if (!allmulti && test_and_clear_bit(ICE_VF_STATE_MC_PROMISC, vf->vf_states))
+-		dev_info(dev, "VF %u successfully unset multicast promiscuous mode\n", vf->vf_id);
+-
+-	if (alluni && !test_and_set_bit(ICE_VF_STATE_UC_PROMISC, vf->vf_states))
+-		dev_info(dev, "VF %u successfully set unicast promiscuous mode\n", vf->vf_id);
+-	else if (!alluni && test_and_clear_bit(ICE_VF_STATE_UC_PROMISC, vf->vf_states))
+-		dev_info(dev, "VF %u successfully unset unicast promiscuous mode\n", vf->vf_id);
++	if (!mcast_status) {
++		if (allmulti &&
++		    !test_and_set_bit(ICE_VF_STATE_MC_PROMISC, vf->vf_states))
++			dev_info(dev, "VF %u successfully set multicast promiscuous mode\n",
++				 vf->vf_id);
++		else if (!allmulti && test_and_clear_bit(ICE_VF_STATE_MC_PROMISC, vf->vf_states))
++			dev_info(dev, "VF %u successfully unset multicast promiscuous mode\n",
++				 vf->vf_id);
++	}
++
++	if (!ucast_status) {
++		if (alluni && !test_and_set_bit(ICE_VF_STATE_UC_PROMISC, vf->vf_states))
++			dev_info(dev, "VF %u successfully set unicast promiscuous mode\n",
++				 vf->vf_id);
++		else if (!alluni && test_and_clear_bit(ICE_VF_STATE_UC_PROMISC, vf->vf_states))
++			dev_info(dev, "VF %u successfully unset unicast promiscuous mode\n",
++				 vf->vf_id);
++	}
  
- 	kthread_stop(max3421_hcd->spi_thread);
--	*prev = max3421_hcd->next;
- 
- 	spin_unlock_irqrestore(&max3421_hcd->lock, flags);
- 
+ error_param:
+ 	return ice_vc_send_msg_to_vf(vf, VIRTCHNL_OP_CONFIG_PROMISCUOUS_MODE,
 
 
