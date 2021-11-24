@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F6645BD90
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:36:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 325F645BB5E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:17:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244046AbhKXMjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:39:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40402 "EHLO mail.kernel.org"
+        id S242485AbhKXMTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:19:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242823AbhKXMg7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:36:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6D2B611C4;
-        Wed, 24 Nov 2021 12:22:20 +0000 (UTC)
+        id S242199AbhKXMQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:16:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2E456109E;
+        Wed, 24 Nov 2021 12:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756541;
-        bh=uAh8D7HSVUN4rFXA/roKaYfVLyeStFPOWFynj1PVR+4=;
+        s=korg; t=1637755835;
+        bh=I4SmqnossPhHxOXUZ77imqOgFRIT8hdLs0FlF0lcN0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9egRydtIuvgr2wEOC4TE/POoInyX+uUDZpKKMYFnQR32aDMX35g1xfOdGyW3I31f
-         ACePttT6Lpr16REAVLQv/8lAsmiI6SbGEMJZvz5WlHe/GiggFtD/KzBEskXEFsU0U3
-         tJ75N/I+kAR0QUZjCwtR7RKOe8L3e2vgfXZklMPY=
+        b=HEPPVb+Zq7PdJxNVpyra207s+NbBTrJdHUhYj/6zXz5tFeWGNifAXmnz5WPut9FCV
+         qvbSv+AIGmeTUOXYM/yQg68EJJ1o/Xt5D1MI68UD6ZRBVJsXkipCZ9FT99ac5/oPUD
+         JbXaF83JhcHZvaH69m9EBMkqfTGjpIZINDAWWa60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 104/251] task_stack: Fix end_of_stack() for architectures with upwards-growing stack
+Subject: [PATCH 4.9 075/207] memstick: r592: Fix a UAF bug when removing the driver
 Date:   Wed, 24 Nov 2021 12:55:46 +0100
-Message-Id: <20211124115713.860959194@linuxfoundation.org>
+Message-Id: <20211124115706.340214664@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 9cc2fa4f4a92ccc6760d764e7341be46ee8aaaa1 ]
+[ Upstream commit 738216c1953e802aa9f930c5d15b8f9092c847ff ]
 
-The function end_of_stack() returns a pointer to the last entry of a
-stack. For architectures like parisc where the stack grows upwards
-return the pointer to the highest address in the stack.
+In r592_remove(), the driver will free dma after freeing the host, which
+may cause a UAF bug.
 
-Without this change I faced a crash on parisc, because the stackleak
-functionality wrote STACKLEAK_POISON to the lowest address and thus
-overwrote the first 4 bytes of the task_struct which included the
-TIF_FLAGS.
+The following log reveals it:
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+[   45.361796 ] BUG: KASAN: use-after-free in r592_remove+0x269/0x350 [r592]
+[   45.364286 ] Call Trace:
+[   45.364472 ]  dump_stack_lvl+0xa8/0xd1
+[   45.364751 ]  print_address_description+0x87/0x3b0
+[   45.365137 ]  kasan_report+0x172/0x1c0
+[   45.365415 ]  ? r592_remove+0x269/0x350 [r592]
+[   45.365834 ]  ? r592_remove+0x269/0x350 [r592]
+[   45.366168 ]  __asan_report_load8_noabort+0x14/0x20
+[   45.366531 ]  r592_remove+0x269/0x350 [r592]
+[   45.378785 ]
+[   45.378903 ] Allocated by task 4674:
+[   45.379162 ]  ____kasan_kmalloc+0xb5/0xe0
+[   45.379455 ]  __kasan_kmalloc+0x9/0x10
+[   45.379730 ]  __kmalloc+0x150/0x280
+[   45.379984 ]  memstick_alloc_host+0x2a/0x190
+[   45.380664 ]
+[   45.380781 ] Freed by task 5509:
+[   45.381014 ]  kasan_set_track+0x3d/0x70
+[   45.381293 ]  kasan_set_free_info+0x23/0x40
+[   45.381635 ]  ____kasan_slab_free+0x10b/0x140
+[   45.381950 ]  __kasan_slab_free+0x11/0x20
+[   45.382241 ]  slab_free_freelist_hook+0x81/0x150
+[   45.382575 ]  kfree+0x13e/0x290
+[   45.382805 ]  memstick_free+0x1c/0x20
+[   45.383070 ]  device_release+0x9c/0x1d0
+[   45.383349 ]  kobject_put+0x2ef/0x4c0
+[   45.383616 ]  put_device+0x1f/0x30
+[   45.383865 ]  memstick_free_host+0x24/0x30
+[   45.384162 ]  r592_remove+0x242/0x350 [r592]
+[   45.384473 ]  pci_device_remove+0xa9/0x250
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/1634383581-11055-1-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched/task_stack.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/memstick/host/r592.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/sched/task_stack.h b/include/linux/sched/task_stack.h
-index cb4828aaa34fd..3461beb89b040 100644
---- a/include/linux/sched/task_stack.h
-+++ b/include/linux/sched/task_stack.h
-@@ -25,7 +25,11 @@ static inline void *task_stack_page(const struct task_struct *task)
+diff --git a/drivers/memstick/host/r592.c b/drivers/memstick/host/r592.c
+index 2539984c1db1c..256634ec58b63 100644
+--- a/drivers/memstick/host/r592.c
++++ b/drivers/memstick/host/r592.c
+@@ -841,15 +841,15 @@ static void r592_remove(struct pci_dev *pdev)
+ 	}
+ 	memstick_remove_host(dev->host);
  
- static inline unsigned long *end_of_stack(const struct task_struct *task)
- {
-+#ifdef CONFIG_STACK_GROWSUP
-+	return (unsigned long *)((unsigned long)task->stack + THREAD_SIZE) - 1;
-+#else
- 	return task->stack;
-+#endif
++	if (dev->dummy_dma_page)
++		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
++			dev->dummy_dma_page_physical_address);
++
+ 	free_irq(dev->irq, dev);
+ 	iounmap(dev->mmio);
+ 	pci_release_regions(pdev);
+ 	pci_disable_device(pdev);
+ 	memstick_free_host(dev->host);
+-
+-	if (dev->dummy_dma_page)
+-		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
+-			dev->dummy_dma_page_physical_address);
  }
  
- #elif !defined(__HAVE_THREAD_FUNCTIONS)
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.33.0
 
