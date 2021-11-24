@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4721645BC70
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:28:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F2045BEAC
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:47:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243925AbhKXMax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:30:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41754 "EHLO mail.kernel.org"
+        id S244280AbhKXMth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:49:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244116AbhKXM1n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:27:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBAEC6125F;
-        Wed, 24 Nov 2021 12:16:53 +0000 (UTC)
+        id S1345389AbhKXMrj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:47:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FFF361263;
+        Wed, 24 Nov 2021 12:27:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756214;
-        bh=SyEY5IiO48FAb4rj+Fj4bafORYTGVHyZb4Rm939g6a4=;
+        s=korg; t=1637756867;
+        bh=lcAMPWBe99l55Kq0vLMXX+V+uJFrqbZcZWfVapRskv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rfdw64s9xR0scHDT1A/unGgUd05k/XgXRU86LjqepffyaVKgmSnXgqZ7Cf8Et5njC
-         uBYMlWp77nYGvWzYO3CQxGts9piU/7zYKINxlWOTjUVdPg9U6Jcksz0YYB3paRRivT
-         Xz9LYh3uVsjrRCzmav8rjKjzjHRjJHWdWzXiaEJo=
+        b=isW/oFUd0NyZjTQeLgPoeBLgVpVxWTYXvLFoQnleetHiIXcInVf04Y32sI++eMU50
+         1JdX2+SXKai1H3Kxc2ei6FmP3sKbZ/LeL2ZhiLWKhsFcLerfNHB5p/DpQSSdBN1VAr
+         HqS/wrDZgtpDRphKuBCwlCKw35M/GpYBtnu4tVXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu-Hsuan Hsu <yuhsuan@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 205/207] ASoC: DAPM: Cover regression by kctl change notification fix
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 234/251] tun: fix bonding active backup with arp monitoring
 Date:   Wed, 24 Nov 2021 12:57:56 +0100
-Message-Id: <20211124115710.585316716@linuxfoundation.org>
+Message-Id: <20211124115718.444003202@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,82 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit 827b0913a9d9d07a0c3e559dbb20ca4d6d285a54 upstream.
+commit a31d27fbed5d518734cb60956303eb15089a7634 upstream.
 
-The recent fix for DAPM to correct the kctl change notification by the
-commit 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change
-notifications") caused other regressions since it changed the behavior
-of snd_soc_dapm_set_pin() that is called from several API functions.
-Formerly it returned always 0 for success, but now it returns 0 or 1.
+As stated in the bonding doc, trans_start must be set manually for drivers
+using NETIF_F_LLTX:
+ Drivers that use NETIF_F_LLTX flag must also update
+ netdev_queue->trans_start. If they do not, then the ARP monitor will
+ immediately fail any slaves using that driver, and those slaves will stay
+ down.
 
-This patch addresses it, restoring the old behavior of
-snd_soc_dapm_set_pin() while keeping the fix in
-snd_soc_dapm_put_pin_switch().
-
-Fixes: 5af82c81b2c4 ("ASoC: DAPM: Fix missing kctl change notifications")
-Reported-by: Yu-Hsuan Hsu <yuhsuan@chromium.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211105090925.20575-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://www.kernel.org/doc/html/v5.15/networking/bonding.html#arp-monitor-operation
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-dapm.c |   29 +++++++++++++++++++++++------
- 1 file changed, 23 insertions(+), 6 deletions(-)
+ drivers/net/tun.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2406,8 +2406,13 @@ static struct snd_soc_dapm_widget *dapm_
- 	return NULL;
- }
- 
--static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
--				const char *pin, int status)
-+/*
-+ * set the DAPM pin status:
-+ * returns 1 when the value has been updated, 0 when unchanged, or a negative
-+ * error code; called from kcontrol put callback
-+ */
-+static int __snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
-+				  const char *pin, int status)
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -858,6 +858,7 @@ static netdev_tx_t tun_net_xmit(struct s
  {
- 	struct snd_soc_dapm_widget *w = dapm_find_widget(dapm, pin, true);
- 	int ret = 0;
-@@ -2433,6 +2438,18 @@ static int snd_soc_dapm_set_pin(struct s
- 	return ret;
- }
+ 	struct tun_struct *tun = netdev_priv(dev);
+ 	int txq = skb->queue_mapping;
++	struct netdev_queue *queue;
+ 	struct tun_file *tfile;
+ 	u32 numqueues = 0;
  
-+/*
-+ * similar as __snd_soc_dapm_set_pin(), but returns 0 when successful;
-+ * called from several API functions below
-+ */
-+static int snd_soc_dapm_set_pin(struct snd_soc_dapm_context *dapm,
-+				const char *pin, int status)
-+{
-+	int ret = __snd_soc_dapm_set_pin(dapm, pin, status);
+@@ -916,6 +917,10 @@ static netdev_tx_t tun_net_xmit(struct s
+ 	if (skb_array_produce(&tfile->tx_array, skb))
+ 		goto drop;
+ 
++	/* NETIF_F_LLTX requires to do our own update of trans_start */
++	queue = netdev_get_tx_queue(dev, txq);
++	queue->trans_start = jiffies;
 +
-+	return ret < 0 ? ret : 0;
-+}
-+
- /**
-  * snd_soc_dapm_sync_unlocked - scan and power dapm paths
-  * @dapm: DAPM context
-@@ -3327,10 +3344,10 @@ int snd_soc_dapm_put_pin_switch(struct s
- 	const char *pin = (const char *)kcontrol->private_value;
- 	int ret;
- 
--	if (ucontrol->value.integer.value[0])
--		ret = snd_soc_dapm_enable_pin(&card->dapm, pin);
--	else
--		ret = snd_soc_dapm_disable_pin(&card->dapm, pin);
-+	mutex_lock_nested(&card->dapm_mutex, SND_SOC_DAPM_CLASS_RUNTIME);
-+	ret = __snd_soc_dapm_set_pin(&card->dapm, pin,
-+				     !!ucontrol->value.integer.value[0]);
-+	mutex_unlock(&card->dapm_mutex);
- 
- 	snd_soc_dapm_sync(&card->dapm);
- 	return ret;
+ 	/* Notify and wake up reader process */
+ 	if (tfile->flags & TUN_FASYNC)
+ 		kill_fasync(&tfile->fasync, SIGIO, POLL_IN);
 
 
