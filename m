@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01BD045BF04
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:51:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7464C45BF01
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:51:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344152AbhKXMy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:54:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56302 "EHLO mail.kernel.org"
+        id S1344004AbhKXMy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:54:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345200AbhKXMuR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345295AbhKXMuR (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 24 Nov 2021 07:50:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F7B561452;
-        Wed, 24 Nov 2021 12:29:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2469261359;
+        Wed, 24 Nov 2021 12:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756958;
-        bh=zn+V9zvLUAQFJ1PZryUNmEyAjoqNfZiNBDd8fnudbfM=;
+        s=korg; t=1637756961;
+        bh=3eb02fOAVvJb3LjolS7aFF0nn7duwXe5v6ADuOaKRes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tfPlI28BBilIgt6IBky1T76B7cdmkDbaM6+2JYlF+jeY21ZP0Ybclwc2IFF4eA9qh
-         qnj+gVlAHJPDCeCwK9HcZZbhi+JSWTOWHM+Ckeur1qNxELPYu09Nu8TQoGH3lwz8On
-         Tp7WgyXkdZh21GgKWsg4fxTgh/oFWUnEZJEuSVUk=
+        b=bCp1Y8LnvfrD7HBn3FzbQfFdCm3SgI5awVebQX+hLTExQDgpQdJizT0+fisNr1O5M
+         I+WVYmedYtxOutWbd7ysESJ97PWlbIyXPKDfjq7hBi3MVzhxHjcaI8a5XzRe3TYgjP
+         moYGEFHKpCttoZtkOb7D75Iwfdf18Ia0Gfa0kslw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Walt Jr. Brake" <mr.yming81@gmail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 001/323] xhci: Fix USB 3.1 enumeration issues by increasing roothub power-on-good delay
-Date:   Wed, 24 Nov 2021 12:53:11 +0100
-Message-Id: <20211124115718.869765974@linuxfoundation.org>
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Jann Horn <jannh@google.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.19 002/323] binder: use euid from cred instead of using task
+Date:   Wed, 24 Nov 2021 12:53:12 +0100
+Message-Id: <20211124115718.907050664@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
 References: <20211124115718.822024889@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,58 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Todd Kjos <tkjos@google.com>
 
-commit e1959faf085b004e6c3afaaaa743381f00e7c015 upstream.
+commit 29bc22ac5e5bc63275e850f0c8fc549e3d0e306b upstream.
 
-Some USB 3.1 enumeration issues were reported after the hub driver removed
-the minimum 100ms limit for the power-on-good delay.
+Save the 'struct cred' associated with a binder process
+at initial open to avoid potential race conditions
+when converting to an euid.
 
-Since commit 90d28fb53d4a ("usb: core: reduce power-on-good delay time of
-root hub") the hub driver sets the power-on-delay based on the
-bPwrOn2PwrGood value in the hub descriptor.
+Set a transaction's sender_euid from the 'struct cred'
+saved at binder_open() instead of looking up the euid
+from the binder proc's 'struct task'. This ensures
+the euid is associated with the security context that
+of the task that opened binder.
 
-xhci driver has a 20ms bPwrOn2PwrGood value for both roothubs based
-on xhci spec section 5.4.8, but it's clearly not enough for the
-USB 3.1 devices, causing enumeration issues.
-
-Tests indicate full 100ms delay is needed.
-
-Reported-by: Walt Jr. Brake <mr.yming81@gmail.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Fixes: 90d28fb53d4a ("usb: core: reduce power-on-good delay time of root hub")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211105160036.549516-1-mathias.nyman@linux.intel.com
+Cc: stable@vger.kernel.org # 4.4+
+Fixes: 457b9a6f09f0 ("Staging: android: add binder driver")
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Suggested-by: Jann Horn <jannh@google.com>
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/host/xhci-hub.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -171,7 +171,6 @@ static void xhci_common_hub_descriptor(s
- {
- 	u16 temp;
- 
--	desc->bPwrOn2PwrGood = 10;	/* xhci section 5.4.9 says 20ms max */
- 	desc->bHubContrCurrent = 0;
- 
- 	desc->bNbrPorts = ports;
-@@ -206,6 +205,7 @@ static void xhci_usb2_hub_descriptor(str
- 	desc->bDescriptorType = USB_DT_HUB;
- 	temp = 1 + (ports / 8);
- 	desc->bDescLength = USB_DT_HUB_NONVAR_SIZE + 2 * temp;
-+	desc->bPwrOn2PwrGood = 10;	/* xhci section 5.4.8 says 20ms */
- 
- 	/* The Device Removable bits are reported on a byte granularity.
- 	 * If the port doesn't exist within that byte, the bit is set to 0.
-@@ -258,6 +258,7 @@ static void xhci_usb3_hub_descriptor(str
- 	xhci_common_hub_descriptor(xhci, desc, ports);
- 	desc->bDescriptorType = USB_DT_SS_HUB;
- 	desc->bDescLength = USB_DT_SS_HUB_SIZE;
-+	desc->bPwrOn2PwrGood = 50;	/* usb 3.1 may fail if less than 100ms */
- 
- 	/* header decode latency should be zero for roothubs,
- 	 * see section 4.23.5.2.
+---
+ drivers/android/binder.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -483,6 +483,9 @@ enum binder_deferred_state {
+  * @files                 files_struct for process
+  *                        (protected by @files_lock)
+  * @files_lock            mutex to protect @files
++ * @cred                  struct cred associated with the `struct file`
++ *                        in binder_open()
++ *                        (invariant after initialized)
+  * @deferred_work_node:   element for binder_deferred_list
+  *                        (protected by binder_deferred_lock)
+  * @deferred_work:        bitmap of deferred work to perform
+@@ -529,6 +532,7 @@ struct binder_proc {
+ 	struct task_struct *tsk;
+ 	struct files_struct *files;
+ 	struct mutex files_lock;
++	const struct cred *cred;
+ 	struct hlist_node deferred_work_node;
+ 	int deferred_work;
+ 	bool is_dead;
+@@ -2962,7 +2966,7 @@ static void binder_transaction(struct bi
+ 		t->from = thread;
+ 	else
+ 		t->from = NULL;
+-	t->sender_euid = task_euid(proc->tsk);
++	t->sender_euid = proc->cred->euid;
+ 	t->to_proc = target_proc;
+ 	t->to_thread = target_thread;
+ 	t->code = tr->code;
+@@ -4341,6 +4345,7 @@ static void binder_free_proc(struct bind
+ 	BUG_ON(!list_empty(&proc->delivered_death));
+ 	binder_alloc_deferred_release(&proc->alloc);
+ 	put_task_struct(proc->tsk);
++	put_cred(proc->cred);
+ 	binder_stats_deleted(BINDER_STAT_PROC);
+ 	kfree(proc);
+ }
+@@ -4799,6 +4804,7 @@ static int binder_open(struct inode *nod
+ 	get_task_struct(current->group_leader);
+ 	proc->tsk = current->group_leader;
+ 	mutex_init(&proc->files_lock);
++	proc->cred = get_cred(filp->f_cred);
+ 	INIT_LIST_HEAD(&proc->todo);
+ 	proc->default_priority = task_nice(current);
+ 	binder_dev = container_of(filp->private_data, struct binder_device,
 
 
