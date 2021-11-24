@@ -2,127 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAAEA45C7F1
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:49:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFE6845C808
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:52:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357738AbhKXOwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 09:52:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51550 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357719AbhKXOv7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 09:51:59 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41D0AC04FDCF
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 06:39:29 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id fv9-20020a17090b0e8900b001a6a5ab1392so2929522pjb.1
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 06:39:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=QLoBXFiklofZQk5QymIS6oJMtAzL96/pV6A4bMPKR44=;
-        b=4TbdBf7aVy2h8YATg54R3iyuSa2uys8+kZX6YqXq7JBUg+TWC51BkP9JYId9hL3ESD
-         1D5/nitq6EV0kxZdi7euQaEWdiB2uJT1do5szhQVRZCv4Ynkm12kJXv5+8JabrUW96pU
-         VaGLGv98abVrADLuJp6etXifhOXkUgfjLE8jM553p/mCuRNVV5FRrIwbbEJa7vi4MESY
-         VMQtDTCx1E1Zfc2YMWWJSItJbvme4uC0Rl1S+38zL8M9+INUKLQfB90hY2jmemVuj0Ek
-         JY2/asMWfZ0RvVVdaMe9vySsSoe8YisPgSkXiObP0pBQZEl6hYGpi3BpSm20KldW7bXY
-         lrRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=QLoBXFiklofZQk5QymIS6oJMtAzL96/pV6A4bMPKR44=;
-        b=Ss2v0x2fuSm7LhiEeoXtOYZuwVipL+fKe2d7XRxL0Jexu6uNfVI01YDYjoRbpKJSOR
-         RAb3oK0k0KSfbOrK+pX2rUUAEam4kvBy1CQOyaaUt6DYpvT5is47eo7L8ON2G9nQgVoB
-         NOc4i5fBo/6IQuTyuz/iyiJj+hAJehA/FQqG6EE7B/Ruypa11rTOv+8R3tByVezAl4x4
-         QAn0zqAoAr5gk2zXbtmgG7WxLJlseRzGmijTrcvPMhXaru4vTESwfN6iD5pPcjFgCCVH
-         vnHGEmtzZPaVhiRFG0kQKXW9fJ43BxcoSTarhG66HJM50chWsijw8GE4mM0htYuLv5Q+
-         vHLA==
-X-Gm-Message-State: AOAM533hlUPQIHL4m8Re07SjowZwQuzIN1fX/87eoGzZ9vvqc7/wELxC
-        UDfwTMEDLH/9zFTOkXwrTNQFDDIh1z0cb0XE
-X-Google-Smtp-Source: ABdhPJxDdVPLkSrEIgkppZoIdnWHUGopp8k24O5sUafFjb7kfpoknhoRUxzRjQom6aRiSqc4Vhw5Nw==
-X-Received: by 2002:a17:90a:b107:: with SMTP id z7mr9396333pjq.104.1637764768635;
-        Wed, 24 Nov 2021 06:39:28 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o23sm5667652pfp.209.2021.11.24.06.39.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Nov 2021 06:39:28 -0800 (PST)
-Message-ID: <619e4ea0.1c69fb81.881f.d0d8@mx.google.com>
-Date:   Wed, 24 Nov 2021 06:39:28 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.290-206-g3294e9e5f0d89
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.9 baseline: 80 runs,
- 1 regressions (v4.9.290-206-g3294e9e5f0d89)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1348599AbhKXOzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:55:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53292 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1344961AbhKXOzg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:55:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6990D60524;
+        Wed, 24 Nov 2021 14:52:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637765547;
+        bh=5dhCOHOPDLaykpUjwDvndyMO8fDWAczCxAEVkK7Z7WM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=pxZMCdE36FKsG3OKrHfqS8gJ/XQb+zDkgcjWs1LT1CwIW6boCLsAc62ocselrpKPc
+         do1tVWsaG4Fm5fpODLW3v0sz1ovCTL9oSrw0M211Nd5u0FDuAFQ/EG6lu5/9bTKcLQ
+         hcL5k+GW46zEtP7RRGxygNDt+KWrCqkcuW4y9GzagvtATa5m/TfiKuY1jL0tS9P0Lg
+         xuCLDg6JqNaeLjtgx/nZ2sn8KZFLdcgN0vGmLa333f2d886diok6nCi9bfS7PabdnA
+         LKdtZ6gTTkzXkJvIP8bTPeCwJlJW7ZSqg+4xyE9CDrFnIdHx+Eddut/ZnTqXQmz+B0
+         Qo3k1AQcPC+UQ==
+From:   SeongJae Park <sj@kernel.org>
+To:     akpm@linux-foundation.org
+Cc:     shakeelb@google.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, SeongJae Park <sj@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] mm/damon/core: Avoid fake load reports due to uninterruptible sleeps
+Date:   Wed, 24 Nov 2021 14:52:19 +0000
+Message-Id: <20211124145219.32866-1-sj@kernel.org>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 80 runs, 1 regressions (v4.9.290-206-g3294e9e=
-5f0d89)
+Because DAMON sleeps in uninterruptible mode, /proc/loadavg reports fake
+load while DAMON is turned on, though it is doing nothing.  This can
+confuse users[1].  To avoid the case, this commit makes DAMON sleeps in
+idle mode.
 
-Regressions Summary
--------------------
+[1] https://lore.kernel.org/all/11868371.O9o76ZdvQC@natalenko.name/
 
-platform    | arch   | lab     | compiler | defconfig                    | =
-regressions
-------------+--------+---------+----------+------------------------------+-=
------------
-qemu_x86_64 | x86_64 | lab-cip | gcc-10   | x86_64_defcon...6-chromebook | =
-1          =
+Fixes: 2224d8485492 ("mm: introduce Data Access MONitor (DAMON)")
+Reported-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+Signed-off-by: SeongJae Park <sj@kernel.org>
+Cc: <stable@vger.kernel.org> # 5.15.x
+---
+I think this needs to be applied on v5.15.y, but this cannot cleanly
+applied there as is.  I will back-port this on v5.15.y and post later
+once this is merged in the mainline.
 
+ mm/damon/core.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.290-206-g3294e9e5f0d89/plan/baseline/
+diff --git a/mm/damon/core.c b/mm/damon/core.c
+index daacd9536c7c..7813f47aadc9 100644
+--- a/mm/damon/core.c
++++ b/mm/damon/core.c
+@@ -12,6 +12,8 @@
+ #include <linux/kthread.h>
+ #include <linux/mm.h>
+ #include <linux/random.h>
++#include <linux/sched.h>
++#include <linux/sched/debug.h>
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ 
+@@ -976,12 +978,25 @@ static unsigned long damos_wmark_wait_us(struct damos *scheme)
+ 	return 0;
+ }
+ 
++/* sleep for @usecs in idle mode */
++static void __sched damon_usleep_idle(unsigned long usecs)
++{
++	ktime_t exp = ktime_add_us(ktime_get(), usecs);
++	u64 delta = usecs * NSEC_PER_USEC / 100;	/* allow 1% error */
++
++	for (;;) {
++		__set_current_state(TASK_IDLE);
++		if (!schedule_hrtimeout_range(&exp, delta, HRTIMER_MODE_ABS))
++			break;
++	}
++}
++
+ static void kdamond_usleep(unsigned long usecs)
+ {
+ 	if (usecs > 100 * 1000)
+-		schedule_timeout_interruptible(usecs_to_jiffies(usecs));
++		schedule_timeout_idle(usecs_to_jiffies(usecs));
+ 	else
+-		usleep_range(usecs, usecs + 1);
++		damon_usleep_idle(usecs);
+ }
+ 
+ /* Returns negative error code if it's not activated but should return */
+@@ -1036,7 +1051,7 @@ static int kdamond_fn(void *data)
+ 				ctx->callback.after_sampling(ctx))
+ 			done = true;
+ 
+-		usleep_range(ctx->sample_interval, ctx->sample_interval + 1);
++		kdamond_usleep(ctx->sample_interval);
+ 
+ 		if (ctx->primitive.check_accesses)
+ 			max_nr_accesses = ctx->primitive.check_accesses(ctx);
+-- 
+2.17.1
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.290-206-g3294e9e5f0d89
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3294e9e5f0d8932860ead7f4bdc4c87eabf2fb8e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform    | arch   | lab     | compiler | defconfig                    | =
-regressions
-------------+--------+---------+----------+------------------------------+-=
------------
-qemu_x86_64 | x86_64 | lab-cip | gcc-10   | x86_64_defcon...6-chromebook | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/619e15ad2b5ed121dcf2efce
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.290-2=
-06-g3294e9e5f0d89/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-cip/bas=
-eline-qemu_x86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.290-2=
-06-g3294e9e5f0d89/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-cip/bas=
-eline-qemu_x86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/619e15ad2b5ed121dcf2e=
-fcf
-        new failure (last pass: v4.9.290-204-g6644175930559) =
-
- =20
