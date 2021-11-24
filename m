@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF0A45BCD7
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A62245BACF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245199AbhKXMcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:32:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49554 "EHLO mail.kernel.org"
+        id S242600AbhKXMOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:14:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244010AbhKXMa5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:30:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60ABE61354;
-        Wed, 24 Nov 2021 12:19:24 +0000 (UTC)
+        id S243389AbhKXMOA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:14:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 077036115B;
+        Wed, 24 Nov 2021 12:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756364;
-        bh=MO9zNwTk5kQxaTP2e4taKjS1In9kHauVqQCdKI46FIA=;
+        s=korg; t=1637755713;
+        bh=XdNp5BEcKzHqxCQE890MTFd55JmUkz7siSqjavlsTS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dLCqu+psfz2sdf1MKfOeARv9HkvJSDt4GqY8NmgOwJ7tEN4vc2P0C+RTKth9wfVVL
-         ptr3P7BElWOE47NwmhQDNTrPTPhVftgJ1sYF2PhYx7+UlFe4va3XKaSyutyMSlmWZu
-         tZRLUzsXWytR4cSMWB/NjfxBBFaXj/mzkls4PcGk=
+        b=bhQJM5Yq9sovpfZVi0quI+VRConM8PLXYQDY1HjOOkgMaxkAzBl1YbGAlnMgjykNe
+         cQQSpNniYfgkkaE/GAtJB0qKY6Obz5vG8luMgzqcbahU7h01F4RjN+0408SqktngYA
+         nrY1PbKz1IH4lMxpSpMHkT307SxDGQbd7L0/KbAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 4.14 060/251] PCI: aardvark: Fix return value of MSI domain .alloc() method
+        stable@vger.kernel.org, Meeta Saggi <msaggi@purestorage.com>,
+        Eric Badger <ebadger@purestorage.com>,
+        Tony Luck <tony.luck@intel.com>
+Subject: [PATCH 4.9 031/207] EDAC/sb_edac: Fix top-of-high-memory value for Broadwell/Haswell
 Date:   Wed, 24 Nov 2021 12:55:02 +0100
-Message-Id: <20211124115712.331915465@linuxfoundation.org>
+Message-Id: <20211124115704.958091457@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Eric Badger <ebadger@purestorage.com>
 
-commit e4313be1599d397625c14fb7826996813622decf upstream.
+commit 537bddd069c743759addf422d0b8f028ff0f8dbc upstream.
 
-MSI domain callback .alloc() (implemented by advk_msi_irq_domain_alloc()
-function) should return zero on success, since non-zero value indicates
-failure.
+The computation of TOHM is off by one bit. This missed bit results in
+too low a value for TOHM, which can cause errors in regular memory to
+incorrectly report:
 
-When the driver was converted to generic MSI API in commit f21a8b1b6837
-("PCI: aardvark: Move to MSI handling using generic MSI support"), it
-was converted so that it returns hwirq number.
+  EDAC MC0: 1 CE Error at MMIOH area, on addr 0x000000207fffa680 on any memory
 
-Fix this.
-
-Link: https://lore.kernel.org/r/20211028185659.20329-3-kabel@kernel.org
-Fixes: f21a8b1b6837 ("PCI: aardvark: Move to MSI handling using generic MSI support")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Fixes: 50d1bb93672f ("sb_edac: add support for Haswell based systems")
 Cc: stable@vger.kernel.org
+Reported-by: Meeta Saggi <msaggi@purestorage.com>
+Signed-off-by: Eric Badger <ebadger@purestorage.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Link: https://lore.kernel.org/r/20211010170127.848113-1-ebadger@purestorage.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/host/pci-aardvark.c |    2 +-
+ drivers/edac/sb_edac.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/host/pci-aardvark.c
-+++ b/drivers/pci/host/pci-aardvark.c
-@@ -662,7 +662,7 @@ static int advk_msi_irq_domain_alloc(str
- 				    domain->host_data, handle_simple_irq,
- 				    NULL, NULL);
+--- a/drivers/edac/sb_edac.c
++++ b/drivers/edac/sb_edac.c
+@@ -1009,7 +1009,7 @@ static u64 haswell_get_tohm(struct sbrid
+ 	pci_read_config_dword(pvt->info.pci_vtd, HASWELL_TOHM_1, &reg);
+ 	rc = ((reg << 6) | rc) << 26;
  
--	return hwirq;
-+	return 0;
+-	return rc | 0x1ffffff;
++	return rc | 0x3ffffff;
  }
  
- static void advk_msi_irq_domain_free(struct irq_domain *domain,
+ static u64 knl_get_tolm(struct sbridge_pvt *pvt)
 
 
