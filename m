@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F9ED45C16B
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:16:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F0E945C6FD
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346017AbhKXNRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:17:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36566 "EHLO mail.kernel.org"
+        id S1350802AbhKXORV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:17:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345472AbhKXNPt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:15:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B16B61423;
-        Wed, 24 Nov 2021 12:44:29 +0000 (UTC)
+        id S1349344AbhKXOQ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:16:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E39726159A;
+        Wed, 24 Nov 2021 12:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757870;
-        bh=B4ODsxpiruJaUGGScgU2FjEtJwg3Y03vAbxkG43qM+0=;
+        s=korg; t=1637758524;
+        bh=/7opcFxqInDxfkd75BaBPF5qCWY1Nf8zpI7LSBxZndk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eeCw5wgblYtsjAJ72STIaenr6oUG4jQCWd7obCg9oUxPcg5dwaWyArknKqcwON0I1
-         16tFdj3Brdrt+9POiqPb4FZMnhKSzUjuAJ+cgnIC7BhKemGJmE7T/DI0rr2PYCXvzq
-         0cLGgC2Ol0ACBzdHP388USO7o+kNQ6XpGcdls3eY=
+        b=X4uSFJ8JufIhk6FxJ43/A+JOgbtos8xXoHFd7CP27hVrZkurwKClWT3ETmi/XFB5t
+         it0uhLA/9XtVu0UN6zAU2v2WXXfCu/6BhItWdXFfihzjZLqXM7HgTfTB131cIEiTBY
+         u9gJ2rbisazvNPac36PiGis9WDwm3sIVMhpEqJxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 304/323] tun: fix bonding active backup with arp monitoring
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 098/154] net: dpaa2-eth: fix use-after-free in dpaa2_eth_remove
 Date:   Wed, 24 Nov 2021 12:58:14 +0100
-Message-Id: <20211124115729.172272283@linuxfoundation.org>
+Message-Id: <20211124115705.464830083@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit a31d27fbed5d518734cb60956303eb15089a7634 upstream.
+[ Upstream commit 9b5a333272a48c2f8b30add7a874e46e8b26129c ]
 
-As stated in the bonding doc, trans_start must be set manually for drivers
-using NETIF_F_LLTX:
- Drivers that use NETIF_F_LLTX flag must also update
- netdev_queue->trans_start. If they do not, then the ARP monitor will
- immediately fail any slaves using that driver, and those slaves will stay
- down.
+Access to netdev after free_netdev() will cause use-after-free bug.
+Move debug log before free_netdev() call to avoid it.
 
-Link: https://www.kernel.org/doc/html/v5.15/networking/bonding.html#arp-monitor-operation
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Fixes: 7472dd9f6499 ("staging: fsl-dpaa2/eth: Move print message")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tun.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1085,6 +1085,7 @@ static netdev_tx_t tun_net_xmit(struct s
- {
- 	struct tun_struct *tun = netdev_priv(dev);
- 	int txq = skb->queue_mapping;
-+	struct netdev_queue *queue;
- 	struct tun_file *tfile;
- 	int len = skb->len;
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+index f91c67489e629..a4ef35216e2f7 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+@@ -4432,10 +4432,10 @@ static int dpaa2_eth_remove(struct fsl_mc_device *ls_dev)
  
-@@ -1131,6 +1132,10 @@ static netdev_tx_t tun_net_xmit(struct s
- 	if (ptr_ring_produce(&tfile->tx_ring, skb))
- 		goto drop;
+ 	fsl_mc_portal_free(priv->mc_io);
  
-+	/* NETIF_F_LLTX requires to do our own update of trans_start */
-+	queue = netdev_get_tx_queue(dev, txq);
-+	queue->trans_start = jiffies;
+-	free_netdev(net_dev);
+-
+ 	dev_dbg(net_dev->dev.parent, "Removed interface %s\n", net_dev->name);
+ 
++	free_netdev(net_dev);
 +
- 	/* Notify and wake up reader process */
- 	if (tfile->flags & TUN_FASYNC)
- 		kill_fasync(&tfile->fasync, SIGIO, POLL_IN);
+ 	return 0;
+ }
+ 
+-- 
+2.33.0
+
 
 
