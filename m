@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4C9A45C0A2
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:06:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED52145C509
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:52:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345195AbhKXNJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:09:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
+        id S1348102AbhKXNyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:54:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348259AbhKXNJC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:09:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 762546112E;
-        Wed, 24 Nov 2021 12:40:03 +0000 (UTC)
+        id S1351962AbhKXNwq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:52:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E708B63253;
+        Wed, 24 Nov 2021 13:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757604;
-        bh=NufzgRR9jaHGr3RQ/AN4yYTC2QjS/MPP5Zd1zdSXEt8=;
+        s=korg; t=1637759075;
+        bh=uFf7nlGiy+8P8YwlGzHSY4jxhpTlWoBFly97a3TP54U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRtn7PedqGah75gDNhOZMzoF5LGySC5vmK5y6CX5FcWeqvQWyv4W/4yYiSTVKHfHm
-         eR07eKrYqrqalrg5ghx83eUmZPaFeHEYuhHr/48yuAj+QKChvji7+WmhRj5F76Vv5i
-         JHUcndn8oCGY4U0gRobnWbRlyLOnJP4v5KfAM+pg=
+        b=kST/BW/a3lybALAJ3Uj5M7QBSJ+EbyTLdhvvR7sZd085Wa/PJ7MW0YX5P3578aQW+
+         GaaKLXP5WBQpafj7cwmbHBYZAtzpjiDADiaYoTTy/V1VA2hQ6A1RdCik/02AClZK9N
+         azk/disIA9OHBVRUjAS2cvYYalkVNNH20JXDOT7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Palmer <daniel@0x0f.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Rajendra Nayak <rnayak@codeaurora.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 189/323] serial: 8250_dw: Drop wrong use of ACPI_PTR()
+Subject: [PATCH 5.15 092/279] clk: qcom: gcc-msm8996: Drop (again) gcc_aggre1_pnoc_ahb_clk
 Date:   Wed, 24 Nov 2021 12:56:19 +0100
-Message-Id: <20211124115725.322945582@linuxfoundation.org>
+Message-Id: <20211124115721.961089276@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit ebabb77a2a115b6c5e68f7364b598310b5f61fb2 ]
+[ Upstream commit 05cf3ec00d460b50088d421fb878a0f83f57e262 ]
 
-ACPI_PTR() is more harmful than helpful. For example, in this case
-if CONFIG_ACPI=n, the ID table left unused which is not what we want.
+The gcc_aggre1_pnoc_ahb_clk is crucial for the proper MSM8996/APQ8096
+functioning. If it gets disabled, several subsytems will stop working
+(including eMMC/SDCC and USB). There are no in-kernel users of this
+clock, so it is much simpler to remove from the kernel.
 
-Instead of adding ifdeffery here and there, drop ACPI_PTR().
+The clock was first removed in the commit 9e60de1cf270 ("clk: qcom:
+Remove gcc_aggre1_pnoc_ahb_clk from msm8996") by Stephen Boyd, but got
+added back in the commit b567752144e3 ("clk: qcom: Add some missing gcc
+clks for msm8996") by Rajendra Nayak.
 
-Fixes: 6a7320c4669f ("serial: 8250_dw: Add ACPI 5.0 support")
-Reported-by: Daniel Palmer <daniel@0x0f.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20211005134516.23218-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Let's remove it again in hope that nobody adds it back.
+
+Reported-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Cc: Rajendra Nayak <rnayak@codeaurora.org>
+Cc: Konrad Dybcio <konrad.dybcio@somainline.org>
+Fixes: b567752144e3 ("clk: qcom: Add some missing gcc clks for msm8996")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20211104011155.2209654-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_dw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/qcom/gcc-msm8996.c | 15 ---------------
+ 1 file changed, 15 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
-index 284e8d052fc3c..c73d0eddd9b8d 100644
---- a/drivers/tty/serial/8250/8250_dw.c
-+++ b/drivers/tty/serial/8250/8250_dw.c
-@@ -769,7 +769,7 @@ static struct platform_driver dw8250_platform_driver = {
- 		.name		= "dw-apb-uart",
- 		.pm		= &dw8250_pm_ops,
- 		.of_match_table	= dw8250_of_match,
--		.acpi_match_table = ACPI_PTR(dw8250_acpi_match),
-+		.acpi_match_table = dw8250_acpi_match,
+diff --git a/drivers/clk/qcom/gcc-msm8996.c b/drivers/clk/qcom/gcc-msm8996.c
+index 3c3a7ff045621..9b1674b28d45d 100644
+--- a/drivers/clk/qcom/gcc-msm8996.c
++++ b/drivers/clk/qcom/gcc-msm8996.c
+@@ -2937,20 +2937,6 @@ static struct clk_branch gcc_smmu_aggre0_ahb_clk = {
  	},
- 	.probe			= dw8250_probe,
- 	.remove			= dw8250_remove,
+ };
+ 
+-static struct clk_branch gcc_aggre1_pnoc_ahb_clk = {
+-	.halt_reg = 0x82014,
+-	.clkr = {
+-		.enable_reg = 0x82014,
+-		.enable_mask = BIT(0),
+-		.hw.init = &(struct clk_init_data){
+-			.name = "gcc_aggre1_pnoc_ahb_clk",
+-			.parent_names = (const char *[]){ "periph_noc_clk_src" },
+-			.num_parents = 1,
+-			.ops = &clk_branch2_ops,
+-		},
+-	},
+-};
+-
+ static struct clk_branch gcc_aggre2_ufs_axi_clk = {
+ 	.halt_reg = 0x83014,
+ 	.clkr = {
+@@ -3474,7 +3460,6 @@ static struct clk_regmap *gcc_msm8996_clocks[] = {
+ 	[GCC_AGGRE0_CNOC_AHB_CLK] = &gcc_aggre0_cnoc_ahb_clk.clkr,
+ 	[GCC_SMMU_AGGRE0_AXI_CLK] = &gcc_smmu_aggre0_axi_clk.clkr,
+ 	[GCC_SMMU_AGGRE0_AHB_CLK] = &gcc_smmu_aggre0_ahb_clk.clkr,
+-	[GCC_AGGRE1_PNOC_AHB_CLK] = &gcc_aggre1_pnoc_ahb_clk.clkr,
+ 	[GCC_AGGRE2_UFS_AXI_CLK] = &gcc_aggre2_ufs_axi_clk.clkr,
+ 	[GCC_AGGRE2_USB3_AXI_CLK] = &gcc_aggre2_usb3_axi_clk.clkr,
+ 	[GCC_QSPI_AHB_CLK] = &gcc_qspi_ahb_clk.clkr,
 -- 
 2.33.0
 
