@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D008345BACB
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 046E645BCAF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:29:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242544AbhKXMOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:14:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47684 "EHLO mail.kernel.org"
+        id S242559AbhKXMbq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:31:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243355AbhKXMN5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:13:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CEAF61157;
-        Wed, 24 Nov 2021 12:08:24 +0000 (UTC)
+        id S1344033AbhKXMa0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:30:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6888610A5;
+        Wed, 24 Nov 2021 12:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755705;
-        bh=Z04tR5zMG6RD1G17HoIjU0q/UockH64rwKy+u3oNjXI=;
+        s=korg; t=1637756329;
+        bh=BGLcJV2YQo4Vepl0wzyWojKgXLkuEtY2Q0csXY7nthY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ojMiQLxlbwYWVkiceyXZtXlkqTvb59sfv1Molgfg5jotqvkwnapqvaG8A1Agvbd2l
-         R/l31/CK8HjhBzcU/Li1NBk4XDbf0qTbm2mdDOVjK1KR/vNpmV4E0K1LGUVHBzYvMR
-         +n0IfB7MTKZf++pU4Rxqc6miYjeh4jogJcyFOj1s=
+        b=CtItpQCxh8TCG7akN8qiaydpYqLWeIWqekeCIYQJmg7e/COqJCGLv9Sc3Qf02xuLU
+         vPcBo9ioVAQBrNgDhLgH3VslBLmVdIVXRmhHG7AW96qI/2i9w8okyez9gRO7Kyd+tk
+         CzqZpm0zCMmaypkO1qj8onwe23r8xUUPNR1T8inY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 020/207] hyperv/vmbus: include linux/bitops.h
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 4.14 049/251] signal: Remove the bogus sigkill_pending in ptrace_stop
 Date:   Wed, 24 Nov 2021 12:54:51 +0100
-Message-Id: <20211124115704.622207236@linuxfoundation.org>
+Message-Id: <20211124115711.952461359@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +39,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 8017c99680fa65e1e8d999df1583de476a187830 ]
+commit 7d613f9f72ec8f90ddefcae038fdae5adb8404b3 upstream.
 
-On arm64 randconfig builds, hyperv sometimes fails with this
-error:
+The existence of sigkill_pending is a little silly as it is
+functionally a duplicate of fatal_signal_pending that is used in
+exactly one place.
 
-In file included from drivers/hv/hv_trace.c:3:
-In file included from drivers/hv/hyperv_vmbus.h:16:
-In file included from arch/arm64/include/asm/sync_bitops.h:5:
-arch/arm64/include/asm/bitops.h:11:2: error: only <linux/bitops.h> can be included directly
-In file included from include/asm-generic/bitops/hweight.h:5:
-include/asm-generic/bitops/arch_hweight.h:9:9: error: implicit declaration of function '__sw_hweight32' [-Werror,-Wimplicit-function-declaration]
-include/asm-generic/bitops/atomic.h:17:7: error: implicit declaration of function 'BIT_WORD' [-Werror,-Wimplicit-function-declaration]
+Checking for pending fatal signals and returning early in ptrace_stop
+is actively harmful.  It casues the ptrace_stop called by
+ptrace_signal to return early before setting current->exit_code.
+Later when ptrace_signal reads the signal number from
+current->exit_code is undefined, making it unpredictable what will
+happen.
 
-Include the correct header first.
+Instead rely on the fact that schedule will not sleep if there is a
+pending signal that can awaken a task.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20211018131929.2260087-1-arnd@kernel.org
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Removing the explict sigkill_pending test fixes fixes ptrace_signal
+when ptrace_stop does not stop because current->exit_code is always
+set to to signr.
+
+Cc: stable@vger.kernel.org
+Fixes: 3d749b9e676b ("ptrace: simplify ptrace_stop()->sigkill_pending() path")
+Fixes: 1a669c2f16d4 ("Add arch_ptrace_stop")
+Link: https://lkml.kernel.org/r/87pmsyx29t.fsf@disp2133
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hv/hyperv_vmbus.h | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/signal.c |   19 ++++---------------
+ 1 file changed, 4 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
-index 8d7f865c1133f..9d3605df1f489 100644
---- a/drivers/hv/hyperv_vmbus.h
-+++ b/drivers/hv/hyperv_vmbus.h
-@@ -26,6 +26,7 @@
- #define _HYPERV_VMBUS_H
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -1839,16 +1839,6 @@ static inline int may_ptrace_stop(void)
+ }
  
- #include <linux/list.h>
-+#include <linux/bitops.h>
- #include <asm/sync_bitops.h>
- #include <linux/atomic.h>
- #include <linux/hyperv.h>
--- 
-2.33.0
-
+ /*
+- * Return non-zero if there is a SIGKILL that should be waking us up.
+- * Called with the siglock held.
+- */
+-static int sigkill_pending(struct task_struct *tsk)
+-{
+-	return	sigismember(&tsk->pending.signal, SIGKILL) ||
+-		sigismember(&tsk->signal->shared_pending.signal, SIGKILL);
+-}
+-
+-/*
+  * This must be called with current->sighand->siglock held.
+  *
+  * This should be the path for all ptrace stops.
+@@ -1873,17 +1863,16 @@ static void ptrace_stop(int exit_code, i
+ 		 * calling arch_ptrace_stop, so we must release it now.
+ 		 * To preserve proper semantics, we must do this before
+ 		 * any signal bookkeeping like checking group_stop_count.
+-		 * Meanwhile, a SIGKILL could come in before we retake the
+-		 * siglock.  That must prevent us from sleeping in TASK_TRACED.
+-		 * So after regaining the lock, we must check for SIGKILL.
+ 		 */
+ 		spin_unlock_irq(&current->sighand->siglock);
+ 		arch_ptrace_stop(exit_code, info);
+ 		spin_lock_irq(&current->sighand->siglock);
+-		if (sigkill_pending(current))
+-			return;
+ 	}
+ 
++	/*
++	 * schedule() will not sleep if there is a pending signal that
++	 * can awaken the task.
++	 */
+ 	set_special_state(TASK_TRACED);
+ 
+ 	/*
 
 
