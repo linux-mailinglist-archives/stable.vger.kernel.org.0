@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF2745BBB1
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:19:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65AB645BE0E
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:41:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243221AbhKXMWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:22:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36036 "EHLO mail.kernel.org"
+        id S230520AbhKXMoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:44:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243284AbhKXMUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:20:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE2896113A;
-        Wed, 24 Nov 2021 12:12:22 +0000 (UTC)
+        id S1344502AbhKXMmd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:42:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0D8A613D3;
+        Wed, 24 Nov 2021 12:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755943;
-        bh=lA42VD3iRzmgxGMgpYLuBwmH0+VxrxRMBuAUeCPxQks=;
+        s=korg; t=1637756707;
+        bh=ZYPUhYwebUc3sEertd8HK7XzmaU+NO2fC8amo9Puuiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UdjG3tKHfN9gugDeK0bujANLBDCZWNd49R34oq5xc3C015emci3apErwGgXgc2hxj
-         fkzNaJZtW/CTfUYCLWsCo1NL8V2gKy5ORkRSuOJTxBNrFmPzC09KW8bQzaXl158V3q
-         w/2kCsrdHyRY+WNmILHsEmNDwi+Jxd14AEFg8qrU=
+        b=qZ+Ph71bn525Mn/MhkOpPcTudxrs2GtG2udR5GFYU0OfTK4ZaLe/8bllmgfF//c3F
+         6oSUWSLthXVnaicsThm4MapsSHs63j3S7fmnqc8DOLtKTxwu1ryu2kxiD/2S7T023K
+         lWBB8mhm3tgreZ1EwnM39MGhUruRN6BfXCzBhQgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Huacai Chen <chenhuacai@kernel.org>,
+        k2ci robot <kernel-bot@kylinos.cn>,
+        Jackie Liu <liuyun01@kylinos.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 114/207] crypto: pcrypt - Delay write to padata->info
+Subject: [PATCH 4.14 143/251] MIPS: loongson64: make CPU_LOONGSON64 depends on MIPS_FP_SUPPORT
 Date:   Wed, 24 Nov 2021 12:56:25 +0100
-Message-Id: <20211124115707.762194521@linuxfoundation.org>
+Message-Id: <20211124115715.227750657@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
-References: <20211124115703.941380739@linuxfoundation.org>
+In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
+References: <20211124115710.214900256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,83 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Jackie Liu <liuyun01@kylinos.cn>
 
-[ Upstream commit 68b6dea802cea0dbdd8bd7ccc60716b5a32a5d8a ]
+[ Upstream commit 7f3b3c2bfa9c93ab9b5595543496f570983dc330 ]
 
-These three events can race when pcrypt is used multiple times in a
-template ("pcrypt(pcrypt(...))"):
+mach/loongson64 fails to build when the FPU support is disabled:
 
-  1.  [taskA] The caller makes the crypto request via crypto_aead_encrypt()
-  2.  [kworkerB] padata serializes the inner pcrypt request
-  3.  [kworkerC] padata serializes the outer pcrypt request
+arch/mips/loongson64/cop2-ex.c:45:15: error: implicit declaration of function ‘__is_fpu_owner’; did you mean ‘is_fpu_owner’? [-Werror=implicit-function-declaration]
+arch/mips/loongson64/cop2-ex.c:98:30: error: ‘struct thread_struct’ has no member named ‘fpu’
+arch/mips/loongson64/cop2-ex.c:99:30: error: ‘struct thread_struct’ has no member named ‘fpu’
+arch/mips/loongson64/cop2-ex.c:131:43: error: ‘struct thread_struct’ has no member named ‘fpu’
+arch/mips/loongson64/cop2-ex.c:137:38: error: ‘struct thread_struct’ has no member named ‘fpu’
+arch/mips/loongson64/cop2-ex.c:203:30: error: ‘struct thread_struct’ has no member named ‘fpu’
+arch/mips/loongson64/cop2-ex.c:219:30: error: ‘struct thread_struct’ has no member named ‘fpu’
+arch/mips/loongson64/cop2-ex.c:283:38: error: ‘struct thread_struct’ has no member named ‘fpu’
+arch/mips/loongson64/cop2-ex.c:301:38: error: ‘struct thread_struct’ has no member named ‘fpu’
 
-3 might finish before the call to crypto_aead_encrypt() returns in 1,
-resulting in two possible issues.
-
-First, a use-after-free of the crypto request's memory when, for
-example, taskA writes to the outer pcrypt request's padata->info in
-pcrypt_aead_enc() after kworkerC completes the request.
-
-Second, the outer pcrypt request overwrites the inner pcrypt request's
-return code with -EINPROGRESS, making a successful request appear to
-fail.  For instance, kworkerB writes the outer pcrypt request's
-padata->info in pcrypt_aead_done() and then taskA overwrites it
-in pcrypt_aead_enc().
-
-Avoid both situations by delaying the write of padata->info until after
-the inner crypto request's return code is checked.  This prevents the
-use-after-free by not touching the crypto request's memory after the
-next-inner crypto request is made, and stops padata->info from being
-overwritten.
-
-Fixes: 5068c7a883d16 ("crypto: pcrypt - Add pcrypt crypto parallelization wrapper")
-Reported-by: syzbot+b187b77c8474f9648fae@syzkaller.appspotmail.com
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: ef2f826c8f2f ("MIPS: Loongson-3: Enable the COP2 usage")
+Suggested-by: Huacai Chen <chenhuacai@kernel.org>
+Reviewed-by: Huacai Chen <chenhuacai@kernel.org>
+Reported-by: k2ci robot <kernel-bot@kylinos.cn>
+Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/pcrypt.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/mips/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/crypto/pcrypt.c b/crypto/pcrypt.c
-index 85082574c5154..62e11835f220e 100644
---- a/crypto/pcrypt.c
-+++ b/crypto/pcrypt.c
-@@ -138,12 +138,14 @@ static void pcrypt_aead_enc(struct padata_priv *padata)
- {
- 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
- 	struct aead_request *req = pcrypt_request_ctx(preq);
-+	int ret;
- 
--	padata->info = crypto_aead_encrypt(req);
-+	ret = crypto_aead_encrypt(req);
- 
--	if (padata->info == -EINPROGRESS)
-+	if (ret == -EINPROGRESS)
- 		return;
- 
-+	padata->info = ret;
- 	padata_do_serial(padata);
- }
- 
-@@ -180,12 +182,14 @@ static void pcrypt_aead_dec(struct padata_priv *padata)
- {
- 	struct pcrypt_request *preq = pcrypt_padata_request(padata);
- 	struct aead_request *req = pcrypt_request_ctx(preq);
-+	int ret;
- 
--	padata->info = crypto_aead_decrypt(req);
-+	ret = crypto_aead_decrypt(req);
- 
--	if (padata->info == -EINPROGRESS)
-+	if (ret == -EINPROGRESS)
- 		return;
- 
-+	padata->info = ret;
- 	padata_do_serial(padata);
- }
- 
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 49c540790fd2d..8e77149d658fc 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -1383,6 +1383,7 @@ config CPU_LOONGSON3
+ 	select WEAK_REORDERING_BEYOND_LLSC
+ 	select MIPS_PGD_C0_CONTEXT
+ 	select MIPS_L1_CACHE_SHIFT_6
++	select MIPS_FP_SUPPORT
+ 	select GPIOLIB
+ 	help
+ 		The Loongson 3 processor implements the MIPS64R2 instruction
 -- 
 2.33.0
 
