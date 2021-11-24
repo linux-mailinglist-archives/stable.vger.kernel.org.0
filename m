@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1F245BD88
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:36:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B7EB45BA2D
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243052AbhKXMjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:39:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39880 "EHLO mail.kernel.org"
+        id S240834AbhKXMIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:08:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344469AbhKXMgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:36:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAE7F6117A;
-        Wed, 24 Nov 2021 12:22:14 +0000 (UTC)
+        id S233543AbhKXMHA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:07:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB32E60C51;
+        Wed, 24 Nov 2021 12:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637756535;
-        bh=fJUthKMKrdY7oxzm4Of8RePcPvvZnwo9O/S44BgzSIs=;
+        s=korg; t=1637755431;
+        bh=F4eNFyJm5WoYxKUWjpQAcaTi1pCk82JppJb9aHHpSlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HjGM7uHbFPdjaDEIfnjD+b66EGXxLtMxWaNmLWaJ7ePuVT9Y8D2eDb5DyiPvpWofg
-         2AyYP4R5fEpzquNi4K1zXLRwy9mC6daJj3NS6wwR+WDA2jBrhcaQL5eT4Gmc7JacyU
-         lAXrhCKGbkX++Qt49KZPnFHWeGf2dP2jnoxYl3H8=
+        b=Mni0Os7L+lli96IGlgtKJf3OZTewBwA/FSQ01XgIwBOKS+JNlFv6HOhdbn2ofLBSE
+         cP+ho76dnJHzZvGZzJYttjbH7ODx/BZ+CoZCCXwqTuHtzUqH4IonPY4+f6Quw57z9J
+         N2Laz5ivdENvzJu4GAHUz4ShljPnNZoF5dRoAXG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 120/251] hwmon: Fix possible memleak in __hwmon_device_register()
-Date:   Wed, 24 Nov 2021 12:56:02 +0100
-Message-Id: <20211124115714.417941183@linuxfoundation.org>
+Subject: [PATCH 4.4 060/162] memstick: r592: Fix a UAF bug when removing the driver
+Date:   Wed, 24 Nov 2021 12:56:03 +0100
+Message-Id: <20211124115700.277973042@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115710.214900256@linuxfoundation.org>
-References: <20211124115710.214900256@linuxfoundation.org>
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
+References: <20211124115658.328640564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit ada61aa0b1184a8fda1a89a340c7d6cc4e59aee5 ]
+[ Upstream commit 738216c1953e802aa9f930c5d15b8f9092c847ff ]
 
-I got memory leak as follows when doing fault injection test:
+In r592_remove(), the driver will free dma after freeing the host, which
+may cause a UAF bug.
 
-unreferenced object 0xffff888102740438 (size 8):
-  comm "27", pid 859, jiffies 4295031351 (age 143.992s)
-  hex dump (first 8 bytes):
-    68 77 6d 6f 6e 30 00 00                          hwmon0..
-  backtrace:
-    [<00000000544b5996>] __kmalloc_track_caller+0x1a6/0x300
-    [<00000000df0d62b9>] kvasprintf+0xad/0x140
-    [<00000000d3d2a3da>] kvasprintf_const+0x62/0x190
-    [<000000005f8f0f29>] kobject_set_name_vargs+0x56/0x140
-    [<00000000b739e4b9>] dev_set_name+0xb0/0xe0
-    [<0000000095b69c25>] __hwmon_device_register+0xf19/0x1e50 [hwmon]
-    [<00000000a7e65b52>] hwmon_device_register_with_info+0xcb/0x110 [hwmon]
-    [<000000006f181e86>] devm_hwmon_device_register_with_info+0x85/0x100 [hwmon]
-    [<0000000081bdc567>] tmp421_probe+0x2d2/0x465 [tmp421]
-    [<00000000502cc3f8>] i2c_device_probe+0x4e1/0xbb0
-    [<00000000f90bda3b>] really_probe+0x285/0xc30
-    [<000000007eac7b77>] __driver_probe_device+0x35f/0x4f0
-    [<000000004953d43d>] driver_probe_device+0x4f/0x140
-    [<000000002ada2d41>] __device_attach_driver+0x24c/0x330
-    [<00000000b3977977>] bus_for_each_drv+0x15d/0x1e0
-    [<000000005bf2a8e3>] __device_attach+0x267/0x410
+The following log reveals it:
 
-When device_register() returns an error, the name allocated in
-dev_set_name() will be leaked, the put_device() should be used
-instead of calling hwmon_dev_release() to give up the device
-reference, then the name will be freed in kobject_cleanup().
+[   45.361796 ] BUG: KASAN: use-after-free in r592_remove+0x269/0x350 [r592]
+[   45.364286 ] Call Trace:
+[   45.364472 ]  dump_stack_lvl+0xa8/0xd1
+[   45.364751 ]  print_address_description+0x87/0x3b0
+[   45.365137 ]  kasan_report+0x172/0x1c0
+[   45.365415 ]  ? r592_remove+0x269/0x350 [r592]
+[   45.365834 ]  ? r592_remove+0x269/0x350 [r592]
+[   45.366168 ]  __asan_report_load8_noabort+0x14/0x20
+[   45.366531 ]  r592_remove+0x269/0x350 [r592]
+[   45.378785 ]
+[   45.378903 ] Allocated by task 4674:
+[   45.379162 ]  ____kasan_kmalloc+0xb5/0xe0
+[   45.379455 ]  __kasan_kmalloc+0x9/0x10
+[   45.379730 ]  __kmalloc+0x150/0x280
+[   45.379984 ]  memstick_alloc_host+0x2a/0x190
+[   45.380664 ]
+[   45.380781 ] Freed by task 5509:
+[   45.381014 ]  kasan_set_track+0x3d/0x70
+[   45.381293 ]  kasan_set_free_info+0x23/0x40
+[   45.381635 ]  ____kasan_slab_free+0x10b/0x140
+[   45.381950 ]  __kasan_slab_free+0x11/0x20
+[   45.382241 ]  slab_free_freelist_hook+0x81/0x150
+[   45.382575 ]  kfree+0x13e/0x290
+[   45.382805 ]  memstick_free+0x1c/0x20
+[   45.383070 ]  device_release+0x9c/0x1d0
+[   45.383349 ]  kobject_put+0x2ef/0x4c0
+[   45.383616 ]  put_device+0x1f/0x30
+[   45.383865 ]  memstick_free_host+0x24/0x30
+[   45.384162 ]  r592_remove+0x242/0x350 [r592]
+[   45.384473 ]  pci_device_remove+0xa9/0x250
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: bab2243ce189 ("hwmon: Introduce hwmon_device_register_with_groups")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211012112758.2681084-1-yangyingliang@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/1634383581-11055-1-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/hwmon.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/memstick/host/r592.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
-index 652973d83a07e..b1b5c1e97a430 100644
---- a/drivers/hwmon/hwmon.c
-+++ b/drivers/hwmon/hwmon.c
-@@ -627,8 +627,10 @@ __hwmon_device_register(struct device *dev, const char *name, void *drvdata,
- 	dev_set_drvdata(hdev, drvdata);
- 	dev_set_name(hdev, HWMON_ID_FORMAT, id);
- 	err = device_register(hdev);
--	if (err)
--		goto free_hwmon;
-+	if (err) {
-+		put_device(hdev);
-+		goto ida_remove;
-+	}
+diff --git a/drivers/memstick/host/r592.c b/drivers/memstick/host/r592.c
+index b3857445d6736..7779aaa6b9b81 100644
+--- a/drivers/memstick/host/r592.c
++++ b/drivers/memstick/host/r592.c
+@@ -842,15 +842,15 @@ static void r592_remove(struct pci_dev *pdev)
+ 	}
+ 	memstick_remove_host(dev->host);
  
- 	if (dev && dev->of_node && chip && chip->ops->read &&
- 	    chip->info[0]->type == hwmon_chip &&
++	if (dev->dummy_dma_page)
++		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
++			dev->dummy_dma_page_physical_address);
++
+ 	free_irq(dev->irq, dev);
+ 	iounmap(dev->mmio);
+ 	pci_release_regions(pdev);
+ 	pci_disable_device(pdev);
+ 	memstick_free_host(dev->host);
+-
+-	if (dev->dummy_dma_page)
+-		dma_free_coherent(&pdev->dev, PAGE_SIZE, dev->dummy_dma_page,
+-			dev->dummy_dma_page_physical_address);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.33.0
 
