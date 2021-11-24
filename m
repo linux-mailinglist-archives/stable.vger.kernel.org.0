@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1677145BA22
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9664745BA26
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242289AbhKXMHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:07:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32848 "EHLO mail.kernel.org"
+        id S229733AbhKXMIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:08:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242255AbhKXMGv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:06:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0953A60FE7;
-        Wed, 24 Nov 2021 12:03:40 +0000 (UTC)
+        id S242322AbhKXMGx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:06:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76C1360F90;
+        Wed, 24 Nov 2021 12:03:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755421;
-        bh=8uwzn0O37V6evak+sbd9LpuZ/CSKh5+jaonV+hgTVOI=;
+        s=korg; t=1637755423;
+        bh=TtnOT6SqyLZpNB90uBWqIEsCn9Yo+ZFjMmWllVTgTmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dZrsiZTTPqqTh2TUUM5J5HnTfChlQEsYryYz6wUI6eEgBe1puX3JYX61Q8PkaRTKG
-         Yrd++GYmWBH2uOr+ndD6hUxql7Th0blYgG3yMr+vJ/IhEX7w7oTiRclmJg9c6GTVaF
-         1AFUFFtyLwuuQIBcwgdYn1WSNsclJUsUOFvqLgFM=
+        b=XzP9vjTECNk6J2O5cTL6YOklxec0nr1fl1w7Vn3Sg88nUlHroCSPAUGIrW27ZD5Ej
+         JQoALF9LEm8upWfvwXsMu/aXk3O2wmcL3ww51zaD5VLXSQzUQk/f7mBrvMTOd4y8sE
+         Ar9ATFuEVXm1lY+ovhVhbDH9VGGGw5DZkNjYg9ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com,
-        Anant Thazhemadam <anant.thazhemadam@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 056/162] media: usb: dvd-usb: fix uninit-value bug in dibusb_read_eeprom_byte()
-Date:   Wed, 24 Nov 2021 12:55:59 +0100
-Message-Id: <20211124115700.154225706@linuxfoundation.org>
+Subject: [PATCH 4.4 057/162] tracefs: Have tracefs directories not set OTH permission bits by default
+Date:   Wed, 24 Nov 2021 12:56:00 +0100
+Message-Id: <20211124115700.187073302@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
 References: <20211124115658.328640564@linuxfoundation.org>
@@ -43,37 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anant Thazhemadam <anant.thazhemadam@gmail.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit 899a61a3305d49e8a712e9ab20d0db94bde5929f ]
+[ Upstream commit 49d67e445742bbcb03106b735b2ab39f6e5c56bc ]
 
-In dibusb_read_eeprom_byte(), if dibusb_i2c_msg() fails, val gets
-assigned an value that's not properly initialized.
-Using kzalloc() in place of kmalloc() for the buffer fixes this issue,
-as the val can now be set to 0 in the event dibusb_i2c_msg() fails.
+The tracefs file system is by default mounted such that only root user can
+access it. But there are legitimate reasons to create a group and allow
+those added to the group to have access to tracing. By changing the
+permissions of the tracefs mount point to allow access, it will allow
+group access to the tracefs directory.
 
-Reported-by: syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com
-Tested-by: syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com
-Signed-off-by: Anant Thazhemadam <anant.thazhemadam@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+There should not be any real reason to allow all access to the tracefs
+directory as it contains sensitive information. Have the default
+permission of directories being created not have any OTH (other) bits set,
+such that an admin that wants to give permission to a group has to first
+disable all OTH bits in the file system.
+
+Link: https://lkml.kernel.org/r/20210818153038.664127804@goodmis.org
+
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dibusb-common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/tracefs/inode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/dvb-usb/dibusb-common.c b/drivers/media/usb/dvb-usb/dibusb-common.c
-index 7b15aea2723d6..5a1dc0d465d26 100644
---- a/drivers/media/usb/dvb-usb/dibusb-common.c
-+++ b/drivers/media/usb/dvb-usb/dibusb-common.c
-@@ -182,7 +182,7 @@ int dibusb_read_eeprom_byte(struct dvb_usb_device *d, u8 offs, u8 *val)
- 	u8 *buf;
- 	int rc;
+diff --git a/fs/tracefs/inode.c b/fs/tracefs/inode.c
+index c66f2423e1f5c..6ccfd47157d37 100644
+--- a/fs/tracefs/inode.c
++++ b/fs/tracefs/inode.c
+@@ -429,7 +429,8 @@ static struct dentry *__create_dir(const char *name, struct dentry *parent,
+ 	if (unlikely(!inode))
+ 		return failed_creating(dentry);
  
--	buf = kmalloc(2, GFP_KERNEL);
-+	buf = kzalloc(2, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
+-	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO;
++	/* Do not set bits for OTH */
++	inode->i_mode = S_IFDIR | S_IRWXU | S_IRUSR| S_IRGRP | S_IXUSR | S_IXGRP;
+ 	inode->i_op = ops;
+ 	inode->i_fop = &simple_dir_operations;
  
 -- 
 2.33.0
