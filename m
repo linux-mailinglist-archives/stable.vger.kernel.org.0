@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E568845C221
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:22:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 965BF45C5FB
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:02:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348788AbhKXNZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:25:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45684 "EHLO mail.kernel.org"
+        id S1348739AbhKXOEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:04:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349788AbhKXNXM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:23:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 140FA61B23;
-        Wed, 24 Nov 2021 12:48:23 +0000 (UTC)
+        id S1353589AbhKXOAf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 09:00:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4D4361222;
+        Wed, 24 Nov 2021 13:09:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758104;
-        bh=6mNe8qrIpmji7QkcFjbm+P79hywWOd5kUwcID1dq/Zk=;
+        s=korg; t=1637759349;
+        bh=jclETTsaseaTm6oenpZ1mIjTvmcFtQtfA5En+NFhhqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yHTcCPA1lM5umObEtgluRwWEwShgPR9CZPbvIAmYpDL77CzCa9R+JWmghFuG0Un62
-         BqeTzkuhzimUK1qwWquCKsOqCPvrCdwAedntnKf/cOOwt8wQMFi03M3vB8NmhOD695
-         AVi/yGxQ58hPFaPZwzU+ToNWiqniH5NgDId2YCPE=
+        b=kFI+j7ZqLi+POEvdC3DdjkjiGDGUifDSa0jKmvRlc0ob8slrU/JUlzqlB5IfNCt8u
+         swZGVg3X9uotKKZYeTYnpxAbK6HW+/VUjgXcC1bjGi2K2jJOPBFfVvskkgWCJ0OaTw
+         nyX/2tUNmt6/+eYERAmzCkx86oWE89vheKHyeFvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Eryk Rybak <eryk.roch.rybak@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/100] i40e: Fix correct max_pkt_size on VF RX queue
+        Vandita Kulkarni <vandita.kulkarni@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.15 211/279] Revert "drm/i915/tgl/dsi: Gate the ddi clocks after pll mapping"
 Date:   Wed, 24 Nov 2021 12:58:18 +0100
-Message-Id: <20211124115656.884390906@linuxfoundation.org>
+Message-Id: <20211124115726.029799939@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
-References: <20211124115654.849735859@linuxfoundation.org>
+In-Reply-To: <20211124115718.776172708@linuxfoundation.org>
+References: <20211124115718.776172708@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,118 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eryk Rybak <eryk.roch.rybak@intel.com>
+From: Vandita Kulkarni <vandita.kulkarni@intel.com>
 
-[ Upstream commit 6afbd7b3c53cb7417189f476e99d431daccb85b0 ]
+commit f15863b27752682bb700c21de5f83f613a0fb77e upstream.
 
-Setting VLAN port increasing RX queue max_pkt_size
-by 4 bytes to take VLAN tag into account.
-Trigger the VF reset when setting port VLAN for
-VF to renegotiate its capabilities and reinitialize.
+This reverts commit 991d9557b0c4 ("drm/i915/tgl/dsi: Gate the ddi clocks
+after pll mapping"). The Bspec was updated recently with the pll ungate
+sequence similar to that of icl dsi enable sequence. Hence reverting.
 
-Fixes: ba4e003d29c1 ("i40e: don't hold spinlock while resetting VF")
-Signed-off-by: Sylwester Dziedziuch <sylwesterx.dziedziuch@intel.com>
-Signed-off-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Signed-off-by: Eryk Rybak <eryk.roch.rybak@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bspec: 49187
+Fixes: 991d9557b0c4 ("drm/i915/tgl/dsi: Gate the ddi clocks after pll mapping")
+Cc: <stable@vger.kernel.org> # v5.4+
+Signed-off-by: Vandita Kulkarni <vandita.kulkarni@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211109120428.15211-1-vandita.kulkarni@intel.com
+(cherry picked from commit 4579509ef181480f4e4510d436c691519167c5c2)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 53 ++++---------------
- 1 file changed, 9 insertions(+), 44 deletions(-)
+ drivers/gpu/drm/i915/display/icl_dsi.c |   10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index e561073054865..16641c19b7f73 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -621,14 +621,13 @@ static int i40e_config_vsi_rx_queue(struct i40e_vf *vf, u16 vsi_id,
- 				    u16 vsi_queue_id,
- 				    struct virtchnl_rxq_info *info)
- {
-+	u16 pf_queue_id = i40e_vc_get_pf_queue_id(vf, vsi_id, vsi_queue_id);
- 	struct i40e_pf *pf = vf->pf;
-+	struct i40e_vsi *vsi = pf->vsi[vf->lan_vsi_idx];
- 	struct i40e_hw *hw = &pf->hw;
- 	struct i40e_hmc_obj_rxq rx_ctx;
--	u16 pf_queue_id;
- 	int ret = 0;
+--- a/drivers/gpu/drm/i915/display/icl_dsi.c
++++ b/drivers/gpu/drm/i915/display/icl_dsi.c
+@@ -711,10 +711,7 @@ static void gen11_dsi_map_pll(struct int
+ 	intel_de_write(dev_priv, ICL_DPCLKA_CFGCR0, val);
  
--	pf_queue_id = i40e_vc_get_pf_queue_id(vf, vsi_id, vsi_queue_id);
--
- 	/* clear the context structure first */
- 	memset(&rx_ctx, 0, sizeof(struct i40e_hmc_obj_rxq));
- 
-@@ -666,6 +665,10 @@ static int i40e_config_vsi_rx_queue(struct i40e_vf *vf, u16 vsi_id,
+ 	for_each_dsi_phy(phy, intel_dsi->phys) {
+-		if (DISPLAY_VER(dev_priv) >= 12)
+-			val |= ICL_DPCLKA_CFGCR0_DDI_CLK_OFF(phy);
+-		else
+-			val &= ~ICL_DPCLKA_CFGCR0_DDI_CLK_OFF(phy);
++		val &= ~ICL_DPCLKA_CFGCR0_DDI_CLK_OFF(phy);
  	}
- 	rx_ctx.rxmax = info->max_pkt_size;
+ 	intel_de_write(dev_priv, ICL_DPCLKA_CFGCR0, val);
  
-+	/* if port VLAN is configured increase the max packet size */
-+	if (vsi->info.pvid)
-+		rx_ctx.rxmax += VLAN_HLEN;
-+
- 	/* enable 32bytes desc always */
- 	rx_ctx.dsize = 1;
+@@ -1150,8 +1147,6 @@ static void
+ gen11_dsi_enable_port_and_phy(struct intel_encoder *encoder,
+ 			      const struct intel_crtc_state *crtc_state)
+ {
+-	struct drm_i915_private *dev_priv = to_i915(encoder->base.dev);
+-
+ 	/* step 4a: power up all lanes of the DDI used by DSI */
+ 	gen11_dsi_power_up_lanes(encoder);
  
-@@ -4050,34 +4053,6 @@ error_param:
- 	return ret;
+@@ -1177,8 +1172,7 @@ gen11_dsi_enable_port_and_phy(struct int
+ 	gen11_dsi_configure_transcoder(encoder, crtc_state);
+ 
+ 	/* Step 4l: Gate DDI clocks */
+-	if (DISPLAY_VER(dev_priv) == 11)
+-		gen11_dsi_gate_clocks(encoder);
++	gen11_dsi_gate_clocks(encoder);
  }
  
--/**
-- * i40e_vsi_has_vlans - True if VSI has configured VLANs
-- * @vsi: pointer to the vsi
-- *
-- * Check if a VSI has configured any VLANs. False if we have a port VLAN or if
-- * we have no configured VLANs. Do not call while holding the
-- * mac_filter_hash_lock.
-- */
--static bool i40e_vsi_has_vlans(struct i40e_vsi *vsi)
--{
--	bool have_vlans;
--
--	/* If we have a port VLAN, then the VSI cannot have any VLANs
--	 * configured, as all MAC/VLAN filters will be assigned to the PVID.
--	 */
--	if (vsi->info.pvid)
--		return false;
--
--	/* Since we don't have a PVID, we know that if the device is in VLAN
--	 * mode it must be because of a VLAN filter configured on this VSI.
--	 */
--	spin_lock_bh(&vsi->mac_filter_hash_lock);
--	have_vlans = i40e_is_vsi_in_vlan(vsi);
--	spin_unlock_bh(&vsi->mac_filter_hash_lock);
--
--	return have_vlans;
--}
--
- /**
-  * i40e_ndo_set_vf_port_vlan
-  * @netdev: network interface device structure
-@@ -4134,19 +4109,9 @@ int i40e_ndo_set_vf_port_vlan(struct net_device *netdev, int vf_id,
- 		/* duplicate request, so just return success */
- 		goto error_pvid;
- 
--	if (i40e_vsi_has_vlans(vsi)) {
--		dev_err(&pf->pdev->dev,
--			"VF %d has already configured VLAN filters and the administrator is requesting a port VLAN override.\nPlease unload and reload the VF driver for this change to take effect.\n",
--			vf_id);
--		/* Administrator Error - knock the VF offline until he does
--		 * the right thing by reconfiguring his network correctly
--		 * and then reloading the VF driver.
--		 */
--		i40e_vc_disable_vf(vf);
--		/* During reset the VF got a new VSI, so refresh the pointer. */
--		vsi = pf->vsi[vf->lan_vsi_idx];
--	}
--
-+	i40e_vc_disable_vf(vf);
-+	/* During reset the VF got a new VSI, so refresh a pointer. */
-+	vsi = pf->vsi[vf->lan_vsi_idx];
- 	/* Locked once because multiple functions below iterate list */
- 	spin_lock_bh(&vsi->mac_filter_hash_lock);
- 
--- 
-2.33.0
-
+ static void gen11_dsi_powerup_panel(struct intel_encoder *encoder)
 
 
