@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DF6045C0D8
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:09:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FA8B45C2B3
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:28:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346465AbhKXNL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:11:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
+        id S1349660AbhKXNb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:31:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343799AbhKXNJw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:09:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E83BC613C8;
-        Wed, 24 Nov 2021 12:40:54 +0000 (UTC)
+        id S1351049AbhKXN3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:29:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6571D61548;
+        Wed, 24 Nov 2021 12:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757655;
-        bh=euXDII/cwLGLXjWwAeInRLsbxYuEkoTyojdlZ0XI8U0=;
+        s=korg; t=1637758313;
+        bh=8gin4xYFGZZvnvIufp+YTmpLpY//PfSLSiDa2pG5IrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2B0d+0HeHeLdrWkoNacnOsXXcrhDdNW6tm2cZe3dCPd9GgkGBsACHlFI+89FtRCX2
-         3veN4z01IC1ZhQrtxvS/4MkuMphJTib5LcHlSJs9ol2YiYaP8cImSdzJ49lhCKRq1P
-         wS9GKiWcyyIzpZvDrhgYBF8FY78s3gyUJVIUcOK8=
+        b=1VJhCOsDwjwy+VvQjT1ZJPGbvmgYGragFTSOI9iRYyX1tRSBKMWQvCq5GWTSLjmGd
+         0h6CiM35Spd6uh4YS3N0YS7cHpEUi71nf1VwvAdlrs08G0xFkFJFLUwfEpUHaIErGB
+         A7MhEO3LbYCAjEnuzAjXdv8dTzR7La9BAAjrTNeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Antonio Terceiro <antonio.terceiro@linaro.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Sebastian Andrzej Siewior <sebastian@breakpoint.cc>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Klaus Kudielka <klaus.kudielka@gmail.com>,
-        Matthias Klose <doko@debian.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.19 234/323] ARM: 9156/1: drop cc-option fallbacks for architecture selection
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <bard.liao@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 028/154] ASoC: Intel: sof_sdw: add missing quirk for Dell SKU 0A45
 Date:   Wed, 24 Nov 2021 12:57:04 +0100
-Message-Id: <20211124115726.827009648@linuxfoundation.org>
+Message-Id: <20211124115703.278367629@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,103 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit 418ace9992a7647c446ed3186df40cf165b67298 upstream.
+[ Upstream commit 64ba6d2ce72ffde70dc5a1794917bf1573203716 ]
 
-Naresh and Antonio ran into a build failure with latest Debian
-armhf compilers, with lots of output like
+This device is based on SDCA codecs but with a single amplifier
+instead of two.
 
- tmp/ccY3nOAs.s:2215: Error: selected processor does not support `cpsid i' in ARM mode
-
-As it turns out, $(cc-option) fails early here when the FPU is not
-selected before CPU architecture is selected, as the compiler
-option check runs before enabling -msoft-float, which causes
-a problem when testing a target architecture level without an FPU:
-
-cc1: error: '-mfloat-abi=hard': selected architecture lacks an FPU
-
-Passing e.g. -march=armv6k+fp in place of -march=armv6k would avoid this
-issue, but the fallback logic is already broken because all supported
-compilers (gcc-5 and higher) are much more recent than these options,
-and building with -march=armv5t as a fallback no longer works.
-
-The best way forward that I see is to just remove all the checks, which
-also has the nice side-effect of slightly improving the startup time for
-'make'.
-
-The -mtune=marvell-f option was apparently never supported by any mainline
-compiler, and the custom Codesourcery gcc build that did support is
-now too old to build kernels, so just use -mtune=xscale unconditionally
-for those.
-
-This should be safe to apply on all stable kernels, and will be required
-in order to keep building them with gcc-11 and higher.
-
-Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=996419
-
-Reported-by: Antonio Terceiro <antonio.terceiro@linaro.org>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reported-by: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
-Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Tested-by: Klaus Kudielka <klaus.kudielka@gmail.com>
-Cc: Matthias Klose <doko@debian.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BugLink: https://github.com/thesofproject/linux/issues/3161
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Bard Liao <bard.liao@intel.com>
+Link: https://lore.kernel.org/r/20211004213512.220836-6-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Makefile |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ sound/soc/intel/boards/sof_sdw.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/arm/Makefile
-+++ b/arch/arm/Makefile
-@@ -63,15 +63,15 @@ KBUILD_CFLAGS	+= $(call cc-option,-fno-i
- # Note that GCC does not numerically define an architecture version
- # macro, but instead defines a whole series of macros which makes
- # testing for a specific architecture or later rather impossible.
--arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m -Wa,-march=armv7-m
--arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 $(call cc-option,-march=armv7-a,-march=armv5t -Wa$(comma)-march=armv7-a)
--arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6,-march=armv5t -Wa$(comma)-march=armv6)
-+arch-$(CONFIG_CPU_32v7M)	=-D__LINUX_ARM_ARCH__=7 -march=armv7-m
-+arch-$(CONFIG_CPU_32v7)		=-D__LINUX_ARM_ARCH__=7 -march=armv7-a
-+arch-$(CONFIG_CPU_32v6)		=-D__LINUX_ARM_ARCH__=6 -march=armv6
- # Only override the compiler option if ARMv6. The ARMv6K extensions are
- # always available in ARMv7
- ifeq ($(CONFIG_CPU_32v6),y)
--arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 $(call cc-option,-march=armv6k,-march=armv5t -Wa$(comma)-march=armv6k)
-+arch-$(CONFIG_CPU_32v6K)	=-D__LINUX_ARM_ARCH__=6 -march=armv6k
- endif
--arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 $(call cc-option,-march=armv5te,-march=armv4t)
-+arch-$(CONFIG_CPU_32v5)		=-D__LINUX_ARM_ARCH__=5 -march=armv5te
- arch-$(CONFIG_CPU_32v4T)	=-D__LINUX_ARM_ARCH__=4 -march=armv4t
- arch-$(CONFIG_CPU_32v4)		=-D__LINUX_ARM_ARCH__=4 -march=armv4
- arch-$(CONFIG_CPU_32v3)		=-D__LINUX_ARM_ARCH__=3 -march=armv3
-@@ -85,7 +85,7 @@ tune-$(CONFIG_CPU_ARM720T)	=-mtune=arm7t
- tune-$(CONFIG_CPU_ARM740T)	=-mtune=arm7tdmi
- tune-$(CONFIG_CPU_ARM9TDMI)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM940T)	=-mtune=arm9tdmi
--tune-$(CONFIG_CPU_ARM946E)	=$(call cc-option,-mtune=arm9e,-mtune=arm9tdmi)
-+tune-$(CONFIG_CPU_ARM946E)	=-mtune=arm9e
- tune-$(CONFIG_CPU_ARM920T)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM922T)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_ARM925T)	=-mtune=arm9tdmi
-@@ -93,11 +93,11 @@ tune-$(CONFIG_CPU_ARM926T)	=-mtune=arm9t
- tune-$(CONFIG_CPU_FA526)	=-mtune=arm9tdmi
- tune-$(CONFIG_CPU_SA110)	=-mtune=strongarm110
- tune-$(CONFIG_CPU_SA1100)	=-mtune=strongarm1100
--tune-$(CONFIG_CPU_XSCALE)	=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
--tune-$(CONFIG_CPU_XSC3)		=$(call cc-option,-mtune=xscale,-mtune=strongarm110) -Wa,-mcpu=xscale
--tune-$(CONFIG_CPU_FEROCEON)	=$(call cc-option,-mtune=marvell-f,-mtune=xscale)
--tune-$(CONFIG_CPU_V6)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
--tune-$(CONFIG_CPU_V6K)		=$(call cc-option,-mtune=arm1136j-s,-mtune=strongarm)
-+tune-$(CONFIG_CPU_XSCALE)	=-mtune=xscale
-+tune-$(CONFIG_CPU_XSC3)		=-mtune=xscale
-+tune-$(CONFIG_CPU_FEROCEON)	=-mtune=xscale
-+tune-$(CONFIG_CPU_V6)		=-mtune=arm1136j-s
-+tune-$(CONFIG_CPU_V6K)		=-mtune=arm1136j-s
- 
- # Evaluate tune cc-option calls now
- tune-y := $(tune-y)
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index 25548555d8d79..d9b864856be19 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -187,6 +187,16 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+ 					SOF_RT715_DAI_ID_FIX |
+ 					SOF_SDW_FOUR_SPK),
+ 	},
++	{
++		.callback = sof_sdw_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0A45")
++		},
++		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
++					RT711_JD2 |
++					SOF_RT715_DAI_ID_FIX),
++	},
+ 	/* AlderLake devices */
+ 	{
+ 		.callback = sof_sdw_quirk_cb,
+-- 
+2.33.0
+
 
 
