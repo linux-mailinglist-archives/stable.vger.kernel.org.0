@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D3FC45C24A
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:24:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6BD745C25B
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:24:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346473AbhKXN04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:26:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45194 "EHLO mail.kernel.org"
+        id S1350667AbhKXN1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:27:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348262AbhKXNYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:24:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 928DD61152;
-        Wed, 24 Nov 2021 12:49:07 +0000 (UTC)
+        id S1348133AbhKXNZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:25:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C07861B72;
+        Wed, 24 Nov 2021 12:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637758148;
-        bh=sVLH/3bPoTcclJCjnqTxHfTrKiW3x4IU7q64XrNSqD4=;
+        s=korg; t=1637758188;
+        bh=75YgilEkr+rv3FHrN2C6182LFwNoCZZ9Q6EU3l/v8hQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWuAx2GJTKjR/nnnvVsZgHQ7PKSd1XeLYewv2MHofCuKkzC5GtE60upX7V8Yof6w3
-         GRn+sVcFwYGQslhQnanNF0DX1iSE7zs4PnbMSo0mJNkNGjaAyQEsXDLgpy2kagMVid
-         6puT0krFg7jcoHKKtmrJFhq3if1DZXqszFDuR1V8=
+        b=URo3LJvHR3hv7/zCwkVZHcpJ01S8qKpiULkW978Op7SQqvDk33s1XgsZkrciyuqiY
+         Sm8klE59MudGF9o4c61je1fIAxaSOsLqOK814KSZhbH+v2smhqlZ7fyENMWLvcz1H2
+         ymrZ6LbirItXyMMNS56TSDun8nzHS1k4gk0jRTsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>,
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/100] drm/nouveau: hdmigv100.c: fix corrupted HDMI Vendor InfoFrame
-Date:   Wed, 24 Nov 2021 12:58:25 +0100
-Message-Id: <20211124115657.100070144@linuxfoundation.org>
+Subject: [PATCH 5.4 070/100] NFC: reorder the logic in nfc_{un,}register_device
+Date:   Wed, 24 Nov 2021 12:58:26 +0100
+Message-Id: <20211124115657.129453487@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115654.849735859@linuxfoundation.org>
 References: <20211124115654.849735859@linuxfoundation.org>
@@ -41,39 +41,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 3cc1ae1fa70ab369e4645e38ce335a19438093ad ]
+[ Upstream commit 3e3b5dfcd16a3e254aab61bd1e8c417dd4503102 ]
 
-gv100_hdmi_ctrl() writes vendor_infoframe.subpack0_high to 0x6f0110, and
-then overwrites it with 0. Just drop the overwrite with 0, that's clearly
-a mistake.
+There is a potential UAF between the unregistration routine and the NFC
+netlink operations.
 
-Because of this issue the HDMI VIC is 0 instead of 1 in the HDMI Vendor
-InfoFrame when transmitting 4kp30.
+The race that cause that UAF can be shown as below:
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 290ffeafcc1a ("drm/nouveau/disp/gv100: initial support")
-Reviewed-by: Ben Skeggs <bskeggs@redhat.com>
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/3d3bd0f7-c150-2479-9350-35d394ee772d@xs4all.nl
+ (FREE)                      |  (USE)
+nfcmrvl_nci_unregister_dev   |  nfc_genl_dev_up
+  nci_close_device           |
+  nci_unregister_device      |    nfc_get_device
+    nfc_unregister_device    |    nfc_dev_up
+      rfkill_destory         |
+      device_del             |      rfkill_blocked
+  ...                        |    ...
+
+The root cause for this race is concluded below:
+1. The rfkill_blocked (USE) in nfc_dev_up is supposed to be placed after
+the device_is_registered check.
+2. Since the netlink operations are possible just after the device_add
+in nfc_register_device, the nfc_dev_up() can happen anywhere during the
+rfkill creation process, which leads to data race.
+
+This patch reorder these actions to permit
+1. Once device_del is finished, the nfc_dev_up cannot dereference the
+rfkill object.
+2. The rfkill_register need to be placed after the device_add of nfc_dev
+because the parent device need to be created first. So this patch keeps
+the order but inject device_lock to prevent the data race.
+
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Fixes: be055b2f89b5 ("NFC: RFKILL support")
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211116152652.19217-1-linma@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigv100.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/nfc/core.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigv100.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigv100.c
-index 6e3c450eaacef..3ff49344abc77 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigv100.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigv100.c
-@@ -62,7 +62,6 @@ gv100_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet,
- 		nvkm_wr32(device, 0x6f0108 + hdmi, vendor_infoframe.header);
- 		nvkm_wr32(device, 0x6f010c + hdmi, vendor_infoframe.subpack0_low);
- 		nvkm_wr32(device, 0x6f0110 + hdmi, vendor_infoframe.subpack0_high);
--		nvkm_wr32(device, 0x6f0110 + hdmi, 0x00000000);
- 		nvkm_wr32(device, 0x6f0114 + hdmi, 0x00000000);
- 		nvkm_wr32(device, 0x6f0118 + hdmi, 0x00000000);
- 		nvkm_wr32(device, 0x6f011c + hdmi, 0x00000000);
+diff --git a/net/nfc/core.c b/net/nfc/core.c
+index c5f9c3ee82f8e..e752692d36802 100644
+--- a/net/nfc/core.c
++++ b/net/nfc/core.c
+@@ -94,13 +94,13 @@ int nfc_dev_up(struct nfc_dev *dev)
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
+-		rc = -ERFKILL;
++	if (!device_is_registered(&dev->dev)) {
++		rc = -ENODEV;
+ 		goto error;
+ 	}
+ 
+-	if (!device_is_registered(&dev->dev)) {
+-		rc = -ENODEV;
++	if (dev->rfkill && rfkill_blocked(dev->rfkill)) {
++		rc = -ERFKILL;
+ 		goto error;
+ 	}
+ 
+@@ -1118,11 +1118,7 @@ int nfc_register_device(struct nfc_dev *dev)
+ 	if (rc)
+ 		pr_err("Could not register llcp device\n");
+ 
+-	rc = nfc_genl_device_added(dev);
+-	if (rc)
+-		pr_debug("The userspace won't be notified that the device %s was added\n",
+-			 dev_name(&dev->dev));
+-
++	device_lock(&dev->dev);
+ 	dev->rfkill = rfkill_alloc(dev_name(&dev->dev), &dev->dev,
+ 				   RFKILL_TYPE_NFC, &nfc_rfkill_ops, dev);
+ 	if (dev->rfkill) {
+@@ -1131,6 +1127,12 @@ int nfc_register_device(struct nfc_dev *dev)
+ 			dev->rfkill = NULL;
+ 		}
+ 	}
++	device_unlock(&dev->dev);
++
++	rc = nfc_genl_device_added(dev);
++	if (rc)
++		pr_debug("The userspace won't be notified that the device %s was added\n",
++			 dev_name(&dev->dev));
+ 
+ 	return 0;
+ }
+@@ -1147,10 +1149,17 @@ void nfc_unregister_device(struct nfc_dev *dev)
+ 
+ 	pr_debug("dev_name=%s\n", dev_name(&dev->dev));
+ 
++	rc = nfc_genl_device_removed(dev);
++	if (rc)
++		pr_debug("The userspace won't be notified that the device %s "
++			 "was removed\n", dev_name(&dev->dev));
++
++	device_lock(&dev->dev);
+ 	if (dev->rfkill) {
+ 		rfkill_unregister(dev->rfkill);
+ 		rfkill_destroy(dev->rfkill);
+ 	}
++	device_unlock(&dev->dev);
+ 
+ 	if (dev->ops->check_presence) {
+ 		device_lock(&dev->dev);
+@@ -1160,11 +1169,6 @@ void nfc_unregister_device(struct nfc_dev *dev)
+ 		cancel_work_sync(&dev->check_pres_work);
+ 	}
+ 
+-	rc = nfc_genl_device_removed(dev);
+-	if (rc)
+-		pr_debug("The userspace won't be notified that the device %s "
+-			 "was removed\n", dev_name(&dev->dev));
+-
+ 	nfc_llcp_unregister_device(dev);
+ 
+ 	mutex_lock(&nfc_devlist_mutex);
 -- 
 2.33.0
 
