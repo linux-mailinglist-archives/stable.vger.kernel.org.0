@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C101B45C0FF
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:11:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5241945C2EF
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:31:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346085AbhKXNOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:14:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56644 "EHLO mail.kernel.org"
+        id S1349602AbhKXNeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 08:34:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343512AbhKXNLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 08:11:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5450C613D5;
-        Wed, 24 Nov 2021 12:42:07 +0000 (UTC)
+        id S1351564AbhKXNc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 08:32:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA30661545;
+        Wed, 24 Nov 2021 12:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637757727;
-        bh=eK36jgu27/MC9jk/GRb2732biIOJb6QUwZd33yza+BM=;
+        s=korg; t=1637758376;
+        bh=A4koPMDJQSPKW88GsS9YB/C/PQMMOY8+DrCe4fXwN6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SSaYTKDoH6q1h60g7HBCe31FfDWFhTPbW2fI3ooL3CWFOo82xoy5c6AO4OLTECkqY
-         4glZTv0Ziu0McRAjXxvAnIPiaB1K2NhPfVl1O8R+okOZJgFzY34GVBOySXRcPy9CoD
-         vHXpHVAIKYVdz8EUwuJBJWXLw65ko2reeIZp04yo=
+        b=2LfaoLS75qqikxGg9HS7d9Q2UQ5aNT/X+DvpspkCclpbes8hLahydHs2fDVnntaNl
+         ZMNnpzAi06Q6RSFITZegUbKVHFHO4ae2zcswnHETtmfRS/ddN3RuUIQkYw57CRN2xA
+         NYs1seCB/qpnLFCL466V+URjfDPnI2yh417ZMt7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Salvaterra <rsalvaterra@gmail.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bjorn Helgaas <helgaas@kernel.org>
-Subject: [PATCH 4.19 256/323] PCI: Add MSI masking quirk for Nvidia ION AHCI
+        stable@vger.kernel.org, Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 050/154] f2fs: fix up f2fs_lookup tracepoints
 Date:   Wed, 24 Nov 2021 12:57:26 +0100
-Message-Id: <20211124115727.537972219@linuxfoundation.org>
+Message-Id: <20211124115703.951271840@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-References: <20211124115718.822024889@linuxfoundation.org>
+In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
+References: <20211124115702.361983534@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-commit f21082fb20dbfb3e42b769b59ef21c2a7f2c7c1f upstream.
+[ Upstream commit 70a9ac36ffd807ac506ed0b849f3e8ce3c6623f2 ]
 
-The ION AHCI device pretends that MSI masking isn't a thing, while it
-actually implements it and needs MSIs to be unmasked to work. Add a quirk
-to that effect.
+Fix up a misuse that the filename pointer isn't always valid in
+the ring buffer, and we should copy the content instead.
 
-Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Bjorn Helgaas <helgaas@kernel.org>
-Link: https://lore.kernel.org/r/CALjTZvbzYfBuLB+H=fj2J+9=DxjQ2Uqcy0if_PvmJ-nU-qEgkg@mail.gmail.com
-Link: https://lore.kernel.org/r/20211104180130.3825416-3-maz@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0c5e36db17f5 ("f2fs: trace f2fs_lookup")
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ include/trace/events/f2fs.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5579,3 +5579,9 @@ static void apex_pci_fixup_class(struct
- }
- DECLARE_PCI_FIXUP_CLASS_HEADER(0x1ac1, 0x089a,
- 			       PCI_CLASS_NOT_DEFINED, 8, apex_pci_fixup_class);
-+
-+static void nvidia_ion_ahci_fixup(struct pci_dev *pdev)
-+{
-+	pdev->dev_flags |= PCI_DEV_FLAGS_HAS_MSI_MASKING;
-+}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0ab8, nvidia_ion_ahci_fixup);
+diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
+index 56b113e3cd6aa..df293bc7f03b8 100644
+--- a/include/trace/events/f2fs.h
++++ b/include/trace/events/f2fs.h
+@@ -807,20 +807,20 @@ TRACE_EVENT(f2fs_lookup_start,
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,	dev)
+ 		__field(ino_t,	ino)
+-		__field(const char *,	name)
++		__string(name,	dentry->d_name.name)
+ 		__field(unsigned int, flags)
+ 	),
+ 
+ 	TP_fast_assign(
+ 		__entry->dev	= dir->i_sb->s_dev;
+ 		__entry->ino	= dir->i_ino;
+-		__entry->name	= dentry->d_name.name;
++		__assign_str(name, dentry->d_name.name);
+ 		__entry->flags	= flags;
+ 	),
+ 
+ 	TP_printk("dev = (%d,%d), pino = %lu, name:%s, flags:%u",
+ 		show_dev_ino(__entry),
+-		__entry->name,
++		__get_str(name),
+ 		__entry->flags)
+ );
+ 
+@@ -834,7 +834,7 @@ TRACE_EVENT(f2fs_lookup_end,
+ 	TP_STRUCT__entry(
+ 		__field(dev_t,	dev)
+ 		__field(ino_t,	ino)
+-		__field(const char *,	name)
++		__string(name,	dentry->d_name.name)
+ 		__field(nid_t,	cino)
+ 		__field(int,	err)
+ 	),
+@@ -842,14 +842,14 @@ TRACE_EVENT(f2fs_lookup_end,
+ 	TP_fast_assign(
+ 		__entry->dev	= dir->i_sb->s_dev;
+ 		__entry->ino	= dir->i_ino;
+-		__entry->name	= dentry->d_name.name;
++		__assign_str(name, dentry->d_name.name);
+ 		__entry->cino	= ino;
+ 		__entry->err	= err;
+ 	),
+ 
+ 	TP_printk("dev = (%d,%d), pino = %lu, name:%s, ino:%u, err:%d",
+ 		show_dev_ino(__entry),
+-		__entry->name,
++		__get_str(name),
+ 		__entry->cino,
+ 		__entry->err)
+ );
+-- 
+2.33.0
+
 
 
