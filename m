@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6BA145BAE8
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA7CB45BAEB
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:12:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241838AbhKXMPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:15:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
+        id S242634AbhKXMP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:15:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242822AbhKXMMF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:12:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8424760295;
-        Wed, 24 Nov 2021 12:06:59 +0000 (UTC)
+        id S240749AbhKXMMP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:12:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 954D26108B;
+        Wed, 24 Nov 2021 12:07:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755620;
-        bh=r1AgslNBck/jjGU0EcguFA9a5spCsqwtYW+7uBn2tWI=;
+        s=korg; t=1637755623;
+        bh=yznRrrzCC1mHKhmefVH14Iy3uUMmCRt3MqZVyMl4NdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KLW+eyXcnvAbOjMjx/oQsyd2AndMnPSBLGA7NUCwOm46lFHjdWx+5fiwZVzs4NFFf
-         TtzX0ldP3IZyyn0EK2RRX40plBEvE+wRn1Y5qPdUlgudFRxQtaQHKJ8gvFUJHQqS0Q
-         tDSalEqKqaoYqJjeCDYB3LVvV4GG/E1r8MXV7VT8=
+        b=ZfdGH8Imi8eWZcmdirYiG5QKGMB+RlmluPeTqY292orxAcNp2+iw7Gj7FMr2FqZe2
+         SWQZaFhl8lh2HFqGTkBdPbXWSN3Smlrd0vtn5zZDlf81d68TEP77zklxbGdV9i1ZCi
+         /To3y7phzbuOjodtIbv5tKpBkNtY7Iz99SowHMq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Paul Mundt <lethal@linux-sh.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Lu Wei <luwei32@huawei.com>,
         John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Miguel Ojeda <ojeda@kernel.org>, Rich Felker <dalias@libc.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 129/162] sh: check return code of request_irq
-Date:   Wed, 24 Nov 2021 12:57:12 +0100
-Message-Id: <20211124115702.467765244@linuxfoundation.org>
+        Rich Felker <dalias@libc.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 130/162] maple: fix wrong return value of maple_bus_init().
+Date:   Wed, 24 Nov 2021 12:57:13 +0100
+Message-Id: <20211124115702.497658564@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
 References: <20211124115658.328640564@linuxfoundation.org>
@@ -45,43 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Lu Wei <luwei32@huawei.com>
 
-[ Upstream commit 0e38225c92c7964482a8bb6b3e37fde4319e965c ]
+[ Upstream commit bde82ee391fa6d3ad054313c4aa7b726d32515ce ]
 
-request_irq is marked __must_check, but the call in shx3_prepare_cpus
-has a void return type, so it can't propagate failure to the caller.
-Follow cues from hexagon and just print an error.
+If KMEM_CACHE or maple_alloc_dev failed, the maple_bus_init() will return 0
+rather than error, because the retval is not changed after KMEM_CACHE or
+maple_alloc_dev failed.
 
-Fixes: c7936b9abcf5 ("sh: smp: Hook in to the generic IPI handler for SH-X3 SMP.")
-Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Cc: Paul Mundt <lethal@linux-sh.org>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
+Fixes: 17be2d2b1c33 ("sh: Add maple bus support for the SEGA Dreamcast.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Lu Wei <luwei32@huawei.com>
+Acked-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 Signed-off-by: Rich Felker <dalias@libc.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sh/kernel/cpu/sh4a/smp-shx3.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/sh/maple/maple.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/sh/kernel/cpu/sh4a/smp-shx3.c b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-index 4a298808789c4..4a1cee5da2dc5 100644
---- a/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-+++ b/arch/sh/kernel/cpu/sh4a/smp-shx3.c
-@@ -78,8 +78,9 @@ static void shx3_prepare_cpus(unsigned int max_cpus)
- 	BUILD_BUG_ON(SMP_MSG_NR >= 8);
+diff --git a/drivers/sh/maple/maple.c b/drivers/sh/maple/maple.c
+index bec81c2404f78..1682fa3671bc3 100644
+--- a/drivers/sh/maple/maple.c
++++ b/drivers/sh/maple/maple.c
+@@ -835,8 +835,10 @@ static int __init maple_bus_init(void)
  
- 	for (i = 0; i < SMP_MSG_NR; i++)
--		request_irq(104 + i, ipi_interrupt_handler,
--			    IRQF_PERCPU, "IPI", (void *)(long)i);
-+		if (request_irq(104 + i, ipi_interrupt_handler,
-+			    IRQF_PERCPU, "IPI", (void *)(long)i))
-+			pr_err("Failed to request irq %d\n", i);
+ 	maple_queue_cache = KMEM_CACHE(maple_buffer, SLAB_HWCACHE_ALIGN);
  
- 	for (i = 0; i < max_cpus; i++)
- 		set_cpu_present(i, true);
+-	if (!maple_queue_cache)
++	if (!maple_queue_cache) {
++		retval = -ENOMEM;
+ 		goto cleanup_bothirqs;
++	}
+ 
+ 	INIT_LIST_HEAD(&maple_waitq);
+ 	INIT_LIST_HEAD(&maple_sentq);
+@@ -849,6 +851,7 @@ static int __init maple_bus_init(void)
+ 		if (!mdev[i]) {
+ 			while (i-- > 0)
+ 				maple_free_dev(mdev[i]);
++			retval = -ENOMEM;
+ 			goto cleanup_cache;
+ 		}
+ 		baseunits[i] = mdev[i];
 -- 
 2.33.0
 
