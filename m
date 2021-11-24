@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9C5B45B9FE
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:05:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9358445BB90
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 13:18:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238420AbhKXMGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 07:06:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60198 "EHLO mail.kernel.org"
+        id S243653AbhKXMUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 07:20:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242242AbhKXMGE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 07:06:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7EDE61055;
-        Wed, 24 Nov 2021 12:02:53 +0000 (UTC)
+        id S243808AbhKXMSw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 07:18:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28C4F60F5D;
+        Wed, 24 Nov 2021 12:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637755374;
-        bh=NE6wtgAjoCMSQRzm+xST3hTj+qpCsp1XOj/ZWbZehYY=;
+        s=korg; t=1637755915;
+        bh=VeERWnquwe8O+0h2BDEK+eSK5eTtMoGrfLxGq49TWzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBXGd3xrVi8i54LHZbWFGRCnBrZJDHogW1U1VG7y0I/8SKBvAXVpidxV/kWEhfqcf
-         eBtWJI6AxzJni8g4Z+KJePc5KzE6fSdFaqKKOXlyaH3QTQfnhQAH1nyrpAzMTVf1Fa
-         oLbj2nByDrF/rrWJP7Y7TXnnKcDFuE8hE/u6mWbY=
+        b=E405x4+Rib1MJo3hwQ6//WAIdbEVhYuvaH8nI6yzRGggunOM2Q9QxLgNDvaqVklp7
+         eFT3gYw6waaw2mAOoEX/23G9e3TvinwIgh1nWoQDdms2xfpwlitQwNKCRUGDkaYBCt
+         GfKICv6mkSZ+r0E9vdWTle5XQm1nz4LjhRGfsOmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Kees Cook <keescook@chromium.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Tor Vic <torvic9@mailbox.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 072/162] media: si470x: Avoid card name truncation
-Date:   Wed, 24 Nov 2021 12:56:15 +0100
-Message-Id: <20211124115700.650692667@linuxfoundation.org>
+Subject: [PATCH 4.9 105/207] platform/x86: thinkpad_acpi: Fix bitwise vs. logical warning
+Date:   Wed, 24 Nov 2021 12:56:16 +0100
+Message-Id: <20211124115707.470017060@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.0
-In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
-References: <20211124115658.328640564@linuxfoundation.org>
+In-Reply-To: <20211124115703.941380739@linuxfoundation.org>
+References: <20211124115703.941380739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 2908249f3878a591f7918368fdf0b7b0a6c3158c ]
+[ Upstream commit fd96e35ea7b95f1e216277805be89d66e4ae962d ]
 
-The "card" string only holds 31 characters (and the terminating NUL).
-In order to avoid truncation, use a shorter card description instead of
-the current result, "Silicon Labs Si470x FM Radio Re".
+A new warning in clang points out a use of bitwise OR with boolean
+expressions in this driver:
 
-Suggested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 78656acdcf48 ("V4L/DVB (7038): USB radio driver for Silicon Labs Si470x FM Radio Receivers")
-Fixes: cc35bbddfe10 ("V4L/DVB (12416): radio-si470x: add i2c driver for si470x")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+drivers/platform/x86/thinkpad_acpi.c:9061:11: error: use of bitwise '|' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
+        else if ((strlencmp(cmd, "level disengaged") == 0) |
+                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                                           ||
+drivers/platform/x86/thinkpad_acpi.c:9061:11: note: cast one or both operands to int to silence this warning
+1 error generated.
+
+This should clearly be a logical OR so change it to fix the warning.
+
+Fixes: fe98a52ce754 ("ACPI: thinkpad-acpi: add sysfs support to fan subdriver")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1476
+Reported-by: Tor Vic <torvic9@mailbox.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20211018182537.2316800-1-nathan@kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/si470x/radio-si470x-i2c.c | 2 +-
- drivers/media/radio/si470x/radio-si470x-usb.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/platform/x86/thinkpad_acpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/radio/si470x/radio-si470x-i2c.c b/drivers/media/radio/si470x/radio-si470x-i2c.c
-index 0836fa442d224..24804ce70f523 100644
---- a/drivers/media/radio/si470x/radio-si470x-i2c.c
-+++ b/drivers/media/radio/si470x/radio-si470x-i2c.c
-@@ -24,7 +24,7 @@
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 84bfecded84d9..9c929b5ce58e2 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -8884,7 +8884,7 @@ static int fan_write_cmd_level(const char *cmd, int *rc)
  
- /* driver definitions */
- #define DRIVER_AUTHOR "Joonyoung Shim <jy0922.shim@samsung.com>";
--#define DRIVER_CARD "Silicon Labs Si470x FM Radio Receiver"
-+#define DRIVER_CARD "Silicon Labs Si470x FM Radio"
- #define DRIVER_DESC "I2C radio driver for Si470x FM Radio Receivers"
- #define DRIVER_VERSION "1.0.2"
- 
-diff --git a/drivers/media/radio/si470x/radio-si470x-usb.c b/drivers/media/radio/si470x/radio-si470x-usb.c
-index c9347d5aac04f..6fd1e4f26f5f4 100644
---- a/drivers/media/radio/si470x/radio-si470x-usb.c
-+++ b/drivers/media/radio/si470x/radio-si470x-usb.c
-@@ -29,7 +29,7 @@
- 
- /* driver definitions */
- #define DRIVER_AUTHOR "Tobias Lorenz <tobias.lorenz@gmx.net>"
--#define DRIVER_CARD "Silicon Labs Si470x FM Radio Receiver"
-+#define DRIVER_CARD "Silicon Labs Si470x FM Radio"
- #define DRIVER_DESC "USB radio driver for Si470x FM Radio Receivers"
- #define DRIVER_VERSION "1.0.10"
- 
+ 	if (strlencmp(cmd, "level auto") == 0)
+ 		level = TP_EC_FAN_AUTO;
+-	else if ((strlencmp(cmd, "level disengaged") == 0) |
++	else if ((strlencmp(cmd, "level disengaged") == 0) ||
+ 			(strlencmp(cmd, "level full-speed") == 0))
+ 		level = TP_EC_FAN_FULLSPEED;
+ 	else if (sscanf(cmd, "level %d", &level) != 1)
 -- 
 2.33.0
 
