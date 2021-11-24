@@ -2,90 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9941B45C58F
-	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 14:56:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 858AF45C7A5
+	for <lists+stable@lfdr.de>; Wed, 24 Nov 2021 15:39:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348961AbhKXN7U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 08:59:20 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:44680 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352962AbhKXN4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 08:56:30 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 2BA271C0B7C; Wed, 24 Nov 2021 14:53:19 +0100 (CET)
-Date:   Wed, 24 Nov 2021 14:53:11 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/154] 5.10.82-rc1 review
-Message-ID: <20211124135311.GA29193@duo.ucw.cz>
-References: <20211124115702.361983534@linuxfoundation.org>
+        id S1345011AbhKXOnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 09:43:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49690 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347625AbhKXOmz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 09:42:55 -0500
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C19CEC04FDE7
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 05:55:09 -0800 (PST)
+Received: by mail-pg1-x536.google.com with SMTP id p17so2219666pgj.2
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 05:55:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Nn5aSHPVY/ui0MvElDAmWnmam1AlynMXPORt2z1IWEg=;
+        b=t3xyj6bc/gpt11Dyx7nbjvJyAtSt6ZrQYyB0Su3S6dgEtRpuBlx30Khq3l1tq1ihaM
+         Ycw2CEBvsNCyOJEPR8OvY8xwsXhN4AVUPPJ2Fp+V8C8LbrNwsFkE89JQZNiiNTr192T2
+         IitFkg171ZrBe+13Fo/Fl6NQ6zm9UIKT2gFIXt/8Ez67Z2mejGCLHldT+8qW6mM/4YdU
+         hSJy8VWr3DCLriIE5+iwZBNwwDb1UcHqquZw0KgzFcoinFDQu9L+dpeFLwpAK7Q20m25
+         h3qZZcn5GbJ0XUTsQJ4Pq3HB1x/LfpxQDjEt3PROtfaVEy2jpz+ghKSqfKMilC5hvkzS
+         CHYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Nn5aSHPVY/ui0MvElDAmWnmam1AlynMXPORt2z1IWEg=;
+        b=jU3ENLiKm1r8n9hys3zq+oB/QmyMLSzX7Rx4XvvQuPKsPA8gIGze03d6k0kT8I2Jfi
+         OuT4Cti0EzeL8D5pBnM/M7H8KH9G0AWrcIdmRk5/cVY6AXtPMfuCgkkqxAHJai9G2csP
+         f9FIwA1Nz0K/Rrljen6JDUAUhSmp6IVn1GaFsQXnaCIKjzKrawT6Rs8UP+EIfgbvaMNK
+         MpWrAVT1m4B5pWJcTBNPJD0dWvK677ptqWNB37qi9nHHqo4gUWugei8nz38yJ0hzKB64
+         0CdDf+d0cXtQDMMWGGhF0aFHKUj7MeR2yiYMhG2+ItBts/RjbMFOmf0Yb8nBFl8no5XU
+         WW4A==
+X-Gm-Message-State: AOAM533JUOGHNuMb64alXonASHCynAaCCbl52kQK3tDrHBFzPC4sCelm
+        DjTsFo0smkjswFtIlilbvVkbz4+O9iBtck6C
+X-Google-Smtp-Source: ABdhPJx62a9EU0Y1LuJKnvM7+pTnl+gIUByaASm4GusWx4i8Z5YzJ/42JGzoVuCiMLC3avLJGr+pcA==
+X-Received: by 2002:a63:d047:: with SMTP id s7mr10238119pgi.470.1637762108633;
+        Wed, 24 Nov 2021 05:55:08 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id lx15sm5306323pjb.44.2021.11.24.05.55.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Nov 2021 05:55:08 -0800 (PST)
+Message-ID: <619e443c.1c69fb81.808f2.bc39@mx.google.com>
+Date:   Wed, 24 Nov 2021 05:55:08 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
-Content-Disposition: inline
-In-Reply-To: <20211124115702.361983534@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.255-251-g2f2090beb462
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y baseline: 123 runs,
+ 1 regressions (v4.14.255-251-g2f2090beb462)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y baseline: 123 runs, 1 regressions (v4.14.255-251-g2f=
+2090beb462)
 
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regressions Summary
+-------------------
 
-Hi!
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-> This is the start of the stable review cycle for the 5.10.82 release.
-> There are 154 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
 
-CIP is running tests here:
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.255-251-g2f2090beb462/plan/baseline/
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-5.10.y
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.255-251-g2f2090beb462
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2f2090beb4622e9209fee6b1d8928dbbe5ea4c21 =
 
-And there's a build failure in CIP testing there:
 
-  CC      drivers/mmc/core/sdio_ops.o
-5040drivers/cpuidle/cpuidle-tegra.c: In function 'tegra_cpuidle_probe':
-5041drivers/cpuidle/cpuidle-tegra.c:349:38: error: 'TEGRA_SUSPEND_NOT_READY=
-' undeclared (first use in this function); did you mean 'TEGRA_SUSPEND_NONE=
-'?
-5042  if (tegra_pmc_get_suspend_mode() =3D=3D TEGRA_SUSPEND_NOT_READY)
-5043                                      ^~~~~~~~~~~~~~~~~~~~~~~
-5044                                      TEGRA_SUSPEND_NONE
-5045drivers/cpuidle/cpuidle-tegra.c:349:38: note: each undeclared identifie=
-r is reported only once for each function it appears in
-5046  CC      drivers/gpu/drm/drm_dma.o
-5047scripts/Makefile.build:280: recipe for target 'drivers/cpuidle/cpuidle-=
-tegra.o' failed
-5048scripts/Makefile.build:497: recipe for target 'drivers/cpuidle' failed
-5049make[2]: *** [drivers/cpuidle/cpuidle-tegra.o] Error 1
-5050make[1]: *** [drivers/cpuidle] Error 2
-5051make[1]: *** Waiting for unfinished jobs....
-5052  CC      drivers/cpufreq/raspberrypi-cpufreq.o
 
-Best regards,
-									Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Test Regressions
+---------------- =
 
---pf9I7BMVVzbSWLtt
-Content-Type: application/pgp-signature; name="signature.asc"
 
------BEGIN PGP SIGNATURE-----
 
-iFwEABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYZ5DxwAKCRAw5/Bqldv6
-8nyxAJ932Uynpn1BTYP3wbBqxvMUdHuJpACXVo2qXdIKO2L3nXQIWy/TlNZkrA==
-=lZc9
------END PGP SIGNATURE-----
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
---pf9I7BMVVzbSWLtt--
+
+  Details:     https://kernelci.org/test/plan/id/619e0ff20484713c73f2efc3
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+55-251-g2f2090beb462/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-=
+panda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+55-251-g2f2090beb462/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-=
+panda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/619e0ff20484713=
+c73f2efc6
+        failing since 10 days (last pass: v4.14.255, first fail: v4.14.255-=
+54-gb6f4d599e1d3)
+        2 lines
+
+    2021-11-24T10:11:44.466149  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/98
+    2021-11-24T10:11:44.475703  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
