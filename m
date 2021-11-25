@@ -2,57 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13B7845D753
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 10:36:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A16345D782
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 10:44:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240663AbhKYJj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 04:39:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50552 "EHLO
+        id S1354262AbhKYJr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 04:47:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349450AbhKYJiV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 04:38:21 -0500
-Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [IPv6:2404:9400:2:0:216:3eff:fee2:21ea])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52BE6C061748;
-        Thu, 25 Nov 2021 01:35:10 -0800 (PST)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4J0CQg74YDz4xcs;
-        Thu, 25 Nov 2021 20:35:07 +1100 (AEDT)
-From:   Michael Ellerman <patch-notifications@ellerman.id.au>
-To:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-In-Reply-To: <ce30364fb7ccda489272af4a1612b6aa147e1d23.1637227521.git.christophe.leroy@csgroup.eu>
-References: <ce30364fb7ccda489272af4a1612b6aa147e1d23.1637227521.git.christophe.leroy@csgroup.eu>
-Subject: Re: [PATCH] powerpc/32: Fix hardlockup on vmap stack overflow
-Message-Id: <163783287691.1228083.396612201232244532.b4-ty@ellerman.id.au>
-Date:   Thu, 25 Nov 2021 20:34:36 +1100
+        with ESMTP id S1348645AbhKYJp7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 04:45:59 -0500
+Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54683C061574
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 01:41:24 -0800 (PST)
+Received: by mail-il1-x12d.google.com with SMTP id j7so5209749ilk.13
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 01:41:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=1jhNkAoDHoBnrjH8lRqt+E4imGjp6xJuBTI7BzLhai0=;
+        b=aZ5KRi6khwcm03SFr6qxFBICPaXVOR0jIwO+pqh4MzlVvO9cpj0ktx5SGby6qtDrQp
+         sGiafmtRD8hD4lmI/6sGpASdktcpcUQMfN3pZxo0qJPutH6meozYXEEZdQCDkSQzpA0T
+         0ywI+AUGqvb8Ka7+xHAzsKgXDscKDP6oEhOSXZyYhSC7YMY1PpTr2lazcodw1ytH/2w6
+         Cwqnnq9YYEnzEtz2xKwqTkzk38vw2j5YJM8/OQbaAfk0a2QnLJ6co14/yq+vC7YVVFW8
+         uHek+MlubT6m8DTJiq11w5HgY9AJv3oE4s16DeNUOO96x1czx+XpFNoPlGEBhFDerXgg
+         OVBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=1jhNkAoDHoBnrjH8lRqt+E4imGjp6xJuBTI7BzLhai0=;
+        b=vPDc2OBwbUvvN1LKpEmscdBmBUUprpWsRyVbZjcIAe1xRJ7gqcu23EiGLY6159fJ59
+         7ea07+6gvf+IBE1hhH8cpOXsZoab8v0kbFoxoHVY4A4Uam4sG+4XkiJOCW3nGKn1EMJR
+         ZDN9qBUbbowv4iS4MU4KulqmqmSkyNzj0I6/JGSIxIIpDcdaKMcny7iGzmZEGo4BxGXs
+         VZuecgkjlFp5fOkG+7ic6SOhtlKR0TfVewgcuPBs/bNMy03FvcQU6IPMmaFLa8CHd5lW
+         3GU3WzWVWmXSX8+6Lqkh2WzX0BqQmcVdStaMKDWskVrp9xWCWcSHvZsBf9j/xaDxH/et
+         UM/g==
+X-Gm-Message-State: AOAM5334hONsJf8LmP6XgVK0ma3yJyd2C4DLhlX5pHa6wyvAffkHgf09
+        TceE94NbFs5Em6ZcOSzt+mOtYNpN51XTRfdwqKw=
+X-Google-Smtp-Source: ABdhPJzwQ6LrO+dTk1MWsjsrqZLFzQGVYi5mtpz1ltB72frNbuBD1ur85cs4T1H2co0rH0NDAX5Keetmlx7KjzaJoaI=
+X-Received: by 2002:a05:6e02:1d1a:: with SMTP id i26mr21510241ila.270.1637833283737;
+ Thu, 25 Nov 2021 01:41:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a05:6622:2891:0:0:0:0 with HTTP; Thu, 25 Nov 2021 01:41:22
+ -0800 (PST)
+Reply-To: josephslimslimjoseph@gmail.com
+From:   Joseph Slim <ingodwetrustrichardw@gmail.com>
+Date:   Thu, 25 Nov 2021 10:41:22 +0100
+Message-ID: <CAEKhAdQwFL9RU+oKvOEk0MoeyreXsqXpYTwxCAJHeNu_1QezmA@mail.gmail.com>
+Subject: Good Morning to you
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 18 Nov 2021 10:39:53 +0100, Christophe Leroy wrote:
-> Since the commit c118c7303ad5 ("powerpc/32: Fix vmap stack - Do not
-> activate MMU before reading task struct") a vmap stack overflow
-> results in a hard lockup. This is because emergency_ctx is still
-> addressed with its virtual address allthough data MMU is not active
-> anymore at that time.
-> 
-> Fix it by using a physical address instead.
-> 
-> [...]
+Hi,
 
-Applied to powerpc/fixes.
+Please Can you assist me and my mother invest in your country?
 
-[1/1] powerpc/32: Fix hardlockup on vmap stack overflow
-      https://git.kernel.org/powerpc/c/5bb60ea611db1e04814426ed4bd1c95d1487678e
+We can go into any business investment as you propose, provided it
+will make a good return on investment, as our aim and that
 
-cheers
+of every well-meaning person is to make profit on investment.However
+you will get some remuneration for your efforts,
+
+Reply to this email  josephslimslimjoseph@gmail.com
+
+Best Regards
+
+Mr.Joseph Slim
