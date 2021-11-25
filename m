@@ -2,131 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E55945DACD
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 14:14:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B01145DAF9
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 14:21:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349393AbhKYNRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 08:17:47 -0500
-Received: from mail-dm6nam10on2078.outbound.protection.outlook.com ([40.107.93.78]:38721
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1354662AbhKYNPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 08:15:44 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=gXQzqNwRX+PMoJSdShyqcHCC04xZ5Cu3QY6oJgbZ3Zf72U4882ilV6mDVm2ccx54p/FWPCUu1kW8ql1v8rxqPQASApPNJlt4eaEpbLk3jr8NH7FcJ+6SvIIoxKvh7ixjKUxcDrltkqiy0ZChk9JmdVdK6ajL+VxEC57eTmzU4eenBx/yQvVVzxzg7ZDhCQBFlH1rZk2QoVazi4B2h2sWpR9CCw0f3pAIWCpcqigpslEmP0L3E5bP9mhJHsIS/EeExW6XUb5hBZLUUkD3qAkgafiEJCthMWsDwnjRl4HHq+4/grdN9uSHBNZ/Uso1pLqchSdOT3Kgs68SbvQ8cV6B7Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=yX4u5ucEk7MpTbzYdqD14mpMgsottfgPvFVDXvlcquo=;
- b=S6iMNvVQZ5EChx5c2bEsxaHBB6gE5kDClQBSYnIArdsHaQayzjtsT8Lmdl2IDAbl86YitIZWGhRZJm9ZrlE461/MKrTS9RMxQBkMIqedUntJk68xV/1vptKssA4iK++a5nv4sjtEa6/OXjBneG+67xUi6R1bKWrYtreEE7Unuxypzsnwfids8QeSj/uuPsqHlX2+11BpWoRJcNoSZAXVQWnLCzkxLhmC9+G/7Fy9PTJCG9I8NpvOZ7Cuj6EVfRWxaamPfs791H9QpUBtRZe4zzeHkPx8xCRbY7/vjM0asyZpZbIa/zUfijAgaFL9YNYIiJVZFiWsXZg6iXB0w5FF3g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.36) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=nvidia.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yX4u5ucEk7MpTbzYdqD14mpMgsottfgPvFVDXvlcquo=;
- b=fzmWRlrb0RNZJwdcY92Aq1A+v4qzmjWjasz7cdBqXQvhVbTDTDST66jfV9zt2mjsBJn60Mddq+f+MM37WymGYhQQp6xcPbFFo1qD/9IJJJghIGCDjs6Vbp9B2LsM63guCZqb/RZtpNHpb5q8bJA40rhwj1tlGpK4Hz0Bl0JRoxCXYdmcQj0zz9YvK38NJAYzTidGkdRIjT7BTocb6HXIZBAaaWvRPIG1bkpckWL0sIQhfkjwn2dMYa5VIp5XWQNHhfGdKj7bDFk78dgT790gJ5H8yL/uSlhcFBPqvjKV4JUUtUmEnv41+pC6CHu1oQmup1e2yaPFOxq+nNxbtKU8vw==
-Received: from MW4PR03CA0309.namprd03.prod.outlook.com (2603:10b6:303:dd::14)
- by DM6PR12MB2809.namprd12.prod.outlook.com (2603:10b6:5:4a::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.22; Thu, 25 Nov
- 2021 13:12:31 +0000
-Received: from CO1NAM11FT045.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:dd:cafe::15) by MW4PR03CA0309.outlook.office365.com
- (2603:10b6:303:dd::14) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.23 via Frontend
- Transport; Thu, 25 Nov 2021 13:12:31 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.36)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.36 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.36; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.36) by
- CO1NAM11FT045.mail.protection.outlook.com (10.13.175.181) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4734.22 via Frontend Transport; Thu, 25 Nov 2021 13:12:31 +0000
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Thu, 25 Nov
- 2021 13:12:30 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.187.5) by mail.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.18 via Frontend
- Transport; Thu, 25 Nov 2021 13:12:30 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 4.19 000/321] 4.19.218-rc2 review
-In-Reply-To: <20211125111805.368660289@linuxfoundation.org>
-References: <20211125111805.368660289@linuxfoundation.org>
-X-NVConfidentiality: public
+        id S1355427AbhKYNYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 08:24:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44638 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354973AbhKYNVx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 08:21:53 -0500
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BC17C061758
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 05:16:11 -0800 (PST)
+Received: by mail-pl1-x62c.google.com with SMTP id y7so4584237plp.0
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 05:16:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=zxpt8mO6Fs4ihKgowMxxbxiFV5jwwIBH7PDJQbQ4AYM=;
+        b=jsYDVxgYeobdTAR8HpaSgMBU8UwSK3Yl3t/O+Iqq2wKHHp+r7tvl/O48PQZVb9UZKi
+         3GKW12cTRUzBkeeNVG3tGPYpyfoWUXEIPQkBVHcDA6E0MMf4KQcvzZMA2Omd+zZkruZY
+         xqaUNdZCF/1zrRHV9LEH1FQ5xUMLkeJFXlhlTsL8+/P9LSfhK9YR2p2X2fnepdBSwElB
+         9B2TDyQwFIjrCpPVv+09av4JxZHJAQJwM13eNODDrzHMaFBqAgapARDk88nDUNiAEgGZ
+         L+P3okvMf171vNK80+ueTIhkPxti5oLyW7JatF60idLqu177kL++0EssO9D3nhaFt5Hb
+         qvrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=zxpt8mO6Fs4ihKgowMxxbxiFV5jwwIBH7PDJQbQ4AYM=;
+        b=2mcDE41tITp+Qvx2zOKBc4BnZIQ894s1Ns6I5yhhXCWG8mn0/SOK2vd4SbHCXvvPd7
+         90t/oPSlijA8Xf9R0ixHCi98/OkSidzz5pDAz3xoaAvWmFiqQ2nmsVFuK3ahEL/Ag8ly
+         kSQRH9POBVPyLnKWpgUJTxK5wL2nP0nBsHhI4kvNJ4pqVVQBwqhGut7SSOK6/jciVUKU
+         I0QWQ4HI2Ekb1r1x8ZxwwgGD+Pl15ZlURQkGcHwb5x+xvLUTPExpffcMuqyDaoP0ex0H
+         8EXY89VqPa1o5leshj4XTDJq3parDC+bcZubVhBGtgJYzL5AtFkMZ3795llVZmgny6bY
+         R94w==
+X-Gm-Message-State: AOAM532JdJ/tyTWjs/IdfkxymYvG/QDU/J7hOChL9LnHhjQe0A5Tzz02
+        bXHx4v4lrhUrtUH5CbCq3KRRLpInRQCrCqXjEW4=
+X-Google-Smtp-Source: ABdhPJw5VW3Cir3C7AqJG/XO1jaVyNBzfRV57+rNKAGcdiZWBQxZ/P9+INgCImnnIJzNVJLc4wkkUA==
+X-Received: by 2002:a17:90b:3887:: with SMTP id mu7mr6973307pjb.89.1637846170560;
+        Thu, 25 Nov 2021 05:16:10 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h22sm2447444pgl.79.2021.11.25.05.16.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Nov 2021 05:16:10 -0800 (PST)
+Message-ID: <619f8c9a.1c69fb81.7d51c.65d2@mx.google.com>
+Date:   Thu, 25 Nov 2021 05:16:10 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Message-ID: <f246a0384d9c4774800e23831b5ab28e@HQMAIL107.nvidia.com>
-Date:   Thu, 25 Nov 2021 13:12:30 +0000
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 8976bd44-ffd5-493f-66e8-08d9b0153cfa
-X-MS-TrafficTypeDiagnostic: DM6PR12MB2809:
-X-Microsoft-Antispam-PRVS: <DM6PR12MB280951CBCF8867BCA5E162F9D9629@DM6PR12MB2809.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: IRfuqSr2aoPbvBu6O8dBEULXBoQgQkfBfe41lTJf48OX/1UftFVqpx90p6RT8qyEqzePL7OjZ9qwxwp+/bqoxs4vBCsdvu4jTQ2II2YzpDdkEsq/d2sqvIJpDAwQz2GAg7AMymo1TEAq/S+0Xb8IkQiKoH7kXe4aPCG4nShReERmEnQ+GWzLFk9p5y+7AhgBNFHWPu/RnmoOQdRb8LqL0WpOdQx7GjHk7tWGQB0rM7izIfiNn5NJkpXTaS6y18mOGGeoI+mVbw9jM50nefNUIdCpdZbW4rJ58swmr24zv+eK++Kn0uHhoXm2vG2AQFenBI/QBf9r0u+n6hXDg1nhUNtJrjjKH0Bp3+VJHkgo/5jH404fXS1Dbc5uGubpybOU47ukrBktdwPkkj8DoYDsQ4YGK14BhIGP4QDH6HX3H1PBl4UkAISR/WXG6O3TL3zRbsUvq6f1loiZ754uLgrgBe73auz8jJNxVVAv2KnaYQwTCYSyZ7nYNlADSJW1iJFfOjaOHetva3d2gUHYLjNzzip93jZduv2d/y6npVBbco754Vdssf71vg2rkxprwsHMIzhc1xyhL3kIcmFrM7xqe2iUniZiN4qos1M1oTssDZB5CyVszXj47FY+Zjaz3C1sNUn2aZ1306yy4XQuCHWhZIYfB3GTsyX0g+D0Nw9AZ02Lu3Wk81c438H1MW2LId0E1NpqovTVnfmRWqTLCdW5i72t3hTr8ZP70diT4dNwELrf8NRYyRZmDvRvvn8Pgk9dMNvIaqzvNeA6NE7Xf9MDrN1x+MfhHhThVTClX+OUcK0=
-X-Forefront-Antispam-Report: CIP:216.228.112.36;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid05.nvidia.com;CAT:NONE;SFS:(4636009)(36840700001)(46966006)(36860700001)(54906003)(508600001)(4326008)(5660300002)(7636003)(7416002)(24736004)(86362001)(2906002)(8936002)(966005)(8676002)(47076005)(70206006)(336012)(186003)(316002)(70586007)(426003)(82310400004)(6916009)(108616005)(356005)(26005);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Nov 2021 13:12:31.2532
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8976bd44-ffd5-493f-66e8-08d9b0153cfa
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.36];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT045.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB2809
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.81-153-gc68f60f1d94a
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.10 baseline: 170 runs,
+ 1 regressions (v5.10.81-153-gc68f60f1d94a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 25 Nov 2021 12:19:40 +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.218 release.
-> There are 321 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 27 Nov 2021 11:17:26 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.218-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/queue/5.10 baseline: 170 runs, 1 regressions (v5.10.81-153-gc68f6=
+0f1d94a)
 
-All tests passing for Tegra ...
+Regressions Summary
+-------------------
 
-Test results for stable-v4.19:
-    10 builds:	10 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    40 tests:	40 pass, 0 fail
+platform         | arch | lab     | compiler | defconfig          | regress=
+ions
+-----------------+------+---------+----------+--------------------+--------=
+----
+beaglebone-black | arm  | lab-cip | gcc-10   | multi_v7_defconfig | 1      =
+    =
 
-Linux version:	4.19.218-rc2-gce77af71d765
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
 
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.81-153-gc68f60f1d94a/plan/baseline/
 
-Jon
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.81-153-gc68f60f1d94a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c68f60f1d94abd092641e5d2f3637f2e013e15b9 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch | lab     | compiler | defconfig          | regress=
+ions
+-----------------+------+---------+----------+--------------------+--------=
+----
+beaglebone-black | arm  | lab-cip | gcc-10   | multi_v7_defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/619f55041c64778cc6f2f026
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.81-=
+153-gc68f60f1d94a/arm/multi_v7_defconfig/gcc-10/lab-cip/baseline-beaglebone=
+-black.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.81-=
+153-gc68f60f1d94a/arm/multi_v7_defconfig/gcc-10/lab-cip/baseline-beaglebone=
+-black.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/619f55041c64778cc6f2f=
+027
+        new failure (last pass: v5.10.81-154-g8dbefffb8451) =
+
+ =20
