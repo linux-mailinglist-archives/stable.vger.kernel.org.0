@@ -2,88 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82ADE45D9B6
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 13:04:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35FD745D9C1
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 13:07:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240128AbhKYMHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 07:07:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54592 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240198AbhKYMFy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 07:05:54 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 515B5C061759
-        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 04:02:43 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id y196so5345035wmc.3
-        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 04:02:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=zsARScXN7590D6bLDv6wWFi6yhd0pHvccxAh6T7cVAQ=;
-        b=n+tiHgtMEA8zfGbtImvDoJ1ycHk00t2ODuMNcI2bFQYosoUO1aP4Ey/nMeromm6+L3
-         KoSTDQm1BIQjoL2CcpqhY1ULnl+ooyAuNt1k47k8PoQnJZO5h7VIJVUQk1NcbdqYyYRu
-         jgEu7zxN3Lq8ARnH8ax9xXf3qbAwnwhR32qIzsXwsUoCtpEPblBmToMIg/5Ly+bePfM2
-         TkoLViUFd60Ye4t6M932bwesqGaDnTrUg4wPcUm8Vfn6wgyXOrqlcfFcXxSHw/CgaiWH
-         D/OTFevmMFf5/RpmNtUFwp04x2TcZDizQfIZVl842OWC9Qio7MgBlOqwX3d7D8CFPTeY
-         lokA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=zsARScXN7590D6bLDv6wWFi6yhd0pHvccxAh6T7cVAQ=;
-        b=sSVFu2nT1ZnkLLQEOYyKpIGOje3P6QuKmvjo2bXnxmFqbS0XgvHOjGwSHXQ/evyRH1
-         /5vZoOEakAwPPUdXzTlAI8k5+xTcLuBqqHmy3nZSsM/sS1K1Psf2liwOOiEp5/yWeAye
-         iqD34/qlNOfokcfG3qzcuy02hMQsZmomISDAxBiF6Npeh/VRG7bhugYLz9kGr7bMh9fV
-         Gdq69nRXKvRcWkL/9pvWj9wkP8ryVaESeuMWX1PoeFHD+lUahFR0+P2n0EDxt2mvQ/O6
-         BjL+tZJGHNdyl4HNyGu2bPtJT4AlavOybkA24VZiZnbYSV30MlzVW+pYRnEjmsw2eO/s
-         KEqw==
-X-Gm-Message-State: AOAM533bih0L2hrjlYfl8TixdhgxlDfBNRsN+VS+Jfa4yHVr+C6OdmSu
-        IU5sAcCPoHvsFl7DHWjhWyyD7w==
-X-Google-Smtp-Source: ABdhPJw2DxV7co2ofmEA4CJ0u6dScH8VmjMKNfJ5iLU3WQR5EzyS3785FbsfzwzcTNPwtzBrLi0RgQ==
-X-Received: by 2002:a1c:a301:: with SMTP id m1mr6770684wme.118.1637841761830;
-        Thu, 25 Nov 2021 04:02:41 -0800 (PST)
-Received: from localhost.localdomain ([2.31.167.18])
-        by smtp.gmail.com with ESMTPSA id b14sm3455691wrd.24.2021.11.25.04.02.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Nov 2021 04:02:41 -0800 (PST)
-From:   Lee Jones <lee.jones@linaro.org>
-To:     lee.jones@linaro.org
-Cc:     stable@vger.kernel.org, labbott@redhat.com,
-        sumit.semwal@linaro.org, arve@android.com, riandrews@android.com,
-        devel@driverdev.osuosl.org
-Subject: [PATCH 1/1] staging: ion: Prevent incorrect reference counting behavour
-Date:   Thu, 25 Nov 2021 12:02:34 +0000
-Message-Id: <20211125120234.67987-1-lee.jones@linaro.org>
-X-Mailer: git-send-email 2.34.0.rc2.393.gf8c9666880-goog
+        id S240480AbhKYMKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 07:10:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33156 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240487AbhKYMIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 07:08:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C0036023E;
+        Thu, 25 Nov 2021 12:04:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1637841911;
+        bh=Xa2sj90XGG+UfGhxN65bljAI1r1TV8KPiBUCUD2YkE8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cYnO3I7vZyIuMVkGbmPKfAUvv5US3tlgKW6ZGxaipwlTJ6p/5LdT4ja8PHmZdTB+H
+         YaObCayLw2HJixF5Qncj+UGHEckSok+W5aKSlq8aDIkRj/Rt7gaOLmVfs/HardswBi
+         43GNEYDl7l3hpR69FvpYnHdkEvSIfHOX4WGdBKQQ=
+Date:   Thu, 25 Nov 2021 13:04:21 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Masami Ichikawa(CIP)" <masami256@gmail.com>
+Cc:     andrii@kernel.org, ast@kernel.org, daniel@iogearbox.net,
+        stable@vger.kernel.org, w1tcher.bupt@gmail.com,
+        Masami Ichikawa <masami.ichikawa@cybertrust.co.jp>
+Subject: Re: [PATCH] bpf: Fix toctou on read-only map's constant scalar
+ tracking
+Message-ID: <YZ97xekHtjTvjRJw@kroah.com>
+References: <1637577215186161@kroah.com>
+ <20211125115809.354531-1-masami.ichikawa@cybertrust.co.jp>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211125115809.354531-1-masami.ichikawa@cybertrust.co.jp>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Supply additional checks in order to prevent unexpected results.
+On Thu, Nov 25, 2021 at 08:58:10PM +0900, Masami Ichikawa(CIP) wrote:
+> From: Daniel Borkmann <daniel@iogearbox.net>
+> 
+> commit 353050be4c19e102178ccc05988101887c25ae53 upstream
+> 
+> Commit a23740ec43ba ("bpf: Track contents of read-only maps as scalars") is
+> checking whether maps are read-only both from BPF program side and user space
+> side, and then, given their content is constant, reading out their data via
+> map->ops->map_direct_value_addr() which is then subsequently used as known
+> scalar value for the register, that is, it is marked as __mark_reg_known()
+> with the read value at verification time. Before a23740ec43ba, the register
+> content was marked as an unknown scalar so the verifier could not make any
+> assumptions about the map content.
+> 
+> The current implementation however is prone to a TOCTOU race, meaning, the
+> value read as known scalar for the register is not guaranteed to be exactly
+> the same at a later point when the program is executed, and as such, the
+> prior made assumptions of the verifier with regards to the program will be
+> invalid which can cause issues such as OOB access, etc.
+> 
+> While the BPF_F_RDONLY_PROG map flag is always fixed and required to be
+> specified at map creation time, the map->frozen property is initially set to
+> false for the map given the map value needs to be populated, e.g. for global
+> data sections. Once complete, the loader "freezes" the map from user space
+> such that no subsequent updates/deletes are possible anymore. For the rest
+> of the lifetime of the map, this freeze one-time trigger cannot be undone
+> anymore after a successful BPF_MAP_FREEZE cmd return. Meaning, any new BPF_*
+> cmd calls which would update/delete map entries will be rejected with -EPERM
+> since map_get_sys_perms() removes the FMODE_CAN_WRITE permission. This also
+> means that pending update/delete map entries must still complete before this
+> guarantee is given. This corner case is not an issue for loaders since they
+> create and prepare such program private map in successive steps.
+> 
+> However, a malicious user is able to trigger this TOCTOU race in two different
+> ways: i) via userfaultfd, and ii) via batched updates. For i) userfaultfd is
+> used to expand the competition interval, so that map_update_elem() can modify
+> the contents of the map after map_freeze() and bpf_prog_load() were executed.
+> This works, because userfaultfd halts the parallel thread which triggered a
+> map_update_elem() at the time where we copy key/value from the user buffer and
+> this already passed the FMODE_CAN_WRITE capability test given at that time the
+> map was not "frozen". Then, the main thread performs the map_freeze() and
+> bpf_prog_load(), and once that had completed successfully, the other thread
+> is woken up to complete the pending map_update_elem() which then changes the
+> map content. For ii) the idea of the batched update is similar, meaning, when
+> there are a large number of updates to be processed, it can increase the
+> competition interval between the two. It is therefore possible in practice to
+> modify the contents of the map after executing map_freeze() and bpf_prog_load().
+> 
+> One way to fix both i) and ii) at the same time is to expand the use of the
+> map's map->writecnt. The latter was introduced in fc9702273e2e ("bpf: Add mmap()
+> support for BPF_MAP_TYPE_ARRAY") and further refined in 1f6cb19be2e2 ("bpf:
+> Prevent re-mmap()'ing BPF map as writable for initially r/o mapping") with
+> the rationale to make a writable mmap()'ing of a map mutually exclusive with
+> read-only freezing. The counter indicates writable mmap() mappings and then
+> prevents/fails the freeze operation. Its semantics can be expanded beyond
+> just mmap() by generally indicating ongoing write phases. This would essentially
+> span any parallel regular and batched flavor of update/delete operation and
+> then also have map_freeze() fail with -EBUSY. For the check_mem_access() in
+> the verifier we expand upon the bpf_map_is_rdonly() check ensuring that all
+> last pending writes have completed via bpf_map_write_active() test. Once the
+> map->frozen is set and bpf_map_write_active() indicates a map->writecnt of 0
+> only then we are really guaranteed to use the map's data as known constants.
+> For map->frozen being set and pending writes in process of still being completed
+> we fall back to marking that register as unknown scalar so we don't end up
+> making assumptions about it. With this, both TOCTOU reproducers from i) and
+> ii) are fixed.
+> 
+> Note that the map->writecnt has been converted into a atomic64 in the fix in
+> order to avoid a double freeze_mutex mutex_{un,}lock() pair when updating
+> map->writecnt in the various map update/delete BPF_* cmd flavors. Spanning
+> the freeze_mutex over entire map update/delete operations in syscall side
+> would not be possible due to then causing everything to be serialized.
+> Similarly, something like synchronize_rcu() after setting map->frozen to wait
+> for update/deletes to complete is not possible either since it would also
+> have to span the user copy which can sleep. On the libbpf side, this won't
+> break d66562fba1ce ("libbpf: Add BPF object skeleton support") as the
+> anonymous mmap()-ed "map initialization image" is remapped as a BPF map-backed
+> mmap()-ed memory where for .rodata it's non-writable.
+> 
+> Fixes: a23740ec43ba ("bpf: Track contents of read-only maps as scalars")
+> Reported-by: w1tcher.bupt@gmail.com
+> Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+> Acked-by: Andrii Nakryiko <andrii@kernel.org>
+> Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+> [fix conflict to call bpf_map_write_active_dec() in err_put block.
+> fix conflict to insert new functions after find_and_alloc_map().]
+> Reference: CVE-2021-4001
+> Signed-off-by: Masami Ichikawa(CIP) <masami.ichikawa@cybertrust.co.jp>
+> ---
+>  include/linux/bpf.h   |  3 ++-
+>  kernel/bpf/syscall.c  | 57 +++++++++++++++++++++++++++----------------
+>  kernel/bpf/verifier.c | 17 ++++++++++++-
+>  3 files changed, 54 insertions(+), 23 deletions(-)
 
-Fixes: b892bf75b2034 ("ion: Switch ion to use dma-buf")
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/staging/android/ion/ion.c | 3 +++
- 1 file changed, 3 insertions(+)
+What stable tree(s) is this for?
 
-diff --git a/drivers/staging/android/ion/ion.c b/drivers/staging/android/ion/ion.c
-index 806e9b30b9dc8..30f359faba575 100644
---- a/drivers/staging/android/ion/ion.c
-+++ b/drivers/staging/android/ion/ion.c
-@@ -509,6 +509,9 @@ static void *ion_handle_kmap_get(struct ion_handle *handle)
- 	void *vaddr;
- 
- 	if (handle->kmap_cnt) {
-+		if (handle->kmap_cnt + 1 < handle->kmap_cnt)
-+			return ERR_PTR(-EOVERFLOW);
-+
- 		handle->kmap_cnt++;
- 		return buffer->vaddr;
- 	}
--- 
-2.34.0.rc2.393.gf8c9666880-goog
+thanks,
 
+greg k-h
