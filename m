@@ -2,99 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FBCC45DF78
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 18:17:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECD6845DF58
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 18:06:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242265AbhKYRUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 12:20:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39510 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242351AbhKYRSN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 12:18:13 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7240DC0617A0;
-        Thu, 25 Nov 2021 09:03:45 -0800 (PST)
-Date:   Thu, 25 Nov 2021 17:03:40 -0000
+        id S235586AbhKYRI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 12:08:56 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:53238 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241477AbhKYRG4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 12:06:56 -0500
+Date:   Thu, 25 Nov 2021 17:03:41 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1637859821;
+        s=2020; t=1637859822;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=5VgVeMn/tzStW43DWFETQfEosJYLh/LxhQ7mM4eGm/k=;
-        b=tPIhetP8li86pl5bSf3OR33yHFFky4z0TeNaqep11Fp5OUpSnRsUqd6z5CGEh28zv1wKCM
-        feoVA5OZUfGuwUeO8xyfvVyQtdN2/LjnA2IVyo+XK3fdthWi4l2eB2zc5gqL4w8Sj7lUsC
-        oitLm4J/d23wthqHUgYgE5fQYXXyfeg3hRYhc0XcVkBQtPIjgkMB0aUlR5G0XLSEM5IJRm
-        6cbVCa2OrsoSzJTjc/+PVEYtn70GpnRyJKmLv5vZCDvt05sYze/11rq3/ybw0AXqB3Z8Dy
-        qu57dpOggLYJ1jtcKgO9SlHOcnHtvDnRzmYlUoHukcfIpfjiXaMreaM25eHz7w==
+        bh=uHZZWcLj69QRnWUmHhjnyGwDUjHsVOSu1L1htMBIT5s=;
+        b=CSyYnIQ8MEA6cMwMP4sHKd2dbfSTJs2t6U1+lCD5mQGnyt2vMixjNUg2/JKjTRMV8W4wJd
+        qNlGJs1EKmDzpaK5clmJbvXFtRZRFkdWM5SbW3e+8YOfzM/zVHBsUUjGqLZ5cDI8EJX0bw
+        EeO7neEIPplzuURhHA+r/xb8/cghD4TZ52GHFPuLjVQqwJD41yAQvMwUBd5fMznYGkdGms
+        UapcKeJfx6dKWbpSSxspOPhTHtpVBAwkpc2oCv6xD7sMFck6j6IoauUPqxZZkOCYNYIe+G
+        N+cFDRMuEh3entd330+5dZGcDCthpDiqz7aCsVQkoJcvqyB616pR64yINnyMnA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1637859821;
+        s=2020e; t=1637859822;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=5VgVeMn/tzStW43DWFETQfEosJYLh/LxhQ7mM4eGm/k=;
-        b=dWoyvyUZnjZC/m6g6/mq7DCZRJld56Kx6TSXGWfCH3f3W6NIgdOXkKvdQmZds/T/bqfKm+
-        BQhwIdNl+0iuraCQ==
-From:   "irqchip-bot for Billy Tsai" <tip-bot2@linutronix.de>
+        bh=uHZZWcLj69QRnWUmHhjnyGwDUjHsVOSu1L1htMBIT5s=;
+        b=8b33gCCxFNxKSqFgyJV9ABCmhIZHtyfxoI2llznYrkbfgFfdAJig2+IXnzdmxWRwh+Bl6p
+        KB3i2xEQxjuqNcBw==
+From:   irqchip-bot for Pali =?utf-8?q?Roh=C3=A1r?= 
+        <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-kernel@vger.kernel.org
-Subject: [irqchip: irq/irqchip-fixes] irqchip/aspeed-scu: Replace update_bits
- with write_bits.
-Cc:     Billy Tsai <billy_tsai@aspeedtech.com>,
-        Joel Stanley <joel@jms.id.au>, Marc Zyngier <maz@kernel.org>,
-        stable@vger.kernel.org, tglx@linutronix.de
-In-Reply-To: <20211124094348.11621-1-billy_tsai@aspeedtech.com>
-References: <20211124094348.11621-1-billy_tsai@aspeedtech.com>
+Subject: [irqchip: irq/irqchip-fixes] irqchip/armada-370-xp: Fix support for
+ Multi-MSI interrupts
+Cc:     pali@kernel.org, stable@vger.kernel.org,
+        Marc Zyngier <maz@kernel.org>, tglx@linutronix.de
+In-Reply-To: <20211125130057.26705-2-pali@kernel.org>
+References: <20211125130057.26705-2-pali@kernel.org>
 MIME-Version: 1.0
-Message-ID: <163785982037.11128.2338335240854330231.tip-bot2@tip-bot2>
+Message-ID: <163785982132.11128.16644475689186546860.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/irqchip-fixes branch of irqchip:
+The following commit has been merged into the irq/irqchip-fixes branch of irq=
+chip:
 
-Commit-ID:     8958389681b929fcc7301e7dc5f0da12e4a256a0
-Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms/8958389681b929fcc7301e7dc5f0da12e4a256a0
-Author:        Billy Tsai <billy_tsai@aspeedtech.com>
-AuthorDate:    Wed, 24 Nov 2021 17:43:48 +08:00
+Commit-ID:     d0a553502efd545c1ce3fd08fc4d423f8e4ac3d6
+Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platfo=
+rms/d0a553502efd545c1ce3fd08fc4d423f8e4ac3d6
+Author:        Pali Roh=C3=A1r <pali@kernel.org>
+AuthorDate:    Thu, 25 Nov 2021 14:00:57 +01:00
 Committer:     Marc Zyngier <maz@kernel.org>
-CommitterDate: Thu, 25 Nov 2021 16:50:44 
+CommitterDate: Thu, 25 Nov 2021 16:49:50=20
 
-irqchip/aspeed-scu: Replace update_bits with write_bits.
+irqchip/armada-370-xp: Fix support for Multi-MSI interrupts
 
-The interrupt status bits are cleared by writing 1, we should force a
-write to clear the interrupt without checking if the value has changed.
+irq-armada-370-xp driver already sets MSI_FLAG_MULTI_PCI_MSI flag into
+msi_domain_info structure. But allocated interrupt numbers for Multi-MSI
+needs to be properly aligned otherwise devices send MSI interrupt with
+wrong number.
 
-Fixes: 04f605906ff0 ("irqchip: Add Aspeed SCU interrupt controller")
-Signed-off-by: Billy Tsai <billy_tsai@aspeedtech.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20211124094348.11621-1-billy_tsai@aspeedtech.com
+Fix this issue by using function bitmap_find_free_region() instead of
+bitmap_find_next_zero_area() to allocate aligned interrupt numbers.
+
+Signed-off-by: Pali Roh=C3=A1r <pali@kernel.org>
+Fixes: a71b9412c90c ("irqchip/armada-370-xp: Allow allocation of multiple MSI=
+s")
 Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211125130057.26705-2-pali@kernel.org
 ---
- drivers/irqchip/irq-aspeed-scu-ic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-armada-370-xp.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/irqchip/irq-aspeed-scu-ic.c b/drivers/irqchip/irq-aspeed-scu-ic.c
-index f3c6855..18b77c3 100644
---- a/drivers/irqchip/irq-aspeed-scu-ic.c
-+++ b/drivers/irqchip/irq-aspeed-scu-ic.c
-@@ -76,8 +76,8 @@ static void aspeed_scu_ic_irq_handler(struct irq_desc *desc)
- 		generic_handle_domain_irq(scu_ic->irq_domain,
- 					  bit - scu_ic->irq_shift);
- 
--		regmap_update_bits(scu_ic->scu, scu_ic->reg, mask,
--				   BIT(bit + ASPEED_SCU_IC_STATUS_SHIFT));
-+		regmap_write_bits(scu_ic->scu, scu_ic->reg, mask,
-+				  BIT(bit + ASPEED_SCU_IC_STATUS_SHIFT));
- 	}
- 
- 	chained_irq_exit(chip, desc);
+diff --git a/drivers/irqchip/irq-armada-370-xp.c b/drivers/irqchip/irq-armada=
+-370-xp.c
+index 41ad745..5b8d571 100644
+--- a/drivers/irqchip/irq-armada-370-xp.c
++++ b/drivers/irqchip/irq-armada-370-xp.c
+@@ -232,16 +232,12 @@ static int armada_370_xp_msi_alloc(struct irq_domain *d=
+omain, unsigned int virq,
+ 	int hwirq, i;
+=20
+ 	mutex_lock(&msi_used_lock);
++	hwirq =3D bitmap_find_free_region(msi_used, PCI_MSI_DOORBELL_NR,
++					order_base_2(nr_irqs));
++	mutex_unlock(&msi_used_lock);
+=20
+-	hwirq =3D bitmap_find_next_zero_area(msi_used, PCI_MSI_DOORBELL_NR,
+-					   0, nr_irqs, 0);
+-	if (hwirq >=3D PCI_MSI_DOORBELL_NR) {
+-		mutex_unlock(&msi_used_lock);
++	if (hwirq < 0)
+ 		return -ENOSPC;
+-	}
+-
+-	bitmap_set(msi_used, hwirq, nr_irqs);
+-	mutex_unlock(&msi_used_lock);
+=20
+ 	for (i =3D 0; i < nr_irqs; i++) {
+ 		irq_domain_set_info(domain, virq + i, hwirq + i,
+@@ -259,7 +255,7 @@ static void armada_370_xp_msi_free(struct irq_domain *dom=
+ain,
+ 	struct irq_data *d =3D irq_domain_get_irq_data(domain, virq);
+=20
+ 	mutex_lock(&msi_used_lock);
+-	bitmap_clear(msi_used, d->hwirq, nr_irqs);
++	bitmap_release_region(msi_used, d->hwirq, order_base_2(nr_irqs));
+ 	mutex_unlock(&msi_used_lock);
+ }
+=20
