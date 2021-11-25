@@ -2,103 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9B4E45DA9A
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 14:00:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C609E45DA9C
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 14:00:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353928AbhKYND5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 08:03:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47722 "EHLO mail.kernel.org"
+        id S1351893AbhKYNEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 08:04:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237495AbhKYNB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 08:01:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EE5461074;
-        Thu, 25 Nov 2021 12:58:44 +0000 (UTC)
+        id S1353997AbhKYNCA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 08:02:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53FA860187;
+        Thu, 25 Nov 2021 12:58:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637845126;
-        bh=UYCR0tASB8dUv3s1+0oj4OtCgNOMSymxHKXTIVtL5Mc=;
+        s=korg; t=1637845129;
+        bh=ktjngJ2/FeECqMmLlRKeC9UC1fcA0HHoCKJVLEwGJHo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TkD212Xh0U8lerEWbfi5hh0lhcsRfGLzYr10qroNGmGHrFIVzLDDyA3xwTG+hB+j2
-         9yThdSkQmb+VeGp5PxxGGHwCF8hH2OiqZ8cCQxmB1o/ZKQtM5sj9hhmWetVskN/fjX
-         hu3Xq86YocmoX+p5XPw5UkQa02SLGAn1NohEuKA0=
-Date:   Thu, 25 Nov 2021 13:58:25 +0100
+        b=cFxw8vE6qVkKblQpGBDmucSzWrdWesEq0MRVlMYvBFaWzreEZWqWdUUukTmIkyx59
+         aA/UXIBTDedRtwIL6RpTffs9mMB4aWhGpklZX1ocuKGIb+TmQAeQrUr0XVmZXWpztW
+         Rdr11ORHKWRG9hiWDxNwLc6W/+brwv21P74kQnYI=
+Date:   Thu, 25 Nov 2021 13:58:35 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net,
+        Nadav Amit <namit@vmware.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
+        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 Subject: Re: [PATCH 4.9 000/207] 4.9.291-rc1 review
-Message-ID: <YZ+IcafCZMX8gj+9@kroah.com>
+Message-ID: <YZ+Ie3bhYDXYDvUP@kroah.com>
 References: <20211124115703.941380739@linuxfoundation.org>
- <20211125015016.GG851427@roeck-us.net>
+ <CA+G9fYuZqV51ZGQd-ySaDqSQ_YDJHYav4KW4B0zEq1Rh2_KCDA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20211125015016.GG851427@roeck-us.net>
+In-Reply-To: <CA+G9fYuZqV51ZGQd-ySaDqSQ_YDJHYav4KW4B0zEq1Rh2_KCDA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 24, 2021 at 05:50:16PM -0800, Guenter Roeck wrote:
-> On Wed, Nov 24, 2021 at 12:54:31PM +0100, Greg Kroah-Hartman wrote:
+On Wed, Nov 24, 2021 at 08:42:27PM +0530, Naresh Kamboju wrote:
+> On Wed, 24 Nov 2021 at 17:44, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
 > > This is the start of the stable review cycle for the 4.9.291 release.
 > > There are 207 patches in this series, all will be posted as a response
 > > to this one.  If anyone has any issues with these being applied, please
 > > let me know.
-> > 
+> >
 > > Responses should be made by Fri, 26 Nov 2021 11:56:36 +0000.
 > > Anything received after that time might be too late.
-> > 
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.291-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> Build results:
-> 	total: 163 pass: 134 fail: 29
-> Failed builds:
-> 	arm:allnoconfig
-> 	arm:tinyconfig
-> 	arm:efm32_defconfig
-> 	blackfin:defconfig
-> 	blackfin:BF561-EZKIT-SMP_defconfig
-> 	c6x:dsk6455_defconfig
-> 	c6x:evmc6457_defconfig
-> 	c6x:evmc6678_defconfig
-> 	h8300:allnoconfig
-> 	h8300:tinyconfig
-> 	h8300:edosk2674_defconfig
-> 	h8300:h8300h-sim_defconfig
-> 	h8300:h8s-sim_defconfig
-> 	ia64:defconfig
-> 	m68k:allnoconfig
-> 	m68k:tinyconfig
-> 	m68k_nommu:m5272c3_defconfig
-> 	m68k_nommu:m5307c3_defconfig
-> 	m68k_nommu:m5249evb_defconfig
-> 	m68k_nommu:m5407c3_defconfig
-> 	microblaze:nommu_defconfig
-> 	microblaze:allnoconfig
-> 	microblaze:tinyconfig
-> 	s390:defconfig
-> 	s390:allmodconfig
-> 	s390:performance_defconfig
-> 	sh:dreamcast_defconfig
-> 	sh:microdev_defconfig
-> 	sh:shx3_defconfig
-> Qemu test results:
-> 	total: 396 pass: 389 fail: 7
-> Failed tests:
-> 	arm:mps2-an385:mps2_defconfig:mps2-an385:initrd
-> 	mcf5208evb:m5208:m5208evb_defconfig:initrd
-> 	s390:defconfig:nolocktests:smp2:net,default:initrd
-> 	s390:defconfig:nolocktests:smp2:virtio-blk-ccw:net,virtio-net-pci:rootfs
-> 	s390:defconfig:nolocktests:smp2:scsi[virtio-ccw]:net,default:rootfs
-> 	s390:defconfig:nolocktests:virtio-pci:net,virtio-net-pci:rootfs
-> 	s390:defconfig:nolocktests:scsi[virtio-pci]:net,default:rootfs
+> Regression found on arm gcc-11 builds with tinyconfig and allnoconfig.
+> As a reported in this email,
 > 
+> https://lore.kernel.org/stable/CA+G9fYvU4yoOx7BEBxJXRVZx4pO5fYPRELmkNz+iBu7kdN_9Ew@mail.gmail.com/
+> 
+> 
+> build error :
+> --------------
+> make --silent --keep-going --jobs=8
+> O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm
+> CROSS_COMPILE=arm-linux-gnueabihf- 'CC=sccache
+> arm-linux-gnueabihf-gcc' 'HOSTCC=sccache gcc'
+> In file included from arch/arm/include/asm/tlb.h:28,
+>                  from arch/arm/mm/init.c:34:
 > include/asm-generic/tlb.h: In function 'tlb_flush_pmd_range':
-> include/asm-generic/tlb.h:208:54: error: 'PMD_SIZE' undeclared
+> include/asm-generic/tlb.h:208:54: error: 'PMD_SIZE' undeclared (first
+> use in this function); did you mean 'PUD_SIZE'?
+>   208 |         if (tlb->page_size != 0 && tlb->page_size != PMD_SIZE)
+>       |                                                      ^~~~~~~~
+>       |                                                      PUD_SIZE
+> include/asm-generic/tlb.h:208:54: note: each undeclared identifier is
+> reported only once for each function it appears in
+> make[2]: *** [scripts/Makefile.build:307: arch/arm/mm/init.o] Error 1
+> make[2]: Target '__build' not remade because of errors.
+> make[1]: *** [Makefile:1036: arch/arm/mm] Error 2
 > 
-> mm/hugetlb.c: In function '__unmap_hugepage_range':
-> mm/hugetlb.c:3415:25: error: implicit declaration of function 'tlb_flush_pmd_range'
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 > 
-> Guenter
+> Patch pointing to,
+> 
+> hugetlbfs: flush TLBs correctly after huge_pmd_unshare
+> commit a4a118f2eead1d6c49e00765de89878288d4b890 upstream.
 
-Hopefully all now fixed in -rc2
+Should be fixed in -rc2
