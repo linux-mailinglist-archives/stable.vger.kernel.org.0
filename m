@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 443C245D207
+	by mail.lfdr.de (Postfix) with ESMTP id BB0EB45D208
 	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 01:28:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244880AbhKYAbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 19:31:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45974 "EHLO mail.kernel.org"
+        id S244992AbhKYAbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 19:31:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245018AbhKYA3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 19:29:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A89F560F50;
-        Thu, 25 Nov 2021 00:26:19 +0000 (UTC)
+        id S245499AbhKYA3c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Nov 2021 19:29:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16E8C610A7;
+        Thu, 25 Nov 2021 00:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637799980;
-        bh=Wkd2Sj5qOJ+JGHUG0eRP7oM9+abXCkTXd9aIQPpR11c=;
-        h=From:To:Cc:Subject:Date:From;
-        b=oXdbiWvtFVP8iqftrM8IdXieflbsurrlbJdILVMuLFlFIZXaiVTufjrPwul9sbveQ
-         XVRi/H135qhY/eZ+sVl+Y3HtMGREGFVNDqBwnKo8ApBetET/MXUZmzEDfaRcZJ6b9g
-         gegKFCMGuMq3Fi0K3Dz5ibYiXqG7VXf3x3EHVjJqjdqMwmxfB9lJ3NOPcvw1ifjxr5
-         YC1WZXqnWRzgCdwgYVmzP9FPaochStyo5DoxrOvQXDW+GpQq6kRtHMNsOSZR4XCxIo
-         pDAAzcpCJtC30iswesf1PIBkxfkl2OdlXQYseYxccxvdWbbE0xE4iWrSVEa3SVD06n
-         MY0Q1NeCFpX3A==
+        s=k20201202; t=1637799982;
+        bh=5WXN6G9uRT3t8lz5/whVrC8GNOM5x70zs62sPU2b8lI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=FRMM7tysng2+G070YEuvpdMlzudib7A3+u1OdglA1FrTA6/ADSZfBjAmQQmSOq+L1
+         Ha9K/MZB0q80nHQKsN9HYav1MQLE/w4IEohEbw8G27QhbU0dI2SH8hJkhtkYhTPqM3
+         BmV4t0nwpGvhZebbltz0yYb1jq25FpP0Go22CwqJ/onvyZgd6xYflD1pzTqrPFTeEy
+         DWVbooLsHmoQduZuMrK7eVuNBTcqlYYPba+BZJr0/7olKezdnOxLmyvPozNf5CpGg/
+         HoZABwUKiSB4h72VMtqQtW+ZrvXZFYFC69FcsDz75YVLNNlB1ITdIf0h+aY82oUa83
+         J52LI/X2G9JYQ==
 From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     pali@kernel.org, stable@vger.kernel.org,
+        Remi Pommarel <repk@triplefau.lt>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.4 00/22] Armada 3720 PCIe fixes for 5.4
-Date:   Thu, 25 Nov 2021 01:25:54 +0100
-Message-Id: <20211125002616.31363-1-kabel@kernel.org>
+Subject: [PATCH 5.4 01/22] PCI: aardvark: Wait for endpoint to be ready before training link
+Date:   Thu, 25 Nov 2021 01:25:55 +0100
+Message-Id: <20211125002616.31363-2-kabel@kernel.org>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20211125002616.31363-1-kabel@kernel.org>
+References: <20211125002616.31363-1-kabel@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,63 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Greg, Sasha,
+From: Remi Pommarel <repk@triplefau.lt>
 
-this series for 5.4-stable backports all the fixes (and their
-dependencies) for Armada 3720 PCIe driver.
-These include:
-- fixes (and their dependencies) for pci-aardvark controller
-- fixes for pci-bridge-emul
-- fixes (and their dependencies) for pinctrl-armada-37xx driver
-- device-tree fixes
+commit f4c7d053d7f77cd5c1a1ba7c7ce085ddba13d1d7 upstream.
 
-Marek
+When configuring pcie reset pin from gpio (e.g. initially set by
+u-boot) to pcie function this pin goes low for a brief moment
+asserting the PERST# signal. Thus connected device enters fundamental
+reset process and link configuration can only begin after a minimal
+100ms delay (see [1]).
 
-Grzegorz Jaszczyk (1):
-  PCI: aardvark: Fix big endian support
+Because the pin configuration comes from the "default" pinctrl it is
+implicitly configured before the probe callback is called:
 
-Marek Behún (4):
-  PCI: aardvark: Improve link training
-  PCI: aardvark: Deduplicate code in advk_pcie_rd_conf()
-  pinctrl: armada-37xx: Correct PWM pins definitions
-  arm64: dts: marvell: armada-37xx: Set pcie_reset_pin to gpio function
+driver_probe_device()
+  really_probe()
+    ...
+    pinctrl_bind_pins() /* Here pin goes from gpio to PCIE reset
+                           function and PERST# is asserted */
+    ...
+    drv->probe()
 
-Pali Rohár (15):
-  PCI: aardvark: Train link immediately after enabling training
-  PCI: aardvark: Issue PERST via GPIO
-  PCI: aardvark: Replace custom macros by standard linux/pci_regs.h
-    macros
-  PCI: aardvark: Don't touch PCIe registers if no card connected
-  PCI: aardvark: Fix compilation on s390
-  PCI: aardvark: Move PCIe reset card code to advk_pcie_train_link()
-  PCI: aardvark: Update comment about disabling link training
-  PCI: aardvark: Configure PCIe resources from 'ranges' DT property
-  PCI: aardvark: Fix PCIe Max Payload Size setting
-  PCI: aardvark: Implement re-issuing config requests on CRS response
-  PCI: aardvark: Simplify initialization of rootcap on virtual bridge
-  PCI: aardvark: Fix link training
-  PCI: aardvark: Fix support for bus mastering and PCI_COMMAND on
-    emulated bridge
-  PCI: aardvark: Set PCI Bridge Class Code to PCI Bridge
-  PCI: aardvark: Fix support for PCI_BRIDGE_CTL_BUS_RESET on emulated
-    bridge
+[1] "PCI Express Base Specification", REV. 4.0
+    PCI Express, February 19 2014, 6.6.1 Conventional Reset
 
-Remi Pommarel (1):
-  PCI: aardvark: Wait for endpoint to be ready before training link
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+---
+ drivers/pci/controller/pci-aardvark.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Russell King (1):
-  PCI: pci-bridge-emul: Fix array overruns, improve safety
-
- .../pinctrl/marvell,armada-37xx-pinctrl.txt   |   8 +-
- .../arm64/boot/dts/marvell/armada-3720-db.dts |   3 +
- .../dts/marvell/armada-3720-espressobin.dts   |   1 +
- .../dts/marvell/armada-3720-turris-mox.dts    |   4 -
- arch/arm64/boot/dts/marvell/armada-37xx.dtsi  |   2 +-
- drivers/pci/controller/pci-aardvark.c         | 576 ++++++++++++++----
- drivers/pci/pci-bridge-emul.c                 |  11 +-
- drivers/pinctrl/mvebu/pinctrl-armada-37xx.c   |  17 +-
- 8 files changed, 489 insertions(+), 133 deletions(-)
-
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index 45794ba643d4..9774896397b0 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -432,6 +432,14 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 	reg |= PIO_CTRL_ADDR_WIN_DISABLE;
+ 	advk_writel(pcie, reg, PIO_CTRL);
+ 
++	/*
++	 * PERST# signal could have been asserted by pinctrl subsystem before
++	 * probe() callback has been called, making the endpoint going into
++	 * fundamental reset. As required by PCI Express spec a delay for at
++	 * least 100ms after such a reset before link training is needed.
++	 */
++	msleep(PCI_PM_D3COLD_WAIT);
++
+ 	/* Start link training */
+ 	reg = advk_readl(pcie, PCIE_CORE_LINK_CTRL_STAT_REG);
+ 	reg |= PCIE_CORE_LINK_TRAINING;
 -- 
 2.32.0
 
