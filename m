@@ -2,121 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D51145DF90
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 18:21:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE6EB45DF9A
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 18:23:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344878AbhKYRYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 12:24:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40794 "EHLO
+        id S1349085AbhKYR0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 12:26:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241334AbhKYRYK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 12:24:10 -0500
-Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB80EC061376
-        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 09:11:08 -0800 (PST)
-Received: by mail-io1-xd31.google.com with SMTP id c3so8341370iob.6
-        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 09:11:08 -0800 (PST)
+        with ESMTP id S243108AbhKYRYj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 12:24:39 -0500
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43048C0619EF
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 09:13:24 -0800 (PST)
+Received: by mail-pf1-x433.google.com with SMTP id 8so6470784pfo.4
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 09:13:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=DRbNy34LFTYJZ4PmJRBEOK4pAtCounE3z5hGbxu2tJw=;
-        b=cmSSChLr0hznhgNLogLW3A9kM31FlaOruR25XArlP/11Dum3xcFjZegD3xEnXXlwL2
-         EMPTDMwfyV6lf+kVt5X1L3c4SwHY07KSODoUFde9nIQZ1lz+Xe6EZIy8N0plW/OWtaOB
-         vOT9FhcwUYMRujhDxOe90pWJsaVLFZGsCQuY6qx0DGDqGkHJ7ORYBBVuPVI0cOh5AwD/
-         CnkmAYcq/OHitd0MDrbCIUQUjBQ5AjdRtVwPzt/l9nh/2dSrXwy7POOyr56fJpDmdw6S
-         gU6oEUUe9P4H3rQymiuZ0rs4ptDj/SmzXUdVp+LSk9OkWguJ8Wnbs0n9+Q70dZSEpNE3
-         2Wew==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=VNt/l34ff4xEvPH+w+BYI+V33CRKrgOYGlD8o1iStio=;
+        b=LFr8hlswUde8zCI8A3aJPuNG8G3GgajkUUF71hy+jS/Plr5ZowcK+JYzndFTAyaFyb
+         xu+ZIj9SeRE0J/K85Wr9aXubZSS4v88WHNPKDj1oVeMwxQu0F/yhiJoZ3/oXOQpKmcrA
+         AbvPr8rZ6++VO6JRCFSj5JZo8sAnwq6sTKBXkt86Ob2gRRvjN0rC802yyHQ02l/AQpX8
+         yzJNgM0Oseacy41tHq4fvWiQl0mhvodOe2/SWP/y/yQneXOkaWlETcoTdund+/wbtYaS
+         rEZT7Rksp1thArilL76i6r+aLDNLir3vk+aUsmAA8hHH4c2INRpeZ5BJR3VF/8bQYLg7
+         LHhA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=DRbNy34LFTYJZ4PmJRBEOK4pAtCounE3z5hGbxu2tJw=;
-        b=E5DCk4rFQgp6BrZWdurZsv7fzEqqNGTTX2tbfgXOqDQfGBkA1QmSuy6AABqEHqAQHv
-         0cGb604n0BmWyFeHwMkS2/P1l6ZX/iQ2nCJOcVPHJvSLAfJfz5mrJlSRY/g1yQ2lDJEJ
-         m1ZPlxrN2OmwAmr3kYjD/ftnapodc/XEfIkBc1nCpTcNzLPHa+UawOLHV56b5JXSBd4F
-         h0Izu5RF5SX6SWVSJjq1242d8EGMw1I0enC/+3FkMSFg9fIr/kWWG5uR8sbQvJO0plX2
-         lUyZwX6w5+M0HRnuEi8DhtuUeg2eeZ3T4xEzW8TcIM2jYoJwTwfURWmR3EgRmMCgX1xi
-         SOiw==
-X-Gm-Message-State: AOAM531zK0M6ztscX/xc6JdvRHSSJOJDkGy5evbgfBM1GB+a6OMgZFWg
-        4mgXJxRrl7Ehyjy1T5mV3GCcjQ0ay5Dd95X3
-X-Google-Smtp-Source: ABdhPJy3qO38k+rwRNWfSIV8GHKZ0b4x3vzXuhrJ8iz4pX7oHJ0jXid6qB4LXMoKKQzmnI4WgdhqXQ==
-X-Received: by 2002:a05:6638:2191:: with SMTP id s17mr32430885jaj.67.1637860267798;
-        Thu, 25 Nov 2021 09:11:07 -0800 (PST)
-Received: from [192.168.1.116] ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id h11sm1998376ili.30.2021.11.25.09.11.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 25 Nov 2021 09:11:07 -0800 (PST)
-Subject: Re: uring regression - lost write request
-To:     Stefan Metzmacher <metze@samba.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Daniel Black <daniel@mariadb.org>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        linux-block@vger.kernel.org, io-uring@vger.kernel.org,
-        stable@vger.kernel.org
-References: <c6d6bffe-1770-c51d-11c6-c5483bde1766@kernel.dk>
- <bd7289c8-0b01-4fcf-e584-273d372f8343@kernel.dk>
- <6d0ca779-3111-bc5e-88c0-22a98a6974b8@kernel.dk>
- <281147cc-7da4-8e45-2d6f-3f7c2a2ca229@kernel.dk>
- <c92f97e5-1a38-e23f-f371-c00261cacb6d@kernel.dk>
- <CABVffEN0LzLyrHifysGNJKpc_Szn7qPO4xy7aKvg7LTNc-Fpng@mail.gmail.com>
- <00d6e7ad-5430-4fca-7e26-0774c302be57@kernel.dk>
- <CABVffEM79CZ+4SW0+yP0+NioMX=sHhooBCEfbhqs6G6hex2YwQ@mail.gmail.com>
- <3aaac8b2-e2f6-6a84-1321-67409b2a3dce@kernel.dk>
- <98f8a00f-c634-4a1a-4eba-f97be5b2e801@kernel.dk> <YZ5lvtfqsZEllUJq@kroah.com>
- <c0a7ac89-2a8c-b1e3-00c2-96ee259582b4@kernel.dk>
- <96d6241f-7bf0-cefe-947e-ee03d83fb828@samba.org>
- <6d6fc76f-880a-938d-64dd-527e6be3009e@kernel.dk>
- <5217de38-d166-de32-c115-fd34399eb234@samba.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <1714eba7-dfa7-b08c-dd29-ae4ea616041f@kernel.dk>
-Date:   Thu, 25 Nov 2021 10:11:06 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=VNt/l34ff4xEvPH+w+BYI+V33CRKrgOYGlD8o1iStio=;
+        b=ZCqwGDhQHQ4fHAGw/L0+5FfAHeF8zPy0LJ4m7JKdLH0Dzoq6X2Sq1xoMKGN9kF8dES
+         aTI1oQllK1beliTgaxjDMUfylNZgCfASX0o7IQBgTj0vT1iLkY8oL+mOu+vV7McrVYJE
+         k5aPxuhy31M+w/gKAJfRZRmlO47aH207NWGwpV9WeqRwf9UlGGDrTu89tMl4dQ1ci8sk
+         hb5VFwHdPtL/I5p/pszCoHRchrQR9OC3mMoIa/pwyOQb60FCaZOU1KsEu4g0l67J8ySE
+         37RYP28nY8Y+IT8kuYwuHnLAqdJoddePZQdxSgmBcUzFbzRrqiebaOfc32lY0SfQrIQq
+         Xxtg==
+X-Gm-Message-State: AOAM532wdWosMN7RyFXufKOmtKigxIkLv9OKuHeuv8sZRp9/6geKCudu
+        I2dN/WlQVQZGzRBK/yC1bJb1CES88CiOu4fqBsU=
+X-Google-Smtp-Source: ABdhPJzfBY++OG95bvw5II1P2KS5Rtcb++AMAPdylRGPpvl6fxfRlmgRd0GUBMHmMmqjUp+1f35J5Q==
+X-Received: by 2002:a05:6a00:acc:b0:44b:ff29:621b with SMTP id c12-20020a056a000acc00b0044bff29621bmr15332071pfl.32.1637860403670;
+        Thu, 25 Nov 2021 09:13:23 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mz7sm8262094pjb.7.2021.11.25.09.13.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Nov 2021 09:13:23 -0800 (PST)
+Message-ID: <619fc433.1c69fb81.8bf34.4737@mx.google.com>
+Date:   Thu, 25 Nov 2021 09:13:23 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <5217de38-d166-de32-c115-fd34399eb234@samba.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.161-100-g2d3a7eb04e890
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.4 baseline: 129 runs,
+ 2 regressions (v5.4.161-100-g2d3a7eb04e890)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/25/21 9:35 AM, Stefan Metzmacher wrote:
-> Am 25.11.21 um 01:58 schrieb Jens Axboe:
->> On 11/24/21 3:52 PM, Stefan Metzmacher wrote:
->>> Hi Jens,
->>>
->>>>>> Looks good to me - Greg, would you mind queueing this up for
->>>>>> 5.14-stable?
->>>>>
->>>>> 5.14 is end-of-life and not getting any more releases (the front page of
->>>>> kernel.org should show that.)
->>>>
->>>> Oh, well I guess that settles that...
->>>>
->>>>> If this needs to go anywhere else, please let me know.
->>>>
->>>> Should be fine, previous 5.10 isn't affected and 5.15 is fine too as it
->>>> already has the patch.
->>>
->>> Are 5.11 and 5.13 are affected, these are hwe kernels for ubuntu,
->>> I may need to open a bug for them...
->>
->> Please do, then we can help get the appropriate patches lined up for
->> 5.11/13. They should need the same set, basically what ended up in 5.14
->> plus the one I posted today.
-> 
-> Ok, I've created https://bugs.launchpad.net/bugs/1952222
-> 
-> Let's see what happens...
+stable-rc/queue/5.4 baseline: 129 runs, 2 regressions (v5.4.161-100-g2d3a7e=
+b04e890)
 
-Let me know if I can help, should probably prepare a set for 5.11-stable
-and 5.13-stable, but I don't know if the above kernels already have some
-patches applied past last stable release of each...
+Regressions Summary
+-------------------
 
--- 
-Jens Axboe
+platform               | arch   | lab     | compiler | defconfig           =
+         | regressions
+-----------------------+--------+---------+----------+---------------------=
+---------+------------
+qemu_i386              | i386   | lab-cip | gcc-10   | i386_defconfig      =
+         | 1          =
 
+qemu_x86_64-uefi-mixed | x86_64 | lab-cip | gcc-10   | x86_64_defcon...6-ch=
+romebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.161-100-g2d3a7eb04e890/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.161-100-g2d3a7eb04e890
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2d3a7eb04e890380dc5c73a6082c4ab516e924cb =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform               | arch   | lab     | compiler | defconfig           =
+         | regressions
+-----------------------+--------+---------+----------+---------------------=
+---------+------------
+qemu_i386              | i386   | lab-cip | gcc-10   | i386_defconfig      =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/619f8bc56d06216713f2efb4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.161-1=
+00-g2d3a7eb04e890/i386/i386_defconfig/gcc-10/lab-cip/baseline-qemu_i386.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.161-1=
+00-g2d3a7eb04e890/i386/i386_defconfig/gcc-10/lab-cip/baseline-qemu_i386.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/619f8bc56d06216713f2e=
+fb5
+        new failure (last pass: v5.4.161-100-ga259c941e4de) =
+
+ =
+
+
+
+platform               | arch   | lab     | compiler | defconfig           =
+         | regressions
+-----------------------+--------+---------+----------+---------------------=
+---------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-cip | gcc-10   | x86_64_defcon...6-ch=
+romebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/619f8cb3083fb22f59f2efbe
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.161-1=
+00-g2d3a7eb04e890/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-cip/bas=
+eline-qemu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.161-1=
+00-g2d3a7eb04e890/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-cip/bas=
+eline-qemu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/619f8cb3083fb22f59f2e=
+fbf
+        new failure (last pass: v5.4.161-100-ga259c941e4de) =
+
+ =20
