@@ -2,100 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B0BF45D26E
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 02:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEDEC45D2D4
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 03:02:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236103AbhKYBcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 20:32:31 -0500
-Received: from szxga02-in.huawei.com ([45.249.212.188]:15862 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245669AbhKYBab (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 20:30:31 -0500
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4J00bH5Gkqz5pVP;
-        Thu, 25 Nov 2021 09:26:51 +0800 (CST)
-Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Thu, 25 Nov 2021 09:27:19 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Thu, 25 Nov 2021 09:27:17 +0800
-Subject: Re: [PATCH 4.19 000/323] 4.19.218-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20211124115718.822024889@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <a53d5cbb-fe23-098e-a288-1a0133d55325@huawei.com>
-Date:   Thu, 25 Nov 2021 09:27:16 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1345688AbhKYCFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 21:05:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36100 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353521AbhKYCDJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 21:03:09 -0500
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 345CCC06174A;
+        Wed, 24 Nov 2021 17:36:07 -0800 (PST)
+Received: by mail-oi1-x22c.google.com with SMTP id q25so9231139oiw.0;
+        Wed, 24 Nov 2021 17:36:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Os3OV2FPDkTjU4WiTzn9kPyZqlbHkg+HZpKJILevVJ4=;
+        b=pI9Y6blWE1yQwDi8EpuGo2HQaoFhQvEP+mu9VXlRe5D1/R/MtghgVnJVS9FYBRYkj+
+         nIW62vm7peWt+2v2K2Aa2rE1PNEnZpm4wGsZhwJjHbEMqpbEtzQ489hmRTzj4KQU9FFG
+         yT+rz0nBFYLfCQz1yqqVt34UzjCWKkV8WuIMyOUqveQ4JTXreEIlFQHxYTP9NiPWRrbU
+         M7Dwl6Wg8za3OroK6kYWZEhsGWXIzrRSqQv1XR7QTejIOuUwKmtC2tlbuGU4e9fjSJhb
+         45jNGFfSWbbYb50WAqJEEHglWNzgDyUEWVtoLwR8XowbZo6QUQJTJy5AJZhFgA35DFmd
+         MFsA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=Os3OV2FPDkTjU4WiTzn9kPyZqlbHkg+HZpKJILevVJ4=;
+        b=0HpFLG5jqWdXP+6p6rnmniyTFOndlxhd5HOMQvORt9Xc1D7Zk3vjkN0tQ/ucxYp7uZ
+         mxf7EXzA6EQTVCOGMBQV8fY1A0wuMV7x+ugpSHg08bbH7oZGMrRn05wQTXoA1o0msIqC
+         SaqyR4KJ4NuJR2iuBRGALEQNoE3Qdjv29zckeO6tBtkgqQLFVmYGe7+ZEdhudOXjsZze
+         YEuF0gim6NrWDUXxcpbIV0kT0T1VValk8L18phbGOvrUutgxqe5S2V7gBUBT9G1VPJt0
+         Y1DwK9gnL253N219/dvyKN3Tx+kHoqTrG5GwUr6M6rMupE4mWEZTMKvlNt+Kb5YRXWuO
+         +lbQ==
+X-Gm-Message-State: AOAM533feANqLH0R1C3A1THJXxV4QhG3U5XG3E9eIhHxdBumzhNgNlB2
+        FMO33SVdFZXtrLFXTJYhJfFfUL3JOTY=
+X-Google-Smtp-Source: ABdhPJx85DGJ7/0To/zijOaGsTkydOK8Hjeng0fjMj/YaWUhXSrxbc4ZaojpIxhL+oUryVzEC8qLqw==
+X-Received: by 2002:a05:6808:1210:: with SMTP id a16mr11337737oil.113.1637804166418;
+        Wed, 24 Nov 2021 17:36:06 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id h6sm274332otb.60.2021.11.24.17.36.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Nov 2021 17:36:05 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 24 Nov 2021 17:36:04 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 000/162] 4.4.293-rc1 review
+Message-ID: <20211125013604.GA851427@roeck-us.net>
+References: <20211124115658.328640564@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- kwepemm600013.china.huawei.com (7.193.23.68)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211124115658.328640564@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/11/24 19:53, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.218 release.
-> There are 323 patches in this series, all will be posted as a response
+On Wed, Nov 24, 2021 at 12:55:03PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.293 release.
+> There are 162 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
 > Responses should be made by Fri, 26 Nov 2021 11:56:36 +0000.
 > Anything received after that time might be too late.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.218-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
 
-Tested on arm64 and x86 for 4.19.218-rc1,
+Build results:
+	total: 160 pass: 153 fail: 7
+Failed builds:
+	ia64:defconfig
+	s390:defconfig
+	s390:allmodconfig
+	s390:performance_defconfig
+	sh:dreamcast_defconfig
+	sh:microdev_defconfig
+	sh:shx3_defconfig
+Qemu test results:
+	total: 341 pass: 336 fail: 5
+Failed tests:
+	s390:defconfig:nolocktests:smp2:net,default:initrd
+	s390:defconfig:nolocktests:smp2:virtio-blk-ccw:net,virtio-net-pci:rootfs
+	s390:defconfig:nolocktests:smp2:scsi[virtio-ccw]:net,default:rootfs
+	s390:defconfig:nolocktests:virtio-pci:net,virtio-net-pci:rootfs
+	s390:defconfig:nolocktests:scsi[virtio-pci]:net,default:rootfs
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.19.y
-Version: 4.19.218-rc1
-Commit: 451ddd7eb93b3648ea9e23132bd24faedb11279b
-Compiler: gcc version 7.3.0 (GCC)
+Unlike there are secondary issues, the errors are all due to:
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8938
-passed: 8938
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+mm/hugetlb.c: In function '__unmap_hugepage_range':
+mm/hugetlb.c:3294:25: error: implicit declaration of function 'tlb_flush_pmd_range'
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8938
-passed: 8938
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+Guenter
