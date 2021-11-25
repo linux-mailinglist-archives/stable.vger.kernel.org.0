@@ -2,87 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 762E945D264
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 02:15:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B0BF45D26E
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 02:29:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244540AbhKYBSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Nov 2021 20:18:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58398 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244980AbhKYBQi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Nov 2021 20:16:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AF2061074;
-        Thu, 25 Nov 2021 01:13:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637802808;
-        bh=1rYrjs40FlZEXnBlGyjhcetuGKPTUA/WuwDvZB6ibNI=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=mV/B5NbT1EpFTxOOAGMqQx+QhG5uB5oyKxWgXp3aefZhE90+iwXW5Duzjig1/KoP2
-         pCby5eAbRoTdRmvJIVm944bc0OqGI4qGIaVSAsfqas0chtD13jQjWDbv96CZFZ79/U
-         2qAS7fwMr2rP5R8qT6c4gPk3bzdyddoKE2rn7yjuGXKQGnzL+BayX33Wq/JR2Ztu3Z
-         LnvPfs6JDBvgHCbIxAD4ybnWwbIss6VAr4Ntrp6QR+KC2nstEaMHRmFbR9H09b1neF
-         56Rojtg2YLNa2/8o+J0svM7uWNajsRnwHAsbe5rA6wkiZGWISac7ljs1CZDHyFjI9F
-         jpGFv+QpRp6MQ==
-Date:   Wed, 24 Nov 2021 17:13:27 -0800
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Cc:     Stefan Dietrich <roots@gmx.de>, Greg KH <greg@kroah.com>,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
-        regressions@lists.linux.dev,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        intel-wired-lan@lists.osuosl.org
-Subject: Re: [REGRESSION] Kernel 5.15 reboots / freezes upon ifup/ifdown
-Message-ID: <20211124171327.089e3cda@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <87a6htm4aj.fsf@intel.com>
-References: <924175a188159f4e03bd69908a91e606b574139b.camel@gmx.de>
-        <YZ3q4OKhU2EPPttE@kroah.com>
-        <8119066974f099aa11f08a4dad3653ac0ba32cd6.camel@gmx.de>
-        <20211124153449.72c9cfcd@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-        <87a6htm4aj.fsf@intel.com>
+        id S236103AbhKYBcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Nov 2021 20:32:31 -0500
+Received: from szxga02-in.huawei.com ([45.249.212.188]:15862 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245669AbhKYBab (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Nov 2021 20:30:31 -0500
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4J00bH5Gkqz5pVP;
+        Thu, 25 Nov 2021 09:26:51 +0800 (CST)
+Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Thu, 25 Nov 2021 09:27:19 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Thu, 25 Nov 2021 09:27:17 +0800
+Subject: Re: [PATCH 4.19 000/323] 4.19.218-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20211124115718.822024889@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <a53d5cbb-fe23-098e-a288-1a0133d55325@huawei.com>
+Date:   Thu, 25 Nov 2021 09:27:16 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20211124115718.822024889@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ kwepemm600013.china.huawei.com (7.193.23.68)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 24 Nov 2021 17:07:16 -0800 Vinicius Costa Gomes wrote:
-> Hi Stefan,
-> 
-> Jakub Kicinski <kuba@kernel.org> writes:
-> 
-> > On Wed, 24 Nov 2021 18:20:40 +0100 Stefan Dietrich wrote:  
-> >> Hi all,
-> >> 
-> >> six exciting hours and a lot of learning later, here it is.
-> >> Symptomatically, the critical commit appears for me between 5.14.21-
-> >> 051421-generic and 5.15.0-051500rc2-generic - I did not find an amd64
-> >> build for rc1.
-> >> 
-> >> Please see the git-bisect output below and let me know how I may
-> >> further assist in debugging!  
-> >
-> > Well, let's CC those involved, shall we? :)
-> >
-> > Thanks for working thru the bisection!
-> >  
-> >> a90ec84837325df4b9a6798c2cc0df202b5680bd is the first bad commit
-> >> commit a90ec84837325df4b9a6798c2cc0df202b5680bd
-> >> Author: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-> >> Date:   Mon Jul 26 20:36:57 2021 -0700
-> >> 
-> >>     igc: Add support for PTP getcrosststamp()  
-> 
-> Oh! That's interesting.
-> 
-> Can you try disabling CONFIG_PCIE_PTM in your kernel config? If it
-> works, then it's a point in favor that this commit is indeed the
-> problematic one.
-> 
-> I am still trying to think of what could be causing the lockup you are
-> seeing.
 
-Actually we just had another report pointing at commit f32a21376573
-("ethtool: runtime-resume netdev parent before ethtool ioctl ops").
-That seems more likely :(
+
+On 2021/11/24 19:53, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.218 release.
+> There are 323 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 26 Nov 2021 11:56:36 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.218-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+Tested on arm64 and x86 for 4.19.218-rc1,
+
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-4.19.y
+Version: 4.19.218-rc1
+Commit: 451ddd7eb93b3648ea9e23132bd24faedb11279b
+Compiler: gcc version 7.3.0 (GCC)
+
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8938
+passed: 8938
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8938
+passed: 8938
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
