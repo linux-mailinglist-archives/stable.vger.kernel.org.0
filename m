@@ -2,357 +2,1043 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B587545DBF1
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 15:07:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85AB045DC20
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 15:15:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232117AbhKYOKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 09:10:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38218 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239002AbhKYOIu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 09:08:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA7FC610E8;
-        Thu, 25 Nov 2021 14:04:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637849069;
-        bh=Q46LfTpijKfOJWY5BGBsDEwWS1uTa1tUPg/FDgTCdZw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PxEiYMNh6SCcdjMiE0kXtFvAybtTLBSqIjEDpuKD1O/HnxzywBBB1yiuCui9oDf2C
-         b3ObhbqXHIEi/nKWMtdSka4ZxWwCZpRfsXvHfK9FCP6I5APhYrdHJ6/sunAx/DKo0C
-         8Ev46KZmxR16N/93BgKhox3o6O4yWKhIAFXkYCCbOZZzV2mEr4eU8ynbCpeeOFcNl2
-         obSa5poBr7Mucc8frX2Z/M009DcfADiKjC5cicUaKnVPQJ3xBicKXPMg1ctXN4rwOt
-         5QxeyoTOiY23O/b+CMNLdJmC1ZCZUTlv/38ToWwmXfgdwWj9IJUKdLGQFk/nEAviPV
-         xi0QMCYMMxjAg==
-From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     pali@kernel.org, stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.15 4/4] PCI: aardvark: Fix link training
-Date:   Thu, 25 Nov 2021 15:04:16 +0100
-Message-Id: <20211125140416.15181-5-kabel@kernel.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211125140416.15181-1-kabel@kernel.org>
-References: <20211125140416.15181-1-kabel@kernel.org>
+        id S1355625AbhKYOS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 09:18:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56154 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233257AbhKYOQ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 09:16:29 -0500
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CC6BC06179C
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 06:11:08 -0800 (PST)
+Received: by mail-pj1-x102e.google.com with SMTP id o6-20020a17090a0a0600b001a64b9a11aeso5843000pjo.3
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 06:11:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=EXxFbhuvhag+m5TBwz59cdJBNhHf9QvocB3RCPrlL88=;
+        b=rd6ixvDCRaOCEBu/w1kbyhK7UXL6JJw4FIuC2roZmCeMVEUwt53P8uUgOu3E6HjUJa
+         uFpKIIHCbrfwUoP/0M2Z5rBINn6XKpau8iE3Cj7b9BW/onMFnkmxHIIYUgLCSnZ9BpzF
+         9D5TdhuJF5jrrkOqLJIgZVaOKLGtO/6goYrZ548vUKW+xAEemqEI9sn5PZ44oi6gQw+7
+         ceVUuWwghKwSTRJ5Mp4VvJcfoA4ltPMOzkjKs8xxBeSdh0iWlg027L7EhUdek8h9pLp5
+         sTG8l3aQXPGRWIOQynEmJxg1PobknQP7m4Zsjy+6Wit454t4O4a27zCEenlfSJQkmolX
+         O5DQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=EXxFbhuvhag+m5TBwz59cdJBNhHf9QvocB3RCPrlL88=;
+        b=Bm5fe5uOgKqvAJtydQaggeK3YkarqpL5v4x1uSOyxNXyAy3xKNnJoQMNVDcWi3YbDR
+         IKxyftzHvVoarA+/AGsWnJ7cgng/1d9Dvom1bHUXg7Eom6CQGsjKLT+Rb0iful89bxOA
+         fwkhhvNQNx1wf549dnCPehEZmpoimCZga9fofw9EKfbnMX8AnmWXsAo57CptAKfFRlXQ
+         pvNp+AtIv+r2KmUsv9jWT4V/k24kwHIslr6iMtNIu8S/tfZ71j8sl29Chi5Cqmh2/g9V
+         yP1XDiUan19m+04H6Q3a2mYNjIfTynG181cj6+b9tBDSUtzdqV0v0gq9dOtu2G0ZFBlD
+         4/TA==
+X-Gm-Message-State: AOAM531jtdBr0ptm6sSOa/JJ5hBbyD+/kmZIgo15xeoUJqG6X1FK0/dE
+        yo6wuVljOyueN5e/Xhuq9aevdYMI1DrX1Qdt3no=
+X-Google-Smtp-Source: ABdhPJxPRwSNUpb3KsuOx1ktV6HLdSzU397IbX1c5IpF3v3x/Rm6g7CieBiL7Ux4lErncaDI4IqgsA==
+X-Received: by 2002:a17:90b:33ca:: with SMTP id lk10mr7308009pjb.18.1637849466968;
+        Thu, 25 Nov 2021 06:11:06 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g14sm2478140pgl.13.2021.11.25.06.11.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Nov 2021 06:11:06 -0800 (PST)
+Message-ID: <619f997a.1c69fb81.64d3d.6876@mx.google.com>
+Date:   Thu, 25 Nov 2021 06:11:06 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.290-206-ga3cd15a38615
+X-Kernelci-Report-Type: build
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.9 build: 165 builds: 3 failed, 162 passed, 2 errors,
+ 24 warnings (v4.9.290-206-ga3cd15a38615)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+stable-rc/queue/4.9 build: 165 builds: 3 failed, 162 passed, 2 errors, 24 w=
+arnings (v4.9.290-206-ga3cd15a38615)
 
-commit f76b36d40beee0a13aa8f6aa011df0d7cbbb8a7f upstream.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.9=
+/kernel/v4.9.290-206-ga3cd15a38615/
 
-Fix multiple link training issues in aardvark driver. The main reason of
-these issues was misunderstanding of what certain registers do, since their
-names and comments were misleading: before commit 96be36dbffac ("PCI:
-aardvark: Replace custom macros by standard linux/pci_regs.h macros"), the
-pci-aardvark.c driver used custom macros for accessing standard PCIe Root
-Bridge registers, and misleading comments did not help to understand what
-the code was really doing.
+Tree: stable-rc
+Branch: queue/4.9
+Git Describe: v4.9.290-206-ga3cd15a38615
+Git Commit: a3cd15a3861534cb854e73e391607c81b4e7c0e0
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 6 unique architectures
 
-After doing more tests and experiments I've come to the conclusion that the
-SPEED_GEN register in aardvark sets the PCIe revision / generation
-compliance and forces maximal link speed. Both GEN3 and GEN2 values set the
-read-only PCI_EXP_FLAGS_VERS bits (PCIe capabilities version of Root
-Bridge) to value 2, while GEN1 value sets PCI_EXP_FLAGS_VERS to 1, which
-matches with PCI Express specifications revisions 3, 2 and 1 respectively.
-Changing SPEED_GEN also sets the read-only bits PCI_EXP_LNKCAP_SLS and
-PCI_EXP_LNKCAP2_SLS to corresponding speed.
+Build Failures Detected:
 
-(Note that PCI Express rev 1 specification does not define PCI_EXP_LNKCAP2
- and PCI_EXP_LNKCTL2 registers and when SPEED_GEN is set to GEN1 (which
- also sets PCI_EXP_FLAGS_VERS set to 1), lspci cannot access
- PCI_EXP_LNKCAP2 and PCI_EXP_LNKCTL2 registers.)
+arm:
+    rpc_defconfig: (gcc-10) FAIL
 
-Changing PCIe link speed can be done via PCI_EXP_LNKCTL2_TLS bits of
-PCI_EXP_LNKCTL2 register. Armada 3700 Functional Specifications says that
-the default value of PCI_EXP_LNKCTL2_TLS is based on SPEED_GEN value, but
-tests showed that the default value is always 8.0 GT/s, independently of
-speed set by SPEED_GEN. So after setting SPEED_GEN, we must also set value
-in PCI_EXP_LNKCTL2 register via PCI_EXP_LNKCTL2_TLS bits.
+mips:
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
 
-Triggering PCI_EXP_LNKCTL_RL bit immediately after setting LINK_TRAINING_EN
-bit actually doesn't do anything. Tests have shown that a delay is needed
-after enabling LINK_TRAINING_EN bit. As triggering PCI_EXP_LNKCTL_RL
-currently does nothing, remove it.
+Errors and Warnings Detected:
 
-Commit 43fc679ced18 ("PCI: aardvark: Improve link training") introduced
-code which sets SPEED_GEN register based on negotiated link speed from
-PCI_EXP_LNKSTA_CLS bits of PCI_EXP_LNKSTA register. This code was added to
-fix detection of Compex WLE900VX (Atheros QCA9880) WiFi GEN1 PCIe cards, as
-otherwise these cards were "invisible" on PCIe bus (probably because they
-crashed). But apparently more people reported the same issues with these
-cards also with other PCIe controllers [1] and I was able to reproduce this
-issue also with other "noname" WiFi cards based on Atheros QCA9890 chip
-(with the same PCI vendor/device ids as Atheros QCA9880). So this is not an
-issue in aardvark but rather an issue in Atheros QCA98xx chips. Also, this
-issue only exists if the kernel is compiled with PCIe ASPM support, and a
-generic workaround for this is to change PCIe Bridge to 2.5 GT/s link speed
-via PCI_EXP_LNKCTL2_TLS_2_5GT bits in PCI_EXP_LNKCTL2 register [2], before
-triggering PCI_EXP_LNKCTL_RL bit. This workaround also works when SPEED_GEN
-is set to value GEN2 (5 GT/s). So remove this hack completely in the
-aardvark driver and always set SPEED_GEN to value from 'max-link-speed' DT
-property. Fix for Atheros QCA98xx chips is handled separately by patch [2].
+arc:
 
-These two things (code for triggering PCI_EXP_LNKCTL_RL bit and changing
-SPEED_GEN value) also explain why commit 6964494582f5 ("PCI: aardvark:
-Train link immediately after enabling training") somehow fixed detection of
-those problematic Compex cards with Atheros chips: if triggering link
-retraining (via PCI_EXP_LNKCTL_RL bit) was done immediately after enabling
-link training (via LINK_TRAINING_EN), it did nothing. If there was a
-specific delay, aardvark HW already initialized PCIe link and therefore
-triggering link retraining caused the above issue. Compex cards triggered
-link down event and disappeared from the PCIe bus.
+arm64:
 
-Commit f4c7d053d7f7 ("PCI: aardvark: Wait for endpoint to be ready before
-training link") added 100ms sleep before calling 'Start link training'
-command and explained that it is a requirement of PCI Express
-specification. But the code after this 100ms sleep was not doing 'Start
-link training', rather it triggered PCI_EXP_LNKCTL_RL bit via PCIe Root
-Bridge to put link into Recovery state.
+arm:
+    mini2440_defconfig (gcc-10): 1 warning
+    omap1_defconfig (gcc-10): 1 warning
+    rpc_defconfig (gcc-10): 2 errors
+    s3c2410_defconfig (gcc-10): 1 warning
 
-The required delay after fundamental reset is already done in function
-advk_pcie_wait_for_link() which also checks whether PCIe link is up.
-So after removing the code which triggers PCI_EXP_LNKCTL_RL bit on PCIe
-Root Bridge, there is no need to wait 100ms again. Remove the extra
-msleep() call and update comment about the delay required by the PCI
-Express specification.
+i386:
+    allnoconfig (gcc-10): 3 warnings
+    i386_defconfig (gcc-10): 3 warnings
+    tinyconfig (gcc-10): 3 warnings
 
-According to Marvell Armada 3700 Functional Specifications, Link training
-should be enabled via aardvark register LINK_TRAINING_EN after selecting
-PCIe generation and x1 lane. There is no need to disable it prior resetting
-card via PERST# signal. This disabling code was introduced in commit
-5169a9851daa ("PCI: aardvark: Issue PERST via GPIO") as a workaround for
-some Atheros cards. It turns out that this also is Atheros specific issue
-and affects any PCIe controller, not only aardvark. Moreover this Atheros
-issue was triggered by juggling with PCI_EXP_LNKCTL_RL, LINK_TRAINING_EN
-and SPEED_GEN bits interleaved with sleeps. Now, after removing triggering
-PCI_EXP_LNKCTL_RL, there is no need to explicitly disable LINK_TRAINING_EN
-bit. So remove this code too. The problematic Compex cards described in
-previous git commits are correctly detected in advk_pcie_train_link()
-function even after applying all these changes.
+mips:
+    mtx1_defconfig (gcc-10): 3 warnings
 
-Note that with this patch, and also prior this patch, some NVMe disks which
-support PCIe GEN3 with 8 GT/s speed are negotiated only at the lowest link
-speed 2.5 GT/s, independently of SPEED_GEN value. After manually triggering
-PCI_EXP_LNKCTL_RL bit (e.g. from userspace via setpci), these NVMe disks
-change link speed to 5 GT/s when SPEED_GEN was configured to GEN2. This
-issue first needs to be properly investigated. I will send a fix in the
-future.
+x86_64:
+    tinyconfig (gcc-10): 4 warnings
+    x86_64_defconfig (gcc-10): 5 warnings
 
-On the other hand, some other GEN2 PCIe cards with 5 GT/s speed are
-autonomously by HW autonegotiated at full 5 GT/s speed without need of any
-software interaction.
+Errors summary:
 
-Armada 3700 Functional Specifications describes the following steps for
-link training: set SPEED_GEN to GEN2, enable LINK_TRAINING_EN, poll until
-link training is complete, trigger PCI_EXP_LNKCTL_RL, poll until signal
-rate is 5 GT/s, poll until link training is complete, enable ASPM L0s.
+    1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+h=3D=E2=80=99
 
-The requirement for triggering PCI_EXP_LNKCTL_RL can be explained by the
-need to achieve 5 GT/s speed (as changing link speed is done by throw to
-recovery state entered by PCI_EXP_LNKCTL_RL) or maybe as a part of enabling
-ASPM L0s (but in this case ASPM L0s should have been enabled prior
-PCI_EXP_LNKCTL_RL).
+Warnings summary:
 
-It is unknown why the original pci-aardvark.c driver was triggering
-PCI_EXP_LNKCTL_RL bit before waiting for the link to be up. This does not
-align with neither PCIe base specifications nor with Armada 3700 Functional
-Specification. (Note that in older versions of aardvark, this bit was
-called incorrectly PCIE_CORE_LINK_TRAINING, so this may be the reason.)
+    5    ld: warning: creating DT_TEXTREL in a PIE
+    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
+    3    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
+    3    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic su=
+ffix given and no register operands; using default for `btr'
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    2    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+d-only section `.head.text'
+    2    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c2=
+4xx_uart_dt_match=E2=80=99 assumed to have one element
+    2    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    1    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpi=
+o_match=E2=80=99 assumed to have one element
 
-It is also unknown why Armada 3700 Functional Specification says that it is
-needed to trigger PCI_EXP_LNKCTL_RL for GEN2 mode, as according to PCIe
-base specification 5 GT/s speed negotiation is supposed to be entirely
-autonomous, even if initial speed is 2.5 GT/s.
+Section mismatches summary:
 
-[1] - https://lore.kernel.org/linux-pci/87h7l8axqp.fsf@toke.dk/
-[2] - https://lore.kernel.org/linux-pci/20210326124326.21163-1-pali@kernel.org/
+    1    WARNING: modpost: Found 1 section mismatch(es).
 
-Link: https://lore.kernel.org/r/20211005180952.6812-12-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section =
+mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+Section mismatches:
+    WARNING: modpost: Found 1 section mismatch(es).
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/gpio/gpio-omap.c:1135:34: warning: array =E2=80=98omap_gpio_mat=
+ch=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/tty/serial/samsung.c:1786:34: warning: array =E2=80=98s3c24xx_u=
+art_dt_match=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section=
+ mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/x86/entry/entry_32.S:452: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 5 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1565: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    arch/x86/kernel/process.c:460: Warning: no instruction mnemonic suffix =
+given and no register operands; using default for `btr'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
 ---
- drivers/pci/controller/pci-aardvark.c | 117 ++++++++------------------
- 1 file changed, 34 insertions(+), 83 deletions(-)
-
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 52caa6f86f58..c5300d49807a 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -299,11 +299,6 @@ static inline u32 advk_readl(struct advk_pcie *pcie, u64 reg)
- 	return readl(pcie->base + reg);
- }
- 
--static inline u16 advk_read16(struct advk_pcie *pcie, u64 reg)
--{
--	return advk_readl(pcie, (reg & ~0x3)) >> ((reg & 0x3) * 8);
--}
--
- static u8 advk_pcie_ltssm_state(struct advk_pcie *pcie)
- {
- 	u32 val;
-@@ -377,23 +372,9 @@ static void advk_pcie_wait_for_retrain(struct advk_pcie *pcie)
- 
- static void advk_pcie_issue_perst(struct advk_pcie *pcie)
- {
--	u32 reg;
--
- 	if (!pcie->reset_gpio)
- 		return;
- 
--	/*
--	 * As required by PCI Express spec (PCI Express Base Specification, REV.
--	 * 4.0 PCI Express, February 19 2014, 6.6.1 Conventional Reset) a delay
--	 * for at least 100ms after de-asserting PERST# signal is needed before
--	 * link training is enabled. So ensure that link training is disabled
--	 * prior de-asserting PERST# signal to fulfill that PCI Express spec
--	 * requirement.
--	 */
--	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
--	reg &= ~LINK_TRAINING_EN;
--	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
--
- 	/* 10ms delay is needed for some cards */
- 	dev_info(&pcie->pdev->dev, "issuing PERST via reset GPIO for 10ms\n");
- 	gpiod_set_value_cansleep(pcie->reset_gpio, 1);
-@@ -401,53 +382,46 @@ static void advk_pcie_issue_perst(struct advk_pcie *pcie)
- 	gpiod_set_value_cansleep(pcie->reset_gpio, 0);
- }
- 
--static int advk_pcie_train_at_gen(struct advk_pcie *pcie, int gen)
-+static void advk_pcie_train_link(struct advk_pcie *pcie)
- {
--	int ret, neg_gen;
-+	struct device *dev = &pcie->pdev->dev;
- 	u32 reg;
-+	int ret;
- 
--	/* Setup link speed */
-+	/*
-+	 * Setup PCIe rev / gen compliance based on device tree property
-+	 * 'max-link-speed' which also forces maximal link speed.
-+	 */
- 	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
- 	reg &= ~PCIE_GEN_SEL_MSK;
--	if (gen == 3)
-+	if (pcie->link_gen == 3)
- 		reg |= SPEED_GEN_3;
--	else if (gen == 2)
-+	else if (pcie->link_gen == 2)
- 		reg |= SPEED_GEN_2;
- 	else
- 		reg |= SPEED_GEN_1;
- 	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
- 
- 	/*
--	 * Enable link training. This is not needed in every call to this
--	 * function, just once suffices, but it does not break anything either.
-+	 * Set maximal link speed value also into PCIe Link Control 2 register.
-+	 * Armada 3700 Functional Specification says that default value is based
-+	 * on SPEED_GEN but tests showed that default value is always 8.0 GT/s.
- 	 */
-+	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKCTL2);
-+	reg &= ~PCI_EXP_LNKCTL2_TLS;
-+	if (pcie->link_gen == 3)
-+		reg |= PCI_EXP_LNKCTL2_TLS_8_0GT;
-+	else if (pcie->link_gen == 2)
-+		reg |= PCI_EXP_LNKCTL2_TLS_5_0GT;
-+	else
-+		reg |= PCI_EXP_LNKCTL2_TLS_2_5GT;
-+	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKCTL2);
-+
-+	/* Enable link training after selecting PCIe generation */
- 	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
- 	reg |= LINK_TRAINING_EN;
- 	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
- 
--	/*
--	 * Start link training immediately after enabling it.
--	 * This solves problems for some buggy cards.
--	 */
--	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKCTL);
--	reg |= PCI_EXP_LNKCTL_RL;
--	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKCTL);
--
--	ret = advk_pcie_wait_for_link(pcie);
--	if (ret)
--		return ret;
--
--	reg = advk_read16(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_LNKSTA);
--	neg_gen = reg & PCI_EXP_LNKSTA_CLS;
--
--	return neg_gen;
--}
--
--static void advk_pcie_train_link(struct advk_pcie *pcie)
--{
--	struct device *dev = &pcie->pdev->dev;
--	int neg_gen = -1, gen;
--
- 	/*
- 	 * Reset PCIe card via PERST# signal. Some cards are not detected
- 	 * during link training when they are in some non-initial state.
-@@ -458,41 +432,18 @@ static void advk_pcie_train_link(struct advk_pcie *pcie)
- 	 * PERST# signal could have been asserted by pinctrl subsystem before
- 	 * probe() callback has been called or issued explicitly by reset gpio
- 	 * function advk_pcie_issue_perst(), making the endpoint going into
--	 * fundamental reset. As required by PCI Express spec a delay for at
--	 * least 100ms after such a reset before link training is needed.
--	 */
--	msleep(PCI_PM_D3COLD_WAIT);
--
--	/*
--	 * Try link training at link gen specified by device tree property
--	 * 'max-link-speed'. If this fails, iteratively train at lower gen.
--	 */
--	for (gen = pcie->link_gen; gen > 0; --gen) {
--		neg_gen = advk_pcie_train_at_gen(pcie, gen);
--		if (neg_gen > 0)
--			break;
--	}
--
--	if (neg_gen < 0)
--		goto err;
--
--	/*
--	 * After successful training if negotiated gen is lower than requested,
--	 * train again on negotiated gen. This solves some stability issues for
--	 * some buggy gen1 cards.
-+	 * fundamental reset. As required by PCI Express spec (PCI Express
-+	 * Base Specification, REV. 4.0 PCI Express, February 19 2014, 6.6.1
-+	 * Conventional Reset) a delay for at least 100ms after such a reset
-+	 * before sending a Configuration Request to the device is needed.
-+	 * So wait until PCIe link is up. Function advk_pcie_wait_for_link()
-+	 * waits for link at least 900ms.
- 	 */
--	if (neg_gen < gen) {
--		gen = neg_gen;
--		neg_gen = advk_pcie_train_at_gen(pcie, gen);
--	}
--
--	if (neg_gen == gen) {
--		dev_info(dev, "link up at gen %i\n", gen);
--		return;
--	}
--
--err:
--	dev_err(dev, "link never came up\n");
-+	ret = advk_pcie_wait_for_link(pcie);
-+	if (ret < 0)
-+		dev_err(dev, "link never came up\n");
-+	else
-+		dev_info(dev, "link up\n");
- }
- 
- /*
--- 
-2.32.0
-
+For more info write to <info@kernelci.org>
