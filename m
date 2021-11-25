@@ -2,86 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F8045D565
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 08:26:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E26E45D573
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 08:29:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231225AbhKYHaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 02:30:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50290 "EHLO
+        id S235623AbhKYHcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 02:32:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230006AbhKYH2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 02:28:03 -0500
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB734C061574
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 23:24:51 -0800 (PST)
-Received: by mail-ed1-x531.google.com with SMTP id y13so21337508edd.13
-        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 23:24:51 -0800 (PST)
+        with ESMTP id S233409AbhKYHaL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 02:30:11 -0500
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3E8CC06175A
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 23:27:00 -0800 (PST)
+Received: by mail-ed1-x529.google.com with SMTP id g14so21472589edb.8
+        for <stable@vger.kernel.org>; Wed, 24 Nov 2021 23:27:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=bBIqQa/SCKGYxoZHALYmBUxaUbRBXjYk9IW25TpdYjE=;
-        b=MJpzV2Qe9vr4wuJ45uP4/6kQUaUAe+1JEgQrS7meOE2C/kPqOss0FXhC8o+hONndY+
-         Z04ZMXMkhnqY7Io95aHVOORCXB1RpAEjQYYqY1HWjber/4Ee/xDvECAIypFrEkfZqKj+
-         GU7qB0edj1ei8ohkGmWoBFaXmwS28qjeHTJWTT/KBPONx1lVFZ1oyWKraxYR2IUchWkQ
-         4qKCa5FM357e1suaLAjNy6JYUR/joVn1TOiJwuHClbtyOZ16iIAJoH3MyibKD3gi4ItL
-         FZaUF9Zx+oCdsbNGtgt0vQXEso7FMiMQFiOco4dDa9iBReKs0JR/PRVXMrcwi+kulRlN
-         6V8g==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8ErAPLPUu+Zcbpgrl+R0IgUe7alERBIpvIUmrIUHrj0=;
+        b=NwQ6lN6ULe0j69KhRom5J4jfwR6GW9zFSpIZO6Jr/yXE4sK3bCg/s0f1GQiEXp1YY6
+         o0X8OjKds09MfMtQAU9nWRmbSBi2sF+19vNQTLBrLaxVXIGUp4A5JjCeGWhOquM5F+79
+         UggskDS4fzfnQCWIDlJTTYkYfoHSu+W6oOJNhv7B7b4djGQ4HgkryjojjPDuas6b5dwh
+         x3orJt4vUmAjmUtfDA0Vjfc2fzl/Vd0z+l3oBbAepyedZfcHiPv14d6FcfGy0YjovJwR
+         Qjz6nMIpWYXUN0aAcgDnVPjloaK0oQpmT1wvL8ywVr8/GG0dTdcxF5xJ5jH3LWVK5GMk
+         Zpfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=bBIqQa/SCKGYxoZHALYmBUxaUbRBXjYk9IW25TpdYjE=;
-        b=t+xIOR99tZoyKJ8NTZzv+3sBUrzw6f1TrFZ3hTB2BFVZ/yJz81lTVxfIg55blnqAAa
-         V8aQ8S/dF4o5ZHYlb/aqfv3j2anIth8XkldXRvvTeEx2P1th/aa1bbxvCD8+UwvbvqfM
-         vLzltYCy3sih2bJSa/s5D2LfsCfUJpJi8qrBSCRaM1hcdrBPdeggq1Pnuiagqtn0oD9g
-         0fXx9Lqy/rIi66YXqJ/CCUqZIiq2IhYR0GPt6c7S1EgfoEEHVJkEnLRqin0CPh62Nwpm
-         oFbZm5ndJ6FV5O5Nw58l2KATybzN9qQTWGt5fvIkmsGh6dSczrymvVGK3h/H3O7aYObb
-         MhNw==
-X-Gm-Message-State: AOAM532nn9VEah9093auBrkmZinE20xIoTIC6nM7935DSEPljJmCaxDS
-        ZCiEkUqfMppru/zoeGT+m2L6N36/Ctl8Xdu6fHc7PI1X+xeJsA==
-X-Google-Smtp-Source: ABdhPJyJNjv4g3Z8J2gKC/BAL8Y187NY4+bBadMRsYrxd5CCgBA83znuESc74e4p/az+RHx0Ua+gtDRyyTnUEL9/sfs=
-X-Received: by 2002:a05:6402:4311:: with SMTP id m17mr34902350edc.103.1637825089570;
- Wed, 24 Nov 2021 23:24:49 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8ErAPLPUu+Zcbpgrl+R0IgUe7alERBIpvIUmrIUHrj0=;
+        b=CeGxcTEzVjTJ1B3eKmE2ZEjcYpOwSWRdUzNU2NlxSMFIp+YnfpnSiol2tiCNXkfzEa
+         a42wsEFm14E5hThUuNSUBFMqDmfv4YxExXDzRADS72Ui90zzThfWiVoL6YDYqWw8//k5
+         4DisWGzkTPfSCmlSGO9TjuocpISAndF+D19t7WuEh8USK+BL5hi2/aTMiMToIlH5uqme
+         RvUJAOSNylSo9HWr5VztuPXh6MfyJhsOtcUE2J3QTAFNyJQrPbjXc299/UGe8onJYWnN
+         tSBje9dcJthbabD73C7X/S7ok6iCdsgIUlbJq1hbOJmNw24P3EbO+ExO43zEjgVRzaUm
+         FUmg==
+X-Gm-Message-State: AOAM5337JWlULwU26VjjQ3+aNXaYOjOpsSXDK8SqAbmZ5jBdCWIT2LW0
+        RBiTkpx4taWvQOBHwUQNPUyror8AOAR4eMf8fET5aQ==
+X-Google-Smtp-Source: ABdhPJw8+/a1NBiAYJ+y2plHA98NeqVaJ2heCjqTMVaiGwiHRNOkN6MsoghuqpXf6UnYqbiibrNP+Gh2Py6PMyEmsMg=
+X-Received: by 2002:a05:6402:90c:: with SMTP id g12mr35216895edz.217.1637825219306;
+ Wed, 24 Nov 2021 23:26:59 -0800 (PST)
 MIME-Version: 1.0
+References: <CA+G9fYskrxZvmrjhO32Q9r7mb1AtKdLBm4OvDNvt5v4PTgm4pA@mail.gmail.com>
+ <CA+G9fYvroifx_0xx-DxRRdDqsR79HV4KTC+a8+3zTL57Cu2TnQ@mail.gmail.com> <YZ5ksupzeLkkmH0H@kroah.com>
+In-Reply-To: <YZ5ksupzeLkkmH0H@kroah.com>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 25 Nov 2021 12:54:37 +0530
-Message-ID: <CA+G9fYug3rX1wKksHsSmnpnkLj+p2JVKYFMFxqT3aAfJGCRYKQ@mail.gmail.com>
-Subject: stable-rc queue/4.9 buil arm tinyconfigs build failure
-To:     linux-stable <stable@vger.kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
+Date:   Thu, 25 Nov 2021 12:56:47 +0530
+Message-ID: <CA+G9fYtD3d+HpfdRpy5+xjiNDafK2eLRzF1_ssR=Q8fp6JrbCA@mail.gmail.com>
+Subject: Re: cpuidle-tegra.c:349:38: error: 'TEGRA_SUSPEND_NOT_READY' undeclared
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-stable <stable@vger.kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        lkft-triage@lists.linaro.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-FYI,
-As you already know this build error still noticed on recent stable-rc queue/4.9
+On Wed, 24 Nov 2021 at 21:43, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, Nov 24, 2021 at 06:10:16PM +0530, Naresh Kamboju wrote:
+> > On Wed, 24 Nov 2021 at 17:35, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> > >
+> > > Regression found on arm gcc-11 builds
+> > > Following build warnings / errors reported on stable-rc queue/5.10.
+> >
+> >  Following build warnings / errors reported on stable-rc 5.10 also.
+>
+> I think you mean 5.15, right?
 
-make --silent --keep-going --jobs=8
-O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm
-CROSS_COMPILE=arm-linux-gnueabihf- 'CC=sccache
-arm-linux-gnueabihf-gcc' 'HOSTCC=sccache gcc'
-In file included from /builds/linux/arch/arm/include/asm/tlb.h:28,
-                 from /builds/linux/arch/arm/mm/init.c:34:
-/builds/linux/include/asm-generic/tlb.h: In function 'tlb_flush_pmd_range':
-/builds/linux/include/asm-generic/tlb.h:208:47: error: 'PMD_SIZE'
-undeclared (first use in this function); did you mean 'PUD_SIZE'?
-  208 |  if (tlb->page_size != 0 && tlb->page_size != PMD_SIZE)
-      |                                               ^~~~~~~~
-      |                                               PUD_SIZE
+i mean
+stable-rc 5.10
+stable-rc queue/5.10
 
-metadata:
-    git_describe: v4.9.290-204-g1b54705bd25f
-    git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc-queues
-    git_sha: 1b54705bd25fff60b31f9d6db7b9e380f70beb03
-    git_short_log: 1b54705bd25f (\hugetlbfs: flush TLBs correctly
-after huge_pmd_unshare\)
-    kconfig: tinyconfig
-    target_arch: arm
-    toolchain: gcc-10 / gcc-11
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
---
-Linaro LKFT
-https://lkft.linaro.org
+- Naresh
