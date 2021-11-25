@@ -2,71 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1387A45DE2B
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 16:59:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E66B145DE36
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 17:02:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356264AbhKYQCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 11:02:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34202 "EHLO mail.kernel.org"
+        id S234420AbhKYQFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 11:05:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356149AbhKYQAL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 11:00:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 353D661028;
-        Thu, 25 Nov 2021 15:56:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637855819;
-        bh=s0i3ezSE1IxuveYY+JQMFSCwcdblj9+81E0vhnTv7EE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BaKTbQ95gIfgHvQ50d09qzP6jo+5girSZzd6Hhfvk7Pc5RYmOv/4o+JjFM16Xx/SN
-         K/h+47rRmFT2f+UDW+YfSeksWuZtayLWcN3PJ2FkEfrJy4odyD6OxNI3DpqbPm1xTJ
-         Msb8QjL1FEp+WlVKsQtcSFsB+ppHGhv76xWhxIwA=
-Date:   Thu, 25 Nov 2021 16:56:36 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>, Nadav Amit <namit@vmware.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 000/206] 4.9.291-rc2 review
-Message-ID: <YZ+yNK3TOXNg+Q5k@kroah.com>
-References: <20211125125641.226524689@linuxfoundation.org>
- <dd620210-af02-189c-f972-e31bd21008b4@roeck-us.net>
+        id S229517AbhKYQDV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 11:03:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPS id 236B66108E;
+        Thu, 25 Nov 2021 16:00:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637856010;
+        bh=ucYoul2wvLTG4PBO56hF4AxJWAGQbC8TJdZcAk422Ks=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=ePD6MPCAjCTjr8QWwQYoks4TOCIjpPFBQQvPqPPsb/JcwATS6NHiA8K/5nqsaN5kV
+         rjvQy1StCKoCq0IdZG1BeRZ4oy+rQ0exEEwN+HNnEtfPEgeJ+Im7evrQNnx7pyWL1a
+         VJ3DmstgvES4ranJaEy9QbqZPozUIOW03yFGEdIbGsDcJ9e97j1r1QuoIxB+9YXXsT
+         NaZFWbejIvCREg2Sid3PXBgxHUCXED2DwXmCtWpry3iF5r/kJHxoWa3Jxw/9+E7yZr
+         +2dLbQ9dr374v8LDqL6ZKzV3mEhFZx1LEUWizLScI981xQ3dxNZfVY0txTdRneJJ9+
+         IcyHja+Gy5+fw==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 1624160A21;
+        Thu, 25 Nov 2021 16:00:10 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dd620210-af02-189c-f972-e31bd21008b4@roeck-us.net>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v2] mdio: aspeed: Fix "Link is Down" issue
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163785601008.7926.14064362154729889685.git-patchwork-notify@kernel.org>
+Date:   Thu, 25 Nov 2021 16:00:10 +0000
+References: <20211125024432.15809-1-dylan_hung@aspeedtech.com>
+In-Reply-To: <20211125024432.15809-1-dylan_hung@aspeedtech.com>
+To:     Dylan Hung <dylan_hung@aspeedtech.com>
+Cc:     linux-kernel@vger.kernel.org, linux-aspeed@lists.ozlabs.org,
+        linux-arm-kernel@lists.infradead.org, netdev@vger.kernel.org,
+        andrew@aj.id.au, joel@jms.id.au, kuba@kernel.org,
+        davem@davemloft.net, linux@armlinux.org.uk, hkallweit1@gmail.com,
+        andrew@lunn.ch, BMC-SW@aspeedtech.com, stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 25, 2021 at 07:45:22AM -0800, Guenter Roeck wrote:
-> On 11/25/21 4:57 AM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 4.9.291 release.
-> > There are 206 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sat, 27 Nov 2021 12:56:08 +0000.
-> > Anything received after that time might be too late.
-> > 
+Hello:
+
+This patch was applied to netdev/net.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Thu, 25 Nov 2021 10:44:32 +0800 you wrote:
+> The issue happened randomly in runtime.  The message "Link is Down" is
+> popped but soon it recovered to "Link is Up".
 > 
-> In file included from arch/sh/mm/init.c:25:
-> arch/sh/include/asm/tlb.h:118:15: error: return type defaults to 'int' [-Werror=return-type]
->   118 | static inline tlb_flush_pmd_range(struct mmu_gather *tlb, unsigned long address,
+> The "Link is Down" results from the incorrect read data for reading the
+> PHY register via MDIO bus.  The correct sequence for reading the data
+> shall be:
+> 1. fire the command
+> 2. wait for command done (this step was missing)
+> 3. wait for data idle
+> 4. read data from data register
 > 
-> The problem affects v4.9.y, v4.14.y, and v4.19.y.
-> 
-> Commit aca917cb287ba99c5 ("hugetlbfs: flush TLBs correctly after huge_pmd_unshare")
-> doesn't really match the upstream commit and obviously was not even build tested
-> on sh (and I would suspect it was not tested on other architectures either).
-> It seems to me that it may do more harm than good.
+> [...]
 
-Ok, at this point in time, I think this needs more work, especially over
-a holliday weekend for parts of the world.
+Here is the summary with links:
+  - [v2] mdio: aspeed: Fix "Link is Down" issue
+    https://git.kernel.org/netdev/net/c/9dbe33cf371b
 
-I'll go drop this, and the other hugetlb patch from 4.4, 4.9, 4.14, and
-4.19 queues and wait for a new version from Nadav.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-thanks,
 
-greg k-h
