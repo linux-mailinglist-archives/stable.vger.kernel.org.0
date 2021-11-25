@@ -2,127 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B407845DAC6
-	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 14:13:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 760D145DACF
+	for <lists+stable@lfdr.de>; Thu, 25 Nov 2021 14:16:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355062AbhKYNQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 08:16:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49288 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347841AbhKYNOK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 08:14:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8D3D60F55;
-        Thu, 25 Nov 2021 13:10:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637845859;
-        bh=KWodulOmDNOeWdh0ObvftNcoQALnb0o7UR853ZJlNJk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=B7Vt0v75KzlsGz6+pPV7cGBh05EByM2rqO8HCoHxUINqZXf/EipVYwKOBM13i02Td
-         ZfKx6NLX+kudXkcsak/x7YRX3gZNtuMKwnjZCwt0Rvm1HEDN3HQ0wAZApN4s42vejA
-         B2kQJ8wKmSrUzLuGll6akUOLQdfYlVE4yIRJmAyY=
-Date:   Thu, 25 Nov 2021 14:10:54 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux-stable <stable@vger.kernel.org>,
-        Sasha Levin <sashal@kernel.org>, Nadav Amit <namit@vmware.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
-        KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        lkft-triage@lists.linaro.org
-Subject: Re: tlb.h:208:54: error: 'PMD_SIZE' undeclared
-Message-ID: <YZ+LXsfEBalZejLc@kroah.com>
-References: <CA+G9fYvU4yoOx7BEBxJXRVZx4pO5fYPRELmkNz+iBu7kdN_9Ew@mail.gmail.com>
+        id S1355048AbhKYNTx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 08:19:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43340 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355129AbhKYNRx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 08:17:53 -0500
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB985C06179E
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 05:11:38 -0800 (PST)
+Received: by mail-wr1-x434.google.com with SMTP id a18so11538071wrn.6
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 05:11:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=CM02k8qgy8XwGEXwazxWflMqeYneK7YgPygQe224NhM=;
+        b=OSPFnsRr1Jk3IiyXonNjDhS0on7XP1oLzT/pgduRTu7qw3hVk7oMTq2hSftImrMr9R
+         l7/bPwtrpfzS/ksV+BsV3KTTI2GkErop3unaSGHUm0SiTsDsu6FrLvM1DThMvE4yxk5N
+         eKXaIzVl11MWzfIXu1Zk9ON4lN+vMvf1WE62DloB1hUJWOtU9ErFCIRB46w5Sy+XqKmz
+         aGJsXpPKR8w5F1NI93h3oyyTEvsl+Oi9ePXx2Hi5afwwWmbT/p2jmywzGkQct2ex3s3O
+         cDwwaQR52ixMldXiEpbTn1AhQiXbRPJ15lWRMe1j1IoXZLoY/5G3grOwUrkMA2DYu0Nf
+         LrHA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=CM02k8qgy8XwGEXwazxWflMqeYneK7YgPygQe224NhM=;
+        b=51yG/xnO2Wiy89D8IU+6g565AxpYiO9E5zPgykYDgGTtEzRsxYbbgSImFodSPKsiG9
+         oW7qjpOfRF/uNGcB5aBjE7SjW8pCIq2L+RgXjsVJ/8J+mSeQ5u7oV8Bs/1pRTBZhvQYe
+         TPAVG3uS5uEay8WmHDwE4F7qgUSmK8uiU2MrkFhlLOSESp3e9Z4FRSHa+9Xtkp2YvBaJ
+         NKzaooFuMUknKCK4OF8oxz9ekP049COqxucQ1kz/G2gTY1bMIjjkiYE0dkkmsnGGFzpn
+         4X0EoG8X7GL96v5GV37QMKuxxgNYolBn2TUHlonTRhoNRovSTFUY3s9yM8sb4Xq+UI4X
+         tNEA==
+X-Gm-Message-State: AOAM532KHC9mk2O+VDVuF9I19dHCL7dPUYqcLTDETXFQKOHERLBUrSx+
+        Mzi/kG8VlrQeeZG4G0T26J3yI1DCTiMRXA==
+X-Google-Smtp-Source: ABdhPJxZXDRFuGPJhEdUP3o9Tn+GqhTyva9sgO+SLTXtOJ69qvN5naWbLq26c7vuwIhqMS8SvcqTcg==
+X-Received: by 2002:a5d:63ca:: with SMTP id c10mr6455262wrw.124.1637845897569;
+        Thu, 25 Nov 2021 05:11:37 -0800 (PST)
+Received: from google.com ([2.31.167.18])
+        by smtp.gmail.com with ESMTPSA id h204sm3204233wmh.33.2021.11.25.05.11.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Nov 2021 05:11:37 -0800 (PST)
+Date:   Thu, 25 Nov 2021 13:11:35 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     devel@driverdev.osuosl.org, arve@android.com,
+        stable@vger.kernel.org, riandrews@android.com, labbott@redhat.com,
+        sumit.semwal@linaro.org
+Subject: Re: [PATCH 1/1] staging: ion: Prevent incorrect reference counting
+ behavour
+Message-ID: <YZ+LhzpwQ7RJtDSs@google.com>
+References: <20211125120234.67987-1-lee.jones@linaro.org>
+ <YZ9+YPc7w9Z4xotR@kroah.com>
+ <YZ+Fn0S1j4JzotGO@google.com>
+ <YZ+HiBRUqLhSPwY0@kroah.com>
+ <YZ+JsjZicl8jsRHM@google.com>
+ <YZ+Kc/M1qSaWfXPW@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CA+G9fYvU4yoOx7BEBxJXRVZx4pO5fYPRELmkNz+iBu7kdN_9Ew@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YZ+Kc/M1qSaWfXPW@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 24, 2021 at 06:04:20PM +0530, Naresh Kamboju wrote:
-> Regression found on arm gcc-11 builds with tinyconfig and allnoconfig.
-> Following build warnings / errors reported on stable-rc 4.9.
-> 
-> metadata:
->     git_describe: v4.9.290-208-gb2ae18f41670
->     git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
->     git_short_log: b2ae18f41670 (\"Linux 4.9.291-rc1\")
->     target_arch: arm
->     toolchain: gcc-11 / gcc-10 / gcc-9 / gcc-8
-> 
-> build error :
-> --------------
-> make --silent --keep-going --jobs=8
-> O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm
-> CROSS_COMPILE=arm-linux-gnueabihf- 'CC=sccache
-> arm-linux-gnueabihf-gcc' 'HOSTCC=sccache gcc'
-> In file included from arch/arm/include/asm/tlb.h:28,
->                  from arch/arm/mm/init.c:34:
-> include/asm-generic/tlb.h: In function 'tlb_flush_pmd_range':
-> include/asm-generic/tlb.h:208:54: error: 'PMD_SIZE' undeclared (first
-> use in this function); did you mean 'PUD_SIZE'?
->   208 |         if (tlb->page_size != 0 && tlb->page_size != PMD_SIZE)
->       |                                                      ^~~~~~~~
->       |                                                      PUD_SIZE
-> include/asm-generic/tlb.h:208:54: note: each undeclared identifier is
-> reported only once for each function it appears in
-> make[2]: *** [scripts/Makefile.build:307: arch/arm/mm/init.o] Error 1
-> make[2]: Target '__build' not remade because of errors.
-> make[1]: *** [Makefile:1036: arch/arm/mm] Error 2
-> 
-> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> 
-> Patch pointing to,
-> 
-> hugetlbfs: flush TLBs correctly after huge_pmd_unshare
-> commit a4a118f2eead1d6c49e00765de89878288d4b890 upstream.
-> 
-> When __unmap_hugepage_range() calls to huge_pmd_unshare() succeed, a TLB
-> flush is missing.  This TLB flush must be performed before releasing the
-> i_mmap_rwsem, in order to prevent an unshared PMDs page from being
-> released and reused before the TLB flush took place.
-> 
-> Arguably, a comprehensive solution would use mmu_gather interface to
-> batch the TLB flushes and the PMDs page release, however it is not an
-> easy solution: (1) try_to_unmap_one() and try_to_migrate_one() also call
-> huge_pmd_unshare() and they cannot use the mmu_gather interface; and (2)
-> deferring the release of the page reference for the PMDs page until
-> after i_mmap_rwsem is dropeed can confuse huge_pmd_unshare() into
-> thinking PMDs are shared when they are not.
-> 
-> Fix __unmap_hugepage_range() by adding the missing TLB flush, and
-> forcing a flush when unshare is successful.
-> 
-> Fixes: 24669e58477e ("hugetlb: use mmu_gather instead of a temporary
-> linked list for accumulating pages)" # 3.6
-> Signed-off-by: Nadav Amit <namit@vmware.com>
-> Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-> Cc: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
-> Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> 
-> 
-> build link:
-> -----------
-> https://builds.tuxbuild.com//21Mf9eMMjq4oO5ZflMwRCPssSc0/build.log
-> 
-> build config:
-> -------------
-> https://builds.tuxbuild.com//21Mf9eMMjq4oO5ZflMwRCPssSc0/config
-> 
-> # To install tuxmake on your system globally
-> # sudo pip3 install -U tuxmake
-> tuxmake --runtime podman --target-arch arm --toolchain gcc-11
-> --kconfig tinyconfig
+On Thu, 25 Nov 2021, Greg KH wrote:
 
-Should now be resolved in -rc2.
+> On Thu, Nov 25, 2021 at 01:03:46PM +0000, Lee Jones wrote:
+> > On Thu, 25 Nov 2021, Greg KH wrote:
+> > 
+> > > On Thu, Nov 25, 2021 at 12:46:23PM +0000, Lee Jones wrote:
+> > > > On Thu, 25 Nov 2021, Greg KH wrote:
+> > > > 
+> > > > > On Thu, Nov 25, 2021 at 12:02:34PM +0000, Lee Jones wrote:
+> > > > > > Supply additional checks in order to prevent unexpected results.
+> > > > > > 
+> > > > > > Fixes: b892bf75b2034 ("ion: Switch ion to use dma-buf")
+> > > > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > > > > > ---
+> > > > > >  drivers/staging/android/ion/ion.c | 3 +++
+> > > > > >  1 file changed, 3 insertions(+)
+> > > > > > 
+> > > > > > diff --git a/drivers/staging/android/ion/ion.c b/drivers/staging/android/ion/ion.c
+> > > > > > index 806e9b30b9dc8..30f359faba575 100644
+> > > > > > --- a/drivers/staging/android/ion/ion.c
+> > > > > > +++ b/drivers/staging/android/ion/ion.c
+> > > > > > @@ -509,6 +509,9 @@ static void *ion_handle_kmap_get(struct ion_handle *handle)
+> > > > > >  	void *vaddr;
+> > > > > >  
+> > > > > >  	if (handle->kmap_cnt) {
+> > > > > > +		if (handle->kmap_cnt + 1 < handle->kmap_cnt)
+> > > > > 
+> > > > > What about using the nice helpers in overflow.h for this?
+> > > > 
+> > > > I haven't heard of these before.
+> > > > 
+> > > > Looks like they're not widely used.
+> > > > 
+> > > > I'll try them out and see how they go.
+> > > > 
+> > > > > > +			return ERR_PTR(-EOVERFLOW);
+> > > > > > +
+> > > > > >  		handle->kmap_cnt++;
+> > > > > >  		return buffer->vaddr;
+> > > > > >  	}
+> > > > > 
+> > > > > What stable kernel branch(es) is this for?
+> > > > 
+> > > > I assumed your magic scripts could determine this from the Fixes:
+> > > > tag.  I'll be more explicit in v2.
+> > > 
+> > > The fixes tag says how far back for it to go, but not where to start
+> > > that process from :)
+> > 
+> > What's your preferred method for identifying a start-point?
+> > 
+> > In the [PATCH] tag or appended on to Cc: stable ... # <here>?
+> > 
+> > I know both work, but what makes your life easier?
+> 
+> Easiest is below the --- line say:
+> ---
+>  This is for kernel versions X.X and older.
 
-thanks,
+Understood, thanks.
 
-greg k-h
+-- 
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
