@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6681745E63E
+	by mail.lfdr.de (Postfix) with ESMTP id B05FC45E63F
 	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:01:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358347AbhKZCuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:50:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51528 "EHLO mail.kernel.org"
+        id S244768AbhKZCuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:50:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358401AbhKZCrQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:47:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48B7761378;
-        Fri, 26 Nov 2021 02:37:04 +0000 (UTC)
+        id S1358509AbhKZCrT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:47:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8499961374;
+        Fri, 26 Nov 2021 02:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894225;
-        bh=xOCNst8FZ1YVyJaxr86KZ7YUm2spGOy3739QOFDp/90=;
+        s=k20201202; t=1637894228;
+        bh=uqawlr9zy7pGfMRipHFNWdvMwmCbYY28igxknANgURg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqObIyUUtRkolWFi+lJH2NFFyPKo+LBHhJgdLZCNM7z/A4c9tjph3he3+6CfhJGJC
-         8VbC7EGgXTbG3UsDfaYydGNR0oYSbEtsc/PgvPG39Qd9sySBUBtqN9cCBlpdxBSq2u
-         LjZjofTe+umF3p16QQLWa/MBAev3JpbF5ShnXy8x+59Z/PehqcTwPgjqRvYvrqF60K
-         MFrCb48wYqD9xHTrDybrjCn5YoN9Rc4goROAiYBTnrsKfEyt1aToz+zN1GrN+EGXG4
-         bKs01VZShJPzwBGvCaYctwdUfvRBC/MF1uyE4L1DkPqzFRU2vODxlLSFOFRAzZxYD8
-         nxRZqKnhR2h7Q==
+        b=ZSU5qhwptnwQWYjMe+Qu259Ee0t2VlLdgTa5D2slh3Gi1wwOKpTW+VqtndFq+gqWi
+         4DYcAXfqYr8BIVmVnExYwet9dYCSnNQaLKfffSBx7Qn+SAuGhFcRSd0tLkMnSym6Ah
+         lu2hdbL1lwVhhUKLt1oVQbUgMkj60WQfAyubfOjAXRKXcLEhBqNYwLX2Rj/UiXBF31
+         c1ivxF4t5Yz7ip1CYHiYLLzS8WKHQXKjdvnnpofPlR6rcOt9QllRgDrksIyEQZsdAa
+         jp9p3pn5KixTLOtW7fJS3BMGFxHJ2Gm10BCXFgr2svPrH/r/YDrQcZ828fKAuBqe/K
+         XRoWuJgbQh8Hg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Slark Xiao <slark_xiao@163.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, hmh@hmh.eng.br,
-        markgross@kernel.org, ibm-acpi-devel@lists.sourceforge.net,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 2/6] platform/x86: thinkpad_acpi: Fix WWAN device disabled issue after S3 deep
-Date:   Thu, 25 Nov 2021 21:36:57 -0500
-Message-Id: <20211126023701.443472-2-sashal@kernel.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, borntraeger@linux.ibm.com,
+        agordeev@linux.ibm.com, svens@linux.ibm.com,
+        egorenar@linux.ibm.com, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 3/6] s390/setup: avoid using memblock_enforce_memory_limit
+Date:   Thu, 25 Nov 2021 21:36:58 -0500
+Message-Id: <20211126023701.443472-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023701.443472-1-sashal@kernel.org>
 References: <20211126023701.443472-1-sashal@kernel.org>
@@ -44,67 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 39f53292181081d35174a581a98441de5da22bc9 ]
+[ Upstream commit 5dbc4cb4667457b0c53bcd7bff11500b3c362975 ]
 
-When WWAN device wake from S3 deep, under thinkpad platform,
-WWAN would be disabled. This disable status could be checked
-by command 'nmcli r wwan' or 'rfkill list'.
+There is a difference in how architectures treat "mem=" option. For some
+that is an amount of online memory, for s390 and x86 this is the limiting
+max address. Some memblock api like memblock_enforce_memory_limit()
+take limit argument and explicitly treat it as the size of online memory,
+and use __find_max_addr to convert it to an actual max address. Current
+s390 usage:
 
-Issue analysis as below:
-  When host resume from S3 deep, thinkpad_acpi driver would
-call hotkey_resume() function. Finnaly, it will use
-wan_get_status to check the current status of WWAN device.
-During this resume progress, wan_get_status would always
-return off even WWAN boot up completely.
-  In patch V2, Hans said 'sw_state should be unchanged
-after a suspend/resume. It's better to drop the
-tpacpi_rfk_update_swstate call all together from the
-resume path'.
-  And it's confimed by Lenovo that GWAN is no longer
- available from WHL generation because the design does not
- match with current pin control.
+memblock_enforce_memory_limit(memblock_end_of_DRAM());
 
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20211108060648.8212-1-slark_xiao@163.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+yields different results depending on presence of memory holes (offline
+memory blocks in between online memory). If there are no memory holes
+limit == max_addr in memblock_enforce_memory_limit() and it does trim
+online memory and reserved memory regions. With memory holes present it
+actually does nothing.
+
+Since we already use memblock_remove() explicitly to trim online memory
+regions to potential limit (think mem=, kdump, addressing limits, etc.)
+drop the usage of memblock_enforce_memory_limit() altogether. Trimming
+reserved regions should not be required, since we now use
+memblock_set_current_limit() to limit allocations and any explicit memory
+reservations above the limit is an actual problem we should not hide.
+
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 12 ------------
- 1 file changed, 12 deletions(-)
+ arch/s390/kernel/setup.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 20c588af33d88..60e211853a688 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -1168,15 +1168,6 @@ static int tpacpi_rfk_update_swstate(const struct tpacpi_rfk *tp_rfk)
- 	return status;
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index fdc5e76e1f6b0..a765b4936c10c 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -687,9 +687,6 @@ static void __init setup_memory(void)
+ 		storage_key_init_range(reg->base, reg->base + reg->size);
+ 	}
+ 	psw_set_key(PAGE_DEFAULT_KEY);
+-
+-	/* Only cosmetics */
+-	memblock_enforce_memory_limit(memblock_end_of_DRAM());
  }
  
--/* Query FW and update rfkill sw state for all rfkill switches */
--static void tpacpi_rfk_update_swstate_all(void)
--{
--	unsigned int i;
--
--	for (i = 0; i < TPACPI_RFK_SW_MAX; i++)
--		tpacpi_rfk_update_swstate(tpacpi_rfkill_switches[i]);
--}
--
  /*
-  * Sync the HW-blocking state of all rfkill switches,
-  * do notice it causes the rfkill core to schedule uevents
-@@ -3015,9 +3006,6 @@ static void tpacpi_send_radiosw_update(void)
- 	if (wlsw == TPACPI_RFK_RADIO_OFF)
- 		tpacpi_rfk_update_hwblock_state(true);
- 
--	/* Sync sw blocking state */
--	tpacpi_rfk_update_swstate_all();
--
- 	/* Sync hw blocking state last if it is hw-unblocked */
- 	if (wlsw == TPACPI_RFK_RADIO_ON)
- 		tpacpi_rfk_update_hwblock_state(false);
 -- 
 2.33.0
 
