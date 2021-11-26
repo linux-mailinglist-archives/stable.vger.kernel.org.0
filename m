@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DEC945E532
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 03:39:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7456745E536
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 03:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358369AbhKZCkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:40:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48580 "EHLO mail.kernel.org"
+        id S243451AbhKZCkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:40:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358175AbhKZCiK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358174AbhKZCiK (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 25 Nov 2021 21:38:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E394C6120C;
-        Fri, 26 Nov 2021 02:33:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB4FB604DC;
+        Fri, 26 Nov 2021 02:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894016;
-        bh=TZPxYnERPISsnXcZpf/d6LKUO94IZQiZ6TTvo+ZfAho=;
+        s=k20201202; t=1637894021;
+        bh=KXXdDp/3cazYHXGVfu1X17GIxb11AbudzK4kR9l8DeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdpKt121uIaZ4+Vgk7NXOfryAs06b0zMCja+UOS/8RxGErJOTpyBq8Lc6pM6sVhSm
-         xL6xboKTfO932q4oWsyyO+rGi2Ri3Aj5HX9lr8SAV/MoL+ImTw6ktEoZ4zZOpX7ZF/
-         eCeSzSQHxbDltb39AY2pw2dPHDtn1NrJGRsOU/EL4qdzpS7QugNXEOK7WeUAN23g7J
-         rYFhWI43vi2f8FDTVLzl5tzbqZ0GcoQChnd1gyR7fyiepraSs5GfvHLOXrZ9ELKMw4
-         1kh3DsXsllbSyLyuMdm85RLQs4x18oJbnT89n2NJRNlYvOJqAc1OJZ8pAxt6rzLPzv
-         H0AGA/Pma4gmQ==
+        b=WWxSOAHDnJiZUexBwKUCKhYqVda62i8U7zxwsc4T0Ic18L8U1SfdpIUi++9orDFU6
+         yj+Z0G46JGiZ6fCqu5frKteHGo44iFygAfzeIB/XMeZddyeXxVBp9/P+E37gICrCN7
+         klDoZq5fBw0SwGV4s2nJLuyFXdnutAOXK6VsfPovbwbhrRIiCrHY4jdaHTFqB+WXZd
+         dkytAQuxXN/342ZE3WQ3UoK5OrWbqOs6+ENQNjHFqnEAXh+FfGx2FgsGnToQ0M3T6y
+         CPL3MNLoHp/CGcYT5cBpEpaPeR2xRooXRtFs/1zYYeFjg9jNgPka55uJXOtBvIB5LX
+         2rSu0XpOhxTwQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ian Rogers <irogers@google.com>, Kajol Jain <kjain@linux.ibm.com>,
+Cc:     Ian Rogers <irogers@google.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Jiri Olsa <jolsa@redhat.com>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -34,11 +34,10 @@ Cc:     Ian Rogers <irogers@google.com>, Kajol Jain <kjain@linux.ibm.com>,
         Stephane Eranian <eranian@google.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        acme@kernel.org, kan.liang@linux.intel.com, ak@linux.intel.com,
-        linux-perf-users@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 37/39] perf hist: Fix memory leak of a perf_hpp_fmt
-Date:   Thu, 25 Nov 2021 21:31:54 -0500
-Message-Id: <20211126023156.441292-37-sashal@kernel.org>
+        acme@kernel.org, linux-perf-users@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 38/39] perf report: Fix memory leaks around perf_tip()
+Date:   Thu, 25 Nov 2021 21:31:55 -0500
+Message-Id: <20211126023156.441292-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023156.441292-1-sashal@kernel.org>
 References: <20211126023156.441292-1-sashal@kernel.org>
@@ -52,97 +51,123 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit 0ca1f534a776cc7d42f2c33da4732b74ec2790cd ]
+[ Upstream commit d9fc706108c15f8bc2d4ccccf8e50f74830fabd9 ]
 
-perf_hpp__column_unregister() removes an entry from a list but doesn't
-free the memory causing a memory leak spotted by leak sanitizer.
+perf_tip() may allocate memory or use a literal, this means memory
+wasn't freed if allocated. Change the API so that literals aren't used.
 
-Add the free while at the same time reducing the scope of the function
-to static.
+At the same time add missing frees for system_path. These issues were
+spotted using leak sanitizer.
 
 Signed-off-by: Ian Rogers <irogers@google.com>
-Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20211118071247.2140392-1-irogers@google.com
+Link: http://lore.kernel.org/lkml/20211118073804.2149974-1-irogers@google.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/ui/hist.c   | 28 ++++++++++++++--------------
- tools/perf/util/hist.h |  1 -
- 2 files changed, 14 insertions(+), 15 deletions(-)
+ tools/perf/builtin-report.c | 15 +++++++++------
+ tools/perf/util/util.c      | 14 +++++++-------
+ tools/perf/util/util.h      |  2 +-
+ 3 files changed, 17 insertions(+), 14 deletions(-)
 
-diff --git a/tools/perf/ui/hist.c b/tools/perf/ui/hist.c
-index c1f24d0048527..5075ecead5f3d 100644
---- a/tools/perf/ui/hist.c
-+++ b/tools/perf/ui/hist.c
-@@ -535,6 +535,18 @@ struct perf_hpp_list perf_hpp_list = {
- #undef __HPP_SORT_ACC_FN
- #undef __HPP_SORT_RAW_FN
+diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
+index a0316ce910db6..997e0a4b0902a 100644
+--- a/tools/perf/builtin-report.c
++++ b/tools/perf/builtin-report.c
+@@ -619,14 +619,17 @@ static int report__browse_hists(struct report *rep)
+ 	int ret;
+ 	struct perf_session *session = rep->session;
+ 	struct evlist *evlist = session->evlist;
+-	const char *help = perf_tip(system_path(TIPDIR));
++	char *help = NULL, *path = NULL;
  
-+static void fmt_free(struct perf_hpp_fmt *fmt)
-+{
-+	/*
-+	 * At this point fmt should be completely
-+	 * unhooked, if not it's a bug.
-+	 */
-+	BUG_ON(!list_empty(&fmt->list));
-+	BUG_ON(!list_empty(&fmt->sort_list));
-+
-+	if (fmt->free)
-+		fmt->free(fmt);
-+}
+-	if (help == NULL) {
++	path = system_path(TIPDIR);
++	if (perf_tip(&help, path) || help == NULL) {
+ 		/* fallback for people who don't install perf ;-) */
+-		help = perf_tip(DOCDIR);
+-		if (help == NULL)
+-			help = "Cannot load tips.txt file, please install perf!";
++		free(path);
++		path = system_path(DOCDIR);
++		if (perf_tip(&help, path) || help == NULL)
++			help = strdup("Cannot load tips.txt file, please install perf!");
+ 	}
++	free(path);
  
- void perf_hpp__init(void)
- {
-@@ -598,9 +610,10 @@ void perf_hpp_list__prepend_sort_field(struct perf_hpp_list *list,
- 	list_add(&format->sort_list, &list->sorts);
- }
- 
--void perf_hpp__column_unregister(struct perf_hpp_fmt *format)
-+static void perf_hpp__column_unregister(struct perf_hpp_fmt *format)
- {
- 	list_del_init(&format->list);
-+	fmt_free(format);
- }
- 
- void perf_hpp__cancel_cumulate(void)
-@@ -672,19 +685,6 @@ void perf_hpp__append_sort_keys(struct perf_hpp_list *list)
- }
- 
- 
--static void fmt_free(struct perf_hpp_fmt *fmt)
--{
--	/*
--	 * At this point fmt should be completely
--	 * unhooked, if not it's a bug.
--	 */
--	BUG_ON(!list_empty(&fmt->list));
--	BUG_ON(!list_empty(&fmt->sort_list));
+ 	switch (use_browser) {
+ 	case 1:
+@@ -651,7 +654,7 @@ static int report__browse_hists(struct report *rep)
+ 		ret = evlist__tty_browse_hists(evlist, rep, help);
+ 		break;
+ 	}
 -
--	if (fmt->free)
--		fmt->free(fmt);
--}
--
- void perf_hpp__reset_output_field(struct perf_hpp_list *list)
- {
- 	struct perf_hpp_fmt *fmt, *tmp;
-diff --git a/tools/perf/util/hist.h b/tools/perf/util/hist.h
-index 5343b62476e60..621f35ae1efa5 100644
---- a/tools/perf/util/hist.h
-+++ b/tools/perf/util/hist.h
-@@ -369,7 +369,6 @@ enum {
- };
++	free(help);
+ 	return ret;
+ }
  
- void perf_hpp__init(void);
--void perf_hpp__column_unregister(struct perf_hpp_fmt *format);
- void perf_hpp__cancel_cumulate(void);
- void perf_hpp__setup_output_field(struct perf_hpp_list *list);
- void perf_hpp__reset_output_field(struct perf_hpp_list *list);
+diff --git a/tools/perf/util/util.c b/tools/perf/util/util.c
+index 37a9492edb3eb..df3c4671be72a 100644
+--- a/tools/perf/util/util.c
++++ b/tools/perf/util/util.c
+@@ -379,32 +379,32 @@ fetch_kernel_version(unsigned int *puint, char *str,
+ 	return 0;
+ }
+ 
+-const char *perf_tip(const char *dirpath)
++int perf_tip(char **strp, const char *dirpath)
+ {
+ 	struct strlist *tips;
+ 	struct str_node *node;
+-	char *tip = NULL;
+ 	struct strlist_config conf = {
+ 		.dirname = dirpath,
+ 		.file_only = true,
+ 	};
++	int ret = 0;
+ 
++	*strp = NULL;
+ 	tips = strlist__new("tips.txt", &conf);
+ 	if (tips == NULL)
+-		return errno == ENOENT ? NULL :
+-			"Tip: check path of tips.txt or get more memory! ;-p";
++		return -errno;
+ 
+ 	if (strlist__nr_entries(tips) == 0)
+ 		goto out;
+ 
+ 	node = strlist__entry(tips, random() % strlist__nr_entries(tips));
+-	if (asprintf(&tip, "Tip: %s", node->s) < 0)
+-		tip = (char *)"Tip: get more memory! ;-)";
++	if (asprintf(strp, "Tip: %s", node->s) < 0)
++		ret = -ENOMEM;
+ 
+ out:
+ 	strlist__delete(tips);
+ 
+-	return tip;
++	return ret;
+ }
+ 
+ char *perf_exe(char *buf, int len)
+diff --git a/tools/perf/util/util.h b/tools/perf/util/util.h
+index ad737052e5977..9f0d36ba77f2d 100644
+--- a/tools/perf/util/util.h
++++ b/tools/perf/util/util.h
+@@ -39,7 +39,7 @@ int fetch_kernel_version(unsigned int *puint,
+ #define KVER_FMT	"%d.%d.%d"
+ #define KVER_PARAM(x)	KVER_VERSION(x), KVER_PATCHLEVEL(x), KVER_SUBLEVEL(x)
+ 
+-const char *perf_tip(const char *dirpath);
++int perf_tip(char **strp, const char *dirpath);
+ 
+ #ifndef HAVE_SCHED_GETCPU_SUPPORT
+ int sched_getcpu(void);
 -- 
 2.33.0
 
