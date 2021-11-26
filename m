@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F09045E4F9
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 03:39:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A4A45E502
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 03:39:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358233AbhKZCiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:38:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48578 "EHLO mail.kernel.org"
+        id S1358241AbhKZCiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:38:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343705AbhKZCgK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245046AbhKZCgK (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 25 Nov 2021 21:36:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16F04611AE;
-        Fri, 26 Nov 2021 02:32:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C002611C5;
+        Fri, 26 Nov 2021 02:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637893950;
-        bh=viddXTknhOgEXWS6LJy1v976ezvP6bEIsfD9x355hVA=;
+        s=k20201202; t=1637893951;
+        bh=3ZuQ7agRVfGGOLhnu0lAQFOlD6OrifS9UMyh1KpBFJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JGOjAR1zncCV2QkvXfx6UiiM1wP1ljNgU7v0VjJPFbjoPDADiWPgHp/MTFZYV4NgW
-         +CgU0DINOh+iZfir1Vw0k7R8D3hE3CdKDl4zY05rbnAAQbtTqdo2+cNUHuTBrlqABP
-         X4NCdfCN1LKOrxlndtA+jD2pmu3VCu0GOh9D4xwB8JoyYTM9/Lh62hDeLnYgWwn72v
-         vTgLlkY/BoHBwK/pbP2yHhVWMiED423Q5zs4q2ArGuyuqhabcnAYXMvZK68Kh3WHwS
-         wa/7EbnegxCcW7EgjV5dgxJI3WpHFm3KFHGpRB1e3owG1Pp133OQCvDkW00gl6/IOe
-         pRNrLjh5wDHJQ==
+        b=s8NJSFmB9BbVyklppqCXJltvij5C4k/t00Q/Uv3vwist3q/HxfjMoj1wGwlLRpXXF
+         o+UmliVNNBWoVZsUtK9ORXjI1vf3oPAwG590UzD4GQqHo6b3jP0BruHLwBzaqc+Dl7
+         hhDpuK56PNPPHVAw2LKDDZl+piXgA6ABviB+5Ka8rdZlOSftnZfVlEu1jWpDmpkSPj
+         sxo2X2+IDcyo+i5yUCsluw8eAfZU5CwUDiFi+cqe0dXLBKNBZC9DQjOvYSIK+sxT30
+         aaS2K5qlTqTJHfM6T+mpMeyW8aYvZc50k+0dUF9fjc5fz8Xn9vxbZjeyWo9K+uq7+B
+         2x3khZhtEhw5g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+Cc:     Jimmy Wang <jimmy221b@163.com>,
         Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
-        andriy.shevchenko@linux.intel.com, rdunlap@infradead.org,
-        mario.limonciello@dell.com, markpearson@lenovo.com,
+        Sasha Levin <sashal@kernel.org>, hmh@hmh.eng.br,
+        markgross@kernel.org, ibm-acpi-devel@lists.sourceforge.net,
         platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 15/39] platform/x86: dell-wmi-descriptor: disable by default
-Date:   Thu, 25 Nov 2021 21:31:32 -0500
-Message-Id: <20211126023156.441292-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 16/39] platform/x86: thinkpad_acpi: Add support for dual fan control
+Date:   Thu, 25 Nov 2021 21:31:33 -0500
+Message-Id: <20211126023156.441292-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023156.441292-1-sashal@kernel.org>
 References: <20211126023156.441292-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,38 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Jimmy Wang <jimmy221b@163.com>
 
-[ Upstream commit 0f07c023dcd08ca49b6d3dd018abc7cd56301478 ]
+[ Upstream commit 1f338954a5fbe21eb22b4223141e31f2a26366d5 ]
 
-dell-wmi-descriptor only provides symbols to other drivers.
-These drivers already select dell-wmi-descriptor when needed.
+   This adds dual fan control for P1 / X1 Extreme Gen4
 
-This fixes an issue where dell-wmi-descriptor is compiled as a module
-with localyesconfig on a non-Dell machine.
-
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Link: https://lore.kernel.org/r/20211113080551.61860-1-linux@weissschuh.net
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jimmy Wang <jimmy221b@163.com>
+Link: https://lore.kernel.org/r/20211105090528.39677-1-jimmy221b@163.com
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/dell/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/thinkpad_acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/dell/Kconfig b/drivers/platform/x86/dell/Kconfig
-index 2fffa57e596e4..fe224a54f24c0 100644
---- a/drivers/platform/x86/dell/Kconfig
-+++ b/drivers/platform/x86/dell/Kconfig
-@@ -187,7 +187,7 @@ config DELL_WMI_AIO
- 
- config DELL_WMI_DESCRIPTOR
- 	tristate
--	default m
-+	default n
- 	depends on ACPI_WMI
- 
- config DELL_WMI_LED
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 27595aba214d9..6aa31816159cf 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -8853,6 +8853,7 @@ static const struct tpacpi_quirk fan_quirk_table[] __initconst = {
+ 	TPACPI_Q_LNV3('N', '2', 'E', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (1st gen) */
+ 	TPACPI_Q_LNV3('N', '2', 'O', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (2nd gen) */
+ 	TPACPI_Q_LNV3('N', '2', 'V', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (3nd gen) */
++	TPACPI_Q_LNV3('N', '4', '0', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (4nd gen) */
+ 	TPACPI_Q_LNV3('N', '3', '0', TPACPI_FAN_2CTL),	/* P15 (1st gen) / P15v (1st gen) */
+ 	TPACPI_Q_LNV3('N', '3', '2', TPACPI_FAN_2CTL),	/* X1 Carbon (9th gen) */
+ };
 -- 
 2.33.0
 
