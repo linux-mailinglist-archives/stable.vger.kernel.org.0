@@ -2,85 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B52B45E678
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:17:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8493045E6C1
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 05:13:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344807AbhKZDVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 22:21:00 -0500
-Received: from mailgw01.mediatek.com ([60.244.123.138]:55216 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S234851AbhKZDS7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 22:18:59 -0500
-X-UUID: 2ef8e41a65c6410096f01756b76319a9-20211126
-X-UUID: 2ef8e41a65c6410096f01756b76319a9-20211126
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
-        (envelope-from <guangming.cao@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1675055840; Fri, 26 Nov 2021 11:15:41 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.2.792.15; Fri, 26 Nov 2021 11:15:40 +0800
-Received: from mszswglt01.gcn.mediatek.inc (10.16.20.20) by
- mtkcas11.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.0.1497.2 via Frontend Transport; Fri, 26 Nov 2021 11:15:40 +0800
-From:   <guangming.cao@mediatek.com>
-To:     <robin.murphy@arm.com>
-CC:     <Brian.Starkey@arm.com>, <benjamin.gaignard@linaro.org>,
-        <christian.koenig@amd.com>, <dri-devel@lists.freedesktop.org>,
-        <guangming.cao@mediatek.com>, <john.stultz@linaro.org>,
-        <labbott@redhat.com>, <linaro-mm-sig@lists.linaro.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <lmark@codeaurora.org>,
-        <matthias.bgg@gmail.com>, <sumit.semwal@linaro.org>,
-        <wsd_upstream@mediatek.com>, <stable@vger.kernel.org>,
-        Guangming <Guangming.Cao@mediatek.com>
-Subject: [PATCH v3] dma-buf: system_heap: Use 'for_each_sgtable_sg' in pages free flow
-Date:   Fri, 26 Nov 2021 11:16:05 +0800
-Message-ID: <20211126031605.81436-1-guangming.cao@mediatek.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <eb6cc56d-cbe0-73d5-d4f5-0aa2b76272a4@arm.com>
-References: <eb6cc56d-cbe0-73d5-d4f5-0aa2b76272a4@arm.com>
+        id S231708AbhKZERK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 23:17:10 -0500
+Received: from szxga03-in.huawei.com ([45.249.212.189]:28175 "EHLO
+        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245048AbhKZEPK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 23:15:10 -0500
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.53])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4J0h9725V5z8vbq;
+        Fri, 26 Nov 2021 12:10:03 +0800 (CST)
+Received: from dggema774-chm.china.huawei.com (10.1.198.216) by
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2308.20; Fri, 26 Nov 2021 12:11:56 +0800
+Received: from use12-sp2.huawei.com (10.67.189.174) by
+ dggema774-chm.china.huawei.com (10.1.198.216) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2308.20; Fri, 26 Nov 2021 12:11:55 +0800
+From:   Xiaoming Ni <nixiaoming@huawei.com>
+To:     <hurricos@gmail.com>, <Yuantian.Tang@feescale.com>,
+        <benh@kernel.crashing.org>, <chenhui.zhao@freescale.com>,
+        <chenjianguo3@huawei.com>, <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
+        <liuwenliang@huawei.com>, <mpe@ellerman.id.au>, <oss@buserror.net>,
+        <paul.gortmaker@windriver.com>, <paulus@samba.org>,
+        <stable@vger.kernel.org>, <wangle6@huawei.com>,
+        <chunkeey@gmail.com>
+CC:     <nixiaoming@huawei.com>
+Subject: [PATCH] powerpc/85xx: fix oops when CONFIG_FSL_PMC=n
+Date:   Fri, 26 Nov 2021 12:11:53 +0800
+Message-ID: <20211126041153.16926-1-nixiaoming@huawei.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <5f56f1af-9404-21fa-eda0-05a75d769427@huawei.com>
+References: <5f56f1af-9404-21fa-eda0-05a75d769427@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.67.189.174]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggema774-chm.china.huawei.com (10.1.198.216)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangming <Guangming.Cao@mediatek.com>
+When CONFIG_FSL_PMC is set to n, no value is assigned to cpu_up_prepare
+ in the mpc85xx_pm_ops structure. As a result, oops is triggered in
+ smp_85xx_start_cpu().
 
-For previous version, it uses 'sg_table.nent's to traverse sg_table in pages
-free flow.
-However, 'sg_table.nents' is reassigned in 'dma_map_sg', it means the number of
-created entries in the DMA adderess space.
-So, use 'sg_table.nents' in pages free flow will case some pages can't be freed.
+	[    0.627233] smp: Bringing up secondary CPUs ...
+	[    0.681659] kernel tried to execute user page (0) - exploit attempt? (uid: 0)
+	[    0.766618] BUG: Unable to handle kernel instruction fetch (NULL pointer?)
+	[    0.848899] Faulting instruction address: 0x00000000
+	[    0.908273] Oops: Kernel access of bad area, sig: 11 [#1]
+	...
+	[    1.758220] NIP [00000000] 0x0
+	[    1.794688] LR [c0021d2c] smp_85xx_kick_cpu+0xe8/0x568
+	[    1.856126] Call Trace:
+	[    1.885295] [c1051da8] [c0021cb8] smp_85xx_kick_cpu+0x74/0x568 (unreliable)
+	[    1.968633] [c1051de8] [c0011460] __cpu_up+0xc0/0x228
+	[    2.029038] [c1051e18] [c0031bbc] bringup_cpu+0x30/0x224
+	[    2.092572] [c1051e48] [c0031f3c] cpu_up.constprop.0+0x180/0x33c
+	[    2.164443] [c1051e88] [c00322e8] bringup_nonboot_cpus+0x88/0xc8
+	[    2.236326] [c1051eb8] [c07e67bc] smp_init+0x30/0x78
+	[    2.295698] [c1051ed8] [c07d9e28] kernel_init_freeable+0x118/0x2a8
+	[    2.369641] [c1051f18] [c00032d8] kernel_init+0x14/0x124
+	[    2.433176] [c1051f38] [c0010278] ret_from_kernel_thread+0x14/0x1c
 
-Here we should use sg_table.orig_nents to free pages memory, but use the
-sgtable helper 'for each_sgtable_sg'(, instead of the previous rather common
-helper 'for_each_sg' which maybe cause memory leak) is much better.
-
-Fixes: d963ab0f15fb0 ("dma-buf: system_heap: Allocate higher order pages if available")
-
-Signed-off-by: Guangming <Guangming.Cao@mediatek.com>
+Fixes: c45361abb9185b ("powerpc/85xx: fix timebase sync issue when
+ CONFIG_HOTPLUG_CPU=n")
+Link: https://lore.kernel.org/lkml/CANA18Uyba4kMJQrbCSZVTFep2Exe5izE45whNJgwwUvNSEcNLg@mail.gmail.com/
+Reported-by: Martin Kennedy <hurricos@gmail.com>
+Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+Tested-by: Martin Kennedy <hurricos@gmail.com>
+Cc: stable@vger.kernel.org
 ---
- drivers/dma-buf/heaps/system_heap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/85xx/smp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma-buf/heaps/system_heap.c b/drivers/dma-buf/heaps/system_heap.c
-index 23a7e74ef966..8660508f3684 100644
---- a/drivers/dma-buf/heaps/system_heap.c
-+++ b/drivers/dma-buf/heaps/system_heap.c
-@@ -289,7 +289,7 @@ static void system_heap_dma_buf_release(struct dma_buf *dmabuf)
- 	int i;
+diff --git a/arch/powerpc/platforms/85xx/smp.c b/arch/powerpc/platforms/85xx/smp.c
+index 83f4a6389a28..d7081e9af65c 100644
+--- a/arch/powerpc/platforms/85xx/smp.c
++++ b/arch/powerpc/platforms/85xx/smp.c
+@@ -220,7 +220,7 @@ static int smp_85xx_start_cpu(int cpu)
+ 	local_irq_save(flags);
+ 	hard_irq_disable();
  
- 	table = &buffer->sg_table;
--	for_each_sg(table->sgl, sg, table->nents, i) {
-+	for_each_sgtable_sg(table, sg, i) {
- 		struct page *page = sg_page(sg);
+-	if (qoriq_pm_ops)
++	if (qoriq_pm_ops && qoriq_pm_ops->cpu_up_prepare)
+ 		qoriq_pm_ops->cpu_up_prepare(cpu);
  
- 		__free_pages(page, compound_order(page));
+ 	/* if cpu is not spinning, reset it */
+@@ -292,7 +292,7 @@ static int smp_85xx_kick_cpu(int nr)
+ 		booting_thread_hwid = cpu_thread_in_core(nr);
+ 		primary = cpu_first_thread_sibling(nr);
+ 
+-		if (qoriq_pm_ops)
++		if (qoriq_pm_ops && qoriq_pm_ops->cpu_up_prepare)
+ 			qoriq_pm_ops->cpu_up_prepare(nr);
+ 
+ 		/*
 -- 
-2.17.1
+2.27.0
 
