@@ -2,81 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DBAA45EF12
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 14:23:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF19545F046
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 16:03:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242338AbhKZN0u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Nov 2021 08:26:50 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24292 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1344908AbhKZNYu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Nov 2021 08:24:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1637932897;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=34sYTYVyXuYs+CPwdd7XUd+SQ49NoZZow/8OSNllSUk=;
-        b=fBGiYappsV0rJWI403NUjBPV0RbzkWQA8ZGJzlFJiGPP/H2SeWRxe4wycMfvrPYJ5l48F0
-        bUpCwxjlGmM4BxyUrpUzj5l1mYP6tdmG5IjPzR/cWvhnCrV8UjrqTl+fOKexE/EpMzdEP2
-        53rIVq8uRUCC3z6DjSjHgNjt71zrdjg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-554-w7tcNeMNOCyLupiTaHXOFA-1; Fri, 26 Nov 2021 08:21:34 -0500
-X-MC-Unique: w7tcNeMNOCyLupiTaHXOFA-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1350426AbhKZPGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Nov 2021 10:06:42 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59762 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237166AbhKZPEm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Nov 2021 10:04:42 -0500
+X-Greylist: delayed 661 seconds by postgrey-1.27 at vger.kernel.org; Fri, 26 Nov 2021 10:04:42 EST
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E7FFD80F051;
-        Fri, 26 Nov 2021 13:21:32 +0000 (UTC)
-Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5911F5C1CF;
-        Fri, 26 Nov 2021 13:21:32 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     laijs@linux.alibaba.com, stable@vger.kernel.org
-Subject: [PATCH] KVM: MMU: shadow nested paging does not have PKU
-Date:   Fri, 26 Nov 2021 08:21:31 -0500
-Message-Id: <20211126132131.26077-1-pbonzini@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1773B622A9;
+        Fri, 26 Nov 2021 14:50:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5EDFC9305F;
+        Fri, 26 Nov 2021 14:50:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1637938226;
+        bh=3UuzhmSP/V3v920tpSUyBSyVCTZdS6flxK4IwxjCSag=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=QlNxq1pgLqwfObJ9a/kiDbtETqF1ghoOlk5q2bhYRgfqY+ZFcTs16casgzOT2L1uN
+         8GA5AyyVqJzKKWbr6ffu98uR87qQseX9NIL7GiN6KdqVXo0fBYhCJGcdOuxB+sxkNR
+         hgblBy9r3Q7lg73KpGtAd07bTpyIdHMQhz2FbJKRxrVdeusbhbBoghhtgM0g/RVM20
+         AZ9yK5sZ+uQazMRpcmncN9rrl7ut+1ZZklaVML4iLV/HYd5tZvCnUQ7H+gQOz7mtNW
+         JpSPgdgKZ5vAUWrmQcqbEJ3gj/bYiqxRuC2v285JM2OkDJ+oqG/tSy39yG7KcCx23Z
+         Ul+MR6LCIlR7w==
+From:   SeongJae Park <sj@kernel.org>
+To:     akpm@linux-foundation.org
+Cc:     oleksandr@natalenko.name, john.stultz@linaro.org,
+        tglx@linutronix.de, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, SeongJae Park <sj@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH v3 2/2] mm/damon/core: Fix fake load reports due to uninterruptible sleeps
+Date:   Fri, 26 Nov 2021 14:50:15 +0000
+Message-Id: <20211126145015.15862-3-sj@kernel.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20211126145015.15862-1-sj@kernel.org>
+References: <20211126145015.15862-1-sj@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Initialize the mask for PKU permissions as if CR4.PKE=0, avoiding
-incorrect interpretations of the nested hypervisor's page tables.
+Because DAMON sleeps in uninterruptible mode, /proc/loadavg reports fake
+load while DAMON is turned on, though it is doing nothing.  This can
+confuse users[1].  To avoid the case, this commit makes DAMON sleeps in
+idle mode.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[1] https://lore.kernel.org/all/11868371.O9o76ZdvQC@natalenko.name/
+
+Fixes: 2224d8485492 ("mm: introduce Data Access MONitor (DAMON)")
+Reported-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+Signed-off-by: SeongJae Park <sj@kernel.org>
+Cc: <stable@vger.kernel.org> # 5.15.x
 ---
- arch/x86/kvm/mmu/mmu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/damon/core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 5942e9c6dd6e..a33b5361bc67 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -4855,7 +4855,7 @@ void kvm_init_shadow_npt_mmu(struct kvm_vcpu *vcpu, unsigned long cr0,
- 	struct kvm_mmu *context = &vcpu->arch.guest_mmu;
- 	struct kvm_mmu_role_regs regs = {
- 		.cr0 = cr0,
--		.cr4 = cr4,
-+		.cr4 = cr4 & ~X86_CR4_PKE,
- 		.efer = efer,
- 	};
- 	union kvm_mmu_role new_role;
-@@ -4919,7 +4919,7 @@ void kvm_init_shadow_ept_mmu(struct kvm_vcpu *vcpu, bool execonly,
- 	context->direct_map = false;
- 
- 	update_permission_bitmask(context, true);
--	update_pkru_bitmask(context);
-+	context->pkru_mask = 0;
- 	reset_rsvds_bits_mask_ept(vcpu, context, execonly);
- 	reset_ept_shadow_zero_bits_mask(vcpu, context, execonly);
+diff --git a/mm/damon/core.c b/mm/damon/core.c
+index daacd9536c7c..8cd8fddc931e 100644
+--- a/mm/damon/core.c
++++ b/mm/damon/core.c
+@@ -979,9 +979,9 @@ static unsigned long damos_wmark_wait_us(struct damos *scheme)
+ static void kdamond_usleep(unsigned long usecs)
+ {
+ 	if (usecs > 100 * 1000)
+-		schedule_timeout_interruptible(usecs_to_jiffies(usecs));
++		schedule_timeout_idle(usecs_to_jiffies(usecs));
+ 	else
+-		usleep_range(usecs, usecs + 1);
++		usleep_idle_range(usecs, usecs + 1);
  }
+ 
+ /* Returns negative error code if it's not activated but should return */
+@@ -1036,7 +1036,7 @@ static int kdamond_fn(void *data)
+ 				ctx->callback.after_sampling(ctx))
+ 			done = true;
+ 
+-		usleep_range(ctx->sample_interval, ctx->sample_interval + 1);
++		kdamond_usleep(ctx->sample_interval);
+ 
+ 		if (ctx->primitive.check_accesses)
+ 			max_nr_accesses = ctx->primitive.check_accesses(ctx);
 -- 
-2.31.1
+2.17.1
 
