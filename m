@@ -2,195 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 754E645E6BE
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 05:10:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B52B45E678
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:17:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358189AbhKZENh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 23:13:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242843AbhKZELh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 23:11:37 -0500
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D636DC07E5C3
-        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 19:01:50 -0800 (PST)
-Received: by mail-pg1-x533.google.com with SMTP id 200so6878527pga.1
-        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 19:01:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=BynVQIeiNIivT05KJS287cNnQbooVUGhheNqcoVB4w4=;
-        b=iIt14tMtJniwQbZaAxQ3Est4t3Ff2ts/f/MX1Z156JA5MWVxigWssvjYU5EZJe36v6
-         EfRA2YIb7gMLSJ9e8AUw2SkHewhVtX8Z9PuFsPqlvq119QeECz648sU5fJUEmeTIIFeR
-         /hX6E5r/BI4+vcbNBJCBK60qwZOeAQz7zuLat9mjGDPJI4OYB8GoXr0enoVLuNXlJ8t4
-         5ZpuZiKngvPQKsj4jlEsxGggQ8oex/vT8zIPqw2YucrnSFoEhV93a521klxipWNBZjuG
-         1EHaioBjoG8MjVspsZokAmRuGgs4CRnS4WydA99kE72y8p8lwR3+wlH3gvl2lV111t8q
-         UlTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=BynVQIeiNIivT05KJS287cNnQbooVUGhheNqcoVB4w4=;
-        b=GSZ/XXoZzEPO0VhHX8z4vQu5iCarM0gcrYVftJTQm1PwqUqpa2I9rzSPk24x846DHW
-         nSvkNxtBOGyootlHhIHQpL0hJkITfEmw9AEU2SzOhPpTBRKbsWenSrGBrwVJwIDTXk6s
-         JM/v5HcErvO0YVuV0O7IErnu8XFT7u+FTAKywtvpBxzN8Po0zcv8EI5IDbnTy31Syllb
-         Kulgw/HxEO0YtuI0k0E5W4dIMjZhKoL2jP23D38BeVVOPMbj4ru9//AJrdzuRtEK9eVZ
-         YW2oTIceSR4Zlk7QH73D5nz1uB8BLrn5QLGMics9kzhB2QDPBqqmhluqqqZMzP7iZWa3
-         6D5A==
-X-Gm-Message-State: AOAM533DxyQreE3DjEV9t+7Bx5oYLIWOFL/R1hwhVuzOwpadzcpGUXMO
-        BpBz2ZUDawhqaDyA9pQ4pu8Y
-X-Google-Smtp-Source: ABdhPJzAB/unmK4+Mb/MfAf42HoI7g6onRWKtvspjP/fglbRciESFe8VcxE1LBEMAY1C7pt3p6LBqA==
-X-Received: by 2002:a63:4745:: with SMTP id w5mr19143246pgk.320.1637895710318;
-        Thu, 25 Nov 2021 19:01:50 -0800 (PST)
-Received: from thinkpad ([117.215.117.247])
-        by smtp.gmail.com with ESMTPSA id h186sm4731054pfg.59.2021.11.25.19.01.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Nov 2021 19:01:49 -0800 (PST)
-Date:   Fri, 26 Nov 2021 08:31:44 +0530
-From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     mhi@lists.linux.dev, quic_jhugo@quicinc.com,
-        hemantk@codeaurora.org, bbhatt@codeaurora.org
-Cc:     aleksander@aleksander.es, loic.poulain@linaro.org,
-        thomas.perrot@bootlin.com, linux-arm-msm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4] bus: mhi: Fix race while handling SYS_ERR at power up
-Message-ID: <20211126030144.GC5859@thinkpad>
-References: <20211124132221.44915-1-manivannan.sadhasivam@linaro.org>
+        id S1344807AbhKZDVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 22:21:00 -0500
+Received: from mailgw01.mediatek.com ([60.244.123.138]:55216 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S234851AbhKZDS7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 22:18:59 -0500
+X-UUID: 2ef8e41a65c6410096f01756b76319a9-20211126
+X-UUID: 2ef8e41a65c6410096f01756b76319a9-20211126
+Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
+        (envelope-from <guangming.cao@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1675055840; Fri, 26 Nov 2021 11:15:41 +0800
+Received: from mtkcas11.mediatek.inc (172.21.101.40) by
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.792.15; Fri, 26 Nov 2021 11:15:40 +0800
+Received: from mszswglt01.gcn.mediatek.inc (10.16.20.20) by
+ mtkcas11.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.0.1497.2 via Frontend Transport; Fri, 26 Nov 2021 11:15:40 +0800
+From:   <guangming.cao@mediatek.com>
+To:     <robin.murphy@arm.com>
+CC:     <Brian.Starkey@arm.com>, <benjamin.gaignard@linaro.org>,
+        <christian.koenig@amd.com>, <dri-devel@lists.freedesktop.org>,
+        <guangming.cao@mediatek.com>, <john.stultz@linaro.org>,
+        <labbott@redhat.com>, <linaro-mm-sig@lists.linaro.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
+        <linux-mediatek@lists.infradead.org>, <lmark@codeaurora.org>,
+        <matthias.bgg@gmail.com>, <sumit.semwal@linaro.org>,
+        <wsd_upstream@mediatek.com>, <stable@vger.kernel.org>,
+        Guangming <Guangming.Cao@mediatek.com>
+Subject: [PATCH v3] dma-buf: system_heap: Use 'for_each_sgtable_sg' in pages free flow
+Date:   Fri, 26 Nov 2021 11:16:05 +0800
+Message-ID: <20211126031605.81436-1-guangming.cao@mediatek.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <eb6cc56d-cbe0-73d5-d4f5-0aa2b76272a4@arm.com>
+References: <eb6cc56d-cbe0-73d5-d4f5-0aa2b76272a4@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211124132221.44915-1-manivannan.sadhasivam@linaro.org>
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 24, 2021 at 06:52:21PM +0530, Manivannan Sadhasivam wrote:
-> Some devices tend to trigger SYS_ERR interrupt while the host handling
-> SYS_ERR state of the device during power up. This creates a race
-> condition and causes a failure in booting up the device.
-> 
-> The issue is seen on the Sierra Wireless EM9191 modem during SYS_ERR
-> handling in mhi_async_power_up(). Once the host detects that the device
-> is in SYS_ERR state, it issues MHI_RESET and waits for the device to
-> process the reset request. During this time, the device triggers SYS_ERR
-> interrupt to the host and host starts handling SYS_ERR execution.
-> 
-> So by the time the device has completed reset, host starts SYS_ERR
-> handling. This causes the race condition and the modem fails to boot.
-> 
-> Hence, register the IRQ handler only after handling the SYS_ERR check
-> to avoid getting spurious IRQs from the device.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
-> Reported-by: Aleksander Morgado <aleksander@aleksander.es>
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Guangming <Guangming.Cao@mediatek.com>
 
-Hemant, Bhaumik, Jeff: Can you please do the review again?
+For previous version, it uses 'sg_table.nent's to traverse sg_table in pages
+free flow.
+However, 'sg_table.nents' is reassigned in 'dma_map_sg', it means the number of
+created entries in the DMA adderess space.
+So, use 'sg_table.nents' in pages free flow will case some pages can't be freed.
 
-Thanks,
-Mani
+Here we should use sg_table.orig_nents to free pages memory, but use the
+sgtable helper 'for each_sgtable_sg'(, instead of the previous rather common
+helper 'for_each_sg' which maybe cause memory leak) is much better.
 
-> ---
-> 
-> Changes in v4:
-> 
-> * Reverted the change that moved BHI_INTVEC as that was causing issue as
->   reported by Aleksander.
-> 
-> Changes in v3:
-> 
-> * Moved BHI_INTVEC setup after irq setup
-> * Used interval_us as the delay for the polling API
-> 
-> Changes in v2:
-> 
-> * Switched to "mhi_poll_reg_field" for detecting MHI reset in device.
-> 
->  drivers/bus/mhi/core/pm.c | 33 +++++++++++----------------------
->  1 file changed, 11 insertions(+), 22 deletions(-)
-> 
-> diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-> index fb99e3727155..21484a61bbed 100644
-> --- a/drivers/bus/mhi/core/pm.c
-> +++ b/drivers/bus/mhi/core/pm.c
-> @@ -1038,7 +1038,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
->  	enum mhi_ee_type current_ee;
->  	enum dev_st_transition next_state;
->  	struct device *dev = &mhi_cntrl->mhi_dev->dev;
-> -	u32 val;
-> +	u32 interval_us = 25000; /* poll register field every 25 milliseconds */
->  	int ret;
->  
->  	dev_info(dev, "Requested to power ON\n");
-> @@ -1055,10 +1055,6 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
->  	mutex_lock(&mhi_cntrl->pm_mutex);
->  	mhi_cntrl->pm_state = MHI_PM_DISABLE;
->  
-> -	ret = mhi_init_irq_setup(mhi_cntrl);
-> -	if (ret)
-> -		goto error_setup_irq;
-> -
->  	/* Setup BHI INTVEC */
->  	write_lock_irq(&mhi_cntrl->pm_lock);
->  	mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
-> @@ -1072,7 +1068,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
->  		dev_err(dev, "%s is not a valid EE for power on\n",
->  			TO_MHI_EXEC_STR(current_ee));
->  		ret = -EIO;
-> -		goto error_async_power_up;
-> +		goto error_setup_irq;
->  	}
->  
->  	state = mhi_get_mhi_state(mhi_cntrl);
-> @@ -1081,20 +1077,12 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
->  
->  	if (state == MHI_STATE_SYS_ERR) {
->  		mhi_set_mhi_state(mhi_cntrl, MHI_STATE_RESET);
-> -		ret = wait_event_timeout(mhi_cntrl->state_event,
-> -				MHI_PM_IN_FATAL_STATE(mhi_cntrl->pm_state) ||
-> -					mhi_read_reg_field(mhi_cntrl,
-> -							   mhi_cntrl->regs,
-> -							   MHICTRL,
-> -							   MHICTRL_RESET_MASK,
-> -							   MHICTRL_RESET_SHIFT,
-> -							   &val) ||
-> -					!val,
-> -				msecs_to_jiffies(mhi_cntrl->timeout_ms));
-> -		if (!ret) {
-> -			ret = -EIO;
-> +		ret = mhi_poll_reg_field(mhi_cntrl, mhi_cntrl->regs, MHICTRL,
-> +				 MHICTRL_RESET_MASK, MHICTRL_RESET_SHIFT, 0,
-> +				 interval_us);
-> +		if (ret) {
->  			dev_info(dev, "Failed to reset MHI due to syserr state\n");
-> -			goto error_async_power_up;
-> +			goto error_setup_irq;
->  		}
->  
->  		/*
-> @@ -1104,6 +1092,10 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
->  		mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
->  	}
->  
-> +	ret = mhi_init_irq_setup(mhi_cntrl);
-> +	if (ret)
-> +		goto error_setup_irq;
-> +
->  	/* Transition to next state */
->  	next_state = MHI_IN_PBL(current_ee) ?
->  		DEV_ST_TRANSITION_PBL : DEV_ST_TRANSITION_READY;
-> @@ -1116,9 +1108,6 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
->  
->  	return 0;
->  
-> -error_async_power_up:
-> -	mhi_deinit_free_irq(mhi_cntrl);
-> -
->  error_setup_irq:
->  	mhi_cntrl->pm_state = MHI_PM_DISABLE;
->  	mutex_unlock(&mhi_cntrl->pm_mutex);
-> -- 
-> 2.25.1
-> 
+Fixes: d963ab0f15fb0 ("dma-buf: system_heap: Allocate higher order pages if available")
+
+Signed-off-by: Guangming <Guangming.Cao@mediatek.com>
+---
+ drivers/dma-buf/heaps/system_heap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/dma-buf/heaps/system_heap.c b/drivers/dma-buf/heaps/system_heap.c
+index 23a7e74ef966..8660508f3684 100644
+--- a/drivers/dma-buf/heaps/system_heap.c
++++ b/drivers/dma-buf/heaps/system_heap.c
+@@ -289,7 +289,7 @@ static void system_heap_dma_buf_release(struct dma_buf *dmabuf)
+ 	int i;
+ 
+ 	table = &buffer->sg_table;
+-	for_each_sg(table->sgl, sg, table->nents, i) {
++	for_each_sgtable_sg(table, sg, i) {
+ 		struct page *page = sg_page(sg);
+ 
+ 		__free_pages(page, compound_order(page));
+-- 
+2.17.1
+
