@@ -2,99 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AE7C45E642
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:01:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7A1C45E662
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:01:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359716AbhKZCuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:50:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51546 "EHLO mail.kernel.org"
+        id S1352105AbhKZC4x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:56:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358612AbhKZCrZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:47:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC13361371;
-        Fri, 26 Nov 2021 02:37:16 +0000 (UTC)
+        id S1358124AbhKZCyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:54:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 393C361106;
+        Fri, 26 Nov 2021 02:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894238;
-        bh=RBX6W4w3jScpLmp10EJSozwbbpPAsKTdowIUKbcjGiA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UgpebikjVKnC+nvgReVfdWgriluJ/BOQ2JRrE81e6LCvgWY+xUVLtnTCwErot5ClC
-         tZAKD1wLHggkI0/+gul5bAJiNAedVvCQc980VrS6ETUtjFtnrusslqxMrzN88ZeXME
-         oNAfTTc98gSQS2I7Q8jFm+bnMokvSb2RMJXM6w0Gkw4LXxMJT405rxZWcgg92V1MC9
-         4GG4ktG8nhEBSWzPUss1mDO+fMD2US07YVSIHSed914k0mrCX3NhCNEyRcmjTJ+5Qe
-         SNYJKQZVEhs27JFvWD4WNjPe+H4CyAMIrW0NBhXpsB5JQZlWVMf8NY38axzipiSlnn
-         8Hd+AAPYZIBCQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Teng Qi <starmiku1207184332@gmail.com>,
-        TOTE Robot <oslab@tsinghua.edu.cn>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        tanghui20@huawei.com, zhangyue1@kylinos.cn, netdev@vger.kernel.org,
-        linux-parisc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 6/6] net: ethernet: dec: tulip: de4x5: fix possible array overflows in type3_infoblock()
-Date:   Thu, 25 Nov 2021 21:37:01 -0500
-Message-Id: <20211126023701.443472-6-sashal@kernel.org>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211126023701.443472-1-sashal@kernel.org>
-References: <20211126023701.443472-1-sashal@kernel.org>
+        s=k20201202; t=1637895100;
+        bh=xUlZvULXQ6rOq+Z7FE3dDoJ3dhTX0UZTxAaPNoSKV4k=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=lUlwgwytff92HjYig8Cp0RhZf1Geojck1CyhnhTIVO9Da13fzfAwrKtmYPF8nvU1z
+         UldZtJ07Dcsi38XGGy4ftKIp5tdNRn1SM+1kzv3XnOJObjEUETDyz2r9vZY/trumA3
+         gXWu/l3YgJK7rO7CCfHXRciZiJqg/NILqN3NSNptFTME/pZ2SGXwkUhPkqdwrDrhHu
+         RSpYm0JysIelpRH0zO0ABtPO15sgKVMn5NBk93E3GOAyjRszssVEGMDGatwBX2wXBC
+         vzyqyhfv9pTSOSymjvfzXuZKD95PURGOTZM0Gje1GWnLSED5gc6SVGVG3baTdAzGwq
+         hDNWfduoOCWXQ==
+Date:   Thu, 25 Nov 2021 18:51:39 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Wen Gu <guwen@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>, kgraul@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.15 10/39] net/smc: Transfer remaining wait
+ queue entries during fallback
+Message-ID: <20211125185139.0007069f@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20211126023156.441292-10-sashal@kernel.org>
+References: <20211126023156.441292-1-sashal@kernel.org>
+        <20211126023156.441292-10-sashal@kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Teng Qi <starmiku1207184332@gmail.com>
+On Thu, 25 Nov 2021 21:31:27 -0500 Sasha Levin wrote:
+> From: Wen Gu <guwen@linux.alibaba.com>
+> 
+> [ Upstream commit 2153bd1e3d3dbf6a3403572084ef6ed31c53c5f0 ]
+> 
+> The SMC fallback is incomplete currently. There may be some
+> wait queue entries remaining in smc socket->wq, which should
+> be removed to clcsocket->wq during the fallback.
+> 
+> For example, in nginx/wrk benchmark, this issue causes an
+> all-zeros test result:
 
-[ Upstream commit 0fa68da72c3be09e06dd833258ee89c33374195f ]
+Hold this one, please, there is a fix coming: 7a61432dc813 ("net/smc:
+Avoid warning of possible recursive locking").
 
-The definition of macro MOTO_SROM_BUG is:
-  #define MOTO_SROM_BUG    (lp->active == 8 && (get_unaligned_le32(
-  dev->dev_addr) & 0x00ffffff) == 0x3e0008)
-
-and the if statement
-  if (MOTO_SROM_BUG) lp->active = 0;
-
-using this macro indicates lp->active could be 8. If lp->active is 8 and
-the second comparison of this macro is false. lp->active will remain 8 in:
-  lp->phy[lp->active].gep = (*p ? p : NULL); p += (2 * (*p) + 1);
-  lp->phy[lp->active].rst = (*p ? p : NULL); p += (2 * (*p) + 1);
-  lp->phy[lp->active].mc  = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].ana = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].fdx = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].ttm = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].mci = *p;
-
-However, the length of array lp->phy is 8, so array overflows can occur.
-To fix these possible array overflows, we first check lp->active and then
-return -EINVAL if it is greater or equal to ARRAY_SIZE(lp->phy) (i.e. 8).
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Teng Qi <starmiku1207184332@gmail.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/ethernet/dec/tulip/de4x5.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/net/ethernet/dec/tulip/de4x5.c b/drivers/net/ethernet/dec/tulip/de4x5.c
-index 7c4150a83a082..ffc9c7947b93f 100644
---- a/drivers/net/ethernet/dec/tulip/de4x5.c
-+++ b/drivers/net/ethernet/dec/tulip/de4x5.c
-@@ -4701,6 +4701,10 @@ type3_infoblock(struct net_device *dev, u_char count, u_char *p)
-         lp->ibn = 3;
-         lp->active = *p++;
- 	if (MOTO_SROM_BUG) lp->active = 0;
-+	/* if (MOTO_SROM_BUG) statement indicates lp->active could
-+	 * be 8 (i.e. the size of array lp->phy) */
-+	if (WARN_ON(lp->active >= ARRAY_SIZE(lp->phy)))
-+		return -EINVAL;
- 	lp->phy[lp->active].gep = (*p ? p : NULL); p += (2 * (*p) + 1);
- 	lp->phy[lp->active].rst = (*p ? p : NULL); p += (2 * (*p) + 1);
- 	lp->phy[lp->active].mc  = get_unaligned_le16(p); p += 2;
--- 
-2.33.0
 
