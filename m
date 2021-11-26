@@ -2,46 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6D1745E629
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:01:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55C5A45E62C
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358879AbhKZCuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:50:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50970 "EHLO mail.kernel.org"
+        id S230098AbhKZCuG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:50:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1359062AbhKZCpt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:45:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1018461359;
-        Fri, 26 Nov 2021 02:36:37 +0000 (UTC)
+        id S1358815AbhKZCpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:45:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04C9A6135E;
+        Fri, 26 Nov 2021 02:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894199;
-        bh=y+8q+hLdttGkz44v+lZ2Nla17jSAKFdBohakvYvY5rU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aY7snWlm4y3qfpMBuVY0MvyNjhmdOvf3NVbJY6m4yxuCZvE2NQ77GuIVP5YgavwQ9
-         nNlWXuUJNv+pcEFXmNdbfxR6aZDVqtCmNg48vulNUeNSJ0yNiTpSQFc/e9pXnxK3Tp
-         gzmy3EVoIX0VMlXa6FCNT7FTpOtAkNpeUJomA9mYBZxxx7cCUHl1ZOdzOC1mXWT/Yr
-         a097rmFwysjC82tDDCIhVdHxtNz6o78edtFaxPqR6k9awxFebTA3ctnvy4K14/H9jy
-         VpJscYVSzNJQ2XzbO7hzbW3bI3JRHmr3PbPtiGvH2HbqaO2hT17uSPk3Jz7Pe4J64E
-         pwh/vSX7ZgTlg==
+        s=k20201202; t=1637894202;
+        bh=qM6HluBn4RVpT6QWxpRerYmfyBR4ghdWX2iaEal5fb0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=LqLTtl98jZpoizBwH7f60ibM9lRZr7ezMQIDluHKMamfffBeXvgfvRIcx+BGs8HUm
+         T0ITCxN+p7XlKms2LaDbAokoYQZa8HYNt8JZSYMvfG79o7obOetu7c7NqiXKVrMcsk
+         nMOsleJmx6PT65NjfjOLWoStsRRtUa9iTc39TXFHBCcdETwPHCmDFnvDCV9f4nRwMN
+         OaUJTMDgjX6KIgoidnbPT91s+GGKpU07IneLHidZSzNOTVa68XxB9OU1PL8Hk9HqoG
+         mGY8igUcF8a+HP4AZ2PZbhBloVkwX6EUku3dAmtlRPze1VN2xrj9Y8a73yWQ9dXyS5
+         GjdWkrFHp+aMw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ian Rogers <irogers@google.com>, Kajol Jain <kjain@linux.ibm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        acme@kernel.org, kan.liang@linux.intel.com, ak@linux.intel.com,
-        linux-perf-users@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 12/12] perf hist: Fix memory leak of a perf_hpp_fmt
-Date:   Thu, 25 Nov 2021 21:36:08 -0500
-Message-Id: <20211126023611.443098-12-sashal@kernel.org>
+Cc:     liuguoqiang <liuguoqiang@uniontech.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, yoshfuji@linux-ipv6.org,
+        dsahern@kernel.org, kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 1/8] net: return correct error code
+Date:   Thu, 25 Nov 2021 21:36:33 -0500
+Message-Id: <20211126023640.443271-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211126023611.443098-1-sashal@kernel.org>
-References: <20211126023611.443098-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -50,99 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: liuguoqiang <liuguoqiang@uniontech.com>
 
-[ Upstream commit 0ca1f534a776cc7d42f2c33da4732b74ec2790cd ]
+[ Upstream commit 6def480181f15f6d9ec812bca8cbc62451ba314c ]
 
-perf_hpp__column_unregister() removes an entry from a list but doesn't
-free the memory causing a memory leak spotted by leak sanitizer.
+When kmemdup called failed and register_net_sysctl return NULL, should
+return ENOMEM instead of ENOBUFS
 
-Add the free while at the same time reducing the scope of the function
-to static.
-
-Signed-off-by: Ian Rogers <irogers@google.com>
-Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20211118071247.2140392-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: liuguoqiang <liuguoqiang@uniontech.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/ui/hist.c   | 28 ++++++++++++++--------------
- tools/perf/util/hist.h |  1 -
- 2 files changed, 14 insertions(+), 15 deletions(-)
+ net/ipv4/devinet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/ui/hist.c b/tools/perf/ui/hist.c
-index 706f6f1e9c7d6..445a7012b1179 100644
---- a/tools/perf/ui/hist.c
-+++ b/tools/perf/ui/hist.c
-@@ -468,6 +468,18 @@ struct perf_hpp_list perf_hpp_list = {
- #undef __HPP_SORT_ACC_FN
- #undef __HPP_SORT_RAW_FN
- 
-+static void fmt_free(struct perf_hpp_fmt *fmt)
-+{
-+	/*
-+	 * At this point fmt should be completely
-+	 * unhooked, if not it's a bug.
-+	 */
-+	BUG_ON(!list_empty(&fmt->list));
-+	BUG_ON(!list_empty(&fmt->sort_list));
-+
-+	if (fmt->free)
-+		fmt->free(fmt);
-+}
- 
- void perf_hpp__init(void)
- {
-@@ -531,9 +543,10 @@ void perf_hpp_list__prepend_sort_field(struct perf_hpp_list *list,
- 	list_add(&format->sort_list, &list->sorts);
+diff --git a/net/ipv4/devinet.c b/net/ipv4/devinet.c
+index 6f3c529431865..7a2442623d6a6 100644
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -2271,7 +2271,7 @@ static int __devinet_sysctl_register(struct net *net, char *dev_name,
+ free:
+ 	kfree(t);
+ out:
+-	return -ENOBUFS;
++	return -ENOMEM;
  }
  
--void perf_hpp__column_unregister(struct perf_hpp_fmt *format)
-+static void perf_hpp__column_unregister(struct perf_hpp_fmt *format)
- {
- 	list_del_init(&format->list);
-+	fmt_free(format);
- }
- 
- void perf_hpp__cancel_cumulate(void)
-@@ -605,19 +618,6 @@ void perf_hpp__append_sort_keys(struct perf_hpp_list *list)
- }
- 
- 
--static void fmt_free(struct perf_hpp_fmt *fmt)
--{
--	/*
--	 * At this point fmt should be completely
--	 * unhooked, if not it's a bug.
--	 */
--	BUG_ON(!list_empty(&fmt->list));
--	BUG_ON(!list_empty(&fmt->sort_list));
--
--	if (fmt->free)
--		fmt->free(fmt);
--}
--
- void perf_hpp__reset_output_field(struct perf_hpp_list *list)
- {
- 	struct perf_hpp_fmt *fmt, *tmp;
-diff --git a/tools/perf/util/hist.h b/tools/perf/util/hist.h
-index 595f91f46811f..2eb71eeec4858 100644
---- a/tools/perf/util/hist.h
-+++ b/tools/perf/util/hist.h
-@@ -339,7 +339,6 @@ enum {
- };
- 
- void perf_hpp__init(void);
--void perf_hpp__column_unregister(struct perf_hpp_fmt *format);
- void perf_hpp__cancel_cumulate(void);
- void perf_hpp__setup_output_field(struct perf_hpp_list *list);
- void perf_hpp__reset_output_field(struct perf_hpp_list *list);
+ static void __devinet_sysctl_unregister(struct ipv4_devconf *cnf)
 -- 
 2.33.0
 
