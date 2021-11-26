@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B05FC45E63F
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE5A445E641
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:01:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244768AbhKZCuU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243812AbhKZCuU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 25 Nov 2021 21:50:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51534 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358509AbhKZCrT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:47:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8499961374;
-        Fri, 26 Nov 2021 02:37:07 +0000 (UTC)
+        id S1358594AbhKZCrX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:47:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 043806137B;
+        Fri, 26 Nov 2021 02:37:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894228;
-        bh=uqawlr9zy7pGfMRipHFNWdvMwmCbYY28igxknANgURg=;
+        s=k20201202; t=1637894230;
+        bh=Ug+TWSLq1mJYFr8I3bm6JpeLTyEOeY2Ps6JFuc9N3sE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSU5qhwptnwQWYjMe+Qu259Ee0t2VlLdgTa5D2slh3Gi1wwOKpTW+VqtndFq+gqWi
-         4DYcAXfqYr8BIVmVnExYwet9dYCSnNQaLKfffSBx7Qn+SAuGhFcRSd0tLkMnSym6Ah
-         lu2hdbL1lwVhhUKLt1oVQbUgMkj60WQfAyubfOjAXRKXcLEhBqNYwLX2Rj/UiXBF31
-         c1ivxF4t5Yz7ip1CYHiYLLzS8WKHQXKjdvnnpofPlR6rcOt9QllRgDrksIyEQZsdAa
-         jp9p3pn5KixTLOtW7fJS3BMGFxHJ2Gm10BCXFgr2svPrH/r/YDrQcZ828fKAuBqe/K
-         XRoWuJgbQh8Hg==
+        b=LOdLKuJ0A2wNZk2LZ0YfmHyt3KNmRRHBxb1uyha4tByfMTUOVHj8AR/rC+mo/1s65
+         iUpiPkhc4R6hXqeu0X/rA8k2k0AokdnBynemj4iHmKmqwsl0w5zIAkrr7qbsH2wa1M
+         2zal02orW8yAUukyNDcL+pjGC6w6baa5CihiGMgqfPhzCwKMui3Ml7Ybu2UzeFDOOu
+         3Uauy1VhGFK7zIevyrbqa+FbdEiHzwnF62DYVsQmiV3VZvE3e2k9GdgrZvj0oZOo0U
+         H6UKCvTWC8d3D240th8oNl2JMssqtBJyopYFYkOsRbgxBdVdHVdLAKp0p/uoVqpNwn
+         l7zKT76Xvwdbg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, borntraeger@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com,
-        egorenar@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 3/6] s390/setup: avoid using memblock_enforce_memory_limit
-Date:   Thu, 25 Nov 2021 21:36:58 -0500
-Message-Id: <20211126023701.443472-3-sashal@kernel.org>
+Cc:     Mike Christie <michael.christie@oracle.com>,
+        Lee Duncan <lduncan@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, cleech@redhat.com,
+        jejb@linux.ibm.com, open-iscsi@googlegroups.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 4/6] scsi: iscsi: Unblock session then wake up error handler
+Date:   Thu, 25 Nov 2021 21:36:59 -0500
+Message-Id: <20211126023701.443472-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023701.443472-1-sashal@kernel.org>
 References: <20211126023701.443472-1-sashal@kernel.org>
@@ -44,54 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 5dbc4cb4667457b0c53bcd7bff11500b3c362975 ]
+[ Upstream commit a0c2f8b6709a9a4af175497ca65f93804f57b248 ]
 
-There is a difference in how architectures treat "mem=" option. For some
-that is an amount of online memory, for s390 and x86 this is the limiting
-max address. Some memblock api like memblock_enforce_memory_limit()
-take limit argument and explicitly treat it as the size of online memory,
-and use __find_max_addr to convert it to an actual max address. Current
-s390 usage:
+We can race where iscsi_session_recovery_timedout() has woken up the error
+handler thread and it's now setting the devices to offline, and
+session_recovery_timedout()'s call to scsi_target_unblock() is also trying
+to set the device's state to transport-offline. We can then get a mix of
+states.
 
-memblock_enforce_memory_limit(memblock_end_of_DRAM());
+For the case where we can't relogin we want the devices to be in
+transport-offline so when we have repaired the connection
+__iscsi_unblock_session() can set the state back to running.
 
-yields different results depending on presence of memory holes (offline
-memory blocks in between online memory). If there are no memory holes
-limit == max_addr in memblock_enforce_memory_limit() and it does trim
-online memory and reserved memory regions. With memory holes present it
-actually does nothing.
+Set the device state then call into libiscsi to wake up the error handler.
 
-Since we already use memblock_remove() explicitly to trim online memory
-regions to potential limit (think mem=, kdump, addressing limits, etc.)
-drop the usage of memblock_enforce_memory_limit() altogether. Trimming
-reserved regions should not be required, since we now use
-memblock_set_current_limit() to limit allocations and any explicit memory
-reservations above the limit is an actual problem we should not hide.
-
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Link: https://lore.kernel.org/r/20211105221048.6541-2-michael.christie@oracle.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/setup.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index fdc5e76e1f6b0..a765b4936c10c 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -687,9 +687,6 @@ static void __init setup_memory(void)
- 		storage_key_init_range(reg->base, reg->base + reg->size);
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 9906a3b562e93..269277c1d9dcc 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -1896,12 +1896,12 @@ static void session_recovery_timedout(struct work_struct *work)
  	}
- 	psw_set_key(PAGE_DEFAULT_KEY);
+ 	spin_unlock_irqrestore(&session->lock, flags);
+ 
+-	if (session->transport->session_recovery_timedout)
+-		session->transport->session_recovery_timedout(session);
 -
--	/* Only cosmetics */
--	memblock_enforce_memory_limit(memblock_end_of_DRAM());
+ 	ISCSI_DBG_TRANS_SESSION(session, "Unblocking SCSI target\n");
+ 	scsi_target_unblock(&session->dev, SDEV_TRANSPORT_OFFLINE);
+ 	ISCSI_DBG_TRANS_SESSION(session, "Completed unblocking SCSI target\n");
++
++	if (session->transport->session_recovery_timedout)
++		session->transport->session_recovery_timedout(session);
  }
  
- /*
+ static void __iscsi_unblock_session(struct work_struct *work)
 -- 
 2.33.0
 
