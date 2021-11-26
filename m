@@ -2,63 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA58545EAE0
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 10:58:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7623B45EAE3
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 10:59:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240006AbhKZKCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Nov 2021 05:02:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47128 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376511AbhKZKAK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Nov 2021 05:00:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFF0961107;
-        Fri, 26 Nov 2021 09:56:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1637920618;
-        bh=9OYvcTu2WIu2aXhWr8kWuQT0PFnfR4TkpO1CH3AtbD0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=g2JQapHHHBm5no9/x+I9vIg33t2GSTLnZFhZ7KJRqcgAS9DiUh461OXljhVdI9OnT
-         9X+q8ekYjhRZ54xsFrRQG2gOEiPsjfJMaHybxzwLgLtmEZqlhaJLfvHy6o8KtbLT00
-         AyQNaqAH5ToLTLUkmupRxR7S4xfy831s6eyZy01s=
-Date:   Fri, 26 Nov 2021 10:56:54 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Maarten Brock <m.brock@vanmierlo.com>, stable@vger.kernel.org,
-        Karoly Pados <pados@pados.hu>
-Subject: Re: [PATCH] USB: serial: cp210x: fix CP2105 GPIO registration
-Message-ID: <YaCvZl2W4ZkrVPX+@kroah.com>
-References: <20211126094348.31698-1-johan@kernel.org>
+        id S1376563AbhKZKCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Nov 2021 05:02:35 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:42100 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376568AbhKZKAe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Nov 2021 05:00:34 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 7B2111C0B77; Fri, 26 Nov 2021 10:57:20 +0100 (CET)
+Date:   Fri, 26 Nov 2021 10:57:18 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 000/153] 5.10.82-rc2 review
+Message-ID: <20211126095718.GA2396@duo.ucw.cz>
+References: <20211125092029.973858485@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
 Content-Disposition: inline
-In-Reply-To: <20211126094348.31698-1-johan@kernel.org>
+In-Reply-To: <20211125092029.973858485@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 26, 2021 at 10:43:48AM +0100, Johan Hovold wrote:
-> When generalising GPIO support and adding support for CP2102N, the GPIO
-> registration for some CP2105 devices accidentally broke. Specifically,
-> when all the pins of a port are in "modem" mode, and thus unavailable
-> for GPIO use, the GPIO chip would now be registered without having
-> initialised the number of GPIO lines. This would in turn be rejected by
-> gpiolib and some errors messages would be printed (but importantly probe
-> would still succeed).
-> 
-> Fix this by initialising the number of GPIO lines before registering the
-> GPIO chip.
-> 
-> Note that as for the other device types, and as when all CP2105 pins are
-> muxed for LED function, the GPIO chip is registered also when no pins
-> are available for GPIO use.
-> 
-> Reported-by: Maarten Brock <m.brock@vanmierlo.com>
-> Link: https://lore.kernel.org/r/5eb560c81d2ea1a2b4602a92d9f48a89@vanmierlo.com
-> Fixes: c8acfe0aadbe ("USB: serial: cp210x: implement GPIO support for CP2102N")
-> Cc: stable@vger.kernel.org      # 4.19
-> Cc: Karoly Pados <pados@pados.hu>
-> Signed-off-by: Johan Hovold <johan@kernel.org>
 
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Hi!
+
+> This is the start of the stable review cycle for the 5.10.82 release.
+> There are 153 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+
+CIP testing did not find any problems here:
+
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+5.10.y
+
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+
+Best regards,
+                                                                Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYaCvfgAKCRAw5/Bqldv6
+8l88AJ9dd5oD0Tyt5hhIQeFmyYAvZuS4DgCeMNDtkY/HEBvR8Q7M8RX38+o15xY=
+=9Ca0
+-----END PGP SIGNATURE-----
+
+--wRRV7LY7NUeQGEoC--
