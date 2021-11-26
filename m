@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B6BB45E5B4
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:00:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB3DC45E5C1
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:00:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358530AbhKZCoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:44:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49262 "EHLO mail.kernel.org"
+        id S1358887AbhKZCpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:45:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358107AbhKZCmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:42:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E3B961260;
-        Fri, 26 Nov 2021 02:35:09 +0000 (UTC)
+        id S1358622AbhKZCnM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:43:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F8706124D;
+        Fri, 26 Nov 2021 02:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894110;
-        bh=WA0RYjt9t3R3xqN95MQc1/7KLR5qSNYVtHNyVr2+xRY=;
+        s=k20201202; t=1637894111;
+        bh=TUTJvnF4QyGr5TJwtZsUXH6nSvmCGZ4wTVONDSK+NZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FtL4H5vv38srvb0nD6QGPJirkveIyS7yiHEV9RUFM1r0u1y/468Cqj5x/vjkuYjcr
-         /poxEhMQtmXR0irGsptISZL5dRvy+2+rqJzO3MQZhQ7aQBHDc9ii8kEy7txlaCsutm
-         qBzCs79ItIRQ6kLuDwo3IDbluYoO1vGBLHLQevya4+5jZbK3CAqugF5H72HF0QBfkM
-         bWobK6pLDKPA6XW1Et/aZgsU0dSDczQ04v+e1g5U5c6V0U/rMrE2fmpoEHV3/aMJaR
-         duR2flNPuOSGKS1uJGen0VjuI69tl7uE4WukxyseA+urRmDNmRKuTq6YM26KU8J3cz
-         fFb2wZ8CpXGvg==
+        b=pSTicwiRnpRdKQBftYSCH7Z29xD72JL8hiCZNry7AOHQeoxO0i/HQX+qZ8EXJi0bk
+         1K+WO0Wz/ZuDsph9tkvLB2YN3b6pOxrFFX22jFSsE3J53dq6SMpDn0eyRBt4NLGnPf
+         utGU5CYqaNEw+0RlFx2zhZFoyOI5MqFfzLsv0iVD9Sffi/qIidMw4TJ1VfcL5V45IW
+         8ryuG6u5T7YEKCkUt2cZwwfflsutT12iMG6P3+5O4BSMbClRD9o3Q3An5ejWm0NQJ8
+         A2cR6xtjg1pQ229zW3quHkjsF/CpDOfU/ZIIlBM5DiR1EMsMRkaDWpx7vdnQam7kkr
+         C9HzAmMkTyhOQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Christie <michael.christie@oracle.com>,
-        Lee Duncan <lduncan@suse.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, cleech@redhat.com,
-        jejb@linux.ibm.com, open-iscsi@googlegroups.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 13/19] scsi: iscsi: Unblock session then wake up error handler
-Date:   Thu, 25 Nov 2021 21:34:42 -0500
-Message-Id: <20211126023448.442529-13-sashal@kernel.org>
+Cc:     Mario Limonciello <mario.limonciello@amd.com>,
+        Nehal-bakulchandra Shah <Nehal-bakulchandra.Shah@amd.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 14/19] ata: ahci: Add Green Sardine vendor ID as board_ahci_mobile
+Date:   Thu, 25 Nov 2021 21:34:43 -0500
+Message-Id: <20211126023448.442529-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023448.442529-1-sashal@kernel.org>
 References: <20211126023448.442529-1-sashal@kernel.org>
@@ -45,51 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit a0c2f8b6709a9a4af175497ca65f93804f57b248 ]
+[ Upstream commit 1527f69204fe35f341cb599f1cb01bd02daf4374 ]
 
-We can race where iscsi_session_recovery_timedout() has woken up the error
-handler thread and it's now setting the devices to offline, and
-session_recovery_timedout()'s call to scsi_target_unblock() is also trying
-to set the device's state to transport-offline. We can then get a mix of
-states.
+AMD requires that the SATA controller be configured for devsleep in order
+for S0i3 entry to work properly.
 
-For the case where we can't relogin we want the devices to be in
-transport-offline so when we have repaired the connection
-__iscsi_unblock_session() can set the state back to running.
+commit b1a9585cc396 ("ata: ahci: Enable DEVSLP by default on x86 with
+SLP_S0") sets up a kernel policy to enable devsleep on Intel mobile
+platforms that are using s0ix.  Add the PCI ID for the SATA controller in
+Green Sardine platforms to extend this policy by default for AMD based
+systems using s0i3 as well.
 
-Set the device state then call into libiscsi to wake up the error handler.
-
-Link: https://lore.kernel.org/r/20211105221048.6541-2-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Nehal-bakulchandra Shah <Nehal-bakulchandra.Shah@amd.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214091
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/ata/ahci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 6f21cb75d95fd..f6cce0befa7de 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -1894,12 +1894,12 @@ static void session_recovery_timedout(struct work_struct *work)
- 	}
- 	spin_unlock_irqrestore(&session->lock, flags);
- 
--	if (session->transport->session_recovery_timedout)
--		session->transport->session_recovery_timedout(session);
--
- 	ISCSI_DBG_TRANS_SESSION(session, "Unblocking SCSI target\n");
- 	scsi_target_unblock(&session->dev, SDEV_TRANSPORT_OFFLINE);
- 	ISCSI_DBG_TRANS_SESSION(session, "Completed unblocking SCSI target\n");
-+
-+	if (session->transport->session_recovery_timedout)
-+		session->transport->session_recovery_timedout(session);
- }
- 
- static void __iscsi_unblock_session(struct work_struct *work)
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index 8beb418ce167b..6f572967b5552 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -420,6 +420,7 @@ static const struct pci_device_id ahci_pci_tbl[] = {
+ 	/* AMD */
+ 	{ PCI_VDEVICE(AMD, 0x7800), board_ahci }, /* AMD Hudson-2 */
+ 	{ PCI_VDEVICE(AMD, 0x7900), board_ahci }, /* AMD CZ */
++	{ PCI_VDEVICE(AMD, 0x7901), board_ahci_mobile }, /* AMD Green Sardine */
+ 	/* AMD is using RAID class only for ahci controllers */
+ 	{ PCI_VENDOR_ID_AMD, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+ 	  PCI_CLASS_STORAGE_RAID << 8, 0xffffff, board_ahci },
 -- 
 2.33.0
 
