@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4755445E58E
+	by mail.lfdr.de (Postfix) with ESMTP id 90F4D45E58F
 	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:00:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357815AbhKZCnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1358442AbhKZCnf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 25 Nov 2021 21:43:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50250 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358454AbhKZClS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:41:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04B4561185;
-        Fri, 26 Nov 2021 02:34:30 +0000 (UTC)
+        id S1358467AbhKZClU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:41:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6984C611BF;
+        Fri, 26 Nov 2021 02:34:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894072;
-        bh=1kqdhOluEWtrRbIzXXDi+UZkBE3XgsycI2GlIXBpo/I=;
+        s=k20201202; t=1637894076;
+        bh=UIpFhI+ZxW78Zsk2Sx6TEyfvqhS6JuBdNd2I6o9pxl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IdiRtOGr8yIbWHEZNE+vS/IlGDzOKPWK3XI4o72VQv+UReXBaPTAGoZPbkDwJpP7N
-         Nk2NyPvGnjyn/DVG9SwogEJ4HlrwL0PavEY6QFm2yCQ2+wyLlrA+n5FieG+RXKZqOT
-         Cj0tETFlpttMjTdaZZ8j7EJIRZyBEuCzoPzv06Ptgeb+PHI+B/43PsATyn8MjNgjw/
-         FFcz/P2fWuP6T2a1yVomBuv5ii7tcT5MtXrV00oj/OqOfjFQ9laeU3035L2qkIvLwZ
-         0v17iGk3/ukOXMhm9CVWPVtcU3iG7SajCP8aOMnWhJjPrAfW1mfup/l4aRH2Aul+jS
-         ICUzhaC8Gu1ag==
+        b=R0Go85qJO5mdTSyfMp1LcJnlNAuQu5lWfiNeQ31C0K7QjruTCrX8cq1zad3j/qALb
+         Xt67YxxuCOGG5Ac/KpoXbcNbX+LVNnqJ7T9Eq5HBWjUioFlYvF3QqYD20/IHsUoxmZ
+         tNolMo+htm9ZuPnBJNv6/6+iahRdNflGHpm3N/FD5lqMLrEUGg+3C/HWDHa4N0Hy0i
+         8LKqHb6cOViSg2HkRoTMjvY6kuu+OasyiFu9DFyilSvR+el8/eM1hFppBRZmAztu3D
+         UymSlEqOrWMHSnCbQ9+8XMYfY+b0YU3oEWKHqe2/NIgBuCN2nzNSxGpOyAO7mOf6pv
+         DTPD/fbu8MJIw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Teng Qi <starmiku1207184332@gmail.com>,
-        TOTE Robot <oslab@tsinghua.edu.cn>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        tanghui20@huawei.com, zhangyue1@kylinos.cn, netdev@vger.kernel.org,
-        linux-parisc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 25/28] net: ethernet: dec: tulip: de4x5: fix possible array overflows in type3_infoblock()
-Date:   Thu, 25 Nov 2021 21:33:40 -0500
-Message-Id: <20211126023343.442045-25-sashal@kernel.org>
+Cc:     German Gomez <german.gomez@arm.com>,
+        James Clark <james.clark@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        John Garry <john.garry@huawei.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, peterz@infradead.org,
+        mingo@redhat.com, acme@kernel.org, andrew.kilroy@arm.com,
+        linux-perf-users@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 26/28] perf inject: Fix ARM SPE handling
+Date:   Thu, 25 Nov 2021 21:33:41 -0500
+Message-Id: <20211126023343.442045-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023343.442045-1-sashal@kernel.org>
 References: <20211126023343.442045-1-sashal@kernel.org>
@@ -46,55 +54,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Teng Qi <starmiku1207184332@gmail.com>
+From: German Gomez <german.gomez@arm.com>
 
-[ Upstream commit 0fa68da72c3be09e06dd833258ee89c33374195f ]
+[ Upstream commit 9e1a8d9f683260d50e0a14176d3f7c46a93b2700 ]
 
-The definition of macro MOTO_SROM_BUG is:
-  #define MOTO_SROM_BUG    (lp->active == 8 && (get_unaligned_le32(
-  dev->dev_addr) & 0x00ffffff) == 0x3e0008)
+'perf inject' is currently not working for Arm SPE. When you try to run
+'perf inject' and 'perf report' with a perf.data file that contains SPE
+traces, the tool reports a "Bad address" error:
 
-and the if statement
-  if (MOTO_SROM_BUG) lp->active = 0;
+  # ./perf record -e arm_spe_0/ts_enable=1,store_filter=1,branch_filter=1,load_filter=1/ -a -- sleep 1
+  # ./perf inject -i perf.data -o perf.inject.data --itrace
+  # ./perf report -i perf.inject.data --stdio
 
-using this macro indicates lp->active could be 8. If lp->active is 8 and
-the second comparison of this macro is false. lp->active will remain 8 in:
-  lp->phy[lp->active].gep = (*p ? p : NULL); p += (2 * (*p) + 1);
-  lp->phy[lp->active].rst = (*p ? p : NULL); p += (2 * (*p) + 1);
-  lp->phy[lp->active].mc  = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].ana = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].fdx = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].ttm = get_unaligned_le16(p); p += 2;
-  lp->phy[lp->active].mci = *p;
+  0x42c00 [0x8]: failed to process type: 9 [Bad address]
+  Error:
+  failed to process sample
 
-However, the length of array lp->phy is 8, so array overflows can occur.
-To fix these possible array overflows, we first check lp->active and then
-return -EINVAL if it is greater or equal to ARRAY_SIZE(lp->phy) (i.e. 8).
+As far as I know, the issue was first spotted in [1], but 'perf inject'
+was not yet injecting the samples. This patch does something similar to
+what cs_etm does for injecting the samples [2], but for SPE.
 
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Teng Qi <starmiku1207184332@gmail.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[1] https://patchwork.kernel.org/project/linux-arm-kernel/cover/20210412091006.468557-1-leo.yan@linaro.org/#24117339
+[2] https://git.kernel.org/pub/scm/linux/kernel/git/acme/linux.git/tree/tools/perf/util/cs-etm.c?h=perf/core&id=133fe2e617e48ca0948983329f43877064ffda3e#n1196
+
+Reviewed-by: James Clark <james.clark@arm.com>
+Signed-off-by: German Gomez <german.gomez@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Link: https://lore.kernel.org/r/20211105104130.28186-2-german.gomez@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/dec/tulip/de4x5.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/perf/util/arm-spe.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/net/ethernet/dec/tulip/de4x5.c b/drivers/net/ethernet/dec/tulip/de4x5.c
-index ffc25ecfa8d6a..8edd394bc3358 100644
---- a/drivers/net/ethernet/dec/tulip/de4x5.c
-+++ b/drivers/net/ethernet/dec/tulip/de4x5.c
-@@ -4706,6 +4706,10 @@ type3_infoblock(struct net_device *dev, u_char count, u_char *p)
-         lp->ibn = 3;
-         lp->active = *p++;
- 	if (MOTO_SROM_BUG) lp->active = 0;
-+	/* if (MOTO_SROM_BUG) statement indicates lp->active could
-+	 * be 8 (i.e. the size of array lp->phy) */
-+	if (WARN_ON(lp->active >= ARRAY_SIZE(lp->phy)))
-+		return -EINVAL;
- 	lp->phy[lp->active].gep = (*p ? p : NULL); p += (2 * (*p) + 1);
- 	lp->phy[lp->active].rst = (*p ? p : NULL); p += (2 * (*p) + 1);
- 	lp->phy[lp->active].mc  = get_unaligned_le16(p); p += 2;
+diff --git a/tools/perf/util/arm-spe.c b/tools/perf/util/arm-spe.c
+index 3882a5360ada4..0350020acb96f 100644
+--- a/tools/perf/util/arm-spe.c
++++ b/tools/perf/util/arm-spe.c
+@@ -48,6 +48,7 @@ struct arm_spe {
+ 	u8				timeless_decoding;
+ 	u8				data_queued;
+ 
++	u64				sample_type;
+ 	u8				sample_flc;
+ 	u8				sample_llc;
+ 	u8				sample_tlb;
+@@ -244,6 +245,12 @@ static void arm_spe_prep_sample(struct arm_spe *spe,
+ 	event->sample.header.size = sizeof(struct perf_event_header);
+ }
+ 
++static int arm_spe__inject_event(union perf_event *event, struct perf_sample *sample, u64 type)
++{
++	event->header.size = perf_event__sample_event_size(sample, type, 0);
++	return perf_event__synthesize_sample(event, type, 0, sample);
++}
++
+ static inline int
+ arm_spe_deliver_synth_event(struct arm_spe *spe,
+ 			    struct arm_spe_queue *speq __maybe_unused,
+@@ -252,6 +259,12 @@ arm_spe_deliver_synth_event(struct arm_spe *spe,
+ {
+ 	int ret;
+ 
++	if (spe->synth_opts.inject) {
++		ret = arm_spe__inject_event(event, sample, spe->sample_type);
++		if (ret)
++			return ret;
++	}
++
+ 	ret = perf_session__deliver_synth_event(spe->session, event, sample);
+ 	if (ret)
+ 		pr_err("ARM SPE: failed to deliver event, error %d\n", ret);
+@@ -809,6 +822,8 @@ arm_spe_synth_events(struct arm_spe *spe, struct perf_session *session)
+ 	else
+ 		attr.sample_type |= PERF_SAMPLE_TIME;
+ 
++	spe->sample_type = attr.sample_type;
++
+ 	attr.exclude_user = evsel->core.attr.exclude_user;
+ 	attr.exclude_kernel = evsel->core.attr.exclude_kernel;
+ 	attr.exclude_hv = evsel->core.attr.exclude_hv;
 -- 
 2.33.0
 
