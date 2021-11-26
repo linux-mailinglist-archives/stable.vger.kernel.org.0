@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E60745E4B2
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 03:34:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01D7445E4AF
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 03:34:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357680AbhKZCgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:36:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48048 "EHLO mail.kernel.org"
+        id S1357833AbhKZCgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:36:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357609AbhKZCeK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1357611AbhKZCeK (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 25 Nov 2021 21:34:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 900E261165;
-        Fri, 26 Nov 2021 02:30:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01FDE6115C;
+        Fri, 26 Nov 2021 02:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637893838;
-        bh=3C/rKkiptL+Jw3Rga40jDqWCcCfnE9hvLpo2X7VYOwI=;
+        s=k20201202; t=1637893840;
+        bh=XJ13SsNbvf1d8FdpbFQKVrFqK8TxFEvAgwIr4woQDBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oL5wl1cRml8DtGUaN0mKaoZ5GTLCVIceRxY1UHoPm3rLs5qrT1JXl+Afxps6ft0U7
-         5lJ49oSZLEfPCnqSzsKFOTqdKRI25ka5U07+pZA6rECie0xj1Di1RpWUtHk0jiCW/L
-         rilQuOqBR5ECW4hpxErJr2rGz7DOw57pyBQITVgjM8l9jJMyvsmE8wDyADuT1pGMKa
-         f6yxDfeAAcj/KZgi9UpzIqB9Sy3oMj8JiFTP3lbxDGRGDqnrkETXUqG7tK5U9o21lf
-         tjmZX66TE77i3xu7siSDe66bncnEB/RcmhZl58Iq1QiodNAFB/BaRvR7KXTFxD62Cg
-         9WgZVB2ULK8CQ==
+        b=WywilHjNtDhNCWvpZukiV5SM/1uc2gRhkd1g1HuhamFXhJgoxaMyFhUwV2k1WIr/Z
+         O+pQHM7CJVL5xUiAzV9Egn4kktqW62Ct+wLX0QjH19xJCVE/RYTXzmwZsGLkyF6Uny
+         y8CbmWQo+0TbfA5yX7mAqxlFrWGD21MnKckQWNr6aJPJTSXPezXaSYZeUjN/R/CEwO
+         ANSSqriHUnKi4rm0RB6NVwru3cAPJruAse7OxWfAjcyXpCJ/RzSRA9gBtNzc3vP7Ud
+         z7PpUV/nOPjxnifDLGCxANC1reKTaEI5U/xLYDp4/b+fHVuY+9HOgUpmOtU4b69QKz
+         LBXAjEfTuSDNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeff Layton <jlayton@kernel.org>,
-        Sachin Prabhu <sprabhu@redhat.com>,
-        Xiubo Li <xiubli@redhat.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 2/4] ceph: properly handle statfs on multifs setups
-Date:   Thu, 25 Nov 2021 21:30:32 -0500
-Message-Id: <20211126023034.440961-2-sashal@kernel.org>
+Cc:     David Hildenbrand <david@redhat.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Marek Kedzierski <mkedzier@redhat.com>,
+        Hui Zhu <teawater@gmail.com>,
+        Sebastien Boeuf <sebastien.boeuf@intel.com>,
+        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+        Wei Yang <richard.weiyang@linux.alibaba.com>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.10 3/4] virtio-mem: support VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE
+Date:   Thu, 25 Nov 2021 21:30:33 -0500
+Message-Id: <20211126023034.440961-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023034.440961-1-sashal@kernel.org>
 References: <20211126023034.440961-1-sashal@kernel.org>
@@ -44,65 +49,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 8cfc0c7ed34f7929ce7e5d7c6eecf4d01ba89a84 ]
+[ Upstream commit 61082ad6a6e1f999eef7e7e90046486c87933b1e ]
 
-ceph_statfs currently stuffs the cluster fsid into the f_fsid field.
-This was fine when we only had a single filesystem per cluster, but now
-that we have multiples we need to use something that will vary between
-them.
+The initial virtio-mem spec states that while unplugged memory should not
+be read, the device still has to allow for reading unplugged memory inside
+the usable region. The primary motivation for this default handling was
+to simplify bringup of virtio-mem, because there were corner cases where
+Linux might have accidentially read unplugged memory inside added Linux
+memory blocks.
 
-Change ceph_statfs to xor each 32-bit chunk of the fsid (aka cluster id)
-into the lower bits of the statfs->f_fsid. Change the lower bits to hold
-the fscid (filesystem ID within the cluster).
+In the meantime, we:
+1. Removed /dev/kmem in commit bbcd53c96071 ("drivers/char: remove
+   /dev/kmem for good")
+2. Disallowed access to virtio-mem device memory via /dev/mem in
+   commit 2128f4e21aa2 ("virtio-mem: disallow mapping virtio-mem memory via
+   /dev/mem")
+3. Sanitized access to virtio-mem device memory via /proc/kcore in
+   commit 0daa322b8ff9 ("fs/proc/kcore: don't read offline sections,
+   logically offline pages and hwpoisoned pages")
+4. Sanitized access to virtio-mem device memory via /proc/vmcore in
+   commit ce2814622e84 ("virtio-mem: kdump mode to sanitize /proc/vmcore
+   access")
 
-That should give us a value that is guaranteed to be unique between
-filesystems within a cluster, and should minimize the chance of
-collisions between mounts of different clusters.
+"Accidential" access to unplugged memory is no longer possible; we can
+support the new VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE feature that will be
+required by some hypervisors implementing virtio-mem in the near future.
 
-URL: https://tracker.ceph.com/issues/52812
-Reported-by: Sachin Prabhu <sprabhu@redhat.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Xiubo Li <xiubli@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Marek Kedzierski <mkedzier@redhat.com>
+Cc: Hui Zhu <teawater@gmail.com>
+Cc: Sebastien Boeuf <sebastien.boeuf@intel.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/super.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/virtio/virtio_mem.c     | 1 +
+ include/uapi/linux/virtio_mem.h | 9 ++++++---
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ceph/super.c b/fs/ceph/super.c
-index f33bfb255db8f..08c8d34c98091 100644
---- a/fs/ceph/super.c
-+++ b/fs/ceph/super.c
-@@ -52,8 +52,7 @@ static int ceph_statfs(struct dentry *dentry, struct kstatfs *buf)
- 	struct ceph_fs_client *fsc = ceph_inode_to_client(d_inode(dentry));
- 	struct ceph_mon_client *monc = &fsc->client->monc;
- 	struct ceph_statfs st;
--	u64 fsid;
--	int err;
-+	int i, err;
- 	u64 data_pool;
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index 181e2f18beae5..1afdd8ca00bbb 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -1925,6 +1925,7 @@ static unsigned int virtio_mem_features[] = {
+ #if defined(CONFIG_NUMA) && defined(CONFIG_ACPI_NUMA)
+ 	VIRTIO_MEM_F_ACPI_PXM,
+ #endif
++	VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE,
+ };
  
- 	if (fsc->mdsc->mdsmap->m_num_data_pg_pools == 1) {
-@@ -99,12 +98,14 @@ static int ceph_statfs(struct dentry *dentry, struct kstatfs *buf)
- 	buf->f_namelen = NAME_MAX;
+ static const struct virtio_device_id virtio_mem_id_table[] = {
+diff --git a/include/uapi/linux/virtio_mem.h b/include/uapi/linux/virtio_mem.h
+index 70e01c687d5eb..e9122f1d0e0cb 100644
+--- a/include/uapi/linux/virtio_mem.h
++++ b/include/uapi/linux/virtio_mem.h
+@@ -68,9 +68,10 @@
+  * explicitly triggered (VIRTIO_MEM_REQ_UNPLUG).
+  *
+  * There are no guarantees what will happen if unplugged memory is
+- * read/written. Such memory should, in general, not be touched. E.g.,
+- * even writing might succeed, but the values will simply be discarded at
+- * random points in time.
++ * read/written. In general, unplugged memory should not be touched, because
++ * the resulting action is undefined. There is one exception: without
++ * VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE, unplugged memory inside the usable
++ * region can be read, to simplify creation of memory dumps.
+  *
+  * It can happen that the device cannot process a request, because it is
+  * busy. The device driver has to retry later.
+@@ -87,6 +88,8 @@
  
- 	/* Must convert the fsid, for consistent values across arches */
-+	buf->f_fsid.val[0] = 0;
- 	mutex_lock(&monc->mutex);
--	fsid = le64_to_cpu(*(__le64 *)(&monc->monmap->fsid)) ^
--	       le64_to_cpu(*((__le64 *)&monc->monmap->fsid + 1));
-+	for (i = 0 ; i < sizeof(monc->monmap->fsid) / sizeof(__le32) ; ++i)
-+		buf->f_fsid.val[0] ^= le32_to_cpu(((__le32 *)&monc->monmap->fsid)[i]);
- 	mutex_unlock(&monc->mutex);
+ /* node_id is an ACPI PXM and is valid */
+ #define VIRTIO_MEM_F_ACPI_PXM		0
++/* unplugged memory must not be accessed */
++#define VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE	1
  
--	buf->f_fsid = u64_to_fsid(fsid);
-+	/* fold the fs_cluster_id into the upper bits */
-+	buf->f_fsid.val[1] = monc->fs_cluster_id;
  
- 	return 0;
- }
+ /* --- virtio-mem: guest -> host requests --- */
 -- 
 2.33.0
 
