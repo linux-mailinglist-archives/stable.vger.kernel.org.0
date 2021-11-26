@@ -2,93 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B546445F3B9
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 19:22:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19C6945F4BE
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 19:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239393AbhKZSZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Nov 2021 13:25:17 -0500
-Received: from mailgate.ics.forth.gr ([139.91.1.2]:45648 "EHLO
-        mailgate.ics.forth.gr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234587AbhKZSXQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Nov 2021 13:23:16 -0500
-X-Greylist: delayed 924 seconds by postgrey-1.27 at vger.kernel.org; Fri, 26 Nov 2021 13:23:15 EST
-Received: from av3.ics.forth.gr (av3in.ics.forth.gr [139.91.1.77])
-        by mailgate.ics.forth.gr (8.15.2/ICS-FORTH/V10-1.8-GATE) with ESMTP id 1AQI4acn005327
-        for <stable@vger.kernel.org>; Fri, 26 Nov 2021 20:04:36 +0200 (EET)
-DKIM-Signature: v=1; a=rsa-sha256; d=ics.forth.gr; s=av; c=relaxed/simple;
-        q=dns/txt; i=@ics.forth.gr; t=1637949871; x=1640541871;
-        h=From:Sender:Reply-To:Subject:Date:Message-Id:To:Cc:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=G7hqs6XkmVh0r9F43+KthFWHpCGCPs2cR9auzvLaORA=;
-        b=H3h33uTpd/IsJk+daVt9SOGxKcwSc3JQvvUO4P/bsRTpmRh0ABxdeN5TNHhfKpJy
-        ODtc7hnx/7GBDrtLhaCMuURv2Fl5FNjFkimyiSTY+ZYF8MUzbkSJKRnPK+I/VbC0
-        uuPJajveHuJK4pCI6Kzlr0ZwxzcynHaR1Lep8nJV9vvg3zOUrJzfCriDbzbY2l0o
-        UYg0/OPBylkTs/snrHI7efIOTyvdi8nodJTexDl5ejt1UUc5Ld5rGFN23J1eGX6o
-        JiqHmgQt3+P04UOJIg2mfAluUSkMcn32yWG/8PBSilsQzmHGVetmXNlKGRnuNQg5
-        Eq7wG6xauTMeLxco+H2CiA==;
-X-AuditID: 8b5b014d-9ba4a7000000460a-aa-61a121af4fbd
-Received: from enigma.ics.forth.gr (enigma-2.ics.forth.gr [139.91.151.35])
-        by av3.ics.forth.gr (Symantec Messaging Gateway) with SMTP id A9.14.17930.FA121A16; Fri, 26 Nov 2021 20:04:31 +0200 (EET)
-X-ICS-AUTH-INFO: Authenticated user: mick@ics.forth.gr at ics.forth.gr
-From:   Nick Kossifidis <mick@ics.forth.gr>
-To:     palmer@dabbelt.com, paul.walmsley@sifive.com, aou@eecs.berkeley.edu
-Cc:     linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Nick Kossifidis <mick@ics.forth.gr>, stable@vger.kernel.org
-Subject: [PATCH 2/3] riscv: use hart id instead of cpu id on machine_kexec
-Date:   Fri, 26 Nov 2021 20:04:10 +0200
-Message-Id: <20211126180411.187597-2-mick@ics.forth.gr>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20211126180411.187597-1-mick@ics.forth.gr>
-References: <20211126180411.187597-1-mick@ics.forth.gr>
+        id S239014AbhKZSj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Nov 2021 13:39:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60414 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238027AbhKZShz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Nov 2021 13:37:55 -0500
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12C36C06175E;
+        Fri, 26 Nov 2021 10:11:34 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id w33-20020a17090a6ba400b001a722a06212so8379562pjj.0;
+        Fri, 26 Nov 2021 10:11:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:from:subject:to:cc
+         :references:content-language:in-reply-to:content-transfer-encoding;
+        bh=vJxL61/isUIklsbGfuI2DlV8JdwN6TK/RwNC9sAhGIU=;
+        b=NpODqnkLvTEJ/L1f34SBgrJCBT/sybowYiZuUMX1PLs6NVzq2SqbZrREvhvUqhbFxq
+         ToBD5llJO82sxjmd/M5BFoGYHVTbag0BqtQpDRdgiDBl53UyBPqC+RkRkytu6ASYu1aV
+         prNmsNYZArLdr5NbUE+aQljML+vMfjE9aNNoNv+fNZNoylSIsluPBDyj5NLHJxi06+MC
+         ra4PoBHW2zYVFMz4kypR8QXxpSSt/lr+IRi37ZWIIaxN8bbT/yhwhvLRTWprYPVkIUFv
+         PlaSLaTXfOLUo6dwWAnkSTRqcSaHBdQMBenuaS3tNgCLl/n1i+rjL6qkG71MVf3HKbQf
+         zkpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
+         :subject:to:cc:references:content-language:in-reply-to
+         :content-transfer-encoding;
+        bh=vJxL61/isUIklsbGfuI2DlV8JdwN6TK/RwNC9sAhGIU=;
+        b=aFBJO2WPmdU5BMKtmAiwg5ShEZmKT8AVx4icrO3F7p0Q1Rg/LJMKEGkK5u/09Glboe
+         ZjZ21EQxOn/oInssroTqxrFI7DH27t0eVkKCxcuEmGDVaOrg5HvLJES/orHDXR0uqBG9
+         U4kEziCOR8OBFCzNagyVdHyO3lt+tHRfh98OpAvlEAGsgYAhrjbCCse5cJgTPqoFgo61
+         rMTWZLFDn0k8sKjDpFJo4Ggsg75Y3tTFj78DoI32got9GNxHpYClsaEiUe0NR8RZT6LG
+         WyNqg8pz9EIlYsZVlFthlaW433IV2muwXsAluqXhfZuc4bVFXYLeamwSoEQiQiiyyTan
+         jYaA==
+X-Gm-Message-State: AOAM531LB3iOLHhD+ChshHx1x8A+gMYwpUQ75WuIK5Xxj5gI057iDw9i
+        +6rZ6s9NQXYaY4mpryfWlF4=
+X-Google-Smtp-Source: ABdhPJyxUM+GLnjRMoMmpLlyT0bxX6sefnSXlAQXA58SpflFtsvXwyro2GrxJ4E7riNuAHzPehHwwQ==
+X-Received: by 2002:a17:90a:7004:: with SMTP id f4mr16958621pjk.156.1637950293600;
+        Fri, 26 Nov 2021 10:11:33 -0800 (PST)
+Received: from [10.230.1.174] ([192.19.161.250])
+        by smtp.gmail.com with ESMTPSA id d13sm7926944pfu.196.2021.11.26.10.11.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 26 Nov 2021 10:11:33 -0800 (PST)
+Message-ID: <52374902-f1e7-5055-a26e-be269d10ce15@gmail.com>
+Date:   Fri, 26 Nov 2021 10:11:31 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrBLMWRmVeSWpSXmKPExsXSHT1dWXe94sJEgxub2Sy2/p7FbnF51xw2
-        i22fW9gsmt+dY7d4ebmH2aJtFr/Fgo2PGB3YPd68fMnicbjjC7vHw02XmDw2L6n3uNR8nd3j
-        8ya5ALYoLpuU1JzMstQifbsEroy1O96zFezjqlh79wVLA+N/ji5GTg4JAROJi98vs3QxcnEI
-        CRxjlOj7dp8FIuEmcfv+TlYQm01AU2L+pYNgcREBd4nVk/8wgTQwC7QzSsy89QcsISzgJTH/
-        +lRGEJtFQFViydEGJhCbV8BcovXXQWaIofISp5YdBIpzcHAKWEjs+B0JEhYCKnm/aSUrRLmg
-        xMmZT8BGMgOVN2+dzTyBkW8WktQsJKkFjEyrGAUSy4z1MpOL9dLyi0oy9NKLNjGCA5PRdwfj
-        7c1v9Q4xMnEwHmKU4GBWEuF1DpyfKMSbklhZlVqUH19UmpNafIhRmoNFSZyXV29CvJBAemJJ
-        anZqakFqEUyWiYNTqoFJZJ6q4QOtFWucG7Rbd5l6F5p8Eb+v+yEtdT7rwX+ruZ/OVHQ63DWr
-        lE/9/MXq8u9a9VW/xdfMD79ok7jkrLn9d4Mldy5tfZ/qtELratfM7Pchxvd+Xt7PZ/ftGcvO
-        V9eddSZfjTFlaLqhb3JKQKMoIG/ellj/hua4KV/enZ2718dngZa5vIhAU8i+gPxZLttjHrOp
-        qz53UY1leDuvp69RvubDpu8vX5Ztfv147s/Q/ZeeHX4acUXRuHNTgsgM/ZMSz7aYtV37VMt0
-        y1Qpvte6ypWD4f2BeEaH7QkHZdc6T7+4yPbOd9bGnxftO9ofPj/Cs95WoUtXSGm6wp3dj1Yp
-        mdzPbbtr4ptfvLicv5lDiaU4I9FQi7moOBEAHofzrrsCAAA=
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH 5.4 000/100] 5.4.162-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20211125092028.153766171@linuxfoundation.org>
+Content-Language: en-US
+In-Reply-To: <20211125092028.153766171@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-raw_smp_processor_id() doesn't return the hart id as stated in
-arch/riscv/include/asm/smp.h, use smp_processor_id() instead
-to get the cpu id, and cpuid_to_hartid_map() to pass the hart id
-to the next kernel. This fixes kexec on HiFive Unleashed/Unmatched
-where cpu ids and hart ids don't match (on qemu-virt they match).
 
-Fixes: fba8a8674f68 ("RISC-V: Add kexec support")
 
-Signed-off-by: Nick Kossifidis <mick@ics.forth.gr>
-Cc: stable@vger.kernel.org
----
- arch/riscv/kernel/machine_kexec.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+On 11/25/2021 1:23 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.162 release.
+> There are 100 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 27 Nov 2021 09:20:07 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.162-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-diff --git a/arch/riscv/kernel/machine_kexec.c b/arch/riscv/kernel/machine_kexec.c
-index e6eca271a..cbef0fc73 100644
---- a/arch/riscv/kernel/machine_kexec.c
-+++ b/arch/riscv/kernel/machine_kexec.c
-@@ -169,7 +169,8 @@ machine_kexec(struct kimage *image)
- 	struct kimage_arch *internal = &image->arch;
- 	unsigned long jump_addr = (unsigned long) image->start;
- 	unsigned long first_ind_entry = (unsigned long) &image->head;
--	unsigned long this_hart_id = raw_smp_processor_id();
-+	unsigned long this_cpu_id = smp_processor_id();
-+	unsigned long this_hart_id = cpuid_to_hartid_map(this_cpu_id);
- 	unsigned long fdt_addr = internal->fdt_addr;
- 	void *control_code_buffer = page_address(image->control_code_page);
- 	riscv_kexec_method kexec_method = NULL;
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.32.0
+Florian
 
