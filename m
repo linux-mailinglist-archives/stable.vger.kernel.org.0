@@ -2,109 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8493045E6C1
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 05:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3692A45E6D9
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 05:30:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231708AbhKZERK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 23:17:10 -0500
-Received: from szxga03-in.huawei.com ([45.249.212.189]:28175 "EHLO
-        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245048AbhKZEPK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 23:15:10 -0500
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4J0h9725V5z8vbq;
-        Fri, 26 Nov 2021 12:10:03 +0800 (CST)
-Received: from dggema774-chm.china.huawei.com (10.1.198.216) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2308.20; Fri, 26 Nov 2021 12:11:56 +0800
-Received: from use12-sp2.huawei.com (10.67.189.174) by
- dggema774-chm.china.huawei.com (10.1.198.216) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.20; Fri, 26 Nov 2021 12:11:55 +0800
-From:   Xiaoming Ni <nixiaoming@huawei.com>
-To:     <hurricos@gmail.com>, <Yuantian.Tang@feescale.com>,
-        <benh@kernel.crashing.org>, <chenhui.zhao@freescale.com>,
-        <chenjianguo3@huawei.com>, <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-        <liuwenliang@huawei.com>, <mpe@ellerman.id.au>, <oss@buserror.net>,
-        <paul.gortmaker@windriver.com>, <paulus@samba.org>,
-        <stable@vger.kernel.org>, <wangle6@huawei.com>,
-        <chunkeey@gmail.com>
-CC:     <nixiaoming@huawei.com>
-Subject: [PATCH] powerpc/85xx: fix oops when CONFIG_FSL_PMC=n
-Date:   Fri, 26 Nov 2021 12:11:53 +0800
-Message-ID: <20211126041153.16926-1-nixiaoming@huawei.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <5f56f1af-9404-21fa-eda0-05a75d769427@huawei.com>
-References: <5f56f1af-9404-21fa-eda0-05a75d769427@huawei.com>
+        id S1358217AbhKZEdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 23:33:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45444 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358193AbhKZEbp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 23:31:45 -0500
+Received: from mail-oo1-xc32.google.com (mail-oo1-xc32.google.com [IPv6:2607:f8b0:4864:20::c32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5455C06179B;
+        Thu, 25 Nov 2021 20:12:57 -0800 (PST)
+Received: by mail-oo1-xc32.google.com with SMTP id x1-20020a4aea01000000b002c296d82604so2702420ood.9;
+        Thu, 25 Nov 2021 20:12:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ACeuRZsLYoEu9PTp4h8uBmcdy4Z3lKlKL5IePDx6dds=;
+        b=WZMe+zljoB1Yd8rk8J8/6MEFBM/5nbAk/B1hBjs1aPiz+V4M+DHKsNz5ITiX41P3bb
+         MiYnv60oMTkB3ZysdHk2m2Gc0QRN2syjNloi5cpJUgNIWNByhSgWkG0+uSetomvmgg38
+         YjqhLgBLlTFoBlQdM0dyRMeNmAfiZWAEyC5cHaKN5t99oy7TIz0RZ0SuTbdSegEz2eaG
+         jhjSq6lQjYFo9LsM0Cn3MkNYFCj9SdpFzcF/j/90o2MkSgroXreJNs9koOLTNNQII/4t
+         Kx36dek4fmJ7hI73UxaRjFjUqkmgQdy7+qjuDQkwa+SJZhtpnUI0zwkdgWUFvfBn+o1N
+         1F6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=ACeuRZsLYoEu9PTp4h8uBmcdy4Z3lKlKL5IePDx6dds=;
+        b=hoR5K3VJd2Q3SkSj9Z6f788Pw5wyukDzPLcH/1JGJvDKX9bpN5LJ5gihwVkfhOpA4t
+         0RmMPKUH+sVvQ4dnJTazZjeVNc8V5k6qtiPjXgzwMvJYZc/FWuSYczgwqffcEPW1xgOZ
+         NUmgDl23tDYk955rKQ3GCg9+n8lJqnvEbgvy8P7WjTi6LtgXdwYVNdZmGLZlWIVMXAE5
+         Ffmx+QbTHGf4zLIeMWk0gCG5knyhgof3ea2zfvU40yVng/H0JodHV/pBe+uPnDxj5AVV
+         +166+ynQXBYFEW3VxmFV/mD1h3E0/5fRIWGAlYE6erTE+lQudKW7bxlbsKdX7P3miRXm
+         GVeQ==
+X-Gm-Message-State: AOAM532sB/L386EKrb4wi3fReCwNiCnNZDSO2JH9PJ9OaITwWayIa36p
+        XxTuUFe99Mj2lMVDZuI9uj8=
+X-Google-Smtp-Source: ABdhPJzN2kH3aL4+J9ib4YD7iub3zihNimbNE8/f3qrnnkWBN+jFmygmMZRNPOJ1EGRN2s2+GwHzrA==
+X-Received: by 2002:a4a:ead8:: with SMTP id s24mr17898876ooh.89.1637899977133;
+        Thu, 25 Nov 2021 20:12:57 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id z12sm827230oor.45.2021.11.25.20.12.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Nov 2021 20:12:56 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Thu, 25 Nov 2021 20:12:54 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 000/159] 4.4.293-rc3 review
+Message-ID: <20211126041254.GA1376219@roeck-us.net>
+References: <20211125160503.347646915@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.67.189.174]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggema774-chm.china.huawei.com (10.1.198.216)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211125160503.347646915@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When CONFIG_FSL_PMC is set to n, no value is assigned to cpu_up_prepare
- in the mpc85xx_pm_ops structure. As a result, oops is triggered in
- smp_85xx_start_cpu().
+On Thu, Nov 25, 2021 at 05:07:18PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.293 release.
+> There are 159 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 27 Nov 2021 16:04:43 +0000.
+> Anything received after that time might be too late.
+> 
 
-	[    0.627233] smp: Bringing up secondary CPUs ...
-	[    0.681659] kernel tried to execute user page (0) - exploit attempt? (uid: 0)
-	[    0.766618] BUG: Unable to handle kernel instruction fetch (NULL pointer?)
-	[    0.848899] Faulting instruction address: 0x00000000
-	[    0.908273] Oops: Kernel access of bad area, sig: 11 [#1]
-	...
-	[    1.758220] NIP [00000000] 0x0
-	[    1.794688] LR [c0021d2c] smp_85xx_kick_cpu+0xe8/0x568
-	[    1.856126] Call Trace:
-	[    1.885295] [c1051da8] [c0021cb8] smp_85xx_kick_cpu+0x74/0x568 (unreliable)
-	[    1.968633] [c1051de8] [c0011460] __cpu_up+0xc0/0x228
-	[    2.029038] [c1051e18] [c0031bbc] bringup_cpu+0x30/0x224
-	[    2.092572] [c1051e48] [c0031f3c] cpu_up.constprop.0+0x180/0x33c
-	[    2.164443] [c1051e88] [c00322e8] bringup_nonboot_cpus+0x88/0xc8
-	[    2.236326] [c1051eb8] [c07e67bc] smp_init+0x30/0x78
-	[    2.295698] [c1051ed8] [c07d9e28] kernel_init_freeable+0x118/0x2a8
-	[    2.369641] [c1051f18] [c00032d8] kernel_init+0x14/0x124
-	[    2.433176] [c1051f38] [c0010278] ret_from_kernel_thread+0x14/0x1c
+Build results:
+	total: 160 pass: 160 fail: 0
+Qemu test results:
+	total: 341 pass: 341 fail: 0
 
-Fixes: c45361abb9185b ("powerpc/85xx: fix timebase sync issue when
- CONFIG_HOTPLUG_CPU=n")
-Link: https://lore.kernel.org/lkml/CANA18Uyba4kMJQrbCSZVTFep2Exe5izE45whNJgwwUvNSEcNLg@mail.gmail.com/
-Reported-by: Martin Kennedy <hurricos@gmail.com>
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Tested-by: Martin Kennedy <hurricos@gmail.com>
-Cc: stable@vger.kernel.org
----
- arch/powerpc/platforms/85xx/smp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-diff --git a/arch/powerpc/platforms/85xx/smp.c b/arch/powerpc/platforms/85xx/smp.c
-index 83f4a6389a28..d7081e9af65c 100644
---- a/arch/powerpc/platforms/85xx/smp.c
-+++ b/arch/powerpc/platforms/85xx/smp.c
-@@ -220,7 +220,7 @@ static int smp_85xx_start_cpu(int cpu)
- 	local_irq_save(flags);
- 	hard_irq_disable();
- 
--	if (qoriq_pm_ops)
-+	if (qoriq_pm_ops && qoriq_pm_ops->cpu_up_prepare)
- 		qoriq_pm_ops->cpu_up_prepare(cpu);
- 
- 	/* if cpu is not spinning, reset it */
-@@ -292,7 +292,7 @@ static int smp_85xx_kick_cpu(int nr)
- 		booting_thread_hwid = cpu_thread_in_core(nr);
- 		primary = cpu_first_thread_sibling(nr);
- 
--		if (qoriq_pm_ops)
-+		if (qoriq_pm_ops && qoriq_pm_ops->cpu_up_prepare)
- 			qoriq_pm_ops->cpu_up_prepare(nr);
- 
- 		/*
--- 
-2.27.0
-
+Guenter
