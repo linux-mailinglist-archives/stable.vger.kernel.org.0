@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10AD245E638
+	by mail.lfdr.de (Postfix) with ESMTP id 7E5DF45E639
 	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:01:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359669AbhKZCuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:50:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50356 "EHLO mail.kernel.org"
+        id S1359678AbhKZCuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:50:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352590AbhKZCqM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1357773AbhKZCqM (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 25 Nov 2021 21:46:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FD5B61361;
-        Fri, 26 Nov 2021 02:36:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A00DF61362;
+        Fri, 26 Nov 2021 02:36:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894209;
-        bh=SCbTQ9iOmR7KLOuf5o37ZnR8TWH3EbshxaDxG0fTRR8=;
+        s=k20201202; t=1637894213;
+        bh=5SOFaKiPx/RxzRvgcrSjUTsv8ONihe1jO7rS2815JN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJLbddrTMnhRnJTVRjyBHERHG7EDFGBc8CFU9iQGeFcLLd7HqvpwVsnfOv3Xyuy4G
-         04Ba8aCTRNdMQca+UBwmjy1R9BuSaEGNJ8e0WL+Xgfqb3KD8w+0XpBjuBGfkp3s1JI
-         0CVaEdI+k9SZMg7RRjCsioDLKrKFWxvuGdCrDJGfRt4h5zSx7Ily0AHaa6DrKCqC3m
-         OTRVCr9/hS5m/uRUnasZdGzcbuP6oHFvAwxDOcJoCnWyQXZYrk8O7AofBiYACrmqT0
-         3adX/9HTdnLEl9wUfO19zjua4UGWqzvOXwjvxKG+4GkqDLeO7thNCLXDO6KrhX9JNL
-         EmFj43B4sY53A==
+        b=Niql/Gw6pc4EHhU817vp6cbgl53j15zc+/x+4QIzuhtfaZ4JLoRXTh73DVYF0oqSa
+         WTbkeZwgEzb0vFeucCqE5SUO8DN09kIEDXZg8dqBapNzI+iY6dtEDyzEk0Z1yEciIq
+         RuFpIDLlXZBExzu/35b1jdSU5q4GW6yxzUw/lTO/zuYjz4DJjyOzzRmsyPzn9fYAAm
+         CDW5cZDmWNY0TIDIE39j9DMfpbsAjIOj6a7y49RRJjWv6NbsZb6ps/zkm7pXP69q1B
+         eFbMcZ9ghnyebSqPE1NcFRfQzRD9/3Uc1uWabI0GatuBNPUBxF2H8rgN2P4goZFe/Q
+         GeVjcng/2O7FA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Christie <michael.christie@oracle.com>,
-        Lee Duncan <lduncan@suse.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, cleech@redhat.com,
-        jejb@linux.ibm.com, open-iscsi@googlegroups.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 5/8] scsi: iscsi: Unblock session then wake up error handler
-Date:   Thu, 25 Nov 2021 21:36:37 -0500
-Message-Id: <20211126023640.443271-5-sashal@kernel.org>
+Cc:     Teng Qi <starmiku1207184332@gmail.com>,
+        TOTE Robot <oslab@tsinghua.edu.cn>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, yisen.zhuang@huawei.com,
+        salil.mehta@huawei.com, kuba@kernel.org, lipeng321@huawei.com,
+        huangguangbin2@huawei.com, tanhuazhong@huawei.com,
+        shenyang39@huawei.com, zhengyongjun3@huawei.com,
+        liuyonglong@huawei.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 6/8] ethernet: hisilicon: hns: hns_dsaf_misc: fix a possible array overflow in hns_dsaf_ge_srst_by_port()
+Date:   Thu, 25 Nov 2021 21:36:38 -0500
+Message-Id: <20211126023640.443271-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023640.443271-1-sashal@kernel.org>
 References: <20211126023640.443271-1-sashal@kernel.org>
@@ -45,51 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Teng Qi <starmiku1207184332@gmail.com>
 
-[ Upstream commit a0c2f8b6709a9a4af175497ca65f93804f57b248 ]
+[ Upstream commit a66998e0fbf213d47d02813b9679426129d0d114 ]
 
-We can race where iscsi_session_recovery_timedout() has woken up the error
-handler thread and it's now setting the devices to offline, and
-session_recovery_timedout()'s call to scsi_target_unblock() is also trying
-to set the device's state to transport-offline. We can then get a mix of
-states.
+The if statement:
+  if (port >= DSAF_GE_NUM)
+        return;
 
-For the case where we can't relogin we want the devices to be in
-transport-offline so when we have repaired the connection
-__iscsi_unblock_session() can set the state back to running.
+limits the value of port less than DSAF_GE_NUM (i.e., 8).
+However, if the value of port is 6 or 7, an array overflow could occur:
+  port_rst_off = dsaf_dev->mac_cb[port]->port_rst_off;
 
-Set the device state then call into libiscsi to wake up the error handler.
+because the length of dsaf_dev->mac_cb is DSAF_MAX_PORT_NUM (i.e., 6).
 
-Link: https://lore.kernel.org/r/20211105221048.6541-2-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+To fix this possible array overflow, we first check port and if it is
+greater than or equal to DSAF_MAX_PORT_NUM, the function returns.
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Teng Qi <starmiku1207184332@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index aed17f958448d..acd8eb8c94cf7 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -1898,12 +1898,12 @@ static void session_recovery_timedout(struct work_struct *work)
- 	}
- 	spin_unlock_irqrestore(&session->lock, flags);
+diff --git a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c
+index 67accce1d33d0..e89a62c6f2301 100644
+--- a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_misc.c
+@@ -312,6 +312,10 @@ static void hns_dsaf_ge_srst_by_port(struct dsaf_device *dsaf_dev, u32 port,
+ 		return;
  
--	if (session->transport->session_recovery_timedout)
--		session->transport->session_recovery_timedout(session);
--
- 	ISCSI_DBG_TRANS_SESSION(session, "Unblocking SCSI target\n");
- 	scsi_target_unblock(&session->dev, SDEV_TRANSPORT_OFFLINE);
- 	ISCSI_DBG_TRANS_SESSION(session, "Completed unblocking SCSI target\n");
-+
-+	if (session->transport->session_recovery_timedout)
-+		session->transport->session_recovery_timedout(session);
- }
- 
- static void __iscsi_unblock_session(struct work_struct *work)
+ 	if (!HNS_DSAF_IS_DEBUG(dsaf_dev)) {
++		/* DSAF_MAX_PORT_NUM is 6, but DSAF_GE_NUM is 8.
++		   We need check to prevent array overflow */
++		if (port >= DSAF_MAX_PORT_NUM)
++			return;
+ 		reg_val_1  = 0x1 << port;
+ 		port_rst_off = dsaf_dev->mac_cb[port]->port_rst_off;
+ 		/* there is difference between V1 and V2 in register.*/
 -- 
 2.33.0
 
