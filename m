@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90F4D45E58F
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:00:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B197E45E596
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:00:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358442AbhKZCnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:43:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50258 "EHLO mail.kernel.org"
+        id S1358285AbhKZCnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:43:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358467AbhKZClU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:41:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6984C611BF;
-        Fri, 26 Nov 2021 02:34:34 +0000 (UTC)
+        id S1358270AbhKZClX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:41:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE8F6611C4;
+        Fri, 26 Nov 2021 02:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894076;
-        bh=UIpFhI+ZxW78Zsk2Sx6TEyfvqhS6JuBdNd2I6o9pxl0=;
+        s=k20201202; t=1637894081;
+        bh=j8zPzeBGu6tZK5oETIajOgAH9cu9LpR8C/YOzFvXoJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0Go85qJO5mdTSyfMp1LcJnlNAuQu5lWfiNeQ31C0K7QjruTCrX8cq1zad3j/qALb
-         Xt67YxxuCOGG5Ac/KpoXbcNbX+LVNnqJ7T9Eq5HBWjUioFlYvF3QqYD20/IHsUoxmZ
-         tNolMo+htm9ZuPnBJNv6/6+iahRdNflGHpm3N/FD5lqMLrEUGg+3C/HWDHa4N0Hy0i
-         8LKqHb6cOViSg2HkRoTMjvY6kuu+OasyiFu9DFyilSvR+el8/eM1hFppBRZmAztu3D
-         UymSlEqOrWMHSnCbQ9+8XMYfY+b0YU3oEWKHqe2/NIgBuCN2nzNSxGpOyAO7mOf6pv
-         DTPD/fbu8MJIw==
+        b=Br9aUWZy68Tgy6b8P2fYJP9f708Nxyv85SCMli8rLDNjEV1C6ghmDCpNvnJmsazhj
+         +vOtSRXIld3WRwpA05eTNLyVx8IgYGOfE6GAXNIc9GobK1ecb+u1+ca9RLMfeKt9IK
+         Ww7tjc/C1hG9RT7L5puoLBvBrgSFiwrjHOfmRKtHNcGyFRnTqd87gzFCRBOkaoB3Z7
+         bAIQTNLx6BQjkn7yk/pKbUXGAzk/HBgtTJl/cSYdToDVIrXLGbBU40kPvvKGcwE0bM
+         xUKHraTlaAg9N37LDhY3HDTfXPYY0QDKmUe1Cc6qSHxWUtjiDb5UUk1T0cap1ZK4KG
+         cN1W3vfRObQrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     German Gomez <german.gomez@arm.com>,
-        James Clark <james.clark@arm.com>,
+Cc:     Ian Rogers <irogers@google.com>, Kajol Jain <kjain@linux.ibm.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Jiri Olsa <jolsa@redhat.com>,
-        John Garry <john.garry@huawei.com>,
-        Leo Yan <leo.yan@linaro.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
         Namhyung Kim <namhyung@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, peterz@infradead.org,
-        mingo@redhat.com, acme@kernel.org, andrew.kilroy@arm.com,
-        linux-perf-users@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 26/28] perf inject: Fix ARM SPE handling
-Date:   Thu, 25 Nov 2021 21:33:41 -0500
-Message-Id: <20211126023343.442045-26-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        acme@kernel.org, kan.liang@linux.intel.com, ak@linux.intel.com,
+        atrajeev@linux.vnet.ibm.com, linux-perf-users@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 27/28] perf hist: Fix memory leak of a perf_hpp_fmt
+Date:   Thu, 25 Nov 2021 21:33:42 -0500
+Message-Id: <20211126023343.442045-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023343.442045-1-sashal@kernel.org>
 References: <20211126023343.442045-1-sashal@kernel.org>
@@ -54,94 +50,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: German Gomez <german.gomez@arm.com>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit 9e1a8d9f683260d50e0a14176d3f7c46a93b2700 ]
+[ Upstream commit 0ca1f534a776cc7d42f2c33da4732b74ec2790cd ]
 
-'perf inject' is currently not working for Arm SPE. When you try to run
-'perf inject' and 'perf report' with a perf.data file that contains SPE
-traces, the tool reports a "Bad address" error:
+perf_hpp__column_unregister() removes an entry from a list but doesn't
+free the memory causing a memory leak spotted by leak sanitizer.
 
-  # ./perf record -e arm_spe_0/ts_enable=1,store_filter=1,branch_filter=1,load_filter=1/ -a -- sleep 1
-  # ./perf inject -i perf.data -o perf.inject.data --itrace
-  # ./perf report -i perf.inject.data --stdio
+Add the free while at the same time reducing the scope of the function
+to static.
 
-  0x42c00 [0x8]: failed to process type: 9 [Bad address]
-  Error:
-  failed to process sample
-
-As far as I know, the issue was first spotted in [1], but 'perf inject'
-was not yet injecting the samples. This patch does something similar to
-what cs_etm does for injecting the samples [2], but for SPE.
-
-[1] https://patchwork.kernel.org/project/linux-arm-kernel/cover/20210412091006.468557-1-leo.yan@linaro.org/#24117339
-[2] https://git.kernel.org/pub/scm/linux/kernel/git/acme/linux.git/tree/tools/perf/util/cs-etm.c?h=perf/core&id=133fe2e617e48ca0948983329f43877064ffda3e#n1196
-
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: German Gomez <german.gomez@arm.com>
+Signed-off-by: Ian Rogers <irogers@google.com>
+Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Leo Yan <leo.yan@linaro.org>
 Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
 Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Link: https://lore.kernel.org/r/20211105104130.28186-2-german.gomez@arm.com
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20211118071247.2140392-1-irogers@google.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/arm-spe.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ tools/perf/ui/hist.c   | 28 ++++++++++++++--------------
+ tools/perf/util/hist.h |  1 -
+ 2 files changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/tools/perf/util/arm-spe.c b/tools/perf/util/arm-spe.c
-index 3882a5360ada4..0350020acb96f 100644
---- a/tools/perf/util/arm-spe.c
-+++ b/tools/perf/util/arm-spe.c
-@@ -48,6 +48,7 @@ struct arm_spe {
- 	u8				timeless_decoding;
- 	u8				data_queued;
+diff --git a/tools/perf/ui/hist.c b/tools/perf/ui/hist.c
+index c1f24d0048527..5075ecead5f3d 100644
+--- a/tools/perf/ui/hist.c
++++ b/tools/perf/ui/hist.c
+@@ -535,6 +535,18 @@ struct perf_hpp_list perf_hpp_list = {
+ #undef __HPP_SORT_ACC_FN
+ #undef __HPP_SORT_RAW_FN
  
-+	u64				sample_type;
- 	u8				sample_flc;
- 	u8				sample_llc;
- 	u8				sample_tlb;
-@@ -244,6 +245,12 @@ static void arm_spe_prep_sample(struct arm_spe *spe,
- 	event->sample.header.size = sizeof(struct perf_event_header);
++static void fmt_free(struct perf_hpp_fmt *fmt)
++{
++	/*
++	 * At this point fmt should be completely
++	 * unhooked, if not it's a bug.
++	 */
++	BUG_ON(!list_empty(&fmt->list));
++	BUG_ON(!list_empty(&fmt->sort_list));
++
++	if (fmt->free)
++		fmt->free(fmt);
++}
+ 
+ void perf_hpp__init(void)
+ {
+@@ -598,9 +610,10 @@ void perf_hpp_list__prepend_sort_field(struct perf_hpp_list *list,
+ 	list_add(&format->sort_list, &list->sorts);
  }
  
-+static int arm_spe__inject_event(union perf_event *event, struct perf_sample *sample, u64 type)
-+{
-+	event->header.size = perf_event__sample_event_size(sample, type, 0);
-+	return perf_event__synthesize_sample(event, type, 0, sample);
-+}
-+
- static inline int
- arm_spe_deliver_synth_event(struct arm_spe *spe,
- 			    struct arm_spe_queue *speq __maybe_unused,
-@@ -252,6 +259,12 @@ arm_spe_deliver_synth_event(struct arm_spe *spe,
+-void perf_hpp__column_unregister(struct perf_hpp_fmt *format)
++static void perf_hpp__column_unregister(struct perf_hpp_fmt *format)
  {
- 	int ret;
+ 	list_del_init(&format->list);
++	fmt_free(format);
+ }
  
-+	if (spe->synth_opts.inject) {
-+		ret = arm_spe__inject_event(event, sample, spe->sample_type);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	ret = perf_session__deliver_synth_event(spe->session, event, sample);
- 	if (ret)
- 		pr_err("ARM SPE: failed to deliver event, error %d\n", ret);
-@@ -809,6 +822,8 @@ arm_spe_synth_events(struct arm_spe *spe, struct perf_session *session)
- 	else
- 		attr.sample_type |= PERF_SAMPLE_TIME;
+ void perf_hpp__cancel_cumulate(void)
+@@ -672,19 +685,6 @@ void perf_hpp__append_sort_keys(struct perf_hpp_list *list)
+ }
  
-+	spe->sample_type = attr.sample_type;
-+
- 	attr.exclude_user = evsel->core.attr.exclude_user;
- 	attr.exclude_kernel = evsel->core.attr.exclude_kernel;
- 	attr.exclude_hv = evsel->core.attr.exclude_hv;
+ 
+-static void fmt_free(struct perf_hpp_fmt *fmt)
+-{
+-	/*
+-	 * At this point fmt should be completely
+-	 * unhooked, if not it's a bug.
+-	 */
+-	BUG_ON(!list_empty(&fmt->list));
+-	BUG_ON(!list_empty(&fmt->sort_list));
+-
+-	if (fmt->free)
+-		fmt->free(fmt);
+-}
+-
+ void perf_hpp__reset_output_field(struct perf_hpp_list *list)
+ {
+ 	struct perf_hpp_fmt *fmt, *tmp;
+diff --git a/tools/perf/util/hist.h b/tools/perf/util/hist.h
+index 96b1c13bbccc5..919f2c6c48142 100644
+--- a/tools/perf/util/hist.h
++++ b/tools/perf/util/hist.h
+@@ -362,7 +362,6 @@ enum {
+ };
+ 
+ void perf_hpp__init(void);
+-void perf_hpp__column_unregister(struct perf_hpp_fmt *format);
+ void perf_hpp__cancel_cumulate(void);
+ void perf_hpp__setup_output_field(struct perf_hpp_list *list);
+ void perf_hpp__reset_output_field(struct perf_hpp_list *list);
 -- 
 2.33.0
 
