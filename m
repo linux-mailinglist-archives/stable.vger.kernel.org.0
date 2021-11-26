@@ -2,877 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 944E745E6B7
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 05:06:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 754E645E6BE
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 05:10:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245122AbhKZEJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 23:09:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40230 "EHLO
+        id S1358189AbhKZENh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 23:13:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230135AbhKZEHr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 23:07:47 -0500
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B32C5C0698DE
-        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 18:59:03 -0800 (PST)
-Received: by mail-pg1-x52c.google.com with SMTP id q16so6820591pgq.10
-        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 18:59:03 -0800 (PST)
+        with ESMTP id S242843AbhKZELh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Nov 2021 23:11:37 -0500
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D636DC07E5C3
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 19:01:50 -0800 (PST)
+Received: by mail-pg1-x533.google.com with SMTP id 200so6878527pga.1
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 19:01:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=AV5CFozCWEO1k/8HGvgZ1kqKjnpG6GZ+kFheddoU0ws=;
-        b=h8LluEgqprAwD/ix/KqAUBNWI40Fe2J4vAYHZGwThj4dD7WZl7W2gqgqC/jog8kW1K
-         xP5g5rZOrjtwsPUksyuI2It74gl9iFajPhD2gIfkDxggA4+wcLZ9N5MIQM5jCidn9uQ9
-         eIzL+AtKM8VwDslBHtD3uUgz+VDKhtIjBBgoy0Uddh22XNXpDpAoa8mIVgVRtKH8S6sB
-         fLk41FpmgvIqrtV4a4zPfvr/QUKoLU+eusQIhhPswYeuPnSMhRMn5eDIultMWin0puVu
-         I1LcvXurPbYxmhgrOdhOVAATkKyNd2RQW49ffsPF1g9qGL/q787nBmVVURG1crnvmujI
-         e4QQ==
+         :content-disposition:in-reply-to;
+        bh=BynVQIeiNIivT05KJS287cNnQbooVUGhheNqcoVB4w4=;
+        b=iIt14tMtJniwQbZaAxQ3Est4t3Ff2ts/f/MX1Z156JA5MWVxigWssvjYU5EZJe36v6
+         EfRA2YIb7gMLSJ9e8AUw2SkHewhVtX8Z9PuFsPqlvq119QeECz648sU5fJUEmeTIIFeR
+         /hX6E5r/BI4+vcbNBJCBK60qwZOeAQz7zuLat9mjGDPJI4OYB8GoXr0enoVLuNXlJ8t4
+         5ZpuZiKngvPQKsj4jlEsxGggQ8oex/vT8zIPqw2YucrnSFoEhV93a521klxipWNBZjuG
+         1EHaioBjoG8MjVspsZokAmRuGgs4CRnS4WydA99kE72y8p8lwR3+wlH3gvl2lV111t8q
+         UlTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=AV5CFozCWEO1k/8HGvgZ1kqKjnpG6GZ+kFheddoU0ws=;
-        b=vHw9/8i2e1rbqB+osY5clDOY1sBOmX+ty6Ey+ysj8ixDRkvvRoyteK/olAT1ROXQTv
-         Syl+EupLwgu6Qr5B+hR8X5G/y5bShKW0nzbQjhWmtOsBWT4cHr7IEuXJ0ObwIOwa0kB4
-         vQ25oPKcJGRO7O+teMVWN+/++08cVYId0PoZj6XzQkzC+AjUk9790kcmfaryLVrPQmCx
-         a33ci9GMOWk9IwVeqoy3C4vGHtOXarmDr1VKm0NgJVeXBQeVem+tmMjqGCdQEkRQTKA7
-         /ngtTSaJPcNSl1xQMp9uknAJog9g8z8JhgSVOQVOckH3+JqzHWwci3oY42j9efrGRFH3
-         C8Jg==
-X-Gm-Message-State: AOAM531+DLNqEPcGAy5fXUJaEUF1i1qxXE2hkpzZoYkjtzmdfjihJtPk
-        7WIwmBh4xFBoCahxmKOwyxFw
-X-Google-Smtp-Source: ABdhPJwafywZyD4suMd0CiAu5VRtDvxK7HqrJ2bmNIvf9LudIQ0yi3jyQKZAKyX474jThTlJZ8AdrQ==
-X-Received: by 2002:aa7:9d1e:0:b0:494:6dec:6425 with SMTP id k30-20020aa79d1e000000b004946dec6425mr18235236pfp.83.1637895542892;
-        Thu, 25 Nov 2021 18:59:02 -0800 (PST)
+         :mime-version:content-disposition:in-reply-to;
+        bh=BynVQIeiNIivT05KJS287cNnQbooVUGhheNqcoVB4w4=;
+        b=GSZ/XXoZzEPO0VhHX8z4vQu5iCarM0gcrYVftJTQm1PwqUqpa2I9rzSPk24x846DHW
+         nSvkNxtBOGyootlHhIHQpL0hJkITfEmw9AEU2SzOhPpTBRKbsWenSrGBrwVJwIDTXk6s
+         JM/v5HcErvO0YVuV0O7IErnu8XFT7u+FTAKywtvpBxzN8Po0zcv8EI5IDbnTy31Syllb
+         Kulgw/HxEO0YtuI0k0E5W4dIMjZhKoL2jP23D38BeVVOPMbj4ru9//AJrdzuRtEK9eVZ
+         YW2oTIceSR4Zlk7QH73D5nz1uB8BLrn5QLGMics9kzhB2QDPBqqmhluqqqZMzP7iZWa3
+         6D5A==
+X-Gm-Message-State: AOAM533DxyQreE3DjEV9t+7Bx5oYLIWOFL/R1hwhVuzOwpadzcpGUXMO
+        BpBz2ZUDawhqaDyA9pQ4pu8Y
+X-Google-Smtp-Source: ABdhPJzAB/unmK4+Mb/MfAf42HoI7g6onRWKtvspjP/fglbRciESFe8VcxE1LBEMAY1C7pt3p6LBqA==
+X-Received: by 2002:a63:4745:: with SMTP id w5mr19143246pgk.320.1637895710318;
+        Thu, 25 Nov 2021 19:01:50 -0800 (PST)
 Received: from thinkpad ([117.215.117.247])
-        by smtp.gmail.com with ESMTPSA id o7sm3488140pgq.59.2021.11.25.18.58.58
+        by smtp.gmail.com with ESMTPSA id h186sm4731054pfg.59.2021.11.25.19.01.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Nov 2021 18:59:02 -0800 (PST)
-Date:   Fri, 26 Nov 2021 08:28:56 +0530
+        Thu, 25 Nov 2021 19:01:49 -0800 (PST)
+Date:   Fri, 26 Nov 2021 08:31:44 +0530
 From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-To:     Thomas Perrot <thomas.perrot@bootlin.com>
-Cc:     Aleksander Morgado <aleksander@aleksander.es>, mhi@lists.linux.dev,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Hemant Kumar <hemantk@codeaurora.org>,
-        Bhaumik Bhatt <bbhatt@codeaurora.org>, quic_jhugo@quicinc.com,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
+To:     mhi@lists.linux.dev, quic_jhugo@quicinc.com,
+        hemantk@codeaurora.org, bbhatt@codeaurora.org
+Cc:     aleksander@aleksander.es, loic.poulain@linaro.org,
+        thomas.perrot@bootlin.com, linux-arm-msm@vger.kernel.org,
+        stable@vger.kernel.org
 Subject: Re: [PATCH v4] bus: mhi: Fix race while handling SYS_ERR at power up
-Message-ID: <20211126025856.GA5859@thinkpad>
+Message-ID: <20211126030144.GC5859@thinkpad>
 References: <20211124132221.44915-1-manivannan.sadhasivam@linaro.org>
- <CAAP7ucKnOEpt3_tj3+-A12+m2DPmfBO46wLs1F9gszQ95aUHdw@mail.gmail.com>
- <ef1f38dced64c00f739f573c3b308445096cf660.camel@bootlin.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <ef1f38dced64c00f739f573c3b308445096cf660.camel@bootlin.com>
+In-Reply-To: <20211124132221.44915-1-manivannan.sadhasivam@linaro.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 25, 2021 at 10:20:24AM +0100, Thomas Perrot wrote:
-> Hi Mani,
+On Wed, Nov 24, 2021 at 06:52:21PM +0530, Manivannan Sadhasivam wrote:
+> Some devices tend to trigger SYS_ERR interrupt while the host handling
+> SYS_ERR state of the device during power up. This creates a race
+> condition and causes a failure in booting up the device.
 > 
-> On Wed, 2021-11-24 at 16:17 +0100, Aleksander Morgado wrote:
-> > Hey Mani,
-> > 
-> > On Wed, Nov 24, 2021 at 2:22 PM Manivannan Sadhasivam
-> > <manivannan.sadhasivam@linaro.org> wrote:
-> > > 
-> > > Some devices tend to trigger SYS_ERR interrupt while the host
-> > > handling
-> > > SYS_ERR state of the device during power up. This creates a race
-> > > condition and causes a failure in booting up the device.
-> > > 
-> > > The issue is seen on the Sierra Wireless EM9191 modem during SYS_ERR
-> > > handling in mhi_async_power_up(). Once the host detects that the
-> > > device
-> > > is in SYS_ERR state, it issues MHI_RESET and waits for the device to
-> > > process the reset request. During this time, the device triggers
-> > > SYS_ERR
-> > > interrupt to the host and host starts handling SYS_ERR execution.
-> > > 
-> > > So by the time the device has completed reset, host starts SYS_ERR
-> > > handling. This causes the race condition and the modem fails to boot.
-> > > 
-> > > Hence, register the IRQ handler only after handling the SYS_ERR check
-> > > to avoid getting spurious IRQs from the device.
-> > > 
-> > > Cc: stable@vger.kernel.org
-> > > Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
-> > > Reported-by: Aleksander Morgado <aleksander@aleksander.es>
-> > > Signed-off-by: Manivannan Sadhasivam <
-> > > manivannan.sadhasivam@linaro.org>
-> > > ---
-> > > 
-> > > Changes in v4:
-> > > 
-> > > * Reverted the change that moved BHI_INTVEC as that was causing issue
-> > > as
-> > >   reported by Aleksander.
-> > > 
-> > > Changes in v3:
-> > > 
-> > > * Moved BHI_INTVEC setup after irq setup
-> > > * Used interval_us as the delay for the polling API
-> > > 
-> > > Changes in v2:
-> > > 
-> > > * Switched to "mhi_poll_reg_field" for detecting MHI reset in device.
-> > > 
-> > 
-> > So far so good, works without issues in both reboots and cold boots.
-> > Thanks!
-> > 
+> The issue is seen on the Sierra Wireless EM9191 modem during SYS_ERR
+> handling in mhi_async_power_up(). Once the host detects that the device
+> is in SYS_ERR state, it issues MHI_RESET and waits for the device to
+> process the reset request. During this time, the device triggers SYS_ERR
+> interrupt to the host and host starts handling SYS_ERR execution.
 > 
-> I also tested, I no longer observe reboot related issue on EM919x.
-> Thanks!
+> So by the time the device has completed reset, host starts SYS_ERR
+> handling. This causes the race condition and the modem fails to boot.
 > 
+> Hence, register the IRQ handler only after handling the SYS_ERR check
+> to avoid getting spurious IRQs from the device.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
+> Reported-by: Aleksander Morgado <aleksander@aleksander.es>
+> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-Thanks! Will add your tested-by tag also.
+Hemant, Bhaumik, Jeff: Can you please do the review again?
 
-Regards,
+Thanks,
 Mani
 
-> Best regards,
-> Thomas
+> ---
 > 
-> > Posting here an example log for reference:
-> > 
-> > root@OpenWrt:~# dmesg | grep mhi
-> > [    7.022756] mhi-pci-generic 0000:01:00.0: MHI PCI device found:
-> > sierra-em919x
-> > [    7.029931] mhi-pci-generic 0000:01:00.0: BAR 0: assigned [mem
-> > 0x600000000-0x600000fff 64bit]
-> > [    7.038495] mhi-pci-generic 0000:01:00.0: enabling device (0000 ->
-> > 0002)
-> > [    7.045311] mhi-pci-generic 0000:01:00.0: using shared MSI
-> > [    7.051420] mhi mhi0: Requested to power ON
-> > [    7.055637] mhi mhi0: Attempting power on with EE: PASS THROUGH,
-> > state: SYS ERROR
-> > [    7.176024] mhi mhi0: Power on setup success
-> > [    7.176082] mhi mhi0: Handling state transition: PBL
-> > [    7.180322] mhi mhi0: local ee: INVALID_EE state: RESET device ee:
-> > MISSION MODE state: READY
-> > [    7.193852] mhi mhi0: Device in READY State
-> > [    7.198043] mhi mhi0: Initializing MHI registers
-> > [    7.202712] mhi mhi0: Wait for device to enter SBL or Mission mode
-> > [   15.351002] mhi mhi0: local ee: MISSION MODE state: READY device
-> > ee: MISSION MODE state: READY
-> > [   15.509984] mhi mhi0: State change event to state: M0
-> > [   15.510001] mhi mhi0: local ee: MISSION MODE state: READY device
-> > ee: MISSION MODE state: M0
-> > [   15.523459] mhi mhi0: Received EE event: MISSION MODE
-> > [   15.523463] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   15.536629] mhi mhi0: Handling state transition: MISSION MODE
-> > [   15.542393] mhi mhi0: Processing Mission Mode transition
-> > [   15.549246] mhi_net mhi0_IP_HW0: 100: Updating channel state to:
-> > START
-> > [   15.647776] mhi_net mhi0_IP_HW0: 100: Channel state change to START
-> > successful
-> > [   15.647795] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   15.663196] mhi_net mhi0_IP_HW0: 101: Updating channel state to:
-> > START
-> > [   15.719309] mhi_net mhi0_IP_HW0: 101: Channel state change to START
-> > successful
-> > [   15.719314] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   17.851014] mhi mhi0: Allowing M3 transition
-> > [   17.855347] mhi mhi0: Waiting for M3 completion
-> > [   17.987550] mhi mhi0: State change event to state: M3
-> > [   17.987568] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M3
-> > [   21.851920] mhi_wwan_ctrl mhi0_DUN: 32: Updating channel state to:
-> > START
-> > [   21.876065] mhi mhi0: Entered with PM state: M3, MHI state: M3
-> > [   21.900513] mhi mhi0: State change event to state: M0
-> > [   21.900538] mhi mhi0: local ee: MISSION MODE state: M3 device ee:
-> > MISSION MODE state: M0
-> > [   21.921710] mhi_wwan_ctrl mhi0_DUN: 32: Channel state change to
-> > START successful
-> > [   21.921713] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   21.937308] mhi_wwan_ctrl mhi0_DUN: 33: Updating channel state to:
-> > START
-> > [   21.946170] mhi_wwan_ctrl mhi0_DUN: 33: Channel state change to
-> > START successful
-> > [   21.946172] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   21.981308] mhi_wwan_ctrl mhi0_DIAG: 4: Updating channel state to:
-> > START
-> > [   21.990184] mhi_wwan_ctrl mhi0_DIAG: 4: Channel state change to
-> > START successful
-> > [   21.990186] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   22.005697] mhi_wwan_ctrl mhi0_DIAG: 5: Updating channel state to:
-> > START
-> > [   22.014547] mhi_wwan_ctrl mhi0_DIAG: 5: Channel state change to
-> > START successful
-> > [   22.014549] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   22.043376] mhi_wwan_ctrl mhi0_DIAG: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 5
-> > [   22.043380] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   22.050277] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   22.058371] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: 0
-> > receive_len: 58
-> > [   22.073988] mhi_wwan_ctrl mhi0_DIAG: 5: Updating channel state to:
-> > RESET
-> > [   22.082292] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   22.082294] mhi_wwan_ctrl mhi0_DIAG: 5: Channel state change to
-> > RESET successful
-> > [   22.097778] mhi mhi0: Marking all events for chan: 5 as stale
-> > [   22.103523] mhi mhi0: Finished marking events as stale events
-> > [   22.109271] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.116676] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.124076] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.131476] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.138874] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.146274] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.153672] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.161071] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.168470] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.175870] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.183268] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.190666] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.198065] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.205463] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.212862] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.220260] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.227660] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.235059] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.242457] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.249855] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.257253] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.264651] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.272049] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.279448] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.286846] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.294245] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.301643] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.309041] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.316440] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.323838] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.331237] mhi_wwan_ctrl mhi0_DIAG: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   22.338666] mhi_wwan_ctrl mhi0_DIAG: 5: successfully reset
-> > [   22.344157] mhi_wwan_ctrl mhi0_DIAG: 4: Updating channel state to:
-> > RESET
-> > [   22.352753] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   22.352758] mhi_wwan_ctrl mhi0_DIAG: 4: Channel state change to
-> > RESET successful
-> > [   22.368356] mhi mhi0: Marking all events for chan: 4 as stale
-> > [   22.374106] mhi mhi0: Finished marking events as stale events
-> > [   22.379910] mhi_wwan_ctrl mhi0_DIAG: 4: successfully reset
-> > [   22.388072] mhi_wwan_ctrl mhi0_QMI: 14: Updating channel state to:
-> > START
-> > [   22.397188] mhi_wwan_ctrl mhi0_QMI: 14: Channel state change to
-> > START successful
-> > [   22.397190] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   22.412690] mhi_wwan_ctrl mhi0_QMI: 15: Updating channel state to:
-> > START
-> > [   22.424017] mhi_wwan_ctrl mhi0_QMI: 15: Channel state change to
-> > START successful
-> > [   22.424021] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   25.917106] mhi_wwan_ctrl mhi0_DUN: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 4
-> > [   25.917125] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   25.935842] mhi_wwan_ctrl mhi0_DUN: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 4
-> > [   25.935852] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   25.942645] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 3
-> > [   25.950734] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   25.957768] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 6
-> > [   25.972897] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 3
-> > [   25.979950] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 6
-> > [   25.979953] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   25.995084] mhi_wwan_ctrl mhi0_DUN: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 9
-> > [   25.995269] mhi_wwan_ctrl mhi0_DUN: 33: Updating channel state to:
-> > RESET
-> > [   26.001872] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 8
-> > [   26.001879] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 39
-> > [   26.024415] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   26.024418] mhi_wwan_ctrl mhi0_DUN: 33: Channel state change to
-> > RESET successful
-> > [   26.039893] mhi mhi0: Marking all events for chan: 33 as stale
-> > [   26.045723] mhi mhi0: Finished marking events as stale events
-> > [   26.051468] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.058780] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.066092] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.073404] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.080715] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.088027] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.095337] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.102650] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.109965] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.117279] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.124589] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.131900] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.139211] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.146521] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.153831] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.161142] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.168452] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.175763] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.183073] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.190385] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.197695] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.205006] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.212315] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.219627] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.226937] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.234248] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.241558] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.248869] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   26.256206] mhi_wwan_ctrl mhi0_DUN: 33: successfully reset
-> > [   26.261695] mhi_wwan_ctrl mhi0_DUN: 32: Updating channel state to:
-> > RESET
-> > [   26.270660] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   26.270669] mhi_wwan_ctrl mhi0_DUN: 32: Channel state change to
-> > RESET successful
-> > [   26.286159] mhi mhi0: Marking all events for chan: 32 as stale
-> > [   26.291992] mhi mhi0: Finished marking events as stale events
-> > [   26.297761] mhi_wwan_ctrl mhi0_DUN: 32: successfully reset
-> > [   30.355529] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 12
-> > [   30.355543] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   30.362450] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 12
-> > [   30.370546] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   30.377411] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 12
-> > [   30.392643] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 12
-> > [   30.399531] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 228
-> > [   30.406757] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 12
-> > [   30.413636] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 228
-> > [   30.420863] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 12
-> > [   30.427754] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 228
-> > [   30.434992] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 12
-> > [   30.441882] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 228
-> > [   30.449115] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 12
-> > [   30.456012] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 228
-> > [   30.463268] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 228
-> > [   30.470516] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 228
-> > [   30.479754] mhi_wwan_ctrl mhi0_QMI: 15: Updating channel state to:
-> > RESET
-> > [   30.489207] mhi_wwan_ctrl mhi0_QMI: 15: Channel state change to
-> > RESET successful
-> > [   30.489210] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   30.504704] mhi mhi0: Marking all events for chan: 15 as stale
-> > [   30.510536] mhi mhi0: Finished marking events as stale events
-> > [   30.516284] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.523598] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.530911] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.538224] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.545535] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.552847] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.560157] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.567468] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.574779] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.582091] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.589402] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.596713] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.604024] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.611335] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.618645] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.625957] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.633291] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.640618] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.647946] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.655297] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.662627] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.669949] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.677262] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.684572] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.691888] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.699199] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.706509] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.713820] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.721131] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.728441] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.735752] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: -107
-> > receive_len: 0
-> > [   30.743092] mhi_wwan_ctrl mhi0_QMI: 15: successfully reset
-> > [   30.748605] mhi_wwan_ctrl mhi0_QMI: 14: Updating channel state to:
-> > RESET
-> > [   30.761269] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   30.769375] mhi_wwan_ctrl mhi0_QMI: 14: Channel state change to
-> > RESET successful
-> > [   30.776780] mhi mhi0: Marking all events for chan: 14 as stale
-> > [   30.782613] mhi mhi0: Finished marking events as stale events
-> > [   30.788371] mhi_wwan_ctrl mhi0_QMI: 14: successfully reset
-> > [   30.794771] mhi_wwan_ctrl mhi0_QMI: 14: Updating channel state to:
-> > START
-> > [   30.803532] mhi_wwan_ctrl mhi0_QMI: 14: Channel state change to
-> > START successful
-> > [   30.803535] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   30.819038] mhi_wwan_ctrl mhi0_QMI: 15: Updating channel state to:
-> > START
-> > [   30.828331] mhi_wwan_ctrl mhi0_QMI: 15: Channel state change to
-> > START successful
-> > [   30.828333] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   31.925717] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 12
-> > [   31.925723] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   31.932639] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   31.940747] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 12
-> > [   31.955964] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 228
-> > [   31.978521] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 16
-> > [   31.978523] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   31.985418] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   31.993503] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 24
-> > [   32.012893] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.012897] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.019777] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 77
-> > [   32.027861] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.054892] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 16
-> > [   32.054894] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.061787] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.069867] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 17
-> > [   32.084825] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 24
-> > [   32.091966] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 24
-> > [   32.123615] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 16
-> > [   32.123618] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.130510] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.138594] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 24
-> > [   32.168928] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.168935] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 16
-> > [   32.183929] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.183937] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 24
-> > [   32.203362] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 16
-> > [   32.203363] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.210246] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.218328] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 24
-> > [   32.236614] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 16
-> > [   32.236616] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.243512] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.251618] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 24
-> > [   32.269860] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 16
-> > [   32.269862] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.276745] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.284834] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 24
-> > [   32.304246] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 16
-> > [   32.304247] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.311135] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.319241] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 24
-> > [   32.339188] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 16
-> > [   32.339193] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.346078] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 24
-> > [   32.354158] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.369801] mhi_wwan_ctrl mhi0_DUN: 32: Updating channel state to:
-> > START
-> > [   32.379359] mhi_wwan_ctrl mhi0_DUN: 32: Channel state change to
-> > START successful
-> > [   32.379361] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.394877] mhi_wwan_ctrl mhi0_DUN: 33: Updating channel state to:
-> > START
-> > [   32.404051] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.404052] mhi_wwan_ctrl mhi0_DUN: 33: Channel state change to
-> > START successful
-> > [   32.423401] mhi_wwan_ctrl mhi0_DUN: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 6
-> > [   32.423403] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.430201] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.438282] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.453242] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 294
-> > [   32.460474] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 5
-> > [   32.467535] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 6
-> > [   32.467538] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.482675] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.489557] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.489560] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 26
-> > [   32.489567] mhi_wwan_ctrl mhi0_DUN: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 6
-> > [   32.504790] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.511569] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 6
-> > [   32.526694] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.533572] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 197
-> > [   32.533574] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.548873] mhi_wwan_ctrl mhi0_DUN: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 11
-> > [   32.555749] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 6
-> > [   32.555752] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.562793] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.577748] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.577750] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 52
-> > [   32.577755] mhi_wwan_ctrl mhi0_DUN: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 6
-> > [   32.592974] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.599753] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 9
-> > [   32.614877] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.621756] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.621758] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 29
-> > [   32.621765] mhi_wwan_ctrl mhi0_DUN: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 7
-> > [   32.629862] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.636985] mhi_wwan_ctrl mhi0_DUN: mhi_dl_xfer_cb: status: 0
-> > receive_len: 9
-> > [   32.643764] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.651846] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.673835] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 77
-> > [   32.684996] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 27
-> > [   32.684998] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.691894] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.699994] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 20
-> > [   32.715206] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 29
-> > [   32.726784] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.726788] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.733667] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 26
-> > [   32.741756] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.759982] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.759985] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.766864] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 42
-> > [   32.774951] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.794333] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.794337] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.801215] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 145
-> > [   32.809294] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.828654] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.828657] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.835554] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.843638] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 24
-> > [   32.862183] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 20
-> > [   32.862186] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.869074] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.877162] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 27
-> > [   32.896556] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.896558] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.903446] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.911532] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 12
-> > [   32.926749] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 116
-> > [   32.938214] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.938223] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.945134] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 116
-> > [   32.953218] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.972615] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   32.972619] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   32.979497] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 20
-> > [   32.987579] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   33.005791] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   33.005793] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   33.012673] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   33.020759] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 90
-> > [   35.011999] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   35.012012] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   35.018924] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 90
-> > [   35.027016] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   35.034131] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 12
-> > [   37.011548] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   37.011554] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   37.018476] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   37.026567] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 90
-> > [   39.012483] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   39.012497] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   39.019413] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 90
-> > [   39.027510] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   39.034617] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 12
-> > [   41.010833] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   41.010839] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   41.017760] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   41.025856] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 90
-> > [   43.010424] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   43.010431] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   43.017356] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   43.025455] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 90
-> > [   45.009911] mhi_wwan_ctrl mhi0_QMI: mhi_ul_xfer_cb: status: 0
-> > xfer_len: 13
-> > [   45.009918] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   45.016839] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > [   45.024933] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 90
-> > [   47.523933] mhi mhi0: Allowing M3 transition
-> > [   47.528247] mhi mhi0: Waiting for M3 completion
-> > [   47.569544] mhi mhi0: State change event to state: M3
-> > [   47.569567] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M3
-> > [   48.632075] mhi mhi0: Entered with PM state: M3, MHI state: M3
-> > [   48.650239] mhi mhi0: State change event to state: M0
-> > [   48.650247] mhi mhi0: local ee: MISSION MODE state: M3 device ee:
-> > MISSION MODE state: M0
-> > [   48.667040] mhi_wwan_ctrl mhi0_QMI: mhi_dl_xfer_cb: status: 0
-> > receive_len: 12
-> > [   48.667043] mhi mhi0: local ee: MISSION MODE state: M0 device ee:
-> > MISSION MODE state: M0
-> > 
-> > 
-> > 
-> > 
+> Changes in v4:
 > 
+> * Reverted the change that moved BHI_INTVEC as that was causing issue as
+>   reported by Aleksander.
+> 
+> Changes in v3:
+> 
+> * Moved BHI_INTVEC setup after irq setup
+> * Used interval_us as the delay for the polling API
+> 
+> Changes in v2:
+> 
+> * Switched to "mhi_poll_reg_field" for detecting MHI reset in device.
+> 
+>  drivers/bus/mhi/core/pm.c | 33 +++++++++++----------------------
+>  1 file changed, 11 insertions(+), 22 deletions(-)
+> 
+> diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
+> index fb99e3727155..21484a61bbed 100644
+> --- a/drivers/bus/mhi/core/pm.c
+> +++ b/drivers/bus/mhi/core/pm.c
+> @@ -1038,7 +1038,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+>  	enum mhi_ee_type current_ee;
+>  	enum dev_st_transition next_state;
+>  	struct device *dev = &mhi_cntrl->mhi_dev->dev;
+> -	u32 val;
+> +	u32 interval_us = 25000; /* poll register field every 25 milliseconds */
+>  	int ret;
+>  
+>  	dev_info(dev, "Requested to power ON\n");
+> @@ -1055,10 +1055,6 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+>  	mutex_lock(&mhi_cntrl->pm_mutex);
+>  	mhi_cntrl->pm_state = MHI_PM_DISABLE;
+>  
+> -	ret = mhi_init_irq_setup(mhi_cntrl);
+> -	if (ret)
+> -		goto error_setup_irq;
+> -
+>  	/* Setup BHI INTVEC */
+>  	write_lock_irq(&mhi_cntrl->pm_lock);
+>  	mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
+> @@ -1072,7 +1068,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+>  		dev_err(dev, "%s is not a valid EE for power on\n",
+>  			TO_MHI_EXEC_STR(current_ee));
+>  		ret = -EIO;
+> -		goto error_async_power_up;
+> +		goto error_setup_irq;
+>  	}
+>  
+>  	state = mhi_get_mhi_state(mhi_cntrl);
+> @@ -1081,20 +1077,12 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+>  
+>  	if (state == MHI_STATE_SYS_ERR) {
+>  		mhi_set_mhi_state(mhi_cntrl, MHI_STATE_RESET);
+> -		ret = wait_event_timeout(mhi_cntrl->state_event,
+> -				MHI_PM_IN_FATAL_STATE(mhi_cntrl->pm_state) ||
+> -					mhi_read_reg_field(mhi_cntrl,
+> -							   mhi_cntrl->regs,
+> -							   MHICTRL,
+> -							   MHICTRL_RESET_MASK,
+> -							   MHICTRL_RESET_SHIFT,
+> -							   &val) ||
+> -					!val,
+> -				msecs_to_jiffies(mhi_cntrl->timeout_ms));
+> -		if (!ret) {
+> -			ret = -EIO;
+> +		ret = mhi_poll_reg_field(mhi_cntrl, mhi_cntrl->regs, MHICTRL,
+> +				 MHICTRL_RESET_MASK, MHICTRL_RESET_SHIFT, 0,
+> +				 interval_us);
+> +		if (ret) {
+>  			dev_info(dev, "Failed to reset MHI due to syserr state\n");
+> -			goto error_async_power_up;
+> +			goto error_setup_irq;
+>  		}
+>  
+>  		/*
+> @@ -1104,6 +1092,10 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+>  		mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
+>  	}
+>  
+> +	ret = mhi_init_irq_setup(mhi_cntrl);
+> +	if (ret)
+> +		goto error_setup_irq;
+> +
+>  	/* Transition to next state */
+>  	next_state = MHI_IN_PBL(current_ee) ?
+>  		DEV_ST_TRANSITION_PBL : DEV_ST_TRANSITION_READY;
+> @@ -1116,9 +1108,6 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
+>  
+>  	return 0;
+>  
+> -error_async_power_up:
+> -	mhi_deinit_free_irq(mhi_cntrl);
+> -
+>  error_setup_irq:
+>  	mhi_cntrl->pm_state = MHI_PM_DISABLE;
+>  	mutex_unlock(&mhi_cntrl->pm_mutex);
 > -- 
-> Thomas Perrot, Bootlin
-> Embedded Linux and kernel engineering
-> https://bootlin.com
+> 2.25.1
 > 
-
-
