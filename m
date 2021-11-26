@@ -2,125 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D26ED45E7DD
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 07:33:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DCC145E7EC
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 07:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352580AbhKZGgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Nov 2021 01:36:17 -0500
-Received: from new2-smtp.messagingengine.com ([66.111.4.224]:41993 "EHLO
-        new2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1352604AbhKZGeR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Nov 2021 01:34:17 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 4911758030B;
-        Fri, 26 Nov 2021 01:31:04 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Fri, 26 Nov 2021 01:31:04 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=TQT7bhXqwH8akKiIgle7DOfwOzq
-        sXFgyjCJ+JSwVBvM=; b=UArY7GF/grHcjnLfBnXEUU1gwzqTyNaaOluwb+sg0Eo
-        pm+/1TsfpLJAebvBYApjuv3QnnnlEa3HKiaUw0P9fxcA8XHtXWdnrWB6sAwvLghr
-        LOvI9XUzjoetQ7FveDlUQAeKg8j8FYqbdK43JJXM+GiYg58cOSAI21yr+b4cxxoM
-        OszMI1XHTjBFRX7/Gu1lFy/6jg5XBUrEim4Fz5YGMOoe554GfMxmBrs72PDEP0xg
-        Twv/mANVLQoUrK8AtS7bFKIgj4+WdMrCyOSAqYbHBgb68AiUBTRs5wlU4U5MOAja
-        IawCmEDPlpOyGCwnyvoSkIwlNuxwVJTHw3clze+/mZA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=TQT7bh
-        XqwH8akKiIgle7DOfwOzqsXFgyjCJ+JSwVBvM=; b=ad7MUCGgy6GBCEqiy5C7uF
-        ENvuoMF/KjO9QrM9e+6Lfkql40q5ow+9hhnHEjNDZ0/v0R7eBG+dbTVPRg45BseY
-        l6gY4gC/yALZBstQklXQfqD4FBY+g2bFVHBCDHfB/MaI8gEciv4JrkQ6yhxBrKz1
-        CGbqK6u2RIS7vXeNUVfmhjyT7Tn+vfL90md6jHPu9Ueu8HrkWljf1niHkQCDocoW
-        CaUyH3Psf9Q7ARs3nafg+tDn4VnCCTVOknEiaYbfxiG7Fdv6imBrkTFyijuFmkaH
-        1BDnujDlMfsYcznk3Zmu2vrST6xQ8S63AWa4KUxxZ5tTsz/Pu9c7qQdxIaygrzXw
-        ==
-X-ME-Sender: <xms:J3-gYbgcJ7yuOd9PxPF7z6PUzVcR_5VDdV8atw8k7Ay6OiR9EabrhQ>
-    <xme:J3-gYYCmCpJxWZh5GwcOX9abxzx6nWFs5JXay71t0m3W-qzumEF6ZXT_67GjD3Ksw
-    JVBrl8GJsYpPw>
-X-ME-Received: <xmr:J3-gYbE8gDUQBc2O0-GjvN0MDTqjRvWxBoOuptqQU9aRGWTCcZD6Ednqpvz5dH-YyVj0S47HffvL0d2035sbccQtgMwchpU5>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrhedugdeliecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepfffhvffukfhfgggtuggjsehttdertd
-    dttddvnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeen
-    ucggtffrrghtthgvrhhnpeeuleeltdehkeeltefhleduuddvhfffuedvffduveegheekge
-    eiffevheegfeetgfenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:J3-gYYRJMLRkMk3wyBE0Iv5OCuMK6kiSI-TXUIV8c2nhFI-hcKra9w>
-    <xmx:J3-gYYypj5QB_CACUx3mkprwpqxZmTsm6Qj8en4BV4UyKs8jn2_aEQ>
-    <xmx:J3-gYe6UdYl0Eb_CsMSzKsj3799OfW3C_EshpDEE60S5X8eTugPQWw>
-    <xmx:KH-gYZT9W9xTQhOIPR-7TKNmuMW6_Ud9CatWFziCagno6socGADzTQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 26 Nov 2021 01:31:02 -0500 (EST)
-Date:   Fri, 26 Nov 2021 07:31:00 +0100
-From:   Greg KH <greg@kroah.com>
-To:     guangming.cao@mediatek.com
-Cc:     robin.murphy@arm.com, Brian.Starkey@arm.com,
-        benjamin.gaignard@linaro.org, christian.koenig@amd.com,
-        dri-devel@lists.freedesktop.org, john.stultz@linaro.org,
-        labbott@redhat.com, linaro-mm-sig@lists.linaro.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        lmark@codeaurora.org, matthias.bgg@gmail.com,
-        sumit.semwal@linaro.org, wsd_upstream@mediatek.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] dma-buf: system_heap: Use 'for_each_sgtable_sg' in
- pages free flow
-Message-ID: <YaB/JHP/pMbgRJ1O@kroah.com>
-References: <eb6cc56d-cbe0-73d5-d4f5-0aa2b76272a4@arm.com>
- <20211126031605.81436-1-guangming.cao@mediatek.com>
+        id S235005AbhKZGls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Nov 2021 01:41:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44626 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346595AbhKZGjs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Nov 2021 01:39:48 -0500
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 938BBC061574
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 22:36:35 -0800 (PST)
+Received: by mail-ed1-x52c.google.com with SMTP id o20so34266470eds.10
+        for <stable@vger.kernel.org>; Thu, 25 Nov 2021 22:36:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=sR4bE0NaEJT8kqnrkcq81SC0Zzpxt+IY9PP0eL34kP0=;
+        b=CbVrXOzvxxbfv3qbIYKpd2IeswV/mFYdKTexoGdslGPvY0oB3Lws06WiYtyX+Pyia2
+         p8y9vypuJJVBMCcenxKQwmXPj1WAKlgk+9/zzxRzK6XuBgdnUuwNggw2kW9UtOqAnNPt
+         L5oYo9eGFWIql0KpDwIc0Y/lfrTMZvWb0NydPQSMoJrEp5pIiYwECrmiIgoyDa4yY9YH
+         74uPJRVtA74jJxbaar7bK9Oi1ShuJyGDpnQhRVqmsdAK7mF1fpAgBsXgd1yE+E7O5GR8
+         G08vVH7Am/NIpXTkcKcqRaT8IZBFvs9UJpI8//xhD6diw17XnJL4MM6yQsnJc3sRkwMo
+         fiTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=sR4bE0NaEJT8kqnrkcq81SC0Zzpxt+IY9PP0eL34kP0=;
+        b=GhWrR7mM/ya4JabImgZOmpt1NOv6+fEK0i9pzPfXjeMBqTtl1NtS/9hkz/bvfdcP9I
+         DrXGlNxJFCWIOJaIT9j0hTw9ca+PIiGrEcLs+QfTuSbD/QJ2xbB3Se1DxfB+8LyfRueX
+         iZWiUxBYTvnXfAkWFx81OiRNlqn5c9DyheEASbAdHxwt510t+X2RR7yyO7dW+4Cx+Xi4
+         a/PMbHJNmnrjGgd/2lXZ6dpSwkgU0ngLNB5UgqF5VExGb6obo47dVXVBGPwGUnSD+EX7
+         145dggxh6w9R+s2KaAEuFhXxXlCrGLsRppWKen7MTZ3pw/UoDHUitsW4zXk3Fol15hpm
+         Y1dg==
+X-Gm-Message-State: AOAM531jm97tJvwpzTwjdnQ+P9mOT8+RoD+uVxcCmuZpW+uGACrsX3rp
+        8Z1/aCm516+ExKiA7Gda5JpnArPREgCX6tT7pzN7vA==
+X-Google-Smtp-Source: ABdhPJx5456zm9hyuonDqN4j9teCoM9TaP9W4TcPkO2Rw2VGMkjLzMjboBm0zq6eesKgRUlHlqerUKYN/fFy90zALAU=
+X-Received: by 2002:a50:e003:: with SMTP id e3mr45648822edl.374.1637908593998;
+ Thu, 25 Nov 2021 22:36:33 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211126031605.81436-1-guangming.cao@mediatek.com>
+References: <20211125092028.153766171@linuxfoundation.org>
+In-Reply-To: <20211125092028.153766171@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 26 Nov 2021 12:06:22 +0530
+Message-ID: <CA+G9fYv4vrno=g9aEtodD26=6wHAjoGuHNbzeo9dSwRNz+pJ+w@mail.gmail.com>
+Subject: Re: [PATCH 5.4 000/100] 5.4.162-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
+        f.fainelli@gmail.com, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        stable@vger.kernel.org, pavel@denx.de, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, linux@roeck-us.net
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 26, 2021 at 11:16:05AM +0800, guangming.cao@mediatek.com wrote:
-> From: Guangming <Guangming.Cao@mediatek.com>
-> 
-> For previous version, it uses 'sg_table.nent's to traverse sg_table in pages
-> free flow.
-> However, 'sg_table.nents' is reassigned in 'dma_map_sg', it means the number of
-> created entries in the DMA adderess space.
-> So, use 'sg_table.nents' in pages free flow will case some pages can't be freed.
-> 
-> Here we should use sg_table.orig_nents to free pages memory, but use the
-> sgtable helper 'for each_sgtable_sg'(, instead of the previous rather common
-> helper 'for_each_sg' which maybe cause memory leak) is much better.
-> 
-> Fixes: d963ab0f15fb0 ("dma-buf: system_heap: Allocate higher order pages if available")
-> 
-> Signed-off-by: Guangming <Guangming.Cao@mediatek.com>
-> ---
->  drivers/dma-buf/heaps/system_heap.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/dma-buf/heaps/system_heap.c b/drivers/dma-buf/heaps/system_heap.c
-> index 23a7e74ef966..8660508f3684 100644
-> --- a/drivers/dma-buf/heaps/system_heap.c
-> +++ b/drivers/dma-buf/heaps/system_heap.c
-> @@ -289,7 +289,7 @@ static void system_heap_dma_buf_release(struct dma_buf *dmabuf)
->  	int i;
->  
->  	table = &buffer->sg_table;
-> -	for_each_sg(table->sgl, sg, table->nents, i) {
-> +	for_each_sgtable_sg(table, sg, i) {
->  		struct page *page = sg_page(sg);
->  
->  		__free_pages(page, compound_order(page));
-> -- 
-> 2.17.1
-> 
+On Thu, 25 Nov 2021 at 15:03, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.162 release.
+> There are 100 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 27 Nov 2021 09:20:07 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.162-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-<formletter>
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-</formletter>
+## Build
+* kernel: 5.4.162-rc2
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.4.y
+* git commit: 79d16e9015f9481842007405bc120a66d77cf1f1
+* git describe: v5.4.161-101-g79d16e9015f9
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
+61-101-g79d16e9015f9
+
+## No regressions (compared to v5.4.161-99-g60345e6d23ca)
+
+## No fixes (compared to v5.4.161-99-g60345e6d23ca)
+
+
+## Test result summary
+total: 90948, pass: 75346, fail: 766, skip: 13680, xfail: 1156
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 258 total, 258 passed, 0 failed
+* arm64: 36 total, 36 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 20 total, 20 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 34 total, 34 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 54 total, 48 passed, 6 failed
+* riscv: 24 total, 24 passed, 0 failed
+* s390: 12 total, 12 passed, 0 failed
+* sh: 20 total, 20 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 36 total, 36 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
