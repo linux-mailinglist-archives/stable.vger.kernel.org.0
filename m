@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01DF145E4F8
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 03:39:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D4DE45E4FC
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 03:39:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245283AbhKZCiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:38:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48050 "EHLO mail.kernel.org"
+        id S1357844AbhKZCiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:38:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343732AbhKZCgK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1357811AbhKZCgK (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 25 Nov 2021 21:36:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06D4961157;
-        Fri, 26 Nov 2021 02:32:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B07A611C3;
+        Fri, 26 Nov 2021 02:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637893956;
-        bh=yBA+XNBtnG72JdhvPfPBnL+LIFRcW7PBadeBru35wes=;
+        s=k20201202; t=1637893957;
+        bh=Vus/578Ariot/QBwRqnOtqMCPdUIJpY0aW4Lvv8UDOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hoEw8nQG4g471qwupIzttXBUC+VFG+dDjXkDbQev9TjTVTlKnTt+xHRHP1txgEJ/L
-         Bq0UCriA5nCTJy6L3rxiP3nB/BQo8j8QRgRbHnING3f8akXwIuWId2KXlofJU0CB4d
-         c0jDV8jge/++dJ/wIZEBEgxd9dWCEBsUTSvnrrZLdGfeyAuc0LfAFZkJdzg2azhfX6
-         QdmxtO1vlzILIaTOYalqtb5tUXSkGvVMZCy0Qyjl15LXJvepUQUbEtzhJOq55x7EfH
-         iQbxCAa+t35bWsS/E7jNC4u73HIS5PYP7RH9YAGidFBh7kKS0UGsUtp/uMARq9klhQ
-         S6ujtBnhxOSSA==
+        b=hZDdEsQHB6PtuV+Wlo249M1KoOHIezWz0j6Ww/4/cKyfG92MbWfCxWPpE/x6kP0cV
+         MUV8vAs2lgun1WCU1QfBGKDqZU4zA+JnOYceEdoG2Xw4urga8A//aCRqbavxy2jieD
+         xnOTCm9szy6wjq2FnaxCD71VQH9EBaE9tttSdwbnRpCWAOgrSn6BodFRgDUWIrWsx3
+         1DgZmyToKbcmEeOBUCpbhvRjSkfe7gWzAai9Uwt0fZ1PHK3cwvzhKGa2Y7DdN3aQpx
+         Llr12j7I9rZiXCxui6FK2oSgBOd5JEpJX4mIhsJ0B0+/Umv5ZCK+NfSwYyErTYATMQ
+         xb47D0YfYut+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, borntraeger@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com,
-        egorenar@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 18/39] s390/setup: avoid using memblock_enforce_memory_limit
-Date:   Thu, 25 Nov 2021 21:31:35 -0500
-Message-Id: <20211126023156.441292-18-sashal@kernel.org>
+Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com,
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 19/39] btrfs: silence lockdep when reading chunk tree during mount
+Date:   Thu, 25 Nov 2021 21:31:36 -0500
+Message-Id: <20211126023156.441292-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023156.441292-1-sashal@kernel.org>
 References: <20211126023156.441292-1-sashal@kernel.org>
@@ -44,54 +42,220 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 5dbc4cb4667457b0c53bcd7bff11500b3c362975 ]
+[ Upstream commit 4d9380e0da7be2351437cdac71673a9cd94e50fd ]
 
-There is a difference in how architectures treat "mem=" option. For some
-that is an amount of online memory, for s390 and x86 this is the limiting
-max address. Some memblock api like memblock_enforce_memory_limit()
-take limit argument and explicitly treat it as the size of online memory,
-and use __find_max_addr to convert it to an actual max address. Current
-s390 usage:
+Often some test cases like btrfs/161 trigger lockdep splats that complain
+about possible unsafe lock scenario due to the fact that during mount,
+when reading the chunk tree we end up calling blkdev_get_by_path() while
+holding a read lock on a leaf of the chunk tree. That produces a lockdep
+splat like the following:
 
-memblock_enforce_memory_limit(memblock_end_of_DRAM());
+[ 3653.683975] ======================================================
+[ 3653.685148] WARNING: possible circular locking dependency detected
+[ 3653.686301] 5.15.0-rc7-btrfs-next-103 #1 Not tainted
+[ 3653.687239] ------------------------------------------------------
+[ 3653.688400] mount/447465 is trying to acquire lock:
+[ 3653.689320] ffff8c6b0c76e528 (&disk->open_mutex){+.+.}-{3:3}, at: blkdev_get_by_dev.part.0+0xe7/0x320
+[ 3653.691054]
+               but task is already holding lock:
+[ 3653.692155] ffff8c6b0a9f39e0 (btrfs-chunk-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x24/0x110 [btrfs]
+[ 3653.693978]
+               which lock already depends on the new lock.
 
-yields different results depending on presence of memory holes (offline
-memory blocks in between online memory). If there are no memory holes
-limit == max_addr in memblock_enforce_memory_limit() and it does trim
-online memory and reserved memory regions. With memory holes present it
-actually does nothing.
+[ 3653.695510]
+               the existing dependency chain (in reverse order) is:
+[ 3653.696915]
+               -> #3 (btrfs-chunk-00){++++}-{3:3}:
+[ 3653.698053]        down_read_nested+0x4b/0x140
+[ 3653.698893]        __btrfs_tree_read_lock+0x24/0x110 [btrfs]
+[ 3653.699988]        btrfs_read_lock_root_node+0x31/0x40 [btrfs]
+[ 3653.701205]        btrfs_search_slot+0x537/0xc00 [btrfs]
+[ 3653.702234]        btrfs_insert_empty_items+0x32/0x70 [btrfs]
+[ 3653.703332]        btrfs_init_new_device+0x563/0x15b0 [btrfs]
+[ 3653.704439]        btrfs_ioctl+0x2110/0x3530 [btrfs]
+[ 3653.705405]        __x64_sys_ioctl+0x83/0xb0
+[ 3653.706215]        do_syscall_64+0x3b/0xc0
+[ 3653.706990]        entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 3653.708040]
+               -> #2 (sb_internal#2){.+.+}-{0:0}:
+[ 3653.708994]        lock_release+0x13d/0x4a0
+[ 3653.709533]        up_write+0x18/0x160
+[ 3653.710017]        btrfs_sync_file+0x3f3/0x5b0 [btrfs]
+[ 3653.710699]        __loop_update_dio+0xbd/0x170 [loop]
+[ 3653.711360]        lo_ioctl+0x3b1/0x8a0 [loop]
+[ 3653.711929]        block_ioctl+0x48/0x50
+[ 3653.712442]        __x64_sys_ioctl+0x83/0xb0
+[ 3653.712991]        do_syscall_64+0x3b/0xc0
+[ 3653.713519]        entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 3653.714233]
+               -> #1 (&lo->lo_mutex){+.+.}-{3:3}:
+[ 3653.715026]        __mutex_lock+0x92/0x900
+[ 3653.715648]        lo_open+0x28/0x60 [loop]
+[ 3653.716275]        blkdev_get_whole+0x28/0x90
+[ 3653.716867]        blkdev_get_by_dev.part.0+0x142/0x320
+[ 3653.717537]        blkdev_open+0x5e/0xa0
+[ 3653.718043]        do_dentry_open+0x163/0x390
+[ 3653.718604]        path_openat+0x3f0/0xa80
+[ 3653.719128]        do_filp_open+0xa9/0x150
+[ 3653.719652]        do_sys_openat2+0x97/0x160
+[ 3653.720197]        __x64_sys_openat+0x54/0x90
+[ 3653.720766]        do_syscall_64+0x3b/0xc0
+[ 3653.721285]        entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 3653.721986]
+               -> #0 (&disk->open_mutex){+.+.}-{3:3}:
+[ 3653.722775]        __lock_acquire+0x130e/0x2210
+[ 3653.723348]        lock_acquire+0xd7/0x310
+[ 3653.723867]        __mutex_lock+0x92/0x900
+[ 3653.724394]        blkdev_get_by_dev.part.0+0xe7/0x320
+[ 3653.725041]        blkdev_get_by_path+0xb8/0xd0
+[ 3653.725614]        btrfs_get_bdev_and_sb+0x1b/0xb0 [btrfs]
+[ 3653.726332]        open_fs_devices+0xd7/0x2c0 [btrfs]
+[ 3653.726999]        btrfs_read_chunk_tree+0x3ad/0x870 [btrfs]
+[ 3653.727739]        open_ctree+0xb8e/0x17bf [btrfs]
+[ 3653.728384]        btrfs_mount_root.cold+0x12/0xde [btrfs]
+[ 3653.729130]        legacy_get_tree+0x30/0x50
+[ 3653.729676]        vfs_get_tree+0x28/0xc0
+[ 3653.730192]        vfs_kern_mount.part.0+0x71/0xb0
+[ 3653.730800]        btrfs_mount+0x11d/0x3a0 [btrfs]
+[ 3653.731427]        legacy_get_tree+0x30/0x50
+[ 3653.731970]        vfs_get_tree+0x28/0xc0
+[ 3653.732486]        path_mount+0x2d4/0xbe0
+[ 3653.732997]        __x64_sys_mount+0x103/0x140
+[ 3653.733560]        do_syscall_64+0x3b/0xc0
+[ 3653.734080]        entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 3653.734782]
+               other info that might help us debug this:
 
-Since we already use memblock_remove() explicitly to trim online memory
-regions to potential limit (think mem=, kdump, addressing limits, etc.)
-drop the usage of memblock_enforce_memory_limit() altogether. Trimming
-reserved regions should not be required, since we now use
-memblock_set_current_limit() to limit allocations and any explicit memory
-reservations above the limit is an actual problem we should not hide.
+[ 3653.735784] Chain exists of:
+                 &disk->open_mutex --> sb_internal#2 --> btrfs-chunk-00
 
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+[ 3653.737123]  Possible unsafe locking scenario:
+
+[ 3653.737865]        CPU0                    CPU1
+[ 3653.738435]        ----                    ----
+[ 3653.739007]   lock(btrfs-chunk-00);
+[ 3653.739449]                                lock(sb_internal#2);
+[ 3653.740193]                                lock(btrfs-chunk-00);
+[ 3653.740955]   lock(&disk->open_mutex);
+[ 3653.741431]
+                *** DEADLOCK ***
+
+[ 3653.742176] 3 locks held by mount/447465:
+[ 3653.742739]  #0: ffff8c6acf85c0e8 (&type->s_umount_key#44/1){+.+.}-{3:3}, at: alloc_super+0xd5/0x3b0
+[ 3653.744114]  #1: ffffffffc0b28f70 (uuid_mutex){+.+.}-{3:3}, at: btrfs_read_chunk_tree+0x59/0x870 [btrfs]
+[ 3653.745563]  #2: ffff8c6b0a9f39e0 (btrfs-chunk-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x24/0x110 [btrfs]
+[ 3653.747066]
+               stack backtrace:
+[ 3653.747723] CPU: 4 PID: 447465 Comm: mount Not tainted 5.15.0-rc7-btrfs-next-103 #1
+[ 3653.748873] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[ 3653.750592] Call Trace:
+[ 3653.750967]  dump_stack_lvl+0x57/0x72
+[ 3653.751526]  check_noncircular+0xf3/0x110
+[ 3653.752136]  ? stack_trace_save+0x4b/0x70
+[ 3653.752748]  __lock_acquire+0x130e/0x2210
+[ 3653.753356]  lock_acquire+0xd7/0x310
+[ 3653.753898]  ? blkdev_get_by_dev.part.0+0xe7/0x320
+[ 3653.754596]  ? lock_is_held_type+0xe8/0x140
+[ 3653.755125]  ? blkdev_get_by_dev.part.0+0xe7/0x320
+[ 3653.755729]  ? blkdev_get_by_dev.part.0+0xe7/0x320
+[ 3653.756338]  __mutex_lock+0x92/0x900
+[ 3653.756794]  ? blkdev_get_by_dev.part.0+0xe7/0x320
+[ 3653.757400]  ? do_raw_spin_unlock+0x4b/0xa0
+[ 3653.757930]  ? _raw_spin_unlock+0x29/0x40
+[ 3653.758437]  ? bd_prepare_to_claim+0x129/0x150
+[ 3653.758999]  ? trace_module_get+0x2b/0xd0
+[ 3653.759508]  ? try_module_get.part.0+0x50/0x80
+[ 3653.760072]  blkdev_get_by_dev.part.0+0xe7/0x320
+[ 3653.760661]  ? devcgroup_check_permission+0xc1/0x1f0
+[ 3653.761288]  blkdev_get_by_path+0xb8/0xd0
+[ 3653.761797]  btrfs_get_bdev_and_sb+0x1b/0xb0 [btrfs]
+[ 3653.762454]  open_fs_devices+0xd7/0x2c0 [btrfs]
+[ 3653.763055]  ? clone_fs_devices+0x8f/0x170 [btrfs]
+[ 3653.763689]  btrfs_read_chunk_tree+0x3ad/0x870 [btrfs]
+[ 3653.764370]  ? kvm_sched_clock_read+0x14/0x40
+[ 3653.764922]  open_ctree+0xb8e/0x17bf [btrfs]
+[ 3653.765493]  ? super_setup_bdi_name+0x79/0xd0
+[ 3653.766043]  btrfs_mount_root.cold+0x12/0xde [btrfs]
+[ 3653.766780]  ? rcu_read_lock_sched_held+0x3f/0x80
+[ 3653.767488]  ? kfree+0x1f2/0x3c0
+[ 3653.767979]  legacy_get_tree+0x30/0x50
+[ 3653.768548]  vfs_get_tree+0x28/0xc0
+[ 3653.769076]  vfs_kern_mount.part.0+0x71/0xb0
+[ 3653.769718]  btrfs_mount+0x11d/0x3a0 [btrfs]
+[ 3653.770381]  ? rcu_read_lock_sched_held+0x3f/0x80
+[ 3653.771086]  ? kfree+0x1f2/0x3c0
+[ 3653.771574]  legacy_get_tree+0x30/0x50
+[ 3653.772136]  vfs_get_tree+0x28/0xc0
+[ 3653.772673]  path_mount+0x2d4/0xbe0
+[ 3653.773201]  __x64_sys_mount+0x103/0x140
+[ 3653.773793]  do_syscall_64+0x3b/0xc0
+[ 3653.774333]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 3653.775094] RIP: 0033:0x7f648bc45aaa
+
+This happens because through btrfs_read_chunk_tree(), which is called only
+during mount, ends up acquiring the mutex open_mutex of a block device
+while holding a read lock on a leaf of the chunk tree while other paths
+need to acquire other locks before locking extent buffers of the chunk
+tree.
+
+Since at mount time when we call btrfs_read_chunk_tree() we know that
+we don't have other tasks running in parallel and modifying the chunk
+tree, we can simply skip locking of chunk tree extent buffers. So do
+that and move the assertion that checks the fs is not yet mounted to the
+top block of btrfs_read_chunk_tree(), with a comment before doing it.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/setup.c | 3 ---
- 1 file changed, 3 deletions(-)
+ fs/btrfs/volumes.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 67e5fff96ee06..c4d813ae51a8f 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -824,9 +824,6 @@ static void __init setup_memory(void)
- 		storage_key_init_range(start, end);
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 6afebc5b10c84..8ad62d9fbb0ad 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -7483,6 +7483,19 @@ int btrfs_read_chunk_tree(struct btrfs_fs_info *fs_info)
+ 	 */
+ 	fs_info->fs_devices->total_rw_bytes = 0;
  
- 	psw_set_key(PAGE_DEFAULT_KEY);
--
--	/* Only cosmetics */
--	memblock_enforce_memory_limit(memblock_end_of_DRAM());
- }
- 
- static void __init relocate_amode31_section(void)
++	/*
++	 * Lockdep complains about possible circular locking dependency between
++	 * a disk's open_mutex (struct gendisk.open_mutex), the rw semaphores
++	 * used for freeze procection of a fs (struct super_block.s_writers),
++	 * which we take when starting a transaction, and extent buffers of the
++	 * chunk tree if we call read_one_dev() while holding a lock on an
++	 * extent buffer of the chunk tree. Since we are mounting the filesystem
++	 * and at this point there can't be any concurrent task modifying the
++	 * chunk tree, to keep it simple, just skip locking on the chunk tree.
++	 */
++	ASSERT(!test_bit(BTRFS_FS_OPEN, &fs_info->flags));
++	path->skip_locking = 1;
++
+ 	/*
+ 	 * Read all device items, and then all the chunk items. All
+ 	 * device items are found before any chunk item (their object id
+@@ -7508,10 +7521,6 @@ int btrfs_read_chunk_tree(struct btrfs_fs_info *fs_info)
+ 				goto error;
+ 			break;
+ 		}
+-		/*
+-		 * The nodes on level 1 are not locked but we don't need to do
+-		 * that during mount time as nothing else can access the tree
+-		 */
+ 		node = path->nodes[1];
+ 		if (node) {
+ 			if (last_ra_node != node->start) {
+@@ -7539,7 +7548,6 @@ int btrfs_read_chunk_tree(struct btrfs_fs_info *fs_info)
+ 			 * requirement for chunk allocation, see the comment on
+ 			 * top of btrfs_chunk_alloc() for details.
+ 			 */
+-			ASSERT(!test_bit(BTRFS_FS_OPEN, &fs_info->flags));
+ 			chunk = btrfs_item_ptr(leaf, slot, struct btrfs_chunk);
+ 			ret = read_one_chunk(&found_key, leaf, chunk);
+ 			if (ret)
 -- 
 2.33.0
 
