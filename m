@@ -2,108 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9124445ED33
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 12:57:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D088045EDD8
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 13:26:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377206AbhKZMBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Nov 2021 07:01:01 -0500
-Received: from mslow1.mail.gandi.net ([217.70.178.240]:35783 "EHLO
-        mslow1.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349012AbhKZL7A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Nov 2021 06:59:00 -0500
-Received: from relay9-d.mail.gandi.net (unknown [217.70.183.199])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id 947D2C460B;
-        Fri, 26 Nov 2021 11:40:19 +0000 (UTC)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 082EAFF823;
-        Fri, 26 Nov 2021 11:39:49 +0000 (UTC)
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Tudor Ambarus <Tudor.Ambarus@microchip.com>,
-        Pratyush Yadav <p.yadav@ti.com>,
-        Michael Walle <michael@walle.cc>,
-        <linux-mtd@lists.infradead.org>
-Cc:     Rob Herring <robh+dt@kernel.org>, <devicetree@vger.kernel.org>,
-        Mark Brown <broonie@kernel.org>, <linux-spi@vger.kernel.org>,
-        Xiangsheng Hou <Xiangsheng.Hou@mediatek.com>,
-        Julien Su <juliensu@mxic.com.tw>,
-        Jaime Liao <jaimeliao@mxic.com.tw>,
-        Boris Brezillon <bbrezillon@kernel.org>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        stable@vger.kernel.org, Mason Yang <masonccyang@mxic.com.tw>,
-        Zhengxun Li <zhengxunli@mxic.com.tw>
-Subject: [PATCH v2 16/20] spi: mxic: Fix the transmit path
-Date:   Fri, 26 Nov 2021 12:39:20 +0100
-Message-Id: <20211126113924.310459-17-miquel.raynal@bootlin.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20211126113924.310459-1-miquel.raynal@bootlin.com>
-References: <20211126113924.310459-1-miquel.raynal@bootlin.com>
+        id S1377417AbhKZM3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Nov 2021 07:29:13 -0500
+Received: from mga04.intel.com ([192.55.52.120]:43605 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237249AbhKZM1N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Nov 2021 07:27:13 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10179"; a="234388665"
+X-IronPort-AV: E=Sophos;i="5.87,265,1631602800"; 
+   d="scan'208";a="234388665"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Nov 2021 04:22:19 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.87,265,1631602800"; 
+   d="scan'208";a="510623410"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.199])
+  by orsmga008.jf.intel.com with ESMTP; 26 Nov 2021 04:22:17 -0800
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org,
+        Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+Subject: [PATCH 1/1] xhci: Fix commad ring abort, write all 64 bits to CRCR register.
+Date:   Fri, 26 Nov 2021 14:23:40 +0200
+Message-Id: <20211126122340.1193239-2-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20211126122340.1193239-1-mathias.nyman@linux.intel.com>
+References: <20211126122340.1193239-1-mathias.nyman@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-By working with external hardware ECC engines, we figured out that
-Under certain circumstances, it is needed for the SPI controller to
-check INT_TX_EMPTY and INT_RX_NOT_EMPTY in both receive and transmit
-path (not only in the receive path). The delay penalty being
-negligible, move this code in the common path.
+Turns out some xHC controllers require all 64 bits in the CRCR register
+to be written to execute a command abort.
 
-Fixes: b942d80b0a39 ("spi: Add MXIC controller driver")
+The lower 32 bits containing the command abort bit is written first.
+In case the command ring stops before we write the upper 32 bits then
+hardware may use these upper bits to set the commnd ring dequeue pointer.
+
+Solve this by making sure the upper 32 bits contain a valid command
+ring dequeue pointer.
+
+The original patch that only wrote the first 32 to stop the ring went
+to stable, so this fix should go there as well.
+
+Fixes: ff0e50d3564f ("xhci: Fix command ring pointer corruption while aborting a command")
 Cc: stable@vger.kernel.org
-Suggested-by: Mason Yang <masonccyang@mxic.com.tw>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Zhengxun Li <zhengxunli@mxic.com.tw>
+Tested-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 ---
- drivers/spi/spi-mxic.c | 28 ++++++++++++----------------
- 1 file changed, 12 insertions(+), 16 deletions(-)
+ drivers/usb/host/xhci-ring.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/spi/spi-mxic.c b/drivers/spi/spi-mxic.c
-index 45889947afed..03fce4493aa7 100644
---- a/drivers/spi/spi-mxic.c
-+++ b/drivers/spi/spi-mxic.c
-@@ -304,25 +304,21 @@ static int mxic_spi_data_xfer(struct mxic_spi *mxic, const void *txbuf,
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 311597bba80e..eaa49aef2935 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -366,7 +366,9 @@ static void xhci_handle_stopped_cmd_ring(struct xhci_hcd *xhci,
+ /* Must be called with xhci->lock held, releases and aquires lock back */
+ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
+ {
+-	u32 temp_32;
++	struct xhci_segment *new_seg	= xhci->cmd_ring->deq_seg;
++	union xhci_trb *new_deq		= xhci->cmd_ring->dequeue;
++	u64 crcr;
+ 	int ret;
  
- 		writel(data, mxic->regs + TXD(nbytes % 4));
+ 	xhci_dbg(xhci, "Abort command ring\n");
+@@ -375,13 +377,18 @@ static int xhci_abort_cmd_ring(struct xhci_hcd *xhci, unsigned long flags)
  
-+		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
-+					 sts & INT_TX_EMPTY, 0, USEC_PER_SEC);
-+		if (ret)
-+			return ret;
+ 	/*
+ 	 * The control bits like command stop, abort are located in lower
+-	 * dword of the command ring control register. Limit the write
+-	 * to the lower dword to avoid corrupting the command ring pointer
+-	 * in case if the command ring is stopped by the time upper dword
+-	 * is written.
++	 * dword of the command ring control register.
++	 * Some controllers require all 64 bits to be written to abort the ring.
++	 * Make sure the upper dword is valid, pointing to the next command,
++	 * avoiding corrupting the command ring pointer in case the command ring
++	 * is stopped by the time the upper dword is written.
+ 	 */
+-	temp_32 = readl(&xhci->op_regs->cmd_ring);
+-	writel(temp_32 | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
++	next_trb(xhci, NULL, &new_seg, &new_deq);
++	if (trb_is_link(new_deq))
++		next_trb(xhci, NULL, &new_seg, &new_deq);
 +
-+		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
-+					 sts & INT_RX_NOT_EMPTY, 0,
-+					 USEC_PER_SEC);
-+		if (ret)
-+			return ret;
-+
-+		data = readl(mxic->regs + RXD);
- 		if (rxbuf) {
--			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
--						 sts & INT_TX_EMPTY, 0,
--						 USEC_PER_SEC);
--			if (ret)
--				return ret;
--
--			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
--						 sts & INT_RX_NOT_EMPTY, 0,
--						 USEC_PER_SEC);
--			if (ret)
--				return ret;
--
--			data = readl(mxic->regs + RXD);
- 			data >>= (8 * (4 - nbytes));
- 			memcpy(rxbuf + pos, &data, nbytes);
--			WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
--		} else {
--			readl(mxic->regs + RXD);
- 		}
- 		WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
++	crcr = xhci_trb_virt_to_dma(new_seg, new_deq);
++	xhci_write_64(xhci, crcr | CMD_RING_ABORT, &xhci->op_regs->cmd_ring);
  
+ 	/* Section 4.6.1.2 of xHCI 1.0 spec says software should also time the
+ 	 * completion of the Command Abort operation. If CRR is not negated in 5
 -- 
-2.27.0
+2.25.1
 
