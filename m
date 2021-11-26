@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5989045E60F
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C5EE45E619
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 04:01:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358888AbhKZCr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:47:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50264 "EHLO mail.kernel.org"
+        id S1358867AbhKZCt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:49:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358934AbhKZCpY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:45:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC86061354;
-        Fri, 26 Nov 2021 02:36:20 +0000 (UTC)
+        id S1358957AbhKZCp0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:45:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CF36611B0;
+        Fri, 26 Nov 2021 02:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894181;
-        bh=zckwn8ZqgcsTcbvynf3POGfdMPebx1qlpjUTQOx6pMk=;
+        s=k20201202; t=1637894183;
+        bh=cUa1rjRlOgH3cNAuyeNmMadLMFU3Vu5drn9Z481Poio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnUuVvsI8+3idJ3D7pFggog5CunteOImY+vb2Moeavs5TARtxkn+d2mmTMWMs97G+
-         G8oPQaPg7YpHd+zU+QzRE3cy8Eo9hkt+zg8NXHLR5/p7OefBrjegS0dEsgBGzMGiY8
-         +Z/xE/h85+0AF5d7XDyZ4Z78SZ/n/+3DL/A8OumqbcYz4QOHqTr04+j0EVeJ70p30Q
-         0g2cRGUR00VBzI3HEYaS262TwX22H0Ig1T59BDjVwuYmA0khcrzuZgT61XHmQ5fcii
-         lccpsFQfRfzY+Lbsh3+1a4kG5phZmg7PFCov9lR7T7o9kegXxzOJvy8Q0IX6tFF1Fi
-         dQB/QTLMWFTUg==
+        b=nDsCO1c4hJDfT3+JJxKVd91I0X4u34yJwQgPEloE8xXe3C+6vNudGie4XQKTDCUVD
+         dhgsi33qUXGAKUR125gQc0GVc1G4/foCPbDQNEC4e+GcvM/HL7ks4WG7WaZsDbBYuC
+         rrd8leTd6IHL/N9hFV+BUQh3somP3qsKH+qcwAvGN6hxbcO15PULlGv50pfwXwRhb0
+         gKYfTEvoU0oPJpBKbHmDsPBDUxGKsL9T/gwf3eb1o0PI55L+K7VHhEVlfqy8dmYPJ2
+         NxNFWGfrwPz1Dx/WJPyAiL7DGY3gaG9LXawzjSB4X09U6ff7XjZM9qXSQ9jem2VTug
+         ylPSidgfkCM1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Yugui <wangyugui@e16-tech.com>,
-        Filipe Manana <fdmanana@gmail.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, clm@fb.com,
-        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 06/12] btrfs: check-integrity: fix a warning on write caching disabled disk
-Date:   Thu, 25 Nov 2021 21:36:02 -0500
-Message-Id: <20211126023611.443098-6-sashal@kernel.org>
+Cc:     Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>,
+        Thara Gopinath <thara.gopinath@linaro.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        daniel.lezcano@linaro.org, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 07/12] thermal: core: Reset previous low and high trip during thermal zone init
+Date:   Thu, 25 Nov 2021 21:36:03 -0500
+Message-Id: <20211126023611.443098-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023611.443098-1-sashal@kernel.org>
 References: <20211126023611.443098-1-sashal@kernel.org>
@@ -44,111 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yugui <wangyugui@e16-tech.com>
+From: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
 
-[ Upstream commit a91cf0ffbc244792e0b3ecf7d0fddb2f344b461f ]
+[ Upstream commit 99b63316c39988039965693f5f43d8b4ccb1c86c ]
 
-When a disk has write caching disabled, we skip submission of a bio with
-flush and sync requests before writing the superblock, since it's not
-needed. However when the integrity checker is enabled, this results in
-reports that there are metadata blocks referred by a superblock that
-were not properly flushed. So don't skip the bio submission only when
-the integrity checker is enabled for the sake of simplicity, since this
-is a debug tool and not meant for use in non-debug builds.
+During the suspend is in process, thermal_zone_device_update bails out
+thermal zone re-evaluation for any sensor trip violation without
+setting next valid trip to that sensor. It assumes during resume
+it will re-evaluate same thermal zone and update trip. But when it is
+in suspend temperature goes down and on resume path while updating
+thermal zone if temperature is less than previously violated trip,
+thermal zone set trip function evaluates the same previous high and
+previous low trip as new high and low trip. Since there is no change
+in high/low trip, it bails out from thermal zone set trip API without
+setting any trip. It leads to a case where sensor high trip or low
+trip is disabled forever even though thermal zone has a valid high
+or low trip.
 
-fstests/btrfs/220 trigger a check-integrity warning like the following
-when CONFIG_BTRFS_FS_CHECK_INTEGRITY=y and the disk with WCE=0.
+During thermal zone device init, reset thermal zone previous high
+and low trip. It resolves above mentioned scenario.
 
-  btrfs: attempt to write superblock which references block M @5242880 (sdb2/5242880/0) which is not flushed out of disk's write cache (block flush_gen=1, dev->flush_gen=0)!
-  ------------[ cut here ]------------
-  WARNING: CPU: 28 PID: 843680 at fs/btrfs/check-integrity.c:2196 btrfsic_process_written_superblock+0x22a/0x2a0 [btrfs]
-  CPU: 28 PID: 843680 Comm: umount Not tainted 5.15.0-0.rc5.39.el8.x86_64 #1
-  Hardware name: Dell Inc. Precision T7610/0NK70N, BIOS A18 09/11/2019
-  RIP: 0010:btrfsic_process_written_superblock+0x22a/0x2a0 [btrfs]
-  RSP: 0018:ffffb642afb47940 EFLAGS: 00010246
-  RAX: 0000000000000000 RBX: 0000000000000002 RCX: 0000000000000000
-  RDX: 00000000ffffffff RSI: ffff8b722fc97d00 RDI: ffff8b722fc97d00
-  RBP: ffff8b5601c00000 R08: 0000000000000000 R09: c0000000ffff7fff
-  R10: 0000000000000001 R11: ffffb642afb476f8 R12: ffffffffffffffff
-  R13: ffffb642afb47974 R14: ffff8b5499254c00 R15: 0000000000000003
-  FS:  00007f00a06d4080(0000) GS:ffff8b722fc80000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fff5cff5ff0 CR3: 00000001c0c2a006 CR4: 00000000001706e0
-  Call Trace:
-   btrfsic_process_written_block+0x2f7/0x850 [btrfs]
-   __btrfsic_submit_bio.part.19+0x310/0x330 [btrfs]
-   ? bio_associate_blkg_from_css+0xa4/0x2c0
-   btrfsic_submit_bio+0x18/0x30 [btrfs]
-   write_dev_supers+0x81/0x2a0 [btrfs]
-   ? find_get_pages_range_tag+0x219/0x280
-   ? pagevec_lookup_range_tag+0x24/0x30
-   ? __filemap_fdatawait_range+0x6d/0xf0
-   ? __raw_callee_save___native_queued_spin_unlock+0x11/0x1e
-   ? find_first_extent_bit+0x9b/0x160 [btrfs]
-   ? __raw_callee_save___native_queued_spin_unlock+0x11/0x1e
-   write_all_supers+0x1b3/0xa70 [btrfs]
-   ? __raw_callee_save___native_queued_spin_unlock+0x11/0x1e
-   btrfs_commit_transaction+0x59d/0xac0 [btrfs]
-   close_ctree+0x11d/0x339 [btrfs]
-   generic_shutdown_super+0x71/0x110
-   kill_anon_super+0x14/0x30
-   btrfs_kill_super+0x12/0x20 [btrfs]
-   deactivate_locked_super+0x31/0x70
-   cleanup_mnt+0xb8/0x140
-   task_work_run+0x6d/0xb0
-   exit_to_user_mode_prepare+0x1f0/0x200
-   syscall_exit_to_user_mode+0x12/0x30
-   do_syscall_64+0x46/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x7f009f711dfb
-  RSP: 002b:00007fff5cff7928 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
-  RAX: 0000000000000000 RBX: 000055b68c6c9970 RCX: 00007f009f711dfb
-  RDX: 0000000000000001 RSI: 0000000000000000 RDI: 000055b68c6c9b50
-  RBP: 0000000000000000 R08: 000055b68c6ca900 R09: 00007f009f795580
-  R10: 0000000000000000 R11: 0000000000000246 R12: 000055b68c6c9b50
-  R13: 00007f00a04bf184 R14: 0000000000000000 R15: 00000000ffffffff
-  ---[ end trace 2c4b82abcef9eec4 ]---
-  S-65536(sdb2/65536/1)
-   -->
-  M-1064960(sdb2/1064960/1)
-
-Reviewed-by: Filipe Manana <fdmanana@gmail.com>
-Signed-off-by: Wang Yugui <wangyugui@e16-tech.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Manaf Meethalavalappu Pallikunhi <manafm@codeaurora.org>
+Reviewed-by: Thara Gopinath <thara.gopinath@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/disk-io.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/thermal/thermal_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index ace58d6a270b6..41ebc613ca4cf 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3339,11 +3339,23 @@ static void btrfs_end_empty_barrier(struct bio *bio)
-  */
- static void write_dev_flush(struct btrfs_device *device)
+diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
+index 94820f25a15ff..8374b8078b7df 100644
+--- a/drivers/thermal/thermal_core.c
++++ b/drivers/thermal/thermal_core.c
+@@ -457,6 +457,8 @@ static void thermal_zone_device_init(struct thermal_zone_device *tz)
  {
--	struct request_queue *q = bdev_get_queue(device->bdev);
- 	struct bio *bio = device->flush_bio;
- 
-+#ifndef CONFIG_BTRFS_FS_CHECK_INTEGRITY
-+	/*
-+	 * When a disk has write caching disabled, we skip submission of a bio
-+	 * with flush and sync requests before writing the superblock, since
-+	 * it's not needed. However when the integrity checker is enabled, this
-+	 * results in reports that there are metadata blocks referred by a
-+	 * superblock that were not properly flushed. So don't skip the bio
-+	 * submission only when the integrity checker is enabled for the sake
-+	 * of simplicity, since this is a debug tool and not meant for use in
-+	 * non-debug builds.
-+	 */
-+	struct request_queue *q = bdev_get_queue(device->bdev);
- 	if (!test_bit(QUEUE_FLAG_WC, &q->queue_flags))
- 		return;
-+#endif
- 
- 	bio_reset(bio);
- 	bio->bi_end_io = btrfs_end_empty_barrier;
+ 	struct thermal_instance *pos;
+ 	tz->temperature = THERMAL_TEMP_INVALID;
++	tz->prev_low_trip = -INT_MAX;
++	tz->prev_high_trip = INT_MAX;
+ 	list_for_each_entry(pos, &tz->thermal_instances, tz_node)
+ 		pos->initialized = false;
+ }
 -- 
 2.33.0
 
