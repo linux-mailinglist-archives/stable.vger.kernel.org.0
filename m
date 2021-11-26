@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FA1D45E55B
-	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 03:39:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 221D145E567
+	for <lists+stable@lfdr.de>; Fri, 26 Nov 2021 03:39:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358517AbhKZClg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Nov 2021 21:41:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49808 "EHLO mail.kernel.org"
+        id S1358560AbhKZClw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Nov 2021 21:41:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358031AbhKZCjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Nov 2021 21:39:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBDD961242;
-        Fri, 26 Nov 2021 02:34:01 +0000 (UTC)
+        id S1358094AbhKZCjo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Nov 2021 21:39:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C69861220;
+        Fri, 26 Nov 2021 02:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1637894042;
-        bh=EVCyJxq0Rk/sGpamv5LAGeHhzwS5mU1kOyobSTBO/4k=;
+        s=k20201202; t=1637894044;
+        bh=8l6fi617/ftVLVklsrmDF2rpIJVJlnvqWh4LFjj0Eh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lnpoa+tamGYF7djetfTGr9a5ttfsoNffWesiPCLhxkzJgkGCeTeh5O9L1NFxqXf9D
-         OpC6A3Pxf41XEpgIwv4gC3bzsvpwRgxmK4xwy1INi+FOaKmBMtl6qzKnM9AUiRFqR7
-         vcJnjXHk3yIaVjCPjJPVU+PszdlxqXhvO2X7DDzmfRAx4GeTDcj6q9nSiUoHwanW1p
-         E9+1aJcV0NmYzLKOnh3am6rJYl27+EuFHVoxYxZgeMIW6VJ5f6TmMj59A9jnyctnO1
-         4Hm82LkO8ANKxC5trb+iV4fTq8TM1dfIrEZtSK2ns+tWQqQP18l2obIZoTmnceWkOW
-         7ltqbpgWKoERA==
+        b=L2zi4VbR/T0meIfJ4AGcf7uAPCGThFHRor8UPaEVqfVJT5H/pa2U53i4oGi/YVIAx
+         hGGULhFlt4Asqzzt/Lr7js1CgY8x1xxn+XeXh5ZQBiUcz0RM9ru7nRZLMJhlvw/fqY
+         MDriBItqSloeNJQx3RXfivVZRjQr5EY4kq67WtYX5mBtbTpzYkMhrzwaf7pRv392TP
+         clUL/9t3u2foyQ6v3y50iP30y0C2kwBfva2Obs0ZjFyllNLyfmaHOY5hIFxKic7o+X
+         eBYhev2Q6aRQT0kwcE9dAgPaZNtPVFvt+nZ/29IfMdYcImp4IMITNi2uKNiuKzefbt
+         XTafG6zma6Mug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Braha <julianbraha@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
-        bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
-        linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 11/28] pinctrl: qcom: fix unmet dependencies on GPIOLIB for GPIOLIB_IRQCHIP
-Date:   Thu, 25 Nov 2021 21:33:26 -0500
-Message-Id: <20211126023343.442045-11-sashal@kernel.org>
+Cc:     Jimmy Wang <jimmy221b@163.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, hmh@hmh.eng.br,
+        markgross@kernel.org, ibm-acpi-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 12/28] platform/x86: thinkpad_acpi: Add support for dual fan control
+Date:   Thu, 25 Nov 2021 21:33:27 -0500
+Message-Id: <20211126023343.442045-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211126023343.442045-1-sashal@kernel.org>
 References: <20211126023343.442045-1-sashal@kernel.org>
@@ -44,60 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Braha <julianbraha@gmail.com>
+From: Jimmy Wang <jimmy221b@163.com>
 
-[ Upstream commit 60430d4c4eddcdf8eac2bdbec9704f84a436eedf ]
+[ Upstream commit 1f338954a5fbe21eb22b4223141e31f2a26366d5 ]
 
-When PINCTRL_QCOM_SPMI_PMIC or PINCTRL_QCOM_SSBI_PMIC
-is selected, and GPIOLIB is not selected, Kbuild
-gives the following warnings:
+   This adds dual fan control for P1 / X1 Extreme Gen4
 
-WARNING: unmet direct dependencies detected for GPIOLIB_IRQCHIP
-  Depends on [n]: GPIOLIB [=n]
-  Selected by [y]:
-  - PINCTRL_QCOM_SPMI_PMIC [=y] && PINCTRL [=y] && (ARCH_QCOM [=n] || COMPILE_TEST [=y]) && OF [=y] && SPMI [=y]
-
-WARNING: unmet direct dependencies detected for GPIOLIB_IRQCHIP
-  Depends on [n]: GPIOLIB [=n]
-  Selected by [y]:
-  - PINCTRL_QCOM_SSBI_PMIC [=y] && PINCTRL [=y] && (ARCH_QCOM [=n] || COMPILE_TEST [=y]) && OF [=y]
-
-This is because these config options enable GPIOLIB_IRQCHIP
-without selecting or depending on GPIOLIB, despite
-GPIOLIB_IRQCHIP depending on GPIOLIB.
-
-These unmet dependency bugs were detected by Kismet,
-a static analysis tool for Kconfig. Please advise if this
-is not the appropriate solution.
-
-Signed-off-by: Julian Braha <julianbraha@gmail.com>
-Link: https://lore.kernel.org/r/20211029004610.35131-1-julianbraha@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jimmy Wang <jimmy221b@163.com>
+Link: https://lore.kernel.org/r/20211105090528.39677-1-jimmy221b@163.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/platform/x86/thinkpad_acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pinctrl/qcom/Kconfig b/drivers/pinctrl/qcom/Kconfig
-index 5fe7b8aaf69d8..a209eb1f189ab 100644
---- a/drivers/pinctrl/qcom/Kconfig
-+++ b/drivers/pinctrl/qcom/Kconfig
-@@ -169,6 +169,7 @@ config PINCTRL_QCOM_SPMI_PMIC
- 	select PINMUX
- 	select PINCONF
- 	select GENERIC_PINCONF
-+  select GPIOLIB
- 	select GPIOLIB_IRQCHIP
- 	select IRQ_DOMAIN_HIERARCHY
- 	help
-@@ -183,6 +184,7 @@ config PINCTRL_QCOM_SSBI_PMIC
- 	select PINMUX
- 	select PINCONF
- 	select GENERIC_PINCONF
-+  select GPIOLIB
- 	select GPIOLIB_IRQCHIP
- 	select IRQ_DOMAIN_HIERARCHY
- 	help
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 2a313643e0388..840bbc312aedd 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -8805,6 +8805,7 @@ static const struct tpacpi_quirk fan_quirk_table[] __initconst = {
+ 	TPACPI_Q_LNV3('N', '2', 'E', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (1st gen) */
+ 	TPACPI_Q_LNV3('N', '2', 'O', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (2nd gen) */
+ 	TPACPI_Q_LNV3('N', '2', 'V', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (3nd gen) */
++	TPACPI_Q_LNV3('N', '4', '0', TPACPI_FAN_2CTL),	/* P1 / X1 Extreme (4nd gen) */
+ 	TPACPI_Q_LNV3('N', '3', '0', TPACPI_FAN_2CTL),	/* P15 (1st gen) / P15v (1st gen) */
+ 	TPACPI_Q_LNV3('N', '3', '2', TPACPI_FAN_2CTL),	/* X1 Carbon (9th gen) */
+ };
 -- 
 2.33.0
 
