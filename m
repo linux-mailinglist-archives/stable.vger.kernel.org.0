@@ -2,137 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAF6945F77B
-	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 01:36:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A385245F77F
+	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 01:39:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343856AbhK0Ajx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Nov 2021 19:39:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54680 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343793AbhK0Ahw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Nov 2021 19:37:52 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A7A2C061746
-        for <stable@vger.kernel.org>; Fri, 26 Nov 2021 16:34:39 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id gb13-20020a17090b060d00b001a674e2c4a8so9042901pjb.4
-        for <stable@vger.kernel.org>; Fri, 26 Nov 2021 16:34:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=kXVRfnN1ovIcNWLbOw/9uTGTbvTbKmxUW4CAldiyMEM=;
-        b=K3amqg1wUflY9KDMk5HN4DBHMH6VQ0m3aNI9T4ZZ2AnwjZZauIMarXJuVv2slkX8Hx
-         DJOtTJZFi5qv86vAsdIgzRLImY3C+HRhhjgcFF2AfsAnV2J0AsL5NrEayqUt5EmTXbsf
-         46i3HZUq/DPVYHPOLsIrIfDLyqfFTXLCEF87ANtWBmiVd6Eu5Uax1Onzg/su2simbZgH
-         0aUaOQ9pUwNSlL3VcjJ3O16SfDfsO2tpJCUrEbHXTv7+UlwIdagDcwF5TqzdPpyUYhDy
-         QMEftRBo5IEsL55u5dgVLE7Si7RFC7HbfRYP1ATLn+hgTotjzSDPK/9ovhkmd1qza4IL
-         JdyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=kXVRfnN1ovIcNWLbOw/9uTGTbvTbKmxUW4CAldiyMEM=;
-        b=r4GEeVCAWYb+dyFiEyHSk3L9RP9s1U83S9fLeXG26bN1VKlWnNjq8R9bveMSGClHOt
-         7BvASovaXF1JRAF5rzEpPWtkrfrhbujKCLPP+KASZEzFZ5XEpgjT4iZWJjCNPNvTo4Bt
-         lNqtIEa5GmgUBlpZeuHbDCtIMi5/EzaBvFwubdtVV0OBuKckeScxVcM7jn8yK7KqZ1b0
-         8zu3RF28Y4Tf8SiK2/h2XabTtuYBpYMcKWSEgzWFo6ojwfOGkC6kUatqjJmUM/BS+Gpu
-         6AGwJ1eLR0K/3tPxidJpKD6xO9XJAbUEshvV0/H42F5cpPJ/iZMNeoPQeIaZNMP6xK8E
-         hGXQ==
-X-Gm-Message-State: AOAM531cWyAXrgaYbts9DFPtwz3NJM0RBoCszbBQFZU+NshbfKOy7cuv
-        ykngU7MO6a4OtSD9sTpCGFPEBukaG3tf1CB8
-X-Google-Smtp-Source: ABdhPJzltwOsb2J8/JDGfHROei9TkYGJTxSW2KQRGnSgoNZGricqhdXjwFw8IqAeA+BVdJiqB/i4pg==
-X-Received: by 2002:a17:902:9694:b0:143:6f27:29ad with SMTP id n20-20020a170902969400b001436f2729admr42370723plp.46.1637973278716;
-        Fri, 26 Nov 2021 16:34:38 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o16sm8874383pfu.72.2021.11.26.16.34.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Nov 2021 16:34:38 -0800 (PST)
-Message-ID: <61a17d1e.1c69fb81.a7177.915e@mx.google.com>
-Date:   Fri, 26 Nov 2021 16:34:38 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S234092AbhK0AnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Nov 2021 19:43:01 -0500
+Received: from mail-bn8nam11on2064.outbound.protection.outlook.com ([40.107.236.64]:46048
+        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1343969AbhK0AlA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Nov 2021 19:41:00 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=bst7ZHvQqAQCTfK/9RxfBqdu+4VUQu+SIcrFLEVcg8qLz5VfydO77L7mpX0QM6Po8UO7qGakDHIzw3T3AePx21CyEt3fNOXJ2gNNQU8SLkAODus0SYY4lU/LsQu6JxcWdsDRiFBTSYjEXY6JxzGJLC0sIRkCxZPPGPDGUEilNXqM3QCDdmPrui5ERfMV5dgIFPeDyOnUMK8xuV3/JWkT0AJIOVBi5NFG/cfPQWeXiUWrK5sYPnNrmD6nTC3l5YWa+QpPLHX3S0Sifgmm0oF6mPDqJNHlgl7zL6DCn+o0MfYVffgoTl2dVSUpFPll23ZrD+Zg/E3WFc3eUgSYYIL1rw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=lrwHyrE1VR11Y4Lm/PTYOiTNK5sSmOlTS7QT6yJDsgQ=;
+ b=Sh/zM7lKDhaRpN5zBNIQkyJhEaDVuYByoNRGcgVXXlzifUE0Mw6L+DT0wPWTWBgEU2mMPdlm9v03dfYRfANd8ySO/sgFM/MNxSEy92ThclSw5xl6POqFC2qZHRdHg/GY9aDdt1XlMScFOsSMWjJxWGNe0S/C0zxbOz2c3Fw+iDPQOS7cpMJvNivQQE3MYZCqYoq15GpLcNKpkM0/O+DoQoe74YUSEfBqTngzS9YAyIUoda3f1XhE3ct04O09WwrTr5Kcnpe630zfmRQSPjlEf5nqKm/TPCGUKocFK5Wqs7g7W9g7f0HfjdWZhMlJxCBFPnUZlIu3IYowORKZNBY+QA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lrwHyrE1VR11Y4Lm/PTYOiTNK5sSmOlTS7QT6yJDsgQ=;
+ b=P189gr5wxT3RjrTia60C4p4E58uw6Z6E1gh9hGtjQ9fb6/IfpqDDFEUKxubJB/q5PWpjni6wxGzUOVu/sISSYpo5ccf5i12q0MdLQh4A0OIp5tUqYQITZw0JLXM+4pFObll66JY+FU0vW0Rv7+vD4zNjR7Joc597mrnwldh8J4k=
+Received: from DM6PR03CA0010.namprd03.prod.outlook.com (2603:10b6:5:40::23) by
+ BY5PR12MB4273.namprd12.prod.outlook.com (2603:10b6:a03:212::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.19; Sat, 27 Nov
+ 2021 00:37:43 +0000
+Received: from DM6NAM11FT005.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:40:cafe::a2) by DM6PR03CA0010.outlook.office365.com
+ (2603:10b6:5:40::23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.22 via Frontend
+ Transport; Sat, 27 Nov 2021 00:37:43 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ DM6NAM11FT005.mail.protection.outlook.com (10.13.172.238) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.4734.22 via Frontend Transport; Sat, 27 Nov 2021 00:37:43 +0000
+Received: from Philip-Dev.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.17; Fri, 26 Nov
+ 2021 18:37:39 -0600
+From:   Philip Yang <Philip.Yang@amd.com>
+To:     <brahma_sw_dev@amd.com>
+CC:     <felix.kuehling@amd.com>, <christian.koenig@amd.com>,
+        Philip Yang <Philip.Yang@amd.com>, <stable@vger.kernel.org>
+Subject: [PATCH 21.40 V2 1/5] drm/amdgpu: IH process reset count when restart
+Date:   Fri, 26 Nov 2021 19:37:09 -0500
+Message-ID: <20211127003713.19071-2-Philip.Yang@amd.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20211127003713.19071-1-Philip.Yang@amd.com>
+References: <20211126172030.30143-1-Philip.Yang@amd.com>
+ <20211127003713.19071-1-Philip.Yang@amd.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.255-248-gebf35daa9b37
-Subject: stable-rc/queue/4.14 baseline: 117 runs,
- 1 regressions (v4.14.255-248-gebf35daa9b37)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 164d4c86-16c9-42f8-52f8-08d9b13e2034
+X-MS-TrafficTypeDiagnostic: BY5PR12MB4273:
+X-Microsoft-Antispam-PRVS: <BY5PR12MB4273AC60B6D24268C1745A33E6649@BY5PR12MB4273.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1728;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 7tYbvl9j2yycq3X6exBmnM5uJRfKXB2BeBwRLCyBUoWbfCYAIrWuoC/7MRqy7eQg6YC71YQ3b3JeT3ZvYXcQDb1aolycmzgeLaMIL8/gRY23hvr9OjxPHdT3K2txeu3yhvXbqfbHmis0XIZ/kZxM2SQKrZkHbkHfAxZBYRd4X21qZEw36NgfVeWAfGzFjw9W42omDIV1ykbR1NW9Zk39dpD/4lHuhTBlCB6aO4LOFC9gfRlo/tSve/jbh7Op1b7hp9IwH2vMYBvSv0ijZDnt1Vsku2bXFjgRx6UxAhh+KLjoIHJYfyWKslS6BawvZXPWvu8xEG2FJEaJgXYdVu1XltrLpRpzUN92gcUIuvIhGO2Vp1WYgOwdkoSBbZi7lyiU9jsSv39/AaDwnk2L5er/MedvCfM/chyVe4Yi9PFAiKgIgi4gfHNDTuI2bnI5wu2/Hv/Z/gNlS4PhVjgT5Idnh25Fc2JJgZwGl5cCXvvMyjZa+E9D+ywEwqWrJS5wXEGdvq3ns/F1KY6xCk43NUtEB2Q5QMJY/40wKDcZSJo8sOOC/ijZldfc/18qpWasoAFuiOQDI85ljS38n6SWNCVDHXn+1Xq/k4byrSX4MazIHlwtrV4w3EA8CPiogccmt+T2cfSaDGXmSdvi7278sO1TUAYlGKnT1U6K4+W6QCpXgYCuh2W17NYKvfGzs56X0yGZKcq5jwLgf3ohp0VwudiVvlM1bwyR6oKAeCmMTdiGv2o=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(83380400001)(2616005)(186003)(4326008)(8936002)(47076005)(86362001)(1076003)(26005)(508600001)(6862004)(66574015)(6636002)(36756003)(8676002)(5660300002)(82310400004)(6666004)(316002)(16526019)(37006003)(7696005)(356005)(2906002)(70206006)(54906003)(70586007)(36860700001)(336012)(426003)(81166007)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Nov 2021 00:37:43.4985
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 164d4c86-16c9-42f8-52f8-08d9b13e2034
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT005.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4273
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 117 runs, 1 regressions (v4.14.255-248-gebf3=
-5daa9b37)
+Otherwise when IH process restart, count is zero, the loop will
+not exit to wake_up_all after processing AMDGPU_IH_MAX_NUM_IVS
+interrupts.
 
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+Cc: stable@vger.kernel.org
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ih.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ih.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ih.c
+index a36e191cf086..6a3ee80a6d62 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ih.c
+@@ -221,7 +221,7 @@ int amdgpu_ih_wait_on_checkpoint_process(struct amdgpu_device *adev,
+  */
+ int amdgpu_ih_process(struct amdgpu_device *adev, struct amdgpu_ih_ring *ih)
+ {
+-	unsigned int count = AMDGPU_IH_MAX_NUM_IVS;
++	unsigned int count;
+ 	u32 wptr;
+ 
+ 	if (!ih->enabled || adev->shutdown)
+@@ -230,6 +230,7 @@ int amdgpu_ih_process(struct amdgpu_device *adev, struct amdgpu_ih_ring *ih)
+ 	wptr = amdgpu_ih_get_wptr(adev, ih);
+ 
+ restart_ih:
++	count  = AMDGPU_IH_MAX_NUM_IVS;
+ 	DRM_DEBUG("%s: rptr %d, wptr %d\n", __func__, ih->rptr, wptr);
+ 
+ 	/* Order reading of wptr vs. reading of IH ring data */
+-- 
+2.17.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.255-248-gebf35daa9b37/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.255-248-gebf35daa9b37
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ebf35daa9b374b20bbcf7ef7f5dae8c8c6daecad =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61a148fd6e4ae4df3118f6ef
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.255=
--248-gebf35daa9b37/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.255=
--248-gebf35daa9b37/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a148fe6e4ae4d=
-f3118f6f5
-        failing since 1 day (last pass: v4.14.255-248-g646bcac5a19c, first =
-fail: v4.14.255-250-g0b1b1688e7ac)
-        2 lines
-
-    2021-11-26T20:51:56.183571  [   19.936462] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-26T20:51:56.223534  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/95
-    2021-11-26T20:51:56.232676  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
