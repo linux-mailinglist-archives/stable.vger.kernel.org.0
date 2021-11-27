@@ -2,139 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DB7A4600F1
-	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 19:35:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF2A46014F
+	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 20:54:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355905AbhK0SiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Nov 2021 13:38:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33482 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244099AbhK0SgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 13:36:25 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EDE7C06173E
-        for <stable@vger.kernel.org>; Sat, 27 Nov 2021 10:33:10 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id b13so8899142plg.2
-        for <stable@vger.kernel.org>; Sat, 27 Nov 2021 10:33:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=q7x+lRuDdTJCVO3X6aSonFp2OXaByplE0RKTTTYwiT8=;
-        b=k0a3g4yUWQL2k9LyB4KXwwsuk04j04Y4LDsUfh/ij4ZVbjCmwYzIuB23c7ZPjCr2xe
-         hbaSHVmwskDyIxbgOImbi+8SSjDwaliD9z9PKCitoX38V6S7fc+nz8uXATnEusAFa+dk
-         /X9hoo5NGKryy199Z8emN9CPGToOm8jxoJ4H6AhWgqK5Fjk6iRvyvmw3OBoUReWg19+a
-         YQc5jEuSO5FDUjQfdpTwSe7PDu0ekQiT/7jrPF+utBmh7n8nOhqNPivhVUvhl9uRCjh0
-         FQ02UrLCbryuKGSNtZ8vwNCQD4Dey6iKFrP2CjVRveNGvkxAudjwCUFwH4Nx77JiHLBd
-         01ZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=q7x+lRuDdTJCVO3X6aSonFp2OXaByplE0RKTTTYwiT8=;
-        b=LtsPq/5lmEt9jyUHCgCHkmiszsCG3G+IzIOD9ZdyRCIHu9JFD/sdeU8y3cuM+EAnid
-         q1VKRdBZKS6TF/xSsSxelNWDn5SApc+0eEKCA5lL0WmBFqOYzI9dhKqNkNB3arnc8ic3
-         W8YFvvuGT08tFiq8v2iggPWvadIU3c9sWuCSookEdTazyWFDE6YXOPRzjcROtyxRioD8
-         7VwOLL9dgJkgeapxiROUOGMkih19yi7dVrTK/xD3lmc73gBHNFZxwAbTD/6YPm+Wm9HC
-         SxZSmkXdkaSCP793HLkwJwt15FrUW8g6KNsCQn/AFDB9mqE4Ew6+B9k3eoMdKLdsrOYY
-         6nxQ==
-X-Gm-Message-State: AOAM533wbZtPNM3geu561q3wfCTGrsaD+SBb5j7efkCTFCMmutXu6sFU
-        gaXLMgXVWeDr1QpI689s8BRQLpXAK+UWEt53
-X-Google-Smtp-Source: ABdhPJzySKy+h2otaxlgiTciY4b5zX6/hy6nGUz8Lx7Vkr3nsNM0cholF9HUb4sTmM/39uT3LtEaMw==
-X-Received: by 2002:a17:903:22c6:b0:141:fac1:b722 with SMTP id y6-20020a17090322c600b00141fac1b722mr48020304plg.23.1638037989301;
-        Sat, 27 Nov 2021 10:33:09 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c18sm11805795pfl.201.2021.11.27.10.33.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 27 Nov 2021 10:33:09 -0800 (PST)
-Message-ID: <61a279e5.1c69fb81.281d0.fbbc@mx.google.com>
-Date:   Sat, 27 Nov 2021 10:33:09 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S240934AbhK0T5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Nov 2021 14:57:19 -0500
+Received: from pegase2.c-s.fr ([93.17.235.10]:56147 "EHLO pegase2.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238690AbhK0TzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 27 Nov 2021 14:55:19 -0500
+Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
+        by localhost (Postfix) with ESMTP id 4J1j1Z38gtz9sSB;
+        Sat, 27 Nov 2021 20:52:02 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase2.c-s.fr ([172.26.127.65])
+        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id ilUkimyitbCl; Sat, 27 Nov 2021 20:52:02 +0100 (CET)
+Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4J1j1Z28KWz9sS0;
+        Sat, 27 Nov 2021 20:52:02 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id DC0E48B7C5;
+        Sat, 27 Nov 2021 13:00:33 +0100 (CET)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from messagerie.si.c-s.fr ([127.0.0.1])
+        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
+        with ESMTP id 4V67AX2ocv56; Sat, 27 Nov 2021 13:00:33 +0100 (CET)
+Received: from [192.168.232.41] (po21514.idsi0.si.c-s.fr [192.168.232.41])
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 76C558B7B2;
+        Sat, 27 Nov 2021 13:00:33 +0100 (CET)
+Message-ID: <944046f0-f656-4eea-e8f0-c3bf2b6a9885@csgroup.eu>
+Date:   Sat, 27 Nov 2021 13:00:33 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.218-11-g683be722a3e85
-Subject: stable-rc/queue/4.19 baseline: 131 runs,
- 1 regressions (v4.19.218-11-g683be722a3e85)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.0
+Subject: Re: [PATCH] powerpc/mm: fix early initialization failure for MMUs
+ with no hash table
+Content-Language: fr-FR
+To:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linuxppc-dev@lists.ozlabs.org
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20211127020448.4008507-1-vladimir.oltean@nxp.com>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+In-Reply-To: <20211127020448.4008507-1-vladimir.oltean@nxp.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 131 runs, 1 regressions (v4.19.218-11-g683be=
-722a3e85)
-
-Regressions Summary
--------------------
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.218-11-g683be722a3e85/plan/baseline/
+Le 27/11/2021 à 03:04, Vladimir Oltean a écrit :
+> The blamed patch attempted to do a trivial conversion of
+> map_mem_in_cams() by adding an extra "bool init" argument, but by
+> mistake, changed the way in which two call sites pass the other boolean
+> argument, "bool dry_run".
+> 
+> As a result, early_init_this_mmu() now calls map_mem_in_cams() with
+> dry_run=true, and setup_initial_memory_limit() calls with dry_run=false,
+> both of which are unintended changes.
+> 
+> This makes the kernel boot process hang here:
+> 
+> [    0.045211] e500 family performance monitor hardware support registered
+> [    0.051891] rcu: Hierarchical SRCU implementation.
+> [    0.057791] smp: Bringing up secondary CPUs ...
+> 
+> Issue noticed on a Freescale T1040.
+> 
+> Fixes: 52bda69ae8b5 ("powerpc/fsl_booke: Tell map_mem_in_cams() if init is done")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.218-11-g683be722a3e85
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      683be722a3e85708d6ba8619d138457311779fff =
+Thanks for you patch.
 
+However, it should already be fixed in 5.16-rc2 with the following 
+commit : 
+https://github.com/torvalds/linux/commit/5b54860943dc4681be5de2fc287408c7ce274dfc
 
+Christophe
 
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61a240e3b0f20a964918f6dc
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.218=
--11-g683be722a3e85/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.218=
--11-g683be722a3e85/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a240e3b0f20a9=
-64918f6e2
-        failing since 2 days (last pass: v4.19.217-320-gdc7db2be81d5, first=
- fail: v4.19.217-320-ge8717633e0ba)
-        2 lines
-
-    2021-11-27T14:29:40.027773  <8>[   21.305816] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-27T14:29:40.072355  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/110
-    2021-11-27T14:29:40.081707  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-11-27T14:29:40.095906  <8>[   21.375122] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+> ---
+>   arch/powerpc/mm/nohash/tlb.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/powerpc/mm/nohash/tlb.c b/arch/powerpc/mm/nohash/tlb.c
+> index 89353d4f5604..647bf454a0fa 100644
+> --- a/arch/powerpc/mm/nohash/tlb.c
+> +++ b/arch/powerpc/mm/nohash/tlb.c
+> @@ -645,7 +645,7 @@ static void early_init_this_mmu(void)
+>   
+>   		if (map)
+>   			linear_map_top = map_mem_in_cams(linear_map_top,
+> -							 num_cams, true, true);
+> +							 num_cams, false, true);
+>   	}
+>   #endif
+>   
+> @@ -766,7 +766,7 @@ void setup_initial_memory_limit(phys_addr_t first_memblock_base,
+>   		num_cams = (mfspr(SPRN_TLB1CFG) & TLBnCFG_N_ENTRY) / 4;
+>   
+>   		linear_sz = map_mem_in_cams(first_memblock_size, num_cams,
+> -					    false, true);
+> +					    true, true);
+>   
+>   		ppc64_rma_size = min_t(u64, linear_sz, 0x40000000);
+>   	} else
+> 
