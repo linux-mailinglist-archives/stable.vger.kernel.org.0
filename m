@@ -2,113 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9E045FEA0
-	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 13:43:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E483B45FEA2
+	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 13:45:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230285AbhK0Mqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Nov 2021 07:46:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41826 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230396AbhK0Moc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 07:44:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22F2DC06173E
-        for <stable@vger.kernel.org>; Sat, 27 Nov 2021 04:41:18 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S233773AbhK0MsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Nov 2021 07:48:22 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:21715 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S239359AbhK0MqV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 07:46:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1638016987;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WDTqGFUsAsCLetUVG/vUO9a5OS/hVgX06nVfr6avo0o=;
+        b=Kob+bo/UtDok2IODaSbdyuPsb7uzHo6u3YVmpfyfrnUKdkQVTfoI1xO+GKnfkhdgGNfFaO
+        x/js1oq5lbQzRAMg0+zHNhaOt1C1zDyvELDPTNM0fAeNrj92/372ezmsUzYgy6x75ZbSpS
+        qDskqRarrXsMaDsnu+RtvR1ltz5v/RI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-390-LX146rs9P4KKGfBuVLmrHQ-1; Sat, 27 Nov 2021 07:43:01 -0500
+X-MC-Unique: LX146rs9P4KKGfBuVLmrHQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3C2D60B70
-        for <stable@vger.kernel.org>; Sat, 27 Nov 2021 12:41:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C251DC53FAD;
-        Sat, 27 Nov 2021 12:41:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638016877;
-        bh=eNd2Qov6v8N2NBIacNA5WRhwBoxWWeKwkQFPfK0J/AI=;
-        h=Subject:To:Cc:From:Date:From;
-        b=yTZy2dnl9FGntN6g/EaJSCblSXtOxrjPmqSaVgb1npTjh7Yitw5A+SBh/CvLrRcfy
-         XpMaQdDRjm5xXxnO4OS8j77iQAGSDoKK6lszrlJyTIBEBqJjYEeWDv4R7rL3WtA94e
-         1w163q/avXwu9QahBoH9e/re+H8ige5zSpzbAMGc=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Check for L1/L2/U3 for Start Transfer" failed to apply to 4.9-stable tree
-To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org,
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E8D938042FC;
+        Sat, 27 Nov 2021 12:42:59 +0000 (UTC)
+Received: from maya.cloud.tilaa.com (unknown [10.40.208.3])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7612C60BE5;
+        Sat, 27 Nov 2021 12:42:59 +0000 (UTC)
+Date:   Sat, 27 Nov 2021 13:42:51 +0100
+From:   Stefano Brivio <sbrivio@redhat.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Nikita Yushchenko <nikita.yushchenko@virtuozzo.com>,
+        Florian Westphal <fw@strlen.de>,
+        netfilter-devel@vger.kernel.org, netdev@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 27 Nov 2021 13:41:14 +0100
-Message-ID: <163801687411193@kroah.com>
+Subject: Re: [PATCH nf 2/2] selftests: netfilter: Add correctness test for
+ mac,net set type
+Message-ID: <20211127134251.30d3b196@elisabeth>
+In-Reply-To: <YaIU/7LKgAJD/TSS@kroah.com>
+References: <cover.1637976889.git.sbrivio@redhat.com>
+        <142425004cc8d6bc6777fef933d3f290491f87c4.1637976889.git.sbrivio@redhat.com>
+        <YaIU/7LKgAJD/TSS@kroah.com>
+Organization: Red Hat
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Sat, 27 Nov 2021 12:22:39 +0100
+Greg KH <gregkh@linuxfoundation.org> wrote:
 
-thanks,
+> On Sat, Nov 27, 2021 at 11:33:38AM +0100, Stefano Brivio wrote:
+> > The existing net,mac test didn't cover the issue recently reported
+> > by Nikita Yushchenko, where MAC addresses wouldn't match if given
+> > as first field of a concatenated set with AVX2 and 8-bit groups,
+> > because there's a different code path covering the lookup of six
+> > 8-bit groups (MAC addresses) if that's the first field.
+> > 
+> > Add a similar mac,net test, with MAC address and IPv4 address
+> > swapped in the set specification.
+> > 
+> > Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
+> > ---
+> >  .../selftests/netfilter/nft_concat_range.sh   | 24 ++++++++++++++++---
+> >  1 file changed, 21 insertions(+), 3 deletions(-)  
+> 
+> <formletter>
+> 
+> This is not the correct way to submit patches for inclusion in the
+> stable kernel tree.  Please read:
+>     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> for how to do this properly.
+> 
+> </formletter>
 
-greg k-h
+This patch (2/2) is not intended for the stable kernel tree, only patch
+1/2 is. I Cc'ed stable@kernel.org on the whole series for context.
 
------------------- original commit in Linus's tree ------------------
-
-From 63c4c320ccf77074ffe9019ac596603133c1b517 Mon Sep 17 00:00:00 2001
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Date: Mon, 25 Oct 2021 16:35:06 -0700
-Subject: [PATCH] usb: dwc3: gadget: Check for L1/L2/U3 for Start Transfer
-
-The programming guide noted that the driver needs to verify if the link
-state is in U0 before executing the Start Transfer command. If it's not
-in U0, the driver needs to perform remote wakeup. This is not accurate.
-If the link state is in U1/U2, then the controller will not respond to
-link recovery request from DCTL.ULSTCHNGREQ. The Start Transfer command
-will trigger a link recovery if it is in U1/U2. A clarification will be
-added to the programming guide for all controller versions.
-
-The current implementation shouldn't cause any functional issue. It may
-occasionally report an invalid time out warning from failed link
-recovery request. The driver will still go ahead with the Start Transfer
-command if the remote wakeup fails. The new change only initiates remote
-wakeup where it is needed, which is when the link state is in L1/L2/U3.
-
-Fixes: c36d8e947a56 ("usb: dwc3: gadget: put link to U0 before Start Transfer")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/05b4a5fbfbd0863fc9b1d7af934a366219e3d0b4.1635204761.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 3d6f4adaa15a..daa8f8548a2e 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -310,13 +310,24 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned int cmd,
- 	if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
- 		int link_state;
- 
-+		/*
-+		 * Initiate remote wakeup if the link state is in U3 when
-+		 * operating in SS/SSP or L1/L2 when operating in HS/FS. If the
-+		 * link state is in U1/U2, no remote wakeup is needed. The Start
-+		 * Transfer command will initiate the link recovery.
-+		 */
- 		link_state = dwc3_gadget_get_link_state(dwc);
--		if (link_state == DWC3_LINK_STATE_U1 ||
--		    link_state == DWC3_LINK_STATE_U2 ||
--		    link_state == DWC3_LINK_STATE_U3) {
-+		switch (link_state) {
-+		case DWC3_LINK_STATE_U2:
-+			if (dwc->gadget->speed >= USB_SPEED_SUPER)
-+				break;
-+
-+			fallthrough;
-+		case DWC3_LINK_STATE_U3:
- 			ret = __dwc3_gadget_wakeup(dwc);
- 			dev_WARN_ONCE(dwc->dev, ret, "wakeup failed --> %d\n",
- 					ret);
-+			break;
- 		}
- 	}
- 
+-- 
+Stefano
 
