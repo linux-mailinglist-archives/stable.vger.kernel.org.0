@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEBD645FEC3
-	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 14:14:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2AAE45FEC6
+	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 14:14:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355033AbhK0NQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Nov 2021 08:16:19 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33506 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239238AbhK0NOS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 08:14:18 -0500
+        id S1355053AbhK0NQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Nov 2021 08:16:29 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50978 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351765AbhK0NO3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 08:14:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DACB60AB1
-        for <stable@vger.kernel.org>; Sat, 27 Nov 2021 13:11:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C5ADC53FAD;
-        Sat, 27 Nov 2021 13:11:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0BBA2B81B61
+        for <stable@vger.kernel.org>; Sat, 27 Nov 2021 13:11:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FE8DC53FBF;
+        Sat, 27 Nov 2021 13:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638018663;
-        bh=cHVzvEk0URHv8fVaIQXZhxhjRZS6/7g2DSOg1xyT9jM=;
+        s=korg; t=1638018672;
+        bh=YG+1f9Q3gIEy/eO1bJDt0vB2qPVngtm5P6vIo7ZTe/s=;
         h=Subject:To:Cc:From:Date:From;
-        b=Axno4AmZbUunSy+knGD+wMM7TcI0AnNv8h3e6ul3Bb8PnaVBOJ3ngUTi4vDPu99/6
-         d3Y6rU1QUi+O9OlSXy6bgY9bku29m0oWndqDmkKPwsShjzb3YvRX4QLRuXkiD8kat0
-         nBmkZ5fLT4UZ9TyJ/IsR+rTPLrNGCicZImJppZlM=
-Subject: FAILED: patch "[PATCH] fuse: release pipe buf after last use" failed to apply to 4.14-stable tree
+        b=ci/fXHuTLemI+wOCga2qYdmqlYX51fjO6VBMR9Rq6y/xJL+4F0HCYnC7orU6BjfU+
+         0JI0h34kdf/vIlWwJbNJ1TdRTPq3MCXkdBXbrXqDnso9V1PA5yBU8eio9FrO686HkG
+         TmkUTEWEIgD+EYal4f6yCNylwyPUOgJZ7NOQ0Mt0=
+Subject: FAILED: patch "[PATCH] fuse: release pipe buf after last use" failed to apply to 5.4-stable tree
 To:     mszeredi@redhat.com, jmforbes@linuxtx.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 27 Nov 2021 14:10:53 +0100
-Message-ID: <1638018653184224@kroah.com>
+Date:   Sat, 27 Nov 2021 14:10:54 +0100
+Message-ID: <163801865450113@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
