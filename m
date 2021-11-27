@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B05E045FE24
-	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 11:36:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1252445FE1D
+	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 11:36:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350392AbhK0KjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Nov 2021 05:39:17 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:54654 "EHLO
+        id S229794AbhK0KjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Nov 2021 05:39:12 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:31221 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1350926AbhK0KhP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 05:37:15 -0500
+        by vger.kernel.org with ESMTP id S238267AbhK0KhM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 05:37:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638009241;
+        s=mimecast20190719; t=1638009237;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=OVuAk298/Ida9SlJtQUnhBQrrLWLnpK6TTTaXfrF7NI=;
-        b=hlF57h5xFrupbBAKQpzOhYcn4ZL9bhsQ06cQulam0siqoUSqMLi0+KJpj+iqHKMdnaAxtY
-        11OdIOwya2T+PZHJzEo4Bd5+mdcse43sduIXFzAUxmQJ/iRLcXDPlre3PkhCOFdGgAC2nG
-        li8rpxuGg3A4xeuV7sQB720++Lfx0RI=
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=dhkIYPM1WFszu7T8QclmLtHmBRD8pluP6wK51D9W/Fw=;
+        b=PAkRI3S1BI/xGec+dXmGbqXQTuz79WvCnb3ZmZxFCvaPDx0t8vKiU/cCaDKSEE6LUCiVMi
+        VZFVaFqytWaegdOrBTqHMF57ciN5ZmpFDp1aT86x5sP14+MEBItCUQNUYEFXKtxfGNxdKc
+        OGEYroNWTqxtf2zSGUbrhb4hCxMW6bQ=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-565-p2OLfCNLPmiqKs3pfkUOvw-1; Sat, 27 Nov 2021 05:33:57 -0500
-X-MC-Unique: p2OLfCNLPmiqKs3pfkUOvw-1
+ us-mta-33-_PqDMwqbNPuO5qQM7fo3pw-1; Sat, 27 Nov 2021 05:33:56 -0500
+X-MC-Unique: _PqDMwqbNPuO5qQM7fo3pw-1
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 85CDA835B47;
-        Sat, 27 Nov 2021 10:33:56 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 753411006AA0;
+        Sat, 27 Nov 2021 10:33:54 +0000 (UTC)
 Received: from maya.cloud.tilaa.com (unknown [10.40.208.3])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4AD0918A50;
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 070F972FA4;
         Sat, 27 Nov 2021 10:33:53 +0000 (UTC)
 From:   Stefano Brivio <sbrivio@redhat.com>
 To:     Pablo Neira Ayuso <pablo@netfilter.org>
@@ -39,9 +40,11 @@ Cc:     Nikita Yushchenko <nikita.yushchenko@virtuozzo.com>,
         Florian Westphal <fw@strlen.de>,
         netfilter-devel@vger.kernel.org, netdev@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH nf 0/2] nft_set_pipapo: Fix AVX2 MAC address match, add test
-Date:   Sat, 27 Nov 2021 11:33:36 +0100
-Message-Id: <cover.1637976889.git.sbrivio@redhat.com>
+Subject: [PATCH nf 1/2] nft_set_pipapo: Fix bucket load in AVX2 lookup routine for six 8-bit groups
+Date:   Sat, 27 Nov 2021 11:33:37 +0100
+Message-Id: <5577a613f815575804cb19754f064071b852bbab.1637976889.git.sbrivio@redhat.com>
+In-Reply-To: <cover.1637976889.git.sbrivio@redhat.com>
+References: <cover.1637976889.git.sbrivio@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
@@ -49,19 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Patch 1/2 fixes the issue reported by Nikita where a MAC address
-wouldn't match if given as first field of a set, and patch 2/2 adds
-the corresponding test.
+The sixth byte of packet data has to be looked up in the sixth group,
+not in the seventh one, even if we load the bucket data into ymm6
+(and not ymm5, for convenience of tracking stalls).
 
-Stefano Brivio (2):
-  nft_set_pipapo: Fix bucket load in AVX2 lookup routine for six 8-bit
-    groups
-  selftests: netfilter: Add correctness test for mac,net set type
+Without this fix, matching on a MAC address as first field of a set,
+if 8-bit groups are selected (due to a small set size) would fail,
+that is, the given MAC address would never match.
 
- net/netfilter/nft_set_pipapo_avx2.c           |  2 +-
- .../selftests/netfilter/nft_concat_range.sh   | 24 ++++++++++++++++---
- 2 files changed, 22 insertions(+), 4 deletions(-)
+Reported-by: Nikita Yushchenko <nikita.yushchenko@virtuozzo.com>
+Cc: <stable@vger.kernel.org> # 5.6.x
+Fixes: 7400b063969b ("nft_set_pipapo: Introduce AVX2-based lookup implementation")
+Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
+---
+ net/netfilter/nft_set_pipapo_avx2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/net/netfilter/nft_set_pipapo_avx2.c b/net/netfilter/nft_set_pipapo_avx2.c
+index e517663e0cd1..6f4116e72958 100644
+--- a/net/netfilter/nft_set_pipapo_avx2.c
++++ b/net/netfilter/nft_set_pipapo_avx2.c
+@@ -886,7 +886,7 @@ static int nft_pipapo_avx2_lookup_8b_6(unsigned long *map, unsigned long *fill,
+ 			NFT_PIPAPO_AVX2_BUCKET_LOAD8(4,  lt, 4, pkt[4], bsize);
+ 
+ 			NFT_PIPAPO_AVX2_AND(5, 0, 1);
+-			NFT_PIPAPO_AVX2_BUCKET_LOAD8(6,  lt, 6, pkt[5], bsize);
++			NFT_PIPAPO_AVX2_BUCKET_LOAD8(6,  lt, 5, pkt[5], bsize);
+ 			NFT_PIPAPO_AVX2_AND(7, 2, 3);
+ 
+ 			/* Stall */
 -- 
 2.30.2
 
