@@ -2,114 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF2A46014F
-	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 20:54:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E90146010C
+	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 20:02:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240934AbhK0T5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Nov 2021 14:57:19 -0500
-Received: from pegase2.c-s.fr ([93.17.235.10]:56147 "EHLO pegase2.c-s.fr"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238690AbhK0TzT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 27 Nov 2021 14:55:19 -0500
-Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-        by localhost (Postfix) with ESMTP id 4J1j1Z38gtz9sSB;
-        Sat, 27 Nov 2021 20:52:02 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from pegase2.c-s.fr ([172.26.127.65])
-        by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id ilUkimyitbCl; Sat, 27 Nov 2021 20:52:02 +0100 (CET)
-Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase2.c-s.fr (Postfix) with ESMTP id 4J1j1Z28KWz9sS0;
-        Sat, 27 Nov 2021 20:52:02 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id DC0E48B7C5;
-        Sat, 27 Nov 2021 13:00:33 +0100 (CET)
-X-Virus-Scanned: amavisd-new at c-s.fr
-Received: from messagerie.si.c-s.fr ([127.0.0.1])
-        by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id 4V67AX2ocv56; Sat, 27 Nov 2021 13:00:33 +0100 (CET)
-Received: from [192.168.232.41] (po21514.idsi0.si.c-s.fr [192.168.232.41])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 76C558B7B2;
-        Sat, 27 Nov 2021 13:00:33 +0100 (CET)
-Message-ID: <944046f0-f656-4eea-e8f0-c3bf2b6a9885@csgroup.eu>
-Date:   Sat, 27 Nov 2021 13:00:33 +0100
+        id S240489AbhK0TFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Nov 2021 14:05:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38912 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355934AbhK0TDc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 14:03:32 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8CBAC06175F
+        for <stable@vger.kernel.org>; Sat, 27 Nov 2021 11:00:16 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id iq11so9376820pjb.3
+        for <stable@vger.kernel.org>; Sat, 27 Nov 2021 11:00:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=gLXZkWnhZjwJWhkXhIPItil9s6Ass/nhDsr2wDDZR8s=;
+        b=M82GiG3VbzuVs+TMnubLsczPScosh743JxEtRxO6qQwI+MrJTGRn0TBelsn4NT2TA1
+         MNMsmvoK5LgOqAmUAlI4+qt2jwAWUnSGQeVcH3fq/VxYwiBs6SS8g47IAzEgLYnRIKcB
+         AY97iCnhcJsziro+WI/xYl1YOw9vfkPVcbQygGTJ3vIbz9DCMEhee44WGcf234URNNh8
+         VT4NGh4v/hlNpLGyAKMAUa1dnKph0y2TZYRGlyl4qQcaRywucnh3gDwfWC5nEmI1kFSc
+         i+5BOnZNRePO/LrOzj8ll+zgQrXXFk3AktRIjuTrGko6Z76IkM44S/7n0q0lrlvL/iBS
+         cfAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=gLXZkWnhZjwJWhkXhIPItil9s6Ass/nhDsr2wDDZR8s=;
+        b=WP2/vMhYfhEquDZiY2eZ6pMyrS7Zqn87g5cRCQ2xufLa4rHcbm8oW0Co/B3+eByVZP
+         Bz/dTwGft8yM+EEnoXnerTWxEgxvA9Ti5XPVc9ZcFWIszfvXyjDWY2W7nmpNLI2esrwa
+         z7UNwQNnZ27lRvM9KZ0YlIcLhxvO5NPPIAQ9zoo2M0JJFtZCnLVl/kfg4WPUyMQGQ0e+
+         XogdIwGZ/In52x1uKwzAadBc5MlqumOqbRL59NT0X0OfBN9mmUwshQBxOEzNdiLoolja
+         TBq0J9n1WqjS4Uz/8ryDVejk9Pu3HwLfgZrVNRn3XzfpSkZ8Nvdk5LvhoXIjxCtHWPSR
+         GjjA==
+X-Gm-Message-State: AOAM533u7/wPej5tKk+4xCQ506NRAVcJht1v3mZyWEJAas1lXcqhuEWY
+        qALYZmvHDPX88m4DFWPjTctmn+rsKDgU+Sz0
+X-Google-Smtp-Source: ABdhPJx6vkTLTV4w0yxA1vnzz/4JCuCDojESOjdPTqDzrwOR+TT9iKwRkX0vYIRcWeaV+OC8qEI4HQ==
+X-Received: by 2002:a17:90b:1b4a:: with SMTP id nv10mr25188620pjb.87.1638039616269;
+        Sat, 27 Nov 2021 11:00:16 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y6sm12087424pfi.154.2021.11.27.11.00.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 27 Nov 2021 11:00:16 -0800 (PST)
+Message-ID: <61a28040.1c69fb81.37587.0534@mx.google.com>
+Date:   Sat, 27 Nov 2021 11:00:16 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH] powerpc/mm: fix early initialization failure for MMUs
- with no hash table
-Content-Language: fr-FR
-To:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linuxppc-dev@lists.ozlabs.org
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20211127020448.4008507-1-vladimir.oltean@nxp.com>
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-In-Reply-To: <20211127020448.4008507-1-vladimir.oltean@nxp.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.4
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.4.293-8-g0a2d353d748d5
+Subject: stable-rc/queue/4.4 baseline: 106 runs,
+ 2 regressions (v4.4.293-8-g0a2d353d748d5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/4.4 baseline: 106 runs, 2 regressions (v4.4.293-8-g0a2d353d=
+748d5)
+
+Regressions Summary
+-------------------
+
+platform         | arch   | lab           | compiler | defconfig           =
+| regressions
+-----------------+--------+---------------+----------+---------------------=
++------------
+panda            | arm    | lab-collabora | gcc-10   | omap2plus_defconfig =
+| 1          =
+
+qemu_x86_64-uefi | x86_64 | lab-broonie   | gcc-10   | x86_64_defconfig    =
+| 1          =
 
 
-Le 27/11/2021 à 03:04, Vladimir Oltean a écrit :
-> The blamed patch attempted to do a trivial conversion of
-> map_mem_in_cams() by adding an extra "bool init" argument, but by
-> mistake, changed the way in which two call sites pass the other boolean
-> argument, "bool dry_run".
-> 
-> As a result, early_init_this_mmu() now calls map_mem_in_cams() with
-> dry_run=true, and setup_initial_memory_limit() calls with dry_run=false,
-> both of which are unintended changes.
-> 
-> This makes the kernel boot process hang here:
-> 
-> [    0.045211] e500 family performance monitor hardware support registered
-> [    0.051891] rcu: Hierarchical SRCU implementation.
-> [    0.057791] smp: Bringing up secondary CPUs ...
-> 
-> Issue noticed on a Freescale T1040.
-> 
-> Fixes: 52bda69ae8b5 ("powerpc/fsl_booke: Tell map_mem_in_cams() if init is done")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.293-8-g0a2d353d748d5/plan/baseline/
 
-Thanks for you patch.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.293-8-g0a2d353d748d5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0a2d353d748d55d9668bb4a6b1f78ad11a8559cf =
 
-However, it should already be fixed in 5.16-rc2 with the following 
-commit : 
-https://github.com/torvalds/linux/commit/5b54860943dc4681be5de2fc287408c7ce274dfc
 
-Christophe
 
-> ---
->   arch/powerpc/mm/nohash/tlb.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/powerpc/mm/nohash/tlb.c b/arch/powerpc/mm/nohash/tlb.c
-> index 89353d4f5604..647bf454a0fa 100644
-> --- a/arch/powerpc/mm/nohash/tlb.c
-> +++ b/arch/powerpc/mm/nohash/tlb.c
-> @@ -645,7 +645,7 @@ static void early_init_this_mmu(void)
->   
->   		if (map)
->   			linear_map_top = map_mem_in_cams(linear_map_top,
-> -							 num_cams, true, true);
-> +							 num_cams, false, true);
->   	}
->   #endif
->   
-> @@ -766,7 +766,7 @@ void setup_initial_memory_limit(phys_addr_t first_memblock_base,
->   		num_cams = (mfspr(SPRN_TLB1CFG) & TLBnCFG_N_ENTRY) / 4;
->   
->   		linear_sz = map_mem_in_cams(first_memblock_size, num_cams,
-> -					    false, true);
-> +					    true, true);
->   
->   		ppc64_rma_size = min_t(u64, linear_sz, 0x40000000);
->   	} else
-> 
+Test Regressions
+---------------- =
+
+
+
+platform         | arch   | lab           | compiler | defconfig           =
+| regressions
+-----------------+--------+---------------+----------+---------------------=
++------------
+panda            | arm    | lab-collabora | gcc-10   | omap2plus_defconfig =
+| 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61a247618ddef05cec18f6d5
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-8=
+-g0a2d353d748d5/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-8=
+-g0a2d353d748d5/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a247618ddef05=
+cec18f6db
+        failing since 2 days (last pass: v4.4.292-160-geb7fba21283a, first =
+fail: v4.4.292-160-g4d766382518e6)
+        2 lines
+
+    2021-11-27T14:57:16.307047  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/119
+    2021-11-27T14:57:16.316147  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =
+
+
+
+platform         | arch   | lab           | compiler | defconfig           =
+| regressions
+-----------------+--------+---------------+----------+---------------------=
++------------
+qemu_x86_64-uefi | x86_64 | lab-broonie   | gcc-10   | x86_64_defconfig    =
+| 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61a2452e2d6509a34018f6d6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-8=
+-g0a2d353d748d5/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x8=
+6_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-8=
+-g0a2d353d748d5/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x8=
+6_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61a2452e2d6509a34018f=
+6d7
+        new failure (last pass: v4.4.292-159-g9b8f282b0560) =
+
+ =20
