@@ -2,132 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B0A45F7D1
-	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 02:15:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F80545F7F1
+	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 02:19:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344634AbhK0BSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Nov 2021 20:18:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34834 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344445AbhK0BQU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Nov 2021 20:16:20 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2920C06173E
-        for <stable@vger.kernel.org>; Fri, 26 Nov 2021 17:13:06 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id gt5so8183973pjb.1
-        for <stable@vger.kernel.org>; Fri, 26 Nov 2021 17:13:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=q2TFcz6OcKgu/9dATwmiG2IwIqcxQZuyR6tjjNswcdM=;
-        b=0nvh997YyrWjixlswLbSwJHIelC5ve9nuQJ7QOOGHdp1kVENs4MpBn+fglEQOuDVWn
-         kkRajhH7giyK64nnKOUFi1ii31CPyeJTxo2qK4kYyPlgleTJPJvER3oPz0qYOg2aLamm
-         UPTOsTTmIBaEBwDJkM6rkqkjmLkvjKLqHyJBfRnWA2ZZ8+GDn+tG/dpLOxH7XeZXc2JX
-         Jwsht5nkAQYXn/mekbYbnfnfiF8sEcUNoXx1xo07o4WaqeAtlmp99eRuw6fgOvck+Lp3
-         0USom06+qgbpvtF60eTCU9HJTRQN4NZhMqvsb5z5Br9W0Yn7vOaxsEN9N8pvIOPwgxha
-         5mzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=q2TFcz6OcKgu/9dATwmiG2IwIqcxQZuyR6tjjNswcdM=;
-        b=zhF9HYVvT74M/5oxdI6Grhbwp6LuPGeqDK7NAAnSaos3UHfcjw40fYCiwD5jAshWsG
-         htZ5i43/Vl0xaWpFx7gde/MsGqlBBMp4cA9XfO5hHFVdB0ROkumFOQSigrVHQvV/A/St
-         tueStQPsg9xOP3eudJO0CB602hubOFYVGRZBn2NejJ6dpju/qH7dpMwlWbOnSwa2egLt
-         yo+If6OoRb+UZhaEiRxPd22bQS6gPJBuXCCRgmCcoIbKYagdtYMlTzeX1gpaA/rORUbM
-         WVkIz1DvciFzAI0105EECqR1+1p1HPLTjaR3mHlR/J/GX2lHbFndpW/CZ1Uds6wgysoA
-         q5eA==
-X-Gm-Message-State: AOAM531++cGmd1zmcrf7K2k46I/yoV1EVTPB3pmKERglu4YC0PKHhRiW
-        GAsxqkIkGUgHvg5ELr+Kp2GSDv2hkb2fhQX9
-X-Google-Smtp-Source: ABdhPJw9axgqmy/oBVM7pJq6lyhvvgZPa7NQIvOifNSLe8iW4oWp0CVcGmgIgPJW6inJBv1A/9ruiw==
-X-Received: by 2002:a17:90a:be0c:: with SMTP id a12mr19957813pjs.204.1637975586177;
-        Fri, 26 Nov 2021 17:13:06 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a26sm7901579pfh.161.2021.11.26.17.13.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Nov 2021 17:13:05 -0800 (PST)
-Message-ID: <61a18621.1c69fb81.dd1f.7134@mx.google.com>
-Date:   Fri, 26 Nov 2021 17:13:05 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1344837AbhK0BXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Nov 2021 20:23:09 -0500
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:31208 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233421AbhK0BVJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Nov 2021 20:21:09 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1637975875; x=1669511875;
+  h=message-id:date:mime-version:subject:to:references:from:
+   in-reply-to:content-transfer-encoding;
+  bh=utQLa83hwo/LT3g1aLDWo1eI0/DqR7aayg7wMGJqu70=;
+  b=LqpJMk93auBRxYW4H6IB2ydg052mYPcVygKRvHMn5BsarxSmEdzAQZgp
+   amk8FVZrxZOXFweBNpNIWovc2b6r/KcwctyHD4heZgVYSAqpetFGDom2d
+   aMALRdx4+tNEXP2EHMm/hCW7N/J/AhFjUpoBd6DiZz6wBNlMk1H7Hwp+h
+   iUr5WT53y9hg76C4aQ1nTg4OYqnDYEuA0DEigYLYzHabJIkrdwa+T8TPZ
+   Fo1zq6aWvk3todpR0GgG6HvMDt6eSzYNIJmmPJ83QnjHOiiKB30KvKxi4
+   gK5oz2H7fqazbEjg1VMHGm6nxReey7I7iIiYVsse/eda+F8rO+FE8kwaq
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.87,267,1631548800"; 
+   d="scan'208";a="185778782"
+Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 27 Nov 2021 09:15:55 +0800
+IronPort-SDR: 1xBCgNnfX8G2K9E10dEpkeh5xmGGBIHB6RNOeQKNPOR+XTN8ZF+PqJQh8lW3Fmq3/q0wvr5t2d
+ leH78slQxtaS6WVlbUYWEtSgb2OUJxJ/mhvxlzaFSuJPGE/tUacUr+n84sUK3H6yNs0UpxgthG
+ 0IF6AmYO4UzAUUaIt5UC32IIna3+vPhISRozRrbRTmgjk264FCWgjPkTHVm+W49hONGbbLAA0b
+ dLg5BUme6HT0a45FaZ2zRdzGHvyrd+V+j+PLdcqiy8kC0Do/9BOPslksfcwzT9C57kz0vqtjLd
+ EXd7EHhPz8rjROrY8MVUyxqb
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Nov 2021 16:49:12 -0800
+IronPort-SDR: qn0xGnnk9kCgPKG5KuRhMNUR3e4Amfoiv0DUdeGGJVUdcQsh2Oo++mErj102BVXlipp42E6xg8
+ BjR6bOT2umBc57NQr1b95Q2/6tsIIfezdjj61k2jwZpkh8MG2dU3qb3COFWt62LoBpcMiIy08t
+ 3d65d6weiDio0P9qwPrb4yPqMVS78jc967m+6cBrlZRQ40l+WjyT5qBt0d1/MDlYZyczcMKrIk
+ eI76uVX1K1wKGCVVZpK5K5bvLZb6aPn/am69WmQK+kMwfUxkHaVtRX5Yrxqi9eb2nK3Zhfj2qC
+ QKU=
+WDCIronportException: Internal
+Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
+  by uls-op-cesaip01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Nov 2021 17:15:55 -0800
+Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4J1DFl0Gzmz1RtVw
+        for <stable@vger.kernel.org>; Fri, 26 Nov 2021 17:15:55 -0800 (PST)
+Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
+        reason="pass (just generated, assumed good)"
+        header.d=opensource.wdc.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+        opensource.wdc.com; h=content-transfer-encoding:content-type
+        :in-reply-to:organization:from:references:to:content-language
+        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
+        1637975754; x=1640567755; bh=utQLa83hwo/LT3g1aLDWo1eI0/DqR7aayg7
+        wMGJqu70=; b=Xuo7PYG1tXSUDqz8aNP4JV/uYIPuHQF4yk9dy8GhY9SpAaSJ82G
+        KrB3oIiVJXJpi7AP3LbCGaluD0UpqJU1loHZfF17eMxg6wxR3t2UubnAhCMAAI0c
+        l9Fcaok+yRsVwsuzapM0UTrAKbt3QbcbqBKXqxLPKoBGllu0Lh2wEbXPsfFq1b+b
+        oEoLQFDpkpo7VCgf1MJ6KtBLfJzuqySOU6jWxQXX1ay8Tpy2GziOow03s2fzWOPB
+        Tp1gZM0l5hTpTYdkw0BhrWH9Park2jEocDbEZRVYBQm9ZfTTfoasxNkJPPSzn5/W
+        bP2OCBJ2mEPuqcjElnDjQMP8vyrFVFsqfNA==
+X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
+Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
+        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id UXK7UkMg1Xj2 for <stable@vger.kernel.org>;
+        Fri, 26 Nov 2021 17:15:54 -0800 (PST)
+Received: from [10.225.54.48] (unknown [10.225.54.48])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4J1DFj1ZRdz1RtVl;
+        Fri, 26 Nov 2021 17:15:52 -0800 (PST)
+Message-ID: <92cc74fd-ce93-b844-830f-71e744e0c084@opensource.wdc.com>
+Date:   Sat, 27 Nov 2021 10:15:51 +0900
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.293
-Subject: stable/linux-4.4.y baseline: 87 runs, 1 regressions (v4.4.293)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.3.2
+Subject: Re: [Regression][Stable] sd use scsi_mode_sense with invalid param
+Content-Language: en-US
+To:     Tom Yan <tom.ty89@gmail.com>, linux-scsi@vger.kernel.org,
+        damien.lemoal@wdc.com, martin.petersen@oracle.com,
+        sashal@kernel.org, stable@vger.kernel.org,
+        Greg KH <gregkh@linuxfoundation.org>
+References: <CAGnHSE=uOEiLUS=Sx5xhSVrx-7kvdriC=RZxuRasZaM2cLmDeQ@mail.gmail.com>
+ <CAGnHSEmFoAS-ZY6u=ar=O0UU=FPgEuOx5KLcBWkboEVdeFXbGg@mail.gmail.com>
+ <CAGnHSEmkTyq_QqP9S6TemsHOKxj2Gzq3R7X6+PxbQs_R-iBB7Q@mail.gmail.com>
+From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Organization: Western Digital
+In-Reply-To: <CAGnHSEmkTyq_QqP9S6TemsHOKxj2Gzq3R7X6+PxbQs_R-iBB7Q@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.4.y baseline: 87 runs, 1 regressions (v4.4.293)
+On 2021/11/27 6:33, Tom Yan wrote:
+> Hi Greg,
+> 
+> Could you help pulling c749301ebee82eb5e97dec14b6ab31a4aabe37a6 into
+> the stable branches in which 17b49bcbf8351d3dbe57204468ac34f033ed60bc
+> has been pulled? Thanks!
 
-Regressions Summary
--------------------
+Yeah, in retrospect, these 2 patches should really have been squashed together.
+Sorry about that. Note that none of these were marked for stable though. I think
+that Sasha's bot picked-up automatically
+17b49bcbf8351d3dbe57204468ac34f033ed60bc for stable because of the "Fix" in the
+commit title. But c749301ebee82eb5e97dec14b6ab31a4aabe37a6 also has "Fix" in its
+title but was not picked-up. Weird.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Greg, Martin,
 
+To fix this, c749301ebee82eb5e97dec14b6ab31a4aabe37a6 is needed in stable !
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.4.y/kernel/=
-v4.4.293/plan/baseline/
+Reference: https://bugzilla.kernel.org/show_bug.cgi?id=215137
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.4.y
-  Describe: v4.4.293
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      ae6f8ce9b7496a4ffd3ba545f824b44cdb217149 =
+Thanks.
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61a14b5846bf10ffb718f6d1
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.4.y/v4.4.293/ar=
-m/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.4.y/v4.4.293/ar=
-m/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+> 
+> Regards,
+> Tom
+> 
+> On Sat, 27 Nov 2021 at 05:21, Tom Yan <tom.ty89@gmail.com> wrote:
+>>
+>> Ahh, looks like the required change to sd
+>> (c749301ebee82eb5e97dec14b6ab31a4aabe37a6) has been added to upstream
+>> but somehow got missed when 17b49bcbf8351d3dbe57204468ac34f033ed60bc
+>> was pulled into stable...
+>>
+>> On Sat, 27 Nov 2021 at 05:11, Tom Yan <tom.ty89@gmail.com> wrote:
+>>>
+>>> Hi,
+>>>
+>>> So with 17b49bcbf8351d3dbe57204468ac34f033ed60bc (upstream),
+>>> scsi_mode_sense now returns -EINVAL if len < 8, yet in sd, the first mode
+>>> sense attempted by sd_read_cache_type() is done with (first_)len being
+>>> 4, which results in the failure of the attempt.
+>>>
+>>> Since the commit is merged into stable, my SATA drive (that has
+>>> volatile write cache) is assumed to be a "write through" drive after I
+>>> upgraded from 5.15.4 to 5.15.5, as libata sets use_10_for_ms to 1.
+>>>
+>>> Since sd does not (get to) determine which mode sense command to use,
+>>> should scsi_mode_sense at least accept a special value 0 (which
+>>> first_len would be set to), which is use to refers to the minimum len
+>>> to use for mode sense 6 and 10 respectively (i.e. 4 or 8)?
+>>>
+>>> Regards,
+>>> Tom
 
 
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a14b5846bf10f=
-fb718f6d7
-        new failure (last pass: v4.4.292)
-        2 lines
-
-    2021-11-26T21:01:57.369622  [   19.265441] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-26T21:01:57.412658  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/115
-    2021-11-26T21:01:57.421715  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+-- 
+Damien Le Moal
+Western Digital Research
