@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 699AC45FEA7
-	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 13:52:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA18445FEAF
+	for <lists+stable@lfdr.de>; Sat, 27 Nov 2021 13:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230209AbhK0Mzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Nov 2021 07:55:36 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:54796 "EHLO
+        id S239359AbhK0M41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Nov 2021 07:56:27 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:55006 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236846AbhK0Mxg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 07:53:36 -0500
-X-Greylist: delayed 3271 seconds by postgrey-1.27 at vger.kernel.org; Sat, 27 Nov 2021 07:53:36 EST
+        with ESMTP id S239338AbhK0My1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 07:54:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 770BFCE09E6
-        for <stable@vger.kernel.org>; Sat, 27 Nov 2021 12:50:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CEBAC53FC7;
-        Sat, 27 Nov 2021 12:50:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E0E88CE0B0B
+        for <stable@vger.kernel.org>; Sat, 27 Nov 2021 12:51:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D91EC53FBF;
+        Sat, 27 Nov 2021 12:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638017418;
-        bh=3xISPk1qjx2meahrWrIc74JAzX4ckQFfMAg3moG77b4=;
+        s=korg; t=1638017470;
+        bh=DBmelsHEctq6hM4uu1o7EZXtHoWuvcMsGoyqixBTEP4=;
         h=Subject:To:Cc:From:Date:From;
-        b=infURcXVK3fSjuPoVx8ySpYG843pyYRw3ci/Qc/L+lymTSGPdltc92bf1k4iLK0s9
-         ZLKGrPZJx4zkDpgmiE2lxgHch+zChvsBHnSHpRxOiYUnPgkzkP3XYFGj9Cwyjx2z5o
-         7mtrmGMY7HjB/Rzevy44jKaM6KUGTHu1Y2vksY34=
-Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Check for L1/L2/U3 for Start Transfer" failed to apply to 4.19-stable tree
+        b=siudkxpwpJXx/jERK+41PxLv8uWOnJuDUlfsm3DLprrZKRVo18994sFxMnbNysmIG
+         DBOKOH3svsopfOPlOrid779PQpw3wETJjXzOl+WsZ1FkfMUwkc+6GWMihK2+iNNsx5
+         JiRJCS8ftGkVAyDOstsli8aNxRJcVb3FO9vmDj1M=
+Subject: FAILED: patch "[PATCH] usb: dwc3: gadget: Check for L1/L2/U3 for Start Transfer" failed to apply to 4.14-stable tree
 To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 27 Nov 2021 13:50:16 +0100
-Message-ID: <16380174163724@kroah.com>
+Date:   Sat, 27 Nov 2021 13:51:07 +0100
+Message-ID: <163801746780209@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
