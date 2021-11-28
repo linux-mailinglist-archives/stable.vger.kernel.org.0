@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B220B4605F8
-	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 12:48:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32AC04605F9
+	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 12:48:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357234AbhK1LvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Nov 2021 06:51:17 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40496 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233294AbhK1LtR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 06:49:17 -0500
+        id S1357246AbhK1Lvl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Nov 2021 06:51:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58120 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235979AbhK1Ltk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 06:49:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E14EBC06174A
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 03:46:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9ED65B80CD3
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 11:46:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C818CC004E1;
-        Sun, 28 Nov 2021 11:45:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F828B80CD4
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 11:46:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EA1CC004E1;
+        Sun, 28 Nov 2021 11:46:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638099959;
-        bh=MLEgSEHfyDr/uVHAe1EhsHmdH4uKnx8ehNBt6/rALFw=;
+        s=korg; t=1638099982;
+        bh=HisOOCrXkMGCEJdv4NWHby5aCr1ep8xrQNUnZ30ld/g=;
         h=Subject:To:Cc:From:Date:From;
-        b=jpO2tccQBRa1BDEbRopRx99DP0Jna3wGiiBG307GcXzZRStShh/nKvZiUixeYgEiz
-         +BmaRRR6EQwQObdSQXcWHxqRPl5nT1+sg3f3me+dLsXzJCKwrQpwoZEeMsl7/ymqc1
-         gwDUC1JQ8zyLOriMMRzSQDuJwo6xlguoslejOrbs=
-Subject: FAILED: patch "[PATCH] tracing: Check pid filtering when creating events" failed to apply to 4.14-stable tree
+        b=yOE5q3t+f0obiV3lG2hWsf0FQloMjOIBBCqTMRXLOTBFqsUUW1mlUS62nD45OjVpS
+         O6QWgJTVrDAIjcUFYgJcmI+Nr6JCx0NcZUwkAjoBYRdTIIo3pbz8WzzLdN+KZI5/oG
+         8DZfbr3oD1KJAm7RzIafcwKUWzea4KyEu//DSAiI=
+Subject: FAILED: patch "[PATCH] tracing: Check pid filtering when creating events" failed to apply to 4.9-stable tree
 To:     rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 28 Nov 2021 12:45:56 +0100
-Message-ID: <1638099956164186@kroah.com>
+Date:   Sun, 28 Nov 2021 12:46:19 +0100
+Message-ID: <1638099979127236@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
