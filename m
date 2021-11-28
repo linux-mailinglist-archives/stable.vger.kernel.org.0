@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A8DF4605F3
-	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 12:44:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 963304605F4
+	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 12:46:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236070AbhK1Lr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Nov 2021 06:47:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38920 "EHLO
+        id S233426AbhK1LtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Nov 2021 06:49:22 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39834 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244562AbhK1Lp0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 06:45:26 -0500
+        with ESMTP id S235979AbhK1LrV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 06:47:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67685B80CCB
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 11:42:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90304C004E1;
-        Sun, 28 Nov 2021 11:42:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47650B80CD5
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 11:44:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6468DC53FC1;
+        Sun, 28 Nov 2021 11:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638099728;
-        bh=2ec6JBq64HMn84LHYF+T9L6v2aXq6/E2P+x56Ph1dAk=;
+        s=korg; t=1638099844;
+        bh=b5lkq1bWSeq9uHkVgtXcSN+C+SH3NYHPoq5D8JDeArk=;
         h=Subject:To:Cc:From:Date:From;
-        b=1HkRDoFK9zYIe26PrzXVqW3LpdzWm225u59YrQzhJrEJmRlWe4ynfyslioS6L4Za/
-         3j34RezzyysBliHSm/v+TPf8MuUO95J+75nlUAwWeWugsUNoz86KX8mAIkynMrAbRL
-         O6pzdUW7ZsFiHmMXm7G261L9QiHKscqYTc1BjKqg=
-Subject: FAILED: patch "[PATCH] tracing: Check pid filtering when creating events" failed to apply to 5.15-stable tree
+        b=EO1ZrzRwOz2yVMOy3EIL86oHpqrEBYAf4bX67f1WTBfZhCFSXB8OUNrX0lwCnSur4
+         z1IbnMxxo2h4J42hyYyAwJgEvhf0+GASw7UHoEDaTbkD9pZkKXyTAuqvws000e3hm6
+         BU6T+Bc60mdrD9JTKT9uA+FDM31bSwNlPOcKHfI8=
+Subject: FAILED: patch "[PATCH] tracing: Check pid filtering when creating events" failed to apply to 5.10-stable tree
 To:     rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 28 Nov 2021 12:42:05 +0100
-Message-ID: <163809972517531@kroah.com>
+Date:   Sun, 28 Nov 2021 12:44:01 +0100
+Message-ID: <1638099841130160@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
