@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19407460270
-	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 00:59:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 362A046028D
+	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 01:25:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231998AbhK1ACO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Nov 2021 19:02:14 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42654 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231622AbhK1AAO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 19:00:14 -0500
+        id S1356716AbhK1A2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Nov 2021 19:28:21 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39468 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356744AbhK1A0V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Nov 2021 19:26:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B264B80662;
-        Sat, 27 Nov 2021 23:56:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9096C53FBF;
-        Sat, 27 Nov 2021 23:56:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C953560F62;
+        Sun, 28 Nov 2021 00:23:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF340C53FCB;
+        Sun, 28 Nov 2021 00:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1638057417;
-        bh=icvtoA57qKh1cqysQd7r48aFx/Nx1ZcR23HSoh8yZLg=;
+        s=korg; t=1638058985;
+        bh=sOfIQAQu5vS9vuIFtB6QpR83bibmwR2aTH4SMvLosXw=;
         h=Date:From:To:Subject:From;
-        b=BYeBqBg4myi7IrQq8pcbB4Oe56ycqJMujRbZ6MuC2SYlhgC5ub6950LJNxQTmh5ql
-         ZPWVfs1VGtv4SLmBWHahgXsz5UYzvur8gVYeQpEQ/ZqYpmFAvTc1k0mH471Xv5Gbwk
-         68A5dNcPhAGfRZwCecjfjOc67owC6pra49CStq6Y=
-Date:   Sat, 27 Nov 2021 15:56:56 -0800
+        b=ia2ecdz/F6U6pS2VFxFQXNC1e/mo1+clOIheexSRE3CkUHQ0FNDIRyAdjKyK1xktH
+         hDrqKv1lyiJ8jFOkpU5Lom/QNWPGPww0toWymgHHkuDLNYUcfKK1eQhXJOWqBCXVMZ
+         fICLwEbKBoS2GxfP+i/EKK7ycbuGmXxNeSO0pUGk=
+Date:   Sat, 27 Nov 2021 16:23:04 -0800
 From:   akpm@linux-foundation.org
-To:     john.stultz@linaro.org, mm-commits@vger.kernel.org,
-        oleksandr@natalenko.name, sj@kernel.org, stable@vger.kernel.org,
-        tglx@linutronix.de
+To:     cl@linux.com, faiyazm@codeaurora.org,
+        gerald.schaefer@linux.ibm.com, gregkh@linuxfoundation.org,
+        iamjoonsoo.kim@lge.com, maier@linux.ibm.com,
+        mm-commits@vger.kernel.org, penberg@kernel.org,
+        rientjes@google.com, stable@vger.kernel.org, vbabka@suse.cz
 Subject:  +
- mm-damon-core-fix-fake-load-reports-due-to-uninterruptible-sleeps.patch
- added to -mm tree
-Message-ID: <20211127235656.knlr2mtzg%akpm@linux-foundation.org>
+ mm-slub-fix-endianness-bug-for-alloc-free_traces-attributes.patch added to
+ -mm tree
+Message-ID: <20211128002304.Aww0uYjZE%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -41,14 +43,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/damon/core: fix fake load reports due to uninterruptible sleeps
+     Subject: mm/slub: fix endianness bug for alloc/free_traces attributes
 has been added to the -mm tree.  Its filename is
-     mm-damon-core-fix-fake-load-reports-due-to-uninterruptible-sleeps.patch
+     mm-slub-fix-endianness-bug-for-alloc-free_traces-attributes.patch
 
 This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-damon-core-fix-fake-load-reports-due-to-uninterruptible-sleeps.patch
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-slub-fix-endianness-bug-for-alloc-free_traces-attributes.patch
 and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-damon-core-fix-fake-load-reports-due-to-uninterruptible-sleeps.patch
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-slub-fix-endianness-bug-for-alloc-free_traces-attributes.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -62,58 +64,93 @@ The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: SeongJae Park <sj@kernel.org>
-Subject: mm/damon/core: fix fake load reports due to uninterruptible sleeps
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Subject: mm/slub: fix endianness bug for alloc/free_traces attributes
 
-Because DAMON sleeps in uninterruptible mode, /proc/loadavg reports fake
-load while DAMON is turned on, though it is doing nothing.  This can
-confuse users[1].  To avoid the case, this commit makes DAMON sleeps in
-idle mode.
+On big-endian s390, the alloc/free_traces attributes produce endless
+output, because of always 0 idx in slab_debugfs_show().
 
-[1] https://lore.kernel.org/all/11868371.O9o76ZdvQC@natalenko.name/
+idx is de-referenced from *v, which points to a loff_t value, with
 
-Link: https://lkml.kernel.org/r/20211126145015.15862-3-sj@kernel.org
-Fixes: 2224d8485492 ("mm: introduce Data Access MONitor (DAMON)")
-Reported-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Signed-off-by: SeongJae Park <sj@kernel.org>
-Cc: Oleksandr Natalenko <oleksandr@natalenko.name>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
+unsigned int idx = *(unsigned int *)v;
+
+This will only give the upper 32 bits on big-endian, which remain 0.
+
+Instead of only fixing this de-reference, during discussion it seemed more
+appropriate to change the seq_ops so that they use an explicit iterator in
+private loc_track struct.
+
+This patch adds idx to loc_track, which will also fix the endianness bug.
+
+Link: https://lore.kernel.org/r/20211117193932.4049412-1-gerald.schaefer@linux.ibm.com
+Link: https://lkml.kernel.org/r/20211126171848.17534-1-gerald.schaefer@linux.ibm.com
+Fixes: 64dd68497be7 ("mm: slub: move sysfs slab alloc/free interfaces to debugfs")
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Reported-by: Steffen Maier <maier@linux.ibm.com>
+Cc: : Vlastimil Babka <vbabka@suse.cz>
+Cc: Faiyaz Mohammed <faiyazm@codeaurora.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/damon/core.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mm/slub.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/mm/damon/core.c~mm-damon-core-fix-fake-load-reports-due-to-uninterruptible-sleeps
-+++ a/mm/damon/core.c
-@@ -981,9 +981,9 @@ static unsigned long damos_wmark_wait_us
- static void kdamond_usleep(unsigned long usecs)
+--- a/mm/slub.c~mm-slub-fix-endianness-bug-for-alloc-free_traces-attributes
++++ a/mm/slub.c
+@@ -5081,6 +5081,7 @@ struct loc_track {
+ 	unsigned long max;
+ 	unsigned long count;
+ 	struct location *loc;
++	loff_t idx;
+ };
+ 
+ static struct dentry *slab_debugfs_root;
+@@ -6052,11 +6053,11 @@ __initcall(slab_sysfs_init);
+ #if defined(CONFIG_SLUB_DEBUG) && defined(CONFIG_DEBUG_FS)
+ static int slab_debugfs_show(struct seq_file *seq, void *v)
  {
- 	if (usecs > 100 * 1000)
--		schedule_timeout_interruptible(usecs_to_jiffies(usecs));
-+		schedule_timeout_idle(usecs_to_jiffies(usecs));
- 	else
--		usleep_range(usecs, usecs + 1);
-+		usleep_idle_range(usecs, usecs + 1);
+-
+-	struct location *l;
+-	unsigned int idx = *(unsigned int *)v;
+ 	struct loc_track *t = seq->private;
++	struct location *l;
++	unsigned long idx;
+ 
++	idx = (unsigned long) t->idx;
+ 	if (idx < t->count) {
+ 		l = &t->loc[idx];
+ 
+@@ -6105,16 +6106,18 @@ static void *slab_debugfs_next(struct se
+ {
+ 	struct loc_track *t = seq->private;
+ 
+-	v = ppos;
+-	++*ppos;
++	t->idx = ++(*ppos);
+ 	if (*ppos <= t->count)
+-		return v;
++		return ppos;
+ 
+ 	return NULL;
  }
  
- /* Returns negative error code if it's not activated but should return */
-@@ -1038,7 +1038,7 @@ static int kdamond_fn(void *data)
- 				ctx->callback.after_sampling(ctx))
- 			done = true;
+ static void *slab_debugfs_start(struct seq_file *seq, loff_t *ppos)
+ {
++	struct loc_track *t = seq->private;
++
++	t->idx = *ppos;
+ 	return ppos;
+ }
  
--		usleep_range(ctx->sample_interval, ctx->sample_interval + 1);
-+		kdamond_usleep(ctx->sample_interval);
- 
- 		if (ctx->primitive.check_accesses)
- 			max_nr_accesses = ctx->primitive.check_accesses(ctx);
 _
 
-Patches currently in -mm which might be from sj@kernel.org are
+Patches currently in -mm which might be from gerald.schaefer@linux.ibm.com are
 
-timers-implement-usleep_idle_range.patch
-mm-damon-core-fix-fake-load-reports-due-to-uninterruptible-sleeps.patch
-mm-damon-remove-some-no-need-func-definitions-in-damonh-file-fix.patch
+mm-slub-fix-endianness-bug-for-alloc-free_traces-attributes.patch
 
