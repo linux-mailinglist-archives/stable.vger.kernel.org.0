@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C87D4605F0
-	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 12:43:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8DF4605F3
+	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 12:44:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235715AbhK1LrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Nov 2021 06:47:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57090 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236205AbhK1Lo7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 06:44:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2613C06175E
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 03:41:02 -0800 (PST)
+        id S236070AbhK1Lr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Nov 2021 06:47:26 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38920 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244562AbhK1Lp0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 06:45:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A66FB80CCA
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 11:41:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92D7BC004E1;
-        Sun, 28 Nov 2021 11:40:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67685B80CCB
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 11:42:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90304C004E1;
+        Sun, 28 Nov 2021 11:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638099660;
-        bh=Pv0KXflx68HLpB/Yvuv5154gnFDq9I1M5OtX4MqU/h8=;
+        s=korg; t=1638099728;
+        bh=2ec6JBq64HMn84LHYF+T9L6v2aXq6/E2P+x56Ph1dAk=;
         h=Subject:To:Cc:From:Date:From;
-        b=S64tRQBtxJh/08qcPtkJwoPjBkOpsJ5PW532msRYEF9Q9emegT2cneWwqjAYlalwu
-         3NADhh3HBkQTei+5HL2wGCX1Y/OO5Gh42WrQaphBI9sChyMGnThLjbwqb9GsxPgy1s
-         kG2Lk9NkwZMHa8mXaVsC0SdkN1SC5W9FGAcKAQMI=
-Subject: FAILED: patch "[PATCH] NFSv42: Fix pagecache invalidation after COPY/CLONE" failed to apply to 5.4-stable tree
-To:     bcodding@redhat.com, stable@vger.kernel.org,
-        trond.myklebust@hammerspace.com
+        b=1HkRDoFK9zYIe26PrzXVqW3LpdzWm225u59YrQzhJrEJmRlWe4ynfyslioS6L4Za/
+         3j34RezzyysBliHSm/v+TPf8MuUO95J+75nlUAwWeWugsUNoz86KX8mAIkynMrAbRL
+         O6pzdUW7ZsFiHmMXm7G261L9QiHKscqYTc1BjKqg=
+Subject: FAILED: patch "[PATCH] tracing: Check pid filtering when creating events" failed to apply to 5.15-stable tree
+To:     rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 28 Nov 2021 12:40:41 +0100
-Message-ID: <1638099641254213@kroah.com>
+Date:   Sun, 28 Nov 2021 12:42:05 +0100
+Message-ID: <163809972517531@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,36 +50,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3f015d89a47cd8855cd92f71fff770095bd885a1 Mon Sep 17 00:00:00 2001
-From: Benjamin Coddington <bcodding@redhat.com>
-Date: Tue, 16 Nov 2021 10:48:13 -0500
-Subject: [PATCH] NFSv42: Fix pagecache invalidation after COPY/CLONE
+From 6cb206508b621a9a0a2c35b60540e399225c8243 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Date: Fri, 26 Nov 2021 13:35:26 -0500
+Subject: [PATCH] tracing: Check pid filtering when creating events
 
-The mechanism in use to allow the client to see the results of COPY/CLONE
-is to drop those pages from the pagecache.  This forces the client to read
-those pages once more from the server.  However, truncate_pagecache_range()
-zeros out partial pages instead of dropping them.  Let us instead use
-invalidate_inode_pages2_range() with full-page offsets to ensure the client
-properly sees the results of COPY/CLONE operations.
+When pid filtering is activated in an instance, all of the events trace
+files for that instance has the PID_FILTER flag set. This determines
+whether or not pid filtering needs to be done on the event, otherwise the
+event is executed as normal.
 
-Cc: <stable@vger.kernel.org> # v4.7+
-Fixes: 2e72448b07dc ("NFS: Add COPY nfs operation")
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+If pid filtering is enabled when an event is created (via a dynamic event
+or modules), its flag is not updated to reflect the current state, and the
+events are not filtered properly.
 
-diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
-index 08355b66e7cb..8b21ff1be717 100644
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -289,7 +289,9 @@ static void nfs42_copy_dest_done(struct inode *inode, loff_t pos, loff_t len)
- 	loff_t newsize = pos + len;
- 	loff_t end = newsize - 1;
+Cc: stable@vger.kernel.org
+Fixes: 3fdaf80f4a836 ("tracing: Implement event pid filtering")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+
+diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
+index 4021b9a79f93..f8965fd50d3b 100644
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -2678,12 +2678,24 @@ static struct trace_event_file *
+ trace_create_new_event(struct trace_event_call *call,
+ 		       struct trace_array *tr)
+ {
++	struct trace_pid_list *no_pid_list;
++	struct trace_pid_list *pid_list;
+ 	struct trace_event_file *file;
++	unsigned int first;
  
--	truncate_pagecache_range(inode, pos, end);
-+	WARN_ON_ONCE(invalidate_inode_pages2_range(inode->i_mapping,
-+				pos >> PAGE_SHIFT, end >> PAGE_SHIFT));
+ 	file = kmem_cache_alloc(file_cachep, GFP_TRACE);
+ 	if (!file)
+ 		return NULL;
+ 
++	pid_list = rcu_dereference_protected(tr->filtered_pids,
++					     lockdep_is_held(&event_mutex));
++	no_pid_list = rcu_dereference_protected(tr->filtered_no_pids,
++					     lockdep_is_held(&event_mutex));
 +
- 	spin_lock(&inode->i_lock);
- 	if (newsize > i_size_read(inode))
- 		i_size_write(inode, newsize);
++	if (!trace_pid_list_first(pid_list, &first) ||
++	    !trace_pid_list_first(pid_list, &first))
++		file->flags |= EVENT_FILE_FL_PID_FILTER;
++
+ 	file->event_call = call;
+ 	file->tr = tr;
+ 	atomic_set(&file->sm_ref, 0);
 
