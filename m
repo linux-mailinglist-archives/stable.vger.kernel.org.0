@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C754605EE
-	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 12:42:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C87D4605F0
+	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 12:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357243AbhK1LqN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Nov 2021 06:46:13 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34436 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234626AbhK1LoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 06:44:13 -0500
+        id S235715AbhK1LrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Nov 2021 06:47:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57090 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236205AbhK1Lo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 06:44:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2613C06175E
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 03:41:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87D4B60FB9
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 11:40:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6848CC004E1;
-        Sun, 28 Nov 2021 11:40:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6A66FB80CCA
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 11:41:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92D7BC004E1;
+        Sun, 28 Nov 2021 11:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638099657;
-        bh=rzaUpq2j/X+vHthBlY1SRDxwzqrsDmmW+4GSIxAPZiA=;
+        s=korg; t=1638099660;
+        bh=Pv0KXflx68HLpB/Yvuv5154gnFDq9I1M5OtX4MqU/h8=;
         h=Subject:To:Cc:From:Date:From;
-        b=leS1dqVnfbC8bHbciTY9NsFnuHMWwHfIWPS7+xkIhJ6NNBTKzG9Tzw0Xr7NyvFslI
-         HhkkduYB8vZvqNxQ7ZKHUKPwXwe3mgzW3R4+jE82RRZ6rYWNj9/4lHKtQ+V1vdpmYP
-         UNlUERdOx7My3tMe3ETbYAZgNa9iU8wBwOoK9KsU=
-Subject: FAILED: patch "[PATCH] NFSv42: Fix pagecache invalidation after COPY/CLONE" failed to apply to 5.10-stable tree
+        b=S64tRQBtxJh/08qcPtkJwoPjBkOpsJ5PW532msRYEF9Q9emegT2cneWwqjAYlalwu
+         3NADhh3HBkQTei+5HL2wGCX1Y/OO5Gh42WrQaphBI9sChyMGnThLjbwqb9GsxPgy1s
+         kG2Lk9NkwZMHa8mXaVsC0SdkN1SC5W9FGAcKAQMI=
+Subject: FAILED: patch "[PATCH] NFSv42: Fix pagecache invalidation after COPY/CLONE" failed to apply to 5.4-stable tree
 To:     bcodding@redhat.com, stable@vger.kernel.org,
         trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 28 Nov 2021 12:40:41 +0100
-Message-ID: <1638099641135207@kroah.com>
+Message-ID: <1638099641254213@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
