@@ -2,82 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CED14605FB
-	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 12:56:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C815D460604
+	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 13:01:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232372AbhK1MAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Nov 2021 07:00:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59910 "EHLO
+        id S1357379AbhK1MEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Nov 2021 07:04:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231346AbhK1L6A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 06:58:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CA99C061574;
-        Sun, 28 Nov 2021 03:54:44 -0800 (PST)
+        with ESMTP id S1357375AbhK1MCO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 07:02:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6976DC06175E
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 03:58:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F0AF60FB9;
-        Sun, 28 Nov 2021 11:54:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49E5BC004E1;
-        Sun, 28 Nov 2021 11:54:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 320D8B80CCF
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 11:58:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A77CC004E1;
+        Sun, 28 Nov 2021 11:58:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638100482;
-        bh=sHm8phCbm8/YA3JxnPdq7J1ma8QKPtJbjEv7ddaIAKc=;
+        s=korg; t=1638100695;
+        bh=ppf1Lm8MWoJ8I3PB7hW4akdlGGTkSY+mepp7p/MqlmM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nhrPAxSYIOLedxQz73WO0/SxjJ/uefFk0Iw7VIxL9ltu5yQxzp59ssGwiT3B13c8P
-         M0e/48D21aaQpP1NRoeVKUdF9VC6vTpcxR+yxQZJEtQ+nMRffdzuUHapzyAEXns0u5
-         rIvLE/IMN1V+MHBltW9Uk1r8IA1JxJh2q2ijElxY=
-Date:   Sun, 28 Nov 2021 12:54:40 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        borntraeger@de.ibm.com, hca@linux.ibm.com, imbrenda@linux.ibm.com
-Subject: Re: [PATCH for 4.14-stable] s390/mm: validate VMA in PGSTE
- manipulation functions
-Message-ID: <YaNuALgYu4OQDVXN@kroah.com>
-References: <16371715631177@kroah.com>
- <20211126171536.22963-1-david@redhat.com>
+        b=S/hNbptJIQbZrUipxFKkGc5GayZJdMRYC6Z72ze8abpAPHa26janI1bQpeJR5jnyU
+         diSx6wbUDeSr4TrHqHv/ESQdrvXcc2y1yKBoN+hpQPgAwjF0mzNQV1f9C5WTmWRaaC
+         hBnz23SnzS0W3iwKl96tIM7SSEpnaZipFiZGsmBA=
+Date:   Sun, 28 Nov 2021 12:58:00 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, pali@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.15 0/4] Armada 3720 PCIe fixes for 5.15
+Message-ID: <YaNuyBuNrz7K407w@kroah.com>
+References: <20211125140416.15181-1-kabel@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20211126171536.22963-1-david@redhat.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211125140416.15181-1-kabel@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 26, 2021 at 06:15:36PM +0100, David Hildenbrand wrote:
-> commit fe3d10024073f06f04c74b9674bd71ccc1d787cf upstream.
+On Thu, Nov 25, 2021 at 03:04:12PM +0100, Marek Behún wrote:
+> Hello Greg, Sasha,
 > 
-> We should not walk/touch page tables outside of VMA boundaries when
-> holding only the mmap sem in read mode. Evil user space can modify the
-> VMA layout just before this function runs and e.g., trigger races with
-> page table removal code since commit dd2283f2605e ("mm: mmap: zap pages
-> with read mmap_sem in munmap"). gfn_to_hva() will only translate using
-> KVM memory regions, but won't validate the VMA.
+> this series for 5.15-stable backports all the fixes (and their
+> dependencies) for Armada 3720 PCIe driver.
+> For 5.15 these are only changes to the pci-aardvark controller.
 > 
-> Further, we should not allocate page tables outside of VMA boundaries: if
-> evil user space decides to map hugetlbfs to these ranges, bad things will
-> happen because we suddenly have PTE or PMD page tables where we
-> shouldn't have them.
+> Marek
 > 
-> Similarly, we have to check if we suddenly find a hugetlbfs VMA, before
-> calling get_locked_pte().
+> Marek Behún (1):
+>   PCI: aardvark: Deduplicate code in advk_pcie_rd_conf()
 > 
-> Fixes: 2d42f9477320 ("s390/kvm: Add PGSTE manipulation functions")
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Acked-by: Heiko Carstens <hca@linux.ibm.com>
-> Link: https://lore.kernel.org/r/20210909162248.14969-4-david@redhat.com
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-> ---
->  arch/s390/mm/pgtable.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
+> Pali Rohár (3):
+>   PCI: aardvark: Implement re-issuing config requests on CRS response
+>   PCI: aardvark: Simplify initialization of rootcap on virtual bridge
+>   PCI: aardvark: Fix link training
+> 
+>  drivers/pci/controller/pci-aardvark.c | 242 +++++++++++---------------
+>  1 file changed, 99 insertions(+), 143 deletions(-)
+> 
+> -- 
+> 2.32.0
+> 
 
-What about for 5.10-stable and 5.4-stable and 4.19-stable?  Will this
-commit work there as well?
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
