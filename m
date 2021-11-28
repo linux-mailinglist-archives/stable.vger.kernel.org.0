@@ -2,212 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9225046061F
-	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 13:39:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C842746064A
+	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 13:56:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357429AbhK1Mml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Nov 2021 07:42:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40862 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236449AbhK1Mkl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 07:40:41 -0500
-Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26C49C061757
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 04:36:27 -0800 (PST)
-Received: by mail-lj1-x232.google.com with SMTP id k2so28970847lji.4
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 04:36:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=SGF7fjwVb2WQ2en2gyBWJJqejwHozQGha01JGDj3m0k=;
-        b=ix/undGp0/snZCr2Pa3VKOcoXMpqgpbiZeI+9d5JcWb2n7dWVO947uMhqB1fNL/JRh
-         6kE1JPfEDeAHVNqY8gJjBaB/K62n1FzSGJTnQPPw8PBeQ2OaDKltj4F0jd0I5WbyVH3G
-         gLh7ky1gVRTPsBGIklwSeT7YIE7RK4UVim80apcT0lggyrEbWOcopRDnv3ati84Au34v
-         irxp4JngLQ6B1YHNEFFklHkIMqWH+wnE3Aq7cJa0dSTP0yz/Ly716tGLUBky4nnNcpil
-         tmmtPzuCOLOjSdXG3cGS2ALCMzVJhI6SNloqwzq85JmjoHZYMLT3e67LsqGI3DmsfUeO
-         ztqw==
+        id S1357456AbhK1NAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Nov 2021 08:00:02 -0500
+Received: from mail-pg1-f176.google.com ([209.85.215.176]:37464 "EHLO
+        mail-pg1-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357524AbhK1M6B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 07:58:01 -0500
+Received: by mail-pg1-f176.google.com with SMTP id 71so12989829pgb.4
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 04:54:46 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SGF7fjwVb2WQ2en2gyBWJJqejwHozQGha01JGDj3m0k=;
-        b=V5ay8nmqvgo10/UOHsWz8YQ9SB8DHLbFjSSpZm2wHLzOftEDoWak1n8NrtpihVCyq2
-         ximY1MGUGaTiV/dvqMNwSKsEINdo1psY+1jSrkKOJ5s4CtA2KnKTVvI1RiF2VA88DVyr
-         kt8L43ussBAZrjmmnK6i/wdFS6rQ5unre9FBRT05IV40y19erOGKdbuXVAhvyerBMVi1
-         ITtV/QoIKouODfBZ6OYykGMQqt1W8OkACx2jAW7LKbW8cKmZ+yaglM7Vobvby+q9uzKE
-         9vnnuVu3X5PTeFV6yfZdL3uAHo4aucyCleFa4zPOVwNmYgww33KIPHKthxzuQDvqptah
-         FlcA==
-X-Gm-Message-State: AOAM530D67YRneZ7lnEnxPaH8oTeXvxUwSH4o/Dmsbm+qH5kcEPfbEio
-        4jQ5dCRt+kkrRVWbQCBfCe3vm6oRvo7RxMwYGyk=
-X-Google-Smtp-Source: ABdhPJzgh3T6IfBPQWqn5cHzsQYfhXcq7uYGtI2fY8xv7lRDyeViFnk0nsq78MUcJe41Q7VvvUdQCY4ELSDMVEX6xxI=
-X-Received: by 2002:a2e:8991:: with SMTP id c17mr41546333lji.361.1638102985254;
- Sun, 28 Nov 2021 04:36:25 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=PrKHxqv7fDMlqfSZwdEAMplqou+69N9YTQNIyaHczuc=;
+        b=mh81LqOvy68tF7svBPsRzsU1Vu6GEXxenMLnE4WtWMI3Ni/TEhLSr3p1MnFyMrZk60
+         wpF3k/D9hmtDZ4SW7nlv9ZDS4cHnffmCWgzaWbFT0Fnx6jI904xatIHKzBjqnrOSz7vI
+         15+q8hUJHQCA5akMbiI0OP7ERUMwZ+gfCqvi5J7eSvAJCGtMQyZGGkJEMpjkzYYrGyBe
+         Vx6pTl3YyfBiTsMI1aWoHQZ4v4raUHADQTqsTvnQX5LnVSasgBb9iOlQG4MfCNXl2fCT
+         vLRJagFb8y7woXv+r6yPXPxSrsphgPSQNMI/p+TSVEgYBOtDIncTSGIAJCzHM4lK44wG
+         pQ2Q==
+X-Gm-Message-State: AOAM530CeS3Mfk4m0fOAmnLdM7RNEMLxG/PTkoFfON2f+HeAb1t7mPFC
+        k5+zdfHEHMLj59GQ2Bt5+UjRee5ncHg=
+X-Google-Smtp-Source: ABdhPJwoE6tCYyQGenL+zFukSkoerEc940t7TEMczCCy5bO420i/p0C0gUoFgNDhU5K6m6ni0U9QEg==
+X-Received: by 2002:a05:6a00:a18:b0:4a7:ef65:ddfb with SMTP id p24-20020a056a000a1800b004a7ef65ddfbmr24193691pfh.17.1638104085541;
+        Sun, 28 Nov 2021 04:54:45 -0800 (PST)
+Received: from localhost.localdomain ([61.74.27.164])
+        by smtp.gmail.com with ESMTPSA id z10sm8231816pfh.188.2021.11.28.04.54.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 28 Nov 2021 04:54:45 -0800 (PST)
+From:   Namjae Jeon <linkinjeon@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, christophe.jaillet@wanadoo.fr,
+        linkinjeon@kernel.org, stfrench@microsoft.com
+Subject: [PATCH BACKPORT for 5.15 stable] ksmbd: Fix an error handling path in 'smb2_sess_setup()'
+Date:   Sun, 28 Nov 2021 21:54:37 +0900
+Message-Id: <20211128125437.10027-1-linkinjeon@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <1637577215186161@kroah.com> <20211125115809.354531-1-masami.ichikawa@cybertrust.co.jp>
- <YZ97xekHtjTvjRJw@kroah.com> <CACOXgS_HpBBKxrC7pDJy5Pw85LymfVJu9u1SasuHvc+6MD-bKw@mail.gmail.com>
- <YaIeqkVuJRE344jh@kroah.com> <CACOXgS88zDufgTH+icz5DAzeC0ubPNmy9yXTsgm5p8x=qEaWkA@mail.gmail.com>
- <YaNjN44W43nAMjZ+@kroah.com>
-In-Reply-To: <YaNjN44W43nAMjZ+@kroah.com>
-From:   Masami Ichikawa <masami256@gmail.com>
-Date:   Sun, 28 Nov 2021 21:36:14 +0900
-Message-ID: <CACOXgS-=ONES5xOXxDew6xTapPt_nd8rgoVNMBeoxQv=rHJhrA@mail.gmail.com>
-Subject: Re: [PATCH] bpf: Fix toctou on read-only map's constant scalar tracking
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     andrii@kernel.org, ast@kernel.org, daniel@iogearbox.net,
-        stable@vger.kernel.org, w1tcher.bupt@gmail.com,
-        Masami Ichikawa <masami.ichikawa@cybertrust.co.jp>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Nov 28, 2021 at 8:08 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Sun, Nov 28, 2021 at 07:28:38PM +0900, Masami Ichikawa wrote:
-> > On Sat, Nov 27, 2021 at 9:03 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Thu, Nov 25, 2021 at 09:12:37PM +0900, Masami Ichikawa wrote:
-> > > > On Thu, Nov 25, 2021 at 9:05 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > >
-> > > > > On Thu, Nov 25, 2021 at 08:58:10PM +0900, Masami Ichikawa(CIP) wrote:
-> > > > > > From: Daniel Borkmann <daniel@iogearbox.net>
-> > > > > >
-> > > > > > commit 353050be4c19e102178ccc05988101887c25ae53 upstream
-> > > > > >
-> > > > > > Commit a23740ec43ba ("bpf: Track contents of read-only maps as scalars") is
-> > > > > > checking whether maps are read-only both from BPF program side and user space
-> > > > > > side, and then, given their content is constant, reading out their data via
-> > > > > > map->ops->map_direct_value_addr() which is then subsequently used as known
-> > > > > > scalar value for the register, that is, it is marked as __mark_reg_known()
-> > > > > > with the read value at verification time. Before a23740ec43ba, the register
-> > > > > > content was marked as an unknown scalar so the verifier could not make any
-> > > > > > assumptions about the map content.
-> > > > > >
-> > > > > > The current implementation however is prone to a TOCTOU race, meaning, the
-> > > > > > value read as known scalar for the register is not guaranteed to be exactly
-> > > > > > the same at a later point when the program is executed, and as such, the
-> > > > > > prior made assumptions of the verifier with regards to the program will be
-> > > > > > invalid which can cause issues such as OOB access, etc.
-> > > > > >
-> > > > > > While the BPF_F_RDONLY_PROG map flag is always fixed and required to be
-> > > > > > specified at map creation time, the map->frozen property is initially set to
-> > > > > > false for the map given the map value needs to be populated, e.g. for global
-> > > > > > data sections. Once complete, the loader "freezes" the map from user space
-> > > > > > such that no subsequent updates/deletes are possible anymore. For the rest
-> > > > > > of the lifetime of the map, this freeze one-time trigger cannot be undone
-> > > > > > anymore after a successful BPF_MAP_FREEZE cmd return. Meaning, any new BPF_*
-> > > > > > cmd calls which would update/delete map entries will be rejected with -EPERM
-> > > > > > since map_get_sys_perms() removes the FMODE_CAN_WRITE permission. This also
-> > > > > > means that pending update/delete map entries must still complete before this
-> > > > > > guarantee is given. This corner case is not an issue for loaders since they
-> > > > > > create and prepare such program private map in successive steps.
-> > > > > >
-> > > > > > However, a malicious user is able to trigger this TOCTOU race in two different
-> > > > > > ways: i) via userfaultfd, and ii) via batched updates. For i) userfaultfd is
-> > > > > > used to expand the competition interval, so that map_update_elem() can modify
-> > > > > > the contents of the map after map_freeze() and bpf_prog_load() were executed.
-> > > > > > This works, because userfaultfd halts the parallel thread which triggered a
-> > > > > > map_update_elem() at the time where we copy key/value from the user buffer and
-> > > > > > this already passed the FMODE_CAN_WRITE capability test given at that time the
-> > > > > > map was not "frozen". Then, the main thread performs the map_freeze() and
-> > > > > > bpf_prog_load(), and once that had completed successfully, the other thread
-> > > > > > is woken up to complete the pending map_update_elem() which then changes the
-> > > > > > map content. For ii) the idea of the batched update is similar, meaning, when
-> > > > > > there are a large number of updates to be processed, it can increase the
-> > > > > > competition interval between the two. It is therefore possible in practice to
-> > > > > > modify the contents of the map after executing map_freeze() and bpf_prog_load().
-> > > > > >
-> > > > > > One way to fix both i) and ii) at the same time is to expand the use of the
-> > > > > > map's map->writecnt. The latter was introduced in fc9702273e2e ("bpf: Add mmap()
-> > > > > > support for BPF_MAP_TYPE_ARRAY") and further refined in 1f6cb19be2e2 ("bpf:
-> > > > > > Prevent re-mmap()'ing BPF map as writable for initially r/o mapping") with
-> > > > > > the rationale to make a writable mmap()'ing of a map mutually exclusive with
-> > > > > > read-only freezing. The counter indicates writable mmap() mappings and then
-> > > > > > prevents/fails the freeze operation. Its semantics can be expanded beyond
-> > > > > > just mmap() by generally indicating ongoing write phases. This would essentially
-> > > > > > span any parallel regular and batched flavor of update/delete operation and
-> > > > > > then also have map_freeze() fail with -EBUSY. For the check_mem_access() in
-> > > > > > the verifier we expand upon the bpf_map_is_rdonly() check ensuring that all
-> > > > > > last pending writes have completed via bpf_map_write_active() test. Once the
-> > > > > > map->frozen is set and bpf_map_write_active() indicates a map->writecnt of 0
-> > > > > > only then we are really guaranteed to use the map's data as known constants.
-> > > > > > For map->frozen being set and pending writes in process of still being completed
-> > > > > > we fall back to marking that register as unknown scalar so we don't end up
-> > > > > > making assumptions about it. With this, both TOCTOU reproducers from i) and
-> > > > > > ii) are fixed.
-> > > > > >
-> > > > > > Note that the map->writecnt has been converted into a atomic64 in the fix in
-> > > > > > order to avoid a double freeze_mutex mutex_{un,}lock() pair when updating
-> > > > > > map->writecnt in the various map update/delete BPF_* cmd flavors. Spanning
-> > > > > > the freeze_mutex over entire map update/delete operations in syscall side
-> > > > > > would not be possible due to then causing everything to be serialized.
-> > > > > > Similarly, something like synchronize_rcu() after setting map->frozen to wait
-> > > > > > for update/deletes to complete is not possible either since it would also
-> > > > > > have to span the user copy which can sleep. On the libbpf side, this won't
-> > > > > > break d66562fba1ce ("libbpf: Add BPF object skeleton support") as the
-> > > > > > anonymous mmap()-ed "map initialization image" is remapped as a BPF map-backed
-> > > > > > mmap()-ed memory where for .rodata it's non-writable.
-> > > > > >
-> > > > > > Fixes: a23740ec43ba ("bpf: Track contents of read-only maps as scalars")
-> > > > > > Reported-by: w1tcher.bupt@gmail.com
-> > > > > > Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-> > > > > > Acked-by: Andrii Nakryiko <andrii@kernel.org>
-> > > > > > Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-> > > > > > [fix conflict to call bpf_map_write_active_dec() in err_put block.
-> > > > > > fix conflict to insert new functions after find_and_alloc_map().]
-> > > > > > Reference: CVE-2021-4001
-> > > > > > Signed-off-by: Masami Ichikawa(CIP) <masami.ichikawa@cybertrust.co.jp>
-> > > > > > ---
-> > > > > >  include/linux/bpf.h   |  3 ++-
-> > > > > >  kernel/bpf/syscall.c  | 57 +++++++++++++++++++++++++++----------------
-> > > > > >  kernel/bpf/verifier.c | 17 ++++++++++++-
-> > > > > >  3 files changed, 54 insertions(+), 23 deletions(-)
-> > > > >
-> > > > > What stable tree(s) is this for?
-> > > > >
-> > > >
-> > > > I'm sorry that I forgot to specify stable tree name.
-> > > > This patch is for 5.10.y branch.
-> > >
-> > > Wonderful, I will go queue it up now.
-> > >
-> >
-> > Thank you.
-> >
-> > > Can you also provide a version for 5.4?  It is needed there as well.
-> > >
-> >
-> > I tried backporting to 5.4.y branch but 353050 ("bpf: Fix toctou on
-> > read-only map's constant scalar tracking ") is based on several
-> > commits that don't exist in the stable/linux-5.4.y branch. At least I
-> > found following commits are needed.
-> >
-> > - fc97022 ("bpf: Add mmap() support for BPF_MAP_TYPE_ARRAY")
-> > - 1f6cb19 ("bpf: Prevent re-mmap()'ing BPF map as writable for
-> > initially r/o mapping")
-> > - 196e8ca ("bpf: Switch bpf_map_{area_alloc,area_mmapable_alloc}() to
-> > u64 size ")
-> > - cb4d03a ("bpf: Add generic support for lookup batch op")
-> >
-> > So I couldn't simply apply 353050 to 5.4 .y branch.
-> > Sorry for inconvenient.
->
-> No worries, thanks for trying.  If anyone really cares about this for
-> the old 5.4 kernel tree, I'm sure they will provide a backported series.
->
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-I see. thanks.
+All the error handling paths of 'smb2_sess_setup()' end to 'out_err'.
 
-> thanks,
->
-> greg k-h
+All but the new error handling path added by the commit given in the Fixes
+tag below.
 
+Fix this error handling path and branch to 'out_err' as well.
 
-Regards,
+Fixes: 0d994cd482ee ("ksmbd: add buffer validation in session setup")
+Cc: stable@vger.kernel.org # v5.15
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+---
+ fs/ksmbd/smb2pdu.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
+index 589694af4e95..9ae1d19ebc38 100644
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -1700,8 +1700,10 @@ int smb2_sess_setup(struct ksmbd_work *work)
+ 	negblob_off = le16_to_cpu(req->SecurityBufferOffset);
+ 	negblob_len = le16_to_cpu(req->SecurityBufferLength);
+ 	if (negblob_off < (offsetof(struct smb2_sess_setup_req, Buffer) - 4) ||
+-	    negblob_len < offsetof(struct negotiate_message, NegotiateFlags))
+-		return -EINVAL;
++	    negblob_len < offsetof(struct negotiate_message, NegotiateFlags)) {
++		rc = -EINVAL;
++		goto out_err;
++	}
+ 
+ 	negblob = (struct negotiate_message *)((char *)&req->hdr.ProtocolId +
+ 			negblob_off);
 -- 
-/**
-* Masami Ichikawa
-* personal: masami256@gmail.com
-* fedora project: masami@fedoraproject.org
-*/
+2.25.1
+
