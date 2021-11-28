@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D69824605E9
-	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 12:41:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF00A4605EF
+	for <lists+stable@lfdr.de>; Sun, 28 Nov 2021 12:43:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231950AbhK1LpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Nov 2021 06:45:00 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33918 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233294AbhK1LnA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 06:43:00 -0500
+        id S231176AbhK1Lq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Nov 2021 06:46:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56970 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232603AbhK1Lo0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 06:44:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E670C061574
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 03:40:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1491960F1F
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 11:39:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E14BBC004E1;
-        Sun, 28 Nov 2021 11:39:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8D73B80CC9
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 11:40:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E96E8C004E1;
+        Sun, 28 Nov 2021 11:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638099583;
-        bh=+5Exwmi7jaN7SiJnAkiJvg8hy5KkIcwnejPezG22Fs0=;
+        s=korg; t=1638099642;
+        bh=r676s6o5BUe+fDoVj4yN6ri06m2o/mvoYNvK+H0rZK8=;
         h=Subject:To:Cc:From:Date:From;
-        b=sDmWjgG09rFIlaZ7qpWy4GK94v552EYQBOwxN4igsnF9Uqh5B2OuEEyS4aUmiQqN4
-         s65tjwjQUIV9NlW8wtWsiJCGLJVB3g1aa0j9dqbF/QqKRJfOXeJzz0eABqsegi6b3v
-         ZThKjb5Lc5EsqGDew7hBELF0NiAK/NtYaOCAUeqk=
-Subject: FAILED: patch "[PATCH] cpufreq: intel_pstate: Fix active mode offline/online EPP" failed to apply to 5.10-stable tree
-To:     rafael.j.wysocki@intel.com, srinivas.pandruvada@linux.intel.com,
-        stable@vger.kernel.org
+        b=E6YxabiCcRIMRJDcvlTe4dZ0PU1A1lqaMp3VwI3Vlws7Xe5H+gKOkN2Fuv5zYZYv6
+         cxbDE2X1yvwEamyGLuA/DYJ8UjRHvcbMxcb59Kb8bOimRGx/dhJyyvOZWXGnClb+d7
+         AtzJs9ZxTJcOp/EZ7RvmzPNPJfJQhFgr7w6EJpC4=
+Subject: FAILED: patch "[PATCH] NFSv42: Fix pagecache invalidation after COPY/CLONE" failed to apply to 4.9-stable tree
+To:     bcodding@redhat.com, stable@vger.kernel.org,
+        trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 28 Nov 2021 12:39:40 +0100
-Message-ID: <163809958089253@kroah.com>
+Date:   Sun, 28 Nov 2021 12:40:39 +0100
+Message-ID: <1638099639215173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,42 +54,36 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ed38eb49d101e829ae0f8c0a0d3bf5cb6bcbc6b2 Mon Sep 17 00:00:00 2001
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Date: Wed, 17 Nov 2021 14:57:31 +0100
-Subject: [PATCH] cpufreq: intel_pstate: Fix active mode offline/online EPP
- handling
+From 3f015d89a47cd8855cd92f71fff770095bd885a1 Mon Sep 17 00:00:00 2001
+From: Benjamin Coddington <bcodding@redhat.com>
+Date: Tue, 16 Nov 2021 10:48:13 -0500
+Subject: [PATCH] NFSv42: Fix pagecache invalidation after COPY/CLONE
 
-After commit 4adcf2e5829f ("cpufreq: intel_pstate: Add ->offline and
-->online callbacks") the EPP value set by the "performance" scaling
-algorithm in the active mode is not restored after an offline/online
-cycle which replaces it with the saved EPP value coming from user
-space.
+The mechanism in use to allow the client to see the results of COPY/CLONE
+is to drop those pages from the pagecache.  This forces the client to read
+those pages once more from the server.  However, truncate_pagecache_range()
+zeros out partial pages instead of dropping them.  Let us instead use
+invalidate_inode_pages2_range() with full-page offsets to ensure the client
+properly sees the results of COPY/CLONE operations.
 
-Address this issue by forcing intel_pstate_hwp_set() to set a new
-EPP value when it runs first time after online.
+Cc: <stable@vger.kernel.org> # v4.7+
+Fixes: 2e72448b07dc ("NFS: Add COPY nfs operation")
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-Fixes: 4adcf2e5829f ("cpufreq: intel_pstate: Add ->offline and ->online callbacks")
-Link: https://lore.kernel.org/linux-pm/adc7132c8655bd4d1c8b6129578e931a14fe1db2.camel@linux.intel.com/
-Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: 5.9+ <stable@vger.kernel.org> # 5.9+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index 1088ff350159..1bc00645b656 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -1006,6 +1006,12 @@ static void intel_pstate_hwp_offline(struct cpudata *cpu)
- 		 */
- 		value &= ~GENMASK_ULL(31, 24);
- 		value |= HWP_ENERGY_PERF_PREFERENCE(cpu->epp_cached);
-+		/*
-+		 * However, make sure that EPP will be set to "performance" when
-+		 * the CPU is brought back online again and the "performance"
-+		 * scaling algorithm is still in effect.
-+		 */
-+		cpu->epp_policy = CPUFREQ_POLICY_UNKNOWN;
- 	}
+diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
+index 08355b66e7cb..8b21ff1be717 100644
+--- a/fs/nfs/nfs42proc.c
++++ b/fs/nfs/nfs42proc.c
+@@ -289,7 +289,9 @@ static void nfs42_copy_dest_done(struct inode *inode, loff_t pos, loff_t len)
+ 	loff_t newsize = pos + len;
+ 	loff_t end = newsize - 1;
  
- 	/*
+-	truncate_pagecache_range(inode, pos, end);
++	WARN_ON_ONCE(invalidate_inode_pages2_range(inode->i_mapping,
++				pos >> PAGE_SHIFT, end >> PAGE_SHIFT));
++
+ 	spin_lock(&inode->i_lock);
+ 	if (newsize > i_size_read(inode))
+ 		i_size_write(inode, newsize);
 
