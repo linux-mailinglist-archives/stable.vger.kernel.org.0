@@ -2,89 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC8E1462050
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 20:21:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E9CD46207F
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 20:29:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347546AbhK2TYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 14:24:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46190 "EHLO
+        id S238478AbhK2Tc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 14:32:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378113AbhK2TWQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 14:22:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665C1C09B10A;
-        Mon, 29 Nov 2021 07:39:53 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04A526156C;
-        Mon, 29 Nov 2021 15:39:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65DE7C53FCF;
-        Mon, 29 Nov 2021 15:39:52 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="JQKzd3uj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1638200391;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=gzQGL+TDRIbxJKNobwNPjcZuWrl+JWU730AGRPtU4y4=;
-        b=JQKzd3ujn1rh/0kLkAyWL3UpTgVciUyRxL8YWzyHCDksKRXUrztcVesydyv6/BpbylA9jp
-        h7wKHLg/TLfYIuq0Ldd0m5v4q/IhNzJ+N4xSZuAGyQ7Lm75sdpHWYmUVT159KHOh5XfFl7
-        VF+IngAaszU0Jfb75TgpQmuK/Y3TfT8=
-Received: by mail.zx2c4.com (OpenSMTPD) with ESMTPSA id 6bbbef5a (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Mon, 29 Nov 2021 15:39:51 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     netdev@vger.kernel.org, davem@davemloft.net
-Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        stable@vger.kernel.org, "Jason A . Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH net 09/10] wireguard: ratelimiter: use kvcalloc() instead of kvzalloc()
-Date:   Mon, 29 Nov 2021 10:39:28 -0500
-Message-Id: <20211129153929.3457-10-Jason@zx2c4.com>
-In-Reply-To: <20211129153929.3457-1-Jason@zx2c4.com>
-References: <20211129153929.3457-1-Jason@zx2c4.com>
+        with ESMTP id S231280AbhK2Ta5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 14:30:57 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E07ACC061799
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 07:47:31 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id y13so73710254edd.13
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 07:47:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=c6g50yMG/1omcJlm0BcWdAgQTVtFHbwnLlUdAfvNo04=;
+        b=zsxTUePSdP1mP9GKvIUtm3eug9zrqHOdRP6ODS2E+5PZynoYDvucViEFbBkdlywFwa
+         hccTQkzLxfJSLG602+GzYfHRHEkyO8WD7icrJrL4CVkE5yrY3/HMfl20MsuWOYIp+eKk
+         F6YbbSKzZfwbsv0PrXBhH5YeWPUKwp2YikdcLp6Ru7ri3Lb05SZcT8PnWcoz5kU268JD
+         tBZhMx9DXoSqm2JsYu8TgO7Eni7DG3KKDM269leP5KR9sPxxhF0aFNFwyJCZpn+QZjEj
+         aHJxQwDzJazq5Z0mBlZvWP5rjnbkt7XSakRZXjv9EhhPjlqkgOM33jg+5RY52/yhWYrk
+         xOsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=c6g50yMG/1omcJlm0BcWdAgQTVtFHbwnLlUdAfvNo04=;
+        b=ag+TROOa0iwA1ZidX5sP4eopQASXuiNJtCDN7wx6nbSN9+Nm2GFmDCwFUc7/ZZJU0I
+         cxxSsnOLRqXda1Rgix0GSsLXwepLJSz71kk3nHnk2qUDP2wxRrVwqXK5s1ZxdgVcihS4
+         HVp86eqvY6/tmXtyLfEX1+MMZ4W0XYxAAkli444RTMCpdWgpqzOYWmgLzMyBhtmk04Qt
+         51X0c5TpN7TRwtozuNdr5yVL5JmJB2nB4+9pUyu1cxdUSK3XQgLyjFiEewbtP8vVL/bN
+         CXr01F1NSVc+YhNHSwI4vnzzAnURcB5qtYYxD7LK+TGq7XVyT7PBZpP1VLB/6PvP7JLs
+         IU7Q==
+X-Gm-Message-State: AOAM530vW1A90w02Nc6al7KnIoaJrgKF+H90hFTCHwGs0jLVWJuc3b/H
+        Cp9ImwHCywg3GB2vouBiplTBbB9TB/V290WFJJUCAg==
+X-Google-Smtp-Source: ABdhPJwUAgVVsyVr5litLo45IS6OFKaPGye855sme0yFRscxgxypkG4QPymN0fIX25G3gH3RLUorv5ZrxEwFi7C0rGc=
+X-Received: by 2002:a05:6402:4312:: with SMTP id m18mr73833303edc.273.1638200849924;
+ Mon, 29 Nov 2021 07:47:29 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CA+G9fYuzzknDMdu3q8ARyVHqd-cLYD_tsMLMH-ig-k-WVeTPAg@mail.gmail.com>
+ <YaTkwsWycenqZHN9@kroah.com>
+In-Reply-To: <YaTkwsWycenqZHN9@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 29 Nov 2021 21:17:18 +0530
+Message-ID: <CA+G9fYu_aWr-S77rD39Bx-oMGAwbkYPQJzUH8mz_ea++VYNk-Q@mail.gmail.com>
+Subject: Re: Doesn't build 32 bit vDSO for arm64
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Antonio Terceiro <antonio.terceiro@linaro.org>,
+        Vishal Bhoj <vishal.bhoj@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
++ Daniel
 
-Use 2-factor argument form kvcalloc() instead of kvzalloc().
+On Mon, 29 Nov 2021 at 20:03, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Nov 29, 2021 at 07:42:07PM +0530, Naresh Kamboju wrote:
+> > Hi Greg and Antonio,
+> >
+> > The stable-rc 5.4 build is failing.
+> > ( 5.10 and 5.15 builds pass )
+> > because new build getting these two extra configs.
+> >
+> > CONFIG_GENERIC_COMPAT_VDSO=y
+> > CONFIG_COMPAT_VDSO=y
+> >
+> > These two configs are getting added by extra build variable
+> >
+> > CROSS_COMPILE_COMPAT=arm-linux-gnueabihf-
+> >
+> > This extra variable is coming from new tuxmake tool.
+> >
+> > Doesn't build 32 bit vDSO for arm64
+> > https://gitlab.com/Linaro/tuxmake/-/issues/160
+> >
+> > ref:
+> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/
+> >
+> >
+> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>
+> Has this ever worked on 5.4 for this configuration?
+>
+> Or is this a new problem with the current 5.4.y queue?
 
-Link: https://github.com/KSPP/linux/issues/162
-Cc: stable@vger.kernel.org
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-[Jason: Gustavo's link above is for KSPP, but this isn't actually a
- security fix, as table_size is bounded to 8192 anyway, and gcc realizes
- this, so the codegen comes out to be about the same.]
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- drivers/net/wireguard/ratelimiter.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+It did not worked on 5.4 with CROSS_COMPILE_COMPAT=arm-linux-gnueabihf-
 
-diff --git a/drivers/net/wireguard/ratelimiter.c b/drivers/net/wireguard/ratelimiter.c
-index 3fedd1d21f5e..dd55e5c26f46 100644
---- a/drivers/net/wireguard/ratelimiter.c
-+++ b/drivers/net/wireguard/ratelimiter.c
-@@ -176,12 +176,12 @@ int wg_ratelimiter_init(void)
- 			(1U << 14) / sizeof(struct hlist_head)));
- 	max_entries = table_size * 8;
- 
--	table_v4 = kvzalloc(table_size * sizeof(*table_v4), GFP_KERNEL);
-+	table_v4 = kvcalloc(table_size, sizeof(*table_v4), GFP_KERNEL);
- 	if (unlikely(!table_v4))
- 		goto err_kmemcache;
- 
- #if IS_ENABLED(CONFIG_IPV6)
--	table_v6 = kvzalloc(table_size * sizeof(*table_v6), GFP_KERNEL);
-+	table_v6 = kvcalloc(table_size, sizeof(*table_v6), GFP_KERNEL);
- 	if (unlikely(!table_v6)) {
- 		kvfree(table_v4);
- 		goto err_kmemcache;
--- 
-2.34.1
+OTOH, Since 5.10 and above builds pass with this ^.
+We are investigating and trying to find the missing patch on 5.4.
 
+- Naresh
