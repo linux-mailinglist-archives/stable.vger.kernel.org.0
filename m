@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45D82462434
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CE26462430
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233061AbhK2WRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:17:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56632 "EHLO
+        id S233006AbhK2WRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:17:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231434AbhK2WQr (ORCPT
+        with ESMTP id S231473AbhK2WQr (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:47 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90573C127122;
-        Mon, 29 Nov 2021 10:22:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F0CEC127125;
+        Mon, 29 Nov 2021 10:22:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 144BFB815D4;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06791B815DB;
+        Mon, 29 Nov 2021 18:22:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A018C53FAD;
         Mon, 29 Nov 2021 18:22:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 460BCC53FAD;
-        Mon, 29 Nov 2021 18:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210119;
-        bh=wSanE+iMEHuphLUNYwHm5x3TV4pyRoQG0kyKPZkFyU8=;
+        s=korg; t=1638210122;
+        bh=VYiRlfloXRGTmj4FdDoX3+bibzj4hSrda9n62yaAsMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWxAc03tGK8lTgRU9N2mQ7+mppRPVV3h0oshN2re4MCp58bpPO4rVz5yC7ZGUMz4P
-         bRsWAjxlsH4vtLotV8dn1A/c5BpxJOqCjZ7uUcamGN8M/DZm9eJJXtZChhQFz4bFf2
-         1oVz0pTjDL3A82VEKcANf6FATEuObyaE0dxhfBII=
+        b=uLW0+cJHMBSKIwn3qylEiMdN3fkLZIh4YonN9CR44N9PuDVpRNYs9TuSejsWLwnnk
+         6VppQiQ0fpHvjsYv2kXmcCnslVhUU1SiQFFRsPEREg6xfl6LERl31K2aatN/MAHj78
+         NDZAeQIqJLW8w7lSjBHGBX1RO5SzBoHO/4wX9Its=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 49/69] net/smc: Ensure the active closing peer first closes clcsock
-Date:   Mon, 29 Nov 2021 19:18:31 +0100
-Message-Id: <20211129181705.257861830@linuxfoundation.org>
+Subject: [PATCH 4.19 50/69] PM: hibernate: use correct mode for swsusp_close()
+Date:   Mon, 29 Nov 2021 19:18:32 +0100
+Message-Id: <20211129181705.288398033@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
 References: <20211129181703.670197996@linuxfoundation.org>
@@ -49,75 +49,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lu <tonylu@linux.alibaba.com>
+From: Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>
 
-[ Upstream commit 606a63c9783a32a45bd2ef0eee393711d75b3284 ]
+[ Upstream commit cefcf24b4d351daf70ecd945324e200d3736821e ]
 
-The side that actively closed socket, it's clcsock doesn't enter
-TIME_WAIT state, but the passive side does it. It should show the same
-behavior as TCP sockets.
+Commit 39fbef4b0f77 ("PM: hibernate: Get block device exclusively in
+swsusp_check()") changed the opening mode of the block device to
+(FMODE_READ | FMODE_EXCL).
 
-Consider this, when client actively closes the socket, the clcsock in
-server enters TIME_WAIT state, which means the address is occupied and
-won't be reused before TIME_WAIT dismissing. If we restarted server, the
-service would be unavailable for a long time.
+In the corresponding calls to swsusp_close(), the mode is still just
+FMODE_READ which triggers the warning in blkdev_flush_mapping() on
+resume from hibernate.
 
-To solve this issue, shutdown the clcsock in [A], perform the TCP active
-close progress first, before the passive closed side closing it. So that
-the actively closed side enters TIME_WAIT, not the passive one.
+So, use the mode (FMODE_READ | FMODE_EXCL) also when closing the
+device.
 
-Client                                            |  Server
-close() // client actively close                  |
-  smc_release()                                   |
-      smc_close_active() // PEERCLOSEWAIT1        |
-          smc_close_final() // abort or closed = 1|
-              smc_cdc_get_slot_and_msg_send()     |
-          [A]                                     |
-                                                  |smc_cdc_msg_recv_action() // ACTIVE
-                                                  |  queue_work(smc_close_wq, &conn->close_work)
-                                                  |    smc_close_passive_work() // PROCESSABORT or APPCLOSEWAIT1
-                                                  |      smc_close_passive_abort_received() // only in abort
-                                                  |
-                                                  |close() // server recv zero, close
-                                                  |  smc_release() // PROCESSABORT or APPCLOSEWAIT1
-                                                  |    smc_close_active()
-                                                  |      smc_close_abort() or smc_close_final() // CLOSED
-                                                  |        smc_cdc_get_slot_and_msg_send() // abort or closed = 1
-smc_cdc_msg_recv_action()                         |    smc_clcsock_release()
-  queue_work(smc_close_wq, &conn->close_work)     |      sock_release(tcp) // actively close clc, enter TIME_WAIT
-    smc_close_passive_work() // PEERCLOSEWAIT1    |    smc_conn_free()
-      smc_close_passive_abort_received() // CLOSED|
-      smc_conn_free()                             |
-      smc_clcsock_release()                       |
-        sock_release(tcp) // passive close clc    |
-
-Link: https://www.spinics.net/lists/netdev/msg780407.html
-Fixes: b38d732477e4 ("smc: socket closing and linkgroup cleanup")
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 39fbef4b0f77 ("PM: hibernate: Get block device exclusively in swsusp_check()")
+Signed-off-by: Thomas Zeitlhofer <thomas.zeitlhofer+lkml@ze-it.at>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_close.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/power/hibernate.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index ea2b87f294696..e25c023582f9e 100644
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -202,6 +202,12 @@ int smc_close_active(struct smc_sock *smc)
- 			if (rc)
- 				break;
- 			sk->sk_state = SMC_PEERCLOSEWAIT1;
-+
-+			/* actively shutdown clcsock before peer close it,
-+			 * prevent peer from entering TIME_WAIT state.
-+			 */
-+			if (smc->clcsock && smc->clcsock->sk)
-+				rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
- 		} else {
- 			/* peer event has changed the state */
- 			goto again;
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index 28db51274ed0e..6670a44ec5d45 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -677,7 +677,7 @@ static int load_image_and_restore(void)
+ 		goto Unlock;
+ 
+ 	error = swsusp_read(&flags);
+-	swsusp_close(FMODE_READ);
++	swsusp_close(FMODE_READ | FMODE_EXCL);
+ 	if (!error)
+ 		hibernation_restore(flags & SF_PLATFORM_MODE);
+ 
+@@ -874,7 +874,7 @@ static int software_resume(void)
+ 	/* The snapshot device should not be opened while we're running */
+ 	if (!atomic_add_unless(&snapshot_device_available, -1, 0)) {
+ 		error = -EBUSY;
+-		swsusp_close(FMODE_READ);
++		swsusp_close(FMODE_READ | FMODE_EXCL);
+ 		goto Unlock;
+ 	}
+ 
+@@ -910,7 +910,7 @@ static int software_resume(void)
+ 	pm_pr_dbg("Hibernation image not present or could not be loaded.\n");
+ 	return error;
+  Close_Finish:
+-	swsusp_close(FMODE_READ);
++	swsusp_close(FMODE_READ | FMODE_EXCL);
+ 	goto Finish;
+ }
+ 
 -- 
 2.33.0
 
