@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2C04462635
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:45:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8EA44625BB
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:40:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234641AbhK2Wsu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:48:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36278 "EHLO
+        id S234631AbhK2WnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:43:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234886AbhK2WsR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:48:17 -0500
+        with ESMTP id S234396AbhK2Wmb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:42:31 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D463EC043CCF;
-        Mon, 29 Nov 2021 10:36:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078F0C12BCE5;
+        Mon, 29 Nov 2021 10:34:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2D99BCE169C;
-        Mon, 29 Nov 2021 18:36:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBCA5C53FAD;
-        Mon, 29 Nov 2021 18:36:24 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 53AADCE1685;
+        Mon, 29 Nov 2021 18:34:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED841C53FAD;
+        Mon, 29 Nov 2021 18:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210985;
-        bh=9VGb+oMJz9d3WWdiVChvfZDzAnpW+mp2YyXJP4i87h8=;
+        s=korg; t=1638210887;
+        bh=R2YJAYQOSs4PSc9nJV2BoOZdoz8I5sniV8+SGuqh6fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ndlmTwAjyo5wOVa3Scw/4CFiA80r+4zpP2tQOqbr43bmOS/npzakjd9f73H9OOEUw
-         c1+zmbcZzDx+s95NGSLLhY4nXIcdp+3EM8Fi1tB0q+QtY8+KaMXfVJ0mIky9kK28it
-         T+BpW1d1YF/lkLMQNImqkXK+7ZJ1xZ1P7oRHvY/M=
+        b=A3Y+BHfDj253m+Dn8r/0p5UUZg3yDga2TEoMjxdAw2DSfsoqHQ3s5exb+UQlguGgS
+         xXBHY90edD81d5GMQC0xu7uAMJwWrzejyrNH9W7s0VkyghkaFEWCFJ7vlCTxhce/jm
+         msNM8Muzwe6lUChyHPq1kXtBfqA6LIv6TBZcw4kM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Todd Kjos <tkjos@google.com>
-Subject: [PATCH 5.15 021/179] binder: fix test regression due to sender_euid change
-Date:   Mon, 29 Nov 2021 19:16:55 +0100
-Message-Id: <20211129181719.642329560@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 022/179] ALSA: ctxfi: Fix out-of-range access
+Date:   Mon, 29 Nov 2021 19:16:56 +0100
+Message-Id: <20211129181719.677892410@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
 References: <20211129181718.913038547@linuxfoundation.org>
@@ -48,37 +46,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit c21a80ca0684ec2910344d72556c816cb8940c01 upstream.
+commit 76c47183224c86e4011048b80f0e2d0d166f01c2 upstream.
 
-This is a partial revert of commit
-29bc22ac5e5b ("binder: use euid from cred instead of using task").
-Setting sender_euid using proc->cred caused some Android system test
-regressions that need further investigation. It is a partial
-reversion because subsequent patches rely on proc->cred.
+The master and next_conj of rcs_ops are used for iterating the
+resource list entries, and currently those are supposed to return the
+current value.  The problem is that next_conf may go over the last
+entry before the loop abort condition is evaluated, and it may return
+the "current" value that is beyond the array size.  It was caught
+recently as a GPF, for example.
 
-Fixes: 29bc22ac5e5b ("binder: use euid from cred instead of using task")
-Cc: stable@vger.kernel.org # 4.4+
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Change-Id: I9b1769a3510fed250bb21859ef8beebabe034c66
-Link: https://lore.kernel.org/r/20211112180720.2858135-1-tkjos@google.com
+Those return values are, however, never actually evaluated, hence
+basically we don't have to consider the current value as the return at
+all.  By dropping those return values, the potential out-of-range
+access above is also fixed automatically.
+
+This patch changes the return type of master and next_conj callbacks
+to void and drop the superfluous code accordingly.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214985
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211118215729.26257-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/ctxfi/ctamixer.c   |   14 ++++++--------
+ sound/pci/ctxfi/ctdaio.c     |   16 ++++++++--------
+ sound/pci/ctxfi/ctresource.c |    7 +++----
+ sound/pci/ctxfi/ctresource.h |    4 ++--
+ sound/pci/ctxfi/ctsrc.c      |    7 +++----
+ 5 files changed, 22 insertions(+), 26 deletions(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2710,7 +2710,7 @@ static void binder_transaction(struct bi
- 		t->from = thread;
- 	else
- 		t->from = NULL;
--	t->sender_euid = proc->cred->euid;
-+	t->sender_euid = task_euid(proc->tsk);
- 	t->to_proc = target_proc;
- 	t->to_thread = target_thread;
- 	t->code = tr->code;
+--- a/sound/pci/ctxfi/ctamixer.c
++++ b/sound/pci/ctxfi/ctamixer.c
+@@ -23,16 +23,15 @@
+ 
+ #define BLANK_SLOT		4094
+ 
+-static int amixer_master(struct rsc *rsc)
++static void amixer_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
+ }
+ 
+-static int amixer_next_conj(struct rsc *rsc)
++static void amixer_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct amixer, rsc)->idx[rsc->conj];
+ }
+ 
+ static int amixer_index(const struct rsc *rsc)
+@@ -331,16 +330,15 @@ int amixer_mgr_destroy(struct amixer_mgr
+ 
+ /* SUM resource management */
+ 
+-static int sum_master(struct rsc *rsc)
++static void sum_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
+ }
+ 
+-static int sum_next_conj(struct rsc *rsc)
++static void sum_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct sum, rsc)->idx[rsc->conj];
+ }
+ 
+ static int sum_index(const struct rsc *rsc)
+--- a/sound/pci/ctxfi/ctdaio.c
++++ b/sound/pci/ctxfi/ctdaio.c
+@@ -51,12 +51,12 @@ static const struct daio_rsc_idx idx_20k
+ 	[SPDIFIO] = {.left = 0x05, .right = 0x85},
+ };
+ 
+-static int daio_master(struct rsc *rsc)
++static void daio_master(struct rsc *rsc)
+ {
+ 	/* Actually, this is not the resource index of DAIO.
+ 	 * For DAO, it is the input mapper index. And, for DAI,
+ 	 * it is the output time-slot index. */
+-	return rsc->conj = rsc->idx;
++	rsc->conj = rsc->idx;
+ }
+ 
+ static int daio_index(const struct rsc *rsc)
+@@ -64,19 +64,19 @@ static int daio_index(const struct rsc *
+ 	return rsc->conj;
+ }
+ 
+-static int daio_out_next_conj(struct rsc *rsc)
++static void daio_out_next_conj(struct rsc *rsc)
+ {
+-	return rsc->conj += 2;
++	rsc->conj += 2;
+ }
+ 
+-static int daio_in_next_conj_20k1(struct rsc *rsc)
++static void daio_in_next_conj_20k1(struct rsc *rsc)
+ {
+-	return rsc->conj += 0x200;
++	rsc->conj += 0x200;
+ }
+ 
+-static int daio_in_next_conj_20k2(struct rsc *rsc)
++static void daio_in_next_conj_20k2(struct rsc *rsc)
+ {
+-	return rsc->conj += 0x100;
++	rsc->conj += 0x100;
+ }
+ 
+ static const struct rsc_ops daio_out_rsc_ops = {
+--- a/sound/pci/ctxfi/ctresource.c
++++ b/sound/pci/ctxfi/ctresource.c
+@@ -109,18 +109,17 @@ static int audio_ring_slot(const struct
+     return (rsc->conj << 4) + offset_in_audio_slot_block[rsc->type];
+ }
+ 
+-static int rsc_next_conj(struct rsc *rsc)
++static void rsc_next_conj(struct rsc *rsc)
+ {
+ 	unsigned int i;
+ 	for (i = 0; (i < 8) && (!(rsc->msr & (0x1 << i))); )
+ 		i++;
+ 	rsc->conj += (AUDIO_SLOT_BLOCK_NUM >> i);
+-	return rsc->conj;
+ }
+ 
+-static int rsc_master(struct rsc *rsc)
++static void rsc_master(struct rsc *rsc)
+ {
+-	return rsc->conj = rsc->idx;
++	rsc->conj = rsc->idx;
+ }
+ 
+ static const struct rsc_ops rsc_generic_ops = {
+--- a/sound/pci/ctxfi/ctresource.h
++++ b/sound/pci/ctxfi/ctresource.h
+@@ -39,8 +39,8 @@ struct rsc {
+ };
+ 
+ struct rsc_ops {
+-	int (*master)(struct rsc *rsc);	/* Move to master resource */
+-	int (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
++	void (*master)(struct rsc *rsc); /* Move to master resource */
++	void (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
+ 	int (*index)(const struct rsc *rsc); /* Return the index of resource */
+ 	/* Return the output slot number */
+ 	int (*output_slot)(const struct rsc *rsc);
+--- a/sound/pci/ctxfi/ctsrc.c
++++ b/sound/pci/ctxfi/ctsrc.c
+@@ -590,16 +590,15 @@ int src_mgr_destroy(struct src_mgr *src_
+ 
+ /* SRCIMP resource manager operations */
+ 
+-static int srcimp_master(struct rsc *rsc)
++static void srcimp_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
+ }
+ 
+-static int srcimp_next_conj(struct rsc *rsc)
++static void srcimp_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct srcimp, rsc)->idx[rsc->conj];
+ }
+ 
+ static int srcimp_index(const struct rsc *rsc)
 
 
