@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0811C461F19
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBABF461DE6
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:27:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354690AbhK2Snw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:43:52 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:55800 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230396AbhK2SlV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:41:21 -0500
+        id S1349505AbhK2Sa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:30:29 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:32988 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376960AbhK2S23 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:28:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 90508CE1407;
-        Mon, 29 Nov 2021 18:38:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39FCFC53FCD;
-        Mon, 29 Nov 2021 18:37:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30CFCB815D2;
+        Mon, 29 Nov 2021 18:25:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65992C53FAD;
+        Mon, 29 Nov 2021 18:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211079;
-        bh=ZF3r0r2UruYi/mCGp9N0oOtVMQwckisIQTu75MBOy2Q=;
+        s=korg; t=1638210308;
+        bh=bg9S9QOt0v+ljmU3IWildj9zQrGFZKsn5LJO5ZoOdz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Alkwk2px2eYlpQNw1Lgp9LNjUddwnrgs9tAagHuHWGDjnq1nyQQUWeKKjXDlRoEAp
-         9Jd2SusfPdxUWA9WqYf7HW42G/7FHYUqbroUpG4+hrOWdXYcA//k4qIXcbDajj2+xA
-         4yMZ3+ta/9ZYgJQKBN4RsUO1EXMkLNq9p3UCtQqY=
+        b=AgCC0jyiz24PESCSyVAJXVpF2I/jwlhiM/75ryAcNM3XJZxmzDB2hr7R7LUC8m3U1
+         1+7tfye9uyogVAnJJbqpC69QSalAZEHE23lvaaeiL5XMQ5+NeRhGr5kLyIvssoTyZh
+         r1Zzg2jOo7vOCLc+VwxZ1MWSptmVpp9Ur4A6LHLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Florent Fourcot <florent.fourcot@wifirst.fr>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 065/179] netfilter: ctnetlink: fix filtering with CTA_TUPLE_REPLY
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 10/92] ALSA: ctxfi: Fix out-of-range access
 Date:   Mon, 29 Nov 2021 19:17:39 +0100
-Message-Id: <20211129181721.095726442@linuxfoundation.org>
+Message-Id: <20211129181707.765561765@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
+References: <20211129181707.392764191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +43,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florent Fourcot <florent.fourcot@wifirst.fr>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit ad81d4daf6a3f4769a346e635d5e1e967ca455d9 ]
+commit 76c47183224c86e4011048b80f0e2d0d166f01c2 upstream.
 
-filter->orig_flags was used for a reply context.
+The master and next_conj of rcs_ops are used for iterating the
+resource list entries, and currently those are supposed to return the
+current value.  The problem is that next_conf may go over the last
+entry before the loop abort condition is evaluated, and it may return
+the "current" value that is beyond the array size.  It was caught
+recently as a GPF, for example.
 
-Fixes: cb8aa9a3affb ("netfilter: ctnetlink: add kernel side filtering for dump")
-Signed-off-by: Florent Fourcot <florent.fourcot@wifirst.fr>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Those return values are, however, never actually evaluated, hence
+basically we don't have to consider the current value as the return at
+all.  By dropping those return values, the potential out-of-range
+access above is also fixed automatically.
+
+This patch changes the return type of master and next_conj callbacks
+to void and drop the superfluous code accordingly.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214985
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211118215729.26257-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/ctxfi/ctamixer.c   |   14 ++++++--------
+ sound/pci/ctxfi/ctdaio.c     |   16 ++++++++--------
+ sound/pci/ctxfi/ctresource.c |    7 +++----
+ sound/pci/ctxfi/ctresource.h |    4 ++--
+ sound/pci/ctxfi/ctsrc.c      |    7 +++----
+ 5 files changed, 22 insertions(+), 26 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index f1e5443fe7c74..2663764d0b6ee 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -1011,7 +1011,7 @@ ctnetlink_alloc_filter(const struct nlattr * const cda[], u8 family)
- 						   CTA_TUPLE_REPLY,
- 						   filter->family,
- 						   &filter->zone,
--						   filter->orig_flags);
-+						   filter->reply_flags);
- 		if (err < 0) {
- 			err = -EINVAL;
- 			goto err_filter;
--- 
-2.33.0
-
+--- a/sound/pci/ctxfi/ctamixer.c
++++ b/sound/pci/ctxfi/ctamixer.c
+@@ -23,16 +23,15 @@
+ 
+ #define BLANK_SLOT		4094
+ 
+-static int amixer_master(struct rsc *rsc)
++static void amixer_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct amixer, rsc)->idx[0];
+ }
+ 
+-static int amixer_next_conj(struct rsc *rsc)
++static void amixer_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct amixer, rsc)->idx[rsc->conj];
+ }
+ 
+ static int amixer_index(const struct rsc *rsc)
+@@ -331,16 +330,15 @@ int amixer_mgr_destroy(struct amixer_mgr
+ 
+ /* SUM resource management */
+ 
+-static int sum_master(struct rsc *rsc)
++static void sum_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct sum, rsc)->idx[0];
+ }
+ 
+-static int sum_next_conj(struct rsc *rsc)
++static void sum_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct sum, rsc)->idx[rsc->conj];
+ }
+ 
+ static int sum_index(const struct rsc *rsc)
+--- a/sound/pci/ctxfi/ctdaio.c
++++ b/sound/pci/ctxfi/ctdaio.c
+@@ -51,12 +51,12 @@ static struct daio_rsc_idx idx_20k2[NUM_
+ 	[SPDIFIO] = {.left = 0x05, .right = 0x85},
+ };
+ 
+-static int daio_master(struct rsc *rsc)
++static void daio_master(struct rsc *rsc)
+ {
+ 	/* Actually, this is not the resource index of DAIO.
+ 	 * For DAO, it is the input mapper index. And, for DAI,
+ 	 * it is the output time-slot index. */
+-	return rsc->conj = rsc->idx;
++	rsc->conj = rsc->idx;
+ }
+ 
+ static int daio_index(const struct rsc *rsc)
+@@ -64,19 +64,19 @@ static int daio_index(const struct rsc *
+ 	return rsc->conj;
+ }
+ 
+-static int daio_out_next_conj(struct rsc *rsc)
++static void daio_out_next_conj(struct rsc *rsc)
+ {
+-	return rsc->conj += 2;
++	rsc->conj += 2;
+ }
+ 
+-static int daio_in_next_conj_20k1(struct rsc *rsc)
++static void daio_in_next_conj_20k1(struct rsc *rsc)
+ {
+-	return rsc->conj += 0x200;
++	rsc->conj += 0x200;
+ }
+ 
+-static int daio_in_next_conj_20k2(struct rsc *rsc)
++static void daio_in_next_conj_20k2(struct rsc *rsc)
+ {
+-	return rsc->conj += 0x100;
++	rsc->conj += 0x100;
+ }
+ 
+ static const struct rsc_ops daio_out_rsc_ops = {
+--- a/sound/pci/ctxfi/ctresource.c
++++ b/sound/pci/ctxfi/ctresource.c
+@@ -109,18 +109,17 @@ static int audio_ring_slot(const struct
+     return (rsc->conj << 4) + offset_in_audio_slot_block[rsc->type];
+ }
+ 
+-static int rsc_next_conj(struct rsc *rsc)
++static void rsc_next_conj(struct rsc *rsc)
+ {
+ 	unsigned int i;
+ 	for (i = 0; (i < 8) && (!(rsc->msr & (0x1 << i))); )
+ 		i++;
+ 	rsc->conj += (AUDIO_SLOT_BLOCK_NUM >> i);
+-	return rsc->conj;
+ }
+ 
+-static int rsc_master(struct rsc *rsc)
++static void rsc_master(struct rsc *rsc)
+ {
+-	return rsc->conj = rsc->idx;
++	rsc->conj = rsc->idx;
+ }
+ 
+ static const struct rsc_ops rsc_generic_ops = {
+--- a/sound/pci/ctxfi/ctresource.h
++++ b/sound/pci/ctxfi/ctresource.h
+@@ -39,8 +39,8 @@ struct rsc {
+ };
+ 
+ struct rsc_ops {
+-	int (*master)(struct rsc *rsc);	/* Move to master resource */
+-	int (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
++	void (*master)(struct rsc *rsc); /* Move to master resource */
++	void (*next_conj)(struct rsc *rsc); /* Move to next conjugate resource */
+ 	int (*index)(const struct rsc *rsc); /* Return the index of resource */
+ 	/* Return the output slot number */
+ 	int (*output_slot)(const struct rsc *rsc);
+--- a/sound/pci/ctxfi/ctsrc.c
++++ b/sound/pci/ctxfi/ctsrc.c
+@@ -590,16 +590,15 @@ int src_mgr_destroy(struct src_mgr *src_
+ 
+ /* SRCIMP resource manager operations */
+ 
+-static int srcimp_master(struct rsc *rsc)
++static void srcimp_master(struct rsc *rsc)
+ {
+ 	rsc->conj = 0;
+-	return rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
++	rsc->idx = container_of(rsc, struct srcimp, rsc)->idx[0];
+ }
+ 
+-static int srcimp_next_conj(struct rsc *rsc)
++static void srcimp_next_conj(struct rsc *rsc)
+ {
+ 	rsc->conj++;
+-	return container_of(rsc, struct srcimp, rsc)->idx[rsc->conj];
+ }
+ 
+ static int srcimp_index(const struct rsc *rsc)
 
 
