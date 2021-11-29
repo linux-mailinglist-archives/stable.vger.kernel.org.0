@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F184625B0
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:39:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E75D462718
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:59:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231203AbhK2Wmp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:42:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34930 "EHLO
+        id S236482AbhK2XBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 18:01:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233740AbhK2WmC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:42:02 -0500
+        with ESMTP id S237089AbhK2XAn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 18:00:43 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AFA9C0443F3;
-        Mon, 29 Nov 2021 10:29:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55511C19AC2D;
+        Mon, 29 Nov 2021 10:36:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8259FCE13DF;
-        Mon, 29 Nov 2021 18:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DF00C53FAD;
-        Mon, 29 Nov 2021 18:29:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A1507CE140F;
+        Mon, 29 Nov 2021 18:35:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F727C53FCF;
+        Mon, 29 Nov 2021 18:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210588;
-        bh=47oAWhTuDRJ0TK2Ub+cBlnSC+2DVhLw0Q5fc1OwQY+o=;
+        s=korg; t=1638210956;
+        bh=v5jZUFqVFVOKMQhLN9SZvmpfgTrZzBxNCJl37Olwrfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f3sKH9Ztfg93A+IdfiQoEXFKoEpTE4Mc5XZLrncyZ7bP9IooBBFliBtG0N8x1xBHb
-         SJZkdgvsQr9Qi3/sVlAZWC9Wk9oG8y6C3K2i5DBOIi0wIu4rtmt/4CxnFmG1kgK/jI
-         E74CuEaChctrdgzHGf2IZFVsFGFt46urJE9PNS4M=
+        b=mIBGQ+hgA5NSwJjM6H8ogyfDlKx5CYa6MPxArKBZcs+LjUt6Dr8hHIQht3eEh3P7V
+         ytlqpUaadyR4Qft1EB74/KSq/xYhK7QZnsLWZrsZVbMjsV/oEh3Ks5RSoJgyo68MgE
+         YStxMw8NSBf7eJm6luo8+GmbUMEUkCdlV2uDrFPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 014/121] usb: hub: Fix locking issues with address0_mutex
-Date:   Mon, 29 Nov 2021 19:17:25 +0100
-Message-Id: <20211129181712.127984401@linuxfoundation.org>
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Dylan Hung <dylan_hung@aspeedtech.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 052/179] mdio: aspeed: Fix "Link is Down" issue
+Date:   Mon, 29 Nov 2021 19:17:26 +0100
+Message-Id: <20211129181720.689294208@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,104 +50,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Dylan Hung <dylan_hung@aspeedtech.com>
 
-commit 6cca13de26eea6d32a98d96d916a048d16a12822 upstream.
+commit 9dbe33cf371bd70330858370bdbc35c7668f00c3 upstream.
 
-Fix the circular lock dependency and unbalanced unlock of addess0_mutex
-introduced when fixing an address0_mutex enumeration retry race in commit
-ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
+The issue happened randomly in runtime.  The message "Link is Down" is
+popped but soon it recovered to "Link is Up".
 
-Make sure locking order between port_dev->status_lock and address0_mutex
-is correct, and that address0_mutex is not unlocked in hub_port_connect
-"done:" codepath which may be reached without locking address0_mutex
+The "Link is Down" results from the incorrect read data for reading the
+PHY register via MDIO bus.  The correct sequence for reading the data
+shall be:
+1. fire the command
+2. wait for command done (this step was missing)
+3. wait for data idle
+4. read data from data register
 
-Fixes: 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0 race")
-Cc: <stable@vger.kernel.org>
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20211123101656.1113518-1-mathias.nyman@linux.intel.com
+Cc: stable@vger.kernel.org
+Fixes: f160e99462c6 ("net: phy: Add mdio-aspeed")
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Dylan Hung <dylan_hung@aspeedtech.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20211125024432.15809-1-dylan_hung@aspeedtech.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c |   20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/net/mdio/mdio-aspeed.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -5112,6 +5112,7 @@ static void hub_port_connect(struct usb_
- 	struct usb_port *port_dev = hub->ports[port1 - 1];
- 	struct usb_device *udev = port_dev->child;
- 	static int unreliable_port = -1;
-+	bool retry_locked;
+--- a/drivers/net/mdio/mdio-aspeed.c
++++ b/drivers/net/mdio/mdio-aspeed.c
+@@ -61,6 +61,13 @@ static int aspeed_mdio_read(struct mii_b
  
- 	/* Disconnect any existing devices under this port */
- 	if (udev) {
-@@ -5168,10 +5169,10 @@ static void hub_port_connect(struct usb_
+ 	iowrite32(ctrl, ctx->base + ASPEED_MDIO_CTRL);
  
- 	status = 0;
- 
--	mutex_lock(hcd->address0_mutex);
--
- 	for (i = 0; i < PORT_INIT_TRIES; i++) {
--
-+		usb_lock_port(port_dev);
-+		mutex_lock(hcd->address0_mutex);
-+		retry_locked = true;
- 		/* reallocate for each attempt, since references
- 		 * to the previous one can escape in various ways
- 		 */
-@@ -5179,6 +5180,8 @@ static void hub_port_connect(struct usb_
- 		if (!udev) {
- 			dev_err(&port_dev->dev,
- 					"couldn't allocate usb_device\n");
-+			mutex_unlock(hcd->address0_mutex);
-+			usb_unlock_port(port_dev);
- 			goto done;
- 		}
- 
-@@ -5200,13 +5203,13 @@ static void hub_port_connect(struct usb_
- 		}
- 
- 		/* reset (non-USB 3.0 devices) and get descriptor */
--		usb_lock_port(port_dev);
- 		status = hub_port_init(hub, udev, port1, i);
--		usb_unlock_port(port_dev);
- 		if (status < 0)
- 			goto loop;
- 
- 		mutex_unlock(hcd->address0_mutex);
-+		usb_unlock_port(port_dev);
-+		retry_locked = false;
- 
- 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
- 			msleep(2000);
-@@ -5296,11 +5299,14 @@ static void hub_port_connect(struct usb_
- 
- loop_disable:
- 		hub_port_disable(hub, port1, 1);
--		mutex_lock(hcd->address0_mutex);
- loop:
- 		usb_ep0_reinit(udev);
- 		release_devnum(udev);
- 		hub_free_dev(udev);
-+		if (retry_locked) {
-+			mutex_unlock(hcd->address0_mutex);
-+			usb_unlock_port(port_dev);
-+		}
- 		usb_put_dev(udev);
- 		if ((status == -ENOTCONN) || (status == -ENOTSUPP))
- 			break;
-@@ -5323,8 +5329,6 @@ loop:
- 	}
- 
- done:
--	mutex_unlock(hcd->address0_mutex);
--
- 	hub_port_disable(hub, port1, 1);
- 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
- 		if (status != -ENOTCONN && status != -ENODEV)
++	rc = readl_poll_timeout(ctx->base + ASPEED_MDIO_CTRL, ctrl,
++				!(ctrl & ASPEED_MDIO_CTRL_FIRE),
++				ASPEED_MDIO_INTERVAL_US,
++				ASPEED_MDIO_TIMEOUT_US);
++	if (rc < 0)
++		return rc;
++
+ 	rc = readl_poll_timeout(ctx->base + ASPEED_MDIO_DATA, data,
+ 				data & ASPEED_MDIO_DATA_IDLE,
+ 				ASPEED_MDIO_INTERVAL_US,
 
 
