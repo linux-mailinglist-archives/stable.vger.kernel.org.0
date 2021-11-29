@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BE72461E0E
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:29:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12A0E461F1D
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351338AbhK2Sb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:31:59 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:49866 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351312AbhK2S36 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:29:58 -0500
+        id S1379551AbhK2Sny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:43:54 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:44598 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379674AbhK2Slv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:41:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 54535CE13E6;
-        Mon, 29 Nov 2021 18:26:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03945C53FCD;
-        Mon, 29 Nov 2021 18:26:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8820AB815DB;
+        Mon, 29 Nov 2021 18:38:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6F55C53FAD;
+        Mon, 29 Nov 2021 18:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210397;
-        bh=IladcV824PiP8lNaao/ARsLDyEI7bWFj2uI9Y2GYv3E=;
+        s=korg; t=1638211111;
+        bh=8TQiQF5wAUWqIZhPncuWfp4/Fwa5Zyv/dzddyFXo+G4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PAItUEWlGz0GYeMbgDNUts1bD0g2fOmO9oDw3C6r3wa8DFFzZvv5sRDCuo9/D+f6I
-         CaOqgCA00EAYnh5Piz40040mx/SAeI2KZNtc0e5VrQ9q+KS9zJPikMdOKvHb/sW+yO
-         fc9XUmtNxUnmIsp9Jt1F1uMifnFED1Ey+5vABECY=
+        b=2wTosMHklS6ZTrjvAUB3Yhc6DlgjwFjqd07ufTkvWBE83pTn00Enc2PfVXGEO+psM
+         Zm5ywUHy5MpzWkSTSvcDReil+uAhER93d6iB1DYg5paFItaSmtvaW22To2touNTwKW
+         kOjgX0JT0vRXQLjgvQjowzD033ATiSCfhHyXddmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 41/92] PCI: aardvark: Set PCI Bridge Class Code to PCI Bridge
+        stable@vger.kernel.org, Brent Roman <brent@mbari.org>,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 096/179] HID: input: set usage type to key on keycode remap
 Date:   Mon, 29 Nov 2021 19:18:10 +0100
-Message-Id: <20211129181708.797537178@linuxfoundation.org>
+Message-Id: <20211129181722.088037855@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,62 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Thomas Weißschuh <linux@weissschuh.net>
 
-commit 84e1b4045dc887b78bdc87d92927093dc3a465aa upstream.
+[ Upstream commit 3e6a950d98366f5e716904e9a7e8ffc7ed638bd6 ]
 
-Aardvark controller has something like config space of a Root Port
-available at offset 0x0 of internal registers - these registers are used
-for implementation of the emulated bridge.
+When a scancode is manually remapped that previously was not handled as
+key, then the old usage type was incorrectly reused.
 
-The default value of Class Code of this bridge corresponds to a RAID Mass
-storage controller, though. (This is probably intended for when the
-controller is used as Endpoint.)
+This caused issues on a "04b3:301b IBM Corp. SK-8815 Keyboard" which has
+marked some of its keys with an invalid HID usage.  These invalid usage
+keys are being ignored since support for USB programmable buttons was
+added.
 
-Change the Class Code to correspond to a PCI Bridge.
+The scancodes are however remapped explicitly by the systemd hwdb to the
+keycodes that are printed on the physical buttons.  During this mapping
+step the existing usage is retrieved which will be found with a default
+type of 0 (EV_SYN) instead of EV_KEY.
 
-Add comment explaining this change.
+The events with the correct code but EV_SYN type are not forwarded to
+userspace.
 
-Link: https://lore.kernel.org/r/20211028185659.20329-6-kabel@kernel.org
-Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This also leads to a kernel oops when trying to print the report descriptor
+via debugfs.  hid_resolv_event() tries to resolve a EV_SYN event with an
+EV_KEY code which leads to an out-of-bounds access in the EV_SYN names
+array.
+
+Fixes: bcfa8d1457 ("HID: input: Add support for Programmable Buttons")
+Fixes: f5854fad39 ("Input: hid-input - allow mapping unknown usages")
+Reported-by: Brent Roman <brent@mbari.org>
+Tested-by: Brent Roman <brent@mbari.org>
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/hid/hid-input.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -502,6 +502,26 @@ static void advk_pcie_setup_hw(struct ad
- 	reg = (PCI_VENDOR_ID_MARVELL << 16) | PCI_VENDOR_ID_MARVELL;
- 	advk_writel(pcie, reg, VENDOR_ID_REG);
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 4b3f4a5e23058..6561770f1af55 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -160,6 +160,7 @@ static int hidinput_setkeycode(struct input_dev *dev,
+ 	if (usage) {
+ 		*old_keycode = usage->type == EV_KEY ?
+ 				usage->code : KEY_RESERVED;
++		usage->type = EV_KEY;
+ 		usage->code = ke->keycode;
  
-+	/*
-+	 * Change Class Code of PCI Bridge device to PCI Bridge (0x600400),
-+	 * because the default value is Mass storage controller (0x010400).
-+	 *
-+	 * Note that this Aardvark PCI Bridge does not have compliant Type 1
-+	 * Configuration Space and it even cannot be accessed via Aardvark's
-+	 * PCI config space access method. Something like config space is
-+	 * available in internal Aardvark registers starting at offset 0x0
-+	 * and is reported as Type 0. In range 0x10 - 0x34 it has totally
-+	 * different registers.
-+	 *
-+	 * Therefore driver uses emulation of PCI Bridge which emulates
-+	 * access to configuration space via internal Aardvark registers or
-+	 * emulated configuration buffer.
-+	 */
-+	reg = advk_readl(pcie, PCIE_CORE_DEV_REV_REG);
-+	reg &= ~0xffffff00;
-+	reg |= (PCI_CLASS_BRIDGE_PCI << 8) << 8;
-+	advk_writel(pcie, reg, PCIE_CORE_DEV_REV_REG);
-+
- 	/* Disable Root Bridge I/O space, memory space and bus mastering */
- 	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
- 	reg &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+ 		clear_bit(*old_keycode, dev->keybit);
+-- 
+2.33.0
+
 
 
