@@ -2,76 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3678461B4F
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 16:49:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26180461B93
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 17:10:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243918AbhK2Pwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 10:52:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56370 "EHLO
+        id S1344874AbhK2QNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 11:13:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231245AbhK2Pue (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 10:50:34 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71E90C0619F6
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 05:55:59 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id t5so72514597edd.0
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 05:55:59 -0800 (PST)
+        with ESMTP id S1344982AbhK2QLz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 11:11:55 -0500
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A29DC08EA7F
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 06:12:22 -0800 (PST)
+Received: by mail-ed1-x52d.google.com with SMTP id x15so72398923edv.1
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 06:12:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=NCSgregBP4vjmqVrcsaXJKge9SfifXD693b35ZcSwv0=;
-        b=QyzbIwNhNWlPGOhXi5ePg2d7U6JTBhokMF+LxTo7D6cDsVALZt4mULvprkKLCPsipH
-         L+NUeEWhaJqSeXiITIL4mH3pA5zkJJgXsmCM2Ka+9MVKpsBP7DyeLnKjYB6BeXZTGo0c
-         OuijvEPQg3IC2Mu25D08hQEYlcdhdzAEpzU1ZGs1ZluaslvaQgd2D5SQcKFl4B7upbIa
-         ttkmDOFu+oZUkQ9LEeo4Z5vpNAcG2LdzqnPjOBI2gB4vjtG3Gs1W26+K7fRpXjALZBlM
-         l+WlQGVJDHdDSkpEt86lIZSEGOclJKQepOHPOTTPgBhzWN4tqd3i9FfawFzGRt03bal/
-         ac/Q==
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=WXujHn+Aip39eencB3cYJstRytLHPrA412s3PzKkRco=;
+        b=V3zhlwIh+7LH4uTvC23CMLbQlwvYZnHy+ROCn8LRXCKnFEZVSRIrhZGfAClV76ruOX
+         qyZ492YWajWymxzQ3/F6R2yw96ue2B+DVw7W9MgtHGCOUQsx9o0mehgJfvk/ZReTByzS
+         hD8ymJqREvaKqkMCyvzwWBm7lUhwsfsBlB0Kdt97syfYBMHXIgLUEJOPwimJ+LGBQTOk
+         7b4ycgApjUTI0viZYugpUZz6+a/SGzhafYrnW1+Ov3KAoykdly4DIwaQG4k/TeJQu9aE
+         o0GdKL0poTB3oIBinIA7jRzGZyCIdL1gOsMtGK1q5AhyDKaQ7pAZrdHqk6pD3bnP/66g
+         dXbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=NCSgregBP4vjmqVrcsaXJKge9SfifXD693b35ZcSwv0=;
-        b=vj4MzYa9wNtQ5FoqPfCuFTmG+Sb98tXQSAnp7MUiihijYaC9ivaUcqPW7TLDGuSF/l
-         m0QP4aLHHGYWrim4plM6Jn5Qm+3J/nRShab/M8BhEVkFkYThAeOEqjn99bzIJHWRPItT
-         XLab2cCYxdwmRhzWmsTND+Qmv8EgQTkgU2mwx8N/UpEy0wRJGDh3IqzzW/c+4CAsQc3p
-         xCN7dQVB7tmMWQl0IdfjMrIaQ9AqA5HKO9Q1eJ3pNhz3FyovjUb7lDQiTen7Ehhn11pH
-         LuUV/tQqQNJDdHE4rCJ/IqSFB5NnMIBf6RZd07xxoYo9btOzfTMo4at4yitssct6iihq
-         F85Q==
-X-Gm-Message-State: AOAM531IgfyAjdlvnV+XYYgaLx+9RuxcZ7rmxkjdya91gME8A/sgQEql
-        f7iKutRThb74W+5BclcR5H8hrGwctnykTRWn2kc=
-X-Google-Smtp-Source: ABdhPJwpXoNBRY3itxSwi7XCJSIvdhmmkognjqUNzp2llLV4ViyCuAeg5spQ2mPIlZDAo4LJYJXujwHFqK9gLkmYtgk=
-X-Received: by 2002:a17:907:8692:: with SMTP id qa18mr63203937ejc.7.1638194157986;
- Mon, 29 Nov 2021 05:55:57 -0800 (PST)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=WXujHn+Aip39eencB3cYJstRytLHPrA412s3PzKkRco=;
+        b=w4fP9gx81FlsX6+minOAnQfg0vEtyYzWVY0V/eW0mjSRHENCFvt70PUB0jgg1U0fql
+         w9TQz0gmZrahWHv/MQ9xJialDoXd0BPBjpoyWk8mRWsuvwIC+7fdk7d1RBS+BptzYHj6
+         QJk5mFWH+hEZZqNsLXzBA86fDlHAwcw8BMNYBGVXhwTVzaEmFqj+9AGLLcpenlmawuTB
+         KzUkJFX4MBFJiH2jl5Sg+3o07af1a6TMQw5vWxxFHiW5A0xtr+YZL5oDUzAWCkMJMY2o
+         pM7xYQnzKuu4fkWUhk1buw+n5m+1epVUkIbQE9buXXMgpR/IoK9WFplYNqLKQSzATIf0
+         HACQ==
+X-Gm-Message-State: AOAM5336i+dl8PlVOCMncFxDZVj02erRjDwRcOLi52tNQU10XgVFCeY7
+        eeyvxhlM6u1MUxrSCMNATRy396PnA3FSk8b1vRPaGg==
+X-Google-Smtp-Source: ABdhPJyOWcBqYLt3xsTFWkdfwWgdcm6Pbz0GM4HJmiB3ACpPnLqOnZEOLTUPwpaSgVHCZKlQOZ6vSDnidcT3Kw8xmM4=
+X-Received: by 2002:a05:6402:2813:: with SMTP id h19mr75154365ede.267.1638195140132;
+ Mon, 29 Nov 2021 06:12:20 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:a17:906:5d09:0:0:0:0 with HTTP; Mon, 29 Nov 2021 05:55:57
- -0800 (PST)
-Reply-To: jennifermbaya38@gmail.com
-From:   Mrs Jennifer Mbaya <sergegladja@gmail.com>
-Date:   Mon, 29 Nov 2021 05:55:57 -0800
-Message-ID: <CAJ7Ma1-33giase6cAJ6y7nV-sNGt2_=25AQr48H28x_TESi6fg@mail.gmail.com>
-Subject: =?UTF-8?Q?Kedvezm=C3=A9nyezett?=
-To:     undisclosed-recipients:;
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 29 Nov 2021 19:42:07 +0530
+Message-ID: <CA+G9fYuzzknDMdu3q8ARyVHqd-cLYD_tsMLMH-ig-k-WVeTPAg@mail.gmail.com>
+Subject: Doesn't build 32 bit vDSO for arm64
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     linux-stable <stable@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Antonio Terceiro <antonio.terceiro@linaro.org>,
+        Vishal Bhoj <vishal.bhoj@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Az =C3=96n nev=C3=A9ben az Egyes=C3=BClt Nemzetek =C3=A9s az Eg=C3=A9szs=C3=
-=A9g=C3=BCgyi Vil=C3=A1gszervezet a
-nemzetk=C3=B6zi valutaalaphoz kapcsol=C3=B3dva d=C3=ADjat adom=C3=A1nyoz, a=
-melyben az =C3=96n
-e-mail c=C3=ADm=C3=A9t =C3=A9s p=C3=A9nzeszk=C3=B6z=C3=A9t =C3=A1tadtuk nek=
-=C3=BCnk az =C3=96n =C3=A1tutal=C3=A1sa =C3=A9rdek=C3=A9ben,
-k=C3=A9rj=C3=BCk, eros=C3=ADtse meg adatait az =C3=96n =C3=A1tutal=C3=A1sa =
-=C3=A9rdek=C3=A9ben.
-Azt az utas=C3=ADt=C3=A1st kaptuk, hogy minden f=C3=BCggoben l=C3=A9vo tran=
-zakci=C3=B3t vigy=C3=BCnk
-=C3=A1t a k=C3=B6vetkezo k=C3=A9t napon bel=C3=BCl, de ha megkapta az alapj=
-=C3=A1t, akkor
-hagyja figyelmen k=C3=ADv=C3=BCl ezt az =C3=BCzenetet, ha nem azonnal.
-S=C3=BCrgosen v=C3=A1laszolnia kell erre az =C3=BCzenetre, ez nem egy olyan
-internetes csal=C3=B3, ez a vil=C3=A1gj=C3=A1rv=C3=A1ny enyh=C3=ADt=C3=A9se=
-.
-Jennifer Mbaya
+Hi Greg and Antonio,
+
+The stable-rc 5.4 build is failing.
+( 5.10 and 5.15 builds pass )
+because new build getting these two extra configs.
+
+CONFIG_GENERIC_COMPAT_VDSO=y
+CONFIG_COMPAT_VDSO=y
+
+These two configs are getting added by extra build variable
+
+CROSS_COMPILE_COMPAT=arm-linux-gnueabihf-
+
+This extra variable is coming from new tuxmake tool.
+
+Doesn't build 32 bit vDSO for arm64
+https://gitlab.com/Linaro/tuxmake/-/issues/160
+
+ref:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/
+
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+--
+Linaro LKFT
+https://lkft.linaro.org
