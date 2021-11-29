@@ -2,91 +2,217 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3345460F40
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 08:19:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 821C6460F45
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 08:21:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236212AbhK2HWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 02:22:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57550 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233859AbhK2HUW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 02:20:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37A44C061756
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 23:16:28 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S234388AbhK2HYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 02:24:38 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:46728 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238360AbhK2HWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 02:22:37 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D15B611DD
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 07:16:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DA42C004E1;
-        Mon, 29 Nov 2021 07:16:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638170186;
-        bh=Ji7lGI+sNiSRS/Y6MYjOZj5MqwzRYIwEU9VEN4XrqHM=;
-        h=Subject:To:Cc:From:Date:From;
-        b=naEfpAEWEsAGfa2QWaPMeo+klZU1ghOmWucqKb9qv0QkgxK0wy53uCP4kK+sQoWK3
-         l/QQV5BRCS49AKpr/mscrMeLjEQqQlSnYwbxRaU36DqPf0eSpZsBXnU5XCOkIRpPY1
-         GIIai6DkClC0eG0V2zVqPIAv58BMpPj/BkQrqCrc=
-Subject: FAILED: patch "[PATCH] vhost/vsock: fix incorrect used length reported to the guest" failed to apply to 4.9-stable tree
-To:     sgarzare@redhat.com, jasowang@redhat.com, mst@redhat.com,
-        pasic@linux.ibm.com, stefanha@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Nov 2021 08:16:23 +0100
-Message-ID: <163817018318163@kroah.com>
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 52BAA1FCA1;
+        Mon, 29 Nov 2021 07:19:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1638170359; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type;
+        bh=SYwXW/2pvGjEC+A3oUqLRQRnOe6kCH8gfjkqGE/npIo=;
+        b=MUNAoVjiHDT0uGW66GJxJEvqBFf7MXGJJr561fX3DjoAB0AY9l5aWE0I4GlBd6dLJIcQ27
+        0NGrCDd+5lSKfBxlwvs/WZk7zDAYLNWvYI81q/ulM5EsU6ek6grcxRcnsYihP0C5jRu784
+        KqZ98ZP59f8JPWmFynj2gONZY+aTl14=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 30D0C133FE;
+        Mon, 29 Nov 2021 07:19:19 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id VfokCvd+pGHPGQAAMHmgww
+        (envelope-from <jgross@suse.com>); Mon, 29 Nov 2021 07:19:19 +0000
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From:   Juergen Gross <jgross@suse.com>
+Cc:     "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+Subject: Patches for stable 5.10 kernel
+Message-ID: <59ff38c4-8355-ecf6-040d-1234320a806b@suse.com>
+Date:   Mon, 29 Nov 2021 08:19:18 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="wpUMVDKHee1Hkri6ANmGTicGwGLHyCjqB"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--wpUMVDKHee1Hkri6ANmGTicGwGLHyCjqB
+Content-Type: multipart/mixed; boundary="xhbnUF2toUKD6zqO2hFC27BzFtPuF8q0E";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: "stable@vger.kernel.org" <stable@vger.kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+Message-ID: <59ff38c4-8355-ecf6-040d-1234320a806b@suse.com>
+Subject: Patches for stable 5.10 kernel
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+--xhbnUF2toUKD6zqO2hFC27BzFtPuF8q0E
+Content-Type: multipart/mixed;
+ boundary="------------BB97D6599586F986C0DB6E08"
+Content-Language: en-US
 
-thanks,
+This is a multi-part message in MIME format.
+--------------BB97D6599586F986C0DB6E08
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-greg k-h
+Hi Greg,
 
------------------- original commit in Linus's tree ------------------
+could you please add the following upstream patches to the stable 5.10
+kernel (I'll send separate mails for the older stable kernels as some
+of the patches don't apply for those)? They are hardening Xen PV
+frontends against attacks from related backends.
 
-From 49d8c5ffad07ca014cfae72a1b9b8c52b6ad9cb8 Mon Sep 17 00:00:00 2001
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Mon, 22 Nov 2021 17:35:24 +0100
-Subject: [PATCH] vhost/vsock: fix incorrect used length reported to the guest
+Qubes-OS has asked for those patches to be added to stable, too.
 
-The "used length" reported by calling vhost_add_used() must be the
-number of bytes written by the device (using "in" buffers).
+629a5d87e26fe96b ("xen: sync include/xen/interface/io/ring.h with Xen's=20
+newest version")
+71b66243f9898d0e ("xen/blkfront: read response from backend only once")
+8f5a695d99000fc3 ("xen/blkfront: don't take local copy of a request from =
 
-In vhost_vsock_handle_tx_kick() the device only reads the guest
-buffers (they are all "out" buffers), without writing anything,
-so we must pass 0 as "used length" to comply virtio spec.
+the ring page")
+b94e4b147fd1992a ("xen/blkfront: don't trust the backend response data=20
+blindly")
+8446066bf8c1f9f7 ("xen/netfront: read response from backend only once")
+162081ec33c2686a ("xen/netfront: don't read data from request on the=20
+ring page")
+21631d2d741a64a0 ("xen/netfront: disentangle tx_skb_freelist")
+a884daa61a7d9165 ("xen/netfront: don't trust the backend response data=20
+blindly")
+e679004dec37566f ("tty: hvc: replace BUG_ON() with negative return value"=
+)
 
-Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-Cc: stable@vger.kernel.org
-Reported-by: Halil Pasic <pasic@linux.ibm.com>
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lore.kernel.org/r/20211122163525.294024-2-sgarzare@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 938aefbc75ec..4e3b95af7ee4 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -554,7 +554,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
- 			virtio_transport_free_pkt(pkt);
- 
- 		len += sizeof(pkt->hdr);
--		vhost_add_used(vq, head, len);
-+		vhost_add_used(vq, head, 0);
- 		total_len += len;
- 		added = true;
- 	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+Thanks,
 
+Juergen
+
+--------------BB97D6599586F986C0DB6E08
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: OpenPGP public key
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------BB97D6599586F986C0DB6E08--
+
+--xhbnUF2toUKD6zqO2hFC27BzFtPuF8q0E--
+
+--wpUMVDKHee1Hkri6ANmGTicGwGLHyCjqB
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmGkfvYFAwAAAAAACgkQsN6d1ii/Ey96
+SQf+IMSByLeqzJc6+rE5sugQzWzB12wORVXoQfOGprVrqIcIdIVJTDYlC9KwHEGQ22k8P1939WGT
+0hUiz39M+6nJ+8zSspLU0Il/C8/3llyyN638tE7+Oe19ZgbjUA0BtlvX5lE6TAPhEsI1WRZ37ekY
+/+jVbODeo++XqU0haveyOa3i9K54SW4dSOQtDU9gcQcueReT1tDjpOc47xPD/T4H1w+vYXIp4s3D
+p50Zt/9jIGbSwcMJfdplcNdB/m8QRrbelXrBOC3bBL7KkyKBClvxcVvIGiU/r813wA2W/6q7pQWe
+ELDw+QwOO0EYHFgun8I9ZyEcXbk9ObvpFlx3eiWatQ==
+=nQoU
+-----END PGP SIGNATURE-----
+
+--wpUMVDKHee1Hkri6ANmGTicGwGLHyCjqB--
