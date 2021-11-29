@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA2A3462446
+	by mail.lfdr.de (Postfix) with ESMTP id 48B1F462445
 	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231708AbhK2WRU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:17:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56700 "EHLO
+        id S233514AbhK2WRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:17:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230516AbhK2WQv (ORCPT
+        with ESMTP id S232340AbhK2WQv (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 322C9C12A74A;
-        Mon, 29 Nov 2021 10:22:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE01C12A74D;
+        Mon, 29 Nov 2021 10:23:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC1DCB815C8;
-        Mon, 29 Nov 2021 18:22:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F237EC53FC7;
-        Mon, 29 Nov 2021 18:22:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B2D09B815B1;
+        Mon, 29 Nov 2021 18:23:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC6FEC53FAD;
+        Mon, 29 Nov 2021 18:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210177;
-        bh=/1Y80ESiUrQlRurNFSmx82GzX0evXjC70cDZYwTFOn8=;
+        s=korg; t=1638210180;
+        bh=I83h6XQoksIiK8RELSZbEoyDEvOSQGC0IXG2Nj7MjRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FXo8+O6m/kr9TSZLBKGTDo584eNlVfZ6Gn7gUarfh1teIKQqGvzMWjPPaXNG+fIOb
-         kbsqsMOa1A9S4BsPs4KEA6t2fbTCjB4DtTF9H/pDS9bjMr4yM9punWiZ06LFZN0QvR
-         4u1+RpV7HBMXLGxjCmjjFRZRRLO6I5WokAvjfiiY=
+        b=1qX3hawyEnNDFBl0v67//3QVCaCs/qd7rJsrE9WPk1hP9S/NitASYyuTkfUxI+LWH
+         jqD3kfzJwLFHCFmNer0OxDXDy3ct1s7obgxjghcrn8EM4uRHzOdM/0VCPykCLjh6Xv
+         PYnr2AYzHXdQZFBOzdumW8x89m+7sBOds7h3U0CI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 67/69] xen/netfront: disentangle tx_skb_freelist
-Date:   Mon, 29 Nov 2021 19:18:49 +0100
-Message-Id: <20211129181705.832044504@linuxfoundation.org>
+Subject: [PATCH 4.19 68/69] xen/netfront: dont trust the backend response data blindly
+Date:   Mon, 29 Nov 2021 19:18:50 +0100
+Message-Id: <20211129181705.862563937@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
 References: <20211129181703.670197996@linuxfoundation.org>
@@ -49,177 +50,234 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-commit 21631d2d741a64a073e167c27769e73bc7844a2f upstream.
+commit a884daa61a7d91650987e855464526aef219590f upstream.
 
-The tx_skb_freelist elements are in a single linked list with the
-request id used as link reference. The per element link field is in a
-union with the skb pointer of an in use request.
+Today netfront will trust the backend to send only sane response data.
+In order to avoid privilege escalations or crashes in case of malicious
+backends verify the data to be within expected limits. Especially make
+sure that the response always references an outstanding request.
 
-Move the link reference out of the union in order to enable a later
-reuse of it for requests which need a populated skb pointer.
+Note that only the tx queue needs special id handling, as for the rx
+queue the id is equal to the index in the ring page.
 
-Rename add_id_to_freelist() and get_id_from_freelist() to
-add_id_to_list() and get_id_from_list() in order to prepare using
-those for other lists as well. Define ~0 as value to indicate the end
-of a list and place that value into the link for a request not being
-on the list.
-
-When freeing a skb zero the skb pointer in the request. Use a NULL
-value of the skb pointer instead of skb_entry_is_link() for deciding
-whether a request has a skb linked to it.
-
-Remove skb_entry_set_link() and open code it instead as it is really
-trivial now.
+Introduce a new indicator for the device whether it is broken and let
+the device stop working when it is set. Set this indicator in case the
+backend sets any weird data.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netfront.c |   61 ++++++++++++++++++---------------------------
- 1 file changed, 25 insertions(+), 36 deletions(-)
+ drivers/net/xen-netfront.c |   80 ++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 75 insertions(+), 5 deletions(-)
 
 --- a/drivers/net/xen-netfront.c
 +++ b/drivers/net/xen-netfront.c
-@@ -121,17 +121,11 @@ struct netfront_queue {
- 
- 	/*
- 	 * {tx,rx}_skbs store outstanding skbuffs. Free tx_skb entries
--	 * are linked from tx_skb_freelist through skb_entry.link.
--	 *
--	 *  NB. Freelist index entries are always going to be less than
--	 *  PAGE_OFFSET, whereas pointers to skbs will always be equal or
--	 *  greater than PAGE_OFFSET: we use this property to distinguish
--	 *  them.
-+	 * are linked from tx_skb_freelist through tx_link.
- 	 */
--	union skb_entry {
--		struct sk_buff *skb;
--		unsigned long link;
--	} tx_skbs[NET_TX_RING_SIZE];
-+	struct sk_buff *tx_skbs[NET_TX_RING_SIZE];
-+	unsigned short tx_link[NET_TX_RING_SIZE];
-+#define TX_LINK_NONE 0xffff
+@@ -126,10 +126,12 @@ struct netfront_queue {
+ 	struct sk_buff *tx_skbs[NET_TX_RING_SIZE];
+ 	unsigned short tx_link[NET_TX_RING_SIZE];
+ #define TX_LINK_NONE 0xffff
++#define TX_PENDING   0xfffe
  	grant_ref_t gref_tx_head;
  	grant_ref_t grant_tx_ref[NET_TX_RING_SIZE];
  	struct page *grant_tx_page[NET_TX_RING_SIZE];
-@@ -169,33 +163,25 @@ struct netfront_rx_info {
- 	struct xen_netif_extra_info extras[XEN_NETIF_EXTRA_TYPE_MAX - 1];
+ 	unsigned tx_skb_freelist;
++	unsigned int tx_pend_queue;
+ 
+ 	spinlock_t   rx_lock ____cacheline_aligned_in_smp;
+ 	struct xen_netif_rx_front_ring rx;
+@@ -155,6 +157,9 @@ struct netfront_info {
+ 	struct netfront_stats __percpu *rx_stats;
+ 	struct netfront_stats __percpu *tx_stats;
+ 
++	/* Is device behaving sane? */
++	bool broken;
++
+ 	atomic_t rx_gso_checksum_fixup;
  };
  
--static void skb_entry_set_link(union skb_entry *list, unsigned short id)
--{
--	list->link = id;
--}
--
--static int skb_entry_is_link(const union skb_entry *list)
--{
--	BUILD_BUG_ON(sizeof(list->skb) != sizeof(list->link));
--	return (unsigned long)list->skb < PAGE_OFFSET;
--}
--
- /*
-  * Access macros for acquiring freeing slots in tx_skbs[].
-  */
+@@ -339,7 +344,7 @@ static int xennet_open(struct net_device
+ 	unsigned int i = 0;
+ 	struct netfront_queue *queue = NULL;
  
--static void add_id_to_freelist(unsigned *head, union skb_entry *list,
--			       unsigned short id)
-+static void add_id_to_list(unsigned *head, unsigned short *list,
-+			   unsigned short id)
- {
--	skb_entry_set_link(&list[id], *head);
-+	list[id] = *head;
- 	*head = id;
- }
+-	if (!np->queues)
++	if (!np->queues || np->broken)
+ 		return -ENODEV;
  
--static unsigned short get_id_from_freelist(unsigned *head,
--					   union skb_entry *list)
-+static unsigned short get_id_from_list(unsigned *head, unsigned short *list)
- {
- 	unsigned int id = *head;
--	*head = list[id].link;
-+
-+	if (id != TX_LINK_NONE) {
-+		*head = list[id];
-+		list[id] = TX_LINK_NONE;
-+	}
- 	return id;
- }
+ 	for (i = 0; i < num_queues; ++i) {
+@@ -367,11 +372,17 @@ static void xennet_tx_buf_gc(struct netf
+ 	unsigned short id;
+ 	struct sk_buff *skb;
+ 	bool more_to_do;
++	const struct device *dev = &queue->info->netdev->dev;
  
-@@ -396,7 +382,8 @@ static void xennet_tx_buf_gc(struct netf
+ 	BUG_ON(!netif_carrier_ok(queue->info->netdev));
+ 
+ 	do {
+ 		prod = queue->tx.sring->rsp_prod;
++		if (RING_RESPONSE_PROD_OVERFLOW(&queue->tx, prod)) {
++			dev_alert(dev, "Illegal number of responses %u\n",
++				  prod - queue->tx.rsp_cons);
++			goto err;
++		}
+ 		rmb(); /* Ensure we see responses up to 'rp'. */
+ 
+ 		for (cons = queue->tx.rsp_cons; cons != prod; cons++) {
+@@ -381,14 +392,27 @@ static void xennet_tx_buf_gc(struct netf
+ 			if (txrsp.status == XEN_NETIF_RSP_NULL)
  				continue;
  
- 			id  = txrsp.id;
--			skb = queue->tx_skbs[id].skb;
-+			skb = queue->tx_skbs[id];
-+			queue->tx_skbs[id] = NULL;
+-			id  = txrsp.id;
++			id = txrsp.id;
++			if (id >= RING_SIZE(&queue->tx)) {
++				dev_alert(dev,
++					  "Response has incorrect id (%u)\n",
++					  id);
++				goto err;
++			}
++			if (queue->tx_link[id] != TX_PENDING) {
++				dev_alert(dev,
++					  "Response for inactive request\n");
++				goto err;
++			}
++
++			queue->tx_link[id] = TX_LINK_NONE;
+ 			skb = queue->tx_skbs[id];
+ 			queue->tx_skbs[id] = NULL;
  			if (unlikely(gnttab_query_foreign_access(
  				queue->grant_tx_ref[id]) != 0)) {
- 				pr_alert("%s: warning -- grant still in use by backend domain\n",
-@@ -409,7 +396,7 @@ static void xennet_tx_buf_gc(struct netf
- 				&queue->gref_tx_head, queue->grant_tx_ref[id]);
- 			queue->grant_tx_ref[id] = GRANT_INVALID_REF;
- 			queue->grant_tx_page[id] = NULL;
--			add_id_to_freelist(&queue->tx_skb_freelist, queue->tx_skbs, id);
-+			add_id_to_list(&queue->tx_skb_freelist, queue->tx_link, id);
- 			dev_kfree_skb_irq(skb);
- 		}
+-				pr_alert("%s: warning -- grant still in use by backend domain\n",
+-					 __func__);
+-				BUG();
++				dev_alert(dev,
++					  "Grant still in use by backend domain\n");
++				goto err;
+ 			}
+ 			gnttab_end_foreign_access_ref(
+ 				queue->grant_tx_ref[id], GNTMAP_readonly);
+@@ -406,6 +430,12 @@ static void xennet_tx_buf_gc(struct netf
+ 	} while (more_to_do);
  
-@@ -442,7 +429,7 @@ static void xennet_tx_setup_grant(unsign
- 	struct netfront_queue *queue = info->queue;
- 	struct sk_buff *skb = info->skb;
- 
--	id = get_id_from_freelist(&queue->tx_skb_freelist, queue->tx_skbs);
-+	id = get_id_from_list(&queue->tx_skb_freelist, queue->tx_link);
- 	tx = RING_GET_REQUEST(&queue->tx, queue->tx.req_prod_pvt++);
- 	ref = gnttab_claim_grant_reference(&queue->gref_tx_head);
- 	WARN_ON_ONCE(IS_ERR_VALUE((unsigned long)(int)ref));
-@@ -450,7 +437,7 @@ static void xennet_tx_setup_grant(unsign
- 	gnttab_grant_foreign_access_ref(ref, queue->info->xbdev->otherend_id,
- 					gfn, GNTMAP_readonly);
- 
--	queue->tx_skbs[id].skb = skb;
-+	queue->tx_skbs[id] = skb;
- 	queue->grant_tx_page[id] = page;
- 	queue->grant_tx_ref[id] = ref;
- 
-@@ -1132,17 +1119,18 @@ static void xennet_release_tx_bufs(struc
- 
- 	for (i = 0; i < NET_TX_RING_SIZE; i++) {
- 		/* Skip over entries which are actually freelist references */
--		if (skb_entry_is_link(&queue->tx_skbs[i]))
-+		if (!queue->tx_skbs[i])
- 			continue;
- 
--		skb = queue->tx_skbs[i].skb;
-+		skb = queue->tx_skbs[i];
-+		queue->tx_skbs[i] = NULL;
- 		get_page(queue->grant_tx_page[i]);
- 		gnttab_end_foreign_access(queue->grant_tx_ref[i],
- 					  GNTMAP_readonly,
- 					  (unsigned long)page_address(queue->grant_tx_page[i]));
- 		queue->grant_tx_page[i] = NULL;
- 		queue->grant_tx_ref[i] = GRANT_INVALID_REF;
--		add_id_to_freelist(&queue->tx_skb_freelist, queue->tx_skbs, i);
-+		add_id_to_list(&queue->tx_skb_freelist, queue->tx_link, i);
- 		dev_kfree_skb_irq(skb);
- 	}
+ 	xennet_maybe_wake_tx(queue);
++
++	return;
++
++ err:
++	queue->info->broken = true;
++	dev_alert(dev, "Disabled for further use\n");
  }
-@@ -1624,13 +1612,14 @@ static int xennet_init_queue(struct netf
- 	snprintf(queue->name, sizeof(queue->name), "vif%s-q%u",
- 		 devid, queue->id);
  
--	/* Initialise tx_skbs as a free chain containing every entry. */
-+	/* Initialise tx_skb_freelist as a free chain containing every entry. */
+ struct xennet_gnttab_make_txreq {
+@@ -449,6 +479,12 @@ static void xennet_tx_setup_grant(unsign
+ 
+ 	*tx = info->tx_local;
+ 
++	/*
++	 * Put the request in the pending queue, it will be set to be pending
++	 * when the producer index is about to be raised.
++	 */
++	add_id_to_list(&queue->tx_pend_queue, queue->tx_link, id);
++
+ 	info->tx = tx;
+ 	info->size += info->tx_local.size;
+ }
+@@ -542,6 +578,15 @@ static u16 xennet_select_queue(struct ne
+ 	return queue_idx;
+ }
+ 
++static void xennet_mark_tx_pending(struct netfront_queue *queue)
++{
++	unsigned int i;
++
++	while ((i = get_id_from_list(&queue->tx_pend_queue, queue->tx_link)) !=
++		TX_LINK_NONE)
++		queue->tx_link[i] = TX_PENDING;
++}
++
+ #define MAX_XEN_SKB_FRAGS (65536 / XEN_PAGE_SIZE + 1)
+ 
+ static netdev_tx_t xennet_start_xmit(struct sk_buff *skb, struct net_device *dev)
+@@ -565,6 +610,8 @@ static netdev_tx_t xennet_start_xmit(str
+ 	/* Drop the packet if no queues are set up */
+ 	if (num_queues < 1)
+ 		goto drop;
++	if (unlikely(np->broken))
++		goto drop;
+ 	/* Determine which queue to transmit this SKB on */
+ 	queue_index = skb_get_queue_mapping(skb);
+ 	queue = &np->queues[queue_index];
+@@ -668,6 +715,8 @@ static netdev_tx_t xennet_start_xmit(str
+ 	/* First request has the packet length. */
+ 	first_tx->size = skb->len;
+ 
++	xennet_mark_tx_pending(queue);
++
+ 	RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(&queue->tx, notify);
+ 	if (notify)
+ 		notify_remote_via_irq(queue->tx_irq);
+@@ -992,6 +1041,13 @@ static int xennet_poll(struct napi_struc
+ 	skb_queue_head_init(&tmpq);
+ 
+ 	rp = queue->rx.sring->rsp_prod;
++	if (RING_RESPONSE_PROD_OVERFLOW(&queue->rx, rp)) {
++		dev_alert(&dev->dev, "Illegal number of responses %u\n",
++			  rp - queue->rx.rsp_cons);
++		queue->info->broken = true;
++		spin_unlock(&queue->rx_lock);
++		return 0;
++	}
+ 	rmb(); /* Ensure we see queued responses up to 'rp'. */
+ 
+ 	i = queue->rx.rsp_cons;
+@@ -1210,6 +1266,9 @@ static irqreturn_t xennet_tx_interrupt(i
+ 	struct netfront_queue *queue = dev_id;
+ 	unsigned long flags;
+ 
++	if (queue->info->broken)
++		return IRQ_HANDLED;
++
+ 	spin_lock_irqsave(&queue->tx_lock, flags);
+ 	xennet_tx_buf_gc(queue);
+ 	spin_unlock_irqrestore(&queue->tx_lock, flags);
+@@ -1222,6 +1281,9 @@ static irqreturn_t xennet_rx_interrupt(i
+ 	struct netfront_queue *queue = dev_id;
+ 	struct net_device *dev = queue->info->netdev;
+ 
++	if (queue->info->broken)
++		return IRQ_HANDLED;
++
+ 	if (likely(netif_carrier_ok(dev) &&
+ 		   RING_HAS_UNCONSUMED_RESPONSES(&queue->rx)))
+ 		napi_schedule(&queue->napi);
+@@ -1243,6 +1305,10 @@ static void xennet_poll_controller(struc
+ 	struct netfront_info *info = netdev_priv(dev);
+ 	unsigned int num_queues = dev->real_num_tx_queues;
+ 	unsigned int i;
++
++	if (info->broken)
++		return;
++
+ 	for (i = 0; i < num_queues; ++i)
+ 		xennet_interrupt(0, &info->queues[i]);
+ }
+@@ -1614,6 +1680,7 @@ static int xennet_init_queue(struct netf
+ 
+ 	/* Initialise tx_skb_freelist as a free chain containing every entry. */
  	queue->tx_skb_freelist = 0;
++	queue->tx_pend_queue = TX_LINK_NONE;
  	for (i = 0; i < NET_TX_RING_SIZE; i++) {
--		skb_entry_set_link(&queue->tx_skbs[i], i+1);
-+		queue->tx_link[i] = i + 1;
+ 		queue->tx_link[i] = i + 1;
  		queue->grant_tx_ref[i] = GRANT_INVALID_REF;
- 		queue->grant_tx_page[i] = NULL;
- 	}
-+	queue->tx_link[NET_TX_RING_SIZE - 1] = TX_LINK_NONE;
+@@ -1824,6 +1891,9 @@ static int talk_to_netback(struct xenbus
+ 	if (info->queues)
+ 		xennet_destroy_queues(info);
  
- 	/* Clear out rx_skbs */
- 	for (i = 0; i < NET_RX_RING_SIZE; i++) {
++	/* For the case of a reconnect reset the "broken" indicator. */
++	info->broken = false;
++
+ 	err = xennet_create_queues(info, &num_queues);
+ 	if (err < 0) {
+ 		xenbus_dev_fatal(dev, err, "creating queues");
 
 
