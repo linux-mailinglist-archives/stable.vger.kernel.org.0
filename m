@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAC3C462469
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 880F5462441
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232265AbhK2WSq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:18:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55312 "EHLO
+        id S233293AbhK2WRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:17:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232769AbhK2WQo (ORCPT
+        with ESMTP id S232771AbhK2WQo (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0375CC12711C;
-        Mon, 29 Nov 2021 10:21:09 -0800 (PST)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46A0DC08ED9B;
+        Mon, 29 Nov 2021 10:21:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E20BB815C3;
-        Mon, 29 Nov 2021 18:21:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C605DC53FAD;
-        Mon, 29 Nov 2021 18:21:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 93272CE13D5;
+        Mon, 29 Nov 2021 18:21:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E74FC53FC7;
+        Mon, 29 Nov 2021 18:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210067;
-        bh=PM/yQpI+6fYexdm9iC3694oATmfAwBxaiumR98Y7WFk=;
+        s=korg; t=1638210081;
+        bh=ffMOAoGGmO/I45Fixa7kk9JNj3cLIX06aCNInIs7IJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f17MKusfp7IqP8VK0V5GbNUwttlGJQ/DQxeOD/LJ8Kdu4uOHP8dn+NhvJa1CZs0Dz
-         D+Hdd82ejgTiaG6kp8jxWB4MniTWSZoaAy0iQhKNFlp5J+FgDGhO8NghJt+I5raYu/
-         AyDFvWBLxWXlNGSIOYwAP4yc2Pto9cpV61DQV9YI=
+        b=U+9M0CwHsFEHjZ7Aks/U/03Kz2cNoshyD+z9LQvEgGKbKArG5i81Tq0EjWH2mFwPS
+         44qwZyMHX748qa4Ov77IoeejIVmLfd6qDh69e+rbo7mIO+q3UIT4kApntnd84U4vje
+         +FlZcg2kgpbXBPyZ2bTz1lLdAwz6/+5agYtPNIkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        John Keeping <john@metanate.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.19 03/69] usb: dwc2: hcd_queue: Fix use of floating point literal
-Date:   Mon, 29 Nov 2021 19:17:45 +0100
-Message-Id: <20211129181703.778282417@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 04/69] usb: hub: Fix usb enumeration issue due to address0 race
+Date:   Mon, 29 Nov 2021 19:17:46 +0100
+Message-Id: <20211129181703.808440882@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
 References: <20211129181703.670197996@linuxfoundation.org>
@@ -49,56 +47,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 310780e825f3ffd211b479b8f828885a6faedd63 upstream.
+commit 6ae6dc22d2d1ce6aa77a6da8a761e61aca216f8b upstream.
 
-A new commit in LLVM causes an error on the use of 'long double' when
-'-mno-x87' is used, which the kernel does through an alias,
-'-mno-80387' (see the LLVM commit below for more details around why it
-does this).
+xHC hardware can only have one slot in default state with address 0
+waiting for a unique address at a time, otherwise "undefined behavior
+may occur" according to xhci spec 5.4.3.4
 
- drivers/usb/dwc2/hcd_queue.c:1744:25: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-                         delay = ktime_set(0, DWC2_RETRY_WAIT_DELAY);
-                                             ^
- drivers/usb/dwc2/hcd_queue.c:62:34: note: expanded from macro 'DWC2_RETRY_WAIT_DELAY'
- #define DWC2_RETRY_WAIT_DELAY (1 * 1E6L)
-                                 ^
- 1 error generated.
+The address0_mutex exists to prevent this across both xhci roothubs.
 
-This happens due to the use of a 'long double' literal. The 'E6' part of
-'1E6L' causes the literal to be a 'double' then the 'L' suffix promotes
-it to 'long double'.
+If hub_port_init() fails, it may unlock the mutex and exit with a xhci
+slot in default state. If the other xhci roothub calls hub_port_init()
+at this point we end up with two slots in default state.
 
-There is no visible reason for a floating point value in this driver, as
-the value is only used as a parameter to a function that expects an
-integer type. Use NSEC_PER_MSEC, which is the same integer value as
-'1E6L', to avoid changing functionality but fix the error.
+Make sure the address0_mutex protects the slot default state across
+hub_port_init() retries, until slot is addressed or disabled.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1497
-Link: https://github.com/llvm/llvm-project/commit/a8083d42b1c346e21623a1d36d1f0cadd7801d83
-Fixes: 6ed30a7d8ec2 ("usb: dwc2: host: use hrtimer for NAK retries")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20211105145802.2520658-1-nathan@kernel.org
+Note, one known minor case is not fixed by this patch.
+If device needs to be reset during resume, but fails all hub_port_init()
+retries in usb_reset_and_verify_device(), then it's possible the slot is
+still left in default state when address0_mutex is unlocked.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 638139eb95d2 ("usb: hub: allow to process more usb hub events in parallel")
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211115221630.871204-1-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/hcd_queue.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/core/hub.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/dwc2/hcd_queue.c
-+++ b/drivers/usb/dwc2/hcd_queue.c
-@@ -59,7 +59,7 @@
- #define DWC2_UNRESERVE_DELAY (msecs_to_jiffies(5))
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -4575,8 +4575,6 @@ hub_port_init(struct usb_hub *hub, struc
+ 	if (oldspeed == USB_SPEED_LOW)
+ 		delay = HUB_LONG_RESET_TIME;
  
- /* If we get a NAK, wait this long before retrying */
--#define DWC2_RETRY_WAIT_DELAY 1*1E6L
-+#define DWC2_RETRY_WAIT_DELAY (1 * NSEC_PER_MSEC)
+-	mutex_lock(hcd->address0_mutex);
+-
+ 	/* Reset the device; full speed may morph to high speed */
+ 	/* FIXME a USB 2.0 device may morph into SuperSpeed on reset. */
+ 	retval = hub_port_reset(hub, port1, udev, delay, false);
+@@ -4891,7 +4889,6 @@ fail:
+ 		hub_port_disable(hub, port1, 0);
+ 		update_devnum(udev, devnum);	/* for disconnect processing */
+ 	}
+-	mutex_unlock(hcd->address0_mutex);
+ 	return retval;
+ }
  
- /**
-  * dwc2_periodic_channel_available() - Checks that a channel is available for a
+@@ -5036,6 +5033,9 @@ static void hub_port_connect(struct usb_
+ 		unit_load = 100;
+ 
+ 	status = 0;
++
++	mutex_lock(hcd->address0_mutex);
++
+ 	for (i = 0; i < SET_CONFIG_TRIES; i++) {
+ 
+ 		/* reallocate for each attempt, since references
+@@ -5072,6 +5072,8 @@ static void hub_port_connect(struct usb_
+ 		if (status < 0)
+ 			goto loop;
+ 
++		mutex_unlock(hcd->address0_mutex);
++
+ 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
+ 			msleep(2000);
+ 
+@@ -5160,6 +5162,7 @@ static void hub_port_connect(struct usb_
+ 
+ loop_disable:
+ 		hub_port_disable(hub, port1, 1);
++		mutex_lock(hcd->address0_mutex);
+ loop:
+ 		usb_ep0_reinit(udev);
+ 		release_devnum(udev);
+@@ -5186,6 +5189,8 @@ loop:
+ 	}
+ 
+ done:
++	mutex_unlock(hcd->address0_mutex);
++
+ 	hub_port_disable(hub, port1, 1);
+ 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
+ 		if (status != -ENOTCONN && status != -ENODEV)
+@@ -5722,6 +5727,8 @@ static int usb_reset_and_verify_device(s
+ 	bos = udev->bos;
+ 	udev->bos = NULL;
+ 
++	mutex_lock(hcd->address0_mutex);
++
+ 	for (i = 0; i < SET_CONFIG_TRIES; ++i) {
+ 
+ 		/* ep0 maxpacket size may change; let the HCD know about it.
+@@ -5731,6 +5738,7 @@ static int usb_reset_and_verify_device(s
+ 		if (ret >= 0 || ret == -ENOTCONN || ret == -ENODEV)
+ 			break;
+ 	}
++	mutex_unlock(hcd->address0_mutex);
+ 
+ 	if (ret < 0)
+ 		goto re_enumerate;
 
 
