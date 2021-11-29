@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 215E3461EB2
+	by mail.lfdr.de (Postfix) with ESMTP id C8F39461EB3
 	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:36:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379030AbhK2SjY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:39:24 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:52814 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242281AbhK2ShW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:37:22 -0500
+        id S1379128AbhK2SjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:39:25 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40312 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379036AbhK2ShY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:37:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 36603CE13F9;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77A3DB815CF;
+        Mon, 29 Nov 2021 18:34:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAC17C53FAD;
         Mon, 29 Nov 2021 18:34:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D946EC53FCF;
-        Mon, 29 Nov 2021 18:34:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210841;
-        bh=nulMDc9lfbsAEbKB0DzDBpqlNlJsUWaEDXzPCHHcd7A=;
+        s=korg; t=1638210844;
+        bh=8njxurF9jXU5xJ7shnIue9+5g91D2ScALZbIWMo76Og=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0s4pert+LK59n/IY4SJJu0xeWeBcksBsp8JuvrKHj+tsQ1U7trxQqF5pGHSmVrtdK
-         e5lGSSuhpc3KGHq8OLQOrU4pduvKOJeSBdsn+pTFojMqP8l9kbjAetaZX5GvRbFJc6
-         GldGea5JzTtT7iK2lNOfwZ3K2EUZNa5G6e7Q2CFI=
+        b=fVo0FtMQ0h0ESjnd2YBpCqHrjHsV+F3y/MV0UaWt9X+leM1bx3ahJWdt6PxrkYZXt
+         5HfduNZEnYXOlCJ0vCSFCH0+bDeIJgQsYSeKqDBf3kVeYtMI+cIcQfuJl287oShQUg
+         CcskFUQTOCdgakvq20cpWK3lTAjSph1IebrLvhlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martyn Welch <martyn.welch@collabora.com>,
-        Steve Glendinning <steve.glendinning@shawell.net>,
-        UNGLinuxDriver@microchip.com,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, stable@kernel.org
-Subject: [PATCH 5.15 014/179] net: usb: Correct PHY handling of smsc95xx
-Date:   Mon, 29 Nov 2021 19:16:48 +0100
-Message-Id: <20211129181719.416714988@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 015/179] net: nexthop: fix null pointer dereference when IPv6 is not enabled
+Date:   Mon, 29 Nov 2021 19:16:49 +0100
+Message-Id: <20211129181719.448141973@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
 References: <20211129181718.913038547@linuxfoundation.org>
@@ -47,224 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martyn Welch <martyn.welch@collabora.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-commit a049a30fc27c1cb2e12889bbdbd463dbf750103a upstream.
+commit 1c743127cc54b112b155f434756bd4b5fa565a99 upstream.
 
-The smsc95xx driver is dropping phy speed settings and causing a stack
-trace at device unbind:
+When we try to add an IPv6 nexthop and IPv6 is not enabled
+(!CONFIG_IPV6) we'll hit a NULL pointer dereference[1] in the error path
+of nh_create_ipv6() due to calling ipv6_stub->fib6_nh_release. The bug
+has been present since the beginning of IPv6 nexthop gateway support.
+Commit 1aefd3de7bc6 ("ipv6: Add fib6_nh_init and release to stubs") tells
+us that only fib6_nh_init has a dummy stub because fib6_nh_release should
+not be called if fib6_nh_init returns an error, but the commit below added
+a call to ipv6_stub->fib6_nh_release in its error path. To fix it return
+the dummy stub's -EAFNOSUPPORT error directly without calling
+ipv6_stub->fib6_nh_release in nh_create_ipv6()'s error path.
 
-[  536.379147] smsc95xx 2-1:1.0 eth1: unregister 'smsc95xx' usb-ci_hdrc.2-1, smsc95xx USB 2.0 Ethernet
-[  536.425029] ------------[ cut here ]------------
-[  536.429650] WARNING: CPU: 0 PID: 439 at fs/kernfs/dir.c:1535 kernfs_remove_by_name_ns+0xb8/0xc0
-[  536.438416] kernfs: can not remove 'attached_dev', no directory
-[  536.444363] Modules linked in: xts dm_crypt dm_mod atmel_mxt_ts smsc95xx usbnet
-[  536.451748] CPU: 0 PID: 439 Comm: sh Tainted: G        W         5.15.0 #1
-[  536.458636] Hardware name: Freescale i.MX53 (Device Tree Support)
-[  536.464735] Backtrace: 
-[  536.467190] [<80b1c904>] (dump_backtrace) from [<80b1cb48>] (show_stack+0x20/0x24)
-[  536.474787]  r7:000005ff r6:8035b294 r5:600f0013 r4:80d8af78
-[  536.480449] [<80b1cb28>] (show_stack) from [<80b1f764>] (dump_stack_lvl+0x48/0x54)
-[  536.488035] [<80b1f71c>] (dump_stack_lvl) from [<80b1f788>] (dump_stack+0x18/0x1c)
-[  536.495620]  r5:00000009 r4:80d9b820
-[  536.499198] [<80b1f770>] (dump_stack) from [<80124fac>] (__warn+0xfc/0x114)
-[  536.506187] [<80124eb0>] (__warn) from [<80b1d21c>] (warn_slowpath_fmt+0xa8/0xdc)
-[  536.513688]  r7:000005ff r6:80d9b820 r5:80d9b8e0 r4:83744000
-[  536.519349] [<80b1d178>] (warn_slowpath_fmt) from [<8035b294>] (kernfs_remove_by_name_ns+0xb8/0xc0)
-[  536.528416]  r9:00000001 r8:00000000 r7:824926dc r6:00000000 r5:80df6c2c r4:00000000
-[  536.536162] [<8035b1dc>] (kernfs_remove_by_name_ns) from [<80b1f56c>] (sysfs_remove_link+0x4c/0x50)
-[  536.545225]  r6:7f00f02c r5:80df6c2c r4:83306400
-[  536.549845] [<80b1f520>] (sysfs_remove_link) from [<806f9c8c>] (phy_detach+0xfc/0x11c)
-[  536.557780]  r5:82492000 r4:83306400
-[  536.561359] [<806f9b90>] (phy_detach) from [<806f9cf8>] (phy_disconnect+0x4c/0x58)
-[  536.568943]  r7:824926dc r6:7f00f02c r5:82492580 r4:83306400
-[  536.574604] [<806f9cac>] (phy_disconnect) from [<7f00a310>] (smsc95xx_disconnect_phy+0x30/0x38 [smsc95xx])
-[  536.584290]  r5:82492580 r4:82492580
-[  536.587868] [<7f00a2e0>] (smsc95xx_disconnect_phy [smsc95xx]) from [<7f001570>] (usbnet_stop+0x70/0x1a0 [usbnet])
-[  536.598161]  r5:82492580 r4:82492000
-[  536.601740] [<7f001500>] (usbnet_stop [usbnet]) from [<808baa70>] (__dev_close_many+0xb4/0x12c)
-[  536.610466]  r8:83744000 r7:00000000 r6:83744000 r5:83745b74 r4:82492000
-[  536.617170] [<808ba9bc>] (__dev_close_many) from [<808bab78>] (dev_close_many+0x90/0x120)
-[  536.625365]  r7:00000001 r6:83745b74 r5:83745b8c r4:82492000
-[  536.631026] [<808baae8>] (dev_close_many) from [<808bf408>] (unregister_netdevice_many+0x15c/0x704)
-[  536.640094]  r9:00000001 r8:81130b98 r7:83745b74 r6:83745bc4 r5:83745b8c r4:82492000
-[  536.647840] [<808bf2ac>] (unregister_netdevice_many) from [<808bfa50>] (unregister_netdevice_queue+0xa0/0xe8)
-[  536.657775]  r10:8112bcc0 r9:83306c00 r8:83306c80 r7:8291e420 r6:83744000 r5:00000000
-[  536.665608]  r4:82492000
-[  536.668143] [<808bf9b0>] (unregister_netdevice_queue) from [<808bfac0>] (unregister_netdev+0x28/0x30)
-[  536.677381]  r6:7f01003c r5:82492000 r4:82492000
-[  536.682000] [<808bfa98>] (unregister_netdev) from [<7f000b40>] (usbnet_disconnect+0x64/0xdc [usbnet])
-[  536.691241]  r5:82492000 r4:82492580
-[  536.694819] [<7f000adc>] (usbnet_disconnect [usbnet]) from [<8076b958>] (usb_unbind_interface+0x80/0x248)
-[  536.704406]  r5:7f01003c r4:83306c80
-[  536.707984] [<8076b8d8>] (usb_unbind_interface) from [<8061765c>] (device_release_driver_internal+0x1c4/0x1cc)
-[  536.718005]  r10:8112bcc0 r9:80dff1dc r8:83306c80 r7:83744000 r6:7f01003c r5:00000000
-[  536.725838]  r4:8291e420
-[  536.728373] [<80617498>] (device_release_driver_internal) from [<80617684>] (device_release_driver+0x20/0x24)
-[  536.738302]  r7:83744000 r6:810d4f4c r5:8291e420 r4:8176ae30
-[  536.743963] [<80617664>] (device_release_driver) from [<806156cc>] (bus_remove_device+0xf0/0x148)
-[  536.752858] [<806155dc>] (bus_remove_device) from [<80610018>] (device_del+0x198/0x41c)
-[  536.760880]  r7:83744000 r6:8116e2e4 r5:8291e464 r4:8291e420
-[  536.766542] [<8060fe80>] (device_del) from [<80768fe8>] (usb_disable_device+0xcc/0x1e0)
-[  536.774576]  r10:8112bcc0 r9:80dff1dc r8:00000001 r7:8112bc48 r6:8291e400 r5:00000001
-[  536.782410]  r4:83306c00
-[  536.784945] [<80768f1c>] (usb_disable_device) from [<80769c30>] (usb_set_configuration+0x514/0x8dc)
-[  536.794011]  r10:00000000 r9:00000000 r8:832c3600 r7:00000004 r6:810d5688 r5:00000000
-[  536.801844]  r4:83306c00
-[  536.804379] [<8076971c>] (usb_set_configuration) from [<80775fac>] (usb_generic_driver_disconnect+0x34/0x38)
-[  536.814236]  r10:832c3610 r9:83745ef8 r8:832c3600 r7:00000004 r6:810d5688 r5:83306c00
-[  536.822069]  r4:83306c00
-[  536.824605] [<80775f78>] (usb_generic_driver_disconnect) from [<8076b850>] (usb_unbind_device+0x30/0x70)
-[  536.834100]  r5:83306c00 r4:810d5688
-[  536.837678] [<8076b820>] (usb_unbind_device) from [<8061765c>] (device_release_driver_internal+0x1c4/0x1cc)
-[  536.847432]  r5:822fb480 r4:83306c80
-[  536.851009] [<80617498>] (device_release_driver_internal) from [<806176a8>] (device_driver_detach+0x20/0x24)
-[  536.860853]  r7:00000004 r6:810d4f4c r5:810d5688 r4:83306c80
-[  536.866515] [<80617688>] (device_driver_detach) from [<80614d98>] (unbind_store+0x70/0xe4)
-[  536.874793] [<80614d28>] (unbind_store) from [<80614118>] (drv_attr_store+0x30/0x3c)
-[  536.882554]  r7:00000000 r6:00000000 r5:83739200 r4:80614d28
-[  536.888217] [<806140e8>] (drv_attr_store) from [<8035cb68>] (sysfs_kf_write+0x48/0x54)
-[  536.896154]  r5:83739200 r4:806140e8
-[  536.899732] [<8035cb20>] (sysfs_kf_write) from [<8035be84>] (kernfs_fop_write_iter+0x11c/0x1d4)
-[  536.908446]  r5:83739200 r4:00000004
-[  536.912024] [<8035bd68>] (kernfs_fop_write_iter) from [<802b87fc>] (vfs_write+0x258/0x3e4)
-[  536.920317]  r10:00000000 r9:83745f58 r8:83744000 r7:00000000 r6:00000004 r5:00000000
-[  536.928151]  r4:82adacc0
-[  536.930687] [<802b85a4>] (vfs_write) from [<802b8b0c>] (ksys_write+0x74/0xf4)
-[  536.937842]  r10:00000004 r9:007767a0 r8:83744000 r7:00000000 r6:00000000 r5:82adacc0
-[  536.945676]  r4:82adacc0
-[  536.948213] [<802b8a98>] (ksys_write) from [<802b8ba4>] (sys_write+0x18/0x1c)
-[  536.955367]  r10:00000004 r9:83744000 r8:80100244 r7:00000004 r6:76f47b58 r5:76fc0350
-[  536.963200]  r4:00000004
-[  536.965735] [<802b8b8c>] (sys_write) from [<80100060>] (ret_fast_syscall+0x0/0x48)
-[  536.973320] Exception stack(0x83745fa8 to 0x83745ff0)
-[  536.978383] 5fa0:                   00000004 76fc0350 00000001 007767a0 00000004 00000000
-[  536.986569] 5fc0: 00000004 76fc0350 76f47b58 00000004 76f47c7c 76f48114 00000000 7e87991c
-[  536.994753] 5fe0: 00000498 7e879908 76e6dce8 76eca2e8
-[  536.999922] ---[ end trace 9b835d809816b435 ]---
+[1]
+ Output is a bit truncated, but it clearly shows the error.
+ BUG: kernel NULL pointer dereference, address: 000000000000000000
+ #PF: supervisor instruction fetch in kernel modede
+ #PF: error_code(0x0010) - not-present pagege
+ PGD 0 P4D 0
+ Oops: 0010 [#1] PREEMPT SMP NOPTI
+ CPU: 4 PID: 638 Comm: ip Kdump: loaded Not tainted 5.16.0-rc1+ #446
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-4.fc34 04/01/2014
+ RIP: 0010:0x0
+ Code: Unable to access opcode bytes at RIP 0xffffffffffffffd6.
+ RSP: 0018:ffff888109f5b8f0 EFLAGS: 00010286^Ac
+ RAX: 0000000000000000 RBX: ffff888109f5ba28 RCX: 0000000000000000
+ RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff8881008a2860
+ RBP: ffff888109f5b9d8 R08: 0000000000000000 R09: 0000000000000000
+ R10: ffff888109f5b978 R11: ffff888109f5b948 R12: 00000000ffffff9f
+ R13: ffff8881008a2a80 R14: ffff8881008a2860 R15: ffff8881008a2840
+ FS:  00007f98de70f100(0000) GS:ffff88822bf00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: ffffffffffffffd6 CR3: 0000000100efc000 CR4: 00000000000006e0
+ Call Trace:
+  <TASK>
+  nh_create_ipv6+0xed/0x10c
+  rtm_new_nexthop+0x6d7/0x13f3
+  ? check_preemption_disabled+0x3d/0xf2
+  ? lock_is_held_type+0xbe/0xfd
+  rtnetlink_rcv_msg+0x23f/0x26a
+  ? check_preemption_disabled+0x3d/0xf2
+  ? rtnl_calcit.isra.0+0x147/0x147
+  netlink_rcv_skb+0x61/0xb2
+  netlink_unicast+0x100/0x187
+  netlink_sendmsg+0x37f/0x3a0
+  ? netlink_unicast+0x187/0x187
+  sock_sendmsg_nosec+0x67/0x9b
+  ____sys_sendmsg+0x19d/0x1f9
+  ? copy_msghdr_from_user+0x4c/0x5e
+  ? rcu_read_lock_any_held+0x2a/0x78
+  ___sys_sendmsg+0x6c/0x8c
+  ? asm_sysvec_apic_timer_interrupt+0x12/0x20
+  ? lockdep_hardirqs_on+0xd9/0x102
+  ? sockfd_lookup_light+0x69/0x99
+  __sys_sendmsg+0x50/0x6e
+  do_syscall_64+0xcb/0xf2
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f98dea28914
+ Code: 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b5 0f 1f 80 00 00 00 00 48 8d 05 e9 5d 0c 00 8b 00 85 c0 75 13 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 54 c3 0f 1f 00 41 54 41 89 d4 55 48 89 f5 53
+ RSP: 002b:00007fff859f5e68 EFLAGS: 00000246 ORIG_RAX: 000000000000002e2e
+ RAX: ffffffffffffffda RBX: 00000000619cb810 RCX: 00007f98dea28914
+ RDX: 0000000000000000 RSI: 00007fff859f5ed0 RDI: 0000000000000003
+ RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000008
+ R10: fffffffffffffce6 R11: 0000000000000246 R12: 0000000000000001
+ R13: 000055c0097ae520 R14: 000055c0097957fd R15: 00007fff859f63a0
+ </TASK>
+ Modules linked in: bridge stp llc bonding virtio_net
 
-The driver should not be connecting and disconnecting the PHY when the
-device is opened and closed, it should be stopping and starting the PHY. The
-phy should be connected as part of binding and disconnected during
-unbinding.
-
-As this results in the PHY not being reset during open, link speed, etc.
-settings set prior to the link coming up are now not being lost.
-
-It is necessary for phy_stop() to only be called when the phydev still
-exists (resolving the above stack trace). When unbinding, ".unbind" will be
-called prior to ".stop", with phy_disconnect() already having called
-phy_stop() before the phydev becomes inaccessible.
-
-Signed-off-by: Martyn Welch <martyn.welch@collabora.com>
-Cc: Steve Glendinning <steve.glendinning@shawell.net>
-Cc: UNGLinuxDriver@microchip.com
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: stable@kernel.org # v5.15
+Cc: stable@vger.kernel.org
+Fixes: 53010f991a9f ("nexthop: Add support for IPv6 gateways")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/smsc95xx.c |   55 +++++++++++++++++++++------------------------
- 1 file changed, 26 insertions(+), 29 deletions(-)
+ net/ipv4/nexthop.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1049,6 +1049,14 @@ static const struct net_device_ops smsc9
- 	.ndo_set_features	= smsc95xx_set_features,
- };
- 
-+static void smsc95xx_handle_link_change(struct net_device *net)
-+{
-+	struct usbnet *dev = netdev_priv(net);
-+
-+	phy_print_status(net->phydev);
-+	usbnet_defer_kevent(dev, EVENT_LINK_CHANGE);
-+}
-+
- static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
- {
- 	struct smsc95xx_priv *pdata;
-@@ -1153,6 +1161,17 @@ static int smsc95xx_bind(struct usbnet *
- 	dev->net->min_mtu = ETH_MIN_MTU;
- 	dev->net->max_mtu = ETH_DATA_LEN;
- 	dev->hard_mtu = dev->net->mtu + dev->net->hard_header_len;
-+
-+	ret = phy_connect_direct(dev->net, pdata->phydev,
-+				 &smsc95xx_handle_link_change,
-+				 PHY_INTERFACE_MODE_MII);
-+	if (ret) {
-+		netdev_err(dev->net, "can't attach PHY to %s\n", pdata->mdiobus->id);
-+		goto unregister_mdio;
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -2544,11 +2544,15 @@ static int nh_create_ipv6(struct net *ne
+ 	/* sets nh_dev if successful */
+ 	err = ipv6_stub->fib6_nh_init(net, fib6_nh, &fib6_cfg, GFP_KERNEL,
+ 				      extack);
+-	if (err)
++	if (err) {
++		/* IPv6 is not enabled, don't call fib6_nh_release */
++		if (err == -EAFNOSUPPORT)
++			goto out;
+ 		ipv6_stub->fib6_nh_release(fib6_nh);
+-	else
++	} else {
+ 		nh->nh_flags = fib6_nh->fib_nh_flags;
+-
 +	}
-+
-+	phy_attached_info(dev->net->phydev);
-+
- 	return 0;
- 
- unregister_mdio:
-@@ -1170,47 +1189,25 @@ static void smsc95xx_unbind(struct usbne
- {
- 	struct smsc95xx_priv *pdata = dev->driver_priv;
- 
-+	phy_disconnect(dev->net->phydev);
- 	mdiobus_unregister(pdata->mdiobus);
- 	mdiobus_free(pdata->mdiobus);
- 	netif_dbg(dev, ifdown, dev->net, "free pdata\n");
- 	kfree(pdata);
++out:
+ 	return err;
  }
  
--static void smsc95xx_handle_link_change(struct net_device *net)
--{
--	struct usbnet *dev = netdev_priv(net);
--
--	phy_print_status(net->phydev);
--	usbnet_defer_kevent(dev, EVENT_LINK_CHANGE);
--}
--
- static int smsc95xx_start_phy(struct usbnet *dev)
- {
--	struct smsc95xx_priv *pdata = dev->driver_priv;
--	struct net_device *net = dev->net;
--	int ret;
-+	phy_start(dev->net->phydev);
- 
--	ret = smsc95xx_reset(dev);
--	if (ret < 0)
--		return ret;
--
--	ret = phy_connect_direct(net, pdata->phydev,
--				 &smsc95xx_handle_link_change,
--				 PHY_INTERFACE_MODE_MII);
--	if (ret) {
--		netdev_err(net, "can't attach PHY to %s\n", pdata->mdiobus->id);
--		return ret;
--	}
--
--	phy_attached_info(net->phydev);
--	phy_start(net->phydev);
- 	return 0;
- }
- 
--static int smsc95xx_disconnect_phy(struct usbnet *dev)
-+static int smsc95xx_stop(struct usbnet *dev)
- {
--	phy_stop(dev->net->phydev);
--	phy_disconnect(dev->net->phydev);
-+	if (dev->net->phydev)
-+		phy_stop(dev->net->phydev);
-+
- 	return 0;
- }
- 
-@@ -1965,7 +1962,7 @@ static const struct driver_info smsc95xx
- 	.unbind		= smsc95xx_unbind,
- 	.link_reset	= smsc95xx_link_reset,
- 	.reset		= smsc95xx_start_phy,
--	.stop		= smsc95xx_disconnect_phy,
-+	.stop		= smsc95xx_stop,
- 	.rx_fixup	= smsc95xx_rx_fixup,
- 	.tx_fixup	= smsc95xx_tx_fixup,
- 	.status		= smsc95xx_status,
 
 
