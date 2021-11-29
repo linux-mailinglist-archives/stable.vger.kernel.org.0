@@ -2,56 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 354AE461CCF
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 18:35:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FC52461CDC
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 18:38:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346043AbhK2RjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 12:39:12 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35584 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349796AbhK2RhM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 12:37:12 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC555B80EB9
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 17:33:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C1DAC53FAD;
-        Mon, 29 Nov 2021 17:33:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638207232;
-        bh=XCDtQPPr+bP2/rx5lDngPVwS5ksWh9b89FG6+/mjxqs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VJa+s6GhnJo7+PJNfqOrSOnZiPe7cg/bXXG1PQx1P2pZny62ohjfM3fJUt6J6lf7s
-         wtErktQxSEg3nbXU8UVQ7hFCGrI71qvC7s+qZl0qcQcbTtoQxlUgYTKYM1KgA0qvlS
-         RZtX1RIb7IlXRIdRTPTQbfTdjMfhAi0I1mcE2x9Y=
-Date:   Mon, 29 Nov 2021 18:33:50 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alex Deucher <alexander.deucher@amd.com>
-Cc:     stable@vger.kernel.org, Luben Tuikov <luben.tuikov@amd.com>
-Subject: Re: [PATCH 1/2] drm/amdgpu/gfx10: add wraparound gpu counter check
- for APUs as well
-Message-ID: <YaUO/mlVnK97/0YD@kroah.com>
-References: <20211129171803.421378-1-alexander.deucher@amd.com>
+        id S1350338AbhK2Rl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 12:41:57 -0500
+Received: from mail-oo1-f41.google.com ([209.85.161.41]:43574 "EHLO
+        mail-oo1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349418AbhK2Rj5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 12:39:57 -0500
+Received: by mail-oo1-f41.google.com with SMTP id w5-20020a4a2745000000b002c2649b8d5fso5886200oow.10;
+        Mon, 29 Nov 2021 09:36:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=7lJ10f8y/0PIbedlfa3Wr6oemBqVYv8pglfzNp2iNBY=;
+        b=4qPiGU8Bio7q5ULvUipGGAhZCVJYylcmhFeS3ANWaX27Uwv1ZXfPQ9vqLOpb1Sk8iL
+         1asaUEEigffu9u5Z+cqlsRrPwVUqkCw8lP+YpRk57rYMDnWycLTyihtoQeD1W8ulT4Xf
+         3tWtfTRy1G2P4nJ8RwuNZ5W3qePTBAy70HzSqaAml3zIo0khuDgPj5R56B/2lIEiEcFZ
+         mSYsg/nO5yuRAqzrJw4CPUlbA8pRzCm/gvH3JYWlgvSH2jndGM+jO/g5GBEumtpNp5L5
+         bEGFylosgSAgcoTSuB2iBccgHyZBFj7dOfKtb7e6vreLmuxMP4OJuSKGmNCd4idjdZsy
+         zRgQ==
+X-Gm-Message-State: AOAM532y2l1g0e+USwn+b32k0lYpbzAmPWLIBD19fC6g1BVym4XtY4iR
+        71X6tX30kdhX1SomVJ3W4A==
+X-Google-Smtp-Source: ABdhPJxOFsKDz/kUN/bzIWamMUb8LeKME2ffXjmYCDWkLoJQEyvRcbWl9tSYvGwRxtmtffmYZaP3Nw==
+X-Received: by 2002:a4a:9406:: with SMTP id h6mr32456017ooi.80.1638207399085;
+        Mon, 29 Nov 2021 09:36:39 -0800 (PST)
+Received: from xps15.herring.priv (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.googlemail.com with ESMTPSA id n22sm2343037oop.29.2021.11.29.09.36.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Nov 2021 09:36:38 -0800 (PST)
+From:   Rob Herring <robh@kernel.org>
+To:     Toan Le <toan@os.amperecomputing.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andrew Murray <amurray@thegoodpenguin.co.uk>
+Cc:     =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
+        stable@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] PCI: xgene: Fix IB window setup
+Date:   Mon, 29 Nov 2021 11:36:37 -0600
+Message-Id: <20211129173637.303201-1-robh@kernel.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211129171803.421378-1-alexander.deucher@amd.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 29, 2021 at 12:18:02PM -0500, Alex Deucher wrote:
-> Apply the same check we do for dGPUs for APUs as well.
-> 
-> Acked-by: Luben Tuikov <luben.tuikov@amd.com>
-> Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> (cherry picked from commit 244ee398855df2adc7d3ac5702b58424a5f684cc)
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c | 15 +++++++++++++--
->  1 file changed, 13 insertions(+), 2 deletions(-)
+Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
+broke PCI support on XGene. The cause is the IB resources are now sorted
+in address order instead of being in DT dma-ranges order. The result is
+which inbound registers are used for each region are swapped. I don't
+know the details about this h/w, but it appears that IB region 0
+registers can't handle a size greater than 4GB. In any case, limiting
+the size for region 0 is enough to get back to the original assignment
+of dma-ranges to regions.
 
-Both now queued up, thanks.
+Reported-by: Stéphane Graber <stgraber@ubuntu.com>
+Fixes: 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
+Link: https://lore.kernel.org/all/CA+enf=v9rY_xnZML01oEgKLmvY1NGBUUhnSJaETmXtDtXfaczA@mail.gmail.com/
+Cc: stable@vger.kernel.org # v5.5+
+Signed-off-by: Rob Herring <robh@kernel.org>
+---
+ drivers/pci/controller/pci-xgene.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
+diff --git a/drivers/pci/controller/pci-xgene.c b/drivers/pci/controller/pci-xgene.c
+index 56d0d50338c8..d83dbd977418 100644
+--- a/drivers/pci/controller/pci-xgene.c
++++ b/drivers/pci/controller/pci-xgene.c
+@@ -465,7 +465,7 @@ static int xgene_pcie_select_ib_reg(u8 *ib_reg_mask, u64 size)
+ 		return 1;
+ 	}
+ 
+-	if ((size > SZ_1K) && (size < SZ_1T) && !(*ib_reg_mask & (1 << 0))) {
++	if ((size > SZ_1K) && (size < SZ_4G) && !(*ib_reg_mask & (1 << 0))) {
+ 		*ib_reg_mask |= (1 << 0);
+ 		return 0;
+ 	}
+-- 
+2.32.0
+
