@@ -2,89 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 799E04626FE
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:56:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 189154626CD
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:54:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235742AbhK2W77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:59:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38906 "EHLO
+        id S236117AbhK2W5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:57:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235935AbhK2W7s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:59:48 -0500
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A79F1C127106
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 10:05:14 -0800 (PST)
-Received: by mail-lj1-x230.google.com with SMTP id 207so36038463ljf.10
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 10:05:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=IDi3zvjd6u7ZBVvXAka/LTSyAvUkqeh+L5SnX6c8Zdk=;
-        b=ELtQ57DjVTWJPnvASv4jZtvg9xzVjpRXdLK6WadVUiqQO2Tejx2Y4rP/jZvsvwdaGM
-         wVK5qYNcJTRTVvihhUy6a3XfzO7ShXe3HSKg9CJ9S9TdxAt3X4+ddQNsKXsRbhOEV3Nn
-         NeS7l4DPoqAaH0j+Gm2rrnRobzgyBp+zZRI4nhmfoSItyMTQPe6HJsrb3a8uXIO7pAUp
-         d0pHSCno/fnC3Fp0q+W51eSWigYy/I5qIJhRZa/O1KEhI708OF8jeLET61Dg8b9kw0VH
-         st1/mw7gEQ1NVGLv+ANo/xqXiZgR94N5ykkWzVgrrh3SWq2UdJQ1DTZyuwBI86rq3HIq
-         HE3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=IDi3zvjd6u7ZBVvXAka/LTSyAvUkqeh+L5SnX6c8Zdk=;
-        b=EyF6d/R3pTzJv4uT7Kk8+Hd6Uct5jhGo7dRTJ84o9U/yl2DJpDFUWN9PFlt+vdX3S0
-         UTg20/2ISqlo6SNDjr4XrqP7/wS/nMtSCwYAvw0uitM0qLUiNP4YQi1KlwOrO433ZkL4
-         mrvccsyV3QpKTzUrmkyOyC5B7IZOaDMMOZxy1XcSILql0aVxljCuEFViHMQxNMC3pVxQ
-         jG3+l9marKDkhywP8pEhw+k0VVjJBJN/4dgv/Ib3i4pglPTiIdxmnubOPOLcg5d+T6Xo
-         FxXYGX7C1GO+0WcfctXWQfRPkR3v1k8CTjpfX+oJvsAe4dUXVPvBSxAZlakKWVUJlWp5
-         7uWA==
-X-Gm-Message-State: AOAM53212Hcl6NBX/BkAM5evJ/slpJZ3/W2vGeh9hjzBXnjRQHzBu0xy
-        aPF1EIje3qJseSt2kfC5NDKiykXkAyXYljaFF1YuGw==
-X-Google-Smtp-Source: ABdhPJz00rJJqhFv+eY/G4mQJbhWwtM/vfpfxJXb8qlKInsjRYgNcLli9eLdqgC5XVztKYKpkdzK0NNalzo7Gw9l8CQ=
-X-Received: by 2002:a2e:95d3:: with SMTP id y19mr50881703ljh.175.1638209112922;
- Mon, 29 Nov 2021 10:05:12 -0800 (PST)
+        with ESMTP id S236075AbhK2W5H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:57:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74614C03AD6F
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 10:14:00 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E4B3B815B0
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 18:13:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77001C53FAD;
+        Mon, 29 Nov 2021 18:13:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1638209638;
+        bh=F+WfkWfrxxnIhMlyNpExanRvNwfWDNap8xamGA8a5cQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UsVPD6/9hEJi2Btrc/oHhwFMXnhqB/92eu2VqHUUMVsw0cp/4CJYCiDQA5nb+N0q+
+         VWOWgLa1XeFLdpQ1SA97eCHCPazkXapcTUGfJLYCpE523uX2W4W6dfBSCk4bL6vTID
+         YZQ0tkYoz3gfOb3KGP29UVFxdvcBir/ONFif0FWY=
+Date:   Mon, 29 Nov 2021 19:13:55 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Juergen Gross <jgross@suse.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+Subject: Re: Stable backports of Xen related patches
+Message-ID: <YaUYYzzPR5p7ePZU@kroah.com>
+References: <bb28bab1-eb2e-0dde-3a59-6b5c25e3744d@suse.com>
 MIME-Version: 1.0
-References: <YaB/JHP/pMbgRJ1O@kroah.com> <20211126074904.88388-1-guangming.cao@mediatek.com>
-In-Reply-To: <20211126074904.88388-1-guangming.cao@mediatek.com>
-From:   John Stultz <john.stultz@linaro.org>
-Date:   Mon, 29 Nov 2021 10:05:00 -0800
-Message-ID: <CALAqxLVF1BPznzwjem2BcsDDoo5gMoBqjKEceZDLJan4zCtk3w@mail.gmail.com>
-Subject: Re: [PATCH v4] dma-buf: system_heap: Use 'for_each_sgtable_sg' in
- pages free flow
-To:     guangming.cao@mediatek.com
-Cc:     greg@kroah.com, Brian.Starkey@arm.com,
-        benjamin.gaignard@linaro.org, christian.koenig@amd.com,
-        dri-devel@lists.freedesktop.org, labbott@redhat.com,
-        linaro-mm-sig@lists.linaro.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        lmark@codeaurora.org, matthias.bgg@gmail.com, robin.murphy@arm.com,
-        stable@vger.kernel.org, sumit.semwal@linaro.org,
-        wsd_upstream@mediatek.com, kuan-ying.lee@mediatek.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bb28bab1-eb2e-0dde-3a59-6b5c25e3744d@suse.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 25, 2021 at 11:48 PM <guangming.cao@mediatek.com> wrote:
->
-> From: Guangming <Guangming.Cao@mediatek.com>
->
-> For previous version, it uses 'sg_table.nent's to traverse sg_table in pages
-> free flow.
-> However, 'sg_table.nents' is reassigned in 'dma_map_sg', it means the number of
-> created entries in the DMA adderess space.
-> So, use 'sg_table.nents' in pages free flow will case some pages can't be freed.
->
-> Here we should use sg_table.orig_nents to free pages memory, but use the
-> sgtable helper 'for each_sgtable_sg'(, instead of the previous rather common
-> helper 'for_each_sg' which maybe cause memory leak) is much better.
->
-> Fixes: d963ab0f15fb0 ("dma-buf: system_heap: Allocate higher order pages if available")
-> Signed-off-by: Guangming <Guangming.Cao@mediatek.com>
-> Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-> Cc: <stable@vger.kernel.org> # 5.11.*
+On Mon, Nov 29, 2021 at 04:15:31PM +0100, Juergen Gross wrote:
+> Hi Greg,
+> 
+> attached are git bundles for some patches you merged into the 5.10
+> stable kernel already this morning.
+> 
+> Naming should be obvious, the patches are on the branch "back" in
+> each bundle.
 
-Thanks so much for catching this and sending in all the revisions!
+All now queued up, thanks!
 
-Reviewed-by: John Stultz <john.stultz@linaro.org>
+greg k-h
