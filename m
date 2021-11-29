@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D29461F5F
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48669461F61
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:43:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380391AbhK2Sqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:46:31 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50136 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380182AbhK2Soa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:44:30 -0500
+        id S1379294AbhK2Sqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:46:39 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:57366 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1380220AbhK2Soh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:44:37 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7866B8164B;
-        Mon, 29 Nov 2021 18:41:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06C10C53FC7;
-        Mon, 29 Nov 2021 18:41:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 33EDECE13E1;
+        Mon, 29 Nov 2021 18:41:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D74D3C53FCD;
+        Mon, 29 Nov 2021 18:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211270;
-        bh=psvaYODCTHeAeAhhw7j+HQYH7wgiqo5qVzONu8A+lHg=;
+        s=korg; t=1638211273;
+        bh=VxFlGMY1AF1Ci7KMB+BcjGhAZ8n6HWvrxLtzP0CF9XA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hZWapBBZo3nSwpp24PQjGMAvin5Ffl00Be/GycPGAvI/8FV1vY8oPIIX6DLu7YU6N
-         ZyVJzCSdcfAIUSBpMtmIkQcco5GvyfgUPDGmUHz0Y6sOL6xbsQO43rGLZ9V8nCq42F
-         Zkn6XX1BV3zJs2wG30hoWLxidIEjFrc7RTyR4Sd8=
+        b=MsT8/r2FCwh1d4rukH3MOG1UmfIkV30VI04a/irs/HXksYaN71/NOWmDlMaWUSd7Z
+         tGmao6+3imSS0Ton/9WozMI0AvsIELNC+IxiSFSKjyL5/LTpRcfRlExxD5QSxKcifE
+         wquD+KbcSXDDtzmVBwSG2ElFTl69kUrQHOcZ0Ux0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Sachin Prabhu <sprabhu@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>, Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 164/179] cifs: nosharesock should not share socket with future sessions
-Date:   Mon, 29 Nov 2021 19:19:18 +0100
-Message-Id: <20211129181724.337330115@linuxfoundation.org>
+Subject: [PATCH 5.15 165/179] ceph: properly handle statfs on multifs setups
+Date:   Mon, 29 Nov 2021 19:19:19 +0100
+Message-Id: <20211129181724.365520329@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
 References: <20211129181718.913038547@linuxfoundation.org>
@@ -46,71 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit c9f1c19cf7c50949885fa5afdb2cb242d61a7fac ]
+[ Upstream commit 8cfc0c7ed34f7929ce7e5d7c6eecf4d01ba89a84 ]
 
-Today, when a new mount is done with nosharesock, we ensure
-that we don't select an existing matching session. However,
-we don't mark the connection as nosharesock, which means that
-those could be shared with future sessions.
+ceph_statfs currently stuffs the cluster fsid into the f_fsid field.
+This was fine when we only had a single filesystem per cluster, but now
+that we have multiples we need to use something that will vary between
+them.
 
-Fixed it with this commit. Also printing this info in DebugData.
+Change ceph_statfs to xor each 32-bit chunk of the fsid (aka cluster id)
+into the lower bits of the statfs->f_fsid. Change the lower bits to hold
+the fscid (filesystem ID within the cluster).
 
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+That should give us a value that is guaranteed to be unique between
+filesystems within a cluster, and should minimize the chance of
+collisions between mounts of different clusters.
+
+URL: https://tracker.ceph.com/issues/52812
+Reported-by: Sachin Prabhu <sprabhu@redhat.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifs_debug.c | 2 ++
- fs/cifs/cifsglob.h   | 1 +
- fs/cifs/connect.c    | 8 +++++++-
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ fs/ceph/super.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/fs/cifs/cifs_debug.c b/fs/cifs/cifs_debug.c
-index de2c12bcfa4bc..905a901f7f80b 100644
---- a/fs/cifs/cifs_debug.c
-+++ b/fs/cifs/cifs_debug.c
-@@ -358,6 +358,8 @@ static int cifs_debug_data_proc_show(struct seq_file *m, void *v)
- 			seq_printf(m, " signed");
- 		if (server->posix_ext_supported)
- 			seq_printf(m, " posix");
-+		if (server->nosharesock)
-+			seq_printf(m, " nosharesock");
+diff --git a/fs/ceph/super.c b/fs/ceph/super.c
+index fd8742bae8471..202ddde3d62ad 100644
+--- a/fs/ceph/super.c
++++ b/fs/ceph/super.c
+@@ -52,8 +52,7 @@ static int ceph_statfs(struct dentry *dentry, struct kstatfs *buf)
+ 	struct ceph_fs_client *fsc = ceph_inode_to_client(d_inode(dentry));
+ 	struct ceph_mon_client *monc = &fsc->client->monc;
+ 	struct ceph_statfs st;
+-	u64 fsid;
+-	int err;
++	int i, err;
+ 	u64 data_pool;
  
- 		if (server->rdma)
- 			seq_printf(m, "\nRDMA ");
-diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
-index dea4c929d3f46..3e5b8e177cfa7 100644
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -592,6 +592,7 @@ struct TCP_Server_Info {
- 	struct list_head pending_mid_q;
- 	bool noblocksnd;		/* use blocking sendmsg */
- 	bool noautotune;		/* do not autotune send buf sizes */
-+	bool nosharesock;
- 	bool tcp_nodelay;
- 	unsigned int credits;  /* send no more requests at once */
- 	unsigned int max_credits; /* can override large 32000 default at mnt */
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index e757ee52cc777..d26703a05c6b4 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -1217,7 +1217,13 @@ static int match_server(struct TCP_Server_Info *server, struct smb3_fs_context *
- {
- 	struct sockaddr *addr = (struct sockaddr *)&ctx->dstaddr;
+ 	if (fsc->mdsc->mdsmap->m_num_data_pg_pools == 1) {
+@@ -99,12 +98,14 @@ static int ceph_statfs(struct dentry *dentry, struct kstatfs *buf)
+ 	buf->f_namelen = NAME_MAX;
  
--	if (ctx->nosharesock)
-+	if (ctx->nosharesock) {
-+		server->nosharesock = true;
-+		return 0;
-+	}
-+
-+	/* this server does not share socket */
-+	if (server->nosharesock)
- 		return 0;
+ 	/* Must convert the fsid, for consistent values across arches */
++	buf->f_fsid.val[0] = 0;
+ 	mutex_lock(&monc->mutex);
+-	fsid = le64_to_cpu(*(__le64 *)(&monc->monmap->fsid)) ^
+-	       le64_to_cpu(*((__le64 *)&monc->monmap->fsid + 1));
++	for (i = 0 ; i < sizeof(monc->monmap->fsid) / sizeof(__le32) ; ++i)
++		buf->f_fsid.val[0] ^= le32_to_cpu(((__le32 *)&monc->monmap->fsid)[i]);
+ 	mutex_unlock(&monc->mutex);
  
- 	/* If multidialect negotiation see if existing sessions match one */
+-	buf->f_fsid = u64_to_fsid(fsid);
++	/* fold the fs_cluster_id into the upper bits */
++	buf->f_fsid.val[1] = monc->fs_cluster_id;
+ 
+ 	return 0;
+ }
 -- 
 2.33.0
 
