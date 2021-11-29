@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35B4646270C
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:59:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3047F462426
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:15:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236279AbhK2XA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 18:00:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39012 "EHLO
+        id S232663AbhK2WQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:16:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236931AbhK2XAh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 18:00:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54A54C03AA3E;
-        Mon, 29 Nov 2021 10:20:21 -0800 (PST)
+        with ESMTP id S232746AbhK2WQm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:42 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52523C03AA3F;
+        Mon, 29 Nov 2021 10:20:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DC2EB815BE;
-        Mon, 29 Nov 2021 18:20:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FAB0C53FAD;
-        Mon, 29 Nov 2021 18:20:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9FC3ACE13D7;
+        Mon, 29 Nov 2021 18:20:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE57C53FAD;
+        Mon, 29 Nov 2021 18:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210018;
-        bh=rfakzb2/ZLX9xsJU+vnKWIjBnsh7rb7hRdajVcrg/Gk=;
+        s=korg; t=1638210021;
+        bh=GxBnlWaLg+eZhNgGAe3UcgH6fue2bPVIIyk/+Ugw8+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rvTdpWZSSCscWNZvE2A9b9QXBMLOj72og38VOUqnAPcnu6R9zgUBF3/3JV7t9MMGP
-         GYkOmuWF36WTnpAuyI98pdHY5fXP3IAhUra4L7DIT3hqfreiDQ1mTHTBVTTdV9gXyN
-         i1AltlrraR1RpRYcbQNqhmV/FbQ3UZbmqlZvVNIA=
+        b=rV0qKRCc5N/KPn7t8sgBocGYm1mWJV/Er6KWyxOvAlNs4Xa7TV/MJOWo/ZlbReWuG
+         7oppCkatftlWiOtiTUyrBDKkKCswmJ/gmma2cSXSVDy1LnoJCD4ABFweyivntvRCW6
+         lM4S/5XlJUUGFnEj82XRyQ07UafrX1QXXIVh01u8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Max Filippov <jcmvbkbc@gmail.com>
-Subject: [PATCH 4.19 15/69] xtensa: use CONFIG_USE_OF instead of CONFIG_OF
-Date:   Mon, 29 Nov 2021 19:17:57 +0100
-Message-Id: <20211129181704.163228936@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Philipp Rudo <prudo@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 16/69] proc/vmcore: fix clearing user buffer by properly using clear_user()
+Date:   Mon, 29 Nov 2021 19:17:58 +0100
+Message-Id: <20211129181704.194045707@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
 References: <20211129181703.670197996@linuxfoundation.org>
@@ -47,124 +51,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: David Hildenbrand <david@redhat.com>
 
-commit d67ed2510d28a1eb33171010d35cf52178cfcbdd upstream.
+commit c1e63117711977cc4295b2ce73de29dd17066c82 upstream.
 
-CONFIG_OF can be set by a randconfig or by a user -- without setting the
-early flattree option (OF_EARLY_FLATTREE).  This causes build errors.
-However, if randconfig or a user sets USE_OF in the Xtensa config,
-the right kconfig symbols are set to fix the build.
+To clear a user buffer we cannot simply use memset, we have to use
+clear_user().  With a virtio-mem device that registers a vmcore_cb and
+has some logically unplugged memory inside an added Linux memory block,
+I can easily trigger a BUG by copying the vmcore via "cp":
 
-Fixes these build errors:
+  systemd[1]: Starting Kdump Vmcore Save Service...
+  kdump[420]: Kdump is using the default log level(3).
+  kdump[453]: saving to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
+  kdump[458]: saving vmcore-dmesg.txt to /sysroot/var/crash/127.0.0.1-2021-11-11-14:59:22/
+  kdump[465]: saving vmcore-dmesg.txt complete
+  kdump[467]: saving vmcore
+  BUG: unable to handle page fault for address: 00007f2374e01000
+  #PF: supervisor write access in kernel mode
+  #PF: error_code(0x0003) - permissions violation
+  PGD 7a523067 P4D 7a523067 PUD 7a528067 PMD 7a525067 PTE 800000007048f867
+  Oops: 0003 [#1] PREEMPT SMP NOPTI
+  CPU: 0 PID: 468 Comm: cp Not tainted 5.15.0+ #6
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.14.0-27-g64f37cc530f1-prebuilt.qemu.org 04/01/2014
+  RIP: 0010:read_from_oldmem.part.0.cold+0x1d/0x86
+  Code: ff ff ff e8 05 ff fe ff e9 b9 e9 7f ff 48 89 de 48 c7 c7 38 3b 60 82 e8 f1 fe fe ff 83 fd 08 72 3c 49 8d 7d 08 4c 89 e9 89 e8 <49> c7 45 00 00 00 00 00 49 c7 44 05 f8 00 00 00 00 48 83 e7 f81
+  RSP: 0018:ffffc9000073be08 EFLAGS: 00010212
+  RAX: 0000000000001000 RBX: 00000000002fd000 RCX: 00007f2374e01000
+  RDX: 0000000000000001 RSI: 00000000ffffdfff RDI: 00007f2374e01008
+  RBP: 0000000000001000 R08: 0000000000000000 R09: ffffc9000073bc50
+  R10: ffffc9000073bc48 R11: ffffffff829461a8 R12: 000000000000f000
+  R13: 00007f2374e01000 R14: 0000000000000000 R15: ffff88807bd421e8
+  FS:  00007f2374e12140(0000) GS:ffff88807f000000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f2374e01000 CR3: 000000007a4aa000 CR4: 0000000000350eb0
+  Call Trace:
+   read_vmcore+0x236/0x2c0
+   proc_reg_read+0x55/0xa0
+   vfs_read+0x95/0x190
+   ksys_read+0x4f/0xc0
+   do_syscall_64+0x3b/0x90
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-../arch/xtensa/kernel/setup.c:67:19: error: ‘__dtb_start’ undeclared here (not in a function); did you mean ‘dtb_start’?
-   67 | void *dtb_start = __dtb_start;
-      |                   ^~~~~~~~~~~
-../arch/xtensa/kernel/setup.c: In function 'xtensa_dt_io_area':
-../arch/xtensa/kernel/setup.c:201:14: error: implicit declaration of function 'of_flat_dt_is_compatible'; did you mean 'of_machine_is_compatible'? [-Werror=implicit-function-declaration]
-  201 |         if (!of_flat_dt_is_compatible(node, "simple-bus"))
-../arch/xtensa/kernel/setup.c:204:18: error: implicit declaration of function 'of_get_flat_dt_prop' [-Werror=implicit-function-declaration]
-  204 |         ranges = of_get_flat_dt_prop(node, "ranges", &len);
-../arch/xtensa/kernel/setup.c:204:16: error: assignment to 'const __be32 *' {aka 'const unsigned int *'} from 'int' makes pointer from integer without a cast [-Werror=int-conversion]
-  204 |         ranges = of_get_flat_dt_prop(node, "ranges", &len);
-      |                ^
-../arch/xtensa/kernel/setup.c: In function 'early_init_devtree':
-../arch/xtensa/kernel/setup.c:228:9: error: implicit declaration of function 'early_init_dt_scan'; did you mean 'early_init_devtree'? [-Werror=implicit-function-declaration]
-  228 |         early_init_dt_scan(params);
-../arch/xtensa/kernel/setup.c:229:9: error: implicit declaration of function 'of_scan_flat_dt' [-Werror=implicit-function-declaration]
-  229 |         of_scan_flat_dt(xtensa_dt_io_area, NULL);
+Some x86-64 CPUs have a CPU feature called "Supervisor Mode Access
+Prevention (SMAP)", which is used to detect wrong access from the kernel
+to user buffers like this: SMAP triggers a permissions violation on
+wrong access.  In the x86-64 variant of clear_user(), SMAP is properly
+handled via clac()+stac().
 
-xtensa-elf-ld: arch/xtensa/mm/mmu.o:(.text+0x0): undefined reference to `xtensa_kio_paddr'
+To fix, properly use clear_user() when we're dealing with a user buffer.
 
-Fixes: da844a81779e ("xtensa: add device trees support")
-Fixes: 6cb971114f63 ("xtensa: remap io area defined in device tree")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Link: https://lkml.kernel.org/r/20211112092750.6921-1-david@redhat.com
+Fixes: 997c136f518c ("fs/proc/vmcore.c: add hook to read_from_oldmem() to check for non-ram pages")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Acked-by: Baoquan He <bhe@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Cc: Philipp Rudo <prudo@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/include/asm/vectors.h |    2 +-
- arch/xtensa/kernel/setup.c        |   12 ++++++------
- arch/xtensa/mm/mmu.c              |    2 +-
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ fs/proc/vmcore.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/arch/xtensa/include/asm/vectors.h
-+++ b/arch/xtensa/include/asm/vectors.h
-@@ -31,7 +31,7 @@
- #endif
- #define XCHAL_KIO_SIZE			0x10000000
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -117,14 +117,19 @@ static ssize_t read_from_oldmem(char *bu
+ 			nr_bytes = count;
  
--#if (!XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY) && defined(CONFIG_OF)
-+#if (!XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY) && defined(CONFIG_USE_OF)
- #define XCHAL_KIO_PADDR			xtensa_get_kio_paddr()
- #ifndef __ASSEMBLY__
- extern unsigned long xtensa_kio_paddr;
---- a/arch/xtensa/kernel/setup.c
-+++ b/arch/xtensa/kernel/setup.c
-@@ -65,7 +65,7 @@ int initrd_is_mapped = 0;
- extern int initrd_below_start_ok;
- #endif
- 
--#ifdef CONFIG_OF
-+#ifdef CONFIG_USE_OF
- void *dtb_start = __dtb_start;
- #endif
- 
-@@ -127,7 +127,7 @@ __tagtable(BP_TAG_INITRD, parse_tag_init
- 
- #endif /* CONFIG_BLK_DEV_INITRD */
- 
--#ifdef CONFIG_OF
-+#ifdef CONFIG_USE_OF
- 
- static int __init parse_tag_fdt(const bp_tag_t *tag)
- {
-@@ -137,7 +137,7 @@ static int __init parse_tag_fdt(const bp
- 
- __tagtable(BP_TAG_FDT, parse_tag_fdt);
- 
--#endif /* CONFIG_OF */
-+#endif /* CONFIG_USE_OF */
- 
- static int __init parse_tag_cmdline(const bp_tag_t* tag)
- {
-@@ -185,7 +185,7 @@ static int __init parse_bootparam(const
- }
- #endif
- 
--#ifdef CONFIG_OF
-+#ifdef CONFIG_USE_OF
- 
- #if !XCHAL_HAVE_PTP_MMU || XCHAL_HAVE_SPANNING_WAY
- unsigned long xtensa_kio_paddr = XCHAL_KIO_DEFAULT_PADDR;
-@@ -234,7 +234,7 @@ void __init early_init_devtree(void *par
- 		strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
- }
- 
--#endif /* CONFIG_OF */
-+#endif /* CONFIG_USE_OF */
- 
- /*
-  * Initialize architecture. (Early stage)
-@@ -255,7 +255,7 @@ void __init init_arch(bp_tag_t *bp_start
- 	if (bp_start)
- 		parse_bootparam(bp_start);
- 
--#ifdef CONFIG_OF
-+#ifdef CONFIG_USE_OF
- 	early_init_devtree(dtb_start);
- #endif
- 
---- a/arch/xtensa/mm/mmu.c
-+++ b/arch/xtensa/mm/mmu.c
-@@ -98,7 +98,7 @@ void init_mmu(void)
- 
- void init_kio(void)
- {
--#if XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY && defined(CONFIG_OF)
-+#if XCHAL_HAVE_PTP_MMU && XCHAL_HAVE_SPANNING_WAY && defined(CONFIG_USE_OF)
- 	/*
- 	 * Update the IO area mapping in case xtensa_kio_paddr has changed
- 	 */
+ 		/* If pfn is not ram, return zeros for sparse dump files */
+-		if (pfn_is_ram(pfn) == 0)
+-			memset(buf, 0, nr_bytes);
+-		else {
++		if (pfn_is_ram(pfn) == 0) {
++			tmp = 0;
++			if (!userbuf)
++				memset(buf, 0, nr_bytes);
++			else if (clear_user(buf, nr_bytes))
++				tmp = -EFAULT;
++		} else {
+ 			tmp = copy_oldmem_page(pfn, buf, nr_bytes,
+ 						offset, userbuf);
+-			if (tmp < 0)
+-				return tmp;
+ 		}
++		if (tmp < 0)
++			return tmp;
++
+ 		*ppos += nr_bytes;
+ 		count -= nr_bytes;
+ 		buf += nr_bytes;
 
 
