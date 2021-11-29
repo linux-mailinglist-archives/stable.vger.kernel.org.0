@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC0B2461E89
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD99E461F57
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:43:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379171AbhK2ShF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:37:05 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40020 "EHLO
+        id S1380282AbhK2SqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:46:12 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49164 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379092AbhK2SfD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:35:03 -0500
+        with ESMTP id S1377578AbhK2SoM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:44:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7B80B815DE;
-        Mon, 29 Nov 2021 18:31:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06940C53FAD;
-        Mon, 29 Nov 2021 18:31:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6D18B815DE;
+        Mon, 29 Nov 2021 18:40:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15B62C53FAD;
+        Mon, 29 Nov 2021 18:40:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210703;
-        bh=LhxCC2VimnaX4k8GNqn7aRCVMSs2Bpg7mwUGHJ7D0Cc=;
+        s=korg; t=1638211250;
+        bh=EYni/KGcNn2nwydUAjEjq+zq5lXC/2K6du7S4wX6Uw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lySMWOIJRWdwEvaRDShIODz+JBsv8zp0lLHm+SdKLkZhoMtZgpotsrUySuiayI1iS
-         hXTu7Jvcpj93z2uVdGFyk4+iFQqKo9TzeYG/igMlUTj5rZFNwdnNFX3lRHUP0SrUey
-         jD2rU3jLAtUAD5omnomRd8WsPR3uh2D/nmkqNHQ0=
+        b=xHsYkLT3TzOPTyqLrBSmK+KF04FHDy32ukLT4v1AItxBvCGfVZZZAreKpaLlBJm7r
+         4cQ2+LSZ5P7M68efXc/yPAQ3esza3WASnY8xftjEmNsTV9i9D0nWEANgVeRp9E1bu8
+         +jGcZ0zYEQSI5EcrIx2JC39oS22Qcn7QKGJYsEzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 087/121] net/smc: Fix NULL pointer dereferencing in smc_vlan_by_tcpsk()
+Subject: [PATCH 5.15 124/179] net: marvell: mvpp2: increase MTU limit when XDP enabled
 Date:   Mon, 29 Nov 2021 19:18:38 +0100
-Message-Id: <20211129181714.594804476@linuxfoundation.org>
+Message-Id: <20211129181723.041469914@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,91 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karsten Graul <kgraul@linux.ibm.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit 587acad41f1bc48e16f42bb2aca63bf323380be8 ]
+[ Upstream commit 7b1b62bc1e6a7b2fd5ee7a4296268eb291d23aeb ]
 
-Coverity reports a possible NULL dereferencing problem:
+Currently mvpp2_xdp_setup won't allow attaching XDP program if
+  mtu > ETH_DATA_LEN (1500).
 
-in smc_vlan_by_tcpsk():
-6. returned_null: netdev_lower_get_next returns NULL (checked 29 out of 30 times).
-7. var_assigned: Assigning: ndev = NULL return value from netdev_lower_get_next.
-1623                ndev = (struct net_device *)netdev_lower_get_next(ndev, &lower);
-CID 1468509 (#1 of 1): Dereference null return value (NULL_RETURNS)
-8. dereference: Dereferencing a pointer that might be NULL ndev when calling is_vlan_dev.
-1624                if (is_vlan_dev(ndev)) {
+The mvpp2_change_mtu on the other hand checks whether
+  MVPP2_RX_PKT_SIZE(mtu) > MVPP2_BM_LONG_PKT_SIZE.
 
-Remove the manual implementation and use netdev_walk_all_lower_dev() to
-iterate over the lower devices. While on it remove an obsolete function
-parameter comment.
+These two checks are semantically different.
 
-Fixes: cb9d43f67754 ("net/smc: determine vlan_id of stacked net_device")
-Suggested-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Moreover this limit can be increased to MVPP2_MAX_RX_BUF_SIZE, since in
+mvpp2_rx we have
+  xdp.data = data + MVPP2_MH_SIZE + MVPP2_SKB_HEADROOM;
+  xdp.frame_sz = PAGE_SIZE;
+
+Change the checks to check whether
+  mtu > MVPP2_MAX_RX_BUF_SIZE
+
+Fixes: 07dd0a7aae7f ("mvpp2: add basic XDP support")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_core.c | 35 ++++++++++++++++++-----------------
- 1 file changed, 18 insertions(+), 17 deletions(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 109d790eaebe2..cd625b672429f 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1209,14 +1209,26 @@ static void smc_link_down_work(struct work_struct *work)
- 	mutex_unlock(&lgr->llc_conf_mutex);
- }
- 
--/* Determine vlan of internal TCP socket.
-- * @vlan_id: address to store the determined vlan id into
-- */
-+static int smc_vlan_by_tcpsk_walk(struct net_device *lower_dev,
-+				  struct netdev_nested_priv *priv)
-+{
-+	unsigned short *vlan_id = (unsigned short *)priv->data;
-+
-+	if (is_vlan_dev(lower_dev)) {
-+		*vlan_id = vlan_dev_vlan_id(lower_dev);
-+		return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+/* Determine vlan of internal TCP socket. */
- int smc_vlan_by_tcpsk(struct socket *clcsock, struct smc_init_info *ini)
- {
- 	struct dst_entry *dst = sk_dst_get(clcsock->sk);
-+	struct netdev_nested_priv priv;
- 	struct net_device *ndev;
--	int i, nest_lvl, rc = 0;
-+	int rc = 0;
- 
- 	ini->vlan_id = 0;
- 	if (!dst) {
-@@ -1234,20 +1246,9 @@ int smc_vlan_by_tcpsk(struct socket *clcsock, struct smc_init_info *ini)
- 		goto out_rel;
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index d74d4966b13fc..ed6d0c019573b 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -5017,11 +5017,13 @@ static int mvpp2_change_mtu(struct net_device *dev, int mtu)
+ 		mtu = ALIGN(MVPP2_RX_PKT_SIZE(mtu), 8);
  	}
  
-+	priv.data = (void *)&ini->vlan_id;
- 	rtnl_lock();
--	nest_lvl = ndev->lower_level;
--	for (i = 0; i < nest_lvl; i++) {
--		struct list_head *lower = &ndev->adj_list.lower;
--
--		if (list_empty(lower))
--			break;
--		lower = lower->next;
--		ndev = (struct net_device *)netdev_lower_get_next(ndev, &lower);
--		if (is_vlan_dev(ndev)) {
--			ini->vlan_id = vlan_dev_vlan_id(ndev);
--			break;
++	if (port->xdp_prog && mtu > MVPP2_MAX_RX_BUF_SIZE) {
++		netdev_err(dev, "Illegal MTU value %d (> %d) for XDP mode\n",
++			   mtu, (int)MVPP2_MAX_RX_BUF_SIZE);
++		return -EINVAL;
++	}
++
+ 	if (MVPP2_RX_PKT_SIZE(mtu) > MVPP2_BM_LONG_PKT_SIZE) {
+-		if (port->xdp_prog) {
+-			netdev_err(dev, "Jumbo frames are not supported with XDP\n");
+-			return -EINVAL;
 -		}
--	}
-+	netdev_walk_all_lower_dev(ndev, smc_vlan_by_tcpsk_walk, &priv);
- 	rtnl_unlock();
+ 		if (priv->percpu_pools) {
+ 			netdev_warn(dev, "mtu %d too high, switching to shared buffers", mtu);
+ 			mvpp2_bm_switch_buffers(priv, false);
+@@ -5307,8 +5309,8 @@ static int mvpp2_xdp_setup(struct mvpp2_port *port, struct netdev_bpf *bpf)
+ 	bool running = netif_running(port->dev);
+ 	bool reset = !prog != !port->xdp_prog;
  
- out_rel:
+-	if (port->dev->mtu > ETH_DATA_LEN) {
+-		NL_SET_ERR_MSG_MOD(bpf->extack, "XDP is not supported with jumbo frames enabled");
++	if (port->dev->mtu > MVPP2_MAX_RX_BUF_SIZE) {
++		NL_SET_ERR_MSG_MOD(bpf->extack, "MTU too large for XDP");
+ 		return -EOPNOTSUPP;
+ 	}
+ 
 -- 
 2.33.0
 
