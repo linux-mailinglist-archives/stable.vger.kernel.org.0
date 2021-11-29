@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75E6346262E
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:45:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5743046252F
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235097AbhK2Wsb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:48:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36378 "EHLO
+        id S233393AbhK2WgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:36:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235280AbhK2Wrt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:47:49 -0500
+        with ESMTP id S233394AbhK2WfW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:35:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4324C047CC5;
-        Mon, 29 Nov 2021 10:31:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87E55C0800F9;
+        Mon, 29 Nov 2021 10:39:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D890B815B1;
-        Mon, 29 Nov 2021 18:31:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D000BC53FAD;
-        Mon, 29 Nov 2021 18:31:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50986B81633;
+        Mon, 29 Nov 2021 18:39:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80963C53FC7;
+        Mon, 29 Nov 2021 18:39:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210666;
-        bh=FizMX89KWAN1teQcdmUbzyU2kTMzyQmu95FLWYJismY=;
+        s=korg; t=1638211154;
+        bh=T3vxlIMh6VXkCitTmLRT08mTUeryTmNoZW9931RhL5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Udlj4nlmcO3/3IX4gx3SDODzvvn3lHuif9gBuX2fJxa9aJl4Y0o8VYq28ryBYZyZW
-         jneciQNAPa0gtBkf9YT1TYR/H7YlashWp1i/SoiBNi84MmZTGVPQbJ9S6+kTTnrdUv
-         Ve1CtxeKKgNBBaIuKYE4ReCvxCclbfz1L15jfDq8=
+        b=usI5vhxNcvI9ojHPxQIDbDtnc6LVXMbcf9zABYcMmve3sNJSS+DiAbJgN+lA9/Sti
+         BgzPcGrtZye5JH1Mian792rSAiewn6wVe+eDnovX6ylGb1pqXK1SUgKaB+PV7og71I
+         4c9qSay7hdkBERkPrihg5ZYnh2Pg7+qCesxeU/kA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Kiran Bhandare <kiranx.bhandare@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 075/121] net/smc: Ensure the active closing peer first closes clcsock
-Date:   Mon, 29 Nov 2021 19:18:26 +0100
-Message-Id: <20211129181714.178011422@linuxfoundation.org>
+Subject: [PATCH 5.15 113/179] ice: fix vsi->txq_map sizing
+Date:   Mon, 29 Nov 2021 19:18:27 +0100
+Message-Id: <20211129181722.672328605@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,75 +51,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lu <tonylu@linux.alibaba.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit 606a63c9783a32a45bd2ef0eee393711d75b3284 ]
+[ Upstream commit 792b2086584f25d84081a526beee80d103c2a913 ]
 
-The side that actively closed socket, it's clcsock doesn't enter
-TIME_WAIT state, but the passive side does it. It should show the same
-behavior as TCP sockets.
+The approach of having XDP queue per CPU regardless of user's setting
+exposed a hidden bug that could occur in case when Rx queue count differ
+from Tx queue count. Currently vsi->txq_map's size is equal to the
+doubled vsi->alloc_txq, which is not correct due to the fact that XDP
+rings were previously based on the Rx queue count. Below splat can be
+seen when ethtool -L is used and XDP rings are configured:
 
-Consider this, when client actively closes the socket, the clcsock in
-server enters TIME_WAIT state, which means the address is occupied and
-won't be reused before TIME_WAIT dismissing. If we restarted server, the
-service would be unavailable for a long time.
+[  682.875339] BUG: kernel NULL pointer dereference, address: 000000000000000f
+[  682.883403] #PF: supervisor read access in kernel mode
+[  682.889345] #PF: error_code(0x0000) - not-present page
+[  682.895289] PGD 0 P4D 0
+[  682.898218] Oops: 0000 [#1] PREEMPT SMP PTI
+[  682.903055] CPU: 42 PID: 2878 Comm: ethtool Tainted: G           OE     5.15.0-rc5+ #1
+[  682.912214] Hardware name: Intel Corp. GRANTLEY/GRANTLEY, BIOS GRRFCRB1.86B.0276.D07.1605190235 05/19/2016
+[  682.923380] RIP: 0010:devres_remove+0x44/0x130
+[  682.928527] Code: 49 89 f4 55 48 89 fd 4c 89 ff 53 48 83 ec 10 e8 92 b9 49 00 48 8b 9d a8 02 00 00 48 8d 8d a0 02 00 00 49 89 c2 48 39 cb 74 0f <4c> 3b 63 10 74 25 48 8b 5b 08 48 39 cb 75 f1 4c 89 ff 4c 89 d6 e8
+[  682.950237] RSP: 0018:ffffc90006a679f0 EFLAGS: 00010002
+[  682.956285] RAX: 0000000000000286 RBX: ffffffffffffffff RCX: ffff88908343a370
+[  682.964538] RDX: 0000000000000001 RSI: ffffffff81690d60 RDI: 0000000000000000
+[  682.972789] RBP: ffff88908343a0d0 R08: 0000000000000000 R09: 0000000000000000
+[  682.981040] R10: 0000000000000286 R11: 3fffffffffffffff R12: ffffffff81690d60
+[  682.989282] R13: ffffffff81690a00 R14: ffff8890819807a8 R15: ffff88908343a36c
+[  682.997535] FS:  00007f08c7bfa740(0000) GS:ffff88a03fd00000(0000) knlGS:0000000000000000
+[  683.006910] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  683.013557] CR2: 000000000000000f CR3: 0000001080a66003 CR4: 00000000003706e0
+[  683.021819] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  683.030075] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  683.038336] Call Trace:
+[  683.041167]  devm_kfree+0x33/0x50
+[  683.045004]  ice_vsi_free_arrays+0x5e/0xc0 [ice]
+[  683.050380]  ice_vsi_rebuild+0x4c8/0x750 [ice]
+[  683.055543]  ice_vsi_recfg_qs+0x9a/0x110 [ice]
+[  683.060697]  ice_set_channels+0x14f/0x290 [ice]
+[  683.065962]  ethnl_set_channels+0x333/0x3f0
+[  683.070807]  genl_family_rcv_msg_doit+0xea/0x150
+[  683.076152]  genl_rcv_msg+0xde/0x1d0
+[  683.080289]  ? channels_prepare_data+0x60/0x60
+[  683.085432]  ? genl_get_cmd+0xd0/0xd0
+[  683.089667]  netlink_rcv_skb+0x50/0xf0
+[  683.094006]  genl_rcv+0x24/0x40
+[  683.097638]  netlink_unicast+0x239/0x340
+[  683.102177]  netlink_sendmsg+0x22e/0x470
+[  683.106717]  sock_sendmsg+0x5e/0x60
+[  683.110756]  __sys_sendto+0xee/0x150
+[  683.114894]  ? handle_mm_fault+0xd0/0x2a0
+[  683.119535]  ? do_user_addr_fault+0x1f3/0x690
+[  683.134173]  __x64_sys_sendto+0x25/0x30
+[  683.148231]  do_syscall_64+0x3b/0xc0
+[  683.161992]  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-To solve this issue, shutdown the clcsock in [A], perform the TCP active
-close progress first, before the passive closed side closing it. So that
-the actively closed side enters TIME_WAIT, not the passive one.
+Fix this by taking into account the value that num_possible_cpus()
+yields in addition to vsi->alloc_txq instead of doubling the latter.
 
-Client                                            |  Server
-close() // client actively close                  |
-  smc_release()                                   |
-      smc_close_active() // PEERCLOSEWAIT1        |
-          smc_close_final() // abort or closed = 1|
-              smc_cdc_get_slot_and_msg_send()     |
-          [A]                                     |
-                                                  |smc_cdc_msg_recv_action() // ACTIVE
-                                                  |  queue_work(smc_close_wq, &conn->close_work)
-                                                  |    smc_close_passive_work() // PROCESSABORT or APPCLOSEWAIT1
-                                                  |      smc_close_passive_abort_received() // only in abort
-                                                  |
-                                                  |close() // server recv zero, close
-                                                  |  smc_release() // PROCESSABORT or APPCLOSEWAIT1
-                                                  |    smc_close_active()
-                                                  |      smc_close_abort() or smc_close_final() // CLOSED
-                                                  |        smc_cdc_get_slot_and_msg_send() // abort or closed = 1
-smc_cdc_msg_recv_action()                         |    smc_clcsock_release()
-  queue_work(smc_close_wq, &conn->close_work)     |      sock_release(tcp) // actively close clc, enter TIME_WAIT
-    smc_close_passive_work() // PEERCLOSEWAIT1    |    smc_conn_free()
-      smc_close_passive_abort_received() // CLOSED|
-      smc_conn_free()                             |
-      smc_clcsock_release()                       |
-        sock_release(tcp) // passive close clc    |
-
-Link: https://www.spinics.net/lists/netdev/msg780407.html
-Fixes: b38d732477e4 ("smc: socket closing and linkgroup cleanup")
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: efc2214b6047 ("ice: Add support for XDP")
+Fixes: 22bf877e528f ("ice: introduce XDP_TX fallback path")
+Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_close.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_lib.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index 0f9ffba07d268..04620b53b74a7 100644
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -228,6 +228,12 @@ int smc_close_active(struct smc_sock *smc)
- 			/* send close request */
- 			rc = smc_close_final(conn);
- 			sk->sk_state = SMC_PEERCLOSEWAIT1;
-+
-+			/* actively shutdown clcsock before peer close it,
-+			 * prevent peer from entering TIME_WAIT state.
-+			 */
-+			if (smc->clcsock && smc->clcsock->sk)
-+				rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
- 		} else {
- 			/* peer event has changed the state */
- 			goto again;
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index e47920fe73b88..62bf879dc6232 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -83,8 +83,13 @@ static int ice_vsi_alloc_arrays(struct ice_vsi *vsi)
+ 	if (!vsi->rx_rings)
+ 		goto err_rings;
+ 
+-	/* XDP will have vsi->alloc_txq Tx queues as well, so double the size */
+-	vsi->txq_map = devm_kcalloc(dev, (2 * vsi->alloc_txq),
++	/* txq_map needs to have enough space to track both Tx (stack) rings
++	 * and XDP rings; at this point vsi->num_xdp_txq might not be set,
++	 * so use num_possible_cpus() as we want to always provide XDP ring
++	 * per CPU, regardless of queue count settings from user that might
++	 * have come from ethtool's set_channels() callback;
++	 */
++	vsi->txq_map = devm_kcalloc(dev, (vsi->alloc_txq + num_possible_cpus()),
+ 				    sizeof(*vsi->txq_map), GFP_KERNEL);
+ 
+ 	if (!vsi->txq_map)
 -- 
 2.33.0
 
