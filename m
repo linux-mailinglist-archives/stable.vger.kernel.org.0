@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21BCD462650
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:48:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0CF8462592
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:38:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235330AbhK2Wui (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:50:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36186 "EHLO
+        id S233007AbhK2WlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:41:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235442AbhK2WuB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:50:01 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BC58C141B27;
-        Mon, 29 Nov 2021 10:32:21 -0800 (PST)
+        with ESMTP id S234261AbhK2WkH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:40:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 297E9C141B2E;
+        Mon, 29 Nov 2021 10:32:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 97DAACE13FD;
+        by ams.source.kernel.org (Postfix) with ESMTPS id E502EB815BB;
+        Mon, 29 Nov 2021 18:32:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20121C53FAD;
         Mon, 29 Nov 2021 18:32:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4992EC53FAD;
-        Mon, 29 Nov 2021 18:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210737;
-        bh=5s3PtYpItram0i5AuIpxrx4LGIOfT3D+g2dklpIWZJQ=;
+        s=korg; t=1638210740;
+        bh=eSiDt0SnH2GwICVg6RBElSo9WJGZbNqHlw0FSv8TeAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lZ68ZsT1g8g4pbdYS/vVkJd0dX+i/mLkufAez/YzwlKpGyhK2teHAqgNBp/LTpMLy
-         zvALA5mPntUZ7hEqpBz7fhN+vheAWSm0bOI3BEQu/3541a1x5sw3SsBe5iUHZUROfl
-         Bl0Q4yQdPHHGTvBAMbMs3zbgW3WF3ig9ubMTl5G4=
+        b=UMovDcOta2hiEpdWeQx59aongktld7KRC0xYf5ljNnMLgl16WhA6fqmuK4aRcIi0r
+         4DLumg5wsUlJeth7cx9pFskIzdN0EwJ5A69b9/2adT1YCpnmLgWb29760cE/MiMBl7
+         i3jZv2LjmEkfdItau8C43yiqXAss97imSWMLAass=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Kiran Bhandare <kiranx.bhandare@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 069/121] net: nexthop: release IPv6 per-cpu dsts when replacing a nexthop group
-Date:   Mon, 29 Nov 2021 19:18:20 +0100
-Message-Id: <20211129181713.965675188@linuxfoundation.org>
+Subject: [PATCH 5.10 070/121] ice: fix vsi->txq_map sizing
+Date:   Mon, 29 Nov 2021 19:18:21 +0100
+Message-Id: <20211129181714.003497367@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
 References: <20211129181711.642046348@linuxfoundation.org>
@@ -48,151 +51,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit 1005f19b9357b81aa64e1decd08d6e332caaa284 ]
+[ Upstream commit 792b2086584f25d84081a526beee80d103c2a913 ]
 
-When replacing a nexthop group, we must release the IPv6 per-cpu dsts of
-the removed nexthop entries after an RCU grace period because they
-contain references to the nexthop's net device and to the fib6 info.
-With specific series of events[1] we can reach net device refcount
-imbalance which is unrecoverable. IPv4 is not affected because dsts
-don't take a refcount on the route.
+The approach of having XDP queue per CPU regardless of user's setting
+exposed a hidden bug that could occur in case when Rx queue count differ
+from Tx queue count. Currently vsi->txq_map's size is equal to the
+doubled vsi->alloc_txq, which is not correct due to the fact that XDP
+rings were previously based on the Rx queue count. Below splat can be
+seen when ethtool -L is used and XDP rings are configured:
 
-[1]
- $ ip nexthop list
-  id 200 via 2002:db8::2 dev bridge.10 scope link onlink
-  id 201 via 2002:db8::3 dev bridge scope link onlink
-  id 203 group 201/200
- $ ip -6 route
-  2001:db8::10 nhid 203 metric 1024 pref medium
-     nexthop via 2002:db8::3 dev bridge weight 1 onlink
-     nexthop via 2002:db8::2 dev bridge.10 weight 1 onlink
+[  682.875339] BUG: kernel NULL pointer dereference, address: 000000000000000f
+[  682.883403] #PF: supervisor read access in kernel mode
+[  682.889345] #PF: error_code(0x0000) - not-present page
+[  682.895289] PGD 0 P4D 0
+[  682.898218] Oops: 0000 [#1] PREEMPT SMP PTI
+[  682.903055] CPU: 42 PID: 2878 Comm: ethtool Tainted: G           OE     5.15.0-rc5+ #1
+[  682.912214] Hardware name: Intel Corp. GRANTLEY/GRANTLEY, BIOS GRRFCRB1.86B.0276.D07.1605190235 05/19/2016
+[  682.923380] RIP: 0010:devres_remove+0x44/0x130
+[  682.928527] Code: 49 89 f4 55 48 89 fd 4c 89 ff 53 48 83 ec 10 e8 92 b9 49 00 48 8b 9d a8 02 00 00 48 8d 8d a0 02 00 00 49 89 c2 48 39 cb 74 0f <4c> 3b 63 10 74 25 48 8b 5b 08 48 39 cb 75 f1 4c 89 ff 4c 89 d6 e8
+[  682.950237] RSP: 0018:ffffc90006a679f0 EFLAGS: 00010002
+[  682.956285] RAX: 0000000000000286 RBX: ffffffffffffffff RCX: ffff88908343a370
+[  682.964538] RDX: 0000000000000001 RSI: ffffffff81690d60 RDI: 0000000000000000
+[  682.972789] RBP: ffff88908343a0d0 R08: 0000000000000000 R09: 0000000000000000
+[  682.981040] R10: 0000000000000286 R11: 3fffffffffffffff R12: ffffffff81690d60
+[  682.989282] R13: ffffffff81690a00 R14: ffff8890819807a8 R15: ffff88908343a36c
+[  682.997535] FS:  00007f08c7bfa740(0000) GS:ffff88a03fd00000(0000) knlGS:0000000000000000
+[  683.006910] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  683.013557] CR2: 000000000000000f CR3: 0000001080a66003 CR4: 00000000003706e0
+[  683.021819] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  683.030075] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  683.038336] Call Trace:
+[  683.041167]  devm_kfree+0x33/0x50
+[  683.045004]  ice_vsi_free_arrays+0x5e/0xc0 [ice]
+[  683.050380]  ice_vsi_rebuild+0x4c8/0x750 [ice]
+[  683.055543]  ice_vsi_recfg_qs+0x9a/0x110 [ice]
+[  683.060697]  ice_set_channels+0x14f/0x290 [ice]
+[  683.065962]  ethnl_set_channels+0x333/0x3f0
+[  683.070807]  genl_family_rcv_msg_doit+0xea/0x150
+[  683.076152]  genl_rcv_msg+0xde/0x1d0
+[  683.080289]  ? channels_prepare_data+0x60/0x60
+[  683.085432]  ? genl_get_cmd+0xd0/0xd0
+[  683.089667]  netlink_rcv_skb+0x50/0xf0
+[  683.094006]  genl_rcv+0x24/0x40
+[  683.097638]  netlink_unicast+0x239/0x340
+[  683.102177]  netlink_sendmsg+0x22e/0x470
+[  683.106717]  sock_sendmsg+0x5e/0x60
+[  683.110756]  __sys_sendto+0xee/0x150
+[  683.114894]  ? handle_mm_fault+0xd0/0x2a0
+[  683.119535]  ? do_user_addr_fault+0x1f3/0x690
+[  683.134173]  __x64_sys_sendto+0x25/0x30
+[  683.148231]  do_syscall_64+0x3b/0xc0
+[  683.161992]  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Create rt6_info through one of the multipath legs, e.g.:
- $ taskset -a -c 1  ./pkt_inj 24 bridge.10 2001:db8::10
- (pkt_inj is just a custom packet generator, nothing special)
+Fix this by taking into account the value that num_possible_cpus()
+yields in addition to vsi->alloc_txq instead of doubling the latter.
 
-Then remove that leg from the group by replace (let's assume it is id
-200 in this case):
- $ ip nexthop replace id 203 group 201
-
-Now remove the IPv6 route:
- $ ip -6 route del 2001:db8::10/128
-
-The route won't be really deleted due to the stale rt6_info holding 1
-refcnt in nexthop id 200.
-At this point we have the following reference count dependency:
- (deleted) IPv6 route holds 1 reference over nhid 203
- nh 203 holds 1 ref over id 201
- nh 200 holds 1 ref over the net device and the route due to the stale
- rt6_info
-
-Now to create circular dependency between nh 200 and the IPv6 route, and
-also to get a reference over nh 200, restore nhid 200 in the group:
- $ ip nexthop replace id 203 group 201/200
-
-And now we have a permanent circular dependncy because nhid 203 holds a
-reference over nh 200 and 201, but the route holds a ref over nh 203 and
-is deleted.
-
-To trigger the bug just delete the group (nhid 203):
- $ ip nexthop del id 203
-
-It won't really be deleted due to the IPv6 route dependency, and now we
-have 2 unlinked and deleted objects that reference each other: the group
-and the IPv6 route. Since the group drops the reference it holds over its
-entries at free time (i.e. its own refcount needs to drop to 0) that will
-never happen and we get a permanent ref on them, since one of the entries
-holds a reference over the IPv6 route it will also never be released.
-
-At this point the dependencies are:
- (deleted, only unlinked) IPv6 route holds reference over group nh 203
- (deleted, only unlinked) group nh 203 holds reference over nh 201 and 200
- nh 200 holds 1 ref over the net device and the route due to the stale
- rt6_info
-
-This is the last point where it can be fixed by running traffic through
-nh 200, and specifically through the same CPU so the rt6_info (dst) will
-get released due to the IPv6 genid, that in turn will free the IPv6
-route, which in turn will free the ref count over the group nh 203.
-
-If nh 200 is deleted at this point, it will never be released due to the
-ref from the unlinked group 203, it will only be unlinked:
- $ ip nexthop del id 200
- $ ip nexthop
- $
-
-Now we can never release that stale rt6_info, we have IPv6 route with ref
-over group nh 203, group nh 203 with ref over nh 200 and 201, nh 200 with
-rt6_info (dst) with ref over the net device and the IPv6 route. All of
-these objects are only unlinked, and cannot be released, thus they can't
-release their ref counts.
-
- Message from syslogd@dev at Nov 19 14:04:10 ...
-  kernel:[73501.828730] unregister_netdevice: waiting for bridge.10 to become free. Usage count = 3
- Message from syslogd@dev at Nov 19 14:04:20 ...
-  kernel:[73512.068811] unregister_netdevice: waiting for bridge.10 to become free. Usage count = 3
-
-Fixes: 7bf4796dd099 ("nexthops: add support for replace")
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: efc2214b6047 ("ice: Add support for XDP")
+Fixes: 22bf877e528f ("ice: introduce XDP_TX fallback path")
+Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/nexthop.c | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_lib.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
-index 4dbc628f8c386..8bd3f5e3c0e7a 100644
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -924,15 +924,36 @@ static void remove_nexthop(struct net *net, struct nexthop *nh,
- /* if any FIB entries reference this nexthop, any dst entries
-  * need to be regenerated
-  */
--static void nh_rt_cache_flush(struct net *net, struct nexthop *nh)
-+static void nh_rt_cache_flush(struct net *net, struct nexthop *nh,
-+			      struct nexthop *replaced_nh)
- {
- 	struct fib6_info *f6i;
-+	struct nh_group *nhg;
-+	int i;
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index dc944d605a741..52ac6cc08e83e 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -83,8 +83,13 @@ static int ice_vsi_alloc_arrays(struct ice_vsi *vsi)
+ 	if (!vsi->rx_rings)
+ 		goto err_rings;
  
- 	if (!list_empty(&nh->fi_list))
- 		rt_cache_flush(net);
- 
- 	list_for_each_entry(f6i, &nh->f6i_list, nh_list)
- 		ipv6_stub->fib6_update_sernum(net, f6i);
-+
-+	/* if an IPv6 group was replaced, we have to release all old
-+	 * dsts to make sure all refcounts are released
+-	/* XDP will have vsi->alloc_txq Tx queues as well, so double the size */
+-	vsi->txq_map = devm_kcalloc(dev, (2 * vsi->alloc_txq),
++	/* txq_map needs to have enough space to track both Tx (stack) rings
++	 * and XDP rings; at this point vsi->num_xdp_txq might not be set,
++	 * so use num_possible_cpus() as we want to always provide XDP ring
++	 * per CPU, regardless of queue count settings from user that might
++	 * have come from ethtool's set_channels() callback;
 +	 */
-+	if (!replaced_nh->is_group)
-+		return;
-+
-+	/* new dsts must use only the new nexthop group */
-+	synchronize_net();
-+
-+	nhg = rtnl_dereference(replaced_nh->nh_grp);
-+	for (i = 0; i < nhg->num_nh; i++) {
-+		struct nh_grp_entry *nhge = &nhg->nh_entries[i];
-+		struct nh_info *nhi = rtnl_dereference(nhge->nh->nh_info);
-+
-+		if (nhi->family == AF_INET6)
-+			ipv6_stub->fib6_nh_release_dsts(&nhi->fib6_nh);
-+	}
- }
++	vsi->txq_map = devm_kcalloc(dev, (vsi->alloc_txq + num_possible_cpus()),
+ 				    sizeof(*vsi->txq_map), GFP_KERNEL);
  
- static int replace_nexthop_grp(struct net *net, struct nexthop *old,
-@@ -1111,7 +1132,7 @@ static int replace_nexthop(struct net *net, struct nexthop *old,
- 		err = replace_nexthop_single(net, old, new, extack);
- 
- 	if (!err) {
--		nh_rt_cache_flush(net, old);
-+		nh_rt_cache_flush(net, old, new);
- 
- 		__remove_nexthop(net, new, NULL);
- 		nexthop_put(new);
+ 	if (!vsi->txq_map)
 -- 
 2.33.0
 
