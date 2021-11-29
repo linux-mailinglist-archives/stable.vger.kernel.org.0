@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8853461DF8
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:29:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94693461DFA
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:29:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348693AbhK2SbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:31:15 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58824 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377849AbhK2S3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:29:14 -0500
+        id S1377902AbhK2SbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:31:20 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:49452 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350804AbhK2S3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:29:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0916CB815BB;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7727DCE13D9;
+        Mon, 29 Nov 2021 18:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F95CC53FAD;
         Mon, 29 Nov 2021 18:25:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36A17C53FC7;
-        Mon, 29 Nov 2021 18:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210354;
-        bh=fcQmuSIO6wVv32jlMGhHmaDovb2Ykfi5VWWf86WlbYM=;
+        s=korg; t=1638210357;
+        bh=MlgLWK59ilFdvWpilfTPAwSQgKdmBi2ohavuNYvlK+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0RfApiqzO5/byOYMkdjgoPw26FhgNx/JjtUAcTbPu02AUvYNRr5hvWBFqWcXgyaE
-         Vh2wfXDMc+VmBJfNZNlixYzfexbJNvG5CD+a5z5eyppte9lPJOiZOtO3cIId5LVABu
-         Y3bFzNgIuOa9GZvjx/YXNtYOcLz/n8wiIPJEfWy8=
+        b=xKtwDUjtHy3CbY4IZuSXcj6ZAuU2cbad7b4RkQaYwNf11wGjFsa5tE3XflJiXNTGJ
+         hMPVjb8o8l1LWMpJNn5+o5FH5KguAGujYnOkXmGHmt1iAbY6iiO291TO4Wb/r+VKTC
+         DbYo24GQj/GloajgFs0VPDtrpRh7k04J0c/+XMbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Tobias Brunner <tobias@strongswan.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Diana Wang <na.wang@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 58/92] ipv6: fix typos in __ip6_finish_output()
-Date:   Mon, 29 Nov 2021 19:18:27 +0100
-Message-Id: <20211129181709.348966994@linuxfoundation.org>
+Subject: [PATCH 5.4 59/92] nfp: checking parameter process for rx-usecs/tx-usecs is invalid
+Date:   Mon, 29 Nov 2021 19:18:28 +0100
+Message-Id: <20211129181709.384927154@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
 References: <20211129181707.392764191@linuxfoundation.org>
@@ -48,43 +47,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Diana Wang <na.wang@corigine.com>
 
-[ Upstream commit 19d36c5f294879949c9d6f57cb61d39cc4c48553 ]
+[ Upstream commit 3bd6b2a838ba6a3b86d41b077f570b1b61174def ]
 
-We deal with IPv6 packets, so we need to use IP6CB(skb)->flags and
-IP6SKB_REROUTED, instead of IPCB(skb)->flags and IPSKB_REROUTED
+Use nn->tlv_caps.me_freq_mhz instead of nn->me_freq_mhz to check whether
+rx-usecs/tx-usecs is valid.
 
-Found by code inspection, please double check that fixing this bug
-does not surface other bugs.
+This is because nn->tlv_caps.me_freq_mhz represents the clock_freq (MHz) of
+the flow processing cores (FPC) on the NIC. While nn->me_freq_mhz is not
+be set.
 
-Fixes: 09ee9dba9611 ("ipv6: Reinject IPv6 packets if IPsec policy matches after SNAT")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Tobias Brunner <tobias@strongswan.org>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: David Ahern <dsahern@kernel.org>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Tested-by: Tobias Brunner <tobias@strongswan.org>
-Acked-by: Tobias Brunner <tobias@strongswan.org>
+Fixes: ce991ab6662a ("nfp: read ME frequency from vNIC ctrl memory")
+Signed-off-by: Diana Wang <na.wang@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_output.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/netronome/nfp/nfp_net.h         | 3 ---
+ drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c | 2 +-
+ 2 files changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index fc913f09606db..d847aa32628da 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -192,7 +192,7 @@ static int __ip6_finish_output(struct net *net, struct sock *sk, struct sk_buff
- #if defined(CONFIG_NETFILTER) && defined(CONFIG_XFRM)
- 	/* Policy lookup after SNAT yielded a new policy */
- 	if (skb_dst(skb)->xfrm) {
--		IPCB(skb)->flags |= IPSKB_REROUTED;
-+		IP6CB(skb)->flags |= IP6SKB_REROUTED;
- 		return dst_output(net, sk, skb);
- 	}
- #endif
+diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net.h b/drivers/net/ethernet/netronome/nfp/nfp_net.h
+index 250f510b1d212..3dcb09f17b77f 100644
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net.h
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net.h
+@@ -557,7 +557,6 @@ struct nfp_net_dp {
+  * @exn_name:           Name for Exception interrupt
+  * @shared_handler:     Handler for shared interrupts
+  * @shared_name:        Name for shared interrupt
+- * @me_freq_mhz:        ME clock_freq (MHz)
+  * @reconfig_lock:	Protects @reconfig_posted, @reconfig_timer_active,
+  *			@reconfig_sync_present and HW reconfiguration request
+  *			regs/machinery from async requests (sync must take
+@@ -639,8 +638,6 @@ struct nfp_net {
+ 	irq_handler_t shared_handler;
+ 	char shared_name[IFNAMSIZ + 8];
+ 
+-	u32 me_freq_mhz;
+-
+ 	bool link_up;
+ 	spinlock_t link_status_lock;
+ 
+diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+index 2354dec994184..89e578e25ff8f 100644
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_ethtool.c
+@@ -1269,7 +1269,7 @@ static int nfp_net_set_coalesce(struct net_device *netdev,
+ 	 * ME timestamp ticks.  There are 16 ME clock cycles for each timestamp
+ 	 * count.
+ 	 */
+-	factor = nn->me_freq_mhz / 16;
++	factor = nn->tlv_caps.me_freq_mhz / 16;
+ 
+ 	/* Each pair of (usecs, max_frames) fields specifies that interrupts
+ 	 * should be coalesced until
 -- 
 2.33.0
 
