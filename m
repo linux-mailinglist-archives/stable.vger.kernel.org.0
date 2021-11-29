@@ -2,136 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA74461111
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 10:27:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 373AB46112F
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 10:34:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244303AbhK2Jaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 04:30:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56968 "EHLO
+        id S243681AbhK2Jh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 04:37:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230191AbhK2J2w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 04:28:52 -0500
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A55F7C061746
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 01:13:23 -0800 (PST)
-Received: by mail-pj1-x1032.google.com with SMTP id p18-20020a17090ad31200b001a78bb52876so15048876pju.3
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 01:13:23 -0800 (PST)
+        with ESMTP id S243995AbhK2Jf5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 04:35:57 -0500
+Received: from mail-vk1-xa32.google.com (mail-vk1-xa32.google.com [IPv6:2607:f8b0:4864:20::a32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EB94C061D7C
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 01:17:24 -0800 (PST)
+Received: by mail-vk1-xa32.google.com with SMTP id u68so10514634vke.11
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 01:17:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=oblaIl+6e0S8cOJsZV3hUPlmQH9MDbfZlFzRTOrdAPY=;
-        b=5aLovDFeZO2xzE4lFoDFaTfBe3Zq+GUgU2yH+R+x0XMhlbSTX52PABQcAAwucbmJNY
-         jJ55WoCqwQzdRDCe7AF0/0b7H+dOr9p8GDEGOLMVKaicqfD99F7B5QeqNuhrUxz8ihYd
-         zuk7CNW9mNow3R6whifmrr3Nt5Ur1vBQA+EO1RHSfN1F91DpWBAYr7sbrJIb9Uq1gNrQ
-         EmX0sJNj8DG2a60kxmYGm7nxeWmAIiEJ+5cW1prhmwJKbk7YVV6AO23EAONROwyJSSRK
-         UEFy7UfM05IlrOiWbOuyS98C8lMGs9ZptGS6ZXiPHsXWHeNgRNbzmzwqCkS9kAyUaFVp
-         tTeA==
+        d=gmail.com; s=20210112;
+        h=mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=NX2bqQHsNayiqR44PKgqpb7Ibk1CQbDP3NctUg7ZpKg=;
+        b=gdvvQ1QzixvfZ7BQu45hAFF2PPA1c25w9nVIOLqjk5nKt4hQ0rQrwiq5eG/C2NO1Kk
+         0ECauzj+MQpwKydEGkQPOH9NNnfuLcn6U2xeAUUD0IOVPcOZMuhlFY5bxgiJAkNfsfHf
+         +a54EqVDPnXgAuEbCQy6B6Dmt0JVfE9dOFFzm6IdoNFUAEZftJ5NiMHko9dFrEW6nAAH
+         YYYZTbLaVJpZHdeSPRkW1Ub5cxY7MLgZqoBnRjMbfwvYcANx4eWbn2SMfesp3SF/S7b+
+         buyuUeUo38DEI3ZBjtsfh8ziakIaTHKVWYcXfZTUh0PrEr7Rs82ukn5dBkze8q2Tr71e
+         GXpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=oblaIl+6e0S8cOJsZV3hUPlmQH9MDbfZlFzRTOrdAPY=;
-        b=TUSZAuShPuzgFP48453oH+mk9jDHce0/RCBlxJtIyelwrUgt1xqRKokBHFZlvyPNF5
-         8n+IoC154jXla8Q03XgynYZzVWkX4zVVwB/Nmd6TX+kNfp3PTqqZsvkufTnCrcwWJfq2
-         Dg8iBrYwXoIWhXYMC3c2mQuDUu9XPYJacseKmuYFXaW5jM8etrYIKOANqTNepduOeJhK
-         sSIkTTazyn9to+nt/pO+l+ox+fb4rS7jd8r7mDln8T3L5+8IEXm8cLbyjqJ2MtGlTCnI
-         xCvOEv11UFW+21Gfx0sMpQgmTt9bPJcP/QUiBQncLI2WB5o5VDl7DZW0iIsuCtvk3xTU
-         rvcQ==
-X-Gm-Message-State: AOAM531ctv6UwTykSlcDo4oLh8bKt4bDFUchv/VL7IVSmtuv5BH2Nj2p
-        kAqrh2CXc/2oCIpCYGOxadJsJisz/SbUqCRj
-X-Google-Smtp-Source: ABdhPJxXMJCTeWHSVnkl+Niu8L4mEuxhD0bnycTCHkzN/8NTPqOGzzYsS/l8XNpw6CNbIxFpTtYF/Q==
-X-Received: by 2002:a17:90a:c297:: with SMTP id f23mr37190901pjt.138.1638177203069;
-        Mon, 29 Nov 2021 01:13:23 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t13sm15794132pfl.214.2021.11.29.01.13.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Nov 2021 01:13:22 -0800 (PST)
-Message-ID: <61a499b2.1c69fb81.438c6.afd6@mx.google.com>
-Date:   Mon, 29 Nov 2021 01:13:22 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=NX2bqQHsNayiqR44PKgqpb7Ibk1CQbDP3NctUg7ZpKg=;
+        b=FcR1S3r0kJTdx79vDlyaTGCrcPAAkt88DLFDuC13Iw2Ge7fVBI9h7tpkggkGNhyY2G
+         Z1B4zZKD7hLqHDeOROkXEuc4D5PRqctY5mSrx6SkWJmHhbeWHU0EybUv6IZXfQrZxIQV
+         ONadndAxlNJsbyFhOP5OX6MUrXdLDLkuNbZ2MaTtoKxAh2vNj9knpn5vMrx98HWZ8xL0
+         jDdQrtkOIoWuj6a72c8JkHPU4eot/PeUab9I3KLJtoIkNS+96wC6AKVbLaWPYiIBZdDD
+         sRkmWBtRuturDXoRPdTKHo3KZWkREJ9X7o897YZOZ8fFX53tgNyQqdA3TwF0AL0JM4uZ
+         5JxQ==
+X-Gm-Message-State: AOAM532cRxSgEB9XDbgVZ+a6cGd9gIZpVBR8PqjDWziqRKVPB0I83UPx
+        Zi136b5fxuIBmaX507n7pHm2VLNlAkmscDw9dnA=
+X-Google-Smtp-Source: ABdhPJxzzlC9EMtxmbZIgH64NYHOm4770SMVZFZMZ1wAtjZ76OFzcIzTBG0J93Q90nIG7vkA8e3WHWGJIGec+havSTI=
+X-Received: by 2002:a1f:4641:: with SMTP id t62mr16494229vka.0.1638177443413;
+ Mon, 29 Nov 2021 01:17:23 -0800 (PST)
 MIME-Version: 1.0
+Received: by 2002:ab0:3386:0:0:0:0:0 with HTTP; Mon, 29 Nov 2021 01:17:23
+ -0800 (PST)
+From:   Robert Baileys <eashangsama@gmail.com>
+Date:   Mon, 29 Nov 2021 10:17:23 +0100
+Message-ID: <CA+h2PfMw3gu7WvU_ha2e8PPuxtHxTpe_WvLVBtbhdKw7p=OT5w@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.256-28-gb75fc63979563
-Subject: stable-rc/queue/4.14 baseline: 128 runs,
- 1 regressions (v4.14.256-28-gb75fc63979563)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 128 runs, 1 regressions (v4.14.256-28-gb75fc=
-63979563)
+Hallo, lieber Beg=C3=BCnstigter,
 
-Regressions Summary
--------------------
+Sie haben diese E-Mail von der Robert Bailey Foundation erhalten. Ich
+bin ein pensionierter Regierungsangestellter aus Harlem und ein
+Powerball-Lotterie-Jackpot-Gewinner von 343,8 Millionen Dollar. Ich
+bin der gr=C3=B6=C3=9Fte Jackpot-Gewinner in der Geschichte der New York Lo=
+ttery
+in Amerika. Ich habe diesen Wettbewerb am 27. Oktober 2018 gewonnen
+und m=C3=B6chte Ihnen mitteilen, dass Google in Kooperation mit Microsoft
+Ihre "E-Mail-Adresse" f=C3=BCr meine Anfrage hat und diese 3.000.000,00
+Millionen Euro kosten wird. Ich spende diese 3 Millionen Euro an Sie,
+um auch Wohlt=C3=A4tigkeitsorganisationen und armen Menschen in Ihrer
+Gemeinde zu helfen, damit wir die Welt zu einem besseren Ort f=C3=BCr alle
+machen k=C3=B6nnen. Bitte besuchen Sie die folgende Website f=C3=BCr weiter=
+e
+Informationen, damit Sie diesen 3 Mio. EUR Ausgaben nicht skeptisch
+gegen=C3=BCberstehen.
+https://nypost.com/2018/11/14/meet-the-winner-of-the-biggest-lottery-jackpo=
+t-in-new-york-history/Sie
+Weitere Best=C3=A4tigungen kann ich auch auf meinem Youtube suchen:
+https://www.youtube.com/watch?v=3DH5vT18Ysavc
+Bitte antworten Sie mir per E-Mail (robertbaileys_spende@aol.com).
+Sie m=C3=BCssen diese E-Mail sofort beantworten, damit die =C3=BCberweisend=
+e
+Bank mit dem Erhalt dieser Spende in H=C3=B6he von 3.000.000,00 Millionen
+Euro beginnen kann.
+Bitte kontaktieren Sie die untenstehende E-Mail-Adresse f=C3=BCr weitere
+Informationen, damit Sie diese Spende von der =C3=BCberweisenden Bank
+erhalten k=C3=B6nnen. E-Mail: robertbaileys_spende@aol.com
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Gr=C3=BC=C3=9Fe,
+Robert Bailey
+* * * * * * * * * * * * * * * *
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.256-28-gb75fc63979563/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.256-28-gb75fc63979563
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b75fc639795638a0f4a7c9f48011c6e16a75eba1 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61a460d50c363a20b718f6e1
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.256=
--28-gb75fc63979563/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.256=
--28-gb75fc63979563/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a460d50c363a2=
-0b718f6e7
-        new failure (last pass: v4.14.256-28-g54e5647834e42)
-        2 lines
-
-    2021-11-29T05:10:21.046144  [   19.912445] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-29T05:10:21.097608  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/101
-    2021-11-29T05:10:21.105238  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+Powerball-Jackpot-Gewinner
+E-Mail: robertbaileys_spende@aol.com
