@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B364E461E93
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:34:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04ACC461DB5
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:25:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379043AbhK2Shd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:37:33 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40514 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378517AbhK2Sfc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:35:32 -0500
+        id S232297AbhK2S2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:28:16 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:47968 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352061AbhK2S0I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:26:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67CC5B81600;
-        Mon, 29 Nov 2021 18:32:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D09BC53FD2;
-        Mon, 29 Nov 2021 18:32:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E1F39CE13E0;
+        Mon, 29 Nov 2021 18:22:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D1D7C53FC7;
+        Mon, 29 Nov 2021 18:22:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210732;
-        bh=MmCAOKVz20y3YOOaN5YaSq363nW9L8OM9f5FmdnpcFw=;
+        s=korg; t=1638210166;
+        bh=vsyv97+wxPgk1+sgTcJkMXCjOqicQMlEY113z7aefYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QP9wFkdToBAHdAuALEMOvLp0b53gF5H/nhgkwDXHvgw08fXVFeJ2ZZxrM3VRZvvEs
-         OvUhb6oHYigzH6rNWShcJ2bXrEMZByTCBuSWzYhHZRfeSBUz9z2pB5Y2Q3py/0Qm+E
-         q6l1Gvm+PYNsUR0Am+ZwJFnGgxVQgKTFZxd6Kk14=
+        b=QkQhxG7odT6wvRFHQT+oFf33lWF+mR4eiEGt5rPc9UQJiMPk0Nlp03DtP0Tc7Q0gS
+         pB5JfQqMoSrZXZfswWGSsPTBFLDyATOnBjMhWeF+PICOKXxz+689vHXjaQd8y9WD25
+         iQTqwE+NS+nAgAclRWQNl7bAR0TrnS/mZSlV07vY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Olbrich <m.olbrich@pengutronix.de>,
-        Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Holger Assmann <h.assmann@pengutronix.de>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Chuanqi Liu <legend050709@qq.com>,
+        yangxingwu <xingwu.yang@gmail.com>,
+        Simon Horman <horms@verge.net.au>,
+        Julian Anastasov <ja@ssi.bg>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 067/121] net: stmmac: retain PTP clock time during SIOCSHWTSTAMP ioctls
-Date:   Mon, 29 Nov 2021 19:18:18 +0100
-Message-Id: <20211129181713.894928743@linuxfoundation.org>
+Subject: [PATCH 4.19 37/69] netfilter: ipvs: Fix reuse connection if RS weight is 0
+Date:   Mon, 29 Nov 2021 19:18:19 +0100
+Message-Id: <20211129181704.879968692@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,259 +48,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Holger Assmann <h.assmann@pengutronix.de>
+From: yangxingwu <xingwu.yang@gmail.com>
 
-[ Upstream commit a6da2bbb0005e6b4909472962c9d0af29e75dd06 ]
+[ Upstream commit c95c07836fa4c1767ed11d8eca0769c652760e32 ]
 
-Currently, when user space emits SIOCSHWTSTAMP ioctl calls such as
-enabling/disabling timestamping or changing filter settings, the driver
-reads the current CLOCK_REALTIME value and programming this into the
-NIC's hardware clock. This might be necessary during system
-initialization, but at runtime, when the PTP clock has already been
-synchronized to a grandmaster, a reset of the timestamp settings might
-result in a clock jump. Furthermore, if the clock is also controlled by
-phc2sys in automatic mode (where the UTC offset is queried from ptp4l),
-that UTC-to-TAI offset (currently 37 seconds in 2021) would be
-temporarily reset to 0, and it would take a long time for phc2sys to
-readjust so that CLOCK_REALTIME and the PHC are apart by 37 seconds
-again.
+We are changing expire_nodest_conn to work even for reused connections when
+conn_reuse_mode=0, just as what was done with commit dc7b3eb900aa ("ipvs:
+Fix reuse connection if real server is dead").
 
-To address the issue, we introduce a new function called
-stmmac_init_tstamp_counter(), which gets called during ndo_open().
-It contains the code snippet moved from stmmac_hwtstamp_set() that
-manages the time synchronization. Besides, the sub second increment
-configuration is also moved here since the related values are hardware
-dependent and runtime invariant.
+For controlled and persistent connections, the new connection will get the
+needed real server depending on the rules in ip_vs_check_template().
 
-Furthermore, the hardware clock must be kept running even when no time
-stamping mode is selected in order to retain the synchronized time base.
-That way, timestamping can be enabled again at any time only with the
-need to compensate the clock's natural drifting.
-
-As a side effect, this patch fixes the issue that ptp_clock_info::enable
-can be called before SIOCSHWTSTAMP and the driver (which looks at
-priv->systime_flags) was not prepared to handle that ordering.
-
-Fixes: 92ba6888510c ("stmmac: add the support for PTP hw clock driver")
-Reported-by: Michael Olbrich <m.olbrich@pengutronix.de>
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Holger Assmann <h.assmann@pengutronix.de>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d752c3645717 ("ipvs: allow rescheduling of new connections when port reuse is detected")
+Co-developed-by: Chuanqi Liu <legend050709@qq.com>
+Signed-off-by: Chuanqi Liu <legend050709@qq.com>
+Signed-off-by: yangxingwu <xingwu.yang@gmail.com>
+Acked-by: Simon Horman <horms@verge.net.au>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac.h  |   1 +
- .../net/ethernet/stmicro/stmmac/stmmac_main.c | 125 +++++++++++-------
- .../ethernet/stmicro/stmmac/stmmac_platform.c |   2 +-
- 3 files changed, 81 insertions(+), 47 deletions(-)
+ Documentation/networking/ipvs-sysctl.txt | 3 +--
+ net/netfilter/ipvs/ip_vs_core.c          | 8 ++++----
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac.h b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
-index a4ca283e02284..617c960cfb5a5 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
-@@ -258,6 +258,7 @@ int stmmac_mdio_register(struct net_device *ndev);
- int stmmac_mdio_reset(struct mii_bus *mii);
- void stmmac_set_ethtool_ops(struct net_device *netdev);
+diff --git a/Documentation/networking/ipvs-sysctl.txt b/Documentation/networking/ipvs-sysctl.txt
+index 056898685d408..fc531c29a2e83 100644
+--- a/Documentation/networking/ipvs-sysctl.txt
++++ b/Documentation/networking/ipvs-sysctl.txt
+@@ -30,8 +30,7 @@ conn_reuse_mode - INTEGER
  
-+int stmmac_init_tstamp_counter(struct stmmac_priv *priv, u32 systime_flags);
- void stmmac_ptp_register(struct stmmac_priv *priv);
- void stmmac_ptp_unregister(struct stmmac_priv *priv);
- int stmmac_resume(struct device *dev);
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index b6a2bc020026a..a8c5492cb39be 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -47,6 +47,13 @@
- #include "dwxgmac2.h"
- #include "hwif.h"
+ 	0: disable any special handling on port reuse. The new
+ 	connection will be delivered to the same real server that was
+-	servicing the previous connection. This will effectively
+-	disable expire_nodest_conn.
++	servicing the previous connection.
  
-+/* As long as the interface is active, we keep the timestamping counter enabled
-+ * with fine resolution and binary rollover. This avoid non-monotonic behavior
-+ * (clock jumps) when changing timestamping settings at runtime.
-+ */
-+#define STMMAC_HWTS_ACTIVE	(PTP_TCR_TSENA | PTP_TCR_TSCFUPDT | \
-+				 PTP_TCR_TSCTRLSSR)
-+
- #define	STMMAC_ALIGN(x)		ALIGN(ALIGN(x, SMP_CACHE_BYTES), 16)
- #define	TSO_MAX_BUFF_SIZE	(SZ_16K - 1)
+ 	bit 1: enable rescheduling of new connections when it is safe.
+ 	That is, whenever expire_nodest_conn and for TCP sockets, when
+diff --git a/net/netfilter/ipvs/ip_vs_core.c b/net/netfilter/ipvs/ip_vs_core.c
+index acaeeaf814415..f20b08db9fe91 100644
+--- a/net/netfilter/ipvs/ip_vs_core.c
++++ b/net/netfilter/ipvs/ip_vs_core.c
+@@ -1850,7 +1850,6 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
+ 	struct ip_vs_proto_data *pd;
+ 	struct ip_vs_conn *cp;
+ 	int ret, pkts;
+-	int conn_reuse_mode;
+ 	struct sock *sk;
  
-@@ -508,8 +515,6 @@ static int stmmac_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
- {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	struct hwtstamp_config config;
--	struct timespec64 now;
--	u64 temp = 0;
- 	u32 ptp_v2 = 0;
- 	u32 tstamp_all = 0;
- 	u32 ptp_over_ipv4_udp = 0;
-@@ -518,11 +523,6 @@ static int stmmac_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
- 	u32 snap_type_sel = 0;
- 	u32 ts_master_en = 0;
- 	u32 ts_event_en = 0;
--	u32 sec_inc = 0;
--	u32 value = 0;
--	bool xmac;
--
--	xmac = priv->plat->has_gmac4 || priv->plat->has_xgmac;
+ 	/* Already marked as IPVS request or reply? */
+@@ -1926,15 +1925,16 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
+ 	 */
+ 	cp = pp->conn_in_get(ipvs, af, skb, &iph);
  
- 	if (!(priv->dma_cap.time_stamp || priv->adv_ts)) {
- 		netdev_alert(priv->dev, "No support for HW time stamping\n");
-@@ -684,42 +684,17 @@ static int stmmac_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
- 	priv->hwts_rx_en = ((config.rx_filter == HWTSTAMP_FILTER_NONE) ? 0 : 1);
- 	priv->hwts_tx_en = config.tx_type == HWTSTAMP_TX_ON;
+-	conn_reuse_mode = sysctl_conn_reuse_mode(ipvs);
+-	if (conn_reuse_mode && !iph.fragoffs && is_new_conn(skb, &iph) && cp) {
++	if (!iph.fragoffs && is_new_conn(skb, &iph) && cp) {
++		int conn_reuse_mode = sysctl_conn_reuse_mode(ipvs);
+ 		bool old_ct = false, resched = false;
  
--	if (!priv->hwts_tx_en && !priv->hwts_rx_en)
--		stmmac_config_hw_tstamping(priv, priv->ptpaddr, 0);
--	else {
--		value = (PTP_TCR_TSENA | PTP_TCR_TSCFUPDT | PTP_TCR_TSCTRLSSR |
--			 tstamp_all | ptp_v2 | ptp_over_ethernet |
--			 ptp_over_ipv6_udp | ptp_over_ipv4_udp | ts_event_en |
--			 ts_master_en | snap_type_sel);
--		stmmac_config_hw_tstamping(priv, priv->ptpaddr, value);
--
--		/* program Sub Second Increment reg */
--		stmmac_config_sub_second_increment(priv,
--				priv->ptpaddr, priv->plat->clk_ptp_rate,
--				xmac, &sec_inc);
--		temp = div_u64(1000000000ULL, sec_inc);
--
--		/* Store sub second increment and flags for later use */
--		priv->sub_second_inc = sec_inc;
--		priv->systime_flags = value;
--
--		/* calculate default added value:
--		 * formula is :
--		 * addend = (2^32)/freq_div_ratio;
--		 * where, freq_div_ratio = 1e9ns/sec_inc
--		 */
--		temp = (u64)(temp << 32);
--		priv->default_addend = div_u64(temp, priv->plat->clk_ptp_rate);
--		stmmac_config_addend(priv, priv->ptpaddr, priv->default_addend);
--
--		/* initialize system time */
--		ktime_get_real_ts64(&now);
-+	priv->systime_flags = STMMAC_HWTS_ACTIVE;
- 
--		/* lower 32 bits of tv_sec are safe until y2106 */
--		stmmac_init_systime(priv, priv->ptpaddr,
--				(u32)now.tv_sec, now.tv_nsec);
-+	if (priv->hwts_tx_en || priv->hwts_rx_en) {
-+		priv->systime_flags |= tstamp_all | ptp_v2 |
-+				       ptp_over_ethernet | ptp_over_ipv6_udp |
-+				       ptp_over_ipv4_udp | ts_event_en |
-+				       ts_master_en | snap_type_sel;
- 	}
- 
-+	stmmac_config_hw_tstamping(priv, priv->ptpaddr, priv->systime_flags);
-+
- 	memcpy(&priv->tstamp_config, &config, sizeof(config));
- 
- 	return copy_to_user(ifr->ifr_data, &config,
-@@ -747,6 +722,66 @@ static int stmmac_hwtstamp_get(struct net_device *dev, struct ifreq *ifr)
- 			    sizeof(*config)) ? -EFAULT : 0;
- }
- 
-+/**
-+ * stmmac_init_tstamp_counter - init hardware timestamping counter
-+ * @priv: driver private structure
-+ * @systime_flags: timestamping flags
-+ * Description:
-+ * Initialize hardware counter for packet timestamping.
-+ * This is valid as long as the interface is open and not suspended.
-+ * Will be rerun after resuming from suspend, case in which the timestamping
-+ * flags updated by stmmac_hwtstamp_set() also need to be restored.
-+ */
-+int stmmac_init_tstamp_counter(struct stmmac_priv *priv, u32 systime_flags)
-+{
-+	bool xmac = priv->plat->has_gmac4 || priv->plat->has_xgmac;
-+	struct timespec64 now;
-+	u32 sec_inc = 0;
-+	u64 temp = 0;
-+	int ret;
-+
-+	if (!(priv->dma_cap.time_stamp || priv->dma_cap.atime_stamp))
-+		return -EOPNOTSUPP;
-+
-+	ret = clk_prepare_enable(priv->plat->clk_ptp_ref);
-+	if (ret < 0) {
-+		netdev_warn(priv->dev,
-+			    "failed to enable PTP reference clock: %pe\n",
-+			    ERR_PTR(ret));
-+		return ret;
-+	}
-+
-+	stmmac_config_hw_tstamping(priv, priv->ptpaddr, systime_flags);
-+	priv->systime_flags = systime_flags;
-+
-+	/* program Sub Second Increment reg */
-+	stmmac_config_sub_second_increment(priv, priv->ptpaddr,
-+					   priv->plat->clk_ptp_rate,
-+					   xmac, &sec_inc);
-+	temp = div_u64(1000000000ULL, sec_inc);
-+
-+	/* Store sub second increment for later use */
-+	priv->sub_second_inc = sec_inc;
-+
-+	/* calculate default added value:
-+	 * formula is :
-+	 * addend = (2^32)/freq_div_ratio;
-+	 * where, freq_div_ratio = 1e9ns/sec_inc
-+	 */
-+	temp = (u64)(temp << 32);
-+	priv->default_addend = div_u64(temp, priv->plat->clk_ptp_rate);
-+	stmmac_config_addend(priv, priv->ptpaddr, priv->default_addend);
-+
-+	/* initialize system time */
-+	ktime_get_real_ts64(&now);
-+
-+	/* lower 32 bits of tv_sec are safe until y2106 */
-+	stmmac_init_systime(priv, priv->ptpaddr, (u32)now.tv_sec, now.tv_nsec);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(stmmac_init_tstamp_counter);
-+
- /**
-  * stmmac_init_ptp - init PTP
-  * @priv: driver private structure
-@@ -757,9 +792,11 @@ static int stmmac_hwtstamp_get(struct net_device *dev, struct ifreq *ifr)
- static int stmmac_init_ptp(struct stmmac_priv *priv)
- {
- 	bool xmac = priv->plat->has_gmac4 || priv->plat->has_xgmac;
-+	int ret;
- 
--	if (!(priv->dma_cap.time_stamp || priv->dma_cap.atime_stamp))
--		return -EOPNOTSUPP;
-+	ret = stmmac_init_tstamp_counter(priv, STMMAC_HWTS_ACTIVE);
-+	if (ret)
-+		return ret;
- 
- 	priv->adv_ts = 0;
- 	/* Check if adv_ts can be enabled for dwmac 4.x / xgmac core */
-@@ -2721,10 +2758,6 @@ static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
- 	stmmac_mmc_setup(priv);
- 
- 	if (init_ptp) {
--		ret = clk_prepare_enable(priv->plat->clk_ptp_ref);
--		if (ret < 0)
--			netdev_warn(priv->dev, "failed to enable PTP reference clock: %d\n", ret);
--
- 		ret = stmmac_init_ptp(priv);
- 		if (ret == -EOPNOTSUPP)
- 			netdev_warn(priv->dev, "PTP not supported by HW\n");
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-index 5c9d29c42bac8..4387752b26d95 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -815,7 +815,7 @@ static int stmmac_pltfr_noirq_resume(struct device *dev)
- 		if (ret)
- 			return ret;
- 
--		clk_prepare_enable(priv->plat->clk_ptp_ref);
-+		stmmac_init_tstamp_counter(priv, priv->systime_flags);
- 	}
- 
- 	return 0;
+ 		if (unlikely(sysctl_expire_nodest_conn(ipvs)) && cp->dest &&
+ 		    unlikely(!atomic_read(&cp->dest->weight))) {
+ 			resched = true;
+ 			old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
+-		} else if (is_new_conn_expected(cp, conn_reuse_mode)) {
++		} else if (conn_reuse_mode &&
++			   is_new_conn_expected(cp, conn_reuse_mode)) {
+ 			old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
+ 			if (!atomic_read(&cp->n_control)) {
+ 				resched = true;
 -- 
 2.33.0
 
