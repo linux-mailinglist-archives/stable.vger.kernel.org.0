@@ -2,62 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33BDF46264D
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:48:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3848E4627A4
+	for <lists+stable@lfdr.de>; Tue, 30 Nov 2021 00:05:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234682AbhK2Wuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:50:37 -0500
-Received: from mail-vk1-f169.google.com ([209.85.221.169]:38589 "EHLO
-        mail-vk1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235183AbhK2Wtz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:49:55 -0500
-Received: by mail-vk1-f169.google.com with SMTP id s17so12252295vka.5
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 14:46:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=1sS046mTuN4ovWs+GBCt57s1Zu/Cbyu4cI8TIMXwEkc=;
-        b=V+z0SxdnIxsDeweY8+I2fOJtU8vqJvuI5uftcGIrPQL3b8cve2o34EJFrkMbdbGJXm
-         wMUWfD6wdct6ls58pBkWY4QVcfewxiB5r93KhSz2NrOohqghUbrCpqgzvtU/lddkZjVw
-         AuKgR9Z/u/T7MEzBcGYfeM+DXJsfJF0wDn22i8LJvysFNunK1B/+A6rggjjhfXiQL+HL
-         5l7DgG12uBOpl81X5pPOyHYOz9o85m8mtRXHMvITy9wZduY6MShkgcjt8ENR6x/Mc6bV
-         QHs58znxF6HkHkLxgXwsRw/SOrxDK9YbPGcFTjq+MZsZCvo8r/+iRxUiworsvwo1YWvW
-         OsiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=1sS046mTuN4ovWs+GBCt57s1Zu/Cbyu4cI8TIMXwEkc=;
-        b=8N2bA26RX5D/UEawgvmYyvRVjFU++f8VZercgKPetLV1HrDJ/GM2bE/tEIQ/sPUqWY
-         /B6QdqhmGFmcP1QoFfPkFFgtk9cPPOBjTO/hSDMYbx1/STUpRzZU1Gs7ZBw59d5it8cm
-         9OWZfZZs/BhLgw+5HmNjSxvlbU0LAUHJLMjzp3nlPq2y6ymOSWktfPWoaHjGTBajruZc
-         hBuxmEdpSeXxEjO35FMiTQZzJ6e3/xns1hnzrzrsFE3ZN93vw6SaPLFqvGhsK/4zfDGK
-         b0QpATT6sKl3kusEQeAf+TD24iqje8XzwbsAU4ZuSH9AwEMEn5uzOlDbIM52gN1RJxCC
-         axYg==
-X-Gm-Message-State: AOAM530swP69hrcnRfqKwl7nobMiGTAinI6rMFDWdNsqWM+J28ExsEv8
-        iAT7IGV0P14Z5D9ahKq1H22GnbWbCrIrSZ7ILac=
-X-Google-Smtp-Source: ABdhPJwkiYrXfjGYYcUMlpxAsSHgSatiJ7aAc48B/qZPTMkukqYrXcWValCCX/1oxh60c5IOqS43O7xMLWwkoilMdrA=
-X-Received: by 2002:a05:6122:114c:: with SMTP id p12mr41275013vko.21.1638225937120;
- Mon, 29 Nov 2021 14:45:37 -0800 (PST)
+        id S236546AbhK2XIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 18:08:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40302 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236494AbhK2XHt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 18:07:49 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4594C144FE1;
+        Mon, 29 Nov 2021 10:33:50 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0A359CE13DE;
+        Mon, 29 Nov 2021 18:33:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A828BC53FCD;
+        Mon, 29 Nov 2021 18:33:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1638210827;
+        bh=GulHi1YwWbYKSoO1RvTO0kOtsafo4XxM0G0tqyBxGlY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=AkgAHvWyDRuUqGojekkih+Ov+iClZ2QsEFYku6Np61YAAYbUkKh0mtPTmB7MpO4wI
+         Ok2+HYKi7M2D0Ii0lqvsXnyITPlAhTP/8bUSbmU8maQFOxTqZZfeWOdy0S0UgW1gkR
+         B+jNo65qWWWiuBlHExZ+0ThQ/7yhnffnIuCIhJsA=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 001/179] scsi: sd: Fix sd_do_mode_sense() buffer length handling
+Date:   Mon, 29 Nov 2021 19:16:35 +0100
+Message-Id: <20211129181718.964384555@linuxfoundation.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
-Received: by 2002:a59:8e41:0:b0:246:9dba:f537 with HTTP; Mon, 29 Nov 2021
- 14:45:36 -0800 (PST)
-Reply-To: confianzayrentabilidad@gmail.com
-From:   "Prof. Dr Diane" <dmitrybogdanv07@gmail.com>
-Date:   Mon, 29 Nov 2021 14:45:36 -0800
-Message-ID: <CAPi14yLmi0BTtNiykTm_X98AQC4cfsU=JBVY4GaqkD4VGptNXQ@mail.gmail.com>
-Subject: Good Day,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-I'm Prof. Dr Diane, please a huge amount of payment was made into your
-account. as soon as your respond is noted the payment confirmation
-slip will immediately send to you.  please do not hesitate to reply as
-soon as you receive this message. awaiting your urgent reply please.
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-Best regards
-Prof. Dr Diane,
+commit c749301ebee82eb5e97dec14b6ab31a4aabe37a6 upstream.
+
+For devices that explicitly asked for MODE SENSE(10) use, make sure that
+scsi_mode_sense() is called with a buffer of at least 8 bytes so that the
+sense header fits.
+
+Link: https://lore.kernel.org/r/20210820070255.682775-4-damien.lemoal@wdc.com
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/scsi/sd.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
+
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -2607,6 +2607,13 @@ sd_do_mode_sense(struct scsi_disk *sdkp,
+ 		 unsigned char *buffer, int len, struct scsi_mode_data *data,
+ 		 struct scsi_sense_hdr *sshdr)
+ {
++	/*
++	 * If we must use MODE SENSE(10), make sure that the buffer length
++	 * is at least 8 bytes so that the mode sense header fits.
++	 */
++	if (sdkp->device->use_10_for_ms && len < 8)
++		len = 8;
++
+ 	return scsi_mode_sense(sdkp->device, dbd, modepage, buffer, len,
+ 			       SD_TIMEOUT, sdkp->max_retries, data,
+ 			       sshdr);
+
+
