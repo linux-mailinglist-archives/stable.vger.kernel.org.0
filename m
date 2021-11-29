@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEAFD46163F
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 14:25:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5976D461644
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 14:25:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234593AbhK2N3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 08:29:06 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34156 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377836AbhK2N1F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 08:27:05 -0500
+        id S240208AbhK2N3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 08:29:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56958 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377843AbhK2N1N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 08:27:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A350614E0
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 13:23:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C75AC004E1;
-        Mon, 29 Nov 2021 13:23:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE471B8111B
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 13:23:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 007AEC004E1;
+        Mon, 29 Nov 2021 13:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638192227;
-        bh=ef46TBPrQuSO3SAqj6YbbICRbvhcea+9mPOWZ2KFUxw=;
+        s=korg; t=1638192233;
+        bh=jtakV04xOuKDOFijUJh7POUehH3h2cqa75ErJeH+bxE=;
         h=Subject:To:Cc:From:Date:From;
-        b=W/pV5RMMy9gdn0HdRFOmZ+76cl2meP3Do6JIDcvjD72jFR79ZYCz1YmHK/ciJjJLo
-         AyX4q1DYPV/ix8C5eWOyxw5wBXOMg+NnkeVbvc8QtKtAlp6mCiQWmLn2frks39SXOS
-         m56qf7uPjH5JQeYt87v7rWNjZBJwkTC4OHbnP1/s=
-Subject: FAILED: patch "[PATCH] net/smc: Fix loop in smc_listen" failed to apply to 4.14-stable tree
+        b=Y1OoQKie93F0x1Cam8OmZlQxgnSMiPsLtWAvEMdocwhoICkaTIGIORqEVfAKRxrQt
+         cPV97jrXNt/Wl7BopPOI7ZZYmP/102J9/2mr0XgQ44BoleBA4MsIeG3UP64/Oe8lcd
+         SaazaVu5KHQal1jY5McusCyj0kRgB+iriIggZssw=
+Subject: FAILED: patch "[PATCH] net/smc: Fix loop in smc_listen" failed to apply to 5.4-stable tree
 To:     guodaxing@huawei.com, kgraul@linux.ibm.com, kuba@kernel.org,
         tonylu@linux.alibaba.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Nov 2021 14:23:37 +0100
-Message-ID: <1638192217471@kroah.com>
+Date:   Mon, 29 Nov 2021 14:23:38 +0100
+Message-ID: <163819221813716@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
