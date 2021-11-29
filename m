@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FC94462530
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:32:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7EF2462551
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:34:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233442AbhK2WgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:36:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60654 "EHLO
+        id S232387AbhK2Whw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:37:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233408AbhK2WfX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:35:23 -0500
+        with ESMTP id S233580AbhK2Wh0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:37:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E47C1A3C90;
-        Mon, 29 Nov 2021 10:39:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C58AC125337;
+        Mon, 29 Nov 2021 10:27:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FB24B815C3;
-        Mon, 29 Nov 2021 18:39:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81994C53FAD;
-        Mon, 29 Nov 2021 18:39:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65A15B815CF;
+        Mon, 29 Nov 2021 18:27:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 906A0C53FD1;
+        Mon, 29 Nov 2021 18:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211171;
-        bh=c83TouqOIBIylf88FcE7rPNVLI3GfRII4FTSSAPmsHA=;
+        s=korg; t=1638210449;
+        bh=XiaDc96Djn4JiH1UgQ4/+1EwcPjmRtWUYBQdH534Pv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHkfa26jCk/MogeydwNBtAI5SoQCWBsjuPoF13KMN0jU+RSanuTdH09v4yrXt0YpS
-         EOiNGC+Wsod7V42TPdlDlpegy7012fSN7yFLzHfg2yo8rHP3Ln6ghzatSrHgKjgMdb
-         SbCfX/UThBIetw9NcdXEbw4Mv90HmDbYa/B8HlTg=
+        b=iW+HcPSyv4iktfkBGS94W5ehNrDYClgz52PIRiwqDxVM8p5+IaAlKyR2UEOJLoydL
+         oAWgl/4U1zUjLskk3+iJeeGpTVASJzuXxUmkitgUVrDrAN7meMNZhkonabKmkhBGMx
+         Fk99nUnXwpPh0fjtKltXzoAZO/0e1O3A+cNSCC+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Thangavel <thangavel.k@hcl.com>,
-        Samuel Mendoza-Jonas <sam@mendozajonas.com>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Richard Cochran <richardcochran@gmail.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 129/179] net/ncsi : Add payload to be 32-bit aligned to fix dropped packets
+Subject: [PATCH 5.4 74/92] net: mscc: ocelot: dont downgrade timestamping RX filters in SIOCSHWTSTAMP
 Date:   Mon, 29 Nov 2021 19:18:43 +0100
-Message-Id: <20211129181723.205858803@linuxfoundation.org>
+Message-Id: <20211129181709.879516153@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
+References: <20211129181707.392764191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,90 +49,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Thangavel <kumarthangavel.hcl@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit ac132852147ad303a938dda318970dd1bbdfda4e ]
+[ Upstream commit 8a075464d1e9317ffae0973dfe538a7511291a06 ]
 
-Update NC-SI command handler (both standard and OEM) to take into
-account of payload paddings in allocating skb (in case of payload
-size is not 32-bit aligned).
+The ocelot driver, when asked to timestamp all receiving packets, 1588
+v1 or NTP, says "nah, here's 1588 v2 for you".
 
-The checksum field follows payload field, without taking payload
-padding into account can cause checksum being truncated, leading to
-dropped packets.
+According to this discussion:
+https://patchwork.kernel.org/project/netdevbpf/patch/20211104133204.19757-8-martin.kaistra@linutronix.de/#24577647
+drivers that downgrade from a wider request to a narrower response (or
+even a response where the intersection with the request is empty) are
+buggy, and should return -ERANGE instead. This patch fixes that.
 
-Fixes: fb4ee67529ff ("net/ncsi: Add NCSI OEM command support")
-Signed-off-by: Kumar Thangavel <thangavel.k@hcl.com>
-Acked-by: Samuel Mendoza-Jonas <sam@mendozajonas.com>
-Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4e3b0468e6d7 ("net: mscc: PTP Hardware Clock (PHC) support")
+Suggested-by: Richard Cochran <richardcochran@gmail.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ncsi/ncsi-cmd.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mscc/ocelot.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/net/ncsi/ncsi-cmd.c b/net/ncsi/ncsi-cmd.c
-index ba9ae482141b0..dda8b76b77988 100644
---- a/net/ncsi/ncsi-cmd.c
-+++ b/net/ncsi/ncsi-cmd.c
-@@ -18,6 +18,8 @@
- #include "internal.h"
- #include "ncsi-pkt.h"
- 
-+static const int padding_bytes = 26;
-+
- u32 ncsi_calculate_checksum(unsigned char *data, int len)
- {
- 	u32 checksum = 0;
-@@ -213,12 +215,17 @@ static int ncsi_cmd_handler_oem(struct sk_buff *skb,
- {
- 	struct ncsi_cmd_oem_pkt *cmd;
- 	unsigned int len;
-+	int payload;
-+	/* NC-SI spec DSP_0222_1.2.0, section 8.2.2.2
-+	 * requires payload to be padded with 0 to
-+	 * 32-bit boundary before the checksum field.
-+	 * Ensure the padding bytes are accounted for in
-+	 * skb allocation
-+	 */
- 
-+	payload = ALIGN(nca->payload, 4);
- 	len = sizeof(struct ncsi_cmd_pkt_hdr) + 4;
--	if (nca->payload < 26)
--		len += 26;
--	else
--		len += nca->payload;
-+	len += max(payload, padding_bytes);
- 
- 	cmd = skb_put_zero(skb, len);
- 	memcpy(&cmd->mfr_id, nca->data, nca->payload);
-@@ -272,6 +279,7 @@ static struct ncsi_request *ncsi_alloc_command(struct ncsi_cmd_arg *nca)
- 	struct net_device *dev = nd->dev;
- 	int hlen = LL_RESERVED_SPACE(dev);
- 	int tlen = dev->needed_tailroom;
-+	int payload;
- 	int len = hlen + tlen;
- 	struct sk_buff *skb;
- 	struct ncsi_request *nr;
-@@ -281,14 +289,14 @@ static struct ncsi_request *ncsi_alloc_command(struct ncsi_cmd_arg *nca)
- 		return NULL;
- 
- 	/* NCSI command packet has 16-bytes header, payload, 4 bytes checksum.
-+	 * Payload needs padding so that the checksum field following payload is
-+	 * aligned to 32-bit boundary.
- 	 * The packet needs padding if its payload is less than 26 bytes to
- 	 * meet 64 bytes minimal ethernet frame length.
- 	 */
- 	len += sizeof(struct ncsi_cmd_pkt_hdr) + 4;
--	if (nca->payload < 26)
--		len += 26;
--	else
--		len += nca->payload;
-+	payload = ALIGN(nca->payload, 4);
-+	len += max(payload, padding_bytes);
- 
- 	/* Allocate skb */
- 	skb = alloc_skb(len, GFP_ATOMIC);
+diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
+index 6030c90d50ccb..3f83647c5802e 100644
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -1024,12 +1024,6 @@ static int ocelot_hwstamp_set(struct ocelot_port *port, struct ifreq *ifr)
+ 	switch (cfg.rx_filter) {
+ 	case HWTSTAMP_FILTER_NONE:
+ 		break;
+-	case HWTSTAMP_FILTER_ALL:
+-	case HWTSTAMP_FILTER_SOME:
+-	case HWTSTAMP_FILTER_PTP_V1_L4_EVENT:
+-	case HWTSTAMP_FILTER_PTP_V1_L4_SYNC:
+-	case HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ:
+-	case HWTSTAMP_FILTER_NTP_ALL:
+ 	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
+ 	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
+ 	case HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ:
 -- 
 2.33.0
 
