@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A0E461F1D
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65BFE461E63
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:33:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379551AbhK2Sny (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:43:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44598 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379674AbhK2Slv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:41:51 -0500
+        id S1350344AbhK2Sfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:35:44 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:49666 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354060AbhK2Sdn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:33:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8820AB815DB;
-        Mon, 29 Nov 2021 18:38:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6F55C53FAD;
-        Mon, 29 Nov 2021 18:38:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E565ACE13D8;
+        Mon, 29 Nov 2021 18:30:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 925DEC53FAD;
+        Mon, 29 Nov 2021 18:30:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211111;
-        bh=8TQiQF5wAUWqIZhPncuWfp4/Fwa5Zyv/dzddyFXo+G4=;
+        s=korg; t=1638210623;
+        bh=ekOMC+f+5hqO9GySoujz7LeoR6eGO8jYlRMMD/LOsK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2wTosMHklS6ZTrjvAUB3Yhc6DlgjwFjqd07ufTkvWBE83pTn00Enc2PfVXGEO+psM
-         Zm5ywUHy5MpzWkSTSvcDReil+uAhER93d6iB1DYg5paFItaSmtvaW22To2touNTwKW
-         kOjgX0JT0vRXQLjgvQjowzD033ATiSCfhHyXddmQ=
+        b=TPKKH11Ww3wAI40g4pKxxogzJSjSq5XhxQYJXgoIb0Gk3jGT1wdUL6bPdFCTEYGfV
+         BpwMkBBTo9FPpX47I3k54R7WcNdnOtjysHLNTa6VTEYBswRxkSefyirPijGTaaRCMh
+         17NRuzongTbPkCbw39dsTQ3ffzgO4L4+uFm2ZhHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brent Roman <brent@mbari.org>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/179] HID: input: set usage type to key on keycode remap
-Date:   Mon, 29 Nov 2021 19:18:10 +0100
-Message-Id: <20211129181722.088037855@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nitesh B Venkatesh <nitesh.b.venkatesh@intel.com>,
+        George Kuruvinakunnel <george.kuruvinakunnel@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 060/121] iavf: Prevent changing static ITR values if adaptive moderation is on
+Date:   Mon, 29 Nov 2021 19:18:11 +0100
+Message-Id: <20211129181713.667127489@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +47,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Nitesh B Venkatesh <nitesh.b.venkatesh@intel.com>
 
-[ Upstream commit 3e6a950d98366f5e716904e9a7e8ffc7ed638bd6 ]
+[ Upstream commit e792779e6b639c182df91b46ac1e5803460b0b15 ]
 
-When a scancode is manually remapped that previously was not handled as
-key, then the old usage type was incorrectly reused.
+Resolve being able to change static values on VF when adaptive interrupt
+moderation is enabled.
 
-This caused issues on a "04b3:301b IBM Corp. SK-8815 Keyboard" which has
-marked some of its keys with an invalid HID usage.  These invalid usage
-keys are being ignored since support for USB programmable buttons was
-added.
+This problem is fixed by checking the interrupt settings is not
+a combination of change of static value while adaptive interrupt
+moderation is turned on.
 
-The scancodes are however remapped explicitly by the systemd hwdb to the
-keycodes that are printed on the physical buttons.  During this mapping
-step the existing usage is retrieved which will be found with a default
-type of 0 (EV_SYN) instead of EV_KEY.
+Without this fix, the user would be able to change static values
+on VF with adaptive moderation enabled.
 
-The events with the correct code but EV_SYN type are not forwarded to
-userspace.
-
-This also leads to a kernel oops when trying to print the report descriptor
-via debugfs.  hid_resolv_event() tries to resolve a EV_SYN event with an
-EV_KEY code which leads to an out-of-bounds access in the EV_SYN names
-array.
-
-Fixes: bcfa8d1457 ("HID: input: Add support for Programmable Buttons")
-Fixes: f5854fad39 ("Input: hid-input - allow mapping unknown usages")
-Reported-by: Brent Roman <brent@mbari.org>
-Tested-by: Brent Roman <brent@mbari.org>
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 65e87c0398f5 ("i40evf: support queue-specific settings for interrupt moderation")
+Signed-off-by: Nitesh B Venkatesh <nitesh.b.venkatesh@intel.com>
+Tested-by: George Kuruvinakunnel <george.kuruvinakunnel@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../net/ethernet/intel/iavf/iavf_ethtool.c    | 30 ++++++++++++++++---
+ 1 file changed, 26 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 4b3f4a5e23058..6561770f1af55 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -160,6 +160,7 @@ static int hidinput_setkeycode(struct input_dev *dev,
- 	if (usage) {
- 		*old_keycode = usage->type == EV_KEY ?
- 				usage->code : KEY_RESERVED;
-+		usage->type = EV_KEY;
- 		usage->code = ke->keycode;
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
+index ea85b06857fa2..90f5ec982d513 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
+@@ -719,12 +719,31 @@ static int iavf_get_per_queue_coalesce(struct net_device *netdev, u32 queue,
+  *
+  * Change the ITR settings for a specific queue.
+  **/
+-static void iavf_set_itr_per_queue(struct iavf_adapter *adapter,
+-				   struct ethtool_coalesce *ec, int queue)
++static int iavf_set_itr_per_queue(struct iavf_adapter *adapter,
++				  struct ethtool_coalesce *ec, int queue)
+ {
+ 	struct iavf_ring *rx_ring = &adapter->rx_rings[queue];
+ 	struct iavf_ring *tx_ring = &adapter->tx_rings[queue];
+ 	struct iavf_q_vector *q_vector;
++	u16 itr_setting;
++
++	itr_setting = rx_ring->itr_setting & ~IAVF_ITR_DYNAMIC;
++
++	if (ec->rx_coalesce_usecs != itr_setting &&
++	    ec->use_adaptive_rx_coalesce) {
++		netif_info(adapter, drv, adapter->netdev,
++			   "Rx interrupt throttling cannot be changed if adaptive-rx is enabled\n");
++		return -EINVAL;
++	}
++
++	itr_setting = tx_ring->itr_setting & ~IAVF_ITR_DYNAMIC;
++
++	if (ec->tx_coalesce_usecs != itr_setting &&
++	    ec->use_adaptive_tx_coalesce) {
++		netif_info(adapter, drv, adapter->netdev,
++			   "Tx interrupt throttling cannot be changed if adaptive-tx is enabled\n");
++		return -EINVAL;
++	}
  
- 		clear_bit(*old_keycode, dev->keybit);
+ 	rx_ring->itr_setting = ITR_REG_ALIGN(ec->rx_coalesce_usecs);
+ 	tx_ring->itr_setting = ITR_REG_ALIGN(ec->tx_coalesce_usecs);
+@@ -747,6 +766,7 @@ static void iavf_set_itr_per_queue(struct iavf_adapter *adapter,
+ 	 * the Tx and Rx ITR values based on the values we have entered
+ 	 * into the q_vector, no need to write the values now.
+ 	 */
++	return 0;
+ }
+ 
+ /**
+@@ -788,9 +808,11 @@ static int __iavf_set_coalesce(struct net_device *netdev,
+ 	 */
+ 	if (queue < 0) {
+ 		for (i = 0; i < adapter->num_active_queues; i++)
+-			iavf_set_itr_per_queue(adapter, ec, i);
++			if (iavf_set_itr_per_queue(adapter, ec, i))
++				return -EINVAL;
+ 	} else if (queue < adapter->num_active_queues) {
+-		iavf_set_itr_per_queue(adapter, ec, queue);
++		if (iavf_set_itr_per_queue(adapter, ec, queue))
++			return -EINVAL;
+ 	} else {
+ 		netif_info(adapter, drv, netdev, "Invalid queue value, queue range is 0 - %d\n",
+ 			   adapter->num_active_queues - 1);
 -- 
 2.33.0
 
