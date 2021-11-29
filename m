@@ -2,105 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E9CD46207F
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 20:29:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 775514620B9
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 20:42:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238478AbhK2Tc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 14:32:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47182 "EHLO
+        id S1351853AbhK2Tpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 14:45:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231280AbhK2Ta5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 14:30:57 -0500
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E07ACC061799
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 07:47:31 -0800 (PST)
-Received: by mail-ed1-x535.google.com with SMTP id y13so73710254edd.13
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 07:47:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=c6g50yMG/1omcJlm0BcWdAgQTVtFHbwnLlUdAfvNo04=;
-        b=zsxTUePSdP1mP9GKvIUtm3eug9zrqHOdRP6ODS2E+5PZynoYDvucViEFbBkdlywFwa
-         hccTQkzLxfJSLG602+GzYfHRHEkyO8WD7icrJrL4CVkE5yrY3/HMfl20MsuWOYIp+eKk
-         F6YbbSKzZfwbsv0PrXBhH5YeWPUKwp2YikdcLp6Ru7ri3Lb05SZcT8PnWcoz5kU268JD
-         tBZhMx9DXoSqm2JsYu8TgO7Eni7DG3KKDM269leP5KR9sPxxhF0aFNFwyJCZpn+QZjEj
-         aHJxQwDzJazq5Z0mBlZvWP5rjnbkt7XSakRZXjv9EhhPjlqkgOM33jg+5RY52/yhWYrk
-         xOsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=c6g50yMG/1omcJlm0BcWdAgQTVtFHbwnLlUdAfvNo04=;
-        b=ag+TROOa0iwA1ZidX5sP4eopQASXuiNJtCDN7wx6nbSN9+Nm2GFmDCwFUc7/ZZJU0I
-         cxxSsnOLRqXda1Rgix0GSsLXwepLJSz71kk3nHnk2qUDP2wxRrVwqXK5s1ZxdgVcihS4
-         HVp86eqvY6/tmXtyLfEX1+MMZ4W0XYxAAkli444RTMCpdWgpqzOYWmgLzMyBhtmk04Qt
-         51X0c5TpN7TRwtozuNdr5yVL5JmJB2nB4+9pUyu1cxdUSK3XQgLyjFiEewbtP8vVL/bN
-         CXr01F1NSVc+YhNHSwI4vnzzAnURcB5qtYYxD7LK+TGq7XVyT7PBZpP1VLB/6PvP7JLs
-         IU7Q==
-X-Gm-Message-State: AOAM530vW1A90w02Nc6al7KnIoaJrgKF+H90hFTCHwGs0jLVWJuc3b/H
-        Cp9ImwHCywg3GB2vouBiplTBbB9TB/V290WFJJUCAg==
-X-Google-Smtp-Source: ABdhPJwUAgVVsyVr5litLo45IS6OFKaPGye855sme0yFRscxgxypkG4QPymN0fIX25G3gH3RLUorv5ZrxEwFi7C0rGc=
-X-Received: by 2002:a05:6402:4312:: with SMTP id m18mr73833303edc.273.1638200849924;
- Mon, 29 Nov 2021 07:47:29 -0800 (PST)
+        with ESMTP id S239907AbhK2Tnk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 14:43:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F736C0698C0;
+        Mon, 29 Nov 2021 08:01:30 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D60E61536;
+        Mon, 29 Nov 2021 16:01:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4EDCC53FCB;
+        Mon, 29 Nov 2021 16:01:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638201689;
+        bh=Kv6MBJXYeHo0IxkIpDY6gwYHS2TLFxXrBu9ZJWu8kyc=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=HIUMWJn5i/ZkPEx2uv6ITIpHeBvPAEUJfIJWXd9m0bj0hSSR5mEDTX3OqcLtzzV1A
+         VGyL4y2zK5MTat1iGPwpQ4bylq9ZcdfIblhCGEJt8EDu7Vwci/CWwM6/qZqrK8Bxfc
+         jLKw2VgdNKPfMIp0PpkNcd4fnBnxdALIdbBoGNn8wKQRp0BuGtCQc8tSbIjo8FAecg
+         plAAemFtuTDREl7q+APVmry/1jfQTJPC5UIFUHa4Hnmkc0Oc0QLx+3tEiVA65tbBsa
+         9bNfCX/dSo3ieKAm9Kle4XQIul8QjWQYAftLs6WQlGUqHI9tLv/XM+3dOBuDbgRh0H
+         ZZkEN9ot/hNxA==
+Message-ID: <0e6e66f7368621128a810bb604eab229dd279187.camel@kernel.org>
+Subject: Re: Commit f980d055a0f858d73d9467bb0b570721bbfcdfb8 causes a
+ regression
+From:   Jeff Layton <jlayton@kernel.org>
+To:     Tim Gardner <tim.gardner@canonical.com>, len.baker@gmx.com
+Cc:     pc@cjr.nz, stfrench@microsoft.com,
+        Kamal Mostafa <Kamal.Mostafa@canonical.com>,
+        linux-cifs@vger.kernel.org,
+        samba-technical <samba-technical@lists.samba.org>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
+Date:   Mon, 29 Nov 2021 11:01:27 -0500
+In-Reply-To: <a8b2287b-c459-2169-fbf4-31f3065e0897@canonical.com>
+References: <a8b2287b-c459-2169-fbf4-31f3065e0897@canonical.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+User-Agent: Evolution 3.42.1 (3.42.1-1.fc35) 
 MIME-Version: 1.0
-References: <CA+G9fYuzzknDMdu3q8ARyVHqd-cLYD_tsMLMH-ig-k-WVeTPAg@mail.gmail.com>
- <YaTkwsWycenqZHN9@kroah.com>
-In-Reply-To: <YaTkwsWycenqZHN9@kroah.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 29 Nov 2021 21:17:18 +0530
-Message-ID: <CA+G9fYu_aWr-S77rD39Bx-oMGAwbkYPQJzUH8mz_ea++VYNk-Q@mail.gmail.com>
-Subject: Re: Doesn't build 32 bit vDSO for arm64
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Antonio Terceiro <antonio.terceiro@linaro.org>,
-        Vishal Bhoj <vishal.bhoj@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-+ Daniel
+On Mon, 2021-11-29 at 08:35 -0700, Tim Gardner wrote:
+> Hi Len,
+> 
+> I have a report (https://bugs.launchpad.net/bugs/1952094) that commit 
+> f980d055a0f858d73d9467bb0b570721bbfcdfb8 ("CIFS: Fix a potencially 
+> linear read overflow") causes a regression as a stable backport in a 5.4 
+> based kernel. I don't know if this regression exists in tip as well, or 
+> if it is unique to the backported environment. I suspect, given the 
+> content of the patch, that it is generic. As such, it has been 
+> backported to a number of stable releases:
+> 
+> linux-4.4.y.txt:0955df2d9bf4857e3e2287e3028903e6cec06c30
+> linux-4.9.y.txt:8878af780747f498551b7d360cae61b415798f18
+> linux-4.14.y.txt:20967547ffc6039f17c63a1c24eb779ee166b245
+> linux-4.19.y.txt:bea655491daf39f1934a71bf576bf3499092d3a4
+> linux-5.4.y.txt:b444064a0e0ef64491b8739a9ae05a952b5f8974
+> linux-5.10.y.txt:6c4857203ffa36918136756a889b12c5864bc4ad
+> linux-5.13.y.txt:9bffe470e9b537075345406512df01ca2188b725
+> linux-5.14.y.txt:c41dd61c86482ab34f6f039b13296308018fd99b
+> 
+> Could this be an off-by-one issue if the source string is full length ?
+> 
+> rtg
 
-On Mon, 29 Nov 2021 at 20:03, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Nov 29, 2021 at 07:42:07PM +0530, Naresh Kamboju wrote:
-> > Hi Greg and Antonio,
-> >
-> > The stable-rc 5.4 build is failing.
-> > ( 5.10 and 5.15 builds pass )
-> > because new build getting these two extra configs.
-> >
-> > CONFIG_GENERIC_COMPAT_VDSO=y
-> > CONFIG_COMPAT_VDSO=y
-> >
-> > These two configs are getting added by extra build variable
-> >
-> > CROSS_COMPILE_COMPAT=arm-linux-gnueabihf-
-> >
-> > This extra variable is coming from new tuxmake tool.
-> >
-> > Doesn't build 32 bit vDSO for arm64
-> > https://gitlab.com/Linaro/tuxmake/-/issues/160
-> >
-> > ref:
-> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/
-> >
-> >
-> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
->
-> Has this ever worked on 5.4 for this configuration?
->
-> Or is this a new problem with the current 5.4.y queue?
+Maybe? But it doesn't seem to be that long. The error message evidently
+says:
 
-It did not worked on 5.4 with CROSS_COMPILE_COMPAT=arm-linux-gnueabihf-
+    "CIFS VFS: CIFS mount error: iocharset utf8 not found"
 
-OTOH, Since 5.10 and above builds pass with this ^.
-We are investigating and trying to find the missing patch on 5.4.
+The iocharset string ("utf8" here) usually gets set in the mount string
+and then we just pass that string to load_nls().
 
-- Naresh
+The patch you're pointing out though doesn't seem to be involved in any
+of that. It sounds like something else is wrong. I'd validate that that
+patch was applied correctly, and get more details about what this guy is
+doing.
+
+g/l!
+-- 
+Jeff Layton <jlayton@kernel.org>
