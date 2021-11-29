@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A471461E45
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:33:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3771A461EF5
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:40:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377554AbhK2Se7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:34:59 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35070 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379385AbhK2Sc0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:32:26 -0500
+        id S241687AbhK2SmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:42:05 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:55202 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379807AbhK2SkD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:40:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F9AFB815AA;
-        Mon, 29 Nov 2021 18:29:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B002DC53FCD;
-        Mon, 29 Nov 2021 18:29:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 20990CE13DB;
+        Mon, 29 Nov 2021 18:36:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3F25C53FC7;
+        Mon, 29 Nov 2021 18:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210546;
-        bh=wAy12IPODj/3KdXfO8A2Zy/YZnTRrfVQUT3gWWc4qPU=;
+        s=korg; t=1638211002;
+        bh=Bu40b1IDMXtfWt1r6mOek9GvWLTecgxrHieWMVD9GYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ja2EhCKUw6ny1lcFP28TEP8g8xPW1dvGU+4RpWw+kftLF1uHFv011HbXbXupAmE8i
-         CdI4qwTHxghGbQVhDulPaKNOFDYUSCvOyYpqfQHoNLkJR8Dj2vvZQj1ai9ifp/isHQ
-         6nMbB1emgTlRgmZm56oM4WDvmxVAqMBdd4BRmwW0=
+        b=Z6nOBZaiyBQyKpQ/e8PZRrDWkR3NlDHTq5szqbb0X3rbvDwez5XbxXr+A8g37mgbz
+         XuOuHpQ/e5oOM/u7e6xJ1z6GLofVFiWEjieWTzq8pyMeZ2zPGx7QFWCKxNfBTcMTk3
+         ea9QPxsixXfqph98YE2ORaJadfRnVwUpQz+zUYcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Bough Chen <haibo.chen@nxp.com>
-Subject: [PATCH 5.10 032/121] mmc: sdhci: Fix ADMA for PAGE_SIZE >= 64KiB
-Date:   Mon, 29 Nov 2021 19:17:43 +0100
-Message-Id: <20211129181712.727732267@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 070/179] firmware: arm_scmi: Fix null de-reference on error path
+Date:   Mon, 29 Nov 2021 19:17:44 +0100
+Message-Id: <20211129181721.253046132@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,91 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit 3d7c194b7c9ad414264935ad4f943a6ce285ebb1 upstream.
+[ Upstream commit 95161165727650a707bc34ecfac286a418b6bb00 ]
 
-The block layer forces a minimum segment size of PAGE_SIZE, so a segment
-can be too big for the ADMA table, if PAGE_SIZE >= 64KiB. Fix by writing
-multiple descriptors, noting that the ADMA table is sized for 4KiB chunks
-anyway, so it will be big enough.
+During channel setup a failure in the call of scmi_vio_feed_vq_rx() leads
+to an attempt to access a dev pointer by dereferencing vioch->cinfo at
+a time when vioch->cinfo has still to be initialized.
 
-Reported-and-tested-by: Bough Chen <haibo.chen@nxp.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211115082345.802238-1-adrian.hunter@intel.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix it by providing the device reference directly to scmi_vio_feed_vq_rx.
+
+Link: https://lore.kernel.org/r/20211112180705.41601-1-cristian.marussi@arm.com
+Fixes: 46abe13b5e3db ("firmware: arm_scmi: Add virtio transport")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci.c |   21 ++++++++++++++++++---
- drivers/mmc/host/sdhci.h |    4 +++-
- 2 files changed, 21 insertions(+), 4 deletions(-)
+ drivers/firmware/arm_scmi/virtio.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -772,7 +772,19 @@ static void sdhci_adma_table_pre(struct
- 			len -= offset;
- 		}
- 
--		BUG_ON(len > 65536);
-+		/*
-+		 * The block layer forces a minimum segment size of PAGE_SIZE,
-+		 * so 'len' can be too big here if PAGE_SIZE >= 64KiB. Write
-+		 * multiple descriptors, noting that the ADMA table is sized
-+		 * for 4KiB chunks anyway, so it will be big enough.
-+		 */
-+		while (len > host->max_adma) {
-+			int n = 32 * 1024; /* 32KiB*/
-+
-+			__sdhci_adma_write_desc(host, &desc, addr, n, ADMA2_TRAN_VALID);
-+			addr += n;
-+			len -= n;
-+		}
- 
- 		/* tran, valid */
- 		if (len)
-@@ -3948,6 +3960,7 @@ struct sdhci_host *sdhci_alloc_host(stru
- 	 * descriptor for each segment, plus 1 for a nop end descriptor.
- 	 */
- 	host->adma_table_cnt = SDHCI_MAX_SEGS * 2 + 1;
-+	host->max_adma = 65536;
- 
- 	return host;
+diff --git a/drivers/firmware/arm_scmi/virtio.c b/drivers/firmware/arm_scmi/virtio.c
+index 11e8efb713751..87039c5c03fdb 100644
+--- a/drivers/firmware/arm_scmi/virtio.c
++++ b/drivers/firmware/arm_scmi/virtio.c
+@@ -82,7 +82,8 @@ static bool scmi_vio_have_vq_rx(struct virtio_device *vdev)
  }
-@@ -4611,10 +4624,12 @@ int sdhci_setup_host(struct sdhci_host *
- 	 * be larger than 64 KiB though.
- 	 */
- 	if (host->flags & SDHCI_USE_ADMA) {
--		if (host->quirks & SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC)
-+		if (host->quirks & SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC) {
-+			host->max_adma = 65532; /* 32-bit alignment */
- 			mmc->max_seg_size = 65535;
--		else
-+		} else {
- 			mmc->max_seg_size = 65536;
-+		}
+ 
+ static int scmi_vio_feed_vq_rx(struct scmi_vio_channel *vioch,
+-			       struct scmi_vio_msg *msg)
++			       struct scmi_vio_msg *msg,
++			       struct device *dev)
+ {
+ 	struct scatterlist sg_in;
+ 	int rc;
+@@ -94,8 +95,7 @@ static int scmi_vio_feed_vq_rx(struct scmi_vio_channel *vioch,
+ 
+ 	rc = virtqueue_add_inbuf(vioch->vqueue, &sg_in, 1, msg, GFP_ATOMIC);
+ 	if (rc)
+-		dev_err_once(vioch->cinfo->dev,
+-			     "failed to add to virtqueue (%d)\n", rc);
++		dev_err_once(dev, "failed to add to virtqueue (%d)\n", rc);
+ 	else
+ 		virtqueue_kick(vioch->vqueue);
+ 
+@@ -108,7 +108,7 @@ static void scmi_finalize_message(struct scmi_vio_channel *vioch,
+ 				  struct scmi_vio_msg *msg)
+ {
+ 	if (vioch->is_rx) {
+-		scmi_vio_feed_vq_rx(vioch, msg);
++		scmi_vio_feed_vq_rx(vioch, msg, vioch->cinfo->dev);
  	} else {
- 		mmc->max_seg_size = mmc->max_req_size;
+ 		/* Here IRQs are assumed to be already disabled by the caller */
+ 		spin_lock(&vioch->lock);
+@@ -269,7 +269,7 @@ static int virtio_chan_setup(struct scmi_chan_info *cinfo, struct device *dev,
+ 			list_add_tail(&msg->list, &vioch->free_list);
+ 			spin_unlock_irqrestore(&vioch->lock, flags);
+ 		} else {
+-			scmi_vio_feed_vq_rx(vioch, msg);
++			scmi_vio_feed_vq_rx(vioch, msg, cinfo->dev);
+ 		}
  	}
---- a/drivers/mmc/host/sdhci.h
-+++ b/drivers/mmc/host/sdhci.h
-@@ -338,7 +338,8 @@ struct sdhci_adma2_64_desc {
  
- /*
-  * Maximum segments assuming a 512KiB maximum requisition size and a minimum
-- * 4KiB page size.
-+ * 4KiB page size. Note this also allows enough for multiple descriptors in
-+ * case of PAGE_SIZE >= 64KiB.
-  */
- #define SDHCI_MAX_SEGS		128
- 
-@@ -540,6 +541,7 @@ struct sdhci_host {
- 	unsigned int blocks;	/* remaining PIO blocks */
- 
- 	int sg_count;		/* Mapped sg entries */
-+	int max_adma;		/* Max. length in ADMA descriptor */
- 
- 	void *adma_table;	/* ADMA descriptor table */
- 	void *align_buffer;	/* Bounce buffer */
+-- 
+2.33.0
+
 
 
