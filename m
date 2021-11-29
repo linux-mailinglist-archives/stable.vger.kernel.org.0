@@ -2,135 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 937F2460EB8
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 07:21:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83495460EBE
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 07:26:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343505AbhK2GYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 01:24:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45016 "EHLO
+        id S240968AbhK2G30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 01:29:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233060AbhK2GWi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 01:22:38 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30462C061746
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 22:19:21 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id s37so5369750pga.9
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 22:19:21 -0800 (PST)
+        with ESMTP id S233072AbhK2G1K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 01:27:10 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6A58C061574
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 22:23:52 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id r25so1879430edq.7
+        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 22:23:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=I5x8sUTaEEuX66SVzsSBj+Z42O0lYb2plKpQl/uArmo=;
-        b=Y7LUEH2apGvb36tlvrV5/GeN3YHgKDmBEdgQcu1+25shdb1aF5YPMZRlbLUOjz8PNf
-         XmWWiapEOl1+ZZD1Cud6S9ACvU4u3hWXleeqa8jDkX9QzYT8mqgJ8s01QoA+WFQ5dAWM
-         C2MSwf2OAUeDMSi0IfrzIGWkcEqw5GAxEasxAffGX+lGYZ7ePkiG6gyQ9HW/PnuA5KKg
-         3woKDsHr9brrKXFJW68ASmyxVaqeSefSEzQ1JwUNvngGrlpJwkrGOMW/uGT9juHbA96C
-         S6XonB9nk5ZqODNE2iAG71qusZnG+1iAQOkwe5SJmw8X/k3vo80pqjr31umbXTzNB3/9
-         /NhA==
+        d=kylehuey.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=CjEF5Nhzo1rj0ChcchyR6egEY+0yABtWX08Drqq5nEI=;
+        b=ZnkqJRYLHp2fFYELcjoZTydP7tzIKuT6KdRAg6QxAliHPjrQYWFaxxsmbek2iZJVXP
+         jMC8PKyTDtIFJ7UJm++YBXaKfRPdJURFnUndpcs20P205lIPrMxWlnMYMlVAC2LkYsNB
+         YMcRGPxrVl0bMhswwkGbeZ62aF8mAdw7VgXJRaxZKRIJjH7H2nA27f1J12wjulJydf+8
+         oyhe7EXJh+jzLTplLmvypyFveLkpTYzWedVqdXWYGCKeGnZSXthjgFJK7ovpCGB4dTo/
+         TeIY45srNRo35/7zaUK9k4NF+elO5wk/CIFILfsJ9Uv0bIyBam6z/eGla2bBXSISDkE3
+         YzQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=I5x8sUTaEEuX66SVzsSBj+Z42O0lYb2plKpQl/uArmo=;
-        b=rq8Vv678SxgsLOvMGmiNmNzc2XhI7fwB7p4SvmIdX3SvcVjrLwDvr9LpkrLSvhtAcM
-         /m07YQNd5G6K7oCpJm1IEelnnlshBwpNkPRLjosFaZYW2RVyGy/Uweb42CtrCXAdY9/n
-         8x/cnjw5xh8mg0pyPAqAOVRXMk2eoKFs3KvEvczJWcZvEkFhjVofdz3GIx2qoulYOk/y
-         qJlA4nN7S5Hu7nA2vWpqYRJTFNOHRXaA6h446wn4DS1G2fcCFjXmlnHeDvkVTypIdogO
-         7sm1wXEyzLwt5aegWR37aRii2BF2JwDbcaYOdJClPZXeVkPYSIkUgkI0LOyKH0Z93ddx
-         kiZQ==
-X-Gm-Message-State: AOAM531xjsab4CcMTfWtl79GFcKMa62vKsy259I7hommBI9CMW77jwNW
-        Z04zmXlsnt/GS8qhnMMoLPbt2OiABW+1rcPt
-X-Google-Smtp-Source: ABdhPJxK5vX+4wJkeaNpscgLcVzQGPCwFBPO+SQ4kohWh0Uvfb+z9dsxYO7LMPEk0cU3O/wfH4HFtw==
-X-Received: by 2002:a63:5119:: with SMTP id f25mr23568534pgb.11.1638166760625;
-        Sun, 28 Nov 2021 22:19:20 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s16sm15711022pfu.109.2021.11.28.22.19.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Nov 2021 22:19:20 -0800 (PST)
-Message-ID: <61a470e8.1c69fb81.a39d.b39e@mx.google.com>
-Date:   Sun, 28 Nov 2021 22:19:20 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=CjEF5Nhzo1rj0ChcchyR6egEY+0yABtWX08Drqq5nEI=;
+        b=KiJMBasgVmTzRc3Sf1Q6BXrKwrqeCngRqefYK58PFUZY8vNMiJHRT+BkKw//7u2bRx
+         0/x9IbD/G4ujfNQBpVHg/KBLW4kv2IF/LYSRK5IQZlBYiiGqkqNkhodr1RdAkp0wnnL2
+         Y/4eA+eIAP9rIY+ymMlypd5F+5qT5+TgLSUj9R5SlothlyTf9AyZRI/+DKXbpIAevX98
+         Asal7ZrPLctepKqDIoFtLKV9xsXs/aeRK4R63eqDLozduePYGBTCXQ6FHIiHbaFPk+N/
+         HrbRYsiFnwQjNNU0Me15+Qw95a2v5hsaJXFNLSQpn7bLfGA6k6T2p+yKHee2AiYl+Hwr
+         mEiw==
+X-Gm-Message-State: AOAM5328rfOTLxHQlH7SPmbwzZsvA5sjiSBjrnyGi3/T8toQpeitcTdC
+        upsHUS/KUPQQd5Zm4iZHS9khFb23AKCSsYKEtVdofcNv0hA=
+X-Google-Smtp-Source: ABdhPJw+i/mZzT2R/aqyOoEQtyFsjfx0zLYnLvUgxH+5u5dqIcYO6yGtGJTzrS+qy4blCvCyX46I7Fif3Qa1HAaahGk=
+X-Received: by 2002:a17:907:94c6:: with SMTP id dn6mr57989607ejc.490.1638167031112;
+ Sun, 28 Nov 2021 22:23:51 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.218-54-g88fd43d770ff1
-Subject: stable-rc/queue/4.19 baseline: 144 runs,
- 1 regressions (v4.19.218-54-g88fd43d770ff1)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <163758427225348@kroah.com> <CAP045ApHdVjC59KE7+morWY_5j4px3O0Fm6F6-cuJ+p6Q9PCPA@mail.gmail.com>
+ <87y25ef82b.fsf@email.froward.int.ebiederm.org>
+In-Reply-To: <87y25ef82b.fsf@email.froward.int.ebiederm.org>
+From:   Kyle Huey <me@kylehuey.com>
+Date:   Sun, 28 Nov 2021 22:23:38 -0800
+Message-ID: <CAP045ApWgeLtpGXjEt8DvH1uGJ-2vEo1zq-0EzFcR6F+HNoj7Q@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] signal: Don't always set SA_IMMUTABLE for
+ forced signals" failed to apply to 5.15-stable tree
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     gregkh@linuxfoundation.org,
+        "Robert O'Callahan" <robert@ocallahan.org>,
+        Kees Cook <keescook@chromium.org>,
+        Kyle Huey <khuey@kylehuey.com>,
+        Oliver Sang <oliver.sang@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 144 runs, 1 regressions (v4.19.218-54-g88fd4=
-3d770ff1)
+On Tue, Nov 23, 2021 at 9:15 PM Eric W. Biederman <ebiederm@xmission.com> wrote:
+>
+> Kyle Huey <me@kylehuey.com> writes:
+>
+>
+> > Since this is taken care of now, AFAICT, I do have one additional
+> > question. I reported the regression to LKML a day or so before 5.15.3
+> > was cut. What should I have noticed to see that the regressing
+> > changeset was going to 5.15 and where should I have said "hey please
+> > don't ship this on 5.15 yet"?
+> >
+> > I'd like to know what to do next time :)
+> >
+> When patches are added to the stable tree they are posted
+> for review.
+>
+> I was Cc'd on a couple of them because of this discussion.  The list
+> appear to be "<stable-commits@vger.kernel.org>".  Feedback is requested
+> to go to "<stable@vger.kernel.org>".  So I believe this conversation is
+> enough to remove the unnecessary patches before they make it to a stable
+> release.
+>
+> The boiler plate looks like:
+> > Cc: <stable-commits@vger.kernel.org>
+> > Date: Tue, 23 Nov 2021 19:11:53 +0100 (10 hours, 58 minutes, 56 seconds ago)
+> >
+> >
+> > This is a note to let you know that I've just added the patch titled
+> >
+> >     exit/syscall_user_dispatch: Send ordinary signals on failure
+> >
+> > to the 5.15-stable tree which can be found at:
+> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> >
+> > The filename of the patch is:
+> >      exit-syscall_user_dispatch-send-ordinary-signals-on-failure.patch
+> > and it can be found in the queue-5.15 subdirectory.
+> >
+> > If you, or anyone else, feels it should not be added to the stable tree,
+> > please let <stable@vger.kernel.org> know about it.
+>
+>
+> I hope that helps.
+>
+> Eric
 
-Regressions Summary
--------------------
+So if I understand this correctly the best (or maybe even only) way to
+stop a regressing changeset from making it into a stable release is to
+separately search/watch the stable mailing list for the changeset in
+question?
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.218-54-g88fd43d770ff1/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.218-54-g88fd43d770ff1
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      88fd43d770ff12deb64b2cfc7d9bd41d4571ce26 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61a4381897ac6cbbac18f6cd
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.218=
--54-g88fd43d770ff1/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.218=
--54-g88fd43d770ff1/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a4381897ac6cb=
-bac18f6d3
-        failing since 3 days (last pass: v4.19.217-320-gdc7db2be81d5, first=
- fail: v4.19.217-320-ge8717633e0ba)
-        2 lines
-
-    2021-11-29T02:16:37.516194  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/100
-    2021-11-29T02:16:37.525991  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+- Kyle
