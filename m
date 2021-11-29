@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AB57461F31
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA7A7461E2B
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:30:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243268AbhK2Sor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:44:47 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:56550 "EHLO
+        id S239129AbhK2Sdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:33:42 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:50560 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380086AbhK2Smq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:42:46 -0500
+        with ESMTP id S1379241AbhK2SbQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:31:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2DB2BCE12FD;
-        Mon, 29 Nov 2021 18:39:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0FDFC53FC7;
-        Mon, 29 Nov 2021 18:39:24 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 96DE9CE13DE;
+        Mon, 29 Nov 2021 18:27:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4201DC53FC7;
+        Mon, 29 Nov 2021 18:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211165;
-        bh=r0/d1W9OUm2281L+QL1xYPmIMNiUshozO+Fm8Erda38=;
+        s=korg; t=1638210474;
+        bh=x/0MrtdlagQ2qs8cVA9vKJN8qDo36XQg41fb8ncQYLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ULYYLXqST8VHP7nlnyLzJoBdg4dHbx21NA4CuRcMGN6c9iW4JsLgZFlRVdKBUawxQ
-         VjGTlSS9S/CbeB8lWWI+aVCyr0D+9D5Ts4fbyK2YThPfe2Qphe7LcAzcT0C761HFVn
-         IBjnYrH4NF4wd8M/7sRyvBMtWtffKp3ugJCRHEEs=
+        b=qoriEFwyQ2cT0xU1Lk5KnDzNg29E4+WvuFMfxBQAc0UeBJ9R9T1PZwzPEkQeDp1z3
+         kGfILXU8f+8PWnsFVdPKcQA1uTR1ZOCf+yj8OxiaLVdsWSmOPajlrgY+Kj9GIfCrX2
+         NLc2r8zaSPDAVRMhg7NCQJI9pjjbtYioegNgRtnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mohammed Gamal <mgamal@redhat.com>,
-        Deepak Rawat <drawat.floss@gmail.com>,
+        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 127/179] drm/hyperv: Fix device removal on Gen1 VMs
+Subject: [PATCH 5.4 72/92] net/smc: Dont call clcsock shutdown twice when smc shutdown
 Date:   Mon, 29 Nov 2021 19:18:41 +0100
-Message-Id: <20211129181723.143657351@linuxfoundation.org>
+Message-Id: <20211129181709.814623262@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
+References: <20211129181707.392764191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohammed Gamal <mgamal@redhat.com>
+From: Tony Lu <tonylu@linux.alibaba.com>
 
-[ Upstream commit e048834c209a02e3776bcc47d43c6d863e3a67ca ]
+[ Upstream commit bacb6c1e47691cda4a95056c21b5487fb7199fcc ]
 
-The Hyper-V DRM driver tries to free MMIO region on removing
-the device regardless of VM type, while Gen1 VMs don't use MMIO
-and hence causing the kernel to crash on a NULL pointer dereference.
+When applications call shutdown() with SHUT_RDWR in userspace,
+smc_close_active() calls kernel_sock_shutdown(), and it is called
+twice in smc_shutdown().
 
-Fix this by making deallocating MMIO only on Gen2 machines and implement
-removal for Gen1
+This fixes this by checking sk_state before do clcsock shutdown, and
+avoids missing the application's call of smc_shutdown().
 
-Fixes: 76c56a5affeb ("drm/hyperv: Add DRM driver for hyperv synthetic video device")
-
-Signed-off-by: Mohammed Gamal <mgamal@redhat.com>
-Reviewed-by: Deepak Rawat <drawat.floss@gmail.com>
-Signed-off-by: Deepak Rawat <drawat.floss@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211119112900.300537-1-mgamal@redhat.com
+Link: https://lore.kernel.org/linux-s390/1f67548e-cbf6-0dce-82b5-10288a4583bd@linux.ibm.com/
+Fixes: 606a63c9783a ("net/smc: Ensure the active closing peer first closes clcsock")
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Link: https://lore.kernel.org/r/20211126024134.45693-1-tonylu@linux.alibaba.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/hyperv/hyperv_drm_drv.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ net/smc/af_smc.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/hyperv/hyperv_drm_drv.c b/drivers/gpu/drm/hyperv/hyperv_drm_drv.c
-index cd818a6291835..00e53de4812bb 100644
---- a/drivers/gpu/drm/hyperv/hyperv_drm_drv.c
-+++ b/drivers/gpu/drm/hyperv/hyperv_drm_drv.c
-@@ -225,12 +225,29 @@ static int hyperv_vmbus_remove(struct hv_device *hdev)
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 6b0f09c5b195f..5e1493f8deba7 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1658,8 +1658,10 @@ static __poll_t smc_poll(struct file *file, struct socket *sock,
+ static int smc_shutdown(struct socket *sock, int how)
  {
- 	struct drm_device *dev = hv_get_drvdata(hdev);
- 	struct hyperv_drm_device *hv = to_hv(dev);
-+	struct pci_dev *pdev;
+ 	struct sock *sk = sock->sk;
++	bool do_shutdown = true;
+ 	struct smc_sock *smc;
+ 	int rc = -EINVAL;
++	int old_state;
+ 	int rc1 = 0;
  
- 	drm_dev_unplug(dev);
- 	drm_atomic_helper_shutdown(dev);
- 	vmbus_close(hdev->channel);
- 	hv_set_drvdata(hdev, NULL);
--	vmbus_free_mmio(hv->mem->start, hv->fb_size);
-+
-+	/*
-+	 * Free allocated MMIO memory only on Gen2 VMs.
-+	 * On Gen1 VMs, release the PCI device
-+	 */
-+	if (efi_enabled(EFI_BOOT)) {
-+		vmbus_free_mmio(hv->mem->start, hv->fb_size);
-+	} else {
-+		pdev = pci_get_device(PCI_VENDOR_ID_MICROSOFT,
-+				      PCI_DEVICE_ID_HYPERV_VIDEO, NULL);
-+		if (!pdev) {
-+			drm_err(dev, "Unable to find PCI Hyper-V video\n");
-+			return -ENODEV;
-+		}
-+		pci_release_region(pdev, 0);
-+		pci_dev_put(pdev);
-+	}
- 
- 	return 0;
- }
+ 	smc = smc_sk(sk);
+@@ -1686,7 +1688,11 @@ static int smc_shutdown(struct socket *sock, int how)
+ 	}
+ 	switch (how) {
+ 	case SHUT_RDWR:		/* shutdown in both directions */
++		old_state = sk->sk_state;
+ 		rc = smc_close_active(smc);
++		if (old_state == SMC_ACTIVE &&
++		    sk->sk_state == SMC_PEERCLOSEWAIT1)
++			do_shutdown = false;
+ 		break;
+ 	case SHUT_WR:
+ 		rc = smc_close_shutdown_write(smc);
+@@ -1696,7 +1702,7 @@ static int smc_shutdown(struct socket *sock, int how)
+ 		/* nothing more to do because peer is not involved */
+ 		break;
+ 	}
+-	if (smc->clcsock)
++	if (do_shutdown && smc->clcsock)
+ 		rc1 = kernel_sock_shutdown(smc->clcsock, how);
+ 	/* map sock_shutdown_cmd constants to sk_shutdown value range */
+ 	sk->sk_shutdown |= how + 1;
 -- 
 2.33.0
 
