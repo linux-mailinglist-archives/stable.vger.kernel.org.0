@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8AD461F22
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE84F461D91
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:23:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245176AbhK2SoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:44:01 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:55154 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354250AbhK2SmA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:42:00 -0500
+        id S1377747AbhK2S0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:26:42 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58686 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348699AbhK2SYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:24:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 807B3CE13BF;
-        Mon, 29 Nov 2021 18:38:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AED6C53FAD;
-        Mon, 29 Nov 2021 18:38:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75611B815C9;
+        Mon, 29 Nov 2021 18:21:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99F72C53FC7;
+        Mon, 29 Nov 2021 18:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211119;
-        bh=33vH23L7fE+IaDyhc63rH9wswM2kTd+BJ7+ewrBiV8M=;
+        s=korg; t=1638210073;
+        bh=pTKdweK3dgnMuAhx19Ko+lSabZhOpaKUF7dgxJjBn+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDq4dffDhIf5uZUnjrnsqiw4EpzentDj+AiUyDrMLhWHA/3t4lN7vQw8bI/gmACKw
-         1Y9bIGDMTYwXLPPp+z1/pa7aK2VSN7na/zYKHn8LmMc+F1JKvOIgNB9GBCZAAffpHa
-         Axl/fTIqWc7XO26c+/FoEMsobzq4HK0tdxqwp5z4=
+        b=cp0bwOkf+13kBXPHp8O2VORbmh/4JEF95Rl9e90J7dZwP/8ZwO7B56FX+EDMtIwqv
+         M5lDUic6Qn8FvFP4sK/srLGfuKnhQ7dryXF/JqFWZV3OJWkBebz/WPjEB8qFjQ+8AI
+         2GrAbcs4MVMjHJ2BIwXmITAJl74O15lE906FRW7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Sokolowski <jan.sokolowski@intel.com>,
-        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 099/179] iavf: Fix refreshing iavf adapter stats on ethtool request
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Remi Pommarel <repk@triplefau.lt>
+Subject: [PATCH 4.19 31/69] PCI: aardvark: Fix checking for link up via LTSSM state
 Date:   Mon, 29 Nov 2021 19:18:13 +0100
-Message-Id: <20211129181722.188359843@linuxfoundation.org>
+Message-Id: <20211129181704.682331923@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,114 +47,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 3b5bdd18eb76e7570d9bacbcab6828a9b26ae121 ]
+commit 661c399a651c11aaf83c45cbfe0b4a1fb7bc3179 upstream.
 
-Currently iavf adapter statistics are refreshed only in a
-watchdog task, triggered approximately every two seconds,
-which causes some ethtool requests to return outdated values.
+Current implementation of advk_pcie_link_up() is wrong as it marks also
+link disabled or hot reset states as link up.
 
-Add explicit statistics refresh when requested by ethtool -S.
+Fix it by marking link up only to those states which are defined in PCIe
+Base specification 3.0, Table 4-14: Link Status Mapped to the LTSSM.
 
-Fixes: b476b0030e61 ("iavf: Move commands processing to the separate function")
-Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To simplify implementation, Define macros for every LTSSM state which
+aardvark hardware can return in CFG_REG register.
+
+Fix also checking for link training according to the same Table 4-14.
+Define a new function advk_pcie_link_training() for this purpose.
+
+Link: https://lore.kernel.org/r/20211005180952.6812-13-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
+Cc: Remi Pommarel <repk@triplefau.lt>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf.h         |  2 ++
- drivers/net/ethernet/intel/iavf/iavf_ethtool.c |  3 +++
- drivers/net/ethernet/intel/iavf/iavf_main.c    | 18 ++++++++++++++++++
- .../net/ethernet/intel/iavf/iavf_virtchnl.c    |  2 ++
- 4 files changed, 25 insertions(+)
+ drivers/pci/controller/pci-aardvark.c |   71 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 67 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
-index 46312a4415baf..dd81698f0d596 100644
---- a/drivers/net/ethernet/intel/iavf/iavf.h
-+++ b/drivers/net/ethernet/intel/iavf/iavf.h
-@@ -305,6 +305,7 @@ struct iavf_adapter {
- #define IAVF_FLAG_AQ_DEL_FDIR_FILTER		BIT(26)
- #define IAVF_FLAG_AQ_ADD_ADV_RSS_CFG		BIT(27)
- #define IAVF_FLAG_AQ_DEL_ADV_RSS_CFG		BIT(28)
-+#define IAVF_FLAG_AQ_REQUEST_STATS		BIT(29)
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -151,9 +151,50 @@
+ #define CFG_REG					(LMI_BASE_ADDR + 0x0)
+ #define     LTSSM_SHIFT				24
+ #define     LTSSM_MASK				0x3f
+-#define     LTSSM_L0				0x10
+ #define     RC_BAR_CONFIG			0x300
  
- 	/* OS defined structs */
- 	struct net_device *netdev;
-@@ -398,6 +399,7 @@ int iavf_up(struct iavf_adapter *adapter);
- void iavf_down(struct iavf_adapter *adapter);
- int iavf_process_config(struct iavf_adapter *adapter);
- void iavf_schedule_reset(struct iavf_adapter *adapter);
-+void iavf_schedule_request_stats(struct iavf_adapter *adapter);
- void iavf_reset(struct iavf_adapter *adapter);
- void iavf_set_ethtool_ops(struct net_device *netdev);
- void iavf_update_stats(struct iavf_adapter *adapter);
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-index 71b23922089fb..0cecaff38d042 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
-@@ -354,6 +354,9 @@ static void iavf_get_ethtool_stats(struct net_device *netdev,
- 	struct iavf_adapter *adapter = netdev_priv(netdev);
- 	unsigned int i;
- 
-+	/* Explicitly request stats refresh */
-+	iavf_schedule_request_stats(adapter);
++/* LTSSM values in CFG_REG */
++enum {
++	LTSSM_DETECT_QUIET			= 0x0,
++	LTSSM_DETECT_ACTIVE			= 0x1,
++	LTSSM_POLLING_ACTIVE			= 0x2,
++	LTSSM_POLLING_COMPLIANCE		= 0x3,
++	LTSSM_POLLING_CONFIGURATION		= 0x4,
++	LTSSM_CONFIG_LINKWIDTH_START		= 0x5,
++	LTSSM_CONFIG_LINKWIDTH_ACCEPT		= 0x6,
++	LTSSM_CONFIG_LANENUM_ACCEPT		= 0x7,
++	LTSSM_CONFIG_LANENUM_WAIT		= 0x8,
++	LTSSM_CONFIG_COMPLETE			= 0x9,
++	LTSSM_CONFIG_IDLE			= 0xa,
++	LTSSM_RECOVERY_RCVR_LOCK		= 0xb,
++	LTSSM_RECOVERY_SPEED			= 0xc,
++	LTSSM_RECOVERY_RCVR_CFG			= 0xd,
++	LTSSM_RECOVERY_IDLE			= 0xe,
++	LTSSM_L0				= 0x10,
++	LTSSM_RX_L0S_ENTRY			= 0x11,
++	LTSSM_RX_L0S_IDLE			= 0x12,
++	LTSSM_RX_L0S_FTS			= 0x13,
++	LTSSM_TX_L0S_ENTRY			= 0x14,
++	LTSSM_TX_L0S_IDLE			= 0x15,
++	LTSSM_TX_L0S_FTS			= 0x16,
++	LTSSM_L1_ENTRY				= 0x17,
++	LTSSM_L1_IDLE				= 0x18,
++	LTSSM_L2_IDLE				= 0x19,
++	LTSSM_L2_TRANSMIT_WAKE			= 0x1a,
++	LTSSM_DISABLED				= 0x20,
++	LTSSM_LOOPBACK_ENTRY_MASTER		= 0x21,
++	LTSSM_LOOPBACK_ACTIVE_MASTER		= 0x22,
++	LTSSM_LOOPBACK_EXIT_MASTER		= 0x23,
++	LTSSM_LOOPBACK_ENTRY_SLAVE		= 0x24,
++	LTSSM_LOOPBACK_ACTIVE_SLAVE		= 0x25,
++	LTSSM_LOOPBACK_EXIT_SLAVE		= 0x26,
++	LTSSM_HOT_RESET				= 0x27,
++	LTSSM_RECOVERY_EQUALIZATION_PHASE0	= 0x28,
++	LTSSM_RECOVERY_EQUALIZATION_PHASE1	= 0x29,
++	LTSSM_RECOVERY_EQUALIZATION_PHASE2	= 0x2a,
++	LTSSM_RECOVERY_EQUALIZATION_PHASE3	= 0x2b,
++};
 +
- 	iavf_add_ethtool_stats(&data, adapter, iavf_gstrings_stats);
- 
- 	rcu_read_lock();
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index aaf8a2f396e46..5173b6293c6d9 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -165,6 +165,19 @@ void iavf_schedule_reset(struct iavf_adapter *adapter)
- 	}
+ /* PCIe core controller registers */
+ #define CTRL_CORE_BASE_ADDR			0x18000
+ #define CTRL_CONFIG_REG				(CTRL_CORE_BASE_ADDR + 0x0)
+@@ -247,13 +288,35 @@ static inline u32 advk_readl(struct advk
+ 	return readl(pcie->base + reg);
  }
  
-+/**
-+ * iavf_schedule_request_stats - Set the flags and schedule statistics request
-+ * @adapter: board private structure
-+ *
-+ * Sets IAVF_FLAG_AQ_REQUEST_STATS flag so iavf_watchdog_task() will explicitly
-+ * request and refresh ethtool stats
-+ **/
-+void iavf_schedule_request_stats(struct iavf_adapter *adapter)
-+{
-+	adapter->aq_required |= IAVF_FLAG_AQ_REQUEST_STATS;
-+	mod_delayed_work(iavf_wq, &adapter->watchdog_task, 0);
+-static int advk_pcie_link_up(struct advk_pcie *pcie)
++static u8 advk_pcie_ltssm_state(struct advk_pcie *pcie)
+ {
+-	u32 val, ltssm_state;
++	u32 val;
++	u8 ltssm_state;
+ 
+ 	val = advk_readl(pcie, CFG_REG);
+ 	ltssm_state = (val >> LTSSM_SHIFT) & LTSSM_MASK;
+-	return ltssm_state >= LTSSM_L0;
++	return ltssm_state;
 +}
 +
- /**
-  * iavf_tx_timeout - Respond to a Tx Hang
-  * @netdev: network interface device structure
-@@ -1700,6 +1713,11 @@ static int iavf_process_aq_command(struct iavf_adapter *adapter)
- 		iavf_del_adv_rss_cfg(adapter);
- 		return 0;
- 	}
-+	if (adapter->aq_required & IAVF_FLAG_AQ_REQUEST_STATS) {
-+		iavf_request_stats(adapter);
-+		return 0;
-+	}
++static inline bool advk_pcie_link_up(struct advk_pcie *pcie)
++{
++	/* check if LTSSM is in normal operation - some L* state */
++	u8 ltssm_state = advk_pcie_ltssm_state(pcie);
++	return ltssm_state >= LTSSM_L0 && ltssm_state < LTSSM_DISABLED;
++}
 +
- 	return -EAGAIN;
++static inline bool advk_pcie_link_training(struct advk_pcie *pcie)
++{
++	/*
++	  * According to PCIe Base specification 3.0, Table 4-14: Link
++	  * Status Mapped to the LTSSM is Link Training mapped to LTSSM
++	  * Configuration and Recovery states.
++	  */
++	u8 ltssm_state = advk_pcie_ltssm_state(pcie);
++	return ((ltssm_state >= LTSSM_CONFIG_LINKWIDTH_START &&
++		  ltssm_state < LTSSM_L0) ||
++		(ltssm_state >= LTSSM_RECOVERY_EQUALIZATION_PHASE0 &&
++		  ltssm_state <= LTSSM_RECOVERY_EQUALIZATION_PHASE3));
  }
  
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-index 3c735968e1b85..33bde032ca37e 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_virtchnl.c
-@@ -784,6 +784,8 @@ void iavf_request_stats(struct iavf_adapter *adapter)
- 		/* no error message, this isn't crucial */
- 		return;
- 	}
-+
-+	adapter->aq_required &= ~IAVF_FLAG_AQ_REQUEST_STATS;
- 	adapter->current_op = VIRTCHNL_OP_GET_STATS;
- 	vqs.vsi_id = adapter->vsi_res->vsi_id;
- 	/* queue maps are ignored for this message - only the vsi is used */
--- 
-2.33.0
-
+ static int advk_pcie_wait_for_link(struct advk_pcie *pcie)
 
 
