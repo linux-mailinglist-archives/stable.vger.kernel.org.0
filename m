@@ -2,232 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A57B84612BC
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 11:42:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35D944611FB
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 11:21:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353457AbhK2KqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 05:46:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45596 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350867AbhK2KoB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 05:44:01 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0E6CC08EAD1
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 02:07:02 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id o14so11759508plg.5
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 02:07:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ihsFdEEA7sVGXyYQdPPcSCbkZ1Q2dNlGVEp6N0EZFjY=;
-        b=eD5PswDpA04bfggqZHWyMZErK9eqLVcA8n9Olq5lT0DHEHtW4r2wLAG6J4y0BmsjkA
-         YnL+tDfqGmUnlcfjjFVyzVc7lQLELQE6nAJ2V0a+fAsI2qQ2nk7ToY7Ggmfm/FeyoVmM
-         N6FzH3t7e71QY0Oji2iolUcb1OaYR3Yak4ZsB2zobV6nkYsKGHeUbzG8GTnDxRaGNNZl
-         VxAYLY+wnh1gnltUOp67RucMNHWDztBSHhPMDGSGI+P2gsZk8uXBUvEOL8bZKvnVZdte
-         9vP685AggWGQUY4G+ltvrL4nF6M9/0qgvOw2UokcaibUVzcFxLJ8TEuivPllXpqPErGY
-         9+dg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ihsFdEEA7sVGXyYQdPPcSCbkZ1Q2dNlGVEp6N0EZFjY=;
-        b=BGm4RvSPtIfu0GCXdHymDKZENNE6ORFLG28X003ciaiBU0EUe1YY5zvMw03ushgbVO
-         b+HONbK4o2LeHHkPsD0U7h1WDEUFm4zdr49zTOrbKifj/UpGF+OFfR7yl8SFhUasIPJQ
-         iVSBzunvoVaW58rt/F3nqRrIlWzfXpBj2i3QkUC7OGVI2Vh/fepF5RtkJ6S6vaBLhDbo
-         yWIQfvpIy61XSFdKchgLFo8ZK+pZ+SrY6tRxU4LbCoSlDr6vRGqlEIv/EEDUHTk+uc3l
-         PDIO4jYs+Z7ytUNvbFeQ1s1eFC+6evEGicPLUUtR7fBBeeEcwDp/htmIv2dtS25si6YV
-         sVbQ==
-X-Gm-Message-State: AOAM530fjpJ69GyZeDpK1GFdt+9zB0vMqw44tH/UMK9zhG4jXDo2Lu8L
-        jcVeGKA+3hgNJfbV8Ya4LHVdKHh+0hJu+H4D
-X-Google-Smtp-Source: ABdhPJwXw1K2a0kffrORlsj3Tf2cHyQjNiWwjXqTXE+5JdZi5A7en0OWWRm4m0eW6BPDy3LH5cVRUQ==
-X-Received: by 2002:a17:903:2093:b0:142:7dff:f7de with SMTP id d19-20020a170903209300b001427dfff7demr59506542plc.75.1638180421942;
-        Mon, 29 Nov 2021 02:07:01 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id pf15sm19534692pjb.40.2021.11.29.02.07.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Nov 2021 02:07:01 -0800 (PST)
-Message-ID: <61a4a645.1c69fb81.e9763.09f5@mx.google.com>
-Date:   Mon, 29 Nov 2021 02:07:01 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S230366AbhK2KY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 05:24:56 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:37691 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234761AbhK2KWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 05:22:55 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1638181178;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=vq5DQSO3sLOi0I9wK0ib09zdcTrJy3BhcIWabUvofWE=;
+        b=HfXQlHAUGEgMLhU/6q1troBLYXMDiLAHDDTBvcPmNx/GAQtRCkCA1xeSR5VxWjh6CvYf0p
+        F9UtCtn+xi+QvmmFMoxZ7QsazvM/M/hUkl7Vs6ovBle3wqwrkVK4WU7F1mmBzbRQbA0jsa
+        yvq1M8ji3QFt76D1hPNYuhgrBjPkweg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-453-J-ZNw3zrMguvejTjfJMKdA-1; Mon, 29 Nov 2021 05:19:36 -0500
+X-MC-Unique: J-ZNw3zrMguvejTjfJMKdA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4F3751006AAC;
+        Mon, 29 Nov 2021 10:19:35 +0000 (UTC)
+Received: from steredhat.redhat.com (unknown [10.39.195.78])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4AF2C60854;
+        Mon, 29 Nov 2021 10:19:24 +0000 (UTC)
+From:   Stefano Garzarella <sgarzare@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     mst@redhat.com, stefanha@redhat.com, sgarzare@redhat.com,
+        jasowang@redhat.com, gregkh@linuxfoundation.org,
+        pasic@linux.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 4.9] vhost/vsock: fix incorrect used length reported to the guest
+Date:   Mon, 29 Nov 2021 11:19:23 +0100
+Message-Id: <20211129101923.30978-1-sgarzare@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.218-54-g4559f99e7676f
-Subject: stable-rc/queue/4.19 baseline: 144 runs,
- 4 regressions (v4.19.218-54-g4559f99e7676f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 144 runs, 4 regressions (v4.19.218-54-g4559f=
-99e7676f)
+commit 49d8c5ffad07ca014cfae72a1b9b8c52b6ad9cb8 upstream.
 
-Regressions Summary
--------------------
+The "used length" reported by calling vhost_add_used() must be the
+number of bytes written by the device (using "in" buffers).
 
-platform              | arch  | lab           | compiler | defconfig       =
-      | regressions
-----------------------+-------+---------------+----------+-----------------=
-------+------------
-da850-lcdk            | arm   | lab-baylibre  | gcc-10   | davinci_all_defc=
-onfig | 2          =
+In vhost_vsock_handle_tx_kick() the device only reads the guest
+buffers (they are all "out" buffers), without writing anything,
+so we must pass 0 as "used length" to comply virtio spec.
 
-meson-gxm-khadas-vim2 | arm64 | lab-baylibre  | gcc-10   | defconfig       =
-      | 1          =
+Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
+Cc: stable@vger.kernel.org
+Reported-by: Halil Pasic <pasic@linux.ibm.com>
+Suggested-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lore.kernel.org/r/20211122163525.294024-2-sgarzare@redhat.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ drivers/vhost/vsock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-panda                 | arm   | lab-collabora | gcc-10   | omap2plus_defcon=
-fig   | 1          =
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 2ac966400c42..e282e8174a5d 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -406,7 +406,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+ 		else
+ 			virtio_transport_free_pkt(pkt);
+ 
+-		vhost_add_used(vq, head, sizeof(pkt->hdr) + len);
++		vhost_add_used(vq, head, 0);
+ 		added = true;
+ 	}
+ 
+-- 
+2.31.1
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.218-54-g4559f99e7676f/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.218-54-g4559f99e7676f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4559f99e7676f0253480ff10c19c25ab6cb38b17 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-      | regressions
-----------------------+-------+---------------+----------+-----------------=
-------+------------
-da850-lcdk            | arm   | lab-baylibre  | gcc-10   | davinci_all_defc=
-onfig | 2          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61a46d1ebf9310445718f6fa
-
-  Results:     4 PASS, 2 FAIL, 0 SKIP
-  Full config: davinci_all_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.218=
--54-g4559f99e7676f/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline-d=
-a850-lcdk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.218=
--54-g4559f99e7676f/arm/davinci_all_defconfig/gcc-10/lab-baylibre/baseline-d=
-a850-lcdk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/61a46d1ebf93104=
-45718f701
-        new failure (last pass: v4.19.218-54-g88fd43d770ff1)
-        3 lines
-
-    2021-11-29T06:02:58.375778  kern  :alert : BUG: Bad page state in proce=
-ss swapper  pfn:c3400
-    2021-11-29T06:02:58.376014  kern  :alert : raw: 00000000 00000100 00000=
-200 00000000 00000004 0000000a ffffff7f 00000000
-    2021-11-29T06:02:58.376186  kern  :alert : page dumped because: nonzero=
- mapcount
-    2021-11-29T06:02:58.434623  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dale=
-rt RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D3>   =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a46d1ebf93104=
-45718f702
-        new failure (last pass: v4.19.218-54-g88fd43d770ff1)
-        2 lines
-
-    2021-11-29T06:02:58.569827  kern  :emerg : page:c6f51000 count:0 mapcou=
-nt:-128 mapping:00000000 index:0x4
-    2021-11-29T06:02:58.570120  kern  :emerg : flags: 0x0()
-    2021-11-29T06:02:58.652240  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Deme=
-rg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>
-    2021-11-29T06:02:58.652483  + set +x
-    2021-11-29T06:02:58.652664  <8><LAVA_SIGNAL_ENDRUN 0_dmesg 1162674_1.5.=
-2.4.1>   =
-
- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-      | regressions
-----------------------+-------+---------------+----------+-----------------=
-------+------------
-meson-gxm-khadas-vim2 | arm64 | lab-baylibre  | gcc-10   | defconfig       =
-      | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61a471379b9656b75d18f6cf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.218=
--54-g4559f99e7676f/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxm-k=
-hadas-vim2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.218=
--54-g4559f99e7676f/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxm-k=
-hadas-vim2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61a471379b9656b75d18f=
-6d0
-        new failure (last pass: v4.19.218-54-g88fd43d770ff1) =
-
- =
-
-
-
-platform              | arch  | lab           | compiler | defconfig       =
-      | regressions
-----------------------+-------+---------------+----------+-----------------=
-------+------------
-panda                 | arm   | lab-collabora | gcc-10   | omap2plus_defcon=
-fig   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61a46e6f1785f0863218f6cb
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.218=
--54-g4559f99e7676f/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.218=
--54-g4559f99e7676f/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a46e6f1785f08=
-63218f6d1
-        failing since 3 days (last pass: v4.19.217-320-gdc7db2be81d5, first=
- fail: v4.19.217-320-ge8717633e0ba)
-        2 lines
-
-    2021-11-29T06:08:39.951100  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/97
-    2021-11-29T06:08:39.960127  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
