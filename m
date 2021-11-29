@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3A5B46262A
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:45:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D2C34625F7
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:42:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234983AbhK2Ws1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:48:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36300 "EHLO
+        id S234466AbhK2Wpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:45:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235203AbhK2Wrg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:47:36 -0500
+        with ESMTP id S235153AbhK2WpB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:45:01 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D086BC125CEA;
-        Mon, 29 Nov 2021 10:28:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0DEFC19AC00;
+        Mon, 29 Nov 2021 10:35:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 29E80CE13D9;
-        Mon, 29 Nov 2021 18:28:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C80BDC53FAD;
-        Mon, 29 Nov 2021 18:28:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4585DCE1685;
+        Mon, 29 Nov 2021 18:35:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E73CEC53FC7;
+        Mon, 29 Nov 2021 18:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210489;
-        bh=AQR5p5HfvaWVWZIrJYwQn+bhm0wrWH+nze8RMGcXDx0=;
+        s=korg; t=1638210927;
+        bh=ycupgcE9S+lsZetBlH+zSi9yeMp7t3H3EFmHg5I7wNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dtcIBqIigTllQdUbbBwgxk/5RJm/5ALoEZg/fVbDMBG22FfsxyzmSVHyEvcFTH9QB
-         dNn7ztlENp7p2Vg5l7GB0GZYQU7/JuctnBpO9wlDC6eEETNRlagIwbEow3hbfJVKNL
-         e3rc7ItQTtdbGL1F3G9YLrzmc20YuxE31CyTtZDI=
+        b=MRU8/3ZJNCk4G+bWOFA3iocgxJY4moxMBbUBw/NeRPuH+zYDxNadLdfRRCxDngCBz
+         p7utZuHeI4JsjGDRXVF34k1yqBpYhmU2FkOkaI6SEjZ3eENCRrgNppvNEFkEIjv3tM
+         IF38NPUs0cIkpE2TvAB9snRVZctiQwlo55sZWr40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Subject: [PATCH 5.10 005/121] usb: dwc2: gadget: Fix ISOC flow for elapsed frames
-Date:   Mon, 29 Nov 2021 19:17:16 +0100
-Message-Id: <20211129181711.826409659@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>
+Subject: [PATCH 5.15 043/179] drm/nouveau: recognise GA106
+Date:   Mon, 29 Nov 2021 19:17:17 +0100
+Message-Id: <20211129181720.380333199@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,82 +47,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-commit 7ad4a0b1d46b2612f4429a72afd8f137d7efa9a9 upstream.
+commit 46741e4f593ff1bd0e4a140ab7e566701946484b upstream.
 
-Added updating of request frame number for elapsed frames,
-otherwise frame number will remain as previous use of request.
-This will allow function driver to correctly track frames in
-case of Missed ISOC occurs.
+I've got HW now, appears to work as expected so far.
 
-Added setting request actual length to 0 for elapsed frames.
-In Slave mode when pushing data to RxFIFO by dwords, request
-actual length incrementing accordingly. But before whole packet
-will be pushed into RxFIFO and send to host can occurs Missed
-ISOC and data will not send to host. So, in this case request
-actual length should be reset to 0.
-
-Fixes: 91bb163e1e4f ("usb: dwc2: gadget: Fix ISOC flow for BDMA and Slave")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Link: https://lore.kernel.org/r/c356baade6e9716d312d43df08d53ae557cb8037.1636011277.git.Minas.Harutyunyan@synopsys.com
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Cc: <stable@vger.kernel.org> # 5.14+
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211118030413.2610-1-skeggsb@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/gadget.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/engine/device/base.c |   22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -1198,6 +1198,8 @@ static void dwc2_hsotg_start_req(struct
- 			}
- 			ctrl |= DXEPCTL_CNAK;
- 		} else {
-+			hs_req->req.frame_number = hs_ep->target_frame;
-+			hs_req->req.actual = 0;
- 			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, -ENODATA);
- 			return;
- 		}
-@@ -2856,9 +2858,12 @@ static void dwc2_gadget_handle_ep_disabl
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
+@@ -2627,6 +2627,27 @@ nv174_chipset = {
+ };
  
- 	do {
- 		hs_req = get_ep_head(hs_ep);
--		if (hs_req)
-+		if (hs_req) {
-+			hs_req->req.frame_number = hs_ep->target_frame;
-+			hs_req->req.actual = 0;
- 			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req,
- 						    -ENODATA);
-+		}
- 		dwc2_gadget_incr_frame_num(hs_ep);
- 		/* Update current frame number value. */
- 		hsotg->frame_number = dwc2_hsotg_read_frameno(hsotg);
-@@ -2911,8 +2916,11 @@ static void dwc2_gadget_handle_out_token
- 
- 	while (dwc2_gadget_target_frame_elapsed(ep)) {
- 		hs_req = get_ep_head(ep);
--		if (hs_req)
-+		if (hs_req) {
-+			hs_req->req.frame_number = ep->target_frame;
-+			hs_req->req.actual = 0;
- 			dwc2_hsotg_complete_request(hsotg, ep, hs_req, -ENODATA);
-+		}
- 
- 		dwc2_gadget_incr_frame_num(ep);
- 		/* Update current frame number value. */
-@@ -3001,8 +3009,11 @@ static void dwc2_gadget_handle_nak(struc
- 
- 	while (dwc2_gadget_target_frame_elapsed(hs_ep)) {
- 		hs_req = get_ep_head(hs_ep);
--		if (hs_req)
-+		if (hs_req) {
-+			hs_req->req.frame_number = hs_ep->target_frame;
-+			hs_req->req.actual = 0;
- 			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, -ENODATA);
-+		}
- 
- 		dwc2_gadget_incr_frame_num(hs_ep);
- 		/* Update current frame number value. */
+ static const struct nvkm_device_chip
++nv176_chipset = {
++	.name = "GA106",
++	.bar      = { 0x00000001, tu102_bar_new },
++	.bios     = { 0x00000001, nvkm_bios_new },
++	.devinit  = { 0x00000001, ga100_devinit_new },
++	.fb       = { 0x00000001, ga102_fb_new },
++	.gpio     = { 0x00000001, ga102_gpio_new },
++	.i2c      = { 0x00000001, gm200_i2c_new },
++	.imem     = { 0x00000001, nv50_instmem_new },
++	.mc       = { 0x00000001, ga100_mc_new },
++	.mmu      = { 0x00000001, tu102_mmu_new },
++	.pci      = { 0x00000001, gp100_pci_new },
++	.privring = { 0x00000001, gm200_privring_new },
++	.timer    = { 0x00000001, gk20a_timer_new },
++	.top      = { 0x00000001, ga100_top_new },
++	.disp     = { 0x00000001, ga102_disp_new },
++	.dma      = { 0x00000001, gv100_dma_new },
++	.fifo     = { 0x00000001, ga102_fifo_new },
++};
++
++static const struct nvkm_device_chip
+ nv177_chipset = {
+ 	.name = "GA107",
+ 	.bar      = { 0x00000001, tu102_bar_new },
+@@ -3072,6 +3093,7 @@ nvkm_device_ctor(const struct nvkm_devic
+ 		case 0x168: device->chip = &nv168_chipset; break;
+ 		case 0x172: device->chip = &nv172_chipset; break;
+ 		case 0x174: device->chip = &nv174_chipset; break;
++		case 0x176: device->chip = &nv176_chipset; break;
+ 		case 0x177: device->chip = &nv177_chipset; break;
+ 		default:
+ 			if (nvkm_boolopt(device->cfgopt, "NvEnableUnsupportedChipsets", false)) {
 
 
