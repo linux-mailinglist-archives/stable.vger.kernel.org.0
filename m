@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1BF8461DC5
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:26:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC7D3461EF7
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:40:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377789AbhK2S3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:29:20 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60274 "EHLO
+        id S1379329AbhK2SmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:42:08 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42612 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351973AbhK2S1S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:27:18 -0500
+        with ESMTP id S1379332AbhK2SkI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:40:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC4DCB815E0;
-        Mon, 29 Nov 2021 18:23:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E80C53FC7;
-        Mon, 29 Nov 2021 18:23:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 450E3B815D4;
+        Mon, 29 Nov 2021 18:36:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DAFFC53FAD;
+        Mon, 29 Nov 2021 18:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210234;
-        bh=lUlt9JGpH9X+S1Kq4bUSx5oRPBLdQ6EdLL1YGfnFsqM=;
+        s=korg; t=1638211008;
+        bh=djMT1jroNL58Oss+UaQjxdK/neylESckMbZRUTQt6Z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVzaheqjKMnlDfUZEQ1FqKv5dAPouK46zd93I/bXv4RjmqccefcvSHL/BjWVXXzyo
-         qyEngk6EfvJ6Xy63qsiseJhUwCgzJmL2CtZXnza0vBNoz5IDj/K6AhcgVFre/zeO9c
-         jYDSafsOUctnGmAn1bHzn0X7QBzt3QbTqwGvPTVk=
+        b=HxRRxREL5yGfLEfPtqa4UBbttn3morKhhdglkvnGjPnuAwMMOCpuxxZR3yT/o2PB9
+         nPLT/LcObgbDBwOTwEbTvBIPdBiR4n1ApLxjZ9fEBqlC/rhPWOxL+YEiMKGkQd9RKp
+         tNgB+Ez7liol85/etYaVDLYGnmyq/Hx47afDB28M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stefano Stabellini <stefano.stabellini@xilinx.com>,
-        Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.4 17/92] xen: detect uninitialized xenbus in xenbus_init
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 072/179] ARM: dts: BCM5301X: Add interrupt properties to GPIO node
 Date:   Mon, 29 Nov 2021 19:17:46 +0100
-Message-Id: <20211129181707.998292916@linuxfoundation.org>
+Message-Id: <20211129181721.318020240@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,68 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Stabellini <stefano.stabellini@xilinx.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 36e8f60f0867d3b70d398d653c17108459a04efe upstream.
+[ Upstream commit 40f7342f0587639e5ad625adaa15efdd3cffb18f ]
 
-If the xenstore page hasn't been allocated properly, reading the value
-of the related hvm_param (HVM_PARAM_STORE_PFN) won't actually return
-error. Instead, it will succeed and return zero. Instead of attempting
-to xen_remap a bad guest physical address, detect this condition and
-return early.
+The GPIO controller is also an interrupt controller provider and is
+currently missing the appropriate 'interrupt-controller' and
+'#interrupt-cells' properties to denote that.
 
-Note that although a guest physical address of zero for
-HVM_PARAM_STORE_PFN is theoretically possible, it is not a good choice
-and zero has never been validly used in that capacity.
-
-Also recognize all bits set as an invalid value.
-
-For 32-bit Linux, any pfn above ULONG_MAX would get truncated. Pfns
-above ULONG_MAX should never be passed by the Xen tools to HVM guests
-anyway, so check for this condition and return early.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefano Stabellini <stefano.stabellini@xilinx.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Link: https://lore.kernel.org/r/20211123210748.1910236-1-sstabellini@kernel.org
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fb026d3de33b ("ARM: BCM5301X: Add Broadcom's bus-axi to the DTS file")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xenbus/xenbus_probe.c |   23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ arch/arm/boot/dts/bcm5301x.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/xen/xenbus/xenbus_probe.c
-+++ b/drivers/xen/xenbus/xenbus_probe.c
-@@ -886,6 +886,29 @@ static int __init xenbus_init(void)
- 		err = hvm_get_parameter(HVM_PARAM_STORE_PFN, &v);
- 		if (err)
- 			goto out_error;
-+		/*
-+		 * Uninitialized hvm_params are zero and return no error.
-+		 * Although it is theoretically possible to have
-+		 * HVM_PARAM_STORE_PFN set to zero on purpose, in reality it is
-+		 * not zero when valid. If zero, it means that Xenstore hasn't
-+		 * been properly initialized. Instead of attempting to map a
-+		 * wrong guest physical address return error.
-+		 *
-+		 * Also recognize all bits set as an invalid value.
-+		 */
-+		if (!v || !~v) {
-+			err = -ENOENT;
-+			goto out_error;
-+		}
-+		/* Avoid truncation on 32-bit. */
-+#if BITS_PER_LONG == 32
-+		if (v > ULONG_MAX) {
-+			pr_err("%s: cannot handle HVM_PARAM_STORE_PFN=%llx > ULONG_MAX\n",
-+			       __func__, v);
-+			err = -EINVAL;
-+			goto out_error;
-+		}
-+#endif
- 		xen_store_gfn = (unsigned long)v;
- 		xen_store_interface =
- 			xen_remap(xen_store_gfn << XEN_PAGE_SHIFT,
+diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
+index 437a2b0f68de3..f69d2af3c1fa4 100644
+--- a/arch/arm/boot/dts/bcm5301x.dtsi
++++ b/arch/arm/boot/dts/bcm5301x.dtsi
+@@ -242,6 +242,8 @@ chipcommon: chipcommon@0 {
+ 
+ 			gpio-controller;
+ 			#gpio-cells = <2>;
++			interrupt-controller;
++			#interrupt-cells = <2>;
+ 		};
+ 
+ 		pcie0: pcie@12000 {
+-- 
+2.33.0
+
 
 
