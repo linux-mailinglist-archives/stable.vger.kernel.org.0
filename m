@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF23461D7E
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:22:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A471461E45
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:33:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349796AbhK2SZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:25:21 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58204 "EHLO
+        id S1377554AbhK2Se7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:34:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35070 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237175AbhK2SXV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:23:21 -0500
+        with ESMTP id S1379385AbhK2Sc0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:32:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5EC8B815B1;
-        Mon, 29 Nov 2021 18:20:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5310C53FAD;
-        Mon, 29 Nov 2021 18:20:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F9AFB815AA;
+        Mon, 29 Nov 2021 18:29:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B002DC53FCD;
+        Mon, 29 Nov 2021 18:29:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210001;
-        bh=CjbY79dv2jU3xtUg5dUBCmMcEBoINte9RcrPnwcPROM=;
+        s=korg; t=1638210546;
+        bh=wAy12IPODj/3KdXfO8A2Zy/YZnTRrfVQUT3gWWc4qPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPTZvevQauN1g6fbl6qp5/7HuEukUaEnM7QhxLc4PbvvRKDi6OYtpy0nc39hLMCPR
-         cJ6SiWpwCkjjIMHSSFbUhbseXzXq4TYQz25sXteE7freDGYwFhyoIcw+frLzTabxsW
-         J3gu2PYmsgh5RxArpXqghq/+ks6QyO0Tnlyw7gYs=
+        b=ja2EhCKUw6ny1lcFP28TEP8g8xPW1dvGU+4RpWw+kftLF1uHFv011HbXbXupAmE8i
+         CdI4qwTHxghGbQVhDulPaKNOFDYUSCvOyYpqfQHoNLkJR8Dj2vvZQj1ai9ifp/isHQ
+         6nMbB1emgTlRgmZm56oM4WDvmxVAqMBdd4BRmwW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 01/69] USB: serial: option: add Telit LE910S1 0x9200 composition
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Bough Chen <haibo.chen@nxp.com>
+Subject: [PATCH 5.10 032/121] mmc: sdhci: Fix ADMA for PAGE_SIZE >= 64KiB
 Date:   Mon, 29 Nov 2021 19:17:43 +0100
-Message-Id: <20211129181703.718243576@linuxfoundation.org>
+Message-Id: <20211129181712.727732267@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,33 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit e353f3e88720300c3d72f49a4bea54f42db1fa5e upstream.
+commit 3d7c194b7c9ad414264935ad4f943a6ce285ebb1 upstream.
 
-Add the following Telit LE910S1 composition:
+The block layer forces a minimum segment size of PAGE_SIZE, so a segment
+can be too big for the ADMA table, if PAGE_SIZE >= 64KiB. Fix by writing
+multiple descriptors, noting that the ADMA table is sized for 4KiB chunks
+anyway, so it will be big enough.
 
-0x9200: tty
-
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20211119140319.10448-1-dnlplm@gmail.com
+Reported-and-tested-by: Bough Chen <haibo.chen@nxp.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211115082345.802238-1-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/sdhci.c |   21 ++++++++++++++++++---
+ drivers/mmc/host/sdhci.h |    4 +++-
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1267,6 +1267,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(2) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9010),				/* Telit SBL FN980 flashing device */
- 	  .driver_info = NCTRL(0) | ZLP },
-+	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9200),				/* Telit LE910S1 flashing device */
-+	  .driver_info = NCTRL(0) | ZLP },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, ZTE_PRODUCT_MF622, 0xff, 0xff, 0xff) }, /* ZTE WCDMA products */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0002, 0xff, 0xff, 0xff),
- 	  .driver_info = RSVD(1) },
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -772,7 +772,19 @@ static void sdhci_adma_table_pre(struct
+ 			len -= offset;
+ 		}
+ 
+-		BUG_ON(len > 65536);
++		/*
++		 * The block layer forces a minimum segment size of PAGE_SIZE,
++		 * so 'len' can be too big here if PAGE_SIZE >= 64KiB. Write
++		 * multiple descriptors, noting that the ADMA table is sized
++		 * for 4KiB chunks anyway, so it will be big enough.
++		 */
++		while (len > host->max_adma) {
++			int n = 32 * 1024; /* 32KiB*/
++
++			__sdhci_adma_write_desc(host, &desc, addr, n, ADMA2_TRAN_VALID);
++			addr += n;
++			len -= n;
++		}
+ 
+ 		/* tran, valid */
+ 		if (len)
+@@ -3948,6 +3960,7 @@ struct sdhci_host *sdhci_alloc_host(stru
+ 	 * descriptor for each segment, plus 1 for a nop end descriptor.
+ 	 */
+ 	host->adma_table_cnt = SDHCI_MAX_SEGS * 2 + 1;
++	host->max_adma = 65536;
+ 
+ 	return host;
+ }
+@@ -4611,10 +4624,12 @@ int sdhci_setup_host(struct sdhci_host *
+ 	 * be larger than 64 KiB though.
+ 	 */
+ 	if (host->flags & SDHCI_USE_ADMA) {
+-		if (host->quirks & SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC)
++		if (host->quirks & SDHCI_QUIRK_BROKEN_ADMA_ZEROLEN_DESC) {
++			host->max_adma = 65532; /* 32-bit alignment */
+ 			mmc->max_seg_size = 65535;
+-		else
++		} else {
+ 			mmc->max_seg_size = 65536;
++		}
+ 	} else {
+ 		mmc->max_seg_size = mmc->max_req_size;
+ 	}
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -338,7 +338,8 @@ struct sdhci_adma2_64_desc {
+ 
+ /*
+  * Maximum segments assuming a 512KiB maximum requisition size and a minimum
+- * 4KiB page size.
++ * 4KiB page size. Note this also allows enough for multiple descriptors in
++ * case of PAGE_SIZE >= 64KiB.
+  */
+ #define SDHCI_MAX_SEGS		128
+ 
+@@ -540,6 +541,7 @@ struct sdhci_host {
+ 	unsigned int blocks;	/* remaining PIO blocks */
+ 
+ 	int sg_count;		/* Mapped sg entries */
++	int max_adma;		/* Max. length in ADMA descriptor */
+ 
+ 	void *adma_table;	/* ADMA descriptor table */
+ 	void *align_buffer;	/* Bounce buffer */
 
 
