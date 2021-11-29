@@ -2,178 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B30646213C
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 20:58:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E431A462228
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 21:26:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230475AbhK2UCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 15:02:10 -0500
-Received: from relay.sw.ru ([185.231.240.75]:55832 "EHLO relay.sw.ru"
+        id S231343AbhK2U31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 15:29:27 -0500
+Received: from relay.sw.ru ([185.231.240.75]:57884 "EHLO relay.sw.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234348AbhK2UAI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Nov 2021 15:00:08 -0500
+        id S236511AbhK2UZj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Nov 2021 15:25:39 -0500
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=virtuozzo.com; s=relay; h=Content-Type:Mime-Version:Message-Id:Subject:From
-        :Date; bh=AmPso30jr7xgUcijdDcpj232jR1zKts23+QlWyDP62A=; b=tXW2cf/TDiGZ4Mi8fqY
-        6LbxbBiC/MiUc7dOZRUM9vTTZOEL3TenlI0Kcp1lTBcr/N5OTPvoWTYN5FROCqqhWPsau6rNT+mYR
-        /QP9/wF3V4x1JvcZqidDbojw94eO6qvKVJpvXkrrWzJLe1DBcRYPoxQErW9Za5h5VnCifJEjFrU=;
+        :Date; bh=B/wGc5XOMK4itRPF+xHZt+JUcNIIDxw6lCuLl6I0l1I=; b=JoSW0XuWaIq3wkK5L6K
+        VA6Di02vM+iUsuCDBrOsLG4WqitOFMFXkuTqXhrsP7M/48K0ZrqRpLYRRxb1KJ2HWPBzFjAnsNJtY
+        kdzoRZGnXSUudMTabXZaQPztWdMtS2D4PZp9b38NARVqQYROCdbajvvtxVZOqVkCvfPMBk2YfYs=;
 Received: from [192.168.15.157] (helo=mikhalitsyn-laptop)
         by relay.sw.ru with esmtps  (TLS1.3) tls TLS_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <alexander.mikhalitsyn@virtuozzo.com>)
-        id 1mrmlX-001ooW-PX; Mon, 29 Nov 2021 22:56:43 +0300
-Date:   Mon, 29 Nov 2021 22:56:43 +0300
+        id 1mrnAJ-001owe-1a; Mon, 29 Nov 2021 23:22:19 +0300
+Date:   Mon, 29 Nov 2021 23:22:18 +0300
 From:   Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-To:     <gregkh@linuxfoundation.org>
-Cc:     akpm@linux-foundation.org, avagin@gmail.com, dave@stgolabs.net,
-        ebiederm@xmission.com, manfred@colorfullife.com,
-        ptikhomirov@virtuozzo.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vvs@virtuozzo.com
-Subject: Re: FAILED: patch
- "[PATCH] ipc: WARN if trying to remove ipc object which is absent" failed
- to apply to 4.9-stable tree
-Message-Id: <20211129225643.a6f6c393168ac39aac205a43@virtuozzo.com>
-In-Reply-To: <16375837148489@kroah.com>
-References: <16375837148489@kroah.com>
+To:     Manfred Spraul <manfred@colorfullife.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Andrei Vagin <avagin@gmail.com>,
+        Pavel Tikhomirov <ptikhomirov@virtuozzo.com>,
+        Vasily Averin <vvs@virtuozzo.com>
+Subject: Re: [PATCH] shm: extend forced shm destroy to support objects from
+ several IPC nses
+Message-Id: <20211129232218.216a2dc322685f4516ac980b@virtuozzo.com>
+In-Reply-To: <2b9bf5cd-7e65-a532-afbf-9f94c3ebb45c@colorfullife.com>
+References: <163758370064179@kroah.com>
+        <20211129164300.789517-1-alexander.mikhalitsyn@virtuozzo.com>
+        <YaUNb9NyKVio+bQ6@kroah.com>
+        <2b9bf5cd-7e65-a532-afbf-9f94c3ebb45c@colorfullife.com>
 X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 22 Nov 2021 13:21:54 +0100
-<gregkh@linuxfoundation.org> wrote:
+On Mon, 29 Nov 2021 21:12:01 +0100
+Manfred Spraul <manfred@colorfullife.com> wrote:
 
-> 
-> The patch below does not apply to the 4.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> Hello together,
 
-Hi Greg,
+Hello!
 
-this patch can be safely dropped for 4.9.y tree
-for the same reasons as for 4.4.y: idr API seriously differ,
-we can't port this patch.
+>=20
+> On 11/29/21 18:27, Greg KH wrote:
+> > On Mon, Nov 29, 2021 at 07:43:00PM +0300, Alexander Mikhalitsyn wrote:
+> >> For 4.4.y:
+> >>
+> >> Upstream commit 85b6d24646e4 ("shm: extend forced shm destroy to suppo=
+rt objects from several IPC nses")
+> > We need versions of this for 4.9.y, 4.14.y, and 4.19.y before I can take
+> > this for 4.4.y.
+>=20
+> We have tried to be too clever: I had start top down, Alexander bottom=20
+> up, ...
+>=20
+>=20
+> @Alexander: I've sent 4.19.y around an hour ago. Could you create the=20
+> change for 4.9. and 4.14?
 
-Regards,
-Alex
+Yeah. I've sent changes for 4.14 and 4.9 about 20 minutes ago ;)
 
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From 126e8bee943e9926238c891e2df5b5573aee76bc Mon Sep 17 00:00:00 2001
-> From: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-> Date: Fri, 19 Nov 2021 16:43:18 -0800
-> Subject: [PATCH] ipc: WARN if trying to remove ipc object which is absent
-> 
-> Patch series "shm: shm_rmid_forced feature fixes".
-> 
-> Some time ago I met kernel crash after CRIU restore procedure,
-> fortunately, it was CRIU restore, so, I had dump files and could do
-> restore many times and crash reproduced easily.  After some
-> investigation I've constructed the minimal reproducer.  It was found
-> that it's use-after-free and it happens only if sysctl
-> kernel.shm_rmid_forced = 1.
-> 
-> The key of the problem is that the exit_shm() function not handles shp's
-> object destroy when task->sysvshm.shm_clist contains items from
-> different IPC namespaces.  In most cases this list will contain only
-> items from one IPC namespace.
-> 
-> How can this list contain object from different namespaces? The
-> exit_shm() function is designed to clean up this list always when
-> process leaves IPC namespace.  But we made a mistake a long time ago and
-> did not add a exit_shm() call into the setns() syscall procedures.
-> 
-> The first idea was just to add this call to setns() syscall but it
-> obviously changes semantics of setns() syscall and that's
-> userspace-visible change.  So, I gave up on this idea.
-> 
-> The first real attempt to address the issue was just to omit forced
-> destroy if we meet shp object not from current task IPC namespace [1].
-> But that was not the best idea because task->sysvshm.shm_clist was
-> protected by rwsem which belongs to current task IPC namespace.  It
-> means that list corruption may occur.
-> 
-> Second approach is just extend exit_shm() to properly handle shp's from
-> different IPC namespaces [2].  This is really non-trivial thing, I've
-> put a lot of effort into that but not believed that it's possible to
-> make it fully safe, clean and clear.
-> 
-> Thanks to the efforts of Manfred Spraul working an elegant solution was
-> designed.  Thanks a lot, Manfred!
-> 
-> Eric also suggested the way to address the issue in ("[RFC][PATCH] shm:
-> In shm_exit destroy all created and never attached segments") Eric's
-> idea was to maintain a list of shm_clists one per IPC namespace, use
-> lock-less lists.  But there is some extra memory consumption-related
-> concerns.
-> 
-> An alternative solution which was suggested by me was implemented in
-> ("shm: reset shm_clist on setns but omit forced shm destroy").  The idea
-> is pretty simple, we add exit_shm() syscall to setns() but DO NOT
-> destroy shm segments even if sysctl kernel.shm_rmid_forced = 1, we just
-> clean up the task->sysvshm.shm_clist list.
-> 
-> This chages semantics of setns() syscall a little bit but in comparision
-> to the "naive" solution when we just add exit_shm() without any special
-> exclusions this looks like a safer option.
-> 
-> [1] https://lkml.org/lkml/2021/7/6/1108
-> [2] https://lkml.org/lkml/2021/7/14/736
-> 
-> This patch (of 2):
-> 
-> Let's produce a warning if we trying to remove non-existing IPC object
-> from IPC namespace kht/idr structures.
-> 
-> This allows us to catch possible bugs when the ipc_rmid() function was
-> called with inconsistent struct ipc_ids*, struct kern_ipc_perm*
-> arguments.
-> 
-> Link: https://lkml.kernel.org/r/20211027224348.611025-1-alexander.mikhalitsyn@virtuozzo.com
-> Link: https://lkml.kernel.org/r/20211027224348.611025-2-alexander.mikhalitsyn@virtuozzo.com
-> Co-developed-by: Manfred Spraul <manfred@colorfullife.com>
-> Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
-> Signed-off-by: Alexander Mikhalitsyn <alexander.mikhalitsyn@virtuozzo.com>
-> Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-> Cc: Davidlohr Bueso <dave@stgolabs.net>
-> Cc: Greg KH <gregkh@linuxfoundation.org>
-> Cc: Andrei Vagin <avagin@gmail.com>
-> Cc: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-> Cc: Vasily Averin <vvs@virtuozzo.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> 
-> diff --git a/ipc/util.c b/ipc/util.c
-> index d48d8cfa1f3f..fa2d86ef3fb8 100644
-> --- a/ipc/util.c
-> +++ b/ipc/util.c
-> @@ -447,8 +447,8 @@ static int ipcget_public(struct ipc_namespace *ns, struct ipc_ids *ids,
->  static void ipc_kht_remove(struct ipc_ids *ids, struct kern_ipc_perm *ipcp)
->  {
->  	if (ipcp->key != IPC_PRIVATE)
-> -		rhashtable_remove_fast(&ids->key_ht, &ipcp->khtnode,
-> -				       ipc_kht_params);
-> +		WARN_ON_ONCE(rhashtable_remove_fast(&ids->key_ht, &ipcp->khtnode,
-> +				       ipc_kht_params));
->  }
->  
->  /**
-> @@ -498,7 +498,7 @@ void ipc_rmid(struct ipc_ids *ids, struct kern_ipc_perm *ipcp)
->  {
->  	int idx = ipcid_to_idx(ipcp->id);
->  
-> -	idr_remove(&ids->ipcs_idr, idx);
-> +	WARN_ON_ONCE(idr_remove(&ids->ipcs_idr, idx) != ipcp);
->  	ipc_kht_remove(ids, ipcp);
->  	ids->in_use--;
->  	ipcp->deleted = true;
-> 
+>=20
+>=20
+> For the 4.4.y:
+>=20
+> Tested: With the patch applied the crash is resolved, no observed=20
+> regressions.
+
+Fantastic. Huge thanks!
+
+>=20
+> --
+>=20
+>  =A0=A0=A0 Manfred
+>=20
+
+Alex.
