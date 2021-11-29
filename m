@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20FC5461E5D
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:33:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5EEF461EDA
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:38:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379328AbhK2Sff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:35:35 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:36612 "EHLO
+        id S1379597AbhK2SlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:41:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43294 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379317AbhK2Sbr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:31:47 -0500
+        with ESMTP id S1380276AbhK2SjB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:39:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E752AB815CF;
-        Mon, 29 Nov 2021 18:28:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C2A9C53FCD;
-        Mon, 29 Nov 2021 18:28:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1DDFB815E6;
+        Mon, 29 Nov 2021 18:35:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 170FCC53FD3;
+        Mon, 29 Nov 2021 18:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210506;
-        bh=Pq95mlp34cyTx6DhFDsj5Fcc77dZx7mnTg5qrwePSMI=;
+        s=korg; t=1638210941;
+        bh=Up3dHwx4RjSaX1SFiAcaDIZZGBSUNLQh0fjHeWm2n1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6GQSEa5NOakiCqDENMh5qWLd+d2ZXqUZh69zQGaSGlTHG/GrwZEC+17OK0DGUMia
-         BMfJonTgizAAD/SP8FFyeTdJtScNWZiPoQ1WAg7fnue0b7kDP9iaxnuIUG8LpnoE2e
-         kP5Z1MmlVYet/u8GvBJNtgXbPy6EBOv4Nue7ZQpc=
+        b=Cfrt1xiDpV6s6/pq8+saEwdW3u8tPMY286autHTnl5tmZMiYkZdydq3OE5Z2oU30j
+         kYySfTzX0INKxmxaulxFjiCPbjY72aADuox3d84zEMXSXPaU/aQ005ftZGSIdWHqMa
+         RsWM83hKq5o3OF/XS+5jcYMmTaA7OLhsd+6lTZkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.10 011/121] usb: chipidea: ci_hdrc_imx: fix potential error pointer dereference in probe
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 048/179] tracing/uprobe: Fix uprobe_perf_open probes iteration
 Date:   Mon, 29 Nov 2021 19:17:22 +0100
-Message-Id: <20211129181712.026220448@linuxfoundation.org>
+Message-Id: <20211129181720.555936115@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jiri Olsa <jolsa@redhat.com>
 
-commit d4d2e5329ae9dfd6742c84d79f7d143d10410f1b upstream.
+commit 1880ed71ce863318c1ce93bf324876fb5f92854f upstream.
 
-If the first call to devm_usb_get_phy_by_phandle(dev, "fsl,usbphy", 0)
-fails with something other than -ENODEV then it leads to an error
-pointer dereference.  For those errors we should just jump directly to
-the error handling.
+Add missing 'tu' variable initialization in the probes loop,
+otherwise the head 'tu' is used instead of added probes.
 
-Fixes: 8253a34bfae3 ("usb: chipidea: ci_hdrc_imx: Also search for 'phys' phandle")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20211117074923.GF5237@kili
+Link: https://lkml.kernel.org/r/20211123142801.182530-1-jolsa@kernel.org
+
+Cc: stable@vger.kernel.org
+Fixes: 99c9a923e97a ("tracing/uprobe: Fix double perf_event linking on multiprobe uprobe")
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/chipidea/ci_hdrc_imx.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ kernel/trace/trace_uprobe.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/chipidea/ci_hdrc_imx.c
-+++ b/drivers/usb/chipidea/ci_hdrc_imx.c
-@@ -425,15 +425,15 @@ static int ci_hdrc_imx_probe(struct plat
- 	data->phy = devm_usb_get_phy_by_phandle(dev, "fsl,usbphy", 0);
- 	if (IS_ERR(data->phy)) {
- 		ret = PTR_ERR(data->phy);
--		if (ret == -ENODEV) {
--			data->phy = devm_usb_get_phy_by_phandle(dev, "phys", 0);
--			if (IS_ERR(data->phy)) {
--				ret = PTR_ERR(data->phy);
--				if (ret == -ENODEV)
--					data->phy = NULL;
--				else
--					goto err_clk;
--			}
-+		if (ret != -ENODEV)
-+			goto err_clk;
-+		data->phy = devm_usb_get_phy_by_phandle(dev, "phys", 0);
-+		if (IS_ERR(data->phy)) {
-+			ret = PTR_ERR(data->phy);
-+			if (ret == -ENODEV)
-+				data->phy = NULL;
-+			else
-+				goto err_clk;
- 		}
- 	}
+--- a/kernel/trace/trace_uprobe.c
++++ b/kernel/trace/trace_uprobe.c
+@@ -1313,6 +1313,7 @@ static int uprobe_perf_open(struct trace
+ 		return 0;
  
+ 	list_for_each_entry(pos, trace_probe_probe_list(tp), list) {
++		tu = container_of(pos, struct trace_uprobe, tp);
+ 		err = uprobe_apply(tu->inode, tu->offset, &tu->consumer, true);
+ 		if (err) {
+ 			uprobe_perf_close(call, event);
 
 
