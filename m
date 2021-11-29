@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 624A5462712
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:59:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F7FA4622F4
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 22:06:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236626AbhK2XA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 18:00:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38962 "EHLO
+        id S232159AbhK2VJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 16:09:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237072AbhK2XAm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 18:00:42 -0500
+        with ESMTP id S231603AbhK2VHq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 16:07:46 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 552F4C144FD9;
-        Mon, 29 Nov 2021 10:33:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA964C125329;
+        Mon, 29 Nov 2021 10:27:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C960B815C5;
-        Mon, 29 Nov 2021 18:33:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49AF8C53FC7;
-        Mon, 29 Nov 2021 18:33:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B224DB815E0;
+        Mon, 29 Nov 2021 18:27:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE559C53FCD;
+        Mon, 29 Nov 2021 18:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210815;
-        bh=LkMxyjqStvPtsLfU3aI8dETY5pe91RYq1/Z5yYXJb9U=;
+        s=korg; t=1638210428;
+        bh=i/9SKJcRfYOYxn9q99qoi6kb9ad2vbPLVHg8GLiHAg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NnjWa0mo2Hf7MOuDxaXoLlk+RuTuV9lxsGSDc3DjjOybqpm/Oeex4i5knTIygJPQ1
-         ZXdB+VbGJ4B5tXYAA+u9IkVX53zlKov3+6dbNuvcylFF3cvXP6C3uVSe3X8H5WEtdv
-         TX4q2Du+f9VO5/peIcnZ1M82haAYq5swfdtDWry4=
+        b=hRNOs0X6U4rMNr6pwAXtXiEJNEtn9FEv4mqD6ZNGEQY4oBbt2tP1nDsNL3GFQMhJs
+         wfRXqfSRHRsIHY7FdzUSHSdNKoJ6cSDaCwV8vZu6+z7+/pfKpZ+fmnLFRIBA+Rzzco
+         CrvpP9oxhx8GkyIfcoZWmIMhdTzHjhNgPPihpRNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <quic_qiancai@quicinc.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 102/121] sched/scs: Reset task stack state in bringup_cpu()
-Date:   Mon, 29 Nov 2021 19:18:53 +0100
-Message-Id: <20211129181715.093888946@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
+Subject: [PATCH 5.4 85/92] xen/blkfront: read response from backend only once
+Date:   Mon, 29 Nov 2021 19:18:54 +0100
+Message-Id: <20211129181710.230223831@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
+References: <20211129181707.392764191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,133 +48,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit dce1ca0525bfdc8a69a9343bc714fbc19a2f04b3 ]
+commit 71b66243f9898d0e54296b4e7035fb33cdcb0707 upstream.
 
-To hot unplug a CPU, the idle task on that CPU calls a few layers of C
-code before finally leaving the kernel. When KASAN is in use, poisoned
-shadow is left around for each of the active stack frames, and when
-shadow call stacks are in use. When shadow call stacks (SCS) are in use
-the task's saved SCS SP is left pointing at an arbitrary point within
-the task's shadow call stack.
+In order to avoid problems in case the backend is modifying a response
+on the ring page while the frontend has already seen it, just read the
+response into a local buffer in one go and then operate on that buffer
+only.
 
-When a CPU is offlined than onlined back into the kernel, this stale
-state can adversely affect execution. Stale KASAN shadow can alias new
-stackframes and result in bogus KASAN warnings. A stale SCS SP is
-effectively a memory leak, and prevents a portion of the shadow call
-stack being used. Across a number of hotplug cycles the idle task's
-entire shadow call stack can become unusable.
-
-We previously fixed the KASAN issue in commit:
-
-  e1b77c92981a5222 ("sched/kasan: remove stale KASAN poison after hotplug")
-
-... by removing any stale KASAN stack poison immediately prior to
-onlining a CPU.
-
-Subsequently in commit:
-
-  f1a0a376ca0c4ef1 ("sched/core: Initialize the idle task with preemption disabled")
-
-... the refactoring left the KASAN and SCS cleanup in one-time idle
-thread initialization code rather than something invoked prior to each
-CPU being onlined, breaking both as above.
-
-We fixed SCS (but not KASAN) in commit:
-
-  63acd42c0d4942f7 ("sched/scs: Reset the shadow stack when idle_task_exit")
-
-... but as this runs in the context of the idle task being offlined it's
-potentially fragile.
-
-To fix these consistently and more robustly, reset the SCS SP and KASAN
-shadow of a CPU's idle task immediately before we online that CPU in
-bringup_cpu(). This ensures the idle task always has a consistent state
-when it is running, and removes the need to so so when exiting an idle
-task.
-
-Whenever any thread is created, dup_task_struct() will give the task a
-stack which is free of KASAN shadow, and initialize the task's SCS SP,
-so there's no need to specially initialize either for idle thread within
-init_idle(), as this was only necessary to handle hotplug cycles.
-
-I've tested this on arm64 with:
-
-* gcc 11.1.0, defconfig +KASAN_INLINE, KASAN_STACK
-* clang 12.0.0, defconfig +KASAN_INLINE, KASAN_STACK, SHADOW_CALL_STACK
-
-... offlining and onlining CPUS with:
-
-| while true; do
-|   for C in /sys/devices/system/cpu/cpu*/online; do
-|     echo 0 > $C;
-|     echo 1 > $C;
-|   done
-| done
-
-Fixes: f1a0a376ca0c4ef1 ("sched/core: Initialize the idle task with preemption disabled")
-Reported-by: Qian Cai <quic_qiancai@quicinc.com>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Tested-by: Qian Cai <quic_qiancai@quicinc.com>
-Link: https://lore.kernel.org/lkml/20211115113310.35693-1-mark.rutland@arm.com/
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Acked-by: Roger Pau Monné <roger.pau@citrix.com>
+Link: https://lore.kernel.org/r/20210730103854.12681-2-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cpu.c        | 7 +++++++
- kernel/sched/core.c | 4 ----
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ drivers/block/xen-blkfront.c |   35 ++++++++++++++++++-----------------
+ 1 file changed, 18 insertions(+), 17 deletions(-)
 
-diff --git a/kernel/cpu.c b/kernel/cpu.c
-index 67c22941b5f27..c06ced18f78ad 100644
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -31,6 +31,7 @@
- #include <linux/smpboot.h>
- #include <linux/relay.h>
- #include <linux/slab.h>
-+#include <linux/scs.h>
- #include <linux/percpu-rwsem.h>
- #include <linux/cpuset.h>
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1549,7 +1549,7 @@ static bool blkif_completion(unsigned lo
+ static irqreturn_t blkif_interrupt(int irq, void *dev_id)
+ {
+ 	struct request *req;
+-	struct blkif_response *bret;
++	struct blkif_response bret;
+ 	RING_IDX i, rp;
+ 	unsigned long flags;
+ 	struct blkfront_ring_info *rinfo = (struct blkfront_ring_info *)dev_id;
+@@ -1566,8 +1566,9 @@ static irqreturn_t blkif_interrupt(int i
+ 	for (i = rinfo->ring.rsp_cons; i != rp; i++) {
+ 		unsigned long id;
  
-@@ -551,6 +552,12 @@ static int bringup_cpu(unsigned int cpu)
- 	struct task_struct *idle = idle_thread_get(cpu);
- 	int ret;
- 
-+	/*
-+	 * Reset stale stack state from the last time this CPU was online.
-+	 */
-+	scs_task_reset(idle);
-+	kasan_unpoison_task_stack(idle);
+-		bret = RING_GET_RESPONSE(&rinfo->ring, i);
+-		id   = bret->id;
++		RING_COPY_RESPONSE(&rinfo->ring, i, &bret);
++		id = bret.id;
 +
- 	/*
- 	 * Some architectures have to walk the irq descriptors to
- 	 * setup the vector space for the cpu which comes online.
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index e456cce772a3a..304aad997da11 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6523,9 +6523,6 @@ void __init init_idle(struct task_struct *idle, int cpu)
- 	idle->se.exec_start = sched_clock();
- 	idle->flags |= PF_IDLE;
+ 		/*
+ 		 * The backend has messed up and given us an id that we would
+ 		 * never have given to it (we stamp it up to BLK_RING_SIZE -
+@@ -1575,39 +1576,39 @@ static irqreturn_t blkif_interrupt(int i
+ 		 */
+ 		if (id >= BLK_RING_SIZE(info)) {
+ 			WARN(1, "%s: response to %s has incorrect id (%ld)\n",
+-			     info->gd->disk_name, op_name(bret->operation), id);
++			     info->gd->disk_name, op_name(bret.operation), id);
+ 			/* We can't safely get the 'struct request' as
+ 			 * the id is busted. */
+ 			continue;
+ 		}
+ 		req  = rinfo->shadow[id].request;
  
--	scs_task_reset(idle);
--	kasan_unpoison_task_stack(idle);
--
- #ifdef CONFIG_SMP
- 	/*
- 	 * Its possible that init_idle() gets called multiple times on a task,
-@@ -6681,7 +6678,6 @@ void idle_task_exit(void)
- 		finish_arch_post_lock_switch();
- 	}
+-		if (bret->operation != BLKIF_OP_DISCARD) {
++		if (bret.operation != BLKIF_OP_DISCARD) {
+ 			/*
+ 			 * We may need to wait for an extra response if the
+ 			 * I/O request is split in 2
+ 			 */
+-			if (!blkif_completion(&id, rinfo, bret))
++			if (!blkif_completion(&id, rinfo, &bret))
+ 				continue;
+ 		}
  
--	scs_task_reset(current);
- 	/* finish_cpu(), as ran on the BP, will clean up the active_mm state */
- }
+ 		if (add_id_to_freelist(rinfo, id)) {
+ 			WARN(1, "%s: response to %s (id %ld) couldn't be recycled!\n",
+-			     info->gd->disk_name, op_name(bret->operation), id);
++			     info->gd->disk_name, op_name(bret.operation), id);
+ 			continue;
+ 		}
  
--- 
-2.33.0
-
+-		if (bret->status == BLKIF_RSP_OKAY)
++		if (bret.status == BLKIF_RSP_OKAY)
+ 			blkif_req(req)->error = BLK_STS_OK;
+ 		else
+ 			blkif_req(req)->error = BLK_STS_IOERR;
+ 
+-		switch (bret->operation) {
++		switch (bret.operation) {
+ 		case BLKIF_OP_DISCARD:
+-			if (unlikely(bret->status == BLKIF_RSP_EOPNOTSUPP)) {
++			if (unlikely(bret.status == BLKIF_RSP_EOPNOTSUPP)) {
+ 				struct request_queue *rq = info->rq;
+ 				printk(KERN_WARNING "blkfront: %s: %s op failed\n",
+-					   info->gd->disk_name, op_name(bret->operation));
++					   info->gd->disk_name, op_name(bret.operation));
+ 				blkif_req(req)->error = BLK_STS_NOTSUPP;
+ 				info->feature_discard = 0;
+ 				info->feature_secdiscard = 0;
+@@ -1617,15 +1618,15 @@ static irqreturn_t blkif_interrupt(int i
+ 			break;
+ 		case BLKIF_OP_FLUSH_DISKCACHE:
+ 		case BLKIF_OP_WRITE_BARRIER:
+-			if (unlikely(bret->status == BLKIF_RSP_EOPNOTSUPP)) {
++			if (unlikely(bret.status == BLKIF_RSP_EOPNOTSUPP)) {
+ 				printk(KERN_WARNING "blkfront: %s: %s op failed\n",
+-				       info->gd->disk_name, op_name(bret->operation));
++				       info->gd->disk_name, op_name(bret.operation));
+ 				blkif_req(req)->error = BLK_STS_NOTSUPP;
+ 			}
+-			if (unlikely(bret->status == BLKIF_RSP_ERROR &&
++			if (unlikely(bret.status == BLKIF_RSP_ERROR &&
+ 				     rinfo->shadow[id].req.u.rw.nr_segments == 0)) {
+ 				printk(KERN_WARNING "blkfront: %s: empty %s op failed\n",
+-				       info->gd->disk_name, op_name(bret->operation));
++				       info->gd->disk_name, op_name(bret.operation));
+ 				blkif_req(req)->error = BLK_STS_NOTSUPP;
+ 			}
+ 			if (unlikely(blkif_req(req)->error)) {
+@@ -1638,9 +1639,9 @@ static irqreturn_t blkif_interrupt(int i
+ 			/* fall through */
+ 		case BLKIF_OP_READ:
+ 		case BLKIF_OP_WRITE:
+-			if (unlikely(bret->status != BLKIF_RSP_OKAY))
++			if (unlikely(bret.status != BLKIF_RSP_OKAY))
+ 				dev_dbg(&info->xbdev->dev, "Bad return from blkdev data "
+-					"request: %x\n", bret->status);
++					"request: %x\n", bret.status);
+ 
+ 			break;
+ 		default:
 
 
