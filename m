@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D9E6462619
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:43:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 451E84624FC
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:31:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235453AbhK2WrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:47:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35170 "EHLO
+        id S232223AbhK2Wdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:33:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234950AbhK2Wob (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:44:31 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C20C125332;
-        Mon, 29 Nov 2021 10:27:23 -0800 (PST)
+        with ESMTP id S232319AbhK2WdL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:33:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA9CDC07E5F3;
+        Mon, 29 Nov 2021 10:40:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 190BACE13DF;
-        Mon, 29 Nov 2021 18:27:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC03FC53FC7;
-        Mon, 29 Nov 2021 18:27:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1694B815CC;
+        Mon, 29 Nov 2021 18:40:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4C94C53FAD;
+        Mon, 29 Nov 2021 18:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210440;
-        bh=u72DCnz/wYvFwWAzvnJF29igJKQF73qq+VxlwNYL+dY=;
+        s=korg; t=1638211216;
+        bh=dDkI2zj3bBh1yrIAXEy608BKOxsow0pb+LG3yHfQsc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+PdanSydzJ9XbD/LhTuTercieDaEz1IBtTCzAQ2VCdreRGsvzoSIimyV7hDUDjWR
-         DocDd+CkVByrlI8+TliaUiEgJVYbJOyrpoWgMzMcybEo3KyLDVaI/F84J/MzNpSUTq
-         sqgPxEg89X0NmcovZbi9NAP42bHHDsF91R1juPvQ=
+        b=J8I6JYWC4ue1jVXG8rSUSfU29IzQfblDM/JWMWCKz0YmydNle7sfpC/OaLaA0nF/+
+         gWL96Qfjb9vVr/qz5Uq+EcfN6EjugRiGr8SDgc/CcJ8m/znZQYTeSCqb/OHo8dzZwP
+         iTtTsaMLnLlE/IBCQ25JdTrmqmnHqY4zOQL3pvZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 89/92] xen/netfront: dont read data from request on the ring page
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 144/179] tls: splice_read: fix accessing pre-processed records
 Date:   Mon, 29 Nov 2021 19:18:58 +0100
-Message-Id: <20211129181710.361267274@linuxfoundation.org>
+Message-Id: <20211129181723.688074423@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,193 +47,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 162081ec33c2686afa29d91bf8d302824aa846c7 upstream.
+[ Upstream commit e062fe99cccd9ff9f232e593d163ecabd244fae8 ]
 
-In order to avoid a malicious backend being able to influence the local
-processing of a request build the request locally first and then copy
-it to the ring page. Any reading from the request influencing the
-processing in the frontend needs to be done on the local instance.
+recvmsg() will put peek()ed and partially read records onto the rx_list.
+splice_read() needs to consult that list otherwise it may miss data.
+Align with recvmsg() and also put partially-read records onto rx_list.
+tls_sw_advance_skb() is pretty pointless now and will be removed in
+net-next.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 692d7b5d1f91 ("tls: Fix recvmsg() to be able to peek across multiple records")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netfront.c |   78 ++++++++++++++++++++-------------------------
- 1 file changed, 36 insertions(+), 42 deletions(-)
+ net/tls/tls_sw.c | 33 +++++++++++++++++++++++++--------
+ 1 file changed, 25 insertions(+), 8 deletions(-)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -423,7 +423,8 @@ struct xennet_gnttab_make_txreq {
- 	struct netfront_queue *queue;
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index 1715e793c04ba..b0cdcea101806 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -1993,6 +1993,7 @@ ssize_t tls_sw_splice_read(struct socket *sock,  loff_t *ppos,
+ 	struct sock *sk = sock->sk;
  	struct sk_buff *skb;
- 	struct page *page;
--	struct xen_netif_tx_request *tx; /* Last request */
-+	struct xen_netif_tx_request *tx;      /* Last request on ring page */
-+	struct xen_netif_tx_request tx_local; /* Last request local copy*/
- 	unsigned int size;
- };
+ 	ssize_t copied = 0;
++	bool from_queue;
+ 	int err = 0;
+ 	long timeo;
+ 	int chunk;
+@@ -2002,14 +2003,20 @@ ssize_t tls_sw_splice_read(struct socket *sock,  loff_t *ppos,
  
-@@ -451,30 +452,27 @@ static void xennet_tx_setup_grant(unsign
- 	queue->grant_tx_page[id] = page;
- 	queue->grant_tx_ref[id] = ref;
+ 	timeo = sock_rcvtimeo(sk, flags & SPLICE_F_NONBLOCK);
  
--	tx->id = id;
--	tx->gref = ref;
--	tx->offset = offset;
--	tx->size = len;
--	tx->flags = 0;
-+	info->tx_local.id = id;
-+	info->tx_local.gref = ref;
-+	info->tx_local.offset = offset;
-+	info->tx_local.size = len;
-+	info->tx_local.flags = 0;
-+
-+	*tx = info->tx_local;
+-	skb = tls_wait_data(sk, NULL, flags & SPLICE_F_NONBLOCK, timeo, &err);
+-	if (!skb)
+-		goto splice_read_end;
++	from_queue = !skb_queue_empty(&ctx->rx_list);
++	if (from_queue) {
++		skb = __skb_dequeue(&ctx->rx_list);
++	} else {
++		skb = tls_wait_data(sk, NULL, flags & SPLICE_F_NONBLOCK, timeo,
++				    &err);
++		if (!skb)
++			goto splice_read_end;
  
- 	info->tx = tx;
--	info->size += tx->size;
-+	info->size += info->tx_local.size;
- }
- 
- static struct xen_netif_tx_request *xennet_make_first_txreq(
--	struct netfront_queue *queue, struct sk_buff *skb,
--	struct page *page, unsigned int offset, unsigned int len)
-+	struct xennet_gnttab_make_txreq *info,
-+	unsigned int offset, unsigned int len)
- {
--	struct xennet_gnttab_make_txreq info = {
--		.queue = queue,
--		.skb = skb,
--		.page = page,
--		.size = 0,
--	};
-+	info->size = 0;
- 
--	gnttab_for_one_grant(page, offset, len, xennet_tx_setup_grant, &info);
-+	gnttab_for_one_grant(info->page, offset, len, xennet_tx_setup_grant, info);
- 
--	return info.tx;
-+	return info->tx;
- }
- 
- static void xennet_make_one_txreq(unsigned long gfn, unsigned int offset,
-@@ -487,35 +485,27 @@ static void xennet_make_one_txreq(unsign
- 	xennet_tx_setup_grant(gfn, offset, len, data);
- }
- 
--static struct xen_netif_tx_request *xennet_make_txreqs(
--	struct netfront_queue *queue, struct xen_netif_tx_request *tx,
--	struct sk_buff *skb, struct page *page,
-+static void xennet_make_txreqs(
-+	struct xennet_gnttab_make_txreq *info,
-+	struct page *page,
- 	unsigned int offset, unsigned int len)
- {
--	struct xennet_gnttab_make_txreq info = {
--		.queue = queue,
--		.skb = skb,
--		.tx = tx,
--	};
--
- 	/* Skip unused frames from start of page */
- 	page += offset >> PAGE_SHIFT;
- 	offset &= ~PAGE_MASK;
- 
- 	while (len) {
--		info.page = page;
--		info.size = 0;
-+		info->page = page;
-+		info->size = 0;
- 
- 		gnttab_foreach_grant_in_range(page, offset, len,
- 					      xennet_make_one_txreq,
--					      &info);
-+					      info);
- 
- 		page++;
- 		offset = 0;
--		len -= info.size;
-+		len -= info->size;
- 	}
--
--	return info.tx;
- }
- 
- /*
-@@ -568,7 +558,7 @@ static netdev_tx_t xennet_start_xmit(str
- {
- 	struct netfront_info *np = netdev_priv(dev);
- 	struct netfront_stats *tx_stats = this_cpu_ptr(np->tx_stats);
--	struct xen_netif_tx_request *tx, *first_tx;
-+	struct xen_netif_tx_request *first_tx;
- 	unsigned int i;
- 	int notify;
- 	int slots;
-@@ -577,6 +567,7 @@ static netdev_tx_t xennet_start_xmit(str
- 	unsigned int len;
- 	unsigned long flags;
- 	struct netfront_queue *queue = NULL;
-+	struct xennet_gnttab_make_txreq info = { };
- 	unsigned int num_queues = dev->real_num_tx_queues;
- 	u16 queue_index;
- 	struct sk_buff *nskb;
-@@ -634,21 +625,24 @@ static netdev_tx_t xennet_start_xmit(str
+-	err = decrypt_skb_update(sk, skb, NULL, &chunk, &zc, false);
+-	if (err < 0) {
+-		tls_err_abort(sk, -EBADMSG);
+-		goto splice_read_end;
++		err = decrypt_skb_update(sk, skb, NULL, &chunk, &zc, false);
++		if (err < 0) {
++			tls_err_abort(sk, -EBADMSG);
++			goto splice_read_end;
++		}
  	}
  
- 	/* First request for the linear area. */
--	first_tx = tx = xennet_make_first_txreq(queue, skb,
--						page, offset, len);
--	offset += tx->size;
-+	info.queue = queue;
-+	info.skb = skb;
-+	info.page = page;
-+	first_tx = xennet_make_first_txreq(&info, offset, len);
-+	offset += info.tx_local.size;
- 	if (offset == PAGE_SIZE) {
- 		page++;
- 		offset = 0;
- 	}
--	len -= tx->size;
-+	len -= info.tx_local.size;
+ 	/* splice does not support reading control messages */
+@@ -2025,7 +2032,17 @@ ssize_t tls_sw_splice_read(struct socket *sock,  loff_t *ppos,
+ 	if (copied < 0)
+ 		goto splice_read_end;
  
- 	if (skb->ip_summed == CHECKSUM_PARTIAL)
- 		/* local packet? */
--		tx->flags |= XEN_NETTXF_csum_blank | XEN_NETTXF_data_validated;
-+		first_tx->flags |= XEN_NETTXF_csum_blank |
-+				   XEN_NETTXF_data_validated;
- 	else if (skb->ip_summed == CHECKSUM_UNNECESSARY)
- 		/* remote but checksummed. */
--		tx->flags |= XEN_NETTXF_data_validated;
-+		first_tx->flags |= XEN_NETTXF_data_validated;
+-	tls_sw_advance_skb(sk, skb, copied);
++	if (!from_queue) {
++		ctx->recv_pkt = NULL;
++		__strp_unpause(&ctx->strp);
++	}
++	if (chunk < rxm->full_len) {
++		__skb_queue_head(&ctx->rx_list, skb);
++		rxm->offset += len;
++		rxm->full_len -= len;
++	} else {
++		consume_skb(skb);
++	}
  
- 	/* Optional extra info after the first request. */
- 	if (skb_shinfo(skb)->gso_size) {
-@@ -657,7 +651,7 @@ static netdev_tx_t xennet_start_xmit(str
- 		gso = (struct xen_netif_extra_info *)
- 			RING_GET_REQUEST(&queue->tx, queue->tx.req_prod_pvt++);
- 
--		tx->flags |= XEN_NETTXF_extra_info;
-+		first_tx->flags |= XEN_NETTXF_extra_info;
- 
- 		gso->u.gso.size = skb_shinfo(skb)->gso_size;
- 		gso->u.gso.type = (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV6) ?
-@@ -671,12 +665,12 @@ static netdev_tx_t xennet_start_xmit(str
- 	}
- 
- 	/* Requests for the rest of the linear area. */
--	tx = xennet_make_txreqs(queue, tx, skb, page, offset, len);
-+	xennet_make_txreqs(&info, page, offset, len);
- 
- 	/* Requests for all the frags. */
- 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
- 		skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
--		tx = xennet_make_txreqs(queue, tx, skb, skb_frag_page(frag),
-+		xennet_make_txreqs(&info, skb_frag_page(frag),
- 					skb_frag_off(frag),
- 					skb_frag_size(frag));
- 	}
+ splice_read_end:
+ 	release_sock(sk);
+-- 
+2.33.0
+
 
 
