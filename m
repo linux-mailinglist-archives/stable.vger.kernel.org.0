@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FB344616FD
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 14:48:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F17934616FE
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 14:48:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232035AbhK2NwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 08:52:01 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:39006 "EHLO
+        id S232258AbhK2NwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 08:52:07 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39042 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232946AbhK2NuB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 08:50:01 -0500
+        with ESMTP id S233864AbhK2NuG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 08:50:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C0E8B8117B
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 13:46:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEA3CC004E1;
-        Mon, 29 Nov 2021 13:46:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 544C8B8118A
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 13:46:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8840CC004E1;
+        Mon, 29 Nov 2021 13:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638193601;
-        bh=WwCyDyToxorw4LSthfXm/33mywTRzU0JMqSs5RiElkY=;
+        s=korg; t=1638193607;
+        bh=Cvru1lDQsx7CSoGa+EL2lnYZaYTt91YqL38VqUAiYh0=;
         h=Subject:To:Cc:From:Date:From;
-        b=qdz6ZimUHI+OIsd4tvJnmpoq80q509rH3DT1KmDPr9OtAXA95dIH3rP6qEjNK86eM
-         Brkk5QA0M4HWjvIlKsxEXYQ7URYQk5K0GtX0iJ+AGNBBTnIRfWjLgbX0F4RLlU0qET
-         Vf9kPA28H7IVexu7soCWESpBMUbKmRDgvhDai9bc=
-Subject: FAILED: patch "[PATCH] iavf: Fix deadlock occurrence during resetting VF interface" failed to apply to 4.14-stable tree
+        b=PJYmfugQAyT2RCi7yhgtqpkxnV1XVUHNZU9Nj1jwCZfmYcpy2CGLcz7fVYwnPNVBI
+         Zai5jpIIADTMDefvL9xGzAC+iPQg1MzQxOmfVlllryN841LSPZy8qAabCaPE6FBQOF
+         T2ZaV95Dfb7ZcUKjJV9nT3dv1ymv5WrACNoxAiXE=
+Subject: FAILED: patch "[PATCH] iavf: Fix deadlock occurrence during resetting VF interface" failed to apply to 4.19-stable tree
 To:     jedrzej.jagielski@intel.com, anthony.l.nguyen@intel.com,
         jaroslawx.gawin@intel.com, konrad0.jankowski@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Nov 2021 14:46:33 +0100
-Message-ID: <163819359336138@kroah.com>
+Date:   Mon, 29 Nov 2021 14:46:34 +0100
+Message-ID: <1638193594187136@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
