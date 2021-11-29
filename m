@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11203461D81
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:22:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F6A4461E6A
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:34:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351083AbhK2SZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:25:46 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:47108 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229683AbhK2SXp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:23:45 -0500
+        id S1351969AbhK2Sfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:35:54 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38606 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379420AbhK2Sdw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:33:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 85439CE13D7;
-        Mon, 29 Nov 2021 18:20:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EF96C53FAD;
-        Mon, 29 Nov 2021 18:20:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C343B815D8;
+        Mon, 29 Nov 2021 18:30:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62B6CC53FC7;
+        Mon, 29 Nov 2021 18:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210024;
-        bh=GZGDxE8s+2V561z3QS8z0po771bfpbHBVhYMNFTZPXI=;
+        s=korg; t=1638210632;
+        bh=Wf8GKM8z5WnE8vHIUIm8MYhQ3Y9i3qDKoX2WwiIwVv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mdRIBtvTmf88vjKsGmMH9hHm+a/vb274PqujYc45fWeJ+2D/XfPivh3HfEdViVr9u
-         uGJYOPYnk4jmyK45kkr9b+IO7KxWUpvCKzKI9dpfgxLC/mNVhjXo8gXMGO4yGVq6xp
-         fcVsa8a4sJv1MAIaQaKDD3DzIoMrZwMsOgv84pao=
+        b=OeGr0/6hme0MK6MBU5ZvI+1sWcvhPJC5WCOis4Txdoszrz1YcGSXHmNs+jnvktC1M
+         QsQzV/NMmTWzncDQWtoHNcQ+kamk3Ib15baoGtHLm0s195niaDJEq11/6ta+4PEFYX
+         lNptZ1ck65aPfCAMknHObWTwWzskpio07lmepua0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 4.19 17/69] PCI: aardvark: Fix a leaked reference by adding missing of_node_put()
-Date:   Mon, 29 Nov 2021 19:17:59 +0100
-Message-Id: <20211129181704.225629103@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 049/121] ASoC: qdsp6: q6asm: fix q6asm_dai_prepare error handling
+Date:   Mon, 29 Nov 2021 19:18:00 +0100
+Message-Id: <20211129181713.308133935@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,71 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wen.yang99@zte.com.cn>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-commit 3842f5166bf1ef286fe7a39f262b5c9581308366 upstream.
+[ Upstream commit 721a94b4352dc8e47bff90b549a0118c39776756 ]
 
-The call to of_get_next_child() returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+Error handling in q6asm_dai_prepare() seems to be completely broken,
+Fix this by handling it properly.
 
-irq_domain_add_linear() also calls of_node_get() to increase refcount,
-so irq_domain will not be affected when it is released.
-
-Detected by coccinelle with the following warnings:
-  ./drivers/pci/controller/pci-aardvark.c:826:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 798, but without a corresponding object release within this function.
-
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2a9e92d371db ("ASoC: qdsp6: q6asm: Add q6asm dai driver")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20211116114721.12517-4-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ sound/soc/qcom/qdsp6/q6asm-dai.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -754,6 +754,7 @@ static int advk_pcie_init_irq_domain(str
- 	struct device_node *node = dev->of_node;
- 	struct device_node *pcie_intc_node;
- 	struct irq_chip *irq_chip;
-+	int ret = 0;
+diff --git a/sound/soc/qcom/qdsp6/q6asm-dai.c b/sound/soc/qcom/qdsp6/q6asm-dai.c
+index 9766725c29166..84cf190aa01a6 100644
+--- a/sound/soc/qcom/qdsp6/q6asm-dai.c
++++ b/sound/soc/qcom/qdsp6/q6asm-dai.c
+@@ -269,9 +269,7 @@ static int q6asm_dai_prepare(struct snd_soc_component *component,
  
- 	raw_spin_lock_init(&pcie->irq_lock);
- 
-@@ -768,8 +769,8 @@ static int advk_pcie_init_irq_domain(str
- 	irq_chip->name = devm_kasprintf(dev, GFP_KERNEL, "%s-irq",
- 					dev_name(dev));
- 	if (!irq_chip->name) {
--		of_node_put(pcie_intc_node);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s: q6asm_open_write failed\n", __func__);
+-		q6asm_audio_client_free(prtd->audio_client);
+-		prtd->audio_client = NULL;
 -		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto out_put_node;
++		goto open_err;
  	}
  
- 	irq_chip->irq_mask = advk_pcie_irq_mask;
-@@ -781,11 +782,13 @@ static int advk_pcie_init_irq_domain(str
- 				      &advk_pcie_irq_domain_ops, pcie);
- 	if (!pcie->irq_domain) {
- 		dev_err(dev, "Failed to get a INTx IRQ domain\n");
--		of_node_put(pcie_intc_node);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto out_put_node;
+ 	prtd->session_id = q6asm_get_session_id(prtd->audio_client);
+@@ -279,7 +277,7 @@ static int q6asm_dai_prepare(struct snd_soc_component *component,
+ 			      prtd->session_id, substream->stream);
+ 	if (ret) {
+ 		dev_err(dev, "%s: stream reg failed ret:%d\n", __func__, ret);
+-		return ret;
++		goto routing_err;
  	}
+ 
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+@@ -301,10 +299,19 @@ static int q6asm_dai_prepare(struct snd_soc_component *component,
+ 	}
+ 	if (ret < 0)
+ 		dev_info(dev, "%s: CMD Format block failed\n", __func__);
++	else
++		prtd->state = Q6ASM_STREAM_RUNNING;
+ 
+-	prtd->state = Q6ASM_STREAM_RUNNING;
++	return ret;
  
 -	return 0;
-+out_put_node:
-+	of_node_put(pcie_intc_node);
++routing_err:
++	q6asm_cmd(prtd->audio_client, prtd->stream_id,  CMD_CLOSE);
++open_err:
++	q6asm_unmap_memory_regions(substream->stream, prtd->audio_client);
++	q6asm_audio_client_free(prtd->audio_client);
++	prtd->audio_client = NULL;
++
 +	return ret;
  }
  
- static void advk_pcie_remove_irq_domain(struct advk_pcie *pcie)
+ static int q6asm_dai_trigger(struct snd_soc_component *component,
+-- 
+2.33.0
+
 
 
