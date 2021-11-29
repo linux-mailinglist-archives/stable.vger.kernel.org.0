@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D461460F66
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 08:34:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE533460F69
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 08:34:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238615AbhK2Hh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 02:37:29 -0500
-Received: from mail-bo1ind01olkn0176.outbound.protection.outlook.com ([104.47.101.176]:62080
+        id S239888AbhK2Hhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 02:37:52 -0500
+Received: from mail-bo1ind01olkn0144.outbound.protection.outlook.com ([104.47.101.144]:31217
         "EHLO IND01-BO1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S239512AbhK2Hf2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Nov 2021 02:35:28 -0500
+        id S238618AbhK2Hft (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Nov 2021 02:35:49 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=gIEP60Yzl0kieyRO2LBsaAAFQ0bjLpuC12ErV+n5dcMkjJrSijYCIQRD9R2bfZtyJ0anQcF3exAlOoLJCDw3K5pbx5B5eJdQZ2MaNocl67Tgi9gruvSER054yCmDEk1TZAX7kkmKdK6Y82A+PRiNre17QQLi2rrQdE9WqvRNgrzHz2Y5AO4DwN0iZ1kAjbJV+QG7y92XZvhWQr1+fOw7pOegMCjLVKS5o/S9QbCbIgXi5bDMy38jrF3rtbeu4ZDjtd4nWc6bFCn1l2riHR3I+0rColGHMdxczY03QweYW119ltwbMESrvjBApiEI4DJ/jhzTCe8mts4Wou1dTtek4g==
+ b=Q8FS8WQopda2xCZP5RJCGFGwxsr0TcH5hpqqKC7gwXYDFoY2/KAfYjrOYOnSe/yYMkoTxxIkAvX6/a/MIoB3ajOQoWoCYKzwGKppvsHP79KSXgXWVp5j24EB+otL8KdvsoWxzMkU1DMODRBE5PZ0CyR6vIXeLwXU0I5ehi2h5P55dw4qT8foaUuiorCZ+VvabxEwvI6GlyKe0Inn+1G/R2ShBPff/43IDU1KmHxrMqmXB2WgnXI/NbjEoVDK3v3rz8wlXu7T6wtWe/2fu5Z5bKf9S1wOhpPuidl/rlSruF4pWfk0bRjn8YdzrseTE5u+yixKluIoaa3E+TPCjnh5Rg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4GRXda5gS9x9VSAerCM/aPzhn9gOTctTYuZn80SFd7I=;
- b=BwdVxfCz7eDMx8qnQkMeTDhs04OnnY9KVzlZL2In06muWkA1eA305UH0AQZRvdtCPyfFJdcqzL3LCcedfdOQIqqmGSP5xbp0/gs9fxTbRzgOVlbKuve8RGMAC0oda3cgaXUbpZosMhWPfA3Nqp0CU9gWk9DxbdCqN3FbEczyZTtUdQgH4y6E9rrR8VLQ6wujf/8Di/T4TQSp6biK+TCUL6xeG2E0HPcuL/GG1MNdk2BNR1A7xvXZ/3b6wui8dW+PSQcrp4ZwajkyQSaGuJ+u0luWAVKkTjz3gzhdpvOOLWmzIgdZVset1p2pwiUPPRI6JEbKTsGVxuEWXwAwE5sK+Q==
+ bh=RkH27gCEV+OD6JJHa+O51Ed3T2E7qY5Sx4nj3Id7qb4=;
+ b=l5dCHLHUaHXnO5cmqQRTw0toXoT8zIDhBF5H/d1ND/CEXb5xEiTbwIuGIOPE2gBmDtBoruPUUMQA2CC+asZQKtb6M1YwBTiSsigRoQozYWcCuPQ36IGNEKRv1DWB5E6AA2WXLgt09En/umG9fSiWtRQBMKt94lIqRfq3+w5ZV0WAQC7zFyCSfQI5PT7KAjUMVmJJ11raF6FOZ+iAb917aqskAW2OlYJdC8pxrHQf8pNi9/QeC83CtwPuqZjk/XAWbHvFavKeuZlqAgFp+oxLuNM4TGpT6HZMbpN56d8Yk9CzEJhlNWJx2ygivrY80ZbUYDhT0RKfQmSHVv3zGEfUag==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4GRXda5gS9x9VSAerCM/aPzhn9gOTctTYuZn80SFd7I=;
- b=FfE66BpCabb1s7R0J3epeS8GzinziXWs4kwzPUR9o3q1II6nGzU7WBh2caruyC3/ajKqyuyXXvJPA/WUXN6bTMqMCq5n0AkcWppCJprscr7XNVpulZxgtZFOBcuf72gNyrrhMjsr0Sy6ZaJ4UEdrxusa37zQmIQG8h8LCD49D4Bthx6/n/w5FxiQKIThMcJkCbI8BLQBzMguZLP7i6Ulf/3naO0Q3nvYC3QgbnauC89+SdJWmkHGMiSactGedeZLuzCFFjpDFqpcgCVPeU5gSq3F8OTBmKxW5Uz4DSQjx9GIMX/2oCZaU3/0LuhK1dngcU0GXxXjG90Nlw7XwAYc/w==
+ bh=RkH27gCEV+OD6JJHa+O51Ed3T2E7qY5Sx4nj3Id7qb4=;
+ b=gjB4z7xMU+P2V0JmAFGYBSnbA0yEbMBqU2BTy+Kf4yVt+LFN30I/ClQNQ8q1UEOE5t2CH5sLJt5zczoIh9ZWPkyYFNIUE7ozT1nphWDAZGMo+wI+eusemIJ2iNsPEibPF9eKwMugxsHP31m94e4aRNBM4DfC74Pk/cEt0G5TzVS+/JaJPPN9secfxF0cxX6cTLG0Ygki9O0xRneNrXc1VDVvuypyg+L6m9Vm5nXs2mwZ+yVbdhZ0ioqp6oBUVG/UBe8RGibYhjoRUoKH3WHBNXC2EZpa8FARrEcCtUSzj0kCPRf9tsC9K3RUNlcjZltmeKDLfpeTbFCD7ne3ULbgaw==
 Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1b::13)
  by PN1PR0101MB1662.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c00:18::10) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.23; Mon, 29 Nov
- 2021 07:31:32 +0000
+ 2021 07:32:24 +0000
 Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
  ([fe80::7ca6:9165:19ec:4cd7]) by PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
  ([fe80::7ca6:9165:19ec:4cd7%5]) with mapi id 15.20.4734.024; Mon, 29 Nov 2021
- 07:31:32 +0000
+ 07:32:24 +0000
 From:   Aditya Garg <gargaditya08@live.com>
 To:     Thorsten Leemhuis <regressions@leemhuis.info>
 CC:     Marcel Holtmann <marcel@holtmann.org>,
@@ -47,13 +47,13 @@ CC:     Marcel Holtmann <marcel@holtmann.org>,
         "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
         "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCH 5/6] btbcm: disable read tx power for iMac 20,1 (Retina 5K,
+Subject: [PATCH 6/6] btbcm: disable read tx power for iMac 20,2 (Retina 5K,
  27-inch, 2020)
-Thread-Topic: [PATCH 5/6] btbcm: disable read tx power for iMac 20,1 (Retina
+Thread-Topic: [PATCH 6/6] btbcm: disable read tx power for iMac 20,2 (Retina
  5K, 27-inch, 2020)
-Thread-Index: AQHX5PMhn2Jf+xkhtEWseNDG5qLzhw==
-Date:   Mon, 29 Nov 2021 07:31:32 +0000
-Message-ID: <E9DE81E7-F408-414F-AB25-D71657E5177A@live.com>
+Thread-Index: AQHX5PNAeslAiRbqaEqN39DGKwYeHg==
+Date:   Mon, 29 Nov 2021 07:32:24 +0000
+Message-ID: <8E63B397-FADC-4FD2-9C90-B4F09C5498A1@live.com>
 References: <20211001083412.3078-1-redecorating@protonmail.com>
  <YYePw07y2DzEPSBR@kroah.com>
  <70a875d0-7162-d149-dbc1-c2f5e1a8e701@leemhuis.info>
@@ -71,30 +71,31 @@ References: <20211001083412.3078-1-redecorating@protonmail.com>
  <5B9FF471-42DD-44DA-A9CE-0A83BA7A4212@live.com>
  <A96508EB-55CB-4542-9274-301CE8E54510@live.com>
  <3E9D8424-A65C-4211-B5E4-B6D62400E711@live.com>
-In-Reply-To: <3E9D8424-A65C-4211-B5E4-B6D62400E711@live.com>
+ <E9DE81E7-F408-414F-AB25-D71657E5177A@live.com>
+In-Reply-To: <E9DE81E7-F408-414F-AB25-D71657E5177A@live.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [dq8NQswA5yhsmA8RcoJWFIfB6waO9bc3bYa33TYtdylq+ZBiw9/jmM0gPxfG+YrY]
+x-tmn:  [rbmKKae7n0rYxAWJMHFlc/KhwDJ5GSRzAQ/2/qUbk2lmr+g4v+cQ/EDoYQkrl/i9]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 0991816a-9158-4b8d-3e12-08d9b30a4427
+x-ms-office365-filtering-correlation-id: 49584d43-29e9-476f-436c-08d9b30a6313
 x-ms-traffictypediagnostic: PN1PR0101MB1662:
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: ypvWmt9eE/qjU+vzSggUMu6f2/XyEkwFc/gZB87m22UcWMgcMXNr13Jix15VtR0Heq6K8Thhgmp/6cXHjDx+8F96787ZWnLtgyASetBKDa3JJZVKCJXmd0hDJSow/rM/ko4heuInkEvoDRqz9wu80wUrDI4nCUSy9kVDdKBNZbKRtuN4D4QToWXpciuO1M5YONz1HQwQivTJ2fgSoH3HgA0sFt7M66/lCaXmWu4lQ7R4TuMseqm8VEG0ydtVdCMNlhQ8CWmDSNIwmfwNLmBqBLIdvFgdMEoVfKFXhUoWUVFGgz0+ywV45hMfLVS5N8VJTxCpHyARhQcGSjQLCdfSAtTxaH4ZrtIrBS3JRi43dUsmR/0TOFSWkpESWyf2dQtfc/hU7WzLEHJ4o+CR2I0UPblOg2w+Tp4n4xtwF6EB0qKD7aSKP+glOSbxAQOz3KjqMuKKKqvN2uVIamRVW/q/ZJN30EX394odaKYv4zs+vICWUlQW7nTXgzCoHPqRy/dsh+brnUEk/CRppX900PwgWPe7HD6JV48mChBmzEKJFrE746JLXfscBWy3lzQHO2Fd3rfplb9GNgBOH/q9NQP7OQ==
+x-microsoft-antispam-message-info: mcdgbXAD2ZsKVmfdvCyMhpewSt1Q1568hl2i91G8MTQ9MVHyiHpGDASOnhZA5xo6HzxLKxGapBQQv4sfLViP8GcSMmGGRvGUbDVpRaocdnqJCwtSl3ia/3dUyyBG6axGvGFfkDxEHjM17HOOMMX0hpjSfA/2Un17w/1aWx13i4rJbpwxV6QayyB42FNUzEicPey9zlAfAcmf+O3uHF1Uy2x7TkB3fCygWIU8pvIi2SZBkvPHFw1Dlb7eDizfzo3uxFYv8nQwtrk2wcDP0aCmxzUxlLeUbBsbv7ivP7IPZSwPN6Z0BYf0XVsVlXhkZSg0chIWhuz2rO3H7h1EAJOLxoqX+rsMzSq/4OlTmGqDQm3niIewCFqaVZh9tHBiQjs+ySPgX06kKx5udia4fUwfbvF5FOrNI+r3Ufy5m7lGmOgRwZ4mkxSqq0xfHsVYVBMEaEkKqBz2Ca53dj59tJ+jKIBzwwHC6n7YDSO9W4pwTURzehsFO9IZVBoFdym0QaXJnG70ZvNh+XQcwecbTV5qLgcA70KK4coaggtA3L2tDuI5WWAjCp9ev+5IGtoS37j3RAtmuuaf/BFk3na8Ey/MXA==
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: ER4o58k+YJuWdslJsRPN69LdlKyrBKgdQ+CQhP/iT0o/TlHRguENzueRV5ycWEOA4C0GmPkWxNONc0NNWOBsaexuO0RiwW18Hiu9zfiR+QzQPJuwBdI+Lo89NhzhMRPvtklpr75WsZpk2sDtmgoBfG1Plu2tOyyvkcv1u5xHsefI3vWxFtphf4sZ4gW5hr7SqNqsmtz96qXyR+OTp6GamFmMhmVSBc7Eat4ouQuQasJHSSClJ0+Dtz2GXiaum+pp5RrLCBoRHKXoWvPWJBJbv284uyu2uWyTxFRCosY88o+xYehUFmUBlUsQcPiPlo0R3AaKOUktYS2a1lOUdmUzZRBTt7OSHqggJUwimJ24WLhWAY6ikP22bC6zWTzPysiZIiHu2F9vgV2Hf9S1oLpNBBo5YssbKpde5PbeaygpmJsyksU6W7k/VxwQsL0/wMZ0J/8t6HV8DPy28hbJLYs95emaA8QBt5v7ft4Ttvf96U9otr2OfGhNJASme0TKLs436vfnIj6noQB71cZNUJbCj0JYTztqMPJw48VHppgYlk+qlENnNODUdKGBtI1uvEfXlgqpyZAPi4FPyswIop/m/P7QCb0P+QMZM398F82WU6CPOpqIgEmMBDLB3jL6lgfesgHGwTg9V1EWD3bsT5pAMDae5EuY376uUzzfgDWB6xcXOiKlu/ofGgb0qagcVa6dJG/kvWD8KNNv8JAOjOK1WEXLzYn9jg8rKBNTPDFWNCOnKZ6TFaV7j/GMoa5SJ17pGk3MEigyv5MEJeFlHoCeVg==
+x-ms-exchange-antispam-messagedata-0: LEWUmfdJOndhqsovCfECzViSn01v77GCoR5tAk7IK+aVms/BN0bzdfOuoUdVOdIU3JhmGrkeT3WhuUZY+NKWZtYiEGLYOmLIoRhNxsZMZ4SeES7y36hmTtYLSIOIjOkL076vWY8YoQXKWK4YS3aEtCxq8bjQ6ZLGJhx+Gsq+rWC1AY2TW1V289qcEJLPkgp5w5cEahahjrM6sE1mEVbjXGRW/d+teuGhrSnzKYkAHFbi4JIfHgTbxoR+GReEb1GmdkRAhKX56D93uuOo3fpPUBGOBihghlVVRR1WT9jlYahO3S0D4PVIOf2crmu4KNlABq8WjDHmLg4SXVtqTYUu39gz0/6/t0qwNxSl0w8EEww9NxXkkuDg+uvfBCCq9LCFDtjSUTbbom6Qx+8dF4uUlCCZb5gljl4XA8+UcWlUfZ/TD+g0jCjuZ4Pfk0aZOVhqCBavANVd7tOsa5PCVXlmOS/W1O09fmKr/EvtrwSVG1eh104MvKmVfOc9TRf5oJu1DBwmxAXFScjPLaH+mVcAOnrKlM2g4AF/rdxY5FFO5RIWpacYFF7p+ce+xxy0W6MjMOg4ZobuXfjivyQz+YGtapzNWtjt9ndcpxa5+/yG5hx9bF0ly+rrZzncI6q4aD/o4ZignYxfvswpfC8P5gA6gJB0v9Cayc/R143ogXVVUBE9bXF1mAjjpAwsFvKZ/YKt7ZtqCDHNhpxjpi0VNm2g6RVNrHX6gzEWkcEcqPOkph1M5ovQ1E8SPjga+7Xd8H8by41Q7hUja3oE2KhxJlI/sg==
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <762A4BC8ABDACC41ABD77C7513037F90@INDPRD01.PROD.OUTLOOK.COM>
+Content-ID: <78A1319314FF5D48B2BD956C0A1C1864@INDPRD01.PROD.OUTLOOK.COM>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: sct-15-20-3174-20-msonline-outlook-a1a1a.templateTenant
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0991816a-9158-4b8d-3e12-08d9b30a4427
-X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Nov 2021 07:31:32.3296
+X-MS-Exchange-CrossTenant-Network-Message-Id: 49584d43-29e9-476f-436c-08d9b30a6313
+X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Nov 2021 07:32:24.1782
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
@@ -106,7 +107,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Aditya Garg <gargaditya08@live.com>
 
-Bluetooth on Apple iMac 20,1 is unable to start due to LE Min/Max Tx Power =
+Bluetooth on Apple iMac 20,2 is unable to start due to LE Min/Max Tx Power =
 being queried on startup. Add a DMI based quirk so that it is disabled.
 
 Signed-off-by: Aditya Garg <gargaditya08@live.com>
@@ -115,21 +116,21 @@ Signed-off-by: Aditya Garg <gargaditya08@live.com>
  1 file changed, 9 insertions(+)
 
 diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
-index 88214b453b0ce..15c5be927c659 100644
+index 15c5be927c659..601337b5a5130 100644
 --- a/drivers/bluetooth/btbcm.c
 +++ b/drivers/bluetooth/btbcm.c
-@@ -372,6 +372,15 @@ static const struct dmi_system_id disable_broken_read_=
+@@ -381,6 +381,15 @@ static const struct dmi_system_id disable_broken_read_=
 transmit_power[] =3D {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,4"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,1"),
  		},
  	},
 +	{
-+		/* Match for Apple iMac 20,1 which needs
++		/* Match for Apple iMac 20,2 which needs
 +		 * Read LE Min/Max Tx Power to be disabled.
 +		 */
 +		 .matches =3D {
 +			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,1"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,2"),
 +		},
 +	},
  	{ }
