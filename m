@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 858B54626CE
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:54:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48C504625FF
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:43:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236148AbhK2W5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:57:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37448 "EHLO
+        id S233965AbhK2Wpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:45:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235654AbhK2W5N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:57:13 -0500
+        with ESMTP id S235324AbhK2WpI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:45:08 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77787C142663;
-        Mon, 29 Nov 2021 10:33:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE7D7C043CDD;
+        Mon, 29 Nov 2021 10:41:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8E508CE139A;
-        Mon, 29 Nov 2021 18:33:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3513EC53FC7;
-        Mon, 29 Nov 2021 18:33:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 235E3CE12FD;
+        Mon, 29 Nov 2021 18:41:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3099C53FAD;
+        Mon, 29 Nov 2021 18:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210786;
-        bh=NKK6Ho85kP0/ySpoB97Xvr17oXaPDuJ7vmmOq/8fqnE=;
+        s=korg; t=1638211293;
+        bh=ub6FNMjiLSo2D4sJlJYliwLpBq53+G+t5XlSP8WGOG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LBx2lbf2qtqf/at4pDCSwEVVtrL1L3ytz1+AhrOsrmXjp2y0ydSn+A1b5+aZPxGi7
-         m1uTVUJoZkvMZmAoweTRjcvZAZaa3Ue+7CX8FdtbGgip7VGn4D+rxuYbOwa6kmt7CK
-         iopl1KsIAXLdKIcmbmeR5ItjjtZzRDL8uhAtFm80=
+        b=a37OwnA1vWvkCMpVzKi58A8j1jNh3weYK+wQWnzZJdjna4qwjGK5Al4nrn6W+3yHq
+         hMyxdr6Eaei8Tz8Eaew19+KDV/trVC9o7FAWbZ3z/Fgb66ZF5Js93E2+Oyj0fGSPHO
+         WQtPKgR+xedLUm+4DVh6SyoML6TFYF0Zm8fvPylo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 116/121] xen/netfront: dont trust the backend response data blindly
-Date:   Mon, 29 Nov 2021 19:19:07 +0100
-Message-Id: <20211129181715.562823742@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 154/179] net: mscc: ocelot: correctly report the timestamping RX filters in ethtool
+Date:   Mon, 29 Nov 2021 19:19:08 +0100
+Message-Id: <20211129181724.019958033@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,266 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit a884daa61a7d91650987e855464526aef219590f upstream.
+[ Upstream commit c49a35eedfef08bffd46b53c25dbf9d6016a86ff ]
 
-Today netfront will trust the backend to send only sane response data.
-In order to avoid privilege escalations or crashes in case of malicious
-backends verify the data to be within expected limits. Especially make
-sure that the response always references an outstanding request.
+The driver doesn't support RX timestamping for non-PTP packets, but it
+declares that it does. Restrict the reported RX filters to PTP v2 over
+L2 and over L4.
 
-Note that only the tx queue needs special id handling, as for the rx
-queue the id is equal to the index in the ring page.
-
-Introduce a new indicator for the device whether it is broken and let
-the device stop working when it is set. Set this indicator in case the
-backend sets any weird data.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4e3b0468e6d7 ("net: mscc: PTP Hardware Clock (PHC) support")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netfront.c |   89 ++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 84 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mscc/ocelot.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -131,10 +131,12 @@ struct netfront_queue {
- 	struct sk_buff *tx_skbs[NET_TX_RING_SIZE];
- 	unsigned short tx_link[NET_TX_RING_SIZE];
- #define TX_LINK_NONE 0xffff
-+#define TX_PENDING   0xfffe
- 	grant_ref_t gref_tx_head;
- 	grant_ref_t grant_tx_ref[NET_TX_RING_SIZE];
- 	struct page *grant_tx_page[NET_TX_RING_SIZE];
- 	unsigned tx_skb_freelist;
-+	unsigned int tx_pend_queue;
+diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
+index 08fafc4a7e813..00b5e6860bf69 100644
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -1293,7 +1293,10 @@ int ocelot_get_ts_info(struct ocelot *ocelot, int port,
+ 				 SOF_TIMESTAMPING_RAW_HARDWARE;
+ 	info->tx_types = BIT(HWTSTAMP_TX_OFF) | BIT(HWTSTAMP_TX_ON) |
+ 			 BIT(HWTSTAMP_TX_ONESTEP_SYNC);
+-	info->rx_filters = BIT(HWTSTAMP_FILTER_NONE) | BIT(HWTSTAMP_FILTER_ALL);
++	info->rx_filters = BIT(HWTSTAMP_FILTER_NONE) |
++			   BIT(HWTSTAMP_FILTER_PTP_V2_EVENT) |
++			   BIT(HWTSTAMP_FILTER_PTP_V2_L2_EVENT) |
++			   BIT(HWTSTAMP_FILTER_PTP_V2_L4_EVENT);
  
- 	spinlock_t   rx_lock ____cacheline_aligned_in_smp;
- 	struct xen_netif_rx_front_ring rx;
-@@ -167,6 +169,9 @@ struct netfront_info {
- 	bool netback_has_xdp_headroom;
- 	bool netfront_xdp_enabled;
- 
-+	/* Is device behaving sane? */
-+	bool broken;
-+
- 	atomic_t rx_gso_checksum_fixup;
- };
- 
-@@ -349,7 +354,7 @@ static int xennet_open(struct net_device
- 	unsigned int i = 0;
- 	struct netfront_queue *queue = NULL;
- 
--	if (!np->queues)
-+	if (!np->queues || np->broken)
- 		return -ENODEV;
- 
- 	for (i = 0; i < num_queues; ++i) {
-@@ -377,11 +382,17 @@ static void xennet_tx_buf_gc(struct netf
- 	unsigned short id;
- 	struct sk_buff *skb;
- 	bool more_to_do;
-+	const struct device *dev = &queue->info->netdev->dev;
- 
- 	BUG_ON(!netif_carrier_ok(queue->info->netdev));
- 
- 	do {
- 		prod = queue->tx.sring->rsp_prod;
-+		if (RING_RESPONSE_PROD_OVERFLOW(&queue->tx, prod)) {
-+			dev_alert(dev, "Illegal number of responses %u\n",
-+				  prod - queue->tx.rsp_cons);
-+			goto err;
-+		}
- 		rmb(); /* Ensure we see responses up to 'rp'. */
- 
- 		for (cons = queue->tx.rsp_cons; cons != prod; cons++) {
-@@ -391,14 +402,27 @@ static void xennet_tx_buf_gc(struct netf
- 			if (txrsp.status == XEN_NETIF_RSP_NULL)
- 				continue;
- 
--			id  = txrsp.id;
-+			id = txrsp.id;
-+			if (id >= RING_SIZE(&queue->tx)) {
-+				dev_alert(dev,
-+					  "Response has incorrect id (%u)\n",
-+					  id);
-+				goto err;
-+			}
-+			if (queue->tx_link[id] != TX_PENDING) {
-+				dev_alert(dev,
-+					  "Response for inactive request\n");
-+				goto err;
-+			}
-+
-+			queue->tx_link[id] = TX_LINK_NONE;
- 			skb = queue->tx_skbs[id];
- 			queue->tx_skbs[id] = NULL;
- 			if (unlikely(gnttab_query_foreign_access(
- 				queue->grant_tx_ref[id]) != 0)) {
--				pr_alert("%s: warning -- grant still in use by backend domain\n",
--					 __func__);
--				BUG();
-+				dev_alert(dev,
-+					  "Grant still in use by backend domain\n");
-+				goto err;
- 			}
- 			gnttab_end_foreign_access_ref(
- 				queue->grant_tx_ref[id], GNTMAP_readonly);
-@@ -416,6 +440,12 @@ static void xennet_tx_buf_gc(struct netf
- 	} while (more_to_do);
- 
- 	xennet_maybe_wake_tx(queue);
-+
-+	return;
-+
-+ err:
-+	queue->info->broken = true;
-+	dev_alert(dev, "Disabled for further use\n");
+ 	return 0;
  }
- 
- struct xennet_gnttab_make_txreq {
-@@ -459,6 +489,12 @@ static void xennet_tx_setup_grant(unsign
- 
- 	*tx = info->tx_local;
- 
-+	/*
-+	 * Put the request in the pending queue, it will be set to be pending
-+	 * when the producer index is about to be raised.
-+	 */
-+	add_id_to_list(&queue->tx_pend_queue, queue->tx_link, id);
-+
- 	info->tx = tx;
- 	info->size += info->tx_local.size;
- }
-@@ -551,6 +587,15 @@ static u16 xennet_select_queue(struct ne
- 	return queue_idx;
- }
- 
-+static void xennet_mark_tx_pending(struct netfront_queue *queue)
-+{
-+	unsigned int i;
-+
-+	while ((i = get_id_from_list(&queue->tx_pend_queue, queue->tx_link)) !=
-+	       TX_LINK_NONE)
-+		queue->tx_link[i] = TX_PENDING;
-+}
-+
- static int xennet_xdp_xmit_one(struct net_device *dev,
- 			       struct netfront_queue *queue,
- 			       struct xdp_frame *xdpf)
-@@ -568,6 +613,8 @@ static int xennet_xdp_xmit_one(struct ne
- 				offset_in_page(xdpf->data),
- 				xdpf->len);
- 
-+	xennet_mark_tx_pending(queue);
-+
- 	RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(&queue->tx, notify);
- 	if (notify)
- 		notify_remote_via_irq(queue->tx_irq);
-@@ -592,6 +639,8 @@ static int xennet_xdp_xmit(struct net_de
- 	int drops = 0;
- 	int i, err;
- 
-+	if (unlikely(np->broken))
-+		return -ENODEV;
- 	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK))
- 		return -EINVAL;
- 
-@@ -638,6 +687,8 @@ static netdev_tx_t xennet_start_xmit(str
- 	/* Drop the packet if no queues are set up */
- 	if (num_queues < 1)
- 		goto drop;
-+	if (unlikely(np->broken))
-+		goto drop;
- 	/* Determine which queue to transmit this SKB on */
- 	queue_index = skb_get_queue_mapping(skb);
- 	queue = &np->queues[queue_index];
-@@ -744,6 +795,8 @@ static netdev_tx_t xennet_start_xmit(str
- 	/* timestamp packet in software */
- 	skb_tx_timestamp(skb);
- 
-+	xennet_mark_tx_pending(queue);
-+
- 	RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(&queue->tx, notify);
- 	if (notify)
- 		notify_remote_via_irq(queue->tx_irq);
-@@ -1143,6 +1196,13 @@ static int xennet_poll(struct napi_struc
- 	skb_queue_head_init(&tmpq);
- 
- 	rp = queue->rx.sring->rsp_prod;
-+	if (RING_RESPONSE_PROD_OVERFLOW(&queue->rx, rp)) {
-+		dev_alert(&dev->dev, "Illegal number of responses %u\n",
-+			  rp - queue->rx.rsp_cons);
-+		queue->info->broken = true;
-+		spin_unlock(&queue->rx_lock);
-+		return 0;
-+	}
- 	rmb(); /* Ensure we see queued responses up to 'rp'. */
- 
- 	i = queue->rx.rsp_cons;
-@@ -1364,6 +1424,9 @@ static irqreturn_t xennet_tx_interrupt(i
- 	struct netfront_queue *queue = dev_id;
- 	unsigned long flags;
- 
-+	if (queue->info->broken)
-+		return IRQ_HANDLED;
-+
- 	spin_lock_irqsave(&queue->tx_lock, flags);
- 	xennet_tx_buf_gc(queue);
- 	spin_unlock_irqrestore(&queue->tx_lock, flags);
-@@ -1376,6 +1439,9 @@ static irqreturn_t xennet_rx_interrupt(i
- 	struct netfront_queue *queue = dev_id;
- 	struct net_device *dev = queue->info->netdev;
- 
-+	if (queue->info->broken)
-+		return IRQ_HANDLED;
-+
- 	if (likely(netif_carrier_ok(dev) &&
- 		   RING_HAS_UNCONSUMED_RESPONSES(&queue->rx)))
- 		napi_schedule(&queue->napi);
-@@ -1397,6 +1463,10 @@ static void xennet_poll_controller(struc
- 	struct netfront_info *info = netdev_priv(dev);
- 	unsigned int num_queues = dev->real_num_tx_queues;
- 	unsigned int i;
-+
-+	if (info->broken)
-+		return;
-+
- 	for (i = 0; i < num_queues; ++i)
- 		xennet_interrupt(0, &info->queues[i]);
- }
-@@ -1468,6 +1538,11 @@ static int xennet_xdp_set(struct net_dev
- 
- static int xennet_xdp(struct net_device *dev, struct netdev_bpf *xdp)
- {
-+	struct netfront_info *np = netdev_priv(dev);
-+
-+	if (np->broken)
-+		return -ENODEV;
-+
- 	switch (xdp->command) {
- 	case XDP_SETUP_PROG:
- 		return xennet_xdp_set(dev, xdp->prog, xdp->extack);
-@@ -1847,6 +1922,7 @@ static int xennet_init_queue(struct netf
- 
- 	/* Initialise tx_skb_freelist as a free chain containing every entry. */
- 	queue->tx_skb_freelist = 0;
-+	queue->tx_pend_queue = TX_LINK_NONE;
- 	for (i = 0; i < NET_TX_RING_SIZE; i++) {
- 		queue->tx_link[i] = i + 1;
- 		queue->grant_tx_ref[i] = GRANT_INVALID_REF;
-@@ -2121,6 +2197,9 @@ static int talk_to_netback(struct xenbus
- 	if (info->queues)
- 		xennet_destroy_queues(info);
- 
-+	/* For the case of a reconnect reset the "broken" indicator. */
-+	info->broken = false;
-+
- 	err = xennet_create_queues(info, &num_queues);
- 	if (err < 0) {
- 		xenbus_dev_fatal(dev, err, "creating queues");
+-- 
+2.33.0
+
 
 
