@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A13A9461F7A
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:44:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFECB461F5D
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:43:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380106AbhK2Sro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:47:44 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:56904 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354916AbhK2Sph (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:45:37 -0500
+        id S233438AbhK2Sq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:46:29 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49824 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379592AbhK2So3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:44:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1A198CE1680;
-        Mon, 29 Nov 2021 18:42:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBCDDC53FAD;
-        Mon, 29 Nov 2021 18:42:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB3A3B81630;
+        Mon, 29 Nov 2021 18:41:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24DAFC53FAD;
+        Mon, 29 Nov 2021 18:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211333;
-        bh=jx7FhoL2r/nh8GzjL+YOzztn+6+ZcFtosRvBUb3cDuI=;
+        s=korg; t=1638211267;
+        bh=1ckL1UOukGatH9rWkaaEsSmMeMXtaRnOe1jHyjUlYkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e+KFMZFrO84vPX7H/XVI51YPulqYIRmC0ihAIEAotq5f4/NJ82fq8DeoBH6xUBmAD
-         UNO6IsxBMI4VNA2cObhfZ3Pr1DKL572ci7/WDyiF0F225Bjzh5t8jf0+tO5m27t/lG
-         DgwPG+Jh5yuqtj6SLnAY9TPqZnrNJRw9SKpwvPyk=
+        b=QZqoGhO7P+tuppz8yDZyzXruiswIVoYcsfIoZ5C3CEzkHiu/TlrrL0Czgxz+ottxF
+         xgQhGLcHqDNtx8N2mcXppBrMRPVVWTGFmunQ/jkuhoqUNqjWvMMI8y2crdAVTANh4k
+         /NlrO26LV2K1GDBBC2xOO8KcqPURZbirDPWvh5gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Zhuang <zhuangyi1@huawei.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 160/179] f2fs: quota: fix potential deadlock
-Date:   Mon, 29 Nov 2021 19:19:14 +0100
-Message-Id: <20211129181724.206766837@linuxfoundation.org>
+Subject: [PATCH 5.15 163/179] riscv: dts: microchip: drop duplicated MMC/SDHC node
+Date:   Mon, 29 Nov 2021 19:19:17 +0100
+Message-Id: <20211129181724.300108995@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
 References: <20211129181718.913038547@linuxfoundation.org>
@@ -45,63 +46,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit a5c0042200b28fff3bde6fa128ddeaef97990f8d ]
+[ Upstream commit 42a57a47bb0c0f531321a7001972a3ca121409bd ]
 
-As Yi Zhuang reported in bugzilla:
+Devicetree source is a description of hardware and hardware has only one
+block @20008000 which can be configured either as eMMC or SDHC.  Having
+two node for different modes is an obscure, unusual and confusing way to
+configure it.  Instead the board file is supposed to customize the block
+to its needs, e.g. to SDHC mode.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=214299
+This fixes dtbs_check warning:
+  arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dt.yaml: sdhc@20008000: $nodename:0: 'sdhc@20008000' does not match '^mmc(@.*)?$'
 
-There is potential deadlock during quota data flush as below:
-
-Thread A:			Thread B:
-f2fs_dquot_acquire
-down_read(&sbi->quota_sem)
-				f2fs_write_checkpoint
-				block_operations
-				f2fs_look_all
-				down_write(&sbi->cp_rwsem)
-f2fs_quota_write
-f2fs_write_begin
-__do_map_lock
-f2fs_lock_op
-down_read(&sbi->cp_rwsem)
-				__need_flush_qutoa
-				down_write(&sbi->quota_sem)
-
-This patch changes block_operations() to use trylock, if it fails,
-it means there is potential quota data updater, in this condition,
-let's flush quota data first and then trylock again to check dirty
-status of quota data.
-
-The side effect is: in heavy race condition (e.g. multi quota data
-upaters vs quota data flusher), it may decrease the probability of
-synchronizing quota data successfully in checkpoint() due to limited
-retry time of quota flush.
-
-Reported-by: Yi Zhuang <zhuangyi1@huawei.com>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/checkpoint.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../microchip/microchip-mpfs-icicle-kit.dts   | 11 ++++++-
+ .../boot/dts/microchip/microchip-mpfs.dtsi    | 29 ++-----------------
+ 2 files changed, 12 insertions(+), 28 deletions(-)
 
-diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
-index 83e9bc0f91ffd..7b02827242312 100644
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -1162,7 +1162,8 @@ static bool __need_flush_quota(struct f2fs_sb_info *sbi)
- 	if (!is_journalled_quota(sbi))
- 		return false;
+diff --git a/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts b/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts
+index be0d77624cf53..cce5eca31f257 100644
+--- a/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts
++++ b/arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts
+@@ -56,8 +56,17 @@ &serial3 {
+ 	status = "okay";
+ };
  
--	down_write(&sbi->quota_sem);
-+	if (!down_write_trylock(&sbi->quota_sem))
-+		return true;
- 	if (is_sbi_flag_set(sbi, SBI_QUOTA_SKIP_FLUSH)) {
- 		ret = false;
- 	} else if (is_sbi_flag_set(sbi, SBI_QUOTA_NEED_REPAIR)) {
+-&sdcard {
++&mmc {
+ 	status = "okay";
++
++	bus-width = <4>;
++	disable-wp;
++	cap-sd-highspeed;
++	card-detect-delay = <200>;
++	sd-uhs-sdr12;
++	sd-uhs-sdr25;
++	sd-uhs-sdr50;
++	sd-uhs-sdr104;
+ };
+ 
+ &emac0 {
+diff --git a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
+index 446f41d6a87e9..b12fd594e7172 100644
+--- a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
++++ b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
+@@ -262,39 +262,14 @@ serial3: serial@20104000 {
+ 			status = "disabled";
+ 		};
+ 
+-		emmc: mmc@20008000 {
++		/* Common node entry for emmc/sd */
++		mmc: mmc@20008000 {
+ 			compatible = "cdns,sd4hc";
+ 			reg = <0x0 0x20008000 0x0 0x1000>;
+ 			interrupt-parent = <&plic>;
+ 			interrupts = <88 89>;
+ 			pinctrl-names = "default";
+ 			clocks = <&clkcfg 6>;
+-			bus-width = <4>;
+-			cap-mmc-highspeed;
+-			mmc-ddr-3_3v;
+-			max-frequency = <200000000>;
+-			non-removable;
+-			no-sd;
+-			no-sdio;
+-			voltage-ranges = <3300 3300>;
+-			status = "disabled";
+-		};
+-
+-		sdcard: sdhc@20008000 {
+-			compatible = "cdns,sd4hc";
+-			reg = <0x0 0x20008000 0x0 0x1000>;
+-			interrupt-parent = <&plic>;
+-			interrupts = <88>;
+-			pinctrl-names = "default";
+-			clocks = <&clkcfg 6>;
+-			bus-width = <4>;
+-			disable-wp;
+-			cap-sd-highspeed;
+-			card-detect-delay = <200>;
+-			sd-uhs-sdr12;
+-			sd-uhs-sdr25;
+-			sd-uhs-sdr50;
+-			sd-uhs-sdr104;
+ 			max-frequency = <200000000>;
+ 			status = "disabled";
+ 		};
 -- 
 2.33.0
 
