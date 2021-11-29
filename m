@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5916D462308
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 22:12:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9B7F462328
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 22:22:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232046AbhK2VPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 16:15:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42044 "EHLO
+        id S229522AbhK2VZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 16:25:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231351AbhK2VNx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 16:13:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 502E6C0E49BF;
-        Mon, 29 Nov 2021 10:25:00 -0800 (PST)
+        with ESMTP id S230050AbhK2VXt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 16:23:49 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1469C12A771;
+        Mon, 29 Nov 2021 10:25:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4DA8B815BE;
-        Mon, 29 Nov 2021 18:24:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF17C53FAD;
-        Mon, 29 Nov 2021 18:24:56 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4380BCE13D7;
+        Mon, 29 Nov 2021 18:25:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E27F8C53FAD;
+        Mon, 29 Nov 2021 18:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210297;
-        bh=DY/D5OjPSLesIzzu7NcFSXYPpT46PKRqNjZB7tofiBs=;
+        s=korg; t=1638210300;
+        bh=lDiWX6cccdTYcWhSlkHtqeAJmyk9DALgXfvMcxmoBns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aG/qTWaRHgvKmWwVKtDwWnFeFsmujjS5jcZApx7P8OxGAJCtAU9CNJM3fw5Q2zO6S
-         F7TmCTj8YTLfgfyU0QlmvUQXZZMwhDH9S4UX3jJQYa/oBpI52J4vD/jSG0B9nQkWn8
-         HSIo70YhIOCBXhksLESUzVm4s1dF7iUYzTZ/DxZc=
+        b=0pl6Ukh/k1Y1JLqChv6AdI+ORDwreKvkLbaSMZIxC66Sw4ury3XnDkbmIe1CaOBNd
+         LoBsF7gU1RAeJii60H/tNqBuQK9+oOzDsfe4tHuyRYh7cN6tEjeOrJDCl1ks99jMKv
+         D1kbOdW3/Z7uXCyO4pRPL/K1CrlEEf9iguL/aHn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Ondrej Jirman <megous@megous.com>
-Subject: [PATCH 5.4 06/92] usb: typec: fusb302: Fix masking of comparator and bc_lvl interrupts
-Date:   Mon, 29 Nov 2021 19:17:35 +0100
-Message-Id: <20211129181707.623295966@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 07/92] usb: hub: Fix usb enumeration issue due to address0 race
+Date:   Mon, 29 Nov 2021 19:17:36 +0100
+Message-Id: <20211129181707.659017047@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
 References: <20211129181707.392764191@linuxfoundation.org>
@@ -48,66 +47,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Jirman <megous@megous.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 362468830dd5bea8bf6ad5203b2ea61f8a4e8288 upstream.
+commit 6ae6dc22d2d1ce6aa77a6da8a761e61aca216f8b upstream.
 
-The code that enables either BC_LVL or COMP_CHNG interrupt in tcpm_set_cc
-wrongly assumes that the interrupt is unmasked by writing 1 to the apropriate
-bit in the mask register. In fact, interrupts are enabled when the mask
-is 0, so the tcpm_set_cc enables interrupt for COMP_CHNG when it expects
-BC_LVL interrupt to be enabled.
+xHC hardware can only have one slot in default state with address 0
+waiting for a unique address at a time, otherwise "undefined behavior
+may occur" according to xhci spec 5.4.3.4
 
-This causes inability of the driver to recognize cable unplug events
-in host mode (unplug is recognized only via a COMP_CHNG interrupt).
+The address0_mutex exists to prevent this across both xhci roothubs.
 
-In device mode this bug was masked by simultaneous triggering of the VBUS
-change interrupt, because of loss of VBUS when the port peer is providing
-power.
+If hub_port_init() fails, it may unlock the mutex and exit with a xhci
+slot in default state. If the other xhci roothub calls hub_port_init()
+at this point we end up with two slots in default state.
 
-Fixes: 48242e30532b ("usb: typec: fusb302: Revert "Resolve fixed power role contract setup"")
-Cc: stable <stable@vger.kernel.org>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Link: https://lore.kernel.org/r/20211108102833.2793803-1-megous@megous.com
+Make sure the address0_mutex protects the slot default state across
+hub_port_init() retries, until slot is addressed or disabled.
+
+Note, one known minor case is not fixed by this patch.
+If device needs to be reset during resume, but fails all hub_port_init()
+retries in usb_reset_and_verify_device(), then it's possible the slot is
+still left in default state when address0_mutex is unlocked.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 638139eb95d2 ("usb: hub: allow to process more usb hub events in parallel")
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20211115221630.871204-1-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/fusb302.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/core/hub.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/typec/tcpm/fusb302.c
-+++ b/drivers/usb/typec/tcpm/fusb302.c
-@@ -669,25 +669,27 @@ static int tcpm_set_cc(struct tcpc_dev *
- 		ret = fusb302_i2c_mask_write(chip, FUSB_REG_MASK,
- 					     FUSB_REG_MASK_BC_LVL |
- 					     FUSB_REG_MASK_COMP_CHNG,
--					     FUSB_REG_MASK_COMP_CHNG);
-+					     FUSB_REG_MASK_BC_LVL);
- 		if (ret < 0) {
- 			fusb302_log(chip, "cannot set SRC interrupt, ret=%d",
- 				    ret);
- 			goto done;
- 		}
- 		chip->intr_comp_chng = true;
-+		chip->intr_bc_lvl = false;
- 		break;
- 	case TYPEC_CC_RD:
- 		ret = fusb302_i2c_mask_write(chip, FUSB_REG_MASK,
- 					     FUSB_REG_MASK_BC_LVL |
- 					     FUSB_REG_MASK_COMP_CHNG,
--					     FUSB_REG_MASK_BC_LVL);
-+					     FUSB_REG_MASK_COMP_CHNG);
- 		if (ret < 0) {
- 			fusb302_log(chip, "cannot set SRC interrupt, ret=%d",
- 				    ret);
- 			goto done;
- 		}
- 		chip->intr_bc_lvl = true;
-+		chip->intr_comp_chng = false;
- 		break;
- 	default:
- 		break;
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -4609,8 +4609,6 @@ hub_port_init(struct usb_hub *hub, struc
+ 	if (oldspeed == USB_SPEED_LOW)
+ 		delay = HUB_LONG_RESET_TIME;
+ 
+-	mutex_lock(hcd->address0_mutex);
+-
+ 	/* Reset the device; full speed may morph to high speed */
+ 	/* FIXME a USB 2.0 device may morph into SuperSpeed on reset. */
+ 	retval = hub_port_reset(hub, port1, udev, delay, false);
+@@ -4925,7 +4923,6 @@ fail:
+ 		hub_port_disable(hub, port1, 0);
+ 		update_devnum(udev, devnum);	/* for disconnect processing */
+ 	}
+-	mutex_unlock(hcd->address0_mutex);
+ 	return retval;
+ }
+ 
+@@ -5070,6 +5067,9 @@ static void hub_port_connect(struct usb_
+ 		unit_load = 100;
+ 
+ 	status = 0;
++
++	mutex_lock(hcd->address0_mutex);
++
+ 	for (i = 0; i < SET_CONFIG_TRIES; i++) {
+ 
+ 		/* reallocate for each attempt, since references
+@@ -5106,6 +5106,8 @@ static void hub_port_connect(struct usb_
+ 		if (status < 0)
+ 			goto loop;
+ 
++		mutex_unlock(hcd->address0_mutex);
++
+ 		if (udev->quirks & USB_QUIRK_DELAY_INIT)
+ 			msleep(2000);
+ 
+@@ -5194,6 +5196,7 @@ static void hub_port_connect(struct usb_
+ 
+ loop_disable:
+ 		hub_port_disable(hub, port1, 1);
++		mutex_lock(hcd->address0_mutex);
+ loop:
+ 		usb_ep0_reinit(udev);
+ 		release_devnum(udev);
+@@ -5220,6 +5223,8 @@ loop:
+ 	}
+ 
+ done:
++	mutex_unlock(hcd->address0_mutex);
++
+ 	hub_port_disable(hub, port1, 1);
+ 	if (hcd->driver->relinquish_port && !hub->hdev->parent) {
+ 		if (status != -ENOTCONN && status != -ENODEV)
+@@ -5794,6 +5799,8 @@ static int usb_reset_and_verify_device(s
+ 	bos = udev->bos;
+ 	udev->bos = NULL;
+ 
++	mutex_lock(hcd->address0_mutex);
++
+ 	for (i = 0; i < SET_CONFIG_TRIES; ++i) {
+ 
+ 		/* ep0 maxpacket size may change; let the HCD know about it.
+@@ -5803,6 +5810,7 @@ static int usb_reset_and_verify_device(s
+ 		if (ret >= 0 || ret == -ENOTCONN || ret == -ENODEV)
+ 			break;
+ 	}
++	mutex_unlock(hcd->address0_mutex);
+ 
+ 	if (ret < 0)
+ 		goto re_enumerate;
 
 
