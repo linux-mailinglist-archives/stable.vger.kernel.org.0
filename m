@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01898461F5B
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:43:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 297BE461EA2
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:36:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380151AbhK2Sq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:46:26 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:57270 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380551AbhK2SoZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:44:25 -0500
+        id S243216AbhK2Sip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:38:45 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41382 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379625AbhK2Sg3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:36:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C924CCE13DB;
-        Mon, 29 Nov 2021 18:41:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D36FC53FC7;
-        Mon, 29 Nov 2021 18:41:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E44B3B815C3;
+        Mon, 29 Nov 2021 18:33:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C1B1C53FAD;
+        Mon, 29 Nov 2021 18:33:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211262;
-        bh=MEsVMJrgzWsHuzRRDcG4epjHq1J+cnUh/emRdk2oLJo=;
+        s=korg; t=1638210789;
+        bh=S9anbES425jn8PdzDLo3Io70Wb16S0SbaConbkvpnS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JxanMJ7FHx7TxxS49j7UDU+jrmIs9uEpEkEnImPPuPc4Ud0WNjqDEGEZp+a8JXnUg
-         Mr7+EQEtIGLVUmP4E1n3r1lgqPfE1QqKggmZGo+O7BoY+4W+viMHzU6GCSmaTtxUCb
-         WQOHSs4BYdzy0B8XoE1tYoKubxA9zFuPImC3j+WE=
+        b=XmoPYyFwxBFduK2ZvUYPDtJvi/9QsuNhMkyIPxKTmeveWSOVOtJOkITb3ByOUuS4v
+         wxRyWNIuxRofTDgoDxDxR1Fz3zBCIiOlExLyLaNMnw1OqQaXTlkK2CgEP/WJjk3j28
+         RNL9hNoPh5C63ft/0Kc/Szc7VclHZYDlT9N/Qed8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Cochran <richardcochran@gmail.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 153/179] net: mscc: ocelot: dont downgrade timestamping RX filters in SIOCSHWTSTAMP
-Date:   Mon, 29 Nov 2021 19:19:07 +0100
-Message-Id: <20211129181723.989246763@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.10 117/121] tty: hvc: replace BUG_ON() with negative return value
+Date:   Mon, 29 Nov 2021 19:19:08 +0100
+Message-Id: <20211129181715.597203561@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 8a075464d1e9317ffae0973dfe538a7511291a06 ]
+commit e679004dec37566f658a255157d3aed9d762a2b7 upstream.
 
-The ocelot driver, when asked to timestamp all receiving packets, 1588
-v1 or NTP, says "nah, here's 1588 v2 for you".
+Xen frontends shouldn't BUG() in case of illegal data received from
+their backends. So replace the BUG_ON()s when reading illegal data from
+the ring page with negative return values.
 
-According to this discussion:
-https://patchwork.kernel.org/project/netdevbpf/patch/20211104133204.19757-8-martin.kaistra@linutronix.de/#24577647
-drivers that downgrade from a wider request to a narrower response (or
-even a response where the intersection with the request is empty) are
-buggy, and should return -ERANGE instead. This patch fixes that.
-
-Fixes: 4e3b0468e6d7 ("net: mscc: PTP Hardware Clock (PHC) support")
-Suggested-by: Richard Cochran <richardcochran@gmail.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Acked-by: Richard Cochran <richardcochran@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20210707091045.460-1-jgross@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mscc/ocelot.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/tty/hvc/hvc_xen.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
-index a08e4f530c1c1..08fafc4a7e813 100644
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -1175,12 +1175,6 @@ int ocelot_hwstamp_set(struct ocelot *ocelot, int port, struct ifreq *ifr)
- 	switch (cfg.rx_filter) {
- 	case HWTSTAMP_FILTER_NONE:
- 		break;
--	case HWTSTAMP_FILTER_ALL:
--	case HWTSTAMP_FILTER_SOME:
--	case HWTSTAMP_FILTER_PTP_V1_L4_EVENT:
--	case HWTSTAMP_FILTER_PTP_V1_L4_SYNC:
--	case HWTSTAMP_FILTER_PTP_V1_L4_DELAY_REQ:
--	case HWTSTAMP_FILTER_NTP_ALL:
- 	case HWTSTAMP_FILTER_PTP_V2_L4_EVENT:
- 	case HWTSTAMP_FILTER_PTP_V2_L4_SYNC:
- 	case HWTSTAMP_FILTER_PTP_V2_L4_DELAY_REQ:
--- 
-2.33.0
-
+--- a/drivers/tty/hvc/hvc_xen.c
++++ b/drivers/tty/hvc/hvc_xen.c
+@@ -86,7 +86,11 @@ static int __write_console(struct xencon
+ 	cons = intf->out_cons;
+ 	prod = intf->out_prod;
+ 	mb();			/* update queue values before going on */
+-	BUG_ON((prod - cons) > sizeof(intf->out));
++
++	if ((prod - cons) > sizeof(intf->out)) {
++		pr_err_once("xencons: Illegal ring page indices");
++		return -EINVAL;
++	}
+ 
+ 	while ((sent < len) && ((prod - cons) < sizeof(intf->out)))
+ 		intf->out[MASK_XENCONS_IDX(prod++, intf->out)] = data[sent++];
+@@ -114,7 +118,10 @@ static int domU_write_console(uint32_t v
+ 	 */
+ 	while (len) {
+ 		int sent = __write_console(cons, data, len);
+-		
++
++		if (sent < 0)
++			return sent;
++
+ 		data += sent;
+ 		len -= sent;
+ 
+@@ -138,7 +145,11 @@ static int domU_read_console(uint32_t vt
+ 	cons = intf->in_cons;
+ 	prod = intf->in_prod;
+ 	mb();			/* get pointers before reading ring */
+-	BUG_ON((prod - cons) > sizeof(intf->in));
++
++	if ((prod - cons) > sizeof(intf->in)) {
++		pr_err_once("xencons: Illegal ring page indices");
++		return -EINVAL;
++	}
+ 
+ 	while (cons != prod && recv < len)
+ 		buf[recv++] = intf->in[MASK_XENCONS_IDX(cons++, intf->in)];
 
 
