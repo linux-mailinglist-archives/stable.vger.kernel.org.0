@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB1B46107E
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 09:50:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35D5846108E
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 09:52:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243846AbhK2IxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 03:53:23 -0500
-Received: from mail-bo1ind01olkn0161.outbound.protection.outlook.com ([104.47.101.161]:7184
-        "EHLO IND01-BO1-obe.outbound.protection.outlook.com"
+        id S229825AbhK2Izs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 03:55:48 -0500
+Received: from mail-ma1ind01olkn0149.outbound.protection.outlook.com ([104.47.100.149]:48928
+        "EHLO IND01-MA1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S244543AbhK2IvT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Nov 2021 03:51:19 -0500
+        id S241394AbhK2Ixp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Nov 2021 03:53:45 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=k2PNyFSHFknT1bdWN7V+Xs8Au+r49FVQTgDhU6H3q1urRWc1mO0txQB5TFcMkNo64QM0A+9rxN5v7iK1Nba4fyKqVQL/ijWSIDOvBI1143ZI4dyrFJlaGY7sFVyb4MhuTqZtTLK5Dtr/7CB/itjZs8mtUjhZX4hxsf/mSk54Ni2DErj3a8gWapHntGfD/VfZwAfZsHyAzgSZbrliJEARPdHGeMieyld7rrAOtiulfwS0r3WCctWC+ntbqlm4obKiKJd35B3GGDYdXe6gQnQEegPhPzNvPMBH+XswIpPrccmiq87ruLEHddfAkKUylFomWOTgi2XifVhQv1SydRm1BQ==
+ b=Ed8gBh9e4HOamyLxIRe0nbmCHbdYcjvBP0PxDnoP2rCVA6g43+/HU6lOAMFZhjkjCIH5S/YYuq2QJLE4gJ6v/WnuAMtuyrpuLvvoj9XfLBDgMhR2x8TSi6GJbPpILQLmWDLv21uH74EGu4MfNs2Do4Sp5uKKat0b1/FjprJVh/e/y5b6LsXRC0hH2S5XBN2pXk5t/dzLJYSkKVgH0yEILG911/8nbRwMjjMjCp3kaXpBNcr8uQxIUax8+/55lMUc9lfsl8xihPAmnHCPsqtqU1xAdvGH0iq0Z3qzjUkY4jcnxSZFwPrUd7j4CkFe3yAO3d6hQEQRXDmuMeN36jYAfw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=8vEud8zuFRUmj8kSbT+RUarBiLPpItGOiCEfnOIpb0M=;
- b=ADDFAfz1EatXHi3300TE+vnaTSba9fb6ay8gKMYSAoVOYQy/1h8qcUQktSjAqheqZcwCRX8Y2fcGtHbu5smWe1qnmM1ty9uVI6TvhTWXVauexrlZoLjfsZIIcEOXRl69DbAVPwY7zgZ1ugcALtgtP2cee3VYayi726h0zQ25yrgi8H3WQ19vr7PihvBg+R3hgOdMsS6HPZFmk6viGyz+Dgv/Mde6I5h2IkAt6YSDGQ84j6ZHtCS8KvydgZ+sLzo+G20su7yJSd1v6wlQhM2XiP/JuuqAdS4z81k2jpX6u4VO2/AGjmG2LgJ2QsKdCX6ZMgaw8v546UES5gApdjlOhQ==
+ bh=YP4I1MshdaBxLYbE5NiZlaTdflsUfoDDvLpilFxjQiw=;
+ b=OEO4c5OZEnWgFJhHryGm7McfbOhVnmF8LShGsoy+UxKq24dVuMI0mwTj/yvhkv6o7k2muvreoFcVcmVTitETgd3sZfQoya3z3e+F8XJiGuBJqKPMDGGsW6XCvVY7KbxD9J1Cr2QRYWuYY3IQ1WPn2ZZi3oHNPJEvTJwqjML7Bqa9P51L79ZRrYs+TjxUU9Am/6phB3uDgnFRFhC0vvFUW70cxqqjJxOqGBwbhhSp7CFlO2xaQmsoRRByxIiH8gRwY8K0adXOy69ytoYnNfd9iwGQBnL/fHazfdB6AjEqsd8t059Pkh3pwXJ0qj4f4reh59CEd4fx+1LefssJtImrdQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8vEud8zuFRUmj8kSbT+RUarBiLPpItGOiCEfnOIpb0M=;
- b=YcnvvylYjSdQZea+feQW6CyxGvCrhQruNKvuunSgmmBrWNKkwY3UwNG+sLs/1NhKd1+/j5Rz5kMMF7BuKjikbYGeBra3JZClsS9eiYUmR01d4fGqJbRo5ENaog0McBJ0WKoOMV/L8eRFXRfAdwUkV3X9opm7LAnpA5LUrutqe73fYXErks+/fpd4joxgdMVxGRScWWj/yNDpE5eHZGQZ8/vzIhkXC9AjiGsVykP8E1r+FpPrP1ElvAEfXSNcCUXgcK0DCx6Z9ISQ6y4jo5smfmjGxZ6rMhOz4C5ilV3vxQ8hfywwf7NLQAIP8qo5LQSRZO1vDWGWh//JLAJIDmHI3Q==
+ bh=YP4I1MshdaBxLYbE5NiZlaTdflsUfoDDvLpilFxjQiw=;
+ b=SeW0RITuDzViN+SYke58mfDk4VRSc8WUOXLo7vdihyXaQ9IHk/1m3H86U3K1oLai/ZUbJ1gCmGWVroDqOiUPPUX/6r0oeZpHbeK9ZustuKBazcJH3Dlf/F9DZXLpUvyrCpaw3uXm4RWLn4YwPNTXl9fiwP1BOOuLvwj6GLPQ+Jx4AWUk8EYGgvLgkeYoM+Z3t1AdK7ekxiBmyPeyPsZ1hy+IeZjXdKVNd8kF5tI/huISZrBi5K/GyMPu1SR04KUPnOjRrhd6MTP7Clzmk22O9uiDjzWughlXXeq6uBjkidfBqHmYvFRt9n3N179r8CaomcWLcdT4Ro2JbmcJl2s6uA==
 Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1b::13)
- by PN2PR01MB5288.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:5c::8) with
+ by PNZPR01MB4413.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:4::10) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.20; Mon, 29 Nov
- 2021 08:47:56 +0000
+ 2021 08:50:22 +0000
 Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
  ([fe80::7ca6:9165:19ec:4cd7]) by PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
  ([fe80::7ca6:9165:19ec:4cd7%5]) with mapi id 15.20.4734.024; Mon, 29 Nov 2021
- 08:47:56 +0000
+ 08:50:22 +0000
 From:   Aditya Garg <gargaditya08@live.com>
 To:     Marcel Holtmann <marcel@holtmann.org>
 CC:     Greg KH <gregkh@linuxfoundation.org>,
@@ -47,13 +47,13 @@ CC:     Greg KH <gregkh@linuxfoundation.org>,
         "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
         "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCH v3 resend 1/2] Bluetooth: add quirk disabling LE Read Transmit
- Power
-Thread-Topic: [PATCH v3 resend 1/2] Bluetooth: add quirk disabling LE Read
- Transmit Power
-Thread-Index: AQHX5P3NVTKsUkd7SE2S0NWSKg8CeA==
-Date:   Mon, 29 Nov 2021 08:47:56 +0000
-Message-ID: <92FBACD6-F4F2-4DE8-9000-2D30852770FC@live.com>
+Subject: [PATCH v3 resend 2/2] btbcm: disable read tx power for affected Macs
+ with the T2 Security chip
+Thread-Topic: [PATCH v3 resend 2/2] btbcm: disable read tx power for affected
+ Macs with the T2 Security chip
+Thread-Index: AQHX5P4ln7vPo5AMzkubzmw9rh973A==
+Date:   Mon, 29 Nov 2021 08:50:22 +0000
+Message-ID: <6326984F-8428-4A3D-9734-1A408B9E82BB@live.com>
 References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
  <YZSuWHB6YCtGclLs@kroah.com> <52DEDC31-EEB2-4F39-905F-D5E3F2BBD6C0@live.com>
  <8919a36b-e485-500a-2722-529ffa0d2598@leemhuis.info>
@@ -66,83 +66,116 @@ References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
  <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com>
  <42E2EC08-1D09-4DDE-B8B8-7855379C23C5@holtmann.org>
  <6ABF3770-A9E8-4DAF-A22D-DA7113F444F3@live.com>
-In-Reply-To: <6ABF3770-A9E8-4DAF-A22D-DA7113F444F3@live.com>
+ <A003A45E-EE35-43EC-879F-3395CCB5EF59@live.com>
+In-Reply-To: <A003A45E-EE35-43EC-879F-3395CCB5EF59@live.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [Ios6rTkf3ISP5Qm0/Z3xICyasrT2YoZdoJuUr+pQzHh3g0ABFXmMIMdMAawlsPqi]
+x-tmn:  [zLz356eAr5gwCPYCrh//D5F4/ORq/MiIGT2kslJiWSL7q7JAXzN4aolImWvkhUrB]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 6afde5c1-c5f7-4e45-b5ec-08d9b314f079
-x-ms-traffictypediagnostic: PN2PR01MB5288:
+x-ms-office365-filtering-correlation-id: 5d2ea98e-4ddb-49e7-8fd9-08d9b31547c1
+x-ms-traffictypediagnostic: PNZPR01MB4413:
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: Cu+NsfRVjAHc02AuttabYkrmpqIZ/cA09zD1qdmbBU99jtMwQzwGZNsz8ENZej78vu6nPST8j277bexU5e+RFyPUQdIxXugfI/nC4IjCqexGAvkl6gbivhZQMoUchYmecHBIXnVp8DlRtqs7KTmgtrVauA9PqbrfJeULV2XjKWOwd3Itf092poWtdILzV8gUKbcPIou7JnoWpVOx+KKoEuUPjDZal/qugCZ4dLcsP5FE/IiGpvXPKEg7GPRh0H7avNocln9eNUgmGhV9iMzyE3avnImri0auFtv1Z7askFBnGrCGZl3RQozz8vvKVtbN1dJzapIRmy/eC3z0M8auc9hvtWS9z3DnMvD7eQAhoHav9pKXpXeWt9tJNi063uY57qy5AJGOhCejqXJh9hAajOQlkgI+4dU+5aqDAcDYr1IcCqDdws/2A0AtvfJ3rTEtiY53VveBnY4gxEsTPSfufiC/+4U1+gcfJtjuqLpUiEirNUKsnfZ1+tl3IvCXM35d/joU1Zg5zH/4xtNmkpyCrhpALbRNVyuI+6MBIgEsLqbUmbXsj0IaXebrUwNAfXc7WDcIbqLZfNCq6+fBNnhGJQ==
+x-microsoft-antispam-message-info: Mt2lqV8wpAWGz/EOia1ihYqdhd6cR6C7542BsH/YBrxHjfxkJ75xL47yGHUFsh6wsqvxcv/BiSMZpanY6T6caPr9kwWXuaazZWG5/22PZLeE1AHYRETJJoYImQ9cd02QauiQLT6bh62JGthJBKOC0+yAbPKrueA0eB33z0si9Mp7+Rw0T+ke+yP318SXlKXdlLGloOfz2mJqd40eoVV3kHKQyDMOIP3bedEAZDUe3a3hgCt5IqUWaXrzLfprDfKnhOClVajwid+t9kU58Ma3JWHHtaqkfmuTH+hm0aEb3IqUnxXzWK8LSbCgB/H2XFWlcwkc/FrC2ga12932rsxAf0jtxVC4zEbHvm6oJSsBz89jcq/6G+KHG32WDyTp/cOIT2QfcsPKRel1Jni/NHDJmEPnN4KHZpNjASETX9VNYPDv294Jj20iuoJMx3Rc7UfzV+v7y/GBErdRZK2G2Az2UyxxzO+KXwcdeNxXhDXfcUBmv9hbrFElcdnTbEzCiZgt/11QTonLGuyplfNagz+fUfd2j8n42AoFzAfi4lNMz+Fbh30gRJwA3RGY3rmsqT0HoOTR9FyORr7hgS3NjSiLiA==
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: AGGKcvduWmiqLwkddfbyL9Wlm1XxlRFdUIRrWUI7aavtnI7kmCml5uSBrTtllpmcrFNEO2BH5vKKQ/jPdIymQyiX4lB0wtTICov8oOR4FKzKzfon91cyYOrjqccL4HIDKu3FQrft7Z+no4QNf//uthGjamJtfV3NmGWvtrDKfLJfPWri4eJjDp0GH6c0l5TvGpimHZagX1SmJIJPt0pSled8GA6fyQK7AIEpah8dHneKBQdrcZl9BX1kijZpTweczb8G9BjgypuyeLTdhF52aj6p8Gkz7CxQq9k2y01GFil/OIR7l1kHAyP1pmFLvxn4A4ULmu+BY8oK4X7ddrE3y0cTKDjwwBMmb+IWuS+cVSIaDJa/9Q+ClZ1DRg4jWMmlaxoHVgukfwjRVyL03Mh9IsUeqrvMKhNXofRMAT2nRAaAZxk9gQaz1TGhgln+Uvrh9RIo29Q7Niy3M9V96jE6NeUgEfUZqOWYe6aYd0VQWi0/kAiWiC2iSKEUAvRLOEhYAr2XBPrK0LuGQNIdwQHmV+KWt4WZByKXADCZpQmUe/WRqS9qZLyQCPvKMZOQnOpmMbwaBcq+qpfX7Kq6OB9w1fFcJrZF6S1VEozS8Df4LakyntBXTB7Dg30PQ0KjHTeEjwoCSAcvdPfXI2jypcuCPvjaM/YpIt5dkB99fKR+KBM6NZ20V6HkcTBG97Z89RNqD7OidOZzthiHitrEeYBa+kcGkYpoY3P7yzKZ/pdjw9xTka1xRJS06HzdWgcwDrsyG6kkGbDboKf3a6EUjOmLdQ==
+x-ms-exchange-antispam-messagedata-0: 2DACRqoWW7k7S9t104GkSN0fywpOkt1vpaTO67WVHGORy87nAy0T1lHQLII68ttvuEfzJWY0PhGPwwB/NCPdZ783vYYi544FoM/NOG+fqceENC7SW0o+/TUQFhxh+XFAXwQ4qcHp23Nk/KNrqINPqrnJH/S782HyIIIyVJezgA4NGY9wl74QH26EEMkrnLIqLoE2JOv6GCIVTOdRt0HN+rXWBv7GKeFcppqrxkDaPL5TmP0Wr7abJIf2PD2bK6JjROT4YnRAJVQ5yPet1I9CHHJ8Sdy8HW+EFKDHLjFYzR2heOySUoNyQd5EbKw26uexxJWBCcc6I6RH+6xn9XgCagf2Pd54/nETjoK2KcsHRxvF9lBxXwJ4QXS3wXMJlKgk6YhxaY4D6dJX3g/b9pNXG8vypTNpWoEAfgX+/pg6zFf/WD2KIM9V+/mtYrD9LEx/N11iqjn4qsezUGNHMupVvwOunDSRGyKRSedZf0EGtkX9CJz7bQqOEZhDkWdyeq5R3mhk8//4wMGVOKeBMMyQFUs3gi1fWm1CCVIJQ9l2S4pYF3X0YJdBMjL66ZjrR0xlyhW2FOgvm4Rb/fpPdbSLfD8sXM0E+cyL2g+rRcLlZXS0dExGOsJYVCyOkkwnUqPSH1pVYXnVbORFzJ8r2WXmRKWexYIDPRaGeddlYBJVMSreI5RwZzIzF7osPTNSvzLGtd4EydiQawY4ai6GeWpr5vwVtK9MDkLoNu52p2y7ye67uGAwGwnNuLcVv4DUmF/MKWmTRJMwxLnWttCQP+VMLg==
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <B2C72EF06BC21E46B5CEF89ED862924E@INDPRD01.PROD.OUTLOOK.COM>
+Content-ID: <26DA55524047DE4DAF51EC7DB17E3DCF@INDPRD01.PROD.OUTLOOK.COM>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: sct-15-20-3174-20-msonline-outlook-a1a1a.templateTenant
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6afde5c1-c5f7-4e45-b5ec-08d9b314f079
-X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Nov 2021 08:47:56.1596
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5d2ea98e-4ddb-49e7-8fd9-08d9b31547c1
+X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Nov 2021 08:50:22.7834
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
 X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN2PR01MB5288
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PNZPR01MB4413
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 From: Aditya Garg <gargaditya08@live.com>
 
-Some devices have a bug causing them to not work if they query=20
-LE tx power on startup. Thus we add a quirk in order to not query it=20
-and default min/max tx power values to HCI_TX_POWER_INVALID.
+Some Macs with the T2 security chip had Bluetooth not working.
+To fix it we add DMI based quirks to disable querying of LE Tx power.
 
 Signed-off-by: Aditya Garg <gargaditya08@live.com>
 ---
-include/net/bluetooth/hci.h | 9 +++++++++
-net/bluetooth/hci_core.c    | 3 ++-
-2 files changed, 11 insertions(+), 1 deletion(-)
+drivers/bluetooth/btbcm.c | 40 +++++++++++++++++++++++++++++++++++++++
+1 file changed, 40 insertions(+)
 
-diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
-index 63065bc01b766c..383342efcdc464 100644
---- a/include/net/bluetooth/hci.h
-+++ b/include/net/bluetooth/hci.h
-@@ -246,6 +246,15 @@ enum {
-	 * HCI after resume.
-	 */
-	HCI_QUIRK_NO_SUSPEND_NOTIFIER,
+diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
+index e4182acee488c5..40f7c9c5cf0a5a 100644
+--- a/drivers/bluetooth/btbcm.c
++++ b/drivers/bluetooth/btbcm.c
+@@ -8,6 +8,7 @@
+
+#include <linux/module.h>
+#include <linux/firmware.h>
++#include <linux/dmi.h>
+#include <asm/unaligned.h>
+
+#include <net/bluetooth/bluetooth.h>
+@@ -343,9 +344,44 @@ static struct sk_buff *btbcm_read_usb_product(struct h=
+ci_dev *hdev)
+	return skb;
+}
+
++static const struct dmi_system_id disable_broken_read_transmit_power[] =3D=
+ {
++	{
++		 .matches =3D {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,1"),
++		},
++	},
++	{
++		 .matches =3D {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,2"),
++		},
++	},
++	{
++		 .matches =3D {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,4"),
++		},
++	},
++	{
++		 .matches =3D {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,1"),
++		},
++	},
++	{
++		 .matches =3D {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,2"),
++		},
++	},
++	{ }
++};
 +
-+	/*
-+	 * When this quirk is set, LE tx power is not queried on startup
-+	 * and the min/max tx power values default to HCI_TX_POWER_INVALID.
-+	 *
-+	 * This quirk can be set before hci_register_dev is called or
-+	 * during the hdev->setup vendor callback.
-+	 */
-+	HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER,
-};
+static int btbcm_read_info(struct hci_dev *hdev)
+{
+	struct sk_buff *skb;
++	const struct dmi_system_id *dmi_id;
 
-/* HCI device flags */
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 8d33aa64846b1c..434c6878fe9640 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -619,7 +619,8 @@ static int hci_init3_req(struct hci_request *req, unsig=
-ned long opt)
-			hci_req_add(req, HCI_OP_LE_READ_ADV_TX_POWER, 0, NULL);
-		}
+	/* Read Verbose Config Version Info */
+	skb =3D btbcm_read_verbose_config(hdev);
+@@ -363,6 +399,10 @@ static int btbcm_read_info(struct hci_dev *hdev)
+	bt_dev_info(hdev, "BCM: features 0x%2.2x", skb->data[1]);
+	kfree_skb(skb);
 
--		if (hdev->commands[38] & 0x80) {
-+		if (hdev->commands[38] & 0x80 &&
-+		!test_bit(HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER, &hdev->quirks)) {
-			/* Read LE Min/Max Tx Power*/
-			hci_req_add(req, HCI_OP_LE_READ_TRANSMIT_POWER,
-				    0, NULL);=
++	/* Read DMI and disable broken Read LE Min/Max Tx Power */
++	if (dmi_first_match(disable_broken_read_transmit_power))
++		set_bit(HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER, &hdev->quirks);
++
+	return 0;
+}=
