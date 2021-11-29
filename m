@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7EE8461EF2
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:40:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF23461D7E
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:22:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231390AbhK2Sl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:41:58 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:55154 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379790AbhK2Sj5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:39:57 -0500
+        id S1349796AbhK2SZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:25:21 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58204 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237175AbhK2SXV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:23:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6C8DACE13F9;
-        Mon, 29 Nov 2021 18:36:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CA8EC53FC7;
-        Mon, 29 Nov 2021 18:36:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5EC8B815B1;
+        Mon, 29 Nov 2021 18:20:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5310C53FAD;
+        Mon, 29 Nov 2021 18:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210996;
-        bh=DyY5eCplJfeJT81MQiHd8O6zjyp6P6vtlkQvw4a1E3E=;
+        s=korg; t=1638210001;
+        bh=CjbY79dv2jU3xtUg5dUBCmMcEBoINte9RcrPnwcPROM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NVT8+CyWby9cAJ5WZs86T5e82UnYV085JKRXwHTjctHRfv0j7ekTnHiNWFvwpoKYE
-         4AYm4b9qxrWAFREawjyIPLtxX16gSAc5s2xawB0WNxp/9SmJaZ+EjHH0DfVT6/LVsb
-         xq8u+aPvtiCIZvjRhs4mGmbMyQvFDKBgHugd4gqY=
+        b=sPTZvevQauN1g6fbl6qp5/7HuEukUaEnM7QhxLc4PbvvRKDi6OYtpy0nc39hLMCPR
+         cJ6SiWpwCkjjIMHSSFbUhbseXzXq4TYQz25sXteE7freDGYwFhyoIcw+frLzTabxsW
+         J3gu2PYmsgh5RxArpXqghq/+ks6QyO0Tnlyw7gYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, wenxu <wenxu@ucloud.cn>,
-        Will Mortensen <willmo@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 068/179] netfilter: flowtable: fix IPv6 tunnel addr match
-Date:   Mon, 29 Nov 2021 19:17:42 +0100
-Message-Id: <20211129181721.189195670@linuxfoundation.org>
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 01/69] USB: serial: option: add Telit LE910S1 0x9200 composition
+Date:   Mon, 29 Nov 2021 19:17:43 +0100
+Message-Id: <20211129181703.718243576@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,45 +46,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Mortensen <willmo@gmail.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 39f6eed4cb209643f3f8633291854ed7375d7264 ]
+commit e353f3e88720300c3d72f49a4bea54f42db1fa5e upstream.
 
-Previously the IPv6 addresses in the key were clobbered and the mask was
-left unset.
+Add the following Telit LE910S1 composition:
 
-I haven't tested this; I noticed it while skimming the code to
-understand an unrelated issue.
+0x9200: tty
 
-Fixes: cfab6dbd0ecf ("netfilter: flowtable: add tunnel match offload support")
-Cc: wenxu <wenxu@ucloud.cn>
-Signed-off-by: Will Mortensen <willmo@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20211119140319.10448-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_flow_table_offload.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
-index d6bf1b2cd541b..b561e0a44a45f 100644
---- a/net/netfilter/nf_flow_table_offload.c
-+++ b/net/netfilter/nf_flow_table_offload.c
-@@ -65,11 +65,11 @@ static void nf_flow_rule_lwt_match(struct nf_flow_match *match,
- 		       sizeof(struct in6_addr));
- 		if (memcmp(&key->enc_ipv6.src, &in6addr_any,
- 			   sizeof(struct in6_addr)))
--			memset(&key->enc_ipv6.src, 0xff,
-+			memset(&mask->enc_ipv6.src, 0xff,
- 			       sizeof(struct in6_addr));
- 		if (memcmp(&key->enc_ipv6.dst, &in6addr_any,
- 			   sizeof(struct in6_addr)))
--			memset(&key->enc_ipv6.dst, 0xff,
-+			memset(&mask->enc_ipv6.dst, 0xff,
- 			       sizeof(struct in6_addr));
- 		enc_keys |= BIT(FLOW_DISSECTOR_KEY_ENC_IPV6_ADDRS);
- 		key->enc_control.addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
--- 
-2.33.0
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1267,6 +1267,8 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9010),				/* Telit SBL FN980 flashing device */
+ 	  .driver_info = NCTRL(0) | ZLP },
++	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9200),				/* Telit LE910S1 flashing device */
++	  .driver_info = NCTRL(0) | ZLP },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, ZTE_PRODUCT_MF622, 0xff, 0xff, 0xff) }, /* ZTE WCDMA products */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0002, 0xff, 0xff, 0xff),
+ 	  .driver_info = RSVD(1) },
 
 
