@@ -2,189 +2,246 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 021DE461119
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 10:28:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B58C461133
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 10:36:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245446AbhK2Jbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 04:31:44 -0500
-Received: from mail-bo1ind01olkn0146.outbound.protection.outlook.com ([104.47.101.146]:17517
-        "EHLO IND01-BO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S243817AbhK2J3n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Nov 2021 04:29:43 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lfO3B6Qscfcpfusy6FjwbppjwYwgY0VzCZjOjzd7yxngg2VczGWCcy31QrcC4GCNiffHtKHtvALJ9n3ftluD4r67GN8bYBorTJr95aPKhQKT0Cb3cin2vwEAKNoJ0EYxgWrQb7QMvXIAjNFPcApwEtPARFYKdMHZgvA3wx8Z4SQWSAGIk1ZT2MQ/KhQFvFv1kCz8+sI8QcQZtYOiFGXtIyk4i2zZNs3avUTglql7GWQFBbe9McHYjSV5ZCYEJOi9e+Rvy9dmFf0XgUd4lCaezEH/+FhFJRlzNeyaDpGC41C9a9uC1i8gVKSQqsNyi/TgGqqa9OagUbwygkMpT3xETg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5x5p6nRUXwp5Yw4ZOa530IAmoex3j79M9wC7R26R7HM=;
- b=Da/mO33+mvgBiK+PX1/xYAzNE8r8RIE9JwixrODs84r6RvMHLf7SkLP6pZZCxx9lR3B83vgHIFpL/KmNWv3pWJAn3XifX0XMR/Thr9zaMsf6jkhwV4z/V7FBThjZ4cY49l3lKS6N4dGu0ks9m1ctX9OnUbv7NF1wPOhC3HcQeYps6/x1q/Tpl9CqjVjXT7VrFAjcg9YLgctz0Rhh3TecBSzRxm9V0hO3SULrvwz0k6dkd/wm9oXTv8HPWmd941uCCe0EVR5yg3iugjPZ5lMvQlOPX9rp9Ih1XBYHNXzxQ3RUZY17HqHBDt1az2TKABWWWVkH5V2GkG7J46iUCI3r8Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=5x5p6nRUXwp5Yw4ZOa530IAmoex3j79M9wC7R26R7HM=;
- b=mRY0LvEMGHZAobud8nyK7i0sAWXI5ZQPW1kz4SXq7GHm05vJF33unT8ksjJajuEgIum2o/zGAn2YB92Ism1gzK18f1Q3cSZh/bDC1Ki5XIFjEDMApZeMAAWYE4n/gqkbIqfOZaMwQx/ge/0TOMDCyvzbn0SOLMDLGWvZkeiG23zez+wzpw+wkLgclpBehq2S0K4Ba2FF5P4IQl4aqiOgBcylzD6IantuB7/fBsTW7D1MKiysCmXmbwqnkflpeWHmXfxGV4O7WVgyp9zGo9sU1mINL3ltmBRCc/4t/kVM/xvg8xTBc0u5gqZ7Ro6idOETlI4oUoW6oMEGhR2vZvpz/Q==
-Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1b::13)
- by PN2PR01MB5269.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:5d::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.23; Mon, 29 Nov
- 2021 09:25:49 +0000
-Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::7ca6:9165:19ec:4cd7]) by PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
- ([fe80::7ca6:9165:19ec:4cd7%5]) with mapi id 15.20.4734.024; Mon, 29 Nov 2021
- 09:25:49 +0000
-From:   Aditya Garg <gargaditya08@live.com>
-To:     Marcel Holtmann <marcel@holtmann.org>
-CC:     Greg KH <gregkh@linuxfoundation.org>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Daniel Winkler <danielwinkler@google.com>,
-        Johan Hedberg <johan.hedberg@intel.com>,
-        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCH v5 2/2] btbcm: disable read tx power for affected Macs with
- the T2 Security chip
-Thread-Topic: [PATCH v5 2/2] btbcm: disable read tx power for affected Macs
- with the T2 Security chip
-Thread-Index: AQHX5QMYdnDWYBZS10KI1TQLMU/cyA==
-Date:   Mon, 29 Nov 2021 09:25:49 +0000
-Message-ID: <72F677FD-FBCD-448F-84A5-75F42052FF5C@live.com>
-References: <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com>
- <YZSuWHB6YCtGclLs@kroah.com> <52DEDC31-EEB2-4F39-905F-D5E3F2BBD6C0@live.com>
- <8919a36b-e485-500a-2722-529ffa0d2598@leemhuis.info>
- <20211117124717.12352-1-redecorating@protonmail.com>
- <F8D12EA8-4B37-4887-998E-DC0EBE60E730@holtmann.org>
- <40550C00-4EE5-480F-AFD4-A2ACA01F9DBB@live.com>
- <332a19f1-30f0-7058-ac18-c21cf78759bb@leemhuis.info>
- <D9375D91-1062-4265-9DE9-C7CF2B705F3F@live.com>
- <BC534C52-7FCF-4238-8933-C5706F494A11@live.com> <YaSCJg+Xkyx8w2M1@kroah.com>
- <287DE71A-2BF2-402D-98C8-24A9AEEE55CB@live.com>
- <42E2EC08-1D09-4DDE-B8B8-7855379C23C5@holtmann.org>
- <6ABF3770-A9E8-4DAF-A22D-DA7113F444F3@live.com>
- <A003A45E-EE35-43EC-879F-3395CCB5EF59@live.com>
- <6326984F-8428-4A3D-9734-1A408B9E82BB@live.com>
- <3EA0850B-7D40-4B21-85A5-B42C4CE8A942@live.com>
-In-Reply-To: <3EA0850B-7D40-4B21-85A5-B42C4CE8A942@live.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [iD2owS4PBmXARJZix0HMBae80BALj6+SXNNNO62SvoRwJsG+I3nmeaUeEmNi5ayq]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: a2e0510f-787d-4141-818c-08d9b31a3b53
-x-ms-traffictypediagnostic: PN2PR01MB5269:
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: kU+yZuNZ0jXjZOy0QV5+jcz3hhFJ23OX/sI5JVFqjrJblrys6ZS3orMev3+3Av6GKl/jGzuihlifTeejAqSTynClCPG43fhAE7b7W1FnnrT1A7iZyTp5k9wF62LlBSBEl8Mpci+YQLkmOH30vGzA09FmnZPlSqcPCJ/t5u0pVQLLlBDutROtiFNus7nSxGTXtztN9/BThBt5kd39yxtsoFowGrNy0y6kMx00HFpWDYn2KDvrUlz1iD1K6mbOlGQk4gC/aA3UDSnxcfGQIr09+UMgzK1Cd6kKQJcDr9THfdNB+YeLio4rTTGXEntF3fIqLvwAX13mF84GEgc3XHuo/TB+hm2K3fD7mWrM9V0IP3wWgFV1mk1+F81JSLbOet95DADq9bILbpkJJlG3e7iavRmSX24KUcczDXDmBL5x4wWWbghwtfkkO8iL2qNQ9/9a4IdA3c5dKaPsRNGP+SgmvgYKTrIrwmbPY41Roopk2jrt5wm7KCWXuKyBhE2fUqwp8WaQfH1oXWeTbyddGVPZeEseM3iAXWl59Ral/WEShbWL8CE9Hl2NsGAhqHAtaJdnw/BZX8PDgrygj7/yq0aaaid2zvNvu5m+9Vkm0y6SawTSGw8OyOFM2zPgoRGixN8l
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: htJ/Pedx6TVGePF4q8e0rZLXFEi8VQJD0IEMXZ44wevVi1lrdboTjVPgiBr0Tj5LfH+Fi1sHT8FMUmXhgHV4EJQqacsXu6ORZT2mT3YV86AlMBl2dbv+/k+Kyj+l7hj+zWoq83wqmrg/po7hQKpn3wnW4Ry1znPssxBQj3OqfKYLL2+UaSXBnAQBTPrZDQmTeMTdpZEn/nCDK7gA+DUtejt5ptiPq8aoifYz2ZFbbfZ9uPjpbopeSSinFrmOTnDDWDUj+Fh0FWZzPDro6y/NaT9QDy/LAiquFD6QtQaNwBPMrgw3AxsN3ARCQpUV+dg2nQ2wF/7LUiegaW2T8bDR0rQ0NKNGgF4nq0rHSzYTogDR+h/0XJS8K9jn2AHgevwOR6KSI/47/sxu3q84aOW+8GCp5FZXUrTTEEJxAtmSpXvzVjOCLKIaEKswU6hFYvPLEQvPXETEg8mF5Q+tYVmw0Ppk7sx/OBYf6BtsmK1j0AuWjA8ZpqoTDETVRGsuAACF9t26UD32X67fDsiXVJ6SPx02jbulQoX9f4u9CP5TRQ5Lo1xluBrUA2l+Qo2SfEct81xc1K9dPhmas4loK/dqN6uCc++kYuUrfryC9aSRquELdd2oY+5OsLGDoNuXOZGBubQq+ebhSfz1oHBtXGpDyrFyYDg3yose7/zRw6e6TePTJDMssaUlMMi4NVqNrNQUN3HnvveziZ3VWRrePKfvNjDGrqn4Nn6kZXGjFvnX/P9G9G95fuDuy6t8vphZALttn0YAleZ7NKUire4G6WAewg==
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <77DAB2A863F03444B63FD57FFF72AD49@INDPRD01.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: quoted-printable
+        id S241473AbhK2Jjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 04:39:52 -0500
+Received: from mga03.intel.com ([134.134.136.65]:46013 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S245374AbhK2Jht (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Nov 2021 04:37:49 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10182"; a="235865574"
+X-IronPort-AV: E=Sophos;i="5.87,272,1631602800"; 
+   d="scan'208";a="235865574"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2021 01:34:22 -0800
+X-IronPort-AV: E=Sophos;i="5.87,272,1631602800"; 
+   d="scan'208";a="499261687"
+Received: from unknown (HELO cra01infra01.deacluster.intel.com) ([10.240.193.73])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2021 01:34:20 -0800
+From:   Zhu Lingshan <lingshan.zhu@intel.com>
+To:     lingshan.zhu@live.com
+Cc:     Zhu Lingshan <lingshan.zhu@intel.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] ifcvf/vDPA: fix misuse virtio-net device config size for blk dev
+Date:   Mon, 29 Nov 2021 17:27:39 +0800
+Message-Id: <20211129092739.7899-1-lingshan.zhu@intel.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-X-OriginatorOrg: sct-15-20-3174-20-msonline-outlook-a1a1a.templateTenant
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: a2e0510f-787d-4141-818c-08d9b31a3b53
-X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Nov 2021 09:25:49.4490
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN2PR01MB5269
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Garg <gargaditya08@live.com>
+This commit fixes a misuse of virtio-net device config size issue
+for virtio-block devices.
 
-Some Macs with the T2 security chip had Bluetooth not working.
-To fix it we add DMI based quirks to disable querying of LE Tx power.
+A new member config_size in struct ifcvf_hw is introduced and would
+be initialized through vdpa_dev_add() to record correct device
+config size.
 
-Signed-off-by: Aditya Garg <gargaditya08@live.com>
-Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
-Link:
-https://lore.kernel.org/r/4970a940-211b-25d6-edab-21a815313954@protonmail.c=
-om
-Fixes: 7c395ea521e6 ("Bluetooth: Query LE tx power on startup")
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Reported-and-suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Fixes: 6ad31d162a4e ("vDPA/ifcvf: enable Intel C5000X-PL virtio-block for vDPA")
+Cc: <stable@vger.kernel.org>
 ---
- drivers/bluetooth/btbcm.c | 40 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ drivers/vdpa/ifcvf/ifcvf_base.c | 41 +++++++++++++++++++++++++--------
+ drivers/vdpa/ifcvf/ifcvf_base.h |  9 +++++---
+ drivers/vdpa/ifcvf/ifcvf_main.c | 24 ++++---------------
+ 3 files changed, 41 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
-index e4182acee488c5..40f7c9c5cf0a5a 100644
---- a/drivers/bluetooth/btbcm.c
-+++ b/drivers/bluetooth/btbcm.c
-@@ -8,6 +8,7 @@
-=20
- #include <linux/module.h>
- #include <linux/firmware.h>
-+#include <linux/dmi.h>
- #include <asm/unaligned.h>
-=20
- #include <net/bluetooth/bluetooth.h>
-@@ -343,9 +344,44 @@ static struct sk_buff *btbcm_read_usb_product(struct h=
-ci_dev *hdev)
- 	return skb;
- }
-=20
-+static const struct dmi_system_id disable_broken_read_transmit_power[] =3D=
- {
-+	{
-+		 .matches =3D {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,1"),
-+		},
-+	},
-+	{
-+		 .matches =3D {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,2"),
-+		},
-+	},
-+	{
-+		 .matches =3D {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "MacBookPro16,4"),
-+		},
-+	},
-+	{
-+		 .matches =3D {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,1"),
-+		},
-+	},
-+	{
-+		 .matches =3D {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Apple Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "iMac20,2"),
-+		},
-+	},
-+	{ }
-+};
-+
- static int btbcm_read_info(struct hci_dev *hdev)
- {
- 	struct sk_buff *skb;
-+	const struct dmi_system_id *dmi_id;
-=20
- 	/* Read Verbose Config Version Info */
- 	skb =3D btbcm_read_verbose_config(hdev);
-@@ -363,6 +399,10 @@ static int btbcm_read_info(struct hci_dev *hdev)
- 	bt_dev_info(hdev, "BCM: features 0x%2.2x", skb->data[1]);
- 	kfree_skb(skb);
-=20
-+	/* Read DMI and disable broken Read LE Min/Max Tx Power */
-+	if (dmi_first_match(disable_broken_read_transmit_power))
-+		set_bit(HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER, &hdev->quirks);
-+
+diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
+index 2808f1ba9f7b..7d41dfe48ade 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_base.c
++++ b/drivers/vdpa/ifcvf/ifcvf_base.c
+@@ -143,8 +143,8 @@ int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev *pdev)
+ 			IFCVF_DBG(pdev, "hw->isr = %p\n", hw->isr);
+ 			break;
+ 		case VIRTIO_PCI_CAP_DEVICE_CFG:
+-			hw->net_cfg = get_cap_addr(hw, &cap);
+-			IFCVF_DBG(pdev, "hw->net_cfg = %p\n", hw->net_cfg);
++			hw->dev_cfg = get_cap_addr(hw, &cap);
++			IFCVF_DBG(pdev, "hw->dev_cfg = %p\n", hw->dev_cfg);
+ 			break;
+ 		}
+ 
+@@ -153,7 +153,7 @@ int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev *pdev)
+ 	}
+ 
+ 	if (hw->common_cfg == NULL || hw->notify_base == NULL ||
+-	    hw->isr == NULL || hw->net_cfg == NULL) {
++	    hw->isr == NULL || hw->dev_cfg == NULL) {
+ 		IFCVF_ERR(pdev, "Incomplete PCI capabilities\n");
+ 		return -EIO;
+ 	}
+@@ -174,7 +174,7 @@ int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev *pdev)
+ 	IFCVF_DBG(pdev,
+ 		  "PCI capability mapping: common cfg: %p, notify base: %p\n, isr cfg: %p, device cfg: %p, multiplier: %u\n",
+ 		  hw->common_cfg, hw->notify_base, hw->isr,
+-		  hw->net_cfg, hw->notify_off_multiplier);
++		  hw->dev_cfg, hw->notify_off_multiplier);
+ 
  	return 0;
  }
-=20
+@@ -242,33 +242,54 @@ int ifcvf_verify_min_features(struct ifcvf_hw *hw, u64 features)
+ 	return 0;
+ }
+ 
+-void ifcvf_read_net_config(struct ifcvf_hw *hw, u64 offset,
++u32 ifcvf_get_config_size(struct ifcvf_hw *hw)
++{
++	struct ifcvf_adapter *adapter;
++	u32 config_size;
++
++	adapter = vf_to_adapter(hw);
++	switch (hw->dev_type) {
++	case VIRTIO_ID_NET:
++		config_size = sizeof(struct virtio_net_config);
++		break;
++	case VIRTIO_ID_BLOCK:
++		config_size = sizeof(struct virtio_blk_config);
++		break;
++	default:
++		config_size = 0;
++		IFCVF_ERR(adapter->pdev, "VIRTIO ID %u not supported\n", hw->dev_type);
++	}
++
++	return config_size;
++}
++
++void ifcvf_read_dev_config(struct ifcvf_hw *hw, u64 offset,
+ 			   void *dst, int length)
+ {
+ 	u8 old_gen, new_gen, *p;
+ 	int i;
+ 
+-	WARN_ON(offset + length > sizeof(struct virtio_net_config));
++	WARN_ON(offset + length > hw->config_size);
+ 	do {
+ 		old_gen = ifc_ioread8(&hw->common_cfg->config_generation);
+ 		p = dst;
+ 		for (i = 0; i < length; i++)
+-			*p++ = ifc_ioread8(hw->net_cfg + offset + i);
++			*p++ = ifc_ioread8(hw->dev_cfg + offset + i);
+ 
+ 		new_gen = ifc_ioread8(&hw->common_cfg->config_generation);
+ 	} while (old_gen != new_gen);
+ }
+ 
+-void ifcvf_write_net_config(struct ifcvf_hw *hw, u64 offset,
++void ifcvf_write_dev_config(struct ifcvf_hw *hw, u64 offset,
+ 			    const void *src, int length)
+ {
+ 	const u8 *p;
+ 	int i;
+ 
+ 	p = src;
+-	WARN_ON(offset + length > sizeof(struct virtio_net_config));
++	WARN_ON(offset + length > hw->config_size);
+ 	for (i = 0; i < length; i++)
+-		ifc_iowrite8(*p++, hw->net_cfg + offset + i);
++		ifc_iowrite8(*p++, hw->dev_cfg + offset + i);
+ }
+ 
+ static void ifcvf_set_features(struct ifcvf_hw *hw, u64 features)
+diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
+index 09918af3ecf8..c486873f370a 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_base.h
++++ b/drivers/vdpa/ifcvf/ifcvf_base.h
+@@ -71,12 +71,14 @@ struct ifcvf_hw {
+ 	u64 hw_features;
+ 	u32 dev_type;
+ 	struct virtio_pci_common_cfg __iomem *common_cfg;
+-	void __iomem *net_cfg;
++	void __iomem *dev_cfg;
+ 	struct vring_info vring[IFCVF_MAX_QUEUES];
+ 	void __iomem * const *base;
+ 	char config_msix_name[256];
+ 	struct vdpa_callback config_cb;
+ 	unsigned int config_irq;
++	/* virtio-net or virtio-blk device config size */
++	u32 config_size;
+ };
+ 
+ struct ifcvf_adapter {
+@@ -105,9 +107,9 @@ int ifcvf_init_hw(struct ifcvf_hw *hw, struct pci_dev *dev);
+ int ifcvf_start_hw(struct ifcvf_hw *hw);
+ void ifcvf_stop_hw(struct ifcvf_hw *hw);
+ void ifcvf_notify_queue(struct ifcvf_hw *hw, u16 qid);
+-void ifcvf_read_net_config(struct ifcvf_hw *hw, u64 offset,
++void ifcvf_read_dev_config(struct ifcvf_hw *hw, u64 offset,
+ 			   void *dst, int length);
+-void ifcvf_write_net_config(struct ifcvf_hw *hw, u64 offset,
++void ifcvf_write_dev_config(struct ifcvf_hw *hw, u64 offset,
+ 			    const void *src, int length);
+ u8 ifcvf_get_status(struct ifcvf_hw *hw);
+ void ifcvf_set_status(struct ifcvf_hw *hw, u8 status);
+@@ -120,4 +122,5 @@ u16 ifcvf_get_vq_state(struct ifcvf_hw *hw, u16 qid);
+ int ifcvf_set_vq_state(struct ifcvf_hw *hw, u16 qid, u16 num);
+ struct ifcvf_adapter *vf_to_adapter(struct ifcvf_hw *hw);
+ int ifcvf_probed_virtio_net(struct ifcvf_hw *hw);
++u32 ifcvf_get_config_size(struct ifcvf_hw *hw);
+ #endif /* _IFCVF_H_ */
+diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+index 6dc75ca70b37..92ba7126e5d6 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -366,24 +366,9 @@ static u32 ifcvf_vdpa_get_vq_align(struct vdpa_device *vdpa_dev)
+ 
+ static size_t ifcvf_vdpa_get_config_size(struct vdpa_device *vdpa_dev)
+ {
+-	struct ifcvf_adapter *adapter = vdpa_to_adapter(vdpa_dev);
+ 	struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
+-	struct pci_dev *pdev = adapter->pdev;
+-	size_t size;
+-
+-	switch (vf->dev_type) {
+-	case VIRTIO_ID_NET:
+-		size = sizeof(struct virtio_net_config);
+-		break;
+-	case VIRTIO_ID_BLOCK:
+-		size = sizeof(struct virtio_blk_config);
+-		break;
+-	default:
+-		size = 0;
+-		IFCVF_ERR(pdev, "VIRTIO ID %u not supported\n", vf->dev_type);
+-	}
+ 
+-	return size;
++	return  vf->config_size;
+ }
+ 
+ static void ifcvf_vdpa_get_config(struct vdpa_device *vdpa_dev,
+@@ -392,8 +377,7 @@ static void ifcvf_vdpa_get_config(struct vdpa_device *vdpa_dev,
+ {
+ 	struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
+ 
+-	WARN_ON(offset + len > sizeof(struct virtio_net_config));
+-	ifcvf_read_net_config(vf, offset, buf, len);
++	ifcvf_read_dev_config(vf, offset, buf, len);
+ }
+ 
+ static void ifcvf_vdpa_set_config(struct vdpa_device *vdpa_dev,
+@@ -402,8 +386,7 @@ static void ifcvf_vdpa_set_config(struct vdpa_device *vdpa_dev,
+ {
+ 	struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
+ 
+-	WARN_ON(offset + len > sizeof(struct virtio_net_config));
+-	ifcvf_write_net_config(vf, offset, buf, len);
++	ifcvf_write_dev_config(vf, offset, buf, len);
+ }
+ 
+ static void ifcvf_vdpa_set_config_cb(struct vdpa_device *vdpa_dev,
+@@ -542,6 +525,7 @@ static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 		vf->vring[i].irq = -EINVAL;
+ 
+ 	vf->hw_features = ifcvf_get_hw_features(vf);
++	vf->config_size = ifcvf_get_config_size(vf);
+ 
+ 	adapter->vdpa.mdev = &ifcvf_mgmt_dev->mdev;
+ 	ret = _vdpa_register_device(&adapter->vdpa, vf->nr_vring);
+-- 
+2.27.0
 
