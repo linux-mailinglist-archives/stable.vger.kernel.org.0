@@ -2,234 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF668461B37
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 16:41:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A02D1461B4D
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 16:49:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240231AbhK2PpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 10:45:12 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43428 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237130AbhK2PnM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 10:43:12 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3151461569;
-        Mon, 29 Nov 2021 15:39:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12FB7C53FAD;
-        Mon, 29 Nov 2021 15:39:53 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="h3QJzSPc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1638200392;
+        id S244700AbhK2Pw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 10:52:29 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:51029 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234066AbhK2PuJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 10:50:09 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1638200811;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=W7rnA5GFOsN7Sz4kkspUD6nttpjznhi4aCzWfp9emg0=;
-        b=h3QJzSPcBxBsyCdTQM/9kqe80Om0YGHW8KBNrx9YYrzKVu+eZ50tsYKHE3U0B6x0oWHfp1
-        xX6rVhziKRu7mW2VPHjtlSCtFLPWhh3l70bss2TDXyLT7Zy8BCpkN8Qgx8B691sD7aQwes
-        7J93WsM0eGSzuNjEAbBhLfUSO/P1OFc=
-Received: by mail.zx2c4.com (OpenSMTPD) with ESMTPSA id c5a62dc4 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Mon, 29 Nov 2021 15:39:52 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     netdev@vger.kernel.org, davem@davemloft.net
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        stable@vger.kernel.org, "Jason A . Donenfeld" <Jason@zx2c4.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH net 10/10] siphash: use _unaligned version by default
-Date:   Mon, 29 Nov 2021 10:39:29 -0500
-Message-Id: <20211129153929.3457-11-Jason@zx2c4.com>
-In-Reply-To: <20211129153929.3457-1-Jason@zx2c4.com>
-References: <20211129153929.3457-1-Jason@zx2c4.com>
+        bh=26f2b5Y7G+VSrFOVmDuCXcMN9XzKd9kyzFy/dKrRMFs=;
+        b=MfjiI4A7yTizy8dh2P7zmdVxc9x056z/zC8iimjOAeiLWTQfLJQwhEiPOOD1lCRHOFbDnU
+        NDUH7SY9SEuwrsrdvZrMm2jCtSuTOnxUr+yTeoWPnvQRHmF99HUF7g+35FWwb8DsBrmoE+
+        /res1/isprflDWimCdu1Y6TplUELK1w=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-402-CkLl4Lf-N6Cs8q7XX7HpgQ-1; Mon, 29 Nov 2021 10:46:46 -0500
+X-MC-Unique: CkLl4Lf-N6Cs8q7XX7HpgQ-1
+Received: by mail-qt1-f197.google.com with SMTP id c19-20020ac81e93000000b002a71180fd3dso23932267qtm.1
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 07:46:46 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=26f2b5Y7G+VSrFOVmDuCXcMN9XzKd9kyzFy/dKrRMFs=;
+        b=If5xSlYmepyXOsuKxH4Vaiw3pAYOoo+F4jeBY/eH+d/bA3ajAerqQW1UQ5uvOk0qHr
+         fGP2zof7Uo2KIbZvJgR4i0tQw0MiL2IpvBqf8LMpDjuiCHZlizNOD5QSx5KgdSwmklex
+         epewoZUsct/RyfRyhL0KxYYowGDfB/CTMCQNk31yA8FYdcoHiEK9T5khlKVQHONJ3xO9
+         D4B1Vc92ZtBXrcvEZx5WhpMfTd6mNQrGjIZecKJbUvkVzOjulDY69yHlzUJe5xvmzIu6
+         iNviVlNITA9AcV8PymbBQndP1wOOslozlKfqs53p49Ff6jSZ/h03U5Mzm7d6ylSjkbyH
+         8Obw==
+X-Gm-Message-State: AOAM531LtiwnOplo1Mmwwwto3J2F/uXTHl8/YOsSu/wY8El+Qa4wpI9O
+        /SoVQjsbdtGY2zoBX+uw842cPTcWXjc73UglDCVEFF0Tqc1PSb8qXLAmQdcZoGdMKhroVekvyiL
+        TxGbHIcFkHxak5J8Rtcbi4tCAJjNsm80q
+X-Received: by 2002:ac8:5dca:: with SMTP id e10mr35867267qtx.558.1638200805993;
+        Mon, 29 Nov 2021 07:46:45 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzmJhJipMnlWXB5mF5qETuRMHYQ36dNAJs3wp58pvJp9ZYv8XIMNgmkTSgAVFOQUHLD9BpDq0tDcNRB5vwVQA8=
+X-Received: by 2002:ac8:5dca:: with SMTP id e10mr35867244qtx.558.1638200805822;
+ Mon, 29 Nov 2021 07:46:45 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <163801865313345@kroah.com>
+In-Reply-To: <163801865313345@kroah.com>
+From:   Miklos Szeredi <mszeredi@redhat.com>
+Date:   Mon, 29 Nov 2021 16:46:34 +0100
+Message-ID: <CAOssrKdrJgV+m9yFee6SHMFU2W8zs4vrKotkn5kD+s61Gw9jkg@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] fuse: release pipe buf after last use"
+ failed to apply to 4.9-stable tree
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Justin Forbes <jmforbes@linuxtx.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="0000000000001a689805d1ef5905"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+--0000000000001a689805d1ef5905
+Content-Type: text/plain; charset="UTF-8"
 
-On ARM v6 and later, we define CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
-because the ordinary load/store instructions (ldr, ldrh, ldrb) can
-tolerate any misalignment of the memory address. However, load/store
-double and load/store multiple instructions (ldrd, ldm) may still only
-be used on memory addresses that are 32-bit aligned, and so we have to
-use the CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS macro with care, or we
-may end up with a severe performance hit due to alignment traps that
-require fixups by the kernel. Testing shows that this currently happens
-with clang-13 but not gcc-11. In theory, any compiler version can
-produce this bug or other problems, as we are dealing with undefined
-behavior in C99 even on architectures that support this in hardware,
-see also https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100363.
+On Sat, Nov 27, 2021 at 2:11 PM <gregkh@linuxfoundation.org> wrote:
+>
+>
+> The patch below does not apply to the 4.9-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Fortunately, the get_unaligned() accessors do the right thing: when
-building for ARMv6 or later, the compiler will emit unaligned accesses
-using the ordinary load/store instructions (but avoid the ones that
-require 32-bit alignment). When building for older ARM, those accessors
-will emit the appropriate sequence of ldrb/mov/orr instructions. And on
-architectures that can truly tolerate any kind of misalignment, the
-get_unaligned() accessors resolve to the leXX_to_cpup accessors that
-operate on aligned addresses.
+Hi Greg,
 
-Since the compiler will in fact emit ldrd or ldm instructions when
-building this code for ARM v6 or later, the solution is to use the
-unaligned accessors unconditionally on architectures where this is
-known to be fast. The _aligned version of the hash function is
-however still needed to get the best performance on architectures
-that cannot do any unaligned access in hardware.
+Attaching the backport against 4.9.292-rc1.
 
-This new version avoids the undefined behavior and should produce
-the fastest hash on all architectures we support.
+Should apply to the 4.14, 4.19 and 5.4 stable trees as well.
 
-Link: https://lore.kernel.org/linux-arm-kernel/20181008211554.5355-4-ard.biesheuvel@linaro.org/
-Link: https://lore.kernel.org/linux-crypto/CAK8P3a2KfmmGDbVHULWevB0hv71P2oi2ZCHEAqT=8dQfa0=cqQ@mail.gmail.com/
-Reported-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Fixes: 2c956a60778c ("siphash: add cryptographically secure PRF")
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
----
- include/linux/siphash.h | 14 ++++----------
- lib/siphash.c           | 12 ++++++------
- 2 files changed, 10 insertions(+), 16 deletions(-)
+Thanks,
+Miklos
 
-diff --git a/include/linux/siphash.h b/include/linux/siphash.h
-index bf21591a9e5e..0cda61855d90 100644
---- a/include/linux/siphash.h
-+++ b/include/linux/siphash.h
-@@ -27,9 +27,7 @@ static inline bool siphash_key_is_zero(const siphash_key_t *key)
- }
- 
- u64 __siphash_aligned(const void *data, size_t len, const siphash_key_t *key);
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u64 __siphash_unaligned(const void *data, size_t len, const siphash_key_t *key);
--#endif
- 
- u64 siphash_1u64(const u64 a, const siphash_key_t *key);
- u64 siphash_2u64(const u64 a, const u64 b, const siphash_key_t *key);
-@@ -82,10 +80,9 @@ static inline u64 ___siphash_aligned(const __le64 *data, size_t len,
- static inline u64 siphash(const void *data, size_t len,
- 			  const siphash_key_t *key)
- {
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
--	if (!IS_ALIGNED((unsigned long)data, SIPHASH_ALIGNMENT))
-+	if (IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) ||
-+	    !IS_ALIGNED((unsigned long)data, SIPHASH_ALIGNMENT))
- 		return __siphash_unaligned(data, len, key);
--#endif
- 	return ___siphash_aligned(data, len, key);
- }
- 
-@@ -96,10 +93,8 @@ typedef struct {
- 
- u32 __hsiphash_aligned(const void *data, size_t len,
- 		       const hsiphash_key_t *key);
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u32 __hsiphash_unaligned(const void *data, size_t len,
- 			 const hsiphash_key_t *key);
--#endif
- 
- u32 hsiphash_1u32(const u32 a, const hsiphash_key_t *key);
- u32 hsiphash_2u32(const u32 a, const u32 b, const hsiphash_key_t *key);
-@@ -135,10 +130,9 @@ static inline u32 ___hsiphash_aligned(const __le32 *data, size_t len,
- static inline u32 hsiphash(const void *data, size_t len,
- 			   const hsiphash_key_t *key)
- {
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
--	if (!IS_ALIGNED((unsigned long)data, HSIPHASH_ALIGNMENT))
-+	if (IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) ||
-+	    !IS_ALIGNED((unsigned long)data, HSIPHASH_ALIGNMENT))
- 		return __hsiphash_unaligned(data, len, key);
--#endif
- 	return ___hsiphash_aligned(data, len, key);
- }
- 
-diff --git a/lib/siphash.c b/lib/siphash.c
-index a90112ee72a1..72b9068ab57b 100644
---- a/lib/siphash.c
-+++ b/lib/siphash.c
-@@ -49,6 +49,7 @@
- 	SIPROUND; \
- 	return (v0 ^ v1) ^ (v2 ^ v3);
- 
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u64 __siphash_aligned(const void *data, size_t len, const siphash_key_t *key)
- {
- 	const u8 *end = data + len - (len % sizeof(u64));
-@@ -80,8 +81,8 @@ u64 __siphash_aligned(const void *data, size_t len, const siphash_key_t *key)
- 	POSTAMBLE
- }
- EXPORT_SYMBOL(__siphash_aligned);
-+#endif
- 
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u64 __siphash_unaligned(const void *data, size_t len, const siphash_key_t *key)
- {
- 	const u8 *end = data + len - (len % sizeof(u64));
-@@ -113,7 +114,6 @@ u64 __siphash_unaligned(const void *data, size_t len, const siphash_key_t *key)
- 	POSTAMBLE
- }
- EXPORT_SYMBOL(__siphash_unaligned);
--#endif
- 
- /**
-  * siphash_1u64 - compute 64-bit siphash PRF value of a u64
-@@ -250,6 +250,7 @@ EXPORT_SYMBOL(siphash_3u32);
- 	HSIPROUND; \
- 	return (v0 ^ v1) ^ (v2 ^ v3);
- 
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u32 __hsiphash_aligned(const void *data, size_t len, const hsiphash_key_t *key)
- {
- 	const u8 *end = data + len - (len % sizeof(u64));
-@@ -280,8 +281,8 @@ u32 __hsiphash_aligned(const void *data, size_t len, const hsiphash_key_t *key)
- 	HPOSTAMBLE
- }
- EXPORT_SYMBOL(__hsiphash_aligned);
-+#endif
- 
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u32 __hsiphash_unaligned(const void *data, size_t len,
- 			 const hsiphash_key_t *key)
- {
-@@ -313,7 +314,6 @@ u32 __hsiphash_unaligned(const void *data, size_t len,
- 	HPOSTAMBLE
- }
- EXPORT_SYMBOL(__hsiphash_unaligned);
--#endif
- 
- /**
-  * hsiphash_1u32 - compute 64-bit hsiphash PRF value of a u32
-@@ -418,6 +418,7 @@ EXPORT_SYMBOL(hsiphash_4u32);
- 	HSIPROUND; \
- 	return v1 ^ v3;
- 
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u32 __hsiphash_aligned(const void *data, size_t len, const hsiphash_key_t *key)
- {
- 	const u8 *end = data + len - (len % sizeof(u32));
-@@ -438,8 +439,8 @@ u32 __hsiphash_aligned(const void *data, size_t len, const hsiphash_key_t *key)
- 	HPOSTAMBLE
- }
- EXPORT_SYMBOL(__hsiphash_aligned);
-+#endif
- 
--#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
- u32 __hsiphash_unaligned(const void *data, size_t len,
- 			 const hsiphash_key_t *key)
- {
-@@ -461,7 +462,6 @@ u32 __hsiphash_unaligned(const void *data, size_t len,
- 	HPOSTAMBLE
- }
- EXPORT_SYMBOL(__hsiphash_unaligned);
--#endif
- 
- /**
-  * hsiphash_1u32 - compute 32-bit hsiphash PRF value of a u32
--- 
-2.34.1
+--0000000000001a689805d1ef5905
+Content-Type: text/x-patch; charset="US-ASCII"; 
+	name="fuse-release-pipe-buf-after-last-use-4.9.patch"
+Content-Disposition: attachment; 
+	filename="fuse-release-pipe-buf-after-last-use-4.9.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <f_kwkueqlu0>
+X-Attachment-Id: f_kwkueqlu0
+
+RnJvbSBkODRjMzI3YzBmODE2MzUyNDQwN2M5ZjE4MjcxMGIxZDljZWZiOTMwIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBNaWtsb3MgU3plcmVkaSA8bXN6ZXJlZGlAcmVkaGF0LmNvbT4K
+RGF0ZTogVGh1LCAyNSBOb3YgMjAyMSAxNDowNToxOCArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIGZ1
+c2U6IHJlbGVhc2UgcGlwZSBidWYgYWZ0ZXIgbGFzdCB1c2UKCkNoZWNraW5nIGJ1Zi0+ZmxhZ3Mg
+c2hvdWxkIGJlIGRvbmUgYmVmb3JlIHRoZSBwaXBlX2J1Zl9yZWxlYXNlKCkgaXMgY2FsbGVkCm9u
+IHRoZSBwaXBlIGJ1ZmZlciwgc2luY2UgcmVsZWFzaW5nIHRoZSBidWZmZXIgbWlnaHQgbW9kaWZ5
+IHRoZSBmbGFncy4KClRoaXMgaXMgZXhhY3RseSB3aGF0IHBhZ2VfY2FjaGVfcGlwZV9idWZfcmVs
+ZWFzZSgpIGRvZXMsIGFuZCB3aGljaCByZXN1bHRzCmluIHRoZSBzYW1lIFZNX0JVR19PTl9QQUdF
+KFBhZ2VMUlUocGFnZSkpIHRoYXQgdGhlIG9yaWdpbmFsIHBhdGNoIHdhcwp0cnlpbmcgdG8gZml4
+LgoKUmVwb3J0ZWQtYnk6IEp1c3RpbiBGb3JiZXMgPGptZm9yYmVzQGxpbnV4dHgub3JnPgpGaXhl
+czogNzEyYTk1MTAyNWMwICgiZnVzZTogZml4IHBhZ2Ugc3RlYWxpbmciKQpDYzogPHN0YWJsZUB2
+Z2VyLmtlcm5lbC5vcmc+ICMgdjIuNi4zNQpTaWduZWQtb2ZmLWJ5OiBNaWtsb3MgU3plcmVkaSA8
+bXN6ZXJlZGlAcmVkaGF0LmNvbT4KKGNoZXJyeSBwaWNrZWQgZnJvbSBjb21taXQgNDczNDQxNzIw
+Yzg2MTZkZmFmNDQ1MWY5YzdlYTE0ZjBlYjVlNWQ2NSkKLS0tCiBmcy9mdXNlL2Rldi5jIHwgMTAg
+KysrKystLS0tLQogMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMo
+LSkKCmRpZmYgLS1naXQgYS9mcy9mdXNlL2Rldi5jIGIvZnMvZnVzZS9kZXYuYwppbmRleCA3MmNl
+NjZlMGUwOGMuLjU4NWM1MmRiYjJlMyAxMDA2NDQKLS0tIGEvZnMvZnVzZS9kZXYuYworKysgYi9m
+cy9mdXNlL2Rldi5jCkBAIC04OTgsMTcgKzg5OCwxNyBAQCBzdGF0aWMgaW50IGZ1c2VfdHJ5X21v
+dmVfcGFnZShzdHJ1Y3QgZnVzZV9jb3B5X3N0YXRlICpjcywgc3RydWN0IHBhZ2UgKipwYWdlcCkK
+IAkJZ290byBvdXRfcHV0X29sZDsKIAl9CiAKKwlnZXRfcGFnZShuZXdwYWdlKTsKKworCWlmICgh
+KGJ1Zi0+ZmxhZ3MgJiBQSVBFX0JVRl9GTEFHX0xSVSkpCisJCWxydV9jYWNoZV9hZGRfZmlsZShu
+ZXdwYWdlKTsKKwogCS8qCiAJICogUmVsZWFzZSB3aGlsZSB3ZSBoYXZlIGV4dHJhIHJlZiBvbiBz
+dG9sZW4gcGFnZS4gIE90aGVyd2lzZQogCSAqIGFub25fcGlwZV9idWZfcmVsZWFzZSgpIG1pZ2h0
+IHRoaW5rIHRoZSBwYWdlIGNhbiBiZSByZXVzZWQuCiAJICovCiAJcGlwZV9idWZfcmVsZWFzZShj
+cy0+cGlwZSwgYnVmKTsKIAotCWdldF9wYWdlKG5ld3BhZ2UpOwotCi0JaWYgKCEoYnVmLT5mbGFn
+cyAmIFBJUEVfQlVGX0ZMQUdfTFJVKSkKLQkJbHJ1X2NhY2hlX2FkZF9maWxlKG5ld3BhZ2UpOwot
+CiAJZXJyID0gMDsKIAlzcGluX2xvY2soJmNzLT5yZXEtPndhaXRxLmxvY2spOwogCWlmICh0ZXN0
+X2JpdChGUl9BQk9SVEVELCAmY3MtPnJlcS0+ZmxhZ3MpKQotLSAKMi4zMS4xCgo=
+--0000000000001a689805d1ef5905--
 
