@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 451E84624FC
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:31:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B8E46272C
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:59:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232223AbhK2Wdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:33:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60740 "EHLO
+        id S236428AbhK2XBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 18:01:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232319AbhK2WdL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:33:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA9CDC07E5F3;
-        Mon, 29 Nov 2021 10:40:18 -0800 (PST)
+        with ESMTP id S235229AbhK2W7x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:59:53 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3CF2C141B3F;
+        Mon, 29 Nov 2021 10:32:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1694B815CC;
-        Mon, 29 Nov 2021 18:40:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4C94C53FAD;
-        Mon, 29 Nov 2021 18:40:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B26B2CE12FD;
+        Mon, 29 Nov 2021 18:32:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07A8BC58337;
+        Mon, 29 Nov 2021 18:32:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211216;
-        bh=dDkI2zj3bBh1yrIAXEy608BKOxsow0pb+LG3yHfQsc8=;
+        s=korg; t=1638210760;
+        bh=f1k3PqVjrff4aYygYd9eHQDrluu+S5zUKzruk18ke4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J8I6JYWC4ue1jVXG8rSUSfU29IzQfblDM/JWMWCKz0YmydNle7sfpC/OaLaA0nF/+
-         gWL96Qfjb9vVr/qz5Uq+EcfN6EjugRiGr8SDgc/CcJ8m/znZQYTeSCqb/OHo8dzZwP
-         iTtTsaMLnLlE/IBCQ25JdTrmqmnHqY4zOQL3pvZc=
+        b=RQjv/805E/L0FwNo1DZTgzwj/gmlwB2Tbms3K06LHNJjZHnACRuq3YrtZ3S7ndfJp
+         WiUeNYyuHg12WYzXcMrdYIwj2DcI9gziS+6HY1PZlYKSNwhc1hcKNVxWcfpcJPezV9
+         Cq5YG48WjplFAwIHbw1Bjj68ah6qsVo+2jdJ9XnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 144/179] tls: splice_read: fix accessing pre-processed records
-Date:   Mon, 29 Nov 2021 19:18:58 +0100
-Message-Id: <20211129181723.688074423@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 108/121] tracing: Check pid filtering when creating events
+Date:   Mon, 29 Nov 2021 19:18:59 +0100
+Message-Id: <20211129181715.296704905@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,84 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit e062fe99cccd9ff9f232e593d163ecabd244fae8 ]
+commit 6cb206508b621a9a0a2c35b60540e399225c8243 upstream.
 
-recvmsg() will put peek()ed and partially read records onto the rx_list.
-splice_read() needs to consult that list otherwise it may miss data.
-Align with recvmsg() and also put partially-read records onto rx_list.
-tls_sw_advance_skb() is pretty pointless now and will be removed in
-net-next.
+When pid filtering is activated in an instance, all of the events trace
+files for that instance has the PID_FILTER flag set. This determines
+whether or not pid filtering needs to be done on the event, otherwise the
+event is executed as normal.
 
-Fixes: 692d7b5d1f91 ("tls: Fix recvmsg() to be able to peek across multiple records")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If pid filtering is enabled when an event is created (via a dynamic event
+or modules), its flag is not updated to reflect the current state, and the
+events are not filtered properly.
+
+Cc: stable@vger.kernel.org
+Fixes: 3fdaf80f4a836 ("tracing: Implement event pid filtering")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_sw.c | 33 +++++++++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 8 deletions(-)
+ kernel/trace/trace_events.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index 1715e793c04ba..b0cdcea101806 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -1993,6 +1993,7 @@ ssize_t tls_sw_splice_read(struct socket *sock,  loff_t *ppos,
- 	struct sock *sk = sock->sk;
- 	struct sk_buff *skb;
- 	ssize_t copied = 0;
-+	bool from_queue;
- 	int err = 0;
- 	long timeo;
- 	int chunk;
-@@ -2002,14 +2003,20 @@ ssize_t tls_sw_splice_read(struct socket *sock,  loff_t *ppos,
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -2462,12 +2462,22 @@ static struct trace_event_file *
+ trace_create_new_event(struct trace_event_call *call,
+ 		       struct trace_array *tr)
+ {
++	struct trace_pid_list *no_pid_list;
++	struct trace_pid_list *pid_list;
+ 	struct trace_event_file *file;
  
- 	timeo = sock_rcvtimeo(sk, flags & SPLICE_F_NONBLOCK);
+ 	file = kmem_cache_alloc(file_cachep, GFP_TRACE);
+ 	if (!file)
+ 		return NULL;
  
--	skb = tls_wait_data(sk, NULL, flags & SPLICE_F_NONBLOCK, timeo, &err);
--	if (!skb)
--		goto splice_read_end;
-+	from_queue = !skb_queue_empty(&ctx->rx_list);
-+	if (from_queue) {
-+		skb = __skb_dequeue(&ctx->rx_list);
-+	} else {
-+		skb = tls_wait_data(sk, NULL, flags & SPLICE_F_NONBLOCK, timeo,
-+				    &err);
-+		if (!skb)
-+			goto splice_read_end;
- 
--	err = decrypt_skb_update(sk, skb, NULL, &chunk, &zc, false);
--	if (err < 0) {
--		tls_err_abort(sk, -EBADMSG);
--		goto splice_read_end;
-+		err = decrypt_skb_update(sk, skb, NULL, &chunk, &zc, false);
-+		if (err < 0) {
-+			tls_err_abort(sk, -EBADMSG);
-+			goto splice_read_end;
-+		}
- 	}
- 
- 	/* splice does not support reading control messages */
-@@ -2025,7 +2032,17 @@ ssize_t tls_sw_splice_read(struct socket *sock,  loff_t *ppos,
- 	if (copied < 0)
- 		goto splice_read_end;
- 
--	tls_sw_advance_skb(sk, skb, copied);
-+	if (!from_queue) {
-+		ctx->recv_pkt = NULL;
-+		__strp_unpause(&ctx->strp);
-+	}
-+	if (chunk < rxm->full_len) {
-+		__skb_queue_head(&ctx->rx_list, skb);
-+		rxm->offset += len;
-+		rxm->full_len -= len;
-+	} else {
-+		consume_skb(skb);
-+	}
- 
- splice_read_end:
- 	release_sock(sk);
--- 
-2.33.0
-
++	pid_list = rcu_dereference_protected(tr->filtered_pids,
++					     lockdep_is_held(&event_mutex));
++	no_pid_list = rcu_dereference_protected(tr->filtered_no_pids,
++					     lockdep_is_held(&event_mutex));
++
++	if (pid_list || no_pid_list)
++		file->flags |= EVENT_FILE_FL_PID_FILTER;
++
+ 	file->event_call = call;
+ 	file->tr = tr;
+ 	atomic_set(&file->sm_ref, 0);
 
 
