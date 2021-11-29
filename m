@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A3A2462432
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B49EF4626EC
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:56:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233037AbhK2WRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:17:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56582 "EHLO
+        id S235758AbhK2W7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:59:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231490AbhK2WQr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7922C08EDBE;
-        Mon, 29 Nov 2021 10:22:14 -0800 (PST)
+        with ESMTP id S235012AbhK2W5r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:57:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A9CC048F53;
+        Mon, 29 Nov 2021 10:40:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 20011CE13DB;
-        Mon, 29 Nov 2021 18:22:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDBFFC53FAD;
-        Mon, 29 Nov 2021 18:22:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4142CB81630;
+        Mon, 29 Nov 2021 18:40:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76C84C53FC7;
+        Mon, 29 Nov 2021 18:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210131;
-        bh=RlEx3VwTJFT8EQqDGaOIqzQyTxcub74iAAR/V6Lxqyc=;
+        s=korg; t=1638211242;
+        bh=RYljZMrYdPQ9JIic2NC++ZrvYCnRuNYnp6mKcrV2l6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LX9rj0WE+cX7bR/PqMiMGHOXVrKAEWzYn21VcuGcyPqBQyoVnxbz8Tyvp+01yWh/K
-         UFtvEstGe141E0eY1/j9jyVI2XuY3HjlVGQlrU3/a48d3s3AZ61sywG+kaS51yerlG
-         tRl9DI5RqwmV7xa3OIAcRUBfVAfjDC+75sszRVxw=
+        b=nCYrfnpFxJNCTkhBMpb+r7eS4/nGgH2sRAa2CTFCmhp066b+p7GkDgX4V6FUp3x62
+         yxxez251JX9Vv+DigUEXzVzp9le4rUczKthCdgqHwPqti/KvT7Pp5Zjm4aEgz9WuwC
+         LdFF8DTvDqkJGlutwKtCsn6aJ306Jc8psxK+QAwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 53/69] net/smc: Dont call clcsock shutdown twice when smc shutdown
+Subject: [PATCH 5.15 121/179] net: ipa: directly disable ipa-setup-ready interrupt
 Date:   Mon, 29 Nov 2021 19:18:35 +0100
-Message-Id: <20211129181705.378003720@linuxfoundation.org>
+Message-Id: <20211129181722.935693060@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,65 +48,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lu <tonylu@linux.alibaba.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit bacb6c1e47691cda4a95056c21b5487fb7199fcc ]
+[ Upstream commit 33a153100bb3459479bd95d3259c2915b53fefa8 ]
 
-When applications call shutdown() with SHUT_RDWR in userspace,
-smc_close_active() calls kernel_sock_shutdown(), and it is called
-twice in smc_shutdown().
+We currently maintain a "disabled" Boolean flag to determine whether
+the "ipa-setup-ready" SMP2P IRQ handler does anything.  That flag
+must be accessed under protection of a mutex.
 
-This fixes this by checking sk_state before do clcsock shutdown, and
-avoids missing the application's call of smc_shutdown().
+Instead, disable the SMP2P interrupt when requested, which prevents
+the interrupt handler from ever being called.  More importantly, it
+synchronizes a thread disabling the interrupt with the completion of
+the interrupt handler in case they run concurrently.
 
-Link: https://lore.kernel.org/linux-s390/1f67548e-cbf6-0dce-82b5-10288a4583bd@linux.ibm.com/
-Fixes: 606a63c9783a ("net/smc: Ensure the active closing peer first closes clcsock")
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Link: https://lore.kernel.org/r/20211126024134.45693-1-tonylu@linux.alibaba.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Use the IPA setup_complete flag rather than the disabled flag in the
+handler to determine whether to ignore any interrupts arriving after
+the first.
+
+Rename the "disabled" flag to be "setup_disabled", to be specific
+about its purpose.
+
+Fixes: 530f9216a953 ("soc: qcom: ipa: AP/modem communications")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ipa/ipa_smp2p.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 9aab4ab8161bd..4c904ab29e0e6 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1589,8 +1589,10 @@ static __poll_t smc_poll(struct file *file, struct socket *sock,
- static int smc_shutdown(struct socket *sock, int how)
- {
- 	struct sock *sk = sock->sk;
-+	bool do_shutdown = true;
- 	struct smc_sock *smc;
- 	int rc = -EINVAL;
-+	int old_state;
- 	int rc1 = 0;
+diff --git a/drivers/net/ipa/ipa_smp2p.c b/drivers/net/ipa/ipa_smp2p.c
+index df7639c39d716..24bc112a072c6 100644
+--- a/drivers/net/ipa/ipa_smp2p.c
++++ b/drivers/net/ipa/ipa_smp2p.c
+@@ -53,7 +53,7 @@
+  * @setup_ready_irq:	IPA interrupt triggered by modem to signal GSI ready
+  * @power_on:		Whether IPA power is on
+  * @notified:		Whether modem has been notified of power state
+- * @disabled:		Whether setup ready interrupt handling is disabled
++ * @setup_disabled:	Whether setup ready interrupt handler is disabled
+  * @mutex:		Mutex protecting ready-interrupt/shutdown interlock
+  * @panic_notifier:	Panic notifier structure
+ */
+@@ -67,7 +67,7 @@ struct ipa_smp2p {
+ 	u32 setup_ready_irq;
+ 	bool power_on;
+ 	bool notified;
+-	bool disabled;
++	bool setup_disabled;
+ 	struct mutex mutex;
+ 	struct notifier_block panic_notifier;
+ };
+@@ -155,11 +155,9 @@ static irqreturn_t ipa_smp2p_modem_setup_ready_isr(int irq, void *dev_id)
+ 	struct device *dev;
+ 	int ret;
  
- 	smc = smc_sk(sk);
-@@ -1617,7 +1619,11 @@ static int smc_shutdown(struct socket *sock, int how)
- 	}
- 	switch (how) {
- 	case SHUT_RDWR:		/* shutdown in both directions */
-+		old_state = sk->sk_state;
- 		rc = smc_close_active(smc);
-+		if (old_state == SMC_ACTIVE &&
-+		    sk->sk_state == SMC_PEERCLOSEWAIT1)
-+			do_shutdown = false;
- 		break;
- 	case SHUT_WR:
- 		rc = smc_close_shutdown_write(smc);
-@@ -1627,7 +1633,7 @@ static int smc_shutdown(struct socket *sock, int how)
- 		/* nothing more to do because peer is not involved */
- 		break;
- 	}
--	if (smc->clcsock)
-+	if (do_shutdown && smc->clcsock)
- 		rc1 = kernel_sock_shutdown(smc->clcsock, how);
- 	/* map sock_shutdown_cmd constants to sk_shutdown value range */
- 	sk->sk_shutdown |= how + 1;
+-	mutex_lock(&smp2p->mutex);
+-
+-	if (smp2p->disabled)
+-		goto out_mutex_unlock;
+-	smp2p->disabled = true;		/* If any others arrive, ignore them */
++	/* Ignore any (spurious) interrupts received after the first */
++	if (smp2p->ipa->setup_complete)
++		return IRQ_HANDLED;
+ 
+ 	/* Power needs to be active for setup */
+ 	dev = &smp2p->ipa->pdev->dev;
+@@ -176,8 +174,6 @@ static irqreturn_t ipa_smp2p_modem_setup_ready_isr(int irq, void *dev_id)
+ out_power_put:
+ 	pm_runtime_mark_last_busy(dev);
+ 	(void)pm_runtime_put_autosuspend(dev);
+-out_mutex_unlock:
+-	mutex_unlock(&smp2p->mutex);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -322,7 +318,10 @@ void ipa_smp2p_disable(struct ipa *ipa)
+ 
+ 	mutex_lock(&smp2p->mutex);
+ 
+-	smp2p->disabled = true;
++	if (!smp2p->setup_disabled) {
++		disable_irq(smp2p->setup_ready_irq);
++		smp2p->setup_disabled = true;
++	}
+ 
+ 	mutex_unlock(&smp2p->mutex);
+ }
 -- 
 2.33.0
 
