@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9463A462435
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75E6346262E
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:45:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232073AbhK2WRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:17:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56622 "EHLO
+        id S235097AbhK2Wsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:48:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231425AbhK2WQr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:47 -0500
+        with ESMTP id S235280AbhK2Wrt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:47:49 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06539C127121;
-        Mon, 29 Nov 2021 10:22:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4324C047CC5;
+        Mon, 29 Nov 2021 10:31:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EAACB815D5;
-        Mon, 29 Nov 2021 18:21:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA509C53FC7;
-        Mon, 29 Nov 2021 18:21:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D890B815B1;
+        Mon, 29 Nov 2021 18:31:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D000BC53FAD;
+        Mon, 29 Nov 2021 18:31:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210105;
-        bh=H9/V30PWjxASP3dUn6g4dasj1kdCMMIUnbwnIqY0oHc=;
+        s=korg; t=1638210666;
+        bh=FizMX89KWAN1teQcdmUbzyU2kTMzyQmu95FLWYJismY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5HR+oRFPAj9kle1q+DDraxxJCWzHt/nOPGil81Zr/bqhEPBphGAAfFQPFleeHBfF
-         Emt31p59fiBU1A7/EOGt88pVN69p3ZWzx5DM+c9VgpFoXoNm3hT6JcicwZ5hTMIJTz
-         3uL3Fit6sXSXC1OS5XKEyumKTV0J9/908S/5LQ68=
+        b=Udlj4nlmcO3/3IX4gx3SDODzvvn3lHuif9gBuX2fJxa9aJl4Y0o8VYq28ryBYZyZW
+         jneciQNAPa0gtBkf9YT1TYR/H7YlashWp1i/SoiBNi84MmZTGVPQbJ9S6+kTTnrdUv
+         Ve1CtxeKKgNBBaIuKYE4ReCvxCclbfz1L15jfDq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
+        Wen Gu <guwen@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 44/69] NFSv42: Dont fail clone() unless the OP_CLONE operation failed
+Subject: [PATCH 5.10 075/121] net/smc: Ensure the active closing peer first closes clcsock
 Date:   Mon, 29 Nov 2021 19:18:26 +0100
-Message-Id: <20211129181705.101770891@linuxfoundation.org>
+Message-Id: <20211129181714.178011422@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,36 +49,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Tony Lu <tonylu@linux.alibaba.com>
 
-[ Upstream commit d3c45824ad65aebf765fcf51366d317a29538820 ]
+[ Upstream commit 606a63c9783a32a45bd2ef0eee393711d75b3284 ]
 
-The failure to retrieve post-op attributes has no bearing on whether or
-not the clone operation itself was successful. We must therefore ignore
-the return value of decode_getfattr() when looking at the success or
-failure of nfs4_xdr_dec_clone().
+The side that actively closed socket, it's clcsock doesn't enter
+TIME_WAIT state, but the passive side does it. It should show the same
+behavior as TCP sockets.
 
-Fixes: 36022770de6c ("nfs42: add CLONE xdr functions")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Consider this, when client actively closes the socket, the clcsock in
+server enters TIME_WAIT state, which means the address is occupied and
+won't be reused before TIME_WAIT dismissing. If we restarted server, the
+service would be unavailable for a long time.
+
+To solve this issue, shutdown the clcsock in [A], perform the TCP active
+close progress first, before the passive closed side closing it. So that
+the actively closed side enters TIME_WAIT, not the passive one.
+
+Client                                            |  Server
+close() // client actively close                  |
+  smc_release()                                   |
+      smc_close_active() // PEERCLOSEWAIT1        |
+          smc_close_final() // abort or closed = 1|
+              smc_cdc_get_slot_and_msg_send()     |
+          [A]                                     |
+                                                  |smc_cdc_msg_recv_action() // ACTIVE
+                                                  |  queue_work(smc_close_wq, &conn->close_work)
+                                                  |    smc_close_passive_work() // PROCESSABORT or APPCLOSEWAIT1
+                                                  |      smc_close_passive_abort_received() // only in abort
+                                                  |
+                                                  |close() // server recv zero, close
+                                                  |  smc_release() // PROCESSABORT or APPCLOSEWAIT1
+                                                  |    smc_close_active()
+                                                  |      smc_close_abort() or smc_close_final() // CLOSED
+                                                  |        smc_cdc_get_slot_and_msg_send() // abort or closed = 1
+smc_cdc_msg_recv_action()                         |    smc_clcsock_release()
+  queue_work(smc_close_wq, &conn->close_work)     |      sock_release(tcp) // actively close clc, enter TIME_WAIT
+    smc_close_passive_work() // PEERCLOSEWAIT1    |    smc_conn_free()
+      smc_close_passive_abort_received() // CLOSED|
+      smc_conn_free()                             |
+      smc_clcsock_release()                       |
+        sock_release(tcp) // passive close clc    |
+
+Link: https://www.spinics.net/lists/netdev/msg780407.html
+Fixes: b38d732477e4 ("smc: socket closing and linkgroup cleanup")
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+Reviewed-by: Wen Gu <guwen@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs42xdr.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/smc/smc_close.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/nfs/nfs42xdr.c b/fs/nfs/nfs42xdr.c
-index ec9803088f6b8..eee011de3f58b 100644
---- a/fs/nfs/nfs42xdr.c
-+++ b/fs/nfs/nfs42xdr.c
-@@ -707,8 +707,7 @@ static int nfs4_xdr_dec_clone(struct rpc_rqst *rqstp,
- 	status = decode_clone(xdr);
- 	if (status)
- 		goto out;
--	status = decode_getfattr(xdr, res->dst_fattr, res->server);
--
-+	decode_getfattr(xdr, res->dst_fattr, res->server);
- out:
- 	res->rpc_status = status;
- 	return status;
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index 0f9ffba07d268..04620b53b74a7 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -228,6 +228,12 @@ int smc_close_active(struct smc_sock *smc)
+ 			/* send close request */
+ 			rc = smc_close_final(conn);
+ 			sk->sk_state = SMC_PEERCLOSEWAIT1;
++
++			/* actively shutdown clcsock before peer close it,
++			 * prevent peer from entering TIME_WAIT state.
++			 */
++			if (smc->clcsock && smc->clcsock->sk)
++				rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
+ 		} else {
+ 			/* peer event has changed the state */
+ 			goto again;
 -- 
 2.33.0
 
