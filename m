@@ -2,217 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 821C6460F45
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 08:21:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C01E0460F49
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 08:24:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234388AbhK2HYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 02:24:38 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:46728 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238360AbhK2HWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 02:22:37 -0500
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 52BAA1FCA1;
-        Mon, 29 Nov 2021 07:19:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1638170359; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type;
-        bh=SYwXW/2pvGjEC+A3oUqLRQRnOe6kCH8gfjkqGE/npIo=;
-        b=MUNAoVjiHDT0uGW66GJxJEvqBFf7MXGJJr561fX3DjoAB0AY9l5aWE0I4GlBd6dLJIcQ27
-        0NGrCDd+5lSKfBxlwvs/WZk7zDAYLNWvYI81q/ulM5EsU6ek6grcxRcnsYihP0C5jRu784
-        KqZ98ZP59f8JPWmFynj2gONZY+aTl14=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 30D0C133FE;
-        Mon, 29 Nov 2021 07:19:19 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id VfokCvd+pGHPGQAAMHmgww
-        (envelope-from <jgross@suse.com>); Mon, 29 Nov 2021 07:19:19 +0000
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-From:   Juergen Gross <jgross@suse.com>
-Cc:     "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
-Subject: Patches for stable 5.10 kernel
-Message-ID: <59ff38c4-8355-ecf6-040d-1234320a806b@suse.com>
-Date:   Mon, 29 Nov 2021 08:19:18 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        id S237638AbhK2H1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 02:27:52 -0500
+Received: from mail-ma1ind01olkn0188.outbound.protection.outlook.com ([104.47.100.188]:61622
+        "EHLO IND01-MA1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231732AbhK2HZv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Nov 2021 02:25:51 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=nK7kfsiVAuZmMeOn1oAldYo4G24GN7Y2Pwj7WMEKICSLK6UZOC8Ue3evbpvjVhFxQbgZ0mA/6Eontjeb6sMWEHEY+CJSRdGP5qxua4gAJYEFwqZt4kBTkDRTa1RqlC+HKnPzjE5W47kceiL7npANBVzXzl/PKOo8GEIDADmtkCI0bTW68BngnyL01Cdd/38U1X6h5mL8iQ3vTY08BFBq0Kk3jHz01ZYFoivRWZXNVsqOo8fzQXCKbnnLuqjgC+2EViy2Cwf6CHjhDpFkeO0Hv5e0U+WPiYXC4arwi1Sm8xu0Sn3TaMW+W+lRr+IEk6RwthWVZXE/DUbG4A7+NJ8EuQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=KDekUeYhlnHAZ0XcwiJX3Q70EYZRW5X3JVk+42N1x5g=;
+ b=mtui7ZLVyPAuCzDyRqzbNGq2bcAdR2dQrSy9WqrnMEMQj8Q7i67vF7ApnblkhQ2Ry3Gdwzgsg9Kq5nBFB0QLHOkiL9E01HD1sNsSHc+FYlJ8/TtSexyhbH9uScljx+8QH6UntHXkXKLjY1Ow57K4YTGNdf6wN4Gv0tOZ7HFl/halYXhtv/C1WB4zV7ggdr3DnHNRF+2Z4gYTZKAuiKi76Cjo+k0NGBoHzekMHci0DjvfBE1uhDx9+keVeVLfjUHUvAooXS0GVtnEUEjOH0/VC8qeDZAd1/4Mq3SUapz3+wq65XEEnZqyqK5Fw3Xrtr4lP3l2HTCdUi4byU21hWGolw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=KDekUeYhlnHAZ0XcwiJX3Q70EYZRW5X3JVk+42N1x5g=;
+ b=oIqTsG23xUuX3FEnez1Y4eMeUyvLq3AO1BptHukWTicAt+u8BJcFioPhjZ9NPFk8/x7G8qp9itBbV97sl2SypgcZfivjCLrQlHSHnAuqMedsSkNWu9Hw3XeFtkQzQpKU0mYGScdIajgh5H0VkGBoMFAHvn4CB0MT+z8BrpHOEm2qpXZH29IgZsbPVdJYNM28XWKHORBzvxmhupAbKNHFPcovxtWe8rvNWBsUlLtGMM8cw/WMO/t0HcMedO70AYu5LX/VSspRnkPMraON6AweIN2jRGPVgYLVM51EapB6hnbv+7y7LGFc97WBPuT5KUzUbMVenIWrxUUdGbYlfSw0Jg==
+Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1b::13)
+ by PNZPR01MB4494.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.23; Mon, 29 Nov
+ 2021 07:22:28 +0000
+Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::7ca6:9165:19ec:4cd7]) by PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
+ ([fe80::7ca6:9165:19ec:4cd7%5]) with mapi id 15.20.4734.024; Mon, 29 Nov 2021
+ 07:22:28 +0000
+From:   Aditya Garg <gargaditya08@live.com>
+To:     Thorsten Leemhuis <regressions@leemhuis.info>
+CC:     Marcel Holtmann <marcel@holtmann.org>,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        Daniel Winkler <danielwinkler@google.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Johan Hedberg <johan.hedberg@intel.com>,
+        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: [PATCH 1/6] Bluetooth: add quirk disabling LE Read Transmit Power
+Thread-Topic: [PATCH 1/6] Bluetooth: add quirk disabling LE Read Transmit
+ Power
+Thread-Index: AQHX5PHdg9R7tTuOZUGKQm9G6AVEOA==
+Date:   Mon, 29 Nov 2021 07:22:27 +0000
+Message-ID: <BC534C52-7FCF-4238-8933-C5706F494A11@live.com>
+References: <20211001083412.3078-1-redecorating@protonmail.com>
+ <YYePw07y2DzEPSBR@kroah.com>
+ <70a875d0-7162-d149-dbc1-c2f5e1a8e701@leemhuis.info>
+ <20211116090128.17546-1-redecorating@protonmail.com>
+ <e75bf933-9b93-89d2-d73f-f85af65093c8@leemhuis.info>
+ <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com> <YZSuWHB6YCtGclLs@kroah.com>
+ <52DEDC31-EEB2-4F39-905F-D5E3F2BBD6C0@live.com>
+ <8919a36b-e485-500a-2722-529ffa0d2598@leemhuis.info>
+ <20211117124717.12352-1-redecorating@protonmail.com>
+ <F8D12EA8-4B37-4887-998E-DC0EBE60E730@holtmann.org>
+ <40550C00-4EE5-480F-AFD4-A2ACA01F9DBB@live.com>
+ <332a19f1-30f0-7058-ac18-c21cf78759bb@leemhuis.info>
+ <D9375D91-1062-4265-9DE9-C7CF2B705F3F@live.com>
+In-Reply-To: <D9375D91-1062-4265-9DE9-C7CF2B705F3F@live.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-tmn:  [YYJnhi6fM2c3u0nOMpD1D4ZXGHeABSQzq2bOXc4+TLTlDhjwXx6l1e7ZotEQM/YN]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 0b50db91-93ba-4369-78c6-08d9b308ffb7
+x-ms-traffictypediagnostic: PNZPR01MB4494:
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: diiWJqbTEfMP8/rbq3MYNNqs7WAokn6+7Q+Q7MABUAWViAIljL1Fqxn5WvOGMp713NGCHGWuNVw2uHQLTjS2KQfFx/LjgisXDAM+x8iKvb3uFsVgpNz21mwyxS7JRfn+Dv3zRm8x2f0Yp5Dypx+yJDQRh9MMHZlHQJ4cUgjPoBjXxIlbNbksSrc/f86fByoTjUed5EfGwdCqgJLO1ObMFWjspPCxVatRDbPWuF6heFN7zNm2tIH5lL0NitqNU+V15IvWNmABeMCzSGCDaOSMqxptJ+H8U9ttu41rfGZlet2IxzH+yx9/9H5dUwG06wKxwZkGOOOQ+lYAaazfgcs/tUry8BwG1z7tRWXlj6GBBulBeBO5I63/3NfwsPw6CPnRW29K4a0Qf3upJApjyRBLbsHgyfiDHdRiubyU7soTCTUCn1gXKcJu2xbTwvyqcPIcfSeSyPYtVqbqF8wLeJVDgmRMyyGjDdgtTb83eACe7qTvfBKhJB85lx/BYxXS7Y+8RVAjdi28fy+lwHpQ+FNEnPELwCuRE/KbANB4LsrVjjMixrY19NHzwj2Ua6nEIGuRGt3pK33wYLqsMM6+yG+K4A==
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: D7NSkNTOEEhC1SvmZht5XyyQfos2lbusGqS5lDMS/4fFq5ApQkmeHa5wG56UhWO6+bYXu7n1454uCFVYeSCyUjfEG3bLxtXcFtoq+iJmXjnlw6oWgndJRkKBOpececLxilpVXFAiZMLpy9u2wtydISNwEUI6uO/TSrqt5FybeZAwT6tSXtd8ov/MIJi33XrD0SIz6XKjxz8cnhkhmh4zmLYB7L2iH1Yr63BjaNuupfYG16I5qHfDzEOamtVdvyt9CCf6mJvsQaeAcx+08NgtnaA47kQdXy4FZ0KR1Eit54LTqtu/RKMHlg6GT8jhLuLXjS7Ifev0bd5j1mz6mTIaU4JjEGk8NrrlaXxu9AG6RWrWrPHTqsfTPL0Cm3mBVrPJR3alYzd8I8uXtv58vsOpXpT7gPI6gaPtJh/oFBqUMKvzjPuFURL+NerjB0OwW9VrugH1oWgrowE86stLMxU27GnZNhv8xYi+7q5omBBIsnYdQiBaTqqkRk5w9HfxD013qk5KbWZdQiKdnZsEWTg7uu0ycQ4eASyn1MvxQuC19bgZhxUcKUvlcnKbOTlpMtrDCBkz3EwKsfbvFbAz0/bs+ebqDgXAxtqVc65Nbz+aT+CoLcDvs3YYsQGS5N2pZPJffKyuUL+xRWWTPabPd00tJFQwuVzqyCc1yFFI+d5AA+d0CB0RZf/10VSxozBHrUXLl2/+yJOxC2t/8Oh72kgf5xmFgr0AFQYarG3IFTgAvjGsiMyJEFq0YsP8TDWvi91Q5L7YKvNzEPqtn2fMhzfjFw==
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <D6BE5728506AFB46B47747E3B7901F1F@INDPRD01.PROD.OUTLOOK.COM>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="wpUMVDKHee1Hkri6ANmGTicGwGLHyCjqB"
+X-OriginatorOrg: sct-15-20-3174-20-msonline-outlook-a1a1a.templateTenant
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0b50db91-93ba-4369-78c6-08d9b308ffb7
+X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Nov 2021 07:22:27.8212
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PNZPR01MB4494
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---wpUMVDKHee1Hkri6ANmGTicGwGLHyCjqB
-Content-Type: multipart/mixed; boundary="xhbnUF2toUKD6zqO2hFC27BzFtPuF8q0E";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: "stable@vger.kernel.org" <stable@vger.kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
-Message-ID: <59ff38c4-8355-ecf6-040d-1234320a806b@suse.com>
-Subject: Patches for stable 5.10 kernel
+From: Aditya Garg <redecorating@protonmail.com>
 
---xhbnUF2toUKD6zqO2hFC27BzFtPuF8q0E
-Content-Type: multipart/mixed;
- boundary="------------BB97D6599586F986C0DB6E08"
-Content-Language: en-US
+Some devices have a bug causing them to not work if they query LE tx power =
+on startup. Thus we add a quirk in order to not query it and default min/ma=
+x tx power values to HCI_TX_POWER_INVALID.
 
-This is a multi-part message in MIME format.
---------------BB97D6599586F986C0DB6E08
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Aditya Garg <gargaditya08@live.com>
+Tested-by: Aditya Garg <gargaditya08@live.com>
+---
+ include/net/bluetooth/hci.h | 9 +++++++++
+ net/bluetooth/hci_core.c    | 3 ++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-Hi Greg,
+diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
+index 63065bc01b766c..383342efcdc464 100644
+--- a/include/net/bluetooth/hci.h
++++ b/include/net/bluetooth/hci.h
+@@ -246,6 +246,15 @@ enum {
+ 	 * HCI after resume.
+ 	 */
+ 	HCI_QUIRK_NO_SUSPEND_NOTIFIER,
++
++	/*
++	 * When this quirk is set, LE tx power is not queried on startup
++	 * and the min/max tx power values default to HCI_TX_POWER_INVALID.
++	 *
++	 * This quirk can be set before hci_register_dev is called or
++	 * during the hdev->setup vendor callback.
++	 */
++	HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER,
+ };
+=20
+ /* HCI device flags */
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index 8d33aa64846b1c..434c6878fe9640 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -619,7 +619,8 @@ static int hci_init3_req(struct hci_request *req, unsig=
+ned long opt)
+ 			hci_req_add(req, HCI_OP_LE_READ_ADV_TX_POWER, 0, NULL);
+ 		}
+=20
+-		if (hdev->commands[38] & 0x80) {
++		if (hdev->commands[38] & 0x80 &&
++		!test_bit(HCI_QUIRK_BROKEN_READ_TRANSMIT_POWER, &hdev->quirks)) {
+ 			/* Read LE Min/Max Tx Power*/
+ 			hci_req_add(req, HCI_OP_LE_READ_TRANSMIT_POWER,
+ 				    0, NULL);
 
-could you please add the following upstream patches to the stable 5.10
-kernel (I'll send separate mails for the older stable kernels as some
-of the patches don't apply for those)? They are hardening Xen PV
-frontends against attacks from related backends.
-
-Qubes-OS has asked for those patches to be added to stable, too.
-
-629a5d87e26fe96b ("xen: sync include/xen/interface/io/ring.h with Xen's=20
-newest version")
-71b66243f9898d0e ("xen/blkfront: read response from backend only once")
-8f5a695d99000fc3 ("xen/blkfront: don't take local copy of a request from =
-
-the ring page")
-b94e4b147fd1992a ("xen/blkfront: don't trust the backend response data=20
-blindly")
-8446066bf8c1f9f7 ("xen/netfront: read response from backend only once")
-162081ec33c2686a ("xen/netfront: don't read data from request on the=20
-ring page")
-21631d2d741a64a0 ("xen/netfront: disentangle tx_skb_freelist")
-a884daa61a7d9165 ("xen/netfront: don't trust the backend response data=20
-blindly")
-e679004dec37566f ("tty: hvc: replace BUG_ON() with negative return value"=
-)
-
-
-Thanks,
-
-Juergen
-
---------------BB97D6599586F986C0DB6E08
-Content-Type: application/pgp-keys;
- name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: OpenPGP public key
-Content-Disposition: attachment;
- filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
-cWx
-w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
-f8Z
-d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
-9bf
-IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
-G7/
-377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
-3Jv
-c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
-QIe
-AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
-hpw
-dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
-MbD
-1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
-oPH
-Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
-5QL
-+qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
-2Vu
-IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
-QoL
-BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
-Wf0
-teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
-/nu
-AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
-ITT
-d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
-XBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
-80h
-SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
-AcD
-AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
-FOX
-gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
-jnD
-kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
-N51
-N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
-otu
-fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
-tqS
-EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
-hsD
-BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
-g3O
-ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
-dM7
-wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
-D+j
-LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
-V2x
-AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
-Eaw
-QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
-nHI
-s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
-wgn
-BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
-bVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
-pEd
-IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
-QAB
-wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
-Tbe
-8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
-vJz
-Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
-VGi
-wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
-svi
-uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
-zXs
-ZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
-
---------------BB97D6599586F986C0DB6E08--
-
---xhbnUF2toUKD6zqO2hFC27BzFtPuF8q0E--
-
---wpUMVDKHee1Hkri6ANmGTicGwGLHyCjqB
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmGkfvYFAwAAAAAACgkQsN6d1ii/Ey96
-SQf+IMSByLeqzJc6+rE5sugQzWzB12wORVXoQfOGprVrqIcIdIVJTDYlC9KwHEGQ22k8P1939WGT
-0hUiz39M+6nJ+8zSspLU0Il/C8/3llyyN638tE7+Oe19ZgbjUA0BtlvX5lE6TAPhEsI1WRZ37ekY
-/+jVbODeo++XqU0haveyOa3i9K54SW4dSOQtDU9gcQcueReT1tDjpOc47xPD/T4H1w+vYXIp4s3D
-p50Zt/9jIGbSwcMJfdplcNdB/m8QRrbelXrBOC3bBL7KkyKBClvxcVvIGiU/r813wA2W/6q7pQWe
-ELDw+QwOO0EYHFgun8I9ZyEcXbk9ObvpFlx3eiWatQ==
-=nQoU
------END PGP SIGNATURE-----
-
---wpUMVDKHee1Hkri6ANmGTicGwGLHyCjqB--
