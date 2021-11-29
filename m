@@ -2,139 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7B9461014
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 09:26:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0DDF460FF6
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 09:24:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350337AbhK2I3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 03:29:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43618 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238035AbhK2I1l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 03:27:41 -0500
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 103FBC0613E0
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 00:21:20 -0800 (PST)
-Received: by mail-pl1-x632.google.com with SMTP id z6so11565268plk.6
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 00:21:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ZuoRjy2zkfcMlEgPr9xog73K1uyLdIEyIdD02hZzgpE=;
-        b=ZqfvE4U+DWLQOjlVe9GU5ZY4dS8xlpJqReklp7FXtz6liGKFw8hmSgqtyJX168MFwD
-         xbu00EnqnasVZjeR1/mHFCxQDYFv5PfJo+QINy2UHdEU8zVHg9x3HIDp3QYQ7N4llZTd
-         s1Am8Z1LHuiCD1a60HlolCY9+VhvjXkaLbuQ2V4+xHMAl9ZRpPgXgZjsmcVyL5veFaH8
-         GlLMyZkj0lh7VmOL5cxvwTSrS3U0eoj0J3vjfanTv7OQne3a5lxfKO0IMQeM2qbTg8fq
-         M1Yu0dSKqVYOqQp/dXX2iz5Nhx/jseBhoBL6GKZqEttdGJgVLvLR2GWvcHvfxC+EPYam
-         TM7w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ZuoRjy2zkfcMlEgPr9xog73K1uyLdIEyIdD02hZzgpE=;
-        b=mwmK4XDbUZIzUXy31xBohVk+p9py0QbuXo2xi1nLZpPxC1/r4WzR9e4F/XUb41qfVd
-         17HGf5cMzFytgXtmA5O8YG75tJ55FDZPDSstq3E7tcaypuH5bqSDCISoGSTKl5oxi5YR
-         AZ0U3FAqXwjiYApum/xHg+PwTPEUnqWFQ7c9Dpoz0nkNT/9DFZvIpdkLKug6atH5oeWq
-         NeenRLl0A/2hey2WBOW8MryoW5tF8r3DW101D+5F2Q2vuVA8x08XY8kRvI3waUvocKvY
-         D1f9+9B6wbudvsaPZgAF1l8i89drgiess9LV1NpU0lbQ6WzR6S+HjYtk7/dv9iuYeQxv
-         r6Bg==
-X-Gm-Message-State: AOAM5319/nth4zBn+/HBECFMoIB429TBgmYum8z1DZnBzVltDncqcmPa
-        9ii0AvBcO5c/IvsrFIiNIh+oBrcm67w/P2MN
-X-Google-Smtp-Source: ABdhPJzk/Ekhvle2BZ/n65s0sM8kRn2axiR9Kao/itmAuOL+7ns9fhz8uwUkPVuecNfSfS1nz7gcRw==
-X-Received: by 2002:a17:902:e547:b0:141:ddbc:a8d6 with SMTP id n7-20020a170902e54700b00141ddbca8d6mr58043110plf.27.1638174079420;
-        Mon, 29 Nov 2021 00:21:19 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a8sm16899915pfv.176.2021.11.29.00.21.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Nov 2021 00:21:18 -0800 (PST)
-Message-ID: <61a48d7e.1c69fb81.64c22.dcf1@mx.google.com>
-Date:   Mon, 29 Nov 2021 00:21:18 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.291-21-gb6277a4128e8f
-Subject: stable-rc/queue/4.9 baseline: 119 runs,
- 1 regressions (v4.9.291-21-gb6277a4128e8f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S241467AbhK2I10 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 29 Nov 2021 03:27:26 -0500
+Received: from coyote.holtmann.net ([212.227.132.17]:52963 "EHLO
+        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242541AbhK2IZZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 03:25:25 -0500
+Received: from smtpclient.apple (p5b3d2e91.dip0.t-ipconnect.de [91.61.46.145])
+        by mail.holtmann.org (Postfix) with ESMTPSA id CD473CED1F;
+        Mon, 29 Nov 2021 09:22:06 +0100 (CET)
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 15.0 \(3693.20.0.1.32\))
+Subject: Re: [PATCH 2/6] btbcm: disable read tx power for MacBook Pro 16,1 (16
+ inch, 2019)
+From:   Marcel Holtmann <marcel@holtmann.org>
+In-Reply-To: <47A8DBEC-322F-4C42-AF69-5FDB828B8680@live.com>
+Date:   Mon, 29 Nov 2021 09:22:06 +0100
+Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        Daniel Winkler <danielwinkler@google.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Johan Hedberg <johan.hedberg@intel.com>,
+        "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "sonnysasaka@chromium.org" <sonnysasaka@chromium.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <056FB976-25A3-466C-8C6D-DD5E11FDACCD@holtmann.org>
+References: <20211001083412.3078-1-redecorating@protonmail.com>
+ <YYePw07y2DzEPSBR@kroah.com>
+ <70a875d0-7162-d149-dbc1-c2f5e1a8e701@leemhuis.info>
+ <20211116090128.17546-1-redecorating@protonmail.com>
+ <e75bf933-9b93-89d2-d73f-f85af65093c8@leemhuis.info>
+ <3B8E16FA-97BF-40E5-9149-BBC3E2A245FE@live.com> <YZSuWHB6YCtGclLs@kroah.com>
+ <52DEDC31-EEB2-4F39-905F-D5E3F2BBD6C0@live.com>
+ <8919a36b-e485-500a-2722-529ffa0d2598@leemhuis.info>
+ <20211117124717.12352-1-redecorating@protonmail.com>
+ <F8D12EA8-4B37-4887-998E-DC0EBE60E730@holtmann.org>
+ <40550C00-4EE5-480F-AFD4-A2ACA01F9DBB@live.com>
+ <332a19f1-30f0-7058-ac18-c21cf78759bb@leemhuis.info>
+ <D9375D91-1062-4265-9DE9-C7CF2B705F3F@live.com>
+ <BC534C52-7FCF-4238-8933-C5706F494A11@live.com>
+ <5B9FF471-42DD-44DA-A9CE-0A83BA7A4212@live.com>
+ <EBE48AE4-BCE3-42A6-BA8E-304C789C4667@holtmann.org>
+ <47A8DBEC-322F-4C42-AF69-5FDB828B8680@live.com>
+To:     Aditya Garg <gargaditya08@live.com>
+X-Mailer: Apple Mail (2.3693.20.0.1.32)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 119 runs, 1 regressions (v4.9.291-21-gb6277a4=
-128e8f)
+Hi Aditya,
 
-Regressions Summary
--------------------
+>>> Bluetooth on Apple MacBook Pro 16,1 is unable to start due to LE Min/Max Tx Power being queried on startup. Add a DMI based quirk so that it is disabled.
+>> 
+>> list all the MacBooks that you found problematic right now. We add the
+>> initial as a large batch instead of all individual.
+>> 
+>>> 
+>>> Signed-off-by: Aditya Garg <gargaditya08@live.com>
+>>> Tested-by: Aditya Garg <gargaditya08@live.com>
+>>> ---
+>>> drivers/bluetooth/btbcm.c | 20 ++++++++++++++++++++
+>>> 1 file changed, 20 insertions(+)
+>>> 
+>>> diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
+>>> index e4182acee488c5..c1b0ca63880a68 100644
+>>> --- a/drivers/bluetooth/btbcm.c
+>>> +++ b/drivers/bluetooth/btbcm.c
+>>> @@ -8,6 +8,7 @@
+>>> 
+>>> #include <linux/module.h>
+>>> #include <linux/firmware.h>
+>>> +#include <linux/dmi.h>
+>>> #include <asm/unaligned.h>
+>>> 
+>>> #include <net/bluetooth/bluetooth.h>
+>>> @@ -343,9 +344,23 @@ static struct sk_buff *btbcm_read_usb_product(struct hci_dev *hdev)
+>>> 	return skb;
+>>> }
+>>> 
+>>> +static const struct dmi_system_id disable_broken_read_transmit_power[] = {
+>>> +	{
+>>> +		/* Match for Apple MacBook Pro 16,1 which needs
+>>> +		 * Read LE Min/Max Tx Power to be disabled.
+>>> +		 */
+>> 
+>> Actually leave the comment out. You are not adding any value that isn’t
+>> already in the variable name or the DMI. It is just repeating the obvious.
+> Alright, I prepare the patches into a single one
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+two patches, one for adding the quirk to the core and one for adjusting the driver.
 
+Regards
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.291-21-gb6277a4128e8f/plan/baseline/
+Marcel
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.291-21-gb6277a4128e8f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b6277a4128e8f5bbf1f39a4c0c86e24bb09ed2f6 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61a454b47fef1c5e0e18f6c7
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.291-2=
-1-gb6277a4128e8f/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.291-2=
-1-gb6277a4128e8f/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a454b47fef1c5=
-e0e18f6cd
-        failing since 3 days (last pass: v4.9.290-204-g18a1d655aad4b, first=
- fail: v4.9.290-206-ga3cd15a38615)
-        2 lines
-
-    2021-11-29T04:18:41.627758  [   20.345184] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-29T04:18:41.670315  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/125
-    2021-11-29T04:18:41.680126  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-11-29T04:18:41.695414  [   20.414489] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
