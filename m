@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1523E46265E
+	by mail.lfdr.de (Postfix) with ESMTP id CB895462660
 	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:48:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236187AbhK2WvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:51:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36228 "EHLO
+        id S236278AbhK2WvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:51:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235489AbhK2WuD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:50:03 -0500
+        with ESMTP id S235486AbhK2WuC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:50:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A698C12BCE1;
-        Mon, 29 Nov 2021 10:34:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41471C144FF2;
+        Mon, 29 Nov 2021 10:33:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1240CB815C9;
-        Mon, 29 Nov 2021 18:34:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36D38C53FAD;
-        Mon, 29 Nov 2021 18:34:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A15CB815E6;
+        Mon, 29 Nov 2021 18:33:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38673C53FC7;
+        Mon, 29 Nov 2021 18:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210878;
-        bh=wvEMOgID32Rxz0hBDEo0ylZYdFgjbuZmaAq09s734wI=;
+        s=korg; t=1638210835;
+        bh=CctDmUDtPYBvIs6XJg3akBXJ5RnL5ij5joMJudApFq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWdj6tqCPJLABWh2CWC0NFrSxkOXz5vXxs/OSKLpWD1T9yDGCitL6tkR3SkYPtcfi
-         KbrcaOa0qKVnqaaG8gU7Civ29IMzZ/vSlfQM4Gq8oNiZSkADcXA/S3gHPvnfvbt9bj
-         WHTJbwek2qvrFHc4Blm9AlnbXSOqEmsxxEt7MzlA=
+        b=1HJOUdOdIFuDLVef3fbTYfKfF7Vw2SmoxDieA3YSn4IO23Rj/fld7Md1WCedtR9rC
+         koqcBFAcQph/zsorUAu4rk4+jLm5kmzzVaFjKIGxGWjW6cthnFzHU34DL4cxsDSWGU
+         1LeMPb+8PW2nsGSz5pIIiobnl+F0igudUF8dVQCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        John Keeping <john@metanate.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.15 008/179] usb: dwc2: hcd_queue: Fix use of floating point literal
-Date:   Mon, 29 Nov 2021 19:16:42 +0100
-Message-Id: <20211129181719.215269006@linuxfoundation.org>
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 5.15 012/179] usb: dwc3: gadget: Check for L1/L2/U3 for Start Transfer
+Date:   Mon, 29 Nov 2021 19:16:46 +0100
+Message-Id: <20211129181719.348706610@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
 References: <20211129181718.913038547@linuxfoundation.org>
@@ -49,56 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 310780e825f3ffd211b479b8f828885a6faedd63 upstream.
+commit 63c4c320ccf77074ffe9019ac596603133c1b517 upstream.
 
-A new commit in LLVM causes an error on the use of 'long double' when
-'-mno-x87' is used, which the kernel does through an alias,
-'-mno-80387' (see the LLVM commit below for more details around why it
-does this).
+The programming guide noted that the driver needs to verify if the link
+state is in U0 before executing the Start Transfer command. If it's not
+in U0, the driver needs to perform remote wakeup. This is not accurate.
+If the link state is in U1/U2, then the controller will not respond to
+link recovery request from DCTL.ULSTCHNGREQ. The Start Transfer command
+will trigger a link recovery if it is in U1/U2. A clarification will be
+added to the programming guide for all controller versions.
 
- drivers/usb/dwc2/hcd_queue.c:1744:25: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-                         delay = ktime_set(0, DWC2_RETRY_WAIT_DELAY);
-                                             ^
- drivers/usb/dwc2/hcd_queue.c:62:34: note: expanded from macro 'DWC2_RETRY_WAIT_DELAY'
- #define DWC2_RETRY_WAIT_DELAY (1 * 1E6L)
-                                 ^
- 1 error generated.
+The current implementation shouldn't cause any functional issue. It may
+occasionally report an invalid time out warning from failed link
+recovery request. The driver will still go ahead with the Start Transfer
+command if the remote wakeup fails. The new change only initiates remote
+wakeup where it is needed, which is when the link state is in L1/L2/U3.
 
-This happens due to the use of a 'long double' literal. The 'E6' part of
-'1E6L' causes the literal to be a 'double' then the 'L' suffix promotes
-it to 'long double'.
-
-There is no visible reason for a floating point value in this driver, as
-the value is only used as a parameter to a function that expects an
-integer type. Use NSEC_PER_MSEC, which is the same integer value as
-'1E6L', to avoid changing functionality but fix the error.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1497
-Link: https://github.com/llvm/llvm-project/commit/a8083d42b1c346e21623a1d36d1f0cadd7801d83
-Fixes: 6ed30a7d8ec2 ("usb: dwc2: host: use hrtimer for NAK retries")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: John Keeping <john@metanate.com>
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20211105145802.2520658-1-nathan@kernel.org
+Fixes: c36d8e947a56 ("usb: dwc3: gadget: put link to U0 before Start Transfer")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/05b4a5fbfbd0863fc9b1d7af934a366219e3d0b4.1635204761.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/hcd_queue.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/dwc2/hcd_queue.c
-+++ b/drivers/usb/dwc2/hcd_queue.c
-@@ -59,7 +59,7 @@
- #define DWC2_UNRESERVE_DELAY (msecs_to_jiffies(5))
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -310,13 +310,24 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_
+ 	if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
+ 		int link_state;
  
- /* If we get a NAK, wait this long before retrying */
--#define DWC2_RETRY_WAIT_DELAY (1 * 1E6L)
-+#define DWC2_RETRY_WAIT_DELAY (1 * NSEC_PER_MSEC)
++		/*
++		 * Initiate remote wakeup if the link state is in U3 when
++		 * operating in SS/SSP or L1/L2 when operating in HS/FS. If the
++		 * link state is in U1/U2, no remote wakeup is needed. The Start
++		 * Transfer command will initiate the link recovery.
++		 */
+ 		link_state = dwc3_gadget_get_link_state(dwc);
+-		if (link_state == DWC3_LINK_STATE_U1 ||
+-		    link_state == DWC3_LINK_STATE_U2 ||
+-		    link_state == DWC3_LINK_STATE_U3) {
++		switch (link_state) {
++		case DWC3_LINK_STATE_U2:
++			if (dwc->gadget->speed >= USB_SPEED_SUPER)
++				break;
++
++			fallthrough;
++		case DWC3_LINK_STATE_U3:
+ 			ret = __dwc3_gadget_wakeup(dwc);
+ 			dev_WARN_ONCE(dwc->dev, ret, "wakeup failed --> %d\n",
+ 					ret);
++			break;
+ 		}
+ 	}
  
- /**
-  * dwc2_periodic_channel_available() - Checks that a channel is available for a
 
 
