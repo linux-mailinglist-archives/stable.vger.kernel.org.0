@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5BF3462528
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:32:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B79FA4626E4
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:56:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234006AbhK2Wfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:35:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60768 "EHLO
+        id S235633AbhK2W6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:58:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232512AbhK2WfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:35:17 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 804EFC12B6AD;
-        Mon, 29 Nov 2021 10:36:17 -0800 (PST)
+        with ESMTP id S235922AbhK2W5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:57:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70451C1A0D04;
+        Mon, 29 Nov 2021 10:36:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CC472CE13F9;
-        Mon, 29 Nov 2021 18:36:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78DC4C53FC7;
-        Mon, 29 Nov 2021 18:36:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37205B81600;
+        Mon, 29 Nov 2021 18:36:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BE66C53FC7;
+        Mon, 29 Nov 2021 18:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210974;
-        bh=LlZKhKmEyYuyybVIU3lwfG+QHOLNNXU/I68jlAKqbYE=;
+        s=korg; t=1638210977;
+        bh=AVC4NzuDwVGGflKPXSXPFCoQKWU2pLlAqmf3QcFWFQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LYq4eWNGRdJ2sAKoYuA9tfCGnUocUXkKJukGEC68pGNIn8NV6NJXwrEhHKEA1BpNQ
-         qvo9bOYRW0waonbCLxhfcN5gChORl5+aXUDhmlfu+F+xSoEXyBfo+hah/5njw2OniU
-         PMfNzk7XbRBA85cv7POFxpL3sFmgczYPbO8C9KQk=
+        b=uveNjaFJvfFeoxKFbKQuF9bD3OsA8fZ0Kt6qFayVIPavhx98VMJjqM8ZbzWJrM99p
+         s0I/YC1aXyAcfnUduT26/+b8MRSGtAfr+wTXw9ezcmiswXTeGFeEFJ9PkxyxB8r6Wf
+         eILnA49RRm2lJzln4vOhrpQtX3NVi4a+5C7EDWEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Joshua Dickens <joshua.dickens@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.15 027/179] HID: wacom: Use "Confidence" flag to prevent reporting invalid contacts
-Date:   Mon, 29 Nov 2021 19:17:01 +0100
-Message-Id: <20211129181719.844395420@linuxfoundation.org>
+        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
+Subject: [PATCH 5.15 028/179] staging/fbtft: Fix backlight
+Date:   Mon, 29 Nov 2021 19:17:02 +0100
+Message-Id: <20211129181719.882346566@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
 References: <20211129181718.913038547@linuxfoundation.org>
@@ -48,81 +47,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Noralf Trønnes <noralf@tronnes.org>
 
-commit 7fb0413baa7f8a04caef0c504df9af7e0623d296 upstream.
+commit 7865dd24934ad580d1bcde8f63c39f324211a23b upstream.
 
-The HID descriptor of many of Wacom's touch input devices include a
-"Confidence" usage that signals if a particular touch collection contains
-useful data. The driver does not look at this flag, however, which causes
-even invalid contacts to be reported to userspace. A lucky combination of
-kernel event filtering and device behavior (specifically: contact ID 0 ==
-invalid, contact ID >0 == valid; and order all data so that all valid
-contacts are reported before any invalid contacts) spare most devices from
-any visibly-bad behavior.
+Commit b4a1ed0cd18b ("fbdev: make FB_BACKLIGHT a tristate") forgot to
+update fbtft breaking its backlight support when FB_BACKLIGHT is a module.
 
-The DTH-2452 is one example of an unlucky device that misbehaves. It uses
-ID 0 for both the first valid contact and all invalid contacts. Because
-we report both the valid and invalid contacts, the kernel reports that
-contact 0 first goes down (valid) and then goes up (invalid) in every
-report. This causes ~100 clicks per second simply by touching the screen.
+Since FB_TFT selects FB_BACKLIGHT there's no need for this conditional
+so just remove it and we're good.
 
-This patch inroduces new `confidence` flag in our `hid_data` structure.
-The value is initially set to `true` at the start of a report and can be
-set to `false` if an invalid touch usage is seen.
-
-Link: https://github.com/linuxwacom/input-wacom/issues/270
-Fixes: f8b6a74719b5 ("HID: wacom: generic: Support multiple tools per report")
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Tested-by: Joshua Dickens <joshua.dickens@wacom.com>
+Fixes: b4a1ed0cd18b ("fbdev: make FB_BACKLIGHT a tristate")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Link: https://lore.kernel.org/r/20211105204358.2991-1-noralf@tronnes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/wacom_wac.c |    8 +++++++-
- drivers/hid/wacom_wac.h |    1 +
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/staging/fbtft/fb_ssd1351.c |    4 ----
+ drivers/staging/fbtft/fbtft-core.c |    9 +--------
+ 2 files changed, 1 insertion(+), 12 deletions(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2603,6 +2603,9 @@ static void wacom_wac_finger_event(struc
- 		return;
+--- a/drivers/staging/fbtft/fb_ssd1351.c
++++ b/drivers/staging/fbtft/fb_ssd1351.c
+@@ -187,7 +187,6 @@ static struct fbtft_display display = {
+ 	},
+ };
  
- 	switch (equivalent_usage) {
-+	case HID_DG_CONFIDENCE:
-+		wacom_wac->hid_data.confidence = value;
-+		break;
- 	case HID_GD_X:
- 		wacom_wac->hid_data.x = value;
- 		break;
-@@ -2635,7 +2638,8 @@ static void wacom_wac_finger_event(struc
- 	}
+-#ifdef CONFIG_FB_BACKLIGHT
+ static int update_onboard_backlight(struct backlight_device *bd)
+ {
+ 	struct fbtft_par *par = bl_get_data(bd);
+@@ -231,9 +230,6 @@ static void register_onboard_backlight(s
+ 	if (!par->fbtftops.unregister_backlight)
+ 		par->fbtftops.unregister_backlight = fbtft_unregister_backlight;
+ }
+-#else
+-static void register_onboard_backlight(struct fbtft_par *par) { };
+-#endif
  
- 	if (usage->usage_index + 1 == field->report_count) {
--		if (equivalent_usage == wacom_wac->hid_data.last_slot_field)
-+		if (equivalent_usage == wacom_wac->hid_data.last_slot_field &&
-+		    wacom_wac->hid_data.confidence)
- 			wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
+ FBTFT_REGISTER_DRIVER(DRVNAME, "solomon,ssd1351", &display);
+ 
+--- a/drivers/staging/fbtft/fbtft-core.c
++++ b/drivers/staging/fbtft/fbtft-core.c
+@@ -128,7 +128,6 @@ static int fbtft_request_gpios(struct fb
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_FB_BACKLIGHT
+ static int fbtft_backlight_update_status(struct backlight_device *bd)
+ {
+ 	struct fbtft_par *par = bl_get_data(bd);
+@@ -161,6 +160,7 @@ void fbtft_unregister_backlight(struct f
+ 		par->info->bl_dev = NULL;
  	}
  }
-@@ -2653,6 +2657,8 @@ static void wacom_wac_finger_pre_report(
++EXPORT_SYMBOL(fbtft_unregister_backlight);
  
- 	wacom_wac->is_invalid_bt_frame = false;
+ static const struct backlight_ops fbtft_bl_ops = {
+ 	.get_brightness	= fbtft_backlight_get_brightness,
+@@ -198,12 +198,7 @@ void fbtft_register_backlight(struct fbt
+ 	if (!par->fbtftops.unregister_backlight)
+ 		par->fbtftops.unregister_backlight = fbtft_unregister_backlight;
+ }
+-#else
+-void fbtft_register_backlight(struct fbtft_par *par) { };
+-void fbtft_unregister_backlight(struct fbtft_par *par) { };
+-#endif
+ EXPORT_SYMBOL(fbtft_register_backlight);
+-EXPORT_SYMBOL(fbtft_unregister_backlight);
  
-+	hid_data->confidence = true;
-+
- 	for (i = 0; i < report->maxfield; i++) {
- 		struct hid_field *field = report->field[i];
- 		int j;
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -301,6 +301,7 @@ struct hid_data {
- 	bool barrelswitch;
- 	bool barrelswitch2;
- 	bool serialhi;
-+	bool confidence;
- 	int x;
- 	int y;
- 	int pressure;
+ static void fbtft_set_addr_win(struct fbtft_par *par, int xs, int ys, int xe,
+ 			       int ye)
+@@ -853,13 +848,11 @@ int fbtft_register_framebuffer(struct fb
+ 		 fb_info->fix.smem_len >> 10, text1,
+ 		 HZ / fb_info->fbdefio->delay, text2);
+ 
+-#ifdef CONFIG_FB_BACKLIGHT
+ 	/* Turn on backlight if available */
+ 	if (fb_info->bl_dev) {
+ 		fb_info->bl_dev->props.power = FB_BLANK_UNBLANK;
+ 		fb_info->bl_dev->ops->update_status(fb_info->bl_dev);
+ 	}
+-#endif
+ 
+ 	return 0;
+ 
 
 
