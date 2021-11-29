@@ -2,139 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FFE460AF6
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 00:00:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AA77460C16
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 02:14:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359545AbhK1XDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Nov 2021 18:03:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34220 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344946AbhK1XBl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 18:01:41 -0500
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 036FDC061574
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 14:58:25 -0800 (PST)
-Received: by mail-pf1-x431.google.com with SMTP id b68so14743638pfg.11
-        for <stable@vger.kernel.org>; Sun, 28 Nov 2021 14:58:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=frHo1JM8hhm1jncPlQzgIHbivIpFT7jCVSY9Pmka0VQ=;
-        b=e6ey4BKMBPcmo2qg3vfoHZa3TsTH6T/vHGEhhSdo3UqkaEKkysQvDph7vbPmI8ykyq
-         xRL6yarJCCJ6d7QGnnd+U/hvLQMgM5Fy6WPYVVsUtvdR5hIgEYvDxKCyizkQVdPfWmow
-         eKyZBE7DHQZs5W0ZWYviFkQRp0ncMI3m+kiOy6WpxumoyZ9fWRQwxZL/+RKsgByZhpu8
-         RJNx6Cc+VkSqcOlQVUhtyS92R7VpXGWtrxB0RUMJwu44kc6I4Hj6ADFe3GWtv1zlks8A
-         /tqrKWEUY9OnNIqPUk5V4o5LRmTfn5D9bLo49U57btFTM3jZuGA73LtjY6kznfH01lYH
-         g5cA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=frHo1JM8hhm1jncPlQzgIHbivIpFT7jCVSY9Pmka0VQ=;
-        b=CEeaH1I9/CNJFvH5PQLuoF05CL5xAiCpqbuxB5313355QUHaCN1YyXtPDD1b5SvwAh
-         wtfWuPVtnhcxrNcdPB0+1IZfCsUirlmygRranztHTj8uFH+dLuJGrep//hiHVx9RqMHs
-         9hR7s9xZUJJTUYF0BXSvju6pD5tKC3nxKLXtdHX93D4ZgXJXEse9WdtTYuYSlvc3di5s
-         MeUWadDdTLxHSiOZ5CR8ElYvOc8SB2uVhyo+TwSiP4+MyiRMJ6C440pvtdPi6YsrdFmg
-         2zLKN4kN9srxDYLLbMzhzzv+gOxWtZk4MuaeniW0YQICY6QxKkG9sZP4ptsbkKoVqgIz
-         UOrw==
-X-Gm-Message-State: AOAM530IzSqO6Qfto3JbjRbvIfnj/aQir/z1ln8fbKtn4JX2Z5dPWgMS
-        eXhVbhGSwUEH3MmNkqjOT+00PXAydAqT+9aF
-X-Google-Smtp-Source: ABdhPJyuOzprnm2kc6uM1IzCrXMyt21rVfA8LxKyGyh0bbQJzZu7QsFLXd1bmmx+/GJElCf2F1e4ng==
-X-Received: by 2002:a63:e216:: with SMTP id q22mr33025618pgh.3.1638140304430;
-        Sun, 28 Nov 2021 14:58:24 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f19sm14838725pfv.76.2021.11.28.14.58.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Nov 2021 14:58:24 -0800 (PST)
-Message-ID: <61a40990.1c69fb81.86479.8a26@mx.google.com>
-Date:   Sun, 28 Nov 2021 14:58:24 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S231562AbhK2BRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Nov 2021 20:17:55 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40342 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231580AbhK2BPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Nov 2021 20:15:55 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22CF96119B;
+        Mon, 29 Nov 2021 01:12:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FA35C004E1;
+        Mon, 29 Nov 2021 01:12:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638148357;
+        bh=aELK/pKqc8nJVVr6JTDLAfcoVvTYsEkVAluHXrd8hcE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=blE2B1O9qDPRBnmqvCoHvHZyM/PO6Zhmyen321mVJeWr/4c1s5wMi3x2AyzXYM6J3
+         EdW9lyHNbojTBmko3JWmAdhBPX2Y79TaaRRVfslVcSEDaHgK5hlGIY8WwzQ6XsroCQ
+         096xY4vFXFkAp38yJle0uba0XPy3XfKJOYTCKo46IOzqSLyIF5a/AiAJlFCxbpsgWS
+         04Pf2vz94BCt5DTiy3L4Tj+fkUDOaqD1fo76BZ8+hrKpxTusxxv3kUGMT9cXmQYkWH
+         yW+K6QYOU0JAIVXrwN+RCzWtQaZ0WjdFwDSRSqF8s8PcwT4CSuAP3C8qmUwB2pVTyi
+         KUHI0FiA4bppw==
+Date:   Sun, 28 Nov 2021 20:12:36 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Marek Kedzierski <mkedzier@redhat.com>,
+        Hui Zhu <teawater@gmail.com>,
+        Sebastien Boeuf <sebastien.boeuf@intel.com>,
+        Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+        Wei Yang <richard.weiyang@linux.alibaba.com>,
+        virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH AUTOSEL 5.15 7/7] virtio-mem: support
+ VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE
+Message-ID: <YaQpBKh+fUJM+p/y@sashalap>
+References: <20211126023006.440839-1-sashal@kernel.org>
+ <20211126023006.440839-7-sashal@kernel.org>
+ <74c1d756-3f7c-7085-0ae9-2c082dce63b2@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.293-10-gb13cd9ca3553e
-Subject: stable-rc/queue/4.4 baseline: 107 runs,
- 1 regressions (v4.4.293-10-gb13cd9ca3553e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <74c1d756-3f7c-7085-0ae9-2c082dce63b2@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 107 runs, 1 regressions (v4.4.293-10-gb13cd9c=
-a3553e)
+On Fri, Nov 26, 2021 at 09:51:23AM +0100, David Hildenbrand wrote:
+>On 26.11.21 03:30, Sasha Levin wrote:
+>> From: David Hildenbrand <david@redhat.com>
+>>
+>> [ Upstream commit 61082ad6a6e1f999eef7e7e90046486c87933b1e ]
+>>
+>> The initial virtio-mem spec states that while unplugged memory should not
+>> be read, the device still has to allow for reading unplugged memory inside
+>> the usable region. The primary motivation for this default handling was
+>> to simplify bringup of virtio-mem, because there were corner cases where
+>> Linux might have accidentially read unplugged memory inside added Linux
+>> memory blocks.
+>>
+>> In the meantime, we:
+>> 1. Removed /dev/kmem in commit bbcd53c96071 ("drivers/char: remove
+>>    /dev/kmem for good")
+>> 2. Disallowed access to virtio-mem device memory via /dev/mem in
+>>    commit 2128f4e21aa2 ("virtio-mem: disallow mapping virtio-mem memory via
+>>    /dev/mem")
+>> 3. Sanitized access to virtio-mem device memory via /proc/kcore in
+>>    commit 0daa322b8ff9 ("fs/proc/kcore: don't read offline sections,
+>>    logically offline pages and hwpoisoned pages")
+>> 4. Sanitized access to virtio-mem device memory via /proc/vmcore in
+>>    commit ce2814622e84 ("virtio-mem: kdump mode to sanitize /proc/vmcore
+>>    access")
+>>
+>> "Accidential" access to unplugged memory is no longer possible; we can
+>> support the new VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE feature that will be
+>> required by some hypervisors implementing virtio-mem in the near future.
+>>
+>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+>> Cc: Jason Wang <jasowang@redhat.com>
+>> Cc: Marek Kedzierski <mkedzier@redhat.com>
+>> Cc: Hui Zhu <teawater@gmail.com>
+>> Cc: Sebastien Boeuf <sebastien.boeuf@intel.com>
+>> Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+>> Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>  drivers/virtio/virtio_mem.c     | 1 +
+>>  include/uapi/linux/virtio_mem.h | 9 ++++++---
+>>  2 files changed, 7 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+>> index bef8ad6bf4661..78dfdc9c98a1c 100644
+>> --- a/drivers/virtio/virtio_mem.c
+>> +++ b/drivers/virtio/virtio_mem.c
+>> @@ -2758,6 +2758,7 @@ static unsigned int virtio_mem_features[] = {
+>>  #if defined(CONFIG_NUMA) && defined(CONFIG_ACPI_NUMA)
+>>  	VIRTIO_MEM_F_ACPI_PXM,
+>>  #endif
+>> +	VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE,
+>>  };
+>>
+>>  static const struct virtio_device_id virtio_mem_id_table[] = {
+>> diff --git a/include/uapi/linux/virtio_mem.h b/include/uapi/linux/virtio_mem.h
+>> index 70e01c687d5eb..e9122f1d0e0cb 100644
+>> --- a/include/uapi/linux/virtio_mem.h
+>> +++ b/include/uapi/linux/virtio_mem.h
+>> @@ -68,9 +68,10 @@
+>>   * explicitly triggered (VIRTIO_MEM_REQ_UNPLUG).
+>>   *
+>>   * There are no guarantees what will happen if unplugged memory is
+>> - * read/written. Such memory should, in general, not be touched. E.g.,
+>> - * even writing might succeed, but the values will simply be discarded at
+>> - * random points in time.
+>> + * read/written. In general, unplugged memory should not be touched, because
+>> + * the resulting action is undefined. There is one exception: without
+>> + * VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE, unplugged memory inside the usable
+>> + * region can be read, to simplify creation of memory dumps.
+>>   *
+>>   * It can happen that the device cannot process a request, because it is
+>>   * busy. The device driver has to retry later.
+>> @@ -87,6 +88,8 @@
+>>
+>>  /* node_id is an ACPI PXM and is valid */
+>>  #define VIRTIO_MEM_F_ACPI_PXM		0
+>> +/* unplugged memory must not be accessed */
+>> +#define VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE	1
+>>
+>>
+>>  /* --- virtio-mem: guest -> host requests --- */
+>>
+>
+>As 2. and 4. are part of v5.16-rc1 but not v5.15-stable
+>
+>Nacked-by: David Hildenbrand <david@redhat.com>
 
-Regressions Summary
--------------------
+I'll drop them, thanks!
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.293-10-gb13cd9ca3553e/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.293-10-gb13cd9ca3553e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b13cd9ca3553e9a1c427d44697c16345d4fcfad5 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61a3cf6833f1b6224618f6df
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-1=
-0-gb13cd9ca3553e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.293-1=
-0-gb13cd9ca3553e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
-a.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61a3cf6833f1b62=
-24618f6e5
-        failing since 3 days (last pass: v4.4.292-160-geb7fba21283a, first =
-fail: v4.4.292-160-g4d766382518e6)
-        2 lines
-
-    2021-11-28T18:49:58.999022  [   19.044311] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2021-11-28T18:49:59.039055  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/120
-    2021-11-28T18:49:59.047595  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2021-11-28T18:49:59.062947  [   19.111541] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+-- 
+Thanks,
+Sasha
