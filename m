@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14138461DEB
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:29:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B364E461E93
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:34:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377559AbhK2Saq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:30:46 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33200 "EHLO
+        id S1379043AbhK2Shd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:37:33 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40514 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377711AbhK2S2q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:28:46 -0500
+        with ESMTP id S1378517AbhK2Sfc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:35:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7CD69B815CE;
-        Mon, 29 Nov 2021 18:25:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD0A7C53FC7;
-        Mon, 29 Nov 2021 18:25:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67CC5B81600;
+        Mon, 29 Nov 2021 18:32:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D09BC53FD2;
+        Mon, 29 Nov 2021 18:32:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210326;
-        bh=2eFIMkL3KG+6keL7qdssEody5ObpcusV/VP0v1zbB3c=;
+        s=korg; t=1638210732;
+        bh=MmCAOKVz20y3YOOaN5YaSq363nW9L8OM9f5FmdnpcFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=07UJeUCzg7NwVH5IzmpqhoPm141c0LimCQF0RQ4Z2JUPKFXhVHM4+v6XGYzEnsoHB
-         a2udBEp80bbVnZ+Kn1xWOVk5zchfqT8YZhXpchIxNEF2n8OZNqkMFB9L3DF3TN9UQW
-         oWkMHiU9KrwaeY/hLk3JY44oG5n7PZwjCD6F8vfw=
+        b=QP9wFkdToBAHdAuALEMOvLp0b53gF5H/nhgkwDXHvgw08fXVFeJ2ZZxrM3VRZvvEs
+         OvUhb6oHYigzH6rNWShcJ2bXrEMZByTCBuSWzYhHZRfeSBUz9z2pB5Y2Q3py/0Qm+E
+         q6l1Gvm+PYNsUR0Am+ZwJFnGgxVQgKTFZxd6Kk14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Michael Olbrich <m.olbrich@pengutronix.de>,
+        Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Holger Assmann <h.assmann@pengutronix.de>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 49/92] ASoC: qdsp6: q6routing: Conditionally reset FrontEnd Mixer
+Subject: [PATCH 5.10 067/121] net: stmmac: retain PTP clock time during SIOCSHWTSTAMP ioctls
 Date:   Mon, 29 Nov 2021 19:18:18 +0100
-Message-Id: <20211129181709.057666358@linuxfoundation.org>
+Message-Id: <20211129181713.894928743@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +48,259 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Holger Assmann <h.assmann@pengutronix.de>
 
-[ Upstream commit 861afeac7990587588d057b2c0b3222331c3da29 ]
+[ Upstream commit a6da2bbb0005e6b4909472962c9d0af29e75dd06 ]
 
-Stream IDs are reused across multiple BackEnd mixers, do not reset the
-stream mixers if they are not already set for that particular FrontEnd.
+Currently, when user space emits SIOCSHWTSTAMP ioctl calls such as
+enabling/disabling timestamping or changing filter settings, the driver
+reads the current CLOCK_REALTIME value and programming this into the
+NIC's hardware clock. This might be necessary during system
+initialization, but at runtime, when the PTP clock has already been
+synchronized to a grandmaster, a reset of the timestamp settings might
+result in a clock jump. Furthermore, if the clock is also controlled by
+phc2sys in automatic mode (where the UTC offset is queried from ptp4l),
+that UTC-to-TAI offset (currently 37 seconds in 2021) would be
+temporarily reset to 0, and it would take a long time for phc2sys to
+readjust so that CLOCK_REALTIME and the PHC are apart by 37 seconds
+again.
 
-Ex:
-amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 1
+To address the issue, we introduce a new function called
+stmmac_init_tstamp_counter(), which gets called during ndo_open().
+It contains the code snippet moved from stmmac_hwtstamp_set() that
+manages the time synchronization. Besides, the sub second increment
+configuration is also moved here since the related values are hardware
+dependent and runtime invariant.
 
-would set the MultiMedia1 steam for SLIMBUS_0_RX, however doing below
-command will reset previously setup MultiMedia1 stream, because both of them
-are using MultiMedia1 PCM stream.
+Furthermore, the hardware clock must be kept running even when no time
+stamping mode is selected in order to retain the synchronized time base.
+That way, timestamping can be enabled again at any time only with the
+need to compensate the clock's natural drifting.
 
-amixer cset iface=MIXER,name='SLIMBUS_2_RX Audio Mixer MultiMedia1' 0
+As a side effect, this patch fixes the issue that ptp_clock_info::enable
+can be called before SIOCSHWTSTAMP and the driver (which looks at
+priv->systime_flags) was not prepared to handle that ordering.
 
-reset the FrontEnd Mixers conditionally to fix this issue.
-
-This is more noticeable in desktop setup, where in alsactl tries to restore
-the alsa state and overwriting the previous mixer settings.
-
-Fixes: e3a33673e845 ("ASoC: qdsp6: q6routing: Add q6routing driver")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20211116114721.12517-3-srinivas.kandagatla@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 92ba6888510c ("stmmac: add the support for PTP hw clock driver")
+Reported-by: Michael Olbrich <m.olbrich@pengutronix.de>
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Holger Assmann <h.assmann@pengutronix.de>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/qdsp6/q6routing.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac.h  |   1 +
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 125 +++++++++++-------
+ .../ethernet/stmicro/stmmac/stmmac_platform.c |   2 +-
+ 3 files changed, 81 insertions(+), 47 deletions(-)
 
-diff --git a/sound/soc/qcom/qdsp6/q6routing.c b/sound/soc/qcom/qdsp6/q6routing.c
-index 745cc9dd14f38..16f26dd2d59ed 100644
---- a/sound/soc/qcom/qdsp6/q6routing.c
-+++ b/sound/soc/qcom/qdsp6/q6routing.c
-@@ -443,7 +443,11 @@ static int msm_routing_put_audio_mixer(struct snd_kcontrol *kcontrol,
- 		session->port_id = be_id;
- 		snd_soc_dapm_mixer_update_power(dapm, kcontrol, 1, update);
- 	} else {
--		session->port_id = -1;
-+		if (session->port_id == be_id) {
-+			session->port_id = -1;
-+			return 0;
-+		}
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac.h b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
+index a4ca283e02284..617c960cfb5a5 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac.h
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
+@@ -258,6 +258,7 @@ int stmmac_mdio_register(struct net_device *ndev);
+ int stmmac_mdio_reset(struct mii_bus *mii);
+ void stmmac_set_ethtool_ops(struct net_device *netdev);
+ 
++int stmmac_init_tstamp_counter(struct stmmac_priv *priv, u32 systime_flags);
+ void stmmac_ptp_register(struct stmmac_priv *priv);
+ void stmmac_ptp_unregister(struct stmmac_priv *priv);
+ int stmmac_resume(struct device *dev);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index b6a2bc020026a..a8c5492cb39be 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -47,6 +47,13 @@
+ #include "dwxgmac2.h"
+ #include "hwif.h"
+ 
++/* As long as the interface is active, we keep the timestamping counter enabled
++ * with fine resolution and binary rollover. This avoid non-monotonic behavior
++ * (clock jumps) when changing timestamping settings at runtime.
++ */
++#define STMMAC_HWTS_ACTIVE	(PTP_TCR_TSENA | PTP_TCR_TSCFUPDT | \
++				 PTP_TCR_TSCTRLSSR)
 +
- 		snd_soc_dapm_mixer_update_power(dapm, kcontrol, 0, update);
+ #define	STMMAC_ALIGN(x)		ALIGN(ALIGN(x, SMP_CACHE_BYTES), 16)
+ #define	TSO_MAX_BUFF_SIZE	(SZ_16K - 1)
+ 
+@@ -508,8 +515,6 @@ static int stmmac_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
+ {
+ 	struct stmmac_priv *priv = netdev_priv(dev);
+ 	struct hwtstamp_config config;
+-	struct timespec64 now;
+-	u64 temp = 0;
+ 	u32 ptp_v2 = 0;
+ 	u32 tstamp_all = 0;
+ 	u32 ptp_over_ipv4_udp = 0;
+@@ -518,11 +523,6 @@ static int stmmac_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
+ 	u32 snap_type_sel = 0;
+ 	u32 ts_master_en = 0;
+ 	u32 ts_event_en = 0;
+-	u32 sec_inc = 0;
+-	u32 value = 0;
+-	bool xmac;
+-
+-	xmac = priv->plat->has_gmac4 || priv->plat->has_xgmac;
+ 
+ 	if (!(priv->dma_cap.time_stamp || priv->adv_ts)) {
+ 		netdev_alert(priv->dev, "No support for HW time stamping\n");
+@@ -684,42 +684,17 @@ static int stmmac_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
+ 	priv->hwts_rx_en = ((config.rx_filter == HWTSTAMP_FILTER_NONE) ? 0 : 1);
+ 	priv->hwts_tx_en = config.tx_type == HWTSTAMP_TX_ON;
+ 
+-	if (!priv->hwts_tx_en && !priv->hwts_rx_en)
+-		stmmac_config_hw_tstamping(priv, priv->ptpaddr, 0);
+-	else {
+-		value = (PTP_TCR_TSENA | PTP_TCR_TSCFUPDT | PTP_TCR_TSCTRLSSR |
+-			 tstamp_all | ptp_v2 | ptp_over_ethernet |
+-			 ptp_over_ipv6_udp | ptp_over_ipv4_udp | ts_event_en |
+-			 ts_master_en | snap_type_sel);
+-		stmmac_config_hw_tstamping(priv, priv->ptpaddr, value);
+-
+-		/* program Sub Second Increment reg */
+-		stmmac_config_sub_second_increment(priv,
+-				priv->ptpaddr, priv->plat->clk_ptp_rate,
+-				xmac, &sec_inc);
+-		temp = div_u64(1000000000ULL, sec_inc);
+-
+-		/* Store sub second increment and flags for later use */
+-		priv->sub_second_inc = sec_inc;
+-		priv->systime_flags = value;
+-
+-		/* calculate default added value:
+-		 * formula is :
+-		 * addend = (2^32)/freq_div_ratio;
+-		 * where, freq_div_ratio = 1e9ns/sec_inc
+-		 */
+-		temp = (u64)(temp << 32);
+-		priv->default_addend = div_u64(temp, priv->plat->clk_ptp_rate);
+-		stmmac_config_addend(priv, priv->ptpaddr, priv->default_addend);
+-
+-		/* initialize system time */
+-		ktime_get_real_ts64(&now);
++	priv->systime_flags = STMMAC_HWTS_ACTIVE;
+ 
+-		/* lower 32 bits of tv_sec are safe until y2106 */
+-		stmmac_init_systime(priv, priv->ptpaddr,
+-				(u32)now.tv_sec, now.tv_nsec);
++	if (priv->hwts_tx_en || priv->hwts_rx_en) {
++		priv->systime_flags |= tstamp_all | ptp_v2 |
++				       ptp_over_ethernet | ptp_over_ipv6_udp |
++				       ptp_over_ipv4_udp | ts_event_en |
++				       ts_master_en | snap_type_sel;
  	}
  
++	stmmac_config_hw_tstamping(priv, priv->ptpaddr, priv->systime_flags);
++
+ 	memcpy(&priv->tstamp_config, &config, sizeof(config));
+ 
+ 	return copy_to_user(ifr->ifr_data, &config,
+@@ -747,6 +722,66 @@ static int stmmac_hwtstamp_get(struct net_device *dev, struct ifreq *ifr)
+ 			    sizeof(*config)) ? -EFAULT : 0;
+ }
+ 
++/**
++ * stmmac_init_tstamp_counter - init hardware timestamping counter
++ * @priv: driver private structure
++ * @systime_flags: timestamping flags
++ * Description:
++ * Initialize hardware counter for packet timestamping.
++ * This is valid as long as the interface is open and not suspended.
++ * Will be rerun after resuming from suspend, case in which the timestamping
++ * flags updated by stmmac_hwtstamp_set() also need to be restored.
++ */
++int stmmac_init_tstamp_counter(struct stmmac_priv *priv, u32 systime_flags)
++{
++	bool xmac = priv->plat->has_gmac4 || priv->plat->has_xgmac;
++	struct timespec64 now;
++	u32 sec_inc = 0;
++	u64 temp = 0;
++	int ret;
++
++	if (!(priv->dma_cap.time_stamp || priv->dma_cap.atime_stamp))
++		return -EOPNOTSUPP;
++
++	ret = clk_prepare_enable(priv->plat->clk_ptp_ref);
++	if (ret < 0) {
++		netdev_warn(priv->dev,
++			    "failed to enable PTP reference clock: %pe\n",
++			    ERR_PTR(ret));
++		return ret;
++	}
++
++	stmmac_config_hw_tstamping(priv, priv->ptpaddr, systime_flags);
++	priv->systime_flags = systime_flags;
++
++	/* program Sub Second Increment reg */
++	stmmac_config_sub_second_increment(priv, priv->ptpaddr,
++					   priv->plat->clk_ptp_rate,
++					   xmac, &sec_inc);
++	temp = div_u64(1000000000ULL, sec_inc);
++
++	/* Store sub second increment for later use */
++	priv->sub_second_inc = sec_inc;
++
++	/* calculate default added value:
++	 * formula is :
++	 * addend = (2^32)/freq_div_ratio;
++	 * where, freq_div_ratio = 1e9ns/sec_inc
++	 */
++	temp = (u64)(temp << 32);
++	priv->default_addend = div_u64(temp, priv->plat->clk_ptp_rate);
++	stmmac_config_addend(priv, priv->ptpaddr, priv->default_addend);
++
++	/* initialize system time */
++	ktime_get_real_ts64(&now);
++
++	/* lower 32 bits of tv_sec are safe until y2106 */
++	stmmac_init_systime(priv, priv->ptpaddr, (u32)now.tv_sec, now.tv_nsec);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(stmmac_init_tstamp_counter);
++
+ /**
+  * stmmac_init_ptp - init PTP
+  * @priv: driver private structure
+@@ -757,9 +792,11 @@ static int stmmac_hwtstamp_get(struct net_device *dev, struct ifreq *ifr)
+ static int stmmac_init_ptp(struct stmmac_priv *priv)
+ {
+ 	bool xmac = priv->plat->has_gmac4 || priv->plat->has_xgmac;
++	int ret;
+ 
+-	if (!(priv->dma_cap.time_stamp || priv->dma_cap.atime_stamp))
+-		return -EOPNOTSUPP;
++	ret = stmmac_init_tstamp_counter(priv, STMMAC_HWTS_ACTIVE);
++	if (ret)
++		return ret;
+ 
+ 	priv->adv_ts = 0;
+ 	/* Check if adv_ts can be enabled for dwmac 4.x / xgmac core */
+@@ -2721,10 +2758,6 @@ static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
+ 	stmmac_mmc_setup(priv);
+ 
+ 	if (init_ptp) {
+-		ret = clk_prepare_enable(priv->plat->clk_ptp_ref);
+-		if (ret < 0)
+-			netdev_warn(priv->dev, "failed to enable PTP reference clock: %d\n", ret);
+-
+ 		ret = stmmac_init_ptp(priv);
+ 		if (ret == -EOPNOTSUPP)
+ 			netdev_warn(priv->dev, "PTP not supported by HW\n");
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+index 5c9d29c42bac8..4387752b26d95 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+@@ -815,7 +815,7 @@ static int stmmac_pltfr_noirq_resume(struct device *dev)
+ 		if (ret)
+ 			return ret;
+ 
+-		clk_prepare_enable(priv->plat->clk_ptp_ref);
++		stmmac_init_tstamp_counter(priv, priv->systime_flags);
+ 	}
+ 
+ 	return 0;
 -- 
 2.33.0
 
