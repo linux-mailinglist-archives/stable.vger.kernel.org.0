@@ -2,86 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26180461B93
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 17:10:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0B0B461C4F
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 17:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344874AbhK2QNz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 11:13:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60620 "EHLO
+        id S1346787AbhK2RCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 12:02:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344982AbhK2QLz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 11:11:55 -0500
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A29DC08EA7F
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 06:12:22 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id x15so72398923edv.1
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 06:12:22 -0800 (PST)
+        with ESMTP id S232856AbhK2RAk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 12:00:40 -0500
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DDB2C08ED6B
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 06:30:41 -0800 (PST)
+Received: by mail-ed1-x544.google.com with SMTP id t5so72998321edd.0
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 06:30:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=WXujHn+Aip39eencB3cYJstRytLHPrA412s3PzKkRco=;
-        b=V3zhlwIh+7LH4uTvC23CMLbQlwvYZnHy+ROCn8LRXCKnFEZVSRIrhZGfAClV76ruOX
-         qyZ492YWajWymxzQ3/F6R2yw96ue2B+DVw7W9MgtHGCOUQsx9o0mehgJfvk/ZReTByzS
-         hD8ymJqREvaKqkMCyvzwWBm7lUhwsfsBlB0Kdt97syfYBMHXIgLUEJOPwimJ+LGBQTOk
-         7b4ycgApjUTI0viZYugpUZz6+a/SGzhafYrnW1+Ov3KAoykdly4DIwaQG4k/TeJQu9aE
-         o0GdKL0poTB3oIBinIA7jRzGZyCIdL1gOsMtGK1q5AhyDKaQ7pAZrdHqk6pD3bnP/66g
-         dXbw==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=h5SGxromuDQtUoJTnxkhza7HXaouvO2qwEGMHxx3weM=;
+        b=LJMzraWNykCElP5335RQHab+DiPAZ+WOBLzSHJ1LFOYTwONpjtgZ6cLvkMmh/6aazN
+         AC5MoHnk+AgE9oK6vlNEcwPtj3gwS7C/uJ+nmqq2tHdJgC+/0TRMbOrOwVm/W5GZwWc+
+         mYlKncd/1dy4lqa8qYRPWduo0Yq9giIEQrKGQXKRB7vcxEZwXDs9/K+FhLqL5gtqi/om
+         /fyJqfc5VVAXM9CzhMdYA1tfeDDWnHR+c4Z5Lc+AUZKjJalvM1EBvBY6TuxE6RL1OEJ0
+         ocz/t8j6V7hxtsHgcFUwR+tZPELiTZdgz/fzI/yvQpVuPaMRFgI33veOVKSjHa8CHan6
+         oexA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=WXujHn+Aip39eencB3cYJstRytLHPrA412s3PzKkRco=;
-        b=w4fP9gx81FlsX6+minOAnQfg0vEtyYzWVY0V/eW0mjSRHENCFvt70PUB0jgg1U0fql
-         w9TQz0gmZrahWHv/MQ9xJialDoXd0BPBjpoyWk8mRWsuvwIC+7fdk7d1RBS+BptzYHj6
-         QJk5mFWH+hEZZqNsLXzBA86fDlHAwcw8BMNYBGVXhwTVzaEmFqj+9AGLLcpenlmawuTB
-         KzUkJFX4MBFJiH2jl5Sg+3o07af1a6TMQw5vWxxFHiW5A0xtr+YZL5oDUzAWCkMJMY2o
-         pM7xYQnzKuu4fkWUhk1buw+n5m+1epVUkIbQE9buXXMgpR/IoK9WFplYNqLKQSzATIf0
-         HACQ==
-X-Gm-Message-State: AOAM5336i+dl8PlVOCMncFxDZVj02erRjDwRcOLi52tNQU10XgVFCeY7
-        eeyvxhlM6u1MUxrSCMNATRy396PnA3FSk8b1vRPaGg==
-X-Google-Smtp-Source: ABdhPJyOWcBqYLt3xsTFWkdfwWgdcm6Pbz0GM4HJmiB3ACpPnLqOnZEOLTUPwpaSgVHCZKlQOZ6vSDnidcT3Kw8xmM4=
-X-Received: by 2002:a05:6402:2813:: with SMTP id h19mr75154365ede.267.1638195140132;
- Mon, 29 Nov 2021 06:12:20 -0800 (PST)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=h5SGxromuDQtUoJTnxkhza7HXaouvO2qwEGMHxx3weM=;
+        b=WC+fQ1r+nInPsIr7QXjO+Xqr+qzdZTqgm0f6UzcnywDo2+3Wnnt6XOmIJl4RV5wVui
+         ReJMXQ3vxAHWKZFT4QaLb54xY/67qr1x+PIVONt3kX20Lxm7inGzlQonfIqGzsYRqf1v
+         AhcTzWjZ9yq69q1eAxdbSxHPy0A/5pbafqKz/zdkxFiXDhP8kuzlndoCxSpAkapwukaB
+         KuradqSxybJVe4gic+oqyhZOt3scHFlS52sLV6xX6ZsVdt9NxKtdq/gQV8dsslD7TTc2
+         FRWxFnWno5pP7LvFbEUV8qxHASZUwzM2ndZ0HJgkwOUHkazPfxS11yEyOOKi8zAMFKQ+
+         TVfQ==
+X-Gm-Message-State: AOAM533DVD8az800fs9ngLPHGlYKTsvnqjWjEWxjpKjhmTR8x4FgJK8y
+        AIzt0rKvcuM3GPXABoer5Sg1os0hOc9Cu85L1po=
+X-Google-Smtp-Source: ABdhPJykbagT3sbwocutRIBVWy2DxeRf/yhvjW8Og8j0GEKaJTGxCb7Kr+J+Q5+tKZVecFHCHK/eJ6bktrLexE64PFM=
+X-Received: by 2002:a05:6402:510e:: with SMTP id m14mr76694650edd.312.1638196239587;
+ Mon, 29 Nov 2021 06:30:39 -0800 (PST)
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 29 Nov 2021 19:42:07 +0530
-Message-ID: <CA+G9fYuzzknDMdu3q8ARyVHqd-cLYD_tsMLMH-ig-k-WVeTPAg@mail.gmail.com>
-Subject: Doesn't build 32 bit vDSO for arm64
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     linux-stable <stable@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Antonio Terceiro <antonio.terceiro@linaro.org>,
-        Vishal Bhoj <vishal.bhoj@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>
+Received: by 2002:a50:3447:0:0:0:0:0 with HTTP; Mon, 29 Nov 2021 06:30:39
+ -0800 (PST)
+Reply-To: evelyngaby76@gmail.com
+From:   Evelyn Gaby <eg3300110@gmail.com>
+Date:   Mon, 29 Nov 2021 14:30:39 +0000
+Message-ID: <CAEr61bW5bROc+8so0cwsaum9Gb2Wvh9Jt=SwrGVRFsVF49r_FQ@mail.gmail.com>
+Subject: Hello
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg and Antonio,
+.
+Please get back to me for more details,
+I like to disclose something very important to you,
 
-The stable-rc 5.4 build is failing.
-( 5.10 and 5.15 builds pass )
-because new build getting these two extra configs.
-
-CONFIG_GENERIC_COMPAT_VDSO=y
-CONFIG_COMPAT_VDSO=y
-
-These two configs are getting added by extra build variable
-
-CROSS_COMPILE_COMPAT=arm-linux-gnueabihf-
-
-This extra variable is coming from new tuxmake tool.
-
-Doesn't build 32 bit vDSO for arm64
-https://gitlab.com/Linaro/tuxmake/-/issues/160
-
-ref:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/
-
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Regards.
+Mrs Evelyn Gaby.
