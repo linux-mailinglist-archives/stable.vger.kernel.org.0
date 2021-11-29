@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27B3E461DED
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:29:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDCDF461F24
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348773AbhK2Sat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:30:49 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33248 "EHLO
+        id S1380516AbhK2SoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:44:11 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47056 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353256AbhK2S2t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:28:49 -0500
+        with ESMTP id S1379770AbhK2SmI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:42:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 693ACB815CC;
-        Mon, 29 Nov 2021 18:25:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C5F0C53FC7;
-        Mon, 29 Nov 2021 18:25:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97431B815CF;
+        Mon, 29 Nov 2021 18:38:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8BECC53FC7;
+        Mon, 29 Nov 2021 18:38:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210329;
-        bh=xmwMBhPWpZC7BLXttF7MhAbMwpJl0ZAyqEWEU1bnt00=;
+        s=korg; t=1638211128;
+        bh=hZh/ZchGhZ/dP88IPfADAfRSu1xx2vs89rrHBzrzJDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJQbO0EpKfxiO4Q7lxKfh1JdNfL/xVGSVxejggueT0zaFf6VDFsXTYZgua3LDu2Xs
-         Ck0F7DFcp2l7OqUnKH2WX4cCSFhW13Jc57ht65JT1RIkb5XHYpNncnqakQ1hMgxsrQ
-         FZJUnsXeTIBQmnHY7+gxFN/6ROd2TfVUQLo5hRsM=
+        b=WW1j5sW9Q5oUh6AijU5hJKsFhWAxE4yH2npPb5L+mgR4KRJZ8KEFRQlXe/Kyy2Vqv
+         7pLJQT7gJklkdW1P+89Limgr62WV2DVbrkkyhLTholvgnBWnP6actVfOiUOZBAVtQe
+         zZJoy2K5czO+O4OG6ohcSZhDyLEnm8udUP8l7oI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/92] ASoC: topology: Add missing rwsem around snd_ctl_remove() calls
-Date:   Mon, 29 Nov 2021 19:18:19 +0100
-Message-Id: <20211129181709.096560890@linuxfoundation.org>
+Subject: [PATCH 5.15 106/179] af_unix: fix regression in read after shutdown
+Date:   Mon, 29 Nov 2021 19:18:20 +0100
+Message-Id: <20211129181722.434619228@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 7e567b5ae06315ef2d70666b149962e2bb4b97af ]
+[ Upstream commit f9390b249c90a15a4d9e69fbfb7a53c860b1fcaf ]
 
-snd_ctl_remove() has to be called with card->controls_rwsem held (when
-called after the card instantiation).  This patch add the missing
-rwsem calls around it.
+On kernels before v5.15, calling read() on a unix socket after
+shutdown(SHUT_RD) or shutdown(SHUT_RDWR) would return the data
+previously written or EOF.  But now, while read() after
+shutdown(SHUT_RD) still behaves the same way, read() after
+shutdown(SHUT_RDWR) always fails with -EINVAL.
 
-Fixes: 8a9782346dcc ("ASoC: topology: Add topology core")
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20211116071812.18109-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This behaviour change was apparently inadvertently introduced as part of
+a bug fix for a different regression caused by the commit adding sockmap
+support to af_unix, commit 94531cfcbe79c359 ("af_unix: Add
+unix_stream_proto for sockmap").  Those commits, for unclear reasons,
+started setting the socket state to TCP_CLOSE on shutdown(SHUT_RDWR),
+while this state change had previously only been done in
+unix_release_sock().
+
+Restore the original behaviour.  The sockmap tests in
+tests/selftests/bpf continue to pass after this patch.
+
+Fixes: d0c6416bd7091647f60 ("unix: Fix an issue in unix_shutdown causing the other end read/write failures")
+Link: https://lore.kernel.org/lkml/20211111140000.GA10779@axis.com/
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Tested-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-topology.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/unix/af_unix.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
-index c367609433bfc..21f859e56b700 100644
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -2777,6 +2777,7 @@ EXPORT_SYMBOL_GPL(snd_soc_tplg_widget_remove_all);
- /* remove dynamic controls from the component driver */
- int snd_soc_tplg_component_remove(struct snd_soc_component *comp, u32 index)
- {
-+	struct snd_card *card = comp->card->snd_card;
- 	struct snd_soc_dobj *dobj, *next_dobj;
- 	int pass = SOC_TPLG_PASS_END;
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 78e08e82c08c4..b0bfc78e421ce 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -2882,9 +2882,6 @@ static int unix_shutdown(struct socket *sock, int mode)
  
-@@ -2784,6 +2785,7 @@ int snd_soc_tplg_component_remove(struct snd_soc_component *comp, u32 index)
- 	while (pass >= SOC_TPLG_PASS_START) {
- 
- 		/* remove mixer controls */
-+		down_write(&card->controls_rwsem);
- 		list_for_each_entry_safe(dobj, next_dobj, &comp->dobj_list,
- 			list) {
- 
-@@ -2827,6 +2829,7 @@ int snd_soc_tplg_component_remove(struct snd_soc_component *comp, u32 index)
- 				break;
- 			}
- 		}
-+		up_write(&card->controls_rwsem);
- 		pass--;
- 	}
- 
+ 	unix_state_lock(sk);
+ 	sk->sk_shutdown |= mode;
+-	if ((sk->sk_type == SOCK_STREAM || sk->sk_type == SOCK_SEQPACKET) &&
+-	    mode == SHUTDOWN_MASK)
+-		sk->sk_state = TCP_CLOSE;
+ 	other = unix_peer(sk);
+ 	if (other)
+ 		sock_hold(other);
 -- 
 2.33.0
 
