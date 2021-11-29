@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEA9E462533
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:33:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BF8C4626B2
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:53:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233540AbhK2WgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:36:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60718 "EHLO
+        id S236108AbhK2W4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:56:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233580AbhK2Wf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:35:26 -0500
+        with ESMTP id S236219AbhK2WzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:55:22 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89104C1E03F0;
-        Mon, 29 Nov 2021 10:41:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B2C3C1E03F7;
+        Mon, 29 Nov 2021 10:41:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0754ECE13F9;
-        Mon, 29 Nov 2021 18:41:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7698C53FAD;
-        Mon, 29 Nov 2021 18:41:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B7BF6CE1626;
+        Mon, 29 Nov 2021 18:41:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 674DAC53FAD;
+        Mon, 29 Nov 2021 18:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211296;
-        bh=9GpcK0aYyGsJqDCZD84/Y2NW0OasLhUdRWxII6yc+gw=;
+        s=korg; t=1638211301;
+        bh=l3JGOqUrRIZyX3WExihIQ9YWO/M7LKCCIfjqjQt6aB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q/CSsNizSXpevsrKtw+mxvhyt0FzTqGOncODyOVWaSAxK0Z3j557MJgUQFomvU5Go
-         sP6U69qfux1bOtyqdNmgzMLmoqAQbt6jsVsyVnepOeJbfL64niFjW4xO5utTaGcK0D
-         cXjEBZSCb7yUuC4GsN/+eMokFoXeWtr8U6LAevDA=
+        b=IwimHXKS10T/XWxHt39Tvjvnc7SShl3zmWa9PNnG+/gjkl7t7Ho6zJrHY97x4blac
+         mcRAlZs4zdc+UISnadwcNy9LrV0JY+mpBr3fW0kjEqEupQi1ELbYDOv15wj/hmLjcq
+         KVgE5q4HPSaJ6uMT584vmtIfZiebzBwH8VlXpr/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 172/179] io_uring: fix soft lockup when call __io_remove_buffers
-Date:   Mon, 29 Nov 2021 19:19:26 +0100
-Message-Id: <20211129181724.597416357@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>
+Subject: [PATCH 5.15 174/179] firmware: arm_scmi: Fix type error in sensor protocol
+Date:   Mon, 29 Nov 2021 19:19:28 +0100
+Message-Id: <20211129181724.661901066@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
 References: <20211129181718.913038547@linuxfoundation.org>
@@ -47,103 +48,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-commit 1d0254e6b47e73222fd3d6ae95cccbaafe5b3ecf upstream.
+commit bd074e5039ee16d71833a67337e2f6bf5d106b3a upstream.
 
-I got issue as follows:
-[ 567.094140] __io_remove_buffers: [1]start ctx=0xffff8881067bf000 bgid=65533 buf=0xffff8881fefe1680
-[  594.360799] watchdog: BUG: soft lockup - CPU#2 stuck for 26s! [kworker/u32:5:108]
-[  594.364987] Modules linked in:
-[  594.365405] irq event stamp: 604180238
-[  594.365906] hardirqs last  enabled at (604180237): [<ffffffff93fec9bd>] _raw_spin_unlock_irqrestore+0x2d/0x50
-[  594.367181] hardirqs last disabled at (604180238): [<ffffffff93fbbadb>] sysvec_apic_timer_interrupt+0xb/0xc0
-[  594.368420] softirqs last  enabled at (569080666): [<ffffffff94200654>] __do_softirq+0x654/0xa9e
-[  594.369551] softirqs last disabled at (569080575): [<ffffffff913e1d6a>] irq_exit_rcu+0x1ca/0x250
-[  594.370692] CPU: 2 PID: 108 Comm: kworker/u32:5 Tainted: G            L    5.15.0-next-20211112+ #88
-[  594.371891] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-ppc64le-16.ppc.fedoraproject.org-3.fc31 04/01/2014
-[  594.373604] Workqueue: events_unbound io_ring_exit_work
-[  594.374303] RIP: 0010:_raw_spin_unlock_irqrestore+0x33/0x50
-[  594.375037] Code: 48 83 c7 18 53 48 89 f3 48 8b 74 24 10 e8 55 f5 55 fd 48 89 ef e8 ed a7 56 fd 80 e7 02 74 06 e8 43 13 7b fd fb bf 01 00 00 00 <e8> f8 78 474
-[  594.377433] RSP: 0018:ffff888101587a70 EFLAGS: 00000202
-[  594.378120] RAX: 0000000024030f0d RBX: 0000000000000246 RCX: 1ffffffff2f09106
-[  594.379053] RDX: 0000000000000000 RSI: ffffffff9449f0e0 RDI: 0000000000000001
-[  594.379991] RBP: ffffffff9586cdc0 R08: 0000000000000001 R09: fffffbfff2effcab
-[  594.380923] R10: ffffffff977fe557 R11: fffffbfff2effcaa R12: ffff8881b8f3def0
-[  594.381858] R13: 0000000000000246 R14: ffff888153a8b070 R15: 0000000000000000
-[  594.382787] FS:  0000000000000000(0000) GS:ffff888399c00000(0000) knlGS:0000000000000000
-[  594.383851] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  594.384602] CR2: 00007fcbe71d2000 CR3: 00000000b4216000 CR4: 00000000000006e0
-[  594.385540] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  594.386474] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  594.387403] Call Trace:
-[  594.387738]  <TASK>
-[  594.388042]  find_and_remove_object+0x118/0x160
-[  594.389321]  delete_object_full+0xc/0x20
-[  594.389852]  kfree+0x193/0x470
-[  594.390275]  __io_remove_buffers.part.0+0xed/0x147
-[  594.390931]  io_ring_ctx_free+0x342/0x6a2
-[  594.392159]  io_ring_exit_work+0x41e/0x486
-[  594.396419]  process_one_work+0x906/0x15a0
-[  594.399185]  worker_thread+0x8b/0xd80
-[  594.400259]  kthread+0x3bf/0x4a0
-[  594.401847]  ret_from_fork+0x22/0x30
-[  594.402343]  </TASK>
+Fix incorrect type error reported by sparse as:
 
-Message from syslogd@localhost at Nov 13 09:09:54 ...
-kernel:watchdog: BUG: soft lockup - CPU#2 stuck for 26s! [kworker/u32:5:108]
-[  596.793660] __io_remove_buffers: [2099199]start ctx=0xffff8881067bf000 bgid=65533 buf=0xffff8881fefe1680
+drivers/firmware/arm_scmi/sensors.c:640:28: warning: incorrect type in argument 1 (different base types)
+drivers/firmware/arm_scmi/sensors.c:640:28: expected unsigned int [usertype] val
+drivers/firmware/arm_scmi/sensors.c:640:28: got restricted __le32 [usertype]
 
-We can reproduce this issue by follow syzkaller log:
-r0 = syz_io_uring_setup(0x401, &(0x7f0000000300), &(0x7f0000003000/0x2000)=nil, &(0x7f0000ff8000/0x4000)=nil, &(0x7f0000000280)=<r1=>0x0, &(0x7f0000000380)=<r2=>0x0)
-sendmsg$ETHTOOL_MSG_FEATURES_SET(0xffffffffffffffff, &(0x7f0000003080)={0x0, 0x0, &(0x7f0000003040)={&(0x7f0000000040)=ANY=[], 0x18}}, 0x0)
-syz_io_uring_submit(r1, r2, &(0x7f0000000240)=@IORING_OP_PROVIDE_BUFFERS={0x1f, 0x5, 0x0, 0x401, 0x1, 0x0, 0x100, 0x0, 0x1, {0xfffd}}, 0x0)
-io_uring_enter(r0, 0x3a2d, 0x0, 0x0, 0x0, 0x0)
-
-The reason above issue  is 'buf->list' has 2,100,000 nodes, occupied cpu lead
-to soft lockup.
-To solve this issue, we need add schedule point when do while loop in
-'__io_remove_buffers'.
-After add  schedule point we do regression, get follow data.
-[  240.141864] __io_remove_buffers: [1]start ctx=0xffff888170603000 bgid=65533 buf=0xffff8881116fcb00
-[  268.408260] __io_remove_buffers: [1]start ctx=0xffff8881b92d2000 bgid=65533 buf=0xffff888130c83180
-[  275.899234] __io_remove_buffers: [2099199]start ctx=0xffff888170603000 bgid=65533 buf=0xffff8881116fcb00
-[  296.741404] __io_remove_buffers: [1]start ctx=0xffff8881b659c000 bgid=65533 buf=0xffff8881010fe380
-[  305.090059] __io_remove_buffers: [2099199]start ctx=0xffff8881b92d2000 bgid=65533 buf=0xffff888130c83180
-[  325.415746] __io_remove_buffers: [1]start ctx=0xffff8881b92d1000 bgid=65533 buf=0xffff8881a17d8f00
-[  333.160318] __io_remove_buffers: [2099199]start ctx=0xffff8881b659c000 bgid=65533 buf=0xffff8881010fe380
-...
-
-Fixes:8bab4c09f24e("io_uring: allow conditional reschedule for intensive iterators")
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Link: https://lore.kernel.org/r/20211122024737.2198530-1-yebin10@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/20211115154043.49284-2-cristian.marussi@arm.com
+Fixes: 7b83c5f410889 ("firmware: arm_scmi: Add SCMI v3.0 sensor configuration support")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/firmware/arm_scmi/sensors.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4343,6 +4343,7 @@ static int __io_remove_buffers(struct io
- 		kfree(nxt);
- 		if (++i == nbufs)
- 			return i;
-+		cond_resched();
- 	}
- 	i++;
- 	kfree(buf);
-@@ -9249,10 +9250,8 @@ static void io_destroy_buffers(struct io
- 	struct io_buffer *buf;
- 	unsigned long index;
+--- a/drivers/firmware/arm_scmi/sensors.c
++++ b/drivers/firmware/arm_scmi/sensors.c
+@@ -637,7 +637,7 @@ static int scmi_sensor_config_get(const
+ 	if (ret)
+ 		return ret;
  
--	xa_for_each(&ctx->io_buffers, index, buf) {
-+	xa_for_each(&ctx->io_buffers, index, buf)
- 		__io_remove_buffers(ctx, buf, index, -1U);
--		cond_resched();
--	}
- }
- 
- static void io_req_cache_free(struct list_head *list)
+-	put_unaligned_le32(cpu_to_le32(sensor_id), t->tx.buf);
++	put_unaligned_le32(sensor_id, t->tx.buf);
+ 	ret = ph->xops->do_xfer(ph, t);
+ 	if (!ret) {
+ 		struct sensors_info *si = ph->get_priv(ph);
 
 
