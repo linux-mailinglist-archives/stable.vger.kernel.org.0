@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23930461DC1
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:26:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4A3A461EFB
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:40:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377665AbhK2S3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:29:18 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58824 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350158AbhK2S1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:27:13 -0500
+        id S1379440AbhK2SmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:42:21 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:55336 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351106AbhK2SkU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:40:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3B96B815C8;
-        Mon, 29 Nov 2021 18:23:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C532DC53FCD;
-        Mon, 29 Nov 2021 18:23:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1B1A0CE16B7;
+        Mon, 29 Nov 2021 18:37:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC333C53FCF;
+        Mon, 29 Nov 2021 18:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210212;
-        bh=9R3kEGHWDARzWLhwgUeEhA0Wp5mSEgJfZq+bX/ucri0=;
+        s=korg; t=1638211019;
+        bh=JXcTIKCd2gOhKzqk526yiHagoMGLibGlLj1aK9GrVX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r8E1d73vnnNuhpo8bhmJzD+OoAaXDO2IDY9aGZ63sd0/MZN3tESYICOXNjw8Risdd
-         Yue5xfkIGEsCaWxvyjzT8znVNf5gBJ5iWA1Y0qyyaAM44STw8n89DkzQ6RCN4V1hYM
-         ccPdRWoPY79zsfrzHtFsPIA3pNOzBUn2VhdANymc=
+        b=Y2rAzcRVZUBX/6COp1Vh1SIhE1q7NX0HJMLkQzs6M0K5qo1L5gtygIZOa1LwnLMGK
+         B3hR3yoVN1i1U+FzohgiK8uSztKBJywX79EFn6o6kjjR/k3BF9bSpVXqF7jzscXNlc
+         tJcYAkxanc00MUgf6hrcZJSPc2k15692ejjofrWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Subject: [PATCH 5.4 03/92] usb: dwc2: gadget: Fix ISOC flow for elapsed frames
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.15 058/179] PCI: aardvark: Deduplicate code in advk_pcie_rd_conf()
 Date:   Mon, 29 Nov 2021 19:17:32 +0100
-Message-Id: <20211129181707.514072453@linuxfoundation.org>
+Message-Id: <20211129181720.875859068@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+From: Marek Behún <kabel@kernel.org>
 
-commit 7ad4a0b1d46b2612f4429a72afd8f137d7efa9a9 upstream.
+commit 67cb2a4c93499c2c22704998fd1fd2bc35194d8e upstream.
 
-Added updating of request frame number for elapsed frames,
-otherwise frame number will remain as previous use of request.
-This will allow function driver to correctly track frames in
-case of Missed ISOC occurs.
+Avoid code repetition in advk_pcie_rd_conf() by handling errors with
+goto jump, as is customary in kernel.
 
-Added setting request actual length to 0 for elapsed frames.
-In Slave mode when pushing data to RxFIFO by dwords, request
-actual length incrementing accordingly. But before whole packet
-will be pushed into RxFIFO and send to host can occurs Missed
-ISOC and data will not send to host. So, in this case request
-actual length should be reset to 0.
-
-Fixes: 91bb163e1e4f ("usb: dwc2: gadget: Fix ISOC flow for BDMA and Slave")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Link: https://lore.kernel.org/r/c356baade6e9716d312d43df08d53ae557cb8037.1636011277.git.Minas.Harutyunyan@synopsys.com
+Link: https://lore.kernel.org/r/20211005180952.6812-9-kabel@kernel.org
+Fixes: 43f5c77bcbd2 ("PCI: aardvark: Fix reporting CRS value")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/gadget.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |   48 ++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 28 deletions(-)
 
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -1198,6 +1198,8 @@ static void dwc2_hsotg_start_req(struct
- 			}
- 			ctrl |= DXEPCTL_CNAK;
- 		} else {
-+			hs_req->req.frame_number = hs_ep->target_frame;
-+			hs_req->req.actual = 0;
- 			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, -ENODATA);
- 			return;
- 		}
-@@ -2855,9 +2857,12 @@ static void dwc2_gadget_handle_ep_disabl
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -1090,18 +1090,8 @@ static int advk_pcie_rd_conf(struct pci_
+ 		    (le16_to_cpu(pcie->bridge.pcie_conf.rootctl) &
+ 		     PCI_EXP_RTCTL_CRSSVE);
  
- 	do {
- 		hs_req = get_ep_head(hs_ep);
--		if (hs_req)
-+		if (hs_req) {
-+			hs_req->req.frame_number = hs_ep->target_frame;
-+			hs_req->req.actual = 0;
- 			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req,
- 						    -ENODATA);
-+		}
- 		dwc2_gadget_incr_frame_num(hs_ep);
- 		/* Update current frame number value. */
- 		hsotg->frame_number = dwc2_hsotg_read_frameno(hsotg);
-@@ -2910,8 +2915,11 @@ static void dwc2_gadget_handle_out_token
+-	if (advk_pcie_pio_is_running(pcie)) {
+-		/*
+-		 * If it is possible return Completion Retry Status so caller
+-		 * tries to issue the request again instead of failing.
+-		 */
+-		if (allow_crs) {
+-			*val = CFG_RD_CRS_VAL;
+-			return PCIBIOS_SUCCESSFUL;
+-		}
+-		*val = 0xffffffff;
+-		return PCIBIOS_SET_FAILED;
+-	}
++	if (advk_pcie_pio_is_running(pcie))
++		goto try_crs;
  
- 	while (dwc2_gadget_target_frame_elapsed(ep)) {
- 		hs_req = get_ep_head(ep);
--		if (hs_req)
-+		if (hs_req) {
-+			hs_req->req.frame_number = ep->target_frame;
-+			hs_req->req.actual = 0;
- 			dwc2_hsotg_complete_request(hsotg, ep, hs_req, -ENODATA);
-+		}
+ 	/* Program the control register */
+ 	reg = advk_readl(pcie, PIO_CTRL);
+@@ -1125,25 +1115,13 @@ static int advk_pcie_rd_conf(struct pci_
+ 	advk_writel(pcie, 1, PIO_START);
  
- 		dwc2_gadget_incr_frame_num(ep);
- 		/* Update current frame number value. */
-@@ -3000,8 +3008,11 @@ static void dwc2_gadget_handle_nak(struc
+ 	ret = advk_pcie_wait_pio(pcie);
+-	if (ret < 0) {
+-		/*
+-		 * If it is possible return Completion Retry Status so caller
+-		 * tries to issue the request again instead of failing.
+-		 */
+-		if (allow_crs) {
+-			*val = CFG_RD_CRS_VAL;
+-			return PCIBIOS_SUCCESSFUL;
+-		}
+-		*val = 0xffffffff;
+-		return PCIBIOS_SET_FAILED;
+-	}
++	if (ret < 0)
++		goto try_crs;
  
- 	while (dwc2_gadget_target_frame_elapsed(hs_ep)) {
- 		hs_req = get_ep_head(hs_ep);
--		if (hs_req)
-+		if (hs_req) {
-+			hs_req->req.frame_number = hs_ep->target_frame;
-+			hs_req->req.actual = 0;
- 			dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, -ENODATA);
-+		}
+ 	/* Check PIO status and get the read result */
+ 	ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
+-	if (ret < 0) {
+-		*val = 0xffffffff;
+-		return PCIBIOS_SET_FAILED;
+-	}
++	if (ret < 0)
++		goto fail;
  
- 		dwc2_gadget_incr_frame_num(hs_ep);
- 		/* Update current frame number value. */
+ 	if (size == 1)
+ 		*val = (*val >> (8 * (where & 3))) & 0xff;
+@@ -1151,6 +1129,20 @@ static int advk_pcie_rd_conf(struct pci_
+ 		*val = (*val >> (8 * (where & 3))) & 0xffff;
+ 
+ 	return PCIBIOS_SUCCESSFUL;
++
++try_crs:
++	/*
++	 * If it is possible, return Completion Retry Status so that caller
++	 * tries to issue the request again instead of failing.
++	 */
++	if (allow_crs) {
++		*val = CFG_RD_CRS_VAL;
++		return PCIBIOS_SUCCESSFUL;
++	}
++
++fail:
++	*val = 0xffffffff;
++	return PCIBIOS_SET_FAILED;
+ }
+ 
+ static int advk_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
 
 
