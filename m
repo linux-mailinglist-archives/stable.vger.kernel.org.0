@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B76846244F
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21BCD462650
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:48:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231425AbhK2WR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:17:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56658 "EHLO
+        id S235330AbhK2Wui (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:50:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232366AbhK2WQw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA769C12A753;
-        Mon, 29 Nov 2021 10:23:08 -0800 (PST)
+        with ESMTP id S235442AbhK2WuB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:50:01 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BC58C141B27;
+        Mon, 29 Nov 2021 10:32:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9354EB815BB;
-        Mon, 29 Nov 2021 18:23:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAB9EC53FC7;
-        Mon, 29 Nov 2021 18:23:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 97DAACE13FD;
+        Mon, 29 Nov 2021 18:32:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4992EC53FAD;
+        Mon, 29 Nov 2021 18:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210186;
-        bh=VgGfyky+KSJbcgKCQcy7n39rhmzgLEFc9eoZQeI3xlA=;
+        s=korg; t=1638210737;
+        bh=5s3PtYpItram0i5AuIpxrx4LGIOfT3D+g2dklpIWZJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ggkTbYyhceoGV3EIpjj+2ccKoNCgL4D0mB9Z7jK8eyFouT4t9wJznAcPkq98Q66Ot
-         2yU9lNidXeYRpV1ngJsztVDPj+T03wTPbwoekKboqTyzSaC5jgXYlkqVXSQPvhsTvD
-         ab+oXSNOT87oTE6nKqe+FJO+fyc0XbSsUNd/kCxI=
+        b=lZ68ZsT1g8g4pbdYS/vVkJd0dX+i/mLkufAez/YzwlKpGyhK2teHAqgNBp/LTpMLy
+         zvALA5mPntUZ7hEqpBz7fhN+vheAWSm0bOI3BEQu/3541a1x5sw3SsBe5iUHZUROfl
+         Bl0Q4yQdPHHGTvBAMbMs3zbgW3WF3ig9ubMTl5G4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/69] ARM: dts: BCM5301X: Fix I2C controller interrupt
+Subject: [PATCH 5.10 069/121] net: nexthop: release IPv6 per-cpu dsts when replacing a nexthop group
 Date:   Mon, 29 Nov 2021 19:18:20 +0100
-Message-Id: <20211129181704.918477868@linuxfoundation.org>
+Message-Id: <20211129181713.965675188@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
-References: <20211129181703.670197996@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,36 +48,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-[ Upstream commit 754c4050a00e802e122690112fc2c3a6abafa7e2 ]
+[ Upstream commit 1005f19b9357b81aa64e1decd08d6e332caaa284 ]
 
-The I2C interrupt controller line is off by 32 because the datasheet
-describes interrupt inputs into the GIC which are for Shared Peripheral
-Interrupts and are starting at offset 32. The ARM GIC binding expects
-the SPI interrupts to be numbered from 0 relative to the SPI base.
+When replacing a nexthop group, we must release the IPv6 per-cpu dsts of
+the removed nexthop entries after an RCU grace period because they
+contain references to the nexthop's net device and to the fib6 info.
+With specific series of events[1] we can reach net device refcount
+imbalance which is unrecoverable. IPv4 is not affected because dsts
+don't take a refcount on the route.
 
-Fixes: bb097e3e0045 ("ARM: dts: BCM5301X: Add I2C support to the DT")
-Tested-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+[1]
+ $ ip nexthop list
+  id 200 via 2002:db8::2 dev bridge.10 scope link onlink
+  id 201 via 2002:db8::3 dev bridge scope link onlink
+  id 203 group 201/200
+ $ ip -6 route
+  2001:db8::10 nhid 203 metric 1024 pref medium
+     nexthop via 2002:db8::3 dev bridge weight 1 onlink
+     nexthop via 2002:db8::2 dev bridge.10 weight 1 onlink
+
+Create rt6_info through one of the multipath legs, e.g.:
+ $ taskset -a -c 1  ./pkt_inj 24 bridge.10 2001:db8::10
+ (pkt_inj is just a custom packet generator, nothing special)
+
+Then remove that leg from the group by replace (let's assume it is id
+200 in this case):
+ $ ip nexthop replace id 203 group 201
+
+Now remove the IPv6 route:
+ $ ip -6 route del 2001:db8::10/128
+
+The route won't be really deleted due to the stale rt6_info holding 1
+refcnt in nexthop id 200.
+At this point we have the following reference count dependency:
+ (deleted) IPv6 route holds 1 reference over nhid 203
+ nh 203 holds 1 ref over id 201
+ nh 200 holds 1 ref over the net device and the route due to the stale
+ rt6_info
+
+Now to create circular dependency between nh 200 and the IPv6 route, and
+also to get a reference over nh 200, restore nhid 200 in the group:
+ $ ip nexthop replace id 203 group 201/200
+
+And now we have a permanent circular dependncy because nhid 203 holds a
+reference over nh 200 and 201, but the route holds a ref over nh 203 and
+is deleted.
+
+To trigger the bug just delete the group (nhid 203):
+ $ ip nexthop del id 203
+
+It won't really be deleted due to the IPv6 route dependency, and now we
+have 2 unlinked and deleted objects that reference each other: the group
+and the IPv6 route. Since the group drops the reference it holds over its
+entries at free time (i.e. its own refcount needs to drop to 0) that will
+never happen and we get a permanent ref on them, since one of the entries
+holds a reference over the IPv6 route it will also never be released.
+
+At this point the dependencies are:
+ (deleted, only unlinked) IPv6 route holds reference over group nh 203
+ (deleted, only unlinked) group nh 203 holds reference over nh 201 and 200
+ nh 200 holds 1 ref over the net device and the route due to the stale
+ rt6_info
+
+This is the last point where it can be fixed by running traffic through
+nh 200, and specifically through the same CPU so the rt6_info (dst) will
+get released due to the IPv6 genid, that in turn will free the IPv6
+route, which in turn will free the ref count over the group nh 203.
+
+If nh 200 is deleted at this point, it will never be released due to the
+ref from the unlinked group 203, it will only be unlinked:
+ $ ip nexthop del id 200
+ $ ip nexthop
+ $
+
+Now we can never release that stale rt6_info, we have IPv6 route with ref
+over group nh 203, group nh 203 with ref over nh 200 and 201, nh 200 with
+rt6_info (dst) with ref over the net device and the IPv6 route. All of
+these objects are only unlinked, and cannot be released, thus they can't
+release their ref counts.
+
+ Message from syslogd@dev at Nov 19 14:04:10 ...
+  kernel:[73501.828730] unregister_netdevice: waiting for bridge.10 to become free. Usage count = 3
+ Message from syslogd@dev at Nov 19 14:04:20 ...
+  kernel:[73512.068811] unregister_netdevice: waiting for bridge.10 to become free. Usage count = 3
+
+Fixes: 7bf4796dd099 ("nexthops: add support for replace")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm5301x.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/nexthop.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
-index fa3422c4caec1..bb8b15e42fe93 100644
---- a/arch/arm/boot/dts/bcm5301x.dtsi
-+++ b/arch/arm/boot/dts/bcm5301x.dtsi
-@@ -384,7 +384,7 @@ usb3_dmp: syscon@18105000 {
- 	i2c0: i2c@18009000 {
- 		compatible = "brcm,iproc-i2c";
- 		reg = <0x18009000 0x50>;
--		interrupts = <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupts = <GIC_SPI 89 IRQ_TYPE_LEVEL_HIGH>;
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 		clock-frequency = <100000>;
+diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
+index 4dbc628f8c386..8bd3f5e3c0e7a 100644
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -924,15 +924,36 @@ static void remove_nexthop(struct net *net, struct nexthop *nh,
+ /* if any FIB entries reference this nexthop, any dst entries
+  * need to be regenerated
+  */
+-static void nh_rt_cache_flush(struct net *net, struct nexthop *nh)
++static void nh_rt_cache_flush(struct net *net, struct nexthop *nh,
++			      struct nexthop *replaced_nh)
+ {
+ 	struct fib6_info *f6i;
++	struct nh_group *nhg;
++	int i;
+ 
+ 	if (!list_empty(&nh->fi_list))
+ 		rt_cache_flush(net);
+ 
+ 	list_for_each_entry(f6i, &nh->f6i_list, nh_list)
+ 		ipv6_stub->fib6_update_sernum(net, f6i);
++
++	/* if an IPv6 group was replaced, we have to release all old
++	 * dsts to make sure all refcounts are released
++	 */
++	if (!replaced_nh->is_group)
++		return;
++
++	/* new dsts must use only the new nexthop group */
++	synchronize_net();
++
++	nhg = rtnl_dereference(replaced_nh->nh_grp);
++	for (i = 0; i < nhg->num_nh; i++) {
++		struct nh_grp_entry *nhge = &nhg->nh_entries[i];
++		struct nh_info *nhi = rtnl_dereference(nhge->nh->nh_info);
++
++		if (nhi->family == AF_INET6)
++			ipv6_stub->fib6_nh_release_dsts(&nhi->fib6_nh);
++	}
+ }
+ 
+ static int replace_nexthop_grp(struct net *net, struct nexthop *old,
+@@ -1111,7 +1132,7 @@ static int replace_nexthop(struct net *net, struct nexthop *old,
+ 		err = replace_nexthop_single(net, old, new, extack);
+ 
+ 	if (!err) {
+-		nh_rt_cache_flush(net, old);
++		nh_rt_cache_flush(net, old, new);
+ 
+ 		__remove_nexthop(net, new, NULL);
+ 		nexthop_put(new);
 -- 
 2.33.0
 
