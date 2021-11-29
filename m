@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCFE5461E1E
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:29:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6F8A461E9F
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:36:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348612AbhK2Sct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:32:49 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33136 "EHLO
+        id S1350086AbhK2Sin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:38:43 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41036 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241748AbhK2Sao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:30:44 -0500
+        with ESMTP id S1353411AbhK2SgF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:36:05 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3703B815C2;
-        Mon, 29 Nov 2021 18:27:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07EDAC53FAD;
-        Mon, 29 Nov 2021 18:27:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 134D6B815CE;
+        Mon, 29 Nov 2021 18:32:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40F79C53FAD;
+        Mon, 29 Nov 2021 18:32:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210443;
-        bh=aJ6oMnPoAb+ooShyYboo8ndL9uHoE0GwcK2NvI2euTY=;
+        s=korg; t=1638210763;
+        bh=O23SHJQEwkMx4FfbbyaaejA1+kX7iOnsgVBA56MW0zw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gqke0+2Av0kN1FntmIyNeQBRbgJ3roRLDhLlAij980ENE0qtTd2jnu8UU74gx+T0C
-         NNA+w158tD1VhRxZTP8l7wyka+8QH2yZmBR7h2pa/b3uAd/qR9lPzNQ/9l4CbptQlQ
-         pQI6TdLHHL8rTyZ9fZsG9AkXRBYctiYUu0PcJIPs=
+        b=fdcu7hyo1vC9fvw5OwUEqW128On4t8TSLGZpDTCeslSUw2sBL7B/xNx0hA8mvr1dw
+         04Y4QQJnpX/pMcolr70pLF0brIRl6rRHCFKVltikwNOE3farkfECW6kyFk4/RO43Wu
+         yDY02m0c6Of7zptOnSplhJbvhKAQ2bpuf/LAwF5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 90/92] xen/netfront: disentangle tx_skb_freelist
-Date:   Mon, 29 Nov 2021 19:18:59 +0100
-Message-Id: <20211129181710.391186899@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.10 109/121] xen: sync include/xen/interface/io/ring.h with Xens newest version
+Date:   Mon, 29 Nov 2021 19:19:00 +0100
+Message-Id: <20211129181715.329972940@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,177 +45,420 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juergen Gross <jgross@suse.com>
 
-commit 21631d2d741a64a073e167c27769e73bc7844a2f upstream.
+commit 629a5d87e26fe96bcaab44cbb81f5866af6f7008 upstream.
 
-The tx_skb_freelist elements are in a single linked list with the
-request id used as link reference. The per element link field is in a
-union with the skb pointer of an in use request.
+Sync include/xen/interface/io/ring.h with Xen's newest version in
+order to get the RING_COPY_RESPONSE() and RING_RESPONSE_PROD_OVERFLOW()
+macros.
 
-Move the link reference out of the union in order to enable a later
-reuse of it for requests which need a populated skb pointer.
-
-Rename add_id_to_freelist() and get_id_from_freelist() to
-add_id_to_list() and get_id_from_list() in order to prepare using
-those for other lists as well. Define ~0 as value to indicate the end
-of a list and place that value into the link for a request not being
-on the list.
-
-When freeing a skb zero the skb pointer in the request. Use a NULL
-value of the skb pointer instead of skb_entry_is_link() for deciding
-whether a request has a skb linked to it.
-
-Remove skb_entry_set_link() and open code it instead as it is really
-trivial now.
+Note that this will correct the wrong license info by adding the
+missing original copyright notice.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netfront.c |   61 ++++++++++++++++++---------------------------
- 1 file changed, 25 insertions(+), 36 deletions(-)
+ include/xen/interface/io/ring.h |  280 ++++++++++++++++++++++------------------
+ 1 file changed, 157 insertions(+), 123 deletions(-)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -121,17 +121,11 @@ struct netfront_queue {
- 
- 	/*
- 	 * {tx,rx}_skbs store outstanding skbuffs. Free tx_skb entries
--	 * are linked from tx_skb_freelist through skb_entry.link.
--	 *
--	 *  NB. Freelist index entries are always going to be less than
--	 *  PAGE_OFFSET, whereas pointers to skbs will always be equal or
--	 *  greater than PAGE_OFFSET: we use this property to distinguish
--	 *  them.
-+	 * are linked from tx_skb_freelist through tx_link.
- 	 */
--	union skb_entry {
--		struct sk_buff *skb;
--		unsigned long link;
--	} tx_skbs[NET_TX_RING_SIZE];
-+	struct sk_buff *tx_skbs[NET_TX_RING_SIZE];
-+	unsigned short tx_link[NET_TX_RING_SIZE];
-+#define TX_LINK_NONE 0xffff
- 	grant_ref_t gref_tx_head;
- 	grant_ref_t grant_tx_ref[NET_TX_RING_SIZE];
- 	struct page *grant_tx_page[NET_TX_RING_SIZE];
-@@ -169,33 +163,25 @@ struct netfront_rx_info {
- 	struct xen_netif_extra_info extras[XEN_NETIF_EXTRA_TYPE_MAX - 1];
- };
- 
--static void skb_entry_set_link(union skb_entry *list, unsigned short id)
--{
--	list->link = id;
--}
--
--static int skb_entry_is_link(const union skb_entry *list)
--{
--	BUILD_BUG_ON(sizeof(list->skb) != sizeof(list->link));
--	return (unsigned long)list->skb < PAGE_OFFSET;
--}
--
- /*
-  * Access macros for acquiring freeing slots in tx_skbs[].
+--- a/include/xen/interface/io/ring.h
++++ b/include/xen/interface/io/ring.h
+@@ -1,21 +1,53 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+ /******************************************************************************
+  * ring.h
+  *
+  * Shared producer-consumer ring macros.
+  *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy
++ * of this software and associated documentation files (the "Software"), to
++ * deal in the Software without restriction, including without limitation the
++ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
++ * sell copies of the Software, and to permit persons to whom the Software is
++ * furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
+  * Tim Deegan and Andrew Warfield November 2004.
   */
  
--static void add_id_to_freelist(unsigned *head, union skb_entry *list,
--			       unsigned short id)
-+static void add_id_to_list(unsigned *head, unsigned short *list,
-+			   unsigned short id)
- {
--	skb_entry_set_link(&list[id], *head);
-+	list[id] = *head;
- 	*head = id;
- }
+ #ifndef __XEN_PUBLIC_IO_RING_H__
+ #define __XEN_PUBLIC_IO_RING_H__
  
--static unsigned short get_id_from_freelist(unsigned *head,
--					   union skb_entry *list)
-+static unsigned short get_id_from_list(unsigned *head, unsigned short *list)
- {
- 	unsigned int id = *head;
--	*head = list[id].link;
++/*
++ * When #include'ing this header, you need to provide the following
++ * declaration upfront:
++ * - standard integers types (uint8_t, uint16_t, etc)
++ * They are provided by stdint.h of the standard headers.
++ *
++ * In addition, if you intend to use the FLEX macros, you also need to
++ * provide the following, before invoking the FLEX macros:
++ * - size_t
++ * - memcpy
++ * - grant_ref_t
++ * These declarations are provided by string.h of the standard headers,
++ * and grant_table.h from the Xen public headers.
++ */
 +
-+	if (id != TX_LINK_NONE) {
-+		*head = list[id];
-+		list[id] = TX_LINK_NONE;
-+	}
- 	return id;
- }
+ #include <xen/interface/grant_table.h>
  
-@@ -394,7 +380,8 @@ static void xennet_tx_buf_gc(struct netf
- 				continue;
+ typedef unsigned int RING_IDX;
  
- 			id  = txrsp.id;
--			skb = queue->tx_skbs[id].skb;
-+			skb = queue->tx_skbs[id];
-+			queue->tx_skbs[id] = NULL;
- 			if (unlikely(gnttab_query_foreign_access(
- 				queue->grant_tx_ref[id]) != 0)) {
- 				pr_alert("%s: warning -- grant still in use by backend domain\n",
-@@ -407,7 +394,7 @@ static void xennet_tx_buf_gc(struct netf
- 				&queue->gref_tx_head, queue->grant_tx_ref[id]);
- 			queue->grant_tx_ref[id] = GRANT_INVALID_REF;
- 			queue->grant_tx_page[id] = NULL;
--			add_id_to_freelist(&queue->tx_skb_freelist, queue->tx_skbs, id);
-+			add_id_to_list(&queue->tx_skb_freelist, queue->tx_link, id);
- 			dev_kfree_skb_irq(skb);
- 		}
+ /* Round a 32-bit unsigned constant down to the nearest power of two. */
+-#define __RD2(_x)  (((_x) & 0x00000002) ? 0x2		       : ((_x) & 0x1))
++#define __RD2(_x)  (((_x) & 0x00000002) ? 0x2                  : ((_x) & 0x1))
+ #define __RD4(_x)  (((_x) & 0x0000000c) ? __RD2((_x)>>2)<<2    : __RD2(_x))
+ #define __RD8(_x)  (((_x) & 0x000000f0) ? __RD4((_x)>>4)<<4    : __RD4(_x))
+ #define __RD16(_x) (((_x) & 0x0000ff00) ? __RD8((_x)>>8)<<8    : __RD8(_x))
+@@ -27,82 +59,79 @@ typedef unsigned int RING_IDX;
+  * A ring contains as many entries as will fit, rounded down to the nearest
+  * power of two (so we can mask with (size-1) to loop around).
+  */
+-#define __CONST_RING_SIZE(_s, _sz)				\
+-	(__RD32(((_sz) - offsetof(struct _s##_sring, ring)) /	\
+-		sizeof(((struct _s##_sring *)0)->ring[0])))
+-
++#define __CONST_RING_SIZE(_s, _sz) \
++    (__RD32(((_sz) - offsetof(struct _s##_sring, ring)) / \
++	    sizeof(((struct _s##_sring *)0)->ring[0])))
+ /*
+  * The same for passing in an actual pointer instead of a name tag.
+  */
+-#define __RING_SIZE(_s, _sz)						\
+-	(__RD32(((_sz) - (long)&(_s)->ring + (long)(_s)) / sizeof((_s)->ring[0])))
++#define __RING_SIZE(_s, _sz) \
++    (__RD32(((_sz) - (long)(_s)->ring + (long)(_s)) / sizeof((_s)->ring[0])))
  
-@@ -440,7 +427,7 @@ static void xennet_tx_setup_grant(unsign
- 	struct netfront_queue *queue = info->queue;
- 	struct sk_buff *skb = info->skb;
+ /*
+  * Macros to make the correct C datatypes for a new kind of ring.
+  *
+  * To make a new ring datatype, you need to have two message structures,
+- * let's say struct request, and struct response already defined.
++ * let's say request_t, and response_t already defined.
+  *
+  * In a header where you want the ring datatype declared, you then do:
+  *
+- *     DEFINE_RING_TYPES(mytag, struct request, struct response);
++ *     DEFINE_RING_TYPES(mytag, request_t, response_t);
+  *
+  * These expand out to give you a set of types, as you can see below.
+  * The most important of these are:
+  *
+- *     struct mytag_sring      - The shared ring.
+- *     struct mytag_front_ring - The 'front' half of the ring.
+- *     struct mytag_back_ring  - The 'back' half of the ring.
++ *     mytag_sring_t      - The shared ring.
++ *     mytag_front_ring_t - The 'front' half of the ring.
++ *     mytag_back_ring_t  - The 'back' half of the ring.
+  *
+  * To initialize a ring in your code you need to know the location and size
+  * of the shared memory area (PAGE_SIZE, for instance). To initialise
+  * the front half:
+  *
+- *     struct mytag_front_ring front_ring;
+- *     SHARED_RING_INIT((struct mytag_sring *)shared_page);
+- *     FRONT_RING_INIT(&front_ring, (struct mytag_sring *)shared_page,
+- *		       PAGE_SIZE);
++ *     mytag_front_ring_t front_ring;
++ *     SHARED_RING_INIT((mytag_sring_t *)shared_page);
++ *     FRONT_RING_INIT(&front_ring, (mytag_sring_t *)shared_page, PAGE_SIZE);
+  *
+  * Initializing the back follows similarly (note that only the front
+  * initializes the shared ring):
+  *
+- *     struct mytag_back_ring back_ring;
+- *     BACK_RING_INIT(&back_ring, (struct mytag_sring *)shared_page,
+- *		      PAGE_SIZE);
++ *     mytag_back_ring_t back_ring;
++ *     BACK_RING_INIT(&back_ring, (mytag_sring_t *)shared_page, PAGE_SIZE);
+  */
  
--	id = get_id_from_freelist(&queue->tx_skb_freelist, queue->tx_skbs);
-+	id = get_id_from_list(&queue->tx_skb_freelist, queue->tx_link);
- 	tx = RING_GET_REQUEST(&queue->tx, queue->tx.req_prod_pvt++);
- 	ref = gnttab_claim_grant_reference(&queue->gref_tx_head);
- 	WARN_ON_ONCE(IS_ERR_VALUE((unsigned long)(int)ref));
-@@ -448,7 +435,7 @@ static void xennet_tx_setup_grant(unsign
- 	gnttab_grant_foreign_access_ref(ref, queue->info->xbdev->otherend_id,
- 					gfn, GNTMAP_readonly);
+-#define DEFINE_RING_TYPES(__name, __req_t, __rsp_t)			\
+-									\
+-/* Shared ring entry */							\
+-union __name##_sring_entry {						\
+-    __req_t req;							\
+-    __rsp_t rsp;							\
+-};									\
+-									\
+-/* Shared ring page */							\
+-struct __name##_sring {							\
+-    RING_IDX req_prod, req_event;					\
+-    RING_IDX rsp_prod, rsp_event;					\
+-    uint8_t  pad[48];							\
+-    union __name##_sring_entry ring[1]; /* variable-length */		\
+-};									\
+-									\
+-/* "Front" end's private variables */					\
+-struct __name##_front_ring {						\
+-    RING_IDX req_prod_pvt;						\
+-    RING_IDX rsp_cons;							\
+-    unsigned int nr_ents;						\
+-    struct __name##_sring *sring;					\
+-};									\
+-									\
+-/* "Back" end's private variables */					\
+-struct __name##_back_ring {						\
+-    RING_IDX rsp_prod_pvt;						\
+-    RING_IDX req_cons;							\
+-    unsigned int nr_ents;						\
+-    struct __name##_sring *sring;					\
+-};
+-
++#define DEFINE_RING_TYPES(__name, __req_t, __rsp_t)                     \
++                                                                        \
++/* Shared ring entry */                                                 \
++union __name##_sring_entry {                                            \
++    __req_t req;                                                        \
++    __rsp_t rsp;                                                        \
++};                                                                      \
++                                                                        \
++/* Shared ring page */                                                  \
++struct __name##_sring {                                                 \
++    RING_IDX req_prod, req_event;                                       \
++    RING_IDX rsp_prod, rsp_event;                                       \
++    uint8_t __pad[48];                                                  \
++    union __name##_sring_entry ring[1]; /* variable-length */           \
++};                                                                      \
++                                                                        \
++/* "Front" end's private variables */                                   \
++struct __name##_front_ring {                                            \
++    RING_IDX req_prod_pvt;                                              \
++    RING_IDX rsp_cons;                                                  \
++    unsigned int nr_ents;                                               \
++    struct __name##_sring *sring;                                       \
++};                                                                      \
++                                                                        \
++/* "Back" end's private variables */                                    \
++struct __name##_back_ring {                                             \
++    RING_IDX rsp_prod_pvt;                                              \
++    RING_IDX req_cons;                                                  \
++    unsigned int nr_ents;                                               \
++    struct __name##_sring *sring;                                       \
++};                                                                      \
++                                                                        \
+ /*
+  * Macros for manipulating rings.
+  *
+@@ -119,94 +148,99 @@ struct __name##_back_ring {						\
+  */
  
--	queue->tx_skbs[id].skb = skb;
-+	queue->tx_skbs[id] = skb;
- 	queue->grant_tx_page[id] = page;
- 	queue->grant_tx_ref[id] = ref;
+ /* Initialising empty rings */
+-#define SHARED_RING_INIT(_s) do {					\
+-    (_s)->req_prod  = (_s)->rsp_prod  = 0;				\
+-    (_s)->req_event = (_s)->rsp_event = 1;				\
+-    memset((_s)->pad, 0, sizeof((_s)->pad));				\
++#define SHARED_RING_INIT(_s) do {                                       \
++    (_s)->req_prod  = (_s)->rsp_prod  = 0;                              \
++    (_s)->req_event = (_s)->rsp_event = 1;                              \
++    (void)memset((_s)->__pad, 0, sizeof((_s)->__pad));                  \
+ } while(0)
  
-@@ -1129,17 +1116,18 @@ static void xennet_release_tx_bufs(struc
+-#define FRONT_RING_ATTACH(_r, _s, _i, __size) do {			\
+-    (_r)->req_prod_pvt = (_i);						\
+-    (_r)->rsp_cons = (_i);						\
+-    (_r)->nr_ents = __RING_SIZE(_s, __size);				\
+-    (_r)->sring = (_s);							\
++#define FRONT_RING_ATTACH(_r, _s, _i, __size) do {                      \
++    (_r)->req_prod_pvt = (_i);                                          \
++    (_r)->rsp_cons = (_i);                                              \
++    (_r)->nr_ents = __RING_SIZE(_s, __size);                            \
++    (_r)->sring = (_s);                                                 \
+ } while (0)
  
- 	for (i = 0; i < NET_TX_RING_SIZE; i++) {
- 		/* Skip over entries which are actually freelist references */
--		if (skb_entry_is_link(&queue->tx_skbs[i]))
-+		if (!queue->tx_skbs[i])
- 			continue;
+ #define FRONT_RING_INIT(_r, _s, __size) FRONT_RING_ATTACH(_r, _s, 0, __size)
  
--		skb = queue->tx_skbs[i].skb;
-+		skb = queue->tx_skbs[i];
-+		queue->tx_skbs[i] = NULL;
- 		get_page(queue->grant_tx_page[i]);
- 		gnttab_end_foreign_access(queue->grant_tx_ref[i],
- 					  GNTMAP_readonly,
- 					  (unsigned long)page_address(queue->grant_tx_page[i]));
- 		queue->grant_tx_page[i] = NULL;
- 		queue->grant_tx_ref[i] = GRANT_INVALID_REF;
--		add_id_to_freelist(&queue->tx_skb_freelist, queue->tx_skbs, i);
-+		add_id_to_list(&queue->tx_skb_freelist, queue->tx_link, i);
- 		dev_kfree_skb_irq(skb);
- 	}
- }
-@@ -1621,13 +1609,14 @@ static int xennet_init_queue(struct netf
- 	snprintf(queue->name, sizeof(queue->name), "vif%s-q%u",
- 		 devid, queue->id);
+-#define BACK_RING_ATTACH(_r, _s, _i, __size) do {			\
+-    (_r)->rsp_prod_pvt = (_i);						\
+-    (_r)->req_cons = (_i);						\
+-    (_r)->nr_ents = __RING_SIZE(_s, __size);				\
+-    (_r)->sring = (_s);							\
++#define BACK_RING_ATTACH(_r, _s, _i, __size) do {                       \
++    (_r)->rsp_prod_pvt = (_i);                                          \
++    (_r)->req_cons = (_i);                                              \
++    (_r)->nr_ents = __RING_SIZE(_s, __size);                            \
++    (_r)->sring = (_s);                                                 \
+ } while (0)
  
--	/* Initialise tx_skbs as a free chain containing every entry. */
-+	/* Initialise tx_skb_freelist as a free chain containing every entry. */
- 	queue->tx_skb_freelist = 0;
- 	for (i = 0; i < NET_TX_RING_SIZE; i++) {
--		skb_entry_set_link(&queue->tx_skbs[i], i+1);
-+		queue->tx_link[i] = i + 1;
- 		queue->grant_tx_ref[i] = GRANT_INVALID_REF;
- 		queue->grant_tx_page[i] = NULL;
- 	}
-+	queue->tx_link[NET_TX_RING_SIZE - 1] = TX_LINK_NONE;
+ #define BACK_RING_INIT(_r, _s, __size) BACK_RING_ATTACH(_r, _s, 0, __size)
  
- 	/* Clear out rx_skbs */
- 	for (i = 0; i < NET_RX_RING_SIZE; i++) {
+ /* How big is this ring? */
+-#define RING_SIZE(_r)							\
++#define RING_SIZE(_r)                                                   \
+     ((_r)->nr_ents)
+ 
+ /* Number of free requests (for use on front side only). */
+-#define RING_FREE_REQUESTS(_r)						\
++#define RING_FREE_REQUESTS(_r)                                          \
+     (RING_SIZE(_r) - ((_r)->req_prod_pvt - (_r)->rsp_cons))
+ 
+ /* Test if there is an empty slot available on the front ring.
+  * (This is only meaningful from the front. )
+  */
+-#define RING_FULL(_r)							\
++#define RING_FULL(_r)                                                   \
+     (RING_FREE_REQUESTS(_r) == 0)
+ 
+ /* Test if there are outstanding messages to be processed on a ring. */
+-#define RING_HAS_UNCONSUMED_RESPONSES(_r)				\
++#define RING_HAS_UNCONSUMED_RESPONSES(_r)                               \
+     ((_r)->sring->rsp_prod - (_r)->rsp_cons)
+ 
+-#define RING_HAS_UNCONSUMED_REQUESTS(_r)				\
+-    ({									\
+-	unsigned int req = (_r)->sring->req_prod - (_r)->req_cons;	\
+-	unsigned int rsp = RING_SIZE(_r) -				\
+-			   ((_r)->req_cons - (_r)->rsp_prod_pvt);	\
+-	req < rsp ? req : rsp;						\
+-    })
++#define RING_HAS_UNCONSUMED_REQUESTS(_r) ({                             \
++    unsigned int req = (_r)->sring->req_prod - (_r)->req_cons;          \
++    unsigned int rsp = RING_SIZE(_r) -                                  \
++        ((_r)->req_cons - (_r)->rsp_prod_pvt);                          \
++    req < rsp ? req : rsp;                                              \
++})
+ 
+ /* Direct access to individual ring elements, by index. */
+-#define RING_GET_REQUEST(_r, _idx)					\
++#define RING_GET_REQUEST(_r, _idx)                                      \
+     (&((_r)->sring->ring[((_idx) & (RING_SIZE(_r) - 1))].req))
+ 
++#define RING_GET_RESPONSE(_r, _idx)                                     \
++    (&((_r)->sring->ring[((_idx) & (RING_SIZE(_r) - 1))].rsp))
++
+ /*
+- * Get a local copy of a request.
++ * Get a local copy of a request/response.
+  *
+- * Use this in preference to RING_GET_REQUEST() so all processing is
++ * Use this in preference to RING_GET_{REQUEST,RESPONSE}() so all processing is
+  * done on a local copy that cannot be modified by the other end.
+  *
+  * Note that https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58145 may cause this
+- * to be ineffective where _req is a struct which consists of only bitfields.
++ * to be ineffective where dest is a struct which consists of only bitfields.
+  */
+-#define RING_COPY_REQUEST(_r, _idx, _req) do {				\
+-	/* Use volatile to force the copy into _req. */			\
+-	*(_req) = *(volatile typeof(_req))RING_GET_REQUEST(_r, _idx);	\
++#define RING_COPY_(type, r, idx, dest) do {				\
++	/* Use volatile to force the copy into dest. */			\
++	*(dest) = *(volatile typeof(dest))RING_GET_##type(r, idx);	\
+ } while (0)
+ 
+-#define RING_GET_RESPONSE(_r, _idx)					\
+-    (&((_r)->sring->ring[((_idx) & (RING_SIZE(_r) - 1))].rsp))
++#define RING_COPY_REQUEST(r, idx, req)  RING_COPY_(REQUEST, r, idx, req)
++#define RING_COPY_RESPONSE(r, idx, rsp) RING_COPY_(RESPONSE, r, idx, rsp)
+ 
+ /* Loop termination condition: Would the specified index overflow the ring? */
+-#define RING_REQUEST_CONS_OVERFLOW(_r, _cons)				\
++#define RING_REQUEST_CONS_OVERFLOW(_r, _cons)                           \
+     (((_cons) - (_r)->rsp_prod_pvt) >= RING_SIZE(_r))
+ 
+ /* Ill-behaved frontend determination: Can there be this many requests? */
+-#define RING_REQUEST_PROD_OVERFLOW(_r, _prod)               \
++#define RING_REQUEST_PROD_OVERFLOW(_r, _prod)                           \
+     (((_prod) - (_r)->rsp_prod_pvt) > RING_SIZE(_r))
+ 
+-
+-#define RING_PUSH_REQUESTS(_r) do {					\
+-    virt_wmb(); /* back sees requests /before/ updated producer index */	\
+-    (_r)->sring->req_prod = (_r)->req_prod_pvt;				\
++/* Ill-behaved backend determination: Can there be this many responses? */
++#define RING_RESPONSE_PROD_OVERFLOW(_r, _prod)                          \
++    (((_prod) - (_r)->rsp_cons) > RING_SIZE(_r))
++
++#define RING_PUSH_REQUESTS(_r) do {                                     \
++    virt_wmb(); /* back sees requests /before/ updated producer index */\
++    (_r)->sring->req_prod = (_r)->req_prod_pvt;                         \
+ } while (0)
+ 
+-#define RING_PUSH_RESPONSES(_r) do {					\
+-    virt_wmb(); /* front sees responses /before/ updated producer index */	\
+-    (_r)->sring->rsp_prod = (_r)->rsp_prod_pvt;				\
++#define RING_PUSH_RESPONSES(_r) do {                                    \
++    virt_wmb(); /* front sees resps /before/ updated producer index */  \
++    (_r)->sring->rsp_prod = (_r)->rsp_prod_pvt;                         \
+ } while (0)
+ 
+ /*
+@@ -239,40 +273,40 @@ struct __name##_back_ring {						\
+  *  field appropriately.
+  */
+ 
+-#define RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(_r, _notify) do {		\
+-    RING_IDX __old = (_r)->sring->req_prod;				\
+-    RING_IDX __new = (_r)->req_prod_pvt;				\
+-    virt_wmb(); /* back sees requests /before/ updated producer index */	\
+-    (_r)->sring->req_prod = __new;					\
+-    virt_mb(); /* back sees new requests /before/ we check req_event */	\
+-    (_notify) = ((RING_IDX)(__new - (_r)->sring->req_event) <		\
+-		 (RING_IDX)(__new - __old));				\
++#define RING_PUSH_REQUESTS_AND_CHECK_NOTIFY(_r, _notify) do {           \
++    RING_IDX __old = (_r)->sring->req_prod;                             \
++    RING_IDX __new = (_r)->req_prod_pvt;                                \
++    virt_wmb(); /* back sees requests /before/ updated producer index */\
++    (_r)->sring->req_prod = __new;                                      \
++    virt_mb(); /* back sees new requests /before/ we check req_event */ \
++    (_notify) = ((RING_IDX)(__new - (_r)->sring->req_event) <           \
++                 (RING_IDX)(__new - __old));                            \
+ } while (0)
+ 
+-#define RING_PUSH_RESPONSES_AND_CHECK_NOTIFY(_r, _notify) do {		\
+-    RING_IDX __old = (_r)->sring->rsp_prod;				\
+-    RING_IDX __new = (_r)->rsp_prod_pvt;				\
+-    virt_wmb(); /* front sees responses /before/ updated producer index */	\
+-    (_r)->sring->rsp_prod = __new;					\
+-    virt_mb(); /* front sees new responses /before/ we check rsp_event */	\
+-    (_notify) = ((RING_IDX)(__new - (_r)->sring->rsp_event) <		\
+-		 (RING_IDX)(__new - __old));				\
++#define RING_PUSH_RESPONSES_AND_CHECK_NOTIFY(_r, _notify) do {          \
++    RING_IDX __old = (_r)->sring->rsp_prod;                             \
++    RING_IDX __new = (_r)->rsp_prod_pvt;                                \
++    virt_wmb(); /* front sees resps /before/ updated producer index */  \
++    (_r)->sring->rsp_prod = __new;                                      \
++    virt_mb(); /* front sees new resps /before/ we check rsp_event */   \
++    (_notify) = ((RING_IDX)(__new - (_r)->sring->rsp_event) <           \
++                 (RING_IDX)(__new - __old));                            \
+ } while (0)
+ 
+-#define RING_FINAL_CHECK_FOR_REQUESTS(_r, _work_to_do) do {		\
+-    (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);			\
+-    if (_work_to_do) break;						\
+-    (_r)->sring->req_event = (_r)->req_cons + 1;			\
+-    virt_mb();								\
+-    (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);			\
++#define RING_FINAL_CHECK_FOR_REQUESTS(_r, _work_to_do) do {             \
++    (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);                   \
++    if (_work_to_do) break;                                             \
++    (_r)->sring->req_event = (_r)->req_cons + 1;                        \
++    virt_mb();                                                          \
++    (_work_to_do) = RING_HAS_UNCONSUMED_REQUESTS(_r);                   \
+ } while (0)
+ 
+-#define RING_FINAL_CHECK_FOR_RESPONSES(_r, _work_to_do) do {		\
+-    (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);			\
+-    if (_work_to_do) break;						\
+-    (_r)->sring->rsp_event = (_r)->rsp_cons + 1;			\
+-    virt_mb();								\
+-    (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);			\
++#define RING_FINAL_CHECK_FOR_RESPONSES(_r, _work_to_do) do {            \
++    (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);                  \
++    if (_work_to_do) break;                                             \
++    (_r)->sring->rsp_event = (_r)->rsp_cons + 1;                        \
++    virt_mb();                                                          \
++    (_work_to_do) = RING_HAS_UNCONSUMED_RESPONSES(_r);                  \
+ } while (0)
+ 
+ 
 
 
