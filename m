@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9F49461DDB
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:27:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C307461E67
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:34:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379017AbhK2S34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:29:56 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:47850 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351307AbhK2S1z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:27:55 -0500
+        id S1379446AbhK2Sft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:35:49 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38548 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379631AbhK2Sds (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:33:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9BCCFCE167D;
-        Mon, 29 Nov 2021 18:24:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49616C53FAD;
-        Mon, 29 Nov 2021 18:24:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BA78B815E2;
+        Mon, 29 Nov 2021 18:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 511E5C5833E;
+        Mon, 29 Nov 2021 18:30:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210274;
-        bh=qsT2tlP3Dh1TzlaNCd1y/SMQPnJ76ylQRmy1AgwRj+E=;
+        s=korg; t=1638210628;
+        bh=XSUKiHh5Ceyd6BtAzKyNOaDu4nbGUBCm3iAga4MlARc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wAt/tAn+MVA/Awd/sJ2n0nRkfe4Gdw6S7Gmm7JgVIwcRHNcvYpetIJpRnB56okAFE
-         PwthXaLNuTR1f7ujRzfVaoCxvGabsT+Fi070TVL6O8TqGZk6kImhZPcW0mVTykSuJu
-         XCcBUi7LTb3GAl0lH1ut4xDQBNenPphmC/mNh6Rk=
+        b=qFCcvMA7WwRrVOdZCd1tNeJ0leuTXmP69+4BbIhJXOFrNmXVoq11OqEJZJyCojFhU
+         r7WvbFloeon3kStToMsMwny1nxKhRweoBr9nxm+p0EAc73czRhlXFJ9PFvfKgGT17U
+         dnqOzFU3ip4/eJmGN1wWt493rPoczHZZYxMN9e/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.4 30/92] PCI: aardvark: Dont touch PCIe registers if no card connected
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 048/121] ASoC: qdsp6: q6routing: Conditionally reset FrontEnd Mixer
 Date:   Mon, 29 Nov 2021 19:17:59 +0100
-Message-Id: <20211129181708.414533084@linuxfoundation.org>
+Message-Id: <20211129181713.277970582@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
+References: <20211129181711.642046348@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-commit 70e380250c3621c55ff218cbaf2272830d9dbb1d upstream.
+[ Upstream commit 861afeac7990587588d057b2c0b3222331c3da29 ]
 
-When there is no PCIe card connected and advk_pcie_rd_conf() or
-advk_pcie_wr_conf() is called for PCI bus which doesn't belong to emulated
-root bridge, the aardvark driver throws the following error message:
+Stream IDs are reused across multiple BackEnd mixers, do not reset the
+stream mixers if they are not already set for that particular FrontEnd.
 
-  advk-pcie d0070000.pcie: config read/write timed out
+Ex:
+amixer cset iface=MIXER,name='SLIMBUS_0_RX Audio Mixer MultiMedia1' 1
 
-Obviously accessing PCIe registers of disconnected card is not possible.
+would set the MultiMedia1 steam for SLIMBUS_0_RX, however doing below
+command will reset previously setup MultiMedia1 stream, because both of them
+are using MultiMedia1 PCM stream.
 
-Extend check in advk_pcie_valid_device() function for validating
-availability of PCIe bus. If PCIe link is down, then the device is marked
-as Not Found and the driver does not try to access these registers.
+amixer cset iface=MIXER,name='SLIMBUS_2_RX Audio Mixer MultiMedia1' 0
 
-This is just an optimization to prevent accessing PCIe registers when card
-is disconnected. Trying to access PCIe registers of disconnected card does
-not cause any crash, kernel just needs to wait for a timeout. So if card
-disappear immediately after checking for PCIe link (before accessing PCIe
-registers), it does not cause any problems.
+reset the FrontEnd Mixers conditionally to fix this issue.
 
-Link: https://lore.kernel.org/r/20200702083036.12230-1-pali@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is more noticeable in desktop setup, where in alsactl tries to restore
+the alsa state and overwriting the previous mixer settings.
+
+Fixes: e3a33673e845 ("ASoC: qdsp6: q6routing: Add q6routing driver")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20211116114721.12517-3-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/soc/qcom/qdsp6/q6routing.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -806,6 +806,13 @@ static bool advk_pcie_valid_device(struc
- 	if ((bus->number == pcie->root_bus_nr) && PCI_SLOT(devfn) != 0)
- 		return false;
- 
-+	/*
-+	 * If the link goes down after we check for link-up, nothing bad
-+	 * happens but the config access times out.
-+	 */
-+	if (bus->number != pcie->root_bus_nr && !advk_pcie_link_up(pcie))
-+		return false;
+diff --git a/sound/soc/qcom/qdsp6/q6routing.c b/sound/soc/qcom/qdsp6/q6routing.c
+index 0a6b9433f6acf..934b3f282bccd 100644
+--- a/sound/soc/qcom/qdsp6/q6routing.c
++++ b/sound/soc/qcom/qdsp6/q6routing.c
+@@ -491,7 +491,11 @@ static int msm_routing_put_audio_mixer(struct snd_kcontrol *kcontrol,
+ 		session->port_id = be_id;
+ 		snd_soc_dapm_mixer_update_power(dapm, kcontrol, 1, update);
+ 	} else {
+-		session->port_id = -1;
++		if (session->port_id == be_id) {
++			session->port_id = -1;
++			return 0;
++		}
 +
- 	return true;
- }
+ 		snd_soc_dapm_mixer_update_power(dapm, kcontrol, 0, update);
+ 	}
  
+-- 
+2.33.0
+
 
 
