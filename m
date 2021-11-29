@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60B81462306
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 22:12:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E3DD46265F
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:48:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231815AbhK2VPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 16:15:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41592 "EHLO
+        id S235406AbhK2WvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:51:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231322AbhK2VNs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 16:13:48 -0500
+        with ESMTP id S235531AbhK2WuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:50:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56549C0E49B9;
-        Mon, 29 Nov 2021 10:24:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B151C12B6B2;
+        Mon, 29 Nov 2021 10:38:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2BD3B815BE;
-        Mon, 29 Nov 2021 18:24:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EDF2C53FAD;
-        Mon, 29 Nov 2021 18:24:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11A26B81630;
+        Mon, 29 Nov 2021 18:38:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41142C53FC7;
+        Mon, 29 Nov 2021 18:38:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210294;
-        bh=PFbvj6Z3GHoMPkE14dmcjJUwr95SjqTEocZtFlnUrfs=;
+        s=korg; t=1638211099;
+        bh=PNfJYavmxmD1mSQO4+BCCkDlZAxZcQqzg92mqCseBfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kw13aXqjWWCHOzc6MWKH6MrEVGKUqBhOxw8k8Em1dvo+yVrIq7V/LQguilX5DladS
-         8nW9foGYncFlG/Ccroghs54FubIHGk88Yv3sh3QwJGcnpZi8cwlkze2GK68VaD3R7w
-         ACJU6LPYw/eYzh+Jo0PKGUtpHPAX9srudMIYOMdQ=
+        b=NTtUGidkrvJ785D+7q9nghqgYz10p4zKIXnPO2S6Zs1IMmFdYeyYSl58cT+A6W0Kz
+         pcChNDOxSCBMgHR4llkGYUgVoFRsRML3jwx4Z1aVyon8bKD18xIbFC45AmG+HU/04P
+         Jc8kFEvlsEK1Y0AVU+tZdwBs9J3ZZcy1JwuEW4zA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 36/92] PCI: aardvark: Fix PCIe Max Payload Size setting
-Date:   Mon, 29 Nov 2021 19:18:05 +0100
-Message-Id: <20211129181708.625794370@linuxfoundation.org>
+        stable@vger.kernel.org, Oskar Senft <osk@google.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Jeremy Kerr <jk@codeconstruct.com.au>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 092/179] drm/aspeed: Fix vga_pw sysfs output
+Date:   Mon, 29 Nov 2021 19:18:06 +0100
+Message-Id: <20211129181721.961334674@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
-References: <20211129181707.392764191@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,48 +50,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Joel Stanley <joel@jms.id.au>
 
-commit a4e17d65dafdd3513042d8f00404c9b6068a825c upstream.
+[ Upstream commit b4a6aaeaf4aa79f23775f6688a7e8db3ee1c1303 ]
 
-Change PCIe Max Payload Size setting in PCIe Device Control register to 512
-bytes to align with PCIe Link Initialization sequence as defined in Marvell
-Armada 3700 Functional Specification. According to the specification,
-maximal Max Payload Size supported by this device is 512 bytes.
+Before the drm driver had support for this file there was a driver that
+exposed the contents of the vga password register to userspace. It would
+present the entire register instead of interpreting it.
 
-Without this kernel prints suspicious line:
+The drm implementation chose to mask of the lower bit, without explaining
+why. This breaks the existing userspace, which is looking for 0xa8 in
+the lower byte.
 
-    pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 16384, max 512)
+Change our implementation to expose the entire register.
 
-With this change it changes to:
-
-    pci 0000:01:00.0: Upstream bridge's Max Payload Size set to 256 (was 512, max 512)
-
-Link: https://lore.kernel.org/r/20211005180952.6812-3-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 696029eb36c0 ("drm/aspeed: Add sysfs for output settings")
+Reported-by: Oskar Senft <osk@google.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Jeremy Kerr <jk@codeconstruct.com.au>
+Tested-by: Oskar Senft <osk@google.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211117010145.297253-1-joel@jms.id.au
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/aspeed/aspeed_gfx_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -565,8 +565,9 @@ static void advk_pcie_setup_hw(struct ad
- 	reg = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
- 	reg &= ~PCI_EXP_DEVCTL_RELAX_EN;
- 	reg &= ~PCI_EXP_DEVCTL_NOSNOOP_EN;
-+	reg &= ~PCI_EXP_DEVCTL_PAYLOAD;
- 	reg &= ~PCI_EXP_DEVCTL_READRQ;
--	reg |= PCI_EXP_DEVCTL_PAYLOAD; /* Set max payload size */
-+	reg |= PCI_EXP_DEVCTL_PAYLOAD_512B;
- 	reg |= PCI_EXP_DEVCTL_READRQ_512B;
- 	advk_writel(pcie, reg, PCIE_CORE_PCIEXP_CAP + PCI_EXP_DEVCTL);
+diff --git a/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c b/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c
+index b53fee6f1c170..65f172807a0d5 100644
+--- a/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c
++++ b/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c
+@@ -291,7 +291,7 @@ vga_pw_show(struct device *dev, struct device_attribute *attr, char *buf)
+ 	if (rc)
+ 		return rc;
  
+-	return sprintf(buf, "%u\n", reg & 1);
++	return sprintf(buf, "%u\n", reg);
+ }
+ static DEVICE_ATTR_RO(vga_pw);
+ 
+-- 
+2.33.0
+
 
 
