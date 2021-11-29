@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B58C461133
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 10:36:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E12E8461139
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 10:40:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241473AbhK2Jjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 04:39:52 -0500
-Received: from mga03.intel.com ([134.134.136.65]:46013 "EHLO mga03.intel.com"
+        id S242834AbhK2Jnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 04:43:45 -0500
+Received: from mga01.intel.com ([192.55.52.88]:22861 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245374AbhK2Jht (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Nov 2021 04:37:49 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10182"; a="235865574"
+        id S243170AbhK2Jlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Nov 2021 04:41:45 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10182"; a="259846274"
 X-IronPort-AV: E=Sophos;i="5.87,272,1631602800"; 
-   d="scan'208";a="235865574"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2021 01:34:22 -0800
+   d="scan'208";a="259846274"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2021 01:38:28 -0800
 X-IronPort-AV: E=Sophos;i="5.87,272,1631602800"; 
-   d="scan'208";a="499261687"
+   d="scan'208";a="511616065"
 Received: from unknown (HELO cra01infra01.deacluster.intel.com) ([10.240.193.73])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2021 01:34:20 -0800
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Nov 2021 01:38:25 -0800
 From:   Zhu Lingshan <lingshan.zhu@intel.com>
-To:     lingshan.zhu@live.com
-Cc:     Zhu Lingshan <lingshan.zhu@intel.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
+To:     jasowang@redhat.com, mst@redhat.com, sgarzare@redhat.com
+Cc:     virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+        netdev@vger.kernel.org, Zhu Lingshan <lingshan.zhu@intel.com>,
         stable@vger.kernel.org
 Subject: [PATCH] ifcvf/vDPA: fix misuse virtio-net device config size for blk dev
-Date:   Mon, 29 Nov 2021 17:27:39 +0800
-Message-Id: <20211129092739.7899-1-lingshan.zhu@intel.com>
+Date:   Mon, 29 Nov 2021 17:31:44 +0800
+Message-Id: <20211129093144.8033-1-lingshan.zhu@intel.com>
 X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
