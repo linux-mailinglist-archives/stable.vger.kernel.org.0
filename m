@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D318F4626DA
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:54:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D9E6462619
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:43:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236208AbhK2W55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:57:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37676 "EHLO
+        id S235453AbhK2WrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:47:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231318AbhK2W53 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:57:29 -0500
+        with ESMTP id S234950AbhK2Wob (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:44:31 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77F5EC141B36;
-        Mon, 29 Nov 2021 10:32:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0C20C125332;
+        Mon, 29 Nov 2021 10:27:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C3ECACE13D0;
-        Mon, 29 Nov 2021 18:32:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75401C53FAD;
-        Mon, 29 Nov 2021 18:32:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 190BACE13DF;
+        Mon, 29 Nov 2021 18:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC03FC53FC7;
+        Mon, 29 Nov 2021 18:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210752;
-        bh=ea4tfQQOfMATtlI7evWrjciHYa2mDFvBvDEMF8y32IY=;
+        s=korg; t=1638210440;
+        bh=u72DCnz/wYvFwWAzvnJF29igJKQF73qq+VxlwNYL+dY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YvMnfxxMGjFbquhe608SULEUkGLqTFB0escCB+s8k1abYBPHyxO4QQsiar0bDZEvr
-         9dCC/EfK9QWusgjnBGd7E/MuPOqotIYaVkONG/qTMpWnjqSNG3+vTk3rXpHGqqvm1x
-         NOD7kMnOCY3Y7RSDz7DHM31Ojf1BjppcqUJ0CLec=
+        b=L+PdanSydzJ9XbD/LhTuTercieDaEz1IBtTCzAQ2VCdreRGsvzoSIimyV7hDUDjWR
+         DocDd+CkVByrlI8+TliaUiEgJVYbJOyrpoWgMzMcybEo3KyLDVaI/F84J/MzNpSUTq
+         sqgPxEg89X0NmcovZbi9NAP42bHHDsF91R1juPvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Sikorski <belegdol@gmail.com>,
-        Jeremy Allison <jra@samba.org>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 105/121] smb3: do not error on fsync when readonly
-Date:   Mon, 29 Nov 2021 19:18:56 +0100
-Message-Id: <20211129181715.196035836@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 89/92] xen/netfront: dont read data from request on the ring page
+Date:   Mon, 29 Nov 2021 19:18:58 +0100
+Message-Id: <20211129181710.361267274@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181707.392764191@linuxfoundation.org>
+References: <20211129181707.392764191@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,94 +48,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 71e6864eacbef0b2645ca043cdfbac272cb6cea3 ]
+commit 162081ec33c2686afa29d91bf8d302824aa846c7 upstream.
 
-Linux allows doing a flush/fsync on a file open for read-only,
-but the protocol does not allow that.  If the file passed in
-on the flush is read-only try to find a writeable handle for
-the same inode, if that is not possible skip sending the
-fsync call to the server to avoid breaking the apps.
+In order to avoid a malicious backend being able to influence the local
+processing of a request build the request locally first and then copy
+it to the ring page. Any reading from the request influencing the
+processing in the frontend needs to be done on the local instance.
 
-Reported-by: Julian Sikorski <belegdol@gmail.com>
-Tested-by: Julian Sikorski <belegdol@gmail.com>
-Suggested-by: Jeremy Allison <jra@samba.org>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/file.c | 35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+ drivers/net/xen-netfront.c |   78 ++++++++++++++++++++-------------------------
+ 1 file changed, 36 insertions(+), 42 deletions(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 67139f9d583f2..6c06870f90184 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -2618,12 +2618,23 @@ int cifs_strict_fsync(struct file *file, loff_t start, loff_t end,
- 	tcon = tlink_tcon(smbfile->tlink);
- 	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOSSYNC)) {
- 		server = tcon->ses->server;
--		if (server->ops->flush)
--			rc = server->ops->flush(xid, tcon, &smbfile->fid);
--		else
-+		if (server->ops->flush == NULL) {
- 			rc = -ENOSYS;
-+			goto strict_fsync_exit;
-+		}
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -423,7 +423,8 @@ struct xennet_gnttab_make_txreq {
+ 	struct netfront_queue *queue;
+ 	struct sk_buff *skb;
+ 	struct page *page;
+-	struct xen_netif_tx_request *tx; /* Last request */
++	struct xen_netif_tx_request *tx;      /* Last request on ring page */
++	struct xen_netif_tx_request tx_local; /* Last request local copy*/
+ 	unsigned int size;
+ };
+ 
+@@ -451,30 +452,27 @@ static void xennet_tx_setup_grant(unsign
+ 	queue->grant_tx_page[id] = page;
+ 	queue->grant_tx_ref[id] = ref;
+ 
+-	tx->id = id;
+-	tx->gref = ref;
+-	tx->offset = offset;
+-	tx->size = len;
+-	tx->flags = 0;
++	info->tx_local.id = id;
++	info->tx_local.gref = ref;
++	info->tx_local.offset = offset;
++	info->tx_local.size = len;
++	info->tx_local.flags = 0;
 +
-+		if ((OPEN_FMODE(smbfile->f_flags) & FMODE_WRITE) == 0) {
-+			smbfile = find_writable_file(CIFS_I(inode), FIND_WR_ANY);
-+			if (smbfile) {
-+				rc = server->ops->flush(xid, tcon, &smbfile->fid);
-+				cifsFileInfo_put(smbfile);
-+			} else
-+				cifs_dbg(FYI, "ignore fsync for file not open for write\n");
-+		} else
-+			rc = server->ops->flush(xid, tcon, &smbfile->fid);
++	*tx = info->tx_local;
+ 
+ 	info->tx = tx;
+-	info->size += tx->size;
++	info->size += info->tx_local.size;
+ }
+ 
+ static struct xen_netif_tx_request *xennet_make_first_txreq(
+-	struct netfront_queue *queue, struct sk_buff *skb,
+-	struct page *page, unsigned int offset, unsigned int len)
++	struct xennet_gnttab_make_txreq *info,
++	unsigned int offset, unsigned int len)
+ {
+-	struct xennet_gnttab_make_txreq info = {
+-		.queue = queue,
+-		.skb = skb,
+-		.page = page,
+-		.size = 0,
+-	};
++	info->size = 0;
+ 
+-	gnttab_for_one_grant(page, offset, len, xennet_tx_setup_grant, &info);
++	gnttab_for_one_grant(info->page, offset, len, xennet_tx_setup_grant, info);
+ 
+-	return info.tx;
++	return info->tx;
+ }
+ 
+ static void xennet_make_one_txreq(unsigned long gfn, unsigned int offset,
+@@ -487,35 +485,27 @@ static void xennet_make_one_txreq(unsign
+ 	xennet_tx_setup_grant(gfn, offset, len, data);
+ }
+ 
+-static struct xen_netif_tx_request *xennet_make_txreqs(
+-	struct netfront_queue *queue, struct xen_netif_tx_request *tx,
+-	struct sk_buff *skb, struct page *page,
++static void xennet_make_txreqs(
++	struct xennet_gnttab_make_txreq *info,
++	struct page *page,
+ 	unsigned int offset, unsigned int len)
+ {
+-	struct xennet_gnttab_make_txreq info = {
+-		.queue = queue,
+-		.skb = skb,
+-		.tx = tx,
+-	};
+-
+ 	/* Skip unused frames from start of page */
+ 	page += offset >> PAGE_SHIFT;
+ 	offset &= ~PAGE_MASK;
+ 
+ 	while (len) {
+-		info.page = page;
+-		info.size = 0;
++		info->page = page;
++		info->size = 0;
+ 
+ 		gnttab_foreach_grant_in_range(page, offset, len,
+ 					      xennet_make_one_txreq,
+-					      &info);
++					      info);
+ 
+ 		page++;
+ 		offset = 0;
+-		len -= info.size;
++		len -= info->size;
+ 	}
+-
+-	return info.tx;
+ }
+ 
+ /*
+@@ -568,7 +558,7 @@ static netdev_tx_t xennet_start_xmit(str
+ {
+ 	struct netfront_info *np = netdev_priv(dev);
+ 	struct netfront_stats *tx_stats = this_cpu_ptr(np->tx_stats);
+-	struct xen_netif_tx_request *tx, *first_tx;
++	struct xen_netif_tx_request *first_tx;
+ 	unsigned int i;
+ 	int notify;
+ 	int slots;
+@@ -577,6 +567,7 @@ static netdev_tx_t xennet_start_xmit(str
+ 	unsigned int len;
+ 	unsigned long flags;
+ 	struct netfront_queue *queue = NULL;
++	struct xennet_gnttab_make_txreq info = { };
+ 	unsigned int num_queues = dev->real_num_tx_queues;
+ 	u16 queue_index;
+ 	struct sk_buff *nskb;
+@@ -634,21 +625,24 @@ static netdev_tx_t xennet_start_xmit(str
  	}
  
-+strict_fsync_exit:
- 	free_xid(xid);
- 	return rc;
- }
-@@ -2635,6 +2646,7 @@ int cifs_fsync(struct file *file, loff_t start, loff_t end, int datasync)
- 	struct cifs_tcon *tcon;
- 	struct TCP_Server_Info *server;
- 	struct cifsFileInfo *smbfile = file->private_data;
-+	struct inode *inode = file_inode(file);
- 	struct cifs_sb_info *cifs_sb = CIFS_FILE_SB(file);
+ 	/* First request for the linear area. */
+-	first_tx = tx = xennet_make_first_txreq(queue, skb,
+-						page, offset, len);
+-	offset += tx->size;
++	info.queue = queue;
++	info.skb = skb;
++	info.page = page;
++	first_tx = xennet_make_first_txreq(&info, offset, len);
++	offset += info.tx_local.size;
+ 	if (offset == PAGE_SIZE) {
+ 		page++;
+ 		offset = 0;
+ 	}
+-	len -= tx->size;
++	len -= info.tx_local.size;
  
- 	rc = file_write_and_wait_range(file, start, end);
-@@ -2651,12 +2663,23 @@ int cifs_fsync(struct file *file, loff_t start, loff_t end, int datasync)
- 	tcon = tlink_tcon(smbfile->tlink);
- 	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_NOSSYNC)) {
- 		server = tcon->ses->server;
--		if (server->ops->flush)
--			rc = server->ops->flush(xid, tcon, &smbfile->fid);
--		else
-+		if (server->ops->flush == NULL) {
- 			rc = -ENOSYS;
-+			goto fsync_exit;
-+		}
-+
-+		if ((OPEN_FMODE(smbfile->f_flags) & FMODE_WRITE) == 0) {
-+			smbfile = find_writable_file(CIFS_I(inode), FIND_WR_ANY);
-+			if (smbfile) {
-+				rc = server->ops->flush(xid, tcon, &smbfile->fid);
-+				cifsFileInfo_put(smbfile);
-+			} else
-+				cifs_dbg(FYI, "ignore fsync for file not open for write\n");
-+		} else
-+			rc = server->ops->flush(xid, tcon, &smbfile->fid);
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 		/* local packet? */
+-		tx->flags |= XEN_NETTXF_csum_blank | XEN_NETTXF_data_validated;
++		first_tx->flags |= XEN_NETTXF_csum_blank |
++				   XEN_NETTXF_data_validated;
+ 	else if (skb->ip_summed == CHECKSUM_UNNECESSARY)
+ 		/* remote but checksummed. */
+-		tx->flags |= XEN_NETTXF_data_validated;
++		first_tx->flags |= XEN_NETTXF_data_validated;
+ 
+ 	/* Optional extra info after the first request. */
+ 	if (skb_shinfo(skb)->gso_size) {
+@@ -657,7 +651,7 @@ static netdev_tx_t xennet_start_xmit(str
+ 		gso = (struct xen_netif_extra_info *)
+ 			RING_GET_REQUEST(&queue->tx, queue->tx.req_prod_pvt++);
+ 
+-		tx->flags |= XEN_NETTXF_extra_info;
++		first_tx->flags |= XEN_NETTXF_extra_info;
+ 
+ 		gso->u.gso.size = skb_shinfo(skb)->gso_size;
+ 		gso->u.gso.type = (skb_shinfo(skb)->gso_type & SKB_GSO_TCPV6) ?
+@@ -671,12 +665,12 @@ static netdev_tx_t xennet_start_xmit(str
  	}
  
-+fsync_exit:
- 	free_xid(xid);
- 	return rc;
- }
--- 
-2.33.0
-
+ 	/* Requests for the rest of the linear area. */
+-	tx = xennet_make_txreqs(queue, tx, skb, page, offset, len);
++	xennet_make_txreqs(&info, page, offset, len);
+ 
+ 	/* Requests for all the frags. */
+ 	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
+ 		skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+-		tx = xennet_make_txreqs(queue, tx, skb, skb_frag_page(frag),
++		xennet_make_txreqs(&info, skb_frag_page(frag),
+ 					skb_frag_off(frag),
+ 					skb_frag_size(frag));
+ 	}
 
 
