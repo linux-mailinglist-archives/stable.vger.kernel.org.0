@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D66154624E9
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:30:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 394B9462598
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231410AbhK2WdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:33:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60678 "EHLO
+        id S230478AbhK2WlI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:41:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231451AbhK2Wc6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:32:58 -0500
+        with ESMTP id S234404AbhK2WkM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:40:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA051C1404F9;
-        Mon, 29 Nov 2021 10:30:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22E25C0800C3;
+        Mon, 29 Nov 2021 10:38:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9AD3BB815CF;
-        Mon, 29 Nov 2021 18:30:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCF00C53FC7;
-        Mon, 29 Nov 2021 18:30:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD0FAB815CF;
+        Mon, 29 Nov 2021 18:38:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C74C53FC7;
+        Mon, 29 Nov 2021 18:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210643;
-        bh=ZSmSfHig9PTFkY3PXBe3JjIQjQjMoLFmcOxhowBkzdk=;
+        s=korg; t=1638211122;
+        bh=onSWDIkiDhLnFuVPAEBleXNyLnBEeLn/Bz6gkiYKqR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9E+LvGxE+44nnvvYo8UXZS2w4BZuz9dXxW9173xu0OpPu1aeY3R9TYxkQP7LqKMK
-         QOZU8MFvoOJVNDa1HIOn8BvHNlLIs9yLnTyityGyvStQJSUZmwlQCVQYLgVzWSsQrv
-         5cXW/Y5DYJrbJtuApqgPx7Scdh80KqKkiud2syI0=
+        b=uOiXq0rNJKQXdUCMsgcohyhfZfzogB/a2jI9tpuCY/Mm3I0c+qXl+zef+7q9QExqt
+         8RDp0yue4iXKHsMp0c9HwwUbbBe0phrnYo7HgQC2wX08H5p7wHTiXdWQUPi4Snx5un
+         /BYbg4N1/SyOmY7Q3Mxg4Fm8Fkh0q74gUX4B+WR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 053/121] firmware: arm_scmi: pm: Propagate return value to caller
+Subject: [PATCH 5.15 090/179] scsi: mpt3sas: Fix incorrect system timestamp
 Date:   Mon, 29 Nov 2021 19:18:04 +0100
-Message-Id: <20211129181713.435546458@linuxfoundation.org>
+Message-Id: <20211129181721.899391359@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,37 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 1446fc6c678e8d8b31606a4b877abe205f344b38 ]
+[ Upstream commit 5ecae9f8c705fae85fe4d2ed9f1b9cddf91e88e9 ]
 
-of_genpd_add_provider_onecell may return error, so let's propagate
-its return value to caller
+For updating the IOC firmware's timestamp with system timestamp, the driver
+issues the Mpi26IoUnitControlRequest message. While framing the
+Mpi26IoUnitControlRequest, the driver should copy the lower 32 bits of the
+current timestamp into IOCParameterValue field and the higher 32 bits into
+Reserved7 field.
 
-Link: https://lore.kernel.org/r/20211116064227.20571-1-peng.fan@oss.nxp.com
-Fixes: 898216c97ed2 ("firmware: arm_scmi: add device power domain support using genpd")
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Link: https://lore.kernel.org/r/20211117123215.25487-1-sreekanth.reddy@broadcom.com
+Fixes: f98790c00375 ("scsi: mpt3sas: Sync time periodically between driver and firmware")
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/scmi_pm_domain.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/arm_scmi/scmi_pm_domain.c b/drivers/firmware/arm_scmi/scmi_pm_domain.c
-index 9e44479f02842..a4e4aa9a35426 100644
---- a/drivers/firmware/arm_scmi/scmi_pm_domain.c
-+++ b/drivers/firmware/arm_scmi/scmi_pm_domain.c
-@@ -106,9 +106,7 @@ static int scmi_pm_domain_probe(struct scmi_device *sdev)
- 	scmi_pd_data->domains = domains;
- 	scmi_pd_data->num_domains = num_domains;
- 
--	of_genpd_add_provider_onecell(np, scmi_pd_data);
--
--	return 0;
-+	return of_genpd_add_provider_onecell(np, scmi_pd_data);
- }
- 
- static const struct scmi_device_id scmi_id_table[] = {
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 27eb652b564f5..81dab9b82f79f 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -639,8 +639,8 @@ static void _base_sync_drv_fw_timestamp(struct MPT3SAS_ADAPTER *ioc)
+ 	mpi_request->IOCParameter = MPI26_SET_IOC_PARAMETER_SYNC_TIMESTAMP;
+ 	current_time = ktime_get_real();
+ 	TimeStamp = ktime_to_ms(current_time);
+-	mpi_request->Reserved7 = cpu_to_le32(TimeStamp & 0xFFFFFFFF);
+-	mpi_request->IOCParameterValue = cpu_to_le32(TimeStamp >> 32);
++	mpi_request->Reserved7 = cpu_to_le32(TimeStamp >> 32);
++	mpi_request->IOCParameterValue = cpu_to_le32(TimeStamp & 0xFFFFFFFF);
+ 	init_completion(&ioc->scsih_cmds.done);
+ 	ioc->put_smid_default(ioc, smid);
+ 	dinitprintk(ioc, ioc_info(ioc,
 -- 
 2.33.0
 
