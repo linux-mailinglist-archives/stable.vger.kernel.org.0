@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A06A7462730
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:59:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 098B94625AF
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:39:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236937AbhK2XBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 18:01:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38884 "EHLO
+        id S231781AbhK2Wmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:42:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237010AbhK2XAk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 18:00:40 -0500
+        with ESMTP id S233285AbhK2Wl4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:41:56 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F0CFC127B61;
-        Mon, 29 Nov 2021 10:28:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04318C127B65;
+        Mon, 29 Nov 2021 10:29:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D7FC7CE1414;
-        Mon, 29 Nov 2021 18:28:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86E06C53FCD;
-        Mon, 29 Nov 2021 18:28:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 51C88CE140D;
+        Mon, 29 Nov 2021 18:29:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0165AC58322;
+        Mon, 29 Nov 2021 18:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210532;
-        bh=KVr75T9pQTLdops153Gsed64r6TcMttVmY+VPZQgSpE=;
+        s=korg; t=1638210540;
+        bh=+aJnPnnmiVkEarbdBmhFH5k4Y5Vm/9RIZK7z8D35bu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ynf7Df5qHTx6JqVKktA/Gw7rQiKZL7qK+dicGDQLRrU7QZYAIGtbsEk3/5PhkTY4T
-         ymT9yx9kWEhbDXZjLsNvseNOZ3E8FB/CaUcdb7FZqUhyRxo1voQ+fFJIQ75rp1KquC
-         IfQZoN43VPMQdCFGlOBtJOqEcr4+DRdEaXrlwRaM=
+        b=Anr9xwh1rFUwcGcBm//iVCkIzoxshAqrLkjG/XfLqA1YNrKh/89rmQ3CyvplxmS3G
+         axTR4aYMhbxBjYc5HeJzhiCkAofJotgIsbF8hEGulLWovzMd024yWlta0OnAhzyJ0a
+         hdxEJc6VWgcM8aOtGzEX2MJo+Ao4RUL0lIBHTHrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 028/121] KVM: PPC: Book3S HV: Prevent POWER7/8 TLB flush flushing SLB
-Date:   Mon, 29 Nov 2021 19:17:39 +0100
-Message-Id: <20211129181712.599618489@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 030/121] tracing: Fix pid filtering when triggers are attached
+Date:   Mon, 29 Nov 2021 19:17:41 +0100
+Message-Id: <20211129181712.667393121@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
 References: <20211129181711.642046348@linuxfoundation.org>
@@ -48,59 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit cf0b0e3712f7af90006f8317ff27278094c2c128 upstream.
+commit a55f224ff5f238013de8762c4287117e47b86e22 upstream.
 
-The POWER9 ERAT flush instruction is a SLBIA with IH=7, which is a
-reserved value on POWER7/8. On POWER8 this invalidates the SLB entries
-above index 0, similarly to SLBIA IH=0.
+If a event is filtered by pid and a trigger that requires processing of
+the event to happen is a attached to the event, the discard portion does
+not take the pid filtering into account, and the event will then be
+recorded when it should not have been.
 
-If the SLB entries are invalidated, and then the guest is bypassed, the
-host SLB does not get re-loaded, so the bolted entries above 0 will be
-lost. This can result in kernel stack access causing a SLB fault.
-
-Kernel stack access causing a SLB fault was responsible for the infamous
-mega bug (search "Fix SLB reload bug"). Although since commit
-48e7b7695745 ("powerpc/64s/hash: Convert SLB miss handlers to C") that
-starts using the kernel stack in the SLB miss handler, it might only
-result in an infinite loop of SLB faults. In any case it's a bug.
-
-Fix this by only executing the instruction on >= POWER9 where IH=7 is
-defined not to invalidate the SLB. POWER7/8 don't require this ERAT
-flush.
-
-Fixes: 500871125920 ("KVM: PPC: Book3S HV: Invalidate ERAT when flushing guest TLB entries")
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211119031627.577853-1-npiggin@gmail.com
+Cc: stable@vger.kernel.org
+Fixes: 3fdaf80f4a836 ("tracing: Implement event pid filtering")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_hv_builtin.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/trace/trace.h |   24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
---- a/arch/powerpc/kvm/book3s_hv_builtin.c
-+++ b/arch/powerpc/kvm/book3s_hv_builtin.c
-@@ -867,6 +867,7 @@ static void flush_guest_tlb(struct kvm *
- 				       "r" (0) : "memory");
- 		}
- 		asm volatile("ptesync": : :"memory");
-+		// POWER9 congruence-class TLBIEL leaves ERAT. Flush it now.
- 		asm volatile(PPC_RADIX_INVALIDATE_ERAT_GUEST : : :"memory");
- 	} else {
- 		for (set = 0; set < kvm->arch.tlb_sets; ++set) {
-@@ -877,7 +878,9 @@ static void flush_guest_tlb(struct kvm *
- 			rb += PPC_BIT(51);	/* increment set number */
- 		}
- 		asm volatile("ptesync": : :"memory");
--		asm volatile(PPC_ISA_3_0_INVALIDATE_ERAT : : :"memory");
-+		// POWER9 congruence-class TLBIEL leaves ERAT. Flush it now.
-+		if (cpu_has_feature(CPU_FTR_ARCH_300))
-+			asm volatile(PPC_ISA_3_0_INVALIDATE_ERAT : : :"memory");
- 	}
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -1506,14 +1506,26 @@ __event_trigger_test_discard(struct trac
+ 	if (eflags & EVENT_FILE_FL_TRIGGER_COND)
+ 		*tt = event_triggers_call(file, entry, event);
+ 
+-	if (test_bit(EVENT_FILE_FL_SOFT_DISABLED_BIT, &file->flags) ||
+-	    (unlikely(file->flags & EVENT_FILE_FL_FILTERED) &&
+-	     !filter_match_preds(file->filter, entry))) {
+-		__trace_event_discard_commit(buffer, event);
+-		return true;
+-	}
++	if (likely(!(file->flags & (EVENT_FILE_FL_SOFT_DISABLED |
++				    EVENT_FILE_FL_FILTERED |
++				    EVENT_FILE_FL_PID_FILTER))))
++		return false;
++
++	if (file->flags & EVENT_FILE_FL_SOFT_DISABLED)
++		goto discard;
++
++	if (file->flags & EVENT_FILE_FL_FILTERED &&
++	    !filter_match_preds(file->filter, entry))
++		goto discard;
++
++	if ((file->flags & EVENT_FILE_FL_PID_FILTER) &&
++	    trace_event_ignore_this_pid(file))
++		goto discard;
+ 
+ 	return false;
++ discard:
++	__trace_event_discard_commit(buffer, event);
++	return true;
  }
  
+ /**
 
 
