@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D37B46258F
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:38:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6A874625BE
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:40:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232774AbhK2WlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:41:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33608 "EHLO
+        id S234426AbhK2WnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:43:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234199AbhK2WkF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:40:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F674C043CC7;
-        Mon, 29 Nov 2021 10:29:40 -0800 (PST)
+        with ESMTP id S234129AbhK2Wmd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:42:33 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ED35C1A195C;
+        Mon, 29 Nov 2021 10:37:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECA93B815B1;
-        Mon, 29 Nov 2021 18:29:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E427C53FCD;
-        Mon, 29 Nov 2021 18:29:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5BBC0CE13D9;
+        Mon, 29 Nov 2021 18:37:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A810C53FAD;
+        Mon, 29 Nov 2021 18:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210577;
-        bh=jgeilegboZbZGZiJPAXtw2VMPtxtLuDp4kMhKHauHxE=;
+        s=korg; t=1638211033;
+        bh=Sn8tndyMRnu26tV783OUTcsuI7UKqTEhnAAgF7tTOSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eeccp+03XyQtaKraxKqWk+iWBKRVq0Ar5nfgtmtmvOBNZCjs7F+wDjY9WLIqHBlkJ
-         Lgh6E7f26Xg2a4jMVyRPqxpipKUEIYU7otpxXunpAvN2x7zcc5PDicWi87zKyJaR7c
-         gi6N9ost/S14kSIjMc55RT9jJBOBRQE2kJ2cid90=
+        b=IkCXR5oZqxV/s/p4RZJO2B1+zcLUGcXMpIfGrEZr6neAkhKfz74i5nEUv5KiBQeY5
+         QetV0VBcX7v0Pb3gTWRzLxWjZ8GTmoVFd34/5fH82GGgy3hCmIct2RtuW353FYyxPM
+         cQccAn/92o91JJqPbNfNVhKnZaoYHTFQOsGrpkAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Florent Fourcot <florent.fourcot@wifirst.fr>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 042/121] netfilter: ctnetlink: do not erase error code with EINVAL
-Date:   Mon, 29 Nov 2021 19:17:53 +0100
-Message-Id: <20211129181713.064887872@linuxfoundation.org>
+Subject: [PATCH 5.15 080/179] net: ieee802154: handle iftypes as u32
+Date:   Mon, 29 Nov 2021 19:17:54 +0100
+Message-Id: <20211129181721.576403225@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
+References: <20211129181718.913038547@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,36 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florent Fourcot <florent.fourcot@wifirst.fr>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 77522ff02f333434612bd72df9b376f8d3836e4d ]
+[ Upstream commit 451dc48c806a7ce9fbec5e7a24ccf4b2c936e834 ]
 
-And be consistent in error management for both orig/reply filtering
+This patch fixes an issue that an u32 netlink value is handled as a
+signed enum value which doesn't fit into the range of u32 netlink type.
+If it's handled as -1 value some BIT() evaluation ends in a
+shift-out-of-bounds issue. To solve the issue we set the to u32 max which
+is s32 "-1" value to keep backwards compatibility and let the followed enum
+values start counting at 0. This brings the compiler to never handle the
+enum as signed and a check if the value is above NL802154_IFTYPE_MAX should
+filter -1 out.
 
-Fixes: cb8aa9a3affb ("netfilter: ctnetlink: add kernel side filtering for dump")
-Signed-off-by: Florent Fourcot <florent.fourcot@wifirst.fr>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: f3ea5e44231a ("ieee802154: add new interface command")
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20211112030916.685793-1-aahringo@redhat.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ include/net/nl802154.h | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 39e0ff41688a7..60a1a666e797a 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -974,10 +974,8 @@ ctnetlink_alloc_filter(const struct nlattr * const cda[], u8 family)
- 						   filter->family,
- 						   &filter->zone,
- 						   filter->reply_flags);
--		if (err < 0) {
--			err = -EINVAL;
-+		if (err < 0)
- 			goto err_filter;
--		}
- 	}
+diff --git a/include/net/nl802154.h b/include/net/nl802154.h
+index ddcee128f5d9a..145acb8f25095 100644
+--- a/include/net/nl802154.h
++++ b/include/net/nl802154.h
+@@ -19,6 +19,8 @@
+  *
+  */
  
- 	return filter;
++#include <linux/types.h>
++
+ #define NL802154_GENL_NAME "nl802154"
+ 
+ enum nl802154_commands {
+@@ -150,10 +152,9 @@ enum nl802154_attrs {
+ };
+ 
+ enum nl802154_iftype {
+-	/* for backwards compatibility TODO */
+-	NL802154_IFTYPE_UNSPEC = -1,
++	NL802154_IFTYPE_UNSPEC = (~(__u32)0),
+ 
+-	NL802154_IFTYPE_NODE,
++	NL802154_IFTYPE_NODE = 0,
+ 	NL802154_IFTYPE_MONITOR,
+ 	NL802154_IFTYPE_COORD,
+ 
 -- 
 2.33.0
 
