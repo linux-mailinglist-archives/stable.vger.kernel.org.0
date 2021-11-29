@@ -2,112 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16144461B30
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 16:40:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3678461B4F
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 16:49:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345353AbhK2Pnx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 10:43:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54036 "EHLO
+        id S243918AbhK2Pwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 10:52:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343529AbhK2Plx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 10:41:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC221C09CE43
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 05:46:46 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D7E8B8118A
-        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 13:46:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A74D8C004E1;
-        Mon, 29 Nov 2021 13:46:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638193604;
-        bh=qs7ejLLSrZfxMp98dfPB46lUUmPDUq1H1uPgwPlP+Yw=;
-        h=Subject:To:Cc:From:Date:From;
-        b=AgcDiMgwCeVw2BLg8JHGELOAI1UBnv+DTBXZMUOI+DHrDTZTdXWDsbm/3vnUSn7P2
-         kjIqDJvRCd+iHf/sAXadhuh62NMRbq5q8R9UH9YUG2HundKEB0Z8z11L65FUBgfYoD
-         yf5bMXeZVqL9xrsQOpswlIZRmcdz4BvVW1X1sEm0=
-Subject: FAILED: patch "[PATCH] iavf: Fix deadlock occurrence during resetting VF interface" failed to apply to 5.4-stable tree
-To:     jedrzej.jagielski@intel.com, anthony.l.nguyen@intel.com,
-        jaroslawx.gawin@intel.com, konrad0.jankowski@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Nov 2021 14:46:34 +0100
-Message-ID: <1638193594177169@kroah.com>
+        with ESMTP id S231245AbhK2Pue (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 10:50:34 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71E90C0619F6
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 05:55:59 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id t5so72514597edd.0
+        for <stable@vger.kernel.org>; Mon, 29 Nov 2021 05:55:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=NCSgregBP4vjmqVrcsaXJKge9SfifXD693b35ZcSwv0=;
+        b=QyzbIwNhNWlPGOhXi5ePg2d7U6JTBhokMF+LxTo7D6cDsVALZt4mULvprkKLCPsipH
+         L+NUeEWhaJqSeXiITIL4mH3pA5zkJJgXsmCM2Ka+9MVKpsBP7DyeLnKjYB6BeXZTGo0c
+         OuijvEPQg3IC2Mu25D08hQEYlcdhdzAEpzU1ZGs1ZluaslvaQgd2D5SQcKFl4B7upbIa
+         ttkmDOFu+oZUkQ9LEeo4Z5vpNAcG2LdzqnPjOBI2gB4vjtG3Gs1W26+K7fRpXjALZBlM
+         l+WlQGVJDHdDSkpEt86lIZSEGOclJKQepOHPOTTPgBhzWN4tqd3i9FfawFzGRt03bal/
+         ac/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=NCSgregBP4vjmqVrcsaXJKge9SfifXD693b35ZcSwv0=;
+        b=vj4MzYa9wNtQ5FoqPfCuFTmG+Sb98tXQSAnp7MUiihijYaC9ivaUcqPW7TLDGuSF/l
+         m0QP4aLHHGYWrim4plM6Jn5Qm+3J/nRShab/M8BhEVkFkYThAeOEqjn99bzIJHWRPItT
+         XLab2cCYxdwmRhzWmsTND+Qmv8EgQTkgU2mwx8N/UpEy0wRJGDh3IqzzW/c+4CAsQc3p
+         xCN7dQVB7tmMWQl0IdfjMrIaQ9AqA5HKO9Q1eJ3pNhz3FyovjUb7lDQiTen7Ehhn11pH
+         LuUV/tQqQNJDdHE4rCJ/IqSFB5NnMIBf6RZd07xxoYo9btOzfTMo4at4yitssct6iihq
+         F85Q==
+X-Gm-Message-State: AOAM531IgfyAjdlvnV+XYYgaLx+9RuxcZ7rmxkjdya91gME8A/sgQEql
+        f7iKutRThb74W+5BclcR5H8hrGwctnykTRWn2kc=
+X-Google-Smtp-Source: ABdhPJwpXoNBRY3itxSwi7XCJSIvdhmmkognjqUNzp2llLV4ViyCuAeg5spQ2mPIlZDAo4LJYJXujwHFqK9gLkmYtgk=
+X-Received: by 2002:a17:907:8692:: with SMTP id qa18mr63203937ejc.7.1638194157986;
+ Mon, 29 Nov 2021 05:55:57 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a17:906:5d09:0:0:0:0 with HTTP; Mon, 29 Nov 2021 05:55:57
+ -0800 (PST)
+Reply-To: jennifermbaya38@gmail.com
+From:   Mrs Jennifer Mbaya <sergegladja@gmail.com>
+Date:   Mon, 29 Nov 2021 05:55:57 -0800
+Message-ID: <CAJ7Ma1-33giase6cAJ6y7nV-sNGt2_=25AQr48H28x_TESi6fg@mail.gmail.com>
+Subject: =?UTF-8?Q?Kedvezm=C3=A9nyezett?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 0cc318d2e8408bc0ffb4662a0c3e5e57005ac6ff Mon Sep 17 00:00:00 2001
-From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Date: Tue, 7 Sep 2021 09:25:40 +0000
-Subject: [PATCH] iavf: Fix deadlock occurrence during resetting VF interface
-
-System hangs if close the interface is called from the kernel during
-the interface is in resetting state.
-During resetting operation the link is closing but kernel didn't
-know it and it tried to close this interface again what sometimes
-led to deadlock.
-Inform kernel about current state of interface
-and turn off the flag IFF_UP when interface is closing until reset
-is finished.
-Previously it was most likely to hang the system when kernel
-(network manager) tried to close the interface in the same time
-when interface was in resetting state because of deadlock.
-
-Fixes: 3c8e0b989aa1 ("i40vf: don't stop me now")
-Signed-off-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 336e6bf95e48..84680777ac12 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -2254,6 +2254,7 @@ static void iavf_reset_task(struct work_struct *work)
- 		   (adapter->state == __IAVF_RESETTING));
- 
- 	if (running) {
-+		netdev->flags &= ~IFF_UP;
- 		netif_carrier_off(netdev);
- 		netif_tx_stop_all_queues(netdev);
- 		adapter->link_up = false;
-@@ -2365,7 +2366,7 @@ static void iavf_reset_task(struct work_struct *work)
- 		 * to __IAVF_RUNNING
- 		 */
- 		iavf_up_complete(adapter);
--
-+		netdev->flags |= IFF_UP;
- 		iavf_irq_enable(adapter, true);
- 	} else {
- 		iavf_change_state(adapter, __IAVF_DOWN);
-@@ -2378,8 +2379,10 @@ static void iavf_reset_task(struct work_struct *work)
- reset_err:
- 	mutex_unlock(&adapter->client_lock);
- 	mutex_unlock(&adapter->crit_lock);
--	if (running)
-+	if (running) {
- 		iavf_change_state(adapter, __IAVF_RUNNING);
-+		netdev->flags |= IFF_UP;
-+	}
- 	dev_err(&adapter->pdev->dev, "failed to allocate resources during reinit\n");
- 	iavf_close(netdev);
- }
-
+Az =C3=96n nev=C3=A9ben az Egyes=C3=BClt Nemzetek =C3=A9s az Eg=C3=A9szs=C3=
+=A9g=C3=BCgyi Vil=C3=A1gszervezet a
+nemzetk=C3=B6zi valutaalaphoz kapcsol=C3=B3dva d=C3=ADjat adom=C3=A1nyoz, a=
+melyben az =C3=96n
+e-mail c=C3=ADm=C3=A9t =C3=A9s p=C3=A9nzeszk=C3=B6z=C3=A9t =C3=A1tadtuk nek=
+=C3=BCnk az =C3=96n =C3=A1tutal=C3=A1sa =C3=A9rdek=C3=A9ben,
+k=C3=A9rj=C3=BCk, eros=C3=ADtse meg adatait az =C3=96n =C3=A1tutal=C3=A1sa =
+=C3=A9rdek=C3=A9ben.
+Azt az utas=C3=ADt=C3=A1st kaptuk, hogy minden f=C3=BCggoben l=C3=A9vo tran=
+zakci=C3=B3t vigy=C3=BCnk
+=C3=A1t a k=C3=B6vetkezo k=C3=A9t napon bel=C3=BCl, de ha megkapta az alapj=
+=C3=A1t, akkor
+hagyja figyelmen k=C3=ADv=C3=BCl ezt az =C3=BCzenetet, ha nem azonnal.
+S=C3=BCrgosen v=C3=A1laszolnia kell erre az =C3=BCzenetre, ez nem egy olyan
+internetes csal=C3=B3, ez a vil=C3=A1gj=C3=A1rv=C3=A1ny enyh=C3=ADt=C3=A9se=
+.
+Jennifer Mbaya
