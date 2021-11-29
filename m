@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21B084625B3
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:39:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1E37462452
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 23:16:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230388AbhK2Wmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 17:42:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33744 "EHLO
+        id S233670AbhK2WRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 17:17:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234159AbhK2WmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:42:04 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04510C141B02;
-        Mon, 29 Nov 2021 10:32:07 -0800 (PST)
+        with ESMTP id S231215AbhK2WQt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 17:16:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8EE2C12713C;
+        Mon, 29 Nov 2021 10:22:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 52877CE13FD;
-        Mon, 29 Nov 2021 18:32:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02F3CC53FAD;
-        Mon, 29 Nov 2021 18:32:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FEE0B815B1;
+        Mon, 29 Nov 2021 18:22:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7424C53FCD;
+        Mon, 29 Nov 2021 18:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638210723;
-        bh=x03eSbQ2Bb7TKV1EWI7KKF5HwXD+aQeqx1ftcq19ySA=;
+        s=korg; t=1638210160;
+        bh=i/9SKJcRfYOYxn9q99qoi6kb9ad2vbPLVHg8GLiHAg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FttkTN3R2M2661N9Wb2fAoAU21AB2U++fLpmhbnetZrmlYoG6frMRRGbRF67Oix0y
-         KFaduGuAeOC+BS9/PhS2NLQVoa5+8TAzSFol0Dzz+6hUg+S+svRGsV0e4iqswS2jaP
-         1CepBGtRe+nf9i+CK947g0anFLGvKxM9v2vIrDYI=
+        b=cPtXCu/EkKXPaEwDdBLj1pG+cErV99omW4vtZA21vLB1yBEwd+eHc3XVcxwx6NR49
+         Sr2egnlqtmynZ54cYETYkP8SjVqnEUWNPrYFxPV2CBPJIKs/wcwGGK/pmAt/iUxeD+
+         a+f8wbNWZvvtyyL/b6uPMaZQFqPyI/JgbqxiNVUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 093/121] tls: splice_read: fix record type check
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
+Subject: [PATCH 4.19 62/69] xen/blkfront: read response from backend only once
 Date:   Mon, 29 Nov 2021 19:18:44 +0100
-Message-Id: <20211129181714.799059368@linuxfoundation.org>
+Message-Id: <20211129181705.665173677@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181711.642046348@linuxfoundation.org>
-References: <20211129181711.642046348@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,68 +48,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 520493f66f6822551aef2879cd40207074fe6980 ]
+commit 71b66243f9898d0e54296b4e7035fb33cdcb0707 upstream.
 
-We don't support splicing control records. TLS 1.3 changes moved
-the record type check into the decrypt if(). The skb may already
-be decrypted and still be an alert.
+In order to avoid problems in case the backend is modifying a response
+on the ring page while the frontend has already seen it, just read the
+response into a local buffer in one go and then operate on that buffer
+only.
 
-Note that decrypt_skb_update() is idempotent and updates ctx->decrypted
-so the if() is pointless.
-
-Reorder the check for decryption errors with the content type check
-while touching them. This part is not really a bug, because if
-decryption failed in TLS 1.3 content type will be DATA, and for
-TLS 1.2 it will be correct. Nevertheless its strange to touch output
-before checking if the function has failed.
-
-Fixes: fedf201e1296 ("net: tls: Refactor control message handling on recv")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Acked-by: Roger Pau Monné <roger.pau@citrix.com>
+Link: https://lore.kernel.org/r/20210730103854.12681-2-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_sw.c | 23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+ drivers/block/xen-blkfront.c |   35 ++++++++++++++++++-----------------
+ 1 file changed, 18 insertions(+), 17 deletions(-)
 
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index 14cce61160a58..122d5daed8b61 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -2007,21 +2007,18 @@ ssize_t tls_sw_splice_read(struct socket *sock,  loff_t *ppos,
- 	if (!skb)
- 		goto splice_read_end;
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1549,7 +1549,7 @@ static bool blkif_completion(unsigned lo
+ static irqreturn_t blkif_interrupt(int irq, void *dev_id)
+ {
+ 	struct request *req;
+-	struct blkif_response *bret;
++	struct blkif_response bret;
+ 	RING_IDX i, rp;
+ 	unsigned long flags;
+ 	struct blkfront_ring_info *rinfo = (struct blkfront_ring_info *)dev_id;
+@@ -1566,8 +1566,9 @@ static irqreturn_t blkif_interrupt(int i
+ 	for (i = rinfo->ring.rsp_cons; i != rp; i++) {
+ 		unsigned long id;
  
--	if (!ctx->decrypted) {
--		err = decrypt_skb_update(sk, skb, NULL, &chunk, &zc, false);
--
--		/* splice does not support reading control messages */
--		if (ctx->control != TLS_RECORD_TYPE_DATA) {
--			err = -EINVAL;
--			goto splice_read_end;
--		}
-+	err = decrypt_skb_update(sk, skb, NULL, &chunk, &zc, false);
-+	if (err < 0) {
-+		tls_err_abort(sk, -EBADMSG);
-+		goto splice_read_end;
-+	}
- 
--		if (err < 0) {
--			tls_err_abort(sk, -EBADMSG);
--			goto splice_read_end;
--		}
--		ctx->decrypted = 1;
-+	/* splice does not support reading control messages */
-+	if (ctx->control != TLS_RECORD_TYPE_DATA) {
-+		err = -EINVAL;
-+		goto splice_read_end;
- 	}
+-		bret = RING_GET_RESPONSE(&rinfo->ring, i);
+-		id   = bret->id;
++		RING_COPY_RESPONSE(&rinfo->ring, i, &bret);
++		id = bret.id;
 +
- 	rxm = strp_msg(skb);
+ 		/*
+ 		 * The backend has messed up and given us an id that we would
+ 		 * never have given to it (we stamp it up to BLK_RING_SIZE -
+@@ -1575,39 +1576,39 @@ static irqreturn_t blkif_interrupt(int i
+ 		 */
+ 		if (id >= BLK_RING_SIZE(info)) {
+ 			WARN(1, "%s: response to %s has incorrect id (%ld)\n",
+-			     info->gd->disk_name, op_name(bret->operation), id);
++			     info->gd->disk_name, op_name(bret.operation), id);
+ 			/* We can't safely get the 'struct request' as
+ 			 * the id is busted. */
+ 			continue;
+ 		}
+ 		req  = rinfo->shadow[id].request;
  
- 	chunk = min_t(unsigned int, rxm->full_len, len);
--- 
-2.33.0
-
+-		if (bret->operation != BLKIF_OP_DISCARD) {
++		if (bret.operation != BLKIF_OP_DISCARD) {
+ 			/*
+ 			 * We may need to wait for an extra response if the
+ 			 * I/O request is split in 2
+ 			 */
+-			if (!blkif_completion(&id, rinfo, bret))
++			if (!blkif_completion(&id, rinfo, &bret))
+ 				continue;
+ 		}
+ 
+ 		if (add_id_to_freelist(rinfo, id)) {
+ 			WARN(1, "%s: response to %s (id %ld) couldn't be recycled!\n",
+-			     info->gd->disk_name, op_name(bret->operation), id);
++			     info->gd->disk_name, op_name(bret.operation), id);
+ 			continue;
+ 		}
+ 
+-		if (bret->status == BLKIF_RSP_OKAY)
++		if (bret.status == BLKIF_RSP_OKAY)
+ 			blkif_req(req)->error = BLK_STS_OK;
+ 		else
+ 			blkif_req(req)->error = BLK_STS_IOERR;
+ 
+-		switch (bret->operation) {
++		switch (bret.operation) {
+ 		case BLKIF_OP_DISCARD:
+-			if (unlikely(bret->status == BLKIF_RSP_EOPNOTSUPP)) {
++			if (unlikely(bret.status == BLKIF_RSP_EOPNOTSUPP)) {
+ 				struct request_queue *rq = info->rq;
+ 				printk(KERN_WARNING "blkfront: %s: %s op failed\n",
+-					   info->gd->disk_name, op_name(bret->operation));
++					   info->gd->disk_name, op_name(bret.operation));
+ 				blkif_req(req)->error = BLK_STS_NOTSUPP;
+ 				info->feature_discard = 0;
+ 				info->feature_secdiscard = 0;
+@@ -1617,15 +1618,15 @@ static irqreturn_t blkif_interrupt(int i
+ 			break;
+ 		case BLKIF_OP_FLUSH_DISKCACHE:
+ 		case BLKIF_OP_WRITE_BARRIER:
+-			if (unlikely(bret->status == BLKIF_RSP_EOPNOTSUPP)) {
++			if (unlikely(bret.status == BLKIF_RSP_EOPNOTSUPP)) {
+ 				printk(KERN_WARNING "blkfront: %s: %s op failed\n",
+-				       info->gd->disk_name, op_name(bret->operation));
++				       info->gd->disk_name, op_name(bret.operation));
+ 				blkif_req(req)->error = BLK_STS_NOTSUPP;
+ 			}
+-			if (unlikely(bret->status == BLKIF_RSP_ERROR &&
++			if (unlikely(bret.status == BLKIF_RSP_ERROR &&
+ 				     rinfo->shadow[id].req.u.rw.nr_segments == 0)) {
+ 				printk(KERN_WARNING "blkfront: %s: empty %s op failed\n",
+-				       info->gd->disk_name, op_name(bret->operation));
++				       info->gd->disk_name, op_name(bret.operation));
+ 				blkif_req(req)->error = BLK_STS_NOTSUPP;
+ 			}
+ 			if (unlikely(blkif_req(req)->error)) {
+@@ -1638,9 +1639,9 @@ static irqreturn_t blkif_interrupt(int i
+ 			/* fall through */
+ 		case BLKIF_OP_READ:
+ 		case BLKIF_OP_WRITE:
+-			if (unlikely(bret->status != BLKIF_RSP_OKAY))
++			if (unlikely(bret.status != BLKIF_RSP_OKAY))
+ 				dev_dbg(&info->xbdev->dev, "Bad return from blkdev data "
+-					"request: %x\n", bret->status);
++					"request: %x\n", bret.status);
+ 
+ 			break;
+ 		default:
 
 
