@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B391461F2E
-	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:41:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF73461DA8
+	for <lists+stable@lfdr.de>; Mon, 29 Nov 2021 19:24:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355377AbhK2Soh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Nov 2021 13:44:37 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47568 "EHLO
+        id S1378337AbhK2S1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Nov 2021 13:27:25 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59096 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380011AbhK2Smb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:42:31 -0500
+        with ESMTP id S1350409AbhK2SZZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Nov 2021 13:25:25 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46AF3B8163D;
-        Mon, 29 Nov 2021 18:39:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69948C53FCD;
-        Mon, 29 Nov 2021 18:39:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59904B815D1;
+        Mon, 29 Nov 2021 18:21:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81A9BC53FC7;
+        Mon, 29 Nov 2021 18:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638211151;
-        bh=m+QO6qkQAqhW7QlgOlyCHeFBw0QVZ/cpnBcjfABLaxg=;
+        s=korg; t=1638210108;
+        bh=eL40mdcuwcwg14dX1YLltQCctoZvMh7RDj71nkwNu9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJM0Gey5aFCLdIFYfdThgDRQEsb5BDyIbMyO+87jUW9P8c/Nca1VWhUyf12o6j+r4
-         BuJMqQdvmiTO3nABhyL5Mn1l4hqmkP95QqkJRqvYRxy55fIqrSwzzVZeJsQSSxNTSA
-         GqRB1njNmpT8R3IeE82RjwTOCqzguGmOFZyFmAm0=
+        b=ydAG+JXqOdRIjQdT39w4c2FQwjDZU2lN9kOQvZZuc1zNkvVyngfT6m4Q+h8GFBRsr
+         f7Bm4kZmpw19lI36rP92fY720NWwcAh8f/LGwEpHmS8/yOJlQNzy5bO3g2+zMI8H+F
+         1QbpbSdU0SaOcluF1Aa05rkuxQxAENQ7wdwHnBCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>,
+        Dinh Nguyen <dinguyen@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 112/179] net: nexthop: release IPv6 per-cpu dsts when replacing a nexthop group
-Date:   Mon, 29 Nov 2021 19:18:26 +0100
-Message-Id: <20211129181722.639706767@linuxfoundation.org>
+Subject: [PATCH 4.19 45/69] ARM: socfpga: Fix crash with CONFIG_FORTIRY_SOURCE
+Date:   Mon, 29 Nov 2021 19:18:27 +0100
+Message-Id: <20211129181705.133660154@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211129181718.913038547@linuxfoundation.org>
-References: <20211129181718.913038547@linuxfoundation.org>
+In-Reply-To: <20211129181703.670197996@linuxfoundation.org>
+References: <20211129181703.670197996@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,151 +46,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@nvidia.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 1005f19b9357b81aa64e1decd08d6e332caaa284 ]
+[ Upstream commit 187bea472600dcc8d2eb714335053264dd437172 ]
 
-When replacing a nexthop group, we must release the IPv6 per-cpu dsts of
-the removed nexthop entries after an RCU grace period because they
-contain references to the nexthop's net device and to the fib6 info.
-With specific series of events[1] we can reach net device refcount
-imbalance which is unrecoverable. IPv4 is not affected because dsts
-don't take a refcount on the route.
+When CONFIG_FORTIFY_SOURCE is set, memcpy() checks the potential
+buffer overflow and panics.  The code in sofcpga bootstrapping
+contains the memcpy() calls are mistakenly translated as the shorter
+size, hence it triggers a panic as if it were overflowing.
 
-[1]
- $ ip nexthop list
-  id 200 via 2002:db8::2 dev bridge.10 scope link onlink
-  id 201 via 2002:db8::3 dev bridge scope link onlink
-  id 203 group 201/200
- $ ip -6 route
-  2001:db8::10 nhid 203 metric 1024 pref medium
-     nexthop via 2002:db8::3 dev bridge weight 1 onlink
-     nexthop via 2002:db8::2 dev bridge.10 weight 1 onlink
+This patch changes the secondary_trampoline and *_end definitions
+to arrays for avoiding the false-positive crash above.
 
-Create rt6_info through one of the multipath legs, e.g.:
- $ taskset -a -c 1  ./pkt_inj 24 bridge.10 2001:db8::10
- (pkt_inj is just a custom packet generator, nothing special)
-
-Then remove that leg from the group by replace (let's assume it is id
-200 in this case):
- $ ip nexthop replace id 203 group 201
-
-Now remove the IPv6 route:
- $ ip -6 route del 2001:db8::10/128
-
-The route won't be really deleted due to the stale rt6_info holding 1
-refcnt in nexthop id 200.
-At this point we have the following reference count dependency:
- (deleted) IPv6 route holds 1 reference over nhid 203
- nh 203 holds 1 ref over id 201
- nh 200 holds 1 ref over the net device and the route due to the stale
- rt6_info
-
-Now to create circular dependency between nh 200 and the IPv6 route, and
-also to get a reference over nh 200, restore nhid 200 in the group:
- $ ip nexthop replace id 203 group 201/200
-
-And now we have a permanent circular dependncy because nhid 203 holds a
-reference over nh 200 and 201, but the route holds a ref over nh 203 and
-is deleted.
-
-To trigger the bug just delete the group (nhid 203):
- $ ip nexthop del id 203
-
-It won't really be deleted due to the IPv6 route dependency, and now we
-have 2 unlinked and deleted objects that reference each other: the group
-and the IPv6 route. Since the group drops the reference it holds over its
-entries at free time (i.e. its own refcount needs to drop to 0) that will
-never happen and we get a permanent ref on them, since one of the entries
-holds a reference over the IPv6 route it will also never be released.
-
-At this point the dependencies are:
- (deleted, only unlinked) IPv6 route holds reference over group nh 203
- (deleted, only unlinked) group nh 203 holds reference over nh 201 and 200
- nh 200 holds 1 ref over the net device and the route due to the stale
- rt6_info
-
-This is the last point where it can be fixed by running traffic through
-nh 200, and specifically through the same CPU so the rt6_info (dst) will
-get released due to the IPv6 genid, that in turn will free the IPv6
-route, which in turn will free the ref count over the group nh 203.
-
-If nh 200 is deleted at this point, it will never be released due to the
-ref from the unlinked group 203, it will only be unlinked:
- $ ip nexthop del id 200
- $ ip nexthop
- $
-
-Now we can never release that stale rt6_info, we have IPv6 route with ref
-over group nh 203, group nh 203 with ref over nh 200 and 201, nh 200 with
-rt6_info (dst) with ref over the net device and the IPv6 route. All of
-these objects are only unlinked, and cannot be released, thus they can't
-release their ref counts.
-
- Message from syslogd@dev at Nov 19 14:04:10 ...
-  kernel:[73501.828730] unregister_netdevice: waiting for bridge.10 to become free. Usage count = 3
- Message from syslogd@dev at Nov 19 14:04:20 ...
-  kernel:[73512.068811] unregister_netdevice: waiting for bridge.10 to become free. Usage count = 3
-
-Fixes: 7bf4796dd099 ("nexthops: add support for replace")
-Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9c4566a117a6 ("ARM: socfpga: Enable SMP for socfpga")
+Suggested-by: Kees Cook <keescook@chromium.org>
+Buglink: https://bugzilla.suse.com/show_bug.cgi?id=1192473
+Link: https://lore.kernel.org/r/20211117193244.31162-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/nexthop.c | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ arch/arm/mach-socfpga/core.h    | 2 +-
+ arch/arm/mach-socfpga/platsmp.c | 8 ++++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv4/nexthop.c b/net/ipv4/nexthop.c
-index 2cc7a7a864c6b..5dbd4b5505eba 100644
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -1899,15 +1899,36 @@ static void remove_nexthop(struct net *net, struct nexthop *nh,
- /* if any FIB entries reference this nexthop, any dst entries
-  * need to be regenerated
-  */
--static void nh_rt_cache_flush(struct net *net, struct nexthop *nh)
-+static void nh_rt_cache_flush(struct net *net, struct nexthop *nh,
-+			      struct nexthop *replaced_nh)
+diff --git a/arch/arm/mach-socfpga/core.h b/arch/arm/mach-socfpga/core.h
+index 65e1817d8afe6..692a287a8712d 100644
+--- a/arch/arm/mach-socfpga/core.h
++++ b/arch/arm/mach-socfpga/core.h
+@@ -48,7 +48,7 @@ extern void __iomem *sdr_ctl_base_addr;
+ u32 socfpga_sdram_self_refresh(u32 sdr_base);
+ extern unsigned int socfpga_sdram_self_refresh_sz;
+ 
+-extern char secondary_trampoline, secondary_trampoline_end;
++extern char secondary_trampoline[], secondary_trampoline_end[];
+ 
+ extern unsigned long socfpga_cpu1start_addr;
+ 
+diff --git a/arch/arm/mach-socfpga/platsmp.c b/arch/arm/mach-socfpga/platsmp.c
+index 0ee76772b5074..a272999ce04b9 100644
+--- a/arch/arm/mach-socfpga/platsmp.c
++++ b/arch/arm/mach-socfpga/platsmp.c
+@@ -31,14 +31,14 @@
+ 
+ static int socfpga_boot_secondary(unsigned int cpu, struct task_struct *idle)
  {
- 	struct fib6_info *f6i;
-+	struct nh_group *nhg;
-+	int i;
+-	int trampoline_size = &secondary_trampoline_end - &secondary_trampoline;
++	int trampoline_size = secondary_trampoline_end - secondary_trampoline;
  
- 	if (!list_empty(&nh->fi_list))
- 		rt_cache_flush(net);
+ 	if (socfpga_cpu1start_addr) {
+ 		/* This will put CPU #1 into reset. */
+ 		writel(RSTMGR_MPUMODRST_CPU1,
+ 		       rst_manager_base_addr + SOCFPGA_RSTMGR_MODMPURST);
  
- 	list_for_each_entry(f6i, &nh->f6i_list, nh_list)
- 		ipv6_stub->fib6_update_sernum(net, f6i);
-+
-+	/* if an IPv6 group was replaced, we have to release all old
-+	 * dsts to make sure all refcounts are released
-+	 */
-+	if (!replaced_nh->is_group)
-+		return;
-+
-+	/* new dsts must use only the new nexthop group */
-+	synchronize_net();
-+
-+	nhg = rtnl_dereference(replaced_nh->nh_grp);
-+	for (i = 0; i < nhg->num_nh; i++) {
-+		struct nh_grp_entry *nhge = &nhg->nh_entries[i];
-+		struct nh_info *nhi = rtnl_dereference(nhge->nh->nh_info);
-+
-+		if (nhi->family == AF_INET6)
-+			ipv6_stub->fib6_nh_release_dsts(&nhi->fib6_nh);
-+	}
- }
+-		memcpy(phys_to_virt(0), &secondary_trampoline, trampoline_size);
++		memcpy(phys_to_virt(0), secondary_trampoline, trampoline_size);
  
- static int replace_nexthop_grp(struct net *net, struct nexthop *old,
-@@ -2247,7 +2268,7 @@ static int replace_nexthop(struct net *net, struct nexthop *old,
- 		err = replace_nexthop_single(net, old, new, extack);
+ 		writel(__pa_symbol(secondary_startup),
+ 		       sys_manager_base_addr + (socfpga_cpu1start_addr & 0x000000ff));
+@@ -56,12 +56,12 @@ static int socfpga_boot_secondary(unsigned int cpu, struct task_struct *idle)
  
- 	if (!err) {
--		nh_rt_cache_flush(net, old);
-+		nh_rt_cache_flush(net, old, new);
+ static int socfpga_a10_boot_secondary(unsigned int cpu, struct task_struct *idle)
+ {
+-	int trampoline_size = &secondary_trampoline_end - &secondary_trampoline;
++	int trampoline_size = secondary_trampoline_end - secondary_trampoline;
  
- 		__remove_nexthop(net, new, NULL);
- 		nexthop_put(new);
+ 	if (socfpga_cpu1start_addr) {
+ 		writel(RSTMGR_MPUMODRST_CPU1, rst_manager_base_addr +
+ 		       SOCFPGA_A10_RSTMGR_MODMPURST);
+-		memcpy(phys_to_virt(0), &secondary_trampoline, trampoline_size);
++		memcpy(phys_to_virt(0), secondary_trampoline, trampoline_size);
+ 
+ 		writel(__pa_symbol(secondary_startup),
+ 		       sys_manager_base_addr + (socfpga_cpu1start_addr & 0x00000fff));
 -- 
 2.33.0
 
